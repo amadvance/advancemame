@@ -810,6 +810,57 @@ static READ8_HANDLER( pacman_read_nop )
  *
  *************************************/
 
+static UINT8 clubpacm_select[2];
+static UINT8 clubpacm_latch;
+
+static MACHINE_RESET( clubpacm )
+{
+	clubpacm_select[0] = clubpacm_select[1] = 0;
+	clubpacm_latch = 0;
+}
+
+static WRITE8_HANDLER( clubpacm_select_w )
+{
+	clubpacm_select[offset] = data & 1;
+}
+
+static READ8_HANDLER( clubpacm_input_r )
+{
+	int data = 0x0f;
+	if (!clubpacm_select[1])
+		data &= readinputportbytag("P1");
+	if (!clubpacm_select[0])
+		data &= readinputportbytag("P2");
+	return (readinputportbytag(offset ? "IN1" : "IN0") & 0xf0) | data;
+}
+
+static READ8_HANDLER( clubpacm_in1_r )
+{
+	return clubpacm_input_r(1);
+}
+
+static WRITE8_HANDLER( clubpacm_latch_w )
+{
+	clubpacm_latch = data;
+}
+
+static READ8_HANDLER( clubpacm_latch_r )
+{
+	return clubpacm_latch;
+}
+
+static WRITE8_HANDLER( porky_banking_w )
+{
+	int bank;
+	for (bank = 0; bank < 4; ++bank)
+		memory_set_bank(bank + 1, data & 1);
+}
+
+static MACHINE_RESET( porky )
+{
+	porky_banking_w(0, 0);
+}
+
 static ADDRESS_MAP_START( pacman_map, ADDRESS_SPACE_PROGRAM, 8 )
 	//A lot of games don't have an a15 at the cpu.  Generally only games with a cpu daughter board can access the full 32k of romspace.
 	AM_RANGE(0x0000, 0x3fff) AM_MIRROR(0x8000) AM_ROM
@@ -834,6 +885,107 @@ static ADDRESS_MAP_START( pacman_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x5040, 0x5040) AM_MIRROR(0xaf3f) AM_READ(input_port_1_r)	/* IN1 */
 	AM_RANGE(0x5080, 0x5080) AM_MIRROR(0xaf3f) AM_READ(input_port_2_r)	/* DSW1 */
 	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_READ(input_port_3_r)	/* DSW2 */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( birdiy_map, ADDRESS_SPACE_PROGRAM, 8 )
+
+	AM_RANGE(0x0000, 0x3fff) AM_MIRROR(0x8000) AM_ROM
+	AM_RANGE(0x4000, 0x43ff) AM_MIRROR(0xa000) AM_READWRITE(MRA8_RAM,pacman_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4400, 0x47ff) AM_MIRROR(0xa000) AM_READWRITE(MRA8_RAM,pacman_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x4c00, 0x4fef) AM_MIRROR(0xa000) AM_RAM
+	AM_RANGE(0x4ff0, 0x4fff) AM_MIRROR(0xa000) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0xaf38) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5001, 0x5001) AM_MIRROR(0xaf38) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0x5003, 0x5003) AM_MIRROR(0xaf38) AM_WRITE(pacman_flipscreen_w)
+	AM_RANGE(0x5007, 0x5007) AM_MIRROR(0xaf38) AM_WRITE(pacman_coin_counter_w)
+	AM_RANGE(0x5080, 0x509f) AM_MIRROR(0xaf00) AM_WRITE(pacman_sound_w) AM_BASE(&pacman_soundregs)
+	AM_RANGE(0x50a0, 0x50af) AM_MIRROR(0xaf00) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
+	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0xaf3f) AM_READ(input_port_0_r)
+	AM_RANGE(0x5040, 0x5040) AM_MIRROR(0xaf3f) AM_READ(input_port_1_r)
+	AM_RANGE(0x5080, 0x5080) AM_MIRROR(0xaf3f) AM_READ(input_port_2_r)
+	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_READ(input_port_3_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( clubpacm_map, ADDRESS_SPACE_PROGRAM, 8 )
+
+	AM_RANGE(0x0000, 0x3fff) AM_ROM
+	AM_RANGE(0x4000, 0x43ff) AM_MIRROR(0xa000) AM_READWRITE(MRA8_RAM,pacman_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4400, 0x47ff) AM_MIRROR(0xa000) AM_READWRITE(MRA8_RAM,pacman_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x4800, 0x4bff) AM_MIRROR(0xa000) AM_READWRITE(pacman_read_nop,MWA8_NOP)
+	AM_RANGE(0x4c00, 0x4fef) AM_MIRROR(0xa000) AM_RAM
+	AM_RANGE(0x4ff0, 0x4fff) AM_MIRROR(0xa000) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0xaf38) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0x5001, 0x5001) AM_MIRROR(0xaf38) AM_WRITE(pacman_sound_enable_w)
+	AM_RANGE(0x5002, 0x5002) AM_MIRROR(0xaf38) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5003, 0x5003) AM_MIRROR(0xaf38) AM_WRITE(pacman_flipscreen_w)
+	AM_RANGE(0x5004, 0x5005) AM_MIRROR(0xaf38) AM_WRITE(clubpacm_select_w)
+	AM_RANGE(0x5006, 0x5006) AM_MIRROR(0xaf38) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5007, 0x5007) AM_MIRROR(0xaf38) AM_WRITE(pacman_coin_counter_w)
+	AM_RANGE(0x5040, 0x505f) AM_MIRROR(0xaf00) AM_WRITE(pacman_sound_w) AM_BASE(&pacman_soundregs)
+	AM_RANGE(0x5060, 0x506f) AM_MIRROR(0xaf00) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
+	AM_RANGE(0x5070, 0x507f) AM_MIRROR(0xaf00) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5080, 0x5080) AM_MIRROR(0xaf3f) AM_WRITE(clubpacm_latch_w)
+	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0xaf3f) AM_READ(clubpacm_input_r)
+	AM_RANGE(0x5040, 0x5040) AM_MIRROR(0xaf3f) AM_READ(clubpacm_in1_r)
+	AM_RANGE(0x5080, 0x5080) AM_MIRROR(0xaf3f) AM_READ(input_port_4_r)
+	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_READ(clubpacm_latch_r)
+	AM_RANGE(0x8000, 0xbfff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( numcrash_map, ADDRESS_SPACE_PROGRAM, 8 )
+
+	AM_RANGE(0x0000, 0x27ff) AM_ROM
+	AM_RANGE(0x3000, 0x37ff) AM_ROM
+	AM_RANGE(0x8000, 0x9fff) AM_ROM
+	AM_RANGE(0x4000, 0x43ff) AM_READWRITE(MRA8_RAM,pacman_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4400, 0x47ff) AM_READWRITE(MRA8_RAM,pacman_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x4c00, 0x4fef) AM_RAM
+	AM_RANGE(0x4ff0, 0x4fff) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x5000, 0x5000) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0x5001, 0x5001) AM_WRITE(pacman_sound_enable_w)
+	AM_RANGE(0x5002, 0x5002) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5003, 0x5003) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5004, 0x5005) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5006, 0x5006) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5007, 0x5007) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5040, 0x505f) AM_WRITE(pacman_sound_w) AM_BASE(&pacman_soundregs)
+	AM_RANGE(0x5060, 0x506f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
+	AM_RANGE(0x5080, 0x5080) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x50c0, 0x50c0) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x5000, 0x5000) AM_READ(input_port_0_r)
+	AM_RANGE(0x5040, 0x5040) AM_READ(input_port_1_r)
+	AM_RANGE(0x5080, 0x5080) AM_READ(input_port_2_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( porky_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROMBANK(1)
+	AM_RANGE(0x1000, 0x13ff) AM_MIRROR(0xe000) AM_WRITE(s2650games_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x1400, 0x141f) AM_MIRROR(0xe000) AM_WRITE(s2650games_scroll_w)
+	AM_RANGE(0x1420, 0x148f) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1490, 0x149f) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM) AM_BASE(&s2650games_spriteram)
+	AM_RANGE(0x14a0, 0x14bf) AM_MIRROR(0xe000) AM_WRITE(s2650games_tilesbank_w) AM_BASE(&s2650games_tileram)
+	AM_RANGE(0x14c0, 0x14ff) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1500, 0x1502) AM_MIRROR(0xe000) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x1503, 0x1503) AM_MIRROR(0xe000) AM_WRITE(pacman_flipscreen_w)
+	AM_RANGE(0x1504, 0x1506) AM_MIRROR(0xe000) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x1507, 0x1507) AM_MIRROR(0xe000) AM_WRITE(pacman_coin_counter_w)
+	AM_RANGE(0x1508, 0x155f) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1560, 0x156f) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
+	AM_RANGE(0x1570, 0x157f) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1586, 0x1587) AM_MIRROR(0xe000) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x15c0, 0x15c0) AM_MIRROR(0xe000) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x15c7, 0x15c7) AM_MIRROR(0xe000) AM_WRITE(porky_banking_w)
+	AM_RANGE(0x1500, 0x1500) AM_MIRROR(0xe000) AM_READ(input_port_0_r)
+	AM_RANGE(0x1540, 0x1540) AM_MIRROR(0xe000) AM_READ(input_port_1_r)
+	AM_RANGE(0x1580, 0x1580) AM_MIRROR(0xe000) AM_READ(input_port_2_r)
+	AM_RANGE(0x1800, 0x1bff) AM_MIRROR(0xe000) AM_WRITE(s2650games_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x1c00, 0x1fef) AM_MIRROR(0xe000) AM_RAM
+	AM_RANGE(0x1ff0, 0x1fff) AM_MIRROR(0xe000) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x2000, 0x2fff) AM_ROMBANK(2)
+	AM_RANGE(0x4000, 0x4fff) AM_ROMBANK(3)
+	AM_RANGE(0x6000, 0x6fff) AM_ROMBANK(4)
 ADDRESS_MAP_END
 // The Pacman code uses $5004 and $5005 for LED's and $5007 for coin lockout.  This hardware does not
 // exist on any Pacman or Puckman board I have seen.  DW
@@ -1232,6 +1384,153 @@ ADDRESS_MAP_END
  *  Port definitions
  *
  *************************************/
+
+INPUT_PORTS_START( clubpacm )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_SERVICE )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING( 0x80, DEF_STR( Upright ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Cocktail ) )
+
+
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_PLAYER(2)
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x00, "Free Play (Invalid)" )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x04, "5" )
+	PORT_SERVICE( 0x08, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "40000" )
+	PORT_DIPSETTING(    0x10, "60000" )
+	PORT_DIPSETTING(    0x20, "80000" )
+	PORT_DIPSETTING(    0x30, DEF_STR( None ) )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( birdiy )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )    PORT_PLAYER(1) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )  PORT_PLAYER(1) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )  PORT_PLAYER(1) PORT_4WAY
+	PORT_DIPNAME( 0x10, 0x10, "Test mode?" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )    PORT_PLAYER(2) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )  PORT_PLAYER(2) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )  PORT_PLAYER(2) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )        PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )        PORT_PLAYER(2)
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x0c, 0x08, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x0c, "4" )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x20, 0x20, "Skip Screen" )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("DSW2")
+	PORT_BIT( 0xff, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( numcrash )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_DIPNAME( 0x10, 0x10, "Rack Test (Cheat)" ) PORT_CODE(KEYCODE_F1) PORT_TOGGLE
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH,IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x0c, 0x08, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x0c, "4" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( pacman )
 	PORT_START_TAG("IN0")
@@ -3232,13 +3531,40 @@ static MACHINE_DRIVER_START( 8bpm )
 MACHINE_DRIVER_END
 
 
+
+static MACHINE_DRIVER_START( birdiy )
+	MDRV_IMPORT_FROM(pacman)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(birdiy_map,0)
+	MDRV_CPU_IO_MAP(0,0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	MDRV_VIDEO_START(birdiy)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( clubpacm )
+	MDRV_IMPORT_FROM(pacman)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(clubpacm_map,0)
+	MDRV_MACHINE_RESET(clubpacm)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( numcrash )
+	MDRV_IMPORT_FROM(pacman)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(numcrash_map,0)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( porky )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(s2650games)
 
 	MDRV_CPU_MODIFY("main")
+	MDRV_MACHINE_RESET(porky)
+	MDRV_CPU_PROGRAM_MAP(porky_map,0)
 	MDRV_CPU_IO_MAP(porky_readport,s2650games_writeport)
+	MDRV_SOUND_REPLACE("namco", SN76496, 18432000/6)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.75)
 MACHINE_DRIVER_END
 
 
@@ -4876,16 +5202,85 @@ ROM_START( 8bpm )
 ROM_END
 
 
+ROM_START( clubpacm )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "prg.6f",  0x0000, 0x4000, CRC(9baa78a2) SHA1(0f153b047028e8a065fbedd2a67d6601a8a4e384) )
+	ROM_CONTINUE(0x8000,0x4000)
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "12.5e",   0x0000, 0x0800, CRC(93933d1d) SHA1(fa38d2cb87e872bb9a3158a4df98f38360dc85ec) )
+	ROM_LOAD( "14.5h",   0x0800, 0x0800, CRC(7409fbec) SHA1(f440f08ba026ae6172666e1bdc0894ce33bba420) )
+	ROM_LOAD( "13.5f",   0x1000, 0x0800, CRC(22b0188a) SHA1(a9ed9ca8b36a60081fd364abc9bc23963932cc0b) )
+	ROM_LOAD( "15.5j",   0x1800, 0x0800, CRC(50c7477d) SHA1(c04ec282a8cb528df5e38ad750d12ee71612695d) )
+
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "n82s123n.7f",  0x0000, 0x0020, CRC(2fc650bd) SHA1(8d0268dee78e47c712202b0ec4f1f51109b1f2a5) )
+	ROM_LOAD( "m7611.4a",     0x0020, 0x0100, CRC(3eb3a8e4) SHA1(19097b5f60d1030f8b82d9f1d3a241f93e5c75d6) )
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 )
+	ROM_LOAD( "m7611.1m",     0x0000, 0x0100, CRC(a9cc86bf) SHA1(bbcec0570aeceb582ff8238a4bc8546a23430081) )
+	ROM_LOAD( "m7611.3m",     0x0100, 0x0100, CRC(0e307106) SHA1(6140b5339008dd3110cd5be2e2fb4813779dfe28) )
+ROM_END
+
+ROM_START( birdiy )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "a6.6a",      0x0000, 0x001000, CRC(3a58f8ad) SHA1(39e990ad4ee1fdec248665149bdb1072c8c01a9a) )
+	ROM_LOAD( "c6.6c",      0x1000, 0x001000, CRC(fec61ea2) SHA1(f7ff528d2bcede2434d0a33ee0193b50113ef720) )
+	ROM_LOAD( "a4.4a",      0x2000, 0x001000, CRC(3392783b) SHA1(e477f4284fd5b6c9f3619bd35cee6dbe8a2456b8) )
+	ROM_LOAD( "c4.4c",      0x3000, 0x001000, CRC(2391d83d) SHA1(6933f1e11a7a84c26a3a45b240e55157a2400e9c) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "c1.1c",      0x0000, 0x001000, CRC(8f6bf54f) SHA1(6e09a9c2b143908766837529b174f97dd5058b53) )
+	ROM_LOAD( "c3.3c",      0x1000, 0x001000, CRC(10b55440) SHA1(4f3cf5d8954725cf791146abf8918c43138602e1) )
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "n82s123n.10n", 0x0000, 0x0020, CRC(ff344446) SHA1(45eb37533da8912645a089b014f3b3384702114a) )
+	ROM_LOAD( "n82s129n.9m",  0x0020, 0x0100, CRC(63efb927) SHA1(5c144a613fc4960a1dfd7ead89e7fee258a63171) )
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 )
+	ROM_LOAD( "n82s129n.4k",  0x0000, 0x0100, CRC(a9cc86bf) SHA1(bbcec0570aeceb582ff8238a4bc8546a23430081) )
+	ROM_LOAD( "n82s129n.6l",  0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )
+ROM_END
+
+ROM_START( numcrash )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "nc-1.6e",      0x0000, 0x0800, CRC(c85a79ba) SHA1(938b6b2920b14a4f0fbcd09fe25873bfd8ddc245) )
+	ROM_LOAD( "nc-5.6k",      0x0800, 0x0800, CRC(20e6c64d) SHA1(ff61ede279a46ea2bec534dd82ec89e41a3ec77b) )
+	ROM_LOAD( "nc-2.6f",      0x1000, 0x0800, CRC(a9d50002) SHA1(048a6aca5a7cc5126cd143b444a4241c7e9d4ac6) )
+	ROM_LOAD( "nc-6.6m",      0x1800, 0x0800, CRC(7b8de692) SHA1(7d5fe625ee9acf3cced2d98df99f5dee6c8122b1) )
+	ROM_LOAD( "nc-3.6h",      0x2000, 0x0800, CRC(e47f7cf3) SHA1(47e513cf4fe80617547093210ca6582646a9b256) )
+
+	ROM_LOAD( "nc-4.6j",      0x3000, 0x0800, CRC(d9dee8cd) SHA1(b577e51b6b90673be10528ba4528e4d1c150a266) )
+
+	ROM_LOAD( "nc-7.6n",      0x8000, 0x1000, CRC(440c67e4) SHA1(a29385b4263e61bc8d48e531d0f7b161f8d66f7a) )
+	ROM_LOAD( "nc-8.6p",      0x9000, 0x1000, CRC(7dabb3e5) SHA1(29dd5f6b7acc3abd292c903be6fef9fc4a135287) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "nc-9.5e",      0x0000, 0x0800, CRC(6a30b507) SHA1(e5760844cd051504e61774c57549c2697d473591) )
+	ROM_LOAD( "nc-11.5h",     0x0800, 0x0800, CRC(5f54d8e6) SHA1(3a20df62f484846e5610b88c04db56f9b5b3029c) )
+	ROM_LOAD( "nc-10.5f",     0x1000, 0x0800, CRC(bdd352db) SHA1(c4dd0bd009098a82dd5603046fa929f7395dd903) )
+	ROM_LOAD( "nc-12.5j",     0x1800, 0x0800, CRC(b104a8a9) SHA1(ac7f9b0041a9be1d0ffa58d2f65a0d294e986357) )
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "7051p1.7f",    0x0000, 0x0020, CRC(2fc650bd) SHA1(8d0268dee78e47c712202b0ec4f1f51109b1f2a5) )
+	ROM_LOAD( "7052.4a",      0x0020, 0x0100, CRC(2bc5d339) SHA1(446e234df94d9ef34c3191877bb33dd775acfdf5) )
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 )
+	ROM_LOAD( "7611p3.1m",    0x0000, 0x0100, CRC(a9cc86bf) SHA1(bbcec0570aeceb582ff8238a4bc8546a23430081) )
+	ROM_LOAD( "7611p2.3m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )
+ROM_END
+
 ROM_START( porky )
-	ROM_REGION( 0x8000, REGION_CPU1, 0 )	/* 32k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "pp",           0x0000, 0x1000, CRC(00592624) SHA1(41e554178a89b95bed1f570fab28e2a04f7a68d6) )
 	ROM_CONTINUE(             0x2000, 0x1000 )
 	ROM_CONTINUE(             0x4000, 0x1000 )
 	ROM_CONTINUE(             0x6000, 0x1000 )
-
-	/* what is it used for ? */
-	ROM_REGION( 0x4000, REGION_USER1, 0 )
-	ROM_LOAD( "ps",           0x0000, 0x4000, CRC(2efb9861) SHA1(8c5a23ed15bd985af78a54d2121fe058e53703bb) )
+	ROM_LOAD( "ps",           0x8000, 0x1000, CRC(2efb9861) SHA1(8c5a23ed15bd985af78a54d2121fe058e53703bb) )
+	ROM_CONTINUE(             0xa000, 0x1000 )
+	ROM_CONTINUE(             0xc000, 0x1000 )
+	ROM_CONTINUE(             0xe000, 0x1000 )
 
 	ROM_REGION( 0x8000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "pc",           0x0000, 0x1000, CRC(a20e3d39) SHA1(3762289a495d597d6b9540ea7fa663128a9d543c) )
@@ -5143,11 +5538,14 @@ static DRIVER_INIT( porky )
 	int i;
 
 	/* Data lines D0 and D4 swapped */
-	for(i = 0; i < 0x8000; i++)
+	for(i = 0; i < 0x10000; i++)
 	{
 		RAM[i] = BITSWAP8(RAM[i],7,6,5,0,3,2,1,4);
 	}
 
+	for (i = 0; i < 4; ++i)
+		memory_configure_bank(i + 1, 0, 2, RAM + i * 0x2000, 0x8000);
+	porky_banking_w(0, 0);
 }
 
 static DRIVER_INIT( rocktrv2 )
@@ -5188,8 +5586,9 @@ static DRIVER_INIT( mspacmbe )
  *************************************/
 
 /*          rom       parent    machine   inp       init */
+
+
 GAME( 1980, puckman,  0,        pacman,   pacman,   0,        ROT90,  "Namco", "PuckMan (Japan set 1, Probably Bootleg)", GAME_SUPPORTS_SAVE )
-GAME( 1980, puckmana, puckman,  pacman,   pacman,   0,        ROT90,  "Namco", "PuckMan (Japan set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1980, puckmanf, puckman,  pacman,   pacman,   0,        ROT90,  "Namco", "PuckMan (Japan set 1 with speedup hack)", GAME_SUPPORTS_SAVE )
 GAME( 1980, puckmanh, puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Puckman (Falcom?)", GAME_SUPPORTS_SAVE )
 GAME( 1980, pacman,   puckman,  pacman,   pacman,   0,        ROT90,  "[Namco] (Midway license)", "Pac-Man (Midway)", GAME_SUPPORTS_SAVE )
@@ -5203,33 +5602,14 @@ GAME( 1981, pacheart, puckman,  pacman,   pacman,   0,        ROT90,  "hack", "P
 GAME( 1981, hangly,   puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Hangly-Man (set 1)", GAME_SUPPORTS_SAVE )
 GAME( 1981, hangly2,  puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Hangly-Man (set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1981, hangly3,  puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Hangly-Man (set 3)", GAME_SUPPORTS_SAVE )
-GAME( 1981, piranhah, puckman,  pacman,   mspacman, 0,        ROT90,  "hack", "Piranha (hack)", GAME_SUPPORTS_SAVE )
-GAME( 1981, crush,    0,        pacman,   maketrax, maketrax, ROT90,  "Kural Samno Electric", "Crush Roller (Kural Samno)", GAME_SUPPORTS_SAVE )
-GAME( 1981, crush2,   crush,    pacman,   maketrax, 0,        ROT90,  "Kural Esco Electric", "Crush Roller (Kural Esco - bootleg?)", GAME_SUPPORTS_SAVE )
-GAME( 1981, crush3,   crush,    pacman,   maketrax, eyes,     ROT90,  "Kural Electric", "Crush Roller (Kural - bootleg?)", GAME_SUPPORTS_SAVE )
-GAME( 19??, crush4,   crush,    crush4,   crush4,   0,        ROT90,  "Kural TWT", "Crush Roller (Kural TWT)", GAME_SUPPORTS_SAVE )
-GAME( 1981, maketrax, crush,    pacman,   maketrax, maketrax, ROT270, "[Kural] (Williams license)", "Make Trax (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1981, maketrxb, crush,    pacman,   maketrax, maketrax, ROT270, "[Kural] (Williams license)", "Make Trax (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1981, korosuke, crush,    pacman,   korosuke, korosuke, ROT90,  "Kural Electric", "Korosuke Roller", GAME_SUPPORTS_SAVE )
-GAME( 1981, mbrush,   crush,    pacman,   mbrush,   0,        ROT90,  "bootleg", "Magic Brush", GAME_SUPPORTS_SAVE )
-GAME( 1981, paintrlr, crush,    pacman,   paintrlr, 0,        ROT90,  "bootleg", "Paint Roller", GAME_SUPPORTS_SAVE )
-GAME( 1982, pacplus,  0,        pacman,   pacman,   pacplus,  ROT90,  "[Namco] (Midway license)", "Pac-Man Plus", GAME_SUPPORTS_SAVE )
+GAME( 1980, puckmana, puckman,  pacman,   pacman,   0,        ROT90,  "Namco", "PuckMan (Japan set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1982, joyman,   puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Joyman", GAME_SUPPORTS_SAVE )
 GAME( 1982, ctrpllrp, puckman,  pacman,   pacman,   0,        ROT90,  "hack", "Caterpillar Pacman Hack", GAME_SUPPORTS_SAVE )
-GAME( 1982, eyes,     0,        pacman,   eyes,     eyes,     ROT90,  "Digitrex Techstar (Rock-ola license)", "Eyes (Digitrex Techstar)", GAME_SUPPORTS_SAVE )
-GAME( 1982, eyes2,    eyes,     pacman,   eyes,     eyes,     ROT90,  "Techstar (Rock-ola license)", "Eyes (Techstar)", GAME_SUPPORTS_SAVE )
-GAME( 1982, eyeszac,  eyes,     pacman,   eyes,     0,        ROT90,  "Zaccaria / bootleg", "Eyes (Zaccaria)", GAME_SUPPORTS_SAVE )
-GAME( 1983, mrtnt,    0,        pacman,   mrtnt,    eyes,     ROT90,  "Telko", "Mr. TNT", GAME_SUPPORTS_SAVE )
-GAME( 1983, gorkans,  mrtnt,    pacman,   mrtnt,    0,        ROT90,  "Techstar", "Gorkans", GAME_SUPPORTS_SAVE )
-GAME( 1983, eggor,    0,        pacman,   mrtnt,    eyes,     ROT90,  "Telko", "Eggor", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1985, jumpshot, 0,        pacman,   jumpshot, jumpshot, ROT90,  "Bally Midway", "Jump Shot", GAME_SUPPORTS_SAVE )
-GAME( 1985, jumpshtp, jumpshot, pacman,   jumpshtp, jumpshot, ROT90,  "Bally Midway", "Jump Shot Engineering Sample", GAME_SUPPORTS_SAVE )
-GAME( 1985, shootbul, 0,        pacman,   shootbul, jumpshot, ROT90,  "Bally Midway", "Shoot the Bull", GAME_SUPPORTS_SAVE )
 GAME( 1981, piranha,  puckman,  piranha,  mspacman, eyes,     ROT90,  "GL (US Billiards License)", "Piranha", GAME_SUPPORTS_SAVE )
 GAME( 1981, piranhao, puckman,  piranha,  mspacman, eyes,     ROT90,  "GL (US Billiards License)", "Piranha (older)", GAME_SUPPORTS_SAVE )
 GAME( 1981, abscam,   puckman,  piranha,  mspacman, eyes,     ROT90,  "GL (US Billiards License)", "Abscam", GAME_SUPPORTS_SAVE )
-GAME( 1981, nmouse,   0	     ,  nmouse ,  nmouse,   eyes,     ROT90,  "Amenip (Palcom Queen River)", "Naughty Mouse (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1981, nmouseb,  nmouse ,  nmouse ,  nmouse,   eyes,     ROT90,  "Amenip Nova Games Ltd.", "Naughty Mouse (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1981, piranhah, puckman,  pacman,   mspacman, 0,        ROT90,  "hack", "Piranha (hack)", GAME_SUPPORTS_SAVE )
+GAME( 1982, pacplus,  0,        pacman,   pacman,   pacplus,  ROT90,  "[Namco] (Midway license)", "Pac-Man Plus", GAME_SUPPORTS_SAVE )
 GAME( 1981, mspacman, 0,        mspacman, mspacman, 0,        ROT90,  "Midway", "Ms. Pac-Man", GAME_SUPPORTS_SAVE )
 GAME( 1981, mspacmnf, mspacman, mspacman, mspacman, 0,        ROT90,  "Midway", "Ms. Pac-Man (with speedup hack)", GAME_SUPPORTS_SAVE )
 GAME( 1981, mspacmat, mspacman, mspacman, mspacman, 0,        ROT90,  "hack", "Ms. Pac Attack", GAME_SUPPORTS_SAVE )
@@ -5239,9 +5619,34 @@ GAME( 1981, mspacmab, mspacman, woodpek,  mspacman, 0,        ROT90,  "bootleg",
 GAME( 1981, mspacmbe, mspacman, woodpek,  mspacman, mspacmbe, ROT90,  "bootleg", "Ms. Pac-Man (bootleg, (encrypted))", GAME_SUPPORTS_SAVE )
 GAME( 1981, pacgal,   mspacman, woodpek,  mspacman, 0,        ROT90,  "hack", "Pac-Gal", GAME_SUPPORTS_SAVE )
 GAME( 1981, mspacpls, mspacman, woodpek,  mspacpls, 0,        ROT90,  "hack", "Ms. Pac-Man Plus", GAME_SUPPORTS_SAVE )
+GAME( 1995, mschamp,  mspacman, mschamp,  mschamp,  0,        ROT90,  "hack", "Ms. Pacman Champion Edition / Super Zola Pac Gal", GAME_SUPPORTS_SAVE )
+/* Simultaneous 2 player hack of Ms Pac-Man */
+GAME( 1992, mspactwn, 0,       mspactwin, mspactwin, mspactwin,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
+GAME( 1989, clubpacm,0,        clubpacm, clubpacm, 0,        ROT90,  "hack (Miky SRL)", "Pacman Club / Club Lambada (Argentina)", 0 )
+GAME( 1985, jumpshot, 0,        pacman,   jumpshot, jumpshot, ROT90,  "Bally Midway", "Jump Shot", GAME_SUPPORTS_SAVE )
+GAME( 1985, jumpshtp, jumpshot, pacman,   jumpshtp, jumpshot, ROT90,  "Bally Midway", "Jump Shot Engineering Sample", GAME_SUPPORTS_SAVE )
+GAME( 1985, shootbul, 0,        pacman,   shootbul, jumpshot, ROT90,  "Bally Midway", "Shoot the Bull", GAME_SUPPORTS_SAVE )
+GAME( 1981, crush,    0,        pacman,   maketrax, maketrax, ROT90,  "Kural Samno Electric", "Crush Roller (Kural Samno)", GAME_SUPPORTS_SAVE )
+GAME( 1981, crush2,   crush,    pacman,   maketrax, 0,        ROT90,  "Kural Esco Electric", "Crush Roller (Kural Esco - bootleg?)", GAME_SUPPORTS_SAVE )
+GAME( 1981, crush3,   crush,    pacman,   maketrax, eyes,     ROT90,  "Kural Electric", "Crush Roller (Kural - bootleg?)", GAME_SUPPORTS_SAVE )
+GAME( 19??, crush4,   crush,    crush4,   crush4,   0,        ROT90,  "Kural TWT", "Crush Roller (Kural TWT)", GAME_SUPPORTS_SAVE )
+GAME( 1981, maketrax, crush,    pacman,   maketrax, maketrax, ROT270, "[Kural] (Williams license)", "Make Trax (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1981, maketrxb, crush,    pacman,   maketrax, maketrax, ROT270, "[Kural] (Williams license)", "Make Trax (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1981, korosuke, crush,    pacman,   korosuke, korosuke, ROT90,  "Kural Electric", "Korosuke Roller", GAME_SUPPORTS_SAVE )
+GAME( 1981, mbrush,   crush,    pacman,   mbrush,   0,        ROT90,  "bootleg", "Magic Brush", GAME_SUPPORTS_SAVE )
+GAME( 1981, paintrlr, crush,    pacman,   paintrlr, 0,        ROT90,  "bootleg", "Paint Roller", GAME_SUPPORTS_SAVE )
+GAME( 1982, eyes,     0,        pacman,   eyes,     eyes,     ROT90,  "Digitrex Techstar (Rock-ola license)", "Eyes (Digitrex Techstar)", GAME_SUPPORTS_SAVE )
+GAME( 1982, eyes2,    eyes,     pacman,   eyes,     eyes,     ROT90,  "Techstar (Rock-ola license)", "Eyes (Techstar)", GAME_SUPPORTS_SAVE )
+GAME( 1982, eyeszac,  eyes,     pacman,   eyes,     0,        ROT90,  "Zaccaria / bootleg", "Eyes (Zaccaria)", GAME_SUPPORTS_SAVE )
+GAME( 1983, mrtnt,    0,        pacman,   mrtnt,    eyes,     ROT90,  "Telko", "Mr. TNT", GAME_SUPPORTS_SAVE )
+GAME( 1983, gorkans,  mrtnt,    pacman,   mrtnt,    0,        ROT90,  "Techstar", "Gorkans", GAME_SUPPORTS_SAVE )
+GAME( 1985, lizwiz,   0,        woodpek,  lizwiz,   0,        ROT90,  "Techstar (Sunn license)", "Lizard Wizard", GAME_SUPPORTS_SAVE )
+GAME( 1983, eggor,    0,        pacman,   mrtnt,    eyes,     ROT90,  "Telko", "Eggor", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1983, birdiy,  0,        birdiy,   birdiy,   0,        ROT270, "Mama Top", "Birdiy", GAME_NO_COCKTAIL )
+GAME( 1981, nmouse,   0	     ,  nmouse ,  nmouse,   eyes,     ROT90,  "Amenip (Palcom Queen River)", "Naughty Mouse (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1981, nmouseb,  nmouse ,  nmouse ,  nmouse,   eyes,     ROT90,  "Amenip Nova Games Ltd.", "Naughty Mouse (set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1982, ponpoko,  0,        woodpek,  ponpoko,  ponpoko,  ROT0,   "Sigma Enterprises Inc.", "Ponpoko", GAME_SUPPORTS_SAVE )
 GAME( 1982, ponpokov, ponpoko,  woodpek,  ponpoko,  ponpoko,  ROT0,   "Sigma Enterprises Inc. (Venture Line license)", "Ponpoko (Venture Line)", GAME_SUPPORTS_SAVE )
-GAME( 1985, lizwiz,   0,        woodpek,  lizwiz,   0,        ROT90,  "Techstar (Sunn license)", "Lizard Wizard", GAME_SUPPORTS_SAVE )
 GAME( 1982, alibaba,  0,        alibaba,  alibaba,  0,        ROT90,  "Sega", "Ali Baba and 40 Thieves", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE )
 GAME( 1982, dremshpr, 0,        dremshpr, dremshpr, 0,        ROT270, "Sanritsu", "Dream Shopper", GAME_SUPPORTS_SAVE )
 GAME( 1983, vanvan,   0,        vanvan,   vanvan,   0,        ROT270, "Sanritsu", "Van-Van Car", GAME_SUPPORTS_SAVE )
@@ -5255,10 +5660,7 @@ GAME( 1983, sprglbpg, suprglob, pacman,   theglobp, 0,        ROT90,  "Bootleg",
 GAME( 1984, beastf,   suprglob, theglobp, theglobp, 0,        ROT90,  "Epos Corporation", "Beastie Feastie", GAME_SUPPORTS_SAVE )
 GAME( 1984, drivfrcp, 0,        drivfrcp, drivfrcp, 0,        ROT90,  "Shinkai Inc. (Magic Eletronics Inc. licence)", "Driving Force (Pac-Man conversion)", GAME_SUPPORTS_SAVE )
 GAME( 1985, 8bpm,     8ballact, 8bpm,     8bpm,     8bpm,     ROT90,  "Seatongrove Ltd (Magic Eletronics USA licence)", "Eight Ball Action (Pac-Man conversion)", GAME_SUPPORTS_SAVE )
-GAME( 1985, porky,    0,        porky,    porky,    porky,    ROT90,  "Shinkai Inc. (Magic Eletronics Inc. licence)", "Porky", GAME_NO_SOUND )
+GAME( 1985, porky,    0,        porky,    porky,    porky,    ROT90,  "Shinkai Inc. (Magic Electronics Inc. license)", "Porky", 0 )
 GAME( 1986, rocktrv2, 0,        rocktrv2, rocktrv2, rocktrv2, ROT90,  "Triumph Software Inc.", "MTV Rock-N-Roll Trivia (Part 2)", GAME_SUPPORTS_SAVE )
 GAME( 1986, bigbucks, 0,        bigbucks, bigbucks, 0,        ROT90,  "Dynasoft Inc.", "Big Bucks", GAME_SUPPORTS_SAVE )
-GAME( 1995, mschamp,  mspacman, mschamp,  mschamp,  0,        ROT90,  "hack", "Ms. Pacman Champion Edition / Super Zola Pac Gal", GAME_SUPPORTS_SAVE )
-
-/* Simultaneous 2 player hack of Ms Pac-Man */
-GAME( 1992, mspactwn, 0,       mspactwin, mspactwin, mspactwin,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
+GAME( 1983, numcrash,0,        numcrash, numcrash, 0,        ROT90,  "Hanshin Goraku / Peni", "Number Crash", 0 )

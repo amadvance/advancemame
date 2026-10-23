@@ -28,6 +28,7 @@ static UINT8 flipscreen;
 static UINT8 bgpriority;
 
 static int xoffsethack;
+static int birdiy_sprites;
 UINT8 *s2650games_spriteram;
 UINT8 *s2650games_tileram;
 
@@ -177,6 +178,7 @@ VIDEO_START( pacman )
 
 	/* In the Pac Man based games (NOT Pengo) the first two sprites must be offset */
 	/* one pixel to the left to get a more correct placement */
+	birdiy_sprites = 0;
 	xoffsethack = 1;
 
 	bg_tilemap = tilemap_create( pacman_get_tile_info, pacman_scan_rows, TILEMAP_OPAQUE, 8, 8, 36, 28 );
@@ -185,6 +187,14 @@ VIDEO_START( pacman )
 		return 1;
 
 	return 0;
+}
+
+VIDEO_START( birdiy )
+{
+	int result = video_start_pacman();
+	birdiy_sprites = 1;
+	xoffsethack = 0;
+	return result;
 }
 
 WRITE8_HANDLER( pacman_videoram_w )
@@ -240,13 +250,13 @@ VIDEO_UPDATE( pacman )
 		{
 			int sx,sy;
 
-			sx = 272 - spriteram_2[offs + 1];
-			sy = spriteram_2[offs] - 31;
+			sx = birdiy_sprites ? spriteram_2[offs + 1] : 272 - spriteram_2[offs + 1];
+			sy = birdiy_sprites ? 240 - spriteram_2[offs] : spriteram_2[offs] - 31;
 
 			drawgfx(bitmap,Machine->gfx[1],
 					( spriteram[offs] >> 2 ) | (spritebank << 6),
 					( spriteram[offs + 1] & 0x1f ) | (colortablebank << 5) | (palettebank << 6 ),
-					spriteram[offs] & 1,spriteram[offs] & 2,
+					(spriteram[offs] & 1) ^ birdiy_sprites,(spriteram[offs] & 2) ^ (birdiy_sprites << 1),
 					sx,sy,
 					&spriteclip,TRANSPARENCY_COLOR,0);
 
@@ -254,7 +264,7 @@ VIDEO_UPDATE( pacman )
 			drawgfx(bitmap,Machine->gfx[1],
 					( spriteram[offs] >> 2 ) | (spritebank << 6),
 					( spriteram[offs + 1] & 0x1f ) | (colortablebank << 5) | (palettebank << 6 ),
-					spriteram[offs] & 1,spriteram[offs] & 2,
+					(spriteram[offs] & 1) ^ birdiy_sprites,(spriteram[offs] & 2) ^ (birdiy_sprites << 1),
 					sx - 256,sy,
 					&spriteclip,TRANSPARENCY_COLOR,0);
 		}
@@ -264,13 +274,13 @@ VIDEO_UPDATE( pacman )
 		{
 			int sx,sy;
 
-			sx = 272 - spriteram_2[offs + 1];
-			sy = spriteram_2[offs] - 31;
+			sx = birdiy_sprites ? spriteram_2[offs + 1] : 272 - spriteram_2[offs + 1];
+			sy = birdiy_sprites ? 240 - spriteram_2[offs] : spriteram_2[offs] - 31;
 
 			drawgfx(bitmap,Machine->gfx[1],
 					( spriteram[offs] >> 2 ) | (spritebank << 6),
 					( spriteram[offs + 1] & 0x1f ) | (colortablebank << 5) | (palettebank << 6 ),
-					spriteram[offs] & 1,spriteram[offs] & 2,
+					(spriteram[offs] & 1) ^ birdiy_sprites,(spriteram[offs] & 2) ^ (birdiy_sprites << 1),
 					sx,sy + xoffsethack,
 					&spriteclip,TRANSPARENCY_COLOR,0);
 
@@ -278,7 +288,8 @@ VIDEO_UPDATE( pacman )
 			drawgfx(bitmap,Machine->gfx[1],
 					( spriteram[offs] >> 2 ) | (spritebank << 6),
 					( spriteram[offs + 1] & 0x1f ) | (colortablebank << 5) | (palettebank << 6 ),
-					spriteram[offs] & 2,spriteram[offs] & 1,
+					birdiy_sprites ? ((spriteram[offs] & 1) ^ 1) : (spriteram[offs] & 2),
+					birdiy_sprites ? ((spriteram[offs] & 2) ^ 2) : (spriteram[offs] & 1),
 					sx - 256,sy + xoffsethack,
 					&spriteclip,TRANSPARENCY_COLOR,0);
 		}
@@ -306,6 +317,7 @@ VIDEO_START( pengo )
 	flipscreen = 0;
 	bgpriority = 0;
 
+	birdiy_sprites = 0;
 	xoffsethack = 0;
 
 	bg_tilemap = tilemap_create( pacman_get_tile_info, pacman_scan_rows, TILEMAP_OPAQUE, 8, 8, 36, 28 );
@@ -387,6 +399,7 @@ VIDEO_START( s2650games )
 	flipscreen = 0;
 	bgpriority = 0;
 
+	birdiy_sprites = 0;
 	xoffsethack = 1;
 
 	bg_tilemap = tilemap_create( s2650_get_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32 );
@@ -558,6 +571,7 @@ VIDEO_START( jrpacman )
 	flipscreen = 0;
 	bgpriority = 0;
 
+	birdiy_sprites = 0;
 	xoffsethack = 1;
 
 	bg_tilemap = tilemap_create( jrpacman_get_tile_info,jrpacman_scan_rows,TILEMAP_TRANSPARENT,8,8,36,54 );
