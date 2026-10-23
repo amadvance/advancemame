@@ -1,3 +1,4 @@
+/* Interrupt returns now restore the interrupted priority level. */
 /*******************************************************************************************
  NOTE: All registers are accessed directly, instead of using the SFR_R() function for speed
  Direct register access is availabe from the R_(register name) macros.. ex: R_ACC for the ACC
@@ -761,7 +762,16 @@ INLINE void ret(void)
 INLINE void reti(void)
 {
 	POP_PC
-	CLEAR_CURRENT_IRQ
+	if (i8051.irq_depth)
+	{
+		i8051.irq_depth--;
+		i8051.cur_irq = i8051.irq_stack[i8051.irq_depth];
+		i8051.irq_priority = i8051.irq_priority_stack[i8051.irq_depth];
+	}
+	else
+	{
+		CLEAR_CURRENT_IRQ
+	}
 }
 
 //RL A                                      /* 1: 0010 0011 */

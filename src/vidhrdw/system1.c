@@ -274,7 +274,7 @@ static void draw_sprite(mame_bitmap *bitmap,int spr_number)
 	sprite_base	= spriteram + 0x10 * spr_number;
 
 	src = sprite_base[SPR_GFXOFS_LO] + (sprite_base[SPR_GFXOFS_HI] << 8);
-	bank = 0x8000 * (((sprite_base[SPR_X_HI] & 0x80) >> 7) + ((sprite_base[SPR_X_HI] & 0x40) >> 5));
+	bank = 0x8000 * (((sprite_base[SPR_X_HI] & 0x80) >> 7) + ((sprite_base[SPR_X_HI] & 0x40) >> 5) + ((sprite_base[SPR_X_HI] & 0x20) >> 3));
 	bank &= (memory_region_length(REGION_GFX2)-1);	/* limit to the range of available ROMs */
 	skip = sprite_base[SPR_SKIP_LO] + (sprite_base[SPR_SKIP_HI] << 8);
 
