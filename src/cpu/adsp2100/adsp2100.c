@@ -214,14 +214,16 @@ typedef struct
 	UINT16		imask;
 	UINT8		icntl;
 	UINT16		ifc;
-    UINT8    	irq_state[9];
-    UINT8    	irq_latch[9];
+    UINT8    	irq_state[10];
+    UINT8    	irq_latch[10];
     INT32		interrupt_cycles;
     int			(*irq_callback)(int irqline);
 
     /* other callbacks */
 	RX_CALLBACK sport_rx_callback;
 	TX_CALLBACK sport_tx_callback;
+	void (*dmovlay_callback)(int);
+	UINT16 dmovlay;
 	TIMER_CALLBACK timer_callback;
 } adsp2100_Regs;
 
@@ -485,7 +487,8 @@ static void check_irqs(void)
 		if (check && adsp2181_generate_irq(ADSP2181_IRQE, 5))
 			return;
 
-		/* check BDMA interrupt */
+		if (adsp2100.irq_latch[ADSP2181_BDMA] && adsp2181_generate_irq(ADSP2181_BDMA, 6))
+			return;
 
 		/* check IRQ1/SPORT1 transmit */
 		check = (adsp2100.icntl & 2) ? adsp2100.irq_latch[ADSP2181_IRQ1] : adsp2100.irq_state[ADSP2181_IRQ1];
@@ -662,6 +665,7 @@ static void adsp2100_init(int index, int clock, const void *config, int (*irqcal
 	state_save_register_item_array("adsp2100", index, adsp2100.lmask);
 	state_save_register_item_array("adsp2100", index, adsp2100.base);
 	state_save_register_item("adsp2100", index, adsp2100.px);
+	state_save_register_item("adsp2100", index, adsp2100.dmovlay);
 
 	state_save_register_item("adsp2100", index, adsp2100.pc);
 	state_save_register_item("adsp2100", index, adsp2100.ppc);
@@ -769,7 +773,7 @@ static void adsp2100_reset(void)
 
 	/* reset interrupts */
 	adsp2100.imask = 0;
-	for (irq = 0; irq < 8; irq++)
+	for (irq = 0; irq < 10; irq++)
 		adsp2100.irq_state[irq] = adsp2100.irq_latch[irq] = CLEAR_LINE;
 	adsp2100.interrupt_cycles = 0;
 }
@@ -2501,6 +2505,8 @@ void adsp2115_get_info(UINT32 state, union cpuinfo *info)
 
 static void adsp2181_reset(void)
 {
+	adsp2100.dmovlay = 0;
+	if (adsp2100.dmovlay_callback) adsp2100.dmovlay_callback(0);
 	set_core_2181();
 	adsp2100_reset();
 }
@@ -2530,6 +2536,8 @@ static void adsp2181_set_info(UINT32 state, union cpuinfo *info)
 {
 	switch (state)
 	{
+		case CPUINFO_PTR_ADSP2100_DMOVLAY_HANDLER: adsp2100.dmovlay_callback = (void (*)(int))info->f; break;
+		case CPUINFO_INT_INPUT_STATE + ADSP2181_BDMA: set_irq_line(ADSP2181_BDMA, info->i); break;
 		/* --- the following bits of info are set as 64-bit signed integers --- */
 		case CPUINFO_INT_INPUT_STATE + ADSP2181_IRQ0:	set_irq_line(ADSP2181_IRQ0, info->i);	break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2181_IRQ1:	set_irq_line(ADSP2181_IRQ1, info->i);	break;
@@ -2557,7 +2565,7 @@ void adsp2181_get_info(UINT32 state, union cpuinfo *info)
 	switch (state)
 	{
 		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_INPUT_LINES:					info->i = 4;							break;
+		case CPUINFO_INT_INPUT_LINES:					info->i = 10;							break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2181_IRQ0:	info->i = adsp2100.irq_state[ADSP2181_IRQ0]; break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2181_IRQ1:	info->i = adsp2100.irq_state[ADSP2181_IRQ1]; break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2181_IRQ2:	info->i = adsp2100.irq_state[ADSP2181_IRQ2]; break;

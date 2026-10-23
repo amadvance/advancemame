@@ -380,7 +380,7 @@ static void wr_ifc(INT32 val)
 		/* clear timer */
 		if (val & 0x0002) adsp2100.irq_latch[ADSP2181_IRQ0] = 0;
 		if (val & 0x0004) adsp2100.irq_latch[ADSP2181_IRQ1] = 0;
-		/* clear BDMA */
+		if (val & 0x0008) adsp2100.irq_latch[ADSP2181_BDMA] = 0;
 		if (val & 0x0010) adsp2100.irq_latch[ADSP2181_IRQE] = 0;
 		if (val & 0x0020) adsp2100.irq_latch[ADSP2181_SPORT0_RX] = 0;
 		if (val & 0x0040) adsp2100.irq_latch[ADSP2181_SPORT0_TX] = 0;
@@ -388,7 +388,7 @@ static void wr_ifc(INT32 val)
 		/* force timer */
 		if (val & 0x0200) adsp2100.irq_latch[ADSP2181_IRQ0] = 1;
 		if (val & 0x0400) adsp2100.irq_latch[ADSP2181_IRQ1] = 1;
-		/* force BDMA */
+		if (val & 0x0800) adsp2100.irq_latch[ADSP2181_BDMA] = 1;
 		if (val & 0x1000) adsp2100.irq_latch[ADSP2181_IRQE] = 1;
 		if (val & 0x2000) adsp2100.irq_latch[ADSP2181_SPORT0_RX] = 1;
 		if (val & 0x4000) adsp2100.irq_latch[ADSP2181_SPORT0_TX] = 1;
@@ -416,6 +416,15 @@ static void wr_tx1(INT32 val)	{ if (adsp2100.sport_tx_callback) (*adsp2100.sport
 static void wr_owrctr(INT32 val) { adsp2100.cntr = val & 0x3fff; }
 static void wr_topstack(INT32 val) { pc_stack_push_val(val & 0x3fff); }
 
+static void wr_dmovlay(INT32 val)
+{
+	if (chip_type >= CHIP_TYPE_ADSP2181)
+	{
+		adsp2100.dmovlay = val & 3;
+		if (adsp2100.dmovlay_callback) adsp2100.dmovlay_callback(adsp2100.dmovlay);
+	}
+}
+
 #define WRITE_REG(grp,reg,val) ((*wr_reg[grp][reg])(val))
 
 static void (*wr_reg[4][16])(INT32) =
@@ -426,7 +435,7 @@ static void (*wr_reg[4][16])(INT32) =
 	},
 	{
 		wr_i0, wr_i1, wr_i2, wr_i3, wr_m0, wr_m1, wr_m2, wr_m3,
-		wr_l0, wr_l1, wr_l2, wr_l3, wr_inval, wr_inval, wr_inval, wr_inval
+		wr_l0, wr_l1, wr_l2, wr_l3, wr_inval, wr_inval, wr_inval, wr_dmovlay
 	},
 	{
 		wr_i4, wr_i5, wr_i6, wr_i7, wr_m4, wr_m5, wr_m6, wr_m7,
@@ -497,6 +506,8 @@ static INT32 rd_rx0(void)	{ if (adsp2100.sport_rx_callback) return (*adsp2100.sp
 static INT32 rd_rx1(void)	{ if (adsp2100.sport_rx_callback) return (*adsp2100.sport_rx_callback)(1); else return 0; }
 static INT32 rd_stacktop(void)	{ return pc_stack_pop_val(); }
 
+static INT32 rd_dmovlay(void) { return adsp2100.dmovlay; }
+
 #define READ_REG(grp,reg) ((*rd_reg[grp][reg])())
 
 static INT32 (*rd_reg[4][16])(void) =
@@ -507,7 +518,7 @@ static INT32 (*rd_reg[4][16])(void) =
 	},
 	{
 		rd_i0, rd_i1, rd_i2, rd_i3, rd_m0, rd_m1, rd_m2, rd_m3,
-		rd_l0, rd_l1, rd_l2, rd_l3, rd_inval, rd_inval, rd_inval, rd_inval
+		rd_l0, rd_l1, rd_l2, rd_l3, rd_inval, rd_inval, rd_inval, rd_dmovlay
 	},
 	{
 		rd_i4, rd_i5, rd_i6, rd_i7, rd_m4, rd_m5, rd_m6, rd_m7,
@@ -531,7 +542,7 @@ INLINE void modify_address(UINT32 ireg, UINT32 mreg)
 	UINT32 i = adsp2100.i[ireg];
 	UINT32 l = adsp2100.l[ireg];
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -559,7 +570,7 @@ INLINE void data_write_dag1(UINT32 op, INT32 val)
 	else
 		WWORD_DATA(i, val);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -583,7 +594,7 @@ INLINE UINT32 data_read_dag1(UINT32 op)
 	else
 		res = RWORD_DATA(i);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -601,7 +612,7 @@ INLINE void data_write_dag2(UINT32 op, INT32 val)
 
 	WWORD_DATA(i, val);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -618,7 +629,7 @@ INLINE UINT32 data_read_dag2(UINT32 op)
 
 	UINT32 res = RWORD_DATA(i);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -640,7 +651,7 @@ INLINE void pgm_write_dag2(UINT32 op, INT32 val)
 
 	WWORD_PGM(i, (val << 8) | adsp2100.px);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -660,7 +671,7 @@ INLINE UINT32 pgm_read_dag2(UINT32 op)
 	adsp2100.px = res;
 	res >>= 8;
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;

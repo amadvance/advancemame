@@ -150,7 +150,9 @@ NVRAM_HANDLER( stv )
 		if (file) EEPROM_load(file);
 		else
 		{
-			if (stv_default_eeprom)	/* Set the EEPROM to Factory Defaults */
+			if (memory_region_length(REGION_USER4) == 0x80)
+				EEPROM_set_data(memory_region(REGION_USER4), 0x80);
+			else if (stv_default_eeprom)
 				EEPROM_set_data(stv_default_eeprom,stv_default_eeprom_length);
 		}
 	}
@@ -827,8 +829,12 @@ static void batmanfr_slave_speedup( UINT32 data )
 }
 
 
+WRITE32_HANDLER(stv_rax_w);
+
 DRIVER_INIT(batmanfr)
 {
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04800000, 0x04800003, 0, 0, stv_rax_w);
+	memory_install_write32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04800000, 0x04800003, 0, 0, stv_rax_w);
 	cpunum_set_info_fct(1, CPUINFO_PTR_SH2_FTCSR_READ_CALLBACK, (genf*)batmanfr_slave_speedup );
 
 	init_stv();
@@ -1244,12 +1250,20 @@ static void elandore_slave_speedup(UINT32 data)
 			}
 }
 
+extern READ32_HANDLER( stv_5881_r );
+extern WRITE32_HANDLER( stv_5881_w );
+
 DRIVER_INIT(elandore)
 {
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x60ffc10, 0x60ffc13, 0, 0, elandore_speedup_r );
 	cpunum_set_info_fct(1, CPUINFO_PTR_SH2_FTCSR_READ_CALLBACK, (genf *)elandore_slave_speedup);
 	init_stv();
 	minit_boost_timeslice = sinit_boost_timeslice = TIME_IN_USEC(0);
+
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
+	memory_install_read32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
+	memory_install_write32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
 
 }
 

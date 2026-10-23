@@ -5457,6 +5457,7 @@ extern int		 stv_framebuffer_width;
 extern int		 stv_framebuffer_height;
 extern int		 stv_framebuffer_double_interlace;
 extern int       stv_framebuffer_mode;
+extern UINT32 *stv_vdp1_regs;
 
 static int		stv_sprite_priorities_used[8];
 static int		stv_sprite_priorities_usage_valid;
@@ -5557,7 +5558,7 @@ void stv_vdp2_drawsprites(mame_bitmap *bitmap, const rectangle *cliprect, UINT8 
 
 	/*Guess:Some games needs that the horizontal sprite size to be doubled
       (TODO: understand the proper settings,it might not work like this)*/
-	if(STV_VDP2_LSMD == 3 && /*((STV_VDP2_HRES & 3) != 3) &&*/ (!(stv_framebuffer_mode & 1)))
+	if (((stv_vdp1_regs[0] >> 16) & 7) == 0 && (STV_VDP2_HRES & 2))
 		double_x = 1;
 	else
 		double_x = 0;

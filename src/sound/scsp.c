@@ -237,13 +237,16 @@ static void CheckPendingIRQ(struct _SCSP *SCSP)
 {
 	UINT32 pend=SCSP->udata.data[0x20/2];
 	UINT32 en=SCSP->udata.data[0x1e/2];
-	if(SCSP->MidiW!=SCSP->MidiR)
+	if(SCSP->MidiW!=SCSP->MidiR && (en & 8))
 	{
 		SCSP->Int68kCB(SCSP->IrqMidi);
 		return;
 	}
 	if(!pend)
+	{
+		SCSP->Int68kCB(0);
 		return;
+	}
 	if(pend&0x40)
 		if(en&0x40)
 		{

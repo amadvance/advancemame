@@ -48,7 +48,8 @@ enum
 {
 	CPUINFO_PTR_ADSP2100_RX_HANDLER = CPUINFO_PTR_CPU_SPECIFIC,
 	CPUINFO_PTR_ADSP2100_TX_HANDLER,
-	CPUINFO_PTR_ADSP2100_TIMER_HANDLER
+	CPUINFO_PTR_ADSP2100_TIMER_HANDLER,
+	CPUINFO_PTR_ADSP2100_DMOVLAY_HANDLER
 };
 
 
@@ -141,6 +142,8 @@ extern void adsp2115_load_boot_data(UINT8 *srcdata, UINT32 *dstdata);
  * ADSP2181 section
  **************************************************************************/
 
+#define ADSP2181_BDMA 9
+#define ADSP2181_IRQL0 8
 #define ADSP2181_IRQ0		0		/* IRQ0 */
 #define ADSP2181_SPORT1_RX	0		/* SPORT1 receive IRQ */
 #define ADSP2181_IRQ1		1		/* IRQ1 */
