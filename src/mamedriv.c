@@ -6935,6 +6935,20 @@ Other Sun games
 	DRIVER( ketb )
 	DRIVER( ketikd )
 	DRIVER( espgal )
+	DRIVER( akatana )
+	DRIVER( akatanaultd )
+	DRIVER( ddpsdoj )
+	DRIVER( deathsml01 )
+	DRIVER( ddpsdojo )
+	DRIVER( sdojak )
+	DRIVER( sdoja )
+	DRIVER( sdojb )
+	DRIVER( ibaracs )
+	DRIVER( ibarablkcs )
+	DRIVER( futari15bc )
+	DRIVER( futariblc )
+	DRIVER( futaribljc )
+	DRIVER( msmatsuri )
 
 	/* RamTek games */
 	DRIVER( hitme )		/* (c) 1976 Ramtek */
