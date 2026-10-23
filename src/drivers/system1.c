@@ -21,6 +21,8 @@ TODO: - background is misplaced in wbmlju
 #include "cpu/z80/z80.h"
 #include "machine/segacrpt.h"
 #include "sound/sn76496.h"
+#include "cpu/i8051/i8051.h"
+#include "machine/8255ppi.h"
 
 static MACHINE_RESET( system1 )
 {
@@ -184,6 +186,19 @@ static ADDRESS_MAP_START( wbml_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xf800, 0xfbff) AM_WRITE(system1_sprites_collisionram_w) AM_BASE(&system1_sprites_collisionram)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( shtngmst_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xcfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xd000, 0xd1ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xd800, 0xddff) AM_WRITE(system1_paletteram_w) AM_BASE(&paletteram)
+	AM_RANGE(0xe000, 0xefff) AM_WRITE(wbml_paged_videoram_w)
+	AM_RANGE(0xf000, 0xf3ff) AM_WRITE(system1_background_collisionram_w) AM_BASE(&system1_background_collisionram)
+	AM_RANGE(0xf800, 0xfbff) AM_WRITE(system1_sprites_collisionram_w) AM_BASE(&system1_sprites_collisionram)
+	AM_RANGE(0xd200, 0xd7ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xde00, 0xdfff) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( chplft_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_ROM)
@@ -312,12 +327,19 @@ static ADDRESS_MAP_START( nobo_writeport, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 
+static READ8_HANDLER( shtngmst_sound_r );
+
+static READ8_HANDLER( system1_soundlatch_r )
+{
+	return !strcmp(Machine->gamedrv->name, "shtngmst") ? shtngmst_sound_r(0) : soundlatch_r(0);
+}
+
 static ADDRESS_MAP_START( sound_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
 	AM_RANGE(0x8000, 0x87ff) AM_MIRROR(0x1800) AM_RAM
 	AM_RANGE(0xa000, 0xa003) AM_MIRROR(0x1ffc) AM_WRITE(SN76496_0_w)    /* Choplifter writes to the four addresses */
 	AM_RANGE(0xc000, 0xc003) AM_MIRROR(0x1ffc) AM_WRITE(SN76496_1_w)    /* in sequence */
-	AM_RANGE(0xe000, 0xe000) AM_MIRROR(0x1fff) AM_READ(soundlatch_r)
+	AM_RANGE(0xe000, 0xe000) AM_MIRROR(0x1fff) AM_READ(system1_soundlatch_r)
 ADDRESS_MAP_END
 
 
@@ -1359,33 +1381,18 @@ INPUT_PORTS_START( myhero )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( shtngmst )
-	PORT_START  /* IN1 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
-
-	PORT_START  /* IN2 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_COCKTAIL
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_COCKTAIL
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_COCKTAIL
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_COCKTAIL
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START  /* IN0 */
 	IN0_PORT
 
 	PORT_START  /* DSW1 */
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Upright ) )
-	PORT_DIPSETTING(	0x01, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x01, 0x01, "Shots Per Second" )
+	PORT_DIPSETTING( 0x00, "3" )
+	PORT_DIPSETTING( 0x01, "5" )
 	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(	0x02, DEF_STR( Off ) )
 	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
@@ -1407,6 +1414,16 @@ INPUT_PORTS_START( shtngmst )
 
 	PORT_START	  /* DSW0 */
 	DSW1_PORT
+	PORT_START
+	PORT_BIT( 0x3f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_SENSITIVITY(48) PORT_KEYDELTA(8) PORT_REVERSE
+	PORT_START
+	PORT_BIT( 0xff, 0x90, IPT_LIGHTGUN_Y ) PORT_MINMAX(0x20, 0xff) PORT_SENSITIVITY(64) PORT_KEYDELTA(8) PORT_REVERSE
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( chplft )
@@ -2302,6 +2319,191 @@ static MACHINE_DRIVER_START( wbml )
 	MDRV_VIDEO_START(wbml)
 	MDRV_VIDEO_UPDATE(wbml)
 
+MACHINE_DRIVER_END
+
+static UINT8 shtngmst_mcu_control, shtngmst_mcu_p2;
+static UINT8 shtngmst_video_control, shtngmst_vblank;
+
+static WRITE8_HANDLER( shtngmst_mcu_control_w )
+{
+	if (!(shtngmst_mcu_control & 0x40) && (data & 0x40))
+		cpu_boost_interleave(TIME_IN_USEC(1), TIME_IN_USEC(10));
+	shtngmst_mcu_control = data;
+	cpunum_set_input_line(0, INPUT_LINE_HALT, data & 0x40 ? ASSERT_LINE : CLEAR_LINE);
+	cpunum_set_input_line(0, 0, data & 1 ? CLEAR_LINE : ASSERT_LINE);
+}
+
+static READ8_HANDLER( shtngmst_mcu_port3_r )
+{
+	return 0xff ^ (shtngmst_vblank ? 4 : 0) ^ (shtngmst_video_control & 0x40 ? 0 : 8);
+}
+
+static READ8_HANDLER( shtngmst_mcu_port1_r ) { return shtngmst_mcu_control; }
+static READ8_HANDLER( shtngmst_mcu_port2_r ) { return shtngmst_mcu_p2; }
+static READ8_HANDLER( shtngmst_mcu_port0_r ) { return 0xff; }
+
+static WRITE8_HANDLER( shtngmst_mcu_p2_w ) { shtngmst_mcu_p2 = data; }
+static READ32_HANDLER( shtngmst_mcu_address )
+{
+	return mem_mask == 0xff ? (shtngmst_mcu_p2 << 8) | offset : offset;
+}
+
+static READ8_HANDLER( shtngmst_mcu_r )
+{
+	int result = 0xff;
+	int mode = (shtngmst_mcu_control >> 3) & 3;
+	if (mode == 1) return memory_region(REGION_CPU1)[0x10000 + offset];
+	cpuintrf_push_context(0);
+	if (mode == 0) result = program_read_byte(offset);
+	if (mode == 2) result = io_read_byte(offset);
+	cpuintrf_pop_context();
+	return result;
+}
+
+static WRITE8_HANDLER( shtngmst_mcu_w )
+{
+	int mode = (shtngmst_mcu_control >> 3) & 3;
+	cpuintrf_push_context(0);
+	if (mode == 0) program_write_byte(offset, data);
+	if (mode == 2) io_write_byte(offset, data);
+	cpuintrf_pop_context();
+}
+
+static WRITE8_HANDLER( shtngmst_video_w )
+{
+	/* Reprogramming the 8255 must not create an edge on an unchanged INT1 signal. */
+	if ((shtngmst_video_control ^ data) & 0x40)
+		cpunum_set_input_line(2, I8051_INT1_LINE, data & 0x40 ? CLEAR_LINE : ASSERT_LINE);
+	shtngmst_video_control = data;
+	chplft_videomode_w(0, data);
+}
+
+static WRITE8_HANDLER( shtngmst_sound_w )
+{
+	soundlatch_w(0, data);
+	cpu_boost_interleave(TIME_IN_USEC(1), TIME_IN_USEC(100));
+}
+
+static WRITE8_HANDLER( shtngmst_sound_control_w )
+{
+	cpunum_set_input_line(1, INPUT_LINE_NMI, data & 0x80 ? CLEAR_LINE : ASSERT_LINE);
+	wbml_videoram_bank_latch_w(0, data);
+	sound_global_enable(data & 1);
+}
+
+static READ8_HANDLER( shtngmst_sound_r )
+{
+	int value = soundlatch_r(0);
+	ppi8255_set_portC(0, 0x00);
+	ppi8255_set_portC(0, 0x40);
+	return value;
+}
+
+static ppi8255_interface shtngmst_ppi =
+{
+	1, { 0 }, { 0 }, { 0 },
+	{ shtngmst_sound_w }, { shtngmst_video_w }, { shtngmst_sound_control_w }
+};
+
+static READ8_HANDLER( shtngmst_gunx_r )
+{
+	UINT8 x = readinputport(6) - 0x12;
+	return x == 0xff ? 0xfe : x;
+}
+
+static ADDRESS_MAP_START( shtngmst_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(5) )
+	AM_RANGE(0x00, 0x00) AM_MIRROR(3) AM_READ(input_port_0_r)
+	AM_RANGE(0x04, 0x04) AM_MIRROR(3) AM_READ(input_port_1_r)
+	AM_RANGE(0x08, 0x08) AM_MIRROR(3) AM_READ(input_port_2_r)
+	AM_RANGE(0x0c, 0x0c) AM_MIRROR(2) AM_READ(input_port_3_r)
+	AM_RANGE(0x0d, 0x0d) AM_MIRROR(2) AM_READ(input_port_4_r)
+	AM_RANGE(0x10, 0x10) AM_MIRROR(1) AM_READ(input_port_4_r)
+	AM_RANGE(0x12, 0x12) AM_READ(input_port_5_r)
+	AM_RANGE(0x13, 0x13) AM_READ(input_port_4_r)
+	AM_RANGE(0x14, 0x17) AM_READ(ppi8255_0_r)
+	AM_RANGE(0x18, 0x18) AM_MIRROR(3) AM_READ(input_port_8_r)
+	AM_RANGE(0x1c, 0x1c) AM_MIRROR(2) AM_READ(shtngmst_gunx_r)
+	AM_RANGE(0x1d, 0x1d) AM_MIRROR(2) AM_READ(input_port_7_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( shtngmst_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(5) )
+	AM_RANGE(0x14, 0x17) AM_WRITE(ppi8255_0_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( shtngmst_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( shtngmst_mcu_data, ADDRESS_SPACE_DATA, 8 )
+	AM_RANGE(0x0000, 0xffff) AM_READWRITE(shtngmst_mcu_r, shtngmst_mcu_w)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( shtngmst_mcu_ports, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0, 0) AM_READ(shtngmst_mcu_port0_r)
+	AM_RANGE(1, 1) AM_READWRITE(shtngmst_mcu_port1_r, shtngmst_mcu_control_w)
+	AM_RANGE(2, 2) AM_READWRITE(shtngmst_mcu_port2_r, shtngmst_mcu_p2_w)
+	AM_RANGE(3, 3) AM_READ(shtngmst_mcu_port3_r)
+ADDRESS_MAP_END
+
+static void shtngmst_vblank_end(int param)
+{
+	shtngmst_vblank = 0;
+	cpunum_set_input_line(2, I8051_INT0_LINE, CLEAR_LINE);
+}
+static INTERRUPT_GEN( shtngmst_interrupt )
+{
+	shtngmst_vblank = 1;
+	cpunum_set_input_line(2, I8051_INT0_LINE, ASSERT_LINE);
+	timer_set(TIME_IN_USEC(2500), 0, shtngmst_vblank_end);
+}
+static void shtngmst_counter(int param)
+{
+	cpunum_set_input_line(2, I8051_T0_LINE, ASSERT_LINE);
+	cpunum_set_input_line(2, I8051_T0_LINE, CLEAR_LINE);
+}
+static MACHINE_START( shtngmst )
+{
+	timer_pulse(TIME_IN_USEC(2500), 0, shtngmst_counter);
+	state_save_register_global(shtngmst_mcu_control);
+	state_save_register_global(shtngmst_mcu_p2);
+	state_save_register_global(shtngmst_video_control);
+	state_save_register_global(shtngmst_vblank);
+	return 0;
+}
+static MACHINE_RESET( shtngmst )
+{
+	machine_reset_wbml();
+	shtngmst_mcu_control = shtngmst_mcu_p2 = 0xff;
+	shtngmst_video_control = 0;
+	shtngmst_vblank = 0;
+	ppi8255_init(&shtngmst_ppi);
+	ppi8255_set_portC(0, 0x40);
+	cpuintrf_push_context(2);
+	i8051_set_eram_iaddr_callback(shtngmst_mcu_address);
+	cpuintrf_pop_context();
+	cpunum_set_input_line(0, INPUT_LINE_HALT, ASSERT_LINE);
+}
+
+static VIDEO_UPDATE( shtngmst )
+{
+	video_update_wbml(screen, bitmap, cliprect);
+	draw_crosshair(bitmap, readinputport(6), 0xff - readinputport(7), cliprect, 0);
+}
+
+static MACHINE_DRIVER_START( shtngmst )
+	MDRV_IMPORT_FROM(wbml)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(wbml_readmem, shtngmst_writemem)
+	MDRV_CPU_IO_MAP(shtngmst_readport, shtngmst_writeport)
+	MDRV_CPU_VBLANK_INT(shtngmst_interrupt, 1)
+	MDRV_CPU_ADD(I8751, 8000000)
+	MDRV_CPU_PROGRAM_MAP(shtngmst_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(shtngmst_mcu_data, 0)
+	MDRV_CPU_IO_MAP(shtngmst_mcu_ports, 0)
+	MDRV_INTERLEAVE(100)
+	MDRV_MACHINE_START(shtngmst)
+	MDRV_MACHINE_RESET(shtngmst)
+	MDRV_VIDEO_UPDATE(shtngmst)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( noboranb )
@@ -3229,33 +3431,39 @@ ROM_START( myherok )
 ROM_END
 
 ROM_START( shtngmst )
-	ROM_REGION( 0x20000, REGION_CPU1, 0 ) /* 128k for code */
-	ROM_LOAD( "epr7100",      0x00000, 0x8000, CRC(45e64431) SHA1(7edf818dc1f65365641e51abc197d13db7a8d4d9) )
-	ROM_LOAD( "epr7101",      0x10000, 0x8000, CRC(ebf5ff72) SHA1(13ae06e3a81cf00b80ec939d5baf30143d61d480) )
-	ROM_LOAD( "epr7102",      0x18000, 0x8000, CRC(c890a4ad) SHA1(4b59d37902ace3a69b380ff40652ee37c85f0e9d) )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "epr-7100.ic18", 0x00000, 0x8000, CRC(268ecb1d) SHA1(a9274c9718f7244235cc6df76331d6a0b7e4e4c8) )
+	ROM_LOAD( "epr-7101.ic91", 0x10000, 0x8000, CRC(ebf5ff72) SHA1(13ae06e3a81cf00b80ec939d5baf30143d61d480) )
+	ROM_LOAD( "epr-7102.ic92", 0x18000, 0x8000, CRC(c890a4ad) SHA1(4b59d37902ace3a69b380ff40652ee37c85f0e9d) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 64k for sound cpu */
-	ROM_LOAD( "epr7043",      0x0000, 0x8000, CRC(99a368ab) SHA1(a9451f39ee2613e5c3e2791d4d8d837b4a3ab666) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "epr-7043.ic126",  0x0000, 0x8000, CRC(99a368ab) SHA1(a9451f39ee2613e5c3e2791d4d8d837b4a3ab666) )
+
+	ROM_REGION( 0x1000, REGION_CPU3, 0 )
+	ROM_LOAD( "315-5159a.ic74", 0x00000, 0x1000, CRC(1f774912) SHA1(34d12756735514bea5a513fdf441ae93318747b2) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "epr7040",      0x00000, 0x8000, CRC(f30769fa) SHA1(366c1fbe4e1c8943b209f6c831c9a6b7e4372105) )
-	ROM_LOAD( "epr7041",      0x08000, 0x8000, CRC(f3e273f9) SHA1(b8715c528299dc1e4f0c19c50d91ca9861a423a1) )
-	ROM_LOAD( "epr7042",      0x10000, 0x8000, CRC(6841c917) SHA1(6553843eea0131eb7b5a9aa29dddf641e41d8cc3) )
+	ROM_LOAD( "epr-7040.ic4",    0x00000, 0x8000, CRC(f30769fa) SHA1(366c1fbe4e1c8943b209f6c831c9a6b7e4372105) )
+	ROM_LOAD( "epr-7041.ic5",    0x08000, 0x8000, CRC(f3e273f9) SHA1(b8715c528299dc1e4f0c19c50d91ca9861a423a1) )
+	ROM_LOAD( "epr-7042.ic6",    0x10000, 0x8000, CRC(6841c917) SHA1(6553843eea0131eb7b5a9aa29dddf641e41d8cc3) )
 
-	ROM_REGION( 0x38000, REGION_GFX2, 0 ) /* 224 for sprites data - PROBABLY WRONG! */
-	ROM_LOAD( "epr7105",      0x00000, 0x8000, CRC(13111729) SHA1(57ca2b945db36b056d0e40a39456fd8bf9d0a3ec) )
-	ROM_LOAD( "epr7104",      0x08000, 0x8000, CRC(84a679c5) SHA1(19a21b1b33fc215f606093bfd61d597e4bd0b3d0) )
-	ROM_LOAD( "epr7107",      0x10000, 0x8000, CRC(8f50ea24) SHA1(781687e202dedca7b72c9bd5b97d9d46fcfd601c) )
-	ROM_LOAD( "epr7106",      0x18000, 0x8000, CRC(ae7ab7a2) SHA1(153691e468d29d21b95f1fbffb6896a3140d7e14) )
-	ROM_LOAD( "epr7109",      0x20000, 0x8000, CRC(097f7481) SHA1(4d93ea01b811af1cd3e136116625e4b8e06358a2) )
-	ROM_LOAD( "epr7108",      0x28000, 0x8000, CRC(816180ac) SHA1(a59670ec77d4359041ebf12dae5b74add55d82ac) )
-	ROM_LOAD( "epr7110",      0x30000, 0x8000, CRC(5d1a5048) SHA1(d1626ab1981080451c912df7e4ad7f76c0cb3459) )
+	ROM_REGION( 0x40000, REGION_GFX2, ROMREGION_ERASEFF )
+	ROM_LOAD( "epr-7110.ic26",   0x00000, 0x8000, CRC(5d1a5048) SHA1(d1626ab1981080451c912df7e4ad7f76c0cb3459) )
+	ROM_LOAD( "epr-7106.ic22",   0x08000, 0x8000, CRC(ae7ab7a2) SHA1(153691e468d29d21b95f1fbffb6896a3140d7e14) )
+	ROM_LOAD( "epr-7108.ic24",   0x10000, 0x8000, CRC(816180ac) SHA1(a59670ec77d4359041ebf12dae5b74add55d82ac) )
+	ROM_LOAD( "epr-7104.ic20",   0x18000, 0x8000, CRC(84a679c5) SHA1(19a21b1b33fc215f606093bfd61d597e4bd0b3d0) )
+	ROM_LOAD( "epr-7109.ic25",   0x20000, 0x8000, CRC(097f7481) SHA1(4d93ea01b811af1cd3e136116625e4b8e06358a2) )
+	ROM_LOAD( "epr-7105.ic21",   0x28000, 0x8000, CRC(13111729) SHA1(57ca2b945db36b056d0e40a39456fd8bf9d0a3ec) )
+	ROM_LOAD( "epr-7107.ic23",   0x30000, 0x8000, CRC(8f50ea24) SHA1(781687e202dedca7b72c9bd5b97d9d46fcfd601c) )
+
 
 	ROM_REGION( 0x0400, REGION_PROMS, 0 )
-	ROM_LOAD( "epr7113",      0x0000, 0x0100, CRC(5c0e1360) SHA1(2011b3eef2a58f9bd3f3b1bb9e6c201db85727c2) ) /* palette red component */
-	ROM_LOAD( "epr7112",      0x0100, 0x0100, CRC(46fbd351) SHA1(1fca7fbc5d5f8e13e58bbac735511bd0af392446) ) /* palette green component */
-	ROM_LOAD( "epr7111",      0x0200, 0x0100, CRC(8123b6b9) SHA1(fb2c5498f0603b5cd270402a738c891a85453666) ) /* palette blue component */
-	ROM_LOAD( "epr5317",      0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+	ROM_LOAD( "epr-7113.ic20",   0x00000, 0x0100, CRC(5c0e1360) SHA1(2011b3eef2a58f9bd3f3b1bb9e6c201db85727c2) )
+	ROM_LOAD( "epr-7112.ic14",   0x00100, 0x0100, CRC(46fbd351) SHA1(1fca7fbc5d5f8e13e58bbac735511bd0af392446) )
+	ROM_LOAD( "epr-7111.ic8",    0x00200, 0x0100, CRC(8123b6b9) SHA1(fb2c5498f0603b5cd270402a738c891a85453666) )
+	ROM_LOAD( "pr5317.ic37", 0x00300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) )
+
+
 ROM_END
 
 ROM_START( chplft )
@@ -4200,21 +4408,26 @@ static DRIVER_INIT( bootlegb )
 	memory_configure_bank_decrypted(1, 0, 4, memory_region(REGION_CPU1) + 0x30000, 0x4000);
 }
 
-
 GAME( 1983, starjack, 0,        small,    starjack, 0,        ROT270, "Sega", 			 	   "Star Jacker (Sega)", GAME_SUPPORTS_SAVE )
 GAME( 1983, starjacs, starjack, small,    starjacs, 0,        ROT270, "Stern",			  	   "Star Jacker (Stern)", GAME_SUPPORTS_SAVE )
+GAME( 1983, upndown,  0,        system1,  upndown,  nprinces, ROT270, "Sega", 			 	   "Up'n Down", GAME_SUPPORTS_SAVE )
+GAME( 1983, upndownu, upndown,  system1,  upndown,  0,        ROT270, "Sega", 			 	   "Up'n Down (not encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1983, regulus,  0,        small,	  regulus,  regulus,  ROT270, "Sega", 			 	   "Regulus (New Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1983, reguluso, regulus,  small,	  reguluso, regulus,  ROT270, "Sega", 			 	   "Regulus (Old Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1983, regulusu, regulus,  small,	  regulus,  0,        ROT270, "Sega", 			 	   "Regulus (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1983, upndown,  0,        system1,  upndown,  nprinces, ROT270, "Sega", 			 	   "Up'n Down", GAME_SUPPORTS_SAVE )
-GAME( 1983, upndownu, upndown,  system1,  upndown,  0,        ROT270, "Sega", 			 	   "Up'n Down (not encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1984, mrviking, 0,        small,    mrviking, mrviking, ROT270, "Sega", 			 	   "Mister Viking", GAME_SUPPORTS_SAVE )
 GAME( 1984, mrvikngj, mrviking, small,    mrvikngj, mrviking, ROT270, "Sega", 			 	   "Mister Viking (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1984, swat,     0,        system1,  swat,     swat,     ROT270, "Coreland / Sega", 	   "SWAT", GAME_SUPPORTS_SAVE )
-GAME( 1984, flicky,   0,        system1,  flicky,   flicky,   ROT0,   "Sega", 			 	   "Flicky (128k Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1984, flickyo,  flicky,   system1,  flicky,   flicky,   ROT0,   "Sega", 			 	   "Flicky (64k Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1984, wmatch,   0,        small, 	  wmatch,   wmatch,   ROT270, "Sega", 			 	   "Water Match", GAME_SUPPORTS_SAVE )
 GAME( 1984, bullfgt,  0,        system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", 	   "Bullfight", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprinces, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", 		 	   "Ninja Princess (64k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprincsu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", 			 	   "Ninja Princess (64k Ver. not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy2,    wboy,     system1,  wboy,     wboy2,    ROT0,   "Sega (Escape license)", "Wonder Boy (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy2u,   wboy,     system1,  wboy,     0,        ROT0,   "Sega (Escape license)", "Wonder Boy (set 2 not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wbdeluxe, wboy,     system1,  wbdeluxe, 0,        ROT0,   "Sega (Escape license)", "Wonder Boy Deluxe", GAME_SUPPORTS_SAVE )
+GAME( 1986, noboranb, 0,        noboranb, noboranb, noboranb, ROT270, "bootleg", 		 	   "Noboranka (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1984, flicky,   0,        system1,  flicky,   flicky,   ROT0,   "Sega", 			 	   "Flicky (128k Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1984, thetogyu, bullfgt,  system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", 	   "The Togyu (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1984, spatter,  0,        small,    spatter,  spatter,  ROT0,   "Sega", 			 	   "Spatter", GAME_SUPPORTS_SAVE )
 GAME( 1984, ssanchan, spatter,  small,    spatter,  spatter,  ROT0,   "Sega", 			 	   "Sanrin San Chan (Japan)", GAME_SUPPORTS_SAVE )
@@ -4223,38 +4436,31 @@ GAME( 1985, pitfallu, pitfall2, pitfall2, pitfallu, 0,        ROT0,   "Sega", 		
 GAME( 1985, seganinj, 0,        system1,  seganinj, seganinj, ROT0,   "Sega", 			 	   "Sega Ninja", GAME_SUPPORTS_SAVE )
 GAME( 1985, seganinu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", 			 	   "Sega Ninja (not encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1985, ninja,    seganinj, system1,  seganinj, seganinj, ROT0,   "Sega", 				   "Ninja", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprinces, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", 		 	   "Ninja Princess (64k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
 GAME( 1985, nprincso, seganinj, system1,  seganinj, nprinces, ROT0,   "Sega", 			 	   "Ninja Princess (128k Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprincsu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", 			 	   "Ninja Princess (64k Ver. not encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1985, nprincsb, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", 		 	   "Ninja Princess (128k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
 GAME( 1985, imsorry,  0,        system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", 	   "I'm Sorry (US)", GAME_SUPPORTS_SAVE )
 GAME( 1985, imsorryj, imsorry,  system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", 	   "Gonbee no I'm Sorry (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1985, teddybb,  0,        system1,  teddybb,  teddybb,  ROT0,   "Sega", 			 	   "TeddyBoy Blues (New Ver.)", GAME_SUPPORTS_SAVE )
 GAME( 1985, teddybbo, teddybb,  system1,  teddybb,  teddybb,  ROT0,   "Sega", 			 	   "TeddyBoy Blues (Old Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1985, hvymetal, 0,        hvymetal, hvymetal, hvymetal, ROT0,   "Sega", 			 	   "Heavy Metal", GAME_SUPPORTS_SAVE )
 GAME( 1985, myhero,   0,        system1,  myhero,   0,        ROT0,   "Sega", 			 	   "My Hero (US)", GAME_SUPPORTS_SAVE )
 GAME( 1985, sscandal, myhero,   system1,  myhero,   myheroj,  ROT0,   "Coreland / Sega", 	   "Seishun Scandal (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1985, myherok,  myhero,   system1,  myhero,   myherok,  ROT0,   "Coreland / Sega", 	   "My Hero (Korea)", GAME_SUPPORTS_SAVE )
-GAME( 1985, shtngmst, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Shooting Master", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )	/* 8751 protection, mcu = 315-5159 */
-GAME( 1985, chplft,   0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
-GAME( 1985, chplftb,  chplft,   chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (alternate)", GAME_SUPPORTS_SAVE )
-GAME( 1985, chplftbl, chplft,   chplft,   chplft,   0,        ROT0,   "bootleg", 		 	   "Choplifter (bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1985, 4dwarrio, 0,        system1,  4dwarrio, 4dwarrio, ROT0,   "Coreland / Sega", 	   "4-D Warriors", GAME_SUPPORTS_SAVE )
-GAME( 1986, brain,    0,        brain,    brain,    0,        ROT0,   "Coreland / Sega", 	   "Brain", GAME_SUPPORTS_SAVE )
 GAME( 1986, raflesia, 0,        system1,  raflesia, 4dwarrio, ROT270, "Coreland / Sega", 	   "Rafflesia", GAME_SUPPORTS_SAVE )
 GAME( 1986, wboy,     0,        system1,  wboy,     wboy,     ROT0,   "Sega (Escape license)", "Wonder Boy (set 1, new encryption)", GAME_SUPPORTS_SAVE )
 GAME( 1986, wboyo,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Sega (Escape license)", "Wonder Boy (set 1, old encryption)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy2,    wboy,     system1,  wboy,     wboy2,    ROT0,   "Sega (Escape license)", "Wonder Boy (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy2u,   wboy,     system1,  wboy,     0,        ROT0,   "Sega (Escape license)", "Wonder Boy (set 2 not encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1986, wboy3,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Sega (Escape license)", "Wonder Boy (set 3)", GAME_SUPPORTS_SAVE )
 GAME( 1986, wboyu,    wboy,     system1,  wboyu,    0,        ROT0,   "Sega (Escape license)", "Wonder Boy (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboysys2, wboy,     wbml,     wboy,     wboy,     ROT0,   "Sega (Escape license)", "Wonder Boy (system 2)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wbdeluxe, wboy,     system1,  wbdeluxe, 0,        ROT0,   "Sega (Escape license)", "Wonder Boy Deluxe", GAME_SUPPORTS_SAVE )
-GAME( 1986, gardia,   0,        brain,    brain,    gardia,   ROT270, "Sega / Coreland", 	   "Gardia", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
-GAME( 1986, gardiab,  gardia,   brain,    brain,    gardiab,  ROT270, "bootleg", 		 	   "Gardia (bootleg)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1986, noboranb, 0,        noboranb, noboranb, noboranb, ROT270, "bootleg", 		 	   "Noboranka (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1987, blockgal, 0,        blockgal, blockgal, 0,        ROT90,  "Sega / Vic Tokai",	   "Block Gal", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1987, blckgalb, blockgal, blockgal, blockgal, bootleg,  ROT90,  "bootleg", 		 	   "Block Gal (bootleg)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1985, hvymetal, 0,        hvymetal, hvymetal, hvymetal, ROT0,   "Sega", 			 	   "Heavy Metal", GAME_SUPPORTS_SAVE )
+GAME( 1986, gardia,   0,        brain,    brain,    gardia,   ROT270, "Sega / Coreland", 	   "Gardia", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
+GAME( 1986, brain,    0,        brain,    brain,    0,        ROT0,   "Coreland / Sega", 	   "Brain", GAME_SUPPORTS_SAVE )
+GAME( 1985, chplft,   0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
+GAME( 1985, chplftb,  chplft,   chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (alternate)", GAME_SUPPORTS_SAVE )
+GAME( 1985, chplftbl, chplft,   chplft,   chplft,   0,        ROT0,   "bootleg", 		 	   "Choplifter (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1985, shtngmst, 0, shtngmst, shtngmst, 0, ROT0, "Sega", "Shooting Master (8751 315-5159a)", 0 )
+GAME( 1986, gardiab,  gardia,   brain,    brain,    gardiab,  ROT270, "bootleg", 		 	   "Gardia (bootleg)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1986, wboysys2, wboy,     wbml,     wboy,     wboy,     ROT0,   "Sega (Escape license)", "Wonder Boy (system 2)", GAME_SUPPORTS_SAVE )
 GAME( 1987, tokisens, 0,        wbml,     tokisens, 0,        ROT90,  "Sega", 			 	   "Toki no Senshi - Chrono Soldier", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
 GAME( 1987, wbml,     0,        wbml,     wbml,     wbml,     ROT0,   "Sega / Westone",  	   "Wonder Boy in Monster Land (Japan New Ver.)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
 GAME( 1987, wbmljo,   wbml,     wbml,     wbml,     wbml,     ROT0,   "Sega / Westone",  	   "Wonder Boy in Monster Land (Japan Old Ver.)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
@@ -4262,5 +4468,6 @@ GAME( 1987, wbmljb,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg",
 GAME( 1987, wbmlb,    wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg", 		 	   "Wonder Boy in Monster Land", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
 GAME( 2009, wbmlvc,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "Sega / Westone",        "Wonder Boy in Monster Land (English, Virtual Console)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
 GAME( 1987, dakkochn, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "DakkoChan Jansoh", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1987, blckgalb, blockgal, blockgal, blockgal, bootleg,  ROT90,  "bootleg", 		 	   "Block Gal (bootleg)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
 GAME( 1988, ufosensi, 0,        ufosensi, ufosensi, ufosensi, ROT0,   "Sega", 			 	   "Ufo Senshi Yohko Chan", GAME_SUPPORTS_SAVE )
 GAME( 1988, ufosensb, ufosensi, ufosensi, ufosensi, bootlegb, ROT0,   "bootleg", 			   "Ufo Senshi Yohko Chan (not encrypted)", GAME_SUPPORTS_SAVE )

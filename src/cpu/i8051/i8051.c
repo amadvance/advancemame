@@ -63,6 +63,7 @@
  *
  *****************************************************************************/
 
+/* External counter inputs, interrupt nesting and polling loops updated. */
 #include "debugger.h"
 #include "i8051.h"
 
@@ -157,6 +158,8 @@ typedef struct {
 	UINT8	b;				//Register B
 
 	I8051_UART serial;
+	UINT8 counter_line[2];
+	UINT8 irq_depth, irq_stack[2], irq_priority_stack[2];
 
 	//Internal Ram
 	UINT8	IntRam[0xff+1];	//Max 256 Bytes of Internal RAM (8031/51 have 128, 8032/52 have 256)
@@ -540,6 +543,10 @@ void i8051_init(int index, int clock, const void *config, int (*irqcallback)(int
 	#endif
 	state_save_register_item("i8051", index, i8051.psw);
 	state_save_register_item("i8051", index, i8051.acc);
+	state_save_register_item_array("i8051", index, i8051.counter_line);
+	state_save_register_item("i8051", index, i8051.irq_depth);
+	state_save_register_item_array("i8051", index, i8051.irq_stack);
+	state_save_register_item_array("i8051", index, i8051.irq_priority_stack);
 	state_save_register_item("i8051", index, i8051.b);
 }
 
@@ -1393,10 +1400,57 @@ void i8051_set_reg (int regnum, unsigned val)
 	}
 }
 
+static void i8051_counter_edge(int index, int state)
+{
+	int mode = (R_TMOD >> (index * 4)) & 15;
+	int running = index ? GET_TR1 : GET_TR0;
+	int gate = index ? i8051.last_int1 : i8051.last_int0;
+	UINT8 *low = index ? &R_TL1 : &R_TL0;
+	UINT8 *high = index ? &R_TH1 : &R_TH0;
+	unsigned count, limit;
+	int active = state != CLEAR_LINE;
+	if (active && !i8051.counter_line[index] && running && (mode & 4) && (!(mode & 8) || gate == CLEAR_LINE))
+	{
+		switch (mode & 3)
+		{
+			case 0:
+				count = ((*high << 5) | (*low & 31)) + 1;
+				*high = count >> 5;
+				*low = (*low & 0xe0) | (count & 31);
+				limit = 0x1fff;
+				break;
+			case 1:
+				count = ((*high << 8) | *low) + 1;
+				*high = count >> 8;
+				*low = count;
+				limit = 0xffff;
+				break;
+			case 2:
+				count = *low + 1;
+				*low = count > 0xff ? *high : count;
+				limit = 0xff;
+				break;
+			default:
+				count = *low + 1;
+				*low = count;
+				limit = 0xff;
+				break;
+		}
+		if (count > limit)
+		{
+			if (index) { SET_TF1(1); }
+			else { SET_TF0(1); }
+		}
+	}
+	i8051.counter_line[index] = active;
+}
+
 void i8051_set_irq_line(int irqline, int state)
 {
 	switch( irqline )
 	{
+		case I8051_T0_LINE: i8051_counter_edge(0, state); break;
+		case I8051_T1_LINE: i8051_counter_edge(1, state); break;
 		//External Interrupt 0
 		case I8051_INT0_LINE:
 			//Line Asserted?
@@ -1545,9 +1599,16 @@ INLINE UINT8 check_interrupts(void)
 
     /*** --- Perform the interrupt --- ***/
 
+	if (CODEMEM_R(PC) == 0x20 && CODEMEM_R(PC + 1) == 0xb2 && CODEMEM_R(PC + 2) == 0xfd)
+		PC += 3;
+
 	//Save current pc to stack, set pc to new interrupt vector
 	push_pc();
 	PC = i8051.int_vec;
+
+	i8051.irq_stack[i8051.irq_depth] = i8051.cur_irq;
+	i8051.irq_priority_stack[i8051.irq_depth] = i8051.irq_priority;
+	i8051.irq_depth++;
 
 	//Set current Irq & Priority being serviced
 	i8051.cur_irq = i8051.int_vec;
@@ -2027,7 +2088,7 @@ INLINE void update_timer(int cyc)
 	//Note: Counting modes increment on 1 machine cycle (12 oscilator periods) - except Timer 2 in certain modes
 
 	//Update Timer 0
-	if(GET_TR0) {
+	if(GET_TR0 && !GET_CT0) {
 		//Determine Mode
 		int mode = GET_M0_0 + 2 * GET_M0_1;
 		int overflow;
@@ -2087,7 +2148,7 @@ INLINE void update_timer(int cyc)
 	}
 
 	//Update Timer 1
-	if(GET_TR1) {
+	if(GET_TR1 && !GET_CT1) {
 		//Determine Mode
 		int mode = GET_M1_0 + 2 * GET_M1_1;
 		int overflow;
@@ -2471,7 +2532,7 @@ void i8051_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_MAX_INSTRUCTION_BYTES:				info->i = 5;					break;
 		case CPUINFO_INT_MIN_CYCLES:					info->i = 1;					break;
 		case CPUINFO_INT_MAX_CYCLES:					info->i = 20; /* rough guess */			break;
-		case CPUINFO_INT_INPUT_LINES:        				info->i = 3;                      break;
+		case CPUINFO_INT_INPUT_LINES:        				info->i = 5;                      break;
 
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 8;				break;
 		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 16;				break;
