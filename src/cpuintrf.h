@@ -200,6 +200,7 @@ enum
 	CPU_V30MZ,
 #endif /* MESS */
     CPU_SH3BE,
+    CPU_IGS036,
     CPU_COUNT
 };
 

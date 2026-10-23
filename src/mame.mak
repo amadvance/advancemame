@@ -111,6 +111,7 @@ CPUS += UPD7810
 CPUS += UPD7807
 CPUS += ARM
 CPUS += ARM7
+CPUS += IGS036
 CPUS += JAGUAR
 CPUS += R3000
 CPUS += R4600
@@ -713,6 +714,9 @@ $(OBJ)/igs.a: \
 	$(OBJ)/drivers/igs_blit.o \
 	$(OBJ)/drivers/iqblock.o $(OBJ)/vidhrdw/iqblock.o \
 	$(OBJ)/drivers/lordgun.o $(OBJ)/vidhrdw/lordgun.o \
+	$(OBJ)/drivers/pgm2.o $(OBJ)/vidhrdw/pgm2.o \
+	$(OBJ)/machine/igs036crypt.o $(OBJ)/machine/pgm2_aic.o \
+	$(OBJ)/sound/ymz774.o $(OBJ)/sound/pgm2_mpeg.o \
 	$(OBJ)/drivers/pgm.o $(OBJ)/vidhrdw/pgm.o \
 	$(OBJ)/drivers/tarzan.o \
 	$(OBJ)/machine/pgmcrypt.o \

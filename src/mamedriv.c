@@ -6858,6 +6858,13 @@ Other Sun games
 	DRIVER( hfh )		/* (c) 199? */
 	DRIVER( tarzan )
 
+	/* IGS PGM2 parent sets */
+	DRIVER( orleg2 )
+	DRIVER( kov2nl )
+	DRIVER( ddpdojt )
+	DRIVER( kov3 )
+	DRIVER( kof98umh )
+
 	/* IGS PGM System Games */
 	DRIVER( pgm )
 	DRIVER( orlegend )	/* (c) 1997 */
