@@ -46,3 +46,12 @@ VIDEO_UPDATE( cave );
 void cave_get_sprite_info(void);
 
 void sailormn_tilebank_w( int bank );
+
+extern UINT16 *ppsatan_vram[3], *ppsatan_vctrl[3];
+extern UINT16 *ppsatan_videoregs[3], *ppsatan_spriteram[3], *ppsatan_paletteram[3];
+WRITE16_HANDLER( ppsatan_vram0_w );
+WRITE16_HANDLER( ppsatan_vram1_w );
+WRITE16_HANDLER( ppsatan_vram2_w );
+PALETTE_INIT( ppsatan );
+VIDEO_START( ppsatan );
+VIDEO_UPDATE( ppsatan );
