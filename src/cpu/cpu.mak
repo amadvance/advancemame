@@ -32,6 +32,19 @@ $(OBJ)/cpu/arm7/arm7.o: arm7.c arm7.h arm7exec.c
 endif
 
 
+# IGS036 (ARM946E-S), C port of MAME 0.287
+CPUDEFS += -DHAS_IGS036=$(if $(filter IGS036,$(CPUS)),1,0)
+ifneq ($(filter IGS036,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/igs036
+CPUOBJS += $(OBJ)/cpu/igs036/igs036.o
+ifeq ($(filter ARM7,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/arm7
+DBGOBJS += $(OBJ)/cpu/arm7/arm7dasm.o
+endif
+$(OBJ)/cpu/igs036/igs036.o: igs036.c igs036.h igs036core.h igs036help.h igs036ops.c igs036thumb.c igs036irq.c
+endif
+
+
 
 #-------------------------------------------------
 # Advanced Digital Chips SE3208

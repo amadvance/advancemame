@@ -1,0 +1,96 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
+/* ARM7 core helper Macros / Functions */
+
+/* Macros that need to be defined according to the cpu implementation specific need */
+#define ARM7REG(reg)        m_r[reg]
+#define ARM7_ICOUNT         m_icount
+
+
+/***************
+ * helper funcs
+ ***************/
+
+// TODO LD:
+//  - SIGN_BITS_DIFFER = THUMB_SIGN_BITS_DIFFER
+//  - do while (0)
+//  - HandleALUAddFlags = HandleThumbALUAddFlags except for PC incr
+//  - HandleALUSubFlags = HandleThumbALUSubFlags except for PC incr
+
+#define IsNeg(i) ((i) >> 31)
+#define IsPos(i) ((~(i)) >> 31)
+
+/* Set NZCV flags for ADDS / SUBS */
+#define HandleALUAddFlags(rd, rn, op2)                                                \
+	if (insn & INSN_S)                                                                  \
+	set_cpsr(((GET_CPSR & ~(N_MASK | Z_MASK | V_MASK | C_MASK))                       \
+				| (((!SIGN_BITS_DIFFER(rn, op2)) && SIGN_BITS_DIFFER(rn, rd)) << V_BIT) \
+				| (((IsNeg(rn) & IsNeg(op2)) | (IsNeg(rn) & IsPos(rd)) | (IsNeg(op2) & IsPos(rd))) ? C_MASK : 0) \
+				| HandleALUNZFlags(rd)));                                               \
+	R15 += 4;
+
+#define HandleThumbALUAddFlags(rd, rn, op2)                                                       \
+	set_cpsr(((GET_CPSR & ~(N_MASK | Z_MASK | V_MASK | C_MASK))                                   \
+				| (((!THUMB_SIGN_BITS_DIFFER(rn, op2)) && THUMB_SIGN_BITS_DIFFER(rn, rd)) << V_BIT) \
+				| (((~(rn)) < (op2)) << C_BIT)                                                      \
+				| HandleALUNZFlags(rd)));                                                           \
+	R15 += 2;
+
+
+#define HandleALUSubFlags(rd, rn, op2)                                                                         \
+	if (insn & INSN_S)                                                                                           \
+	set_cpsr(((GET_CPSR & ~(N_MASK | Z_MASK | V_MASK | C_MASK))                                                \
+				| ((SIGN_BITS_DIFFER(rn, op2) && SIGN_BITS_DIFFER(rn, rd)) << V_BIT)                             \
+				| (((IsNeg(rn) & IsPos(op2)) | (IsNeg(rn) & IsPos(rd)) | (IsPos(op2) & IsPos(rd))) ? C_MASK : 0) \
+				| HandleALUNZFlags(rd)));                                                                        \
+	R15 += 4;
+
+#define HandleThumbALUSubFlags(rd, rn, op2)                                                                    \
+	set_cpsr(((GET_CPSR & ~(N_MASK | Z_MASK | V_MASK | C_MASK))                                                \
+				| ((THUMB_SIGN_BITS_DIFFER(rn, op2) && THUMB_SIGN_BITS_DIFFER(rn, rd)) << V_BIT)                 \
+				| (((IsNeg(rn) & IsPos(op2)) | (IsNeg(rn) & IsPos(rd)) | (IsPos(op2) & IsPos(rd))) ? C_MASK : 0) \
+				| HandleALUNZFlags(rd)));                                                                        \
+	R15 += 2;
+
+
+/* Set NZC flags for logical operations. */
+
+// This macro (which I didn't write) - doesn't make it obvious that the SIGN BIT = 31, just as the N Bit does,
+// therefore, N is set by default
+#define HandleALUNZFlags(rd)               \
+	(((rd) & SIGN_BIT) | ((!(rd)) << Z_BIT))
+
+
+// Long ALU Functions use bit 63
+#define HandleLongALUNZFlags(rd)                            \
+	((((rd) & ((uint64_t)1U << 63)) >> 32) | ((!(rd)) << Z_BIT))
+
+#define HandleALULogicalFlags(rd, sc)                  \
+	if (insn & INSN_S)                                   \
+	set_cpsr(((GET_CPSR & ~(N_MASK | Z_MASK | C_MASK)) \
+				| HandleALUNZFlags(rd)                   \
+				| (((sc) != 0) << C_BIT)));              \
+	R15 += 4;
+
+
+
+
+// used to be functions, but no longer a need, so we'll use define for better speed.
+#define GetRegister(rIndex)        m_r[sRegisterTable[GET_MODE][rIndex]]
+#define SetRegister(rIndex, value) m_r[sRegisterTable[GET_MODE][rIndex]] = value
+
+#define GetModeRegister(mode, rIndex)        m_r[sRegisterTable[mode][rIndex]]
+#define SetModeRegister(mode, rIndex, value) m_r[sRegisterTable[mode][rIndex]] = value
+
+
+/* Macros that can be re-defined for custom cpu implementations - The core expects these to be defined */
+/* In this case, we are using the default arm7 handlers (supplied by the core)
+   - but simply changes these and define your own if needed for cpu implementation specific needs */
+#define READ8(addr)         arm7_cpu_read8(addr)
+#define WRITE8(addr,data)   arm7_cpu_write8(addr,data)
+#define READ16(addr)        arm7_cpu_read16(addr)
+#define WRITE16(addr,data)  arm7_cpu_write16(addr,data)
+#define READ32(addr)        arm7_cpu_read32(addr)
+#define WRITE32(addr,data)  arm7_cpu_write32(addr,data)
+#define PTR_READ32          &arm7_cpu_read32
+#define PTR_WRITE32         &arm7_cpu_write32
