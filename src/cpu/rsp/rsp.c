@@ -1,17 +1,25 @@
-/*
-    Nintendo/SGI Reality Signal Processor (RSP) emulator
+/* Nintendo/SGI Reality Signal Processor emulator, written by Ville Linde. */
 
-    Written by Ville Linde
-*/
 
-#include "driver.h"
+#include "cpuintrf.h"
 #include "rsp.h"
 #include "debugger.h"
-#include <math.h>	// sqrt
+#include <math.h>
 
 #define LOG_INSTRUCTION_EXECUTION		0
 #define SAVE_DISASM						0
 #define SAVE_DMEM						0
+#define RSP_TEST_SYNC                   0
+
+#define PRINT_VECREG(x)		logerror("V%d: %04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X\n", (x), \
+							(UINT16)R_VREG_S((x),0), (UINT16)R_VREG_S((x),1), \
+							(UINT16)R_VREG_S((x),2), (UINT16)R_VREG_S((x),3), \
+							(UINT16)R_VREG_S((x),4), (UINT16)R_VREG_S((x),5), \
+							(UINT16)R_VREG_S((x),6), (UINT16)R_VREG_S((x),7))
+
+#define PRINT_ACCUM(x)     logerror("A%d: %08X|%08X\n", (x), \
+                            (UINT32)( ( ACCUM(x) >> 32 ) & 0x00000000ffffffff ),    \
+                            (UINT32)(   ACCUM(x)         & 0x00000000ffffffff ))
 
 extern offs_t rsp_dasm_one(char *buffer, offs_t pc, UINT32 op);
 
@@ -19,64 +27,17 @@ extern offs_t rsp_dasm_one(char *buffer, offs_t pc, UINT32 op);
 static FILE *exec_output;
 #endif
 
-
 extern UINT32 sp_read_reg(UINT32 reg);
 extern void sp_write_reg(UINT32 reg, UINT32 data);
 extern READ32_HANDLER( n64_dp_reg_r );
 extern WRITE32_HANDLER( n64_dp_reg_w );
 extern void sp_set_status(UINT32 status);
 
-
-enum
-{
-	RSP_PC = 1,
-	RSP_R0,
-	RSP_R1,
-	RSP_R2,
-	RSP_R3,
-	RSP_R4,
-	RSP_R5,
-	RSP_R6,
-	RSP_R7,
-	RSP_R8,
-	RSP_R9,
-	RSP_R10,
-	RSP_R11,
-	RSP_R12,
-	RSP_R13,
-	RSP_R14,
-	RSP_R15,
-	RSP_R16,
-	RSP_R17,
-	RSP_R18,
-	RSP_R19,
-	RSP_R20,
-	RSP_R21,
-	RSP_R22,
-	RSP_R23,
-	RSP_R24,
-	RSP_R25,
-	RSP_R26,
-	RSP_R27,
-	RSP_R28,
-	RSP_R29,
-	RSP_R30,
-	RSP_R31,
-};
-
-typedef union
+typedef struct
 {
 	UINT64 d[2];
-	UINT32 l[4];
-	INT16 s[8];
-	UINT8 b[16];
-} VECTOR_REG;
 
-typedef union
-{
-	INT64 q;
-	INT16 w[4];
-} ACCUMULATOR_REG;
+} VECTOR_REG;
 
 typedef struct
 {
@@ -84,8 +45,9 @@ typedef struct
 	UINT32 r[32];
 	VECTOR_REG v[32];
 	UINT16 flag[4];
+    UINT32 sr;
 
-	ACCUMULATOR_REG accum[8];
+	INT64 accum[8];
 	INT32 square_root_res;
 	INT32 square_root_high;
 	INT32 reciprocal_res;
@@ -96,8 +58,6 @@ typedef struct
 
 	int (*irq_callback)(int irqline);
 } RSP_REGS;
-
-
 
 #define RSREG		((op >> 21) & 0x1f)
 #define RTREG		((op >> 16) & 0x1f)
@@ -112,7 +72,6 @@ typedef struct
 #define UIMM16		((UINT16)(op))
 #define UIMM26		(op & 0x03ffffff)
 
-
 #define JUMP_ABS(addr)			{ rsp.nextpc = 0x04001000 | (((addr) << 2) & 0xfff); }
 #define JUMP_ABS_L(addr,l)		{ rsp.nextpc = 0x04001000 | (((addr) << 2) & 0xfff); rsp.r[l] = rsp.pc + 4; }
 #define JUMP_REL(offset)		{ rsp.nextpc = 0x04001000 | ((rsp.pc + ((offset) << 2)) & 0xfff); }
@@ -120,23 +79,47 @@ typedef struct
 #define JUMP_PC(addr)			{ rsp.nextpc = 0x04001000 | ((addr) & 0xfff); }
 #define JUMP_PC_L(addr,l)		{ rsp.nextpc = 0x04001000 | ((addr) & 0xfff); rsp.r[l] = rsp.pc + 4; }
 
-
 #define VDREG		((op >> 6) & 0x1f)
 #define VS1REG		((op >> 11) & 0x1f)
 #define VS2REG		((op >> 16) & 0x1f)
 #define EL			((op >> 21) & 0xf)
 
-#define VREG_B(reg, offset)		rsp.v[(reg)].b[(15 - (offset))]
-#define VREG_S(reg, offset)		rsp.v[(reg)].s[(7 - (offset))]
-#define VREG_L(reg, offset)		rsp.v[(reg)].l[(3 - (offset))]
+#define S_VREG_B(offset)			(((15 - (offset)) & 0x07) << 3)
+#define S_VREG_S(offset)			(((7 - (offset)) & 0x03) << 4)
+#define S_VREG_L(offset)			(((3 - (offset)) & 0x01) << 5)
 
-#define VEC_EL_1(x,z)		(vector_elements_1[(x)][(z)])
-#define VEC_EL_2(x,z)		(vector_elements_2[(x)][(z)])
+#define M_VREG_B(offset)			((UINT64)0x00FF << S_VREG_B(offset))
+#define M_VREG_S(offset)			((UINT64)0x0000FFFFul << S_VREG_S(offset))
+#define M_VREG_L(offset)			((UINT64)0x00000000FFFFFFFFull << S_VREG_L(offset))
 
-#define ACCUM(x)		rsp.accum[(7-(x))].q
-#define ACCUM_H(x)		rsp.accum[(7-(x))].w[3]
-#define ACCUM_M(x)		rsp.accum[(7-(x))].w[2]
-#define ACCUM_L(x)		rsp.accum[(7-(x))].w[1]
+#define R_VREG_B(reg, offset)		((rsp.v[(reg)].d[(15 - (offset)) >> 3] >> S_VREG_B(offset)) & 0x00FF)
+#define R_VREG_S(reg, offset)		(INT16)((rsp.v[(reg)].d[(7 - (offset)) >> 2] >> S_VREG_S(offset)) & 0x0000FFFFul)
+#define R_VREG_L(reg, offset)		((rsp.v[(reg)].d[(3 - (offset)) >> 1] >> S_VREG_L(offset)) & 0x00000000FFFFFFFFull)
+
+#define W_VREG_B(reg, offset, val)	(rsp.v[(reg)].d[(15 - (offset)) >> 3] = (rsp.v[(reg)].d[(15 - (offset)) >> 3] & ~M_VREG_B(offset)) | (M_VREG_B(offset) & ((UINT64)(val) << S_VREG_B(offset))))
+#define W_VREG_S(reg, offset, val)	(rsp.v[(reg)].d[(7 - (offset)) >> 2] = (rsp.v[(reg)].d[(7 - (offset)) >> 2] & ~M_VREG_S(offset)) | (M_VREG_S(offset) & ((UINT64)(val) << S_VREG_S(offset))))
+#define W_VREG_L(reg, offset, val)	(rsp.v[(reg)].d[(3 - (offset)) >> 1] = (rsp.v[(reg)].d[(3 - (offset)) >> 1] & ~M_VREG_L(offset)) | (M_VREG_L(offset) & ((UINT64)(val) << S_VREG_L(offset))))
+
+#define VEC_EL_1(x,z)			(vector_elements_1[(x)][(z)])
+#define VEC_EL_2(x,z)			(vector_elements_2[(x)][(z)])
+
+#define ACCUM(x)				(rsp.accum[(7-(x))])
+
+#define S_ACCUM_H				(3 << 4)
+#define S_ACCUM_M				(2 << 4)
+#define S_ACCUM_L				(1 << 4)
+
+#define M_ACCUM_H				((INT64)0x0000FFFFll << S_ACCUM_H)
+#define M_ACCUM_M				((INT64)0x0000FFFFll << S_ACCUM_M)
+#define M_ACCUM_L				((INT64)0x0000FFFFll << S_ACCUM_L)
+
+#define R_ACCUM_H(x)			((INT16)((ACCUM(x) >> S_ACCUM_H) & 0x00FFFF))
+#define R_ACCUM_M(x)			((INT16)((ACCUM(x) >> S_ACCUM_M) & 0x00FFFF))
+#define R_ACCUM_L(x)			((INT16)((ACCUM(x) >> S_ACCUM_L) & 0x00FFFF))
+
+#define W_ACCUM_H(x, y)			(ACCUM(x) = (ACCUM(x) & ~M_ACCUM_H) | (M_ACCUM_H & ((INT64)(y) << S_ACCUM_H)))
+#define W_ACCUM_M(x, y)			(ACCUM(x) = (ACCUM(x) & ~M_ACCUM_M) | (M_ACCUM_M & ((INT64)(y) << S_ACCUM_M)))
+#define W_ACCUM_L(x, y)			(ACCUM(x) = (ACCUM(x) & ~M_ACCUM_L) | (M_ACCUM_L & ((INT64)(y) << S_ACCUM_L)))
 
 #define CARRY_FLAG(x)			((rsp.flag[0] & (1 << ((x)))) ? 1 : 0)
 #define CLEAR_CARRY_FLAGS()		{ rsp.flag[0] &= ~0xff; }
@@ -152,8 +135,6 @@ typedef struct
 #define CLEAR_ZERO_FLAGS()		{ rsp.flag[0] &= ~0xff00; }
 #define SET_ZERO_FLAG(x)		{ rsp.flag[0] |= (1 << (8+(x))); }
 #define CLEAR_ZERO_FLAG(x)		{ rsp.flag[0] &= ~(1 << (8+(x))); }
-
-
 
 static RSP_REGS rsp;
 static int rsp_icount;
@@ -172,7 +153,7 @@ INLINE UINT16 READ16(UINT32 address)
 
 	if (address & 1)
 	{
-		//osd_die("RSP: READ16: unaligned %08X at %08X\n", address, rsp.ppc);
+
 		return ((program_read_byte_32be(address+0) & 0xff) << 8) | (program_read_byte_32be(address+1) & 0xff);
 	}
 
@@ -185,7 +166,7 @@ INLINE UINT32 READ32(UINT32 address)
 
 	if (address & 3)
 	{
-		//osd_die("RSP: READ32: unaligned %08X at %08X\n", address, rsp.ppc);
+
 		return ((program_read_byte_32be(address + 0) & 0xff) << 24) |
 			   ((program_read_byte_32be(address + 1) & 0xff) << 16) |
 			   ((program_read_byte_32be(address + 2) & 0xff) << 8) |
@@ -207,7 +188,7 @@ INLINE void WRITE16(UINT32 address, UINT16 data)
 
 	if (address & 1)
 	{
-		//fatalerror("RSP: WRITE16: unaligned %08X, %04X at %08X\n", address, data, rsp.ppc);
+
 		program_write_byte_32be(address + 0, (data >> 8) & 0xff);
 		program_write_byte_32be(address + 1, (data >> 0) & 0xff);
 		return;
@@ -222,7 +203,7 @@ INLINE void WRITE32(UINT32 address, UINT32 data)
 
 	if (address & 3)
 	{
-		//osd_die("RSP: WRITE32: unaligned %08X, %08X at %08X\n", address, data, rsp.ppc);
+
 		program_write_byte_32be(address + 0, (data >> 24) & 0xff);
 		program_write_byte_32be(address + 1, (data >> 16) & 0xff);
 		program_write_byte_32be(address + 2, (data >> 8) & 0xff);
@@ -232,8 +213,6 @@ INLINE void WRITE32(UINT32 address, UINT32 data)
 
 	program_write_dword_32be(address, data);
 }
-
-/*****************************************************************************/
 
 static UINT32 get_cop0_reg(int reg)
 {
@@ -272,11 +251,12 @@ static void unimplemented_opcode(UINT32 op)
 #ifdef MAME_DEBUG
 	char string[200];
 	rsp_dasm_one(string, rsp.ppc, op);
-	printf("%08X: %s\n", rsp.ppc, string);
+	logerror("%08X: %s\n", rsp.ppc, string);
 #endif
 
 #if SAVE_DISASM
 	{
+		char string[200];
 		int i;
 		FILE *dasm;
 		dasm = fopen("rsp_disasm.txt", "wt");
@@ -294,11 +274,11 @@ static void unimplemented_opcode(UINT32 op)
 	{
 		int i;
 		FILE *dmem;
-		dmem = fopen("rsp_dmem.txt", "wt");
+		dmem = fopen("rsp_dmem.bin", "wb");
 
-		for (i=0; i < 0x1000; i+=4)
+		for (i=0; i < 0x1000; i++)
 		{
-			fprintf(dmem, "%08X: %08X\n", 0x04000000 + i, READ32(0x04000000 + i));
+			fputc(READ8(0x04000000 + i), dmem);
 		}
 		fclose(dmem);
 	}
@@ -307,55 +287,56 @@ static void unimplemented_opcode(UINT32 op)
 	fatalerror("RSP: unknown opcode %02X (%08X) at %08X\n", op >> 26, op, rsp.ppc);
 }
 
-/*****************************************************************************/
-
 static const int vector_elements_1[16][8] =
 {
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },		// none
-	{ 0, 1, 2, 3, 4, 5, 6 ,7 },		// ???
-	{ 1, 3, 5, 7, 0, 2, 4, 6 },		// 0q
-	{ 0, 2, 4, 6, 1, 3, 5, 7 },		// 1q
-	{ 1, 2, 3, 5, 6, 7, 0, 4 },		// 0h
-	{ 0, 2, 3, 4, 6, 7, 1, 5 },		// 1h
-	{ 0, 1, 3, 4, 5, 7, 2, 6 },		// 2h
-	{ 0, 1, 2, 4, 5, 6, 3, 7 },		// 3h
-	{ 1, 2, 3, 4, 5, 6, 7, 0 },		// 0
-	{ 0, 2, 3, 4, 5, 6, 7, 1 },		// 1
-	{ 0, 1, 3, 4, 5, 6, 7, 2 },		// 2
-	{ 0, 1, 2, 4, 5, 6, 7, 3 },		// 3
-	{ 0, 1, 2, 3, 5, 6, 7, 4 },		// 4
-	{ 0, 1, 2, 3, 4, 6, 7, 5 },		// 5
-	{ 0, 1, 2, 3, 4, 5, 7, 6 },		// 6
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },		// 7
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0, 1, 2, 3, 4, 5, 6 ,7 },
+	{ 1, 3, 5, 7, 0, 2, 4, 6 },
+	{ 0, 2, 4, 6, 1, 3, 5, 7 },
+	{ 1, 2, 3, 5, 6, 7, 0, 4 },
+	{ 0, 2, 3, 4, 6, 7, 1, 5 },
+	{ 0, 1, 3, 4, 5, 7, 2, 6 },
+	{ 0, 1, 2, 4, 5, 6, 3, 7 },
+	{ 1, 2, 3, 4, 5, 6, 7, 0 },
+	{ 0, 2, 3, 4, 5, 6, 7, 1 },
+	{ 0, 1, 3, 4, 5, 6, 7, 2 },
+	{ 0, 1, 2, 4, 5, 6, 7, 3 },
+	{ 0, 1, 2, 3, 5, 6, 7, 4 },
+	{ 0, 1, 2, 3, 4, 6, 7, 5 },
+	{ 0, 1, 2, 3, 4, 5, 7, 6 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
 };
 
 static const int vector_elements_2[16][8] =
 {
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },		// none
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },		// ???
-	{ 0, 0, 2, 2, 4, 4, 6, 6 },		// 0q
-	{ 1, 1, 3, 3, 5, 5, 7, 7 },		// 1q
-	{ 0, 0, 0, 0, 4, 4, 4, 4 },		// 0h
-	{ 1, 1, 1, 1, 5, 5, 5, 5 },		// 1h
-	{ 2, 2, 2, 2, 6, 6, 6, 6 },		// 2h
-	{ 3, 3, 3, 3, 7, 7, 7, 7 },		// 3h
-	{ 0, 0, 0, 0, 0, 0, 0, 0 },		// 0
-	{ 1, 1, 1, 1, 1, 1, 1, 1 },		// 1
-	{ 2, 2, 2, 2, 2, 2, 2, 2 },		// 2
-	{ 3, 3, 3, 3, 3, 3, 3, 3 },		// 3
-	{ 4, 4, 4, 4, 4, 4, 4, 4 },		// 4
-	{ 5, 5, 5, 5, 5, 5, 5, 5 },		// 5
-	{ 6, 6, 6, 6, 6, 6, 6, 6 },		// 6
-	{ 7, 7, 7, 7, 7, 7, 7, 7 },		// 7
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0, 0, 2, 2, 4, 4, 6, 6 },
+	{ 1, 1, 3, 3, 5, 5, 7, 7 },
+	{ 0, 0, 0, 0, 4, 4, 4, 4 },
+	{ 1, 1, 1, 1, 5, 5, 5, 5 },
+	{ 2, 2, 2, 2, 6, 6, 6, 6 },
+	{ 3, 3, 3, 3, 7, 7, 7, 7 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 2, 2, 2, 2, 2, 2, 2, 2 },
+	{ 3, 3, 3, 3, 3, 3, 3, 3 },
+	{ 4, 4, 4, 4, 4, 4, 4, 4 },
+	{ 5, 5, 5, 5, 5, 5, 5, 5 },
+	{ 6, 6, 6, 6, 6, 6, 6, 6 },
+	{ 7, 7, 7, 7, 7, 7, 7, 7 },
 };
 
 static void rsp_init(int index, int clock, const void *_config, int (*irqcallback)(int))
 {
+
 #if LOG_INSTRUCTION_EXECUTION
 	exec_output = fopen("rsp_execute.txt", "wt");
 #endif
 
 	rsp.irq_callback = irqcallback;
+
+    rsp.sr = RSP_STATUS_HALT;
 }
 
 static void rsp_exit(void)
@@ -378,13 +359,14 @@ static void rsp_exit(void)
 #endif
 #if SAVE_DMEM
 	{
+
 		int i;
 		FILE *dmem;
-		dmem = fopen("rsp_dmem.txt", "wt");
+		dmem = fopen("rsp_dmem.bin", "wb");
 
-		for (i=0; i < 0x1000; i+=4)
+		for (i=0; i < 0x1000; i++)
 		{
-			fprintf(dmem, "%08X: %08X\n", 0x04000000 + i, READ32(0x04000000 + i));
+			fputc(READ8(0x04000000 + i), dmem);
 		}
 		fclose(dmem);
 	}
@@ -397,6 +379,8 @@ static void rsp_exit(void)
 
 static void rsp_reset(void)
 {
+	rsp.pc = 0;
+	rsp.sr = RSP_STATUS_HALT;
 	rsp.nextpc = ~0;
 }
 
@@ -413,27 +397,15 @@ static void handle_lwc2(UINT32 op)
 
 	switch ((op >> 11) & 0x1f)
 	{
-		case 0x00:		/* LBV */
+		case 0x00:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00000 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Load 1 byte to vector byte index
 
 			ea = (base) ? rsp.r[base] + offset : offset;
-			VREG_B(dest, index) = READ8(ea);
+			W_VREG_B(dest, index, READ8(ea));
 			break;
 		}
-		case 0x01:		/* LSV */
+		case 0x01:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00001 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads 2 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 2) : (offset * 2);
 
@@ -441,19 +413,13 @@ static void handle_lwc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				VREG_B(dest, i) = READ8(ea);
+				W_VREG_B(dest, i, READ8(ea));
 				ea++;
 			}
 			break;
 		}
-		case 0x02:		/* LLV */
+		case 0x02:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00010 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads 4 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 4) : (offset * 4);
 
@@ -461,19 +427,13 @@ static void handle_lwc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				VREG_B(dest, i) = READ8(ea);
+				W_VREG_B(dest, i, READ8(ea));
 				ea++;
 			}
 			break;
 		}
-		case 0x03:		/* LDV */
+		case 0x03:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00011 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads 8 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 
@@ -481,19 +441,13 @@ static void handle_lwc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				VREG_B(dest, i) = READ8(ea);
+				W_VREG_B(dest, i, READ8(ea));
 				ea++;
 			}
 			break;
 		}
-		case 0x04:		/* LQV */
+		case 0x04:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00100 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads up to 16 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
@@ -502,19 +456,13 @@ static void handle_lwc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				VREG_B(dest, i) = READ8(ea);
+				W_VREG_B(dest, i, READ8(ea));
 				ea++;
 			}
 			break;
 		}
-		case 0x05:		/* LRV */
+		case 0x05:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00101 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores up to 16 bytes starting from right side until 16-byte boundary
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
@@ -524,70 +472,46 @@ static void handle_lwc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				VREG_B(dest, i) = READ8(ea);
+				W_VREG_B(dest, i, READ8(ea));
 				ea++;
 			}
 			break;
 		}
-		case 0x06:		/* LPV */
+		case 0x06:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00110 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads a byte as the upper 8 bits of each element
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 
 			for (i=0; i < 8; i++)
 			{
-				VREG_S(dest, i) = READ8(ea + (((16-index) + i) & 0xf)) << 8;
+				W_VREG_S(dest, i, READ8(ea + (((16-index) + i) & 0xf)) << 8);
 			}
 			break;
 		}
-		case 0x07:		/* LUV */
+		case 0x07:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 00111 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads a byte as the bits 14-7 of each element
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 
 			for (i=0; i < 8; i++)
 			{
-				VREG_S(dest, i) = READ8(ea + (((16-index) + i) & 0xf)) << 7;
+				W_VREG_S(dest, i, READ8(ea + (((16-index) + i) & 0xf)) << 7);
 			}
 			break;
 		}
-		case 0x08:		/* LHV */
+		case 0x08:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 01000 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads a byte as the bits 14-7 of each element, with 2-byte stride
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
 			for (i=0; i < 8; i++)
 			{
-				VREG_S(dest, i) = READ8(ea + (((16-index) + (i<<1)) & 0xf)) << 7;
+				W_VREG_S(dest, i, READ8(ea + (((16-index) + (i<<1)) & 0xf)) << 7);
 			}
 			break;
 		}
-		case 0x09:		/* LFV */
+		case 0x09:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 01001 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads a byte as the bits 14-7 of upper or lower quad, with 4-byte stride
 
 			fatalerror("RSP: LFV\n");
 
@@ -595,52 +519,35 @@ static void handle_lwc2(UINT32 op)
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
-			// not sure what happens if 16-byte boundary is crossed...
 			if ((ea & 0xf) > 0)	fatalerror("RSP: LFV: 16-byte boundary crossing at %08X, recheck this!\n", rsp.ppc);
 
 			end = (index >> 1) + 4;
 
 			for (i=index >> 1; i < end; i++)
 			{
-				VREG_S(dest, i) = READ8(ea) << 7;
+				W_VREG_S(dest, i, READ8(ea) << 7);
 				ea += 4;
 			}
 			break;
 		}
-		case 0x0a:		/* LWV */
+		case 0x0a:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 01010 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads the full 128-bit vector starting from vector byte index and wrapping to index 0
-			// after byte index 15
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
-			// not sure what happens if 16-byte boundary is crossed...
 			if ((ea & 0xf) > 0) fatalerror("RSP: LWV: 16-byte boundary crossing at %08X, recheck this!\n", rsp.ppc);
 
 			end = (16 - index) + 16;
 
 			for (i=(16 - index); i < end; i++)
 			{
-				VREG_B(dest, i & 0xf) = READ8(ea);
+				W_VREG_B(dest, i & 0xf, READ8(ea));
 				ea += 4;
 			}
 			break;
 		}
-		case 0x0b:		/* LTV */
+		case 0x0b:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 110010 | BBBBB | TTTTT | 01011 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Loads one element to maximum of 8 vectors, while incrementing element index
-
-			// FIXME: has a small problem with odd indices
 
 			int element;
 			int vs = dest;
@@ -658,8 +565,8 @@ static void handle_lwc2(UINT32 op)
 			for (i=vs; i < ve; i++)
 			{
 				element = ((8 - (index >> 1) + (i-vs)) << 1);
-				VREG_B(i, (element & 0xf)) = READ8(ea);
-				VREG_B(i, ((element+1) & 0xf)) = READ8(ea+1);
+				W_VREG_B(i, (element & 0xf), READ8(ea));
+				W_VREG_B(i, ((element+1) & 0xf), READ8(ea+1));
 
 				ea += 2;
 			}
@@ -688,27 +595,15 @@ static void handle_swc2(UINT32 op)
 
 	switch ((op >> 11) & 0x1f)
 	{
-		case 0x00:		/* SBV */
+		case 0x00:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00000 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores 1 byte from vector byte index
 
 			ea = (base) ? rsp.r[base] + offset : offset;
-			WRITE8(ea, VREG_B(dest, index));
+			WRITE8(ea, R_VREG_B(dest, index));
 			break;
 		}
-		case 0x01:		/* SSV */
+		case 0x01:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00001 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores 2 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 2) : (offset * 2);
 
@@ -716,19 +611,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea, VREG_B(dest, i));
+				WRITE8(ea, R_VREG_B(dest, i));
 				ea++;
 			}
 			break;
 		}
-		case 0x02:		/* SLV */
+		case 0x02:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00010 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores 4 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 4) : (offset * 4);
 
@@ -736,19 +625,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea, VREG_B(dest, i));
+				WRITE8(ea, R_VREG_B(dest, i));
 				ea++;
 			}
 			break;
 		}
-		case 0x03:		/* SDV */
+		case 0x03:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00011 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores 8 bytes starting from vector byte index
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 
@@ -756,19 +639,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea, VREG_B(dest, i));
+				WRITE8(ea, R_VREG_B(dest, i));
 				ea++;
 			}
 			break;
 		}
-		case 0x04:		/* SQV */
+		case 0x04:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00100 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores up to 16 bytes starting from vector byte index until 16-byte boundary
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
@@ -776,19 +653,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea, VREG_B(dest, i & 0xf));
+				WRITE8(ea, R_VREG_B(dest, i & 0xf));
 				ea++;
 			}
 			break;
 		}
-		case 0x05:		/* SRV */
+		case 0x05:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00101 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores up to 16 bytes starting from right side until 16-byte boundary
 
 			int o;
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
@@ -799,19 +670,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea, VREG_B(dest, ((i + o) & 0xf)));
+				WRITE8(ea, R_VREG_B(dest, ((i + o) & 0xf)));
 				ea++;
 			}
 			break;
 		}
-		case 0x06:		/* SPV */
+		case 0x06:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00110 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores upper 8 bits of each element
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 			end = index + 8;
@@ -820,24 +685,18 @@ static void handle_swc2(UINT32 op)
 			{
 				if ((i & 0xf) < 8)
 				{
-					WRITE8(ea, VREG_B(dest, ((i & 0xf) << 1)));
+					WRITE8(ea, R_VREG_B(dest, ((i & 0xf) << 1)));
 				}
 				else
 				{
-					WRITE8(ea, VREG_S(dest, (i & 0x7)) >> 7);
+					WRITE8(ea, R_VREG_S(dest, (i & 0x7)) >> 7);
 				}
 				ea++;
 			}
 			break;
 		}
-		case 0x07:		/* SUV */
+		case 0x07:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 00111 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores bits 14-7 of each element
 
 			ea = (base) ? rsp.r[base] + (offset * 8) : (offset * 8);
 			end = index + 8;
@@ -846,49 +705,35 @@ static void handle_swc2(UINT32 op)
 			{
 				if ((i & 0xf) < 8)
 				{
-					WRITE8(ea, VREG_S(dest, (i & 0x7)) >> 7);
+					WRITE8(ea, R_VREG_S(dest, (i & 0x7)) >> 7);
 				}
 				else
 				{
-					WRITE8(ea, VREG_B(dest, ((i & 0x7) << 1)));
+					WRITE8(ea, R_VREG_B(dest, ((i & 0x7) << 1)));
 				}
 				ea++;
 			}
 			break;
 		}
-		case 0x08:		/* SHV */
+		case 0x08:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 01000 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores bits 14-7 of each element, with 2-byte stride
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
 			for (i=0; i < 8; i++)
 			{
-				UINT8 d = ((VREG_B(dest, ((index + (i << 1) + 0) & 0xf))) << 1) |
-						  ((VREG_B(dest, ((index + (i << 1) + 1) & 0xf))) >> 7);
+				UINT8 d = ((R_VREG_B(dest, ((index + (i << 1) + 0) & 0xf))) << 1) |
+						  ((R_VREG_B(dest, ((index + (i << 1) + 1) & 0xf))) >> 7);
 
 				WRITE8(ea, d);
 				ea += 2;
 			}
 			break;
 		}
-		case 0x09:		/* SFV */
+		case 0x09:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 01001 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores bits 14-7 of upper or lower quad, with 4-byte stride
 
-			// FIXME: only works for index 0 and index 8
-
-			if (index & 0x7)	printf("RSP: SFV: index = %d at %08X\n", index, rsp.ppc);
+			if (index & 0x7)	logerror("RSP: SFV: index = %d at %08X\n", index, rsp.ppc);
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
@@ -899,20 +744,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index >> 1; i < end; i++)
 			{
-				WRITE8(ea + (eaoffset & 0xf), VREG_S(dest, i) >> 7);
+				WRITE8(ea + (eaoffset & 0xf), R_VREG_S(dest, i) >> 7);
 				eaoffset += 4;
 			}
 			break;
 		}
-		case 0x0a:		/* SWV */
+		case 0x0a:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 01010 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores the full 128-bit vector starting from vector byte index and wrapping to index 0
-			// after byte index 15
 
 			ea = (base) ? rsp.r[base] + (offset * 16) : (offset * 16);
 
@@ -923,19 +761,13 @@ static void handle_swc2(UINT32 op)
 
 			for (i=index; i < end; i++)
 			{
-				WRITE8(ea + (eaoffset & 0xf), VREG_B(dest, i & 0xf));
+				WRITE8(ea + (eaoffset & 0xf), R_VREG_B(dest, i & 0xf));
 				eaoffset++;
 			}
 			break;
 		}
-		case 0x0b:		/* STV */
+		case 0x0b:
 		{
-			// 31       25      20      15      10     6        0
-			// --------------------------------------------------
-			// | 111010 | BBBBB | TTTTT | 01011 | IIII | Offset |
-			// --------------------------------------------------
-			//
-			// Stores one element from maximum of 8 vectors, while incrementing element index
 
 			int element, eaoffset;
 			int vs = dest;
@@ -955,7 +787,7 @@ static void handle_swc2(UINT32 op)
 
 			for (i=vs; i < ve; i++)
 			{
-				WRITE16(ea + (eaoffset & 0xf), VREG_S(i, element & 0x7));
+				WRITE16(ea + (eaoffset & 0xf), R_VREG_S(i, element & 0x7));
 				eaoffset += 2;
 				element++;
 			}
@@ -972,15 +804,15 @@ static void handle_swc2(UINT32 op)
 
 INLINE UINT16 SATURATE_ACCUM(int accum, int slice, UINT16 negative, UINT16 positive)
 {
-	if ((INT16)ACCUM_H(accum) < 0)
+	if ((INT16)R_ACCUM_H(accum) < 0)
 	{
-		if ((UINT16)(ACCUM_H(accum)) != 0xffff)
+		if ((UINT16)(R_ACCUM_H(accum)) != 0xffff)
 		{
 			return negative;
 		}
 		else
 		{
-			if ((INT16)ACCUM_M(accum) >= 0)
+			if ((INT16)R_ACCUM_M(accum) >= 0)
 			{
 				return negative;
 			}
@@ -988,24 +820,24 @@ INLINE UINT16 SATURATE_ACCUM(int accum, int slice, UINT16 negative, UINT16 posit
 			{
 				if (slice == 0)
 				{
-					return ACCUM_L(accum);
+					return R_ACCUM_L(accum);
 				}
 				else if (slice == 1)
 				{
-					return ACCUM_M(accum);
+					return R_ACCUM_M(accum);
 				}
 			}
 		}
 	}
 	else
 	{
-		if ((UINT16)(ACCUM_H(accum)) != 0)
+		if ((UINT16)(R_ACCUM_H(accum)) != 0)
 		{
 			return positive;
 		}
 		else
 		{
-			if ((INT16)ACCUM_M(accum) < 0)
+			if ((INT16)R_ACCUM_M(accum) < 0)
 			{
 				return positive;
 			}
@@ -1013,11 +845,11 @@ INLINE UINT16 SATURATE_ACCUM(int accum, int slice, UINT16 negative, UINT16 posit
 			{
 				if (slice == 0)
 				{
-					return ACCUM_L(accum);
+					return R_ACCUM_L(accum);
 				}
 				else
 				{
-					return ACCUM_M(accum);
+					return R_ACCUM_M(accum);
 				}
 			}
 		}
@@ -1026,530 +858,452 @@ INLINE UINT16 SATURATE_ACCUM(int accum, int slice, UINT16 negative, UINT16 posit
 	return 0;
 }
 
+#define WRITEBACK_RESULT() 					\
+	do {									\
+		W_VREG_S(VDREG, 0, vres[0]);			\
+		W_VREG_S(VDREG, 1, vres[1]);			\
+		W_VREG_S(VDREG, 2, vres[2]);			\
+		W_VREG_S(VDREG, 3, vres[3]);			\
+		W_VREG_S(VDREG, 4, vres[4]);			\
+		W_VREG_S(VDREG, 5, vres[5]);			\
+		W_VREG_S(VDREG, 6, vres[6]);			\
+		W_VREG_S(VDREG, 7, vres[7]);			\
+	} while(0)
+
+#if 0
+static float float_round(float input)
+{
+    INT32 integer = (INT32)input;
+    float fraction = input - (float)integer;
+    float output = 0.0f;
+    if( fraction >= 0.5f )
+    {
+        output = (float)( integer + 1 );
+    }
+    else
+    {
+        output = (float)integer;
+    }
+    return output;
+}
+#endif
+
 static void handle_vector_ops(UINT32 op)
 {
 	int i;
-
-	// Opcode legend:
-	//    E = VS2 element type
-	//    S = VS1, Source vector 1
-	//    T = VS2, Source vector 2
-	//    D = Destination vector
+	INT16 vres[8];
 
 	switch (op & 0x3f)
 	{
-		case 0x00:		/* VMULF */
+		case 0x00:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000000 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by signed integer * 2
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				if (s1 == -32768 && s2 == -32768)
 				{
-					// overflow
-					ACCUM_H(del) = 0;
-					ACCUM_M(del) = -32768;
-					ACCUM_L(del) = -32768;
-					VREG_S(VDREG, del) = 0x7fff;
+
+					W_ACCUM_H(del, 0);
+					W_ACCUM_M(del, -32768);
+					W_ACCUM_L(del, -32768);
+					vres[del] = 0x7fff;
 				}
 				else
 				{
 					INT64 r =  s1 * s2 * 2;
-					r += 0x8000;	// rounding ?
-					ACCUM_H(del) = (r < 0) ? 0xffff : 0;		// sign-extend to 48-bit
-					ACCUM_M(del) = (INT16)(r >> 16);
-					ACCUM_L(del) = (UINT16)(r);
-					VREG_S(VDREG, del) = ACCUM_M(del);
+					r += 0x8000;
+					W_ACCUM_H(del, (r < 0) ? 0xffff : 0);
+					W_ACCUM_M(del, (INT16)(r >> 16));
+					W_ACCUM_L(del, (UINT16)(r));
+					vres[del] = R_ACCUM_M(del);
 				}
 			}
+			WRITEBACK_RESULT();
+
 			break;
 		}
 
-		case 0x01:		/* VMULU */
+		case 0x01:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000001 |
-			// ------------------------------------------------------
-			//
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT64 r = s1 * s2 * 2;
-				r += 0x8000;	// rounding ?
+				r += 0x8000;
 
-				ACCUM_H(del) = (UINT16)(r >> 32);
-				ACCUM_M(del) = (UINT16)(r >> 16);
-				ACCUM_L(del) = (UINT16)(r);
+				W_ACCUM_H(del, (UINT16)(r >> 32));
+				W_ACCUM_M(del, (UINT16)(r >> 16));
+				W_ACCUM_L(del, (UINT16)(r));
 
 				if (r < 0)
 				{
-					VREG_S(VDREG, del) = 0;
+					vres[del] = 0;
 				}
-				else if (((INT16)(ACCUM_H(del)) ^ (INT16)(ACCUM_M(del))) < 0)
+				else if (((INT16)(R_ACCUM_H(del)) ^ (INT16)(R_ACCUM_M(del))) < 0)
 				{
-					VREG_S(VDREG, del) = -1;
+					vres[del] = -1;
 				}
 				else
 				{
-					VREG_S(VDREG, del) = ACCUM_M(del);
+					vres[del] = R_ACCUM_M(del);
 				}
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x04:		/* VMUDL */
+		case 0x04:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000100 |
-			// ------------------------------------------------------
-			//
-			// Multiplies unsigned fraction by unsigned fraction
-			// Stores the higher 16 bits of the 32-bit result to accumulator
-			// The low slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				UINT32 s1 = (UINT32)(UINT16)VREG_S(VS1REG, del);
-				UINT32 s2 = (UINT32)(UINT16)VREG_S(VS2REG, sel);
+				UINT32 s1 = (UINT32)(UINT16)R_VREG_S(VS1REG, del);
+				UINT32 s2 = (UINT32)(UINT16)R_VREG_S(VS2REG, sel);
 				UINT32 r = s1 * s2;
 
-				ACCUM_H(del) = 0;
-				ACCUM_M(del) = 0;
-				ACCUM_L(del) = (UINT16)(r >> 16);
+				W_ACCUM_H(del, 0);
+				W_ACCUM_M(del, 0);
+				W_ACCUM_L(del, (UINT16)(r >> 16));
 
-				VREG_S(VDREG, del) = ACCUM_L(del);
+				vres[del] = R_ACCUM_L(del);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x05:		/* VMUDM */
+		case 0x05:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000101 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by unsigned fraction
-			// The result is stored into accumulator
-			// The middle slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (UINT16)VREG_S(VS2REG, sel);	// not sign-extended
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (UINT16)R_VREG_S(VS2REG, sel);
 				INT32 r =  s1 * s2;
 
-				ACCUM_H(del) = (r < 0) ? 0xffff : 0;		// sign-extend to 48-bit
-				ACCUM_M(del) = (INT16)(r >> 16);
-				ACCUM_L(del) = (UINT16)(r);
+				W_ACCUM_H(del, (r < 0) ? 0xffff : 0);
+				W_ACCUM_M(del, (INT16)(r >> 16));
+				W_ACCUM_L(del, (UINT16)(r));
 
-				VREG_S(VDREG, del) = ACCUM_M(del);
+				vres[del] = R_ACCUM_M(del);
 			}
+			WRITEBACK_RESULT();
 			break;
 
 		}
 
-		case 0x06:		/* VMUDN */
+		case 0x06:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000110 |
-			// ------------------------------------------------------
-			//
-			// Multiplies unsigned fraction by signed integer
-			// The result is stored into accumulator
-			// The low slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (UINT16)VREG_S(VS1REG, del);		// not sign-extended
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (UINT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 * s2;
 
-				ACCUM_H(del) = (r < 0) ? 0xffff : 0;		// sign-extend to 48-bit
-				ACCUM_M(del) = (INT16)(r >> 16);
-				ACCUM_L(del) = (UINT16)(r);
+				W_ACCUM_H(del, (r < 0) ? 0xffff : 0);
+				W_ACCUM_M(del, (INT16)(r >> 16));
+				W_ACCUM_L(del, (UINT16)(r));
 
-				VREG_S(VDREG, del) = ACCUM_L(del);
+				vres[del] = R_ACCUM_L(del);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x07:		/* VMUDH */
+		case 0x07:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 000111 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by signed integer
-			// The result is stored into highest 32 bits of accumulator, the low slice is zero
-			// The highest 32 bits of accumulator is saturated into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 * s2;
 
-				ACCUM_H(del) = (INT16)(r >> 16);
-				ACCUM_M(del) = (UINT16)(r);
-				ACCUM_L(del) = 0;
+				W_ACCUM_H(del, (INT16)(r >> 16));
+				W_ACCUM_M(del, (UINT16)(r));
+				W_ACCUM_L(del, 0);
 
 				if (r < -32768) r = -32768;
 				if (r >  32767)	r = 32767;
-				VREG_S(VDREG, del) = (INT16)(r);
+				vres[del] = (INT16)(r);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x08:		/* VMACF */
+		case 0x08:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001000 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by signed integer * 2
-			// The result is added to accumulator
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 * s2;
 
 				ACCUM(del) += (INT64)(r) << 17;
 				res = SATURATE_ACCUM(del, 1, 0x8000, 0x7fff);
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x09:		/* VMACU */
+		case 0x09:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001001 |
-			// ------------------------------------------------------
-			//
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r1 = s1 * s2;
-				UINT32 r2 = (UINT16)ACCUM_L(del) + ((UINT16)(r1) * 2);
-				UINT32 r3 = (UINT16)ACCUM_M(del) + (UINT16)((r1 >> 16) * 2) + (UINT16)(r2 >> 16);
+				UINT32 r2 = (UINT16)R_ACCUM_L(del) + ((UINT16)(r1) * 2);
+				UINT32 r3 = (UINT16)R_ACCUM_M(del) + (UINT16)((r1 >> 16) * 2) + (UINT16)(r2 >> 16);
 
-				ACCUM_L(del) = (UINT16)(r2);
-				ACCUM_M(del) = (UINT16)(r3);
-				ACCUM_H(del) += (UINT16)(r3 >> 16) + (UINT16)(r1 >> 31);
+				W_ACCUM_L(del, (UINT16)(r2));
+				W_ACCUM_M(del, (UINT16)(r3));
+				W_ACCUM_H(del, (UINT16)R_ACCUM_H(del) + (UINT16)(r3 >> 16) + (UINT16)(r1 >> 31));
 
-				//res = SATURATE_ACCUM(del, 1, 0x0000, 0xffff);
-				if ((INT16)ACCUM_H(del) < 0)
+				if ((INT16)R_ACCUM_H(del) < 0)
 				{
 					res = 0;
 				}
 				else
 				{
-					if (ACCUM_H(del) != 0)
+					if (R_ACCUM_H(del) != 0)
 					{
 						res = 0xffff;
 					}
 					else
 					{
-						if ((INT16)ACCUM_M(del) < 0)
+						if ((INT16)R_ACCUM_M(del) < 0)
 						{
 							res = 0xffff;
 						}
 						else
 						{
-							res = ACCUM_M(del);
+							res = R_ACCUM_M(del);
 						}
 					}
 				}
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x0c:		/* VMADL */
+		case 0x0c:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001100 |
-			// ------------------------------------------------------
-			//
-			// Multiplies unsigned fraction by unsigned fraction
-			// Adds the higher 16 bits of the 32-bit result to accumulator
-			// The low slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				UINT32 s1 = (UINT32)(UINT16)VREG_S(VS1REG, del);
-				UINT32 s2 = (UINT32)(UINT16)VREG_S(VS2REG, sel);
+				UINT32 s1 = (UINT32)(UINT16)R_VREG_S(VS1REG, del);
+				UINT32 s2 = (UINT32)(UINT16)R_VREG_S(VS2REG, sel);
 				UINT32 r1 = s1 * s2;
-				UINT32 r2 = (UINT16)ACCUM_L(del) + (r1 >> 16);
-				UINT32 r3 = (UINT16)ACCUM_M(del) + (r2 >> 16);
+				UINT32 r2 = (UINT16)R_ACCUM_L(del) + (r1 >> 16);
+				UINT32 r3 = (UINT16)R_ACCUM_M(del) + (r2 >> 16);
 
-				ACCUM_L(del) = (UINT16)(r2);
-				ACCUM_M(del) = (UINT16)(r3);
-				ACCUM_H(del) += (INT16)(r3 >> 16);
+				W_ACCUM_L(del, (UINT16)(r2));
+				W_ACCUM_M(del, (UINT16)(r3));
+				W_ACCUM_H(del, (INT16)R_ACCUM_H(del) + (INT16)(r3 >> 16));
 
 				res = SATURATE_ACCUM(del, 0, 0x0000, 0xffff);
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x0d:		/* VMADM */
+		case 0x0d:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001101 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by unsigned fraction
-			// The result is added into accumulator
-			// The middle slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				UINT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				UINT32 s2 = (UINT16)VREG_S(VS2REG, sel);	// not sign-extended
+				UINT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				UINT32 s2 = (UINT16)R_VREG_S(VS2REG, sel);
 				UINT32 r1 = s1 * s2;
-				UINT32 r2 = (UINT16)ACCUM_L(del) + (UINT16)(r1);
-				UINT32 r3 = (UINT16)ACCUM_M(del) + (r1 >> 16) + (r2 >> 16);
+				UINT32 r2 = (UINT16)R_ACCUM_L(del) + (UINT16)(r1);
+				UINT32 r3 = (UINT16)R_ACCUM_M(del) + (r1 >> 16) + (r2 >> 16);
 
-				ACCUM_L(del) = (UINT16)(r2);
-				ACCUM_M(del) = (UINT16)(r3);
-				ACCUM_H(del) += (UINT16)(r3 >> 16);
+				W_ACCUM_L(del, (UINT16)(r2));
+				W_ACCUM_M(del, (UINT16)(r3));
+				W_ACCUM_H(del, (UINT16)R_ACCUM_H(del) + (UINT16)(r3 >> 16));
 				if ((INT32)(r1) < 0)
-					ACCUM_H(del) -= 1;
+					W_ACCUM_H(del, (UINT16)R_ACCUM_H(del) - 1);
 
 				res = SATURATE_ACCUM(del, 1, 0x8000, 0x7fff);
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x0e:		/* VMADN */
+		case 0x0e:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001110 |
-			// ------------------------------------------------------
-			//
-			// Multiplies unsigned fraction by signed integer
-			// The result is added into accumulator
-			// The low slice of accumulator is stored into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (UINT16)VREG_S(VS1REG, del);		// not sign-extended
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (UINT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				UINT32 r1 = s1 * s2;
-				UINT32 r2 = (UINT16)ACCUM_L(del) + (UINT16)(r1);
-				UINT32 r3 = (UINT16)ACCUM_M(del) + (r1 >> 16) + (r2 >> 16);
+				UINT32 r2 = (UINT16)R_ACCUM_L(del) + (UINT16)(r1);
+				UINT32 r3 = (UINT16)R_ACCUM_M(del) + (r1 >> 16) + (r2 >> 16);
 
-				ACCUM_L(del) = (UINT16)(r2);
-				ACCUM_M(del) = (UINT16)(r3);
-				ACCUM_H(del) += (UINT16)(r3 >> 16);
+				W_ACCUM_L(del, (UINT16)(r2));
+				W_ACCUM_M(del, (UINT16)(r3));
+				W_ACCUM_H(del, (UINT16)R_ACCUM_H(del) + (UINT16)(r3 >> 16));
 				if ((INT32)(r1) < 0)
-					ACCUM_H(del) -= 1;
+					W_ACCUM_H(del, (UINT16)R_ACCUM_H(del) - 1);
 
 				res = SATURATE_ACCUM(del, 0, 0x0000, 0xffff);
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x0f:		/* VMADH */
+		case 0x0f:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 001111 |
-			// ------------------------------------------------------
-			//
-			// Multiplies signed integer by signed integer
-			// The result is added into highest 32 bits of accumulator, the low slice is zero
-			// The highest 32 bits of accumulator is saturated into destination element
 
 			for (i=0; i < 8; i++)
 			{
 				UINT16 res;
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT64 r = s1 * s2;
 
 				ACCUM(del) += (INT64)(r) << 32;
 
 				res = SATURATE_ACCUM(del, 1, 0x8000, 0x7fff);
 
-				VREG_S(VDREG, del) = res;
+				vres[del] = res;
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x10:		/* VADD */
+		case 0x10:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 010000 |
-			// ------------------------------------------------------
-			//
-			// Adds two vector registers and carry flag, the result is saturated to 32767
-
-			// TODO: check VS2REG == VDREG
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 + s2 + CARRY_FLAG(del);
 
-				ACCUM_L(del) = (INT16)(r);
+				W_ACCUM_L(del, (INT16)(r));
 
 				if (r > 32767) r = 32767;
 				if (r < -32768) r = -32768;
-				VREG_S(VDREG, del) = (INT16)(r);
+				vres[del] = (INT16)(r);
 			}
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x11:		/* VSUB */
+		case 0x11:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 010001 |
-			// ------------------------------------------------------
-			//
-			// Subtracts two vector registers and carry flag, the result is saturated to -32768
-
-			// TODO: check VS2REG == VDREG
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (INT32)(INT16)VREG_S(VS1REG, del);
-				INT32 s2 = (INT32)(INT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (INT32)(INT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (INT32)(INT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 - s2 - CARRY_FLAG(del);
 
-				ACCUM_L(del) = (INT16)(r);
+				W_ACCUM_L(del, (INT16)(r));
 
 				if (r > 32767) r = 32767;
 				if (r < -32768) r = -32768;
 
-				VREG_S(VDREG, del) = (INT16)(r);
+				vres[del] = (INT16)(r);
 			}
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x13:		/* VABS */
+		case 0x13:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 010011 |
-			// ------------------------------------------------------
-			//
-			// Changes the sign of source register 2 if source register 1 is negative and stores
-			// the result to destination register
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT16 s1 = (INT16)VREG_S(VS1REG, del);
-				INT16 s2 = (INT16)VREG_S(VS2REG, sel);
+				INT16 s1 = (INT16)R_VREG_S(VS1REG, del);
+				INT16 s2 = (INT16)R_VREG_S(VS2REG, sel);
 
 				if (s1 < 0)
 				{
 					if (s2 == -32768)
 					{
-						VREG_S(VDREG, del) = 32767;
+						vres[del] = 32767;
 					}
 					else
 					{
-						VREG_S(VDREG, del) = -s2;
+						vres[del] = -s2;
 					}
 				}
 				else if (s1 > 0)
 				{
-					VREG_S(VDREG, del) = s2;
+					vres[del] = s2;
 				}
 				else
 				{
-					VREG_S(VDREG, del) = 0;
+					vres[del] = 0;
 				}
 
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x14:		/* VADDC */
+		case 0x14:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 010100 |
-			// ------------------------------------------------------
-			//
-			// Adds two vector registers, the carry out is stored into carry register
-
-			// TODO: check VS2REG = VDREG
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
@@ -1558,31 +1312,24 @@ static void handle_vector_ops(UINT32 op)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (UINT32)(UINT16)VREG_S(VS1REG, del);
-				INT32 s2 = (UINT32)(UINT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (UINT32)(UINT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (UINT32)(UINT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 + s2;
 
-				VREG_S(VDREG, del) = (INT16)(r);
-				ACCUM_L(del) = (INT16)(r);
+				vres[del] = (INT16)(r);
+				W_ACCUM_L(del, (INT16)(r));
 
 				if (r & 0xffff0000)
 				{
 					SET_CARRY_FLAG(del);
 				}
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x15:		/* VSUBC */
+		case 0x15:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 010101 |
-			// ------------------------------------------------------
-			//
-			// Subtracts two vector registers, the carry out is stored into carry register
-
-			// TODO: check VS2REG = VDREG
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
@@ -1591,12 +1338,12 @@ static void handle_vector_ops(UINT32 op)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT32 s1 = (UINT32)(UINT16)VREG_S(VS1REG, del);
-				INT32 s2 = (UINT32)(UINT16)VREG_S(VS2REG, sel);
+				INT32 s1 = (UINT32)(UINT16)R_VREG_S(VS1REG, del);
+				INT32 s2 = (UINT32)(UINT16)R_VREG_S(VS2REG, sel);
 				INT32 r = s1 - s2;
 
-				VREG_S(VDREG, del) = (INT16)(r);
-				ACCUM_L(del) = (UINT16)(r);
+				vres[del] = (INT16)(r);
+				W_ACCUM_L(del, (UINT16)(r));
 
 				if ((UINT16)(r) != 0)
 				{
@@ -1607,41 +1354,36 @@ static void handle_vector_ops(UINT32 op)
 					SET_CARRY_FLAG(del);
 				}
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x1d:		/* VSAW */
+		case 0x1d:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 011101 |
-			// ------------------------------------------------------
-			//
-			// Stores high, middle or low slice of accumulator to destination vector
 
 			switch (EL)
 			{
-				case 0x08:		// VSAWH
+				case 0x08:
 				{
 					for (i=0; i < 8; i++)
 					{
-						VREG_S(VDREG, i) = ACCUM_H(i);
+						W_VREG_S(VDREG, i, R_ACCUM_H(i));
 					}
 					break;
 				}
-				case 0x09:		// VSAWM
+				case 0x09:
 				{
 					for (i=0; i < 8; i++)
 					{
-						VREG_S(VDREG, i) = ACCUM_M(i);
+						W_VREG_S(VDREG, i, R_ACCUM_M(i));
 					}
 					break;
 				}
-				case 0x0a:		// VSAWL
+				case 0x0a:
 				{
 					for (i=0; i < 8; i++)
 					{
-						VREG_S(VDREG, i) = ACCUM_L(i);
+						W_VREG_S(VDREG, i, R_ACCUM_L(i));
 					}
 					break;
 				}
@@ -1650,15 +1392,8 @@ static void handle_vector_ops(UINT32 op)
 			break;
 		}
 
-		case 0x20:		/* VLT */
+		case 0x20:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100000 |
-			// ------------------------------------------------------
-			//
-			// Sets compare flags if elements in VS1 are less than VS2
-			// Moves the element in VS2 to destination vector
 
 			rsp.flag[1] = 0;
 
@@ -1667,14 +1402,14 @@ static void handle_vector_ops(UINT32 op)
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
 
-				if (VREG_S(VS1REG, del) < VREG_S(VS2REG, sel))
+				if (R_VREG_S(VS1REG, del) < R_VREG_S(VS2REG, sel))
 				{
-					VREG_S(VDREG, del) = VREG_S(VS1REG, del);
+					vres[del] = R_VREG_S(VS1REG, del);
 					SET_COMPARE_FLAG(del);
 				}
-				else if (VREG_S(VS1REG, del) == VREG_S(VS2REG, sel))
+				else if (R_VREG_S(VS1REG, del) == R_VREG_S(VS2REG, sel))
 				{
-					VREG_S(VDREG, del) = VREG_S(VS1REG, del);
+					vres[del] = R_VREG_S(VS1REG, del);
 					if (ZERO_FLAG(del) != 0 && CARRY_FLAG(del) != 0)
 					{
 						SET_COMPARE_FLAG(del);
@@ -1682,26 +1417,20 @@ static void handle_vector_ops(UINT32 op)
 				}
 				else
 				{
-					VREG_S(VDREG, del) = VREG_S(VS2REG, sel);
+					vres[del] = R_VREG_S(VS2REG, sel);
 				}
 
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				W_ACCUM_L(del, vres[del]);
 			}
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x21:		/* VEQ */
+		case 0x21:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100001 |
-			// ------------------------------------------------------
-			//
-			// Sets compare flags if elements in VS1 are equal with VS2
-			// Moves the element in VS2 to destination vector
 
 			rsp.flag[1] = 0;
 
@@ -1710,10 +1439,10 @@ static void handle_vector_ops(UINT32 op)
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
 
-				VREG_S(VDREG, del) = VREG_S(VS2REG, sel);
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = R_VREG_S(VS2REG, sel);
+				W_ACCUM_L(del, vres[del]);
 
-				if (VREG_S(VS1REG, del) == VREG_S(VS2REG, sel))
+				if (R_VREG_S(VS1REG, del) == R_VREG_S(VS2REG, sel))
 				{
 					if (ZERO_FLAG(del) == 0)
 					{
@@ -1724,18 +1453,12 @@ static void handle_vector_ops(UINT32 op)
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x22:		/* VNE */
+		case 0x22:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100010 |
-			// ------------------------------------------------------
-			//
-			// Sets compare flags if elements in VS1 are not equal with VS2
-			// Moves the element in VS2 to destination vector
 
 			rsp.flag[1] = 0;
 
@@ -1744,10 +1467,10 @@ static void handle_vector_ops(UINT32 op)
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
 
-				VREG_S(VDREG, del) = VREG_S(VS1REG, del);
-				ACCUM_L(del) = VREG_S(VS1REG, del);
+				vres[del] = R_VREG_S(VS1REG, del);
+				W_ACCUM_L(del, vres[del]);
 
-				if (VREG_S(VS1REG, del) != VREG_S(VS2REG, sel))
+				if (R_VREG_S(VS1REG, del) != R_VREG_S(VS2REG, sel))
 				{
 					SET_COMPARE_FLAG(del);
 				}
@@ -1762,18 +1485,12 @@ static void handle_vector_ops(UINT32 op)
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x23:		/* VGE */
+		case 0x23:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100011 |
-			// ------------------------------------------------------
-			//
-			// Sets compare flags if elements in VS1 are greater or equal with VS2
-			// Moves the element in VS2 to destination vector
 
 			rsp.flag[1] = 0;
 
@@ -1782,50 +1499,45 @@ static void handle_vector_ops(UINT32 op)
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
 
-				if (VREG_S(VS1REG, del) == VREG_S(VS2REG, sel))
+				if (R_VREG_S(VS1REG, del) == R_VREG_S(VS2REG, sel))
 				{
 					if (ZERO_FLAG(del) == 0 || CARRY_FLAG(del) == 0)
 					{
 						SET_COMPARE_FLAG(del);
 					}
 				}
-				else if (VREG_S(VS1REG, del) > VREG_S(VS2REG, sel))
+				else if (R_VREG_S(VS1REG, del) > R_VREG_S(VS2REG, sel))
 				{
 					SET_COMPARE_FLAG(del);
 				}
 
 				if (COMPARE_FLAG(del) != 0)
 				{
-					VREG_S(VDREG, del) = VREG_S(VS1REG, del);
+					vres[del] = R_VREG_S(VS1REG, del);
 				}
 				else
 				{
-					VREG_S(VDREG, del) = VREG_S(VS2REG, sel);
+					vres[del] = R_VREG_S(VS2REG, sel);
 				}
 
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				W_ACCUM_L(del, vres[del]);
 			}
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x24:		/* VCL */
+		case 0x24:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100100 |
-			// ------------------------------------------------------
-			//
-			// Vector clip low
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT16 s1 = VREG_S(VS1REG, del);
-				INT16 s2 = VREG_S(VS2REG, sel);
+				INT16 s1 = R_VREG_S(VS1REG, del);
+				INT16 s2 = R_VREG_S(VS2REG, sel);
 
 				if (CARRY_FLAG(del) != 0)
 				{
@@ -1833,11 +1545,11 @@ static void handle_vector_ops(UINT32 op)
 					{
 						if (COMPARE_FLAG(del) != 0)
 						{
-							ACCUM_L(del) = -(UINT16)s2;
+							W_ACCUM_L(del, -(UINT16)s2);
 						}
 						else
 						{
-							ACCUM_L(del) = s1;
+							W_ACCUM_L(del, s1);
 						}
 					}
 					else
@@ -1846,12 +1558,12 @@ static void handle_vector_ops(UINT32 op)
 						{
 							if (((UINT32)(INT16)(s1) + (UINT32)(INT16)(s2)) > 0x10000)
 							{
-								ACCUM_L(del) = s1;
+								W_ACCUM_L(del, s1);
 								CLEAR_COMPARE_FLAG(del);
 							}
 							else
 							{
-								ACCUM_L(del) = -((UINT16)s2);
+								W_ACCUM_L(del, -((UINT16)s2));
 								SET_COMPARE_FLAG(del);
 							}
 						}
@@ -1859,12 +1571,12 @@ static void handle_vector_ops(UINT32 op)
 						{
 							if (((UINT32)(INT16)(s1) + (UINT32)(INT16)(s2)) != 0)
 							{
-								ACCUM_L(del) = s1;
+								W_ACCUM_L(del, s1);
 								CLEAR_COMPARE_FLAG(del);
 							}
 							else
 							{
-								ACCUM_L(del) = -((UINT16)s2);
+								W_ACCUM_L(del, -((UINT16)s2));
 								SET_COMPARE_FLAG(del);
 							}
 						}
@@ -1876,44 +1588,39 @@ static void handle_vector_ops(UINT32 op)
 					{
 						if (rsp.flag[1] & (1 << (8+del)))
 						{
-							ACCUM_L(del) = s2;
+							W_ACCUM_L(del, s2);
 						}
 						else
 						{
-							ACCUM_L(del) = s1;
+							W_ACCUM_L(del, s1);
 						}
 					}
 					else
 					{
 						if (((INT32)(UINT16)s1 - (INT32)(UINT16)s2) >= 0)
 						{
-							ACCUM_L(del) = s2;
+							W_ACCUM_L(del, s2);
 							rsp.flag[1] |= (1 << (8+del));
 						}
 						else
 						{
-							ACCUM_L(del) = s1;
+							W_ACCUM_L(del, s1);
 							rsp.flag[1] &= ~(1 << (8+del));
 						}
 					}
 				}
 
-				VREG_S(VDREG, del) = ACCUM_L(del);
+				vres[del] = R_ACCUM_L(del);
 			}
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
 			rsp.flag[2] = 0;
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x25:		/* VCH */
+		case 0x25:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100101 |
-			// ------------------------------------------------------
-			//
-			// Vector clip high
 
 			CLEAR_ZERO_FLAGS();
 			CLEAR_CARRY_FLAGS();
@@ -1924,8 +1631,8 @@ static void handle_vector_ops(UINT32 op)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT16 s1 = VREG_S(VS1REG, del);
-				INT16 s2 = VREG_S(VS2REG, sel);
+				INT16 s1 = R_VREG_S(VS1REG, del);
+				INT16 s2 = R_VREG_S(VS2REG, sel);
 
 				if ((s1 ^ s2) < 0)
 				{
@@ -1942,11 +1649,11 @@ static void handle_vector_ops(UINT32 op)
 							rsp.flag[2] |= (1 << (del));
 						}
 						SET_COMPARE_FLAG(del);
-						VREG_S(VDREG, del) = -((UINT16)s2);
+						vres[del] = -((UINT16)s2);
 					}
 					else
 					{
-						VREG_S(VDREG, del) = s1;
+						vres[del] = s1;
 					}
 
 					if (s1 + s2 != 0)
@@ -1966,11 +1673,11 @@ static void handle_vector_ops(UINT32 op)
 					if (s1 - s2 >= 0)
 					{
 						rsp.flag[1] |= (1 << (8+del));
-						VREG_S(VDREG, del) = s2;
+						vres[del] = s2;
 					}
 					else
 					{
-						VREG_S(VDREG, del) = s1;
+						vres[del] = s1;
 					}
 
 					if ((s1 - s2) != 0)
@@ -1982,19 +1689,14 @@ static void handle_vector_ops(UINT32 op)
 					}
 				}
 
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x26:		/* VCR */
+		case 0x26:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100110 |
-			// ------------------------------------------------------
-			//
-			// Vector clip reverse
 
 			rsp.flag[0] = 0;
 			rsp.flag[1] = 0;
@@ -2004,8 +1706,8 @@ static void handle_vector_ops(UINT32 op)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				INT16 s1 = VREG_S(VS1REG, del);
-				INT16 s2 = VREG_S(VS2REG, sel);
+				INT16 s1 = R_VREG_S(VS1REG, del);
+				INT16 s2 = R_VREG_S(VS2REG, sel);
 
 				if ((INT16)(s1 ^ s2) < 0)
 				{
@@ -2015,12 +1717,12 @@ static void handle_vector_ops(UINT32 op)
 					}
 					if ((s1 + s2) <= 0)
 					{
-						ACCUM_L(del) = ~((UINT16)s2);
+						W_ACCUM_L(del, ~((UINT16)s2));
 						SET_COMPARE_FLAG(del);
 					}
 					else
 					{
-						ACCUM_L(del) = s1;
+						W_ACCUM_L(del, s1);
 					}
 				}
 				else
@@ -2031,169 +1733,133 @@ static void handle_vector_ops(UINT32 op)
 					}
 					if ((s1 - s2) >= 0)
 					{
-						ACCUM_L(del) = s2;
+						W_ACCUM_L(del, s2);
 						rsp.flag[1] |= (1 << (8+del));
 					}
 					else
 					{
-						ACCUM_L(del) = s1;
+						W_ACCUM_L(del, s1);
 					}
 				}
 
-				VREG_S(VDREG, del) = ACCUM_L(del);
+				vres[del] = R_ACCUM_L(del);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x27:		/* VMRG */
+		case 0x27:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 100111 |
-			// ------------------------------------------------------
-			//
-			// Merges two vectors according to compare flags
 
 			for (i=0; i < 8; i++)
 			{
-				if (COMPARE_FLAG(i) != 0)
+				int del = VEC_EL_1(EL, i);
+				int sel = VEC_EL_2(EL, del);
+				if (COMPARE_FLAG(del) != 0)
 				{
-					VREG_S(VDREG, i) = VREG_S(VS1REG, i);
+					vres[del] = R_VREG_S(VS1REG, del);
 				}
 				else
 				{
-					VREG_S(VDREG, i) = VREG_S(VS2REG, VEC_EL_2(EL, i));
+					vres[del] = R_VREG_S(VS2REG, VEC_EL_2(EL, sel));
 				}
+
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x28:		/* VAND */
+		case 0x28:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101000 |
-			// ------------------------------------------------------
-			//
-			// Bitwise AND of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, del) = VREG_S(VS1REG, del) & VREG_S(VS2REG, sel);
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = R_VREG_S(VS1REG, del) & R_VREG_S(VS2REG, sel);
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x29:		/* VNAND */
+		case 0x29:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101001 |
-			// ------------------------------------------------------
-			//
-			// Bitwise NOT AND of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, i) = ~(VREG_S(VS1REG, del) & VREG_S(VS2REG, sel));
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = ~((R_VREG_S(VS1REG, del) & R_VREG_S(VS2REG, sel)));
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x2a:		/* VOR */
+		case 0x2a:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101010 |
-			// ------------------------------------------------------
-			//
-			// Bitwise OR of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, del) = VREG_S(VS1REG, del) | VREG_S(VS2REG, sel);
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = R_VREG_S(VS1REG, del) | R_VREG_S(VS2REG, sel);
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x2b:		/* VNOR */
+		case 0x2b:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101011 |
-			// ------------------------------------------------------
-			//
-			// Bitwise NOT OR of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, del) = ~(VREG_S(VS1REG, del) | VREG_S(VS2REG, sel));
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = ~((R_VREG_S(VS1REG, del) | R_VREG_S(VS2REG, sel)));
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x2c:		/* VXOR */
+		case 0x2c:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101100 |
-			// ------------------------------------------------------
-			//
-			// Bitwise XOR of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, del) = VREG_S(VS1REG, del) ^ VREG_S(VS2REG, sel);
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = R_VREG_S(VS1REG, del) ^ R_VREG_S(VS2REG, sel);
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
-		case 0x2d:		/* VNXOR */
+		case 0x2d:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | TTTTT | DDDDD | 101101 |
-			// ------------------------------------------------------
-			//
-			// Bitwise NOT XOR of two vector registers
 
 			for (i=0; i < 8; i++)
 			{
 				int del = VEC_EL_1(EL, i);
 				int sel = VEC_EL_2(EL, del);
-				VREG_S(VDREG, del) = ~(VREG_S(VS1REG, del) ^ VREG_S(VS2REG, sel));
-				ACCUM_L(del) = VREG_S(VDREG, del);
+				vres[del] = ~((R_VREG_S(VS1REG, del) ^ R_VREG_S(VS2REG, sel)));
+				W_ACCUM_L(del, vres[del]);
 			}
+			WRITEBACK_RESULT();
 			break;
 		}
 
-		case 0x30:		/* VRCP */
+		case 0x30:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110000 |
-			// ------------------------------------------------------
-			//
-			// Calculates reciprocal
 
 			int del = (VS1REG & 7);
-			int sel = VEC_EL_2(EL, 7-del);
+			int sel = VEC_EL_2(EL, del);
 			INT32 rec;
 
-			rec = (INT16)(VREG_S(VS2REG, sel));
+			rec = (INT16)(R_VREG_S(VS2REG, sel));
 
 			if (rec == 0)
 			{
-				// divide by zero -> overflow
+
 				rec = 0x7fffffff;
 			}
 			else
@@ -2212,7 +1878,7 @@ static void handle_vector_ops(UINT32 op)
 						i = 0;
 					}
 				}
-				rec = (INT32)(0x7fffffff / (double)rec);
+                rec = (INT32)(0x7fffffff / (double)rec);
 				for (i = 31; i > 0; i--)
 				{
 					if (rec & (1 << i))
@@ -2230,33 +1896,27 @@ static void handle_vector_ops(UINT32 op)
 			for (i=0; i < 8; i++)
 			{
 				int element = VEC_EL_2(EL, i);
-				ACCUM_L(i) = VREG_S(VS2REG, element);
+				W_ACCUM_L(i, R_VREG_S(VS2REG, element));
 			}
 
 			rsp.reciprocal_res = rec;
 
-			VREG_S(VDREG, del) = (UINT16)(rsp.reciprocal_res);			// store low part
+			W_VREG_S(VDREG, del, (UINT16)(rsp.reciprocal_res));
 			break;
 		}
 
-		case 0x31:		/* VRCPL */
+		case 0x31:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110001 |
-			// ------------------------------------------------------
-			//
-			// Calculates reciprocal low part
 
 			int del = (VS1REG & 7);
-			int sel = VEC_EL_2(EL, 7-del);
+			int sel = VEC_EL_2(EL, del);
 			INT32 rec;
 
-			rec = ((UINT16)(VREG_S(VS2REG, sel)) | ((UINT32)(rsp.reciprocal_high) << 16));
+			rec = ((UINT16)(R_VREG_S(VS2REG, sel)) | ((UINT32)(rsp.reciprocal_high) << 16));
 
 			if (rec == 0)
 			{
-				// divide by zero -> overflow
+
 				rec = 0x7fffffff;
 			}
 			else
@@ -2300,76 +1960,58 @@ static void handle_vector_ops(UINT32 op)
 			for (i=0; i < 8; i++)
 			{
 				int element = VEC_EL_2(EL, i);
-				ACCUM_L(i) = VREG_S(VS2REG, element);
+				W_ACCUM_L(i, R_VREG_S(VS2REG, element));
 			}
 
 			rsp.reciprocal_res = rec;
 
-			VREG_S(VDREG, del) = (UINT16)(rsp.reciprocal_res);			// store low part
+			W_VREG_S(VDREG, del, (UINT16)(rsp.reciprocal_res));
 			break;
 		}
 
-		case 0x32:		/* VRCPH */
+		case 0x32:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110010 |
-			// ------------------------------------------------------
-			//
-			// Calculates reciprocal high part
 
 			int del = (VS1REG & 7);
-			int sel = VEC_EL_2(EL, 7-del);
+			int sel = VEC_EL_2(EL, del);
 
-			rsp.reciprocal_high = VREG_S(VS2REG, sel);
+			rsp.reciprocal_high = R_VREG_S(VS2REG, sel);
 
 			for (i=0; i < 8; i++)
 			{
 				int element = VEC_EL_2(EL, i);
-				ACCUM_L(i) = VREG_S(VS2REG, element);		// perhaps accumulator is used to store the intermediate values ?
+				W_ACCUM_L(i, R_VREG_S(VS2REG, element));
 			}
 
-			VREG_S(VDREG, del) = (INT16)(rsp.reciprocal_res >> 16);	// store high part
+			W_VREG_S(VDREG, del, (INT16)(rsp.reciprocal_res >> 16));
 			break;
 		}
 
-		case 0x33:		/* VMOV */
+		case 0x33:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110011 |
-			// ------------------------------------------------------
-			//
-			// Moves element from vector to destination vector
 
 			int element = VS1REG & 7;
-			VREG_S(VDREG, element) = VREG_S(VS2REG, VEC_EL_2(EL, 7-element));
+			W_VREG_S(VDREG, element, R_VREG_S(VS2REG, VEC_EL_2(EL, 7-element)));
 			break;
 		}
 
-		case 0x35:		/* VRSQL */
+		case 0x35:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110101 |
-			// ------------------------------------------------------
-			//
-			// Calculates reciprocal square-root low part
 
 			int del = (VS1REG & 7);
-			int sel = VEC_EL_2(EL, 7-del);
+			int sel = VEC_EL_2(EL, del);
 			INT32 sqr;
 
-			sqr = (UINT16)(VREG_S(VS2REG, sel)) | ((UINT32)(rsp.square_root_high) << 16);
+			sqr = (UINT16)(R_VREG_S(VS2REG, sel)) | ((UINT32)(rsp.square_root_high) << 16);
 
 			if (sqr == 0)
 			{
-				// square root on 0 -> overflow
+
 				sqr = 0x7fffffff;
 			}
 			else if (sqr == 0xffff8000)
 			{
-				// overflow ?
+
 				sqr = 0xffff8000;
 			}
 			else
@@ -2413,36 +2055,30 @@ static void handle_vector_ops(UINT32 op)
 			for (i=0; i < 8; i++)
 			{
 				int element = VEC_EL_2(EL, i);
-				ACCUM_L(i) = VREG_S(VS2REG, element);
+				W_ACCUM_L(i, R_VREG_S(VS2REG, element));
 			}
 
 			rsp.square_root_res = sqr;
 
-			VREG_S(VDREG, del) = (UINT16)(rsp.square_root_res);			// store low part
+			W_VREG_S(VDREG, del, (UINT16)(rsp.square_root_res));
 			break;
 		}
 
-		case 0x36:		/* VRSQH */
+		case 0x36:
 		{
-			// 31       25  24     20      15      10      5        0
-			// ------------------------------------------------------
-			// | 010010 | 1 | EEEE | SSSSS | ?FFFF | DDDDD | 110110 |
-			// ------------------------------------------------------
-			//
-			// Calculates reciprocal square-root high part
 
 			int del = (VS1REG & 7);
-			int sel = VEC_EL_2(EL, 7-del);
+			int sel = VEC_EL_2(EL, del);
 
-			rsp.square_root_high = VREG_S(VS2REG, sel);
+			rsp.square_root_high = R_VREG_S(VS2REG, sel);
 
 			for (i=0; i < 8; i++)
 			{
 				int element = VEC_EL_2(EL, i);
-				ACCUM_L(i) = VREG_S(VS2REG, element);		// perhaps accumulator is used to store the intermediate values ?
+				W_ACCUM_L(i, R_VREG_S(VS2REG, element));
 			}
 
-			VREG_S(VDREG, del) = (INT16)(rsp.square_root_res >> 16);	// store high part
+			W_VREG_S(VDREG, del, (INT16)(rsp.square_root_res >> 16));
 			break;
 		}
 
@@ -2456,10 +2092,12 @@ static int rsp_execute(int cycles)
 
 	rsp_icount = cycles;
 
-	if (rsp.pc < 0x4001000 || rsp.pc >= 0x4002000)
-	{
-		fatalerror("rsp: PC = %08X\n", rsp.pc);
-	}
+	rsp.pc = 0x4001000 | (rsp.pc & 0xfff);
+
+    if( rsp.sr & ( RSP_STATUS_HALT | RSP_STATUS_BROKE ) )
+    {
+        rsp_icount = 0;
+    }
 
 	while (rsp_icount > 0)
 	{
@@ -2479,129 +2117,110 @@ static int rsp_execute(int cycles)
 
 		switch (op >> 26)
 		{
-			case 0x00:	/* SPECIAL */
+			case 0x00:
 			{
 				switch (op & 0x3f)
 				{
-					case 0x00:	/* SLL */		if (RDREG) RDVAL = (UINT32)RTVAL << SHIFT; break;
-					case 0x02:	/* SRL */		if (RDREG) RDVAL = (UINT32)RTVAL >> SHIFT; break;
-					case 0x03:	/* SRA */		if (RDREG) RDVAL = (INT32)RTVAL >> SHIFT; break;
-					case 0x04:	/* SLLV */		if (RDREG) RDVAL = (UINT32)RTVAL << (RSVAL & 0x1f); break;
-					case 0x06:	/* SRLV */		if (RDREG) RDVAL = (UINT32)RTVAL >> (RSVAL & 0x1f); break;
-					case 0x07:	/* SRAV */		if (RDREG) RDVAL = (INT32)RTVAL >> (RSVAL & 0x1f); break;
-					case 0x08:	/* JR */		JUMP_PC(RSVAL); break;
-					case 0x09:	/* JALR */		JUMP_PC_L(RSVAL, RDREG); break;
-					case 0x0d:	/* BREAK */
+					case 0x00:			if (RDREG) RDVAL = (UINT32)RTVAL << SHIFT; break;
+					case 0x02:			if (RDREG) RDVAL = (UINT32)RTVAL >> SHIFT; break;
+					case 0x03:			if (RDREG) RDVAL = (INT32)RTVAL >> SHIFT; break;
+					case 0x04:			if (RDREG) RDVAL = (UINT32)RTVAL << (RSVAL & 0x1f); break;
+					case 0x06:			if (RDREG) RDVAL = (UINT32)RTVAL >> (RSVAL & 0x1f); break;
+					case 0x07:			if (RDREG) RDVAL = (INT32)RTVAL >> (RSVAL & 0x1f); break;
+					case 0x08:			JUMP_PC(RSVAL); break;
+					case 0x09:			JUMP_PC_L(RSVAL, RDREG); break;
+					case 0x0d:
 					{
 						sp_set_status(0x3);
-						rsp_icount = 0;
+						rsp_icount = 1;
 
 #if LOG_INSTRUCTION_EXECUTION
 						fprintf(exec_output, "\n---------- break ----------\n\n");
 #endif
 						break;
 					}
-					case 0x20:	/* ADD */		if (RDREG) RDVAL = (INT32)(RSVAL + RTVAL); break;
-					case 0x21:	/* ADDU */		if (RDREG) RDVAL = (INT32)(RSVAL + RTVAL); break;
-					case 0x22:	/* SUB */		if (RDREG) RDVAL = (INT32)(RSVAL - RTVAL); break;
-					case 0x23:	/* SUBU */		if (RDREG) RDVAL = (INT32)(RSVAL - RTVAL); break;
-					case 0x24:	/* AND */		if (RDREG) RDVAL = RSVAL & RTVAL; break;
-					case 0x25:	/* OR */		if (RDREG) RDVAL = RSVAL | RTVAL; break;
-					case 0x26:	/* XOR */		if (RDREG) RDVAL = RSVAL ^ RTVAL; break;
-					case 0x27:	/* NOR */		if (RDREG) RDVAL = ~(RSVAL | RTVAL); break;
-					case 0x2a:	/* SLT */		if (RDREG) RDVAL = (INT32)RSVAL < (INT32)RTVAL; break;
-					case 0x2b:	/* SLTU */		if (RDREG) RDVAL = (UINT32)RSVAL < (UINT32)RTVAL; break;
+					case 0x20:			if (RDREG) RDVAL = (INT32)(RSVAL + RTVAL); break;
+					case 0x21:			if (RDREG) RDVAL = (INT32)(RSVAL + RTVAL); break;
+					case 0x22:			if (RDREG) RDVAL = (INT32)(RSVAL - RTVAL); break;
+					case 0x23:			if (RDREG) RDVAL = (INT32)(RSVAL - RTVAL); break;
+					case 0x24:			if (RDREG) RDVAL = RSVAL & RTVAL; break;
+					case 0x25:			if (RDREG) RDVAL = RSVAL | RTVAL; break;
+					case 0x26:			if (RDREG) RDVAL = RSVAL ^ RTVAL; break;
+					case 0x27:			if (RDREG) RDVAL = ~(RSVAL | RTVAL); break;
+					case 0x2a:			if (RDREG) RDVAL = (INT32)RSVAL < (INT32)RTVAL; break;
+					case 0x2b:			if (RDREG) RDVAL = (UINT32)RSVAL < (UINT32)RTVAL; break;
 					default:	unimplemented_opcode(op); break;
 				}
 				break;
 			}
 
-			case 0x01:	/* REGIMM */
+			case 0x01:
 			{
 				switch (RTREG)
 				{
-					case 0x00:	/* BLTZ */		if ((INT32)(RSVAL) < 0) JUMP_REL(SIMM16); break;
-					case 0x01:	/* BGEZ */		if ((INT32)(RSVAL) >= 0) JUMP_REL(SIMM16); break;
-					case 0x11:	/* BGEZAL */	if ((INT32)(RSVAL) >= 0) JUMP_REL_L(SIMM16, 31); break;
+					case 0x00:			if ((INT32)(RSVAL) < 0) JUMP_REL(SIMM16); break;
+					case 0x01:			if ((INT32)(RSVAL) >= 0) JUMP_REL(SIMM16); break;
+					case 0x11:		if ((INT32)(RSVAL) >= 0) JUMP_REL_L(SIMM16, 31); break;
 					default:	unimplemented_opcode(op); break;
 				}
 				break;
 			}
 
-			case 0x02:	/* J */			JUMP_ABS(UIMM26); break;
-			case 0x03:	/* JAL */		JUMP_ABS_L(UIMM26, 31); break;
-			case 0x04:	/* BEQ */		if (RSVAL == RTVAL) JUMP_REL(SIMM16); break;
-			case 0x05:	/* BNE */		if (RSVAL != RTVAL) JUMP_REL(SIMM16); break;
-			case 0x06:	/* BLEZ */		if ((INT32)RSVAL <= 0) JUMP_REL(SIMM16); break;
-			case 0x07:	/* BGTZ */		if ((INT32)RSVAL > 0) JUMP_REL(SIMM16); break;
-			case 0x08:	/* ADDI */		if (RTREG) RTVAL = (INT32)(RSVAL + SIMM16); break;
-			case 0x09:	/* ADDIU */		if (RTREG) RTVAL = (INT32)(RSVAL + SIMM16); break;
-			case 0x0b:	/* SLTIU */		if (RTREG) RTVAL = (UINT32)(RTVAL) < (UINT32)((INT32)SIMM16); break;
-			case 0x0c:	/* ANDI */		if (RTREG) RTVAL = RSVAL & UIMM16; break;
-			case 0x0d:	/* ORI */		if (RTREG) RTVAL = RSVAL | UIMM16; break;
-			case 0x0e:	/* XORI */		if (RTREG) RTVAL = RSVAL ^ UIMM16; break;
-			case 0x0f:	/* LUI */		if (RTREG) RTVAL = UIMM16 << 16; break;
+			case 0x02:				JUMP_ABS(UIMM26); break;
+			case 0x03:			JUMP_ABS_L(UIMM26, 31); break;
+			case 0x04:			if (RSVAL == RTVAL) JUMP_REL(SIMM16); break;
+			case 0x05:			if (RSVAL != RTVAL) JUMP_REL(SIMM16); break;
+			case 0x06:			if ((INT32)RSVAL <= 0) JUMP_REL(SIMM16); break;
+			case 0x07:			if ((INT32)RSVAL > 0) JUMP_REL(SIMM16); break;
+			case 0x08:			if (RTREG) RTVAL = (INT32)(RSVAL + SIMM16); break;
+			case 0x09:			if (RTREG) RTVAL = (INT32)(RSVAL + SIMM16); break;
+			case 0x0a:			if (RTREG) RTVAL = (INT32)(RSVAL) < ((INT32)SIMM16); break;
+			case 0x0b:			if (RTREG) RTVAL = (UINT32)(RSVAL) < (UINT32)((INT32)SIMM16); break;
+			case 0x0c:			if (RTREG) RTVAL = RSVAL & UIMM16; break;
+			case 0x0d:			if (RTREG) RTVAL = RSVAL | UIMM16; break;
+			case 0x0e:			if (RTREG) RTVAL = RSVAL ^ UIMM16; break;
+			case 0x0f:			if (RTREG) RTVAL = UIMM16 << 16; break;
 
-			case 0x10:	/* COP0 */
+			case 0x10:
 			{
 				switch ((op >> 21) & 0x1f)
 				{
-					case 0x00:	/* MFC0 */		if (RTREG) RTVAL = get_cop0_reg(RDREG); break;
-					case 0x04:	/* MTC0 */		set_cop0_reg(RDREG, RTVAL); break;
+					case 0x00:			if (RTREG) RTVAL = get_cop0_reg(RDREG); break;
+					case 0x04:			set_cop0_reg(RDREG, RTVAL); break;
 					default:	unimplemented_opcode(op); break;
 				}
 				break;
 			}
 
-			case 0x12:	/* COP2 */
+			case 0x12:
 			{
 				switch ((op >> 21) & 0x1f)
 				{
-					case 0x00:	/* MFC2 */
+					case 0x00:
 					{
-						// 31       25      20      15      10     6         0
-						// ---------------------------------------------------
-						// | 010010 | 00000 | TTTTT | DDDDD | IIII | 0000000 |
-						// ---------------------------------------------------
-						//
 
 						int el = (op >> 7) & 0xf;
-						UINT16 b1 = VREG_B(VS1REG, (el+0) & 0xf);
-						UINT16 b2 = VREG_B(VS1REG, (el+1) & 0xf);
+						UINT16 b1 = R_VREG_B(VS1REG, (el+0) & 0xf);
+						UINT16 b2 = R_VREG_B(VS1REG, (el+1) & 0xf);
 						if (RTREG) RTVAL = (INT32)(INT16)((b1 << 8) | (b2));
 						break;
 					}
-					case 0x02:	/* CFC2 */
+					case 0x02:
 					{
-						// 31       25      20      15      10            0
-						// ------------------------------------------------
-						// | 010010 | 00010 | TTTTT | DDDDD | 00000000000 |
-						// ------------------------------------------------
-						//
 
 						if (RTREG) RTVAL = rsp.flag[RDREG];
 						break;
 					}
-					case 0x04:	/* MTC2 */
+					case 0x04:
 					{
-						// 31       25      20      15      10     6         0
-						// ---------------------------------------------------
-						// | 010010 | 00100 | TTTTT | DDDDD | IIII | 0000000 |
-						// ---------------------------------------------------
-						//
 
 						int el = (op >> 7) & 0xf;
-						VREG_B(VS1REG, (el+0) & 0xf) = (RTVAL >> 8) & 0xff;
-						VREG_B(VS1REG, (el+1) & 0xf) = (RTVAL >> 0) & 0xff;
+						W_VREG_B(VS1REG, (el+0) & 0xf, (RTVAL >> 8) & 0xff);
+						W_VREG_B(VS1REG, (el+1) & 0xf, (RTVAL >> 0) & 0xff);
 						break;
 					}
-					case 0x06:	/* CTC2 */
+					case 0x06:
 					{
-						// 31       25      20      15      10            0
-						// ------------------------------------------------
-						// | 010010 | 00110 | TTTTT | DDDDD | 00000000000 |
-						// ------------------------------------------------
-						//
 
 						rsp.flag[RDREG] = RTVAL & 0xffff;
 						break;
@@ -2619,16 +2238,16 @@ static int rsp_execute(int cycles)
 				break;
 			}
 
-			case 0x20:	/* LB */		if (RTREG) RTVAL = (INT32)(INT8)READ8(RSVAL + SIMM16); break;
-			case 0x21:	/* LH */		if (RTREG) RTVAL = (INT32)(INT16)READ16(RSVAL + SIMM16); break;
-			case 0x23:	/* LW */		if (RTREG) RTVAL = READ32(RSVAL + SIMM16); break;
-			case 0x24:	/* LBU */		if (RTREG) RTVAL = (UINT8)READ8(RSVAL + SIMM16); break;
-			case 0x25:	/* LHU */		if (RTREG) RTVAL = (UINT16)READ16(RSVAL + SIMM16); break;
-			case 0x28:	/* SB */		WRITE8(RSVAL + SIMM16, RTVAL); break;
-			case 0x29:	/* SH */		WRITE16(RSVAL + SIMM16, RTVAL); break;
-			case 0x2b:	/* SW */		WRITE32(RSVAL + SIMM16, RTVAL); break;
-			case 0x32:	/* LWC2 */		handle_lwc2(op); break;
-			case 0x3a:	/* SWC2 */		handle_swc2(op); break;
+			case 0x20:			if (RTREG) RTVAL = (INT32)(INT8)READ8(RSVAL + SIMM16); break;
+			case 0x21:			if (RTREG) RTVAL = (INT32)(INT16)READ16(RSVAL + SIMM16); break;
+			case 0x23:			if (RTREG) RTVAL = READ32(RSVAL + SIMM16); break;
+			case 0x24:			if (RTREG) RTVAL = (UINT8)READ8(RSVAL + SIMM16); break;
+			case 0x25:			if (RTREG) RTVAL = (UINT16)READ16(RSVAL + SIMM16); break;
+			case 0x28:			WRITE8(RSVAL + SIMM16, RTVAL); break;
+			case 0x29:			WRITE16(RSVAL + SIMM16, RTVAL); break;
+			case 0x2b:			WRITE32(RSVAL + SIMM16, RTVAL); break;
+			case 0x32:			handle_lwc2(op); break;
+			case 0x3a:			handle_swc2(op); break;
 
 			default:
 			{
@@ -2672,7 +2291,7 @@ static int rsp_execute(int cycles)
 				if (rsp.v[i].d[0] != prev_vecs[i].d[0] || rsp.v[i].d[1] != prev_vecs[i].d[1])
 				{
 					fprintf(exec_output, "V%d: %04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X ", i,
-					(UINT16)VREG_S(i,0), (UINT16)VREG_S(i,1), (UINT16)VREG_S(i,2), (UINT16)VREG_S(i,3), (UINT16)VREG_S(i,4), (UINT16)VREG_S(i,5), (UINT16)VREG_S(i,6), (UINT16)VREG_S(i,7));
+					(UINT16)R_VREG_S(i,0), (UINT16)R_VREG_S(i,1), (UINT16)R_VREG_S(i,2), (UINT16)R_VREG_S(i,3), (UINT16)R_VREG_S(i,4), (UINT16)R_VREG_S(i,5), (UINT16)R_VREG_S(i,6), (UINT16)R_VREG_S(i,7));
 				}
 				prev_vecs[i].d[0] = rsp.v[i].d[0];
 				prev_vecs[i].d[1] = rsp.v[i].d[1];
@@ -2684,118 +2303,86 @@ static int rsp_execute(int cycles)
 #endif
 
 		--rsp_icount;
+
+        if( rsp.sr & RSP_STATUS_SSTEP )
+        {
+            rsp.sr |= RSP_STATUS_BROKE;
+        }
+
+        if( rsp.sr & ( RSP_STATUS_HALT | RSP_STATUS_BROKE ) )
+        {
+            rsp_icount = 0;
+        }
+
 	}
 
 	return cycles - rsp_icount;
 }
 
-
-
-
-/*****************************************************************************/
-
 static void rsp_get_context(void *dst)
 {
-	/* copy the context */
+
 	if (dst)
 		*(RSP_REGS *)dst = rsp;
 }
 
-
 static void rsp_set_context(void *src)
 {
-	/* copy the context */
+
 	if (src)
 		rsp = *(RSP_REGS *)src;
 }
 
-
-/*****************************************************************************/
-
-static UINT8 rsp_reg_layout[] =
-{
-	RSP_PC,			-1,
-	RSP_R0,	 		RSP_R16,		-1,
-	RSP_R1, 		RSP_R17,		-1,
-	RSP_R2, 		RSP_R18,		-1,
-	RSP_R3, 		RSP_R19,		-1,
-	RSP_R4, 		RSP_R20,		-1,
-	RSP_R5, 		RSP_R21,		-1,
-	RSP_R6, 		RSP_R22,		-1,
-	RSP_R7, 		RSP_R23,		-1,
-	RSP_R8,			RSP_R24,		-1,
-	RSP_R9,			RSP_R25,		-1,
-	RSP_R10,		RSP_R26,		-1,
-	RSP_R11,		RSP_R27,		-1,
-	RSP_R12,		RSP_R28,		-1,
-	RSP_R13,		RSP_R29,		-1,
-	RSP_R14,		RSP_R30,		-1,
-	RSP_R15,		RSP_R31,		0
-};
-
-static UINT8 rsp_win_layout[] =
-{
-	 0, 0,45,20,	/* register window (top rows) */
-	46, 0,33,14,	/* disassembler window (left colums) */
-	 0,21,45, 1,	/* memory #1 window (right, upper middle) */
-	46,15,33, 7,	/* memory #2 window (right, lower middle) */
-	 0,23,80, 1,	/* command line window (bottom rows) */
-};
-
+#ifdef MAME_DEBUG
 static offs_t rsp_dasm(char *buffer, offs_t pc, UINT8 *oprom, UINT8 *opram, int bytes)
 {
-#ifdef MAME_DEBUG
-	UINT32 op = *(UINT32 *)opram;
+	UINT32 op = LITTLE_ENDIANIZE_INT32(*(UINT32 *)opram);
 	return rsp_dasm_one(buffer, pc, op);
-#else
-	sprintf(buffer, "$%08X", *(UINT32 *)opram);
-	return 4;
-#endif
 }
-
-/*****************************************************************************/
+#endif
 
 static void rsp_set_info(UINT32 state, union cpuinfo *info)
 {
 	switch (state)
 	{
-		/* --- the following bits of info are set as 64-bit signed integers --- */
-		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + RSP_PC:				rsp.pc = info->i;						break;
 
-		case CPUINFO_INT_REGISTER + RSP_R0:				rsp.r[0] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R1:				rsp.r[1] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R2:				rsp.r[2] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R3:				rsp.r[3] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R4:				rsp.r[4] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R5:				rsp.r[5] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R6:				rsp.r[6] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R7:				rsp.r[7] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R8:				rsp.r[8] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R9:				rsp.r[9] = info->i;						break;
-		case CPUINFO_INT_REGISTER + RSP_R10:			rsp.r[10] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R11:			rsp.r[11] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R12:			rsp.r[12] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R13:			rsp.r[13] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R14:			rsp.r[14] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R15:			rsp.r[15] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R16:			rsp.r[16] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R17:			rsp.r[17] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R18:			rsp.r[18] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R19:			rsp.r[19] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R20:			rsp.r[20] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R21:			rsp.r[21] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R22:			rsp.r[22] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R23:			rsp.r[23] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R24:			rsp.r[24] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R25:			rsp.r[25] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R26:			rsp.r[26] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R27:			rsp.r[27] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R28:			rsp.r[28] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R29:			rsp.r[29] = info->i;					break;
-		case CPUINFO_INT_REGISTER + RSP_R30:			rsp.r[30] = info->i;					break;
-		case CPUINFO_INT_SP:
-		case CPUINFO_INT_REGISTER + RSP_R31:			rsp.r[31] = info->i;					break;
+		case CPUINFO_INT_PC:
+        case CPUINFO_INT_REGISTER + RSP_PC:             rsp.pc = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R0:             rsp.r[0] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R1:             rsp.r[1] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R2:             rsp.r[2] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R3:             rsp.r[3] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R4:             rsp.r[4] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R5:             rsp.r[5] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R6:             rsp.r[6] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R7:             rsp.r[7] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R8:             rsp.r[8] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R9:             rsp.r[9] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R10:            rsp.r[10] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R11:            rsp.r[11] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R12:            rsp.r[12] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R13:            rsp.r[13] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R14:            rsp.r[14] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R15:            rsp.r[15] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R16:            rsp.r[16] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R17:            rsp.r[17] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R18:            rsp.r[18] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R19:            rsp.r[19] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R20:            rsp.r[20] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R21:            rsp.r[21] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R22:            rsp.r[22] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R23:            rsp.r[23] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R24:            rsp.r[24] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R25:            rsp.r[25] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R26:            rsp.r[26] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R27:            rsp.r[27] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R28:            rsp.r[28] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R29:            rsp.r[29] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_R30:            rsp.r[30] = info->i;        break;
+        case CPUINFO_INT_SP:
+        case CPUINFO_INT_REGISTER + RSP_R31:            rsp.r[31] = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_SR:             rsp.sr = info->i;        break;
+        case CPUINFO_INT_REGISTER + RSP_NEXTPC:         rsp.nextpc = info->i;        break;
 	}
 }
 
@@ -2803,7 +2390,7 @@ void rsp_get_info(UINT32 state, union cpuinfo *info)
 {
 	switch(state)
 	{
-		/* --- the following bits of info are returned as 64-bit signed integers --- */
+
 		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof(rsp);					break;
 		case CPUINFO_INT_INPUT_LINES:					info->i = 1;							break;
 		case CPUINFO_INT_DEFAULT_IRQ_VECTOR:			info->i = 0;							break;
@@ -2824,11 +2411,11 @@ void rsp_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 0;					break;
 		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO: 		info->i = 0;					break;
 
-		case CPUINFO_INT_INPUT_STATE:					info->i = CLEAR_LINE;	break;
+		case CPUINFO_INT_INPUT_STATE:					info->i = CLEAR_LINE;					break;
 
 		case CPUINFO_INT_PREVIOUSPC:					info->i = rsp.ppc;						break;
 
-		case CPUINFO_INT_PC:	/* intentional fallthrough */
+		case CPUINFO_INT_PC:
 		case CPUINFO_INT_REGISTER + RSP_PC:				info->i = rsp.pc;						break;
 
 		case CPUINFO_INT_REGISTER + RSP_R0:				info->i = rsp.r[0];						break;
@@ -2864,8 +2451,9 @@ void rsp_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_REGISTER + RSP_R30:			info->i = rsp.r[30];					break;
 		case CPUINFO_INT_SP:
 		case CPUINFO_INT_REGISTER + RSP_R31:			info->i = rsp.r[31];					break;
+        case CPUINFO_INT_REGISTER + RSP_SR:             info->i = rsp.sr;                       break;
+        case CPUINFO_INT_REGISTER + RSP_NEXTPC:         info->i = rsp.nextpc;                   break;
 
-		/* --- the following bits of info are returned as pointers to data or functions --- */
 		case CPUINFO_PTR_GET_CONTEXT:					info->getcontext = rsp_get_context;		break;
 		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = rsp_set_context;		break;
 		case CPUINFO_PTR_SET_INFO:						info->setinfo = rsp_set_info;			break;
@@ -2874,21 +2462,20 @@ void rsp_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_PTR_EXIT:							info->exit = rsp_exit;					break;
 		case CPUINFO_PTR_EXECUTE:						info->execute = rsp_execute;			break;
 		case CPUINFO_PTR_BURN:							info->burn = NULL;						break;
-		case CPUINFO_PTR_DISASSEMBLE_NEW:				info->disassemble_new = rsp_dasm;		break;
+#ifdef MAME_DEBUG
+		case CPUINFO_PTR_DISASSEMBLE_NEW:				info->disassemble_new = rsp_dasm;			break;
+#endif
 		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &rsp_icount;				break;
-		case CPUINFO_PTR_REGISTER_LAYOUT:				info->p = rsp_reg_layout;				break;
-		case CPUINFO_PTR_WINDOW_LAYOUT:					info->p = rsp_win_layout;				break;
 
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "RSP"); break;
-		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "RSP"); break;
-		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "1.0"); break;
-		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__); break;
-		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Copyright (C) 2005"); break;
+		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "RSP");					break;
+		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "RSP");					break;
+		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "1.0");					break;
+		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__);				break;
+		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Copyright (C) 2005");	break;
 
-		case CPUINFO_STR_FLAGS:							strcpy(info->s = cpuintrf_temp_str(), " "); break;
+		case CPUINFO_STR_FLAGS:							strcpy(info->s = cpuintrf_temp_str(), " ");					break;
 
-		case CPUINFO_STR_REGISTER + RSP_PC:				sprintf(info->s = cpuintrf_temp_str(), "PC: %08X", rsp.pc); break;
+		case CPUINFO_STR_REGISTER + RSP_PC:				sprintf(info->s = cpuintrf_temp_str(), "PC: %08X", rsp.pc);	break;
 
 		case CPUINFO_STR_REGISTER + RSP_R0:				sprintf(info->s = cpuintrf_temp_str(), "R0: %08X", rsp.r[0]); break;
 		case CPUINFO_STR_REGISTER + RSP_R1:				sprintf(info->s = cpuintrf_temp_str(), "R1: %08X", rsp.r[1]); break;
@@ -2922,5 +2509,7 @@ void rsp_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_STR_REGISTER + RSP_R29:			sprintf(info->s = cpuintrf_temp_str(), "R29: %08X", rsp.r[29]); break;
 		case CPUINFO_STR_REGISTER + RSP_R30:			sprintf(info->s = cpuintrf_temp_str(), "R30: %08X", rsp.r[30]); break;
 		case CPUINFO_STR_REGISTER + RSP_R31:			sprintf(info->s = cpuintrf_temp_str(), "R31: %08X", rsp.r[31]); break;
+        case CPUINFO_STR_REGISTER + RSP_SR:             sprintf(info->s = cpuintrf_temp_str(), "SR: %08X",  rsp.sr);    break;
+        case CPUINFO_STR_REGISTER + RSP_NEXTPC:         sprintf(info->s = cpuintrf_temp_str(), "NPC: %08X", rsp.nextpc);break;
 	}
 }
