@@ -18,3 +18,10 @@ VIDEO_START( namcos21 );
 VIDEO_UPDATE( namcos21_default );
 VIDEO_UPDATE( namcos21_winrun );
 
+
+READ16_HANDLER(winrun_gpu_color_r);
+WRITE16_HANDLER(winrun_gpu_color_w);
+READ16_HANDLER(winrun_gpu_register_r);
+WRITE16_HANDLER(winrun_gpu_register_w);
+READ16_HANDLER(winrun_gpu_videoram_r);
+WRITE16_HANDLER(winrun_gpu_videoram_w);

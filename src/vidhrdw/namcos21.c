@@ -20,6 +20,53 @@ TODO: add depth cueing support (palette bank selection using most significant bi
 
 #define FRAMEBUFFER_SIZE_IN_BYTES (sizeof(UINT16)*NAMCOS21_POLY_FRAME_WIDTH*NAMCOS21_POLY_FRAME_HEIGHT)
 
+static UINT8 *winrun_videoram, *winrun_maskram;
+static UINT16 winrun_color, winrun_gpu_register[8];
+
+READ16_HANDLER(winrun_gpu_color_r)
+{
+	return winrun_color;
+}
+
+WRITE16_HANDLER(winrun_gpu_color_w)
+{
+	COMBINE_DATA( &winrun_color );
+}
+
+READ16_HANDLER(winrun_gpu_register_r)
+{
+	return winrun_gpu_register[offset];
+}
+
+WRITE16_HANDLER(winrun_gpu_register_w)
+{
+	COMBINE_DATA( &winrun_gpu_register[offset] );
+	force_partial_update(cpu_getscanline());
+}
+
+WRITE16_HANDLER( winrun_gpu_videoram_w)
+{
+	UINT8 *videoram = winrun_videoram;
+	int color = data>>8;
+	int mask  = data&0xff;
+	int i;
+	for( i=0; i<8; i++ )
+	{
+		if( mask&(0x01<<i) )
+		{
+			videoram[(offset+i)&0x7ffff] = color;
+			winrun_maskram[(offset+i)&0x7ffff] = mask;
+		}
+	}
+}
+
+READ16_HANDLER( winrun_gpu_videoram_r )
+{
+	UINT8 *videoram = winrun_videoram;
+	return (videoram[offset]<<8) | winrun_maskram[offset];
+}
+
+
 /* work (hidden) framebuffer */
 static UINT16 *mpPolyFrameBufferPens;
 static INT16 *mpPolyFrameBufferZ;
@@ -93,6 +140,16 @@ VIDEO_START( namcos21 )
 {
 	if( AllocatePolyFrameBuffer()==0 )
 	{
+		if( namcos2_gametype == NAMCOS21_WINRUN91 )
+		{
+			winrun_videoram = auto_malloc(0x80000);
+			winrun_maskram = auto_malloc(0x80000);
+			memset(winrun_maskram, 0, 0x80000);
+			memset(winrun_videoram, 0xff, 0x80000);
+			winrun_color = 0;
+			memset(winrun_gpu_register, 0, sizeof(winrun_gpu_register));
+			return 0;
+		}
 		namco_obj_init(
 			0,		/* gfx bank */
 			0xf,	/* reverse palette mapping */
@@ -166,28 +223,34 @@ VIDEO_UPDATE( namcos21_default )
 
 VIDEO_UPDATE( namcos21_winrun )
 {
-	/* NOT WORKING!
-     *
-     * videoram16 points to a framebuffer used by Winning Run '91 hardware, probably a linear
-     * pixel map used as a predecessor to the newer hardware's sprite system.
-     */
-	int sx,sy;
-	for( sy=0; sy<512; sy++ )
+	int sx, sy;
+	int yscroll = -cliprect->min_y + (INT16)winrun_gpu_register[1];
+	int base = 0x1000 + 0x100 * (winrun_color & 15);
+	update_palette();
+	fillbitmap(bitmap, 0, cliprect);
+	CopyVisiblePolyFrameBuffer(bitmap, cliprect);
+	for (sy = cliprect->min_y; sy <= cliprect->max_y; sy++)
 	{
-		UINT16 *pDest = bitmap->line[sy];
-		for( sx=0; sx<512; sx++ )
+		const UINT8 *source = winrun_videoram + (((yscroll + sy) & 0x3ff) * 512);
+		UINT16 *dest = bitmap->line[sy];
+		for (sx = cliprect->min_x; sx <= cliprect->max_x; sx++)
 		{
-			int color = 0;
-			int offs = sy*0x400 + (sx/8)*0x10;
-			if( videoram16[offs/2]&(1<<(sx&7)) )
+			int pen = source[sx];
+			if (pen == 0)
 			{
-				color = 1;
+				dest[sx] = (dest[sx] & 0x1fff) + 0x4000;
 			}
-			pDest[sx] = color;
+			else if (pen == 1)
+			{
+				dest[sx] = (dest[sx] & 0x1fff) + 0x6000;
+			}
+			else if (pen != 255)
+			{
+				dest[sx] = base | pen;
+			}
 		}
 	}
-	namcos21_dspram16[0x100/2] = 0x0001;
-} /* VIDEO_UPDATE( namcos21_winrun ) */
+}
 
 /*********************************************************************************************/
 
@@ -241,7 +304,8 @@ renderscanline_flat( const edge *e1, const edge *e2, int sy, unsigned color )
 				INT16 zz = (INT16)z;
 				if( zz<pZBuf[x] )
 				{
-					pDest[x] = color;
+					pDest[x] = namcos2_gametype == NAMCOS21_WINRUN91 ?
+						color + (((UINT16)z >> 10) * 0x100) : color;
 					pZBuf[x] = zz;
 				}
 				z += dz;
@@ -379,7 +443,9 @@ namcos21_DrawQuad( int sx[4], int sy[4], int zcode[4], int color )
 //      0x6000..0x7fff  polygon palette bank2 (0x10 sets of 0x200 colors)
 
 	/* map color code to hardware pen */
-	switch( color>>8 )
+	if (namcos2_gametype == NAMCOS21_WINRUN91)
+		color = 0x4000 | (color & 0xff);
+	else switch( color>>8 )
 	{
 	case 0:
 		color = 0x4000 - 0x400 + (color&0xff) + 0x100;
