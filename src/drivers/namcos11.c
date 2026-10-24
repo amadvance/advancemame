@@ -464,6 +464,38 @@ static READ32_HANDLER( keycus_c431_r )
 	return data;
 }
 
+static READ32_HANDLER( keycus_c432_r )
+{
+	UINT32 data;
+	UINT16 n_value;
+
+	if( ( namcos11_keycus[ 3 ] & 0x0000ffff ) == 0x00002f15 )
+	{
+		n_value = namcos11_keycus[ 1 ] & 0x0000ffff;
+	}
+	else
+	{
+		n_value = 432;
+	}
+
+	data = namcos11_keycus[ offset ];
+	switch( offset )
+	{
+	case 1:
+		data = ( data & 0xffff0000 ) | ( ( ( n_value / 10 ) % 10 ) << 8 ) | ( ( n_value / 1 ) % 10 );
+		break;
+	case 2:
+		data = ( data & 0xffff0000 ) | ( ( ( n_value / 1000 ) % 10 ) << 8 ) | ( ( n_value / 100 ) % 10 );
+		break;
+	case 3:
+		data = ( data & 0xffff0000 ) | ( ( ( n_value / 100000 ) % 10 ) << 8 ) | ( ( n_value / 10000 ) % 10 );
+		break;
+	}
+
+	verboselog( 1, "keycus_c432_r( %08x, %08x, %08x )\n", offset, data, mem_mask );
+	return data;
+}
+
 /* star sweep */
 static READ32_HANDLER( keycus_c442_r )
 {
@@ -568,6 +600,21 @@ static INTERRUPT_GEN( namcos11_vblank )
 	n_oldcoin = ~n_coin;
 
 	psx_vblank();
+}
+
+static INTERRUPT_GEN( pocketrc_vblank )
+{
+	namcos11_vblank();
+	SHRAM( 0xbd30 ) = ( SHRAM( 0xbd30 ) & 0x0000ffff ) | 0x00800000;
+	SHRAM( 0xbd08 ) = ( SHRAM( 0xbd08 ) & 0x0000ffff ) |
+		( ( ( readinputportbytag("STEERING") - 0x80 ) & 0xffff ) << 16 );
+	SHRAM( 0xbd0c ) = ( SHRAM( 0xbd0c ) & 0xffff0000 ) | readinputportbytag("GAS");
+	if( ( SHRAM( 0xbe88 ) & 0xffff ) == 2 )
+	{
+		cpunum_set_input_line( 0, INPUT_LINE_RESET, PULSE_LINE );
+		memset( namcos11_keycus, 0, namcos11_keycus_size );
+		SHRAM( 0xbe88 ) &= 0xffff0000;
+	}
 }
 
 static UINT32 m_n_bankoffset;
@@ -748,6 +795,7 @@ static struct
 	{ "xevi3dg",  keycus_c430_r, 32 },
 	{ "primglex", keycus_c411_r, 32 },
 	{ "danceyes", keycus_c431_r, 32 },
+	{ "pocketrc", keycus_c432_r, 32 },
 	{ "starswep", keycus_c442_r, 0 },
 	{ "myangel3", keycus_c443_r, 64 },
 	{ "ptblnk2a", keycus_c443_r, 64 },
@@ -823,7 +871,7 @@ NAMCO_C7X_HARDWARE
 
 static MACHINE_DRIVER_START( coh100ns )
 	/* basic machine hardware */
-	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
+	MDRV_CPU_ADD_TAG( "main", PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
 	MDRV_CPU_PROGRAM_MAP( namcos11_map, 0 )
 	MDRV_CPU_VBLANK_INT( namcos11_vblank, 1 )
 
@@ -858,6 +906,14 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( coh110 )
 	MDRV_IMPORT_FROM( coh100 )
 	MDRV_VIDEO_START( psx_type2 )
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( pocketrc )
+	MDRV_IMPORT_FROM( coh110ns )
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_VBLANK_INT(pocketrc_vblank, 1)
+	NAMCO_C7X_MCU_SHARED(16934400)
+	NAMCO_C7X_SOUND(16934400)
 MACHINE_DRIVER_END
 
 static int lightgunx( int port )
@@ -957,6 +1013,35 @@ INPUT_PORTS_START( namcos11 )
 	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_COIN2 )
 	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_COIN3 )
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN4 )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( pocketrc )
+	PORT_START
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_SERVICE1 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE ) PORT_TOGGLE PORT_CODE(KEYCODE_F2)
+	PORT_DIPNAME( 0x02, 0x00, "DIP1 (Test)" )
+	PORT_DIPSETTING( 0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( On ) )
+	PORT_DIPNAME( 0x01, 0x00, "DIP2 (Freeze)" )
+	PORT_DIPSETTING( 0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( On ) )
+	PORT_BIT( 0xfff0, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0xffff, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0xffff, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0xffff, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0x0800, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("View")
+	PORT_BIT( 0xf7ff, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0xfff7, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START_TAG("STEERING")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x38, 0xc8) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_CENTERDELTA(10) PORT_REVERSE
+	PORT_START_TAG("GAS")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00, 0x7f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_REVERSE
 INPUT_PORTS_END
 
 INPUT_PORTS_START( tekken )
@@ -1691,6 +1776,24 @@ ROM_START( xevi3dg )
 	ROM_RELOAD( 0x800000, 0x400000 )
 ROM_END
 
+ROM_START( pocketrc )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "pkr1verb.2l",  0x000000, 0x100000, CRC(300d906a) SHA1(f521858f78284d69e6a6ec2c35a468c87dd0628c) )
+	ROM_LOAD16_BYTE( "pkr1verb.2j",  0x000001, 0x100000, CRC(d5f47526) SHA1(b1d5b6f714510d0cfcc9b32708287755f9f27ead) )
+
+	ROM_REGION32_LE( 0x1000000, REGION_USER2, 0 )
+	ROM_LOAD16_BYTE( "pkr1rom0l.ic5", 0x000000, 0x200000, CRC(6c9b074c) SHA1(885f342bd178e4146e1f75259206f6625c0b3c18) )
+	ROM_LOAD16_BYTE( "pkr1rom0u.ic6", 0x000001, 0x200000, CRC(a55c0906) SHA1(3b6abfa877f88a4d96222d98af02498b0c777af6) )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER4, 0 )
+	ROM_LOAD( "pkr1verb.6d",  0x000000, 0x040000, CRC(9bf08992) SHA1(fca7943f7bcf0ee758fa63fbdef8f7456b9e46cb) )
+	NAMCO_C7X_BIOS
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pkr1wave.8k",  0x000000, 0x400000, CRC(72517c46) SHA1(d0dcc750fe8eca9e965e7c366ac39a42ffd76557) )
+	ROM_RELOAD( 0x800000, 0x400000 )
+ROM_END
+
 GAME( 1994, tekken,    0,        coh100, tekken,   namcos11, ROT0, "Namco", "Tekken (TE4/VER.C)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1994, tekkena,   tekken,   coh100, tekken,   namcos11, ROT0, "Namco", "Tekken (TE2/VER.C)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1994, tekkenb,   tekken,   coh100, tekken,   namcos11, ROT0, "Namco", "Tekken (TE2/VER.B)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
@@ -1707,6 +1810,7 @@ GAME( 1995, dunkmnic,  dunkmnia, coh110, namcos11, namcos11, ROT0, "Namco", "Dun
 GAME( 1995, xevi3dg,   0,        coh110, namcos11, namcos11, ROT0, "Namco", "Xevious 3D/G (XV31/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1996, primglex,  0,        coh110, tekken,   namcos11, ROT0, "Namco", "Prime Goal EX (PG1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1996, danceyes,  0,        coh110, namcos11, namcos11, ROT0, "Namco", "Dancing Eyes (DC1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, pocketrc,  0,        pocketrc, pocketrc, namcos11, ROT0, "Namco", "Pocket Racer (Japan, PKR1/VER.B)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, starswep,  0,        coh110, namcos11, namcos11, ROT0, "Axela/Namco", "Star Sweep (STP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, myangel3,  0,        coh110, myangel3, namcos11, ROT0, "Namco", "Kosodate Quiz My Angel 3 (KQT1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1999, ptblnk2a,  ptblank2, coh110g, ptblnk2a, namcos11, ROT0, "Namco", "Point Blank 2 (GNB3/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )

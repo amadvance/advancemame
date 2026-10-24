@@ -561,12 +561,12 @@ WRITE32_HANDLER( psx_counter_w )
 	case 1:
 		m_p_n_root_count[ n_counter ] = root_current( n_counter );
 		m_p_n_root_start[ n_counter ] = psxcpu_gettotalcycles();
-		m_p_n_root_mode[ n_counter ] = data;
-
-		if( ( m_p_n_root_mode[ n_counter ] & RC_RESET ) != 0 )
+		if( ( data & RC_RESET ) != 0 )
 		{
+			data &= ~( RC_RESET | RC_STOP );
 			m_p_n_root_count[ n_counter ] = 0;
 		}
+		m_p_n_root_mode[ n_counter ] = data;
 //      if( ( data & 0xfca6 ) != 0 ||
 //          ( ( data & 0x0100 ) != 0 && n_counter != 0 && n_counter != 1 ) ||
 //          ( ( data & 0x0200 ) != 0 && n_counter != 2 ) )
