@@ -5819,12 +5819,14 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( gauntl12 )	/* (c) 1998 Atari Games */
 	DRIVER( tenthdeg )	/* (c) 1998 Atari Games (prototype) */
 	DRIVER( roadburn )	/* (c) 1999 Atari Games */
+	DRIVER( roadburn1 )
 	DRIVER( sf2049 )	/* (c) 1999 Atari Games */
 	DRIVER( sf2049se )	/* (c) 1999 Atari Games */
 	DRIVER( sf2049te )	/* (c) 1999 Atari Games */
 	DRIVER( warfa )		/* (c) 1999 Atari Games */
 	DRIVER( nbashowt )	/* (c) 1998 Midway Games */
 	DRIVER( nbanfl )	/* (c) 1999 Midway Games */
+	DRIVER( nbagold )
 	DRIVER( gauntdl )	/* (c) 1999 Midway Games */
 	DRIVER( gauntd24 )	/* (c) 1999 Midway Games */
 	DRIVER( cartfury )	/* (c) 2000 Midway Games */
