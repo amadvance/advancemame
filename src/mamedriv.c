@@ -4271,6 +4271,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( pooyan )	/* GX320 (c) 1982 */
 	DRIVER( pooyans )	/* GX320 (c) 1982 Stern */
 	DRIVER( pootan )	/* bootleg */
+	DRIVER( chkun )
+	DRIVER( bikkuric )
 	DRIVER( timeplt )	/* GX393 (c) 1982 */
 	DRIVER( timepltc )	/* GX393 (c) 1982 + Centuri license*/
 	DRIVER( timeplta )	/* GX393 (c) 1982 + Atari license*/

@@ -4,3 +4,7 @@ ADDRESS_MAP_EXTERN(locomotn_sound_readmem);
 ADDRESS_MAP_EXTERN(locomotn_sound_writemem);
 extern struct AY8910interface timeplt_ay8910_interface;
 WRITE8_HANDLER( timeplt_sh_irqtrigger_w );
+
+extern struct AY8910interface chkun_ay8910_interface;
+extern struct CustomSound_interface chkun_voice_interface;
+ADDRESS_MAP_EXTERN(peni_sound_map);

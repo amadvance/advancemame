@@ -2,6 +2,7 @@
 
 unsigned char *timeplt_videoram,*timeplt_colorram;
 static tilemap *bg_tilemap;
+static UINT8 bikkuric_video_enable;
 
 /*
 sprites are multiplexed, so we have to buffer the spriteram
@@ -106,15 +107,22 @@ static void get_tile_info(int tile_index)
 
 
 
+static void bikkuric_get_tile_info(int tile_index)
+{
+	UINT8 attr = timeplt_colorram[tile_index];
+	tile_info.priority = (attr >> 7) & 1;
+	SET_TILE_INFO(0, timeplt_videoram[tile_index] + ((attr & 0x60) << 3), attr & 31, 0)
+}
+
 /***************************************************************************
 
   Start the video hardware emulation.
 
 ***************************************************************************/
 
-VIDEO_START( timeplt )
+static int timeplt_video_start(void (*tile_info_callback)(int))
 {
-	bg_tilemap = tilemap_create(get_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32);
+	bg_tilemap = tilemap_create(tile_info_callback,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32);
 
 	sprite_mux_buffer = auto_malloc(256 * spriteram_size);
 	sprite_mux_buffer_2 = auto_malloc(256 * spriteram_size);
@@ -132,6 +140,28 @@ VIDEO_START( timeplt )
   Memory handlers
 
 ***************************************************************************/
+
+VIDEO_START( timeplt )
+{
+	return timeplt_video_start(get_tile_info);
+}
+
+VIDEO_START( bikkuric )
+{
+	int result = timeplt_video_start(bikkuric_get_tile_info);
+	bikkuric_video_enable = 0;
+	scanline = 0;
+	state_save_register_global(bikkuric_video_enable);
+	state_save_register_global(scanline);
+	state_save_register_global_pointer(sprite_mux_buffer, 256 * spriteram_size);
+	state_save_register_global_pointer(sprite_mux_buffer_2, 256 * spriteram_size);
+	return result;
+}
+
+WRITE8_HANDLER( bikkuric_video_enable_w )
+{
+	bikkuric_video_enable = data & 1;
+}
 
 WRITE8_HANDLER( timeplt_videoram_w )
 {
@@ -231,4 +261,10 @@ INTERRUPT_GEN( timeplt_interrupt )
 
 	if (scanline == 255)
 		nmi_line_pulse();
+}
+
+VIDEO_UPDATE( bikkuric )
+{
+	if (bikkuric_video_enable) video_update_timeplt(screen, bitmap, cliprect);
+	else fillbitmap(bitmap, get_black_pen(), cliprect);
 }
