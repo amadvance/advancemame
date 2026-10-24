@@ -231,6 +231,7 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 
 ## 7. Development & Agent Workflow Rules
 
+- **Coding Style**: Preserve the coding style and indentation of the file being modified. Use tabs for indentation in new files, except for backported files, which must preserve the indentation of the original source file. Avoid reformatting unrelated code.
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change.
 - **Git Commits**: Never commit changes to git.
