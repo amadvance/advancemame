@@ -321,10 +321,10 @@ static void update_memory_mapping(struct memory_mapper_chip *chip)
 		if (rgn->romoffset != ~0)
 		{
 			offs_t romsize = memory_region_length(REGION_CPU1 + chip->cpunum);
-			if (region_start >= romsize)
+			if (rgn->romoffset >= romsize)
 				read = NULL;
-			else if (region_start + rgn->length > romsize)
-				region_end = romsize - 1;
+			else if (region_end - region_start >= romsize - rgn->romoffset)
+				region_end = region_start + romsize - rgn->romoffset - 1;
 		}
 
 		/* map it */
@@ -349,9 +349,9 @@ static void update_memory_mapping(struct memory_mapper_chip *chip)
 				if (!decrypted)
 					decrypted = fd1089_get_decrypted_base();
 
-				memory_configure_bank(banknum, 0, 1, memory_region(REGION_CPU1 + chip->cpunum) + region_start, 0);
+				memory_configure_bank(banknum, 0, 1, memory_region(REGION_CPU1 + chip->cpunum) + rgn->romoffset, 0);
 				if (decrypted)
-					memory_configure_bank_decrypted(banknum, 0, 1, decrypted ? (decrypted + region_start) : 0, 0);
+					memory_configure_bank_decrypted(banknum, 0, 1, decrypted ? (decrypted + rgn->romoffset) : 0, 0);
 				memory_set_bank(banknum, 0);
 			}
 		}
@@ -360,6 +360,23 @@ static void update_memory_mapping(struct memory_mapper_chip *chip)
 	}
 }
 
+
+void segaic16_memory_mapper_set_decrypted(UINT8 *base)
+{
+	const struct segaic16_memory_map_entry *rgn;
+	if (!memory_mapper.map || !base) return;
+
+	/* Each bank keeps its physical ROM offset when the CPU changes state. */
+	for (rgn = memory_mapper.map; rgn->regbase; rgn++)
+		if (rgn->romoffset != ~0 &&
+			(FPTR)rgn->read >= STATIC_BANK1 && (FPTR)rgn->read <= STATIC_BANKMAX &&
+			rgn->romoffset < memory_region_length(REGION_CPU1 + memory_mapper.cpunum))
+		{
+			int bank = (FPTR)rgn->read - STATIC_BANK1 + 1;
+			memory_configure_bank_decrypted(bank, 0, 1, base + rgn->romoffset, 0);
+			memory_set_bank(bank, 0);
+		}
+}
 
 READ8_HANDLER( segaic16_memory_mapper_r )
 {

@@ -53,3 +53,5 @@ READ16_HANDLER( segaic16_compare_timer_1_r );
 WRITE16_HANDLER( segaic16_compare_timer_0_w );
 WRITE16_HANDLER( segaic16_compare_timer_1_w );
 
+
+void segaic16_memory_mapper_set_decrypted(UINT8 *base);

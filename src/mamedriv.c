@@ -3306,6 +3306,9 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( wb31 )		/* (c) 1988 Sega / Westone (FD1094, decrypted) */
 
 	/* System 16B */
+	DRIVER( ultracin )
+	DRIVER( lockonph )
+	DRIVER( dfjail )
 	DRIVER( aceattac )	/* (c) 1988 (protected) */
 	DRIVER( aliensyn )	/* (c) 1987 */
 	DRIVER( aliensy3 )	/* (c) 1987 (FD1089A, decrypted) */

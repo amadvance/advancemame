@@ -568,6 +568,20 @@ void segaic16_palette_init(int entries)
  *
  *************************************/
 
+WRITE16_HANDLER( segaic16_philko_paletteram_w )
+{
+	UINT16 value = paletteram16[offset];
+	int r, g, b;
+	COMBINE_DATA(&value);
+	paletteram16[offset] = value;
+	r = (value >> 10) & 31;
+	g = (value >> 5) & 31;
+	b = value & 31;
+	palette_set_color(offset, palette.normal[r], palette.normal[g], palette.normal[b]);
+	palette_set_color(offset + palette.entries, palette.shadow[r], palette.shadow[g], palette.shadow[b]);
+	palette_set_color(offset + 2 * palette.entries, palette.hilight[r], palette.hilight[g], palette.hilight[b]);
+}
+
 WRITE16_HANDLER( segaic16_paletteram_w )
 {
 	UINT16 newval;
