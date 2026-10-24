@@ -6,5 +6,6 @@ struct sp0250_interface {
 };
 
 WRITE8_HANDLER( sp0250_w );
+WRITE8_HANDLER( sp0250_reset_w );
 
 #endif

@@ -139,6 +139,12 @@ const game_driver * const drivers[] =
 	DRIVER( revenger )	/* (c) 1984 */
 
 	/* "Galaxian hardware" games */
+	DRIVER( bmxstunts )
+	DRIVER( victoryc )
+	DRIVER( fantastc )
+	DRIVER( monsterz )
+	DRIVER( namenayo )
+	DRIVER( sbhoei )
 	DRIVER( galaxian )	/* (c) Namco */
 	DRIVER( galaxiaj )	/* (c) Namco */
 	DRIVER( galmidw )	/* (c) Midway */
