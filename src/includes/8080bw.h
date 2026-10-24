@@ -107,3 +107,33 @@ PALETTE_INIT( cosmo );
 PALETTE_INIT( indianbt );
 
 WRITE8_HANDLER( bowler_bonus_display_w );
+
+extern struct Samplesinterface bw_extra_samples;
+extern struct discrete_sound_block ballbomb_discrete[], cane_discrete[];
+extern struct SN76477interface cane_sn76477_interface;
+WRITE8_HANDLER( ballbomb_music_w );
+WRITE8_HANDLER( cosmo_sound1_w );
+WRITE8_HANDLER( cosmo_sound2_w );
+WRITE8_HANDLER( yosakdon_sound1_w );
+WRITE8_HANDLER( yosakdon_sound2_w );
+WRITE8_HANDLER( shuttlei_sound1_w );
+WRITE8_HANDLER( shuttlei_sound2_w );
+WRITE8_HANDLER( cane_sound_w );
+WRITE8_HANDLER( cane_music_w );
+MACHINE_START( cane_audio );
+MACHINE_RESET( cane_audio );
+MACHINE_RESET( cosmo_audio );
+MACHINE_RESET( yosakdon_audio );
+MACHINE_RESET( shuttlei_audio );
+DRIVER_INIT( ballbomb );
+DRIVER_INIT( orbite );
+READ8_HANDLER( orbite_colorram_r );
+WRITE8_HANDLER( orbite_colorram_w );
+READ8_HANDLER( cosmo_stars_r );
+WRITE8_HANDLER( cosmo_stars_w );
+VIDEO_UPDATE( cosmo );
+
+PALETTE_INIT( orbite );
+
+READ8_HANDLER( bw_control1_r );
+READ8_HANDLER( bw_control2_r );
