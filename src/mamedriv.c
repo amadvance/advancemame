@@ -2880,13 +2880,17 @@ V-V                           TP-027
 	DRIVER( tekken3a )	/* Tekken 3 (TET2/VER.B) */
 	DRIVER( tekken3b )	/* Tekken 3 (TET2/VER.A) */
 	DRIVER( lbgrande )	/* Libero Grande (LG2/VER.A) */
+	DRIVER( toukon3 )
 	DRIVER( soulclbr )	/* Soul Calibur (SOC14/VER.C) */
 	DRIVER( soulclba )	/* Soul Calibur (SOC11/VER.C) */
 	DRIVER( soulclbb )	/* Soul Calibur (SOC11/VER.B) */
 	DRIVER( soulclbc )	/* Soul Calibur (SOC11/VER.A2) */
 	DRIVER( ehrgeiz )	/* Ehrgeiz (EG3/VER.A) */
 	DRIVER( ehrgeiza )	/* Ehrgeiz (EG2/VER.A) */
+	DRIVER( sws98 )
+	DRIVER( aplarail )
 	DRIVER( mdhorse )	/* Derby Quiz My Dream Horse (MDH1/VER.A2) */
+	DRIVER( technodr )
 	DRIVER( tenkomor )	/* Tenkomori Shooting (TKM2/VER.A1) */
 	DRIVER( tenkomoj )	/* Tenkomori Shooting (TKM1/VER.A1) */
 	DRIVER( fgtlayer )	/* Fighting Layer (FTL0/VER.A) */
@@ -2903,6 +2907,7 @@ V-V                           TP-027
 	DRIVER( aquarush )	/* Aqua Rush (AQ1/VER.A1) */
 	DRIVER( pacappsp )	/* Paca Paca Passion Special (PSP1/VER.A) */
 	DRIVER( golgo13 )	/* Golgo 13 (GLG1/VER.A) */
+	DRIVER( truckk )
 	DRIVER( g13knd )	/* Golgo 13 Kiseki no Dandou (GLS1/VER.A) */
 
 	/* Namco System 10 */

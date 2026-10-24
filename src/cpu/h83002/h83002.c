@@ -375,7 +375,7 @@ static void h8_GenException(UINT8 vectornr)
 	h8_mem_write16(h8_getreg32(H8_SP), h8_get_ccr());
 
 	// generate address from vector
-	h8_set_ccr(h8_get_ccr() | 0x80);
+	h8_set_ccr(h8_get_ccr() | ((h8.per_regs[0xf2] & 8) ? 0x80 : 0xc0));
 	h8.pc = h8_mem_read32(vectornr * 4) & 0xffffff;
 	change_pc(h8.pc);
 
@@ -386,21 +386,19 @@ static void h8_GenException(UINT8 vectornr)
 
 static int h8_get_priority(UINT8 bit)
 {
-	int res = 0;
-	switch(bit)
-	{
-	case 12: // IRQ0
-		if (h8.per_regs[0xF8]&0x80) res = 1; break;
-	case 13: // IRQ1
-		if (h8.per_regs[0xF8]&0x40) res = 1; break;
-	case 14: // IRQ2
-	case 15: // IRQ3
-		if (h8.per_regs[0xF8]&0x20) res = 1; break;
-	case 16: // IRQ4
-	case 17: // IRQ5
-		if (h8.per_regs[0xF8]&0x10) res = 1; break;
-	}
-	return res;
+	int slot, shift;
+	if (bit < 12 || bit >= 64)
+		return 0;
+	if (bit < 14)
+		slot = bit - 12;
+	else if (bit < 16)
+		slot = 2;
+	else if (bit < 20)
+		slot = 3;
+	else
+		slot = 4 + (bit - 20) / 4;
+	shift = slot ^ 7;
+	return (h8.per_regs[0xf8 + shift / 8] >> (shift & 7)) & 1;
 }
 
 static void h8_check_irqs(void)
@@ -724,7 +722,7 @@ static void h8_group0(UINT16 opcode)
 				address24 += sdata16;
 				H8_IFETCH_TIMING(3);
 				H8_WORD_TIMING(2, address24);
-				if(opcode & 0x80)
+				if(ext16 & 0x80)
 				{
 					udata32 = h8_getreg32(ext16 & 0x7);
 					h8_mem_write32(address24, udata32);
@@ -1585,9 +1583,10 @@ static void h8_group5(UINT16 opcode)
 		address24 &= 0xffffff;
 		// extended mode stack push!
 		h8_setreg32(H8_SP, h8_getreg32(H8_SP)-4);
-		h8_mem_write32(h8_getreg32(H8_SP), h8.pc+2);
+		h8_mem_write32(h8_getreg32(H8_SP), h8.pc);
 		h8.pc = address24;
 		change_pc(h8.pc);
+		H8_IFETCH_TIMING(1);
 		H8_STACK_TIMING(2);
 		H8_IOP_TIMING(2);
 		break;
@@ -1959,17 +1958,17 @@ static void h8_group7(UINT16 opcode)
 		}
 		break;
 	case 0x8:
-		udata16 = h8_mem_read16(h8.pc);
+		ext16 = h8_mem_read16(h8.pc);
 		h8.pc += 2;
 		udata32 = h8_mem_read32(h8.pc);
 		h8.pc += 4;
 
-		if(((udata16>>8) & 0xf) == 0xa)
+		if(((ext16>>8) & 0xf) == 0xa)
 		{
-			if(((udata16>>4) & 0xf) == 0xa)
+			if(((ext16>>4) & 0xf) == 0xa)
 			{
-				udata8 = h8_getreg8(udata16 & 0xf);
-				h8_mov8(udata8); // update flags !
+				udata8 = h8_getreg8(ext16 & 0xf);
+				h8_mov8(udata8);
 				udata32 += h8_getreg32((opcode >> 4) & 7);
 				h8_mem_write8(udata32, udata8);
 			}
@@ -1977,20 +1976,28 @@ static void h8_group7(UINT16 opcode)
 			{
 				udata32 += h8_getreg32((opcode >> 4) & 7);
 				udata8 = h8_mem_read8(udata32);
-				h8_mov8(udata8); // update flags !
-				h8_setreg8(udata16 & 0xf, udata8);
+				h8_mov8(udata8);
+				h8_setreg8(ext16 & 0xf, udata8);
 			}
 			H8_BYTE_TIMING(1, udata32);
 			H8_IFETCH_TIMING(4);
 		}
-		else if (((udata16>>8) & 0xff) == 0x6b) // mov.w @(24-bit direct, rN), rM
+		else if ((ext16 & 0xfff0) == 0x6b20)
 		{
 			udata32 += h8_getreg32((opcode >> 4) & 7);
 			udata16 = h8_mem_read16(udata32);
-			h8_mov16(udata16); // update flags !
-			h8_setreg16(udata16 & 0xf, udata16);
-
-			H8_BYTE_TIMING(1, udata32);
+			h8_setreg16(ext16 & 0xf, udata16);
+			h8_mov16(udata16);
+			H8_WORD_TIMING(1, udata32);
+			H8_IFETCH_TIMING(4);
+		}
+		else if ((ext16 & 0xfff0) == 0x6ba0)
+		{
+			udata32 += h8_getreg32((opcode >> 4) & 7);
+			udata16 = h8_getreg16(ext16 & 0xf);
+			h8_mem_write16(udata32, udata16);
+			h8_mov16(udata16);
+			H8_WORD_TIMING(1, udata32);
 			H8_IFETCH_TIMING(4);
 		}
 		else
@@ -1999,7 +2006,6 @@ static void h8_group7(UINT16 opcode)
 			h8.h8err = 1;
 		}
 		break;
-		// xxx.w #aa:16, rd
 	case 0x9:
 		if( ((opcode>>4) & 0xf) > 0x6)
 		{
@@ -2050,6 +2056,9 @@ static void h8_group7(UINT16 opcode)
 			case 0:	dst32 = h8_mov32(udata32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
 			case 1: dst32 = h8_add32(udata32, dst32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
 			case 2: h8_cmp32(udata32, dst32); H8_IFETCH_TIMING(3); break;
+			case 3: dst32 = h8_sub32(udata32, dst32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
+			case 4: dst32 = h8_mov32(dst32 | udata32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
+			case 5: dst32 = h8_xor32(udata32, dst32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
 			case 6: dst32 = h8_and32(udata32, dst32); h8_setreg32(dstreg, dst32); H8_IFETCH_TIMING(3); break;
 			default:
 				logerror("H8/3002: Unk. group 7 a2 %x\n", opcode);

@@ -856,7 +856,284 @@ static READ16_HANDLER( sharedram_sub_r )
 	return shared16[BYTE_XOR_LE(offset)];
 }
 
+static int s12_jvs_enabled;
+static UINT8 s12_jvs_address, s12_jvs_printer_address;
+static UINT8 s12_jvs_tx[512], s12_jvs_rx[1024];
+static int s12_jvs_tx_count, s12_jvs_rx_count, s12_jvs_rx_pos;
+static int s12_jvs_escape, s12_jvs_receiving, s12_jvs_rx_ready;
+static UINT16 s12_jvs_coins[2];
+static UINT8 s12_jvs_coin_last[2];
+
+static UINT32 s12_tag_read(const char *tag, UINT32 fallback)
+{
+	int port = port_tag_to_index(tag);
+	return port < 0 ? fallback : readinputport(port);
+}
+
+static void s12_jvs_encode(const UINT8 *data, int size)
+{
+	UINT8 sum = size + 1, raw[260];
+	int i, n = 0;
+	raw[n++] = 0;
+	raw[n++] = size + 1;
+	for(i = 0; i < size; i++) { raw[n++] = data[i]; sum += data[i]; }
+	raw[n++] = sum;
+	s12_jvs_rx_pos = s12_jvs_rx_count = 0;
+	s12_jvs_rx[s12_jvs_rx_count++] = 0xe0;
+	for(i = 0; i < n; i++)
+	{
+		if(raw[i] == 0xd0 || raw[i] == 0xe0)
+		{
+			s12_jvs_rx[s12_jvs_rx_count++] = 0xd0;
+			s12_jvs_rx[s12_jvs_rx_count++] = raw[i] - 1;
+		}
+		else s12_jvs_rx[s12_jvs_rx_count++] = raw[i];
+	}
+}
+
+static void s12_jvs_message(void)
+{
+	UINT8 reply[240];
+	int pos = 2, end = s12_jvs_tx_count - 1, count = 1;
+	int i, j, players, bytes, slots, channels;
+	int techno = !strcmp(Machine->gamedrv->name, "technodr");
+	int printer = techno && s12_jvs_tx[0] == s12_jvs_printer_address && s12_jvs_printer_address != 0xff;
+	UINT32 value;
+	const char *id;
+	reply[0] = 1;
+	if(s12_jvs_tx[0] != 0xff && s12_jvs_tx[0] != s12_jvs_address && !printer) return;
+	while(pos < end && count < 150)
+	{
+		UINT8 command = s12_jvs_tx[pos++];
+		switch(command)
+		{
+		case 0xf0:
+			if(pos < end && s12_jvs_tx[pos] == 0xd9) s12_jvs_address = s12_jvs_printer_address = 0xff;
+			return;
+		case 0xf1:
+			if(pos >= end) return;
+			if(techno && s12_jvs_printer_address == 0xff) s12_jvs_printer_address = s12_jvs_tx[pos++];
+			else s12_jvs_address = s12_jvs_tx[pos++];
+			reply[count++] = 1;
+			break;
+		case 0x10:
+			id = printer ? "namco ltd.;EM Pri1-01;Ver2.00;JPN&EXP,Techno-Drive PRN" : techno ?
+				"namco ltd.;EM I/O1-02;Ver2.00;JPN&EXP,Techno-Drive I/O" :
+				"namco ltd.;ASCA-1;Ver2.00;JPN,Multipurpose I/O";
+			reply[count++] = 1;
+			memcpy(reply + count, id, strlen(id) + 1);
+			count += strlen(id) + 1;
+			break;
+		case 0x11: reply[count++] = 1; reply[count++] = printer ? 0x13 : 0x11; break;
+		case 0x12: reply[count++] = 1; reply[count++] = printer ? 0x30 : 0x20; break;
+		case 0x13: reply[count++] = 1; reply[count++] = 0x10; break;
+		case 0x14:
+		{
+			static const UINT8 standard[] = {1,1,19,0, 2,2,0,0, 3,8,0,0, 0x12,13,0,0, 0};
+			static const UINT8 emio[] = {1,1,19,0, 2,2,0,0, 3,8,0,0, 0x12,24,0,0, 0};
+			reply[count++] = 1;
+			if(printer) reply[count++] = 0;
+			else if(techno) { memcpy(reply + count, emio, sizeof(emio)); count += sizeof(emio); }
+			else { memcpy(reply + count, standard, sizeof(standard)); count += sizeof(standard); }
+			break;
+		}
+		case 0x15:
+			while(pos < end && s12_jvs_tx[pos]) pos++;
+			if(pos >= end) return;
+			pos++; reply[count++] = 1;
+			break;
+		case 0x70:
+			if(pos >= end) return;
+			i = s12_jvs_tx[pos++];
+			reply[count++] = 1;
+			if(i == 4) { reply[count++] = 0xff; reply[count++] = 0xff; }
+			else if(i == 2)
+			{
+				static const UINT8 date[8] = {0x19,0x97,0x06,0x04,0x03,0x18,0x30,0x13};
+				static const UINT8 emio_date[8] = {0x19,0x98,0x04,0x09,0x04,0x15,0x11,0x14};
+				memcpy(reply + count, techno ? emio_date : date, sizeof(date)); count += sizeof(date);
+			}
+			else if(i == 3) reply[count++] = 0;
+			else return;
+			break;
+		case 0x72:
+			if(pos >= end) return;
+			i = s12_jvs_tx[pos++];
+			if(i == 1 || i == 2 || i == 4) reply[count++] = 1;
+			else if(i == 3) { reply[count++] = 1; reply[count++] = 1; }
+			else if(i == 5) { if(pos >= end) return; pos++; reply[count++] = 1; }
+			else if(i == 7)
+			{
+				if(pos >= end) return;
+				bytes = s12_jvs_tx[pos++];
+				if(pos + bytes > end) return;
+				pos += bytes; reply[count++] = 1;
+			}
+			else return;
+			break;
+		case 0x20:
+			if(pos + 2 > end) return;
+			players = s12_jvs_tx[pos++]; bytes = s12_jvs_tx[pos++];
+			if(players > 2 || bytes > 4) return;
+			reply[count++] = 1;
+			reply[count++] = s12_tag_read("JVS_SYSTEM", 0);
+			for(i = 0; i < players; i++)
+			{
+				value = s12_tag_read(i ? "JVS_PLAYER2" : "JVS_PLAYER1", 0);
+				for(j = 0; j < bytes; j++) reply[count++] = value >> (j * 8);
+			}
+			break;
+		case 0x21:
+			if(pos >= end) return;
+			slots = s12_jvs_tx[pos++];
+			if(slots > 2) return;
+			reply[count++] = 1;
+			for(i = 0; i < slots; i++)
+			{
+				value = s12_tag_read(i ? "JVS_COIN2" : "JVS_COIN1", 0);
+				if((value & 1) && !s12_jvs_coin_last[i]) s12_jvs_coins[i]++;
+				s12_jvs_coin_last[i] = value & 1;
+				reply[count++] = ((s12_jvs_coins[i] >> 8) & 0x3f) | (value & 0xc0);
+				reply[count++] = s12_jvs_coins[i];
+			}
+			break;
+		case 0x22:
+			if(pos >= end) return;
+			channels = s12_jvs_tx[pos++];
+			if(channels > 8) return;
+			reply[count++] = 1;
+			for(i = 0; i < channels; i++)
+			{
+				char tag[32];
+				sprintf(tag, "JVS_ANALOG_INPUT%d", i + 1);
+				value = s12_tag_read(tag, 0);
+				reply[count++] = value >> 8;
+				reply[count++] = value;
+			}
+			break;
+		case 0x30:
+		case 0x31:
+			if(pos + 3 > end) return;
+			slots = s12_jvs_tx[pos++];
+			value = (s12_jvs_tx[pos] << 8) | s12_jvs_tx[pos + 1]; pos += 2;
+			if(slots > 1) return;
+			s12_jvs_coins[slots] += command == 0x30 ? -value : value;
+			reply[count++] = 1;
+			break;
+		case 0x32:
+			if(pos >= end) return;
+			bytes = s12_jvs_tx[pos++];
+			if(pos + bytes > end) return;
+			pos += bytes;
+			reply[count++] = 1;
+			break;
+		case 0x38:
+			if(pos + 2 > end) return;
+			pos += 2; reply[count++] = 1;
+			break;
+		default:
+			verboselog(0, "System 12 JVS command %02x is not implemented\n", command);
+			reply[0] = 2; count = 1; pos = end;
+			break;
+		}
+	}
+	s12_jvs_encode(reply, count);
+}
+
+static WRITE8_HANDLER(s12_jvs_w)
+{
+	int i;
+	UINT8 sum = 0;
+	if(data == 0xe0)
+	{
+		s12_jvs_tx_count = s12_jvs_escape = 0;
+		s12_jvs_receiving = 1;
+		s12_jvs_rx_count = s12_jvs_rx_pos = s12_jvs_rx_ready = 0;
+		return;
+	}
+	if(!s12_jvs_receiving) return;
+	if(s12_jvs_escape) { data++; s12_jvs_escape = 0; }
+	else if(data == 0xd0) { s12_jvs_escape = 1; return; }
+	if(s12_jvs_tx_count >= sizeof(s12_jvs_tx)) { s12_jvs_receiving = 0; return; }
+	s12_jvs_tx[s12_jvs_tx_count++] = data;
+	if(s12_jvs_tx_count >= 2 && s12_jvs_tx_count == s12_jvs_tx[1] + 2)
+	{
+		for(i = 0; i < s12_jvs_tx_count - 1; i++) sum += s12_jvs_tx[i];
+		if(sum == data) s12_jvs_message();
+		s12_jvs_receiving = 0;
+	}
+}
+
+static READ8_HANDLER(s12_jvs_r)
+{
+	if(s12_jvs_rx_ready && s12_jvs_rx_pos < s12_jvs_rx_count)
+	{
+		s12_jvs_rx_ready = 0;
+		return s12_jvs_rx[s12_jvs_rx_pos++];
+	}
+	return 0;
+}
+
+static READ16_HANDLER(s12_jvs_status_r)
+{
+	UINT16 data = (s12_jvs_rx_ready ? 0xc4 : 0x84) << 8;
+	if(ACCESSING_LSB) data |= s12_jvs_r(0);
+	return data;
+}
+
+static void s12_jvs_tick(int param)
+{
+	UINT8 control;
+	cpuintrf_push_context(1);
+	control = program_read_byte_16be(0xffffb2);
+	if(!s12_jvs_rx_ready && s12_jvs_rx_pos < s12_jvs_rx_count)
+	{
+		s12_jvs_rx_ready = 1;
+	}
+	if(s12_jvs_rx_ready && (control & 0x40)) h8_3002_InterruptRequest(53);
+	if(control & 0x80) h8_3002_InterruptRequest(54);
+	else if(control & 4) h8_3002_InterruptRequest(55);
+	cpuintrf_pop_context();
+}
+
+static READ8_HANDLER(s12_jvs_sense_r)
+{
+	return s12_jvs_address == 0xff ? 0xff : 0xfd;
+}
+
+static READ8_HANDLER(s12_jvs_adc_r)
+{
+	char tag[16];
+	UINT32 value;
+	sprintf(tag, "ADC_%d", offset / 2);
+	value = s12_tag_read(tag, 0);
+	return (offset & 1) ? (value & 3) << 6 : value >> 2;
+}
+
+static READ16_HANDLER(s12_jvs_jamma_r)
+{
+	return 0xffff;
+}
+
+static READ16_HANDLER(s12_truck_inputs_r)
+{
+	UINT32 p1 = s12_tag_read("JVS_PLAYER1", 0), p2 = s12_tag_read("JVS_PLAYER2", 0);
+	UINT32 system = s12_tag_read("JVS_SYSTEM", 0);
+	UINT32 c1 = s12_tag_read("JVS_COIN1", 0), c2 = s12_tag_read("JVS_COIN2", 0);
+	UINT16 value;
+	if(offset == 0)
+		return (~BITSWAP8(p1,7,15,0,1,5,4,3,2) & 0xff) |
+			((~BITSWAP8(p2,7,15,0,1,5,4,3,2) & 0xff) << 8);
+	value = (((p1 >> 6) & 1) << 15) | (((system >> 7) & 1) << 14) |
+		((c1 & 1) << 13) | ((c2 & 1) << 12);
+	value |= ((p1 >> 13) & 2) | ((p1 >> 11) & 4) | ((p1 >> 9) & 8);
+	value |= ((p2 >> 9) & 0x20) | ((p2 >> 7) & 0x40) | ((p2 >> 5) & 0x80);
+	return ~value;
+}
+
 static UINT32 m_n_bankoffset, m_n_bankoffseth;
+static int s12_truck_bank;
+static UINT8 *s12_openbus;
 
 // called after a state load to properly set things up again
 static void s12_resetbank(void)
@@ -864,17 +1141,25 @@ static void s12_resetbank(void)
 	if( strcmp( Machine->gamedrv->name, "golgo13" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "g13knd" ) == 0 )
 	{
-		memory_set_bankptr( 1, memory_region( REGION_USER2 ) + ((m_n_bankoffseth << 23) | (m_n_bankoffset << 21)) );
+		UINT32 base = (m_n_bankoffseth << 23) | (m_n_bankoffset << 21);
+		memory_set_bankptr( 1, base + 0x200000 <= memory_region_length(REGION_USER2) ? memory_region(REGION_USER2) + base : s12_openbus );
 	}
 	else
 	{
-		memory_set_bankptr( 1, memory_region( REGION_USER2 ) + ( m_n_bankoffset * 0x200000 ) );
+		UINT32 banks = memory_region_length(REGION_USER2) / 0x200000;
+		memory_set_bankptr( 1, m_n_bankoffset < banks ? memory_region(REGION_USER2) + m_n_bankoffset * 0x200000 : s12_openbus );
 	}
 }
 
 static WRITE32_HANDLER( bankoffset_w )
 {
-	// Golgo 13 has different banking (maybe the keycus controls it?)
+	if( s12_truck_bank )
+	{
+		if( data & 8 ) m_n_bankoffset = (data - 8) << 2;
+		else m_n_bankoffset = (m_n_bankoffset & ~7) | (data & 7);
+		s12_resetbank();
+		return;
+	}
 	if( strcmp( Machine->gamedrv->name, "golgo13" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "g13knd" ) == 0 )
 	{
@@ -917,41 +1202,39 @@ static WRITE32_HANDLER( dmaoffset_w )
 
 static void namcos12_rom_read( UINT32 n_address, INT32 n_size )
 {
-	INT32 n_left;
-	UINT32 *p_n_src;
-	UINT32 *p_n_dst;
+	UINT32 offset = m_n_tektagdmaoffset != 0xffffffff ? m_n_tektagdmaoffset : m_n_dmaoffset;
+	UINT32 length;
+	UINT16 *source;
+	int region;
+	INT32 left;
 
-	verboselog( 1, "namcos12_rom_read( %08x, %08x )\n", n_address, n_size );
-
-	if( ( m_n_dmaoffset >= 0x80000000 ) || ( m_n_dmabias == 0x1f300000 ) )
+	if( (offset & 0x80000000) || m_n_dmabias == 0x1f300000 ||
+		(m_n_tektagdmaoffset >= 0x04000000 && m_n_tektagdmaoffset <= 0x04400000) )
 	{
-		p_n_src = (UINT32 *)( memory_region( REGION_USER1 ) + ( m_n_dmaoffset & 0x003fffff ) );
-	}
-	else if( m_n_tektagdmaoffset >= 0x00000000 && m_n_tektagdmaoffset <= 0x03800000 )
-	{
-		p_n_src = (UINT32 *)( memory_region( REGION_USER2 ) + ( m_n_tektagdmaoffset & 0x7fffffff ) );
-	}
-	else if( m_n_tektagdmaoffset >= 0x04000000 && m_n_tektagdmaoffset <= 0x04400000 )
-	{
-		p_n_src = (UINT32 *)( memory_region( REGION_USER1 ) + ( m_n_tektagdmaoffset & 0x003fffff ) );
+		region = REGION_USER1;
+		offset &= 0x3fffff;
 	}
 	else
 	{
-		p_n_src = (UINT32 *)( memory_region( REGION_USER2 ) + ( m_n_dmaoffset & 0x7fffffff ) );
+		region = REGION_USER2;
+		offset &= 0x7fffffff;
+		if( s12_truck_bank ) offset += m_n_bankoffset * 0x200000;
 	}
-
-
-	p_n_dst = &g_p_n_psxram[ n_address / 4 ];
-
-	n_left = ( g_n_psxramsize - n_address ) / 4;
-	if( n_size > n_left )
+	m_n_tektagdmaoffset = 0xffffffff;
+	length = memory_region_length(region);
+	if( offset >= length || n_address >= g_n_psxramsize ) return;
+	left = (length - offset) / 4;
+	if( n_size > left ) n_size = left;
+	left = (g_n_psxramsize - n_address) / 4;
+	if( n_size > left ) n_size = left;
+	source = (UINT16 *)memory_region(region);
+	offset /= 2;
+	while( n_size-- > 0 )
 	{
-		n_size = n_left;
-	}
-	while( n_size > 0 )
-	{
-		*( p_n_dst++ ) = *( p_n_src++ );
-		n_size--;
+		g_p_n_psxram[n_address / 4] = source[BYTE_XOR_LE(offset)] |
+			((UINT32)source[BYTE_XOR_LE(offset + 1)] << 16);
+		offset += 2;
+		n_address += 4;
 	}
 }
 
@@ -963,7 +1246,7 @@ static WRITE32_HANDLER( s12_dma_bias_w )
 static ADDRESS_MAP_START( namcos12_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x003fffff) AM_RAM	AM_SHARE(1) AM_BASE(&g_p_n_psxram) AM_SIZE(&g_n_psxramsize) /* ram */
 	AM_RANGE(0x1f000000, 0x1f000003) AM_READWRITE(MRA32_NOP, bankoffset_w)			/* banking */
-	AM_RANGE(0x1f080000, 0x1f083fff) AM_READWRITE(sharedram_r, sharedram_w) AM_BASE(&namcos12_sharedram) /* shared ram?? */
+	AM_RANGE(0x1f080000, 0x1f083fff) AM_READWRITE(sharedram_r, sharedram_w) /* shared ram?? */
 	AM_RANGE(0x1f140000, 0x1f140fff) AM_READWRITE( at28c16_32le_16lsb_0_r, at28c16_32le_16lsb_0_w ) /* eeprom */
 	AM_RANGE(0x1f1bff08, 0x1f1bff0f) AM_WRITENOP    /* ?? */
 	AM_RANGE(0x1f700000, 0x1f70ffff) AM_WRITE(dmaoffset_w)  /* dma */
@@ -1047,6 +1330,19 @@ static MACHINE_START( namcos12 )
 	state_save_register_global( m_n_dmabias );
 	state_save_register_global( m_n_bankoffset );
 	state_save_register_global( m_n_bankoffseth );
+	state_save_register_global( s12_jvs_address );
+	state_save_register_global( s12_jvs_printer_address );
+	state_save_register_global( s12_jvs_tx_count );
+	state_save_register_global( s12_jvs_rx_count );
+	state_save_register_global( s12_jvs_rx_pos );
+	state_save_register_global( s12_jvs_escape );
+	state_save_register_global( s12_jvs_receiving );
+	state_save_register_global( s12_jvs_rx_ready );
+	state_save_register_global( m_n_tektagdmaoffset );
+	state_save_register_global_array( s12_jvs_tx );
+	state_save_register_global_array( s12_jvs_rx );
+	state_save_register_global_array( s12_jvs_coins );
+	state_save_register_global_array( s12_jvs_coin_last );
 	state_save_register_func_postload( s12_resetbank );
 	return 0;
 }
@@ -1090,7 +1386,14 @@ static READ32_HANDLER( tektagt_protection_2_r )
 
 MACHINE_RESET( namcos12 )
 {
+	s12_jvs_address = s12_jvs_printer_address = 0xff;
+	s12_jvs_tx_count = s12_jvs_rx_count = s12_jvs_rx_pos = 0;
+	s12_jvs_escape = s12_jvs_receiving = s12_jvs_rx_ready = 0;
+	memset(s12_jvs_coins, 0, sizeof(s12_jvs_coins));
+	memset(s12_jvs_coin_last, 0, sizeof(s12_jvs_coin_last));
 	psx_machine_init();
+	m_n_bankoffset = m_n_bankoffseth = m_n_dmaoffset = m_n_dmabias = 0;
+	m_n_tektagdmaoffset = 0xffffffff;
 	bankoffset_w(0,0,0);
 
 	if( strcmp( Machine->gamedrv->name, "tektagt" ) == 0 ||
@@ -1118,7 +1421,11 @@ MACHINE_RESET( namcos12 )
 		strcmp( Machine->gamedrv->name, "tenkomoj" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "tenkomor" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "ptblank2" ) == 0 ||
-		strcmp( Machine->gamedrv->name, "ghlpanic" ) == 0 )
+		strcmp( Machine->gamedrv->name, "ghlpanic" ) == 0 ||
+		strcmp( Machine->gamedrv->name, "aplarail" ) == 0 ||
+		strcmp( Machine->gamedrv->name, "sws98" ) == 0 ||
+		strcmp( Machine->gamedrv->name, "technodr" ) == 0 ||
+		strcmp( Machine->gamedrv->name, "truckk" ) == 0 )
 	{
 		/* this is based on guesswork, it might not even be keycus. */
 		memory_install_read32_handler (0, ADDRESS_SPACE_PROGRAM, 0x1fc20280, 0x1fc2028b, 0, 0, MRA32_BANK2 );
@@ -1144,7 +1451,7 @@ ADDRESS_MAP_END
 
 static READ8_HANDLER( s12_mcu_p8_r )
 {
-	return 0x02;
+	return s12_jvs_enabled ? 0x12 : 0x02;
 }
 
 // emulation of the Epson R4543 real time clock
@@ -1381,6 +1688,36 @@ static VIDEO_UPDATE( coh700g )
 
 static DRIVER_INIT( namcos12 )
 {
+	namcos12_sharedram = auto_malloc(0x10000);
+	memset(namcos12_sharedram, 0, 0x10000);
+	state_save_register_global_pointer(namcos12_sharedram, 0x10000 / sizeof(UINT32));
+	s12_truck_bank = !strcmp(Machine->gamedrv->name, "truckk");
+	s12_jvs_enabled = !strcmp(Machine->gamedrv->name, "aplarail") || !strcmp(Machine->gamedrv->name, "technodr");
+	if(s12_jvs_enabled)
+	{
+		memory_install_read8_handler(1, ADDRESS_SPACE_IO, H8_PORT6, H8_PORT6, 0, 0, s12_jvs_sense_r);
+		memory_install_read8_handler(1, ADDRESS_SPACE_IO, H8_SERIAL_A, H8_SERIAL_A, 0, 0, s12_jvs_r);
+		memory_install_write8_handler(1, ADDRESS_SPACE_IO, H8_SERIAL_A, H8_SERIAL_A, 0, 0, s12_jvs_w);
+		memory_install_read8_handler(1, ADDRESS_SPACE_IO, H8_ADC_0_H, H8_ADC_3_L, 0, 0, s12_jvs_adc_r);
+		memory_install_read16_handler(1, ADDRESS_SPACE_PROGRAM, 0xffffb4, 0xffffb5, 0, 0, s12_jvs_status_r);
+		memory_install_read16_handler(1, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300003, 0, 0, s12_jvs_jamma_r);
+		timer_pulse(TIME_IN_HZ(11520), 0, s12_jvs_tick);
+	}
+	if(s12_truck_bank)
+	{
+		memory_install_read16_handler(1, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300003, 0, 0, s12_truck_inputs_r);
+		memory_install_read8_handler(1, ADDRESS_SPACE_IO, H8_ADC_0_H, H8_ADC_3_L, 0, 0, s12_jvs_adc_r);
+	}
+	s12_openbus = auto_malloc(0x200000);
+	memset(s12_openbus, 0xff, 0x200000);
+	if(s12_truck_bank)
+	{
+		UINT8 *rom = memory_region(REGION_USER1);
+		UINT8 temp[20];
+		memcpy(temp, rom + 0x376ec, sizeof(temp));
+		memmove(rom + 0x376f8, rom + 0x376e4, 8);
+		memcpy(rom + 0x376e4, temp, sizeof(temp));
+	}
 	psx_driver_init();
 
 	psx_dma_install_read_handler( 5, namcos12_rom_read );
@@ -1432,16 +1769,22 @@ static DRIVER_INIT( golgo13 )
 	gunyflip = 1;
 }
 
+static INTERRUPT_GEN(s12_sub_vblank)
+{
+	cpunum_set_input_line(cpu_getactivecpu(), H8_IRQ1, PULSE_LINE);
+	h8_3002_adc_trigger();
+}
+
 static MACHINE_DRIVER_START( coh700 )
 	/* basic machine hardware */
 	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
 	MDRV_CPU_PROGRAM_MAP( namcos12_map, 0 )
 	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
 
-	MDRV_CPU_ADD(H83002, 14745600 )	/* verified 14.7456 MHz */
+	MDRV_CPU_ADD_TAG("sub", H83002, 14745600 )	/* verified 14.7456 MHz */
 	MDRV_CPU_PROGRAM_MAP( s12h8rwmap, 0 )
 	MDRV_CPU_IO_MAP( s12h8iomap, 0 )
-	MDRV_CPU_VBLANK_INT( irq1_line_pulse, 1 );
+	MDRV_CPU_VBLANK_INT( s12_sub_vblank, 1 );
 
 	MDRV_FRAMES_PER_SECOND( 60 )
 	MDRV_VBLANK_DURATION( 0 )
@@ -1463,12 +1806,21 @@ static MACHINE_DRIVER_START( coh700 )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD(C352, 14745600)
+	MDRV_SOUND_ADD_TAG("c352", C352, 14745600)
 	MDRV_SOUND_CONFIG(c352_interface)
 	MDRV_SOUND_ROUTE(0, "right", 1.00)
 	MDRV_SOUND_ROUTE(1, "left", 1.00)
 	MDRV_SOUND_ROUTE(2, "right", 1.00)
 	MDRV_SOUND_ROUTE(3, "left", 1.00)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( ns12 )
+	MDRV_IMPORT_FROM(coh700)
+	MDRV_CPU_REPLACE("sub", H83002, 16934400)
+	MDRV_SOUND_REPLACE("c352", C352, 25401600 / 288 * 192)
+	MDRV_SOUND_CONFIG(c352_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.00)
+	MDRV_SOUND_ROUTE(1, "right", 1.00)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( pacapp )
@@ -1527,6 +1879,159 @@ INPUT_PORTS_START( namcos12 )
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Test Switch") PORT_CODE(KEYCODE_F2)
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+INPUT_PORTS_END
+
+INPUT_PORTS_START(ns12_jvs)
+	PORT_INCLUDE(namcos12)
+	PORT_MODIFY("IN1")
+	PORT_BIT(0xffff, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_MODIFY("IN2")
+	PORT_BIT(0xffff, IP_ACTIVE_LOW, IPT_UNUSED)
+
+	PORT_START_TAG("JVS_SYSTEM")
+	PORT_SERVICE_NO_TOGGLE(0x80, IP_ACTIVE_HIGH)
+
+	PORT_START_TAG("JVS_PLAYER1")
+	PORT_BIT(0x00000080, IP_ACTIVE_HIGH, IPT_START1)
+	PORT_BIT(0x00000040, IP_ACTIVE_HIGH, IPT_SERVICE1)
+	PORT_BIT(0x00000020, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP) PORT_8WAY
+	PORT_BIT(0x00000010, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_8WAY
+	PORT_BIT(0x00000008, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT) PORT_8WAY
+	PORT_BIT(0x00000004, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT) PORT_8WAY
+	PORT_BIT(0x00000002, IP_ACTIVE_HIGH, IPT_BUTTON1)
+	PORT_BIT(0x00000001, IP_ACTIVE_HIGH, IPT_BUTTON2)
+	PORT_BIT(0x00008000, IP_ACTIVE_HIGH, IPT_BUTTON3)
+	PORT_BIT(0x00004000, IP_ACTIVE_HIGH, IPT_BUTTON4)
+	PORT_BIT(0x00002000, IP_ACTIVE_HIGH, IPT_BUTTON5)
+	PORT_BIT(0x00001000, IP_ACTIVE_HIGH, IPT_BUTTON6)
+
+
+
+	PORT_START_TAG("JVS_PLAYER2")
+	PORT_BIT(0x00000080, IP_ACTIVE_HIGH, IPT_START2)
+	PORT_BIT(0x00000020, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(0x00000010, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(0x00000008, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(0x00000004, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(0x00000002, IP_ACTIVE_HIGH, IPT_BUTTON1) PORT_PLAYER(2)
+	PORT_BIT(0x00000001, IP_ACTIVE_HIGH, IPT_BUTTON2) PORT_PLAYER(2)
+	PORT_BIT(0x00008000, IP_ACTIVE_HIGH, IPT_BUTTON3) PORT_PLAYER(2)
+	PORT_BIT(0x00004000, IP_ACTIVE_HIGH, IPT_BUTTON4) PORT_PLAYER(2)
+	PORT_BIT(0x00002000, IP_ACTIVE_HIGH, IPT_BUTTON5) PORT_PLAYER(2)
+	PORT_BIT(0x00001000, IP_ACTIVE_HIGH, IPT_BUTTON6) PORT_PLAYER(2)
+
+
+
+	PORT_START_TAG("JVS_COIN1")
+	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_COIN1)
+
+	PORT_START_TAG("JVS_COIN2")
+	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_COIN2)
+
+	PORT_START_TAG("ADC_0")
+	PORT_BIT(0x03ff, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START_TAG("ADC_1")
+	PORT_BIT(0x03ff, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START_TAG("ADC_2")
+	PORT_BIT(0x03ff, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START_TAG("ADC_3")
+	PORT_BIT(0x03ff, IP_ACTIVE_HIGH, IPT_UNUSED)
+INPUT_PORTS_END
+
+INPUT_PORTS_START(aplarail)
+	PORT_INCLUDE(ns12_jvs)
+
+	PORT_MODIFY("IN0")
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_PLAYER1")
+	PORT_BIT(0x00000002, IP_ACTIVE_HIGH, IPT_BUTTON1) PORT_NAME("Left")
+	PORT_BIT(0x00000001, IP_ACTIVE_HIGH, IPT_START1) PORT_NAME("Ok/Horn")
+	PORT_BIT(0x00008000, IP_ACTIVE_HIGH, IPT_BUTTON2) PORT_NAME("Right")
+	PORT_BIT(0x000070bc, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_PLAYER2")
+	PORT_BIT(0x0000f0ff, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_COIN2")
+	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("ADC_0")
+	PORT_BIT(0x03ff, 0x0216, IPT_AD_STICK_Y) PORT_MINMAX(0x08b, 0x397) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Speed Lever") PORT_REVERSE
+INPUT_PORTS_END
+
+INPUT_PORTS_START(technodr)
+	PORT_INCLUDE(ns12_jvs)
+
+	PORT_MODIFY("IN0")
+	PORT_BIT(0x80, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_SYSTEM")
+	PORT_SERVICE(0x80, IP_ACTIVE_HIGH)
+
+	PORT_MODIFY("JVS_PLAYER1")
+	PORT_BIT(0x00002000, IP_ACTIVE_HIGH, IPT_BUTTON3) PORT_NAME("Select")
+	PORT_BIT(0x0000d0bf, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_COIN1")
+	PORT_BIT(0x80, IP_ACTIVE_HIGH, IPT_TILT) PORT_NAME("Counter disconnected")
+
+	PORT_MODIFY("JVS_COIN2")
+	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START_TAG("JVS_ANALOG_INPUT1")
+	PORT_BIT(0xffff, 0x5e00, IPT_PADDLE) PORT_MINMAX(0x1600, 0xa600) PORT_SENSITIVITY(100) PORT_KEYDELTA(1280) PORT_NAME("Steering Wheel") PORT_REVERSE
+
+	PORT_START_TAG("JVS_ANALOG_INPUT2")
+	PORT_BIT(0xffff, 0x5e00, IPT_PEDAL2) PORT_MINMAX(0x3e00, 0x7e00) PORT_SENSITIVITY(100) PORT_KEYDELTA(1280) PORT_NAME("Brake Pedal") PORT_REVERSE
+
+	PORT_START_TAG("JVS_ANALOG_INPUT3")
+	PORT_BIT(0xffff, 0x9a00, IPT_PEDAL) PORT_MINMAX(0x4680, 0xed80) PORT_SENSITIVITY(100) PORT_KEYDELTA(2560) PORT_NAME("Gas Pedal") PORT_REVERSE
+INPUT_PORTS_END
+
+INPUT_PORTS_START(truckk)
+	PORT_INCLUDE(ns12_jvs)
+
+	PORT_MODIFY("IN0")
+	PORT_BIT(0x80, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_SYSTEM")
+	PORT_SERVICE(0x80, IP_ACTIVE_HIGH)
+
+	PORT_MODIFY("JVS_PLAYER1")
+	PORT_BIT(0x00000080, IP_ACTIVE_HIGH, IPT_BUTTON4) PORT_NAME("View Change")
+	PORT_BIT(0x00000020, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP) PORT_NAME("Select Up")
+	PORT_BIT(0x00000010, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_NAME("Select Down")
+	PORT_BIT(0x00000002, IP_ACTIVE_HIGH, IPT_BUTTON3) PORT_NAME("Enter")
+	PORT_BIT(0x00000001, IP_ACTIVE_HIGH, IPT_UNUSED)
+	PORT_BIT(0x00008000, IP_ACTIVE_HIGH, IPT_START1) PORT_NAME("Horn")
+	PORT_BIT(0x0000700c, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_PLAYER2")
+	PORT_BIT(0x00000080, IP_ACTIVE_HIGH, IPT_UNUSED)
+	PORT_BIT(0x00000008, IP_ACTIVE_HIGH, IPT_BUTTON5) PORT_NAME("Music Back")
+	PORT_BIT(0x00000004, IP_ACTIVE_HIGH, IPT_BUTTON6) PORT_NAME("Music Next")
+	PORT_BIT(0x00000002, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_BIT(0x00000001, IP_ACTIVE_HIGH, IPT_UNUSED)
+	PORT_BIT(0x00008000, IP_ACTIVE_HIGH, IPT_UNUSED)
+	PORT_BIT(0x00007030, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("JVS_COIN2")
+	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_MODIFY("ADC_0")
+	PORT_BIT(0x3ff, 0x0200, IPT_PADDLE) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_NAME("Steering Wheel")
+
+	PORT_MODIFY("ADC_1")
+	PORT_BIT(0x3ff, 0x0200, IPT_PEDAL2) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Brake Pedal") PORT_REVERSE
+
+	PORT_MODIFY("ADC_2")
+	PORT_BIT(0x3ff, 0x0200, IPT_PEDAL) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Gas Pedal") PORT_REVERSE
 INPUT_PORTS_END
 
 INPUT_PORTS_START( ptblank2 )
@@ -2185,17 +2690,129 @@ ROM_START( tenkomoj )
 	ROM_LOAD( "tkm1wave1.1",  0x0800000, 0x800000, CRC(7567796b) SHA1(99e4b867477da2ccddfa9bebc4be84adc5cba53c) )
 ROM_END
 
+ROM_START( aplarail )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "ap1vera.2e",        0x0000000, 0x200000, CRC(386ffe26) SHA1(27b4bb0f0b178b4236e18d7ef9d810d1afc99798) )
+	ROM_LOAD16_BYTE( "ap1vera.2j",        0x0000001, 0x200000, CRC(cab954e1) SHA1(3d3b8cfbb8160bb0c421af88137b9de7f8ea22bf) )
+
+	ROM_REGION32_LE( 0x3400000, REGION_USER2, 0 )
+	ROM_LOAD(        "ap1rom0.ic9",       0x0000000, 0x800000, CRC(c8042aad) SHA1(48d4205535fd20ffc99a0caab6c5f9c66b7f64ed) )
+	ROM_LOAD(        "ap1rom1.ic10",      0x0800000, 0x800000, CRC(0f3210ec) SHA1(d3e0782f01e952a27d4fbe2470159e92ba57a57a) )
+	ROM_LOAD(        "ap1rom2.ic11",      0x1000000, 0x800000, CRC(9ef8382d) SHA1(bb1e56a4911bfc9c4f763f35885da74a1c1e96c5) )
+	ROM_LOAD16_BYTE( "ap1fl3l.ic7",       0x1800000, 0x200000, CRC(b52c2df6) SHA1(9d07b546395486e7cae86d24c8a352d9e48d00d4) )
+	ROM_LOAD16_BYTE( "ap1fl3h.ic8",       0x1800001, 0x200000, CRC(050af45d) SHA1(4cd93222b9a2fbfad5c93b60cdb7ccd4d58678d5) )
+	ROM_LOAD16_BYTE( "ap1fl4l.ic5",       0x1c00000, 0x200000, CRC(9a4109e5) SHA1(ba59caac5f5a80fc52c507d8a47f322a380aa9a1) )
+	ROM_LOAD16_BYTE( "ap1fl4h.ic6",       0x1c00001, 0x200000, CRC(9a4109e5) SHA1(ba59caac5f5a80fc52c507d8a47f322a380aa9a1) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP( "ap1vera.11s",  0x000000, 0x080000, CRC(126aaebc) SHA1(3f5a709c38ca38753d7a93d81e59a7ed48515b92) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "ap1wave0.ic2",             0x000000, 0x800000, CRC(003abebb) SHA1(edd70a0cc2f8648d3cbd3457ee36aa3772f97d2e) )
+ROM_END
+
+ROM_START( sws98 )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "ss81vera.2l",       0x0000000, 0x200000, CRC(94b1f34c) SHA1(0c8491fda366b5b2874e5f49959dccd11d372e46) )
+	ROM_LOAD16_BYTE( "ss81vera.2p",       0x0000001, 0x200000, CRC(7d0ed33d) SHA1(34342ce57b29ee15c6279c099bb145ac7ad262f3) )
+
+	ROM_REGION32_LE( 0x1c00000, REGION_USER2, 0 )
+	ROM_LOAD16_BYTE( "ss81fl1l.9",        0x1000000, 0x200000, CRC(b0b5dc77) SHA1(abce4e6ae60858b7c7408d10975b7a1e0d183115) )
+	ROM_LOAD16_BYTE( "ss81fl1u.10",       0x1000001, 0x200000, CRC(e526dba5) SHA1(889fdfba17282eb05a3e254af81ee15c3e16acc4) )
+	ROM_LOAD16_BYTE( "ss81fl2l.7",        0x1400000, 0x200000, CRC(2dc6f6b5) SHA1(e6c7bb804d7d027acca5adb15b0bb95321905ff3) )
+	ROM_LOAD16_BYTE( "ss81fl2u.8",        0x1400001, 0x200000, CRC(c8341c9f) SHA1(b7c5a960a238e963c7ec5bdb0751a8730d3b09f7) )
+	ROM_LOAD16_BYTE( "ss81fl3l.5",        0x1800000, 0x200000, CRC(ce5d2a96) SHA1(08f3955e1ce949ce436f6f2f19fd42204682ae8c) )
+	ROM_LOAD16_BYTE( "ss81fl3u.6",        0x1800001, 0x200000, CRC(02df4df8) SHA1(01fd66c905cde9ca073dc4b6dbd826c5fe96b79b) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP( "ss81vera.11s", 0x0000000, 0x080000, CRC(c6bc5c31) SHA1(c6ef46c3fa8a7749618126d360e614ea6c8d9c54) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "ss81wave0.2",              0x0000000, 0x800000, CRC(1c5e2ff1) SHA1(4f29dfd49f6b5c3ca3b758823d368051354bd673) )
+	ROM_LOAD( "ss81wave1.1",              0x0800000, 0x800000, CRC(5f4c8861) SHA1(baee7182c32bc064d805de5a16948faf78941ac4) )
+ROM_END
+
+ROM_START( technodr )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "th1verb.2l",        0x0000000, 0x200000, CRC(736fae08) SHA1(099e648784f617cc3b5a57a5838b8fbb54cacca1) )
+	ROM_LOAD16_BYTE( "th1verb.2p",        0x0000001, 0x200000, CRC(1fafb2d2) SHA1(ea0617714dcd7636e21a10fa2665a6f9c0f0a93b) )
+
+	ROM_REGION32_LE( 0x3400000, REGION_USER2, 0 )
+	ROM_LOAD16_BYTE( "th1rom0l.6",        0x0000000, 0x400000, CRC(f8274106) SHA1(5c0b60c7440cfa01572b10ed564446d7f1a81a3a) )
+	ROM_LOAD16_BYTE( "th1rom0u.9",        0x0000001, 0x400000, CRC(260ae0c5) SHA1(2ecb82e069fa64b9d3f63d6193befae02f3140e4) )
+	ROM_LOAD16_BYTE( "th1rom1l.7",        0x0800000, 0x400000, CRC(56d9b477) SHA1(101b5acfbe5d292418f7fd8db642187f2b571d0b) )
+	ROM_LOAD16_BYTE( "th1rom1u.10",       0x0800001, 0x400000, CRC(a45d337e) SHA1(10e230b61ab4c6aa386c68463badef0c4ba58f0e) )
+	ROM_LOAD16_BYTE( "th1fl3l.12",        0x1800000, 0x200000, CRC(c330116f) SHA1(b12de5a82d6ebb5f893882b578e02af732231512) )
+	ROM_LOAD16_BYTE( "th1fl3u.13",        0x1800001, 0x200000, CRC(cd4422c0) SHA1(97a9788cf0c589477f77c5403cc715ce4980a7bd) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP( "th1verb.11s",  0x0000000, 0x080000, CRC(85806e2e) SHA1(9e0a7e6924b72e7b5b1d0e72eeec10045984dd4b) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "th1wave0.5",               0x0000000, 0x400000, CRC(6cdd06fb) SHA1(31bd0b359e3b93bd40c3416a4805d0523e7f54c3) )
+	ROM_LOAD( "th1wave1.4",               0x0400000, 0x400000, CRC(40fd413b) SHA1(b7edf89b5fa196a0787646c73b9aa07fc062fc8b) )
+ROM_END
+
+ROM_START( toukon3 )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "tr1vera.2e",        0x0000000, 0x200000, CRC(126ebb73) SHA1(de429e335e03f2b5116fc50f556a5507475a0535) )
+	ROM_LOAD16_BYTE( "tr1vera.2j",        0x0000001, 0x200000, CRC(2edb3ad2) SHA1(d1d2d78b781c7f6fb5a201785295daa825ad057e) )
+
+	ROM_REGION32_LE( 0x00800000, REGION_USER2, 0 )
+	ROM_LOAD16_BYTE( "tr1rom0l.6",        0x0000000, 0x400000, CRC(42946d26) SHA1(dc7944cb6daceda41ecee7a4e3f549cba916ab87) )
+	ROM_LOAD16_BYTE( "tr1rom0u.9",        0x0000001, 0x400000, CRC(e3cd0be0) SHA1(f27d14cd086b5961be33e635662aca89a5e8c857) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP( "tr1vera.11s",  0x0000000, 0x080000, CRC(f9ecbd19) SHA1(ad64f95ef85ee5c45dcf15217ea5adff61fddba6) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "tr1wave0.5",               0x0000000, 0x400000, CRC(07d10e55) SHA1(3af8f7019a221981984741181b6be98e2315d441) )
+	ROM_LOAD( "tr1wave1.4",               0x0400000, 0x400000, CRC(34539cdd) SHA1(afb7079c0f447fbda285a5b97a37c04baf26db75) )
+ROM_END
+
+ROM_START( truckk )
+	ROM_REGION32_LE( 0x0400000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "tkk2vera.2l",       0x0000000, 0x200000, CRC(321344e0) SHA1(0273284d05707b76ca38fd160ef6f17572314a8b) )
+	ROM_LOAD16_BYTE( "tkk2vera.2p",       0x0000001, 0x200000, CRC(a7b5e4ea) SHA1(f11eefd80559b4d42318a920088b77bd67b70cc3) )
+
+	ROM_REGION32_LE( 0x3400000, REGION_USER2, 0 )
+	ROM_LOAD16_BYTE( "tkk1rom0l.ic10",    0x0000000, 0x800000, CRC(5e1c8660) SHA1(05fcfa9cc834f85c38e41610a32624464d67ee21) )
+	ROM_LOAD16_BYTE( "tkk1rom0u.ic14",    0x0000001, 0x800000, CRC(ee4e6566) SHA1(f3c7e227681003a3491a3996a90887e1091c0eed) )
+	ROM_LOAD16_BYTE( "tkk1rom1l.ic11",    0x1000000, 0x800000, CRC(fde2863c) SHA1(a01141df8c84730974c9f37fa2ee911e2f4e45f9) )
+	ROM_LOAD16_BYTE( "tkk1rom1u.ic15",    0x1000001, 0x800000, CRC(e51a56d7) SHA1(c5bad8df8edd5a5f352e5bf3bb93133503ca4ba0) )
+	ROM_LOAD16_BYTE( "tkk1rom2l.ic12",    0x2000000, 0x800000, CRC(029cf107) SHA1(30cbcf00ffb9c379c64718914874936ff32ed186) )
+	ROM_LOAD16_BYTE( "tkk1rom2u.ic16",    0x2000001, 0x800000, CRC(30c426dd) SHA1(2dae3d415715c779251c79006ea18e3bd14a1f51) )
+	ROM_LOAD16_BYTE( "tkk1fl3l.ic4",      0x3000000, 0x200000, CRC(b0e98cb2) SHA1(8c53037b8e20410a395db8d9bb9229b550ebf228) )
+	ROM_LOAD16_BYTE( "tkk1fl3u.ic5",      0x3000001, 0x200000, CRC(16d9ede7) SHA1(e989e0a6afbfca5e7ef81bf7c24e8e6b38a11eca) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP( "tkk2vera.11s", 0x0000000, 0x080000, CRC(d3d0a46a) SHA1(20569462df49ad93ff1118b587d6d32edf9d851e) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "tkk1wave0.ic1",            0x0000000, 0x800000, CRC(037d3095) SHA1(cc343bdd45d023c133964321e2df5cb1c91525ef) )
+
+	ROM_REGION( 0x20000, REGION_USER3, 0)
+	ROM_LOAD( "tkk1prg0.ic7",             0x0000000, 0x020000, CRC(11fd9c31) SHA1(068b8364ec0eb1e88f9f85f40b8b322876f6f3e2) )
+
+	DISK_REGION( REGION_DISKS )
+	DISK_IMAGE_READONLY( "tkk2-a", 0, SHA1(6b7c3686b22a508c44f67295b188504b757dd482) )
+ROM_END
+
 GAME( 1996, tekken3,   0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Tekken 3 (TET1/VER.E1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC006 */
 GAME( 1996, tekken3a,  tekken3,  coh700,   namcos12, namcos12, ROT0, "Namco",         "Tekken 3 (TET2/VER.B)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC006 */
 GAME( 1996, tekken3b,  tekken3,  coh700,   namcos12, namcos12, ROT0, "Namco",         "Tekken 3 (TET2/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC006 */
 GAME( 1997, lbgrande,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Libero Grande (LG2/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC006 */
+GAME( 1997, toukon3, 0, ns12, namcos12, namcos12, ROT0, "Namco / Tomy", "Shin Nihon Pro Wrestling Toukon Retsuden 3 Arcade Edition (Japan, TR1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, soulclbr,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Soul Calibur (SOC14/VER.C)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND )
 GAME( 1998, soulclba,  soulclbr, coh700,   namcos12, namcos12, ROT0, "Namco",         "Soul Calibur (SOC11/VER.C)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND ) /* KC020 */
 GAME( 1998, soulclbb,  soulclbr, coh700,   namcos12, namcos12, ROT0, "Namco",         "Soul Calibur (SOC11/VER.B)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND ) /* KC020 */
 GAME( 1998, soulclbc,  soulclbr, coh700,   namcos12, namcos12, ROT0, "Namco",         "Soul Calibur (SOC11/VER.A2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND ) /* KC020 */
 GAME( 1998, ehrgeiz,   0,        coh700,   namcos12, namcos12, ROT0, "Square/Namco",  "Ehrgeiz (EG3/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC021 */
 GAME( 1998, ehrgeiza,  ehrgeiz,  coh700,   namcos12, namcos12, ROT0, "Square/Namco",  "Ehrgeiz (EG2/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC021 */
+GAME( 1998, sws98, 0, ns12, namcos12, namcos12, ROT0, "Namco", "Super World Stadium '98 (Japan, SS81/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1998, aplarail, 0, ns12, aplarail, namcos12, ROT0, "Namco / Tomy", "Attack Pla Rail (Japan, AP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, mdhorse,   0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Derby Quiz My Dream Horse (MDH1/VER.A2)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC035 */
+GAME( 1998, technodr, 0, ns12, technodr, namcos12, ROT0, "Namco", "Techno Drive (Japan, TH1/VER.B)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, tenkomor,  0,        coh700,   namcos12, namcos12, ROT90, "Namco",        "Tenkomori Shooting (TKM2/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC036 */
 GAME( 1998, tenkomoj,  tenkomor, coh700,   namcos12, namcos12, ROT90, "Namco",        "Tenkomori Shooting (TKM1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC036 */
 GAME( 1998, fgtlayer,  0,        coh700,   namcos12, namcos12, ROT0, "Arika/Namco",   "Fighting Layer (FTL0/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC037 */
@@ -2212,4 +2829,5 @@ GAME( 1999, mrdrillr,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",   
 GAME( 1999, pacappsp,  0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion Special (PSP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC052 */ // not able to start game
 GAME( 1999, aquarush,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Aqua Rush (AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC053 */ // crash
 GAME( 1999, golgo13,   0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 (GLG1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC054 */
+GAME( 2000, truckk, 0, ns12, truckk, namcos12, ROT0, "Metro / Namco", "Truck Kyosokyoku (US?, TKK2/VER.A)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1999, g13knd,    0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 Kiseki no Dandou (GLS1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC059 */
