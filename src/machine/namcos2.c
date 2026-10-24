@@ -66,6 +66,8 @@ READ16_HANDLER( namcos2_flap_prot_r )
 /* Perform basic machine initialisation                      */
 /*************************************************************/
 
+static UINT16 namcos2_68k_gpu_C148[0x20];
+
 MACHINE_RESET( namcos2 ){
 	int loop;
 
@@ -80,10 +82,11 @@ MACHINE_RESET( namcos2 ){
 	cpunum_set_input_line(CPU_MCU, INPUT_LINE_RESET, ASSERT_LINE);
 
 	/* Initialise interrupt handlers */
-	for(loop=0;loop<20;loop++)
+	for(loop=0;loop<0x20;loop++)
 	{
 		namcos2_68k_master_C148[loop]=0;
 		namcos2_68k_slave_C148[loop]=0;
+		namcos2_68k_gpu_C148[loop]=0;
 	}
 }
 
@@ -416,14 +419,18 @@ static UINT16
 ReadWriteC148( int cpu, offs_t offset, UINT16 data, int bWrite )
 {
 	offs_t addr = ((offset*2)+0x1c0000)&0x1fe000;
-	UINT16 *pC148Reg   = (cpu==CPU_MASTER)?namcos2_68k_master_C148:namcos2_68k_slave_C148;
-	UINT16 *pC148RegAlt = (cpu==CPU_SLAVE)?namcos2_68k_master_C148:namcos2_68k_slave_C148;
+	UINT16 *pC148Reg = (cpu == CPU_GPU) ? namcos2_68k_gpu_C148 :
+		((cpu == CPU_MASTER) ? namcos2_68k_master_C148 : namcos2_68k_slave_C148);
+	UINT16 *pC148RegAlt = (cpu!=CPU_MASTER)?namcos2_68k_master_C148:namcos2_68k_slave_C148;
 	UINT16 result = pC148Reg[(addr>>13)&0x1f];
 	int altCPU = (cpu==CPU_MASTER)?CPU_SLAVE:CPU_MASTER;
 
 	if( bWrite )
 	{
-		pC148Reg[(addr>>13)&0x1f] = data&0x0007;
+		int reg = (addr >> 13) & 0x1f;
+		if (reg < 8)
+			cpunum_set_input_line(cpu, pC148Reg[reg], CLEAR_LINE);
+		pC148Reg[reg] = data & 7;
 	}
 
 	switch(addr)
@@ -758,4 +765,24 @@ READ8_HANDLER( namcos2_input_port_12_r )
 {
 	int data=readinputport(12);
 	return data;
+}
+
+READ16_HANDLER( namcos2_68k_gpu_C148_r )
+{
+	return ReadWriteC148(CPU_GPU, offset, 0, 0);
+}
+WRITE16_HANDLER( namcos2_68k_gpu_C148_w )
+{
+	ReadWriteC148(CPU_GPU, offset, data, 1);
+}
+static void winrun_posirq(int scanline)
+{
+	force_partial_update(scanline);
+	if (namcos2_68k_gpu_C148[NAMCOS2_C148_POSIRQ])
+		cpunum_set_input_line(CPU_GPU, namcos2_68k_gpu_C148[NAMCOS2_C148_POSIRQ], ASSERT_LINE);
+}
+INTERRUPT_GEN( namcos2_68k_gpu_vblank )
+{
+	timer_set(cpu_getscanlinetime(217), 217, winrun_posirq);
+	cpunum_set_input_line(CPU_GPU, namcos2_68k_gpu_C148[NAMCOS2_C148_VBLANKIRQ], HOLD_LINE);
 }

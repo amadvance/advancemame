@@ -243,3 +243,7 @@ READ8_HANDLER( namcos2_input_port_0_r );
 READ8_HANDLER( namcos2_input_port_10_r );
 READ8_HANDLER( namcos2_input_port_12_r );
 
+
+READ16_HANDLER(namcos2_68k_gpu_C148_r);
+WRITE16_HANDLER(namcos2_68k_gpu_C148_w);
+INTERRUPT_GEN(namcos2_68k_gpu_vblank);
