@@ -16,6 +16,7 @@ VIDEO_UPDATE( system16a );
 /*----------- defined in vidhrdw/segas16b.c -----------*/
 
 VIDEO_START( system16b );
+VIDEO_START( lockonph );
 VIDEO_START( timscanr );
 VIDEO_UPDATE( system16b );
 

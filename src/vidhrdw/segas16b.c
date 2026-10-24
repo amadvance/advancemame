@@ -83,3 +83,10 @@ VIDEO_UPDATE( system16b )
 	/* draw the sprites */
 	segaic16_sprites_draw(0, bitmap, cliprect);
 }
+
+VIDEO_START( lockonph )
+{
+	segaic16_palette_init(0x1000);
+	if (segaic16_tilemap_init(0, SEGAIC16_TILEMAP_16B, 0, 0, 2)) return 1;
+	return segaic16_sprites_init(0, SEGAIC16_SPRITES_16B, 0x800, 0);
+}

@@ -11,6 +11,7 @@ make more configurable (select caches per game?)
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
 #include "machine/fd1094.h"
+#include "machine/segaic16.h"
 
 
 #define S16_NUMCACHE 8
@@ -53,6 +54,7 @@ void fd1094_setstate_and_decrypt(int state)
 			/* copy cached state */
 			fd1094_userregion=fd1094_cacheregion[i];
 			memory_set_decrypted_region(0, 0, fd1094_cpuregionsize - 1, fd1094_userregion);
+			segaic16_memory_mapper_set_decrypted((UINT8 *)fd1094_userregion);
 			m68k_set_encrypted_opcode_range(0,0,fd1094_cpuregionsize);
 
 			return;
@@ -74,6 +76,7 @@ void fd1094_setstate_and_decrypt(int state)
 	/* copy newly decrypted data to user region */
 	fd1094_userregion=fd1094_cacheregion[fd1094_current_cacheposition];
 	memory_set_decrypted_region(0, 0, fd1094_cpuregionsize - 1, fd1094_userregion);
+	segaic16_memory_mapper_set_decrypted((UINT8 *)fd1094_userregion);
 	m68k_set_encrypted_opcode_range(0,0,fd1094_cpuregionsize);
 
 	fd1094_current_cacheposition++;
