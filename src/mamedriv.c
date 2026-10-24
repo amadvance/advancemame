@@ -2870,6 +2870,7 @@ V-V                           TP-027
 	DRIVER( xevi3dg )	/* Xevious 3D/G (XV31/VER.A) */
 	DRIVER( primglex )	/* Prime Goal EX (PG1/VER.A) */
 	DRIVER( danceyes )	/* Dancing Eyes (DC1/VER.A) */
+	DRIVER( pocketrc )
 	DRIVER( starswep )	/* Star Sweep (STP1/VER.A) */
 	DRIVER( myangel3 )	/* Kosodate Quiz My Angel 3 (KQT1/VER.A) */
 	DRIVER( ptblnk2a )	/* Point Blank 2 (GNB3/VER.A) */
