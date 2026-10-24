@@ -2907,10 +2907,13 @@ V-V                           TP-027
 	/* Namco System 10 */
 	DRIVER( mrdrilr2 )	/* Mr Driller 2 (DR21 Ver.A) */
 	DRIVER( gjspace )	/* Gekitoride-Jong Space (10011 Ver.A) */
-	DRIVER( mrdrilrg )	/* Mr. Driller G (DRG1 Ver.A) */
 	DRIVER( knpuzzle )	/* Kotoba no Puzzle Mojipittan (KPM1 Ver.A) */
-	DRIVER( startrgn )	/* Star Trigon (STT1 Ver.A) */
+	DRIVER( mrdrilrg )	/* Mr. Driller G (DRG1 Ver.A) */
 	DRIVER( gamshara )	/* Gamshara (10021 Ver.A) */
+	DRIVER( panikuru )
+	DRIVER( startrgn )	/* Star Trigon (STT1 Ver.A) */
+	DRIVER( konotako )
+	DRIVER( g13jnr )
 
 	/* Konami GQ */
 	DRIVER( cryptklr )	/* Crypt Killer (GQ420 UAA) */
