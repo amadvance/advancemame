@@ -390,6 +390,7 @@ const game_driver * const drivers[] =
 	DRIVER( armedf )	/* (c) 1988 */
 	DRIVER( cclimbr2 )	/* (c) 1988 (Japan) */
 	DRIVER( cclmbr2a )	/* (c) 1988 (Japan) */
+	DRIVER( skyrobo )
 	DRIVER( bigfghtr )	/* (c) 1989 */
 
 	/* Nichibutsu Mahjong games */

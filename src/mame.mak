@@ -962,7 +962,6 @@ $(OBJ)/neogeo.a: \
 
 $(OBJ)/nichibut.a: \
 	$(OBJ)/drivers/armedf.o $(OBJ)/vidhrdw/armedf.o \
-	$(OBJ)/drivers/bigfghtr.o \
 	$(OBJ)/drivers/cclimber.o $(OBJ)/sndhrdw/cclimber.o $(OBJ)/vidhrdw/cclimber.o \
 	$(OBJ)/drivers/clshroad.o $(OBJ)/vidhrdw/clshroad.o \
 	$(OBJ)/drivers/cop01.o $(OBJ)/vidhrdw/cop01.o \
