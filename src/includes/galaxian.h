@@ -278,3 +278,12 @@ WRITE8_HANDLER( hotshock_sh_irqtrigger_w );
 WRITE8_HANDLER( zigzag_8910_latch_w );
 WRITE8_HANDLER( zigzag_8910_data_trigger_w );
 WRITE8_HANDLER( zigzag_8910_control_trigger_w );
+
+extern UINT8 *namenayo_extattr;
+WRITE8_HANDLER( namenayo_extattr_w );
+PALETTE_INIT( sbhoei );
+VIDEO_START( bmxstunts );
+VIDEO_START( fantastc );
+VIDEO_START( namenayo );
+VIDEO_START( monsterz );
+VIDEO_START( sbhoei );

@@ -27,6 +27,8 @@ static rectangle* spritevisibleareaflipx;
 #define BACKGROUND_COLOR_BASE	(BULLETS_COLOR_BASE + 2)
 
 
+UINT8 *namenayo_extattr;
+static int extra_video;
 UINT8 *galaxian_videoram;
 UINT8 *galaxian_spriteram;
 UINT8 *galaxian_spriteram2;
@@ -483,6 +485,7 @@ static int video_start_common(UINT32 (*get_memory_offset)(UINT32,UINT32,UINT32,U
 	tilemap_set_transparent_pen(bg_tilemap,0);
 
 
+	extra_video = 0;
 	modify_charcode = 0;
 	modify_spritecode = 0;
 	modify_color = 0;
@@ -1962,6 +1965,24 @@ static void get_tile_info(int tile_index)
 		modify_color(&color);
 	}
 
+	if (extra_video == 3)
+	{
+		if (((gfxbank[2] & 1) && (code & 0xc0) == 0x80) ||
+			((gfxbank[3] & 1) && (code & 0xc0) == 0xc0))
+			code = (code & 0x3f) | ((gfxbank[0] & 1) << 6) |
+				((gfxbank[1] & 1) << 7) | (0x100 << (gfxbank[4] & 1));
+	}
+	if (extra_video == 4)
+	{
+		UINT8 attr = galaxian_attributesram[(x << 1) | 1];
+		if (!(attr & 1))
+		{
+			UINT8 ext = namenayo_extattr[tile_index >> 5];
+			code += ((ext & 0x38) >> 3) * 0x100;
+			color = ext & 7;
+		}
+		else if ((attr & 0xfe) == 0x20) code += 0x400;
+	}
 	SET_TILE_INFO(0, code, color, 0)
 }
 
@@ -2011,6 +2032,15 @@ static void draw_sprites(mame_bitmap *bitmap, UINT8 *spriteram, size_t spriteram
 		flipy = spriteram[offs + 1] & 0x80;
 		code = spriteram[offs + 1] & 0x3f;
 		color = spriteram[offs + 2] & color_mask;
+		if (extra_video == 1 && (spriteram[offs + 2] & 0x10)) code += 0x40;
+		if (extra_video == 2) code += 0x40;
+		if (extra_video == 3 &&
+			(((gfxbank[2] & 1) && (code & 0x30) == 0x20) ||
+			 ((gfxbank[3] & 1) && (code & 0x30) == 0x30)))
+			code = (code & 0x0f) | ((gfxbank[0] & 1) << 4) |
+				((gfxbank[1] & 1) << 5) | (0x40 << (gfxbank[4] & 1));
+		if (extra_video == 4 && (spriteram[offs + 2] & 8)) code += 0x40;
+
 
 		if (modify_spritecode)
 		{
@@ -2048,7 +2078,7 @@ static void draw_sprites(mame_bitmap *bitmap, UINT8 *spriteram, size_t spriteram
 		/* Note that the adjustment must be done AFTER handling flipscreen, thus */
 		/* proving that this is a hardware related "feature" */
 
-		if (offs < 3*4)  sy++;
+		if (extra_video == 5 ? offs >= 3*4 : offs < 3*4) sy++;
 
 
 		drawgfx(bitmap,Machine->gfx[1],
@@ -2085,5 +2115,81 @@ VIDEO_UPDATE( galaxian )
 	if (spriteram2_present)
 	{
 		draw_sprites(bitmap, galaxian_spriteram2, galaxian_spriteram2_size);
+	}
+}
+
+WRITE8_HANDLER( namenayo_extattr_w )
+{
+	force_partial_update(cpu_getscanline());
+	namenayo_extattr[offset] = data;
+	tilemap_mark_all_tiles_dirty(bg_tilemap);
+}
+
+static void extra_draw_background(mame_bitmap *bitmap)
+{
+	fillbitmap(bitmap, get_black_pen(), &Machine->visible_area);
+}
+
+static void namenayo_draw_background(mame_bitmap *bitmap)
+{
+	rectangle clip = Machine->visible_area;
+	fillbitmap(bitmap, get_black_pen(), &clip);
+	if (flipscreen_x) clip.min_x = MAX(clip.min_x, 72);
+	else clip.max_x = MIN(clip.max_x, 183);
+	tilemap_draw(bitmap, &clip, bg_tilemap, TILEMAP_IGNORE_TRANSPARENCY, 0);
+}
+
+VIDEO_START( bmxstunts )
+{
+	int ret = video_start_galaxian();
+	extra_video = 1;
+	return ret;
+}
+VIDEO_START( fantastc )
+{
+	int ret = video_start_galaxian();
+	extra_video = 2;
+	draw_background = extra_draw_background;
+	spriteram2_present = 1;
+	return ret;
+}
+VIDEO_START( sbhoei )
+{
+	int ret = video_start_galaxian();
+	extra_video = 3;
+	draw_background = extra_draw_background;
+	return ret;
+}
+VIDEO_START( namenayo )
+{
+	int ret = video_start_galaxian_plain();
+	extra_video = 4;
+	draw_background = namenayo_draw_background;
+	draw_bullets = scramble_draw_bullets;
+	return ret;
+}
+static void monsterz_draw_bullets(mame_bitmap *bitmap, int offs, int x, int y)
+{
+	scramble_draw_bullets(bitmap, offs, x + 16, y);
+}
+
+VIDEO_START( monsterz )
+{
+	int ret = video_start_sfx();
+	extra_video = 5;
+	draw_bullets = monsterz_draw_bullets;
+	draw_background = extra_draw_background;
+	draw_stars = galaxian_draw_stars;
+	return ret;
+}
+PALETTE_INIT( sbhoei )
+{
+	int i;
+	palette_init_galaxian(colortable, color_prom);
+	for (i = 0; i < Machine->drv->total_colors; i++)
+	{
+		UINT8 r,g,b;
+		palette_get_color(i, &r, &g, &b);
+		palette_set_color(i, r, b, g);
 	}
 }

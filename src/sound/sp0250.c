@@ -208,6 +208,13 @@ static void *sp0250_start(int sndindex, int clock, const void *config)
 }
 
 
+WRITE8_HANDLER( sp0250_reset_w )
+{
+	struct sp0250 *sp = sndti_token(SOUND_SP0250, 0);
+	stream_update(sp->stream, 0);
+	sp0250_load_values(sp);
+}
+
 WRITE8_HANDLER( sp0250_w )
 {
 	struct sp0250 *sp = sndti_token(SOUND_SP0250, 0);
