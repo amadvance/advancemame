@@ -470,6 +470,7 @@ static UINT8 sio_irq_state;
 static UINT8 sio_led_state;
 
 static UINT8 pending_analog_read;
+static UINT8 analog_shift;
 
 static UINT8 cmos_unlocked;
 
@@ -602,7 +603,12 @@ static MACHINE_RESET( vegas )
 	/* initialize IRQ states */
 	ide_irq_state = 0;
 	nile_irq_state = 0;
+	memset(sio_data, 0, sizeof(sio_data));
+	sio_irq_clear = 0;
+	sio_irq_enable = 0;
 	sio_irq_state = 0;
+	sio_led_state = 0;
+	pending_analog_read = 0;
 
 	/* find out what type of voodoo we have */
 	voodoo_type = voodoo_get_type(0);
@@ -1338,6 +1344,7 @@ static void ethernet_interrupt(int state)
 
 static READ32_HANDLER( sio_irq_clear_r )
 {
+	sio_data[3] |= 0x01;
 	return sio_irq_clear;
 }
 
@@ -1424,7 +1431,18 @@ static WRITE32_HANDLER( sio_w )
 	if (offset < 4)
 		sio_data[offset] = data >> (offset*8);
 	if (offset == 1)
+	{
 		sio_data[2] = (sio_data[2] & ~0x02) | ((sio_data[1] & 0x01) << 1) | (sio_data[1] & 0x01);
+		if (!(sio_data[1] & 0x01))
+		{
+			sio_data[3] &= ~0x01;
+			sio_irq_clear = 0;
+			sio_irq_enable = 0;
+			sio_irq_state = 0;
+			sio_led_state = 0;
+			update_sio_irqs();
+		}
+	}
 }
 
 
@@ -1452,15 +1470,23 @@ static READ32_HANDLER( sio_r )
 
 static READ32_HANDLER( analog_port_r )
 {
-	return pending_analog_read;
+	sio_irq_state &= ~0x02;
+	update_sio_irqs();
+	return (UINT32)pending_analog_read << (analog_shift * 2);
 }
 
 
 static WRITE32_HANDLER( analog_port_w )
 {
+	data >>= analog_shift;
 	if (data < 8 || data > 15)
 		logerror("%08X:Unexpected analog port select = %08X\n", activecpu_get_pc(), data);
 	pending_analog_read = readinputport(4 + (data & 7));
+	if (sio_irq_enable & 0x02)
+	{
+		sio_irq_state |= 0x02;
+		update_sio_irqs();
+	}
 }
 
 
@@ -2367,7 +2393,16 @@ ROM_START( roadburn )
 	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )	/* EPROM 2.6 4/22/1999 */
 	ROM_LOAD( "rbmain.bin", 0x000000, 0x80000, CRC(060e1aa8) SHA1(2a1027d209f87249fe143500e721dfde7fb5f3bc) )
 
-	DISK_REGION( REGION_DISKS )	/* Guts 4/22/1999 Game 4/22/1999 */
+	DISK_REGION( REGION_DISKS )
+	DISK_IMAGE( "road burners v1.04", 0, SHA1(30567241c000ee572a9cfb1b080c02a51a2b12d2) )
+ROM_END
+
+
+ROM_START( roadburn1 )
+	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )
+	ROM_LOAD( "rbmain.bin", 0x000000, 0x80000, CRC(060e1aa8) SHA1(2a1027d209f87249fe143500e721dfde7fb5f3bc) )
+
+	DISK_REGION( REGION_DISKS )
 	DISK_IMAGE( "roadburn", 0, MD5(ce4710671f4266389e7d71f1fc0da81d) SHA1(1c971c9ed573d178d9f318ccd88d305d8146de2d) )
 ROM_END
 
@@ -2397,6 +2432,18 @@ ROM_START( nbanfl )
 ROM_END
 
 
+ROM_START( nbagold )
+	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )
+	ROM_LOAD( "nbagold_jan10_2000.u27", 0x000000, 0x80000, CRC(6768e802) SHA1(d994e3efe14f57e261841134ddd1489fa67d418b) )
+
+	DISK_REGION( REGION_DISKS )
+	DISK_IMAGE( "nbanfl3", 0, SHA1(19a51346ce5ae4e06e8dff3eb4bed59ec1ee855f) )
+
+	ROM_REGION16_LE( 0x10000, REGION_SOUND1, 0 )
+	ROM_LOAD16_BYTE( "vegassio.bin", 0x000000, 0x8000, CRC(d1470e23) SHA1(f6e8405cfa604528c0224401bc374a6df9caccef) )
+ROM_END
+
+
 ROM_START( cartfury )
 	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )
 	ROM_LOAD( "bootu27", 0x000000, 0x80000, CRC(c44550a2) SHA1(ad30f1c3382ff2f5902a4cbacbb1f0c4e37f42f9) )
@@ -2420,7 +2467,7 @@ ROM_END
 
 ROM_START( sf2049se )
 	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )
-	ROM_LOAD( "sf2049te.bin", 0x000000, 0x80000, BAD_DUMP CRC(cc7c8601) SHA1(3f37dbd1b32b3ac5caa300725468e8e426f0fb83) )
+	ROM_LOAD( "sf2049se.u27", 0x000000, 0x80000, CRC(da4ecd9c) SHA1(2574ff3d608ebcc59a63cf6dea13ee7650ae8921) )
 
 	DISK_REGION( REGION_DISKS )
 	DISK_IMAGE( "sf2049se", 0, MD5(3ea8c0f8394cb73e96176b1a70c03219) SHA1(b195f98756d9d7cde71b6467409faed33134a2d7) )
@@ -2449,6 +2496,8 @@ static void init_common(int ioasic, int serialnum)
 	{
 		ethernet_interrupt
 	};
+
+	analog_shift = 0;
 
 	/* initialize the subsystems */
 	ide_controller_init(0, &ide_intf);
@@ -2511,7 +2560,7 @@ static DRIVER_INIT( roadburn )
 static DRIVER_INIT( nbashowt )
 {
 	dcs2_init(4, 0);
-	init_common(MIDWAY_IOASIC_MACE, 528/* or 478 or 487 */);
+	init_common(MIDWAY_IOASIC_MACE, 487);
 }
 
 
@@ -2523,17 +2572,26 @@ static DRIVER_INIT( nbanfl )
 }
 
 
+static DRIVER_INIT( nbagold )
+{
+	dcs2_init(4, 0);
+	init_common(MIDWAY_IOASIC_GAUNTDL, 109);
+}
+
+
 static DRIVER_INIT( sf2049 )
 {
 	dcs2_init(8, 0);
 	init_common(MIDWAY_IOASIC_STANDARD, 336/* others? */);
+	analog_shift = 4;
 }
 
 
 static DRIVER_INIT( sf2049se )
 {
 	dcs2_init(8, 0);
-	init_common(MIDWAY_IOASIC_SFRUSHRK, 336/* others? */);
+	init_common(MIDWAY_IOASIC_SFRUSHRK, 352);
+	analog_shift = 4;
 }
 
 
@@ -2541,6 +2599,7 @@ static DRIVER_INIT( sf2049te )
 {
 	dcs2_init(8, 0);
 	init_common(MIDWAY_IOASIC_SFRUSHRK, 348/* others? */);
+	analog_shift = 4;
 }
 
 
@@ -2567,19 +2626,21 @@ GAME( 1998, tenthdeg, 0,        vegas,    tenthdeg, tenthdeg, ROT0, "Atari Games
 /* Durango + Vegas SIO + Voodoo 2 */
 GAME( 1999, gauntdl,  0,        vegas,    gauntdl,  gauntdl,  ROT0, "Midway Games", "Gauntlet Dark Legacy (version DL 2.52)", 0 )
 GAME( 1999, gauntd24, gauntdl,  vegas,    gauntdl,  gauntdl,  ROT0, "Midway Games", "Gauntlet Dark Legacy (version DL 2.4)", 0 )
-GAME( 1999, warfa,    0,        vegas250, warfa,    warfa,    ROT0, "Atari Games",  "War: The Final Assault", GAME_NOT_WORKING )
+GAME( 1999, warfa,    0,        vegas250, warfa,    warfa,    ROT0, "Atari Games",  "War: Final Assault (GUTS 1.3 Apr 20 1999, GAME Apr 20 1999)", GAME_NOT_WORKING )
 
 /* Durango + DSIO + Voodoo 2 */
-GAME( 1999, roadburn, 0,        vegas32m, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners", GAME_NOT_WORKING )
+GAME( 1999, roadburn, 0,        vegas32m, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners (ver 1.04)", GAME_NOT_WORKING )
+GAME( 1999, roadburn1, roadburn, vegas32m, roadburn, roadburn, ROT0, "Atari Games", "Road Burners (ver 1.0)", GAME_NOT_WORKING )
 
 /* Durango + DSIO? + Voodoo banshee */
-GAME( 1998, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime: NBA on NBC", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 1999, nbanfl,   0,        vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "NBA Showtime / NFL Blitz 2000", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 1999, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime NBA on NBC (ver 2.0, Apr 25 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 1999, nbanfl,   0,        vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2000, nbagold,  0,        vegasban, nbashowt, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Denver SIO + Voodoo 3 */
-GAME( 1998, sf2049,   0,        denver,   sf2049,   sf2049,   ROT0, "Atari Games",  "San Francisco Rush 2049", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 1998, sf2049se, sf2049,   denver,   sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 1999, sf2049,   0,        denver,   sf2049,   sf2049,   ROT0, "Atari Games",  "San Francisco Rush 2049", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2003, sf2049se, 0,        denver,   sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 1998, sf2049te, sf2049,   denver,   sf2049te, sf2049te, ROT0, "Atari Games",  "San Francisco Rush 2049: Tournament Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Vegas SIO + Voodoo 3 */
-GAME( 2000, cartfury, 0,        vegasv3,  cartfury, cartfury, ROT0, "Midway Games", "Cart Fury", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2000, cartfury, 0,        vegasv3,  cartfury, cartfury, ROT0, "Midway Games", "CART Fury Championship Racing (ver 1.00)", GAME_NO_SOUND | GAME_NOT_WORKING )

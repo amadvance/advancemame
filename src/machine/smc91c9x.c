@@ -394,7 +394,7 @@ static void process_command(UINT16 data)
 				logerror("   RESET TX FIFOS\n");
 			break;
 	}
-	ethernet.reg[EREG_MMU_COMMAND] &= ~0x0001;
+	ethernet.reg[EREG_MMU_COMMAND] |= 0x0001;
 }
 
 
@@ -417,6 +417,10 @@ READ16_HANDLER( smc91c94_r )
 
 	switch (offset)
 	{
+		case EREG_MMU_COMMAND:
+			ethernet.reg[EREG_MMU_COMMAND] &= ~0x0001;
+			break;
+
 		case EREG_PNR_ARR:
 			if (!(mem_mask & 0xff00))
 			{
@@ -558,6 +562,8 @@ WRITE16_HANDLER( smc91c94_w )
 
 		case EREG_INTERRUPT:
 			ethernet.reg[EREG_INTERRUPT] &= ~(data & 0x56);
+			if (ethernet.reg[EREG_FIFO_PORTS] & 0x0080)
+				ethernet.reg[EREG_INTERRUPT] &= ~EINT_TX;
 			update_ethernet_irq();
 			break;
 	}
