@@ -1143,6 +1143,11 @@ const game_driver * const drivers[] =
 	DRIVER( spcewarl )
 	DRIVER( polaris )	/* PS  (c) 1980 Taito */
 	DRIVER( polarisa )	/* PS  (c) 1980 Taito */
+	DRIVER( astropal )
+	DRIVER( cane )
+	DRIVER( orbite )
+	DRIVER( galactic )
+	DRIVER( skylove )
 	DRIVER( ballbomb )	/* TN  (c) 1980 Taito */
 	DRIVER( indianbt )	/* (c) 1980 Taito */
 	DRIVER( steelwkr )	/* (c) 1980 Taito */

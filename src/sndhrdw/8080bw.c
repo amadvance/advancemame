@@ -37,6 +37,7 @@
 #include "sound/discrete.h"
 #include "sound/dac.h"
 #include "sound/custom.h"
+#include <math.h>
 
 static WRITE8_HANDLER( invad2ct_sh_port1_w );
 static WRITE8_HANDLER( invaders_sh_port3_w );
@@ -45,6 +46,7 @@ static WRITE8_HANDLER( invad2ct_sh_port7_w );
 
 static WRITE8_HANDLER( ballbomb_sh_port3_w );
 static WRITE8_HANDLER( ballbomb_sh_port5_w );
+static UINT8 ballbomb_last3, ballbomb_last5;
 
 static WRITE8_HANDLER( boothill_sh_port3_w );
 static WRITE8_HANDLER( boothill_sh_port5_w );
@@ -400,22 +402,35 @@ static WRITE8_HANDLER( boothill_sh_port5_w )
 /*                                                     */
 /*******************************************************/
 
-/* This only does the color swap for the explosion */
-/* We do not have correct samples so sound not done */
 
 MACHINE_RESET( ballbomb )
 {
+	ballbomb_last3 = ballbomb_last5 = 0;
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 1, 1, 0, 0, bw_control1_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 2, 2, 0, 0, bw_control2_r);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x03, 0x03, 0, 0, ballbomb_sh_port3_w);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x05, 0x05, 0, 0, ballbomb_sh_port5_w);
 }
 
 static WRITE8_HANDLER( ballbomb_sh_port3_w )
 {
+	UINT8 rising = data & ~ballbomb_last3;
+	if (rising & 1) sample_start(1, 2, 0);
+	if (rising & 2) sample_start(2, 0, 0);
+	if (rising & 4) sample_start(2, 1, 0);
+	if (rising & 8) sample_start(1, 7, 0);
+	if (rising & 16) sample_start(3, 8, 0);
+	sound_global_enable(data & 0x20);
+	ballbomb_last3 = data;
 	c8080bw_screen_red_w(data & 0x04);
 }
 
 static WRITE8_HANDLER( ballbomb_sh_port5_w )
 {
+	if (data & 1) sample_start(0, 7, 0);
+	if (data & 4) sample_start(0, 4, 0);
+	if ((data & ~ballbomb_last5) & 16) sample_start(2, 2, 0);
+	ballbomb_last5 = data;
 	c8080bw_flip_screen_w(data & 0x20);
 }
 
@@ -1407,4 +1422,184 @@ MACHINE_RESET( clowns )
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x05, 0x05, 0, 0, clowns_sh_port5_w);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x06, 0x06, 0, 0, clowns_sh_port6_w);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x07, 0x07, 0, 0, clowns_sh_port7_w);
+}
+
+READ8_HANDLER( bw_control1_r )
+{
+	return (readinputport(1) & 0x8f) | (readinputport(flip_screen ? 2 : 1) & 0x70);
+}
+
+READ8_HANDLER( bw_control2_r )
+{
+	return (readinputport(2) & 0x8f) | (readinputport(flip_screen ? 2 : 1) & 0x70);
+}
+
+static UINT8 extra_last1, extra_last2;
+
+struct Samplesinterface bw_extra_samples = { 6, invaders_sample_names };
+
+static MACHINE_RESET( bw_extra )
+{
+	extra_last1 = extra_last2 = 0;
+	SN76477_envelope_w(0, 1);
+	SN76477_mixer_w(0, 0);
+	SN76477_vco_w(0, 1);
+	SN76477_enable_w(0, 1);
+}
+
+WRITE8_HANDLER( cosmo_sound1_w )
+{
+	UINT8 rising = data & ~extra_last1;
+	SN76477_enable_w(0, !(data & 1));
+	if (rising & 2) sample_start(0, 0, 0);
+	if (rising & 4) sample_start(1, 1, 0);
+	if (rising & 8) sample_start(2, 2, 0);
+	if (rising & 16) sample_start(5, 8, 0);
+	c8080bw_screen_red_w(data & 4);
+	sound_global_enable(data & 0x20);
+	extra_last1 = data;
+}
+
+WRITE8_HANDLER( cosmo_sound2_w )
+{
+	UINT8 rising = data & ~extra_last2;
+	int i;
+	for (i = 0; i < 4; i++)
+		if (rising & (1 << i)) sample_start(4, 3 + i, 0);
+	if (rising & 16) sample_start(3, 7, 0);
+	c8080bw_flip_screen_w((data ^ 0x20) & 0x20);
+	extra_last2 = data;
+}
+
+MACHINE_RESET( cosmo_audio )
+{
+	machine_reset_bw_extra();
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 1, 1, 0, 0, bw_control1_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 2, 2, 0, 0, bw_control2_r);
+}
+MACHINE_RESET( yosakdon_audio ) { machine_reset_bw_extra(); }
+MACHINE_RESET( shuttlei_audio ) { machine_reset_bw_extra(); }
+
+WRITE8_HANDLER( yosakdon_sound1_w )
+{
+	UINT8 rising = data & ~extra_last1;
+	if (rising & 1) sample_start(0, 3, 0);
+	if (rising & 2) sample_start(2, 0, 0);
+	if (rising & 4) sample_start(0, 1, 0);
+	if (rising & 8) sample_start(1, 2, 0);
+	if (rising & 16) sample_start(5, 8, 0);
+	sound_global_enable(data & 0x20);
+	extra_last1 = data;
+}
+
+WRITE8_HANDLER( yosakdon_sound2_w )
+{
+	UINT8 rising = data & ~extra_last2;
+	if (rising & 1) sample_start(1, 6, 0);
+	if (rising & 4) sample_start(3, 7, 0);
+	if (rising & 16) sample_start(2, 7, 0);
+	SN76477_enable_w(0, !(data & 8));
+	flip_screen_set((data & 0x20) && (readinputport(2) & 1));
+	extra_last2 = data;
+}
+
+WRITE8_HANDLER( shuttlei_sound1_w )
+{
+	UINT8 rising = data & ~extra_last1;
+	if (rising & 1) sample_start(4, 4, 0);
+	if (rising & 2) sample_start(5, 8, 0);
+	SN76477_enable_w(0, !(data & 4));
+	extra_last1 = data;
+}
+
+WRITE8_HANDLER( shuttlei_sound2_w )
+{
+	switch (data)
+	{
+		case 0x23: sample_start(2, 2, 0); break;
+		case 0x2b: sample_start(0, 0, 0); break;
+		case 0xa3: sample_start(3, 7, 0); break;
+		case 0xab: sample_start(1, 1, 0); break;
+	}
+}
+
+static const struct discrete_dac_r1_ladder ballbomb_music_dac =
+	{ 3, { 0, RES_K(47), RES_K(12) }, 0, 0, 0, CAP_U(0.1) };
+
+DISCRETE_SOUND_START( ballbomb_discrete )
+	DISCRETE_INPUT_DATA(NODE_01)
+	DISCRETE_NOTE(NODE_20, 1, 3993.6 * 8, NODE_01, 255, 5, DISC_CLK_IS_FREQ)
+	DISCRETE_TRANSFORM2(NODE_21, 1, NODE_20, 2, "01>0+")
+	DISCRETE_DAC_R1(NODE_22, 1, NODE_21, DEFAULT_TTL_V_LOGIC_1, &ballbomb_music_dac)
+	DISCRETE_CRFILTER(NODE_90, 1, NODE_22, RES_K(10), CAP_U(0.1))
+	DISCRETE_OUTPUT(NODE_90, 21000)
+DISCRETE_SOUND_END
+
+WRITE8_HANDLER( ballbomb_music_w ) { discrete_sound_w(NODE_01, data | 0x80); }
+
+struct SN76477interface cane_sn76477_interface =
+{
+	RES_K(39), RES_K(1), CAP_P(1000), RES_M(1), CAP_U(1), RES_K(47),
+	20100, RES_K(4.7), 0, CAP_P(3300), RES_K(100), 5,
+	RES_K(33), CAP_U(1), CAP_U(10), RES_K(100)
+};
+
+DISCRETE_SOUND_START( cane_discrete )
+	DISCRETE_INPUT_DATA(NODE_06)
+	DISCRETE_INPUT_LOGIC(NODE_16)
+	DISCRETE_INPUT_LOGIC(NODE_05)
+	DISCRETE_INPUTX_STREAM(NODE_03, 0.5, 0)
+	DISCRETE_NOISE(NODE_13, 1, 1280, 1, 0)
+	DISCRETE_CLAMP(NODE_14, 1, NODE_13, 0, 5, 0)
+	DISCRETE_ONESHOT(NODE_15, NODE_16, 1, 0.05, DISC_ONESHOT_FEDGE | DISC_ONESHOT_RETRIG)
+	DISCRETE_MULTIPLY(NODE_17, 1, NODE_14, NODE_15)
+	DISCRETE_GAIN(NODE_18, NODE_17, 13860)
+	DISCRETE_NOTE(NODE_01, 1, 19968000.0 / 16, NODE_06, 255, 1, DISC_CLK_IS_FREQ)
+	DISCRETE_CRFILTER(NODE_40, 1, NODE_01, RES_K(10), CAP_U(0.1))
+	DISCRETE_GAIN(NODE_12, NODE_40, 17820)
+	DISCRETE_GAIN(NODE_11, NODE_03, 1.584)
+	DISCRETE_ADDER3(NODE_90, NODE_05, NODE_18, NODE_11, NODE_12)
+	DISCRETE_OUTPUT(NODE_90, 1)
+DISCRETE_SOUND_END
+
+static mame_timer *cane_vco_timer;
+static double cane_charge_start;
+
+static void cane_vco_tick(int param)
+{
+	SN76477_set_vco_voltage(0, 5 * (1 - exp(-(timer_get_time() - cane_charge_start) / 47)));
+}
+
+MACHINE_START( cane_audio )
+{
+	cane_vco_timer = timer_alloc(cane_vco_tick);
+	return 0;
+}
+
+MACHINE_RESET( cane_audio )
+{
+	timer_adjust(cane_vco_timer, TIME_NEVER, 0, 0);
+	SN76477_envelope_w(0, 1);
+	SN76477_mixer_w(0, 0);
+	SN76477_vco_w(0, 0);
+	SN76477_enable_w(0, 1);
+	discrete_sound_w(NODE_06, 255);
+}
+
+WRITE8_HANDLER( cane_sound_w )
+{
+	discrete_sound_w(NODE_05, data & 1);
+	discrete_sound_w(NODE_16, data & 16);
+	SN76477_mixer_a_w(0, (data >> 2) & 1);
+	SN76477_mixer_b_w(0, (data >> 3) & 1);
+	SN76477_mixer_c_w(0, (data >> 1) & 1);
+	SN76477_enable_w(0, 0);
+	cane_charge_start = timer_get_time();
+	timer_adjust(cane_vco_timer, TIME_NOW, 0, TIME_IN_HZ(1000));
+}
+
+WRITE8_HANDLER( cane_music_w )
+{
+	SN76477_enable_w(0, 1);
+	discrete_sound_w(NODE_06, data);
 }

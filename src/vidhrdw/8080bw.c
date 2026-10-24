@@ -167,10 +167,13 @@ DRIVER_INIT( invadpt2 )
 	screen_red_enabled = 1;
 }
 
+static void cosmo_stars_init(void);
+
 DRIVER_INIT( cosmo )
 {
 	init_8080bw();
 	videoram_w_p = cosmo_videoram_w;
+	cosmo_stars_init();
 }
 
 DRIVER_INIT( seawolf )
@@ -492,9 +495,11 @@ static WRITE8_HANDLER( shuttlei_videoram_w )
 	videoram[offset] = data;
 	y = offset >>5;
 	x = 8 * (offset &31);
+	if (y >= 192) return;
 	for (i = 0; i < 8; i++)
 	{
-		plot_pixel_8080(x+(7-i), y, (data & 0x01) ? 1 : 0);
+		plot_pixel(tmpbitmap, flip_screen ? 255 - x - (7 - i) : x + (7 - i),
+			flip_screen ? 191 - y : y, Machine->pens[(data & 1) ? 1 : 0]);
 		data >>= 1;
 	}
 }
@@ -759,15 +764,12 @@ static WRITE8_HANDLER( invadpt2_videoram_w )
 PALETTE_INIT( cosmo )
 {
 	int i;
-
-
-	for (i = 0;i < Machine->drv->total_colors;i++)
-	{
-		int r = 0xff * ((i >> 0) & 1);
-		int g = 0xff * ((i >> 1) & 1);
-		int b = 0xff * ((i >> 2) & 1);
-		palette_set_color(i,r,g,b);
-	}
+	const int level[4] = { 0, 80, 80, 255 };
+	for (i = 0; i < 8; i++)
+		palette_set_color(i, (i & 1) ? 255 : 0, (i & 4) ? 255 : 0, (i & 2) ? 255 : 0);
+	for (i = 0; i < 64; i++)
+		palette_set_color(i + 8, level[((i >> 1) & 1) | ((i >> 3) & 2)],
+			level[(i & 1) | ((i >> 4) & 2)], level[((i >> 2) & 1) | ((i >> 2) & 2)]);
 }
 
 WRITE8_HANDLER( cosmo_colorram_w )
@@ -827,4 +829,125 @@ static WRITE8_HANDLER( sstrngr2_videoram_w )
 	}
 
 	plot_byte(x, y, data, col, 0);
+}
+
+static WRITE8_HANDLER( ballbomb_videoram_w )
+{
+	UINT8 y = offset >> 5;
+	UINT8 x = offset << 3;
+	int color = screen_red ? 1 : memory_region(REGION_PROMS)[(color_map_select ? 0x400 : 0) | ((y >> 3) << 5) | (offset & 31)] & 7;
+	videoram[offset] = data;
+	plot_byte(x, y, data, color, 2);
+}
+
+DRIVER_INIT( ballbomb )
+{
+	init_invadpt2();
+	videoram_w_p = ballbomb_videoram_w;
+}
+
+static WRITE8_HANDLER( orbite_videoram_w )
+{
+	int color = colorram[(offset & 0x1f) | ((offset & 0x1f80) >> 2)] & 7;
+	videoram[offset] = data;
+	plot_byte((offset & 31) * 8, offset >> 5, data, color, 0);
+}
+
+READ8_HANDLER( orbite_colorram_r )
+{
+	return colorram[(offset & 0x1f) | ((offset & 0x1f80) >> 2)];
+}
+
+WRITE8_HANDLER( orbite_colorram_w )
+{
+	int i;
+	colorram[(offset & 0x1f) | ((offset & 0x1f80) >> 2)] = data;
+	for (i = 0; i < videoram_size; i++)
+		if (((i ^ offset) & 0x1f9f) == 0) orbite_videoram_w(i, videoram[i]);
+}
+
+DRIVER_INIT( orbite )
+{
+	init_8080bw();
+	videoram_w_p = orbite_videoram_w;
+}
+
+PALETTE_INIT( orbite )
+{
+	int i;
+	for (i = 0; i < 8; i++)
+		palette_set_color(i, (i & 1) ? 255 : 0, (i & 2) ? 255 : 0, (i & 4) ? 255 : 0);
+}
+
+#define COSMO_STAR_PERIOD 131071
+static UINT8 cosmo_stars[COSMO_STAR_PERIOD];
+static int cosmo_star_origin, cosmo_star_frame, cosmo_rng_offset;
+static int cosmo_star_speed, cosmo_star_sideways, cosmo_bright;
+
+static void cosmo_stars_init(void)
+{
+	UINT32 state = 0;
+	int i;
+	for (i = 0; i < COSMO_STAR_PERIOD; i++)
+	{
+		cosmo_stars[i] = ((~state & 0x1f8) >> 3) | (((state & 0xfe00) == 0xfe00) << 7);
+		state = (state >> 1) | ((((state >> 12) ^ ~state) & 1) << 16);
+	}
+	cosmo_star_origin = cosmo_star_frame = cosmo_rng_offset = cosmo_bright = 0;
+	cosmo_star_sideways = 0;
+	cosmo_star_speed = 3;
+}
+
+READ8_HANDLER( cosmo_stars_r )
+{
+	UINT8 data = ~cosmo_stars[cosmo_rng_offset];
+	cosmo_rng_offset = (cosmo_rng_offset + cpu_getcurrentframe()) % COSMO_STAR_PERIOD;
+	return data & 0x3f;
+}
+
+WRITE8_HANDLER( cosmo_stars_w )
+{
+	cosmo_star_speed = data & 7;
+	cosmo_star_sideways = data & 8;
+}
+
+VIDEO_UPDATE( cosmo )
+{
+	int x, y, offset;
+	int frame = cpu_getcurrentframe();
+	int delta = (2 - cosmo_star_speed + (cosmo_star_sideways ? 4096 : 0)) * (frame - cosmo_star_frame);
+	cosmo_star_origin = (cosmo_star_origin + delta) % COSMO_STAR_PERIOD;
+	if (cosmo_star_origin < 0) cosmo_star_origin += COSMO_STAR_PERIOD;
+	cosmo_star_frame = frame;
+	fillbitmap(bitmap, Machine->pens[0], cliprect);
+	for (offset = 0x400; offset < 0x2000; offset++)
+	{
+		int color = colorram[((offset >> 8) << 5) | (offset & 31)] & 7;
+		int bit;
+		y = offset >> 5;
+		for (bit = 0; bit < 8; bit++)
+		{
+			int j;
+			x = ((offset & 31) * 8 + bit) * 4;
+			for (j = 0; j < 4; j++)
+				plot_pixel(bitmap, flip_screen ? 1023 - x - j : x + j,
+					flip_screen ? 287 - y : y, Machine->pens[(videoram[offset] & (1 << bit)) ? color : 0]);
+		}
+	}
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		int star_offset = (cosmo_star_origin + (y - 32) * 1024) % COSMO_STAR_PERIOD;
+		for (x = 0; x < 1024; x++)
+		{
+			UINT8 star = cosmo_stars[star_offset];
+			star_offset = (star_offset + 1) % COSMO_STAR_PERIOD;
+			if (((y & 1) && (x % 32 > 15)) || (!(y & 1) && (x % 32 < 16))) cosmo_bright = 0;
+			if (star & 0x80)
+			{
+				if (read_pixel(bitmap, x, y) == Machine->pens[0])
+					plot_pixel(bitmap, x, y, Machine->pens[8 + (star & (cosmo_bright ? 0x3f : 0x0f))]);
+			}
+			else cosmo_bright ^= 1;
+		}
+	}
 }
