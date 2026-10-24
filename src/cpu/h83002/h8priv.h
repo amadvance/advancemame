@@ -29,6 +29,7 @@ typedef struct
 	UINT8 h8TSTR;
 
 	void *timer[5];
+	void *adc_timer;
 
 	int cpu_number;
 

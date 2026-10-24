@@ -34,6 +34,7 @@
 
 static void h8itu_timer_0_cb(int num)
 {
+	cpuintrf_push_context(num);
 	timer_adjust(h8.timer[0], TIME_NEVER, 0, 0);
 	h8.h8TCNT0 = 0;
 	h8.per_regs[TSR0] |= 4;
@@ -42,10 +43,12 @@ static void h8itu_timer_0_cb(int num)
 	{
 		h8_3002_InterruptRequest(26);
 	}
+	cpuintrf_pop_context();
 }
 
 static void h8itu_timer_1_cb(int num)
 {
+	cpuintrf_push_context(num);
 	timer_adjust(h8.timer[1], TIME_NEVER, 0, 0);
 	h8.h8TCNT1 = 0;
 	h8.per_regs[TSR1] |= 4;
@@ -54,10 +57,12 @@ static void h8itu_timer_1_cb(int num)
 	{
 		h8_3002_InterruptRequest(30);
 	}
+	cpuintrf_pop_context();
 }
 
 static void h8itu_timer_2_cb(int num)
 {
+	cpuintrf_push_context(num);
 	timer_adjust(h8.timer[2], TIME_NEVER, 0, 0);
 	h8.h8TCNT2 = 0;
 	h8.per_regs[TSR2] |= 4;
@@ -66,10 +71,12 @@ static void h8itu_timer_2_cb(int num)
 	{
 		h8_3002_InterruptRequest(34);
 	}
+	cpuintrf_pop_context();
 }
 
 static void h8itu_timer_3_cb(int num)
 {
+	cpuintrf_push_context(num);
 	timer_adjust(h8.timer[3], TIME_NEVER, 0, 0);
 	h8.h8TCNT3 = 0;
 	h8.per_regs[TSR3] |= 4;
@@ -78,10 +85,12 @@ static void h8itu_timer_3_cb(int num)
 	{
 		h8_3002_InterruptRequest(38);
 	}
+	cpuintrf_pop_context();
 }
 
 static void h8itu_timer_4_cb(int num)
 {
+	cpuintrf_push_context(num);
 	timer_adjust(h8.timer[4], TIME_NEVER, 0, 0);
 	h8.h8TCNT4 = 0;
 	h8.per_regs[TSR4] |= 4;
@@ -90,6 +99,7 @@ static void h8itu_timer_4_cb(int num)
 	{
 		h8_3002_InterruptRequest(42);
 	}
+	cpuintrf_pop_context();
 }
 
 static void h8_itu_refresh_timer(int tnum)
@@ -132,7 +142,7 @@ static void h8_itu_refresh_timer(int tnum)
 		logerror("H8/3002: Timer %d is using an external clock.  Unsupported!\n", tnum);
 	}
 
-	timer_adjust(h8.timer[tnum], TIME_IN_HZ(time), 0, 0);
+	timer_adjust(h8.timer[tnum], TIME_IN_HZ(time), h8.cpu_number, 0);
 }
 
 static void h8_itu_sync_timers(int tnum)
@@ -350,6 +360,30 @@ UINT8 h8_debugger_itu_read8(UINT8 reg)
 }
 
 
+static void h8_adc_start(void)
+{
+	int channels = (h8.per_regs[0xe8] & 0x10) ? (h8.per_regs[0xe8] & 3) + 1 : 1;
+	int cycles = (h8.per_regs[0xe8] & 8) ? 134 + 128 * (channels - 1) : 266 + 256 * (channels - 1);
+	h8.per_regs[0xe8] |= 0x20;
+	timer_adjust(h8.adc_timer, TIME_IN_CYCLES(cycles, h8.cpu_number), h8.cpu_number, 0);
+}
+
+void h8_3002_adc_trigger(void)
+{
+	if((h8.per_regs[0xe9] & 0x80) && !(h8.per_regs[0xe8] & 0x20))
+		h8_adc_start();
+}
+
+static void h8_adc_complete(int param)
+{
+	cpuintrf_push_context(param);
+	h8.per_regs[0xe8] |= 0x80;
+	if(!(h8.per_regs[0xe8] & 0x10)) h8.per_regs[0xe8] &= ~0x20;
+	if(h8.per_regs[0xe8] & 0x40) h8_3002_InterruptRequest(60);
+	if(h8.per_regs[0xe8] & 0x20) h8_adc_start();
+	cpuintrf_pop_context();
+}
+
 UINT8 h8_register_read8(UINT32 address)
 {
 	UINT8 val;
@@ -406,7 +440,7 @@ UINT8 h8_register_read8(UINT32 address)
 			val = io_read_byte_8(H8_ADC_3_L);
 			break;
 		case 0xe8:		// adc status
-			val = 0x80;
+			val = h8.per_regs[reg];
 			break;
 		case 0xc7:    		// port 4 data
 			val = io_read_byte_8(H8_PORT4);
@@ -482,6 +516,14 @@ void h8_register_write8(UINT32 address, UINT8 val)
 			break;
 	}
 
+	if(reg == 0xe8)
+	{
+		h8.per_regs[reg] = (h8.per_regs[reg] & val & 0x80) | (val & 0x7f);
+		if(val & 0x20) h8_adc_start();
+		else timer_adjust(h8.adc_timer, TIME_NEVER, 0, 0);
+		return;
+	}
+
 	h8.per_regs[reg] = val;
 }
 
@@ -492,6 +534,7 @@ void h8_itu_init(void)
 	h8.timer[2] = timer_alloc(h8itu_timer_2_cb);
 	h8.timer[3] = timer_alloc(h8itu_timer_3_cb);
 	h8.timer[4] = timer_alloc(h8itu_timer_4_cb);
+	h8.adc_timer = timer_alloc(h8_adc_complete);
 
 	h8_itu_reset();
 
@@ -500,6 +543,9 @@ void h8_itu_init(void)
 
 void h8_itu_reset(void)
 {
+	timer_adjust(h8.adc_timer, TIME_NEVER, 0, 0);
+	h8.per_regs[0xe8] = 0;
+	h8.per_regs[0xe9] = 0;
 	// stop all the timers
 	timer_adjust(h8.timer[0], TIME_NEVER, 0, 0);
 	timer_adjust(h8.timer[1], TIME_NEVER, 0, 0);

@@ -74,5 +74,6 @@ enum
 void h8_3002_get_info(UINT32 state, union cpuinfo *info);
 
 void h8_3002_InterruptRequest(UINT8 source);
+void h8_3002_adc_trigger(void);
 
 #endif
