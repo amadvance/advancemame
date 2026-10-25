@@ -1,17 +1,14 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Zsolt Vasvari
+// thanks-to:John Butler, Ed Mueller
 /***************************************************************************
 
     Taito Qix hardware
-
-    driver by John Butler, Ed Mueller, Aaron Giles
 
 ***************************************************************************/
 
 #include "driver.h"
 #include "qix.h"
-
-
-/* Constants */
-#define SCANLINE_INCREMENT	4
 
 
 /* Globals */
@@ -38,6 +35,13 @@ VIDEO_START( qix )
 
 	/* initialize the mask for games that don't use it */
 	vram_mask = 0xff;
+
+	/* set up save states */
+	state_save_register_global_pointer(videoram, 256 * 256);
+	state_save_register_global(qix_cocktail_flip);
+	state_save_register_global(qix_palettebank);
+	state_save_register_global(leds);
+
 	return 0;
 }
 
@@ -45,20 +49,18 @@ VIDEO_START( qix )
 
 /*************************************
  *
- *  Scanline caching
+ *  Beam position tracking & screen update
  *
  *************************************/
 
-void qix_scanline_callback(int scanline)
+static void qix_screen_update_now(void)
 {
-	/* force a partial update */
-	force_partial_update(scanline - 1);
-
-	/* set a timer for the next increment */
-	scanline += SCANLINE_INCREMENT;
-	if (scanline > 256)
-		scanline = SCANLINE_INCREMENT;
-	timer_set(cpu_getscanlinetime(scanline), scanline, qix_scanline_callback);
+	int vpos = cpu_getscanline();
+	int width = Machine->drv->screen_width;
+	int hpos = cpu_gethorzbeampos();
+	if (hpos < (width / 2) && vpos > 0)
+		vpos--;
+	force_partial_update(vpos);
 }
 
 
@@ -73,6 +75,19 @@ READ8_HANDLER( qix_scanline_r )
 {
 	int scanline = cpu_getscanline();
 	return (scanline <= 0xff) ? scanline : 0;
+}
+
+
+
+/*************************************
+ *
+ *  Cocktail flip
+ *
+ *************************************/
+
+WRITE8_HANDLER( qix_flip_screen_w )
+{
+	qix_cocktail_flip = data;
 }
 
 
@@ -118,6 +133,24 @@ READ8_HANDLER( qix_videoram_r )
 
 WRITE8_HANDLER( qix_videoram_w )
 {
+	/* update the screen in case the game is writing "behind" the beam -
+       Zookeeper likes to do this */
+	qix_screen_update_now();
+
+	/* add in the upper bit of the address latch */
+	offset += (qix_videoaddress[0] & 0x80) << 8;
+
+	/* write the data */
+	videoram[offset] = data;
+}
+
+
+WRITE8_HANDLER( slither_videoram_w )
+{
+	/* update the screen in case the game is writing "behind" the beam -
+       Zookeeper likes to do this */
+	qix_screen_update_now();
+
 	/* add in the upper bit of the address latch */
 	offset += (qix_videoaddress[0] & 0x80) << 8;
 
@@ -150,9 +183,24 @@ READ8_HANDLER( qix_addresslatch_r )
 }
 
 
-
 WRITE8_HANDLER( qix_addresslatch_w )
 {
+	/* update the screen in case the game is writing "behind" the beam */
+	qix_screen_update_now();
+
+	/* compute the value at the address latch */
+	offset = (qix_videoaddress[0] << 8) | qix_videoaddress[1];
+
+	/* write the data */
+	videoram[offset] = data;
+}
+
+
+WRITE8_HANDLER( slither_addresslatch_w )
+{
+	/* update the screen in case the game is writing "behind" the beam */
+	qix_screen_update_now();
+
 	/* compute the value at the address latch */
 	offset = (qix_videoaddress[0] << 8) | qix_videoaddress[1];
 
@@ -173,7 +221,7 @@ WRITE8_HANDLER( qix_paletteram_w )
 	/* this conversion table should be about right. It gives a reasonable */
 	/* gray scale in the test screen, and the red, green and blue squares */
 	/* in the same screen are barely visible, as the manual requires. */
-	static UINT8 table[16] =
+	static const UINT8 table[16] =
 	{
 		0x00,	/* value = 0, intensity = 0 */
 		0x12,	/* value = 0, intensity = 1 */
@@ -193,9 +241,14 @@ WRITE8_HANDLER( qix_paletteram_w )
 		0xff	/* value = 3, intensity = 3 */
 	};
 	int bits, intensity, red, green, blue;
+	UINT8 old_data = paletteram[offset];
 
 	/* set the palette RAM value */
 	paletteram[offset] = data;
+
+	/* trigger an update if a currently visible pen has changed */
+	if (((offset >> 8) == qix_palettebank) && (old_data != data))
+		qix_screen_update_now();
 
 	/* compute R, G, B from the table */
 	intensity = (data >> 0) & 0x03;
@@ -216,7 +269,7 @@ WRITE8_HANDLER( qix_palettebank_w )
 	/* set the bank value */
 	if (qix_palettebank != (data & 3))
 	{
-		force_partial_update(cpu_getscanline() - 1);
+		qix_screen_update_now();
 		qix_palettebank = data & 3;
 	}
 
@@ -260,8 +313,4 @@ VIDEO_UPDATE( qix )
 			draw_scanline8(bitmap, 0, y, 256, scanline, pens, -1);
 		}
 	}
-#if 0
-	// note the confusing bit order!
-	ui_popup("self test leds: %d%d %d%d%d%d",BIT(leds,7),BIT(leds,5),BIT(leds,6),BIT(leds,4),BIT(leds,2),BIT(leds,3));
-#endif
 }

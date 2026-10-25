@@ -1,22 +1,22 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Zsolt Vasvari
+// thanks-to:John Butler, Ed Mueller
 /***************************************************************************
 
     Taito Qix hardware
 
-    driver by John Butler, Ed Mueller, Aaron Giles
-
 ***************************************************************************/
 
 #include "driver.h"
-#include "qix.h"
-#include "6821pia.h"
+#include "machine/6821pia.h"
 #include "cpu/m6800/m6800.h"
 #include "cpu/m6805/m6805.h"
 #include "cpu/m6809/m6809.h"
 #include "sound/sn76496.h"
+#include "qix.h"
 
 
 /* Globals */
-UINT8 *qix_sharedram;
 UINT8 *qix_68705_port_out;
 UINT8 *qix_68705_ddr;
 
@@ -26,7 +26,12 @@ static UINT8 qix_68705_port_in[3];
 static UINT8 qix_coinctrl;
 
 
-/* Prototypes */
+/*************************************
+ *
+ *  Static function prototypes
+ *
+ *************************************/
+
 static READ8_HANDLER( qixmcu_coin_r );
 static WRITE8_HANDLER( qixmcu_coinctrl_w );
 static WRITE8_HANDLER( qixmcu_coin_w );
@@ -34,8 +39,6 @@ static WRITE8_HANDLER( qixmcu_coin_w );
 static WRITE8_HANDLER( sync_pia_4_porta_w );
 
 static WRITE8_HANDLER( pia_5_warning_w );
-
-static WRITE8_HANDLER( qix_inv_flag_w );
 
 static WRITE8_HANDLER( qix_coinctl_w );
 static WRITE8_HANDLER( slither_coinctl_w );
@@ -126,13 +129,13 @@ static const pia6821_interface qix_pia_2_intf =
 static const pia6821_interface qix_pia_3_intf =
 {
 	/*inputs : A/B,CA/B1,CA/B2 */ 0, 0, 0, 0, 0, 0,
-	/*outputs: A/B,CA/B2       */ sync_pia_4_porta_w, qix_vol_w, pia_4_ca1_w, qix_inv_flag_w,
+	/*outputs: A/B,CA/B2       */ sync_pia_4_porta_w, qix_vol_w, pia_4_ca1_w, qix_flip_screen_w,
 	/*irqs   : A/B             */ qix_pia_dint, qix_pia_dint
 };
 
 static const pia6821_interface qix_pia_4_intf =
 {
-	/*inputs : A/B,CA/B1,CA/B2 */ pia_4_porta_r, 0, 0, 0, 0, 0,
+	/*inputs : A/B,CA/B1,CA/B2 */ 0, 0, 0, 0, 0, 0,
 	/*outputs: A/B,CA/B2       */ pia_3_porta_w, qix_dac_w, pia_3_ca1_w, 0,
 	/*irqs   : A/B             */ qix_pia_sint, qix_pia_sint
 };
@@ -198,7 +201,7 @@ static const pia6821_interface slither_pia_2_intf =
 static const pia6821_interface slither_pia_3_intf =
 {
 	/*inputs : A/B,CA/B1,CA/B2 */ input_port_2_r, 0, 0, 0, 0, 0,
-	/*outputs: A/B,CA/B2       */ 0, slither_coinctl_w, 0, qix_inv_flag_w,
+	/*outputs: A/B,CA/B2       */ 0, slither_coinctl_w, 0, qix_flip_screen_w,
 	/*irqs   : A/B             */ qix_pia_dint, qix_pia_dint
 };
 
@@ -224,11 +227,11 @@ MACHINE_START( qix )
 
 MACHINE_RESET( qix )
 {
-	/* set a timer for the first scanline */
-	timer_set(cpu_getscanlinetime(0), 0, qix_scanline_callback);
-
 	/* reset the PIAs */
 	pia_reset();
+
+	/* reset the coin counter register */
+	qix_coinctrl = 0x00;
 }
 
 
@@ -241,14 +244,15 @@ MACHINE_START( qixmcu )
 	pia_config(3, PIA_STANDARD_ORDERING, &qix_pia_3_intf);
 	pia_config(4, PIA_STANDARD_ORDERING, &qix_pia_4_intf);
 	pia_config(5, PIA_STANDARD_ORDERING, &qix_pia_5_intf);
+
+	/* set up save states */
+	state_save_register_global_array(qix_68705_port_in);
+	state_save_register_global(qix_coinctrl);
 	return 0;
 }
 
 MACHINE_RESET( qixmcu )
 {
-	/* set a timer for the first scanline */
-	timer_set(cpu_getscanlinetime(0), 0, qix_scanline_callback);
-
 	/* reset the PIAs */
 	pia_reset();
 
@@ -267,12 +271,8 @@ MACHINE_START( slither )
 	return 0;
 }
 
-
 MACHINE_RESET( slither )
 {
-	/* set a timer for the first scanline */
-	timer_set(cpu_getscanlinetime(0), 0, qix_scanline_callback);
-
 	/* reset the PIAs */
 	pia_reset();
 }
@@ -301,40 +301,15 @@ INTERRUPT_GEN( qix_vblank_start )
 
 /*************************************
  *
- *  Shared RAM
- *
- *************************************/
-
-READ8_HANDLER( qix_sharedram_r )
-{
-	return qix_sharedram[offset];
-}
-
-
-WRITE8_HANDLER( qix_sharedram_w )
-{
-	qix_sharedram[offset] = data;
-}
-
-
-
-/*************************************
- *
  *  Zoo Keeper bankswitching
  *
  *************************************/
 
-WRITE8_HANDLER( zoo_bankswitch_w )
+WRITE8_HANDLER( zookeep_bankswitch_w )
 {
-	UINT8 *rom = memory_region(REGION_CPU2);
-
-	if (data & 0x04)
-		memory_set_bankptr(1, &rom[0x10000]);
-	else
-		memory_set_bankptr(1, &rom[0xa000]);
-
+	memory_set_bank(1, (data >> 2) & 1);
 	/* not necessary, but technically correct */
-	qix_palettebank_w(offset,data);
+	qix_palettebank_w(offset, data);
 }
 
 
@@ -411,16 +386,16 @@ READ8_HANDLER( qix_video_firq_ack_r )
  *
  *************************************/
 
-static void deferred_pia_4_porta_w(int data)
+static void sync_pia_4_porta_w_callback(int param)
 {
-	pia_4_porta_w(0, data);
+	pia_4_porta_w(0, param);
 }
 
 
 static WRITE8_HANDLER( sync_pia_4_porta_w )
 {
 	/* we need to synchronize this so the sound CPU doesn't drop anything important */
-	timer_set(TIME_NOW, data, deferred_pia_4_porta_w);
+	timer_set(TIME_NOW, data, sync_pia_4_porta_w_callback);
 }
 
 
@@ -433,15 +408,19 @@ static WRITE8_HANDLER( sync_pia_4_porta_w )
 
 static void qix_pia_dint(int state)
 {
+	int combined_state = pia_get_irq_a(3) | pia_get_irq_b(3);
+
 	/* DINT is connected to the data CPU's IRQ line */
-	cpunum_set_input_line(0, M6809_IRQ_LINE, state ? ASSERT_LINE : CLEAR_LINE);
+	cpunum_set_input_line(0, M6809_IRQ_LINE, combined_state ? ASSERT_LINE : CLEAR_LINE);
 }
 
 
 static void qix_pia_sint(int state)
 {
+	int combined_state = pia_get_irq_a(4) | pia_get_irq_b(4);
+
 	/* SINT is connected to the sound CPU's IRQ line */
-	cpunum_set_input_line(2, M6802_IRQ_LINE, state ? ASSERT_LINE : CLEAR_LINE);
+	cpunum_set_input_line(2, M6802_IRQ_LINE, combined_state ? ASSERT_LINE : CLEAR_LINE);
 }
 
 
@@ -454,12 +433,14 @@ static void qix_pia_sint(int state)
 
 READ8_HANDLER( qixmcu_coin_r )
 {
+	logerror("6809:qixmcu_coin_r = %02X\n", qix_68705_port_out[0]);
 	return qix_68705_port_out[0];
 }
 
 
 static WRITE8_HANDLER( qixmcu_coin_w )
 {
+	logerror("6809:qixmcu_coin_w = %02X\n", data);
 	/* this is a callback called by pia_0_w(), so I don't need to synchronize */
 	/* the CPUs - they have already been synchronized by qix_pia_0_w() */
 	qix_68705_port_in[0] = data;
@@ -468,19 +449,20 @@ static WRITE8_HANDLER( qixmcu_coin_w )
 
 static WRITE8_HANDLER( qixmcu_coinctrl_w )
 {
-	if (data & 0x04)
+	if (!(data & 0x04))
 	{
-		cpunum_set_input_line(3, M6809_IRQ_LINE, ASSERT_LINE);
+		cpunum_set_input_line(3, M68705_IRQ_LINE, ASSERT_LINE);
 		/* temporarily boost the interleave to sync things up */
 		/* note: I'm using 50 because 30 is not enough for space dungeon at game over */
 		cpu_boost_interleave(0, TIME_IN_USEC(50));
 	}
 	else
-		cpunum_set_input_line(3, M6809_IRQ_LINE, CLEAR_LINE);
+		cpunum_set_input_line(3, M68705_IRQ_LINE, CLEAR_LINE);
 
 	/* this is a callback called by pia_0_w(), so I don't need to synchronize */
 	/* the CPUs - they have already been synchronized by qix_pia_0_w() */
 	qix_coinctrl = data;
+	logerror("6809:qixmcu_coinctrl_w = %02X\n", data);
 }
 
 
@@ -496,6 +478,7 @@ READ8_HANDLER( qix_68705_portA_r )
 	UINT8 ddr = qix_68705_ddr[0];
 	UINT8 out = qix_68705_port_out[0];
 	UINT8 in = qix_68705_port_in[0];
+	logerror("68705:portA_r = %02X (%02X)\n", (out & ddr) | (in & ~ddr), in);
 	return (out & ddr) | (in & ~ddr);
 }
 
@@ -513,7 +496,7 @@ READ8_HANDLER( qix_68705_portC_r )
 {
 	UINT8 ddr = qix_68705_ddr[2];
 	UINT8 out = qix_68705_port_out[2];
-	UINT8 in = (~qix_coinctrl & 0x08) | ((readinputport(1) & 0x70) >> 4);
+	UINT8 in = (qix_coinctrl & 0x08) | ((readinputport(1) & 0x70) >> 4);
 	return (out & ddr) | (in & ~ddr);
 }
 
@@ -527,6 +510,7 @@ READ8_HANDLER( qix_68705_portC_r )
 
 WRITE8_HANDLER( qix_68705_portA_w )
 {
+	logerror("68705:portA_w = %02X\n", data);
 	qix_68705_port_out[0] = data;
 }
 
@@ -563,48 +547,6 @@ WRITE8_HANDLER( qix_pia_0_w )
 	/* make all the CPUs synchronize, and only AFTER that write the command to the PIA */
 	/* otherwise the 68705 will miss commands */
 	timer_set(TIME_NOW, data | (offset << 8), pia_0_w_callback);
-}
-
-
-
-/*************************************
- *
- *  PIA/Protection(?) workarounds
- *
- *************************************/
-
-WRITE8_HANDLER( zookeep_pia_0_w )
-{
-	/* Hack: Kram and Zoo Keeper for some reason (protection?) leave the port A */
-	/* DDR set to 0xff, so they cannot read the player 1 controls. Here we force */
-	/* the DDR to 0, so the controls work correctly. */
-	if (offset == 0)
-		data = 0;
-	qix_pia_0_w(offset, data);
-}
-
-
-WRITE8_HANDLER( zookeep_pia_2_w )
-{
-	/* Hack: Zoo Keeper for some reason (protection?) leaves the port A */
-	/* DDR set to 0xff, so they cannot read the player 2 controls. Here we force */
-	/* the DDR to 0, so the controls work correctly. */
-	if (offset == 0)
-		data = 0;
-	pia_2_w(offset, data);
-}
-
-
-
-/*************************************
- *
- *  Cocktail flip
- *
- *************************************/
-
-static WRITE8_HANDLER( qix_inv_flag_w )
-{
-	qix_cocktail_flip = data;
 }
 
 
