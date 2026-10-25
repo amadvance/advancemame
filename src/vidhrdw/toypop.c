@@ -1,29 +1,13 @@
-/***************************************************************************
-
-  vidhrdw.c
-
-  Functions to emulate the video hardware of the machine.
-
-***************************************************************************/
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
+/* Namco Universal System 16 video hardware. */
 
 #include "driver.h"
 
-UINT8 *toypop_videoram;
-
-extern unsigned char *m68000_sharedram;
-
-static tilemap *bg_tilemap;
-UINT16 *toypop_bg_image;
-static int bitmapflip,palettebank;
-
-/***************************************************************************
-
-  Convert the color PROMs into a more useable format.
-
-  toypop has three 256x4 palette PROM and two 256x8 color lookup table PROMs
-  (one for characters, one for sprites).
-
-***************************************************************************/
+UINT8 *toypop_master_workram;
+UINT8 *toypop_fgvram, *toypop_fgattr;
+UINT16 *toypop_bgvram;
+UINT8 toypop_pal_bank;
 
 PALETTE_INIT( toypop )
 {
@@ -51,177 +35,127 @@ PALETTE_INIT( toypop )
 		bit2 = (color_prom[i+0x200] >> 2) & 0x01;
 		bit3 = (color_prom[i+0x200] >> 3) & 0x01;
 		b = 0x0e * bit0 + 0x1f * bit1 + 0x43 * bit2 + 0x8f * bit3;
+
 		palette_set_color(i,r,g,b);
 	}
 
 	for (i = 0;i < 256;i++)
 	{
+		UINT8 entry;
+
 		// characters
-		colortable[i]     = (color_prom[i + 0x300] & 0x0f) | 0x70;
-		colortable[i+256] = (color_prom[i + 0x300] & 0x0f) | 0xf0;
+		colortable[i + 0*256] = (color_prom[i + 0x300] & 0x0f) | 0x70;
+		colortable[i + 1*256] = (color_prom[i + 0x300] & 0x0f) | 0xf0;
 		// sprites
-		colortable[i+512] = color_prom[i + 0x500];
+		entry = color_prom[i + 0x500];
+		colortable[i + 2*256] = entry;
+	}
+	for (i = 0;i < 16;i++)
+	{
+		// background
+		colortable[i + 3*256 + 0*16] = 0x60 + i;
+		colortable[i + 3*256 + 1*16] = 0xe0 + i;
 	}
 }
-
-
-
-/***************************************************************************
-
-  Callbacks for the TileMap code
-
-***************************************************************************/
-
-/* convert from 32x32 to 36x28 */
-static UINT32 tilemap_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 num_rows)
-{
-	int offs;
-
-	row += 2;
-	col -= 2;
-	if (col & 0x20)
-		offs = row + ((col & 0x1f) << 5);
-	else
-		offs = col + (row << 5);
-
-	return offs;
-}
-
-static void get_tile_info(int tile_index)
-{
-	unsigned char attr = toypop_videoram[tile_index + 0x400];
-	SET_TILE_INFO(
-			0,
-			toypop_videoram[tile_index],
-			(attr & 0x3f) + 0x40 * palettebank,
-			0)
-}
-
-
-
-/***************************************************************************
-
-  Start the video hardware emulation.
-
-***************************************************************************/
 
 VIDEO_START( toypop )
 {
-	bg_tilemap = tilemap_create(get_tile_info,tilemap_scan,TILEMAP_TRANSPARENT,8,8,36,28);
-
-	if (!bg_tilemap)
-		return 1;
-
-	tilemap_set_transparent_pen(bg_tilemap, 0);
-
 	return 0;
 }
 
-
-
-/***************************************************************************
-
-  Memory handlers
-
-***************************************************************************/
-
-WRITE8_HANDLER( toypop_videoram_w )
+static void toypop_bg_draw(mame_bitmap *bitmap,const rectangle *cliprect)
 {
-	if (toypop_videoram[offset] != data)
-	{
-		toypop_videoram[offset] = data;
-		tilemap_mark_tile_dirty(bg_tilemap,offset & 0x3ff);
-	}
-}
-
-WRITE8_HANDLER( toypop_palettebank_w )
-{
-	if (palettebank != (offset & 1))
-	{
-		palettebank = offset & 1;
-		tilemap_mark_all_tiles_dirty(ALL_TILEMAPS);
-	}
-}
-
-WRITE16_HANDLER( toypop_flipscreen_w )
-{
-	bitmapflip = offset & 1;
-}
-
-READ16_HANDLER( toypop_merged_background_r )
-{
-	int data1, data2;
-
-	// 0x0a0b0c0d is read as 0xabcd
-	data1 = toypop_bg_image[2*offset];
-	data2 = toypop_bg_image[2*offset + 1];
-	return ((data1 & 0xf00) << 4) | ((data1 & 0xf) << 8) | ((data2 & 0xf00) >> 4) | (data2 & 0xf);
-}
-
-WRITE16_HANDLER( toypop_merged_background_w )
-{
-	// 0xabcd is written as 0x0a0b0c0d in the background image
-	if (ACCESSING_MSB)
-		toypop_bg_image[2*offset] = ((data & 0xf00) >> 8) | ((data & 0xf000) >> 4);
-
-	if (ACCESSING_LSB)
-		toypop_bg_image[2*offset+1] = (data & 0xf) | ((data & 0xf0) << 4);
-}
-
-static void draw_background(mame_bitmap *bitmap)
-{
-	register int offs, x, y;
+	int x, y;
 	UINT8 scanline[288];
+	pen_t *pens = &Machine->pens[0x60 + (toypop_pal_bank << 7)];
 
-	// copy the background image from RAM (0x190200-0x19FDFF) to bitmap
-	if (bitmapflip)
+	/* Two pixels occupy the low nibbles of each byte of a background word.
+	 * Address the word and nibble separately so clipped odd endpoints work. */
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
 	{
-		offs = 0xFDFE/2;
-		for (y = 0; y < 224; y++)
+		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
 		{
-			for (x = 0; x < 288; x+=2)
-			{
-				UINT16 data = toypop_bg_image[offs];
-				scanline[x]   = data;
-				scanline[x+1] = data >> 8;
-				offs--;
-			}
-			draw_scanline8(bitmap, 0, y, 288, scanline, &Machine->pens[0x60 + 0x80*palettebank], -1);
+			UINT16 data = toypop_bgvram[0x100 + y * 144 + x / 2];
+			scanline[x - cliprect->min_x] = (data >> ((x & 1) ? 0 : 8)) & 0x0f;
 		}
-	}
-	else
-	{
-		offs = 0x200/2;
-		for (y = 0; y < 224; y++)
-		{
-			for (x = 0; x < 288; x+=2)
-			{
-				UINT16 data = toypop_bg_image[offs];
-				scanline[x]   = data >> 8;
-				scanline[x+1] = data;
-				offs++;
-			}
-			draw_scanline8(bitmap, 0, y, 288, scanline, &Machine->pens[0x60 + 0x80*palettebank], -1);
-		}
+		draw_scanline8(bitmap,cliprect->min_x,y,cliprect->max_x - cliprect->min_x + 1,scanline,pens,-1);
 	}
 }
 
+static void toypop_fg_draw(mame_bitmap *bitmap,const rectangle *cliprect)
+{
+	int count;
 
+	for (count=0;count<32*32;count++)
+	{
+		int x, y;
+		UINT16 tile = toypop_fgvram[count];
+		UINT8 color = (toypop_fgattr[count] & 0x3f) + (toypop_pal_bank<<6);
 
-/***************************************************************************
+		if(count < 64)
+		{
+			x = 34 + (count / 32);
+			y = (count % 32) - 2;
+		}
+		else if(count >= 32*30)
+		{
+			x = (count / 32) - 30;
+			y = (count % 32) - 2;
+		}
+		else
+		{
+			x = 2 + (count % 32);
+			y = (count / 32) - 2;
+		}
 
-  Display refresh
+		drawgfx(bitmap,Machine->gfx[0],tile,color,0,0,x*8,y*8,cliprect,TRANSPARENCY_PEN,0);
+	}
+}
 
-***************************************************************************/
+// TODO: this is likely to be a lot more complex, and maybe is per scanline too
+static void toypop_obj_draw(mame_bitmap *bitmap,const rectangle *cliprect)
+{
+	int count;
+	UINT8 *base_spriteram = toypop_master_workram;
+	const UINT16 bank1 = 0x0800;
+	const UINT16 bank2 = 0x1000;
 
-/* from mappy.c */
-void mappy_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int xoffs, int yoffs, int trans_color );
+	for (count=0x780;count<0x800;count+=2)
+	{
+		int enabled = (base_spriteram[count+bank2+1] & 2) == 0;
 
+		UINT8 tile = base_spriteram[count];
+		UINT8 color = base_spriteram[count+1];
+		int x = base_spriteram[count+bank1+1] + (base_spriteram[count+bank2+1] << 8) - 71;
+		int y = 224 - (base_spriteram[count+bank1] + 7);
+
+		int fx = (base_spriteram[count+bank2] & 1) == 1;
+		int fy = (base_spriteram[count+bank2] & 2) == 2;
+		UINT8 width = ((base_spriteram[count+bank2] & 4) >> 2) + 1;
+		UINT8 height = ((base_spriteram[count+bank2] & 8) >> 3) + 1;
+
+		int xi, yi;
+
+		if(!enabled)
+			continue;
+
+		if(height == 2)
+			y -=16;
+
+		for(yi=0;yi<height;yi++)
+		{
+			for(xi=0;xi<width;xi++)
+			{
+				UINT16 sprite_offs = tile + (xi ^ ((width - 1) & fx)) + yi * 2;
+				drawgfx(bitmap,Machine->gfx[1],sprite_offs,color,fx,fy,x + xi*16,y + yi*16,cliprect,TRANSPARENCY_COLOR,0xff);
+			}
+		}
+	}
+}
 
 VIDEO_UPDATE( toypop )
 {
-	draw_background(bitmap);
-	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-
-	mappy_draw_sprites( bitmap, cliprect, -31, -8, 0xff );
+	toypop_bg_draw(bitmap,cliprect);
+	toypop_fg_draw(bitmap,cliprect);
+	toypop_obj_draw(bitmap,cliprect);
 }
