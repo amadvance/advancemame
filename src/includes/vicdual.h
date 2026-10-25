@@ -22,8 +22,9 @@ VIDEO_UPDATE( vicdual );
 /*----------- defined in sndhrdw/carnival.c -----------*/
 
 extern const char *carnival_sample_names[];
-WRITE8_HANDLER( carnival_sh_port1_w );
-WRITE8_HANDLER( carnival_sh_port2_w );
+void carnival_sh_start(void);
+WRITE8_HANDLER( carnival_audio_1_w );
+WRITE8_HANDLER( carnival_audio_2_w );
 READ8_HANDLER( carnival_music_port_t1_r );
 WRITE8_HANDLER( carnival_music_port_1_w );
 WRITE8_HANDLER( carnival_music_port_2_w );
