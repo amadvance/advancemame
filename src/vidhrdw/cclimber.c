@@ -582,6 +582,122 @@ VIDEO_UPDATE( swimmer )
 		drawbigsprite(bitmap);
 }
 
+VIDEO_UPDATE( au )
+{
+	int offs;
+
+	if (get_vh_global_attribute_changed())
+	{
+		memset(dirtybuffer,1,videoram_size);
+	}
+
+
+
+	for (offs = videoram_size - 1;offs >= 0;offs--)
+	{
+		if (dirtybuffer[offs])
+		{
+			int sx,sy,flipx,flipy,color;
+
+
+			dirtybuffer[offs] = 0;
+
+			sx = offs % 32;
+			sy = offs / 32;
+			flipx = colorram[offs] & 0x40;
+			flipy = colorram[offs] & 0x80;
+
+			if (flipy) sy ^= 1;
+
+			color = (colorram[offs] & 0x0f) + 0x10 * palettebank;
+			if (sx >= 24 && sidepanel_enabled)
+			{
+				color += 32;
+			}
+
+			if (flip_screen_x)
+			{
+				sx = 31 - sx;
+				flipx = !flipx;
+			}
+			if (flip_screen_y)
+			{
+				sy = 31 - sy;
+				flipy = !flipy;
+			}
+
+			drawgfx(tmpbitmap,Machine->gfx[0],
+					videoram[offs] + ((colorram[offs] & 0x30) << 4),
+					color,
+					flipx,flipy,
+					8*sx,8*sy,
+					0,TRANSPARENCY_NONE,0);
+		}
+	}
+
+
+
+	{
+		int scroll[32];
+
+
+		if (flip_screen_y)
+		{
+			for (offs = 0;offs < 32;offs++)
+				scroll[offs] = cclimber_column_scroll[31 - offs];
+		}
+		else
+		{
+			for (offs = 0;offs < 32;offs++)
+				scroll[offs] = -cclimber_column_scroll[offs];
+		}
+
+		copyscrollbitmap(bitmap,tmpbitmap,0,0,32,scroll,&Machine->visible_area,TRANSPARENCY_NONE,0);
+	}
+
+
+	if (cclimber_bigspriteram[0] & 1)
+
+		drawbigsprite(bitmap);
+
+
+
+
+	for (offs = spriteram_size - 4;offs >= 0;offs -= 4)
+	{
+		int sx,sy,flipx,flipy;
+
+
+		sx = spriteram[offs + 3];
+		sy = 240 - spriteram[offs + 2];
+		flipx = spriteram[offs] & 0x40;
+		flipy = spriteram[offs] & 0x80;
+		if (flip_screen_x)
+		{
+			sx = 240 - sx;
+			flipx = !flipx;
+		}
+		if (flip_screen_y)
+		{
+			sy = 240 - sy;
+			flipy = !flipy;
+		}
+
+		drawgfx(bitmap,Machine->gfx[1],
+				(spriteram[offs] & 0x3f) | (spriteram[offs + 1] & 0x30) << 2,
+				(spriteram[offs + 1] & 0x0f) + 0x10 * palettebank,
+				flipx,flipy,
+				sx,sy,
+				&Machine->visible_area,TRANSPARENCY_PEN,0);
+	}
+
+
+	if ((cclimber_bigspriteram[0] & 1) == 0)
+
+		drawbigsprite(bitmap);
+}
+
+
 VIDEO_UPDATE( yamato )
 {
 	int offs;
