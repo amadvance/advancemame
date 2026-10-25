@@ -1,216 +1,229 @@
-/* Flower Video Hardware */
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
+/******************************************************************************
+
+    Flower Video Hardware
+
+******************************************************************************/
 
 #include "driver.h"
 
-static tilemap *flower_bg0_tilemap, *flower_bg1_tilemap, *flower_text_tilemap, *flower_text_right_tilemap;
-UINT8 *flower_textram, *flower_bg0ram, *flower_bg1ram, *flower_bg0_scroll, *flower_bg1_scroll;
+static tilemap *bg_tilemap;
+static tilemap *fg_tilemap;
+static tilemap *tx_tilemap;
+static mame_bitmap *temp_bitmap;
 
+UINT8 *flower_workram;
+UINT8 *flower_txvram;
+UINT8 *flower_bgvram;
+UINT8 *flower_fgvram;
+UINT8 *flower_bgscroll;
+UINT8 *flower_fgscroll;
+int flower_flipscreen;
+
+static void get_bg_tile_info(int tile_index)
+{
+	UINT32 code = flower_bgvram[tile_index];
+	UINT32 color = (flower_bgvram[tile_index + 0x100] & 0xf0) >> 4;
+
+	SET_TILE_INFO(1, code, color, 0);
+}
+
+static void get_fg_tile_info(int tile_index)
+{
+	UINT32 code = flower_fgvram[tile_index];
+	UINT32 color = (flower_fgvram[tile_index + 0x100] & 0xf0) >> 4;
+
+	SET_TILE_INFO(1, code, color, 0);
+}
+
+static void get_tx_tile_info(int tile_index)
+{
+	UINT32 code = flower_txvram[tile_index];
+	UINT32 color = (flower_txvram[tile_index + 0x400] & 0xfc) >> 2;
+
+	SET_TILE_INFO(0, code, color, 0);
+}
+
+// convert from 32x32 to 36x28, similar as Namco hardware
+static UINT32 flower_tilemap_scan(UINT32 col, UINT32 row, UINT32 num_cols, UINT32 num_rows)
+{
+	row += 2;
+	col -= 2;
+	if (col & 0x20)
+		return ((col & 0x1f) << 5) + row;
+	else
+		return (row << 5) + col;
+}
+
+VIDEO_START( flower )
+{
+	bg_tilemap = tilemap_create(get_bg_tile_info, tilemap_scan_rows, TILEMAP_OPAQUE, 16, 16, 16, 16);
+	fg_tilemap = tilemap_create(get_fg_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16, 16, 16, 16);
+	tx_tilemap = tilemap_create(get_tx_tile_info, flower_tilemap_scan, TILEMAP_TRANSPARENT, 8, 8, 36, 28);
+
+	if (!bg_tilemap || !fg_tilemap || !tx_tilemap)
+		return 1;
+
+	temp_bitmap = auto_bitmap_alloc(384, 264);
+	if (!temp_bitmap)
+		return 1;
+
+	tilemap_set_transparent_pen(fg_tilemap, 15);
+	tilemap_set_transparent_pen(tx_tilemap, 3);
+
+	tilemap_set_scrolldx(bg_tilemap, 16, 0);
+	tilemap_set_scrolldx(fg_tilemap, 16, 0);
+	tilemap_set_scrolldy(tx_tilemap, 16, 0);
+
+	return 0;
+}
 
 PALETTE_INIT( flower )
 {
-	int i, r, g, b;
+	int i;
 
-	for (i=0; i<256; i++)
+	for (i = 0; i < 256; i++)
 	{
-		r = color_prom[i] & 0xf;
-		r = (r << 4) + r;
-		g = color_prom[i+0x100] & 0xf;
-		g = (g << 4) + g;
-		b = color_prom[i+0x200] & 0xf;
-		b = (b << 4) + b;
+		int bit0, bit1, bit2, bit3;
+		int r, g, b;
+
+		// red component
+		bit0 = (color_prom[i] >> 0) & 0x01;
+		bit1 = (color_prom[i] >> 1) & 0x01;
+		bit2 = (color_prom[i] >> 2) & 0x01;
+		bit3 = (color_prom[i] >> 3) & 0x01;
+		r = 0x0e * bit0 + 0x1f * bit1 + 0x43 * bit2 + 0x8f * bit3;
+
+		// green component
+		bit0 = (color_prom[i + 0x100] >> 0) & 0x01;
+		bit1 = (color_prom[i + 0x100] >> 1) & 0x01;
+		bit2 = (color_prom[i + 0x100] >> 2) & 0x01;
+		bit3 = (color_prom[i + 0x100] >> 3) & 0x01;
+		g = 0x0e * bit0 + 0x1f * bit1 + 0x43 * bit2 + 0x8f * bit3;
+
+		// blue component
+		bit0 = (color_prom[i + 0x200] >> 0) & 0x01;
+		bit1 = (color_prom[i + 0x200] >> 1) & 0x01;
+		bit2 = (color_prom[i + 0x200] >> 2) & 0x01;
+		bit3 = (color_prom[i + 0x200] >> 3) & 0x01;
+		b = 0x0e * bit0 + 0x1f * bit1 + 0x43 * bit2 + 0x8f * bit3;
 
 		palette_set_color(i, r, g, b);
 		colortable[i] = i;
 	}
 }
 
-static void flower_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
+/*
+ [0] YYYY YYYY Y offset
+ [1] YXoo oooo Flip Y/X, tile number
+ [2] ---- b--b tile bank select
+ [3] Yyyy Xxxx Y size, Y zoom, X size, X zoom
+ [4] xxxx xxxx X offset LSB
+ [5] XXXX XXXX X offset MSB
+ [6] cccc ---- color base
+ */
+static void flower_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 {
-	const gfx_element *gfx = Machine->gfx[1];
-	UINT8 *source = spriteram + 0x200;
-	UINT8 *finish = source - 0x200;
+	const UINT8 *spr_ptr = &flower_workram[0x1e08];
+	const gfx_element *gfx_2 = Machine->gfx[2];
+	int i;
 
-	source -= 8;
-
-	while( source>=finish )
+	// traverse from top to bottom
+	for (i = 0x1f0; i >= 0; i -= 8)
 	{
-		int xblock,yblock;
-		int sy = 256-32-source[0]+1;
-		int	sx = (source[4]|(source[5]<<8))-55;
-		int code = source[1] & 0x3f;
-		int color = (source[6]>>4);
+		UINT32 tile = (spr_ptr[i + 1] & 0x3f);
+		const UINT32 color = spr_ptr[i + 6] >> 4;
+		int x = (spr_ptr[i + 4] | (spr_ptr[i + 5] << 8)) - 39;
+		int y = 241 - spr_ptr[i + 0];
+		const UINT8 attr = spr_ptr[i + 2];
+		const int fy = spr_ptr[i + 1] & 0x80;
+		const int fx = spr_ptr[i + 1] & 0x40;
+		const UINT8 ysize = ((spr_ptr[i + 3] & 0x80) >> 7) + 1;
+		const UINT8 xsize = ((spr_ptr[i + 3] & 0x08) >> 3) + 1;
+		const UINT8 ydiv = (ysize == 2) ? 1 : 2;
+		const UINT8 xdiv = (xsize == 2) ? 1 : 2;
+		UINT32 yshrink_zoom = ((spr_ptr[i + 3] & 0x70) >> 4) + 1;
+		UINT32 xshrink_zoom = ((spr_ptr[i + 3] & 0x07) >> 0) + 1;
+		int ypixels, xpixels;
+		int yi, xi;
 
-		/*
-            Byte 0: Y
-            Byte 1:
-                0x80 - FlipY
-                0x40 - FlipX
-                0x3f - Tile
-            Byte 2:
-                0x08 - Tile MSB
-                0x01 - Tile MSB
-            Byte 3:
-                0x07 - X Zoom
-                0x08 - X Size
-                0x70 - Y Zoom
-                0x80 - Y Size
-            Byte 4: X LSB
-            Byte 5: X MSB
-            Byte 6:
-                0xf0 - Colour
-        */
+		yshrink_zoom <<= 13;
+		xshrink_zoom <<= 13;
+		ypixels = (yshrink_zoom * 16) >> 16;
+		xpixels = (xshrink_zoom * 16) >> 16;
 
-		int flipy = source[1] & 0x80;
-		int flipx = source[1] & 0x40;
+		tile |= (attr & 1) << 6;
+		tile |= (attr & 8) << 4;
 
-		int size = source[3];
-
-		int xsize = ((size & 0x08)>>3);
-		int ysize = ((size & 0x80)>>7);
-
-		xsize++;
-		ysize++;
-
-		if (ysize==2) sy -= 16;
-
-		code |= ((source[2] & 0x01) << 6);
-		code |= ((source[2] & 0x08) << 4);
-
-		if(flip_screen)
+		if (flower_flipscreen)
 		{
-			flipx = !flipx;
-			flipy = !flipy;
-			sx = sx+16;
-			sy = 250-sy;
-
-			if (ysize==2) sy += 16;
+			x += xsize * 16;
+			x = 288 - x;
+			y -= 2;
 		}
 
-		for (xblock = 0; xblock<xsize; xblock++)
+		if (ysize == 2)
+			y -= 16;
+
+		for (yi = 0; yi < ysize; yi++)
 		{
-			int xoffs=!flipx ? (xblock*8) : ((xsize-xblock-1)*8);
-			int zoomx=((size&7)+1)<<13;
-			int zoomy=((size&0x70)+0x10)<<9;
-			int xblocksizeinpixels=(zoomx*16)>>16;
-			int yblocksizeinpixels=(zoomy*16)>>16;
+			int yoffs = (16 - ypixels) / ydiv;
 
-			for (yblock = 0; yblock<ysize; yblock++)
+			for (xi = 0; xi < xsize; xi++)
 			{
-				int yoffs=!flipy ? yblock : (ysize-yblock-1);
-				int sxoffs=(16-xblocksizeinpixels)/2;
-				int syoffs=(16-yblocksizeinpixels)/2;
-				if (xblock) sxoffs+=xblocksizeinpixels;
-				if (yblock) syoffs+=yblocksizeinpixels;
+				int tile_offs;
+				int xoffs = (16 - xpixels) / xdiv;
 
-				drawgfxzoom(bitmap,gfx,
-						code+yoffs+xoffs,
-						color,
-						flipx,flipy,
-						sx+sxoffs,sy+syoffs,
-						cliprect,TRANSPARENCY_PEN,15,
-						zoomx,zoomy);
+				tile_offs = fx ? (xsize - xi - 1) * 8 : xi * 8;
+				tile_offs += fy ? (ysize - yi - 1) : yi;
+
+				drawgfxzoom(bitmap, gfx_2,
+					tile + tile_offs, color,
+					fx, fy,
+					x + xi * xpixels + xoffs, y + yi * ypixels + yoffs,
+					cliprect, TRANSPARENCY_PEN, 15,
+					xshrink_zoom, yshrink_zoom);
 			}
 		}
-		source -= 8;
 	}
-
-}
-
-static void get_bg0_tile_info(int tile_index)
-{
-	int code = flower_bg0ram[tile_index];
-	int color = flower_bg0ram[tile_index+0x100];
-	/* Todo - may be tile flip bits? */
-
-	SET_TILE_INFO(2, code, color>>4, 0)
-}
-
-static void get_bg1_tile_info(int tile_index)
-{
-	int code = flower_bg1ram[tile_index];
-	int color = flower_bg1ram[tile_index+0x100];
-	/* Todo - may be tile flip bits? */
-
-	SET_TILE_INFO(2, code, color>>4, 0)
-}
-
-static void get_text_tile_info(int tile_index)
-{
-	int code = flower_textram[tile_index];
-	int color = flower_textram[tile_index+0x400];
-	/* Todo - may be tile flip bits? */
-
-	SET_TILE_INFO(0, code, color>>2, 0)
-}
-
-VIDEO_START(flower)
-{
-	flower_bg1_tilemap        = tilemap_create(get_bg1_tile_info, tilemap_scan_rows,TILEMAP_OPAQUE,     16,16,16,16);
-	flower_bg0_tilemap        = tilemap_create(get_bg0_tile_info, tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,16,16);
-	flower_text_tilemap       = tilemap_create(get_text_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT, 8, 8,32,32);
-	flower_text_right_tilemap = tilemap_create(get_text_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT, 8, 8, 2,32);
-
-	if(!flower_bg0_tilemap || !flower_bg1_tilemap || !flower_text_tilemap || !flower_text_right_tilemap)
-		return 1;
-
-	tilemap_set_transparent_pen(flower_bg0_tilemap,15);
-	tilemap_set_transparent_pen(flower_text_tilemap,3);
-	tilemap_set_transparent_pen(flower_text_right_tilemap,3);
-
-	tilemap_set_scrolly(flower_text_tilemap, 0, 16);
-	tilemap_set_scrolly(flower_text_right_tilemap, 0, 16);
-
-	return 0;
-
 }
 
 VIDEO_UPDATE( flower )
 {
-	rectangle myclip = *cliprect;
+	tilemap_set_scrolly(bg_tilemap, 0, flower_bgscroll[0]);
+	tilemap_set_scrolly(fg_tilemap, 0, flower_fgscroll[0]);
 
-	tilemap_set_scrolly(flower_bg0_tilemap,0, flower_bg0_scroll[0]+16);
-	tilemap_set_scrolly(flower_bg1_tilemap,0, flower_bg1_scroll[0]+16);
+	fillbitmap(temp_bitmap, 0, cliprect);
+	tilemap_draw(temp_bitmap, cliprect, bg_tilemap, 0, 0);
+	tilemap_draw(temp_bitmap, cliprect, fg_tilemap, 0, 0);
+	flower_draw_sprites(temp_bitmap, cliprect);
+	tilemap_draw(temp_bitmap, cliprect, tx_tilemap, 0, 0);
 
-	tilemap_draw(bitmap,cliprect,flower_bg1_tilemap,0,0);
-	tilemap_draw(bitmap,cliprect,flower_bg0_tilemap,0,0);
-
-	flower_drawsprites(bitmap,cliprect);
-
-	if(flip_screen)
-	{
-		myclip.min_x = cliprect->min_x;
-		myclip.max_x = cliprect->min_x + 15;
-	}
-	else
-	{
-		myclip.min_x = cliprect->max_x - 15;
-		myclip.max_x = cliprect->max_x;
-	}
-
-	tilemap_draw(bitmap,cliprect,flower_text_tilemap,0,0);
-	tilemap_draw(bitmap,&myclip,flower_text_right_tilemap,0,0);
+	copybitmap(bitmap, temp_bitmap, flower_flipscreen, flower_flipscreen,
+		flower_flipscreen ? -96 : 0, flower_flipscreen ? -8 : 0,
+		cliprect, TRANSPARENCY_NONE, 0);
 }
 
-WRITE8_HANDLER( flower_textram_w )
+WRITE8_HANDLER( flower_txvram_w )
 {
-	flower_textram[offset] = data;
-	tilemap_mark_tile_dirty(flower_text_tilemap, offset);
-	tilemap_mark_all_tiles_dirty(flower_text_right_tilemap);
+	flower_txvram[offset] = data;
+	tilemap_mark_tile_dirty(tx_tilemap, offset & 0x3ff);
 }
 
-WRITE8_HANDLER( flower_bg0ram_w )
+WRITE8_HANDLER( flower_bgvram_w )
 {
-	flower_bg0ram[offset] = data;
-	tilemap_mark_tile_dirty(flower_bg0_tilemap, offset & 0x1ff);
+	flower_bgvram[offset] = data;
+	tilemap_mark_tile_dirty(bg_tilemap, offset & 0xff);
 }
 
-WRITE8_HANDLER( flower_bg1ram_w )
+WRITE8_HANDLER( flower_fgvram_w )
 {
-	flower_bg1ram[offset] = data;
-	tilemap_mark_tile_dirty(flower_bg1_tilemap, offset & 0x1ff);
+	flower_fgvram[offset] = data;
+	tilemap_mark_tile_dirty(fg_tilemap, offset & 0xff);
 }
 
 WRITE8_HANDLER( flower_flipscreen_w )
 {
-	flip_screen_set(data);
+	flower_flipscreen = data & 1;
 }
