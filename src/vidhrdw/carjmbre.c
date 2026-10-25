@@ -1,149 +1,134 @@
-/*
-Car Jamboree
-Omori Electric CAD (OEC) 1981
-*/
+// license:BSD-3-Clause
+// copyright-holders:hap, Couriersud, Aaron Giles
+/* Car Jamboree video hardware. */
 
 #include "driver.h"
 
-static tilemap *carjmbre_tilemap;
+UINT8 *carjmbre_videoram;
+UINT8 *carjmbre_spriteram;
 
-static UINT8 carjmbre_flipscreen;
-static UINT16 carjmbre_bgcolor;
+static tilemap *carjmbre_tilemap;
+static UINT8 carjmbre_bgcolor;
+
+/* The PROM drives 1k/470/220 ohm RGB ladders, with no 1k blue input.
+ * TTL outputs have a 0.05V low level, a 4V high level and about 50 ohms
+ * additional output resistance when high. */
+static int carjmbre_resnet(int bits,int blue)
+{
+	static const double resistance[3] = { 1000.0, 470.0, 220.0 };
+	double current = 0.0, conductance = 0.0;
+	int i;
+
+	for(i = blue ? 1 : 0; i < 3; i++)
+	{
+		int high = (bits >> (i - (blue ? 1 : 0))) & 1;
+		double r = resistance[i] + (high ? 50.0 : 0.0);
+		conductance += 1.0 / r;
+		current += (high ? 4.0 : 0.05) / r;
+	}
+	return (int)(current / conductance * 255.0 / 5.0 + 0.4);
+}
 
 PALETTE_INIT( carjmbre )
 {
-	int i,bit0,bit1,bit2,r,g,b;
+	int rgb[64][3];
+	int min_y = 255000, max_y = 0;
+	int i;
 
-	for (i = 0;i < Machine->drv->total_colors; i++)
+	for(i = 0; i < 64; i++)
 	{
-		/* red component */
-		bit0 = (*color_prom >> 0) & 0x01;
-		bit1 = (*color_prom >> 1) & 0x01;
-		bit2 = (*color_prom >> 2) & 0x01;
-		r = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-		/* green component */
-		bit0 = (*color_prom >> 3) & 0x01;
-		bit1 = (*color_prom >> 4) & 0x01;
-		bit2 = (*color_prom >> 5) & 0x01;
-		g = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-		/* blue component */
-		bit0 = 0;
-		bit1 = (*color_prom >> 6) & 0x01;
-		bit2 = (*color_prom >> 7) & 0x01;
-		b = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-
-		palette_set_color(i,r,g,b);
-		color_prom++;
+		int y;
+		rgb[i][0] = carjmbre_resnet(color_prom[i] & 7,0);
+		rgb[i][1] = carjmbre_resnet((color_prom[i] >> 3) & 7,0);
+		rgb[i][2] = carjmbre_resnet((color_prom[i] >> 6) & 3,1);
+		y = 299 * rgb[i][0] + 587 * rgb[i][1] + 114 * rgb[i][2];
+		min_y = MIN(min_y,y);
+		max_y = MAX(max_y,y);
 	}
-}
 
-WRITE8_HANDLER( carjmbre_flipscreen_w )
-{
-	carjmbre_flipscreen = data?(TILEMAP_FLIPX|TILEMAP_FLIPY):0;
-	tilemap_set_flip( ALL_TILEMAPS,carjmbre_flipscreen );
+	/* Stretch luminance across the palette while retaining its chroma. */
+	for(i = 0; i < 64; i++)
+	{
+		int y = 299 * rgb[i][0] + 587 * rgb[i][1] + 114 * rgb[i][2];
+		int u = (rgb[i][2] - y / 1000) * 492 / 1000;
+		int v = (rgb[i][0] - y / 1000) * 877 / 1000;
+		int level = max_y > min_y ? (y - min_y) * 256 / (max_y - min_y) : y / 1000;
+		int r = level + 1140 * v / 1000;
+		int g = level - 395 * u / 1000 - 581 * v / 1000;
+		int b = level + 2032 * u / 1000;
+		palette_set_color(i,MAX(0,MIN(255,r)),MAX(0,MIN(255,g)),MAX(0,MIN(255,b)));
+	}
 }
 
 WRITE8_HANDLER( carjmbre_bgcolor_w )
 {
-	int oldbg,i;
-
-	oldbg=carjmbre_bgcolor;
-
-	carjmbre_bgcolor&=0xff00>>(offset*8);
-	carjmbre_bgcolor|=((~data)&0xff)<<(offset*8);
-
-	if(oldbg!=carjmbre_bgcolor)
-	{
-		memset(dirtybuffer,1,videoram_size);
-
-		for (i=0;i<64;i+=4)
-			palette_set_color(i, (carjmbre_bgcolor&0xff)*0x50, (carjmbre_bgcolor&0xff)*0x50, (carjmbre_bgcolor&0xff)!=0?0x50:0);
-	}
+	UINT8 mask = 1 << offset;
+	carjmbre_bgcolor = (carjmbre_bgcolor & ~mask) | ((data & 1) ? 0 : mask);
 }
 
-static void get_carjmbre_tile_info(int tile_index){
-	unsigned int tile_number = videoram[tile_index] & 0xFF;
-	unsigned char attr  = videoram[tile_index+0x400];
-	tile_number += (attr & 0x80) << 1; /* bank */
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			(attr&0x7),
-			0)
+WRITE8_HANDLER( carjmbre_videoram_w )
+{
+	carjmbre_videoram[offset] = data;
+	tilemap_mark_tile_dirty(carjmbre_tilemap,offset & 0x3ff);
 }
 
-WRITE8_HANDLER( carjmbre_videoram_w ){
-	videoram[offset] = data;
-	tilemap_mark_tile_dirty(carjmbre_tilemap,offset&0x3ff);
+static void get_tile_info(int tile_index)
+{
+	int attr = carjmbre_videoram[tile_index | 0x400];
+	int code = carjmbre_videoram[tile_index] | (attr << 1 & 0x100);
+	SET_TILE_INFO(0,code,attr & 0xf,0)
+	tile_info.priority = (code >> 6) & 3;
 }
-
-
 
 VIDEO_START( carjmbre )
 {
-
-	carjmbre_tilemap = tilemap_create( get_carjmbre_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32 );
-
-	state_save_register_global(carjmbre_flipscreen);
+	carjmbre_tilemap = tilemap_create(get_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,32,32);
+	if(!carjmbre_tilemap)
+		return 1;
+	tilemap_set_transparent_pen(carjmbre_tilemap,0);
+	carjmbre_bgcolor = 0;
 	state_save_register_global(carjmbre_bgcolor);
-
 	return 0;
+}
+
+static void draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
+{
+	int i;
+	for(i = 0x60 - 4; i >= 0; i -= 4)
+	{
+		/* The game moves the first sprite to the end when copying its list. */
+		int offs = (i - 4 + 0x60) % 0x60;
+		int sy = carjmbre_spriteram[offs];
+		int code = carjmbre_spriteram[offs + 1];
+		int color = carjmbre_spriteram[offs + 2] & 0xf;
+		int flipx = (carjmbre_spriteram[offs + 2] >> 6) & 1;
+		int flipy = (carjmbre_spriteram[offs + 2] >> 7) & 1;
+		int sx = carjmbre_spriteram[offs + 3];
+
+		if(flip_screen)
+		{
+			sy += 1;
+			sx = 233 - sx;
+			flipx = !flipx;
+			flipy = !flipy;
+		}
+		else
+		{
+			sy = 241 - sy;
+			sx -= 7;
+		}
+
+		drawgfx(bitmap,Machine->gfx[1],code,color,flipx,flipy,sx,sy,cliprect,TRANSPARENCY_PEN,0);
+	}
 }
 
 VIDEO_UPDATE( carjmbre )
 {
-	int offs,troffs,sx,sy,flipx,flipy;
-
-	//colorram
-	//76543210
-	//x------- graphic bank
-	//-xxx---- unused
-	//----x--- ?? probably colour, only used for ramp and pond
-	//-----xxx colour
-
-	tilemap_draw( bitmap,cliprect,carjmbre_tilemap,0,0 );
-
-	//spriteram[offs]
-	//+0       y pos
-	//+1       sprite number
-	//+2
-	//76543210
-	//x------- flipy
-	//-x------ flipx
-	//--xx---- unused
-	//----x--- ?? probably colour
-	//-----xxx colour
-	//+3       x pos
-	for (offs = spriteram_size-4; offs >= 0; offs-=4)
-	{
-		//before copying the sprites to spriteram the game reorders the first
-		//sprite to last, sprite ordering is incorrect if this isn't undone
-		troffs=(offs-4+spriteram_size)%spriteram_size;
-
-		//unused sprites are marked with ypos <= 0x02 (or >= 0xfd if screen flipped)
-		if (spriteram[troffs] > 0x02 && spriteram[troffs] < 0xfd)
-		{
-			{
-				sx = spriteram[troffs+3]-7;
-				sy = 241-spriteram[troffs];
-				flipx = (spriteram[troffs+2]&0x40)>>6;
-				flipy = (spriteram[troffs+2]&0x80)>>7;
-
-				if (carjmbre_flipscreen)
-				{
-					sx = (256+(226-sx))%256;
-					sy = 242-sy;
-					flipx = !flipx;
-					flipy = !flipy;
-				}
-
-				drawgfx(bitmap,Machine->gfx[1],
-						spriteram[troffs+1],
-						spriteram[troffs+2]&0x07,
-						flipx,flipy,
-						sx,sy,
-						cliprect,TRANSPARENCY_PEN,0);
-			}
-		}
-	}
+	int category;
+	fillbitmap(bitmap,Machine->pens[carjmbre_bgcolor],cliprect);
+	for(category = 0; category < 4; category++)
+		tilemap_draw(bitmap,cliprect,carjmbre_tilemap,category,0);
+	draw_sprites(bitmap,cliprect);
+	/* Category zero contains the score panel and other high priority tiles. */
+	tilemap_draw(bitmap,cliprect,carjmbre_tilemap,0,0);
 }
