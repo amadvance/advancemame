@@ -1,8 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
 Time Pilot 84  (c) 1984 Konami
-
-driver by Marc Lafontaine
 
 TODO:
 - the slave CPU multiplexes sprites. We are cheating now, and reading them
@@ -473,11 +473,11 @@ static const gfx_decode gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( tp84 )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD_TAG("cpu1",M6809, 1500000)	/* ??? */
+	MDRV_CPU_ADD_TAG("cpu1",M6809, 18432000/12) /* verified on pcb */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
-	MDRV_CPU_ADD(M6809, 1500000)	/* ??? */
+	MDRV_CPU_ADD(M6809, 18432000/12)	/* verified on pcb */
 	MDRV_CPU_PROGRAM_MAP(readmem_cpu2,writemem_cpu2)
 	MDRV_CPU_VBLANK_INT(tp84_6809_interrupt,256)
 
