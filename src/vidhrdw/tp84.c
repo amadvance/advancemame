@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
     vidhrdw.c
@@ -118,38 +120,26 @@ PALETTE_INIT( tp84 )
 
 WRITE8_HANDLER( tp84_videoram_w )
 {
-	if (videoram[offset] != data)
-	{
-		videoram[offset] = data;
-		tilemap_mark_tile_dirty(bg_tilemap, offset);
-	}
+	videoram[offset] = data;
+	tilemap_mark_tile_dirty(bg_tilemap, offset);
 }
 
 WRITE8_HANDLER( tp84_colorram_w )
 {
-	if (colorram[offset] != data)
-	{
-		colorram[offset] = data;
-		tilemap_mark_tile_dirty(bg_tilemap, offset);
-	}
+	colorram[offset] = data;
+	tilemap_mark_tile_dirty(bg_tilemap, offset);
 }
 
 WRITE8_HANDLER( tp84_videoram2_w )
 {
-	if (tp84_videoram2[offset] != data)
-	{
-		tp84_videoram2[offset] = data;
-		tilemap_mark_tile_dirty(fg_tilemap, offset);
-	}
+	tp84_videoram2[offset] = data;
+	tilemap_mark_tile_dirty(fg_tilemap, offset);
 }
 
 WRITE8_HANDLER( tp84_colorram2_w )
 {
-	if (tp84_colorram2[offset] != data)
-	{
-		tp84_colorram2[offset] = data;
-		tilemap_mark_tile_dirty(fg_tilemap, offset);
-	}
+	tp84_colorram2[offset] = data;
+	tilemap_mark_tile_dirty(fg_tilemap, offset);
 }
 
 WRITE8_HANDLER( tp84_scroll_x_w )
@@ -233,44 +223,41 @@ VIDEO_START( tp84 )
 	return 0;
 }
 
-static void tp84_draw_sprites(mame_bitmap *bitmap)
+static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 	const gfx_element *gfx = Machine->gfx[1];
-	rectangle clip = Machine->visible_area;
 	int offs;
 	int line;
-	int coloffset = ((col0&0x07) << 4);
+	int coloffset = ((col0 & 0x07) << 4);
 
-	for (line = 0;line < 256;line++)
+	for (line = cliprect->min_y; line <= cliprect->max_y; line++)
 	{
-		if (line >= Machine->visible_area.min_y && line <= Machine->visible_area.max_y)
+		UINT8 *sr;
+		rectangle clip = *cliprect;
+
+		sr = sprite_mux_buffer + line * spriteram_size;
+		clip.min_y = clip.max_y = line;
+
+		for (offs = spriteram_size - 4; offs >= 0; offs -= 4)
 		{
-			UINT8 *sr;
+			int code, color, sx, sy, flipx, flipy;
 
-			sr = sprite_mux_buffer + line * spriteram_size;
-			clip.min_y = clip.max_y = line;
+			sx = sr[offs];
+			sy = 240 - sr[offs + 3];
 
-			for (offs = spriteram_size - 4;offs >= 0;offs -= 4)
+			if (sy > line - 16 && sy <= line)
 			{
-				int code,color,sx,sy,flipx,flipy;
+				code = sr[offs + 1];
+				color = (sr[offs + 2] & 0x0f) + coloffset;
+				flipx = ~sr[offs + 2] & 0x40;
+				flipy = sr[offs + 2] & 0x80;
 
-				sx = sr[offs];
-				sy = 240 - sr[offs + 3];
-
-				if (sy > line-16 && sy <= line)
-				{
-					code = sr[offs + 1];
-					color = (sr[offs + 2] & 0x0f) + coloffset;
-					flipx = ~sr[offs + 2] & 0x40;
-					flipy = sr[offs + 2] & 0x80;
-
-					drawgfx(bitmap,gfx,
-							code,
-							color,
-							flipx,flipy,
-							sx,sy,
-							&clip,TRANSPARENCY_COLOR,0);
-				}
+				drawgfx(bitmap, gfx,
+						code,
+						color,
+						flipx, flipy,
+						sx, sy,
+						&clip, TRANSPARENCY_COLOR, 0);
 			}
 		}
 	}
@@ -280,12 +267,12 @@ VIDEO_UPDATE( tp84 )
 {
 	rectangle clip;
 
-	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
-	tp84_draw_sprites(bitmap);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	draw_sprites(bitmap, cliprect);
 
 	/* draw top fg_tilemap status layer part */
 	clip.min_x = Machine->visible_area.min_x;
-	clip.max_x = Machine->visible_area.min_x+15;
+	clip.max_x = Machine->visible_area.min_x + 15;
 	clip.min_y = Machine->visible_area.min_y;
 	clip.max_y = Machine->visible_area.max_y;
 	tilemap_draw(bitmap, &clip, fg_tilemap, 0, 0);
@@ -293,7 +280,7 @@ VIDEO_UPDATE( tp84 )
 	/* the middle part of fg_tilemap seems to be used as normal ram and is skipped */
 
 	/* draw bottom fg_tilemap status layer part */
-	clip.min_x = Machine->visible_area.max_x-15;
+	clip.min_x = Machine->visible_area.max_x - 15;
 	clip.max_x = Machine->visible_area.max_x;
 	clip.min_y = Machine->visible_area.min_y;
 	clip.max_y = Machine->visible_area.max_y;
