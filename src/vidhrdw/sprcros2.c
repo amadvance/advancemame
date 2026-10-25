@@ -1,179 +1,146 @@
-/*
-Super Cross II (JPN Ver.)
-(c)1986 GM Shoji
-*/
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
+/* Super Cross II video hardware. */
 
 #include "driver.h"
 
-static tilemap *sprcros2_bgtilemap, *sprcros2_fgtilemap;
-UINT8 *sprcros2_fgvideoram, *sprcros2_spriteram, *sprcros2_bgvideoram;
-size_t sprcros2_spriteram_size;
-extern UINT8 sprcros2_m_port7;
+UINT8 *sprcros2_fgvram, *sprcros2_fgattr;
+UINT8 *sprcros2_bgvram, *sprcros2_bgattr, *sprcros2_sprram;
+UINT8 sprcros2_bg_scrollx, sprcros2_bg_scrolly;
+UINT8 sprcros2_screen_enable;
 
 PALETTE_INIT( sprcros2 )
 {
-	int i,bit0,bit1,bit2,r,g,b;
+	int i;
 
-	for (i = 0;i < Machine->drv->total_colors; i++)
+	/* create a lookup table for the palette */
+	for (i = 0; i < 0x20; i++)
 	{
+		int bit0, bit1, bit2;
+		int r, g, b;
+
 		/* red component */
 		bit0 = (color_prom[i] >> 0) & 0x01;
 		bit1 = (color_prom[i] >> 1) & 0x01;
 		bit2 = (color_prom[i] >> 2) & 0x01;
 		r = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
+
 		/* green component */
 		bit0 = (color_prom[i] >> 3) & 0x01;
 		bit1 = (color_prom[i] >> 4) & 0x01;
 		bit2 = (color_prom[i] >> 5) & 0x01;
 		g = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
+
 		/* blue component */
-		bit1 = (color_prom[i] >> 6) & 0x01;
-		bit2 = (color_prom[i] >> 7) & 0x01;
-		b = 0x47 * bit1 + 0xb8 * bit2;
+		bit0 = (color_prom[i] >> 6) & 0x01;
+		bit1 = (color_prom[i] >> 7) & 0x01;
+		b = 0x47 * bit0 + 0xb8 * bit1;
 		palette_set_color(i,r,g,b);
+
 	}
 
-	//cluts
-	for (i = 0;i < 0x100; i++)
+	/* color_prom now points to the beginning of the lookup table */
+	color_prom += 0x20;
+
+	/* bg */
+	for (i = 0; i < 0x100; i++)
 	{
-		colortable[i]=color_prom[i+0x20]+(color_prom[i+0x120]<<4);		//bg
-		colortable[i+0x100]=color_prom[i+0x220];						//sprites
-		colortable[i+0x200]=color_prom[i+0x320];						//fg
+		UINT8 ctabentry = (color_prom[i] & 0x0f) | ((color_prom[i + 0x100] & 0x0f) << 4);
+		colortable[i] = ctabentry;
 	}
-}
 
-WRITE8_HANDLER( sprcros2_fgvideoram_w )
-{
-	if (sprcros2_fgvideoram[offset] != data)
+	/* sprites & fg */
+	for (i = 0x100; i < 0x300; i++)
 	{
-		sprcros2_fgvideoram[offset] = data;
-		tilemap_mark_tile_dirty(sprcros2_fgtilemap,offset&0x3ff);
+		UINT8 ctabentry = color_prom[i + 0x100];
+		colortable[i] = ctabentry;
 	}
-}
-
-WRITE8_HANDLER( sprcros2_bgvideoram_w )
-{
-	if (sprcros2_bgvideoram[offset] != data)
-	{
-		sprcros2_bgvideoram[offset] = data;
-		tilemap_mark_tile_dirty(sprcros2_bgtilemap,offset&0x3ff);
-	}
-}
-
-WRITE8_HANDLER( sprcros2_bgscrollx_w )
-{
-	if(sprcros2_m_port7&0x02)
-		tilemap_set_scrollx(sprcros2_bgtilemap,0,0x100-data);
-	else
-		tilemap_set_scrollx(sprcros2_bgtilemap,0,data);
-}
-
-WRITE8_HANDLER( sprcros2_bgscrolly_w )
-{
-	tilemap_set_scrolly(sprcros2_bgtilemap,0,data);
-}
-
-static void get_sprcros2_bgtile_info(int tile_index)
-{
-	unsigned int tile_number = sprcros2_bgvideoram[tile_index];
-	unsigned char attr = sprcros2_bgvideoram[tile_index+0x400];
-
-	//attr
-	//76543210
-	//xxxx---- colour
-	//----x--- flipx
-	//-----xxx tile bank
-
-	tile_number += (attr&0x07)<<8;
-
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			(attr&0xf0)>>4,
-			(attr&0x08)?TILE_FLIPX:0)
-}
-
-static void get_sprcros2_fgtile_info(int tile_index)
-{
-	unsigned int tile_number = sprcros2_fgvideoram[tile_index];
-	unsigned char attr = sprcros2_fgvideoram[tile_index+0x400];
-
-	//attr
-	//76543210
-	//xxxxxx-- colour
-	//------xx tile bank
-
-	tile_number += (attr&0x03)<<8;
-
-	SET_TILE_INFO(
-			2,
-			tile_number,
-			(attr&0xfc)>>2,
-			0)
 }
 
 VIDEO_START( sprcros2 )
 {
-	sprcros2_bgtilemap = tilemap_create( get_sprcros2_bgtile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32 );
-	sprcros2_fgtilemap = tilemap_create( get_sprcros2_fgtile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT_COLOR,8,8,32,32 );
-
-	if (!sprcros2_bgtilemap || !sprcros2_fgtilemap)
-		return 1;
-
-	tilemap_set_transparent_pen(sprcros2_fgtilemap,0);
-
 	return 0;
 }
 
-static void sprcros2_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
+static void sprcros2_bg_draw(mame_bitmap *bitmap, const rectangle *cliprect)
 {
-	int offs,sx,sy,flipx,flipy;
+	int count = 0;
+	int x, y;
 
-	for (offs = sprcros2_spriteram_size-4; offs >= 0; offs -= 4)
+	for (y=0;y<32;y++)
 	{
-		if(sprcros2_spriteram[offs])
+		for (x=0;x<32;x++)
 		{
+			UINT16 tile = sprcros2_bgvram[count];
+			int flipx = sprcros2_bgattr[count] & 0x08;
+			UINT8 color = (sprcros2_bgattr[count] & 0xf0) >> 4;
+			tile |= (sprcros2_bgattr[count] & 7) << 8;
 
-			//offs
-			//76543210
-			//x------- unused
-			//-xxxxxxx sprite number
-			//offs+1
-			//76543210
-			//xx------ unused
-			//--xxx--- colour (6/7 unused and blank in prom)
-			//-----x-- unused
-			//------x- flipx
-			//-------x unused
-			//offs+2   y pos
-			//offs+3   x pos
+			drawgfx(bitmap,Machine->gfx[0],tile,color,flipx,0,x*8-sprcros2_bg_scrollx,y*8-sprcros2_bg_scrolly,cliprect,TRANSPARENCY_NONE,0);
+			drawgfx(bitmap,Machine->gfx[0],tile,color,flipx,0,x*8+256-sprcros2_bg_scrollx,y*8-sprcros2_bg_scrolly,cliprect,TRANSPARENCY_NONE,0);
+			drawgfx(bitmap,Machine->gfx[0],tile,color,flipx,0,x*8-sprcros2_bg_scrollx,y*8+256-sprcros2_bg_scrolly,cliprect,TRANSPARENCY_NONE,0);
+			drawgfx(bitmap,Machine->gfx[0],tile,color,flipx,0,x*8+256-sprcros2_bg_scrollx,y*8+256-sprcros2_bg_scrolly,cliprect,TRANSPARENCY_NONE,0);
 
-			sx = ((sprcros2_spriteram[offs+3]+0x10)%0x100)-0x10;
-			sy = 225-(((sprcros2_spriteram[offs+2]+0x10)%0x100)-0x10);
-			flipx = sprcros2_spriteram[offs+1]&0x02;
-			flipy = 0;
+			count++;
+		}
+	}
 
-			if (sprcros2_m_port7&0x02)
-			{
-				sx = 224-sx;
-				sy = 224-sy;
-				flipx = !flipx;
-				flipy = !flipy;
-			}
+}
 
-			drawgfx(bitmap,Machine->gfx[1],
-				sprcros2_spriteram[offs],
-				(sprcros2_spriteram[offs+1]&0x38)>>3,
-				flipx,flipy,
-				sx,sy,
-				cliprect,TRANSPARENCY_COLOR,0);
+static void sprcros2_obj_draw(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+
+	int count;
+
+	for(count=0x40-4;count>-1;count-=4)
+	{
+		UINT8 x,y,tile,color;
+		int flipx;
+
+		y = 224-sprcros2_sprram[count+2];
+		x = sprcros2_sprram[count+3];
+		tile = sprcros2_sprram[count+0];
+		flipx = (sprcros2_sprram[count+1] & 2);
+		color = (sprcros2_sprram[count+1] & 0x38) >> 3;
+		drawgfx(bitmap,Machine->gfx[1],tile,color,flipx,0,x,y & 0xff,cliprect,TRANSPARENCY_PEN,0);
+	}
+}
+
+static void sprcros2_fg_draw(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	int count = 0;
+	int x, y;
+
+	for (y=0;y<32;y++)
+	{
+		for (x=0;x<32;x++)
+		{
+			UINT16 tile = sprcros2_fgvram[count];
+			UINT8 color = (sprcros2_fgattr[count] & 0xfc) >> 2;
+			tile |= (sprcros2_fgattr[count] & 3) << 8;
+
+			/* Only the upper foreground color groups use transparent pen zero. */
+			if((color & 0x30) != 0x30)
+				drawgfx(bitmap,Machine->gfx[2],tile,color,0,0,x*8,y*8,cliprect,TRANSPARENCY_NONE,0);
+			else
+				drawgfx(bitmap,Machine->gfx[2],tile,color,0,0,x*8,y*8,cliprect,TRANSPARENCY_PEN,0);
+
+			count++;
 		}
 	}
 }
 
+
+
+
 VIDEO_UPDATE( sprcros2 )
 {
-	tilemap_draw( bitmap,cliprect,sprcros2_bgtilemap,0,0 );
-	sprcros2_draw_sprites(bitmap,cliprect);
-	tilemap_draw( bitmap,cliprect,sprcros2_fgtilemap,0,0 );
+	if(!sprcros2_screen_enable)
+	{
+		fillbitmap(bitmap,Machine->pens[0],cliprect);
+		return;
+	}
+	sprcros2_bg_draw(bitmap,cliprect);
+	sprcros2_obj_draw(bitmap,cliprect);
+	sprcros2_fg_draw(bitmap,cliprect);
 }
