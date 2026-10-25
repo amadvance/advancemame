@@ -1,161 +1,133 @@
-/* Flower (c)1986 Komax
- - Driver by InsideOutBoy
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
+/******************************************************************************
 
-todo:
+    Flower (c) 1986 Clarue (licensed to Komax/Sega)
 
-fix sound
-improve interrupts
-sprite flipping is incorrect for one of the enemies so its probably wrong
-screenshots look like the game has sprite zooming
-http://emustatus.rainemu.com/games/flower.htm
+    driver by Angelo Salese
 
-
-        FLOWER   CHIP PLACEMENT
-
-USES THREE Z80 CPU'S
-
-CHIP #  POSITION   TYPE
-------------------------
-1        5J         27256   CONN BD
-2        5F         27256    "
-3        D9         27128    "
-4        12A        27128    "
-5        16A        27256    "
-6        7E         2764    BOTTOM BD
-15       9E          "       "
-8        10E         "       "
-9        12E         "       "
-10       13E         "       "
-11       14E         "       "
-12       16E         "       "
-13       17E         "       "
-14       19E         "       "
-*/
+******************************************************************************/
 
 #include "driver.h"
 #include "sound/custom.h"
 
-extern UINT8 *flower_textram, *flower_bg0ram, *flower_bg1ram, *flower_bg0_scroll, *flower_bg1_scroll;
+#define MASTER_CLOCK 18432000
 
-WRITE8_HANDLER( flower_textram_w );
-WRITE8_HANDLER( flower_bg0ram_w );
-WRITE8_HANDLER( flower_bg1ram_w );
+extern UINT8 *flower_workram;
+extern UINT8 *flower_txvram;
+extern UINT8 *flower_bgvram;
+extern UINT8 *flower_fgvram;
+extern UINT8 *flower_bgscroll;
+extern UINT8 *flower_fgscroll;
+extern int flower_flipscreen;
+
+WRITE8_HANDLER( flower_txvram_w );
+WRITE8_HANDLER( flower_bgvram_w );
+WRITE8_HANDLER( flower_fgvram_w );
 WRITE8_HANDLER( flower_flipscreen_w );
-VIDEO_UPDATE( flower );
-VIDEO_START( flower );
 PALETTE_INIT( flower );
+VIDEO_START( flower );
+VIDEO_UPDATE( flower );
 
-extern UINT8 *flower_soundregs1,*flower_soundregs2;
 void *flower_sh_start(int clock, const struct CustomSound_interface *config);
+void flower_sound_reset(void);
 WRITE8_HANDLER( flower_sound1_w );
 WRITE8_HANDLER( flower_sound2_w );
 
+static UINT8 audio_nmi_mask;
 
-static WRITE8_HANDLER( flower_irq_ack )
+static WRITE8_HANDLER( flower_master_irq_ack_w )
 {
-	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	if (!(data & 1))
+		cpunum_set_input_line(0, 0, CLEAR_LINE);
 }
 
-
-static int sn_irq_enable,sn_nmi_enable;
-
-static WRITE8_HANDLER( sn_irq_enable_w )
+static WRITE8_HANDLER( flower_slave_irq_ack_w )
 {
-	sn_irq_enable = data & 1;
-
-	cpunum_set_input_line(2, 0, CLEAR_LINE);
+	if (!(data & 1))
+		cpunum_set_input_line(1, 0, CLEAR_LINE);
 }
 
-static INTERRUPT_GEN( sn_irq )
+static WRITE8_HANDLER( flower_coin_counter_w )
 {
-	if (sn_irq_enable)
-		cpunum_set_input_line(2, 0, ASSERT_LINE);
+	coin_counter_w(0, data & 1);
 }
 
-static WRITE8_HANDLER( sn_nmi_enable_w )
+static WRITE8_HANDLER( flower_sound_command_w )
 {
-	sn_nmi_enable = data & 1;
-}
-
-static WRITE8_HANDLER( sound_command_w )
-{
-	soundlatch_w(0,data);
-	if (sn_nmi_enable)
+	soundlatch_w(0, data);
+	if (audio_nmi_mask)
 		cpunum_set_input_line(2, INPUT_LINE_NMI, PULSE_LINE);
+	cpu_boost_interleave(0, TIME_IN_USEC(250));
 }
-/*
-static ADDRESS_MAP_START( flower_cpu1, ADDRESS_SPACE_PROGRAM, 8 )
+
+static WRITE8_HANDLER( flower_audio_nmi_mask_w )
+{
+	audio_nmi_mask = data & 1;
+}
+
+static MACHINE_RESET( flower )
+{
+	audio_nmi_mask = 0;
+	flower_flipscreen = 0;
+	flower_sound_reset();
+}
+
+static ADDRESS_MAP_START( shared_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0xa000, 0xa000) AM_WRITENOP	//watchdog?
+	AM_RANGE(0xa000, 0xa000) AM_WRITENOP
 	AM_RANGE(0xa001, 0xa001) AM_WRITE(flower_flipscreen_w)
-	AM_RANGE(0xa002, 0xa002) AM_WRITE(flower_irq_ack)	//irq ack / enable, maybe?
-	AM_RANGE(0xa004, 0xa004) AM_WRITENOP	//nmi enable (routine is empty)
-	AM_RANGE(0xa102, 0xa102) AM_READ(input_port_0_r)
-	AM_RANGE(0xa103, 0xa103) AM_READ(input_port_1_r)
-	AM_RANGE(0xc000, 0xddff) AM_RAM AM_SHARE(1)
-	AM_RANGE(0xde00, 0xdfff) AM_RAM AM_SHARE(2) AM_BASE(&spriteram)
-	AM_RANGE(0xe000, 0xe7ff) AM_READWRITE(MRA8_RAM, flower_textram_w) AM_SHARE(3) AM_BASE(&flower_textram)
-	AM_RANGE(0xe000, 0xefff) AM_RAM //only cleared?
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(MRA8_RAM, flower_bg0ram_w)  AM_SHARE(4) AM_BASE(&flower_bg0ram)
-	AM_RANGE(0xf200, 0xf200) AM_RAM AM_SHARE(5) AM_BASE(&flower_bg0_scroll)
-	AM_RANGE(0xf800, 0xf9ff) AM_READWRITE(MRA8_RAM, flower_bg1ram_w)  AM_SHARE(6) AM_BASE(&flower_bg1ram)
-	AM_RANGE(0xfa00, 0xfa00) AM_RAM AM_SHARE(7) AM_BASE(&flower_bg1_scroll)
+	AM_RANGE(0xa002, 0xa002) AM_WRITE(flower_master_irq_ack_w)
+	AM_RANGE(0xa003, 0xa003) AM_WRITE(flower_slave_irq_ack_w)
+	AM_RANGE(0xa004, 0xa004) AM_WRITE(flower_coin_counter_w)
+	AM_RANGE(0xa005, 0xa005) AM_WRITENOP
+	AM_RANGE(0xa100, 0xa100) AM_READ(input_port_0_r)
+	AM_RANGE(0xa101, 0xa101) AM_READ(input_port_1_r)
+	AM_RANGE(0xa102, 0xa102) AM_READ(input_port_2_r)
+	AM_RANGE(0xa103, 0xa103) AM_READ(input_port_3_r)
+	AM_RANGE(0xa400, 0xa400) AM_WRITE(flower_sound_command_w)
+	AM_RANGE(0xc000, 0xdfff) AM_RAM AM_SHARE(1) AM_BASE(&flower_workram)
+	AM_RANGE(0xe000, 0xefff) AM_RAM AM_WRITE(flower_txvram_w) AM_SHARE(2) AM_BASE(&flower_txvram)
+	AM_RANGE(0xf000, 0xf1ff) AM_RAM AM_WRITE(flower_fgvram_w) AM_SHARE(3) AM_BASE(&flower_fgvram)
+	AM_RANGE(0xf200, 0xf200) AM_RAM AM_SHARE(4) AM_BASE(&flower_fgscroll)
+	AM_RANGE(0xf800, 0xf9ff) AM_RAM AM_WRITE(flower_bgvram_w) AM_SHARE(5) AM_BASE(&flower_bgvram)
+	AM_RANGE(0xfa00, 0xfa00) AM_RAM AM_SHARE(6) AM_BASE(&flower_bgscroll)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( flower_cpu2, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0xa003, 0xa003) AM_WRITENOP	//irq enable
-	AM_RANGE(0xa005, 0xa005) AM_WRITENOP	//nmi enable (routine is empty)
-	AM_RANGE(0xa100, 0xa100) AM_READ(input_port_2_r)
-	AM_RANGE(0xa101, 0xa101) AM_READ(input_port_3_r)
-	AM_RANGE(0xa400, 0xa400) AM_WRITE(sound_command_w)
-	AM_RANGE(0xc000, 0xddff) AM_RAM AM_SHARE(1)
-	AM_RANGE(0xde00, 0xdfff) AM_RAM AM_SHARE(2)
-	AM_RANGE(0xe000, 0xe7ff) AM_READWRITE(MRA8_RAM, flower_textram_w) AM_SHARE(3)
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(MRA8_RAM, flower_bg0ram_w)  AM_SHARE(4)
-	AM_RANGE(0xf200, 0xf200) AM_RAM AM_SHARE(5)
-	AM_RANGE(0xf800, 0xf9ff) AM_READWRITE(MRA8_RAM, flower_bg1ram_w)  AM_SHARE(6)
-	AM_RANGE(0xfa00, 0xfa00) AM_RAM AM_SHARE(7)
-ADDRESS_MAP_END
-*/
-static ADDRESS_MAP_START( flower_cpu1_2, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0xa000, 0xa000) AM_WRITENOP	//watchdog?
-	AM_RANGE(0xa001, 0xa001) AM_WRITE(flower_flipscreen_w)
-	AM_RANGE(0xa002, 0xa002) AM_WRITE(flower_irq_ack)	//irq ack / enable, maybe?
-	AM_RANGE(0xa003, 0xa003) AM_WRITENOP	//irq enable
-	AM_RANGE(0xa005, 0xa005) AM_WRITENOP	//nmi enable (routine is empty)
-	AM_RANGE(0xa004, 0xa004) AM_WRITENOP	//nmi enable (routine is empty)
-	AM_RANGE(0xa100, 0xa100) AM_READ(input_port_2_r)
-	AM_RANGE(0xa101, 0xa101) AM_READ(input_port_3_r)
-	AM_RANGE(0xa102, 0xa102) AM_READ(input_port_0_r)
-	AM_RANGE(0xa103, 0xa103) AM_READ(input_port_1_r)
-	AM_RANGE(0xa400, 0xa400) AM_WRITE(sound_command_w)
-	AM_RANGE(0xc000, 0xddff) AM_SHARE(1) AM_RAM
-	AM_RANGE(0xde00, 0xdfff) AM_SHARE(2) AM_RAM AM_BASE(&spriteram)
-	AM_RANGE(0xe000, 0xe7ff) AM_SHARE(3) AM_RAM AM_WRITE(flower_textram_w)  AM_BASE(&flower_textram)
-	AM_RANGE(0xe000, 0xefff) AM_SHARE(4) AM_RAM //only cleared?
-	AM_RANGE(0xf000, 0xf1ff) AM_SHARE(5) AM_RAM AM_WRITE(flower_bg0ram_w)   AM_BASE(&flower_bg0ram)
-	AM_RANGE(0xf200, 0xf200) AM_SHARE(6) AM_RAM AM_BASE(&flower_bg0_scroll)
-	AM_RANGE(0xf800, 0xf9ff) AM_SHARE(7) AM_RAM AM_WRITE(flower_bg1ram_w)  AM_BASE(&flower_bg1ram)
-	AM_RANGE(0xfa00, 0xfa00) AM_SHARE(8) AM_RAM AM_BASE(&flower_bg1_scroll)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( flower_sound_cpu, ADDRESS_SPACE_PROGRAM, 8 )
+static ADDRESS_MAP_START( audio_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x3fff) AM_ROM
-	AM_RANGE(0x4000, 0x4000) AM_WRITE(sn_irq_enable_w)
-	AM_RANGE(0x4001, 0x4001) AM_WRITE(sn_nmi_enable_w)
+	AM_RANGE(0x4000, 0x4000) AM_WRITENOP // audio irq related (0 at start, 1 at end)
+	AM_RANGE(0x4001, 0x4001) AM_WRITE(flower_audio_nmi_mask_w)
 	AM_RANGE(0x6000, 0x6000) AM_READ(soundlatch_r)
-	AM_RANGE(0x8000, 0x803f) AM_WRITE(flower_sound1_w) AM_BASE(&flower_soundregs1)
-	AM_RANGE(0xa000, 0xa03f) AM_WRITE(flower_sound2_w) AM_BASE(&flower_soundregs2)
+	AM_RANGE(0x8000, 0x803f) AM_WRITE(flower_sound1_w)
+	AM_RANGE(0xa000, 0xa03f) AM_WRITE(flower_sound2_w)
 	AM_RANGE(0xc000, 0xc7ff) AM_RAM
 ADDRESS_MAP_END
 
+static INPUT_PORTS_START( flower )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("P1 Laser")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P1 Missile")
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("P1 Cutter")
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
-INPUT_PORTS_START( flower )
-	PORT_START_TAG("IN0CPU0")
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL PORT_NAME("P2 Laser")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL PORT_NAME("P2 Missile")
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_COCKTAIL PORT_NAME("P2 Cutter")
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START1  )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_DIPNAME( 0x08, 0x08, "Energy Decrease" )
 	PORT_DIPSETTING(    0x08, "Slow" )
@@ -163,18 +135,18 @@ INPUT_PORTS_START( flower )
 	PORT_DIPNAME( 0x10, 0x10, "Invulnerability (Cheat)")
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "Keep Weapon Items When Destroyed" )	// check code at 0x74a2
+	PORT_DIPNAME( 0x20, 0x20, "Keep Weapons When Destroyed" )
 	PORT_DIPSETTING(    0x20, DEF_STR( No ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x40, 0x40, "Enemy Bullets" )
-	PORT_DIPSETTING(    0x40, "Less" )
-	PORT_DIPSETTING(    0x00, "More" )
-	PORT_DIPNAME( 0x80, 0x80, "Shot Range" ) /* check code at 0x75f9 */
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x80, 0x80, "Shot Range" )
 	PORT_DIPSETTING(    0x80, "Short" )
 	PORT_DIPSETTING(    0x00, "Long" )
 
-	PORT_START_TAG("IN1CPU0")
-	PORT_DIPNAME( 0x07, 0x05, DEF_STR( Lives ) )		// what should be the default value ?
+	PORT_START
+	PORT_DIPNAME( 0x07, 0x05, DEF_STR( Lives ) )
 	PORT_DIPSETTING(    0x07, "1" )
 	PORT_DIPSETTING(    0x06, "2" )
 	PORT_DIPSETTING(    0x05, "3" )
@@ -188,7 +160,7 @@ INPUT_PORTS_START( flower )
 	PORT_DIPSETTING(    0x08, DEF_STR( 2C_1C ) )
 	PORT_DIPSETTING(    0x18, DEF_STR( 1C_1C ) )
 	PORT_DIPSETTING(    0x10, DEF_STR( 1C_2C ) )
-	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Cabinet ) )		// check code at 0x759f
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Cabinet ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x20, DEF_STR( Cocktail ) )
 	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
@@ -197,29 +169,9 @@ INPUT_PORTS_START( flower )
 	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Bonus_Life ) )
 	PORT_DIPSETTING(    0x80, "30k, then every 50k" )
 	PORT_DIPSETTING(    0x00, "50k, then every 80k" )
-
-	PORT_START_TAG("IN0CPU1")
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    )
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  )
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  )
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("P1 Fire")			// Fire (normal or laser)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P1 Missile")			// Missile
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("P1 Cutter")			// Cutter
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
-
-	PORT_START_TAG("IN1CPU1")
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_COCKTAIL
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL	PORT_NAME("P2 Fire")// Fire (normal or laser)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL	PORT_NAME("P2 Missile")// Missile
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_COCKTAIL	PORT_NAME("P2 Cutter")// Cutter
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
-static const gfx_layout flower_charlayout =
+static const gfx_layout charlayout =
 {
 	8,8,
 	RGN_FRAC(1,1),
@@ -230,7 +182,7 @@ static const gfx_layout flower_charlayout =
 	8*8*2
 };
 
-static const gfx_layout flower_tilelayout =
+static const gfx_layout tilelayout =
 {
 	16,16,
 	RGN_FRAC(1,2),
@@ -243,16 +195,11 @@ static const gfx_layout flower_tilelayout =
 
 static const gfx_decode flower_gfxdecodeinfo[] =
 {
-	{ REGION_GFX1, 0, &flower_charlayout, 0,  64 },
-	{ REGION_GFX2, 0, &flower_tilelayout, 0,  16 },
-	{ REGION_GFX3, 0, &flower_tilelayout, 0,  16 },
+	{ REGION_GFX1, 0, &charlayout, 0,  64 },
+	{ REGION_GFX2, 0, &tilelayout, 0,  16 },
+	{ REGION_GFX3, 0, &tilelayout, 0,  16 },
 	{ -1 }
 };
-
-static INTERRUPT_GEN( flower_cpu0_interrupt )
-{
-	cpunum_set_input_line(0, 0, ASSERT_LINE);
-}
 
 static struct CustomSound_interface custom_interface =
 {
@@ -262,32 +209,34 @@ static struct CustomSound_interface custom_interface =
 static MACHINE_DRIVER_START( flower )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80,8000000)
-    MDRV_CPU_PROGRAM_MAP(flower_cpu1_2,0)
-//	MDRV_CPU_VBLANK_INT_HACK(flower_cpu0_interrupt,10)
-    MDRV_CPU_VBLANK_INT(flower_cpu0_interrupt,1) //nmis stuff up the writes to shared ram
-  
-	MDRV_CPU_ADD(Z80,8000000)
-	MDRV_CPU_PROGRAM_MAP(flower_cpu1_2,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
-//  MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
+	MDRV_CPU_ADD(Z80, MASTER_CLOCK / 4)
+	MDRV_CPU_PROGRAM_MAP(shared_map, 0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)
 
-	MDRV_CPU_ADD(Z80,8000000)
-	MDRV_CPU_PROGRAM_MAP(flower_sound_cpu,0)
-	MDRV_CPU_PERIODIC_INT(sn_irq,TIME_IN_HZ(90))	/* periodic interrupt, don't know about the frequency */
+	MDRV_CPU_ADD(Z80, MASTER_CLOCK / 4)
+	MDRV_CPU_PROGRAM_MAP(shared_map, 0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_CPU_ADD(Z80, MASTER_CLOCK / 4)
+	MDRV_CPU_PROGRAM_MAP(audio_map, 0)
+	MDRV_CPU_PERIODIC_INT(irq0_line_hold, TIME_IN_HZ(90))
+
+	MDRV_INTERLEAVE(100)
+
+	MDRV_MACHINE_RESET(flower)
+
+	MDRV_FRAMES_PER_SECOND(60.606060)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(34*8, 33*8)
-	MDRV_VISIBLE_AREA(0*8, 34*8-1, 0*8, 28*8-1)
+	MDRV_SCREEN_SIZE(384, 264)
+	MDRV_VISIBLE_AREA(0, 288-1, 16, 240-1)
 	MDRV_GFXDECODE(flower_gfxdecodeinfo)
 
-	MDRV_PALETTE_INIT(flower)
 	MDRV_PALETTE_LENGTH(256)
-	MDRV_COLORTABLE_LENGTH(384)
+	MDRV_COLORTABLE_LENGTH(256)
+	MDRV_PALETTE_INIT(flower)
 
 	MDRV_VIDEO_START(flower)
 	MDRV_VIDEO_UPDATE(flower)
@@ -295,11 +244,10 @@ static MACHINE_DRIVER_START( flower )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_ADD(CUSTOM, 96000)
 	MDRV_SOUND_CONFIG(custom_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
-
 
 ROM_START( flower )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* main cpu */
@@ -314,28 +262,28 @@ ROM_START( flower )
 	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* tx layer */
 	ROM_LOAD( "10.13e", 0x0000, 0x2000, CRC(62f9b28c) SHA1(d57d06b99e72a4f68f197a5b6c042c926cc70ca0) ) // FIRST AND SECOND HALF IDENTICAL
 
-	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* sprites */
-	ROM_LOAD( "14.19e", 0x0000, 0x2000, CRC(11b491c5) SHA1(be1c4a0fbe8fd4e124c21e0f700efa0428376691) )
-	ROM_LOAD( "13.17e", 0x2000, 0x2000, CRC(ea743986) SHA1(bbef4fd0f7d21cc89a52061fa50d7c2ea37287bd) )
-	ROM_LOAD( "12.16e", 0x4000, 0x2000, CRC(e3779f7f) SHA1(8e12d06b3cdc2fcb7b77cc35f8eca45544cc4873) )
-	ROM_LOAD( "11.14e", 0x6000, 0x2000, CRC(8801b34f) SHA1(256059fcd16b21e076db1c18fd9669128df1d658) )
-
-	ROM_REGION( 0x8000, REGION_GFX3, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* bg layers */
+	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* bg layers */
 	ROM_LOAD( "8.10e",  0x0000, 0x2000, CRC(f85eb20f) SHA1(699edc970c359143dee6de2a97cc2a552454785b) )
 	ROM_LOAD( "6.7e",   0x2000, 0x2000, CRC(3e97843f) SHA1(4e4e5625dbf78eca97536b1428b2e49ad58c618f) )
 	ROM_LOAD( "9.12e",  0x4000, 0x2000, CRC(f1d9915e) SHA1(158e1cc8c402f9ae3906363d99f2b25c94c64212) )
 	ROM_LOAD( "15.9e",  0x6000, 0x2000, CRC(1cad9f72) SHA1(c38dbea266246ed4d47d12bdd8f9fae22a5f8bb8) )
 
+	ROM_REGION( 0x8000, REGION_GFX3, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* sprites */
+	ROM_LOAD( "14.19e", 0x0000, 0x2000, CRC(11b491c5) SHA1(be1c4a0fbe8fd4e124c21e0f700efa0428376691) )
+	ROM_LOAD( "13.17e", 0x2000, 0x2000, CRC(ea743986) SHA1(bbef4fd0f7d21cc89a52061fa50d7c2ea37287bd) )
+	ROM_LOAD( "12.16e", 0x4000, 0x2000, CRC(e3779f7f) SHA1(8e12d06b3cdc2fcb7b77cc35f8eca45544cc4873) )
+	ROM_LOAD( "11.14e", 0x6000, 0x2000, CRC(8801b34f) SHA1(256059fcd16b21e076db1c18fd9669128df1d658) )
+
 	ROM_REGION( 0x8000, REGION_SOUND1, 0 )
-	ROM_LOAD( "4.12a",  0x0000, 0x8000, CRC(851ed9fd) SHA1(5dc048b612e45da529502bf33d968737a7b0a646) )	/* 8-bit samples */
+	ROM_LOAD( "4.12a",  0x0000, 0x8000, CRC(851ed9fd) SHA1(5dc048b612e45da529502bf33d968737a7b0a646) )  /* 8-bit samples */
 
 	ROM_REGION( 0x4000, REGION_SOUND2, 0 )
-	ROM_LOAD( "5.16a",  0x0000, 0x4000, CRC(42fa2853) SHA1(cc1e8b8231d6f27f48b05d59390e93ea1c1c0e4c) )	/* volume tables? */
+	ROM_LOAD( "5.16a",  0x0000, 0x4000, CRC(42fa2853) SHA1(cc1e8b8231d6f27f48b05d59390e93ea1c1c0e4c) )  /* volume tables? */
 
 	ROM_REGION( 0x300, REGION_PROMS, 0 ) /* RGB proms */
-	ROM_LOAD( "82s129.k1",  0x0200, 0x0100, CRC(d311ed0d) SHA1(1d530c874aecf93133d610ab3ce668548712913a) ) // r?
-	ROM_LOAD( "82s129.k2",  0x0100, 0x0100, CRC(ababb072) SHA1(a9d46d12534c8662c6b54df94e96907f3a156968) ) // g?
-	ROM_LOAD( "82s129.k3",  0x0000, 0x0100, CRC(5aab7b41) SHA1(8d44639c7c9f1ba34fe9c4e74c8a38b6453f7ac0) ) // b?
+	ROM_LOAD( "82s129.k3",  0x0000, 0x0100, CRC(5aab7b41) SHA1(8d44639c7c9f1ba34fe9c4e74c8a38b6453f7ac0) ) // b
+	ROM_LOAD( "82s129.k2",  0x0100, 0x0100, CRC(ababb072) SHA1(a9d46d12534c8662c6b54df94e96907f3a156968) ) // g
+	ROM_LOAD( "82s129.k1",  0x0200, 0x0100, CRC(d311ed0d) SHA1(1d530c874aecf93133d610ab3ce668548712913a) ) // r
 
 	ROM_REGION( 0x0520, REGION_USER1, 0 ) /* Other proms, (zoom table?) */
 	ROM_LOAD( "82s147.d7",  0x0000, 0x0200, CRC(f0dbb2a7) SHA1(03cd8fd41d6406894c6931e883a9ac6a4a4effc9) )
@@ -357,28 +305,28 @@ ROM_START( flowerbl )
 	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* tx layer */
 	ROM_LOAD( "10.13e", 0x0000, 0x2000, CRC(62f9b28c) SHA1(d57d06b99e72a4f68f197a5b6c042c926cc70ca0) ) // FIRST AND SECOND HALF IDENTICAL
 
-	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* sprites */
-	ROM_LOAD( "14.19e", 0x0000, 0x2000, CRC(11b491c5) SHA1(be1c4a0fbe8fd4e124c21e0f700efa0428376691) )
-	ROM_LOAD( "13.17e", 0x2000, 0x2000, CRC(ea743986) SHA1(bbef4fd0f7d21cc89a52061fa50d7c2ea37287bd) )
-	ROM_LOAD( "12.16e", 0x4000, 0x2000, CRC(e3779f7f) SHA1(8e12d06b3cdc2fcb7b77cc35f8eca45544cc4873) )
-	ROM_LOAD( "11.14e", 0x6000, 0x2000, CRC(8801b34f) SHA1(256059fcd16b21e076db1c18fd9669128df1d658) )
-
-	ROM_REGION( 0x8000, REGION_GFX3, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* bg layers */
+	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* bg layers */
 	ROM_LOAD( "8.10e",  0x0000, 0x2000, CRC(f85eb20f) SHA1(699edc970c359143dee6de2a97cc2a552454785b) )
 	ROM_LOAD( "6.7e",   0x2000, 0x2000, CRC(3e97843f) SHA1(4e4e5625dbf78eca97536b1428b2e49ad58c618f) )
 	ROM_LOAD( "9.12e",  0x4000, 0x2000, CRC(f1d9915e) SHA1(158e1cc8c402f9ae3906363d99f2b25c94c64212) )
 	ROM_LOAD( "7",      0x6000, 0x2000, CRC(e350f36c) SHA1(f97204dc95b4000c268afc053a2333c1629e07d8) )
 
+	ROM_REGION( 0x8000, REGION_GFX3, ROMREGION_INVERT | ROMREGION_DISPOSE ) /* sprites */
+	ROM_LOAD( "14.19e", 0x0000, 0x2000, CRC(11b491c5) SHA1(be1c4a0fbe8fd4e124c21e0f700efa0428376691) )
+	ROM_LOAD( "13.17e", 0x2000, 0x2000, CRC(ea743986) SHA1(bbef4fd0f7d21cc89a52061fa50d7c2ea37287bd) )
+	ROM_LOAD( "12.16e", 0x4000, 0x2000, CRC(e3779f7f) SHA1(8e12d06b3cdc2fcb7b77cc35f8eca45544cc4873) )
+	ROM_LOAD( "11.14e", 0x6000, 0x2000, CRC(8801b34f) SHA1(256059fcd16b21e076db1c18fd9669128df1d658) )
+
 	ROM_REGION( 0x8000, REGION_SOUND1, 0 )
-	ROM_LOAD( "4.12a",  0x0000, 0x8000, CRC(851ed9fd) SHA1(5dc048b612e45da529502bf33d968737a7b0a646) )	/* 8-bit samples */
+	ROM_LOAD( "4.12a",  0x0000, 0x8000, CRC(851ed9fd) SHA1(5dc048b612e45da529502bf33d968737a7b0a646) )  /* 8-bit samples */
 
 	ROM_REGION( 0x4000, REGION_SOUND2, 0 )
-	ROM_LOAD( "5.16a",  0x0000, 0x4000, CRC(42fa2853) SHA1(cc1e8b8231d6f27f48b05d59390e93ea1c1c0e4c) )	/* volume tables? */
+	ROM_LOAD( "5.16a",  0x0000, 0x4000, CRC(42fa2853) SHA1(cc1e8b8231d6f27f48b05d59390e93ea1c1c0e4c) )  /* volume tables? */
 
 	ROM_REGION( 0x300, REGION_PROMS, 0 ) /* RGB proms */
-	ROM_LOAD( "82s129.k1",  0x0200, 0x0100, CRC(d311ed0d) SHA1(1d530c874aecf93133d610ab3ce668548712913a) ) // r?
-	ROM_LOAD( "82s129.k2",  0x0100, 0x0100, CRC(ababb072) SHA1(a9d46d12534c8662c6b54df94e96907f3a156968) ) // g?
-	ROM_LOAD( "82s129.k3",  0x0000, 0x0100, CRC(5aab7b41) SHA1(8d44639c7c9f1ba34fe9c4e74c8a38b6453f7ac0) ) // b?
+	ROM_LOAD( "82s129.k3",  0x0000, 0x0100, CRC(5aab7b41) SHA1(8d44639c7c9f1ba34fe9c4e74c8a38b6453f7ac0) ) // b
+	ROM_LOAD( "82s129.k2",  0x0100, 0x0100, CRC(ababb072) SHA1(a9d46d12534c8662c6b54df94e96907f3a156968) ) // g
+	ROM_LOAD( "82s129.k1",  0x0200, 0x0100, CRC(d311ed0d) SHA1(1d530c874aecf93133d610ab3ce668548712913a) ) // r
 
 	ROM_REGION( 0x0520, REGION_USER1, 0 ) /* Other proms, (zoom table?) */
 	ROM_LOAD( "82s147.d7",  0x0000, 0x0200, CRC(f0dbb2a7) SHA1(03cd8fd41d6406894c6931e883a9ac6a4a4effc9) )
@@ -387,6 +335,5 @@ ROM_START( flowerbl )
 	ROM_LOAD( "82s129.a1",  0x0420, 0x0100, CRC(c8dad3fc) SHA1(8e852efac70223d02e45b20ed8a12e38c5010a78) )
 ROM_END
 
-
-GAME( 1986, flower,   0,      flower, flower, 0, ROT0, "Komax",   "Flower", GAME_IMPERFECT_SOUND )
-GAME( 1986, flowerbl, flower, flower, flower, 0, ROT0, "bootleg", "Flower (bootleg)", GAME_IMPERFECT_SOUND )
+GAME( 1986, flower,   0,      flower, flower, 0, ROT0, "Clarue (Komax license)",                   "Flower (US)",    GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL )
+GAME( 1986, flowerbl, flower, flower, flower, 0, ROT0, "Clarue (Sega / Alpha Denshi Co. license)", "Flower (bootleg)", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL )
