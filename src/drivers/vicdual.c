@@ -1287,7 +1287,15 @@ MACHINE_DRIVER_END
 
 /* don't know if any of the other games use the 8048 music board */
 /* so, we won't burden those drivers with the extra music handling */
+static MACHINE_START( carnival )
+{
+	carnival_sh_start();
+	return 0;
+}
+
 static MACHINE_DRIVER_START( carnival )
+
+	MDRV_MACHINE_START(carnival)
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(Z80,15468480/8)
@@ -2050,8 +2058,8 @@ static DRIVER_INIT( carnival )
 	coin_port = 3; coin_bit = 0x08;
 
 	/* install sample triggers */
-	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x01, 0x01, 0, 0, carnival_sh_port1_w);
-	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x02, 0x02, 0, 0, carnival_sh_port2_w);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x01, 0x01, 0, 0, carnival_audio_1_w);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x02, 0x02, 0, 0, carnival_audio_2_w);
 }
 
 static DRIVER_INIT( invinco )

@@ -1,74 +1,28 @@
-/*****************************************************************************/
-/*                                                                           */
-/*                    (C) Copyright 1998  Peter J.C.Clare                    */
-/*                                                                           */
-/*****************************************************************************/
-/*                                                                           */
-/*                                                                           */
-/*      Module name:    carnival.c                                           */
-/*                                                                           */
-/*      Creation date:  15/03/98                Revision date:  09/01/99     */
-/*                                                                           */
-/*      Produced by:    Peter J.C.Clare                                      */
-/*                                                                           */
-/*                                                                           */
-/*      Abstract:                                                            */
-/*                                                                           */
-/*              MAME sound & music driver for Sega/Gremlin Carnival.         */
-/*                                                                           */
-/*****************************************************************************/
-/*                                                                           */
-/*      Acknowledgements:                                                    */
-/*                                                                           */
-/*      Mike Coates, for the original Carnival MAME sound driver.            */
-/*      Virtu-Al, for the sound samples & hardware information.              */
-/*      The MAME Team, for the emulator framework.                           */
-/*                                                                           */
-/*****************************************************************************/
-/*                                                                           */
-/*      Revision history                                                     */
-/*      ================                                                     */
-/*                                                                           */
-/*      Date    Vsn.    Initials        Description                          */
-/*      ~~~~    ~~~~    ~~~~~~~~        ~~~~~~~~~~~                          */
-/*                                                                           */
-/*****************************************************************************/
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, hap
+/*
+ *  Carnival audio routines
+ */
 
 #include "driver.h"
 #include "sound/ay8910.h"
 #include "sound/samples.h"
 #include "includes/vicdual.h"
 
-#define CPU_MUSIC_ID            1       /* music CPU id number */
-
 
 /* output port 0x01 definitions - sound effect drive outputs */
-#define OUT_PORT_1_RIFLE_SHOT   0x01
+#define OUT_PORT_1_RIFLE        0x01
 #define OUT_PORT_1_CLANG        0x02
-#define OUT_PORT_1_DUCK_1       0x04
-#define OUT_PORT_1_DUCK_2       0x08
-#define OUT_PORT_1_DUCK_3       0x10
-#define OUT_PORT_1_PIPE_HIT     0x20
-#define OUT_PORT_1_BONUS_1      0x40
-#define OUT_PORT_1_BONUS_2      0x80
-
+#define OUT_PORT_1_DUCK1        0x04
+#define OUT_PORT_1_DUCK2        0x08
+#define OUT_PORT_1_DUCK3        0x10
+#define OUT_PORT_1_PIPEHIT      0x20
+#define OUT_PORT_1_BONUS1       0x40
+#define OUT_PORT_1_BONUS2       0x80
 
 /* output port 0x02 definitions - sound effect drive outputs */
 #define OUT_PORT_2_BEAR         0x04
-#define OUT_PORT_2_MUSIC_T1     0x08
-#define OUT_PORT_2_MUSIC_RESET  0x10
 #define OUT_PORT_2_RANKING      0x20
-
-
-/* music CPU port definitions */
-#define MUSIC_PORT2_PSG_BDIR    0x40    /* bit 6 on P2 */
-#define MUSIC_PORT2_PSG_BC1     0x80    /* bit 7 on P2 */
-
-
-#define PSG_BC_INACTIVE         0
-#define PSG_BC_READ             MUSIC_PORT2_PSG_BC1
-#define PSG_BC_WRITE            MUSIC_PORT2_PSG_BDIR
-#define PSG_BC_LATCH_ADDRESS    ( MUSIC_PORT2_PSG_BDIR | MUSIC_PORT2_PSG_BC1 )
 
 
 #define PLAY(id,loop)           sample_start( id, id, loop )
@@ -92,44 +46,47 @@ const char *carnival_sample_names[] =
 	0
 };
 
-/* sample sound IDs - must match sample file name table above */
+
+/* sample IDs - must match sample file name table above */
 enum
 {
 	SND_BEAR = 0,
-	SND_BONUS_1,
-	SND_BONUS_2,
+	SND_BONUS1,
+	SND_BONUS2,
 	SND_CLANG,
-	SND_DUCK_1,
-	SND_DUCK_2,
-	SND_DUCK_3,
-	SND_PIPE_HIT,
+	SND_DUCK1,
+	SND_DUCK2,
+	SND_DUCK3,
+	SND_PIPEHIT,
 	SND_RANKING,
-	SND_RIFLE_SHOT
+	SND_RIFLE
 };
 
 
-static int port2State = 0;
-static int psgData = 0;
+static UINT8 port1State;
+static UINT8 port2State;
+static UINT8 psgBus;
+static UINT8 psgData;
 
-
-WRITE8_HANDLER( carnival_sh_port1_w )
+void carnival_sh_start(void)
 {
-	static int port1State = 0;
+	port1State = 0;
+	port2State = 0;
+	psgBus = 0;
+	psgData = 0;
+
+	state_save_register_global(port1State);
+	state_save_register_global(port2State);
+	state_save_register_global(psgBus);
+	state_save_register_global(psgData);
+}
+
+
+WRITE8_HANDLER( carnival_audio_1_w )
+{
 	int bitsChanged;
 	int bitsGoneHigh;
 	int bitsGoneLow;
-
-
-	/* U64 74LS374 8 bit latch */
-
-	/* bit 0: connector pin 36 - rifle shot */
-	/* bit 1: connector pin 35 - clang */
-	/* bit 2: connector pin 33 - duck #1 */
-	/* bit 3: connector pin 34 - duck #2 */
-	/* bit 4: connector pin 32 - duck #3 */
-	/* bit 5: connector pin 31 - pipe hit */
-	/* bit 6: connector pin 30 - bonus #1 */
-	/* bit 7: connector pin 29 - bonus #2 */
 
 	bitsChanged  = port1State ^ data;
 	bitsGoneHigh = bitsChanged & data;
@@ -137,9 +94,9 @@ WRITE8_HANDLER( carnival_sh_port1_w )
 
 	port1State = data;
 
-	if ( bitsGoneLow & OUT_PORT_1_RIFLE_SHOT )
+	if ( bitsGoneLow & OUT_PORT_1_RIFLE )
 	{
-		PLAY( SND_RIFLE_SHOT, 0 );
+		PLAY( SND_RIFLE, 0 );
 	}
 
 	if ( bitsGoneLow & OUT_PORT_1_CLANG )
@@ -147,69 +104,56 @@ WRITE8_HANDLER( carnival_sh_port1_w )
 		PLAY( SND_CLANG, 0 );
 	}
 
-	if ( bitsGoneLow & OUT_PORT_1_DUCK_1 )
+	if ( bitsGoneLow & OUT_PORT_1_DUCK1 )
 	{
-		PLAY( SND_DUCK_1, 1 );
+		PLAY( SND_DUCK1, 1 );
 	}
-	if ( bitsGoneHigh & OUT_PORT_1_DUCK_1 )
+	if ( bitsGoneHigh & OUT_PORT_1_DUCK1 )
 	{
-		STOP( SND_DUCK_1 );
-	}
-
-	if ( bitsGoneLow & OUT_PORT_1_DUCK_2 )
-	{
-		PLAY( SND_DUCK_2, 1 );
-	}
-	if ( bitsGoneHigh & OUT_PORT_1_DUCK_2 )
-	{
-		STOP( SND_DUCK_2 );
+		STOP( SND_DUCK1 );
 	}
 
-	if ( bitsGoneLow & OUT_PORT_1_DUCK_3 )
+	if ( bitsGoneLow & OUT_PORT_1_DUCK2 )
 	{
-		PLAY( SND_DUCK_3, 1 );
+		PLAY( SND_DUCK2, 1 );
 	}
-	if ( bitsGoneHigh & OUT_PORT_1_DUCK_3 )
+	if ( bitsGoneHigh & OUT_PORT_1_DUCK2 )
 	{
-		STOP( SND_DUCK_3 );
-	}
-
-	if ( bitsGoneLow & OUT_PORT_1_PIPE_HIT )
-	{
-		PLAY( SND_PIPE_HIT, 0 );
+		STOP( SND_DUCK2 );
 	}
 
-	if ( bitsGoneLow & OUT_PORT_1_BONUS_1 )
+	if ( bitsGoneLow & OUT_PORT_1_DUCK3 )
 	{
-		PLAY( SND_BONUS_1, 0 );
+		PLAY( SND_DUCK3, 1 );
+	}
+	if ( bitsGoneHigh & OUT_PORT_1_DUCK3 )
+	{
+		STOP( SND_DUCK3 );
 	}
 
-	if ( bitsGoneLow & OUT_PORT_1_BONUS_2 )
+	if ( bitsGoneLow & OUT_PORT_1_PIPEHIT )
 	{
-		PLAY( SND_BONUS_2, 0 );
+		PLAY( SND_PIPEHIT, 0 );
+	}
+
+	if ( bitsGoneLow & OUT_PORT_1_BONUS1 )
+	{
+		PLAY( SND_BONUS1, 0 );
+	}
+
+	if ( bitsGoneLow & OUT_PORT_1_BONUS2 )
+	{
+		PLAY( SND_BONUS2, 0 );
 	}
 }
 
 
-WRITE8_HANDLER( carnival_sh_port2_w )
+WRITE8_HANDLER( carnival_audio_2_w )
 {
 	int bitsChanged;
-	int bitsGoneHigh;
 	int bitsGoneLow;
 
-	/* U63 74LS374 8 bit latch */
-
-	/* bit 0: connector pin 48 */
-	/* bit 1: connector pin 47 */
-	/* bit 2: connector pin 45 - bear */
-	/* bit 3: connector pin 46 - Music !T1 input */
-	/* bit 4: connector pin 44 - Music reset */
-	/* bit 5: connector pin 43 - ranking */
-	/* bit 6: connector pin 42 */
-	/* bit 7: connector pin 41 */
-
 	bitsChanged  = port2State ^ data;
-	bitsGoneHigh = bitsChanged & data;
 	bitsGoneLow  = bitsChanged & ~data;
 
 	port2State = data;
@@ -224,54 +168,43 @@ WRITE8_HANDLER( carnival_sh_port2_w )
 		PLAY( SND_RANKING, 0 );
 	}
 
-	if ( bitsGoneHigh & OUT_PORT_2_MUSIC_RESET )
+	// d4: music board MCU reset
+	cpunum_set_input_line(1, INPUT_LINE_RESET, (data & 0x10) ? CLEAR_LINE : ASSERT_LINE);
+}
+
+
+/* Music board */
+
+static void carnival_psg_latch(void)
+{
+	if (psgBus & 1)
 	{
-		/* reset output is no longer asserted active low */
-		cpunum_set_input_line(CPU_MUSIC_ID, INPUT_LINE_RESET, PULSE_LINE );
+		// BDIR W, BC1 selects address or data
+		if (psgBus & 2)
+			AY8910_control_port_0_w(0, psgData);
+		else
+			AY8910_write_port_0_w(0, psgData);
 	}
+}
+
+WRITE8_HANDLER( carnival_music_port_1_w )
+{
+	// P1: ay8912 d0-d7
+	psgData = data;
+	carnival_psg_latch();
+}
+
+WRITE8_HANDLER( carnival_music_port_2_w )
+{
+	// P2 d6: AY8912 BDIR(R/W)
+	// P2 d7: AY8912 BC1
+	psgBus = data >> 6 & 3;
+	carnival_psg_latch();
 }
 
 
 READ8_HANDLER( carnival_music_port_t1_r )
 {
-	/* note: 8039 T1 signal is inverted on music board */
-	return ( port2State & OUT_PORT_2_MUSIC_T1 ) ? 0 : 1;
-}
-
-
-WRITE8_HANDLER( carnival_music_port_1_w )
-{
-	psgData = data;
-}
-
-
-WRITE8_HANDLER( carnival_music_port_2_w )
-{
-	static int psgSelect = 0;
-	int newSelect;
-
-	newSelect = data & ( MUSIC_PORT2_PSG_BDIR | MUSIC_PORT2_PSG_BC1 );
-	if ( psgSelect != newSelect )
-	{
-		psgSelect = newSelect;
-
-		switch ( psgSelect )
-		{
-		case PSG_BC_INACTIVE:
-			/* do nowt */
-			break;
-
-		case PSG_BC_READ:
-			/* not very sensible for a write */
-			break;
-
-		case PSG_BC_WRITE:
-			AY8910_write_port_0_w( 0, psgData );
-			break;
-
-		case PSG_BC_LATCH_ADDRESS:
-			AY8910_control_port_0_w( 0, psgData );
-			break;
-		}
-	}
+	// T1: comms from audio port 2 d3
+	return ~port2State >> 3 & 1;
 }
