@@ -1,8 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Zsolt Vasvari
+// thanks-to:John Butler, Ed Mueller
 /***************************************************************************
 
     Taito Qix hardware
-
-    driver by John Butler, Ed Mueller, Aaron Giles
 
     Games supported:
         * Qix (3 sets)
@@ -20,17 +21,9 @@
     Notes:
         * the encrypted version of Kram doesn't have the protection MCU
         * it's not clear what the 16R4 PAL does.
-        * Electric Yo-Yo was hanging in attract mode because of a synchronization issue.
-          This was fixed by increasing the interleave to 20.
-          The reason for the hang was that CPU #2 was reading location $8013 of shared
-          RAM after clearing it and before CPU #1 had put the correct value in it.
 
     TODO:
-        * The Kram encryption algorithm is not understood. I merely provide tables to
-          decrypt it, derived by comparison with the not encrypted versions.
-        * I applied the interleave change only to elecyoyo because these games are
-          really sensitive to timing, and kram's service mode was disturbed by it (the
-          high score and audit pages were broken).
+        * The Kram encryption algorithm is not understood.
 
 ****************************************************************************
 
@@ -222,165 +215,44 @@ Interrupts:
 ***************************************************************************/
 
 #include "driver.h"
-#include "qix.h"
 #include "machine/6821pia.h"
 #include "sound/sn76496.h"
 #include "sound/discrete.h"
-
-
-/* Constants */
-#define MAIN_CLOCK_OSC		20000000	/* 20 MHz */
-#define SLITHER_CLOCK_OSC	21300000	/* 21.3 MHz */
-#define SOUND_CLOCK_OSC		7372800		/* 7.3728 MHz */
-#define COIN_CLOCK_OSC		4000000		/* 4 MHz */
+#include "qix.h"
 
 
 
 /*************************************
  *
- *  Data CPU memory handlers
+ *  Main CPU memory handlers
  *
  *************************************/
 
-static ADDRESS_MAP_START( readmem_data, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x8000, 0x83ff) AM_READ(qix_sharedram_r)
-	AM_RANGE(0x8400, 0x87ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x8800, 0x8800) AM_READ(MRA8_NOP)   /* ACIA */
-	AM_RANGE(0x8c00, 0x8c00) AM_READ(qix_video_firq_r)
-	AM_RANGE(0x8c01, 0x8c01) AM_READ(qix_data_firq_ack_r)
-	AM_RANGE(0x9000, 0x93ff) AM_READ(pia_3_r)
-	AM_RANGE(0x9400, 0x97ff) AM_READ(pia_0_r)
-	AM_RANGE(0x9900, 0x99ff) AM_READ(pia_1_r)
-	AM_RANGE(0x9c00, 0x9fff) AM_READ(pia_2_r)
-	AM_RANGE(0xa000, 0xffff) AM_READ(MRA8_ROM)
+static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_SHARE(1)
+	AM_RANGE(0x8400, 0x87ff) AM_RAM
+	AM_RANGE(0x8800, 0x8bff) AM_READ(MRA8_NOP)   /* 6850 ACIA */
+	AM_RANGE(0x8c00, 0x8c00) AM_MIRROR(0x03fe) AM_READWRITE(qix_video_firq_r, qix_video_firq_w)
+	AM_RANGE(0x8c01, 0x8c01) AM_MIRROR(0x03fe) AM_READWRITE(qix_data_firq_ack_r, qix_data_firq_ack_w)
+	AM_RANGE(0x9000, 0x93ff) AM_READWRITE(pia_3_r, pia_3_w)
+	AM_RANGE(0x9400, 0x97ff) AM_READWRITE(pia_0_r, qix_pia_0_w)
+	AM_RANGE(0x9800, 0x9bff) AM_READWRITE(pia_1_r, pia_1_w)
+	AM_RANGE(0x9c00, 0x9fff) AM_READWRITE(pia_2_r, pia_2_w)
+	AM_RANGE(0xa000, 0xffff) AM_ROM
 ADDRESS_MAP_END
 
 
-static ADDRESS_MAP_START( writemem_data, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x8000, 0x83ff) AM_WRITE(qix_sharedram_w) AM_BASE(&qix_sharedram)
-	AM_RANGE(0x8400, 0x87ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x8c00, 0x8c00) AM_WRITE(qix_video_firq_w)
-	AM_RANGE(0x8c01, 0x8c01) AM_WRITE(qix_data_firq_ack_w)
-	AM_RANGE(0x9000, 0x93ff) AM_WRITE(pia_3_w)
-	AM_RANGE(0x9400, 0x97ff) AM_WRITE(qix_pia_0_w)
-	AM_RANGE(0x9900, 0x99ff) AM_WRITE(pia_1_w)
-	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(pia_2_w)
-	AM_RANGE(0xa000, 0xffff) AM_WRITE(MWA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( zoo_readmem_data, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x03ff) AM_READ(qix_sharedram_r)
-	AM_RANGE(0x0400, 0x07ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x0800, 0x0800) AM_READ(MRA8_NOP)   /* ACIA */
-	AM_RANGE(0x0c00, 0x0c00) AM_READ(qix_video_firq_r)
-	AM_RANGE(0x0c01, 0x0c01) AM_READ(qix_data_firq_ack_r)
-	AM_RANGE(0x1000, 0x13ff) AM_READ(pia_3_r)
-	AM_RANGE(0x1400, 0x17ff) AM_READ(pia_0_r)
-	AM_RANGE(0x1900, 0x19ff) AM_READ(pia_1_r)
-	AM_RANGE(0x1c00, 0x1fff) AM_READ(pia_2_r)
-	AM_RANGE(0x8000, 0xffff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( zoo_writemem_data, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x03ff) AM_WRITE(qix_sharedram_w) AM_BASE(&qix_sharedram)
-	AM_RANGE(0x0400, 0x07ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x0c00, 0x0c00) AM_WRITE(qix_video_firq_w)
-	AM_RANGE(0x0c01, 0x0c01) AM_WRITE(qix_data_firq_ack_w)
-	AM_RANGE(0x1000, 0x13ff) AM_WRITE(pia_3_w)
-	AM_RANGE(0x1400, 0x17ff) AM_WRITE(qix_pia_0_w)
-	AM_RANGE(0x1900, 0x19ff) AM_WRITE(pia_1_w)
-	AM_RANGE(0x1c00, 0x1fff) AM_WRITE(pia_2_w)
-	AM_RANGE(0x8000, 0xffff) AM_WRITE(MWA8_ROM)
-ADDRESS_MAP_END
-
-
-
-/*************************************
- *
- *  Video CPU memory handlers
- *
- *************************************/
-
-static ADDRESS_MAP_START( readmem_video, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_READ(qix_videoram_r)
-	AM_RANGE(0x8000, 0x83ff) AM_READ(qix_sharedram_r)
-	AM_RANGE(0x8400, 0x87ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x8c00, 0x8c00) AM_READ(qix_data_firq_r)
-	AM_RANGE(0x8c01, 0x8c01) AM_READ(qix_video_firq_ack_r)
-	AM_RANGE(0x9000, 0x93ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x9400, 0x9400) AM_READ(qix_addresslatch_r)
-	AM_RANGE(0x9800, 0x9800) AM_READ(qix_scanline_r)
-	AM_RANGE(0xa000, 0xffff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( writemem_video, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_WRITE(qix_videoram_w)
-	AM_RANGE(0x8000, 0x83ff) AM_WRITE(qix_sharedram_w)
-	AM_RANGE(0x8400, 0x87ff) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
-	AM_RANGE(0x8800, 0x8800) AM_WRITE(qix_palettebank_w)
-	AM_RANGE(0x8c00, 0x8c00) AM_WRITE(qix_data_firq_w)
-	AM_RANGE(0x8c01, 0x8c01) AM_WRITE(qix_video_firq_ack_w)
-	AM_RANGE(0x9000, 0x93ff) AM_WRITE(qix_paletteram_w) AM_BASE(&paletteram)
-	AM_RANGE(0x9400, 0x9400) AM_WRITE(qix_addresslatch_w)
-	AM_RANGE(0x9402, 0x9403) AM_WRITE(MWA8_RAM) AM_BASE(&qix_videoaddress)
-	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(MWA8_RAM) /* Video controller */
-	AM_RANGE(0xa000, 0xffff) AM_WRITE(MWA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( zoo_readmem_video, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_READ(qix_videoram_r)
-	AM_RANGE(0x8000, 0x83ff) AM_READ(qix_sharedram_r)
-	AM_RANGE(0x8400, 0x87ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x8c00, 0x8c00) AM_READ(qix_data_firq_r)
-	AM_RANGE(0x8c01, 0x8c01) AM_READ(qix_video_firq_ack_r)
-	AM_RANGE(0x9000, 0x93ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x9400, 0x9400) AM_READ(qix_addresslatch_r)
-	AM_RANGE(0x9800, 0x9800) AM_READ(qix_scanline_r)
-	AM_RANGE(0xa000, 0xbfff) AM_READ(MRA8_BANK1)
-	AM_RANGE(0xc000, 0xffff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( zoo_writemem_video, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_WRITE(qix_videoram_w)
-	AM_RANGE(0x8000, 0x83ff) AM_WRITE(qix_sharedram_w)
-	AM_RANGE(0x8400, 0x87ff) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
-	AM_RANGE(0x8800, 0x8800) AM_WRITE(qix_palettebank_w)
-	AM_RANGE(0x8801, 0x8801) AM_WRITE(zoo_bankswitch_w)
-	AM_RANGE(0x8c00, 0x8c00) AM_WRITE(qix_data_firq_w)
-	AM_RANGE(0x8c01, 0x8c01) AM_WRITE(qix_video_firq_ack_w)
-	AM_RANGE(0x9000, 0x93ff) AM_WRITE(qix_paletteram_w) AM_BASE(&paletteram)
-	AM_RANGE(0x9400, 0x9400) AM_WRITE(qix_addresslatch_w)
-	AM_RANGE(0x9402, 0x9403) AM_WRITE(MWA8_RAM) AM_BASE(&qix_videoaddress)
-	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(MWA8_RAM) /* Video controller */
-	AM_RANGE(0xa000, 0xffff) AM_WRITE(MWA8_ROM)
-ADDRESS_MAP_END
-
-
-
-/*************************************
- *
- *  Sound CPU memory handlers
- *
- *************************************/
-
-static ADDRESS_MAP_START( readmem_sound, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x007f) AM_READ(MRA8_RAM)
-	AM_RANGE(0x2000, 0x2003) AM_READ(pia_5_r)
-	AM_RANGE(0x4000, 0x4003) AM_READ(pia_4_r)
-	AM_RANGE(0xd000, 0xffff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( writemem_sound, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x007f) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x2000, 0x2003) AM_WRITE(pia_5_w)
-	AM_RANGE(0x4000, 0x4003) AM_WRITE(pia_4_w)
-	AM_RANGE(0xd000, 0xffff) AM_WRITE(MWA8_ROM)
+static ADDRESS_MAP_START( zoo_main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x03ff) AM_RAM AM_SHARE(1)
+	AM_RANGE(0x0400, 0x07ff) AM_RAM
+	AM_RANGE(0x0800, 0x0bff) AM_READ(MRA8_NOP)   /* ACIA */
+	AM_RANGE(0x0c00, 0x0c00) AM_MIRROR(0x03fe) AM_READWRITE(qix_video_firq_r, qix_video_firq_w)
+	AM_RANGE(0x0c01, 0x0c01) AM_MIRROR(0x03fe) AM_READWRITE(qix_data_firq_ack_r, qix_data_firq_ack_w)
+	AM_RANGE(0x1000, 0x13ff) AM_READWRITE(pia_3_r, pia_3_w)
+	AM_RANGE(0x1400, 0x17ff) AM_READWRITE(pia_0_r, qix_pia_0_w)
+	AM_RANGE(0x1800, 0x1bff) AM_READWRITE(pia_1_r, pia_1_w)
+	AM_RANGE(0x1c00, 0x1fff) AM_READWRITE(pia_2_r, pia_2_w)
+	AM_RANGE(0x8000, 0xffff) AM_ROM
 ADDRESS_MAP_END
 
 
@@ -391,26 +263,88 @@ ADDRESS_MAP_END
  *
  *************************************/
 
-static ADDRESS_MAP_START( mcu_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+static ADDRESS_MAP_START( mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
-	AM_RANGE(0x0000, 0x0000) AM_READ(qix_68705_portA_r)
-	AM_RANGE(0x0001, 0x0001) AM_READ(qix_68705_portB_r)
-	AM_RANGE(0x0002, 0x0002) AM_READ(qix_68705_portC_r)
-	AM_RANGE(0x0010, 0x007f) AM_READ(MRA8_RAM)
-	AM_RANGE(0x0080, 0x07ff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( mcu_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
-	AM_RANGE(0x0000, 0x0000) AM_WRITE(qix_68705_portA_w) AM_BASE(&qix_68705_port_out)
-	AM_RANGE(0x0001, 0x0001) AM_WRITE(qix_68705_portB_w)
-	AM_RANGE(0x0002, 0x0002) AM_WRITE(qix_68705_portC_w)
+	AM_RANGE(0x0000, 0x0000) AM_READWRITE(qix_68705_portA_r, qix_68705_portA_w) AM_BASE(&qix_68705_port_out)
+	AM_RANGE(0x0001, 0x0001) AM_READWRITE(qix_68705_portB_r, qix_68705_portB_w)
+	AM_RANGE(0x0002, 0x0002) AM_READWRITE(qix_68705_portC_r, qix_68705_portC_w)
 	AM_RANGE(0x0004, 0x0007) AM_WRITE(MWA8_RAM) AM_BASE(&qix_68705_ddr)
-	AM_RANGE(0x0010, 0x007f) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x0080, 0x07ff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x0010, 0x007f) AM_RAM
+	AM_RANGE(0x0080, 0x07ff) AM_ROM
 ADDRESS_MAP_END
 
+
+
+/*************************************
+ *
+ *  Sound CPU memory handlers
+ *
+ *************************************/
+
+static ADDRESS_MAP_START( sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x007f) AM_RAM
+	AM_RANGE(0x2000, 0x2003) AM_MIRROR(0x5ffc) AM_READWRITE(pia_5_r, pia_5_w)
+	AM_RANGE(0x4000, 0x4003) AM_MIRROR(0x3ffc) AM_READWRITE(pia_4_r, pia_4_w)
+	AM_RANGE(0xd000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+
+
+/*************************************
+ *
+ *  Video CPU memory handlers
+ *
+ *************************************/
+
+static ADDRESS_MAP_START( video_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READWRITE(qix_videoram_r, qix_videoram_w)
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_SHARE(1)
+	AM_RANGE(0x8400, 0x87ff) AM_RAM AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
+	AM_RANGE(0x8800, 0x8800) AM_MIRROR(0x03ff) AM_WRITE(qix_palettebank_w)
+	AM_RANGE(0x8c00, 0x8c00) AM_MIRROR(0x03fe) AM_READWRITE(qix_data_firq_r, qix_data_firq_w)
+	AM_RANGE(0x8c01, 0x8c01) AM_MIRROR(0x03fe) AM_READWRITE(qix_video_firq_ack_r, qix_video_firq_ack_w)
+	AM_RANGE(0x9000, 0x93ff) AM_RAM AM_WRITE(qix_paletteram_w) AM_BASE(&paletteram)
+	AM_RANGE(0x9400, 0x9400) AM_MIRROR(0x03fc) AM_READWRITE(qix_addresslatch_r, qix_addresslatch_w)
+	AM_RANGE(0x9402, 0x9403) AM_MIRROR(0x03fc) AM_WRITE(MWA8_RAM) AM_BASE(&qix_videoaddress)
+	AM_RANGE(0x9800, 0x9800) AM_MIRROR(0x03ff) AM_READ(qix_scanline_r)
+	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(MWA8_RAM) /* Video controller */
+	AM_RANGE(0xa000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( zoo_video_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READWRITE(qix_videoram_r, qix_videoram_w)
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_SHARE(1)
+	AM_RANGE(0x8400, 0x87ff) AM_RAM AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
+	AM_RANGE(0x8800, 0x8800) AM_MIRROR(0x03fe) AM_WRITE(qix_palettebank_w)
+	AM_RANGE(0x8801, 0x8801) AM_MIRROR(0x03fe) AM_WRITE(zookeep_bankswitch_w)
+	AM_RANGE(0x8c00, 0x8c00) AM_MIRROR(0x03fe) AM_READWRITE(qix_data_firq_r, qix_data_firq_w)
+	AM_RANGE(0x8c01, 0x8c01) AM_MIRROR(0x03fe) AM_READWRITE(qix_video_firq_ack_r, qix_video_firq_ack_w)
+	AM_RANGE(0x9000, 0x93ff) AM_RAM AM_WRITE(qix_paletteram_w) AM_BASE(&paletteram)
+	AM_RANGE(0x9400, 0x9400) AM_MIRROR(0x03fc) AM_READWRITE(qix_addresslatch_r, qix_addresslatch_w)
+	AM_RANGE(0x9402, 0x9403) AM_MIRROR(0x03fc) AM_WRITE(MWA8_RAM) AM_BASE(&qix_videoaddress)
+	AM_RANGE(0x9800, 0x9800) AM_MIRROR(0x03ff) AM_READ(qix_scanline_r)
+	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(MWA8_RAM) /* Video controller */
+	AM_RANGE(0xa000, 0xbfff) AM_ROMBANK(1)
+	AM_RANGE(0xc000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( slither_video_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READWRITE(qix_videoram_r, slither_videoram_w)
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_SHARE(1)
+	AM_RANGE(0x8400, 0x87ff) AM_RAM AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
+	AM_RANGE(0x8800, 0x8800) AM_MIRROR(0x03ff) AM_WRITE(qix_palettebank_w)
+	AM_RANGE(0x8c00, 0x8c00) AM_MIRROR(0x03fe) AM_READWRITE(qix_data_firq_r, qix_data_firq_w)
+	AM_RANGE(0x8c01, 0x8c01) AM_MIRROR(0x03fe) AM_READWRITE(qix_video_firq_ack_r, qix_video_firq_ack_w)
+	AM_RANGE(0x9000, 0x93ff) AM_RAM AM_WRITE(qix_paletteram_w) AM_BASE(&paletteram)
+	AM_RANGE(0x9400, 0x9400) AM_MIRROR(0x03fc) AM_READWRITE(qix_addresslatch_r, slither_addresslatch_w)
+	AM_RANGE(0x9401, 0x9401) AM_MIRROR(0x03fc) AM_WRITE(slither_vram_mask_w)
+	AM_RANGE(0x9402, 0x9403) AM_MIRROR(0x03fc) AM_WRITE(MWA8_RAM) AM_BASE(&qix_videoaddress)
+	AM_RANGE(0x9800, 0x9800) AM_MIRROR(0x03ff) AM_READ(qix_scanline_r)
+	AM_RANGE(0x9c00, 0x9fff) AM_WRITE(MWA8_RAM) /* Video controller */
+	AM_RANGE(0xa000, 0xffff) AM_ROM
+ADDRESS_MAP_END
 
 
 /*************************************
@@ -676,18 +610,21 @@ static MACHINE_DRIVER_START( qix )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD_TAG("main", M6809, MAIN_CLOCK_OSC/4/4)	/* 1.25 MHz */
-	MDRV_CPU_PROGRAM_MAP(readmem_data,writemem_data)
-	MDRV_CPU_VBLANK_INT(qix_vblank_start,1)
+	MDRV_CPU_PROGRAM_MAP(main_map, 0)
+	MDRV_CPU_VBLANK_INT(qix_vblank_start, 1)
 
 	MDRV_CPU_ADD_TAG("video", M6809, MAIN_CLOCK_OSC/4/4)	/* 1.25 MHz */
-	MDRV_CPU_PROGRAM_MAP(readmem_video,writemem_video)
+	MDRV_CPU_PROGRAM_MAP(video_map, 0)
 
 	MDRV_CPU_ADD_TAG("sound", M6802, SOUND_CLOCK_OSC/2/4)	/* 0.92 MHz */
-	/* audio CPU */
-	MDRV_CPU_PROGRAM_MAP(readmem_sound,writemem_sound)
+	MDRV_CPU_PROGRAM_MAP(sound_map, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+
+	/* high interleave needed to ensure correct text in service mode */
+	/* Zookeeper settings and high score table seem especially sensitive to this */
+	MDRV_INTERLEAVE(1000)
 
 	MDRV_MACHINE_START(qix)
 	MDRV_MACHINE_RESET(qix)
@@ -718,19 +655,12 @@ static MACHINE_DRIVER_START( mcu )
 	MDRV_IMPORT_FROM(qix)
 
 	MDRV_CPU_ADD(M68705, COIN_CLOCK_OSC/4)	/* 1.00 MHz */
-	MDRV_CPU_PROGRAM_MAP(mcu_readmem,mcu_writemem)
+	MDRV_CPU_PROGRAM_MAP(mcu_map, 0)
 
 	MDRV_MACHINE_START(qixmcu)
 	MDRV_MACHINE_RESET(qixmcu)
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( elecyoyo )
-
-	/* basic machine hardware */
-	MDRV_IMPORT_FROM(mcu)
-
-	MDRV_INTERLEAVE(100)	// fixes hang in attract mode
-MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( zookeep )
 
@@ -738,10 +668,10 @@ static MACHINE_DRIVER_START( zookeep )
 	MDRV_IMPORT_FROM(mcu)
 
 	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(zoo_readmem_data,zoo_writemem_data)
+	MDRV_CPU_PROGRAM_MAP(zoo_main_map, 0)
 
 	MDRV_CPU_MODIFY("video")
-	MDRV_CPU_PROGRAM_MAP(zoo_readmem_video,zoo_writemem_video)
+	MDRV_CPU_PROGRAM_MAP(zoo_video_map, 0)
 MACHINE_DRIVER_END
 
 
@@ -752,6 +682,7 @@ static MACHINE_DRIVER_START( slither )
 
 	MDRV_CPU_REPLACE("main", M6809, SLITHER_CLOCK_OSC/4/4)	/* 1.34 MHz */
 	MDRV_CPU_REPLACE("video", M6809, SLITHER_CLOCK_OSC/4/4)	/* 1.34 MHz */
+	MDRV_CPU_PROGRAM_MAP(slither_video_map, 0)
 	MDRV_CPU_REMOVE("sound")
 
 	MDRV_MACHINE_START(slither)
@@ -1185,11 +1116,7 @@ ROM_END
  *
  *************************************/
 
-static DRIVER_INIT( kram )
-{
-	/* we need to override one PIA handler to prevent controls from getting disabled */
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x9400, 0x97ff, 0, 0, zookeep_pia_0_w);
-}
+
 
 
 static DRIVER_INIT( kram3 )
@@ -3241,14 +3168,14 @@ static DRIVER_INIT( kram3 )
 		i += 3;
 	}
 
-	init_kram();
 }
 
 static DRIVER_INIT( zookeep )
 {
-	/* we need to override two PIA handlers to prevent controls from getting disabled */
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x1400, 0x17ff, 0, 0, zookeep_pia_0_w);
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x1c00, 0x1fff, 0, 0, zookeep_pia_2_w);
+	/* configure the banking */
+	memory_configure_bank(1, 0, 1, memory_region(REGION_CPU2) + 0xa000, 0);
+	memory_configure_bank(1, 1, 1, memory_region(REGION_CPU2) + 0x10000, 0);
+	memory_set_bank(1, 0);
 }
 
 
@@ -3256,7 +3183,6 @@ static DRIVER_INIT( slither )
 {
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x9800, 0x9bff, 0, 0, pia_1_r);
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x9800, 0x9bff, 0, 0, pia_1_w);
-	memory_install_write8_handler(1, ADDRESS_SPACE_PROGRAM, 0x9401, 0x9401, 0, 0, slither_vram_mask_w);
 }
 
 
@@ -3267,19 +3193,19 @@ static DRIVER_INIT( slither )
  *
  *************************************/
 
-GAME( 1981, qix,      0,        qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 1)", 0 )
-GAME( 1981, qixa,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 2)", 0 )
-GAME( 1981, qixb,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 3)", 0 )
-GAME( 1981, qix2,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix II (Tournament)", 0 )
-GAME( 1981, sdungeon, 0,        mcu,      sdungeon, 0,        ROT270, "Taito America Corporation", "Space Dungeon", 0 )
-GAME( 1982, elecyoyo, 0,        elecyoyo, elecyoyo, 0,        ROT270, "Taito America Corporation", "The Electric Yo-Yo (set 1)", 0 )
-GAME( 1982, elecyoy2, elecyoyo, elecyoyo, elecyoyo, 0,        ROT270, "Taito America Corporation", "The Electric Yo-Yo (set 2)", 0 )
-GAME( 1982, kram,     0,        mcu,      kram,     kram,     ROT0,   "Taito America Corporation", "Kram (set 1)", 0 )
-GAME( 1982, kram2,    kram,     mcu,      kram,     kram,     ROT0,   "Taito America Corporation", "Kram (set 2)", 0 )
-GAME( 1982, kram3,    kram,     qix,      kram,     kram3,    ROT0,   "Taito America Corporation", "Kram (encrypted)", 0 )
-GAME( 1982, zookeep,  0,        zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 1)", 0 )
-GAME( 1982, zookeep2, zookeep,  zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 2)", 0 )
-GAME( 1982, zookeep3, zookeep,  zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 3)", 0 )
-GAME( 1982, slither,  0,        slither,  slither,  slither,  ROT270, "Century II",                "Slither (set 1)", 0 )
-GAME( 1982, slithera, slither,  slither,  slither,  slither,  ROT270, "Century II",                "Slither (set 2)", 0 )
-GAME( 1984, complexx, 0,        qix,      complexx, 0,        ROT270, "Taito America Corporation", "Complex X", 0 )
+GAME( 1981, qix,      0,        qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1981, qixa,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1981, qixb,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix (set 3)", GAME_SUPPORTS_SAVE )
+GAME( 1981, qix2,     qix,      qix,      qix,      0,        ROT270, "Taito America Corporation", "Qix II (Tournament)", GAME_SUPPORTS_SAVE )
+GAME( 1981, sdungeon, 0,        mcu,      sdungeon, 0,        ROT270, "Taito America Corporation", "Space Dungeon", GAME_SUPPORTS_SAVE )
+GAME( 1982, elecyoyo, 0,        mcu,      elecyoyo, 0,        ROT270, "Taito America Corporation", "The Electric Yo-Yo (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1982, elecyoy2, elecyoyo, mcu,      elecyoyo, 0,        ROT270, "Taito America Corporation", "The Electric Yo-Yo (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1982, kram,     0,        mcu,      kram,     0,        ROT0,   "Taito America Corporation", "Kram (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1982, kram2,    kram,     mcu,      kram,     0,        ROT0,   "Taito America Corporation", "Kram (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1982, kram3,    kram,     qix,      kram,     kram3,    ROT0,   "Taito America Corporation", "Kram (encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1982, zookeep,  0,        zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1982, zookeep2, zookeep,  zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1982, zookeep3, zookeep,  zookeep,  zookeep,  zookeep,  ROT0,   "Taito America Corporation", "Zoo Keeper (set 3)", GAME_SUPPORTS_SAVE )
+GAME( 1982, slither,  0,        slither,  slither,  slither,  ROT270, "Century II",                "Slither (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1982, slithera, slither,  slither,  slither,  slither,  ROT270, "Century II",                "Slither (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1984, complexx, 0,        qix,      complexx, 0,        ROT270, "Taito America Corporation", "Complex X", GAME_SUPPORTS_SAVE )
