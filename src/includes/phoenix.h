@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Richard Davies
 #include "sound/discrete.h"
 #include "sound/custom.h"
 

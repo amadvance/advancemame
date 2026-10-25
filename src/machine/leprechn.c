@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Moore
 #include "driver.h"
 #include "cpu/m6502/m6502.h"
 #include "machine/6522via.h"

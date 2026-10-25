@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*----------- defined in vidhrdw/dogfgt.c -----------*/
 
 extern UINT8 *dogfgt_bgvideoram;

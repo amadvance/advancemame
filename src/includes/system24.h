@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /*----------- defined in machine/system24.c -----------*/
 
 /* system24temp_ functions / variables are from shared rewrite files,

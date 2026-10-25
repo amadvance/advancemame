@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Howie Cohen, Frank Palazzolo, Alex Pasadyn, David Haywood, Phil Stroffolino, Uki
 /*******************************************************************************
 
      Nova 2001 - Video Description:

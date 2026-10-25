@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood,Paul Priest
 /* Macross Plus - Vidhrdw
   see DRIVER file for notes */
 

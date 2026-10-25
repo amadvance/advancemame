@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 #include "driver.h"
 #include "cpu/z80/z80.h"
 #include "taitosnd.h"

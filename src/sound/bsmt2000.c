@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /**********************************************************************************************
  *
  *   Data East BSMT2000 driver

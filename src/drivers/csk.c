@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*****************************************************************************
 
 Champion Poker by IGS   (documented by Mirko Buffoni)

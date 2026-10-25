@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #ifndef TMS36XX_SOUND_H
 #define TMS36XX_SOUND_H
 

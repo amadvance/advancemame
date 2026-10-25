@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 #include "driver.h"
 #include "cpu/mips/mips3.h"
 #include "cpu/rsp/rsp.h"

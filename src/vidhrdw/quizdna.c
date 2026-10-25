@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Uki
 /******************************************************************************
 
 Quiz DNA no Hanran (c) 1992 Face

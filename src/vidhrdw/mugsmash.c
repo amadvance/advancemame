@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/mugsmash.c - see drivers/mugsmash.c for more info */
 
 #include "driver.h"

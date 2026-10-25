@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi, Jarek Parchanski, Nicola Salmoria, hap
 /*
     Talbot (c) 1982 Volt Electronics
 

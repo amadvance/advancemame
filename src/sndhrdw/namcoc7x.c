@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, R. Belmont
 /*
     namcoc7x.c - sound hardware for mid-90s Namco systems
 

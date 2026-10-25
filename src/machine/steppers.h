@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:James Wallace
 //Any fixes for this driver should be forwarded to AGEMAME HQ (http://www.mameworld.net/agemame/)
 
 #ifndef INC_STEPPERS

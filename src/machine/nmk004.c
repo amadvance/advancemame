@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood,Alex Marshall
 #include "driver.h"
 #include "nmk004.h"
 #include "sound/2203intf.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, Nicola Salmoria
 /***************************************************************************
 
   The Konami_1 CPU is a 6809 with opcodes scrambled. Here is how to

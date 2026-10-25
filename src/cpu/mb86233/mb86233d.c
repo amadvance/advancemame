@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #include "debugger.h"
 #include "mb86233.h"
 

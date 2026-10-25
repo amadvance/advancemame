@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, Pierpaolo Prazzoli
 /******************************************************************************************
 
 Sengoku Mahjong Video Hardware section

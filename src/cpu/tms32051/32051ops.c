@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 INLINE void PUSH_PC(UINT16 pc)
 {
 	if (tms.pcstack_ptr >= 8)

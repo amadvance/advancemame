@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /*
  Moero Pro Yakyuu Homerun - (c) 1988 Jaleco
  Driver by Tomasz Slanina

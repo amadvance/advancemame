@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
 There is strong evidence that the following Namco custom chips are all

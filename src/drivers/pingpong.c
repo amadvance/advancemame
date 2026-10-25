@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Jarek Parchanski
 #include "driver.h"
 #include "sound/sn76496.h"
 

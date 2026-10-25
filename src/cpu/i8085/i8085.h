@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #ifndef I8085_H
 #define I8085_H
 

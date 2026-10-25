@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Jarek Parchanski, Nicola Salmoria, Mirko Buffoni
 #ifndef _system1_H_
 #define _system1_H_
 

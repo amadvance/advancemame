@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /*
    Run and Gun
    (c) 1993 Konami

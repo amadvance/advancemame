@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/tbowl.c */
 
 /* see drivers/tbowl.c for more info */

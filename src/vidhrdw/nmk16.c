@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni,Nicola Salmoria,Bryan McPhail,David Haywood,R. Belmont,Alex Marshall,Angelo Salese,Luca Elia
 #include "driver.h"
 
 UINT16 *nmk_bgvideoram,*nmk_fgvideoram,*nmk_txvideoram;

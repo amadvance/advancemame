@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 #ifndef TLCS90_INCLUDE
 #define TLCS90_INCLUDE
 

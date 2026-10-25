@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail,Ernesto Corvi,Andrew Prime,Zsolt Vasvari
 #include "driver.h"
 #include "machine/pd4990a.h"
 #include "neogeo.h"

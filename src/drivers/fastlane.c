@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
 Fast Lane(GX752) (c) 1987 Konami

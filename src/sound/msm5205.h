@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #ifndef MSM5205_H
 #define MSM5205_H
 

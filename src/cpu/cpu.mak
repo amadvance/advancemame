@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Aaron Giles, Nicola Salmoria
 ###########################################################################
 #
 #   cpu.mak
@@ -5,7 +7,6 @@
 #   Rules for building CPU cores
 #
 #   Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-#   Visit http://mamedev.org for licensing and usage restrictions.
 #
 ###########################################################################
 

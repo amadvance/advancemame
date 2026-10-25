@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /* Dallas DS2404 RTC/NVRAM */
 
 #include "driver.h"

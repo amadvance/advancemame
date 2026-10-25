@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
 Dragon Buster (c) 1984 Namco

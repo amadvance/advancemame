@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*----------- defined in drivers/unico.c -----------*/
 
 extern int unico_has_lightgun;

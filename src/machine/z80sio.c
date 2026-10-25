@@ -1,9 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder, Joakim Larsson Edstrom
 /***************************************************************************
 
     Z80 SIO implementation
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 

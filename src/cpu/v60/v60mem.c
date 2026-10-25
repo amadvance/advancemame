@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd, R. Belmont
 /****************************************************************/
 /* Structure defining all callbacks for different architectures */
 /****************************************************************/

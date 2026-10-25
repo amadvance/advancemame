@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #ifndef namco_63701x_h
 #define namco_63701x_h
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /********************************************************************************
 
     Data East video emulation & information by Bryan McPhail, mish@tendril.co.uk (c) 2000-2005 Bryan McPhail

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*
 
 Fighting Basketball PCM unsigned 8 bit mono samples

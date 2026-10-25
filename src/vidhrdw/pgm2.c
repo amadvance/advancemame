@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:David Haywood
+// copyright-holders:David Haywood, ???
 /* IGS037 video, converted from MAME 0.287 to C. */
 #include "driver.h"
 #include <stdbool.h>

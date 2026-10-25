@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Tormod Tjaberg, Mirko Buffoni,Lee Taylor, Valerio Verrando, Zsolt Vasvari
 /*************************************************************************
 
     8080bw.h

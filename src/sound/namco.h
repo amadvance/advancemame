@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria,Aaron Giles
 #ifndef namco_h
 #define namco_h
 

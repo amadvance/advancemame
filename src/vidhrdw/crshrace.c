@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "driver.h"
 #include "vidhrdw/konamiic.h"
 #include "crshrace.h"

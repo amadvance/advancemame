@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi, Jarek Parchanski, Nicola Salmoria, hap
 /*************************************************************************************
 
 Emulation of the Alpha 8302 microcontroller.

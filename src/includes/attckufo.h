@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 #include "sound/custom.h"
 
 /*----------- defined in drivers/attckufo.c -----------*/

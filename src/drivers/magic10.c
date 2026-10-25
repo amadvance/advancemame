@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Roberto Fresca
 /*
     Magic's 10     (c) 1995 AWP Games
     Magic's 10 2   (c) 1997 ABM Games

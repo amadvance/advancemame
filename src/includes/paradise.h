@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*----------- defined in vidhrdw/paradise.c -----------*/
 
 extern UINT8 *paradise_vram_0,*paradise_vram_1,*paradise_vram_2;

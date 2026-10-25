@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi,Brad Oliver
 #include "driver.h"
 #include "vidhrdw/ppu2c03b.h"
 #include "machine/rp5h01.h"

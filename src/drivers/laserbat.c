@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Vas Crabb
 /*
 
     Laser Battle / Lazarian (c) 1981 Zaccaria

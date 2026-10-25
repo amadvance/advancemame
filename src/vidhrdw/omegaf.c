@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Ventura, Leandro Dardini, Yochizo, Nicola Salmoria
 /***************************************************************************
 
 Functions to emulate the video hardware of the machine.

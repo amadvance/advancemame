@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 #include "driver.h"
 #include "irem.h"
 #include "cpu/m6800/m6800.h"

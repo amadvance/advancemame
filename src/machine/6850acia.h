@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 #include "driver.h"
 
 extern UINT8 m6850_irq_state; // referenced from machine/mpu4.c

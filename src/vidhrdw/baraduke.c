@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 #include "driver.h"
 
 UINT8 *baraduke_textram, *baraduke_videoram, *baraduke_spriteram;

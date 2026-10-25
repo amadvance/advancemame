@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski,Tatsuyuki Satoh
 #ifndef __FMOPL_H_
 #define __FMOPL_H_
 

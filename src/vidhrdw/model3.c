@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Ville Linde
 #include "driver.h"
 #include "vidhrdw/poly.h"
 #include <math.h>

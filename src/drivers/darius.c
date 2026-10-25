@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:David Graves, Jarek Burczynski
 /***************************************************************************
 
 Darius    (c) Taito 1986

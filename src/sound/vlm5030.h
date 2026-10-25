@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tatsuyuki Satoh
 #ifndef VLM5030_h
 #define VLM5030_h
 

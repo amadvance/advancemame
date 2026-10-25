@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #ifndef HC55516_H
 #define HC55516_H
 

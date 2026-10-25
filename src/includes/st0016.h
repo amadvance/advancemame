@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Tomasz Slanina, David Haywood
 
 #define ISMACS  (st0016_game&0x80)
 #define ISMACS1 (((st0016_game&0x180)==0x180))

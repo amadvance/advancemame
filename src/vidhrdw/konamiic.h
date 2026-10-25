@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Bryan McPhail
 /* helper function to join two 16-bit ROMs and form a 32-bit data stream */
 void konami_rom_deinterleave_2(int mem_region);
 void konami_rom_deinterleave_2_half(int mem_region);

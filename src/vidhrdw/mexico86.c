@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #include "driver.h"
 
 unsigned char *mexico86_videoram,*mexico86_objectram;

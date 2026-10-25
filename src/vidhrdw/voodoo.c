@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 //fix me -- blitz2k dies when starting a game with heavy fog (in DRC)
 //optimize -- 64-bit multiplies for S/T
 

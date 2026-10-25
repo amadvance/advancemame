@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Charles MacDonald, David Haywood
 /***********************************************************************************************
 
     Sega System C/C2 Driver

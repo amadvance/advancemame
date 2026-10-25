@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Phil Stroffolino, Olivier Galibert
 /*
     Namco (Super) System 23
     Extremely preliminary driver by R. Belmont, thanks to Phil Stroffolino & Olivier Galibert

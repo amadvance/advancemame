@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski
 /*----------- defined in vidhrdw/tubep.c -----------*/
 
 VIDEO_EOF( tubep_eof );

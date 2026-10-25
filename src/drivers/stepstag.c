@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese, Uki
 /*  Jaleco 'Stepping Stage'
 
  dump is incomplete, these are leftovers from an upgrade

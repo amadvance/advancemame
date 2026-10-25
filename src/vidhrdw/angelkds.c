@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/angelkds.c - see drivers/angelkds.c for more info */
 
 /* graphical issues

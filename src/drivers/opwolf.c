@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:David Graves, Jarek Burczynski,Stephane Humbert
 /****************************************************************************
 
 Operation Wolf  (c) Taito 1987

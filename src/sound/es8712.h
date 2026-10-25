@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Quench
 #ifndef ES8712_H
 #define ES8712_H
 

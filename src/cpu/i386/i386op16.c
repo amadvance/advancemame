@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 static UINT16 I386OP(shift_rotate16)(UINT8 modrm, UINT32 value, UINT8 shift)
 {
 	UINT16 src = value;

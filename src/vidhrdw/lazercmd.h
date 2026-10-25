@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller
 #define HORZ_RES		32
 #define VERT_RES		24
 #define HORZ_CHR        8

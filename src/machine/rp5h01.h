@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #ifndef __RP5H01_H__
 #define __RP5H01_H__
 

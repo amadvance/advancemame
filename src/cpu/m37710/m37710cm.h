@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Karl Stenerud, hap
 #ifndef HEADER__M37710CM
 #define HEADER__M37710CM
 

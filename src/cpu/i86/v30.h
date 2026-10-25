@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #define SetMD(x)		(I.MF = (x))	/* OB [19.07.99] Mode Flag V30 */
 
 #define MD		(I.MF!=0)

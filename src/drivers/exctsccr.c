@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi, Jarek Parchanski, Nicola Salmoria, hap
 /***************************************************************************
 
 Exciting Soccer    - (c) 1983 Alpha Denshi Co.

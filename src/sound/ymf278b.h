@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert, hap
 #ifndef __YMF278B_H__
 #define __YMF278B_H__
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi
 #include "debugger.h"
 #include "se3208.h"
 

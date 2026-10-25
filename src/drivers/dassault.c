@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /***************************************************************************
 
   Thunder Zone       (c) 1991 Data East Corporation (World 2 players)

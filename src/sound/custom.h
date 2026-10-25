@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #ifndef CUSTOM_H
 #define CUSTOM_H
 

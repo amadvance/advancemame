@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Phil Stroffolino, Mirko Buffoni
 #include "driver.h"
 #include "system16.h"
 #include "sound/upd7759.h"

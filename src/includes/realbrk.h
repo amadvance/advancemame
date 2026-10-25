@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*----------- defined in vidhrdw/realbrk.c -----------*/
 
 #ifndef REALBRK_H

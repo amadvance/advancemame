@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Data East Hardware
  'Simple' 156 based board  (PCB DE-0409-1)
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Acho A. Tang
 #define MOO_DEBUG 0
 #define MOO_DMADELAY (100)
 

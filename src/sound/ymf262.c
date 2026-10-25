@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski
 /*
 **
 ** File: ymf262.c - software implementation of YMF262

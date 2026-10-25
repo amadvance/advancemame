@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /* sys16spr.c
 **
 **  This module maps spriteram for various Sega System16/System18 games to

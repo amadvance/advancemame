@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Stefan Jokisch
 /***************************************************************************
 
 Atari Destroyer Driver

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver,Stephane Humbert
 /****************************************************************************
 
   This hardware is derived from Arkanoid's hardware.  The 1986 date found in

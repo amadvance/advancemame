@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Lee Taylor
 /*
     Driver For DECO   ASTRO FIGHTER/TOMAHAWK 777
 

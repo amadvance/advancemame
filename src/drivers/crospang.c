@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, David Haywood
 /*
 
   Cross Pang (c)1998 F2 System

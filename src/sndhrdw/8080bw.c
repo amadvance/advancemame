@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Tormod Tjaberg, Mirko Buffoni,Lee Taylor, Valerio Verrando, Zsolt Vasvari,Aaron Giles,Jonathan Gevaryahu,hap,Robbbert
 /* 8080bw.c *********************************
  updated: 1997-04-09 08:46 TT
  updated  20-3-1998 LT Added color changes on base explosion

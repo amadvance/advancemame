@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #include "sndintrf.h"
 #include "streams.h"
 #include "tms36xx.h"

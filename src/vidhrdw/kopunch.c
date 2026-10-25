@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "driver.h"
 
 UINT8 *kopunch_videoram2;

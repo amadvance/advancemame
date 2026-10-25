@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /***************************************************************************
 
 Wily Tower              (c) 1984 Irem

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*  Semicom Baryon / Dream World hardware
 
 Note: this hardware is a copy of Psikyo's 68020 based hardware,

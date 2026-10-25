@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef __SEGAIC_H
 #define __SEGAIC_H
 

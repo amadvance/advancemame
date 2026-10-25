@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Victor Trucco,Steve Ellenoff,Phil Stroffolino,Tatsuyuki Satoh,Tomasz Slanina,Nicola Salmoria
 /***************************************************************************
 
     Video Hardware description for Taito Gladiator

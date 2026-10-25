@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Couriersud
 /***************************************************************************************
     Drakton (c) 1984 Epos
     decryption by Pierpaolo Prazzoli

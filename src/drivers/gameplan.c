@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Moore
 /***************************************************************************
 
 GAME PLAN driver, used for games like MegaTack, Killer Comet, Kaos, Challenger

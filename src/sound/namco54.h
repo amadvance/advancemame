@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #ifndef namco54_h
 #define namco54_h
 

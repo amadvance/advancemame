@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 static void (* tms32051_opcode_table[256])(void) =
 {
 	/* 0x00 - 0x0f */

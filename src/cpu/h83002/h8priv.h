@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
  h8priv.h : Private constants and other definitions for the H8/3002 emulator.

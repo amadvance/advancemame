@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller, Mike Balfour, Howie Cohen, Olivier Galibert, Aaron Giles
 #ifndef UPD7759S_H
 #define UPD7759S_H
 

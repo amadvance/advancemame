@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 #ifndef _C352_H_
 #define _C352_H_
 

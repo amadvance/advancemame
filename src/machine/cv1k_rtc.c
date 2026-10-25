@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, David Haywood
 /*
 license:BSD-3-Clause
 copyright-holders:Angelo Salese, David Haywood

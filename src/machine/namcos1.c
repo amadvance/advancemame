@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #include "driver.h"
 #include "sound/ym2151.h"
 #include "sound/namco.h"

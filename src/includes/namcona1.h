@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 /*----------- defined in drivers/namcona1.c -----------*/
 
 extern int namcona1_gametype;

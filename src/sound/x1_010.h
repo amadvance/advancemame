@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 struct x1_010_interface
 {
 	int adr;	/* address */

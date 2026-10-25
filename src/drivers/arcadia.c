@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 /***************************************************************************
 
     Arcadia System - (c) 1988 Arcadia Systems

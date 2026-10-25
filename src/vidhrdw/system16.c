@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Phil Stroffolino, Mirko Buffoni
 /***************************************************************************
 
 Sega System 16 Video Hardware

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:K.Wilkins,Stephane Humbert
 /***************************************************************************
 
 Slap Fight driver by K.Wilkins Jan 1998

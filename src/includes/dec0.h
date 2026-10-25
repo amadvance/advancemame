@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*----------- defined in drivers/dec0.c -----------*/
 
 extern UINT16 *dec0_ram;

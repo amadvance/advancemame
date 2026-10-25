@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 
 extern const unsigned char gunforce_decryption_table[];
 extern const unsigned char bomberman_decryption_table[];

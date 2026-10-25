@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #define JOE_DEBUG 0
 #define JOE_DMADELAY (42.7+341.3)
 

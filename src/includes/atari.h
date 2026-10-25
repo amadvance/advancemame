@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller
 #ifndef ATARI_H
 #define ATARI_H
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #define XE_DEBUG 0
 #define XE_SKIPIDLE 1
 #define XE_DMADELAY (256)

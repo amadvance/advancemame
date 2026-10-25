@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, David Haywood, Mike Green
 /*
 G4001
 Diamond Derby - Electrocoin on an SNK board

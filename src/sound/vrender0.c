@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi
 #include "sndintrf.h"
 #include "streams.h"
 #include "cpuintrf.h"

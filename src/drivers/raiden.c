@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /***************************************************************************
 
     Raiden                          (c) 1990 Seibu Kaihatsu

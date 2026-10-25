@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
     driver.h
@@ -5,7 +7,6 @@
     Include this with all MAME files. Includes all the core system pieces.
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 

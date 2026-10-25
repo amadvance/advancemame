@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
 Daikaiju no Gyakushu / Land Sea Air Squad / Storming Party  (c) 1986 Taito

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #ifndef k005289_h
 #define k005289_h
 

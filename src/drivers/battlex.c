@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* battlex.c - by David Haywood
 
 Stephh's notes :

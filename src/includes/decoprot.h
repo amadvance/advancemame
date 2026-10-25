@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Haywood
 /*----------- defined in machine/decoprot.c -----------*/
 
 READ16_HANDLER( deco16_60_prot_r );

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 #ifndef __I386INTF_H
 #define __I386INTF_H
 

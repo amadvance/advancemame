@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #include "driver.h"
 
 UINT8 *jailbrek_scroll_x;

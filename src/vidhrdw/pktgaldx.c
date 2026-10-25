@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Bryan McPhail
 #include "driver.h"
 #include "deco16ic.h"
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Lee Taylor, Couriersud
 /***************************************************************************
 
   IPM Invader (M10 m10 hardware)

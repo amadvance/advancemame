@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, R. Belmont, Tomasz Slanina, Steve Ellenoff, Nicola Salmoria
 /*
  * Archimedes arcade hardware: MEMC paging, IOC interrupts and VIDC DMA.
  * Driver authors: Tomasz Slanina, Steve Ellenoff and Nicola Salmoria.

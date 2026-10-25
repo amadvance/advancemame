@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #include "driver.h"
 #include "tatsumi.h"
 #include "sound/2151intf.h"

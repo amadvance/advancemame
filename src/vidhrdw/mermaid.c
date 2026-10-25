@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 #include "driver.h"
 
 static tilemap *bg_tilemap, *fg_tilemap;

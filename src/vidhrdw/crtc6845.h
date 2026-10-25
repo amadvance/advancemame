@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Judge
 /**********************************************************************
 
         Motorola 6845 CRT Controller interface and emulation

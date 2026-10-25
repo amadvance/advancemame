@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:David Haywood, Xing Xing, Andreas Naive, Miodrag Milanovic
+// copyright-holders:David Haywood, ???
 /*
  * IGS PGM2: IGS036 CPU, IGS037 video and YMZ774 audio.
  * Converted from MAME 0.287 to the AdvanceMAME C interfaces.

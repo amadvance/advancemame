@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
  h8periph.c: Implementation of Hitachi H8/3002 on-board MCU functions.

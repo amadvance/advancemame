@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /* This it the best way to allow game specific kludges until the system is fully understood */
 enum {
 	/* Early F3 class games, these are not cartridge games and system features may be different */

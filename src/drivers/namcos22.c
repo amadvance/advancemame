@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, hap, R. Belmont
 /**
  * @file src/drivers/namcos22.c
  *

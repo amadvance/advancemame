@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*----------- defined in vidhrdw/deco16ic.c -----------*/
 
 extern UINT16 *deco16_pf1_data,*deco16_pf2_data;

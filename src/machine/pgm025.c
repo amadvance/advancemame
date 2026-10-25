@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ElSemi
 #include "driver.h"
 #include "pgm025.h"
 

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller, David Haywood
 /* Set this to 1 to display current tape position */
 #define TAPE_UI_DISPLAY 0
 

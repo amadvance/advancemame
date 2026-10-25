@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver, Eric Smith, Juergen Buchmueller
 /*****************************************************************************
  *
  *  POKEY chip emulator 4.3
@@ -7,10 +9,6 @@
  *  with additions by Brad Oliver, Eric Smith and Juergen Buchmueller.
  *  paddle (a/d conversion) details from the Atari 400/800 Hardware Manual.
  *  Polynome algorithms according to info supplied by Perry McFarlane.
- *
- *  This code is subject to the MAME license, which besides other
- *  things means it is distributed as is, no warranties whatsoever.
- *  For more details read mame.txt that comes with MAME.
  *
  *****************************************************************************/
 

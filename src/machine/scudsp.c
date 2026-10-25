@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, Mariusz Wojcieszek
 /******************************************************************************************
 System Control Unit - DSP emulator version 0.06
 

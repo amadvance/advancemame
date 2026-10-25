@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 // Intel x87 FPU opcodes
 
 #define ST(x)	(I.fpu_reg[(I.fpu_top + (x)) & 7])

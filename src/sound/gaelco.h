@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 #ifndef gaelco_snd_h
 #define gaelco_snd_h
 

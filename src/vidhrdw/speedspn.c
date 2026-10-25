@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Farfetch'd
 /* Speed Spin Vidhrdw, see driver file for notes */
 
 #include "driver.h"

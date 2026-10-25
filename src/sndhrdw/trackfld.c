@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Hardy
 #include "driver.h"
 #include "sound/vlm5030.h"
 #include "sound/msm5205.h"

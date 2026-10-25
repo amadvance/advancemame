@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Tomasz Slanina, David Haywood
 #ifndef _ST0016_H_
 #define _ST0016_H_
 

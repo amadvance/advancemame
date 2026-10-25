@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/pass.c - see drivers/pass.c for more info */
 
 #include "driver.h"

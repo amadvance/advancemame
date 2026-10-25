@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 ADDRESS_MAP_EXTERN(timeplt_sound_readmem);
 ADDRESS_MAP_EXTERN(timeplt_sound_writemem);
 ADDRESS_MAP_EXTERN(locomotn_sound_readmem);

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:James Wallace
 #ifndef INC_BFMSC2
 #define INC_BFMSC2
 

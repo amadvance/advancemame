@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sebastien Volpe, Tomasz Slanina, David Haywood
 /*
     Super Real Mahjong P6 (JPN Ver.)
     (c)1996 Seta

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Hampson, Nicola Salmoria
 #include "driver.h"
 #include "cpu/m6502/m6502.h"
 

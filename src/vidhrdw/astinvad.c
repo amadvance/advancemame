@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Lee Taylor
 /***************************************************************************
 
     Video emulation for Astro Invader, Space Intruder et al

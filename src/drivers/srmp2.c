@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Yochizo, Takahiro Nogi
 /***************************************************************************
 
 Super Real Mahjong P2

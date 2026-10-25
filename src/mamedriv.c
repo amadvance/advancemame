@@ -1,9 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, MAME Team
 /******************************************************************************
 
     mamedriv.c
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
     The list of all available drivers. Drivers have to be included here to be
     recognized by the executable.

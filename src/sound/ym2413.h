@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski
 #ifndef _H_YM2413_
 #define _H_YM2413_
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Aaron Giles, R. Belmont, Jonathan Gevaryahu
 /*----------- defined in machine/berzerk.c -----------*/
 
 MACHINE_RESET( berzerk );

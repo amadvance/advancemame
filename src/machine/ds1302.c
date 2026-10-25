@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 #include "driver.h"
 #include "ds1302.h"
 #include <time.h>

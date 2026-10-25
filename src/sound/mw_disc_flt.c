@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Keith Wilkins, Derrick Renaud, Couriersud
 /*
  *  (c) K.Wilkins 2000
  */

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*
     PowerPC 4xx/6xx Dynamic Recompiler for x86
 

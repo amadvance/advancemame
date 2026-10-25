@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 #include "driver.h"
 
 static int homerun_gfx_ctrl;

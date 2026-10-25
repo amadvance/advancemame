@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Acho A. Tang, Phil Stroffolino, Olivier Galibert
 #define VERBOSE 0
 #define GX_DEBUG 0
 

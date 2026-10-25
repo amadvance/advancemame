@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Stefan Jokisch
 #include "driver.h"
 #include "streams.h"
 #include "sound/custom.h"

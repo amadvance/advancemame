@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:K.Wilkins,Zsolt Vasvari
 /***************************************************************************
 
 Spiders driver by K.Wilkins May 1998

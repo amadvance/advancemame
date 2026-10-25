@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd, R. Belmont
 #include "debugger.h"
 #include "i960.h"
 #include "i960dis.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/spbactn.c - see drivers/spbactn.c for more info */
 /* rather similar to galspnbl.c */
 

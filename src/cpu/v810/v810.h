@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese, Tomasz Slanina
 #ifndef V810_H
 #define V810_H
 

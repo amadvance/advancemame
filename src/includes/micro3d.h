@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /*----------- defined in drivers/micro3d.c -----------*/
 
 extern UINT16 *micro3d_sprite_vram;

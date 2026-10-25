@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #define ILLEGAL_INSTRUCTION 6
 #define GENERAL_PROTECTION_FAULT 0xd
 

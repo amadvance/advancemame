@@ -1,9 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Tony La Porta
  /**************************************************************************\
  *                Texas Instruments TMS32010 DSP Disassembler               *
  *                                                                          *
  *                  Copyright (C) 1999-2002+ Tony La Porta                  *
  *               To be used with TMS32010 DSP Emulator engine.              *
- *      You are not allowed to distribute this software commercially.       *
  *                      Written for the MAME project.                       *
  *                                                                          *
  *         Many thanks to those involved in the i8039 Disassembler          *

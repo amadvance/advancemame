@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Alex Marshall,nimitz,austere
 /*
    ICS 2115 sound synthesizer.
 

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Miodrag Milanovic,Karl-Ludwig Deisenhofer
 /*************************************************************************
 
   Rainbow Islands C-Chip Protection

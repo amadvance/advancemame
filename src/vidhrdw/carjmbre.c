@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:hap, Couriersud, Aaron Giles
+// copyright-holders:David Haywood
 /* Car Jamboree video hardware. */
 
 #include "driver.h"

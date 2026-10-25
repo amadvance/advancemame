@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #if TIME_LOOP_HACKS
 
 #define CHECK_BC_LOOP												\

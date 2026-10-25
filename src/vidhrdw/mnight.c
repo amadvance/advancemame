@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Ventura, Leandro Dardini, Yochizo, Nicola Salmoria
 #include "driver.h"
 
 #define COLORTABLE_START(gfxn,color)	Machine->drv->gfxdecodeinfo[gfxn].color_codes_start + \

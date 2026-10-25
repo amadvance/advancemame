@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*----------- defined in vidhrdw/crshrace.c -----------*/
 
 extern UINT16 *crshrace_videoram1,*crshrace_videoram2;

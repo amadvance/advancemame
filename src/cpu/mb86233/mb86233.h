@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #ifndef _MB86233_H
 #define _MB86233_H
 

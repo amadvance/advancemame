@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Derrick Renaud, Couriersud
 #include "sndintrf.h"
 #include "streams.h"
 #include "flt_vol.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
     Bazooka (Taito do Brasil), 1977, TTL

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 #ifndef HEADER__G65816
 #define HEADER__G65816
 
@@ -10,10 +12,6 @@ G65C816 CPU Emulator V0.92
 
 Copyright (c) 2000 Karl Stenerud
 All rights reserved.
-
-Permission is granted to use this source code for non-commercial purposes.
-To use this code for commercial purposes, you must get permission from the
-author (Karl Stenerud) at karl@higashiyama-unet.ocn.ne.jp.
 
 
 */

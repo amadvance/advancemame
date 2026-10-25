@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Keith Wilkins, Derrick Renaud, Couriersud
 { mw_DSS_COUNTER, "mw_DSS_COUNTER", sizeof(struct mw_dss_counter_context), mw_dss_counter_reset, mw_dss_counter_step },
 { mw_DSS_LFSR_NOISE, "mw_DSS_LFSR_NOISE", sizeof(struct mw_dss_lfsr_context), mw_dss_lfsr_reset, mw_dss_lfsr_step },
 { mw_DSS_NOISE, "mw_DSS_NOISE", sizeof(struct mw_dss_noise_context), mw_dss_noise_reset, mw_dss_noise_step },

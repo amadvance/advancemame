@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Charles MacDonald, Nicola Salmoria, Aaron Giles
 /* System 16 and friends FD1094 handling */
 
 /*

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /* descriptor table format in memory
    UINT16 limit
    UINT24 addr

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Hans Andersson
 /*************************************************************************
 
     sndhrdw\tank8.c

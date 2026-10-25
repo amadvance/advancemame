@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Karl Stenerud
 #ifndef HEADER__M7700DS
 #define HEADER__M7700DS
 

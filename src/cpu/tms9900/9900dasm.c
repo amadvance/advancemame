@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 /*****************************************************************************
  *
  *   9900dasm.c
@@ -6,16 +8,6 @@
  *   Raphael Nabet 2003
  *   Based on previous work Copyright (c) 1998 John Butler.
  *   Based on 6502dasm.c 6502/65c02/6510 disassembler by Juergen Buchmueller
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *****************************************************************************/
 

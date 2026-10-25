@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Couriersud, Jonathan Gevaryahu
 /* TMS5110 ROM Tables */
 
 /* Note: all the tables in this file were read from the real TMS5110A chip, except

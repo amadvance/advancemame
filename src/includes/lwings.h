@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Leaman
 /*----------- defined in vidhrdw/lwings.c -----------*/
 
 extern unsigned char *lwings_fgvideoram;

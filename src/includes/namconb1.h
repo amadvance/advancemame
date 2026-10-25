@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 /*----------- defined in drivers/namconb1.c -----------*/
 
 extern UINT32 *namconb1_workram32;

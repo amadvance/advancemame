@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, Nicola Salmoria
 /*----------- defined in vidhrdw/homedata.c -----------*/
 
 extern UINT8 *homedata_vreg;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni,Nicola Salmoria,Bryan McPhail,David Haywood,R. Belmont,Alex Marshall,Angelo Salese,Luca Elia
 /***************************************************************************
 
                               -= Afega Games =-

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Ernesto Corvi
 /*----------- defined in vidhrdw/iqblock.c -----------*/
 
 extern UINT8 *iqblock_bgvideoram;

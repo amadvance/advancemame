@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ElSemi, XingXing
 // Photoy2k sprite offset "decryption"
 //
 // ASIC28 gets a sprite number and an encrypted sprite offset and returns

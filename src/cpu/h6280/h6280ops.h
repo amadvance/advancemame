@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*****************************************************************************
 
     h6280ops.h - Addressing modes and opcode macros for the Hu6820 cpu

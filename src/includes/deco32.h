@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*----------- defined in vidhrdw/deco32.c -----------*/
 
 VIDEO_START( captaven );

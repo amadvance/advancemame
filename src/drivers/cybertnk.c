@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese, David Haywood
 /*******************************************************************************************
 
 Cyber Tank HW (c) 1987 Coreland Technology

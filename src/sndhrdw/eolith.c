@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina,Pierpaolo Prazzoli
 #include "driver.h"
 #include "streams.h"
 #include "cpu/i8051/i8051.h"

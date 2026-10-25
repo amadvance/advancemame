@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Leaman
 #include "driver.h"
 
 #define TOTAL_COLORS(gfxn) (Machine->gfx[gfxn]->total_colors * Machine->gfx[gfxn]->color_granularity)

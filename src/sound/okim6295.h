@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni,Aaron Giles
 #ifndef OKIM6295_H
 #define OKIM6295_H
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #ifndef YMF262INTF_H
 #define YMF262INTF_H
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde, Angelo Salese, hap
 typedef struct {
 	int page;
 	int opcode;

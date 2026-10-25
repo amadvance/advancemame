@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Leaman
 /***************************************************************************
 
 These are some of the CPS-B chip numbers:

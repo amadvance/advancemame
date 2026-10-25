@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Phil Stroffolino, Mirko Buffoni
 // system 16 - 7751 emulation, based on monster bash code.
 #include "driver.h"
 #include "cpu/i8039/i8039.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Jonathan Gevaryahu
 #define CPUTAG_T5182 "T5182"
 //#define T5182COINPORT "T5182_COIN" // Using the coin hack from older drivers due to incompatable code
 

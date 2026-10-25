@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Alex Marshall,nimitz,austere
 #ifndef __ICS2115_H__
 #define __ICS2115_H__
 

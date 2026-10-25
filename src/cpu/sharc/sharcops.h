@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 static void (* sharc_op[512])(void) =
 {
 	/* 0x000 - 0x00f */

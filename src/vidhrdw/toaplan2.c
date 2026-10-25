@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Quench, Yochizo, David Haywood
 /***************************************************************************
 
   Functions to emulate the video hardware of some Toaplan games,

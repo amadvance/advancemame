@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi, Curt Coder
 /*
  *  Emulation for the NEC PD4990A.
  *

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 #include "driver.h"
 
 const static int fakecols[]= /* fake color map , based on screenshots */

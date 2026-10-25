@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Takahiro Nogi, David Haywood
 /******************************************************************************
 
     TMP68301 support (dummy) driver

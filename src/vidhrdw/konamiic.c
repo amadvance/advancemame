@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Bryan McPhail
 #define VERBOSE 0
 
 /***************************************************************************

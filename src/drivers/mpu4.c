@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /***************************************************************************
 MPU4 highly preliminary driver, based on
 Bellfruit scorpion1 driver, (under heavy construction !!!)
