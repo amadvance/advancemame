@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Moore
 /*************************************************************************
 
     Leprechaun/Pot of Gold

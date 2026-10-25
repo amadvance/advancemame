@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Leaman
 #include "driver.h"
 
 unsigned char *blktiger_txvideoram;

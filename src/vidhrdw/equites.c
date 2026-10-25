@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Acho A. Tang, Nicola Salmoria
 /*******************************************************************************
 
 Equites           (c) 1984 Alpha Denshi Co./Sega

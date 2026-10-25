@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Peno Cup?
 
 no idea if this is the real title, I just see a large Peno Cup logo in the 2/3 roms

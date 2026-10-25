@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ???
 /* Sega MegaTech */
 /*
 todo: cleanup, fix so that everything works properly

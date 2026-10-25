@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Yochizo, Takahiro Nogi
 /***************************************************************************
 
 Functions to emulate the video hardware of the machine.

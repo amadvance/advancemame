@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail,Ernesto Corvi,Andrew Prime,Zsolt Vasvari
 
 /***************************************************************************
     M.A.M.E. Neo Geo driver presented to you by the Shin Emu Keikaku team.

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski
 #include "driver.h"
 #include "profiler.h"
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, hap, R. Belmont
 #define USE_NAMCOS22_SPEED_HACK
 
 #define REGION_CGRAM           REGION_GFX1

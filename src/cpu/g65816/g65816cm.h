@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 #ifndef HEADER__G65816CM
 #define HEADER__G65816CM
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Andreas Naive, Charles MacDonald
 /*****************************************************************************
 
 FD1094 encryption

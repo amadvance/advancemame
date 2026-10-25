@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 // Intel 486+ specific opcodes
 
 static void I486OP(cpuid)(void)				// Opcode 0x0F A2

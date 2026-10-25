@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Derrick Renaud
 MACHINE_DRIVER_EXTERN(mw_blueshrk_audio);
 WRITE8_HANDLER(mw_blueshrk_audio_w);
 MACHINE_DRIVER_EXTERN(mw_boothill_audio);

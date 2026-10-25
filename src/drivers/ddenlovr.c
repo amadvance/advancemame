@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Luca Elia
 /***************************************************************************
 
 Some Dynax/Nakanihon games using the third version of their blitter

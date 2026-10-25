@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /*====================================================================*/
 /*                         'micro3d.c'                                */
 /*               Microprose 3D Hardware MAME driver                   */

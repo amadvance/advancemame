@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 #include "driver.h"
 #include "cpu/i8039/i8039.h"
 #include "sound/samples.h"

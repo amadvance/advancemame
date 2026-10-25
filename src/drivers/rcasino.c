@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Nicola Salmoria, Luca Elia
 /*
 "Royal Casino"
 

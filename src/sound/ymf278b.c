@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert, hap
 /*
    Timer and PCM YMF278B.  The FM will be shared with the ymf262, eventually.
 
@@ -7,12 +9,6 @@
    By R. Belmont and O. Galibert.
 
    Copyright (c) 2002-2003 R. Belmont and O. Galibert.
-
-   This software is dual-licensed: it may be used in MAME and properly licensed
-   MAME derivatives under the terms of the MAME license.  For use outside of
-   MAME and properly licensed derivatives, it is available under the
-   terms of the GNU Lesser General Public License (LGPL), version 2.1.
-   You may read the LGPL at http://www.gnu.org/licenses/lgpl.html
 
    Changelog:
    Sep. 8, 2002 - fixed ymf278b_compute_rate when OCT is negative (RB)

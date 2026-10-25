@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:BUT
 /*
  *  Thunder Ceptor board
  *  emulate video hardware

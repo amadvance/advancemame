@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Keith Wilkins, Derrick Renaud, Couriersud
 #ifndef MW_DISCRETE_H
 #define MW_DISCRETE_H
 #include "discrete.h"

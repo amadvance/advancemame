@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 #ifndef _TMS32051_H
 #define _TMS32051_H
 

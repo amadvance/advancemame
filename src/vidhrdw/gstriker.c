@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd, David Haywood
 
 #include "driver.h"
 #include "gstriker.h"

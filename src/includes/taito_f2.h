@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Graves, Bryan McPhail, Brad Oliver, Andrew Prime, Brian Troha, Nicola Salmoria
 /*----------- defined in vidhrdw/taito_f2.c -----------*/
 
 extern UINT16 *f2_sprite_extension;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Phil Stroffolino, Mirko Buffoni
 /*
     Sega System16 Hardware
     major cleanup in progress - still a lot to do!

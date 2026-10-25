@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Charles MacDonald
 #ifndef _C6280_H_
 #define _C6280_H_
 

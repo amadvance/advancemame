@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Angelo Salese, Olivier Galibert
 #include "driver.h"
 #include <assert.h>
 enum { FN1GK = 38, FN2GK = 32, BUFFER_SIZE = 2, FLAG_COMPRESSED = 0x20000 };

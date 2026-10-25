@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Quench, Yochizo, David Haywood
 extern int fadeout_ready;
 extern int fadeout_stop;
 extern int counter1;

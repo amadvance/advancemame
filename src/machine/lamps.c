@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //
 // lamps.c: module to keep track of lamp brightness                      //

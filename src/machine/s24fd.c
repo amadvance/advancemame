@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Charles MacDonald, Nicola Salmoria, Aaron Giles
 /* s16fd.c modified to support s24
 
 this could get messy if games change their own code after initial loading as we'll have to invalidate caches etc.

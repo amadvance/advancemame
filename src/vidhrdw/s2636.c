@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Vas Crabb
 /*************************************************************
  *                                                           *
  * Signetics 2636 video chip                                 *

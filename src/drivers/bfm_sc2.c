@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:James Wallace
 /***************************************************************************
 
   Bellfruit scorpion2/3 driver, (under heavy construction !!!)

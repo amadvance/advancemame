@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Dirk Best, Couriersud, Aaron Giles
+// copyright-holders:David Haywood
 /* Popper video hardware. */
 
 #include "driver.h"

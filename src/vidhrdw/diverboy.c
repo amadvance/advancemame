@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Diver Boy - Video Hardware */
 
 #include "driver.h"

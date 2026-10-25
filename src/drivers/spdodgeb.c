@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Hampson, Nicola Salmoria
 /***************************************************************************
 
 Super Dodgeball / Nekketsu Koukou Dodgeball Bu

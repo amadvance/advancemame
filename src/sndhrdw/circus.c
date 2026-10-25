@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mike Coates
 #include "driver.h"
 #include "sound/samples.h"
 #include "circus.h"

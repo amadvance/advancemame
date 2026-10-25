@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mike Coates
 #include "sound/discrete.h"
 
 #define GAME_IS_CIRCUS		(circus_game == 1)

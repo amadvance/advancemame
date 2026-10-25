@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ElSemi
 #ifndef PGM025_H
 #define PGM025_H
 

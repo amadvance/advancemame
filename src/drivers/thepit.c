@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Couriersud,Stephane Humbert
 /***************************************************************************
 
 The Pit/Round Up/Intrepid/Super Mouse memory map (preliminary)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*----------- defined in drivers/tatsumi.c -----------*/
 
 extern UINT8* tatsumi_rom_sprite_lookup1;

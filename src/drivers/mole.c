@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 //  MOLE ATTACK    YACHIYO  1982
 //  known clones: "Holy Moly"
 //

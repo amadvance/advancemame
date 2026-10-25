@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 /***************************************************************************
 RB BO ITALY - Driving game of some sort.
 MONZA GP From Leante Games (Olympia) ??

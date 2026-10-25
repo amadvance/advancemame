@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
  h83002.c: Hitachi H8/3002 microcontroller emulator

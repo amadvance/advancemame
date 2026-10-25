@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Phil Stroffolino, Mirko Buffoni
 /******************** NEW STUFF *******************/
 
 #include "vidhrdw/segaic16.h"

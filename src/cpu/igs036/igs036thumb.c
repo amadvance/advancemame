@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
+// copyright-holders:Ryan Holtz
 
 // this is our master dispatch jump table for THUMB mode, representing [(INSN & 0xffc0) >> 6] bits of the 16-bit decoded instruction
 static const arm7thumb_ophandler thumb_handler[0x40*0x10] =

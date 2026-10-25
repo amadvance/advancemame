@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia, David Haywood
 /*
     TODO:
     - bonkadv_mcu_43: extract data from MCU (dumped eeprom data for now)

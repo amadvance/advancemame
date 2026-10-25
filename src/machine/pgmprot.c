@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ElSemi, XingXing
 #include "driver.h"
 
 extern UINT16 *pgm_mainram;

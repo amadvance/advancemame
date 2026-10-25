@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina,Pierpaolo Prazzoli,hap,Roberto Fresca
 /*********************************
  Wild Arrow - Meyco Games 1982
 

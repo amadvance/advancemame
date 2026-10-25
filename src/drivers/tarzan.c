@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 
 /* Old IGS game called Tarzan, don't know much about it, could be gambling */
 /* CPU might not be z80 */

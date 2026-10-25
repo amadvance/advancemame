@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni
 #include "driver.h"
 
 UINT8 *solomon_videoram2;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, Pierpaolo Prazzoli, Bryan McPhail
 /****************************************************************************************
 
 Competition Golf Final Round (c) 1986 / 1985 Data East

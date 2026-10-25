@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /* the way I hooked up the CTC is most likely completely wrong */
 
 #include "driver.h"

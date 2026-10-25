@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #include "driver.h"
 
 UINT8 *bogeyman_videoram2, *bogeyman_colorram2;

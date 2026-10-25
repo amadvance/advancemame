@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* blitter function */
 
 void FUNCNAME(BLIT_PARAMS)

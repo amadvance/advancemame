@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski, Angelo Salese
 /****************************************************************************
 
 Mazer Blazer by Stern (c) 1983

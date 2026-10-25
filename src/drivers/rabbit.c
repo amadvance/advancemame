@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /***************************************************************************
 
                      -= 68020 + Imagetek 15000 Games =-

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Haywood
 /*******************************************************************************
  WWF Wrestlefest (C) 1991 Technos Japan  (vidhrdw/wwfwfest.c)
 ********************************************************************************

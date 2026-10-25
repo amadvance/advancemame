@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Ellenoff
 /* Interrupt returns now restore the interrupted priority level. */
 /*******************************************************************************************
  NOTE: All registers are accessed directly, instead of using the SFR_R() function for speed

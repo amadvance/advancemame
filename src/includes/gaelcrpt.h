@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 #ifndef _GAELCRPT_H
 #define _GAELCRPT_H
 

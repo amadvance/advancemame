@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi, Curt Coder
 /*
  *  Header file for the PD4990A Serial I/O calendar & clock.
  */

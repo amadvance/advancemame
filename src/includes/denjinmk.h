@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Graves, Angelo Salese, David Haywood, Tomasz Slanina
 /*----------- defined in video/denjinmk.c -----------*/
 
 extern UINT16 *denjinmk_back_data,*denjinmk_fore_data,*denjinmk_mid_data,*denjinmk_scrollram16,*denjinmk_textram;

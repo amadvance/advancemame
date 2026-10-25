@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 /* Konami PowerPC-based 3D games common functions */
 
 #include "driver.h"

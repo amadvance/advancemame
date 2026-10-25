@@ -1,4 +1,6 @@
-/* SPDX-License-Identifier: LGPL-2.1-or-later
+// license:LGPL-2.1+
+// copyright-holders:Olivier Galibert, Angelo Salese, David Haywood, Tomasz Slanina
+/*
  * Seibu COP emulation; Olivier Galibert, Angelo Salese,
  * David Haywood and Tomasz Slanina.
  */

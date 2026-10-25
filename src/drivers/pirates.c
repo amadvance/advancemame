@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina,David Haywood
 /*---
 
 Pirates      (c)1994 NIX  (DEC 14 1994 17:32:29) displayed in cabinet test mode

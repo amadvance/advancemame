@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*******************************************************************************************
 
 The Couples (c) 1986/1988 The Couples (?)

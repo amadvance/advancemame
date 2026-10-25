@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 static void (* sharcdasm_table[256])(UINT32, UINT64) =
 {
 	// 0x00 - 0x0f

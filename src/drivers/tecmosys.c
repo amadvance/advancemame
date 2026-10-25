@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd,David Haywood,Tomasz Slanina
 /* Tecmo System
  Driver by Farfetch, David Haywood & Tomasz Slanina
   Protection simulation by nuapete

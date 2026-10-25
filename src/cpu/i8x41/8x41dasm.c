@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #include "debugger.h"
 #include "debug/eainfo.h"
 #include "i8x41.h"

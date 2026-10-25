@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Hau, Nicola Salmoria
 /******************************************************************************
 
   Ganbare Ginkun  (Japan)  (c)1995 TECMO

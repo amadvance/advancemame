@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi
 struct VR0Interface
 {
 	UINT32 RegBase;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*----------- defined in vidhrdw/cninja.c -----------*/
 
 VIDEO_START( cninja );

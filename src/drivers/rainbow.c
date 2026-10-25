@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Miodrag Milanovic,Karl-Ludwig Deisenhofer
 /***************************************************************************
 
 Rainbow Islands  (c) Taito 1987   + Jumping

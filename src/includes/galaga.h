@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*----------- defined in vidhrdw/bosco.c -----------*/
 
 extern UINT8 *bosco_videoram;

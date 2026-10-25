@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina,Ryan Holtz
 /*
  05/01/2003  MooglyGuy/Ryan Holtz
     - Corrected second AY (shouldn't have been there)

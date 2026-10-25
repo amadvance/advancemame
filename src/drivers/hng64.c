@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:David Haywood, Angelo Salese, ElSemi, Andrew Gardner
 /* Hyper NeoGeo 64
 
 Driver by David Haywood, ElSemi, and Andrew Gardner

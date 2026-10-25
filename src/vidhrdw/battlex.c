@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 #include "driver.h"
 
 static int battlex_scroll_lsb;

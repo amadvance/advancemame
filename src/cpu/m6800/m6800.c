@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*** m6800: Portable 6800 class  emulator *************************************
 
     m6800.c

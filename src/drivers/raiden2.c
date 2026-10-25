@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Olivier Galibert, Angelo Salese, David Haywood, Tomasz Slanina
 /*
    Raiden II driver - Salvia/MAME2003+ playability backport
 

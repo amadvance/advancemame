@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria,Derrick Renaud
 #include "driver.h"
 #include "crbaloon.h"
 

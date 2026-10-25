@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf, David Haywood
 /****************************************************************************
 10 Yard Fight Driver.
 

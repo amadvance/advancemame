@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Miss Bubble 2
 
 A rather odd bootleg of Bubble Bobble with level select, redesigned levels,

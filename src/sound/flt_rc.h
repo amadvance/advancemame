@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Derrick Renaud, Couriersud
 #ifndef FLT_RC_H
 #define FLT_RC_H
 

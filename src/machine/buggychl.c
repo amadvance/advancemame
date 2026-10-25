@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi, Nicola Salmoria
 #include "driver.h"
 #include "cpu/z80/z80.h"
 

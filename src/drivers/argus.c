@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Yochizo
 /***************************************************************************
 
 Argus (Early NMK driver 1986-1987)

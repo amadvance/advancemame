@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles,Frank Palazzolo
 /**************************************************************************
 
     Interrupt System Hardware for Bally/Midway games

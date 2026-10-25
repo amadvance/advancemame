@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Curt Coder
 /***************************************************************************
 Lovely Poker/Pontoon driver, updated by El Condor from work by Uki and Zsolt Vasvari respectively.
 Later cleaned up by Curt Coder and Scott Yellig.

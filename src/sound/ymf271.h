@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, R. Belmont, hap
 #ifndef _YMF271_H_
 #define _YMF271_H_
 

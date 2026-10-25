@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles,smf
 #ifndef _CDDA_H_
 #define _CDDA_H_
 

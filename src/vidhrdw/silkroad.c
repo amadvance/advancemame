@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, R. Belmont
 #include "driver.h"
 
 /* Sprites probably need to be delayed */

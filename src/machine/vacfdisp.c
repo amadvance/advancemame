@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:El Condor
 ////////////////////////////////////////////////////////////////////////////
 //                                                                        //
 // vacfdisp.c: Vacuum Fluorescence Display                                //

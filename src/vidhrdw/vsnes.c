@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 #include "driver.h"
 #include "vidhrdw/ppu2c03b.h"
 

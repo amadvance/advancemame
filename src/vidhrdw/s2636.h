@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Vas Crabb
 extern unsigned char *s2636_1_ram;
 extern unsigned char *s2636_2_ram;
 extern unsigned char *s2636_3_ram;

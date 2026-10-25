@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Haywood
 #include "driver.h"
 
 static tilemap *pf3_layer,*pf2_layer,*pf1_layer,*text_layer;

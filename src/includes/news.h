@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*----------- defined in vidhrdw/news.c -----------*/
 
 extern UINT8 *news_fgram;

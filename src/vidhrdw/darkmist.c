@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Nicola Salmoria, Tomasz Slanina
 #include "driver.h"
 
 /*defined in drivers/darkmist.c */

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /****************************************************************************
 *             real mode i286 emulator v1.4 by Fabrice Frances               *
 *               (initial work based on David Hedley's pcemu)                *

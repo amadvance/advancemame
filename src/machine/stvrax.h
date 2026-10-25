@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Angelo Salese, Olivier Galibert
 #include "cpu/adsp2100/adsp2100.h"
 #include "sound/dmadac.h"
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
 
 Sun Mixing board, looks like a hacked up Genesis clone.

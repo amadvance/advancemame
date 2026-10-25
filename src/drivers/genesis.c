@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Some Generic Sega Genesis stuff used by Megatech / Megaplay etc. */
 
 /*

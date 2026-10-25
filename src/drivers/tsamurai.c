@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino,Paul Swan
 /****************************************************************************
 
     Preliminary driver for Samurai, Nunchackun, Yuke Yuke Yamaguchi-kun

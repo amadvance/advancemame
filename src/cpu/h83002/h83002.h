@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
  h83002.h : Public constants and function defs for the H8/3002 emulator.

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Acho A. Tang, Alex W. Jackson
 /*****************************************************************************
 
 B-Wings  (c) 1984 Data East Corporation

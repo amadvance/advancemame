@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Aaron Giles, Jonathan Gevaryahu, Raphael Nabet, Couriersud, Michael Zapf
 /* TMS5220 ROM Tables */
 
 /* This is the energy lookup table (4-bits -> 10-bits) */

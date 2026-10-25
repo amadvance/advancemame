@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 INLINE void aba(void);
 INLINE void abx(void);
 INLINE void adca_di(void);

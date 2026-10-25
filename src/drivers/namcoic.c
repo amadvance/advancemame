@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 #include "driver.h"
 #include "namcos2.h" /* for game-specific hacks */
 #include "namcoic.h"

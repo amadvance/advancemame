@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 // Pentium+ specific opcodes
 
 static void PENTIUMOP(rdmsr)(void)			// Opcode 0x0f 32

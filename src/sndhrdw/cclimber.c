@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "driver.h"
 #include "sound/ay8910.h"
 #include "sound/samples.h"

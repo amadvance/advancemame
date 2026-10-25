@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd, R. Belmont
 #ifndef __V60_H
 #define __V60_H
 

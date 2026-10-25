@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Quench, Yochizo, David Haywood
 /*****************************************************************************
 
         ToaPlan      game hardware from 1991 - 1994

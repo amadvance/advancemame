@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
+// copyright-holders:Ryan Holtz
 /* Converted from MAME 0.287 to the AdvanceMAME C CPU interface. */
 #ifndef IGS036_H
 #define IGS036_H

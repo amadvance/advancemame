@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #include "driver.h"
 #include "sound/es5506.h"
 #include "includes/taito_f3.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Space Bugger */
 
 /* is the rom mapping ok, are the roms good? it jumps to the 0x800 region and I don't have a rom for there,

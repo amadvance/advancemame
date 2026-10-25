@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
  h8disasm.c: Hitachi H8/3000 series disassembler

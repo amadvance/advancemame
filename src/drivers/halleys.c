@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, Acho A. Tang
 /*
 Halley's Comet, 1986 Taito
 

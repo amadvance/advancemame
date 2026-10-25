@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miguel Angel Horna
 #ifndef __MultiPCM_H__
 #define __MultiPCM_H__
 

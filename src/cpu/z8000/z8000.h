@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller,Ernesto Corvi
 #ifndef Z8K_H
 
 #include "cpuintrf.h"

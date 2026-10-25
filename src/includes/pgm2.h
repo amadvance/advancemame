@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:David Haywood, Xing Xing, Andreas Naive
+// copyright-holders:David Haywood, ???
 /* PGM2 hardware, converted from MAME 0.287 to AdvanceMAME C. */
 #ifndef PGM2_H
 #define PGM2_H

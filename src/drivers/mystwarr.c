@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Phil Stroffolino, Acho A. Tang, Nicola Salmoria
 #define MW_DEBUG     0
 
 /**************************************************************************

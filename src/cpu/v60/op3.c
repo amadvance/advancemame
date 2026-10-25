@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Farfetch'd, R. Belmont
 static UINT32 opINCB(void) /* TRUSTED */
 {
 	UINT8 appb;

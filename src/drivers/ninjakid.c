@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Ventura, Leandro Dardini, Yochizo, Nicola Salmoria
 /*******************************************************************************
  Ninja Kid / Ninjakun Majou no Bouken | (c) 1984 UPL / Taito
 ********************************************************************************

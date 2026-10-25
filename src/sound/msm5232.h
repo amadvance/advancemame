@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski, Hiromitsu Shioya
 #ifndef _H_MSM5232_
 #define _H_MSM5232_
 

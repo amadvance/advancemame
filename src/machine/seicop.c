@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Olivier Galibert, Angelo Salese, David Haywood, Tomasz Slanina
 #include <math.h>
 #include "driver.h"
 #include "sndhrdw/seibu.h"

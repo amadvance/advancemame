@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni
 #include "driver.h"
 #include "machine/z80pio.h"
 #include "machine/z80ctc.h"

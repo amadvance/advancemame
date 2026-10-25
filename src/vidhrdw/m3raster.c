@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Ville Linde
 static void draw_triangle_tex1555(VERTEX v1, VERTEX v2, VERTEX v3)
 {
 	int x, y;

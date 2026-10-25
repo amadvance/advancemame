@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:David Haywood, Angelo Salese, Olivier Galibert, Mariusz Wojcieszek, R. Belmont
 /* Sega ST-V (Sega Titan Video)
 
 a.k.a. known as a Sega Saturn for the Arcades.

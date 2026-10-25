@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 #include "driver.h"
 
 static tilemap *tilemap1,*tilemap2,*tilemap4;

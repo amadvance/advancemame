@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Aaron Giles, Jonathan Gevaryahu, Raphael Nabet, Couriersud, Michael Zapf
 #ifndef tms5220_h
 #define tms5220_h
 

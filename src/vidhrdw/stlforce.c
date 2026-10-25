@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* vidhrdw/stlforce.c - see main driver for other notes */
 
 #include "driver.h"

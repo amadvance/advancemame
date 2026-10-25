@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Baines, Frank Palazzolo
 /***************************************************************************
 
     Atari Star Wars hardware

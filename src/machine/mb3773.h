@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 /*
  * mb3773 - Power Supply Monitor with Watch Dog Timer
  *

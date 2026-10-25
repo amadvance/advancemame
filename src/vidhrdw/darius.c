@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:David Graves, Jarek Burczynski
 #include "driver.h"
 #include "vidhrdw/taitoic.h"
 

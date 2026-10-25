@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*----------- defined in vidhrdw/thedeep.c -----------*/
 
 extern UINT8 *thedeep_vram_0, *thedeep_vram_1;

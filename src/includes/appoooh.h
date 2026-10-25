@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tatsuyuki Satoh
 /* ----------- defined in vidhrdw/appoooh.c -----------*/
 
 extern unsigned char *appoooh_fg_videoram,*appoooh_fg_colorram;

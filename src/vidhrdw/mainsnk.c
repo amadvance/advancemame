@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Tomasz Slanina
 #include "driver.h"
 
 static UINT8 bg_color,  old_bg_color;

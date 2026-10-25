@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 #ifndef _res_net_h_
 #define _res_net_h_
 

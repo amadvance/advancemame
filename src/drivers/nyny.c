@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Darren Olafson, Zsolt Vasvari
 /****
 
 New York, New York (c) 1980 Sigma

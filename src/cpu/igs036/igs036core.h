@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
+// copyright-holders:Ryan Holtz
 /*****************************************************************************
  *
  *   arm7core.h

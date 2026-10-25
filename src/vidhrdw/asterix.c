@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #include "driver.h"
 #include "vidhrdw/konamiic.h"
 

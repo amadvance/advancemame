@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #ifndef _UPD7810_H_
 #define _UPD7810_H_
 

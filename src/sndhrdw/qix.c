@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Derrick Renaud,Couriersud
 /*************************************************************************
 
     sndhrdw\qix.c

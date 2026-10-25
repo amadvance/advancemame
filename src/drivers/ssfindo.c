@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /************************************************************************
  See See Find Out [Icarus 1999]
  Pang Pang Car [Icarus 1999]

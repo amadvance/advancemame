@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski, Tomasz Slanina
 #include "driver.h"
 #include "cpu/z80/z80.h"
 #include "sound/dac.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Paul Priest
 /*----------- defined in drivers/psikyosh.c -----------*/
 
 #define MASTER_CLOCK 57272700	// main oscillator frequency

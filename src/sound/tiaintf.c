@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Ron Fries,Dan Boris
 #include "sndintrf.h"
 #include "streams.h"
 #include "tiaintf.h"

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina,Pierpaolo Prazzoli
 #ifndef EOLITH_H
 #define EOLITH_H
 
