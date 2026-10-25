@@ -623,7 +623,6 @@ static MACHINE_DRIVER_START( asteroid )
 	MDRV_VISIBLE_AREA(0, 1032, 0, 1050)
 	MDRV_PALETTE_LENGTH(32768)
 
-	MDRV_PALETTE_INIT(avg_white)
 	MDRV_VIDEO_START(dvg)
 	MDRV_VIDEO_UPDATE(vector)
 
@@ -678,7 +677,6 @@ static MACHINE_DRIVER_START( llander )
 	/* video hardware */
 	MDRV_VISIBLE_AREA(0, 1050, 0, 900)
 
-	MDRV_PALETTE_INIT(avg_white)
 	MDRV_VIDEO_START(dvg)
 	MDRV_VIDEO_UPDATE(vector)
 
@@ -703,6 +701,10 @@ ROM_START( asteroid )
 	ROM_LOAD( "035143.02",    0x7800, 0x0800, CRC(312caa02) SHA1(1ce2eac1ab90b972e3f1fc3d250908f26328d6cb) )
 	/* Vector ROM */
 	ROM_LOAD( "035127.02",    0x5000, 0x0800, CRC(8b71fd9e) SHA1(8cd5005e531eafa361d6b7e9eed159d164776c70) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -713,6 +715,10 @@ ROM_START( asteroi1 )
 	ROM_LOAD( "035143.01",    0x7800, 0x0800, CRC(7d4e3d05) SHA1(d88000e904e158efde50e453e2889ecd2cb95f24) )
 	/* Vector ROM */
 	ROM_LOAD( "035127.01",    0x5000, 0x0800, CRC(99699366) SHA1(9b2828fc1cef7727f65fa65e1e11e309b7c98792) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -723,6 +729,10 @@ ROM_START( asteroib )
 	ROM_LOAD( "035143ll.bin", 0x7800, 0x0800, CRC(6b1d8594) SHA1(ff3cd93f1bc5734bface285e442125b395602d7d) )
 	/* Vector ROM */
 	ROM_LOAD( "035127.02",    0x5000, 0x0800, CRC(8b71fd9e) SHA1(8cd5005e531eafa361d6b7e9eed159d164776c70) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -737,6 +747,10 @@ ROM_START( asterock )
 	/* Vector ROM */
 	ROM_LOAD( "sidamas.0",    0x5000, 0x0400, CRC(6bd2053f) SHA1(790f2858f44bbb1854e2d9d549e29f4815c4665b) )
 	ROM_LOAD( "sidamas.1",    0x5400, 0x0400, CRC(231ce201) SHA1(710f4c19864d725ba1c9ea447a97e84001a679f7) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -747,6 +761,10 @@ ROM_START( meteorts )
 	ROM_LOAD( "m2_j1.bin",    0x7800, 0x0800, CRC(64bd0408) SHA1(141d053cb4cce3fece98293136928b527d3ade0f) )
 	/* Vector ROM */
 	ROM_LOAD( "mv_np3.bin",   0x5000, 0x0800, CRC(11d1c4ae) SHA1(433c2c05b92094bbe102c356d7f1a907db13da67) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -792,6 +810,10 @@ ROM_START( llander )
 	/* This _should_ be the rom for international versions. */
 	/* Unfortunately, is it not currently available. */
 	ROM_LOAD( "034597.01",    0x5800, 0x0800, NO_DUMP )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 
@@ -807,6 +829,10 @@ ROM_START( llander1 )
 	/* This _should_ be the rom for international versions. */
 	/* Unfortunately, is it not currently available. */
 	ROM_LOAD( "034597.01",    0x5800, 0x0800, NO_DUMP )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "034602-01.c8",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
 ROM_END
 
 

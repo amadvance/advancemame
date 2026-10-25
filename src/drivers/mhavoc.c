@@ -265,7 +265,7 @@ static ADDRESS_MAP_START( alpha_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0200, 0x07ff) AM_WRITE(MWA8_BANK1)			/* 3K Paged Program RAM */
 	AM_RANGE(0x0800, 0x09ff) AM_WRITE(MWA8_RAM)			/* 0.5K Program RAM */
 	AM_RANGE(0x1200, 0x1200) AM_WRITE(MWA8_NOP)			/* don't care */
-	AM_RANGE(0x1400, 0x141f) AM_WRITE(mhavoc_colorram_w)	/* ColorRAM */
+	AM_RANGE(0x1400, 0x141f) AM_RAM AM_BASE(&mhavoc_colorram)	/* ColorRAM */
 	AM_RANGE(0x1600, 0x1600) AM_WRITE(mhavoc_out_0_w)		/* Control Signals */
 	AM_RANGE(0x1640, 0x1640) AM_WRITE(avgdvg_go_w)		/* Vector Generator GO */
 	AM_RANGE(0x1680, 0x1680) AM_WRITE(watchdog_reset_w)	/* Watchdog Clear */
@@ -359,7 +359,7 @@ static ADDRESS_MAP_START( alphaone_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x10b0, 0x10b0) AM_WRITE(mhavoc_alpha_irq_ack_w)	/* IRQ ack */
 	AM_RANGE(0x10b4, 0x10b4) AM_WRITE(mhavoc_rom_banksel_w)
 	AM_RANGE(0x10b8, 0x10b8) AM_WRITE(mhavoc_ram_banksel_w)
-	AM_RANGE(0x10e0, 0x10ff) AM_WRITE(mhavoc_colorram_w)	/* ColorRAM */
+	AM_RANGE(0x10e0, 0x10ff) AM_RAM AM_BASE(&mhavoc_colorram)	/* ColorRAM */
 	AM_RANGE(0x1800, 0x18ff) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)	/* EEROM        */
 	AM_RANGE(0x2000, 0x3fff) AM_WRITE(MWA8_ROM)			/* Major Havoc writes here.*/
 	AM_RANGE(0x4000, 0x4fff) AM_WRITE(MWA8_RAM) AM_BASE(&vectorram) AM_SIZE(&vectorram_size) AM_REGION(REGION_CPU1, 0x4000)/* Vector Generator RAM */
@@ -374,7 +374,7 @@ static ADDRESS_MAP_START( alpha_mhavocpe_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0200, 0x07ff) AM_WRITE(MWA8_BANK1)			/* 3K Paged Program RAM */
 	AM_RANGE(0x0800, 0x09ff) AM_WRITE(MWA8_RAM)			/* 0.5K Program RAM */
 	AM_RANGE(0x1200, 0x1200) AM_WRITE(MWA8_NOP)			/* don't care */
-	AM_RANGE(0x1400, 0x141f) AM_WRITE(mhavoc_colorram_w)	/* ColorRAM */
+	AM_RANGE(0x1400, 0x141f) AM_RAM AM_BASE(&mhavoc_colorram)	/* ColorRAM */
 	AM_RANGE(0x1600, 0x1600) AM_WRITE(mhavoc_out_0_w)		/* Control Signals */
 	AM_RANGE(0x1640, 0x1640) AM_WRITE(avgdvg_go_w)		/* Vector Generator GO */
 	AM_RANGE(0x1680, 0x1680) AM_WRITE(watchdog_reset_w)	/* Watchdog Clear */
@@ -597,7 +597,6 @@ static MACHINE_DRIVER_START( mhavoc )
 	MDRV_VISIBLE_AREA(0, 300, 0, 260)
 	MDRV_PALETTE_LENGTH(32768)
 
-	MDRV_PALETTE_INIT(avg_multi)
 	MDRV_VIDEO_START(avg_mhavoc)
 	MDRV_VIDEO_UPDATE(vector)
 
@@ -696,6 +695,10 @@ ROM_START( mhavoc )
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 16k for code */
 	ROM_LOAD( "136025.108",   0x08000, 0x4000, CRC(93faf210) SHA1(7744368a1d520f986d1c4246113a7e24fcdd6d04) )
 	ROM_RELOAD(               0x0c000, 0x4000 ) /* reset+interrupt vectors */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -723,6 +726,10 @@ ROM_START( mhavoc2 )
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 16k for code */
 	ROM_LOAD( "136025.108",   0x08000, 0x4000, CRC(93faf210) SHA1(7744368a1d520f986d1c4246113a7e24fcdd6d04) )
 	ROM_RELOAD(               0x0c000, 0x4000 ) /* reset+interrupt vectors */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -748,6 +755,10 @@ ROM_START( mhavocrv )
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 16k for code */
 	ROM_LOAD( "136025.908",   0x08000, 0x4000, CRC(c52ec664) SHA1(08120a385f71b17ec02a3c2ef856ff835a91773e) )
 	ROM_RELOAD(               0x0c000, 0x4000 ) /* reset+interrupt vectors */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -775,6 +786,10 @@ ROM_START( mhavocp )
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 16k for code */
 	ROM_LOAD( "136025.008",   0x8000, 0x4000, CRC(22ea7399) SHA1(eeda8cc40089506063835a62c3273e7dd3918fd5) )
 	ROM_RELOAD(               0xc000, 0x4000 )/* reset+interrupt vectors */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -798,6 +813,10 @@ ROM_START( alphaone )
 	ROM_LOAD( "vec_pg23.tw",  0x1c000, 0x4000, CRC(1ff74292) SHA1(90e61c48544c62d905e207bba5c67ae7694e86a5) )
 
 	/* the last 0x1000 is used for the 2 RAM pages */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -821,6 +840,10 @@ ROM_START( alphaona )
 	ROM_LOAD( "vec_pg23.tw",  0x1c000, 0x4000, CRC(1ff74292) SHA1(90e61c48544c62d905e207bba5c67ae7694e86a5) )
 
 	/* the last 0x1000 is used for the 2 RAM pages */
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "136002-125.6c",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
@@ -852,6 +875,10 @@ ROM_START( mhavocpex7 )
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )	
 	ROM_LOAD( "mhavocpex7.x1", 0x000000, 0x040000, CRC(5cfa1865) SHA1(ab520b4af6a9ffc2593223798fee8026266a722e) )
 
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
 
