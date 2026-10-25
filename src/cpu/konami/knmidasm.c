@@ -1,3 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
+/*****************************************************************************
+
+    knmidasm.c - a Konami CPU opcode disassembler
+
+*****************************************************************************/
+
 #include "debugger.h"
 #include "konami.h"
 
