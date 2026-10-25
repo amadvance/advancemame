@@ -343,6 +343,8 @@ const game_driver * const drivers[] =
 	DRIVER( swimmer )	/* (c) 1982 Tehkan */
 	DRIVER( swimmera )	/* (c) 1982 Tehkan */
 	DRIVER( swimmerb )	/* (c) 1982 Tehkan */
+	DRIVER( au )
+	DRIVER( tangramq )
 	DRIVER( guzzler )	/* (c) 1983 Tehkan */
 	DRIVER( cannonb )	/* (c) 1985 Soft */
 	DRIVER( cannonb2 )	/* (c) 1985 TV Game Gruenberg */

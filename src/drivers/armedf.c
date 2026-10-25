@@ -148,7 +148,7 @@ Stephh's notes (based on the games M68000 code and some tests) :
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
 #include "cpu/z80/z80.h"
-#include "cpu/mcs51/mcs51.h"
+#include "cpu/i8051/i8051.h"
 #include "sound/dac.h"
 #include "sound/3812intf.h"
 
@@ -442,8 +442,8 @@ static READ8_HANDLER( bigfghtr_mcu_p1_r )
 
 static READ16_HANDLER( bigfghtr_latch_r )
 {
-	cpunum_set_input_line(2, MCS51_INT0_LINE, CLEAR_LINE);
-	cpunum_set_input_line(2, MCS51_INT0_LINE, ASSERT_LINE);
+	cpunum_set_input_line(2, I8051_INT0_LINE, CLEAR_LINE);
+	cpunum_set_input_line(2, I8051_INT0_LINE, ASSERT_LINE);
 	return 0;
 }
 
@@ -461,7 +461,7 @@ static MACHINE_RESET( bigfghtr )
 {
 	memset(bigfghtr_sharedram, 0, sizeof(bigfghtr_sharedram));
 	armedf_vreg = 0;
-	cpunum_set_input_line(2, MCS51_INT0_LINE, CLEAR_LINE);
+	cpunum_set_input_line(2, I8051_INT0_LINE, CLEAR_LINE);
 }
 
 static ADDRESS_MAP_START( bigfghtr_main_map, ADDRESS_SPACE_PROGRAM, 16 )

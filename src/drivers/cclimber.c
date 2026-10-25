@@ -128,6 +128,8 @@ TODO:
 #include "driver.h"
 #include "sound/ay8910.h"
 #include "sound/samples.h"
+#include "sound/custom.h"
+#include "streams.h"
 #include "includes/cclimber.h"
 
 
@@ -1269,6 +1271,7 @@ WRITE8_HANDLER( swimmer_bgcolor_w );
 WRITE8_HANDLER( swimmer_palettebank_w );
 PALETTE_INIT( swimmer );
 VIDEO_UPDATE( swimmer );
+VIDEO_UPDATE( au );
 WRITE8_HANDLER( swimmer_sidepanel_enable_w );
 
 
@@ -1280,6 +1283,191 @@ WRITE8_HANDLER( swimmer_sh_soundlatch_w )
 }
 
 
+
+static sound_stream *tangramq_wave_stream;
+static UINT16 tangramq_wave_frequency, tangramq_wave_counter;
+static INT16 tangramq_waveform[16];
+static int tangramq_wave_position;
+
+static void tangramq_wave_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	int i;
+	for (i = 0; i < samples; i++)
+	{
+		int remaining = 256;
+		int sample = 0;
+		if (tangramq_wave_frequency == 0xfff)
+		{
+			outputs[0][i] = 0;
+			continue;
+		}
+		while (remaining > 0)
+		{
+			int steps = 0x1000 - tangramq_wave_counter;
+			if (steps <= remaining)
+			{
+				sample += tangramq_waveform[tangramq_wave_position] * steps;
+				tangramq_wave_counter = tangramq_wave_frequency;
+				tangramq_wave_position = (tangramq_wave_position + 1) & 15;
+				remaining -= steps;
+			}
+			else
+			{
+				sample += tangramq_waveform[tangramq_wave_position] * remaining;
+				tangramq_wave_counter += remaining;
+				remaining = 0;
+			}
+		}
+		outputs[0][i] = sample;
+	}
+}
+
+static void tangramq_wave_reset(void *token)
+{
+	tangramq_wave_frequency = 0;
+	tangramq_wave_counter = 0;
+	tangramq_wave_position = 0;
+	memset(tangramq_waveform, 0, sizeof(tangramq_waveform));
+}
+
+static void *tangramq_wave_start(int clock, const struct CustomSound_interface *config)
+{
+	tangramq_wave_reset(0);
+	tangramq_wave_stream = stream_create(0, 1, clock / 256, 0, tangramq_wave_update);
+	return tangramq_wave_stream;
+}
+
+static const struct CustomSound_interface tangramq_wave_interface =
+{
+	tangramq_wave_start, 0, tangramq_wave_reset, 0
+};
+
+static WRITE8_HANDLER( tangramq_wave_w )
+{
+	stream_update(tangramq_wave_stream, 0);
+	if (offset == 0)
+		tangramq_wave_frequency = (tangramq_wave_frequency & 0x03f) | ((data & 0xfc) << 4);
+	else if (offset == 1)
+		tangramq_wave_frequency = (tangramq_wave_frequency & 0xfc0) | (data & 0x3f);
+	else
+	{
+		int index = (offset - 2) * 2;
+		tangramq_waveform[index] = ((data >> 4) & 7) << 4;
+		tangramq_waveform[index + 1] = (data & 7) << 4;
+		tangramq_waveform[14 - index] = ~tangramq_waveform[index + 1];
+		tangramq_waveform[15 - index] = ~tangramq_waveform[index];
+	}
+}
+
+static WRITE8_HANDLER( cclimber_sound_nmi_clear_w )
+{
+	cpunum_set_input_line(1, INPUT_LINE_NMI, CLEAR_LINE);
+}
+
+static READ8_HANDLER( cclimber_sound_nmi_clear_r )
+{
+	cclimber_sound_nmi_clear_w(0, 0);
+	return 0;
+}
+
+static INTERRUPT_GEN( cclimber_sound_nmi )
+{
+	cpunum_set_input_line(1, INPUT_LINE_NMI, ASSERT_LINE);
+}
+
+static UINT8 au_palette_ram[0x80];
+
+static WRITE8_HANDLER( au_palette_w )
+{
+	int color, r, g, b;
+	offset &= 0x7f;
+	au_palette_ram[offset] = data;
+	color = (au_palette_ram[offset & ~1] << 8) | au_palette_ram[offset | 1];
+	r = color & 7;
+	g = (color >> 4) & 7;
+	b = (color >> 8) & 7;
+	palette_set_color(offset / 2, (r << 5) | (r << 2) | (r >> 1),
+		(g << 5) | (g << 2) | (g >> 1), (b << 5) | (b << 2) | (b >> 1));
+}
+
+static PALETTE_INIT( au )
+{
+	int i;
+	for (i = 0; i < 256; i++)
+		colortable[i] = i & 63;
+}
+
+static VIDEO_START( au )
+{
+	memset(au_palette_ram, 0, sizeof(au_palette_ram));
+	swimmer_sidepanel_enable_w(0, 0);
+	swimmer_palettebank_w(0, 0);
+	return video_start_generic();
+}
+
+static ADDRESS_MAP_START( au_main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0x87ff) AM_RAM
+	AM_RANGE(0x8800, 0x88ff) AM_READ(MRA8_RAM) AM_WRITE(cclimber_bigsprite_videoram_w) AM_BASE(&cclimber_bsvideoram) AM_SIZE(&cclimber_bsvideoram_size) AM_MIRROR(0x0700)
+	AM_RANGE(0x9000, 0x93ff) AM_READ(videoram_r) AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size) AM_MIRROR(0x0400)
+	AM_RANGE(0x9800, 0x981f) AM_RAM AM_BASE(&cclimber_column_scroll)
+	AM_RANGE(0x9880, 0x989f) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x98fc, 0x98ff) AM_RAM AM_BASE(&cclimber_bigspriteram)
+	AM_RANGE(0x9c00, 0x9fff) AM_READ(MRA8_RAM) AM_WRITE(cclimber_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0xa000, 0xa000) AM_READ(input_port_1_r) AM_MIRROR(0x07ff)
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0xa001, 0xa001) AM_WRITE(flip_screen_x_w)
+	AM_RANGE(0xa002, 0xa002) AM_WRITE(flip_screen_y_w)
+	AM_RANGE(0xa003, 0xa007) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xa800, 0xa800) AM_READ(input_port_0_r) AM_WRITE(swimmer_sh_soundlatch_w)
+	AM_RANGE(0xa801, 0xafff) AM_READ(input_port_0_r)
+	AM_RANGE(0xb000, 0xb000) AM_READ(input_port_2_r) AM_MIRROR(0x07ff)
+	AM_RANGE(0xb800, 0xb800) AM_READ(input_port_3_r) AM_MIRROR(0x07ff)
+	AM_RANGE(0xb800, 0xb87f) AM_WRITE(au_palette_w) AM_MIRROR(0x0780)
+	AM_RANGE(0xc000, 0xc7ff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( au_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+	AM_RANGE(0x2000, 0x23ff) AM_RAM AM_MIRROR(0x0c00)
+	AM_RANGE(0x3000, 0x3000) AM_READ(soundlatch_r) AM_MIRROR(0x0fff)
+	AM_RANGE(0x4000, 0x4000) AM_READWRITE(cclimber_sound_nmi_clear_r, cclimber_sound_nmi_clear_w) AM_MIRROR(0x0fff)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tangramq_main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x5fff) AM_ROM
+	AM_RANGE(0x6000, 0x6bff) AM_RAM
+	AM_RANGE(0x8000, 0x8000) AM_READ(input_port_4_r)
+	AM_RANGE(0x8020, 0x8020) AM_READ(input_port_5_r)
+	AM_RANGE(0x8800, 0x88ff) AM_RAM AM_BASE(&cclimber_bsvideoram) AM_SIZE(&cclimber_bsvideoram_size)
+	AM_RANGE(0x9000, 0x93ff) AM_READ(videoram_r) AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size) AM_MIRROR(0x0400)
+	AM_RANGE(0x9800, 0x981f) AM_RAM AM_BASE(&cclimber_column_scroll)
+	AM_RANGE(0x9820, 0x987f) AM_RAM
+	AM_RANGE(0x9880, 0x989f) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x98a0, 0x98db) AM_RAM
+	AM_RANGE(0x98dc, 0x98df) AM_RAM AM_BASE(&cclimber_bigspriteram)
+	AM_RANGE(0x98e0, 0x98ff) AM_RAM
+	AM_RANGE(0x9c00, 0x9fff) AM_READ(MRA8_RAM) AM_WRITE(cclimber_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0xa000, 0xa000) AM_READ(input_port_0_r) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0xa001, 0xa001) AM_WRITE(flip_screen_x_w)
+	AM_RANGE(0xa002, 0xa002) AM_WRITE(flip_screen_y_w)
+	AM_RANGE(0xa003, 0xa007) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xa800, 0xa800) AM_READ(input_port_1_r)
+	AM_RANGE(0xb000, 0xb000) AM_READ(input_port_3_r) AM_WRITE(swimmer_sh_soundlatch_w)
+	AM_RANGE(0xb800, 0xb800) AM_READ(input_port_2_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tangramq_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_ROM
+	AM_RANGE(0x4000, 0x4000) AM_READ(soundlatch_r)
+	AM_RANGE(0x8000, 0x8000) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0x8001, 0x8001) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0x8002, 0x8007) AM_WRITE(tangramq_wave_w)
+	AM_RANGE(0x8008, 0x8008) AM_WRITE(AY8910_control_port_1_w)
+	AM_RANGE(0x8009, 0x8009) AM_WRITE(AY8910_write_port_1_w)
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(cclimber_sound_nmi_clear_w)
+	AM_RANGE(0xe000, 0xe3ff) AM_RAM
+ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( swimmer_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
@@ -1501,6 +1689,151 @@ INPUT_PORTS_END
 
 
 
+static INPUT_PORTS_START( au )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0xe0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0xe0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x03, "Disabled")
+	PORT_DIPNAME( 0x0c, 0x00, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_3C ) )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "30000, 100000, Every 100000" )
+	PORT_DIPSETTING(    0x10, "20000, 50000, Every 50000" )
+	PORT_DIPSETTING(    0x20, "30000" )
+	PORT_DIPSETTING(    0x30, "None" )
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x40, "4" )
+	PORT_DIPSETTING(    0x80, "5" )
+	PORT_DIPSETTING(    0xc0, "Infinite (Cheat)" )
+
+	PORT_START_TAG("DSW2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x40, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( tangramq )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x01, "2" )
+	PORT_DIPSETTING(    0x02, "3" )
+	PORT_DIPSETTING(    0x03, "5" )
+	PORT_DIPNAME( 0x04, 0x04, "Freeze" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x70, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x70, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x50, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, "Infinite Lives" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("SYSTEM1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("SYSTEM2")
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0xf7, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
+
 static const gfx_layout swimmer_charlayout =
 {
 	8,8,    /* 8*8 characters */
@@ -1535,6 +1868,116 @@ static const gfx_decode swimmer_gfxdecodeinfo[] =
 
 
 
+
+static const gfx_layout au_charlayout =
+{
+	8, 8, RGN_FRAC(1,3), 3,
+	{ 0, RGN_FRAC(1,3), RGN_FRAC(2,3) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+	8*8
+};
+
+static const gfx_layout au_spritelayout =
+{
+	16, 16, RGN_FRAC(1,3), 3,
+	{ 0, RGN_FRAC(1,3), RGN_FRAC(2,3) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 64, 65, 66, 67, 68, 69, 70, 71 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8,
+		16*8, 17*8, 18*8, 19*8, 20*8, 21*8, 22*8, 23*8 },
+	32*8
+};
+
+static const gfx_decode au_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &au_charlayout, 0, 32 },
+	{ REGION_GFX1, 0, &au_spritelayout, 0, 32 },
+	{ REGION_GFX2, 0, &au_charlayout, 0, 8 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( au )
+	MDRV_CPU_ADD(Z80, 18432000 / 6)
+	MDRV_CPU_PROGRAM_MAP(au_main_map, 0)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse, 1)
+	MDRV_CPU_ADD(Z80, 18432000 / 6)
+	MDRV_CPU_PROGRAM_MAP(au_sound_map, 0)
+	MDRV_CPU_IO_MAP(0, sound_writeport)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse, 1)
+	MDRV_FRAMES_PER_SECOND(60.57)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 255, 16, 239)
+	MDRV_GFXDECODE(au_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(64)
+	MDRV_COLORTABLE_LENGTH(256)
+	MDRV_PALETTE_INIT(au)
+	MDRV_VIDEO_START(au)
+	MDRV_VIDEO_UPDATE(au)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 18432000 / 12)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+	MDRV_SOUND_ADD(AY8910, 18432000 / 12)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+MACHINE_DRIVER_END
+
+static const gfx_layout tangramq_charlayout =
+{
+	8, 8, 512, 2,
+	{ 0, 0x2000 * 8 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+	8*8
+};
+
+static const gfx_layout tangramq_spritelayout =
+{
+	16, 16, 128, 2,
+	{ 0, 0x2000 * 8 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 64, 65, 66, 67, 68, 69, 70, 71 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8,
+		  16*8, 17*8, 18*8, 19*8, 20*8, 21*8, 22*8, 23*8 },
+	32*8
+};
+
+static const gfx_decode tangramq_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0x0000, &tangramq_charlayout, 0, 16 },
+	{ REGION_GFX1, 0x1000, &tangramq_charlayout, 0, 16 },
+	{ REGION_GFX2, 0x0000, &charlayout, 64, 8 },
+	{ REGION_GFX1, 0x0000, &tangramq_spritelayout, 0, 16 },
+	{ REGION_GFX1, 0x1000, &tangramq_spritelayout, 0, 16 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( tangramq )
+	MDRV_CPU_ADD(Z80, 18432000 / 6)
+	MDRV_CPU_PROGRAM_MAP(tangramq_main_map, 0)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse, 1)
+	MDRV_CPU_ADD(Z80, 8000000 / 2)
+	MDRV_CPU_PROGRAM_MAP(tangramq_sound_map, 0)
+	MDRV_CPU_PERIODIC_INT(cclimber_sound_nmi, TIME_IN_HZ(8000000.0 / 2 / 0x4000))
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 255, 16, 239)
+	MDRV_GFXDECODE(tangramq_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(96)
+	MDRV_COLORTABLE_LENGTH(96)
+	MDRV_PALETTE_INIT(cclimber)
+	MDRV_VIDEO_START(generic)
+	MDRV_VIDEO_UPDATE(cclimber)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 8000000 / 4)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.35)
+	MDRV_SOUND_ADD(AY8910, 8000000 / 4)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.35)
+	MDRV_SOUND_ADD(CUSTOM, 8000000)
+	MDRV_SOUND_CONFIG(tangramq_wave_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( swimmer )
 
@@ -1768,6 +2211,50 @@ DRIVER_INIT( cclimbrj )
 
 
 
+ROM_START( au )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "program0.e8", 0x0000, 0x2000, CRC(04c7ebc9) SHA1(f8b8a92d68786969b83dd041e695d11722ade4bc) )
+	ROM_LOAD( "program1.b8", 0x2000, 0x2000, CRC(d3820146) SHA1(73a2ae3a6ba2064572c2c5c726179748634293bd) )
+	ROM_LOAD( "program2.d8", 0x4000, 0x2000, CRC(da85cf0f) SHA1(16dfd574892f99124f52b83c7673c588f251e9fe) )
+	ROM_LOAD( "program3.a8", 0x6000, 0x2000, CRC(fa4bc959) SHA1(5848b3cffa1ace96676b6d0735f13eab8ee5c693) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "sound0.c4",   0x0000, 0x1000, CRC(0315f0a1) SHA1(18d1e72298448737c8aa226f6d8b9c592143c4e8) )
+
+	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "tile2.bin",   0x0000, 0x2000, CRC(faa24ff4) SHA1(b95a9df5ea44c638589b7bab507638210b369401) )
+	ROM_LOAD( "tile1.bin",   0x2000, 0x2000, CRC(2bd7aa4e) SHA1(9a1482cedd689bd10a30208cc10469bf5b53a264) )
+	ROM_LOAD( "tile0.bin",   0x4000, 0x2000, CRC(d5a8bf00) SHA1(6a9ad47477c5041c3757f8dcaf3d54f054257ed3) )
+
+	ROM_REGION( 0x3000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "big2.g7",     0x0000, 0x1000, CRC(19d65322) SHA1(e1d1c5a19ef6d1d773485a30a887da51c6281e1d) )
+	ROM_LOAD( "big1.e7",     0x1000, 0x1000, CRC(dd2bf0ba) SHA1(4a9688555e73cc3be61665ce9800eb8975844d4f) )
+	ROM_LOAD( "big0.c7",     0x2000, 0x1000, CRC(4a22394e) SHA1(6b8d9658a0c4cad21d226fe8b10ba3e0c8e9fe28) )
+ROM_END
+
+ROM_START( tangramq )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "m1.k5", 0x0000, 0x2000, CRC(dff92169) SHA1(805784afeba676306ed6c0d41d33ed0163bdc08e) )
+	ROM_LOAD( "m2.k4", 0x2000, 0x2000, CRC(1cbade75) SHA1(1fa276261428c392917df4a4dbd9f99710b9855e) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "s1.a6", 0x0000, 0x2000, CRC(05af38f6) SHA1(7bdbf798964aa4d603fca0178b3f8fc251d207f6) )
+
+
+	ROM_REGION( 0x2000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "b2.e17", 0x0000, 0x1000, CRC(77d21b84) SHA1(7f9bfbfbc7fd51a97f15fee54ac851ddfa97b213) )
+	ROM_LOAD( "b1.e19", 0x1000, 0x1000, CRC(f3ec2562) SHA1(859473c45b9d22c138b70ea649b93d41721e1e0d) )
+
+	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "f1.h4", 0x0000, 0x2000, CRC(c7c3ffe1) SHA1(f8f0ac3b73f560af3ef0954e5d80984bad605ea2) )
+	ROM_LOAD( "f2.h2", 0x2000, 0x2000, CRC(dbc13c1f) SHA1(b299582f97a384b2d252d815a3c64e9f54346748) )
+
+	ROM_REGION( 0x60, REGION_PROMS, 0 )
+	ROM_LOAD( "mb7051_m02.m6", 0x00, 0x20, CRC(b3fc1505) SHA1(5b94adde0428a26b815c7eb9b3f3716470d349c7) )
+	ROM_LOAD( "mb7051_m02.m7", 0x20, 0x20, CRC(26aada9e) SHA1(f59645e606ea4f0dd0fc4ea47dd03f526c534941) )
+	ROM_LOAD( "mb7051_m02.m8", 0x40, 0x20, CRC(676b3166) SHA1(29b9434cd34d43ea5664e436e2a24b54f8d88aac) )
+ROM_END
+
 GAME( 1980, cclimber, 0,        cclimber, cclimber, cclimber, ROT0,   "Nichibutsu", "Crazy Climber (US)", 0 )
 GAME( 1980, cclimbrj, cclimber, cclimber, cclimbrj, cclimbrj, ROT0,   "Nichibutsu", "Crazy Climber (Japan)", 0 )
 GAME( 1980, ccboot,   cclimber, cclimber, cclimber, cclimbrj, ROT0,   "bootleg", "Crazy Climber (bootleg set 1)", 0 )
@@ -1784,6 +2271,8 @@ GAME( 1981,rpatrolb, 0,        cclimber, rpatrolb, 0,         ROT0,   "bootleg",
 GAME( 1981,rpatrolo, rpatrolb, cclimber, rpatrolb, 0,         ROT0,   "Orca",  "River Patrol (Orca)", 0 )
 GAME( 1981,silvland, rpatrolb, cclimber, rpatrolb, 0,         ROT0,   "Falcon", "Silver Land", 0 )
 
+GAME( 1983, tangramq, 0, tangramq, tangramq, 0, ROT270, "SNK", "Tangram Q", 0 )
+
 GAME( 1985, cannonb,  0,        cannonb,  cannonb,  cannonb,  ROT90,  "Soft", "Cannon Ball (Crazy Climber hardware)" , GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, cannonb2,  cannonb, cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
 GAME( 198?, ckongb  , ckong,    cclimber, ckongb,    ckongb,   ROT270, "bootleg", "Crazy Kong (Alternative levels)", 0 )
@@ -1792,3 +2281,4 @@ GAME( 1982, swimmer,  0,        swimmer,  swimmer,  0,        ROT0,   "Tehkan", 
 GAME( 1982, swimmera, swimmer,  swimmer,  swimmer,  0,        ROT0,   "Tehkan", "Swimmer (set 2)", 0 )
 GAME( 1982, swimmerb, swimmer,  swimmer,  swimmerb, 0,        ROT0,   "Tehkan", "Swimmer (set 3)", 0 )
 GAME( 1983, guzzler,  0,        swimmer,  guzzler,  0,        ROT90,  "Tehkan", "Guzzler", 0 )
+GAME( 1983, au, 0, au, au, 0, ROT90, "Tehkan", "Au (location test)", 0 )
