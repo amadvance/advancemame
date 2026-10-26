@@ -224,6 +224,15 @@ static void sharc_iop_w(UINT32 address, UINT32 data)
 	{
 		case 0x00: break;		// System configuration
 		case 0x02: break;		// External Memory Wait State Configuration
+		case 0x08:
+		case 0x09:
+		case 0x0a:
+		case 0x0b:
+		case 0x0c:
+		case 0x0d:
+		case 0x0e:
+		case 0x0f:
+			break;
 
 		// DMA 6
 		case 0x1c: add_iop_latency_op(0x1c, data, 1); break;
