@@ -488,7 +488,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/skyraid.o $(OBJ)/vidhrdw/skyraid.o $(OBJ)/sndhrdw/skyraid.o \
 	$(OBJ)/drivers/sprint2.o $(OBJ)/sndhrdw/sprint2.o $(OBJ)/vidhrdw/sprint2.o \
 	$(OBJ)/drivers/sprint4.o $(OBJ)/sndhrdw/sprint4.o $(OBJ)/vidhrdw/sprint4.o \
-	$(OBJ)/drivers/sprint8.o $(OBJ)/vidhrdw/sprint8.o \
+	$(OBJ)/drivers/sprint8.o $(OBJ)/vidhrdw/sprint8.o $(OBJ)/sndhrdw/sprint8.o \
 	$(OBJ)/drivers/starshp1.o $(OBJ)/vidhrdw/starshp1.o \
 	$(OBJ)/drivers/starwars.o $(OBJ)/machine/starwars.o $(OBJ)/sndhrdw/starwars.o \
 	$(OBJ)/drivers/subs.o $(OBJ)/machine/subs.o $(OBJ)/sndhrdw/subs.o $(OBJ)/vidhrdw/subs.o \

@@ -7,6 +7,7 @@ Atari Sprint 8 driver
 ***************************************************************************/
 
 #include "driver.h"
+#include "sprint8.h"
 
 extern VIDEO_EOF( sprint8 );
 extern VIDEO_START( sprint8 );
@@ -179,15 +180,25 @@ static WRITE8_HANDLER( sprint8_int_reset_w )
 }
 
 
-/* names of sound effects taken from Tank 8, might differ for Sprint 8 */
+static WRITE8_HANDLER( sprint8_crash_w )
+{
+	discrete_sound_w(SPRINT8_CRASH_EN, data & 1);
+}
 
-static WRITE8_HANDLER( sprint8_crash_w ) {}
-static WRITE8_HANDLER( sprint8_explosion_w ) {}
-static WRITE8_HANDLER( sprint8_bugle_w ) {}
-static WRITE8_HANDLER( sprint8_bug_w ) {}
-static WRITE8_HANDLER( sprint8_attract_w ) {}
-static WRITE8_HANDLER( sprint8_motor_w ) {}
+static WRITE8_HANDLER( sprint8_screech_w )
+{
+	discrete_sound_w(SPRINT8_SCREECH_EN, data & 1);
+}
 
+static WRITE8_HANDLER( sprint8_attract_w )
+{
+	discrete_sound_w(SPRINT8_ATTRACT_EN, data & 1);
+}
+
+static WRITE8_HANDLER( sprint8_motor_w )
+{
+	discrete_sound_w(SPRINT8_MOTOR1_EN + (offset & 7), data & 1);
+}
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x00ff) AM_READ(MRA8_RAM)
@@ -210,9 +221,9 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x1c30, 0x1c37) AM_WRITE(sprint8_lockout_w)
 	AM_RANGE(0x1d00, 0x1d00) AM_WRITE(sprint8_int_reset_w)
 	AM_RANGE(0x1d01, 0x1d01) AM_WRITE(sprint8_crash_w)
-	AM_RANGE(0x1d02, 0x1d02) AM_WRITE(sprint8_explosion_w)
-	AM_RANGE(0x1d03, 0x1d03) AM_WRITE(sprint8_bugle_w)
-	AM_RANGE(0x1d04, 0x1d04) AM_WRITE(sprint8_bug_w)
+	AM_RANGE(0x1d02, 0x1d02) AM_WRITE(sprint8_screech_w)
+	AM_RANGE(0x1d03, 0x1d03) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x1d04, 0x1d04) AM_WRITE(MWA8_NOP)
 	AM_RANGE(0x1d05, 0x1d05) AM_WRITE(sprint8_team_w)
 	AM_RANGE(0x1d06, 0x1d06) AM_WRITE(sprint8_attract_w)
 	AM_RANGE(0x1e00, 0x1e07) AM_WRITE(sprint8_motor_w)
@@ -354,6 +365,8 @@ INPUT_PORTS_START( sprint8 )
 	PORT_START
 	PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_VBLANK )
 
+	PORT_START
+	PORT_ADJUSTER(65, "Crash and Screech Volume")
 INPUT_PORTS_END
 
 
@@ -478,6 +491,8 @@ INPUT_PORTS_START( sprint8p )
 	PORT_START
 	PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_VBLANK )
 
+	PORT_START
+	PORT_ADJUSTER(65, "Crash and Screech Volume")
 INPUT_PORTS_END
 
 
@@ -565,6 +580,16 @@ static MACHINE_DRIVER_START( sprint8 )
 	MDRV_VIDEO_EOF(sprint8)
 
 	/* sound hardware */
+	MDRV_SPEAKER_ADD("cars12", 0.0, 0.0, 1.0)
+	MDRV_SPEAKER_ADD("cars37", -0.2, 0.0, 1.0)
+	MDRV_SPEAKER_ADD("cars56", 0.0, 0.0, -0.5)
+	MDRV_SPEAKER_ADD("cars48", 0.2, 0.0, 1.0)
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(sprint8_discrete)
+	MDRV_SOUND_ROUTE(0, "cars12", 1.0)
+	MDRV_SOUND_ROUTE(1, "cars37", 0.0)
+	MDRV_SOUND_ROUTE(2, "cars56", 0.0)
+	MDRV_SOUND_ROUTE(3, "cars48", 0.0)
 MACHINE_DRIVER_END
 
 
@@ -601,5 +626,5 @@ ROM_START( sprint8a )
 ROM_END
 
 
-GAME( 1977, sprint8,  0,       sprint8, sprint8,  0, ROT0, "Atari", "Sprint 8",             GAME_NO_SOUND )
-GAME( 1977, sprint8a, sprint8, sprint8, sprint8p, 0, ROT0, "Atari", "Sprint 8 (play tag & chase)", GAME_NO_SOUND )
+GAME( 1977, sprint8,  0,       sprint8, sprint8,  0, ROT0, "Atari", "Sprint 8",             0 )
+GAME( 1977, sprint8a, sprint8, sprint8, sprint8p, 0, ROT0, "Atari", "Sprint 8 (play tag & chase)", 0 )
