@@ -10,6 +10,7 @@
 #include "driver.h"
 #include "includes/berzerk.h"
 #include "sound/samples.h"
+#include "sound/s14001a.h"
 
 
 static ADDRESS_MAP_START( berzerk_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -286,6 +287,217 @@ INPUT_PORTS_START( frenzy )
 INPUT_PORTS_END
 
 
+#define MOONWARP_COINAGE(CHUTE) \
+	PORT_DIPNAME( 0x0f, 0x00, "Coin "#CHUTE ) \
+	PORT_DIPSETTING(    0x09, DEF_STR( 2C_1C ) ) \
+	PORT_DIPSETTING(    0x0d, DEF_STR( 4C_3C ) ) \
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) ) \
+	PORT_DIPSETTING(    0x0e, DEF_STR( 4C_5C ) ) \
+	PORT_DIPSETTING(    0x0a, DEF_STR( 2C_3C ) ) \
+	PORT_DIPSETTING(    0x0f, DEF_STR( 4C_7C ) ) \
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ) ) \
+	PORT_DIPSETTING(    0x0b, DEF_STR( 2C_5C ) ) \
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_3C ) ) \
+	PORT_DIPSETTING(    0x0c, DEF_STR( 2C_7C ) ) \
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_4C ) ) \
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_5C ) ) \
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_6C ) ) \
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_7C ) ) \
+	PORT_DIPSETTING(    0x07, "1 Coin/10 Credits" ) \
+	PORT_DIPSETTING(    0x08, "1 Coin/14 Credits" )
+
+
+INPUT_PORTS_START( moonwarp )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x1f, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON3 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
+
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Hyper Flip")
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x1f, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_COCKTAIL
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+
+	PORT_START_TAG("COLLISION")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_VBLANK )
+	PORT_BIT( 0x7e, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_SPECIAL )
+
+	PORT_START_TAG("F3")
+	PORT_DIPNAME( 0x01, 0x00, "Input Test Mode" ) PORT_CODE(KEYCODE_F2) PORT_TOGGLE
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x00, "Crosshair Pattern" ) PORT_CODE(KEYCODE_F4) PORT_TOGGLE
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x00, "Spinner Orientation" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Reverse ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Standard ) )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Language ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( English ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( German ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( French ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Spanish ) )
+
+	PORT_START_TAG("F2")
+	PORT_DIPNAME( 0x03, 0x00, "Hardware Tests" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, "Color test" )
+	PORT_DIPSETTING(    0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x03, "Signature Analysis" )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xF8, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "10000" )
+	PORT_DIPSETTING(    0x08, "15000" )
+	PORT_DIPSETTING(    0x10, "20000" )
+	PORT_DIPSETTING(    0x20, "30000" )
+	PORT_DIPSETTING(    0x40, "40000" )
+	PORT_DIPSETTING(    0x80, "50000" )
+	PORT_DIPSETTING(    0x18, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x28, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x30, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0x38, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x48, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x50, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0x58, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x60, "30000 (duplicate)" )
+	PORT_DIPSETTING(    0x68, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x70, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0x78, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x88, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0x90, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0x98, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xa0, "30000 (duplicate)" )
+	PORT_DIPSETTING(    0xa8, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xb0, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0xb8, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xc0, "40000 (duplicate)" )
+	PORT_DIPSETTING(    0xc8, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xd0, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0xd8, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xe0, "30000 (duplicate)" )
+	PORT_DIPSETTING(    0xe8, "15000 (duplicate)" )
+	PORT_DIPSETTING(    0xf0, "20000 (duplicate)" )
+	PORT_DIPSETTING(    0xf8, "15000 (duplicate)" )
+
+	PORT_START_TAG("F6")
+	MOONWARP_COINAGE(3)
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Easy ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Hard ) )
+
+	PORT_START_TAG("F5")
+	MOONWARP_COINAGE(2)
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Cocktail ) )
+
+	PORT_START_TAG("F4")
+	MOONWARP_COINAGE(1)
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("SW2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_NAME("Free Game")
+	PORT_BIT( 0x7e, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_SERVICE2 ) PORT_NAME("Bookkeeping") PORT_CODE(KEYCODE_F1)
+
+	PORT_START_TAG("P1_DIAL")
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(4) PORT_RESET
+
+	PORT_START_TAG("P2_DIAL")
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(4) PORT_COCKTAIL PORT_RESET
+
+INPUT_PORTS_END
+
+static UINT8 moonwarp_counter[2], moonwarp_direction[2];
+
+static UINT8 moonwarp_spinner(int player)
+{
+	INT8 delta = readinputport(10 + player);
+	if (delta < 0)
+		moonwarp_direction[player] = 0;
+	else if (delta > 0)
+		moonwarp_direction[player] = 0x10;
+	moonwarp_counter[player] = (moonwarp_counter[player] + abs(delta)) & 0x0f;
+	return moonwarp_counter[player] | moonwarp_direction[player] | (readinputport(player ? 2 : 0) & 0xe0);
+}
+
+static READ8_HANDLER( moonwarp_p1_r )
+{
+	return moonwarp_spinner(0);
+}
+
+static READ8_HANDLER( moonwarp_p2_r )
+{
+	return moonwarp_spinner(1);
+}
+
+static MACHINE_RESET( moonwarp )
+{
+	machine_reset_berzerk();
+	memset(moonwarp_counter, 0, sizeof(moonwarp_counter));
+	memset(moonwarp_direction, 0, sizeof(moonwarp_direction));
+}
+
+static DRIVER_INIT( moonwarp )
+{
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 0x40, 0x47, 0, 0, moonwarp_sound_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x40, 0x47, 0, 0, moonwarp_sound_w);
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 0x48, 0x48, 0, 0, moonwarp_p1_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 0x4a, 0x4a, 0, 0, moonwarp_p2_r);
+}
+
 static MACHINE_DRIVER_START( berzerk )
 
 	/* basic machine hardware */
@@ -313,7 +525,7 @@ static MACHINE_DRIVER_START( berzerk )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_ADD_TAG("samples", SAMPLES, 0)
 	MDRV_SOUND_CONFIG(berzerk_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
@@ -333,6 +545,18 @@ MACHINE_DRIVER_END
   Game driver(s)
 
 ***************************************************************************/
+
+static MACHINE_DRIVER_START( moonwarp )
+	MDRV_IMPORT_FROM(frenzy)
+	MDRV_MACHINE_RESET(moonwarp)
+	MDRV_SOUND_REMOVE("samples")
+	MDRV_SOUND_ADD(CUSTOM, 2500000 / 16 / 8)
+	MDRV_SOUND_CONFIG(s14001a_speech_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(moonwarp_effects_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.33)
+MACHINE_DRIVER_END
 
 ROM_START( berzerk )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
@@ -379,6 +603,24 @@ ROM_END
 
 
 
+ROM_START( moonwarp )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "1d.bin", 0x0000, 0x1000, CRC(75470634) SHA1(1a811fef39724fd227e06b694841d3dad5659622) )
+	ROM_LOAD( "3d.bin", 0x1000, 0x1000, CRC(a9d046dc) SHA1(88afccd09d2809cafd12dd40ab3be77e3707cfc5) )
+	ROM_LOAD( "5d.bin", 0x2000, 0x1000, CRC(bf671737) SHA1(cdfae1eb8995c2251813cc5633fc809aa9e6a36f) )
+	ROM_LOAD( "6d.bin", 0x3000, 0x1000, CRC(cef2d697) SHA1(5c31c6e7002f0d944b3028d1b804480acf3af042) )
+	ROM_LOAD( "5c.bin", 0xc000, 0x1000, CRC(a3d551ab) SHA1(a32352727b5475a6ec6c495c55f01ccd6e024f98) )
+
+	ROM_REGION( 0x01000, REGION_SOUND1, 0 )
+	ROM_LOAD( "moon_war_rv0_1c.1c", 0x0000, 0x0800, CRC(9e9a653f) SHA1(cf49a38ef343ace271ba1e5dde38bd8b9c0bd876) )
+	ROM_LOAD( "moon_war_rv0_2c.2c", 0x0800, 0x0800, CRC(73fd988d) SHA1(08a2aeb4d87eee58e38e4e3f749a95f2308aceb0) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "n82s123.6e", 0x0000, 0x0020, CRC(4471ca5d) SHA1(ba8dca2ec076818f8ad8c17b15c77965e36fa05e) )
+	ROM_LOAD( "prom.6e",    0x0000, 0x0020, CRC(56bffba3) SHA1(c8e24f6361c50bcb4c9d3f39cdaf4172c2a2b318) )
+ROM_END
+
 GAME( 1980, berzerk,  0,       berzerk, berzerk, 0, ROT0, "Stern", "Berzerk (set 1)", 0 )
 GAME( 1980, berzerk1, berzerk, berzerk, berzerk, 0, ROT0, "Stern", "Berzerk (set 2)", 0 )
 GAME( 1982, frenzy,   0,       frenzy,  frenzy,  0, ROT0, "Stern", "Frenzy", 0 )
+GAME( 1981, moonwarp, 0, moonwarp, moonwarp, moonwarp, ROT0, "Stern Electronics", "Moon War (prototype on Frenzy hardware)", GAME_IMPERFECT_SOUND )

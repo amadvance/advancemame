@@ -17,7 +17,7 @@ SOUNDDEFS += -DHAS_CUSTOM=$(if $(filter CUSTOM,$(SOUNDS)),1,0)
 SOUNDDEFS += -DHAS_SAMPLES=$(if $(filter SAMPLES,$(SOUNDS)),1,0)
 
 ifneq ($(filter CUSTOM,$(SOUNDS)),)
-SOUNDOBJS += $(OBJ)/sound/custom.o
+SOUNDOBJS += $(OBJ)/sound/custom.o $(OBJ)/sound/s14001a.o
 endif
 
 ifneq ($(filter SAMPLES,$(SOUNDS)),)

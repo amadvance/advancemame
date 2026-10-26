@@ -5578,6 +5578,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( berzerk )	/* (c) 1980 */
 	DRIVER( berzerk1 )	/* (c) 1980 */
 	DRIVER( frenzy )	/* (c) 1982 */
+	DRIVER( moonwarp )
 
 	/* Stern 'Mazer Blazer hardware' games */
 	DRIVER( mazerbla )

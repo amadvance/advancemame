@@ -9,13 +9,11 @@ Atari Wolf Pack (prototype) driver
 #include "driver.h"
 #include "sound/custom.h"
 #include "sound/samples.h"
+#include "sound/s14001a.h"
 
-extern struct CustomSound_interface wolfpack_speech_interface;
 extern struct Samplesinterface wolfpack_samples_interface;
-extern int wolfpack_speech_busy(void);
 extern void wolfpack_effect_reset(void);
 extern WRITE8_HANDLER( wolfpack_word_w );
-extern WRITE8_HANDLER( wolfpack_start_speech_w );
 extern WRITE8_HANDLER( wolfpack_effect_w );
 
 extern int wolfpack_collision;
@@ -124,7 +122,7 @@ static READ8_HANDLER( wolfpack_misc_r )
 	/* BIT6 => UNUSED      */
 	/* BIT7 => VBLANK      */
 
-	if (!wolfpack_speech_busy())
+	if (!s14001a_speech_busy())
 		val |= 0x01;
 
 	if (!wolfpack_collision)
@@ -211,7 +209,7 @@ static ADDRESS_MAP_START( wolfpack_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x2001, 0x2001) AM_WRITE(wolfpack_sonar_ping_w)
 	AM_RANGE(0x2002, 0x2002) AM_WRITE(wolfpack_sirlat_w)
 	AM_RANGE(0x2003, 0x2003) AM_WRITE(wolfpack_pt_sound_w)
-	AM_RANGE(0x2004, 0x2004) AM_WRITE(wolfpack_start_speech_w)
+	AM_RANGE(0x2004, 0x2004) AM_WRITE(s14001a_start_w)
 	AM_RANGE(0x2005, 0x2005) AM_WRITE(wolfpack_launch_torpedo_w)
 	AM_RANGE(0x2006, 0x2006) AM_WRITE(wolfpack_low_explo_w)
 	AM_RANGE(0x2007, 0x2007) AM_WRITE(wolfpack_screw_cont_w)
@@ -404,7 +402,7 @@ static MACHINE_DRIVER_START(wolfpack)
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 	MDRV_SOUND_ADD(CUSTOM, 20000)
-	MDRV_SOUND_CONFIG(wolfpack_speech_interface)
+	MDRV_SOUND_CONFIG(s14001a_speech_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(wolfpack_samples_interface)

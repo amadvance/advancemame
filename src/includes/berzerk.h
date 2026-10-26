@@ -29,3 +29,7 @@ READ8_HANDLER( berzerk_port_4e_r );
 extern struct Samplesinterface berzerk_samples_interface;
 WRITE8_HANDLER( berzerk_sound_w );
 READ8_HANDLER( berzerk_sound_r );
+
+extern struct CustomSound_interface moonwarp_effects_interface;
+WRITE8_HANDLER( moonwarp_sound_w );
+READ8_HANDLER( moonwarp_sound_r );

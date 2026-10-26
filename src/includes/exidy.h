@@ -10,6 +10,7 @@
 
 /*----------- defined in sndhrdw/exidy.c -----------*/
 
+void *exidy_effects_start(int clock, const struct CustomSound_interface *config);
 void *exidy_sh_start(int clock, const struct CustomSound_interface *config);
 void *victory_sh_start(int clock, const struct CustomSound_interface *config);
 
