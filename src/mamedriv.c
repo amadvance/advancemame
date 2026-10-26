@@ -4801,6 +4801,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( jedi )		/* 136030           (c) 1984 */
 
 	/* Atari System 1 games */
+	DRIVER( atarisy1 )
 	DRIVER( peterpak )	/* 136028           (c) 1984 */
 	/* Marble Madness */
 	DRIVER( marble )	/* 136033           (c) 1984 */
@@ -4828,6 +4829,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( roadblsc )	/* 136048           (c) 1986, 1987 */
 	DRIVER( roadblcg )	/* 136048           (c) 1986, 1987 */
 	DRIVER( roadblc1 )	/* 136048           (c) 1986, 1987 */
+
+	DRIVER( reliefs1 )
 
 	/* Atari System 2 games */
 	/* Paperboy */
