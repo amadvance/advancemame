@@ -23,8 +23,8 @@ This document contains essential project overview, architecture details, build/t
 - `src/machine/`: Cryptography, co-processor, and peripheral MCU emulation.
 - `src/includes/`: Driver header definitions and shared structures.
 - `resource/`: Reference repositories and materials:
-  - `resource/mame/mame0XXXs/`: Historical MAME source code drops (e.g. `resource/mame/mame0155s/` contains MAME 0.155).
-  - `resource/mamegit/`: Git repository containing full MAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mamegit log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
+  - `resource/mame/`: Git repository containing full MAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mamegit log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
+  - `resource/hbmame/`: Git repository containing full HBMAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mamegit log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
 
 ---
 
@@ -231,8 +231,9 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 
 ## 7. Development & Agent Workflow Rules
 
+- **Efficiency First**: Prioritize maximum efficiency, even when this reduces emulation accuracy, provided the game remains functional.
 - **Coding Style**: Preserve the coding style and indentation of the file being modified. Use tabs for indentation in new files, except for backported files, which must preserve the indentation of the original source file. Avoid reformatting unrelated code.
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
-- **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change.
+- **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change. Do not use subsystem prefixes such as "psx spu: ..."; write a concise description starting directly with an imperative verb (e.g. "Fix ...", "Add ...", "Deactivate ...").
 - **Git Commits**: Never commit changes to git.
 - **Temporary files** Create temporary files and directories under `/tmp/advancemame/`.

@@ -191,6 +191,7 @@ static void adsr_update( struct psxinfo *chip, int n_channel )
 		if( n_level <= 0 )
 		{
 			chip->m_p_n_adsrstate[ n_channel ] = ADSR_OFF;
+			chip->m_p_n_blockstatus[ n_channel ] = 0;
 		}
 		break;
 	}
@@ -292,12 +293,15 @@ static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t
 				if( ( n_flags & 1 ) != 0 )
 				{
 					chip->m_n_endx |= ( 1 << n_channel );
-					chip->m_p_n_blockaddress[ n_channel ] = chip->m_n_loop[ n_channel ];
 					if( ( n_flags & 2 ) == 0 )
 					{
-						/* like the real SPU: jump to the repeat address and mute, but keep running */
+						chip->m_p_n_blockstatus[ n_channel ] = 0;
 						chip->m_p_n_adsrstate[ n_channel ] = ADSR_OFF;
 						chip->m_p_n_adsrlevel[ n_channel ] = 0;
+					}
+					else
+					{
+						chip->m_p_n_blockaddress[ n_channel ] = chip->m_n_loop[ n_channel ];
 					}
 				}
 				chip->m_p_n_blockoffset[ n_channel ] %= ( SAMPLES_PER_BLOCK << PITCH_SHIFT );
