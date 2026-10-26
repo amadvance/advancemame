@@ -485,7 +485,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/shuuz.o $(OBJ)/vidhrdw/shuuz.o \
 	$(OBJ)/drivers/skullxbo.o $(OBJ)/vidhrdw/skullxbo.o \
 	$(OBJ)/drivers/skydiver.o $(OBJ)/sndhrdw/skydiver.o $(OBJ)/vidhrdw/skydiver.o \
-	$(OBJ)/drivers/skyraid.o $(OBJ)/vidhrdw/skyraid.o \
+	$(OBJ)/drivers/skyraid.o $(OBJ)/vidhrdw/skyraid.o $(OBJ)/sndhrdw/skyraid.o \
 	$(OBJ)/drivers/sprint2.o $(OBJ)/sndhrdw/sprint2.o $(OBJ)/vidhrdw/sprint2.o \
 	$(OBJ)/drivers/sprint4.o $(OBJ)/sndhrdw/sprint4.o $(OBJ)/vidhrdw/sprint4.o \
 	$(OBJ)/drivers/sprint8.o $(OBJ)/vidhrdw/sprint8.o \
