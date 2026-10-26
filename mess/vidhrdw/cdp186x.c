@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 #include "driver.h"
 #include "vidhrdw/generic.h"
 #include "cpu/cdp1802/cdp1802.h"

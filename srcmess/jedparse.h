@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
     jedparse.h
@@ -5,7 +7,6 @@
     Parser for .JED files into raw fusemaps.
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 

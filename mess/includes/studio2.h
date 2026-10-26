@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 extern int studio2_get_vsync(void);
 extern void studio2_video_dma(int cycles);
 

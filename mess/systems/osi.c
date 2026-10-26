@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder, Robbbert, Wilbert Pol
 #include "driver.h"
 #include "vidhrdw/generic.h"
 #include "inputx.h"

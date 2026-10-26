@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 /*
 	smc92x4.h: header file for smc92x4.c
 

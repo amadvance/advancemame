@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /* machine/advision.c */
 extern int advision_framestart;
 /*extern int advision_videoenable;*/

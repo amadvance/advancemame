@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha,Jon Sturm
 #define TI85_HEADER_SIZE	0x37
 
 #define TI85_SEND_VARIABLES	1

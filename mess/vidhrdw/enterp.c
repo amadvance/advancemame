@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Curt Coder
 /***************************************************************************
 
   Functions to emulate the video hardware of the Enterprise.

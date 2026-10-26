@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Antoine Mine
 /******************************************************************************
  hp48
  Peter.Trauner@jk.uni-linz.ac.at May 2000

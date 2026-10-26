@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 typedef enum {
 	CYCLES_MOV_REG_REG,
 	CYCLES_MOV_REG_MEM,

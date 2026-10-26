@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Raphael Nabet
 /* register names for apexc_get_reg & apexc_set_reg */
 enum
 {

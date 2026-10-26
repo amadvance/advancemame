@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 /*
 	Atmel at29c040a flash EEPROM
 

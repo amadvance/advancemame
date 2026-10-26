@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /***************************************************************************
 
     machine/pc_hdc.c

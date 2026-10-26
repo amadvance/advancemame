@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Miodrag Milanovic
 /*
   8bit analog output
   8bit analog input

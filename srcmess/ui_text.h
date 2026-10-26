@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Aaron Giles, Nathan Woods
 /***************************************************************************
 
     ui_text.h
@@ -6,7 +8,6 @@
     translation.
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*
 	TI99/4(a) RS232 card emulation
 

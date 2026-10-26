@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Aaron Giles
 # this is a MESS build
 MESS = 1
 

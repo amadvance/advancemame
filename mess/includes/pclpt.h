@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Dirk Best
 #ifndef __PC_LPT_H_
 #define __PC_LPT_H_
 

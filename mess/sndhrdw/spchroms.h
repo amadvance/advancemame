@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Aaron Giles, Jonathan Gevaryahu, Raphael Nabet, Couriersud, Michael Zapf
 typedef struct spchroms_interface
 {
 	int memory_region;			/* memory region where the speech ROM is.  -1 means no speech ROM */

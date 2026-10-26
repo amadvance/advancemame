@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #ifndef __I88INTR_H_
 #define __I88INTR_H_
 

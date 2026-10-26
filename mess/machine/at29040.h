@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 void at29c040a_init_data_ptr(int id, UINT8 *data_ptr);
 void at29c040a_init(int id);
 int at29c040a_file_load(int id, mame_file *file);

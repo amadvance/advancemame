@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 #ifndef TMS5501_H
 #define TMS5501_H
 

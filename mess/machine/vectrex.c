@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mathis Rosenhauer
 #include "driver.h"
 #include "vidhrdw/vector.h"
 #include "machine/6522via.h"

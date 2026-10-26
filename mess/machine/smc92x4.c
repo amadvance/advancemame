@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 /*
 	SMC9224 and SMC9234 Hard and Floppy Disk Controller (HFDC)
 

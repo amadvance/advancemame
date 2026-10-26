@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Aaron Giles
 /*****************************************************************
  * Generated from M. Kuhn's Public Domain Unicode fonts
  * http://www.cl.cam.ac.uk/~mgk25/unicode.html

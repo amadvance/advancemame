@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #include "adsp2100.h"
 
 static const char *flag_change[] = { "", "TOGGLE %s ", "RESET %s ", "SET %s " };

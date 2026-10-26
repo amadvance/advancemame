@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*
 	MESS Driver for the Myarc Geneve 9640.
 	Raphael Nabet, 2003.

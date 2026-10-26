@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 void amd_flash_init(int);
 void amd_flash_reset(int);
 void amd_flash_finish(int);

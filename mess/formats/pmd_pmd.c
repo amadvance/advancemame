@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sandro Ronco
 /* .PMD tape images */
 #include "pmd_pmd.h"
 

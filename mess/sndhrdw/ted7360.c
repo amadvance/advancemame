@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Curt Coder
 /***************************************************************************
 
   MOS ted 7360 (and sound interface)

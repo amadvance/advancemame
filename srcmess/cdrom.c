@@ -1,9 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
   Generic MAME CD-ROM utilties - build IDE and SCSI CD-ROMs on top of this
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
   IMPORTANT:
   "physical" block addresses are the actual addresses on the emulated CD.

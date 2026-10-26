@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*
  * Sony CXD8530AQ/CXD8530BQ/CXD8530CQ/CXD8661R
  *

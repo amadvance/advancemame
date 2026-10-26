@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*
 	SNUG HSGPL card emulation.
 

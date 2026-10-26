@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #ifndef COCOPAK_H
 #define COCOPAK_H
 

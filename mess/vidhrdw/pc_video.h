@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Nathan Woods
 /*********************************************************************
 
 	pc_video.h

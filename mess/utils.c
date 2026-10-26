@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Maurizio Petrarota
 #include <ctype.h>
 #include <stdlib.h>
 #include "utils.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Miodrag Milanovic
 #ifndef PRINTER_H
 #define PRINTER_H
 

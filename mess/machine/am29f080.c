@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*******************************************/
 /* Intel 28F008SA 5 Volt Flash-File Memory */
 

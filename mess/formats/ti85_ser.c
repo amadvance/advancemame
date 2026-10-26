@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha,Jon Sturm
 #include "driver.h"
 #include "ti85_ser.h"
 

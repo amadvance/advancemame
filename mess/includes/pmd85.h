@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha
 /* machine/pmd85.c */
  READ8_HANDLER ( pmd85_io_r );
 WRITE8_HANDLER ( pmd85_io_w );

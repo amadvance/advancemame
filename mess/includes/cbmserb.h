@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __CBM_SERIAL_BUS_H_
 #define __CBM_SERIAL_BUS_H_
 

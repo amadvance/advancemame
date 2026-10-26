@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 /*
 	tms9901.h: header file for tms9901.c
 

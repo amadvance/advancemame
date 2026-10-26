@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller, Dirk Best
 #include "devices/snapquik.h"
 
 /* from machine/vtech1.c */

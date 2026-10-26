@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 OP(illegal,1) {
 	logerror("Z180 #%d ill. opcode $%02x $%02x\n",
 			cpu_getactivecpu(), cpu_readop((_PCD-1)&0xffff), cpu_readop(_PCD));

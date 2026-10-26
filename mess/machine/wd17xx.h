@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Nathan Woods
 /*********************************************************************
 
 	wd17xx.h

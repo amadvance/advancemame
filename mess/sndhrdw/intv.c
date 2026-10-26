@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods,Frank Palazzolo
 #include "driver.h"
 #include "includes/intv.h"
 #include "sound/ay8910.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 #ifndef MFMDISK_H
 #define MFMDISK_H
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Robbbert
 /* machine/jupiter.c */
 
 OPBASE_HANDLER( jupiter_opbaseoverride );

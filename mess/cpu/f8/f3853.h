@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /*
   fairchild f3853 static ram interface smi
   with integrated interrupt controller and timer

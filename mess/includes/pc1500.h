@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sandro Ronco
 #ifndef __PC1500_H_
 #define __PC1500_H_
 

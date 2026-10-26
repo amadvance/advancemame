@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Curt Coder
 #ifndef __DAVE_SOUND_CHIP_HEADER_INCLUDED__
 #define __DAVE_SOUND_CHIP_HEADER_INCLUDED__
 

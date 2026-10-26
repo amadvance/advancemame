@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder, Nigel Barnes
 /* Normal Character Set */
 
 static char teletext_characters[96*60]={

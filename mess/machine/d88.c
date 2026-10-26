@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 /* This is a .D88 disc image format. */
 
 #include "driver.h"

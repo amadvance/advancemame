@@ -1,3 +1,5 @@
+// license:Public Domain
+// copyright-holders:Randy Rains
 /*
 
  I don't know who originally wrote this so I cannot give the proper credit.

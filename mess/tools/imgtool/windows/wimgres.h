@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
 // Used by wimgtool.rc

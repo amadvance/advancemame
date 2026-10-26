@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Wilbert Pol, Kevin Thacker
 #include "driver.h"
 #include "osdepend.h"
 #define NC_NUM_COLOURS 4

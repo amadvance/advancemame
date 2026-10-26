@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker,Sandro Ronco
 #include "driver.h"
 #include "osdepend.h"
 #define AVIGO_NUM_COLOURS 2

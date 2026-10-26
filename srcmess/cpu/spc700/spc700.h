@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 #ifndef SPC700__HEADER
 #define SPC700__HEADER
 

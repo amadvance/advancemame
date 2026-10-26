@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #include <string.h>
 #include "formats/trs_dsk.h"
 #include "formats/basicdsk.h"

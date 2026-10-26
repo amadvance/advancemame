@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 
 /* mfm is used to describe a disc with a fm or mfm data structure */
 /* disc images are converted to this format at run-time */

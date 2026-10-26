@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver,Fabio Priuli
 #include <math.h>
 
 #include "driver.h"

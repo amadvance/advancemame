@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker,Sandro Ronco
 #include "driver.h"
 #include "cpuintrf.h"
 #include "machine/z80ctc.h"

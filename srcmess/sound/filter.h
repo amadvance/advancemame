@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Derrick Renaud, Couriersud
 #ifndef __FILTER_H
 #define __FILTER_H
 

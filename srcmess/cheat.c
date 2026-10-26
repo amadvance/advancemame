@@ -1,10 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*****************************************************************************
 
     cheat.c
     by Ian Patterson [ianpatt at pacbell dot net]
 
     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
     The cheat engine for MAME. Allows you to search for locations in memory
     where gameplay-related values are stored, and change them. In other words,

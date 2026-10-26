@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 #ifndef ADAM_H
 #define ADAM_H
 

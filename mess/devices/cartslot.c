@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 #include <ctype.h>
 #include "cartslot.h"
 #include "mess.h"

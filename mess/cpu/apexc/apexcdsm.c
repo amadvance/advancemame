@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Raphael Nabet
 /*
 	cpu/apexc/apexcsm.c : APE(X)C CPU disassembler
 

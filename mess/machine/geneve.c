@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*
 	Machine code for Myarc Geneve.
 	Raphael Nabet, 2003.

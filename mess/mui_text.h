@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #ifndef MUI_TEXT_H
 #define MUI_TEXT_H
 

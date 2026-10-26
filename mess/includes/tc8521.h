@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /* TOSHIBA TC8521 REAL TIME CLOCK */
 
 #include "driver.h"

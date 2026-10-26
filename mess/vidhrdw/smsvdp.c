@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Enik Land
 /*
 		For more information, please see:
 		http://www.emucamp.com/cgfm2/smsvdp.txt

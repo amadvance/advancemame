@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __SIDVOICE_H_
 #define __SIDVOICE_H_
 

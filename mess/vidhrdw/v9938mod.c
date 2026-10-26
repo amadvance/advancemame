@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Nathan Woods
 /*
  * This file is included for a number of different situations:
  * V9938_WIDTH : can be 512 + 32 or 256 + 16

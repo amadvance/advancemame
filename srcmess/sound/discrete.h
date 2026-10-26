@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:K.Wilkins,Couriersud,Derrick Renaud,Frank Palazzolo
 #ifndef _discrete_h_
 #define _discrete_h_
 

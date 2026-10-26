@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 //============================================================
 //
 //	secview.h - A Win32 sector editor dialog

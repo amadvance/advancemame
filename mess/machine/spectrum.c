@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 /***************************************************************************
 
   mess/machine/spectrum.c

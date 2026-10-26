@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Olivier Galibert, Juergen Buchmueller, Krzysztof Strzecha, Robbbert
 /***************************************************************************
 	zx.c
 

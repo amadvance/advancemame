@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 #ifndef AY8910_H
 #define AY8910_H
 

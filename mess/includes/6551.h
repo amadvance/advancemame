@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 /* 6551 ACIA */
 
 #include "driver.h"

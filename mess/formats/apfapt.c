@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Original author, Robbbert
 /* .APT tape images */
 #include "apfapt.h"
 

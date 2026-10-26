@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 #include <stdio.h>
 #include <stdlib.h>
 #include "m68k.h"

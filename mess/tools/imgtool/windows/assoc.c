@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include <windows.h>
 #include <tchar.h>
 #include <ctype.h>

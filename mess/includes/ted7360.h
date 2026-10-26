@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Curt Coder
 #ifndef __TED7360_H_
 #define __TED7360_H_
 

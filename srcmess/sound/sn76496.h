@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #ifndef SN76496_H
 #define SN76496_H
 

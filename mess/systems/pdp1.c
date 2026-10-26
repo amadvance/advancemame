@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /*
 
 Driver for a PDP1 emulator.

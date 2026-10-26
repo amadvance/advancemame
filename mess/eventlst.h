@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 typedef struct EVENT_LIST_ITEM
 {
 	/* driver defined ID for this write */

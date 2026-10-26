@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tim Lindner, Nathan Woods
 /* OKI m6242B real time clock/callendar
    
    by tim lindner

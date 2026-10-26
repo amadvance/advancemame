@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Colin Howell, R. Belmont
 #include "devices/snapquik.h"
 
 /* machine/apple1.c */

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 static void i_add_br8(void);
 static void i_add_wr16(void);
 static void i_add_r8b(void);

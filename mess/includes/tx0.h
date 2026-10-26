@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 #define READ18_HANDLER(name) READ32_HANDLER(name)
 #define WRITE18_HANDLER(name) WRITE32_HANDLER(name)
 

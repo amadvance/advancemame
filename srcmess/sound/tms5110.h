@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Jarek Burczynski, Aaron Giles, Jonathan Gevaryahu, Couriersud
 #ifndef tms5110_h
 #define tms5110_h
 

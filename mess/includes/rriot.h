@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Juergen Buchmueller
 #ifndef RIOT_H
 #define RIOT_H
 

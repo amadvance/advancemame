@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef __GB_H
 #define __GB_H
 

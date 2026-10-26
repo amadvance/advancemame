@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 void cbm_ieee_open(void);
 
 void cbm_ieee_dav_w(int device, int data);

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 READ16_HANDLER( genesis_68000_z80_read );
 READ16_HANDLER ( genesis_68000_io_r );
 READ16_HANDLER( genesis_68000_z80_busreq_r );

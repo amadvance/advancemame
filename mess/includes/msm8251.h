@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 #ifndef __MSM8251_HEADER_INCLUDED__
 #define __MSM8251_HEADER_INCLUDED__
 

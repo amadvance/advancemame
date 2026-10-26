@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Robbbert
 #ifndef __GAMECOM_H
 #define __GAMECOM_H
 

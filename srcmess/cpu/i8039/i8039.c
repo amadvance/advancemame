@@ -1,10 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni
 /****************************************************************************
  *                      Intel 8039 Portable Emulator                        *
  *                                                                          *
  *                   Copyright (C) 1997 by Mirko Buffoni                    *
  *  Based on the original work (C) 1997 by Dan Boris, an 8048 emulator      *
- *      You are not allowed to distribute this software commercially        *
- *        Please, notify me, if you make any changes to this file           *
  *                                                                          *
  *                                                                          *
  *  **** Change Log ****                                                    *

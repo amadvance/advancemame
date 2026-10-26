@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 /* MSM 8251/INTEL 8251 UART */
 
 #include "includes/msm8251.h"

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese
 #ifndef __C65_H_
 #define __C65_H_
 

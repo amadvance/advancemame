@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 #ifndef _INCLUDES_N64_H_
 #define _INCLUDES_N64_H_
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 static void (*PREFIX186(_instruction)[256])(void) =
 {
 	 PREFIX86(_add_br8),           /* 0x00 */

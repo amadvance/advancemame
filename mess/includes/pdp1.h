@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /* should go into memory.h */
 
 #define READ18_HANDLER(name) READ32_HANDLER(name)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha, Nathan Woods
 #ifndef DAI_H
 #define DAI_H
 

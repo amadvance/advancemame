@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __VDC8563_H_
 #define __VDC8563_H_
 /***************************************************************************

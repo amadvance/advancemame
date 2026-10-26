@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 //============================================================
 //
 //	hexview.h - A Win32 hex editor control

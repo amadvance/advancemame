@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /* 
  * private area for the
  * commodore cbm floppy drives vc1541 c1551

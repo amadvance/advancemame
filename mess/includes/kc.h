@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker,Sandro Ronco
 #include "devices/snapquik.h"
 
 #define KC85_4_CLOCK 1750000

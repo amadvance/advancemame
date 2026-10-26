@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #ifndef __V30INTRF_H_
 #define __V30INTRF_H_
 

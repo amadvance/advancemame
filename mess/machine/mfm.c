@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 
 #define MAX_MFM_DRIVES 4
 

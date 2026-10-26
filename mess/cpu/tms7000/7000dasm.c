@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tim Lindner
 #include "debugger.h"
 #include "debug/eainfo.h"
 #include "tms7000.h"

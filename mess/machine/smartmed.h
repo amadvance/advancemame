@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Raphael Nabet
 /*
 	smartmed.h: header file for smartmed.c
 */

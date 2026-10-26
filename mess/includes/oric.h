@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /* from machine/oric.c */
 MACHINE_START( oric );
 INTERRUPT_GEN( oric_interrupt );

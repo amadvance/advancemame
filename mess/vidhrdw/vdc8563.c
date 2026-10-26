@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /***************************************************************************
 
   CBM Video Device Chip 8563

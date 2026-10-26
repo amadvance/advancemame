@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 #ifndef MBEE_H
 #define MBEE_H
 

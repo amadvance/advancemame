@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 void flash_init(int);
 void flash_reset(int);
 void flash_finish(int);

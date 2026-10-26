@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tim Lindner
 /* This is an emulation of Dallas Semiconductor's Phantom Time Chip.
    DS1315.
    

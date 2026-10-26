@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, smf
 /***************************************************************************
 
  scsidev.h - Header which defines the interface between SCSI device handlers

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /*
 	990_dk.h: include file for 990_dk.c
 */

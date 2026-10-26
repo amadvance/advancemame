@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Curt Coder
 #ifndef __NICK_GRAPHICS_CHIP_HEADER_INCLUDED__
 #define __NICK_GRAPHICS_CHIP_HEADER_INCLUDED__
 

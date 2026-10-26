@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 extern DRIVER_INIT( sym1 );
 extern MACHINE_RESET( sym1 );
 

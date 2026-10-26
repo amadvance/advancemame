@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __SID_H_
 #define __SID_H_
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __VIC6560_H_
 #define __VIC6560_H_
 /***************************************************************************

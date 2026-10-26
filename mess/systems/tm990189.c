@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet, Robbbert
 /*
 	Experimental tm990/189 ("University Module") driver.
 

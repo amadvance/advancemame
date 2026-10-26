@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef PC_HDC_H
 #define PC_HDC_H
 

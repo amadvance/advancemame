@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Michael Zapf
 typedef struct tms9902reset_param
 {
 	double clock_rate;							/* clock rate (2MHz-3.3MHz, with 4MHz overclocking) */

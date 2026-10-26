@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #ifndef __VC20_TAPE_H_
 #define __VC20_TAPE_H_
 

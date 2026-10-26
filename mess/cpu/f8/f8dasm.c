@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #include "driver.h"
 #include "debugger.h"
 #include "debug/eainfo.h"

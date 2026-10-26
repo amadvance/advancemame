@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 #define VERBOSE_DBG 0
 #include "includes/cbm.h"
 #include <math.h>

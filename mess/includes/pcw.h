@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 #include "driver.h"
 #include "osdepend.h"
 #define PCW_BORDER_HEIGHT 8
