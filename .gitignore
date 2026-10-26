@@ -66,8 +66,6 @@ reference/
 resource/
 contrib/
 obj/
-*.ori/
-*.complete/
 www/
 support/*.sh
 support/catver.ini

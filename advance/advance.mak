@@ -686,7 +686,7 @@ devosdep:
 	rgrep -r WIN32 $(srcdir)/advance
 
 devdef:
-	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|zlib|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
+	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|zlib|svgalib|windows|NDEBUG|MESS|linux/.*event|/y_tab|/lexyy|/tsr|/card|/dos"
 
 devtags:
 	cd advance && ctags -R

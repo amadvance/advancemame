@@ -828,22 +828,6 @@ $(sort $(MESSOBJDIRS)):
 	$(MD) $@
 
 ############################################################################
-# EMU diff
-
-mamedif:
-	find src \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
-	ls -l advance/advmame.dif
-
-messdif:
-	find srcmess \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
-	ls -l advance/advmess.dif
-	find mess \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive mess.ori mess > advance/mess.dif
-	ls -l advance/mess.dif
-
-############################################################################
 # EMU dist
 
 EMU_ROOT_SRC = \
