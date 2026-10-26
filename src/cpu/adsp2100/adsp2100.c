@@ -2370,6 +2370,7 @@ static void adsp2105_set_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ0:	set_irq_line(ADSP2105_IRQ0, info->i);	break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ1:	set_irq_line(ADSP2105_IRQ1, info->i);	break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ2:	set_irq_line(ADSP2105_IRQ2, info->i);	break;
+		case CPUINFO_INT_INPUT_STATE + ADSP2105_TIMER:	set_irq_line(ADSP2105_TIMER, info->i);	break;
 
 		/* --- the following bits of info are set as pointers to data or functions --- */
 		case CPUINFO_PTR_ADSP2100_RX_HANDLER:			adsp2100.sport_rx_callback = (RX_CALLBACK)info->f;	break;
@@ -2387,10 +2388,11 @@ void adsp2105_get_info(UINT32 state, union cpuinfo *info)
 	switch (state)
 	{
 		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_INPUT_LINES:					info->i = 3;							break;
+		case CPUINFO_INT_INPUT_LINES:					info->i = 6;							break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ0:	info->i = adsp2100.irq_state[ADSP2105_IRQ0]; break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ1:	info->i = adsp2100.irq_state[ADSP2105_IRQ1]; break;
 		case CPUINFO_INT_INPUT_STATE + ADSP2105_IRQ2:	info->i = adsp2100.irq_state[ADSP2105_IRQ2]; break;
+		case CPUINFO_INT_INPUT_STATE + ADSP2105_TIMER:	info->i = adsp2100.irq_state[ADSP2105_TIMER]; break;
 
 		/* --- the following bits of info are returned as pointers to data or functions --- */
 		case CPUINFO_PTR_SET_INFO:						info->setinfo = adsp2105_set_info;		break;

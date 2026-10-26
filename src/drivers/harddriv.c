@@ -1199,12 +1199,30 @@ static MACHINE_DRIVER_START( stunrun )
 MACHINE_DRIVER_END
 
 
+static ADDRESS_MAP_START( street_sound_program_map, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x0000, 0x3fff) AM_RAM AM_BASE(&hdds3_sound_program)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( street_sound_data_map, ADDRESS_SPACE_DATA, 16 )
+	AM_RANGE(0x3800, 0x39ff) AM_RAM
+	AM_RANGE(0x3fe0, 0x3fff) AM_READWRITE(hdds3_sdsp_control_r, hdds3_sdsp_control_w)
+	AM_RANGE(0x2000, 0x3fff) AM_READWRITE(hdds3_sdsp_special_r, hdds3_sdsp_special_w)
+ADDRESS_MAP_END
+
 static MACHINE_DRIVER_START( strtdriv )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM( multisync_nomsp )	/* multisync board */
 	MDRV_IMPORT_FROM( ds3 )				/* DS III board */
 	MDRV_IMPORT_FROM( dsk )				/* DSK board */
+	MDRV_CPU_ADD_TAG("ds3sound", ADSP2105, 10000000)
+	MDRV_CPU_PROGRAM_MAP(street_sound_program_map, 0)
+	MDRV_CPU_DATA_MAP(street_sound_data_map, 0)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -3045,8 +3063,8 @@ ROM_START( strtdriv )
 	ROM_LOAD16_BYTE( "136091-0016.200y", 0x0e0000, 0x010000, CRC(f85ad532) SHA1(f9d2480104a7487c23d33b05aa044b7f4ca08c67) )
 	ROM_LOAD16_BYTE( "136091-0015.210y", 0x0e0001, 0x010000, CRC(a2e406f3) SHA1(a7266508011c892cb1032fa4d77ccbafedc844e8) )
 
-	ROM_REGION( 0x10000 + 0x10000, REGION_CPU5, 0 )	/* dummy region for ADSP 2105 */
-	ROM_LOAD( "136091-0033.10j", 0x000000, 0x010000, CRC(57504ab6) SHA1(ec8361b7da964c07ca0da48a87537badc3986fe0) )
+	ROM_REGION( 0x10000 + 0x10000, REGION_CPU5, 0 )	/* sound DSP boot storage */
+	ROM_LOAD( "136091-0033.10j", 0x010000, 0x010000, CRC(57504ab6) SHA1(ec8361b7da964c07ca0da48a87537badc3986fe0) )
 
 	ROM_REGION( 0x60000, REGION_USER1, 0 )		/* 384k for object ROM */
 	ROM_LOAD16_BYTE( "136091-0017.2lm", 0x00000, 0x10000, CRC(b0454074) SHA1(9530ea1ef215116da1f0843776fa7a6b4637049d) )
@@ -3060,14 +3078,12 @@ ROM_START( strtdriv )
 	ROM_LOAD16_BYTE( "136091-0026.30e", 0x000000, 0x020000, CRC(47705109) SHA1(fa40275b71b74be8591282d2fba4215b98fc29c9) )
 	ROM_LOAD16_BYTE( "136091-0025.10e", 0x000001, 0x020000, CRC(ead9254e) SHA1(92152d3ca77b542b3bb3398ccf414df28c95abfd) )
 
-	ROM_REGION16_BE( 0x100000, REGION_USER5, 0 )
-	/* DS III sound section (2 x ADSP2105)*/
-	ROM_LOAD( "136091-0033.10j", 0x000000, 0x010000, CRC(57504ab6) SHA1(ec8361b7da964c07ca0da48a87537badc3986fe0) )
-	ROM_LOAD( "136052-1123.12lm", 0x000000, 0x010000, CRC(a88411dc) SHA1(1fd53c7eadffa163d5423df2f8338757e58d5f2e) )
-	ROM_LOAD( "136052-1124.12k", 0x000000, 0x010000, CRC(071a4309) SHA1(c623bd51d6a4a56503fbf138138854d6a30b11d6) )
-	ROM_LOAD( "136052-3125.12j", 0x000000, 0x010000, CRC(856548ff) SHA1(e8a17b274185c5e4ecf5f9f1c211e18b3ef2456d) )
-	ROM_LOAD( "136052-1126.12h", 0x000000, 0x010000, CRC(f46ef09c) SHA1(ba62f73ee3b33d8f26b430ffa468f8792dca23de) )
-	ROM_LOAD( "136077-1017.12t", 0x000000, 0x010000, CRC(e93129a3) SHA1(1221b08c8efbfd8cf6bfbfd956545f10bef48663) )
+	ROM_REGION16_LE( 0x80000, REGION_USER5, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "136052-1123.12lm", 0x00000, 0x10000, CRC(a88411dc) SHA1(1fd53c7eadffa163d5423df2f8338757e58d5f2e) )
+	ROM_LOAD16_BYTE( "136077-1017.12t", 0x00001, 0x10000, CRC(e93129a3) SHA1(1221b08c8efbfd8cf6bfbfd956545f10bef48663) )
+	ROM_LOAD16_BYTE( "136052-1124.12k", 0x20000, 0x10000, CRC(071a4309) SHA1(c623bd51d6a4a56503fbf138138854d6a30b11d6) )
+	ROM_LOAD16_BYTE( "136052-3125.12j", 0x40000, 0x10000, CRC(856548ff) SHA1(e8a17b274185c5e4ecf5f9f1c211e18b3ef2456d) )
+	ROM_LOAD16_BYTE( "136052-1126.12h", 0x60000, 0x10000, CRC(f46ef09c) SHA1(ba62f73ee3b33d8f26b430ffa468f8792dca23de) )
 ROM_END
 
 
@@ -3674,6 +3690,8 @@ static DRIVER_INIT( strtdriv )
 	init_ds3();
 	init_dsk();
 
+	memory_install_write16_handler(hdcpu_main, ADDRESS_SPACE_PROGRAM, 0x823000, 0x8237ff, 0, 0, hd68k_ds3_sirq_clear_w);
+
 	/* set up the slapstic */
 	slapstic_init(117);
 	hd68k_slapstic_base = memory_install_read16_handler(hdcpu_main, ADDRESS_SPACE_PROGRAM, 0xe0000, 0xfffff, 0, 0, rd68k_slapstic_r);
@@ -3809,7 +3827,7 @@ GAME( 1991, steeltag, steeltal, steeltal, steeltal, steeltal, ROT0, "Atari Games
 GAME( 1991, steelta1, steeltal, steeltal, steeltal, steelta1, ROT0, "Atari Games", "Steel Talons (rev 1)", 0 )
 GAME( 1991, steeltap, steeltal, steeltal, steeltal, steeltap, ROT0, "Atari Games", "Steel Talons (prototype)", GAME_NOT_WORKING )
 
-GAME( 1993, strtdriv, 0,        strtdriv, strtdriv, strtdriv, ROT0, "Atari Games", "Street Drivin' (prototype)", GAME_NO_SOUND )
+GAME( 1993, strtdriv, 0,        strtdriv, strtdriv, strtdriv, ROT0, "Atari Games", "Street Drivin' (prototype)", 0 )
 
 GAME( 1993, hdrivair, 0,        hdrivair, hdrivair, hdrivair, ROT0, "Atari Games", "Hard Drivin's Airborne (prototype)", GAME_NO_SOUND )
 GAME( 1993, hdrivaip, hdrivair, hdrivair, hdrivair, hdrivaip, ROT0, "Atari Games", "Hard Drivin's Airborne (prototype, early rev)", GAME_NOT_WORKING | GAME_NO_SOUND )

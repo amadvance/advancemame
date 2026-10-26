@@ -244,3 +244,10 @@ WRITE16_HANDLER( hdgsp_paletteram_hi_w );
 
 VIDEO_EOF( harddriv );
 VIDEO_UPDATE( harddriv );
+
+extern UINT32 *hdds3_sound_program;
+WRITE16_HANDLER( hd68k_ds3_sirq_clear_w );
+READ16_HANDLER( hdds3_sdsp_special_r );
+WRITE16_HANDLER( hdds3_sdsp_special_w );
+READ16_HANDLER( hdds3_sdsp_control_r );
+WRITE16_HANDLER( hdds3_sdsp_control_w );

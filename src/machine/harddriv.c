@@ -15,6 +15,7 @@
 #include "machine/asic65.h"
 #include "sndhrdw/atarijsa.h"
 #include "harddriv.h"
+#include "sound/dac.h"
 
 
 /*************************************
@@ -128,6 +129,19 @@ static UINT8 ds3_gcmd, ds3_gflag, ds3_g68irqs, ds3_gfirqs, ds3_g68flag, ds3_send
 static UINT16 ds3_gdata, ds3_g68data;
 static UINT32 ds3_sim_address;
 
+
+static int ds3_sound_cpu = -1;
+static UINT8 ds3_scmd, ds3_sflag, ds3_s68irqs, ds3_sfirqs, ds3_s68flag, ds3_sreset;
+static UINT16 ds3_sdata, ds3_s68data, ds3sdsp_regs[32];
+static UINT32 ds3_sdata_address;
+static mame_timer *ds3_sound_timer;
+static int ds3_sound_timer_en;
+static UINT8 ds3_sound_irq;
+UINT32 *hdds3_sound_program;
+static void update_ds3_sirq(void);
+static void hdds3sdsp_reset_timer(void);
+static void ds3_sound_reset(void);
+
 static UINT16 adc_control;
 static UINT8 adc8_select;
 static UINT8 adc8_data;
@@ -178,6 +192,8 @@ MACHINE_START( harddriv )
 
 MACHINE_RESET( harddriv )
 {
+	ds3_sound_cpu = mame_find_cpu_index("ds3sound");
+	if (ds3_sound_cpu != -1) ds3_sound_reset();
 	/* generic reset */
 	atarigen_eeprom_reset();
 	slapstic_reset();
@@ -229,7 +245,7 @@ static void hd68k_update_interrupts(void)
 		newstate = 2;
 	if (gsp_irq_state)
 		newstate = 3;
-	if (atarigen_sound_int_state)	/* /LINKIRQ on STUN Runner */
+	if (atarigen_sound_int_state || ds3_sound_irq)	/* /LINKIRQ on STUN Runner */
 		newstate = 4;
 	if (irq_state)
 		newstate = 5;
@@ -1139,7 +1155,19 @@ WRITE16_HANDLER( hd68k_ds3_control_w )
 	switch (offset & 7)
 	{
 		case 0:
-			/* SRES - reset sound CPU */
+			if (ds3_sound_cpu != -1)
+			{
+				cpunum_set_input_line(ds3_sound_cpu, INPUT_LINE_RESET, val ? CLEAR_LINE : ASSERT_LINE);
+				adsp2105_load_boot_data(memory_region(REGION_CPU5) + 0x10000, hdds3_sound_program);
+				if (val && !ds3_sreset)
+				{
+					ds3_sflag = ds3_scmd = ds3_sfirqs = 0;
+					ds3_s68irqs = 1;
+					update_ds3_sirq();
+				}
+				ds3_sreset = val;
+				cpu_yield();
+			}
 			break;
 
 		case 1:
@@ -1273,22 +1301,234 @@ WRITE16_HANDLER( hd68k_ds3_gdata_w )
  *
  *************************************/
 
-READ16_HANDLER( hd68k_ds3_sirq_state_r )
+static void update_ds3_sirq(void)
 {
-	return 0x4000;
+	if (ds3_sound_cpu != -1)
+		cpunum_set_input_line(ds3_sound_cpu, ADSP2105_IRQ2,
+			(!(!ds3_s68flag && ds3_s68irqs) && !(ds3_sflag && ds3_sfirqs)) ? ASSERT_LINE : CLEAR_LINE);
 }
 
+static void hdds3_sound_tick(int param)
+{
+	UINT32 cycles = (UINT32)ds3sdsp_regs[0x1d] * (ds3sdsp_regs[0x1b] + 1);
+	cpunum_set_input_line(ds3_sound_cpu, ADSP2105_TIMER, ASSERT_LINE);
+	cpunum_set_input_line(ds3_sound_cpu, ADSP2105_TIMER, CLEAR_LINE);
+	timer_adjust(ds3_sound_timer, TIME_IN_HZ(10000000) * (cycles ? cycles : 1), 0, 0);
+}
+
+static void hdds3sdsp_reset_timer(void)
+{
+	UINT32 cycles = (UINT32)ds3sdsp_regs[0x1c] * (ds3sdsp_regs[0x1b] + 1);
+	if (ds3_sound_timer_en)
+		timer_adjust(ds3_sound_timer, TIME_IN_HZ(10000000) * (cycles ? cycles : 1), 0, 0);
+}
+
+static void hdds3_sound_timer_enable(int enable)
+{
+	ds3_sound_timer_en = enable;
+	if (enable) hdds3sdsp_reset_timer();
+	else timer_adjust(ds3_sound_timer, TIME_NEVER, 0, 0);
+}
+
+static void ds3_sound_reset(void)
+{
+	if (!ds3_sound_timer) ds3_sound_timer = timer_alloc(hdds3_sound_tick);
+	timer_adjust(ds3_sound_timer, TIME_NEVER, 0, 0);
+	ds3_sound_timer_en = 0;
+	memset(ds3sdsp_regs, 0, sizeof(ds3sdsp_regs));
+	ds3_scmd = ds3_sflag = ds3_s68flag = ds3_sreset = ds3_sfirqs = 0;
+	ds3_s68irqs = 1;
+	ds3_sdata_address = 0;
+	ds3_sound_irq = 0;
+	cpunum_set_info_fct(ds3_sound_cpu, CPUINFO_PTR_ADSP2100_TIMER_HANDLER, (genf *)hdds3_sound_timer_enable);
+	adsp2105_load_boot_data(memory_region(REGION_CPU5) + 0x10000, hdds3_sound_program);
+}
+
+WRITE16_HANDLER( hd68k_ds3_sirq_clear_w )
+{
+	ds3_sound_irq = 0;
+	atarigen_update_interrupts();
+}
+
+READ16_HANDLER( hd68k_ds3_sirq_state_r )
+{
+	int result = 0x0fff;
+	if (ds3_sound_cpu == -1) return 0x4000;
+	if (ds3_s68flag) result ^= 0x8000;
+	if (ds3_sflag) result ^= 0x4000;
+	if (ds3_s68irqs) result ^= 0x2000;
+	if (!ds3_sound_irq) result ^= 0x1000;
+	return result;
+}
 
 READ16_HANDLER( hd68k_ds3_sdata_r )
 {
-	return 0;
-}
+	if (ds3_sound_cpu == -1) return 0;
 
+	ds3_sflag = 0;
+	update_ds3_sirq();
+
+	cpu_spinuntil_trigger(7778);
+	cpu_triggertime(TIME_IN_USEC(5), 7778);
+
+	return ds3_sdata;
+}
 
 WRITE16_HANDLER( hd68k_ds3_sdata_w )
 {
+	if (ds3_sound_cpu == -1) return;
+
+	COMBINE_DATA(&ds3_s68data);
+	ds3_s68flag = 1;
+	ds3_scmd = offset & 1;
+	cpu_triggerint(ds3_sound_cpu);
+
+	update_ds3_sirq();
 }
 
+READ16_HANDLER( hdds3_sdsp_special_r )
+{
+	int result;
+
+	switch (offset & 7)
+	{
+		case 0:
+			ds3_s68flag = 0;
+			update_ds3_sirq();
+			return ds3_s68data;
+
+		case 1:
+			result = 0x0fff;
+			if (ds3_scmd) result ^= 0x8000;
+			if (ds3_s68flag) result ^= 0x4000;
+			if (ds3_sflag) result ^= 0x2000;
+			return result;
+
+		case 4:
+			if (ds3_sdata_address < memory_region_length(REGION_USER5) / 2)
+				return ((UINT16 *)memory_region(REGION_USER5))[ds3_sdata_address];
+			else
+				return 0xff;
+
+		case 5:
+			return 1;
+
+		case 7:
+			break;
+
+		default:
+			return 0xff;
+	}
+
+	return 0;
+}
+
+WRITE16_HANDLER( hdds3_sdsp_special_w )
+{
+	switch (offset & 7)
+	{
+		case 0:
+			ds3_sdata = data;
+			ds3_sflag = 1;
+			update_ds3_sirq();
+
+			cpu_trigger(7778);
+			break;
+
+		case 1:
+			ds3_sound_irq = (data >> 1) & 1;
+			atarigen_update_interrupts();
+			break;
+
+		case 2:
+			break;
+
+		case 3:
+			ds3_sfirqs = (data >> 1) & 1;
+			ds3_s68irqs = !ds3_sfirqs;
+			update_ds3_sirq();
+			break;
+
+		case 4:
+			DAC_signed_data_16_w(0, data);
+			break;
+
+		case 5:
+			DAC_signed_data_16_w(1, data);
+			break;
+
+		case 6:
+			ds3_sdata_address = (ds3_sdata_address & 0xffff0000) | (data & 0xffff);
+			break;
+
+		case 7:
+			ds3_sdata_address = (ds3_sdata_address & 0x0000ffff) | (data << 16);
+			break;
+	}
+}
+
+READ16_HANDLER( hdds3_sdsp_control_r )
+{
+	switch (offset)
+	{
+		default:
+			return ds3sdsp_regs[offset];
+	}
+
+	return 0xff;
+}
+
+WRITE16_HANDLER( hdds3_sdsp_control_w )
+{
+	switch (offset)
+	{
+		case 0x1b:
+
+			data &= 0xff;
+
+			if (ds3sdsp_regs[0x1b] != data)
+			{
+				ds3sdsp_regs[0x1b] = data;
+				hdds3sdsp_reset_timer();
+			}
+			break;
+
+		case 0x1c:
+
+			if (ds3sdsp_regs[0x1c] != data)
+			{
+				ds3sdsp_regs[0x1c] = data;
+				hdds3sdsp_reset_timer();
+			}
+			break;
+
+		case 0x1d:
+
+			ds3sdsp_regs[0x1d] = data;
+			break;
+
+		case 0x1e:
+			ds3sdsp_regs[0x1e] = data;
+			break;
+
+		case 0x1f:
+
+			if (data & 0x200)
+			{
+				UINT32 page = (data >> 6) & 7;
+				adsp2105_load_boot_data(memory_region(REGION_CPU5) + 0x10000 + 0x2000 * page, hdds3_sound_program);
+				cpunum_set_input_line(ds3_sound_cpu, INPUT_LINE_RESET, PULSE_LINE);
+				data &= ~0x200;
+			}
+
+			ds3sdsp_regs[0x1f] = data;
+			break;
+
+		default:
+			ds3sdsp_regs[offset] = data;
+			break;
+	}
+}
 
 /*************************************
  *
