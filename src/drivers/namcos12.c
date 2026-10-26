@@ -1417,6 +1417,7 @@ MACHINE_RESET( namcos12 )
 		strcmp( Machine->gamedrv->name, "golgo13" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "g13knd" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "mrdrillr" ) == 0 ||
+		strcmp( Machine->gamedrv->name, "mrdrillrja2" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "pacapp" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "pacappsp" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "pacapp2" ) == 0 ||
@@ -2291,8 +2292,24 @@ ROM_END
 
 ROM_START( mrdrillr )
 	ROM_REGION32_LE( 0x00400000, REGION_USER1, 0 ) /* main prg */
-	ROM_LOAD16_BYTE( "dri1vera.2l",  0x0000000, 0x200000, CRC(751ca21d) SHA1(1c271bba83d387c797ce8daa43885bcb6e1a51a6) )
-	ROM_LOAD16_BYTE( "dri1vera.2p",  0x0000001, 0x200000, CRC(2a2b0704) SHA1(5a8b40c6cf0adc43ca2ee0c576ec82f314aacd2c) )
+	ROM_LOAD16_BYTE( "dri3vera2.2l", 0x0000000, 0x200000, CRC(36b9eeab) SHA1(85f5d57d4fc6160bfed49a08ad31a2cc2b4a38c5) )
+	ROM_LOAD16_BYTE( "dri3vera2.2p", 0x0000001, 0x200000, CRC(811c00d5) SHA1(627685078fceb023e8af1b7af5269f9b01a06dba) )
+
+	ROM_REGION32_LE( 0x0800000, REGION_USER2, 0 ) /* main data */
+	ROM_LOAD16_BYTE( "dri1rom0l.6",  0x0000000, 0x400000, CRC(021bb2fa) SHA1(bfe3e46e9728d5b5a692f432515267ff8b8255e7) )
+	ROM_LOAD16_BYTE( "dri1rom0u.9",  0x0000001, 0x400000, CRC(5aae85ea) SHA1(a54dcc050c12ed3d77efc328e366e99c392eb139) )
+
+	ROM_REGION( 0x0080000, REGION_CPU2, 0 ) /* sound prg */
+	ROM_LOAD16_WORD_SWAP( "dri1vera.11s", 0x0000000, 0x080000, CRC(33ea9c0e) SHA1(5018d7a1a45ec3133cd928435db8804f66321924) )
+
+	ROM_REGION( 0x0800000, REGION_SOUND1, 0 ) /* samples */
+	ROM_LOAD( "dri1wave0.5",         0x0000000, 0x800000, CRC(32928df1) SHA1(79af92a2d24a0e3d5bfe1785776b0f86a93882ce) )
+ROM_END
+
+ROM_START( mrdrillrja2 )
+	ROM_REGION32_LE( 0x00400000, REGION_USER1, 0 ) /* main prg */
+	ROM_LOAD16_BYTE( "dri1vera2.2l", 0x0000000, 0x200000, CRC(751ca21d) SHA1(1c271bba83d387c797ce8daa43885bcb6e1a51a6) )
+	ROM_LOAD16_BYTE( "dri1vera2.2p", 0x0000001, 0x200000, CRC(2a2b0704) SHA1(5a8b40c6cf0adc43ca2ee0c576ec82f314aacd2c) )
 
 	ROM_REGION32_LE( 0x0800000, REGION_USER2, 0 ) /* main data */
 	ROM_LOAD16_BYTE( "dri1rom0l.6",  0x0000000, 0x400000, CRC(021bb2fa) SHA1(bfe3e46e9728d5b5a692f432515267ff8b8255e7) )
@@ -2827,7 +2844,8 @@ GAME( 1999, tektagtb,  tektagt,  coh700,   namcos12, namcos12, ROT0, "Namco",   
 GAME( 1999, tektagtc,  tektagt,  coh700,   namcos12, namcos12, ROT0, "Namco",         "Tekken Tag Tournament (TEG1/VER.A3)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND ) /* KC044 */
 GAME( 1999, ghlpanic,  0,        coh700g,  ghlpanic, ghlpanic, ROT0, "Namco",         "Ghoul Panic (OB2/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC045 */
 GAME( 1999, pacapp2,   0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion 2 (PKS1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC046 */ // flashing screen
-GAME( 1999, mrdrillr,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr Driller (DRI1/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
+GAME( 1999, mrdrillr,    0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr. Driller (US, DRI3/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
+GAME( 1999, mrdrillrja2, mrdrillr, coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr. Driller (Japan, DRI1/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
 GAME( 1999, pacappsp,  0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion Special (PSP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC052 */ // not able to start game
 GAME( 1999, aquarush,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Aqua Rush (AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC053 */ // crash
 GAME( 1999, golgo13,   0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 (GLG1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC054 */

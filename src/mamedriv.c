@@ -2905,7 +2905,8 @@ V-V                           TP-027
 	DRIVER( tektagtc )	/* Tekken Tag Tournament (TEG1/VER.A) */
 	DRIVER( ghlpanic )	/* Ghoul Panic (OB2/VER.A) */
 	DRIVER( pacapp2 )	/* Paca Paca Passion 2 (PKS1/VER.A) */
-	DRIVER( mrdrillr )	/* Mr Driller (DRI1/VER.A2) */
+	DRIVER( mrdrillr )	/* Mr. Driller (US, DRI3/VER.A2) */
+	DRIVER( mrdrillrja2 )	/* Mr. Driller (Japan, DRI1/VER.A2) */
 	DRIVER( aquarush )	/* Aqua Rush (AQ1/VER.A1) */
 	DRIVER( pacappsp )	/* Paca Paca Passion Special (PSP1/VER.A) */
 	DRIVER( golgo13 )	/* Golgo 13 (GLG1/VER.A) */
