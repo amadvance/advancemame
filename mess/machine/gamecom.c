@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Robbbert
 
 #include "driver.h"
 #include "includes/gamecom.h"

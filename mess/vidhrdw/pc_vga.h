@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Peter Trauner, Angelo Salese
 /***************************************************************************
 
 	pc_vga.h

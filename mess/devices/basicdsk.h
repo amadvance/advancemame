@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /* DISK IMAGE FORMAT WHICH USED TO BE PART OF WD179X - NOW SEPERATED */
 
 #ifndef BASICDSK_H

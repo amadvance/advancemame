@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Lee Hammerton, Dirk Best
 /***************************************************************************
 
  SAM Coupe Driver - Written By Lee Hammerton

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef z80gb_H
 #define z80gb_H
 #include "cpuintrf.h"

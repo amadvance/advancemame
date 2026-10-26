@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /*
 	TMS5501 input/output controller
 	Krzysztof Strzecha, Nathan Woods, 2003

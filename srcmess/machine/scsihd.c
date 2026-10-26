@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf
 /***************************************************************************
 
  scsihd.c - Implementation of a SCSI hard disk drive

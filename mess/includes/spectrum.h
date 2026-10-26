@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 #ifndef SPECTRUM_H
 #define SPECTRUM_H
 

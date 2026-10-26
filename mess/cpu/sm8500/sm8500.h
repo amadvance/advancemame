@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef sm8500_H
 #define sm8500_H
 #include "cpuintrf.h"

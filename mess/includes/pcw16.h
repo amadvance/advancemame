@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 #define PCW16_BORDER_HEIGHT 8
 #define PCW16_BORDER_WIDTH 8
 #define PCW16_NUM_COLOURS 32

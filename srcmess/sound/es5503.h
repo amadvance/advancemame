@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 #ifndef _ES5503_H_
 #define _ES5503_H_
 

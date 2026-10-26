@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*
 	MESS Driver for TI-99/4 and TI-99/4A Home Computers.
 	Raphael Nabet, 1999-2003.

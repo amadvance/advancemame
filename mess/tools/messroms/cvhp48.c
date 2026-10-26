@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /* this is a quite simple utility for
    converting the hp48 romfile from its format
 00000: 0123456789abcdef

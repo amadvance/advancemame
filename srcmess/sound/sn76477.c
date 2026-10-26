@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /*****************************************************************************
   SN76477 pins and assigned interface variables/functions
 

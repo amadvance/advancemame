@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include "driver.h"
 #include <ctype.h>
 #include <stdarg.h>

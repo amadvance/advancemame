@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller
 #ifndef KIM1_H
 #define KIM1_H
 

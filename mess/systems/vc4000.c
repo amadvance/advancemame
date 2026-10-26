@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner, Robbbert
 /******************************************************************************
  Peter.Trauner@jk.uni-linz.ac.at May 2001
 

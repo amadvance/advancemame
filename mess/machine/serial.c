@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 /* internal serial transmission */
 
 /* select a file on host filesystem to transfer using serial method,

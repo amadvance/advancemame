@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Raphael Nabet
 /*
 	smartmed.c: SmartMedia Flash ROM emulation
 

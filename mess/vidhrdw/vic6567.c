@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner, Christian Bauer, Curt Coder
 /***************************************************************************
 
 	Video Interface Chip 6567 (6566 6569 and some other)

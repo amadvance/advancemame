@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #ifndef YM2151INTF_H
 #define YM2151INTF_H
 

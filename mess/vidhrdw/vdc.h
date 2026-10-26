@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 
 #include "driver.h"
 #include "vidhrdw/generic.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #ifndef __2610INTF_H__
 #define __2610INTF_H__
 

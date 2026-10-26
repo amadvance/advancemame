@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 /* Harris HD6402 or AY-3-1015 */
 
 /* the chip has a lot of inputs and a lot of outputs and these could

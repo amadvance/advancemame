@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Robbbert
 /***************************************************************************
 
 Driver file to handle emulation of the Tiger Game.com by

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Curt Coder
 MACHINE_RESET( enterprise );
 DEVICE_LOAD( enterprise_floppy );
 

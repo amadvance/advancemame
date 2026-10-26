@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods,Frank Palazzolo
 #ifndef __STIC_H
 #define __STIC_H
 

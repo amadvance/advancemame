@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sean Young
 #include <string.h>
 #include "svi_cas.h"
 

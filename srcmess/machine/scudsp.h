@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, Mariusz Wojcieszek
 /*SCU DSP stuff*/
 
 extern void dsp_prg_ctrl(UINT32 data);

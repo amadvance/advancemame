@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sean Young
 /*
  * msx_dsk.c : converts .ddi/.img/.msx/multidisk disk images to .dsk image
  *

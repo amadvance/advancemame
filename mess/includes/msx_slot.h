@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 
 enum {
 	MSX_LAYOUT_SLOT_ENTRY,

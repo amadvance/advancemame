@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 static PPC_OPCODE ppc_opcode_common[] =
 {
 	/*code  subcode         handler             */

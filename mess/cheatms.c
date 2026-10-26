@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include "mess.h"
 #include "image.h"
 #include "cheatms.h"

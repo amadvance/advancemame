@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner,Antoine Mine
 enum {
 	SATURN_A=1, SATURN_B, SATURN_C, SATURN_D,
 	SATURN_R0, SATURN_R1, SATURN_R2, SATURN_R3, SATURN_R4,

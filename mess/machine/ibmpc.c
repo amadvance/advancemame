@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Miodrag Milanovic
 #include "driver.h"
 #include "mscommon.h"
 #include "machine/pcshare.h"

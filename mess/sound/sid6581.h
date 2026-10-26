@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Curt Coder
 /***************************************************************************
 
 	sid6581.h

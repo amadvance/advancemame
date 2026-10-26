@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 #ifndef __NICK_GRAPHICS_CHIP_MESS_INCLUDED__
 #define __NICK_GRAPHICS_CHIP_MESS_INCLUDED__
 

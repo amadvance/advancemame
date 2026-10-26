@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Colin Howell, R. Belmont
 /***************************************************************************
 
   apple1.c

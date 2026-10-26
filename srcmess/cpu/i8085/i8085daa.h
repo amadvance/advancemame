@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 static UINT16 DAA[2048] = {
   (0x00<<8)   +ZF         +VF      ,
   (0x01<<8)                        ,

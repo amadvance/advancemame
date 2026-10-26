@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 extern UINT8 *cgenie_fontram;
 
 DEVICE_LOAD( cgenie_cassette );

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Curt Coder
 #ifndef __C16_H_
 #define __C16_H_
 

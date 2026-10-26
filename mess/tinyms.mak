@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Nathan Woods
 MESS=1
 
 # a tiny compile is without Neogeo games

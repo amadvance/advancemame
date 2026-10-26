@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 #include "sndintrf.h"
 #include "streams.h"
 #include "dac.h"

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /* this file could be generated with mess later */
 static struct {
 	const char *text;

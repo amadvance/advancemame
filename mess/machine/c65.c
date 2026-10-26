@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese
 /***************************************************************************
 	commodore c65 home computer
 	peter.trauner@jk.uni-linz.ac.at

@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Nathan Woods
 # Rules for MESS CPU's
 
 ifneq ($(filter COP411,$(MESSCPUS)),)

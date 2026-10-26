@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Miodrag Milanovic
 #include "vidhrdw/pc_video.h"
 
 #if 0

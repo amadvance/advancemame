@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /***************************************************************************
 
        commodore vc1541 floppy disk drive

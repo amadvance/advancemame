@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 FLOPPY_OPTIONS_EXTERN(ti99);
 
 void ti99_fdc_init(void);

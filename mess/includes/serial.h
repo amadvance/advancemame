@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 #ifndef __SERIAL_TRANSMISSION_HEADER_INCLUDED__
 #define __SERIAL_TRANSMISSION_HEADER_INCLUDED__
 

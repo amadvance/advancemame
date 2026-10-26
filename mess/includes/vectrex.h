@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mathis Rosenhauer
 #ifndef __VECTREX_H__
 #define __VECTREX_H__
 

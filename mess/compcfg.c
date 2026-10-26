@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>

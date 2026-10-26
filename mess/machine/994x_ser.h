@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 DEVICE_LOAD( ti99_4_pio );
 DEVICE_UNLOAD( ti99_4_pio );
 

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 /* in vidhrdw/pocketc.c */
 extern PALETTE_INIT( pocketc );
 extern VIDEO_START( pocketc );

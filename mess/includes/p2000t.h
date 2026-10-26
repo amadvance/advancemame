@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Daniels
 /* machine/p2000t.c */
 extern  READ8_HANDLER( p2000t_port_000f_r );
 extern  READ8_HANDLER( p2000t_port_202f_r );

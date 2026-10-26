@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Aaron Giles
 ifneq ($(filter BEEP,$(MESSSOUNDS)),)
 MESSSOUNDDEFS += -DHAS_BEEP=1
 MESSSOUNDOBJS += $(MESSOBJ)/mess/sound/beep.o

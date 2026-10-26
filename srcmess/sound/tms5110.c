@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Frank Palazzolo, Jarek Burczynski, Aaron Giles, Jonathan Gevaryahu, Couriersud
 /**********************************************************************************************
 
      TMS5110 simulator (modified from TMS5220 by Jarek Burczynski)

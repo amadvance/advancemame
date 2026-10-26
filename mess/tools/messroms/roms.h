@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /* the main goal of the list is to identify 
    roms
     currently not used

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 /* mfm disk image type used by euphoric */
 /* this disc image contains raw mfm data */
 /* TODO:

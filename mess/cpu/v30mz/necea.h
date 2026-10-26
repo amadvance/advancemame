@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 
 static UINT32 EA;
 static UINT16 EO;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef _WSWAN_H_
 #define _WSWAN_H_
 

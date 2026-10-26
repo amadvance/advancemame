@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Antoine Mine
 #include "driver.h"
 
 #include "includes/hp48.h"

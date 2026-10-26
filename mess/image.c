@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Miodrag Milanovic
 #include "image.h"
 #include "mess.h"
 #include "unzip.h"

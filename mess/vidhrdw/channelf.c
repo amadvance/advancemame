@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller, Frank Palazzolo, Sean Riddle
 #include "driver.h"
 #include "vidhrdw/generic.h"
 #include "includes/channelf.h"

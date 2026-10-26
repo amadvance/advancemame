@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 #ifndef E132XS_H
 #define E132XS_H
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol,Stefan Jokisch
 /* TIA *Write* Addresses (6 bit) */
 
 #define VSYNC	0x00	/* Vertical Sync Set/Clear              */

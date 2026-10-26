@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 WRITE8_HANDLER( europc_pio_w );
  READ8_HANDLER( europc_pio_r );
 

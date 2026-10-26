@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 static void PREFIXV30(_0fpre)(void);
 static void PREFIXV30(_repnc)(void);
 static void PREFIXV30(_repc)(void);

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 #include "driver.h"
 #include "includes/pcw16.h"
 #include "vidhrdw/generic.h"

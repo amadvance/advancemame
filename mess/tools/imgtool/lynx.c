@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

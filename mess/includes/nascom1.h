@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 /* machine/nascom1.c */
 MACHINE_RESET( nascom1 );
 DEVICE_LOAD( nascom1_cassette );

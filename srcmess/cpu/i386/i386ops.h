@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 typedef struct {
 	UINT8 opcode;
 	UINT32 flags;

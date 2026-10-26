@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /* Toshiba TC8521 Real-Time Clock or RICOH RF5C01A*/
 
 #include "driver.h"

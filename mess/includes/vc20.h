@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Curt Coder
 
 #ifndef __VC20_H_
 #define __VC20_H_

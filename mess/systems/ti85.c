@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha,Jon Sturm
 /***************************************************************************
 TI-85 and TI-86 drivers by Krzysztof Strzecha
 

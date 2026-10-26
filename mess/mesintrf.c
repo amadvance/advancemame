@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include "mesintrf.h"
 #include "mame.h"
 #include "ui_text.h"

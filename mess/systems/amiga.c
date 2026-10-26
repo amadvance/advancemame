@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 /***************************************************************************
 Commodore Amiga - (c) 1985, Commodore Bussines Machines Co.
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /***************************************************************
  ***************************************************************
  *          Macros to emulate the N2A03 opcodes

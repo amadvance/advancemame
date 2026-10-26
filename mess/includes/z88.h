@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker,Sandro Ronco
 #include "driver.h"
 
 #define Z88_NUM_COLOURS 3

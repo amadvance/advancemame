@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #include "vidhrdw/pc_aga.h"
 #include "vidhrdw/pc_cga.h"
 #include "vidhrdw/pc_mda.h"

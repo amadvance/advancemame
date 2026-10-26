@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 /*DEVICE_LOAD(ti99_hsgpl);
 DEVICE_UNLOAD(ti99_hsgpl);*/
 int ti99_hsgpl_load_memcard(void);

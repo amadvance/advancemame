@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner, Christian Bauer, Curt Coder
 #ifndef __VIC6567_H_
 #define __VIC6567_H_
 

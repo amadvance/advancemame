@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /* ASG 971222 -- rewrote this interface */
 #ifndef __I286INTR_H_
 #define __I286INTR_H_

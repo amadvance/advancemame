@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Krzysztof Strzecha
 #include "devices/snapquik.h"
 
 /* machine/pmd85.c */

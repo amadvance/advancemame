@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Gordon Jefferyes, Wilbert Pol
 
 /************************************************************************
 	crct6845

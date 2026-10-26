@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker, Curt Coder
 /* NICK GRAPHICS CHIP */
 /* (found in Enterprise) */
 /* this is a display list graphics chip, with bitmap,

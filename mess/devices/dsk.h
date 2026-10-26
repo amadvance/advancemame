@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Kevin Thacker
 #ifndef DSK_H
 #define DSK_H
 

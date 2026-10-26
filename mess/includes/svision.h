@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 #ifndef __SVISION_H_
 #define __SVISION_H_
 

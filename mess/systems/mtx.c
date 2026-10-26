@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Lee Ward, Dirk Best, Curt Coder
 /*
 ** mtx.c : driver for Memotech MTX512
 ** 

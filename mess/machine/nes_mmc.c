@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver,Fabio Priuli
 /*
 	TODO:
 	. 5 has some issues, RAM banking needs hardware flags to determine size

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 // special nec instructions missing
 // at the time the same like table186.h
 

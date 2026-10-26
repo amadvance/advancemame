@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, R. Belmont, Anthony Kruize, Fabio Priuli
 /***************************************************************************
 
   snes.c

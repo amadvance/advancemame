@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller
 /* from mame.c */
 //extern int bitmap_dirty;
 

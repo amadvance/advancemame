@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Juergen Buchmueller, Robbbert
 #ifndef MEKD2_H
 #define MEKD2_H
 

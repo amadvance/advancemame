@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #ifndef AQUARIUS_H
 #define AQUARIUS_H
 

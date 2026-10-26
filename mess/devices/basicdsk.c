@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /* This is a basic disc image format.
 Each driver which uses this must use basicdsk_set_geometry, so that
 the data will be accessed correctly */

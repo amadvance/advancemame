@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Jarek Burczynski
 #ifndef __YMDELTAT_H_
 #define __YMDELTAT_H_
 

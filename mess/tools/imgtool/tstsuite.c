@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include <ctype.h>
 #include "imgtool.h"
 #include "main.h"

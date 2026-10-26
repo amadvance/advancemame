@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Nathan Woods
 IMGTOOL_LIB_OBJS =							\
 	$(OBJ)/unzip.o							\
 	$(OBJ)/chd.o							\

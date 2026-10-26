@@ -1,3 +1,5 @@
+# license:BSD-3-Clause
+# copyright-holders:Nathan Woods
 WIMGTOOL_OBJS=\
 	$(IMGTOOL_LIB_OBJS)								\
 	$(OBJ)/mess/pile.o								\

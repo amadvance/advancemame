@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner, Curt Coder
 #define M	program_read_byte
 #define MW	program_write_byte
 

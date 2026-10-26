@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #ifndef ASSOC_H
 #define ASSOC_H
 

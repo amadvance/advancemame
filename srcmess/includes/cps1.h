@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Leaman
 #ifndef _CPS1_H_
 #define _CPS1_H_
 

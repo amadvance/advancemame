@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder, Robbbert, Wilbert Pol
 #ifndef UK101_H
 #define UK101_H
 

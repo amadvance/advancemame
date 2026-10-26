@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Miodrag Milanovic, Carl
 /*
   ibm personal system 2
 */

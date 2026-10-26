@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Antoine Mine
 // in systems/hp48.c
 #define KEY_A input_port_0_r(0)&0x80
 #define KEY_B input_port_0_r(0)&0x40

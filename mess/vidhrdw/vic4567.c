@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 // don't include this into the makefile
 // it is included in vic6567.c yet
 

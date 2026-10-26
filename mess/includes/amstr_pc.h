@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 WRITE8_HANDLER( pc1640_port60_w );
  READ8_HANDLER( pc1640_port60_r );
 

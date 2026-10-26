@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Michael Zapf
 int ti99_ide_load_memcard(void);
 int ti99_ide_save_memcard(void);
 

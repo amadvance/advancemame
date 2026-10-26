@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 static unsigned EA;
 static UINT16 EO; /* HJB 12/13/98 effective offset of the address (before segment is added) */
 

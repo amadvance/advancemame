@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 #include <stdio.h>
 /* ======================================================================== */
 /* ========================= LICENSING & COPYRIGHT ======================== */
@@ -8,13 +10,6 @@
  *
  * A portable Motorola M680x0 processor emulation engine.
  * Copyright 1998-2001 Karl Stenerud.  All rights reserved.
- *
- * This code may be freely used for non-commercial purposes as long as this
- * copyright notice remains unaltered in the source code and any binary files
- * containing this code in compiled form.
- *
- * All other lisencing terms must be negotiated with the author
- * (Karl Stenerud).
  *
  * The latest version of this code can be obtained at:
  * http://kstenerud.cjb.net

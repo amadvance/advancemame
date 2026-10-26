@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 #include "ui_text.h"
 
 const char *mess_default_text[] =
