@@ -69,7 +69,7 @@ VIDEO_UPDATE( destroyr )
 		int horz = 256 - destroyr_minor_obj_ram[i + 2];
 		int vert = 256 - destroyr_minor_obj_ram[i + 4];
 
-		drawgfx(bitmap, Machine->gfx[1], destroyr_minor_obj_ram[i + 0], 0, 0, 0,
+		drawgfx(bitmap, Machine->gfx[1], (i << 4) | (destroyr_minor_obj_ram[i] & 15), 0, 0, 0,
 			horz, vert, &Machine->visible_area, TRANSPARENCY_PEN, 0);
 	}
 

@@ -7,6 +7,7 @@ Atari Destroyer Driver
 ***************************************************************************/
 
 #include "driver.h"
+#include "destroyr.h"
 
 extern VIDEO_UPDATE( destroyr );
 
@@ -20,8 +21,9 @@ extern UINT8* destroyr_alpha_num_ram;
 static int destroyr_potmask[2];
 static int destroyr_potsense[2];
 static int destroyr_attract;
-static int destroyr_motor_speed;
-static int destroyr_noise;
+static mame_timer *frame_timer;
+static mame_timer *dial_timer;
+static mame_timer *irq_timer;
 
 
 static void destroyr_dial_callback(int dial)
@@ -49,23 +51,47 @@ static void destroyr_frame_callback(int dummy)
 
 	/* PCB supports two dials, but cab has only got one */
 
-	timer_set(cpu_getscanlinetime(readinputport(3)), 0, destroyr_dial_callback);
+	timer_adjust(dial_timer, cpu_getscanlinetime(readinputport(3)), 0, 0);
+	timer_adjust(frame_timer, cpu_getscanlinetime(0), 0, 0);
 }
 
+
+static void destroyr_irq_callback(int scanline)
+{
+	cpunum_set_input_line(0, 0, (scanline & 32) ? ASSERT_LINE : CLEAR_LINE);
+	scanline += 32;
+	if (scanline >= 263)
+		scanline = 16;
+	timer_adjust(irq_timer, cpu_getscanlinetime(scanline), scanline, 0);
+}
+
+static MACHINE_START( destroyr )
+{
+	frame_timer = timer_alloc(destroyr_frame_callback);
+	dial_timer = timer_alloc(destroyr_dial_callback);
+	irq_timer = timer_alloc(destroyr_irq_callback);
+	return 0;
+}
 
 static MACHINE_RESET( destroyr )
 {
-	timer_pulse(cpu_getscanlinetime(0), 0, destroyr_frame_callback);
+	memset(destroyr_potmask, 0, sizeof(destroyr_potmask));
+	memset(destroyr_potsense, 0, sizeof(destroyr_potsense));
+	destroyr_cursor = destroyr_wavemod = destroyr_attract = 0;
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	timer_adjust(frame_timer, cpu_getscanlinetime(0), 0, 0);
+	timer_adjust(dial_timer, TIME_NEVER, 0, 0);
+	timer_adjust(irq_timer, cpu_getscanlinetime(16), 16, 0);
 }
-
 
 WRITE8_HANDLER( destroyr_misc_w )
 {
 	/* bits 0 to 2 connect to the sound circuits */
 
 	destroyr_attract = data & 1;
-	destroyr_noise = data & 2;
-	destroyr_motor_speed = data & 4;
+	discrete_sound_w(DESTROYR_ATTRACT, data & 1);
+	discrete_sound_w(DESTROYR_NOISE, (data >> 1) & 1);
+	discrete_sound_w(DESTROYR_MOTOR_SPEED, (data >> 2) & 1);
 	destroyr_potmask[0] = data & 8;
 	destroyr_wavemod = data & 16;
 	destroyr_potmask[1] = data & 32;
@@ -92,35 +118,37 @@ WRITE8_HANDLER( destroyr_interrupt_ack_w )
 WRITE8_HANDLER( destroyr_output_w )
 {
 	offset &= 15;
+	if (offset & 8)
+	{
+		destroyr_misc_w(0, data);
+		return;
+	}
 
 	switch (offset)
 	{
 	case 0:
-		set_led_status(0, data & 1);
+		set_led_status(0, !(data & 1));
 		break;
 	case 1:
-		set_led_status(1, data & 1); /* no second LED present on cab */
+		set_led_status(1, !(data & 1)); /* no second LED present on cab */
 		break;
 	case 2:
-		/* bit 0 => songate */
+		discrete_sound_w(DESTROYR_SONGATE, data & 1);
 		break;
 	case 3:
-		/* bit 0 => launch */
+		discrete_sound_w(DESTROYR_LAUNCH, data & 1);
 		break;
 	case 4:
-		/* bit 0 => explosion */
+		discrete_sound_w(DESTROYR_EXPLO, data & 1);
 		break;
 	case 5:
-		/* bit 0 => sonar */
+		discrete_sound_w(DESTROYR_SONLAT, data & 1);
 		break;
 	case 6:
-		/* bit 0 => high explosion */
+		discrete_sound_w(DESTROYR_HE, data & 1);
 		break;
 	case 7:
-		/* bit 0 => low explosion */
-		break;
-	case 8:
-		destroyr_misc_w(offset, data);
+		discrete_sound_w(DESTROYR_LE, data & 1);
 		break;
 	default:
 		logerror("unmapped output port %d\n", offset);
@@ -131,7 +159,7 @@ WRITE8_HANDLER( destroyr_output_w )
 
 READ8_HANDLER( destroyr_input_r )
 {
-	offset &= 15;
+	offset &= 1;
 
 	if (offset == 0)
 	{
@@ -167,11 +195,11 @@ static ADDRESS_MAP_START( destroyr_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x00ff) AM_MIRROR(0xf00) AM_RAM
 	AM_RANGE(0x1000, 0x1fff) AM_READWRITE(destroyr_input_r, destroyr_output_w)
 	AM_RANGE(0x2000, 0x2fff) AM_READ(input_port_2_r)
-	AM_RANGE(0x3000, 0x30ff) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_alpha_num_ram)
-	AM_RANGE(0x4000, 0x401f) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_major_obj_ram)
-	AM_RANGE(0x5000, 0x5000) AM_WRITE(destroyr_cursor_load_w)
-	AM_RANGE(0x5001, 0x5001) AM_WRITE(destroyr_interrupt_ack_w)
-	AM_RANGE(0x5002, 0x5007) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_minor_obj_ram)
+	AM_RANGE(0x3000, 0x30ff) AM_MIRROR(0xf00) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_alpha_num_ram)
+	AM_RANGE(0x4000, 0x401f) AM_MIRROR(0xfe0) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_major_obj_ram)
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0xff8) AM_WRITE(destroyr_cursor_load_w)
+	AM_RANGE(0x5001, 0x5001) AM_MIRROR(0xff8) AM_WRITE(destroyr_interrupt_ack_w)
+	AM_RANGE(0x5002, 0x5007) AM_MIRROR(0xff8) AM_WRITE(MWA8_RAM) AM_BASE(&destroyr_minor_obj_ram)
 	AM_RANGE(0x6000, 0x6fff) AM_READ(destroyr_scanline_r)
 	AM_RANGE(0x7000, 0x77ff) AM_NOP				/* missing translation ROMs */
 	AM_RANGE(0x7800, 0x7fff) AM_ROM				/* program */
@@ -245,7 +273,7 @@ static const gfx_layout destroyr_alpha_num_layout =
 static const gfx_layout destroyr_minor_object_layout =
 {
 	16, 16,   /* width, height */
-	16,       /* total         */
+	32,       /* total         */
 	1,        /* planes        */
 	{ 0 },    /* plane offsets */
 	{
@@ -341,16 +369,16 @@ static MACHINE_DRIVER_START( destroyr )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M6800, 12096000 / 16)
 	MDRV_CPU_PROGRAM_MAP(destroyr_map, 0)
-	MDRV_CPU_VBLANK_INT(irq0_line_assert, 4)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION((int) ((22. * 1000000) / (262. * 60) + 0.5))
+	MDRV_FRAMES_PER_SECOND(12096000.0 / 2 / 384 / 263)
+	MDRV_VBLANK_DURATION((int) (23. * 1000000 / 15750 + 0.5))
 
+	MDRV_MACHINE_START(destroyr)
 	MDRV_MACHINE_RESET(destroyr)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(256, 240)
+	MDRV_SCREEN_SIZE(256, 263)
 	MDRV_VISIBLE_AREA(0, 255, 0, 239)
 	MDRV_GFXDECODE(destroyr_gfx_decode_info)
 	MDRV_PALETTE_LENGTH(8)
@@ -358,29 +386,34 @@ static MACHINE_DRIVER_START( destroyr )
 	MDRV_VIDEO_UPDATE(destroyr)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(destroyr_sound)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
 ROM_START( destroyr )
 	ROM_REGION( 0x8000, REGION_CPU1, 0 )                  /* program code */
-	ROM_LOAD( "30146-01.c3", 0x7800, 0x0800, CRC(e560c712) SHA1(0505ab57eee5421b4ff4e87d14505e02b18fd54c) )
+	ROM_LOAD( "030146-01.c3", 0x7800, 0x0800, CRC(e560c712) SHA1(0505ab57eee5421b4ff4e87d14505e02b18fd54c) )
 
 	ROM_REGION( 0x0400, REGION_GFX1, ROMREGION_DISPOSE )   /* alpha numerics */
-	ROM_LOAD( "30135-01.p4", 0x0000, 0x0400, CRC(184824cf) SHA1(713cfd1d41ef7b1c345ea0038b652c4ba3f08301) )
+	ROM_LOAD( "030135-01.p4", 0x0000, 0x0400, CRC(184824cf) SHA1(713cfd1d41ef7b1c345ea0038b652c4ba3f08301) )
 
-	ROM_REGION( 0x0400, REGION_GFX2, ROMREGION_DISPOSE )   /* minor objects */
-	ROM_LOAD( "30132-01.f4", 0x0000, 0x0400, CRC(e09d3d55) SHA1(b26013397ef2cb32d0416ecb118387b9c2dffa9a) )
+	ROM_REGION( 0x0800, REGION_GFX2, ROMREGION_DISPOSE )   /* minor objects */
+	ROM_LOAD( "030132-01.f4", 0x0000, 0x0400, CRC(e09d3d55) SHA1(b26013397ef2cb32d0416ecb118387b9c2dffa9a) )
+	ROM_LOAD( "030132-01.k4", 0x0400, 0x0400, CRC(e09d3d55) SHA1(b26013397ef2cb32d0416ecb118387b9c2dffa9a) )
 
 	ROM_REGION( 0x0400, REGION_GFX3, ROMREGION_DISPOSE )   /* major objects */
-	ROM_LOAD_NIB_HIGH( "30134-01.p8", 0x0000, 0x0400, CRC(6259e007) SHA1(049f5f7160305cb4f4b499dd113cb11eea73fc95) )
-	ROM_LOAD_NIB_LOW ( "30133-01.n8", 0x0000, 0x0400, CRC(108d3e2c) SHA1(8c993369d37c6713670483af78e6d04d38f4b4fc) )
+	ROM_LOAD_NIB_HIGH( "030134-01.p8", 0x0000, 0x0400, CRC(6259e007) SHA1(049f5f7160305cb4f4b499dd113cb11eea73fc95) )
+	ROM_LOAD_NIB_LOW ( "030133-01.n8", 0x0000, 0x0400, CRC(108d3e2c) SHA1(8c993369d37c6713670483af78e6d04d38f4b4fc) )
 
 	ROM_REGION( 0x0020, REGION_GFX4, ROMREGION_DISPOSE )   /* waves */
-	ROM_LOAD( "30136-01.k2", 0x0000, 0x0020, CRC(532c11b1) SHA1(18ab5369a3f2cfcc9a44f38fa8649524bea5b203) )
+	ROM_LOAD( "030136-01.k2", 0x0000, 0x0020, CRC(532c11b1) SHA1(18ab5369a3f2cfcc9a44f38fa8649524bea5b203) )
 
 	ROM_REGION( 0x0100, REGION_USER1, 0 )                  /* sync (unused) */
-	ROM_LOAD( "30131-01.m1", 0x0000, 0x0100, CRC(b8094b4c) SHA1(82dc6799a19984f3b204ee3aeeb007e55afc8be3) )
+	ROM_LOAD( "030131-01.m1", 0x0000, 0x0100, CRC(b8094b4c) SHA1(82dc6799a19984f3b204ee3aeeb007e55afc8be3) )
 ROM_END
 
 
-GAME( 1977, destroyr, 0, destroyr, destroyr, 0, ORIENTATION_FLIP_X, "Atari", "Destroyer", GAME_NO_SOUND )
+GAME( 1977, destroyr, 0, destroyr, destroyr, 0, ORIENTATION_FLIP_X, "Atari", "Destroyer (Atari, version O2)", GAME_IMPERFECT_SOUND )
