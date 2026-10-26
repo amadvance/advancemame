@@ -11,6 +11,7 @@
 #include "driver.h"
 #include "lwings.h"
 
+int lwings_sprite_bank;
 unsigned char *lwings_fgvideoram;
 unsigned char *lwings_bg1videoram;
 
@@ -92,6 +93,7 @@ static void get_bg2_tile_info(int tile_index)
 
 VIDEO_START( lwings )
 {
+	lwings_sprite_bank = 0;
 	fg_tilemap  = tilemap_create(get_fg_tile_info,        tilemap_scan_rows,TILEMAP_TRANSPARENT, 8, 8,32,32);
 	bg1_tilemap = tilemap_create(lwings_get_bg1_tile_info,tilemap_scan_cols,TILEMAP_OPAQUE,     16,16,32,32);
 
@@ -224,7 +226,7 @@ static void lwings_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 			}
 
 			drawgfx(bitmap,Machine->gfx[2],
-					code,color,
+					code + lwings_sprite_bank * 0x400,color,
 					flipx,flipy,
 					sx,sy,
 					cliprect,TRANSPARENCY_PEN,15);

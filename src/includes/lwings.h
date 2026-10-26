@@ -2,6 +2,7 @@
 // copyright-holders:Paul Leaman
 /*----------- defined in vidhrdw/lwings.c -----------*/
 
+extern int lwings_sprite_bank;
 extern unsigned char *lwings_fgvideoram;
 extern unsigned char *lwings_bg1videoram;
 

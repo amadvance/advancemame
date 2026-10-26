@@ -2285,6 +2285,7 @@ V-V                           TP-027
 	DRIVER( rushcrsh )	/*  9/1986 (c) 1986 */
 	DRIVER( lwings )	/* 11/1986 (c) 1986 */
 	DRIVER( lwings2 )	/* 11/1986 (c) 1986 */
+	DRIVER( fball )
 	DRIVER( lwingsjp )	/* 11/1986 (c) 1986 */
 	DRIVER( sidearms )	/* 12/1986 (c) 1986 (World) */
 	DRIVER( sidearmr )	/* 12/1986 (c) 1986 + Romstar license (US) */
