@@ -1087,7 +1087,6 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/megaplay.o \
 	$(OBJ)/drivers/megatech.o \
 	$(OBJ)/drivers/model1.o $(OBJ)/machine/model1.o $(OBJ)/vidhrdw/model1.o \
-	$(OBJ)/drivers/model2.o \
 	$(OBJ)/drivers/model3.o $(OBJ)/vidhrdw/model3.o $(OBJ)/machine/model3.o \
 	$(OBJ)/drivers/puckpkmn.o \
 	$(OBJ)/drivers/sega.o $(OBJ)/sndhrdw/sega.o $(OBJ)/vidhrdw/sega.o \

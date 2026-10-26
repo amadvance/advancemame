@@ -23,11 +23,6 @@ READ16_HANDLER(sys24_char_r);
 WRITE16_HANDLER(sys24_tile_w);
 WRITE16_HANDLER(sys24_char_w);
 
-READ32_HANDLER(sys24_tile32_r);
-READ32_HANDLER(sys24_char32_r);
-WRITE32_HANDLER(sys24_tile32_w);
-WRITE32_HANDLER(sys24_char32_w);
-
 // Sprites
 //  System24
 int sys24_sprite_vh_start(void);

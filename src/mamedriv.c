@@ -3642,56 +3642,6 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( sfish2 )	/* (c) 1995 */
 	DRIVER( sfish2j )	/* (c) 1995 */
 
-	/* Sega Model 2 Games */
-
-	/* Model 2 (TGPs, Model 1 sound board) */
-	DRIVER( daytona )	/* 1993 */
-	DRIVER( daytonat )	/* 1993, hack */
-	DRIVER( daytonam )	/* 1993, hack */
-	DRIVER( desert )	/* 1994 */
-	DRIVER( vcop )		/* 1994 */
-
-	/* Model 2A-CRX (TGPs, SCSP sound board) */
-	DRIVER( manxtt )	/* 1995 */
-	DRIVER( srallyc )	/* 1995 */
-	DRIVER( vf2 )		/* 1995 */
-	DRIVER( vf2b )		/* 1995 */
-	DRIVER( vf2o )		/* 1995 */
-	DRIVER( vcop2 )		/* 1995 */
-	DRIVER( dynamcop )	/* 1996 */
-	DRIVER( dyndeka2 )	/* 1996 */
-	DRIVER( doaa )		/* 1996 */
-	DRIVER( zeroguna )	/* 1997 */
-	DRIVER( pltkidsa )	/* 1998 */
-
-	/* Model 2B-CRX (SHARC, SCSP sound board) */
-	DRIVER( vstriker )	/* 1994 */
-	DRIVER( vstrikra )	/* 1994 */
-	DRIVER( fvipers )	/* 1995 */
-	DRIVER( gunblade )	/* 1995 */
-	DRIVER( indy500 )	/* 1995 */
-	DRIVER( skytargt )	/* 1995 */
-	DRIVER( dynmcopb )	/* 1996 */
-	DRIVER( schamp )	/* 1996 */
-	DRIVER( lastbrnx )	/* 1996 */
-	DRIVER( lastbrnj )	/* 1996 */
-	DRIVER( doa )		/* 1996 */
-	DRIVER( sgt24h )	/* 1996 */
-	DRIVER( von )		/* 1996 */
-	DRIVER( vonusa )	/* 1996 */
-	DRIVER( dynabb )	/* 1996 */
-	DRIVER( zerogun )	/* 1997 */
-	DRIVER( zerogunj )	/* 1997 */
-	DRIVER( pltkids )	/* 1998 */
-
-	/* Model 2C-CRX (TGPx4, SCSP sound board) */
-	DRIVER( skisuprg )	/* 1996 */
-	DRIVER( stcc )		/* 1996 */
-	DRIVER( hotd )		/* 1997 */
-	DRIVER( overrev )	/* 1997 */
-	DRIVER( topskatr )	/* 1997 */
-	DRIVER( bel )		/* 1998 */
-
 	/* Sega Model 3 Games */
 
 	/* Step 1.0 */
