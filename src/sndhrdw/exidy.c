@@ -420,6 +420,11 @@ static void *common_start(void)
 }
 
 
+void *exidy_effects_start(int clock, const struct CustomSound_interface *config)
+{
+	return common_start();
+}
+
 void *exidy_sh_start(int clock, const struct CustomSound_interface *config)
 {
 	/* Init PIA */

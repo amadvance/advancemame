@@ -21,6 +21,8 @@
 #include "driver.h"
 #include "includes/berzerk.h"
 #include "sound/samples.h"
+#include "sound/s14001a.h"
+#include "includes/exidy.h"
 
 
 static const char *sample_names[] =
@@ -310,3 +312,39 @@ struct Samplesinterface berzerk_samples_interface =
 	sample_names,
 	berzerk_sh_start
 };
+
+struct CustomSound_interface moonwarp_effects_interface =
+{
+	exidy_effects_start, NULL, NULL, NULL
+};
+
+WRITE8_HANDLER( moonwarp_sound_w )
+{
+	if (offset == 4)
+	{
+		if ((data >> 6) == 0)
+		{
+			s14001a_word_w(0, data);
+			s14001a_start_w(0, 1);
+			s14001a_start_w(0, 0);
+		}
+		else if ((data >> 6) == 1)
+		{
+			sndti_set_output_gain(SOUND_CUSTOM, 0, 0, ((data >> 3) & 7) / 7.0);
+			s14001a_set_clock(2500000 / (16 - (data & 7)) / 8);
+		}
+	}
+	else if (offset == 6)
+		exidy_sfxctrl_w(data >> 6, data);
+	else
+		exidy_sh6840_w(offset, data);
+}
+
+READ8_HANDLER( moonwarp_sound_r )
+{
+	if (offset == 4)
+		return s14001a_speech_busy() ? 0 : 0x40;
+	if (offset == 6)
+		return 0;
+	return exidy_sh6840_r(offset);
+}
