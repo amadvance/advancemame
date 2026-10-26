@@ -114,6 +114,8 @@ static UINT16 dec0_pf3_control_0[4];
 static UINT16 dec0_pf3_control_1[4];
 static UINT16 *dec0_spriteram;
 static UINT16 dec0_pri;
+static int bandit_video;
+static tilemap *bandit_pf2_column, *bandit_pf3_column;
 
 /******************************************************************************/
 
@@ -229,7 +231,7 @@ static void custom_tilemap_draw(mame_bitmap *bitmap,
 	const mame_bitmap *src_bitmap = tilemap_get_pixmap(tilemap_ptr);
 	int x, y, p;
 	int column_offset=0, src_x=0, src_y=0;
-	unsigned int scrollx=control1[0];
+	unsigned int scrollx=bandit_video && !(control0[0] & 2) ? -control1[0] - 0x100 : control1[0];
 	unsigned int scrolly=control1[1];
 	int width_mask = src_bitmap->width - 1;
 	int height_mask = src_bitmap->height - 1;
@@ -317,7 +319,11 @@ static void dec0_pf1_draw(mame_bitmap *bitmap,const rectangle *cliprect,int flag
 static void dec0_pf2_draw(mame_bitmap *bitmap,const rectangle *cliprect,int flags)
 {
 	switch (dec0_pf2_control_0[3]&0x3) {
-		case 0:	/* 4x1 */
+		case 0:
+			if (bandit_video && !(dec0_pf2_control_0[0] & 2)) {
+				custom_tilemap_draw(bitmap,cliprect,bandit_pf2_column,dec0_pf2_rowscroll,dec0_pf2_colscroll,dec0_pf2_control_0,dec0_pf2_control_1,flags);
+				break;
+			}	/* 4x1 */
 			custom_tilemap_draw(bitmap,cliprect,pf2_tilemap_0,dec0_pf2_rowscroll,dec0_pf2_colscroll,dec0_pf2_control_0,dec0_pf2_control_1,flags);
 			break;
 		case 1:	/* 2x2 */
@@ -333,7 +339,11 @@ static void dec0_pf2_draw(mame_bitmap *bitmap,const rectangle *cliprect,int flag
 static void dec0_pf3_draw(mame_bitmap *bitmap,const rectangle *cliprect,int flags)
 {
 	switch (dec0_pf3_control_0[3]&0x3) {
-		case 0:	/* 4x1 */
+		case 0:
+			if (bandit_video && !(dec0_pf3_control_0[0] & 2)) {
+				custom_tilemap_draw(bitmap,cliprect,bandit_pf3_column,dec0_pf3_rowscroll,dec0_pf3_colscroll,dec0_pf3_control_0,dec0_pf3_control_1,flags);
+				break;
+			}	/* 4x1 */
 			custom_tilemap_draw(bitmap,cliprect,pf3_tilemap_0,dec0_pf3_rowscroll,dec0_pf3_colscroll,dec0_pf3_control_0,dec0_pf3_control_1,flags);
 			break;
 		case 1:	/* 2x2 */
@@ -363,6 +373,95 @@ VIDEO_UPDATE( hbarrel )
 }
 
 /******************************************************************************/
+
+static void bandit_drawsprites(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	struct bandit_sprite
+	{
+		int code, colour, x, y, fx, fy, height, step, increment;
+	} sprites[0x100];
+	int offs = 0, count = 0;
+
+	while (offs < 0x400)
+	{
+		UINT16 attr = dec0_spriteram[offs];
+		UINT16 xpos = dec0_spriteram[offs + 2];
+		int height = 1 << ((attr >> 11) & 3);
+		int width = 1 << ((attr >> 9) & 3);
+		int fx = attr & 0x2000, fy = attr & 0x4000;
+		int x = xpos & 0x1ff, y = attr & 0x1ff;
+		int step, column;
+
+		if (!(attr & 0x8000))
+		{
+			offs += 4;
+			continue;
+		}
+		if (x >= 256) x -= 512;
+		if (y >= 256) y -= 512;
+		x = 240 - x;
+		y = 240 - y;
+		if (flip_screen)
+		{
+			x = 240 - x;
+			y = 240 - y;
+			fx = !fx;
+			fy = !fy;
+			step = 16;
+		}
+		else step = -16;
+
+		for (column = 0; column < width && offs < 0x400; column++, offs += 4)
+		{
+			int code = (dec0_spriteram[offs + 1] & 0x1fff) & ~(height - 1);
+			int increment = (attr & 0x4000) ? -1 : 1;
+			struct bandit_sprite *sprite;
+
+			if ((xpos & 0x0800) && !(cpu_getcurrentframe() & 1)) continue;
+			if (increment == 1) code += height - 1;
+			sprite = &sprites[count++];
+			sprite->code = code;
+			sprite->colour = xpos >> 12;
+			sprite->x = x + step * column;
+			sprite->y = y;
+			sprite->fx = fx;
+			sprite->fy = fy;
+			sprite->height = height;
+			sprite->step = step;
+			sprite->increment = increment;
+		}
+	}
+
+	while (count--)
+	{
+		const struct bandit_sprite *sprite = &sprites[count];
+		int row;
+		for (row = 0; row < sprite->height; row++)
+			drawgfx(bitmap, Machine->gfx[3], sprite->code - row * sprite->increment,
+				sprite->colour, sprite->fx, sprite->fy, sprite->x,
+				sprite->y + sprite->step * row, cliprect, TRANSPARENCY_PEN, 0);
+	}
+}
+
+VIDEO_UPDATE( bandit )
+{
+	flip_screen_set(dec0_pf1_control_0[0] & 0x80);
+	if (dec0_pri == 7)
+	{
+		dec0_pf2_draw(bitmap, cliprect, TILEMAP_IGNORE_TRANSPARENCY);
+		bandit_drawsprites(bitmap, cliprect);
+		dec0_pf3_draw(bitmap, cliprect, 0);
+		dec0_pf1_draw(bitmap, cliprect, 0);
+	}
+	else
+	{
+		dec0_pf3_draw(bitmap, cliprect, TILEMAP_IGNORE_TRANSPARENCY);
+		dec0_pf2_draw(bitmap, cliprect, 0);
+		if (dec0_pri == 0) bandit_drawsprites(bitmap, cliprect);
+		dec0_pf1_draw(bitmap, cliprect, 0);
+		if (dec0_pri != 0) bandit_drawsprites(bitmap, cliprect);
+	}
+}
 
 VIDEO_UPDATE( baddudes )
 {
@@ -539,7 +638,14 @@ VIDEO_UPDATE( midres )
 
 WRITE16_HANDLER( dec0_pf1_control_0_w )
 {
+	UINT16 old = dec0_pf1_control_0[offset];
 	COMBINE_DATA(&dec0_pf1_control_0[offset]);
+	if (bandit_video && offset == 0 && ((old ^ dec0_pf1_control_0[0]) & 2))
+	{
+		tilemap_mark_all_tiles_dirty(pf1_tilemap_0);
+		tilemap_mark_all_tiles_dirty(pf1_tilemap_1);
+		tilemap_mark_all_tiles_dirty(pf1_tilemap_2);
+	}
 }
 
 WRITE16_HANDLER( dec0_pf1_control_1_w )
@@ -560,7 +666,15 @@ WRITE16_HANDLER( dec0_pf1_data_w )
 
 WRITE16_HANDLER( dec0_pf2_control_0_w )
 {
+	UINT16 old = dec0_pf2_control_0[offset];
 	COMBINE_DATA(&dec0_pf2_control_0[offset]);
+	if (bandit_video && offset == 0 && ((old ^ dec0_pf2_control_0[0]) & 2))
+	{
+		tilemap_mark_all_tiles_dirty(pf2_tilemap_0);
+		tilemap_mark_all_tiles_dirty(pf2_tilemap_1);
+		tilemap_mark_all_tiles_dirty(pf2_tilemap_2);
+		tilemap_mark_all_tiles_dirty(bandit_pf2_column);
+	}
 }
 
 WRITE16_HANDLER( dec0_pf2_control_1_w )
@@ -576,12 +690,21 @@ WRITE16_HANDLER( dec0_pf2_data_w )
 		tilemap_mark_tile_dirty(pf2_tilemap_0,offset);
 		tilemap_mark_tile_dirty(pf2_tilemap_1,offset);
 		tilemap_mark_tile_dirty(pf2_tilemap_2,offset);
+		if (bandit_video) tilemap_mark_tile_dirty(bandit_pf2_column,offset);
 	}
 }
 
 WRITE16_HANDLER( dec0_pf3_control_0_w )
 {
+	UINT16 old = dec0_pf3_control_0[offset];
 	COMBINE_DATA(&dec0_pf3_control_0[offset]);
+	if (bandit_video && offset == 0 && ((old ^ dec0_pf3_control_0[0]) & 2))
+	{
+		tilemap_mark_all_tiles_dirty(pf3_tilemap_0);
+		tilemap_mark_all_tiles_dirty(pf3_tilemap_1);
+		tilemap_mark_all_tiles_dirty(pf3_tilemap_2);
+		tilemap_mark_all_tiles_dirty(bandit_pf3_column);
+	}
 }
 
 WRITE16_HANDLER( dec0_pf3_control_1_w )
@@ -597,6 +720,7 @@ WRITE16_HANDLER( dec0_pf3_data_w )
 		tilemap_mark_tile_dirty(pf3_tilemap_0,offset);
 		tilemap_mark_tile_dirty(pf3_tilemap_1,offset);
 		tilemap_mark_tile_dirty(pf3_tilemap_2,offset);
+		if (bandit_video) tilemap_mark_tile_dirty(bandit_pf3_column,offset);
 	}
 }
 
@@ -647,6 +771,11 @@ READ8_HANDLER( dec0_pf3_data_8bit_r )
 
 /******************************************************************************/
 
+static UINT32 bandit_column_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 num_rows)
+{
+	return (row & 0x0f) + ((num_cols - 1 - col) << 4);
+}
+
 static UINT32 tile_shape0_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 num_rows)
 {
 	return (col & 0xf) + ((row & 0xf) << 4) + ((col & 0x30) << 4);
@@ -680,25 +809,26 @@ static UINT32 tile_shape2_8x8_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 
 static void get_pf1_tile_info(int tile_index)
 {
 	int tile=dec0_pf1_data[tile_index];
-	SET_TILE_INFO(0,tile&0xfff,tile>>12,0)
+	SET_TILE_INFO(0,tile&0xfff,tile>>12,bandit_video && !(dec0_pf1_control_0[0] & 2) ? TILE_FLIPX : 0)
 }
 
 static void get_pf2_tile_info(int tile_index)
 {
 	int tile=dec0_pf2_data[tile_index];
 	int pri=((tile>>12)>7);
-	SET_TILE_INFO(1,tile&0xfff,tile>>12,TILE_SPLIT(pri))
+	SET_TILE_INFO(1,tile&0xfff,tile>>12,TILE_SPLIT(pri) | (bandit_video && !(dec0_pf2_control_0[0] & 2) ? TILE_FLIPX : 0))
 }
 
 static void get_pf3_tile_info(int tile_index)
 {
 	int tile=dec0_pf3_data[tile_index];
 	int pri=((tile>>12)>7);
-	SET_TILE_INFO(2,tile&0xfff,tile>>12,TILE_SPLIT(pri))
+	SET_TILE_INFO(2,tile&0xfff,tile>>12,TILE_SPLIT(pri) | (bandit_video && !(dec0_pf3_control_0[0] & 2) ? TILE_FLIPX : 0))
 }
 
 VIDEO_START( dec0_nodma )
 {
+	bandit_video = 0;
 	pf1_tilemap_0 = tilemap_create(get_pf1_tile_info,tile_shape0_8x8_scan,TILEMAP_TRANSPARENT, 8, 8,128, 32);
 	pf1_tilemap_1 = tilemap_create(get_pf1_tile_info,tile_shape1_8x8_scan,TILEMAP_TRANSPARENT, 8, 8, 64, 64);
 	pf1_tilemap_2 = tilemap_create(get_pf1_tile_info,tile_shape2_8x8_scan,TILEMAP_TRANSPARENT, 8, 8, 32,128);
@@ -725,6 +855,15 @@ VIDEO_START( dec0 )
 	dec0_spriteram=auto_malloc(0x800);
 
 	return 0;
+}
+
+VIDEO_START( bandit )
+{
+	if (video_start_dec0()) return 1;
+	bandit_video = 1;
+	bandit_pf2_column = tilemap_create(get_pf2_tile_info,bandit_column_scan,TILEMAP_TRANSPARENT,16,16,64,16);
+	bandit_pf3_column = tilemap_create(get_pf3_tile_info,bandit_column_scan,TILEMAP_TRANSPARENT,16,16,64,16);
+	return !bandit_pf2_column || !bandit_pf3_column;
 }
 
 /******************************************************************************/
