@@ -457,7 +457,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/cojag.o $(OBJ)/sndhrdw/jaguar.o $(OBJ)/vidhrdw/jaguar.o \
 	$(OBJ)/drivers/copsnrob.o $(OBJ)/machine/copsnrob.o $(OBJ)/vidhrdw/copsnrob.o $(OBJ)/sndhrdw/copsnrob.o \
 	$(OBJ)/drivers/cyberbal.o $(OBJ)/sndhrdw/cyberbal.o $(OBJ)/vidhrdw/cyberbal.o \
-	$(OBJ)/drivers/destroyr.o $(OBJ)/vidhrdw/destroyr.o \
+	$(OBJ)/drivers/destroyr.o $(OBJ)/vidhrdw/destroyr.o $(OBJ)/sndhrdw/destroyr.o \
 	$(OBJ)/drivers/dragrace.o $(OBJ)/sndhrdw/dragrace.o $(OBJ)/vidhrdw/dragrace.o \
 	$(OBJ)/drivers/eprom.o $(OBJ)/vidhrdw/eprom.o \
 	$(OBJ)/drivers/firetrk.o $(OBJ)/sndhrdw/firetrk.o $(OBJ)/vidhrdw/firetrk.o \
