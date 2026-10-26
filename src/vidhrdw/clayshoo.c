@@ -2,7 +2,7 @@
 // copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
-    Atari Clay Shoot hardware
+    Allied Leisure Clay Shoot hardware
 
     driver by Zsolt Vasvari
 
@@ -37,6 +37,7 @@ WRITE8_HANDLER( clayshoo_videoram_w )
 	int i;
 
 
+	videoram[offset] = data;
 	x = ((offset & 0x1f) << 3);
 	y = 191 - (offset >> 5);
 

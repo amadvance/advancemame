@@ -2,7 +2,7 @@
 // copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
-    Atari Clay Shoot hardware
+    Allied Leisure Clay Shoot hardware
 
     driver by Zsolt Vasvari
 
@@ -10,11 +10,16 @@
 
 #include "driver.h"
 #include "machine/8255ppi.h"
+#include "machine/pit8253.h"
+#include "sound/dac.h"
 #include "includes/clayshoo.h"
 
 
 static UINT8 input_port_select;
 static UINT8 analog_port_val;
+static mame_timer *analog_timer[2];
+
+static void reset_analog_bit(int bit);
 
 
 /*************************************
@@ -29,45 +34,15 @@ static WRITE8_HANDLER( input_port_select_w )
 }
 
 
-static UINT8 difficulty_input_port_r(int bit)
-{
-	UINT8 ret = 0;
-
-	/* read fake port and remap the buttons to 2 bits */
-	UINT8	raw = readinputportbytag("FAKE");
-
-	if (raw & (1 << (bit + 1)))
-		ret = 0x03;		/* expert */
-	else if (raw & (1 << (bit + 2)))
-		ret = 0x01;		/* pro */
-	else
-		ret = 0x00;		/* amateur otherwise */
-
-	return ret;
-}
-
-
 static READ8_HANDLER( input_port_r )
 {
-	UINT8 ret = 0;
-
-
-	switch (input_port_select)
-	{
-	case 0x01:	ret = readinputportbytag("IN0"); break;
-	case 0x02:	ret = readinputportbytag("IN1"); break;
-	case 0x04:	ret = (readinputportbytag("IN2") & 0xf0) |
-					   difficulty_input_port_r(0) |
-					  (difficulty_input_port_r(3) << 2); break;
-	case 0x08:	ret = readinputportbytag("IN3"); break;
-	case 0x10:
-	case 0x20:	break;	/* these two are not really used */
-	default: logerror("Unexpected port read: %02X\n", input_port_select);
-	}
-
-	return ret;
+	UINT8 data = 0xff;
+	int i;
+	for (i = 0; i < 4; i++)
+		if (input_port_select & (1 << i))
+			data &= readinputport(i);
+	return data;
 }
-
 
 static ppi8255_interface ppi8255_intf =
 {
@@ -81,11 +56,37 @@ static ppi8255_interface ppi8255_intf =
 };
 
 
+static void clayshoo_sound_output(int state)
+{
+	DAC_data_w(0, state ? 0 : 255);
+}
+
+static const struct pit8253_config clayshoo_pit =
+{
+	TYPE8253,
+	{
+		{ 5068800 / 2, clayshoo_sound_output, NULL },
+		{ 5068800 / 2, NULL, NULL },
+		{ 5068800 / 2, NULL, NULL }
+	}
+};
+
+MACHINE_START( clayshoo )
+{
+	analog_timer[0] = timer_alloc(reset_analog_bit);
+	analog_timer[1] = timer_alloc(reset_analog_bit);
+	return pit8253_init(1, &clayshoo_pit);
+}
+
 MACHINE_RESET( clayshoo )
 {
 	ppi8255_init(&ppi8255_intf);
+	pit8253_reset(0);
+	input_port_select = 0;
+	analog_port_val = 0xff;
+	timer_adjust(analog_timer[0], TIME_NEVER, 0, 0);
+	timer_adjust(analog_timer[1], TIME_NEVER, 0, 0);
 }
-
 
 
 /*************************************
@@ -116,8 +117,8 @@ WRITE8_HANDLER( clayshoo_analog_reset_w )
 
 	analog_port_val = 0xff;
 
-	timer_set(compute_duration(readinputportbytag("AN1")), 0x02, reset_analog_bit);
-	timer_set(compute_duration(readinputportbytag("AN2")), 0x01, reset_analog_bit);
+	timer_adjust(analog_timer[0], compute_duration(readinputport(4)), 0x02, 0);
+	timer_adjust(analog_timer[1], compute_duration(readinputport(5)), 0x01, 0);
 }
 
 
