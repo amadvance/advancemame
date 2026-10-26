@@ -5425,5 +5425,5 @@ GAME( 1980, invad2ct, 0, invad2ct, invad2ct, invad2ct, ROT90, "Midway", "Space I
 	  GAME( 1979, shuttlei, 0, shuttlei, shuttlei, shuttlei, ROT270, "Omori Electric Co., Ltd.", "Shuttle Invader", GAME_IMPERFECT_SOUND )
 GAME( 1979, skylove, 0, shuttlei, skylove, shuttlei, ROT270, "Omori Electric Co., Ltd.", "Sky Love", GAME_IMPERFECT_SOUND )
 GAME( 1979, cane, 0, cane, cane, 8080bw, ROT0, "Model Racing", "Cane (prototype)", GAME_IMPERFECT_SOUND )
-GAME( 1979, orbite, 0, orbite, orbite, orbite, ROT270, "Model Racing", "Orbite (prototype)", 0 )
+GAME( 1979, orbite, 0, orbite, orbite, orbite, ROT270, "Model Racing", "Orbite (prototype)", 0 ) /* unfinished prototype without sound */
 GAME( 1980, astropal, 0, astropal, astropal, 8080bw, ROT0, "Sidam?", "Astropal", GAME_IMPERFECT_SOUND )
