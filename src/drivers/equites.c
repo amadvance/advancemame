@@ -297,6 +297,68 @@ static WRITE16_HANDLER(equites_flip1_w)
 	if (ACCESSING_MSB) equites_flip = 1;
 }
 
+static UINT8 *gekisou_mcu_ram;
+static int gekisou_status;
+
+static READ16_HANDLER( gekisou_mcu_r )
+{
+	return 0xff00 | gekisou_mcu_ram[offset];
+}
+
+static WRITE16_HANDLER( gekisou_mcu_w )
+{
+	if (ACCESSING_LSB)
+		gekisou_mcu_ram[offset] = data;
+}
+
+static WRITE16_HANDLER( gekisou_mcu_run_w )
+{
+	cpunum_set_input_line(2, INPUT_LINE_HALT, CLEAR_LINE);
+}
+
+static WRITE16_HANDLER( gekisou_mcu_halt_w )
+{
+	cpunum_set_input_line(2, INPUT_LINE_HALT, ASSERT_LINE);
+}
+
+static READ16_HANDLER( gekisou_input_r )
+{
+	return readinputport(1) | (gekisou_status << 15);
+}
+
+static WRITE16_HANDLER( gekisou_status_clear_w )
+{
+	gekisou_status = 0;
+}
+
+static WRITE16_HANDLER( gekisou_status_set_w )
+{
+	gekisou_status = 1;
+}
+
+static ADDRESS_MAP_START( gekisou_mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x03ff) AM_RAM AM_BASE(&gekisou_mcu_ram)
+ADDRESS_MAP_END
+
+static NVRAM_HANDLER( gekisou )
+{
+	if (read_or_write)
+		mame_fwrite(file, equites_workram, 0x1000);
+	else
+	{
+		memset(equites_workram, 0, 0x1000);
+		if (file)
+			mame_fread(file, equites_workram, 0x1000);
+	}
+}
+
+static MACHINE_RESET( gekisou )
+{
+	gekisou_status = 0;
+	equites_flip = 0;
+	disablejoyport2 = 0;
+}
+
 // Splendor Blast Hardware
 #if HVOLTAGE_HACK
 static READ16_HANDLER(hvoltage_debug_r)
@@ -452,6 +514,19 @@ INPUT_PORTS_END
 
 /******************************************************************************/
 // Bull Fighter Port Map
+
+INPUT_PORTS_START( gekisou )
+	PORT_START
+	EQUITES_PLAYER_INPUT_LSB( IPT_BUTTON1, IPT_BUTTON2, IPT_BUTTON3, IPT_START1 )
+	EQUITES_PLAYER_INPUT_MSB( IPT_BUTTON1, IPT_BUTTON2, IPT_BUTTON3, IPT_START2 )
+
+	PORT_START
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT( 0x0400, IP_ACTIVE_HIGH, IPT_SERVICE ) PORT_NAME("Settings") PORT_CODE(KEYCODE_F1)
+	PORT_BIT( 0x7800, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_SPECIAL )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( bullfgtr )
 	PORT_START
@@ -717,7 +792,7 @@ static const gfx_decode splndrbt_gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( equites )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 12000000/2) // OSC: 12Mhz
+	MDRV_CPU_ADD_TAG("main", M68000, 12000000/2) // OSC: 12Mhz
 	MDRV_CPU_PROGRAM_MAP(equites_readmem, equites_writemem)
 	MDRV_CPU_VBLANK_INT(equites_interrupt, 2)
 
@@ -739,6 +814,16 @@ static MACHINE_DRIVER_START( equites )
 	/* sound hardware */
 	EQUITES_ADD_SOUNDBOARD7
 
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( gekisou )
+	MDRV_IMPORT_FROM(equites)
+	MDRV_CPU_REPLACE("main", M68000, 12000000/4)
+	MDRV_CPU_ADD(ALPHA8301, 4000000/8)
+	MDRV_CPU_PROGRAM_MAP(gekisou_mcu_map, 0)
+	MDRV_INTERLEAVE(100)
+	MDRV_MACHINE_RESET(gekisou)
+	MDRV_NVRAM_HANDLER(gekisou)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( splndrbt )
@@ -954,11 +1039,7 @@ ROM_START( gekisou )
 	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE ) // chars
 	ROM_LOAD( "0.5c",  0x00000, 0x1000, CRC(7e8bf4d1) SHA1(8abb82be006e8d1df449a5f83d59637314405119) )
 
-	/* GFX loading is wrong -- why do we load roms twice in other sets anyway, we shouldn't load
-       things twice unless they are on the board twice, if they're not we should expand them in
-       init functions. */
-	ROM_REGION( 0x10000, REGION_GFX2, ROMREGION_DISPOSE ) // tile set1
-//  ROM_LOAD_NIB_HIGH( "5.16r",  0x00000, 0x4000, CRC(88ef550a) SHA1(b50e7b8257d1bb6923d289e7af885c14d089b394) )
+		ROM_REGION( 0x10000, REGION_GFX2, ROMREGION_DISPOSE ) // tile set1
 	ROM_LOAD         ( "5.16r",  0x04000, 0x4000, CRC(88ef550a) SHA1(b50e7b8257d1bb6923d289e7af885c14d089b394) )
 	ROM_LOAD         ( "6.15r",  0x08000, 0x4000, CRC(473e3fbf) SHA1(5039387b3627c19f592d630ba7bd010a3881adc5) )
 	ROM_LOAD         ( "7.18r",  0x0c000, 0x4000, CRC(a1918b6c) SHA1(6ffa4c845d23d311b59cc19411a68a782618b3fd) )
@@ -966,7 +1047,6 @@ ROM_START( gekisou )
 	ROM_REGION( 0x8000, REGION_GFX3, ROMREGION_DISPOSE ) // tile set2
 
 	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE ) // sprite set1
-//  ROM_LOAD_NIB_HIGH( "8.8r",     0x00000, 0x4000, CRC(2e0c392c) SHA1(48542a24a34e3d5d00af418b29a2ee15557efc99) )
 	ROM_LOAD         ( "8.8r",     0x04000, 0x4000, CRC(2e0c392c) SHA1(48542a24a34e3d5d00af418b29a2ee15557efc99) )
 	ROM_LOAD         ( "9.6r",     0x08000, 0x4000, CRC(56a03b08) SHA1(d90b246890fedfc437de85be8bcc6b60ff068be1) )
 	ROM_LOAD         ( "10.9r",    0x0c000, 0x4000, CRC(11d89c73) SHA1(8753f635d321c8e9b93b0ab767cf44aca1db7a0a) )
@@ -975,8 +1055,8 @@ ROM_START( gekisou )
 
 	ROM_REGION( 0x0300, REGION_PROMS, 0 ) // RGB PROMs
 	ROM_LOAD( "1b.bpr",  0x00000, 0x100, CRC(11a1c0aa) SHA1(d007d31f68bf802c89422ea2393747ac8de94d70) ) // R
-	ROM_LOAD( "2b.bpr",  0x00100, 0x100, CRC(4f5d4141) SHA1(965221c6af4a868760e6d168b55e037fc5f9fa52) ) // G
-	ROM_LOAD( "4b.bpr",  0x00200, 0x100, CRC(c7ebe52c) SHA1(19d2ee70d67fd5e1c57f66d030ec9a5b6af5a49e) ) // B
+	ROM_LOAD( "2b.bpr",  0x00200, 0x100, CRC(4f5d4141) SHA1(965221c6af4a868760e6d168b55e037fc5f9fa52) ) // G
+	ROM_LOAD( "4b.bpr",  0x00100, 0x100, CRC(c7ebe52c) SHA1(19d2ee70d67fd5e1c57f66d030ec9a5b6af5a49e) ) // B
 
 	ROM_REGION( 0x0100, REGION_USER1, 0 ) // CLUT(same PROM x 4)
 	ROM_LOAD( "2n.bpr",  0x0000, 0x100, CRC(c7333120) SHA1(ad590e8ece3dcf56b285c4a080f4ee8bb4c9d77c) )
@@ -1320,6 +1400,42 @@ static DRIVER_INIT( equites )
 	equites_8404rule(0x9176, 0x483,-0x03); // exit location lo
 }
 
+static void gekisou_unpack(int first_region, int second_region)
+{
+	UINT8 *source = auto_malloc(0x10000);
+	int bank, i;
+	memcpy(source, memory_region(first_region), 0x10000);
+	for (bank = 0; bank < 2; bank++)
+	{
+		UINT8 *dest = memory_region(bank ? second_region : first_region);
+		int offset = bank * 0x2000;
+		for (i = 0; i < 0x2000; i++)
+		{
+			UINT8 packed = source[0xc000 + offset + i];
+			dest[i] = (packed & 0x0f) << 4;
+			dest[0x2000 + i] = packed & 0xf0;
+			dest[0x4000 + i] = source[0x4000 + offset + i];
+			dest[0x6000 + i] = source[0x8000 + offset + i];
+		}
+	}
+}
+
+static DRIVER_INIT( gekisou )
+{
+	equites_id = 0x8501;
+	equites_init_common();
+	gekisou_unpack(REGION_GFX2, REGION_GFX3);
+	gekisou_unpack(REGION_GFX4, REGION_GFX5);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x140000, 0x1407ff, 0, 0, gekisou_mcu_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x140000, 0x1407ff, 0, 0, gekisou_mcu_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x180000, 0x180001, 0, 0, gekisou_input_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x1c0000, 0x1c0001, 0, 0, input_port_0_word_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x188000, 0x188001, 0, 0, gekisou_mcu_run_w);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x1a8000, 0x1a8001, 0, 0, gekisou_mcu_halt_w);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x580000, 0x580001, 0, 0, gekisou_status_clear_w);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x5a0000, 0x5a0001, 0, 0, gekisou_status_set_w);
+}
+
 static DRIVER_INIT( bullfgtr )
 {
 	equites_id = 0x8401;
@@ -1464,13 +1580,12 @@ static DRIVER_INIT( hvoltage )
 // Equites Hardware
 GAME( 1984, equites,  0,        equites,  equites,  equites,  ROT90, "Alpha Denshi Co.",                "Equites", GAME_UNEMULATED_PROTECTION | GAME_NO_COCKTAIL )
 GAME( 1984, equitess, equites,  equites,  equites,  equites,  ROT90, "Alpha Denshi Co. (Sega license)", "Equites (Sega)", GAME_UNEMULATED_PROTECTION | GAME_NO_COCKTAIL )
-GAME( 1985, gekisou,  0,        equites,  equites,  equites,  ROT90, "Eastern",                         "Gekisou (Japan)", GAME_UNEMULATED_PROTECTION | GAME_NO_COCKTAIL | GAME_NOT_WORKING )
 GAME( 1984, bullfgtr, 0,        equites,  bullfgtr, bullfgtr, ROT90, "Alpha Denshi Co.",                "Bull Fighter", GAME_UNEMULATED_PROTECTION )
 GAME( 1984, bullfgts, bullfgtr, equites,  bullfgtr, bullfgts, ROT90, "Alpha Denshi Co. (Sega license)", "Bull Fighter (Sega)", GAME_UNEMULATED_PROTECTION )
 GAME( 1985, kouyakyu, 0,        equites,  kouyakyu, kouyakyu, ROT0,  "Alpha Denshi Co.",                "The Koukouyakyuh", GAME_UNEMULATED_PROTECTION )
 
+GAME( 1985, gekisou,  0,        gekisou,  gekisou,  gekisou,  ROT90, "Eastern Corp.", "Gekisou (Japan)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
+
 // Splendor Blast Hardware
 GAME( 1985, splndrbt, 0,        splndrbt, splndrbt, splndrbt, ROT0,  "Alpha Denshi Co.", "Splendor Blast", GAME_UNEMULATED_PROTECTION | GAME_NO_COCKTAIL )
 GAME( 1985, hvoltage, 0,        splndrbt, hvoltage, hvoltage, ROT0,  "Alpha Denshi Co.", "High Voltage", GAME_UNEMULATED_PROTECTION )
-
-/******************************************************************************/
