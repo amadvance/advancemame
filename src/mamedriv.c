@@ -4756,7 +4756,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( quantump )	/* 136016           (c) 1982 */	/* made by Gencomp */
 	DRIVER( bwidow )	/* 136017           (c) 1982 */
 	DRIVER( starwars )	/* 136021           (c) 1983 */
+	DRIVER( starwars1 )	/* 136021           (c) 1983 */
 	DRIVER( starwar1 )	/* 136021           (c) 1983 */
+	DRIVER( starwarso )	/* 136021           (c) 1983 */
 	DRIVER( mhavoc )	/* 136025           (c) 1983 */
 	DRIVER( mhavoc2 )	/* 136025           (c) 1983 */
 	DRIVER( mhavocp )	/* 136025           (c) 1983 */
