@@ -5460,17 +5460,6 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( vliner )
 	DRIVER( vlinero )
 
-	/* Hyper NeoGeo 64 uses a 3 digit rom code? */
-
- 	DRIVER( hng64 )
-	DRIVER( roadedge ) 	/* 001? Roads Edge / Round Trip RV */
-				/* 002? Samurai Shodown 64 / Samurai Spirits 64 */
-				/* 003? Xtreme Rally / Off Beat Racer! */
-				/* 004? Beast Busters: Second Nightmare */
-	DRIVER( sams64_2 )	/* 005? Samurai Shodown: Warrior's Rage / Samurai Spirits: Asura Zanmaden */
-	DRIVER( fatfurwa )	/* 006? Fatal Fury: Wild Ambition / Garou Densetsu: Wild Ambition */
-	DRIVER( buriki )	/* 007 (c) 1999 SNK */
-
 	/* Alpha Denshi games */
 	DRIVER( shougi )
 	DRIVER( shougi2 )

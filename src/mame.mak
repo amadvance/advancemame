@@ -1169,7 +1169,6 @@ $(OBJ)/snk.a: \
 	$(OBJ)/drivers/bbusters.o $(OBJ)/vidhrdw/bbusters.o \
 	$(OBJ)/drivers/dmndrby.o \
 	$(OBJ)/drivers/hal21.o \
-	$(OBJ)/drivers/hng64.o $(OBJ)/vidhrdw/hng64.o \
 	$(OBJ)/drivers/jcross.o $(OBJ)/vidhrdw/jcross.o \
 	$(OBJ)/drivers/lasso.o $(OBJ)/vidhrdw/lasso.o \
 	$(OBJ)/drivers/mainsnk.o $(OBJ)/vidhrdw/mainsnk.o \
