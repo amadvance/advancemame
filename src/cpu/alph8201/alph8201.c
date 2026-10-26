@@ -224,19 +224,21 @@ static ALPHA8201_Regs R;
 int	   ALPHA8201_ICount;
 static int    inst_cycles;
 
-#define intRAM	R.RAM
+#define regRAM	R.RAM
 #define regPTR	R.regPtr
 
 #define PC	R.pc.w.l
 #define PCL	 R.pc.b.l
-#define R0	intRAM[regPTR  ]
-#define R1	intRAM[regPTR+1]
-#define R2	intRAM[regPTR+2]
-#define R3	intRAM[regPTR+3]
-#define R4	intRAM[regPTR+4]
-#define R5	intRAM[regPTR+5]
-#define R6	intRAM[regPTR+6]
-#define R7	intRAM[regPTR+7]
+#define RD_REG(x)	regRAM[regPTR+(x)]
+#define WR_REG(x,d)	regRAM[regPTR+(x)]=(d)
+#define R0 RD_REG(0)
+#define R1 RD_REG(1)
+#define R2 RD_REG(2)
+#define R3 RD_REG(3)
+#define R4 RD_REG(4)
+#define R5 RD_REG(5)
+#define R6 RD_REG(6)
+#define R7 RD_REG(7)
 #define ZF	R.zf
 #define CF	R.cf
 #define IX0	R.ix0.b.l
@@ -249,7 +251,6 @@ static int    inst_cycles;
 #define LP1	R.lp1
 #define LP2	R.lp2
 
-/* Get next opcode argument and increment program counter */
 INLINE unsigned M_RDMEM_OPCODE (void)
 {
 	unsigned retval;
@@ -266,13 +267,6 @@ INLINE void M_ADD(UINT8 dat)
 	CF = temp>>8;
 }
 
-INLINE void M_SUB(UINT8 dat)
-{
-	CF = (R.A<dat);
-	R.A -= dat;
-	ZF = (R.A==0);
-}
-
 INLINE void M_ADDB(UINT8 dat)
 {
 	UINT16 temp = R.B + dat;
@@ -281,31 +275,36 @@ INLINE void M_ADDB(UINT8 dat)
 	CF = temp>>8;
 }
 
-INLINE void M_SUBB(UINT8 dat)
+INLINE void M_SUB(UINT8 dat)
 {
-	CF = (R.B<dat);
-	R.B -= dat;
-	ZF = (R.B==0);
+	CF = (R.A>=dat);
+	R.A -= dat;
+	ZF = (R.A==0);
 }
 
 INLINE void M_AND(UINT8 dat)
 {
 	R.A &= dat;
 	ZF = (R.A==0);
-	CF = 0;
 }
 
 INLINE void M_OR(UINT8 dat)
 {
 	R.A |= dat;
 	ZF = (R.A==0);
-	CF = 0;
+}
+
+INLINE void M_XOR(UINT8 dat)
+{
+	R.A ^= dat;
+	ZF = (R.A==0);
+
 }
 
 INLINE void M_JMP(UINT8 dat)
 {
 	PCL = dat;
-	/* update pc page */
+
 	R.pc.b.h  = R.ix0.b.h = R.ix1.b.h = R.ix2.b.h = R.mb & 3;
 	change_pc(PC);
 }
@@ -316,6 +315,9 @@ INLINE void M_UNDEFINED(void)
 #if SHOW_MESSAGE_CONSOLE
 	printf("ALPHA8201:  PC = %03x,  Unimplemented opcode = %02x\n", PC-1, M_RDMEM(PC-1));
 #endif
+#if BREAK_ON_UNKNOWN_OPCODE
+	DEBUGGER_BREAK;
+#endif
 }
 
 INLINE void M_UNDEFINED2(void)
@@ -325,6 +327,9 @@ INLINE void M_UNDEFINED2(void)
 	logerror("ALPHA8201:  PC = %03x,  Unimplemented opcode = %02x,%02x\n", PC-2, op,imm);
 #if SHOW_MESSAGE_CONSOLE
 	printf("ALPHA8201:  PC = %03x,  Unimplemented opcode = %02x,%02x\n", PC-2, op,imm);
+#endif
+#if BREAK_ON_UNKNOWN_OPCODE
+	DEBUGGER_BREAK;
 #endif
 }
 
@@ -338,16 +343,34 @@ static void need_verify(const char *s)
 #if SHOW_MESSAGE_CONSOLE
 	printf("ALPHA8201:  PC = %03x, unknown opcode = %02x is '%s' ??\n",PC-1, op,s);
 #endif
+#if BREAK_ON_UNCERTAIN_OPCODE
+	DEBUGGER_BREAK;
+#endif
 }
 
+#if 0
+static void need_verify2(const char *s)
+{
+	UINT8 op1 = M_RDOP(PC-2);
+	UINT8 op2 = M_RDOP(PC-1);
+	logerror("ALPHA8201:  PC = %03x, unknown opcode = %02x %02x is '%s' ??\n",PC-2, op1, op2, s);
+#if SHOW_MESSAGE_CONSOLE
+	printf("ALPHA8201:  PC = %03x, unknown opcode = %02x %02x is '%s' ??\n",PC-2, op1, op2, s);
+#endif
+#if BREAK_ON_UNCERTAIN_OPCODE
+	DEBUGGER_BREAK;
+#endif
+}
+#endif
+
 static void nop(void)		 { }
-static void rlca(void)		 { CF = (R.A>>7)&1; R.A = (R.A<<1) | (R.A>>7); ZF = (R.A==0); }
-static void rrca(void)		 { CF = R.A &1;     R.A = (R.A>>1) | (R.A<<7); ZF = (R.A==0); }
-static void inc_b(void)	 	 { M_ADDB(1); }
-static void dec_b(void)	 	 { M_SUBB(1); };
-static void inc_a(void)		 { M_ADD(1); }
-static void dec_a(void)		 { M_SUB(1); }
-static void cpl(void)		 { R.A = R.A^0xff; ZF = (R.A==0); };
+static void rora(void)		 { CF = R.A &1;     R.A = (R.A>>1) | (R.A<<7); }
+static void rola(void)		 { CF = (R.A>>7)&1; R.A = (R.A<<1) | (R.A>>7); }
+static void inc_b(void)	 	 { M_ADDB(0x02); }
+static void dec_b(void)	 	 { M_ADDB(0xfe); }
+static void inc_a(void)		 { M_ADD(0x01); }
+static void dec_a(void)		 { M_ADD(0xff); }
+static void cpl(void)		 { R.A ^= 0xff; };
 
 static void ld_a_ix0_0(void) { R.A = M_RDMEM(BIX0+0); }
 static void ld_a_ix0_1(void) { R.A = M_RDMEM(BIX0+1); }
@@ -376,102 +399,89 @@ static void ld_ix2_5_a(void) { M_WRMEM(BIX2+5,R.A); }
 static void ld_ix2_6_a(void) { M_WRMEM(BIX2+6,R.A); }
 static void ld_ix2_7_a(void) { M_WRMEM(BIX2+7,R.A); }
 
-static void ld_ix0_0_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_1_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_2_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_3_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_4_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_5_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_6_b(void) { M_WRMEM(BIX0+0,R.B); }
-static void ld_ix0_7_b(void) { M_WRMEM(BIX0+0,R.B); }
+static void ld_ix0_0_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+0); }
+static void ld_ix0_1_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+1); }
+static void ld_ix0_2_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+2); }
+static void ld_ix0_3_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+3); }
+static void ld_ix0_4_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+4); }
+static void ld_ix0_5_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+5); }
+static void ld_ix0_6_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+6); }
+static void ld_ix0_7_b(void) { regRAM[(R.B>>1)&0x3f] = M_RDMEM(BIX0+7); }
 
-static void ld_ix1_0_b(void) { M_WRMEM(BIX1+0,R.B); need_verify("LD   (IX1+0),B"); }
-static void ld_ix1_1_b(void) { M_WRMEM(BIX1+1,R.B); need_verify("LD   (IX1+1),B"); }
-static void ld_ix1_2_b(void) { M_WRMEM(BIX1+2,R.B); need_verify("LD   (IX1+2),B"); }
-static void ld_ix1_3_b(void) { M_WRMEM(BIX1+3,R.B); need_verify("LD   (IX1+3),B"); }
-static void ld_ix1_4_b(void) { M_WRMEM(BIX1+4,R.B); need_verify("LD   (IX1+4),B"); }
-static void ld_ix1_5_b(void) { M_WRMEM(BIX1+5,R.B); need_verify("LD   (IX1+5),B"); }
-static void ld_ix1_6_b(void) { M_WRMEM(BIX1+6,R.B); need_verify("LD   (IX1+6),B"); }
-static void ld_ix1_7_b(void) { M_WRMEM(BIX1+7,R.B); need_verify("LD   (IX1+7),B"); }
-
-static void ld_b_ix2_0(void) { R.B = M_RDMEM(BIX2+0); need_verify("LD   B,(IX2+0)");  }
-static void ld_b_ix2_1(void) { R.B = M_RDMEM(BIX2+1); need_verify("LD   B,(IX2+1)");  }
-static void ld_b_ix2_2(void) { R.B = M_RDMEM(BIX2+2); need_verify("LD   B,(IX2+2)");  }
-static void ld_b_ix2_3(void) { R.B = M_RDMEM(BIX2+3); need_verify("LD   B,(IX2+3)");  }
-static void ld_b_ix2_4(void) { R.B = M_RDMEM(BIX2+4); need_verify("LD   B,(IX2+4)");  }
-static void ld_b_ix2_5(void) { R.B = M_RDMEM(BIX2+5); need_verify("LD   B,(IX2+5)");  }
-static void ld_b_ix2_6(void) { R.B = M_RDMEM(BIX2+6); need_verify("LD   B,(IX2+6)");  }
-static void ld_b_ix2_7(void) { R.B = M_RDMEM(BIX2+7); need_verify("LD   B,(IX2+7)");  }
-
-static void bit_r0_0(void)	 { R.zf = R0&(1<<0)?0:1; }
-static void bit_r0_1(void)	 { R.zf = R0&(1<<1)?0:1; }
-static void bit_r0_2(void)	 { R.zf = R0&(1<<2)?0:1; }
-static void bit_r0_3(void)	 { R.zf = R0&(1<<3)?0:1; }
-static void bit_r0_4(void)	 { R.zf = R0&(1<<4)?0:1; }
-static void bit_r0_5(void)	 { R.zf = R0&(1<<5)?0:1; }
-static void bit_r0_6(void)	 { R.zf = R0&(1<<6)?0:1; }
-static void bit_r0_7(void)	 { R.zf = R0&(1<<7)?0:1; }
+static void bit_r0_0(void)	 { ZF = RD_REG(0)&(1<<0)?0:1; }
+static void bit_r0_1(void)	 { ZF = RD_REG(0)&(1<<1)?0:1; }
+static void bit_r0_2(void)	 { ZF = RD_REG(0)&(1<<2)?0:1; }
+static void bit_r0_3(void)	 { ZF = RD_REG(0)&(1<<3)?0:1; }
+static void bit_r0_4(void)	 { ZF = RD_REG(0)&(1<<4)?0:1; }
+static void bit_r0_5(void)	 { ZF = RD_REG(0)&(1<<5)?0:1; }
+static void bit_r0_6(void)	 { ZF = RD_REG(0)&(1<<6)?0:1; }
+static void bit_r0_7(void)	 { ZF = RD_REG(0)&(1<<7)?0:1; }
 
 static void ld_a_n(void)	 { R.A = M_RDMEM_OPCODE(); }
-static void ld_a_r0(void)	 { R.A = R0; }
-static void ld_a_r1(void)	 { R.A = R1; }
-static void ld_a_r2(void)	 { R.A = R2; }
-static void ld_a_r3(void)	 { R.A = R3; }
-static void ld_a_r4(void)	 { R.A = R4; }
-static void ld_a_r5(void)	 { R.A = R5; }
-static void ld_a_r6(void)	 { R.A = R6; }
-static void ld_a_r7(void)	 { R.A = R7; }
 
-static void ld_r0_a(void)	 { R0 = R.A; }
-static void ld_r1_a(void)	 { R1 = R.A; }
-static void ld_r2_a(void)	 { R2 = R.A; }
-static void ld_r3_a(void)	 { R3 = R.A; }
-static void ld_r4_a(void)	 { R4 = R.A; }
-static void ld_r5_a(void)	 { R5 = R.A; }
-static void ld_r6_a(void)	 { R6 = R.A; }
-static void ld_r7_a(void)	 { R7 = R.A; }
+static void ld_a_r0(void)	 { R.A = RD_REG(0); ZF = (R.A==0); }
+static void ld_a_r1(void)	 { R.A = RD_REG(1); ZF = (R.A==0); }
+static void ld_a_r2(void)	 { R.A = RD_REG(2); ZF = (R.A==0); }
+static void ld_a_r3(void)	 { R.A = RD_REG(3); ZF = (R.A==0); }
+static void ld_a_r4(void)	 { R.A = RD_REG(4); ZF = (R.A==0); }
+static void ld_a_r5(void)	 { R.A = RD_REG(5); ZF = (R.A==0); }
+static void ld_a_r6(void)	 { R.A = RD_REG(6); ZF = (R.A==0); }
+static void ld_a_r7(void)	 { R.A = RD_REG(7); ZF = (R.A==0); }
+
+static void ld_r0_a(void)	 { WR_REG(0,R.A); }
+static void ld_r1_a(void)	 { WR_REG(1,R.A); }
+static void ld_r2_a(void)	 { WR_REG(2,R.A); }
+static void ld_r3_a(void)	 { WR_REG(3,R.A); }
+static void ld_r4_a(void)	 { WR_REG(4,R.A); }
+static void ld_r5_a(void)	 { WR_REG(5,R.A); }
+static void ld_r6_a(void)	 { WR_REG(6,R.A); }
+static void ld_r7_a(void)	 { WR_REG(7,R.A); }
 
 static void add_a_n(void)	 { M_ADD(M_RDMEM_OPCODE()); }
-static void add_a_r0(void)	 { M_ADD(R0); }
-static void add_a_r1(void)	 { M_ADD(R1); }
-static void add_a_r2(void)	 { M_ADD(R2); }
-static void add_a_r3(void)	 { M_ADD(R3); }
-static void add_a_r4(void)	 { M_ADD(R4); }
-static void add_a_r5(void)	 { M_ADD(R5); }
-static void add_a_r6(void)	 { M_ADD(R6); }
-static void add_a_r7(void)	 { M_ADD(R7); }
+
+static void add_a_r0(void)	 { M_ADD(RD_REG(0)); }
+static void add_a_r1(void)	 { M_ADD(RD_REG(1)); }
+static void add_a_r2(void)	 { M_ADD(RD_REG(2)); }
+static void add_a_r3(void)	 { M_ADD(RD_REG(3)); }
+static void add_a_r4(void)	 { M_ADD(RD_REG(4)); }
+static void add_a_r5(void)	 { M_ADD(RD_REG(5)); }
+static void add_a_r6(void)	 { M_ADD(RD_REG(6)); }
+static void add_a_r7(void)	 { M_ADD(RD_REG(7)); }
 
 static void sub_a_n(void)	 { M_SUB(M_RDMEM_OPCODE()); }
-static void sub_a_r0(void)	 { M_SUB(R0); }
-static void sub_a_r1(void)	 { M_SUB(R1); }
-static void sub_a_r2(void)	 { M_SUB(R2); }
-static void sub_a_r3(void)	 { M_SUB(R3); }
-static void sub_a_r4(void)	 { M_SUB(R4); }
-static void sub_a_r5(void)	 { M_SUB(R5); }
-static void sub_a_r6(void)	 { M_SUB(R6); }
-static void sub_a_r7(void)	 { M_SUB(R7); }
+
+static void sub_a_r0(void)	 { M_SUB(RD_REG(0)); }
+static void sub_a_r1(void)	 { M_SUB(RD_REG(1)); }
+static void sub_a_r2(void)	 { M_SUB(RD_REG(2)); }
+static void sub_a_r3(void)	 { M_SUB(RD_REG(3)); }
+static void sub_a_r4(void)	 { M_SUB(RD_REG(4)); }
+static void sub_a_r5(void)	 { M_SUB(RD_REG(5)); }
+static void sub_a_r6(void)	 { M_SUB(RD_REG(6)); }
+static void sub_a_r7(void)	 { M_SUB(RD_REG(7)); }
 
 static void and_a_n(void)	 { M_AND(M_RDMEM_OPCODE()); }
-static void and_a_r0(void)	 { M_AND(R0); }
-static void and_a_r1(void)	 { M_AND(R1); }
-static void and_a_r2(void)	 { M_AND(R2); }
-static void and_a_r3(void)	 { M_AND(R3); }
-static void and_a_r4(void)	 { M_AND(R4); }
-static void and_a_r5(void)	 { M_AND(R5); }
-static void and_a_r6(void)	 { M_AND(R6); }
-static void and_a_r7(void)	 { M_AND(R7); }
+
+static void and_a_r0(void)	 { M_AND(RD_REG(0)); }
+static void and_a_r1(void)	 { M_AND(RD_REG(1)); }
+static void and_a_r2(void)	 { M_AND(RD_REG(2)); }
+static void and_a_r3(void)	 { M_AND(RD_REG(3)); }
+static void and_a_r4(void)	 { M_AND(RD_REG(4)); }
+static void and_a_r5(void)	 { M_AND(RD_REG(5)); }
+static void and_a_r6(void)	 { M_AND(RD_REG(6)); }
+static void and_a_r7(void)	 { M_AND(RD_REG(7)); }
 
 static void or_a_n(void)	 { M_OR(M_RDMEM_OPCODE()); }
-static void or_a_r0(void)	 { M_OR(R0); }
-static void or_a_r1(void)	 { M_OR(R1); }
-static void or_a_r2(void)	 { M_OR(R2); }
-static void or_a_r3(void)	 { M_OR(R3); }
-static void or_a_r4(void)	 { M_OR(R4); }
-static void or_a_r5(void)	 { M_OR(R5); }
-static void or_a_r6(void)	 { M_OR(R6); }
-static void or_a_r7(void)	 { M_OR(R7); }
 
-static void add_ix0_0(void)	 {}
+static void or_a_r0(void)	 { M_OR(RD_REG(0)); }
+static void or_a_r1(void)	 { M_OR(RD_REG(1)); }
+static void or_a_r2(void)	 { M_OR(RD_REG(2)); }
+static void or_a_r3(void)	 { M_OR(RD_REG(3)); }
+static void or_a_r4(void)	 { M_OR(RD_REG(4)); }
+static void or_a_r5(void)	 { M_OR(RD_REG(5)); }
+static void or_a_r6(void)	 { M_OR(RD_REG(6)); }
+static void or_a_r7(void)	 { M_OR(RD_REG(7)); }
+
+static void add_ix0_0(void)	 { }
 static void add_ix0_1(void)	 { IX0 += 1; }
 static void add_ix0_2(void)	 { IX0 += 2; }
 static void add_ix0_3(void)	 { IX0 += 3; }
@@ -488,7 +498,7 @@ static void add_ix0_d(void)	 { IX0 += 13; }
 static void add_ix0_e(void)	 { IX0 += 14; }
 static void add_ix0_f(void)	 { IX0 += 15; }
 
-static void add_ix1_0(void)	 {}
+static void add_ix1_0(void)	 { }
 static void add_ix1_1(void)	 { IX1 += 1; }
 static void add_ix1_2(void)	 { IX1 += 2; }
 static void add_ix1_3(void)	 { IX1 += 3; }
@@ -505,7 +515,7 @@ static void add_ix1_d(void)	 { IX1 += 13; }
 static void add_ix1_e(void)	 { IX1 += 14; }
 static void add_ix1_f(void)	 { IX1 += 15; }
 
-static void add_ix2_0(void)	 {}
+static void add_ix2_0(void)	 { }
 static void add_ix2_1(void)	 { IX2 += 1; }
 static void add_ix2_2(void)	 { IX2 += 2; }
 static void add_ix2_3(void)	 { IX2 += 3; }
@@ -536,11 +546,11 @@ static void ld_bank_1(void)	 { R.mb = 1; }
 static void ld_bank_2(void)	 { R.mb = 2; }
 static void ld_bank_3(void)	 { R.mb = 3; }
 
-static void halt(void)
+static void stop(void)
 {
 	UINT8 pcptr = M_RDMEM(0x001) & 0x1f;
-	M_WRMEM(pcptr,0x08); /* mark entry point ODD to HALT */
-	R.mb |= 0x08;        /* mark internal HALT state */
+	M_WRMEM(pcptr,(M_RDMEM(pcptr)&0xf)+0x08);
+	R.mb |= 0x08;
 }
 
 static void ld_ix0_n(void)	 { IX0 = M_RDMEM_OPCODE(); }
@@ -554,24 +564,24 @@ static void ld_b_n(void)	 { R.B = M_RDMEM_OPCODE(); }
 static void djnz_lp0(void)	{ UINT8 i=M_RDMEM_OPCODE(); LP0--; if (LP0 != 0) M_JMP(i); }
 static void djnz_lp1(void)	{ UINT8 i=M_RDMEM_OPCODE(); LP1--; if (LP1 != 0) M_JMP(i); }
 static void djnz_lp2(void)	{ UINT8 i=M_RDMEM_OPCODE(); LP2--; if (LP2 != 0) M_JMP(i); }
-static void jnz(void)	{ UINT8 i=M_RDMEM_OPCODE(); if (!R.zf) M_JMP(i); }
-static void jc(void)	{ UINT8 i=M_RDMEM_OPCODE(); if ( R.cf) M_JMP(i); }
-static void jz(void)	{ UINT8 i=M_RDMEM_OPCODE(); if ( R.zf) M_JMP(i); }
+static void jnz(void)	{ UINT8 i=M_RDMEM_OPCODE(); if (!ZF) M_JMP(i); }
+static void jnc(void)	{ UINT8 i=M_RDMEM_OPCODE(); if (!CF) M_JMP(i);}
+static void jz(void)	{ UINT8 i=M_RDMEM_OPCODE(); if ( ZF) M_JMP(i); }
 static void jmp(void)	{ M_JMP( M_RDMEM_OPCODE() ); }
 
 #if (HAS_ALPHA8201)
 static const s_opcode opcode_8201[256]=
 {
-	{C1, nop        },{C1,rrca      },{C1, rlca      },{C1,inc_b     },{C1, dec_b    },{C1, inc_a    },{C1, dec_a    },{C1, cpl      },
+	{C1, nop        },{C1,rora      },{C1, rola      },{C1,inc_b     },{C1,dec_b     },{C1, inc_a    },{C1, dec_a    },{C1, cpl      },
 	{C2,ld_a_ix0_0  },{C2,ld_a_ix0_1},{C2, ld_a_ix0_2},{C2,ld_a_ix0_3},{C2,ld_a_ix0_4},{C2,ld_a_ix0_5},{C2,ld_a_ix0_6},{C2,ld_a_ix0_7},
 	{C2,ld_a_ix1_0  },{C2,ld_a_ix1_1},{C2, ld_a_ix1_2},{C2,ld_a_ix1_3},{C2,ld_a_ix1_4},{C2,ld_a_ix1_5},{C2,ld_a_ix1_6},{C2,ld_a_ix1_7},
 	{C2,ld_ix2_0_a  },{C2,ld_ix2_1_a},{C2, ld_ix2_2_a},{C2,ld_ix2_3_a},{C2,ld_ix2_4_a},{C2,ld_ix2_5_a},{C2,ld_ix2_6_a},{C2,ld_ix2_7_a},
-/* 20 */
+
 	{C2,ld_ix0_0_b  },{C2,ld_ix0_1_b},{C2, ld_ix0_2_b},{C2,ld_ix0_3_b},{C2,ld_ix0_4_b},{C2,ld_ix0_5_b},{C2,ld_ix0_6_b},{C2,ld_ix0_7_b},
-	{C2,ld_ix1_0_b  },{C2,ld_ix1_1_b},{C2, ld_ix1_2_b},{C2,ld_ix1_3_b},{C2,ld_ix1_4_b},{C2,ld_ix1_5_b},{C2,ld_ix1_6_b},{C2,ld_ix1_7_b},
-	{C2,ld_b_ix2_0  },{C2,ld_b_ix2_1},{C2, ld_b_ix2_2},{C2,ld_b_ix2_3},{C2,ld_b_ix2_4},{C2,ld_b_ix2_5},{C2,ld_b_ix2_6},{C2,ld_b_ix2_7},
+	{C2,undefined   },{C2,undefined },{C2, undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },
+	{C2,undefined   },{C2,undefined },{C2, undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },
 	{C2,bit_r0_0    },{C2,bit_r0_1  },{C2, bit_r0_2 },{C2, bit_r0_3 },{C2, bit_r0_4 },{C2, bit_r0_5 },{C2, bit_r0_6 },{C2, bit_r0_7 },
-/* 40 : 8201 */
+
 	{C2, ld_a_r0    },{C2, ld_r0_a	},{C2, ld_a_r1	},{C2, ld_r1_a	},{C2, ld_a_r2	},{C2, ld_r2_a	},{C2, ld_a_r3	},{C2, ld_r3_a	},
 	{C2, ld_a_r4    },{C2, ld_r4_a	},{C2, ld_a_r5	},{C2, ld_r5_a	},{C2, ld_a_r6	},{C2, ld_r6_a	},{C2, ld_a_r7	},{C2, ld_r7_a	},
 	{C1, add_a_r0   },{C1, sub_a_r0	},{C1, add_a_r1	},{C1, sub_a_r1	},{C1, add_a_r2	},{C1, sub_a_r2	},{C1, add_a_r3	},{C1, sub_a_r3	},
@@ -580,21 +590,21 @@ static const s_opcode opcode_8201[256]=
 	{C1, and_a_r4	},{C1, or_a_r4	},{C1, and_a_r5	},{C1, or_a_r5	},{C1, and_a_r6	},{C1, or_a_r6	},{C1, and_a_r7	},{C1, or_a_r7	},
 	{C1, add_ix0_0	},{C1, add_ix0_1},{C1, add_ix0_2},{C1, add_ix0_3},{C1, add_ix0_4},{C1, add_ix0_5},{C1, add_ix0_6},{C1, add_ix0_7},
 	{C1, add_ix0_8	},{C1, add_ix0_9},{C1, add_ix0_a},{C1, add_ix0_b},{C1, add_ix0_c},{C1, add_ix0_d},{C1, add_ix0_e},{C1, add_ix0_f},
-/* 80 : 8201 */
+
 	{C1, add_ix1_0	},{C1, add_ix1_1},{C1, add_ix1_2},{C1, add_ix1_3},{C1, add_ix1_4},{C1, add_ix1_5},{C1, add_ix1_6},{C1, add_ix1_7},
 	{C1, add_ix1_8	},{C1, add_ix1_9},{C1, add_ix1_a},{C1, add_ix1_b},{C1, add_ix1_c},{C1, add_ix1_d},{C1, add_ix1_e},{C1, add_ix1_f},
 	{C1, add_ix2_0	},{C1, add_ix2_1},{C1, add_ix2_2},{C1, add_ix2_3},{C1, add_ix2_4},{C1, add_ix2_5},{C1, add_ix2_6},{C1, add_ix2_7},
 	{C1, add_ix2_8	},{C1, add_ix2_9},{C1, add_ix2_a},{C1, add_ix2_b},{C1, add_ix2_c},{C1, add_ix2_d},{C1, add_ix2_e},{C1, add_ix2_f},
 	{C1, ld_base_0	},{C1, ld_base_1},{C1, ld_base_2},{C1, ld_base_3},{C1, ld_base_4},{C1, ld_base_5},{C1, ld_base_6},{C1, ld_base_7},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-	{C1, ld_bank_0	},{C1, ld_bank_1},{C1, ld_bank_2},{C1, ld_bank_3},{C2, halt		},{C1, undefined},{C1, undefined},{C1, undefined},
+	{C1, ld_bank_0	},{C1, ld_bank_1},{C1, ld_bank_2},{C1, ld_bank_3},{C2, stop     },{C1, undefined},{C1, undefined},{C1, undefined},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-/* c0 : 8201 */
+
 	{C2, ld_ix0_n	},{C2, ld_ix1_n	},{C2, ld_ix2_n	},{C2, ld_a_n	},{C2, ld_lp0_n	},{C2, ld_lp1_n	},{C2, ld_lp2_n	},{C2, ld_b_n	},
 	{C2, add_a_n	},{C2, sub_a_n	},{C2, and_a_n	},{C2, or_a_n	},{C2, djnz_lp0	},{C2, djnz_lp1	},{C2, djnz_lp2	},{C2, jnz		},
-	{C2, jc			},{C2, jz		},{C2, jmp		},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2, undefined2},
+	{C2, jnc	    	},{C2, jz		},{C2, jmp		},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2, undefined2},
 	{C2, undefined2	},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2, undefined2},
-/* E0 : 8201*/
+
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
@@ -604,100 +614,88 @@ static const s_opcode opcode_8201[256]=
 
 #if (HAS_ALPHA8301)
 
-/* ALPHA 8301 : added instruction */
-static void dec_ix0(void)  { IX0--; } /* OK */
+static void dec_ix0(void)  { IX0--; }
 
+static void ld_a_x(void)  { R.A = R.B; need_verify("LD   A,unk"); }
+static void ld_x_a(void)  { R.B = R.A; need_verify("LD   unk,A"); }
 static void ld_a_b(void)  { R.A = R.B; }
 static void ld_b_a(void)  { R.B = R.A; }
+static void exg_a_lp0(void)  { UINT8 t=R.A; R.A = LP0; LP0 = t; }
+static void ld_lp0_a(void)  { LP0 = R.A; }
 
-static void ld_ix0_a(void)    { IX0 = R.A; } /* maybe OK */
-static void ld_ix1_a(void)    { IX1 = R.A; need_verify("LD   IX1,A"); } /* not found */
-static void ld_ix2_a(void)    { IX2 = R.A; } /* maybe OK */
+static void ld_ix0_a(void)    { IX0 = R.A; }
+static void ld_ix1_a(void)    { IX1 = R.A; need_verify("LD   IX1,A"); }
+static void ld_ix2_a(void)    { IX2 = R.A; }
 
-static void ld_ix2_ix0(void)  { IX2 = IX0; } /* OK */
+static void exg_ix0_ix2(void)  { UINT8 t=IX2; IX2 = IX0; IX0 = t; }
 
-/* used by exctscc2 initialize routine */
-/* A=2 , D5 01 , D4 00 -> R=5 */
-/* A=5 , D4 01 -> R=2         */
-/*
-300: DA 02   CMP  A,$02  ; A is 2
-302: CF 00   JNZ  $00
-304: A7      LD   RB,7
-305: 41      LD   R0,A
-306: 4F      LD   R7,A
-307: D5 01 --------------
-309: D4 00 --------------
-30B: DA 05   CMP  A,$05   ; A must be set 5
-30D: CF 00   JNZ  $00
-30F: D4 01 --------------
-311: DA 02   CMP  A,$02   ; A must be set 5
-313: CF 00   JNZ  $00
-315: FD      clr  a ?
-*/
-static void op_d4(void) { undefined2(); }
-static void op_d5(void) { undefined2(); }
+static void op_d4(void) { R.A = M_RDMEM( ((RD_REG(7) & 3) << 8) | M_RDMEM_OPCODE() ); }
+static void op_d5(void) { M_WRMEM( ((RD_REG(7) & 3) << 8) | M_RDMEM_OPCODE(), R.A ); }
+static void op_d6(void) { LP0 = M_RDMEM( ((RD_REG(7) & 3) << 8) | M_RDMEM_OPCODE() ); }
+static void op_d7(void) { M_WRMEM( ((RD_REG(7) & 3) << 8) | M_RDMEM_OPCODE(), LP0 ); }
+static void ld_a_abs(void) { R.A = M_RDMEM( ((R.mb & 3) << 8) | M_RDMEM_OPCODE() ); }
+static void ld_abs_a(void) { M_WRMEM( ((R.mb & 3) << 8) | M_RDMEM_OPCODE(), R.A ); }
 
-/* used by exctsccr/exctscc2 ROM check sum routine (382-3cf) */
-/* ZF = 0 in op_f8 are patch for bypass exctsccr and exctscc2 check sum error */
-static void op_f6(void) { logerror("ALPHA-8301 Unknown OP-code PC = %03x, opcode = 0xf6: alu ?,a ??\n",PC-1); }
-static void op_f8(void) { ZF = 1; logerror("ALPHA-8301 Unknown OP-code PC = %03x, opcode = 0xf8: alu ?,a ??\n",PC-1); }
-static void op_f9(void) { logerror("ALPHA-8301 Unknown OP-code PC = %03x, opcode = 0xf9: alu a,? ??\n",PC-1); }
+static void op_dd(void) { regRAM[(M_RDMEM_OPCODE()>>1)&0x3f] = R.A; }
+static void op_ldir(void) { M_WRMEM(BIX2+0, regRAM[(R.B>>1)&0x3f]); IX2++; R.B+=2; LP0--; if (LP0 != 0) PCL--; }
+static void op_f6(void) { regRAM[(R.B>>1)&0x3f] = R.A; }
+static void op_f8(void) { M_SUB( regRAM[(R.B>>1)&0x3f] );  need_verify("SUB/CMP  A,(RXB)"); }
+static void op_f9(void) { M_XOR( regRAM[(R.B>>1)&0x3f] ); }
 
-static void add_a_cf(void) { R.A += CF; CF = 0; ZF = (R.A==0); } /* OK */
-static void tst_a(void)	 { ZF = (R.A==0); }                          /* maybe OK */
-static void clr_a(void)	 { R.A = 0; ZF = (R.A==0); }                 /* maybe OK */
-static void cmp_a_n(void)	{ UINT8 i=M_RDMEM_OPCODE();  ZF = (R.A==i); CF = (R.A<i); }
-static void call(void) { UINT8 i=M_RDMEM_OPCODE(); R.retptr.w.l = PC; M_JMP(i); }; /* OK , but stack is unknown */
-static void ld_a_ix0_a(void) { R.A = M_RDMEM(BIX0+R.A); }              /* maybe OK */
-static void ret(void) { R.mb = R.retptr.b.h; M_JMP( R.retptr.b.l ); }; /* OK , but stack is unknown */
+static void add_a_cf(void) { R.A += CF; CF = 0; ZF = (R.A==0); }
+static void tst_a(void)	 { ZF = (R.A==0); }
+static void clr_a(void)	 { R.A = 0; ZF = (R.A==0); }
+static void cmp_a_n(void)	{ UINT8 i=M_RDMEM_OPCODE();  ZF = (R.A==i); CF = (R.A>=i); }
+static void xor_a_n(void)	{ M_XOR( M_RDMEM_OPCODE() ); }
+static void call(void) { UINT8 i=M_RDMEM_OPCODE(); R.retptr.w.l = PC; M_JMP(i); };
+static void ld_a_ix0_a(void) { R.A = M_RDMEM(BIX0+R.A); }
+static void ret(void) { R.mb = R.retptr.b.h; M_JMP( R.retptr.b.l ); };
 
 static const s_opcode opcode_8301[256]=
 {
-	{C1, nop        },{C1,rrca      },{C1, rlca      },{C1,inc_b     },{C1, dec_b    },{C1, inc_a    },{C1, dec_a    },{C1, cpl      },
+	{C1, nop        },{C1,rora      },{C1, rola      },{C1,inc_b     },{C1,dec_b     },{C1, inc_a    },{C1, dec_a    },{C1, cpl      },
 	{C2,ld_a_ix0_0  },{C2,ld_a_ix0_1},{C2, ld_a_ix0_2},{C2,ld_a_ix0_3},{C2,ld_a_ix0_4},{C2,ld_a_ix0_5},{C2,ld_a_ix0_6},{C2,ld_a_ix0_7},
 	{C2,ld_a_ix1_0  },{C2,ld_a_ix1_1},{C2, ld_a_ix1_2},{C2,ld_a_ix1_3},{C2,ld_a_ix1_4},{C2,ld_a_ix1_5},{C2,ld_a_ix1_6},{C2,ld_a_ix1_7},
 	{C2,ld_ix2_0_a  },{C2,ld_ix2_1_a},{C2, ld_ix2_2_a},{C2,ld_ix2_3_a},{C2,ld_ix2_4_a},{C2,ld_ix2_5_a},{C2,ld_ix2_6_a},{C2,ld_ix2_7_a},
-/* 20 : 8301 */
+
 	{C2,ld_ix0_0_b  },{C2,ld_ix0_1_b},{C2, ld_ix0_2_b},{C2,ld_ix0_3_b},{C2,ld_ix0_4_b},{C2,ld_ix0_5_b},{C2,ld_ix0_6_b},{C2,ld_ix0_7_b},
-	{C2,ld_ix1_0_b  },{C2,ld_ix1_1_b},{C2, ld_ix1_2_b},{C2,ld_ix1_3_b},{C2,ld_ix1_4_b},{C2,ld_ix1_5_b},{C2,ld_ix1_6_b},{C2,ld_ix1_7_b},
-	{C2,ld_b_ix2_0  },{C2,ld_b_ix2_1},{C2, ld_b_ix2_2},{C2,ld_b_ix2_3},{C2,ld_b_ix2_4},{C2,ld_b_ix2_5},{C2,ld_b_ix2_6},{C2,ld_b_ix2_7},
+	{C2,undefined   },{C2,undefined },{C2, undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },
+	{C2,undefined   },{C2,undefined },{C2, undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },{C2,undefined },
 	{C2,bit_r0_0    },{C2,bit_r0_1  },{C2, bit_r0_2 },{C2, bit_r0_3 },{C2, bit_r0_4 },{C2, bit_r0_5 },{C2, bit_r0_6 },{C2, bit_r0_7 },
-/* 40 : 8301 */
+
 	{C2, ld_a_r0    },{C2, ld_r0_a	},{C2, ld_a_r1	},{C2, ld_r1_a	},{C2, ld_a_r2	},{C2, ld_r2_a	},{C2, ld_a_r3	},{C2, ld_r3_a	},
 	{C2, ld_a_r4    },{C2, ld_r4_a	},{C2, ld_a_r5	},{C2, ld_r5_a	},{C2, ld_a_r6	},{C2, ld_r6_a	},{C2, ld_a_r7	},{C2, ld_r7_a	},
 	{C1, add_a_r0   },{C1, sub_a_r0	},{C1, add_a_r1	},{C1, sub_a_r1	},{C1, add_a_r2	},{C1, sub_a_r2	},{C1, add_a_r3	},{C1, sub_a_r3	},
 	{C1, add_a_r4   },{C1, sub_a_r4	},{C1, add_a_r5	},{C1, sub_a_r5	},{C1, add_a_r6	},{C1, sub_a_r6	},{C1, add_a_r7	},{C1, sub_a_r7	},
-/* 60 : 8301 */
+
 	{C1, and_a_r0   },{C1, or_a_r0	},{C1, and_a_r1	},{C1, or_a_r1	},{C1, and_a_r2	},{C1, or_a_r2	},{C1, and_a_r3	},{C1, or_a_r3	},
 	{C1, and_a_r4	},{C1, or_a_r4	},{C1, and_a_r5	},{C1, or_a_r5	},{C1, and_a_r6	},{C1, or_a_r6	},{C1, and_a_r7	},{C1, or_a_r7	},
 	{C1, add_ix0_0	},{C1, add_ix0_1},{C1, add_ix0_2},{C1, add_ix0_3},{C1, add_ix0_4},{C1, add_ix0_5},{C1, add_ix0_6},{C1, add_ix0_7},
 	{C1, add_ix0_8	},{C1, add_ix0_9},{C1, add_ix0_a},{C1, add_ix0_b},{C1, add_ix0_c},{C1, add_ix0_d},{C1, add_ix0_e},{C1, add_ix0_f},
-/* 80 : 8301 */
+
 	{C1, add_ix1_0	},{C1, add_ix1_1},{C1, add_ix1_2},{C1, add_ix1_3},{C1, add_ix1_4},{C1, add_ix1_5},{C1, add_ix1_6},{C1, add_ix1_7},
 	{C1, add_ix1_8	},{C1, add_ix1_9},{C1, add_ix1_a},{C1, add_ix1_b},{C1, add_ix1_c},{C1, add_ix1_d},{C1, add_ix1_e},{C1, add_ix1_f},
 	{C1, add_ix2_0	},{C1, add_ix2_1},{C1, add_ix2_2},{C1, add_ix2_3},{C1, add_ix2_4},{C1, add_ix2_5},{C1, add_ix2_6},{C1, add_ix2_7},
 	{C1, add_ix2_8	},{C1, add_ix2_9},{C1, add_ix2_a},{C1, add_ix2_b},{C1, add_ix2_c},{C1, add_ix2_d},{C1, add_ix2_e},{C1, add_ix2_f},
-/* A0 : 8301 */
+
 	{C1, ld_base_0	},{C1, ld_base_1},{C1, ld_base_2},{C1, ld_base_3},{C1, ld_base_4},{C1, ld_base_5},{C1, ld_base_6},{C1, ld_base_7},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-	{C1, ld_bank_0	},{C1, ld_bank_1},{C1, ld_bank_2},{C1, ld_bank_3},{C2, halt		},{C1, undefined},{C1, undefined},{C1, undefined},
+	{C1, ld_bank_0	},{C1, ld_bank_1},{C1, ld_bank_2},{C1, ld_bank_3},{C2, stop     },{C1, undefined},{C1, undefined},{C1, undefined},
 	{C1, undefined	},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-/* c0 : 8301 */
-	{C2, ld_ix0_n	},{C2, ld_ix1_n	},{C2, ld_ix2_n	},{C2, ld_a_n	},{C2, ld_lp0_n	},{C2, ld_lp1_n	},{C2, ld_lp2_n	},{C2, ld_b_n	},
+
+	{C2, ld_ix0_n	},{C2, ld_ix1_n},{C2, ld_ix2_n	},{C2, ld_a_n	},{C2, ld_lp0_n	},{C2, ld_lp1_n	},{C2, ld_lp2_n	},{C2, ld_b_n	},
 	{C2, add_a_n	},{C2, sub_a_n	},{C2, and_a_n	},{C2, or_a_n	},{C2, djnz_lp0	},{C2, djnz_lp1	},{C2, djnz_lp2	},{C2, jnz		},
-	{C2, jc			},{C2, jz		},{C2, jmp		},{C2,undefined2},{C2, op_d4    },{C2, op_d5    },{C2,undefined2},{C2, undefined2},
-	{C2, undefined2	},{C2,undefined2},{C2,cmp_a_n	},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2,undefined2},{C2, call},
-/* E0 : 8301 */
-	{C1, dec_ix0	},{C1, undefined},{C1, undefined},{C1, ld_a_b   },{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-	{C1, ld_ix0_a	},{C1, ld_ix1_a },{C1, ld_ix2_a },{C1, ld_b_a   },{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},
-	{C1, undefined	},{C1,ld_ix2_ix0},{C1, undefined},{C1, undefined},{C1, undefined},{C1, undefined},{C1, op_f6    },{C1, undefined},
+	{C2, jnc			},{C2, jz		},{C2, jmp		},{C2,undefined2},{C2, op_d4    },{C2, op_d5    },{C2, op_d6    },{C2, op_d7    },
+	{C2, ld_a_abs  },{C2, ld_abs_a},{C2,cmp_a_n	},{C2,xor_a_n   },{C2,undefined2},{C2, op_dd    },{C2,undefined2},{C2, call},
+
+	{C1, dec_ix0	},{C1, undefined},{C1, undefined},{C1, ld_a_x   },{C1, undefined},{C1, ld_a_b   },{C1, exg_a_lp0   },{C1, undefined},
+	{C1, ld_ix0_a	},{C1, ld_ix1_a },{C1, ld_ix2_a },{C1, ld_x_a   },{C1, undefined},{C1, ld_b_a   },{C1, ld_lp0_a   },{C1, undefined},
+	{C1, undefined	},{C1,exg_ix0_ix2},{C1,op_ldir  },{C1, undefined},{C1, undefined},{C1, undefined},{C1, op_f6    },{C1, undefined},
 	{C1, op_f8		},{C1, op_f9    },{C1, add_a_cf },{C1, undefined},{C1, tst_a    },{C1, clr_a	},{C1,ld_a_ix0_a},{C1, ret }
 };
 #endif
 
-/****************************************************************************
- * Initialize emulation
- ****************************************************************************/
+
 static void ALPHA8201_init (int index, int clock, const void *config, int (*irqcallback)(int))
 {
 	state_save_register_item_array("ALPHA8201", index, R.RAM);
