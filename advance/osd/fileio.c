@@ -592,6 +592,9 @@ char* osd_basename(char* filename)
 
 	log_std(("osd: osd_basename(filename:%s)\n", filename));
 
+	if (!filename)
+		return 0;
+
 	base = strrchr(filename, file_dir_slash());
 	if (base)
 		++base;
