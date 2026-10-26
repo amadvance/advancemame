@@ -23,6 +23,8 @@
 #include "cinemat.h"
 #include "sound/samples.h"
 #include "sound/ay8910.h"
+#include "sound/custom.h"
+#include "streams.h"
 
 
 /*************************************
@@ -273,6 +275,63 @@ MACHINE_DRIVER_END
  *
  *************************************/
 
+/* Approximate the counter and noise outputs; the analog mixing is not modeled. */
+static sound_stream *speedfrk_stream;
+static UINT64 speedfrk_engine_phase;
+static UINT32 speedfrk_noise_phase;
+static UINT32 speedfrk_horn_phase;
+static UINT32 speedfrk_noise;
+static UINT8 speedfrk_noise_volume;
+static UINT8 speedfrk_audio_control;
+
+static void speedfrk_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int length)
+{
+	stream_sample_t *buffer = outputs[0];
+	UINT32 rate = Machine->sample_rate ? Machine->sample_rate : 44100;
+	UINT32 divisor = 4096 - (current_shift & 0x0fff);
+
+	while (length--)
+	{
+		int output = 0;
+
+		if (!(speedfrk_audio_control & 0x01) && (speedfrk_audio_control & 0x02))
+		{
+			speedfrk_engine_phase += 1000000;
+			while (speedfrk_engine_phase >= (UINT64)rate * divisor * 16)
+				speedfrk_engine_phase -= (UINT64)rate * divisor * 16;
+			output += speedfrk_engine_phase < (UINT64)rate * divisor * 8 ? 4500 : -4500;
+		}
+
+		speedfrk_noise_phase += 19000;
+		while (speedfrk_noise_phase >= rate)
+		{
+			speedfrk_noise_phase -= rate;
+			speedfrk_noise = (speedfrk_noise << 1) | (((speedfrk_noise >> 15) ^ (speedfrk_noise >> 12) ^ (speedfrk_noise >> 3) ^ speedfrk_noise ^ 1) & 1);
+		}
+		output += (speedfrk_noise & 0x8000 ? 1 : -1) * speedfrk_noise_volume * 250;
+
+		if (!(speedfrk_audio_control & 0x80))
+		{
+			speedfrk_horn_phase += 244;
+			if (speedfrk_horn_phase >= rate * 2)
+				speedfrk_horn_phase -= rate * 2;
+			output += speedfrk_horn_phase < rate ? 2500 : -2500;
+		}
+		*buffer++ = output;
+	}
+}
+
+static void *speedfrk_sound_start(int clock, const struct CustomSound_interface *config)
+{
+	speedfrk_stream = stream_create(0, 1, Machine->sample_rate ? Machine->sample_rate : 44100, NULL, speedfrk_update);
+	return auto_malloc(1);
+}
+
+static struct CustomSound_interface speedfrk_sound_interface =
+{
+	speedfrk_sound_start, NULL, NULL, NULL
+};
+
 static const char *speedfrk_sample_names[] =
 {
 	"*speedfrk",
@@ -288,29 +347,31 @@ static struct Samplesinterface speedfrk_samples_interface =
 
 static void speedfrk_sound_w(UINT8 sound_val, UINT8 bits_changed)
 {
-	/* on the falling edge of bit 0x08, clock the inverse of bit 0x04 into the top of the shiftreg */
+	stream_update(speedfrk_stream, 0);
+	speedfrk_audio_control = sound_val;
+
 	if (SOUNDVAL_FALLING_EDGE(0x08))
-	{
-		current_shift = ((current_shift >> 1) & 0x7fff) | ((~sound_val << 13) & 1);
-		/* high 12 bits control the frequency - counts from value to $FFF, carry triggers */
-		/* another counter */
+		current_shift = ((current_shift << 1) | ((~sound_val >> 2) & 1)) & 0xffff;
+	if (sound_val & 0x02)
+		speedfrk_noise_volume = (current_shift >> 12) & 0x0f;
 
-		/* low 4 bits control the volume of the noise output (explosion?) */
-	}
-
-	/* off-road - 1=on, 0=off */
 	if (SOUNDVAL_RISING_EDGE(0x10))
 		sample_start(0, 0, 1);
 	if (SOUNDVAL_FALLING_EDGE(0x10))
 		sample_stop(0);
 
-    /* start LED is controlled by bit 0x02 */
-    set_led_status(0, ~sound_val & 0x02);
+	set_led_status(0, ~sound_val & 0x02);
 }
 
 static MACHINE_RESET( speedfrk )
 {
 	generic_init(speedfrk_sound_w);
+	speedfrk_engine_phase = 0;
+	speedfrk_noise_phase = 0;
+	speedfrk_horn_phase = 0;
+	speedfrk_noise = 0;
+	speedfrk_noise_volume = 0;
+	speedfrk_audio_control = 0x9f;
 }
 
 MACHINE_DRIVER_START( speedfrk_sound )
@@ -320,6 +381,10 @@ MACHINE_DRIVER_START( speedfrk_sound )
 
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(speedfrk_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(speedfrk_sound_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
