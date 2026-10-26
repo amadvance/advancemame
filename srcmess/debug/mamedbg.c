@@ -7,8 +7,6 @@
     MAME debugger V0.54
     Juergen Buchmueller <pullmoll@t-online.de>
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
     Based on code found in the preivous version of the MAME debugger
     written by: Martin Scragg, John Butler, Mirko Buffoni
     Chris Moore, Aaron Giles, Ernesto Corvi

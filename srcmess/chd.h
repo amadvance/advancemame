@@ -4,8 +4,6 @@
 
     MAME Compressed Hunks of Data file format
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ***************************************************************************/
 
 #ifndef __CHD_H__

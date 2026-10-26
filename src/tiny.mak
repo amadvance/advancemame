@@ -7,8 +7,6 @@
 #   Small driver-specific example makefile
 #	Use make TARGET=tiny to build
 #
-#   Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-#
 ###########################################################################
 
 
