@@ -4091,6 +4091,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cookbib )	/* (c) 1995 SemiCom */
 	DRIVER( chokchok )	/* (c) 1995 SemiCom */
 	DRIVER( metlsavr )	/* (c) 1994 */
+	DRIVER( magicbal )
+	DRIVER( wlstar )
+	DRIVER( carket )
+	DRIVER( wondl96 )
 	DRIVER( bcstry )	/* (c) 199? SemiCom */
 	DRIVER( bcstrya )	/* (c) 199? SemiCom */
 	DRIVER( semibase )	/* (c) 199? SemiCom */
