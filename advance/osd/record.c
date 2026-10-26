@@ -463,8 +463,8 @@ static void advance_record_next(struct advance_record_context* context, const ma
 {
 	unsigned counter = 0;
 
-	snprintf(path_wav, size_wav, "%s/%.8s.wav", context->config.dir_buffer, mame_game_name(game));
-	snprintf(path_mng, size_mng, "%s/%.8s.mng", context->config.dir_buffer, mame_game_name(game));
+	snprintf(path_wav, size_wav, "%s/%s.wav", context->config.dir_buffer, mame_game_name(game));
+	snprintf(path_mng, size_mng, "%s/%s.mng", context->config.dir_buffer, mame_game_name(game));
 
 	/* Reserve the unnumbered WAV for automatic debug recording. */
 	if (context->config.debug_sound || access(path_wav, F_OK) == 0 || access(path_mng, F_OK) == 0) {
@@ -582,7 +582,7 @@ static void advance_snapshot_next(struct advance_record_context* context, const 
 {
 	unsigned counter = 0;
 
-	snprintf(path_png, size, "%s/%.8s.png", context->config.dir_buffer, mame_game_name(game));
+	snprintf(path_png, size, "%s/%s.png", context->config.dir_buffer, mame_game_name(game));
 
 	if (access(path_png, F_OK) == 0) {
 		do {
