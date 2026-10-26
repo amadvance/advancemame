@@ -790,6 +790,7 @@ TESTDRIVER( svi328c ) 	/* SVI-328 + 80 column card (Swedish)						*/
 
 	/* Telenova */
 	DRIVER(compis)		/* 1985 Telenova Compis								*/
+	DRIVER(compis2)		/* 1986 Telenova Compis II							*/
 
 	/* Multitech */
 	DRIVER(mpf1)		/* 1979 Multitech Micro Professor 1					*/
