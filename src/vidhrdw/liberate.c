@@ -17,6 +17,9 @@
 static int background_color,background_disable;
 static tilemap *background_tilemap, *fix_tilemap;
 static UINT8 deco16_io_ram[16];
+UINT8 *prosport_bg_vram;
+static UINT8 prosport_char_dirty[1024], prosport_sprite_dirty[256];
+static int prosport_gfx_dirty;
 
 #if 0
 void debug_print(mame_bitmap *bitmap)
@@ -65,6 +68,13 @@ static void get_back_tile_info( int tile_index )
 	SET_TILE_INFO(bank,tile&0x7f,background_color,0)
 }
 
+static void prosport_get_back_tile_info(int tile_index)
+{
+	int tile = (prosport_bg_vram[tile_index] >> 4) + ((tile_index & 8) ? 0x10 : 0);
+	tile += deco16_io_ram[0] & 0x20;
+	SET_TILE_INFO(8,tile,0,0)
+}
+
 static void get_fix_tile_info( int tile_index )
 {
 	int tile,color;
@@ -110,6 +120,55 @@ WRITE8_HANDLER( deco16_io_w )
 	}
 }
 
+void prosport_video_reset(void)
+{
+	memset(deco16_io_ram, 0, sizeof(deco16_io_ram));
+	flip_screen_set(0);
+	tilemap_mark_all_tiles_dirty(background_tilemap);
+}
+
+WRITE8_HANDLER( prosport_io_w )
+{
+	UINT8 previous = deco16_io_ram[offset];
+	deco16_io_ram[offset] = data;
+	switch (offset)
+	{
+		case 0:
+			flip_screen_set(data & 0x80);
+			if ((previous ^ data) & 0x20) tilemap_mark_all_tiles_dirty(background_tilemap);
+			break;
+		case 2:
+			soundlatch_w(0, data);
+			cpunum_set_input_line(1, M6502_IRQ_LINE, HOLD_LINE);
+			break;
+		case 4:
+			cpunum_set_input_line(0, DECO16_IRQ_LINE, CLEAR_LINE);
+			break;
+	}
+}
+
+WRITE8_HANDLER( prosport_bg_vram_w )
+{
+	prosport_bg_vram[offset] = data;
+	tilemap_mark_tile_dirty(background_tilemap, offset);
+}
+
+READ8_HANDLER( prosport_charram_r )
+{
+	return memory_region(REGION_GFX6)[(offset / 0x800) * 0x2000 + 0x800 + (offset & 0x7ff)];
+}
+
+WRITE8_HANDLER( prosport_charram_w )
+{
+	UINT8 *gfx = memory_region(REGION_GFX6);
+	int address = (offset / 0x800) * 0x2000 + 0x800 + (offset & 0x7ff);
+	if (gfx[address] == data) return;
+	gfx[address] = data;
+	prosport_gfx_dirty = 1;
+	prosport_char_dirty[((offset & 0x7ff) + 0x800) >> 3] = 1;
+	prosport_sprite_dirty[((offset & 0x7ff) + 0x800) >> 5] = 1;
+}
+
 WRITE8_HANDLER( liberate_videoram_w )
 {
 	videoram[offset]=data;
@@ -128,6 +187,18 @@ VIDEO_START( prosoccr )
 
 	tilemap_set_transparent_pen(fix_tilemap,0);
 
+	return 0;
+}
+
+VIDEO_START( prosport )
+{
+	background_tilemap = tilemap_create(prosport_get_back_tile_info,back_scan,TILEMAP_OPAQUE,16,16,32,32);
+	fix_tilemap = tilemap_create(get_fix_tile_info,fix_scan,TILEMAP_TRANSPARENT,8,8,32,32);
+	if (!background_tilemap || !fix_tilemap) return 1;
+	tilemap_set_transparent_pen(fix_tilemap,0);
+	memset(prosport_char_dirty,0,sizeof(prosport_char_dirty));
+	memset(prosport_sprite_dirty,0,sizeof(prosport_sprite_dirty));
+	prosport_gfx_dirty = 0;
 	return 0;
 }
 
@@ -164,6 +235,7 @@ WRITE8_HANDLER( prosport_paletteram_w )
 {
 	/* RGB output is inverted */
 	paletteram_BBGGGRRR_w(offset,~data);
+	paletteram[offset] = data;
 }
 
 PALETTE_INIT( liberate )
@@ -249,58 +321,26 @@ static void liberate_drawsprites(mame_bitmap *bitmap)
 	}
 }
 
-static void prosport_drawsprites(mame_bitmap *bitmap)
+static void prosport_drawsprites(mame_bitmap *bitmap, const rectangle *cliprect)
 {
-	int offs,multi,fx,fy,sx,sy,sy2,code,code2,color;
-
-	for (offs = 0x000;offs < 0x800;offs += 4)
+	int offs, gfx = (deco16_io_ram[0] & 0x40) ? 7 : 4 + ((deco16_io_ram[0] & 0x30) >> 4);
+	for (offs = 0; offs < 0x800; offs += 4)
 	{
-	//  if ((spriteram[offs+0]&1)!=1) continue;
-
-		code = spriteram[offs+1] + ((spriteram[offs+0]&0x3)<<8);
-		code2=code+1;
-
-		multi = spriteram[offs+0] & 0x10;
-
-		sy=spriteram[offs+2];
-		if (multi) sy+=16;
-		sx = (240 - spriteram[offs+3]);
-//      sy = (240-spriteram[offs+2]);//-16;
-		sy = 240-sy;
-
-		color = 1;//(spriteram[offs+0]&0x4)>>2;
-
-		fx = 0;
-		fy = spriteram[offs+0] & 0x04;
-		multi = 0;// spriteram[offs+0] & 0x10;
-
-//      if (multi) sy-=16;
-		if (fy && multi) { code2=code; code++; }
-
-		if (flip_screen) {
-			sy=240-sy;
-			sx=240-sx;
-			if (fx) fx=0; else fx=1;
-			if (fy) fy=0; else fy=1;
-			sy2=sy-16;
+		int attr = spriteram[offs], code, x, y, fx, fy;
+		if (!(attr & 1)) continue;
+		code = spriteram[offs + 1] + ((attr & 3) << 8);
+		x = 240 - spriteram[offs + 3];
+		y = 240 - spriteram[offs + 2] - ((attr & 0x10) ? 16 : 0);
+		fx = attr & 4;
+		fy = attr & 2;
+		if (flip_screen)
+		{
+			x = 240 - x;
+			y = 240 - y;
+			fx = !fx;
+			fy = !fy;
 		}
-		else {
-			sy2=sy+16;
-		}
-
-    	drawgfx(bitmap,Machine->gfx[1],
-        		code,
-				color,
-				fx,fy,
-				sx,sy,
-				&Machine->visible_area,TRANSPARENCY_PEN,0);
-        if (multi)
-    		drawgfx(bitmap,Machine->gfx[1],
-				code2,
-				color,
-				fx,fy,
-				sx,sy2,
-				&Machine->visible_area,TRANSPARENCY_PEN,0);
+		drawgfx(bitmap,Machine->gfx[gfx],code,1,fx,fy,x,y,cliprect,TRANSPARENCY_PEN,0);
 	}
 }
 
@@ -377,27 +417,36 @@ VIDEO_UPDATE( prosoccr )
 
 VIDEO_UPDATE( prosport )
 {
-	int mx,my,tile,color,offs;
+	int offs, gfx = (deco16_io_ram[0] & 0x40) ? 3 : (deco16_io_ram[0] & 0x30) >> 4;
+	UINT8 *dynamic_gfx = memory_region(REGION_GFX6);
 
-	fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
+	if (prosport_gfx_dirty)
+	{
+		for (offs = 0; offs < 1024; offs++)
+			if (prosport_char_dirty[offs])
+			{
+				decodegfx(Machine->gfx[3],dynamic_gfx,offs,1);
+				prosport_char_dirty[offs] = 0;
+			}
+		for (offs = 0; offs < 256; offs++)
+			if (prosport_sprite_dirty[offs])
+			{
+				decodegfx(Machine->gfx[7],dynamic_gfx,offs,1);
+				prosport_sprite_dirty[offs] = 0;
+			}
 
-	prosport_drawsprites(bitmap);
-
-	for (offs = 0;offs < 0x400;offs++) {
-		tile=videoram[offs+0x400]+((videoram[offs]&0x3)<<8);
-
-		tile+=((deco16_io_ram[0]&0x30)<<6);
-
-		if (!tile) continue;
-
-		color=1;//(videoram[offs]&0x70)>>4;
-		my = (offs) % 32;
-		mx = (offs) / 32;
-
-		drawgfx(bitmap,Machine->gfx[0],
-				tile,1,0,0,248-8*mx,8*my,
-				&Machine->visible_area,TRANSPARENCY_PEN,0);
+		prosport_gfx_dirty = 0;
 	}
+
+	tilemap_set_scrolly(background_tilemap,0,(deco16_io_ram[0] & 8) << 5);
+	tilemap_set_scrollx(background_tilemap,0,-(((deco16_io_ram[0] & 2) << 7) | deco16_io_ram[1]));
+	tilemap_draw(bitmap,cliprect,background_tilemap,0,0);
+	for (offs = 0; offs < 0x400; offs++)
+	{
+		int tile = videoram[offs + 0x400] + ((videoram[offs] & 3) << 8);
+		drawgfx(bitmap,Machine->gfx[gfx],tile,1,0,0,248 - 8 * (offs / 32),8 * (offs % 32),cliprect,TRANSPARENCY_PEN,0);
+	}
+	prosport_drawsprites(bitmap,cliprect);
 }
 
 VIDEO_UPDATE( boomrang )
