@@ -1,814 +1,714 @@
-INLINE void illegal( void );
-INLINE void neg_di( void );
-INLINE void oim_di( void );
-INLINE void aim_di( void );
-INLINE void com_di( void );
-INLINE void lsr_di( void );
-INLINE void eim_di( void );
-INLINE void ror_di( void );
-INLINE void asr_di( void );
-INLINE void asl_di( void );
-INLINE void rol_di( void );
-INLINE void dec_di( void );
-INLINE void tim_di( void );
-INLINE void inc_di( void );
-INLINE void tst_di( void );
-INLINE void jmp_di( void );
-INLINE void clr_di( void );
-INLINE void nop( void );
-INLINE void sync( void );
-INLINE void sexw( void );
-INLINE void lbra( void );
-INLINE void lbsr( void );
-INLINE void daa( void );
-INLINE void daa( void );
-INLINE void orcc( void );
-INLINE void andcc( void );
-INLINE void sex( void );
-INLINE void exg( void );
-INLINE void tfr( void );
-INLINE void bra( void );
-INLINE void brn( void );
-INLINE void lbrn( void );
-INLINE void bhi( void );
-INLINE void lbhi( void );
-INLINE void bls( void );
-INLINE void lbls( void );
-INLINE void bcc( void );
-INLINE void lbcc( void );
-INLINE void bcs( void );
-INLINE void lbcs( void );
-INLINE void bne( void );
-INLINE void lbne( void );
-INLINE void beq( void );
-INLINE void lbeq( void );
-INLINE void bvc( void );
-INLINE void lbvc( void );
-INLINE void bvs( void );
-INLINE void lbvs( void );
-INLINE void bpl( void );
-INLINE void lbpl( void );
-INLINE void bmi( void );
-INLINE void lbmi( void );
-INLINE void bge( void );
-INLINE void lbge( void );
-INLINE void blt( void );
-INLINE void lblt( void );
-INLINE void bgt( void );
-INLINE void lbgt( void );
-INLINE void ble( void );
-INLINE void lble( void );
-INLINE void addr_r( void );
-INLINE void adcr( void );
-INLINE void subr( void );
-INLINE void sbcr( void );
-INLINE void andr( void );
-INLINE void orr( void );
-INLINE void eorr( void );
-INLINE void cmpr( void );
-INLINE void tfmpp( void );
-INLINE void tfmmm( void );
-INLINE void tfmpc( void );
-INLINE void tfmcp( void );
-INLINE void bitmd_im( void );
-INLINE void leax( void );
-INLINE void leay( void );
-INLINE void leas( void );
-INLINE void leau( void );
-INLINE void pshs( void );
-INLINE void ldmd_im( void );
-INLINE void pshsw( void );
-INLINE void pshuw( void );
-INLINE void puls( void );
-INLINE void pulsw( void );
-INLINE void puluw( void );
-INLINE void pshu( void );
-INLINE void pulu( void );
-INLINE void rts( void );
-INLINE void abx( void );
-INLINE void rti( void );
-INLINE void cwai( void );
-INLINE void bitd_di( void );
-INLINE void bitd_ix( void );
-INLINE void bitd_ex( void );
-INLINE void mul( void );
-INLINE void swi( void );
-INLINE void band( void );
-INLINE void bitd_im( void );
-INLINE void biand( void );
-INLINE void bor( void );
-INLINE void bior( void );
-INLINE void beor( void );
-INLINE void bieor( void );
-INLINE void ldbt( void );
-INLINE void stbt( void );
-INLINE void swi2( void );
-INLINE void swi3( void );
-INLINE void nega( void );
-INLINE void coma( void );
-INLINE void lsra( void );
-INLINE void rora( void );
-INLINE void asra( void );
-INLINE void asla( void );
-INLINE void rola( void );
-INLINE void deca( void );
-INLINE void inca( void );
-INLINE void tsta( void );
-INLINE void clra( void );
-INLINE void negb( void );
-INLINE void negd( void );
-INLINE void comb( void );
-INLINE void come( void );
-INLINE void comf( void );
-INLINE void comd( void );
-INLINE void comw( void );
-INLINE void lsrb( void );
-INLINE void lsrd( void );
-INLINE void lsrw( void );
-INLINE void rorb( void );
-INLINE void rord( void );
-INLINE void rorw( void );
-INLINE void asrb( void );
-INLINE void asrd( void );
-INLINE void aslb( void );
-INLINE void asld( void );
-INLINE void rolb( void );
-INLINE void rold( void );
-INLINE void rolw( void );
-INLINE void decb( void );
-INLINE void dece( void );
-INLINE void decf( void );
-INLINE void decd( void );
-INLINE void decw( void );
-INLINE void incb( void );
-INLINE void ince( void );
-INLINE void incf( void );
-INLINE void incd( void );
-INLINE void incw( void );
-INLINE void tstb( void );
-INLINE void tstd( void );
-INLINE void tstw( void );
-INLINE void tste( void );
-INLINE void tstf( void );
-INLINE void clrb( void );
-INLINE void clrd( void );
-INLINE void clre( void );
-INLINE void clrf( void );
-INLINE void clrw( void );
-INLINE void neg_ix( void );
-INLINE void oim_ix( void );
-INLINE void aim_ix( void );
-INLINE void com_ix( void );
-INLINE void lsr_ix( void );
-INLINE void eim_ix( void );
-INLINE void ror_ix( void );
-INLINE void asr_ix( void );
-INLINE void asl_ix( void );
-INLINE void rol_ix( void );
-INLINE void dec_ix( void );
-INLINE void tim_ix( void );
-INLINE void inc_ix( void );
-INLINE void tst_ix( void );
-INLINE void jmp_ix( void );
-INLINE void clr_ix( void );
-INLINE void neg_ex( void );
-INLINE void oim_ex( void );
-INLINE void aim_ex( void );
-INLINE void com_ex( void );
-INLINE void lsr_ex( void );
-INLINE void eim_ex( void );
-INLINE void ror_ex( void );
-INLINE void asr_ex( void );
-INLINE void asl_ex( void );
-INLINE void rol_ex( void );
-INLINE void dec_ex( void );
-INLINE void tim_ex( void );
-INLINE void inc_ex( void );
-INLINE void tst_ex( void );
-INLINE void jmp_ex( void );
-INLINE void clr_ex( void );
-INLINE void suba_im( void );
-INLINE void cmpa_im( void );
-INLINE void sbca_im( void );
-INLINE void subd_im( void );
-INLINE void subw_im( void );
-INLINE void cmpd_im( void );
-INLINE void cmpw_im( void );
-INLINE void cmpu_im( void );
-INLINE void anda_im( void );
-INLINE void bita_im( void );
-INLINE void lda_im( void );
-INLINE void eora_im( void );
-INLINE void adca_im( void );
-INLINE void ora_im( void );
-INLINE void adda_im( void );
-INLINE void cmpx_im( void );
-INLINE void cmpy_im( void );
-INLINE void cmps_im( void );
-INLINE void bsr( void );
-INLINE void ldx_im( void );
-INLINE void ldq_im( void );
-INLINE void ldy_im( void );
-INLINE void suba_di( void );
-INLINE void cmpa_di( void );
-INLINE void sbca_di( void );
-INLINE void subd_di( void );
-INLINE void subw_di( void );
-INLINE void cmpd_di( void );
-INLINE void cmpw_di( void );
-INLINE void cmpu_di( void );
-INLINE void anda_di( void );
-INLINE void bita_di( void );
-INLINE void lda_di( void );
-INLINE void sta_di( void );
-INLINE void eora_di( void );
-INLINE void adca_di( void );
-INLINE void ora_di( void );
-INLINE void adda_di( void );
-INLINE void cmpx_di( void );
-INLINE void cmpy_di( void );
-INLINE void cmps_di( void );
-INLINE void jsr_di( void );
-INLINE void ldx_di( void );
-INLINE void muld_di( void );
-INLINE void divd_im( void );
-INLINE void divq_im( void );
-INLINE void muld_im( void );
-INLINE void divd_di( void );
-INLINE void divq_di( void );
-INLINE void ldq_di( void );
-INLINE void ldy_di( void );
-INLINE void stx_di( void );
-INLINE void stq_di( void );
-INLINE void sty_di( void );
-INLINE void suba_ix( void );
-INLINE void cmpa_ix( void );
-INLINE void sbca_ix( void );
-INLINE void subd_ix( void );
-INLINE void subw_ix( void );
-INLINE void cmpd_ix( void );
-INLINE void cmpw_ix( void );
-INLINE void cmpu_ix( void );
-INLINE void anda_ix( void );
-INLINE void bita_ix( void );
-INLINE void lda_ix( void );
-INLINE void sta_ix( void );
-INLINE void eora_ix( void );
-INLINE void adca_ix( void );
-INLINE void ora_ix( void );
-INLINE void adda_ix( void );
-INLINE void cmpx_ix( void );
-INLINE void cmpy_ix( void );
-INLINE void cmps_ix( void );
-INLINE void jsr_ix( void );
-INLINE void ldx_ix( void );
-INLINE void muld_ix( void );
-INLINE void divd_ix( void );
-INLINE void divq_ix( void );
-INLINE void ldq_ix( void );
-INLINE void ldy_ix( void );
-INLINE void stx_ix( void );
-INLINE void stq_ix( void );
-INLINE void sty_ix( void );
-INLINE void suba_ex( void );
-INLINE void cmpa_ex( void );
-INLINE void sbca_ex( void );
-INLINE void subd_ex( void );
-INLINE void subw_ex( void );
-INLINE void cmpd_ex( void );
-INLINE void cmpw_ex( void );
-INLINE void cmpu_ex( void );
-INLINE void anda_ex( void );
-INLINE void bita_ex( void );
-INLINE void lda_ex( void );
-INLINE void sta_ex( void );
-INLINE void eora_ex( void );
-INLINE void adca_ex( void );
-INLINE void ora_ex( void );
-INLINE void adda_ex( void );
-INLINE void cmpx_ex( void );
-INLINE void cmpy_ex( void );
-INLINE void cmps_ex( void );
-INLINE void jsr_ex( void );
-INLINE void ldx_ex( void );
-INLINE void muld_ex( void );
-INLINE void divd_ex( void );
-INLINE void divq_ex( void );
-INLINE void ldq_ex( void );
-INLINE void ldy_ex( void );
-INLINE void stx_ex( void );
-INLINE void stq_ex( void );
-INLINE void sty_ex( void );
-INLINE void subb_im( void );
-INLINE void sube_im( void );
-INLINE void subf_im( void );
-INLINE void cmpb_im( void );
-INLINE void cmpe_im( void );
-INLINE void cmpf_im( void );
-INLINE void sbcb_im( void );
-INLINE void sbcd_im( void );
-INLINE void addd_im( void );
-INLINE void addw_im( void );
-INLINE void adde_im( void );
-INLINE void addf_im( void );
-INLINE void andb_im( void );
-INLINE void andd_im( void );
-INLINE void bitb_im( void );
-INLINE void ldb_im( void );
-INLINE void lde_im( void );
-INLINE void ldf_im( void );
-INLINE void eorb_im( void );
-INLINE void eord_im( void );
-INLINE void adcb_im( void );
-INLINE void adcd_im( void );
-INLINE void orb_im( void );
-INLINE void ord_im( void );
-INLINE void addb_im( void );
-INLINE void ldd_im( void );
-INLINE void ldw_im( void );
-INLINE void ldu_im( void );
-INLINE void lds_im( void );
-INLINE void subb_di( void );
-INLINE void sube_di( void );
-INLINE void subf_di( void );
-INLINE void cmpb_di( void );
-INLINE void cmpe_di( void );
-INLINE void cmpf_di( void );
-INLINE void sbcb_di( void );
-INLINE void sbcd_di( void );
-INLINE void addd_di( void );
-INLINE void addw_di( void );
-INLINE void adde_di( void );
-INLINE void addf_di( void );
-INLINE void andb_di( void );
-INLINE void andd_di( void );
-INLINE void bitb_di( void );
-INLINE void ldb_di( void );
-INLINE void lde_di( void );
-INLINE void ldf_di( void );
-INLINE void stb_di( void );
-INLINE void ste_di( void );
-INLINE void stf_di( void );
-INLINE void eorb_di( void );
-INLINE void eord_di( void );
-INLINE void adcb_di( void );
-INLINE void adcd_di( void );
-INLINE void orb_di( void );
-INLINE void ord_di( void );
-INLINE void addb_di( void );
-INLINE void ldd_di( void );
-INLINE void ldw_di( void );
-INLINE void std_di( void );
-INLINE void stw_di( void );
-INLINE void ldu_di( void );
-INLINE void lds_di( void );
-INLINE void stu_di( void );
-INLINE void sts_di( void );
-INLINE void subb_ix( void );
-INLINE void sube_ix( void );
-INLINE void subf_ix( void );
-INLINE void cmpb_ix( void );
-INLINE void cmpe_ix( void );
-INLINE void cmpf_ix( void );
-INLINE void sbcb_ix( void );
-INLINE void sbcd_ix( void );
-INLINE void addd_ix( void );
-INLINE void addw_ix( void );
-INLINE void adde_ix( void );
-INLINE void addf_ix( void );
-INLINE void andb_ix( void );
-INLINE void andd_ix( void );
-INLINE void bitb_ix( void );
-INLINE void ldb_ix( void );
-INLINE void lde_ix( void );
-INLINE void ldf_ix( void );
-INLINE void stb_ix( void );
-INLINE void ste_ix( void );
-INLINE void stf_ix( void );
-INLINE void eorb_ix( void );
-INLINE void eord_ix( void );
-INLINE void adcb_ix( void );
-INLINE void adcd_ix( void );
-INLINE void orb_ix( void );
-INLINE void ord_ix( void );
-INLINE void addb_ix( void );
-INLINE void ldd_ix( void );
-INLINE void ldw_ix( void );
-INLINE void std_ix( void );
-INLINE void stw_ix( void );
-INLINE void ldu_ix( void );
-INLINE void lds_ix( void );
-INLINE void stu_ix( void );
-INLINE void sts_ix( void );
-INLINE void subb_ex( void );
-INLINE void sube_ex( void );
-INLINE void subf_ex( void );
-INLINE void cmpb_ex( void );
-INLINE void cmpe_ex( void );
-INLINE void cmpf_ex( void );
-INLINE void sbcb_ex( void );
-INLINE void sbcd_ex( void );
-INLINE void addd_ex( void );
-INLINE void addw_ex( void );
-INLINE void adde_ex( void );
-INLINE void addf_ex( void );
-INLINE void andb_ex( void );
-INLINE void andd_ex( void );
-INLINE void bitb_ex( void );
-INLINE void ldb_ex( void );
-INLINE void lde_ex( void );
-INLINE void ldf_ex( void );
-INLINE void stb_ex( void );
-INLINE void ste_ex( void );
-INLINE void stf_ex( void );
-INLINE void eorb_ex( void );
-INLINE void eord_ex( void );
-INLINE void adcb_ex( void );
-INLINE void adcd_ex( void );
-INLINE void orb_ex( void );
-INLINE void ord_ex( void );
-INLINE void addb_ex( void );
-INLINE void ldd_ex( void );
-INLINE void ldw_ex( void );
-INLINE void std_ex( void );
-INLINE void stw_ex( void );
-INLINE void ldu_ex( void );
-INLINE void lds_ex( void );
-INLINE void stu_ex( void );
-INLINE void sts_ex( void );
-INLINE void pref10( void );
-INLINE void pref11( void );
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
+/*********************************************************************
 
-static UINT8 flags8i[256]=	 /* increment */
+    6309tbl.c
+
+    Portable 6309 emulator - Inlines and tables
+
+*********************************************************************/
+
+#define m_pc (hd6309.pc)
+#define m_ppc (hd6309.ppc)
+#define m_d (hd6309.d)
+#define m_u (hd6309.u)
+#define m_s (hd6309.s)
+#define m_x (hd6309.x)
+#define m_y (hd6309.y)
+#define m_dp (hd6309.dp)
+#define m_cc (hd6309.cc)
+#define m_temp (hd6309.temp)
+#define m_opcode (hd6309.opcode)
+#define m_ea (hd6309.ea)
+#define m_addressing_mode (hd6309.addressing_mode)
+#define m_reg (hd6309.reg)
+#define m_cond (hd6309.cond)
+#define m_state (hd6309.state)
+#define m_nmi_asserted (hd6309.nmi_asserted)
+#define m_nmi_line (hd6309.nmi_line)
+#define m_firq_line (hd6309.firq_line)
+#define m_irq_line (hd6309.irq_line)
+#define m_lds_encountered (hd6309.lds_encountered)
+#define m_w (hd6309.w)
+#define m_v (hd6309.v)
+#define m_md (hd6309.md)
+#define m_temp_im (hd6309.temp_im)
+#define m_reg8 (hd6309.reg8)
+#define m_reg16 (hd6309.reg16)
+#define m_icount (hd6309_ICount)
+
+#define M6809_FIRQ_LINE HD6309_FIRQ_LINE
+#define M6809_IRQ_LINE  HD6309_IRQ_LINE
+
+enum
 {
-CC_Z,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-CC_N|CC_V,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N
+	CC_C = 0x01,
+	CC_V = 0x02,
+	CC_Z = 0x04,
+	CC_N = 0x08,
+	CC_I = 0x10,
+	CC_H = 0x20,
+	CC_F = 0x40,
+	CC_E = 0x80,
+	CC_ZC = CC_Z | CC_C,
+	CC_VC = CC_V | CC_C,
+	CC_NZ = CC_N | CC_Z,
+	CC_NZV = CC_N | CC_Z | CC_V,
+	CC_NZC = CC_N | CC_Z | CC_C,
+	CC_NZVC = CC_N | CC_Z | CC_V | CC_C,
+	CC_HNZVC = CC_H | CC_N | CC_Z | CC_V | CC_C
 };
-static UINT8 flags8d[256]= /* decrement */
+
+enum
 {
-CC_Z,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,CC_V,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,
-CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N,CC_N
+	ADDRESSING_MODE_IMMEDIATE = 0,
+	ADDRESSING_MODE_EA,
+	ADDRESSING_MODE_REGISTER_A,
+	ADDRESSING_MODE_REGISTER_B,
+	ADDRESSING_MODE_REGISTER_D,
+	ADDRESSING_MODE_REGISTER_X,
+	ADDRESSING_MODE_REGISTER_Y,
+	ADDRESSING_MODE_REGISTER_U,
+	ADDRESSING_MODE_REGISTER_S,
+	ADDRESSING_MODE_REGISTER_PC,
+	ADDRESSING_MODE_REGISTER_W,
+	ADDRESSING_MODE_REGISTER_V,
+	ADDRESSING_MODE_REGISTER_CC,
+	ADDRESSING_MODE_REGISTER_DP,
+	ADDRESSING_MODE_REGISTER_E,
+	ADDRESSING_MODE_REGISTER_F,
+	ADDRESSING_MODE_ZERO
 };
 
-static UINT8 index_cycle_em[256] = {        /* Index Loopup cycle counts, emulated 6809 */
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-
-/* 0x0X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x1X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x2X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x3X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x4X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x5X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x6X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x7X */      1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-/* 0x8X */      2,    3,    2,    3,    0,    1,    1,    1,    1,    4,    1,    4,    1,    5,    4,    0,
-/* 0x9X */      3,    6,   20,    6,    3,    4,    4,    4,    4,    7,    4,    7,    4,    8,    7,    5,
-/* 0xAX */      2,    3,    2,    3,    0,    1,    1,    1,    1,    4,    1,    4,    1,    5,    4,    5,
-/* 0xBX */      5,    6,   20,    6,    3,    4,    4,    4,    4,    7,    4,    7,    4,    8,    7,   20,
-/* 0xCX */      2,    3,    2,    3,    0,    1,    1,    1,    1,    4,    1,    4,    1,    5,    4,    3,
-/* 0xDX */      4,    6,   20,    6,    3,    4,    4,    4,    4,    7,    4,    7,    4,    8,    7,   20,
-/* 0xEX */      2,    3,    2,    3,    0,    1,    1,    1,    1,    4,    1,    4,    1,    5,    4,    3,
-/* 0xFX */      4,    6,   20,    6,    3,    4,    4,    4,    4,    7,    4,    7,    4,    8,    7,   20
-};
-
-static UINT8 index_cycle_na[256] = {         /* Index Loopup cycle counts,
-native 6309 */
-/*       X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, XA, XB, XC, XD, XE, XF */
-
-/* 0x0X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x1X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x2X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x3X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x4X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x5X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x6X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x7X */   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-/* 0x8X */   1,  2,  1,  2,  0,  1,  1,  1,  1,  3,  1,  2,  1,  3,  1,  0,
-/* 0x9X */   3,  5, 19,  5,  3,  4,  4,  4,  4,  7,  4,  5,  4,  6,  4,  5,
-/* 0xAX */   1,  2,  1,  2,  0,  1,  1,  1,  1,  3,  1,  2,  1,  3,  1,  2,
-/* 0xBX */   5,  5, 19,  5,  3,  4,  4,  4,  4,  7,  4,  5,  4,  6,  4, 19,
-/* 0xCX */   1,  2,  1,  2,  0,  1,  1,  1,  1,  3,  1,  2,  1,  3,  1,  1,
-/* 0xDX */   4,  5, 19,  5,  3,  4,  4,  4,  4,  7,  4,  5,  4,  6,  4, 19,
-/* 0xEX */   1,  2,  1,  2,  0,  1,  1,  1,  1,  3,  1,  2,  1,  3,  1,  1,
-/* 0xFX */   4,  5, 19,  5,  3,  4,  4,  4,  4,  7,  4,  5,  4,  6,  4, 19
-};
-
-#define IIP0	19			/* Illegal instruction cycle count page 0 */
-#define IIP1	20			/* Illegal instruction cycle count page 01 & 11 */
-
-static UINT8 ccounts_page0_em[256] =    /* Cycle Counts Page zero, Emulated 6809 */
+enum
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */     6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    3,    6,
-/* 0x1X */     0,    0,    2,    4,    4, IIP0,    5,    9, IIP0,    2,    3, IIP0,    3,    2,    8,    6,
-/* 0x2X */     3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-/* 0x3X */     4,    4,    4,    4,    5,    5,    5,    5, IIP0,    5,    3,    6,   20,   11, IIP0,   19,
-/* 0x4X */     2, IIP0, IIP0,    2,    2, IIP0,    2,    2,    2,    2,    2, IIP0,    2,    2, IIP0,    2,
-/* 0x5X */     2, IIP0, IIP0,    2,    2, IIP0,    2,    2,    2,    2,    2, IIP0,    2,    2, IIP0,    2,
-/* 0x6X */     6,    7,    7,    6,    6,    6,    6,    6,    6,    6,    6,    7,    6,    6,    3,    6,
-/* 0x7X */     7,    7,    7,    7,    7,    7,    7,    7,    7,    7,    7,    5,    7,    7,    4,    7,
-/* 0x8X */     2,    2,    2,    4,    2,    2,    2, IIP0,    2,    2,    2,    2,    4,    7,    3, IIP0,
-/* 0x9X */     4,    4,    4,    6,    4,    4,    4,    4,    4,    4,    4,    4,    6,    7,    5,    5,
-/* 0xAX */     4,    4,    4,    6,    4,    4,    4,    4,    4,    4,    4,    4,    6,    7,    5,    5,
-/* 0xBX */     5,    5,    5,    7,    5,    5,    5,    5,    5,    5,    5,    5,    7,    8,    6,    6,
-/* 0xCX */     2,    2,    2,    4,    2,    2,    2, IIP0,    2,    2,    2,    2,    3,    5,    3, IIP0,
-/* 0xDX */     4,    4,    4,    6,    4,    4,    4,    4,    4,    4,    4,    4,    5,    5,    5,    5,
-/* 0xEX */     4,    4,    4,    6,    4,    4,    4,    4,    4,    4,    4,    4,    5,    5,    5,    5,
-/* 0xFX */     5,    5,    5,    7,    5,    5,    5,    5,    5,    5,    5,    5,    6,    6,    6,    6
+	VECTOR_TRAP          = 0xFFF0,
+	VECTOR_ILLEGAL       = 0xFFF0,
+	VECTOR_SWI3          = 0xFFF2,
+	VECTOR_SWI2          = 0xFFF4,
+	VECTOR_FIRQ          = 0xFFF6,
+	VECTOR_IRQ           = 0xFFF8,
+	VECTOR_SWI           = 0xFFFA,
+	VECTOR_NMI           = 0xFFFC,
+	VECTOR_RESET_FFFE   = 0xFFFE
 };
 
-static UINT8 ccounts_page0_na[256] =   /* Cycle Counts Page zero, Native 6309 */
+#define push_state(st) do { m_state = (m_state << 8) | (UINT8)(st); } while (0)
+static inline UINT8 pop_state(void)
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */     5,    6,    6,    5,    5,    6,    5,    5,    5,    5,    5,    6,    5,    4,    2,    5,
-/* 0x1X */     0,    0,    1,    4,    4, IIP0,    4,    7, IIP0,    1,    2, IIP0,    3,    1,    5,    4,
-/* 0x2X */     3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-/* 0x3X */     4,    4,    4,    4,    4,    4,    4,    4, IIP0,    4,    1,    6,   22,   10, IIP0,   21,
-/* 0x4X */     1, IIP0, IIP0,    1,    1, IIP0,    1,    1,    1,    1,    1, IIP0,    1,    1, IIP0,    1,
-/* 0x5X */     1, IIP0, IIP0,    1,    1, IIP0,    1,    1,    1,    1,    1, IIP0,    1,    1, IIP0,    1,
-/* 0x6X */     6,    7,    7,    6,    6,    6,    6,    6,    6,    6,    6,    7,    6,    5,    3,    6,
-/* 0x7X */     6,    7,    7,    6,    6,    7,    6,    6,    6,    6,    6,    5,    6,    5,    3,    6,
-/* 0x8X */     2,    2,    2,    3,    2,    2,    2, IIP0,    2,    2,    2,    2,    3,    6,    3, IIP0,
-/* 0x9X */     3,    3,    3,    4,    3,    3,    3,    3,    3,    3,    3,    3,    4,    6,    4,    4,
-/* 0xAX */     4,    4,    4,    5,    4,    4,    4,    4,    4,    4,    4,    4,    5,    6,    5,    5,
-/* 0xBX */     4,    4,    4,    5,    4,    4,    4,    4,    4,    4,    4,    4,    5,    7,    5,    5,
-/* 0xCX */     2,    2,    2,    3,    2,    2,    2, IIP0,    2,    2,    2,    2,    3,    5,    3, IIP0,
-/* 0xDX */     3,    3,    3,    4,    3,    3,    3,    3,    3,    3,    3,    3,    4,    4,    4,    4,
-/* 0xEX */     4,    4,    4,    5,    4,    4,    4,    4,    4,    4,    4,    4,    5,    5,    5,    5,
-/* 0xFX */     4,    4,    4,    5,    4,    4,    4,    4,    4,    4,    4,    4,    5,    5,    5,    5
-};
+	UINT8 result = (UINT8)m_state;
+	m_state >>= 8;
+	return result;
+}
+#define reset_state() do { m_state = 0; } while (0)
 
-static UINT8 ccounts_page01_em[256] =    /* Cycle Counts Page 01, Emulated 6809 */
+#define eat(cycles) do { m_icount -= (cycles); } while (0)
+
+static inline void eat_remaining(void)
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x1X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x2X */   IIP1,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
-/* 0x3X */      4,    4,    4,    4,    4,    4,    4,    4,    6,    6,    6,    6, IIP1, IIP1, IIP1,   20,
-/* 0x4X */      2,  IIP1,IIP1,    2,    2, IIP1,    2,    2,    2,    2,    2, IIP1,    2,    2, IIP1,    2,
-/* 0x5X */   IIP1, IIP1, IIP1,    3,    3, IIP1,    3, IIP1, IIP1,    3,    3, IIP1,    3,    3, IIP1,    3,
-/* 0x6X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x7X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x8X */      5,    5,    5,    5,    5,    5,    4, IIP1,    5,    5,    5,    5,    5, IIP1,    4, IIP1,
-/* 0x9X */      7,    7,    7,    7,    7,    7,    6,    6,    7,    7,    7,    7,    7, IIP1,    6,    6,
-/* 0xAX */      7,    7,    7,    7,    7,    7,    6,    6,    7,    7,    7,    7,    7, IIP1,    6,    6,
-/* 0xBX */      8,    8,    8,    8,    8,    8,    7,    7,    8,    8,    8,    8,    8, IIP1,    7,    7,
-/* 0xCX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    4, IIP1,
-/* 0xDX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    8,    8,    6,    6,
-/* 0xEX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    8,    8,    6,    6,
-/* 0xFX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    9,    9,    7,    7
-};
+	UINT16 real_pc = m_pc.w;
+	eat(m_icount);
+	m_pc.w = m_ppc.w;
+	CALL_MAME_DEBUG;
+	m_pc.w = real_pc;
+}
 
-static UINT8 ccounts_page01_na[256] =   /* Cycle Counts Page 01, Native 6309 */
+static inline UINT8 read_memory(UINT16 address)
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x1X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x2X */   IIP1,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
-/* 0x3X */      4,    4,    4,    4,    4,    4,    4,    4,    6,    6,    6,    6, IIP1, IIP1, IIP1,   22,
-/* 0x4X */      1, IIP1, IIP1,    1,    1, IIP1,    1,    1,    1,    1,    1, IIP1,    1,    1, IIP1,    1,
-/* 0x5X */   IIP1, IIP1, IIP1,    2,    2, IIP1,    2, IIP1, IIP1,    2,    2, IIP1,    2,    2, IIP1,    1,
-/* 0x6X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x7X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x8X */      4,    4,    4,    4,    4,    4,    4, IIP1,    4,    4,    4,    4,    4, IIP1,    4, IIP1,
-/* 0x9X */      5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5,    5, IIP1,    5,    5,
-/* 0xAX */      6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6, IIP1,    6,    6,
-/* 0xBX */      6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6, IIP1,    6,    6,
-/* 0xCX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    4, IIP1,
-/* 0xDX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    7,    7,    5,    5,
-/* 0xEX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    8,    8,    6,    6,
-/* 0xFX */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    8,    8,    6,    6
-};
+	eat(1);
+	return program_read_byte_8(address);
+}
 
-static UINT8 ccounts_page11_em[256] =    /* Cycle Counts Page 11, Emulated 6809 */
+static inline void write_memory(UINT16 address, UINT8 data)
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x1X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x2X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x3X */      7,    7,    7,    7,    7,    7,    7,    8,    3,    3,    3,    3,    4,    5, IIP1,   20,
-/* 0x4X */   IIP1, IIP1, IIP1,    2, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    2, IIP1,    2,    2, IIP1,    2,
-/* 0x5X */   IIP1, IIP1, IIP1,    2, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    2, IIP1,    2,    2, IIP1,    2,
-/* 0x6X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x7X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x8X */      3,    3, IIP1,    5, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,    3,    5,   25,   34,   28,
-/* 0x9X */      5,    5, IIP1,    7, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5,    7,   27,   36,   30,
-/* 0xAX */      5,    5, IIP1,    7, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5,    7,   27,   36,   30,
-/* 0xBX */      6,    6, IIP1,    8, IIP1, IIP1,    6,    6, IIP1, IIP1, IIP1,    6,    8,   28,   37,   31,
-/* 0xCX */      3,    3, IIP1, IIP1, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,
-/* 0xDX */      5,    5, IIP1, IIP1, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5, IIP1, IIP1, IIP1, IIP1,
-/* 0xEX */      5,    5, IIP1, IIP1, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5, IIP1, IIP1, IIP1, IIP1,
-/* 0xFX */      6,    6, IIP1, IIP1, IIP1, IIP1,    6,    6, IIP1, IIP1, IIP1,    6, IIP1, IIP1, IIP1, IIP1
-};
+	eat(1);
+	program_write_byte_8(address, data);
+}
 
-static UINT8 ccounts_page11_na[256] =    /* Cycle Counts Page 11, Native 6309 */
+static inline UINT8 read_opcode_next(void)
 {
-/*           0xX0, 0xX1, 0xX2, 0xX3, 0xX4, 0xX5, 0xX6, 0xX7, 0xX8, 0xX9, 0xXA, 0xXB, 0xXC, 0xXD, 0xXE, 0xXF */
-/* 0x0X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x1X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x2X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x3X */      6,    6,    6,    6,    6,    6,    6,    7,    3,    3,    3,    3,    4,    5, IIP1,   22,
-/* 0x4X */   IIP1, IIP1, IIP1,    2, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    2, IIP1,    2,    2, IIP1,    2,
-/* 0x5X */   IIP1, IIP1, IIP1,    2, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,    2, IIP1,    2,    2, IIP1,    2,
-/* 0x6X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x7X */   IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1, IIP1,
-/* 0x8X */      3,    3, IIP1,    4, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,    3,    4,   25,   34,   28,
-/* 0x9X */      4,    4, IIP1,    5, IIP1, IIP1,    4,    4, IIP1, IIP1, IIP1,    4,    5,   26,   35,   29,
-/* 0xAX */      5,    5, IIP1,    6, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5,    6,   27,   36,   30,
-/* 0xBX */      5,    5, IIP1,    6, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5,    6,   27,   36,   30,
-/* 0xCX */      3,    3, IIP1, IIP1, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,    3, IIP1, IIP1, IIP1, IIP1,
-/* 0xDX */      4,    4, IIP1, IIP1, IIP1, IIP1,    4,    4, IIP1, IIP1, IIP1,    4, IIP1, IIP1, IIP1, IIP1,
-/* 0xEX */      5,    5, IIP1, IIP1, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5, IIP1, IIP1, IIP1, IIP1,
-/* 0xFX */      5,    5, IIP1, IIP1, IIP1, IIP1,    5,    5, IIP1, IIP1, IIP1,    5, IIP1, IIP1, IIP1, IIP1
-};
+	eat(1);
+	return cpu_readop(m_pc.w++);
+}
 
-#ifndef BIG_SWITCH
+static inline UINT8 read_opcode_arg_next(void)
+{
+	eat(1);
+	return cpu_readop_arg(m_pc.w++);
+}
 
-static void (*hd6309_main[0x100])(void) = {
-/*          0xX0,   0xX1,     0xX2,    0xX3,    0xX4,    0xX5,    0xX6,    0xX7,
-            0xX8,   0xX9,     0xXA,    0xXB,    0xXC,    0xXD,    0xXE,    0xXF   */
+static inline UINT8 read_operand(void)
+{
+	switch (m_addressing_mode)
+	{
+		case ADDRESSING_MODE_EA:            return read_memory(m_ea.w);
+		case ADDRESSING_MODE_IMMEDIATE:     return read_opcode_arg_next();
+		case ADDRESSING_MODE_REGISTER_A:    return m_d.b.h;
+		case ADDRESSING_MODE_REGISTER_B:    return m_d.b.l;
+		case ADDRESSING_MODE_REGISTER_E:    return m_w.b.h;
+		case ADDRESSING_MODE_REGISTER_F:    return m_w.b.l;
+		default:                            fatalerror("Unexpected addressing mode"); return 0x00;
+	}
+}
 
-/* 0x0X */  neg_di,  oim_di,  aim_di,  com_di,  lsr_di,  eim_di,  ror_di,  asr_di,
-            asl_di,  rol_di,  dec_di,  tim_di,  inc_di,  tst_di,  jmp_di,  clr_di,
+static inline UINT8 read_operand_ord(int ordinal)
+{
+	switch (m_addressing_mode)
+	{
+		case ADDRESSING_MODE_EA:            return read_memory(m_ea.w + ordinal);
+		case ADDRESSING_MODE_IMMEDIATE:     return read_opcode_arg_next();
+		case ADDRESSING_MODE_REGISTER_D:    return (ordinal & 1) ? m_d.b.l : m_d.b.h;
+		case ADDRESSING_MODE_REGISTER_W:    return (ordinal & 1) ? m_w.b.l : m_w.b.h;
+		case ADDRESSING_MODE_REGISTER_X:    return (ordinal & 1) ? m_x.b.l : m_x.b.h;
+		case ADDRESSING_MODE_REGISTER_Y:    return (ordinal & 1) ? m_y.b.l : m_y.b.h;
+		case ADDRESSING_MODE_REGISTER_U:    return (ordinal & 1) ? m_u.b.l : m_u.b.h;
+		case ADDRESSING_MODE_REGISTER_S:    return (ordinal & 1) ? m_s.b.l : m_s.b.h;
+		case ADDRESSING_MODE_REGISTER_V:    return (ordinal & 1) ? m_v.b.l : m_v.b.h;
+		case ADDRESSING_MODE_REGISTER_PC:   return (ordinal & 1) ? m_pc.b.l : m_pc.b.h;
+		case ADDRESSING_MODE_ZERO:          return 0x00;
+		default:                            fatalerror("Unexpected addressing mode"); return 0x00;
+	}
+}
 
-/* 0x1X */  pref10,  pref11,  nop,     sync,    sexw,    IIError, lbra,    lbsr,
-            IIError, daa,     orcc,    IIError, andcc,   sex,     exg,     tfr,
+static inline void write_operand(UINT8 data)
+{
+	switch (m_addressing_mode)
+	{
+		case ADDRESSING_MODE_EA:            write_memory(m_ea.w, data); break;
+		case ADDRESSING_MODE_REGISTER_A:    m_d.b.h = data; break;
+		case ADDRESSING_MODE_REGISTER_B:    m_d.b.l = data; break;
+		case ADDRESSING_MODE_REGISTER_E:    m_w.b.h = data; break;
+		case ADDRESSING_MODE_REGISTER_F:    m_w.b.l = data; break;
+		case ADDRESSING_MODE_ZERO:          break;
+		default:                            fatalerror("Unexpected addressing mode"); break;
+	}
+}
 
-/* 0x2X */  bra,     brn,     bhi,     bls,     bcc,     bcs,     bne,     beq,
-            bvc,     bvs,     bpl,     bmi,     bge,     blt,     bgt,     ble,
+static inline void write_operand_ord(int ordinal, UINT8 data)
+{
+	switch (m_addressing_mode)
+	{
+		case ADDRESSING_MODE_EA:            write_memory(m_ea.w + ordinal, data); break;
+		case ADDRESSING_MODE_REGISTER_D:    *((ordinal & 1) ? &m_d.b.l : &m_d.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_W:    *((ordinal & 1) ? &m_w.b.l : &m_w.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_X:    *((ordinal & 1) ? &m_x.b.l : &m_x.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_Y:    *((ordinal & 1) ? &m_y.b.l : &m_y.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_U:    *((ordinal & 1) ? &m_u.b.l : &m_u.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_S:    *((ordinal & 1) ? &m_s.b.l : &m_s.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_V:    *((ordinal & 1) ? &m_v.b.l : &m_v.b.h) = data; break;
+		case ADDRESSING_MODE_REGISTER_PC:   *((ordinal & 1) ? &m_pc.b.l : &m_pc.b.h) = data; change_pc(m_pc.w); break;
+		case ADDRESSING_MODE_ZERO:          break;
+		default:                            fatalerror("Unexpected addressing mode"); break;
+	}
+}
 
-/* 0x3X */  leax,    leay,    leas,    leau,    pshs,    puls,    pshu,    pulu,
-            IIError, rts,     abx,     rti,     cwai,    mul,     IIError, swi,
+#define set_a()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_A; } while (0)
+#define set_b()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_B; } while (0)
+#define set_d()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_D; } while (0)
+#define set_e()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_E; } while (0)
+#define set_f()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_F; } while (0)
+#define set_w()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_W; } while (0)
+#define set_v()    do { m_addressing_mode = ADDRESSING_MODE_REGISTER_V; } while (0)
+#define set_cc()   do { m_addressing_mode = ADDRESSING_MODE_REGISTER_CC; } while (0)
+#define set_dp()   do { m_addressing_mode = ADDRESSING_MODE_REGISTER_DP; } while (0)
+#define set_zero() do { m_addressing_mode = ADDRESSING_MODE_ZERO; } while (0)
+#define set_imm()  do { m_addressing_mode = ADDRESSING_MODE_IMMEDIATE; } while (0)
 
-/* 0x4X */  nega,    IIError, IIError, coma,    lsra,    IIError, rora,    asra,
-            asla,    rola,    deca,    IIError, inca,    tsta,    IIError, clra,
+#define read_ea()            read_memory(m_ea.w)
+#define write_ea(data)       write_memory(m_ea.w, data)
+#define set_ea(ea)           do { m_ea.w = (ea); m_addressing_mode = ADDRESSING_MODE_EA; } while (0)
+#define set_ea_h(ea_h)       do { m_ea.b.h = (ea_h); } while (0)
+#define set_ea_l(ea_l)       do { m_ea.b.l = (ea_l); m_addressing_mode = ADDRESSING_MODE_EA; } while (0)
 
-/* 0x5X */  negb,    IIError, IIError, comb,    lsrb,    IIError, rorb,    asrb,
-            aslb,    rolb,    decb,    IIError, incb,    tstb,    IIError, clrb,
+#define set_regop8(r)   do { m_reg8 = &(r); m_reg16 = NULL; } while (0)
+#define set_regop16(r)  do { m_reg16 = &(r); m_reg8 = NULL; } while (0)
+#define regop8()        (*m_reg8)
+#define regop16()       (*m_reg16)
 
-/* 0x6X */  neg_ix,  oim_ix,  aim_ix,  com_ix,  lsr_ix,  eim_ix,  ror_ix,  asr_ix,
-            asl_ix,  rol_ix,  dec_ix,  tim_ix,  inc_ix,  tst_ix,  jmp_ix,  clr_ix,
+static inline UINT16 *hd6309_get_ireg(void)
+{
+	switch (m_opcode & 0x60)
+	{
+		case 0x00: return &m_x.w;
+		case 0x20: return &m_y.w;
+		case 0x40: return &m_u.w;
+		case 0x60: return &m_s.w;
+		default:   fatalerror("Unexpected ireg"); return &m_x.w;
+	}
+}
+#define ireg() (*hd6309_get_ireg())
 
-/* 0x7X */  neg_ex,  oim_ex,  aim_ex,  com_ex,  lsr_ex,  eim_ex,  ror_ex,  asr_ex,
-            asl_ex,  rol_ex,  dec_ex,  tim_ex,  inc_ex,  tst_ex,  jmp_ex,  clr_ex,
+static inline UINT8 set_flags8_full(UINT8 mask, UINT8 a, UINT8 b, UINT32 r)
+{
+	m_cc &= ~mask;
+	if (mask & CC_H)
+		m_cc |= ((a ^ b ^ r) & 0x10) ? CC_H : 0;
+	if (mask & CC_N)
+		m_cc |= (r & 0x80) ? CC_N : 0;
+	if (mask & CC_Z)
+		m_cc |= (((UINT8)r) == 0) ? CC_Z : 0;
+	if (mask & CC_V)
+		m_cc |= ((a ^ b ^ r ^ (r >> 1)) & 0x80) ? CC_V : 0;
+	if (mask & CC_C)
+		m_cc |= (r & 0x100) ? CC_C : 0;
+	return (UINT8)r;
+}
 
-/* 0x8X */  suba_im, cmpa_im, sbca_im, subd_im, anda_im, bita_im, lda_im,  IIError,
-            eora_im, adca_im, ora_im,  adda_im, cmpx_im, bsr,     ldx_im,  IIError,
+static inline UINT16 set_flags16_full(UINT8 mask, UINT16 a, UINT16 b, UINT32 r)
+{
+	m_cc &= ~mask;
+	if (mask & CC_H)
+		m_cc |= ((a ^ b ^ r) & 0x10) ? CC_H : 0;
+	if (mask & CC_N)
+		m_cc |= (r & 0x8000) ? CC_N : 0;
+	if (mask & CC_Z)
+		m_cc |= (((UINT16)r) == 0) ? CC_Z : 0;
+	if (mask & CC_V)
+		m_cc |= ((a ^ b ^ r ^ (r >> 1)) & 0x8000) ? CC_V : 0;
+	if (mask & CC_C)
+		m_cc |= (r & 0x10000) ? CC_C : 0;
+	return (UINT16)r;
+}
 
-/* 0x9X */  suba_di, cmpa_di, sbca_di, subd_di, anda_di, bita_di, lda_di,  sta_di,
-            eora_di, adca_di, ora_di,  adda_di, cmpx_di, jsr_di,  ldx_di,  stx_di,
+static inline UINT32 set_flags32_full(UINT8 mask, UINT32 a, UINT32 b, UINT64 r)
+{
+	m_cc &= ~mask;
+	if (mask & CC_H)
+		m_cc |= ((a ^ b ^ r) & 0x10) ? CC_H : 0;
+	if (mask & CC_N)
+		m_cc |= (r & 0x80000000U) ? CC_N : 0;
+	if (mask & CC_Z)
+		m_cc |= (((UINT32)r) == 0) ? CC_Z : 0;
+	if (mask & CC_V)
+		m_cc |= ((a ^ b ^ r ^ (r >> 1)) & 0x80000000U) ? CC_V : 0;
+	if (mask & CC_C)
+		m_cc |= (r & 0x100000000ULL) ? CC_C : 0;
+	return (UINT32)r;
+}
 
-/* 0xAX */  suba_ix, cmpa_ix, sbca_ix, subd_ix, anda_ix, bita_ix, lda_ix,  sta_ix,
-            eora_ix, adca_ix, ora_ix,  adda_ix, cmpx_ix, jsr_ix,  ldx_ix,  stx_ix,
+static inline UINT8 set_flags8_2(UINT8 mask, UINT8 r)
+{
+	return set_flags8_full(mask, 0, r, r);
+}
 
-/* 0xBX */  suba_ex, cmpa_ex, sbca_ex, subd_ex, anda_ex, bita_ex, lda_ex,  sta_ex,
-            eora_ex, adca_ex, ora_ex,  adda_ex, cmpx_ex, jsr_ex,  ldx_ex,  stx_ex,
+static inline UINT16 set_flags16_2(UINT8 mask, UINT16 r)
+{
+	return set_flags16_full(mask, 0, r, r);
+}
 
-/* 0xCX */  subb_im, cmpb_im, sbcb_im, addd_im, andb_im, bitb_im, ldb_im,  IIError,
-            eorb_im, adcb_im, orb_im,  addb_im, ldd_im,  ldq_im,  ldu_im,  IIError,
+static inline UINT32 set_flags32_2(UINT8 mask, UINT32 r)
+{
+	return set_flags32_full(mask, 0, r, r);
+}
 
-/* 0xDX */  subb_di, cmpb_di, sbcb_di, addd_di, andb_di, bitb_di, ldb_di,  stb_di,
-            eorb_di, adcb_di, orb_di,  addb_di, ldd_di,  std_di,  ldu_di,  stu_di,
+#define GET_SET_FLAGS_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define set_flags8(...)  GET_SET_FLAGS_MACRO(__VA_ARGS__, set_flags8_full,  unused, set_flags8_2)(__VA_ARGS__)
+#define set_flags16(...) GET_SET_FLAGS_MACRO(__VA_ARGS__, set_flags16_full, unused, set_flags16_2)(__VA_ARGS__)
+#define set_flags32(...) GET_SET_FLAGS_MACRO(__VA_ARGS__, set_flags32_full, unused, set_flags32_2)(__VA_ARGS__)
 
-/* 0xEX */  subb_ix, cmpb_ix, sbcb_ix, addd_ix, andb_ix, bitb_ix, ldb_ix,  stb_ix,
-            eorb_ix, adcb_ix, orb_ix,  addb_ix, ldd_ix,  std_ix,  ldu_ix,  stu_ix,
+#define set_flags_4(mask, a, b, r) 	(sizeof(a) == 1 ? set_flags8_full((mask), (a), (b), (r)) : 	 sizeof(a) == 2 ? set_flags16_full((mask), (a), (b), (r)) : 	 set_flags32_full((mask), (a), (b), (r)))
 
-/* 0xFX */  subb_ex, cmpb_ex, sbcb_ex, addd_ex, andb_ex, bitb_ex, ldb_ex,  stb_ex,
-            eorb_ex, adcb_ex, orb_ex,  addb_ex, ldd_ex,  std_ex,  ldu_ex,  stu_ex
-};
+#define set_flags_2(mask, r) 	(sizeof(r) == 1 ? set_flags8_2((mask), (r)) : 	 sizeof(r) == 2 ? set_flags16_2((mask), (r)) : 	 set_flags32_2((mask), (r)))
 
-static void (*hd6309_page01[0x100])(void) = {
-/*          0xX0,   0xX1,     0xX2,    0xX3,    0xX4,    0xX5,    0xX6,    0xX7,
-            0xX8,   0xX9,     0xXA,    0xXB,    0xXC,    0xXD,    0xXE,    0xXF   */
+#define set_flags(...) GET_SET_FLAGS_MACRO(__VA_ARGS__, set_flags_4, unused, set_flags_2)(__VA_ARGS__)
 
-/* 0x0X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+static inline UINT8 rotate_right8(UINT8 value)
+{
+	UINT8 new_carry = (value & 1);
+	value = value >> 1;
+	if (m_cc & CC_C) value |= 0x80;
+	else value &= ~0x80;
+	if (new_carry) m_cc |= CC_C;
+	else m_cc &= ~CC_C;
+	return value;
+}
 
-/* 0x1X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+static inline UINT16 rotate_right16(UINT16 value)
+{
+	UINT8 new_carry = (value & 1);
+	value = value >> 1;
+	if (m_cc & CC_C) value |= 0x8000;
+	else value &= ~0x8000;
+	if (new_carry) m_cc |= CC_C;
+	else m_cc &= ~CC_C;
+	return value;
+}
 
-/* 0x2X */  IIError, lbrn,    lbhi,    lbls,    lbcc,    lbcs,    lbne,    lbeq,
-			lbvc,    lbvs,    lbpl,    lbmi,    lbge,    lblt,    lbgt,    lble,
+static inline UINT32 rotate_left8(UINT8 value)
+{
+	UINT8 new_carry = (value & 0x80);
+	UINT32 new_value = (UINT32)value << 1;
+	if (m_cc & CC_C) new_value |= 1;
+	else new_value &= ~1;
+	if (new_carry) m_cc |= CC_C;
+	else m_cc &= ~CC_C;
+	return new_value;
+}
 
-/* 0x3X */  addr_r,  adcr,    subr,    sbcr,    andr,    orr,     eorr,    cmpr,
-			pshsw,   pulsw,   pshuw,   puluw,   IIError, IIError, IIError, swi2,
+static inline UINT32 rotate_left16(UINT16 value)
+{
+	UINT8 new_carry = (value & 0x8000) ? 1 : 0;
+	UINT32 new_value = (UINT32)value << 1;
+	if (m_cc & CC_C) new_value |= 1;
+	else new_value &= ~1;
+	if (new_carry) m_cc |= CC_C;
+	else m_cc &= ~CC_C;
+	return new_value;
+}
 
-/* 0x4X */  negd,    IIError, IIError, comd,    lsrd,    IIError, rord,    asrd,
-			asld,    rold,    decd,    IIError, incd,    tstd,    IIError, clrd,
+#define rotate_right(val) (sizeof(val) == 1 ? rotate_right8(val) : rotate_right16(val))
+#define rotate_left(val)  (sizeof(val) == 1 ? rotate_left8(val) : rotate_left16(val))
 
-/* 0x5X */  IIError, IIError, IIError, comw,    lsrw,    IIError, rorw,    IIError,
-			IIError, rolw,    decw,    IIError, incw,    tstw,    IIError, clrw,
+static inline void daa(void)
+{
+	UINT16 t, cf = 0;
+	UINT8 msn = m_d.b.h & 0xF0;
+	UINT8 lsn = m_d.b.h & 0x0F;
 
-/* 0x6X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+	if (lsn > 0x09 || (m_cc & CC_H)) cf |= 0x06;
+	if (msn > 0x80 && lsn > 0x09)    cf |= 0x60;
+	if (msn > 0x90 || (m_cc & CC_C)) cf |= 0x60;
 
-/* 0x7X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+	t = m_d.b.h + cf;
 
-/* 0x8X */  subw_im, cmpw_im, sbcd_im, cmpd_im, andd_im, bitd_im, ldw_im,  IIError,
-			eord_im, adcd_im, ord_im,  addw_im, cmpy_im, IIError, ldy_im,  IIError,
+	m_cc &= ~CC_V;
+	if (t & 0x0100)
+		m_cc |= CC_C;
 
-/* 0x9X */  subw_di, cmpw_di, sbcd_di, cmpd_di, andd_di, bitd_di, ldw_di,  stw_di,
-			eord_di, adcd_di, ord_di,  addw_di, cmpy_di, IIError, ldy_di,  sty_di,
+	m_d.b.h = set_flags8(CC_NZ, (UINT8)t);
+}
 
-/* 0xAX */  subw_ix, cmpw_ix, sbcd_ix, cmpd_ix, andd_ix, bitd_ix, ldw_ix,  stw_ix,
-			eord_ix, adcd_ix, ord_ix,  addw_ix, cmpy_ix, IIError, ldy_ix,  sty_ix,
+static inline void mul(void)
+{
+	UINT16 result = ((UINT16)m_d.b.h) * ((UINT16)m_d.b.l);
+	m_d.w = set_flags16(CC_Z, result);
+	if (m_d.w & 0x0080)
+		m_cc |= CC_C;
+	else
+		m_cc &= ~CC_C;
+}
 
-/* 0xBX */  subw_ex, cmpw_ex, sbcd_ex, cmpd_ex, andd_ex, bitd_ex, ldw_ex,  stw_ex,
-			eord_ex, adcd_ex, ord_ex,  addw_ex, cmpy_ex, IIError, ldy_ex,  sty_ex,
+#define cond_hi()   (!((m_cc & CC_ZC)))
+#define cond_cc()   (!(m_cc & CC_C))
+#define cond_ne()   (!(m_cc & CC_Z))
+#define cond_vc()   (!(m_cc & CC_V))
+#define cond_pl()   (!(m_cc & CC_N))
+#define cond_ge()   (((m_cc & CC_N) ? 1 : 0) == ((m_cc & CC_V) ? 1 : 0))
+#define cond_gt()   (cond_ge() && !(m_cc & CC_Z))
+#define set_cond(c) do { m_cond = (c); } while (0)
+#define branch_taken() (m_cond)
 
-/* 0xCX */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, lds_im,  IIError,
+#define is_register_addressing_mode() ((m_addressing_mode != ADDRESSING_MODE_IMMEDIATE) && (m_addressing_mode != ADDRESSING_MODE_EA))
+#define nop() do { } while (0)
+#define m_lic_func(x) do { } while (0)
+#define firq_saves_entire_state() ((m_md & 1) != 0)
+#define entire_state_registers() 0xFF
+#define partial_state_registers() 0x81
+#define add8_sets_h() 1
+#define hd6309_native_mode() ((m_md & 1) != 0)
+#define is_register_register_op_16_bit() (m_reg16 != NULL)
+#define log_illegal() logerror("illegal opcode at %04x\n", (unsigned)m_pc.w)
+#ifndef UNEXPECTED
+#define UNEXPECTED(x) __builtin_expect((x), 0)
+#endif
 
-/* 0xDX */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, ldq_di,  stq_di,  lds_di,  sts_di,
+#define standard_irq_callback(line) do { if (hd6309.irq_callback) (*hd6309.irq_callback)(line); } while (0)
 
-/* 0xEX */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, ldq_ix,  stq_ix,  lds_ix,  sts_ix,
+static inline UINT16 get_pending_interrupt(void)
+{
+	if (m_nmi_asserted)
+		return VECTOR_NMI;
+	else if (!(m_cc & CC_F) && m_firq_line)
+		return VECTOR_FIRQ;
+	else if (!(m_cc & CC_I) && m_irq_line)
+		return VECTOR_IRQ;
+	else
+		return 0;
+}
 
-/* 0xFX */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, ldq_ex,  stq_ex,  lds_ex,  sts_ex
-};
-static void (*hd6309_page11[0x100])(void) = {
-/*          0xX0,   0xX1,     0xX2,    0xX3,    0xX4,    0xX5,    0xX6,    0xX7,
-            0xX8,   0xX9,     0xXA,    0xXB,    0xXC,    0xXD,    0xXE,    0xXF   */
+static inline hd6309_exgtfr_register read_exgtfr_register(UINT8 reg)
+{
+	UINT16 value;
 
-/* 0x0X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+	switch (reg & 0x0F)
+	{
+		case  0: value = m_d.w;                             break;
+		case  1: value = m_x.w;                             break;
+		case  2: value = m_y.w;                             break;
+		case  3: value = m_u.w;                             break;
+		case  4: value = m_s.w;                             break;
+		case  5: value = m_pc.w;                            break;
+		case  6: value = m_w.w;                             break;
+		case  7: value = m_v.w;                             break;
+		case  8: value = ((UINT16) m_d.b.h) << 8 | m_d.b.h; break;
+		case  9: value = ((UINT16) m_d.b.l) << 8 | m_d.b.l; break;
+		case 10: value = ((UINT16) m_cc) << 8 | m_cc;       break;
+		case 11: value = ((UINT16) m_dp) << 8 | m_dp;       break;
+		case 12: value = 0;                                 break;
+		case 13: value = 0;                                 break;
+		case 14: value = ((UINT16) m_w.b.h) << 8 | m_w.b.h; break;
+		case 15: value = ((UINT16) m_w.b.l) << 8 | m_w.b.l; break;
+		default: fatalerror("Should not reach here"); value = 0; break;
+	}
 
-/* 0x1X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+	hd6309_exgtfr_register result;
+	result.byte_value = (UINT8)value;
+	result.word_value = value;
+	return result;
+}
 
-/* 0x2X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+static inline void write_exgtfr_register(UINT8 reg, hd6309_exgtfr_register value)
+{
+	switch (reg & 0x0F)
+	{
+		case  0: m_d.w   = value.word_value;                break;
+		case  1: m_x.w   = value.word_value;                break;
+		case  2: m_y.w   = value.word_value;                break;
+		case  3: m_u.w   = value.word_value;                break;
+		case  4: m_s.w   = value.word_value;                break;
+		case  5: m_pc.w  = value.word_value; change_pc(m_pc.w); break;
+		case  6: m_w.w   = value.word_value;                break;
+		case  7: m_v.w   = value.word_value;                break;
+		case  8: m_d.b.h = (UINT8) (value.word_value >> 8); break;
+		case  9: m_d.b.l = (UINT8) (value.word_value >> 0); break;
+		case 10: m_cc    = (UINT8) (value.word_value >> 0); break;
+		case 11: m_dp    = (UINT8) (value.word_value >> 8); break;
+		case 12:                                            break;
+		case 13:                                            break;
+		case 14: m_w.b.h = (UINT8) (value.word_value >> 8); break;
+		case 15: m_w.b.l = (UINT8) (value.word_value >> 0); break;
+		default: fatalerror("Should not reach here");       break;
+	}
+}
 
-/* 0x3X */  band,    biand,   bor,     bior,    beor,    bieor,   ldbt,    stbt,
-			tfmpp,   tfmmm,   tfmpc,   tfmcp,   bitmd_im,ldmd_im, IIError, swi3,
+static inline UINT8 *bittest_register(void)
+{
+	switch (m_temp_im & 0xC0)
+	{
+		case 0x00: return &m_cc;
+		case 0x40: return &m_d.b.h;
+		case 0x80: return &m_d.b.l;
+		default:   return &m_temp.b.l;
+	}
+}
 
-/* 0x4X */  IIError, IIError, IIError, come,    IIError, IIError, IIError, IIError,
-			IIError, IIError, dece,    IIError, ince,    tste,    IIError, clre,
+static inline bool bittest_source(void)
+{
+	return (m_temp.b.l & (1 << ((m_temp_im >> 3) & 0x07))) ? true : false;
+}
 
-/* 0x5X */  IIError, IIError, IIError, comf,    IIError, IIError, IIError, IIError,
-			IIError, IIError, decf,    IIError, incf,    tstf,    IIError, clrf,
+static inline bool bittest_dest(void)
+{
+	return (*bittest_register() & (1 << ((m_temp_im >> 0) & 0x07))) ? true : false;
+}
 
-/* 0x6X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+static inline void bittest_set(bool result)
+{
+	if (result)
+		*bittest_register() |= (1 << ((m_temp_im >> 0) & 0x07));
+	else
+		*bittest_register() &= ~(1 << ((m_temp_im >> 0) & 0x07));
+	eat(4);
+}
 
-/* 0x7X */  IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
-			IIError, IIError, IIError, IIError, IIError, IIError, IIError, IIError,
+static inline bool hd6309_tfr_read(UINT8 opcode, UINT8 arg, UINT8 *data)
+{
+	PAIR16 *reg;
+	switch (arg & 0xF0)
+	{
+		case 0x00: reg = &m_d; break;
+		case 0x10: reg = &m_x; break;
+		case 0x20: reg = &m_y; break;
+		case 0x30: reg = &m_u; break;
+		case 0x40: reg = &m_s; break;
+		default:   return false;
+	}
 
-/* 0x8X */  sube_im, cmpe_im, IIError, cmpu_im, IIError, IIError, lde_im,  IIError,
-			IIError, IIError, IIError, adde_im, cmps_im, divd_im, divq_im, muld_im,
+	*data = read_memory(reg->w);
 
-/* 0x9X */  sube_di, cmpe_di, IIError, cmpu_di, IIError, IIError, lde_di,  ste_di,
-			IIError, IIError, IIError, adde_di, cmps_di, divd_di, divq_di, muld_di,
+	switch (opcode & 0x03)
+	{
+		case 0x00: reg->w++; break;
+		case 0x01: reg->w--; break;
+		case 0x02: reg->w++; break;
+		case 0x03: break;
+	}
+	return true;
+}
+#define tfr_read(op, arg, data) hd6309_tfr_read((op), (arg), &(data))
 
-/* 0xAX */  sube_ix, cmpe_ix, IIError, cmpu_ix, IIError, IIError, lde_ix,  ste_ix,
-			IIError, IIError, IIError, adde_ix, cmps_ix, divd_ix, divq_ix, muld_ix,
+static inline bool hd6309_tfr_write(UINT8 opcode, UINT8 arg, UINT8 data)
+{
+	PAIR16 *reg;
+	switch (arg & 0x0F)
+	{
+		case 0x00: reg = &m_d; break;
+		case 0x01: reg = &m_x; break;
+		case 0x02: reg = &m_y; break;
+		case 0x03: reg = &m_u; break;
+		case 0x04: reg = &m_s; break;
+		default:   return false;
+	}
 
-/* 0xBX */  sube_ex, cmpe_ex, IIError, cmpu_ex, IIError, IIError, lde_ex,  ste_ex,
-			IIError, IIError, IIError, adde_ex, cmps_ex, divd_ex, divq_ex, muld_ex,
+	write_memory(reg->w, data);
 
-/* 0xCX */  subf_im, cmpf_im, IIError, IIError, IIError, IIError, ldf_im,  IIError,
-			IIError, IIError, IIError, addf_im, IIError, IIError, IIError, IIError,
+	switch (opcode & 0x03)
+	{
+		case 0x00: reg->w++; break;
+		case 0x01: reg->w--; break;
+		case 0x02: break;
+		case 0x03: reg->w++; break;
+	}
+	return true;
+}
+#define tfr_write(op, arg, data) hd6309_tfr_write((op), (arg), (data))
 
-/* 0xDX */  subf_di, cmpf_di, IIError, IIError, IIError, IIError, ldf_di,  stf_di,
-			IIError, IIError, IIError, addf_di, IIError, IIError, IIError, IIError,
+static inline void register_register_op(void)
+{
+	UINT8 operand = read_opcode_arg_next();
+	bool promote = ((operand & 0x80) ? true : false) != ((operand & 0x08) ? true : false);
 
-/* 0xEX */  subf_ix, cmpf_ix, IIError, IIError, IIError, IIError, ldf_ix,  stf_ix,
-			IIError, IIError, IIError, addf_ix, IIError, IIError, IIError, IIError,
+	m_temp.w = 0;
 
-/* 0xFX */  subf_ex, cmpf_ex, IIError, IIError, IIError, IIError, ldf_ex,  stf_ex,
-			IIError, IIError, IIError, addf_ex, IIError, IIError, IIError, IIError
+	switch ((operand >> 0) & 0x0F)
+	{
+		case  0: set_regop16(m_d);                                            break;
+		case  1: set_regop16(m_x);                                            break;
+		case  2: set_regop16(m_y);                                            break;
+		case  3: set_regop16(m_u);                                            break;
+		case  4: set_regop16(m_s);                                            break;
+		case  5: set_regop16(m_pc);                                           break;
+		case  6: set_regop16(m_w);                                            break;
+		case  7: set_regop16(m_v);                                            break;
+		case  8: if (promote) set_regop16(m_d);    else set_regop8(m_d.b.h);  break;
+		case  9: if (promote) set_regop16(m_d);    else set_regop8(m_d.b.l);  break;
+		case 10: if (promote) set_regop16(m_temp); else set_regop8(m_cc);     break;
+		case 11: if (promote) set_regop16(m_temp); else set_regop8(m_dp);     break;
+		case 12: if (promote) set_regop16(m_temp); else set_regop8(m_temp.b.l); break;
+		case 13: if (promote) set_regop16(m_temp); else set_regop8(m_temp.b.l); break;
+		case 14: if (promote) set_regop16(m_w);    else set_regop8(m_w.b.h);  break;
+		case 15: if (promote) set_regop16(m_w);    else set_regop8(m_w.b.l);  break;
+		default: fatalerror("Should not reach here"); break;
+	}
 
-};
+	switch ((operand >> 4) & 0x0F)
+	{
+		case  0: m_addressing_mode = ADDRESSING_MODE_REGISTER_D;                                        break;
+		case  1: m_addressing_mode = ADDRESSING_MODE_REGISTER_X;                                        break;
+		case  2: m_addressing_mode = ADDRESSING_MODE_REGISTER_Y;                                        break;
+		case  3: m_addressing_mode = ADDRESSING_MODE_REGISTER_U;                                        break;
+		case  4: m_addressing_mode = ADDRESSING_MODE_REGISTER_S;                                        break;
+		case  5: m_addressing_mode = ADDRESSING_MODE_REGISTER_PC;                                       break;
+		case  6: m_addressing_mode = ADDRESSING_MODE_REGISTER_W;                                        break;
+		case  7: m_addressing_mode = ADDRESSING_MODE_REGISTER_V;                                        break;
+		case  8: m_addressing_mode = promote ? ADDRESSING_MODE_REGISTER_D : ADDRESSING_MODE_REGISTER_A; break;
+		case  9: m_addressing_mode = promote ? ADDRESSING_MODE_REGISTER_D : ADDRESSING_MODE_REGISTER_B; break;
+		case 10: m_addressing_mode = promote ? ADDRESSING_MODE_ZERO : ADDRESSING_MODE_REGISTER_CC;      break;
+		case 11: m_addressing_mode = promote ? ADDRESSING_MODE_ZERO : ADDRESSING_MODE_REGISTER_DP;      break;
+		case 12: m_addressing_mode = ADDRESSING_MODE_ZERO;                                              break;
+		case 13: m_addressing_mode = ADDRESSING_MODE_ZERO;                                              break;
+		case 14: m_addressing_mode = promote ? ADDRESSING_MODE_REGISTER_W : ADDRESSING_MODE_REGISTER_E; break;
+		case 15: m_addressing_mode = promote ? ADDRESSING_MODE_REGISTER_W : ADDRESSING_MODE_REGISTER_F; break;
+		default: fatalerror("Should not reach here");                                                   break;
+	}
 
-#endif /* BIG_SWITCH */
+	eat(1);
+}
+
+static inline UINT32 get_q(void)
+{
+	PAIR result;
+	result.w.h = m_d.w;
+	result.w.l = m_w.w;
+	return result.d;
+}
+
+static inline void put_q(UINT32 value)
+{
+	PAIR pair;
+	pair.d = value;
+	m_d.w = pair.w.h;
+	m_w.w = pair.w.l;
+}
+
+static inline void muld(void)
+{
+	INT32 result = ((INT16) m_d.w) * ((INT16) m_temp.w);
+	put_q(set_flags32(CC_NZ, result));
+	m_cc &= ~CC_VC;
+}
+
+static inline bool divq(void)
+{
+	INT32 result;
+	if (m_temp.w == 0)
+		return false;
+
+	INT32 q = get_q();
+	INT32 old_q = q;
+
+	result = q / (INT16) m_temp.w;
+	m_d.w = q % (INT16) m_temp.w;
+
+	m_w.w = set_flags16(CC_NZ, result);
+
+	if (m_w.w & 0x0001)
+		m_cc |= CC_C;
+	else
+		m_cc &= ~CC_C;
+
+	if ((result > 32768) || (result < -32767))
+	{
+		m_cc |= CC_V;
+		if ((result > 65536) || (result < -65535))
+		{
+			if (old_q < 0)
+				m_cc |= CC_N;
+			else if (old_q == 0)
+				m_cc |= CC_Z;
+
+			put_q(old_q);
+		}
+	}
+	else
+	{
+		m_cc &= ~CC_V;
+	}
+
+	return true;
+}
+
+static inline bool divd(void)
+{
+	if (m_temp.b.l == 0)
+		return false;
+
+	INT16 old_d = m_d.w;
+	INT16 result;
+
+	result = ((INT16) m_d.w) / (INT8) m_temp.b.l;
+	m_d.b.h = ((INT16) m_d.w) % (INT8) m_temp.b.l;
+
+	m_d.b.l = set_flags8(CC_NZ, result);
+
+	if (m_d.b.l & 0x01)
+		m_cc |= CC_C;
+	else
+		m_cc &= ~CC_C;
+
+	if ((result > 128) || (result < -127))
+	{
+		m_cc |= CC_V;
+		if ((result > 256) || (result < -255))
+		{
+			set_flags16(CC_NZ, old_d);
+			m_d.w = abs(old_d);
+		}
+	}
+	else
+	{
+		m_cc &= ~CC_V;
+	}
+
+	return true;
+}

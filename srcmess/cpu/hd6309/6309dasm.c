@@ -1,23 +1,11 @@
-/* this code was hacked out of the fully-featured 6809 disassembler by Sean Riddle */
-/* and then mutliated into a 6309 disassembler by tim lindner                      */
+// license:BSD-3-Clause
+// copyright-holders:Sean Riddle, Tim Lindner
+/*****************************************************************************
 
-/* 6309dasm.c - a 6309 opcode disassembler      */
-/* Version 1.0 5-AUG-2000                       */
-/* Copyright 2000 tim lindner                   */
-/*                                              */
-/* based on:                                    */
-/*      6809dasm.c - a 6809 opcode disassembler */
-/*      Version 1.4 1-MAR-95                    */
-/*      Copyright 1995 Sean Riddle              */
-/*                                              */
-/*      thanks to Franklin Bowen for bug fixes, ideas */
+    6309dasm.c - a 6309 opcode disassembler
 
-/* Freely distributable on any medium given all copyrights are retained */
-/* by the author and no charge greater than $7.00 is made for obtaining */
-/* this software */
+*****************************************************************************/
 
-/* Please send all bug reports, update ideas and data files to: */
-/* tlindner@ix.netcom.com */
 
 #include "debugger.h"
 #include "hd6309.h"
