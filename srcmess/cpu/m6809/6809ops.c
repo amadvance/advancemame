@@ -1,3087 +1,1781 @@
-/*
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 
-HNZVC
-
-? = undefined
-* = affected
-- = unaffected
-0 = cleared
-1 = set
-# = CCr directly affected by instruction
-@ = special - carry set if bit 7 is set
-
-*/
-
-#ifdef NEW
-static void illegal( void )
-#else
-INLINE void illegal( void )
-#endif
-{
-	logerror("M6809: illegal opcode at %04x\n",PC);
-}
-
-#ifdef macintosh
-#pragma mark ____0x____
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
-/* $00 NEG direct ?**** */
-INLINE void neg_di( void )
+static void m6809_execute_one(void)
 {
-	UINT16 r,t;
-	DIRBYTE(t);
-	r = -t;
-	CLR_NZVC;
-	SET_FLAGS8(0,t,r);
-	WM(EAD,r);
-}
-
-/* $01 ILLEGAL */
-
-/* $02 ILLEGAL */
-
-/* $03 COM direct -**01 */
-INLINE void com_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	t = ~t;
-	CLR_NZV;
-	SET_NZ8(t);
-	SEC;
-	WM(EAD,t);
-}
-
-/* $04 LSR direct -0*-* */
-INLINE void lsr_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	CLR_NZC;
-	CC |= (t & CC_C);
-	t >>= 1;
-	SET_Z8(t);
-	WM(EAD,t);
-}
-
-/* $05 ILLEGAL */
-
-/* $06 ROR direct -**-* */
-INLINE void ror_di( void )
-{
-	UINT8 t,r;
-	DIRBYTE(t);
-	r= (CC & CC_C) << 7;
-	CLR_NZC;
-	CC |= (t & CC_C);
-	r |= t>>1;
-	SET_NZ8(r);
-	WM(EAD,r);
-}
-
-/* $07 ASR direct ?**-* */
-INLINE void asr_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	CLR_NZC;
-	CC |= (t & CC_C);
-	t = (t & 0x80) | (t >> 1);
-	SET_NZ8(t);
-	WM(EAD,t);
-}
-
-/* $08 ASL direct ?**** */
-INLINE void asl_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = t << 1;
-	CLR_NZVC;
-	SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $09 ROL direct -**** */
-INLINE void rol_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = (CC & CC_C) | (t << 1);
-	CLR_NZVC;
-	SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $0A DEC direct -***- */
-INLINE void dec_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	--t;
-	CLR_NZV;
-	SET_FLAGS8D(t);
-	WM(EAD,t);
-}
-
-/* $0B ILLEGAL */
-
-/* $OC INC direct -***- */
-INLINE void inc_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	++t;
-	CLR_NZV;
-	SET_FLAGS8I(t);
-	WM(EAD,t);
-}
-
-/* $OD TST direct -**0- */
-INLINE void tst_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	CLR_NZV;
-	SET_NZ8(t);
-}
-
-/* $0E JMP direct ----- */
-INLINE void jmp_di( void )
-{
-	DIRECT;
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $0F CLR direct -0100 */
-INLINE void clr_di( void )
-{
-	DIRECT;
-#ifdef MESS
-	RM(EAD);
-#endif
-	WM(EAD,0);
-	CLR_NZVC;
-	SEZ;
-}
-
-#ifdef macintosh
-#pragma mark ____1x____
-#endif
-
-/* $10 FLAG */
-
-/* $11 FLAG */
-
-/* $12 NOP inherent ----- */
-INLINE void nop( void )
-{
-	;
-}
-
-/* $13 SYNC inherent ----- */
-INLINE void sync( void )
-{
-	/* SYNC stops processing instructions until an interrupt request happens. */
-	/* This doesn't require the corresponding interrupt to be enabled: if it */
-	/* is disabled, execution continues with the next instruction. */
-	m6809.int_state |= M6809_SYNC;	 /* HJB 990227 */
-	CHECK_IRQ_LINES;
-	/* if M6809_SYNC has not been cleared by CHECK_IRQ_LINES,
-     * stop execution until the interrupt lines change. */
-	if( m6809.int_state & M6809_SYNC )
-		if (m6809_ICount > 0) m6809_ICount = 0;
-}
-
-/* $14 ILLEGAL */
-
-/* $15 ILLEGAL */
-
-/* $16 LBRA relative ----- */
-INLINE void lbra( void )
-{
-	IMMWORD(ea);
-	PC += EA;
-	CHANGE_PC;
-
-	if ( EA == 0xfffd )  /* EHC 980508 speed up busy loop */
-		if ( m6809_ICount > 0)
-			m6809_ICount = 0;
-}
-
-/* $17 LBSR relative ----- */
-INLINE void lbsr( void )
-{
-	IMMWORD(ea);
-	PUSHWORD(pPC);
-	PC += EA;
-	CHANGE_PC;
-}
-
-/* $18 ILLEGAL */
-
-#if 1
-/* $19 DAA inherent (A) -**0* */
-INLINE void daa( void )
-{
-	UINT8 msn, lsn;
-	UINT16 t, cf = 0;
-	msn = A & 0xf0; lsn = A & 0x0f;
-	if( lsn>0x09 || CC & CC_H) cf |= 0x06;
-	if( msn>0x80 && lsn>0x09 ) cf |= 0x60;
-	if( msn>0x90 || CC & CC_C) cf |= 0x60;
-	t = cf + A;
-	CLR_NZV; /* keep carry from previous operation */
-	SET_NZ8((UINT8)t); SET_C8(t);
-	A = t;
-}
-#else
-/* $19 DAA inherent (A) -**0* */
-INLINE void daa( void )
-{
-	UINT16 t;
-	t = A;
-	if (CC & CC_H) t+=0x06;
-	if ((t&0x0f)>9) t+=0x06;		/* ASG -- this code is broken! $66+$99=$FF -> DAA should = $65, we get $05! */
-	if (CC & CC_C) t+=0x60;
-	if ((t&0xf0)>0x90) t+=0x60;
-	if (t&0x100) SEC;
-	A = t;
-}
-#endif
-
-/* $1A ORCC immediate ##### */
-INLINE void orcc( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	CC |= t;
-	CHECK_IRQ_LINES;	/* HJB 990116 */
-}
-
-/* $1B ILLEGAL */
-
-/* $1C ANDCC immediate ##### */
-INLINE void andcc( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	CC &= t;
-	CHECK_IRQ_LINES;	/* HJB 990116 */
-}
-
-/* $1D SEX inherent -**0- */
-INLINE void sex( void )
-{
-	UINT16 t;
-	t = SIGNED(B);
-	D = t;
-//  CLR_NZV;    Tim Lindner 20020905: verified that V flag is not affected
-	CLR_NZ;
-	SET_NZ16(t);
-}
-
-/* $1E EXG inherent ----- */
-INLINE void exg( void )
-{
-	UINT16 t1,t2;
-	UINT8 tb;
-
-	IMMBYTE(tb);
-	if( (tb^(tb>>4)) & 0x08 )	/* HJB 990225: mixed 8/16 bit case? */
+	switch (pop_state())
 	{
-		/* transfer $ff to both registers */
-		t1 = t2 = 0xff;
+		case 0:	goto MAIN;
+		case 1:	goto state_1;
+		case 2:	goto NEG8;
+		case 3:	goto COM8;
+		case 4:	goto LSR8;
+		case 5:	goto ROR8;
+		case 6:	goto ASR8;
+		case 7:	goto ASL8;
+		case 8:	goto ROL8;
+		case 9:	goto DEC8;
+		case 10:	goto INC8;
+		case 11:	goto TST8;
+		case 12:	goto JMP;
+		case 13:	goto CLR8;
+		case 14:	goto LEA_xy;
+		case 15:	goto LEA_us;
+		case 16:	goto SUB8;
+		case 17:	goto CMP8;
+		case 18:	goto SBC8;
+		case 19:	goto SUB16;
+		case 20:	goto AND8;
+		case 21:	goto BIT8;
+		case 22:	goto LD8;
+		case 23:	goto ST8;
+		case 24:	goto EOR8;
+		case 25:	goto ADC8;
+		case 26:	goto OR8;
+		case 27:	goto ADD8;
+		case 28:	goto CMP16;
+		case 29:	goto JSR;
+		case 30:	goto LD16;
+		case 31:	goto ST16;
+		case 32:	goto ADD16;
+		case 33:	goto state_33;
+		case 34:	goto state_34;
+		case 35:	goto state_35;
+		case 36:	goto state_36;
+		case 37:	goto state_37;
+		case 38:	goto state_38;
+		case 39:	goto state_39;
+		case 40:	goto state_40;
+		case 41:	goto state_41;
+		case 42:	goto state_42;
+		case 43:	goto state_43;
+		case 44:	goto state_44;
+		case 45:	goto state_45;
+		case 46:	goto state_46;
+		case 47:	goto state_47;
+		case 48:	goto state_48;
+		case 49:	goto state_49;
+		case 50:	goto state_50;
+		case 51:	goto state_51;
+		case 52:	goto state_52;
+		case 53:	goto state_53;
+		case 54:	goto state_54;
+		case 55:	goto state_55;
+		case 56:	goto state_56;
+		case 57:	goto state_57;
+		case 58:	goto state_58;
+		case 59:	goto state_59;
+		case 60:	goto state_60;
+		case 61:	goto state_61;
+		case 62:	goto state_62;
+		case 63:	goto state_63;
+		case 64:	goto state_64;
+		case 65:	goto state_65;
+		case 66:	goto state_66;
+		case 67:	goto state_67;
+		case 68:	goto state_68;
+		case 69:	goto state_69;
+		case 70:	goto state_70;
+		case 71:	goto state_71;
+		case 72:	goto state_72;
+		case 73:	goto state_73;
+		case 74:	goto state_74;
+		case 75:	goto state_75;
+		case 76:	goto state_76;
+		case 77:	goto state_77;
+		case 78:	goto state_78;
+		case 79:	goto state_79;
+		case 80:	goto state_80;
+		case 81:	goto state_81;
+		case 82:	goto state_82;
+		case 83:	goto state_83;
+		case 84:	goto state_84;
+		case 85:	goto state_85;
+		case 86:	goto state_86;
+		case 87:	goto state_87;
+		case 88:	goto state_88;
+		case 89:	goto state_89;
+		case 90:	goto state_90;
+		case 91:	goto state_91;
+		case 92:	goto state_92;
+		case 93:	goto state_93;
+		case 94:	goto state_94;
+		case 95:	goto state_95;
+		case 96:	goto state_96;
+		case 97:	goto state_97;
+		case 98:	goto state_98;
+		case 99:	goto state_99;
+		case 100:	goto state_100;
+		case 101:	goto state_101;
+		case 102:	goto state_102;
+		case 103:	goto state_103;
+		case 104:	goto state_104;
+		case 105:	goto state_105;
+		case 106:	goto state_106;
+		case 107:	goto state_107;
+		case 108:	goto state_108;
+		case 109:	goto state_109;
+		case 110:	goto state_110;
+		case 111:	goto state_111;
+		case 112:	goto state_112;
+		case 113:	goto state_113;
+		case 114:	goto state_114;
+		case 115:	goto state_115;
+		case 116:	goto state_116;
+		case 117:	goto state_117;
+		case 118:	goto state_118;
+		case 119:	goto state_119;
+		case 120:	goto state_120;
+		case 121:	goto state_121;
+		case 122:	goto state_122;
+		case 123:	goto state_123;
+		case 124:	goto state_124;
+		case 125:	goto state_125;
+		case 126:	goto state_126;
+		case 127:	goto state_127;
+		case 128:	goto state_128;
+		case 129:	goto state_129;
+		case 130:	goto state_130;
+		case 131:	goto state_131;
+		case 132:	goto state_132;
+		case 133:	goto state_133;
+		case 134:	goto state_134;
+		case 135:	goto state_135;
+		case 136:	goto state_136;
+		case 137:	goto state_137;
+		case 138:	goto state_138;
+		case 139:	goto state_139;
+		case 140:	goto state_140;
+		case 141:	goto state_141;
+		case 142:	goto state_142;
+		case 143:	goto state_143;
+		case 144:	goto state_144;
+		case 145:	goto state_145;
+		case 146:	goto state_146;
+		case 147:	goto state_147;
+		case 148:	goto state_148;
+		case 149:	goto state_149;
+		case 150:	goto state_150;
+		case 151:	goto state_151;
+		case 152:	goto state_152;
+		case 153:	goto state_153;
+		case 154:	goto state_154;
+		case 155:	goto state_155;
+		case 156:	goto state_156;
+		default:
+			fatalerror("Unexpected state");
+			break;
+
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
+MAIN:
+	// check interrupt lines
+	switch(get_pending_interrupt())
+	{
+		case VECTOR_NMI:	goto NMI;
+		case VECTOR_FIRQ:	goto FIRQ;
+		case VECTOR_IRQ:	goto IRQ;
+	}
+
+	// debugger hook
+	m_ppc = m_pc;
+	change_pc(m_pc.w);
+	CALL_MAME_DEBUG;
+
+	// opcode fetch
+	m_lic_func(ASSERT_LINE);
+	m_opcode = read_opcode_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(1); return; }
+state_1:
+	m_lic_func(CLEAR_LINE);
+
+	// dispatch opcode
+	switch(m_opcode)
+	{
+		case 0x00:	case 0x01:
+			push_state(2);	// NEG8
+			goto DIRECT;
+		case 0x03:	case 0x02:
+			push_state(3);	// COM8
+			goto DIRECT;
+		case 0x04:	case 0x05:
+			push_state(4);	// LSR8
+			goto DIRECT;
+		case 0x06:
+			push_state(5);	// ROR8
+			goto DIRECT;
+		case 0x07:
+			push_state(6);	// ASR8
+			goto DIRECT;
+		case 0x08:
+			push_state(7);	// ASL8
+			goto DIRECT;
+		case 0x09:
+			push_state(8);	// ROL8
+			goto DIRECT;
+		case 0x0A:	case 0x0B:
+			push_state(9);	// DEC8
+			goto DIRECT;
+		case 0x0C:
+			push_state(10);	// INC8
+			goto DIRECT;
+		case 0x0D:
+			push_state(11);	// TST8
+			goto DIRECT;
+		case 0x0E:
+			push_state(12);	// JMP
+			goto DIRECT;
+		case 0x0F:
+			push_state(13);	// CLR8
+			goto DIRECT;
+
+		case 0x10:
+			goto DISPATCH10;
+		case 0x11:
+			goto DISPATCH11;
+		case 0x12:
+			goto NOP;
+		case 0x13:
+			goto SYNC;
+		case 0x16:				set_cond(true);	goto LBRANCH;
+		case 0x17:
+			goto LBSR;
+		case 0x19:
+			goto DAA;
+		case 0x1A:				set_imm();		goto ORCC;
+		case 0x1C:				set_imm();		goto ANDCC;
+		case 0x1D:
+			goto SEX;
+		case 0x1E:
+			goto EXG;
+		case 0x1F:
+			goto TFR;
+
+		case 0x20:				set_cond(true);			goto BRANCH;
+		case 0x21:				set_cond(false);		goto BRANCH;
+		case 0x22:				set_cond(cond_hi());	goto BRANCH;
+		case 0x23:				set_cond(!cond_hi());	goto BRANCH;
+		case 0x24:				set_cond(cond_cc());	goto BRANCH;
+		case 0x25:				set_cond(!cond_cc());	goto BRANCH;
+		case 0x26:				set_cond(cond_ne());	goto BRANCH;
+		case 0x27:				set_cond(!cond_ne());	goto BRANCH;
+		case 0x28:				set_cond(cond_vc());	goto BRANCH;
+		case 0x29:				set_cond(!cond_vc());	goto BRANCH;
+		case 0x2A:				set_cond(cond_pl());	goto BRANCH;
+		case 0x2B:				set_cond(!cond_pl());	goto BRANCH;
+		case 0x2C:				set_cond(cond_ge());	goto BRANCH;
+		case 0x2D:				set_cond(!cond_ge());	goto BRANCH;
+		case 0x2E:				set_cond(cond_gt());	goto BRANCH;
+		case 0x2F:				set_cond(!cond_gt());	goto BRANCH;
+
+		case 0x30:				set_regop16(m_x);		push_state(14);	// LEA_xy
+		goto INDEXED;
+		case 0x31:				set_regop16(m_y);		push_state(14);	// LEA_xy
+		goto INDEXED;
+		case 0x32:				set_regop16(m_s);		push_state(15);	// LEA_us
+		goto INDEXED;
+		case 0x33:				set_regop16(m_u);		push_state(15);	// LEA_us
+		goto INDEXED;
+		case 0x34:
+			goto PSHS;
+		case 0x35:
+			goto PULS;
+		case 0x36:
+			goto PSHU;
+		case 0x37:
+			goto PULU;
+		case 0x39:
+			goto RTS;
+		case 0x3A:
+			goto ABX;
+		case 0x3B:
+			goto RTI;
+		case 0x3C:
+			goto CWAI;
+		case 0x3D:
+			goto MUL;
+		case 0x3F:
+			goto SWI;
+
+		case 0x40:	case 0x41:							set_a();	goto NEG8;
+		case 0x43:	case 0x42:							set_a();	goto COM8;
+		case 0x44:	case 0x45:							set_a();	goto LSR8;
+		case 0x46:										set_a();	goto ROR8;
+		case 0x47:										set_a();	goto ASR8;
+		case 0x48:										set_a();	goto ASL8;
+		case 0x49:										set_a();	goto ROL8;
+		case 0x4A:	case 0x4B:							set_a();	goto DEC8;
+		case 0x4C:										set_a();	goto INC8;
+		case 0x4D:										set_a();	goto TST8;
+		case 0x4E:										set_a();	goto JMP;
+		case 0x4F:										set_a();	goto CLR8;
+
+		case 0x50:	case 0x51:							set_b();	goto NEG8;
+		case 0x53:	case 0x52:							set_b();	goto COM8;
+		case 0x54:	case 0x55:							set_b();	goto LSR8;
+		case 0x56:										set_b();	goto ROR8;
+		case 0x57:										set_b();	goto ASR8;
+		case 0x58:										set_b();	goto ASL8;
+		case 0x59:										set_b();	goto ROL8;
+		case 0x5A:	case 0x5B:							set_b();	goto DEC8;
+		case 0x5C:										set_b();	goto INC8;
+		case 0x5D:										set_b();	goto TST8;
+		case 0x5E:										set_b();	goto JMP;
+		case 0x5F:										set_b();	goto CLR8;
+
+		case 0x60:	case 0x61:
+			push_state(2);	// NEG8
+			goto INDEXED;
+		case 0x63:	case 0x62:
+			push_state(3);	// COM8
+			goto INDEXED;
+		case 0x64:	case 0x65:
+			push_state(4);	// LSR8
+			goto INDEXED;
+		case 0x66:
+			push_state(5);	// ROR8
+			goto INDEXED;
+		case 0x67:
+			push_state(6);	// ASR8
+			goto INDEXED;
+		case 0x68:
+			push_state(7);	// ASL8
+			goto INDEXED;
+		case 0x69:
+			push_state(8);	// ROL8
+			goto INDEXED;
+		case 0x6A:	case 0x6B:
+			push_state(9);	// DEC8
+			goto INDEXED;
+		case 0x6C:
+			push_state(10);	// INC8
+			goto INDEXED;
+		case 0x6D:
+			push_state(11);	// TST8
+			goto INDEXED;
+		case 0x6E:
+			push_state(12);	// JMP
+			goto INDEXED;
+		case 0x6F:
+			push_state(13);	// CLR8
+			goto INDEXED;
+
+		case 0x70:	case 0x71:
+			push_state(2);	// NEG8
+			goto EXTENDED;
+		case 0x73:	case 0x72:
+			push_state(3);	// COM8
+			goto EXTENDED;
+		case 0x74:	case 0x75:
+			push_state(4);	// LSR8
+			goto EXTENDED;
+		case 0x76:
+			push_state(5);	// ROR8
+			goto EXTENDED;
+		case 0x77:
+			push_state(6);	// ASR8
+			goto EXTENDED;
+		case 0x78:
+			push_state(7);	// ASL8
+			goto EXTENDED;
+		case 0x79:
+			push_state(8);	// ROL8
+			goto EXTENDED;
+		case 0x7A:	case 0x7B:
+			push_state(9);	// DEC8
+			goto EXTENDED;
+		case 0x7C:
+			push_state(10);	// INC8
+			goto EXTENDED;
+		case 0x7D:
+			push_state(11);	// TST8
+			goto EXTENDED;
+		case 0x7E:
+			push_state(12);	// JMP
+			goto EXTENDED;
+		case 0x7F:
+			push_state(13);	// CLR8
+			goto EXTENDED;
+
+		case 0x80:				set_regop8(m_d.b.h);	set_imm();	goto SUB8;
+		case 0x81:				set_regop8(m_d.b.h);	set_imm();	goto CMP8;
+		case 0x82:				set_regop8(m_d.b.h);	set_imm();	goto SBC8;
+		case 0x83:				set_regop16(m_d);		set_imm();	goto SUB16;
+		case 0x84:				set_regop8(m_d.b.h);	set_imm();	goto AND8;
+		case 0x85:				set_regop8(m_d.b.h);	set_imm();	goto BIT8;
+		case 0x86:				set_regop8(m_d.b.h);	set_imm();	goto LD8;
+		case 0x87:				set_regop8(m_d.b.h);	set_imm();	goto ST8;
+		case 0x88:				set_regop8(m_d.b.h);	set_imm();	goto EOR8;
+		case 0x89:				set_regop8(m_d.b.h);	set_imm();	goto ADC8;
+		case 0x8A:				set_regop8(m_d.b.h);	set_imm();	goto OR8;
+		case 0x8B:				set_regop8(m_d.b.h);	set_imm();	goto ADD8;
+		case 0x8C:				set_regop16(m_x);		set_imm();	goto CMP16;
+		case 0x8D:
+			goto BSR;
+		case 0x8E:				set_regop16(m_x);		set_imm();	goto LD16;
+		case 0x8F:				set_regop16(m_x);		set_imm();	goto ST16;
+
+		case 0x90:				set_regop8(m_d.b.h);	push_state(16);	// SUB8
+	goto DIRECT;
+		case 0x91:				set_regop8(m_d.b.h);	push_state(17);	// CMP8
+	goto DIRECT;
+		case 0x92:				set_regop8(m_d.b.h);	push_state(18);	// SBC8
+	goto DIRECT;
+		case 0x93:				set_regop16(m_d);		push_state(19);	// SUB16
+		goto DIRECT;
+		case 0x94:				set_regop8(m_d.b.h);	push_state(20);	// AND8
+	goto DIRECT;
+		case 0x95:				set_regop8(m_d.b.h);	push_state(21);	// BIT8
+	goto DIRECT;
+		case 0x96:				set_regop8(m_d.b.h);	push_state(22);	// LD8
+	goto DIRECT;
+		case 0x97:				set_regop8(m_d.b.h);	push_state(23);	// ST8
+	goto DIRECT;
+		case 0x98:				set_regop8(m_d.b.h);	push_state(24);	// EOR8
+	goto DIRECT;
+		case 0x99:				set_regop8(m_d.b.h);	push_state(25);	// ADC8
+	goto DIRECT;
+		case 0x9A:				set_regop8(m_d.b.h);	push_state(26);	// OR8
+	goto DIRECT;
+		case 0x9B:				set_regop8(m_d.b.h);	push_state(27);	// ADD8
+	goto DIRECT;
+		case 0x9C:				set_regop16(m_x);		push_state(28);	// CMP16
+		goto DIRECT;
+		case 0x9D:
+			push_state(29);	// JSR
+			goto DIRECT;
+		case 0x9E:				set_regop16(m_x);		push_state(30);	// LD16
+		goto DIRECT;
+		case 0x9F:				set_regop16(m_x);		push_state(31);	// ST16
+		goto DIRECT;
+
+		case 0xA0:				set_regop8(m_d.b.h);	push_state(16);	// SUB8
+	goto INDEXED;
+		case 0xA1:				set_regop8(m_d.b.h);	push_state(17);	// CMP8
+	goto INDEXED;
+		case 0xA2:				set_regop8(m_d.b.h);	push_state(18);	// SBC8
+	goto INDEXED;
+		case 0xA3:				set_regop16(m_d);		push_state(19);	// SUB16
+		goto INDEXED;
+		case 0xA4:				set_regop8(m_d.b.h);	push_state(20);	// AND8
+	goto INDEXED;
+		case 0xA5:				set_regop8(m_d.b.h);	push_state(21);	// BIT8
+	goto INDEXED;
+		case 0xA6:				set_regop8(m_d.b.h);	push_state(22);	// LD8
+	goto INDEXED;
+		case 0xA7:				set_regop8(m_d.b.h);	push_state(23);	// ST8
+	goto INDEXED;
+		case 0xA8:				set_regop8(m_d.b.h);	push_state(24);	// EOR8
+	goto INDEXED;
+		case 0xA9:				set_regop8(m_d.b.h);	push_state(25);	// ADC8
+	goto INDEXED;
+		case 0xAA:				set_regop8(m_d.b.h);	push_state(26);	// OR8
+	goto INDEXED;
+		case 0xAB:				set_regop8(m_d.b.h);	push_state(27);	// ADD8
+	goto INDEXED;
+		case 0xAC:				set_regop16(m_x);		push_state(28);	// CMP16
+		goto INDEXED;
+		case 0xAD:
+			push_state(29);	// JSR
+			goto INDEXED;
+		case 0xAE:				set_regop16(m_x);		push_state(30);	// LD16
+		goto INDEXED;
+		case 0xAF:				set_regop16(m_x);		push_state(31);	// ST16
+		goto INDEXED;
+
+		case 0xB0:				set_regop8(m_d.b.h);	push_state(16);	// SUB8
+	goto EXTENDED;
+		case 0xB1:				set_regop8(m_d.b.h);	push_state(17);	// CMP8
+	goto EXTENDED;
+		case 0xB2:				set_regop8(m_d.b.h);	push_state(18);	// SBC8
+	goto EXTENDED;
+		case 0xB3:				set_regop16(m_d);		push_state(19);	// SUB16
+		goto EXTENDED;
+		case 0xB4:				set_regop8(m_d.b.h);	push_state(20);	// AND8
+	goto EXTENDED;
+		case 0xB5:				set_regop8(m_d.b.h);	push_state(21);	// BIT8
+	goto EXTENDED;
+		case 0xB6:				set_regop8(m_d.b.h);	push_state(22);	// LD8
+	goto EXTENDED;
+		case 0xB7:				set_regop8(m_d.b.h);	push_state(23);	// ST8
+	goto EXTENDED;
+		case 0xB8:				set_regop8(m_d.b.h);	push_state(24);	// EOR8
+	goto EXTENDED;
+		case 0xB9:				set_regop8(m_d.b.h);	push_state(25);	// ADC8
+	goto EXTENDED;
+		case 0xBA:				set_regop8(m_d.b.h);	push_state(26);	// OR8
+	goto EXTENDED;
+		case 0xBB:				set_regop8(m_d.b.h);	push_state(27);	// ADD8
+	goto EXTENDED;
+		case 0xBC:				set_regop16(m_x);		push_state(28);	// CMP16
+		goto EXTENDED;
+		case 0xBD:
+			push_state(29);	// JSR
+			goto EXTENDED;
+		case 0xBE:				set_regop16(m_x);		push_state(30);	// LD16
+		goto EXTENDED;
+		case 0xBF:				set_regop16(m_x);		push_state(31);	// ST16
+		goto EXTENDED;
+
+		case 0xC0:				set_regop8(m_d.b.l);	set_imm();	goto SUB8;
+		case 0xC1:				set_regop8(m_d.b.l);	set_imm();	goto CMP8;
+		case 0xC2:				set_regop8(m_d.b.l);	set_imm();	goto SBC8;
+		case 0xC3:				set_regop16(m_d);		set_imm();	goto ADD16;
+		case 0xC4:				set_regop8(m_d.b.l);	set_imm();	goto AND8;
+		case 0xC5:				set_regop8(m_d.b.l);	set_imm();	goto BIT8;
+		case 0xC6:				set_regop8(m_d.b.l);	set_imm();	goto LD8;
+		case 0xC7:				set_regop8(m_d.b.l);	set_imm();	goto ST8;
+		case 0xC8:				set_regop8(m_d.b.l);	set_imm();	goto EOR8;
+		case 0xC9:				set_regop8(m_d.b.l);	set_imm();	goto ADC8;
+		case 0xCA:				set_regop8(m_d.b.l);	set_imm();	goto OR8;
+		case 0xCB:				set_regop8(m_d.b.l);	set_imm();	goto ADD8;
+		case 0xCC:				set_regop16(m_d);		set_imm();	goto LD16;
+		case 0xCD:				set_regop16(m_d);		set_imm();	goto ST16;
+		case 0xCE:				set_regop16(m_u);		set_imm();	goto LD16;
+		case 0xCF:				set_regop16(m_u);		set_imm();	goto ST16;
+
+		case 0xD0:				set_regop8(m_d.b.l);	push_state(16);	// SUB8
+	goto DIRECT;
+		case 0xD1:				set_regop8(m_d.b.l);	push_state(17);	// CMP8
+	goto DIRECT;
+		case 0xD2:				set_regop8(m_d.b.l);	push_state(18);	// SBC8
+	goto DIRECT;
+		case 0xD3:				set_regop16(m_d);		push_state(32);	// ADD16
+		goto DIRECT;
+		case 0xD4:				set_regop8(m_d.b.l);	push_state(20);	// AND8
+	goto DIRECT;
+		case 0xD5:				set_regop8(m_d.b.l);	push_state(21);	// BIT8
+	goto DIRECT;
+		case 0xD6:				set_regop8(m_d.b.l);	push_state(22);	// LD8
+	goto DIRECT;
+		case 0xD7:				set_regop8(m_d.b.l);	push_state(23);	// ST8
+	goto DIRECT;
+		case 0xD8:				set_regop8(m_d.b.l);	push_state(24);	// EOR8
+	goto DIRECT;
+		case 0xD9:				set_regop8(m_d.b.l);	push_state(25);	// ADC8
+	goto DIRECT;
+		case 0xDA:				set_regop8(m_d.b.l);	push_state(26);	// OR8
+	goto DIRECT;
+		case 0xDB:				set_regop8(m_d.b.l);	push_state(27);	// ADD8
+	goto DIRECT;
+		case 0xDC:				set_regop16(m_d);		push_state(30);	// LD16
+		goto DIRECT;
+		case 0xDD:				set_regop16(m_d);		push_state(31);	// ST16
+		goto DIRECT;
+		case 0xDE:				set_regop16(m_u);		push_state(30);	// LD16
+		goto DIRECT;
+		case 0xDF:				set_regop16(m_u);		push_state(31);	// ST16
+		goto DIRECT;
+
+		case 0xE0:				set_regop8(m_d.b.l);	push_state(16);	// SUB8
+	goto INDEXED;
+		case 0xE1:				set_regop8(m_d.b.l);	push_state(17);	// CMP8
+	goto INDEXED;
+		case 0xE2:				set_regop8(m_d.b.l);	push_state(18);	// SBC8
+	goto INDEXED;
+		case 0xE3:				set_regop16(m_d);		push_state(32);	// ADD16
+		goto INDEXED;
+		case 0xE4:				set_regop8(m_d.b.l);	push_state(20);	// AND8
+	goto INDEXED;
+		case 0xE5:				set_regop8(m_d.b.l);	push_state(21);	// BIT8
+	goto INDEXED;
+		case 0xE6:				set_regop8(m_d.b.l);	push_state(22);	// LD8
+	goto INDEXED;
+		case 0xE7:				set_regop8(m_d.b.l);	push_state(23);	// ST8
+	goto INDEXED;
+		case 0xE8:				set_regop8(m_d.b.l);	push_state(24);	// EOR8
+	goto INDEXED;
+		case 0xE9:				set_regop8(m_d.b.l);	push_state(25);	// ADC8
+	goto INDEXED;
+		case 0xEA:				set_regop8(m_d.b.l);	push_state(26);	// OR8
+	goto INDEXED;
+		case 0xEB:				set_regop8(m_d.b.l);	push_state(27);	// ADD8
+	goto INDEXED;
+		case 0xEC:				set_regop16(m_d);		push_state(30);	// LD16
+		goto INDEXED;
+		case 0xED:				set_regop16(m_d);		push_state(31);	// ST16
+		goto INDEXED;
+		case 0xEE:				set_regop16(m_u);		push_state(30);	// LD16
+		goto INDEXED;
+		case 0xEF:				set_regop16(m_u);		push_state(31);	// ST16
+		goto INDEXED;
+
+		case 0xF0:				set_regop8(m_d.b.l);	push_state(16);	// SUB8
+	goto EXTENDED;
+		case 0xF1:				set_regop8(m_d.b.l);	push_state(17);	// CMP8
+	goto EXTENDED;
+		case 0xF2:				set_regop8(m_d.b.l);	push_state(18);	// SBC8
+	goto EXTENDED;
+		case 0xF3:				set_regop16(m_d);		push_state(32);	// ADD16
+		goto EXTENDED;
+		case 0xF4:				set_regop8(m_d.b.l);	push_state(20);	// AND8
+	goto EXTENDED;
+		case 0xF5:				set_regop8(m_d.b.l);	push_state(21);	// BIT8
+	goto EXTENDED;
+		case 0xF6:				set_regop8(m_d.b.l);	push_state(22);	// LD8
+	goto EXTENDED;
+		case 0xF7:				set_regop8(m_d.b.l);	push_state(23);	// ST8
+	goto EXTENDED;
+		case 0xF8:				set_regop8(m_d.b.l);	push_state(24);	// EOR8
+	goto EXTENDED;
+		case 0xF9:				set_regop8(m_d.b.l);	push_state(25);	// ADC8
+	goto EXTENDED;
+		case 0xFA:				set_regop8(m_d.b.l);	push_state(26);	// OR8
+	goto EXTENDED;
+		case 0xFB:				set_regop8(m_d.b.l);	push_state(27);	// ADD8
+	goto EXTENDED;
+		case 0xFC:				set_regop16(m_d);		push_state(30);	// LD16
+		goto EXTENDED;
+		case 0xFD:				set_regop16(m_d);		push_state(31);	// ST16
+		goto EXTENDED;
+		case 0xFE:				set_regop16(m_u);		push_state(30);	// LD16
+		goto EXTENDED;
+		case 0xFF:				set_regop16(m_u);		push_state(31);	// ST16
+		goto EXTENDED;
+		default:
+			goto ILLEGAL;
+			
+	}
+	return;
+
+DISPATCH10:
+	m_opcode = read_opcode_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(33); return; }
+state_33:
+	switch(m_opcode)
+	{
+		case 0x20:				set_cond(true);						goto LBRANCH;
+		case 0x21:				set_cond(false);					goto LBRANCH;
+		case 0x22:				set_cond(cond_hi());				goto LBRANCH;
+		case 0x23:				set_cond(!cond_hi());				goto LBRANCH;
+		case 0x24:				set_cond(cond_cc());				goto LBRANCH;
+		case 0x25:				set_cond(!cond_cc());				goto LBRANCH;
+		case 0x26:				set_cond(cond_ne());				goto LBRANCH;
+		case 0x27:				set_cond(!cond_ne());				goto LBRANCH;
+		case 0x28:				set_cond(cond_vc());				goto LBRANCH;
+		case 0x29:				set_cond(!cond_vc());				goto LBRANCH;
+		case 0x2A:				set_cond(cond_pl());				goto LBRANCH;
+		case 0x2B:				set_cond(!cond_pl());				goto LBRANCH;
+		case 0x2C:				set_cond(cond_ge());				goto LBRANCH;
+		case 0x2D:				set_cond(!cond_ge());				goto LBRANCH;
+		case 0x2E:				set_cond(cond_gt());				goto LBRANCH;
+		case 0x2F:				set_cond(!cond_gt());				goto LBRANCH;
+
+		case 0x3F:
+			goto SWI2;
+
+		case 0x83:				set_regop16(m_d);	set_imm();		goto CMP16;
+		case 0x8C:				set_regop16(m_y);	set_imm();		goto CMP16;
+		case 0x8E:				set_regop16(m_y);	set_imm();		goto LD16;
+		case 0x8F:				set_regop16(m_y);	set_imm();		goto ST16;
+		case 0x93:				set_regop16(m_d);	push_state(28);	// CMP16
+	goto DIRECT;
+		case 0x9C:				set_regop16(m_y);	push_state(28);	// CMP16
+	goto DIRECT;
+		case 0x9E:				set_regop16(m_y);	push_state(30);	// LD16
+	goto DIRECT;
+		case 0x9F:				set_regop16(m_y);	push_state(31);	// ST16
+	goto DIRECT;
+		case 0xA3:				set_regop16(m_d);	push_state(28);	// CMP16
+	goto INDEXED;
+		case 0xAC:				set_regop16(m_y);	push_state(28);	// CMP16
+	goto INDEXED;
+		case 0xAE:				set_regop16(m_y);	push_state(30);	// LD16
+	goto INDEXED;
+		case 0xAF:				set_regop16(m_y);	push_state(31);	// ST16
+	goto INDEXED;
+		case 0xB3:				set_regop16(m_d);	push_state(28);	// CMP16
+	goto EXTENDED;
+		case 0xBC:				set_regop16(m_y);	push_state(28);	// CMP16
+	goto EXTENDED;
+		case 0xBE:				set_regop16(m_y);	push_state(30);	// LD16
+	goto EXTENDED;
+		case 0xBF:				set_regop16(m_y);	push_state(31);	// ST16
+	goto EXTENDED;
+
+		case 0xCE:				set_regop16(m_s);	set_imm();		goto LD16;
+		case 0xCF:				set_regop16(m_s);	set_imm();		goto ST16;
+		case 0xDE:				set_regop16(m_s);	push_state(30);	// LD16
+	goto DIRECT;
+		case 0xDF:				set_regop16(m_s);	push_state(31);	// ST16
+	goto DIRECT;
+		case 0xEE:				set_regop16(m_s);	push_state(30);	// LD16
+	goto INDEXED;
+		case 0xEF:				set_regop16(m_s);	push_state(31);	// ST16
+	goto INDEXED;
+		case 0xFE:				set_regop16(m_s);	push_state(30);	// LD16
+	goto EXTENDED;
+		case 0xFF:				set_regop16(m_s);	push_state(31);	// ST16
+	goto EXTENDED;
+
+		default:
+			goto ILLEGAL;
+			
+	}
+	return;
+
+DISPATCH11:
+	m_opcode = read_opcode_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(34); return; }
+state_34:
+	switch(m_opcode)
+	{
+		case 0x3F:
+			goto SWI3;
+		case 0x83:				set_regop16(m_u);	set_imm();		goto CMP16;
+		case 0x8C:				set_regop16(m_s);	set_imm();		goto CMP16;
+		case 0x93:				set_regop16(m_u);	push_state(28);	// CMP16
+	goto DIRECT;
+		case 0x9C:				set_regop16(m_s);	push_state(28);	// CMP16
+	goto DIRECT;
+		case 0xA3:				set_regop16(m_u);	push_state(28);	// CMP16
+	goto INDEXED;
+		case 0xAC:				set_regop16(m_s);	push_state(28);	// CMP16
+	goto INDEXED;
+		case 0xB3:				set_regop16(m_u);	push_state(28);	// CMP16
+	goto EXTENDED;
+		case 0xBC:				set_regop16(m_s);	push_state(28);	// CMP16
+	goto EXTENDED;
+
+		default:
+			goto ILLEGAL;
+			
+	}
+	return;
+	
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
+NMI:
+	m_nmi_asserted = false;
+	m_cc |= CC_E;
+	set_regop16(m_s);
+	m_temp.w = entire_state_registers();
+	push_state(35);
+	goto PUSH_REGISTERS;
+state_35:
+	m_cc |= CC_I | CC_F;
+	set_ea(VECTOR_NMI);
+	eat(1);
+	standard_irq_callback(INPUT_LINE_NMI);
+	goto INTERRUPT_VECTOR;
+
+FIRQ:
+	if (firq_saves_entire_state())
+	{
+		m_cc |= CC_E;
+		m_temp.w = entire_state_registers();
 	}
 	else
 	{
-		switch(tb>>4) {
-			case  0: t1 = D;  break;
-			case  1: t1 = X;  break;
-			case  2: t1 = Y;  break;
-			case  3: t1 = U;  break;
-			case  4: t1 = S;  break;
-			case  5: t1 = PC; break;
-			case  8: t1 = A;  break;
-			case  9: t1 = B;  break;
-			case 10: t1 = CC; break;
-			case 11: t1 = DP; break;
-			default: t1 = 0xff;
+		m_cc &= ~CC_E;
+		m_temp.w = partial_state_registers();
+	}
+	set_regop16(m_s);
+	push_state(36);
+	goto PUSH_REGISTERS;
+state_36:
+	m_cc |= CC_I | CC_F;
+	set_ea(VECTOR_FIRQ);
+	eat(1);
+	standard_irq_callback(M6809_FIRQ_LINE);
+	goto INTERRUPT_VECTOR;
+
+IRQ:
+	m_cc |= CC_E;
+	set_regop16(m_s);
+	m_temp.w = entire_state_registers();
+	push_state(37);
+	goto PUSH_REGISTERS;
+state_37:
+	m_cc |= CC_I;
+	set_ea(VECTOR_IRQ);
+	eat(1);
+	standard_irq_callback(M6809_IRQ_LINE);
+	goto INTERRUPT_VECTOR;
+
+INTERRUPT_VECTOR:
+	eat(4);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(38); return; }
+state_38:
+	m_pc.b.h = read_operand_ord(0);	if (UNEXPECTED(m_icount <= 0)) { push_state(39); return; }
+state_39:
+	// Not sure if this is cycle exact
+	m_pc.b.l = read_operand_ord(1);	if (UNEXPECTED(m_icount <= 0)) { push_state(40); return; }
+state_40:
+	// Not sure if this is cycle exact
+	change_pc(m_pc.w);
+	return;
+
+NEG8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(41); return; }
+state_41:
+	m_temp.b.l = set_flags(CC_NZVC, (UINT8)0, m_temp.b.l, -m_temp.b.l);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(42); return; }
+state_42:
+	write_operand(m_temp.b.l);
+	return;
+
+COM8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(43); return; }
+state_43:
+	m_cc &= ~CC_V;
+	m_cc |= CC_C;
+	m_temp.b.l = set_flags(CC_NZ, (UINT8) ~m_temp.b.l);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(44); return; }
+state_44:
+	write_operand(m_temp.b.l);
+	return;
+
+LSR8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(45); return; }
+state_45:
+	m_cc &= ~CC_C;
+	m_cc |= (m_temp.b.l & 1) ? CC_C : 0;
+	m_temp.b.l = set_flags8(CC_NZ, m_temp.b.l >> 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(46); return; }
+state_46:
+	write_operand(m_temp.b.l);
+	return;
+
+ROR8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(47); return; }
+state_47:
+	m_temp.b.l = set_flags8(CC_NZ, rotate_right(m_temp.b.l));
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(48); return; }
+state_48:
+	write_operand(m_temp.b.l);
+	return;
+
+ASR8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(49); return; }
+state_49:
+	m_cc &= ~CC_NZC;
+	m_cc |= (m_temp.b.l & 1) ? CC_C : 0;
+	m_temp.b.l = set_flags8(CC_NZ, ((INT8) m_temp.b.l) >> 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(50); return; }
+state_50:
+	write_operand(m_temp.b.l);
+	return;
+
+ASL8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(51); return; }
+state_51:
+	m_temp.b.l = set_flags8(CC_NZVC, m_temp.b.l, m_temp.b.l, m_temp.b.l << 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(52); return; }
+state_52:
+	write_operand(m_temp.b.l);
+	return;
+
+ROL8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(53); return; }
+state_53:
+	m_temp.b.l = set_flags8(CC_NZV, m_temp.b.l, m_temp.b.l, rotate_left(m_temp.b.l));
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(54); return; }
+state_54:
+	write_operand(m_temp.b.l);
+	return;
+
+DEC8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(55); return; }
+state_55:
+	m_temp.b.l = set_flags8(CC_NZV, m_temp.b.l, 1, m_temp.b.l - 1);
+	eat(hd6309_native_mode() && is_register_addressing_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(56); return; }
+state_56:
+	write_operand(m_temp.b.l);
+	return;
+
+INC8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(57); return; }
+state_57:
+	m_temp.b.l = set_flags8(CC_NZV, m_temp.b.l, 1, m_temp.b.l + 1);
+	eat(hd6309_native_mode() && is_register_addressing_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(58); return; }
+state_58:
+	write_operand(m_temp.b.l);
+	return;
+
+TST8:
+	m_temp.b.l = read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(59); return; }
+state_59:
+	set_flags(CC_NZV, m_temp.b.l);
+	eat(hd6309_native_mode() ? 0 : 1);
+	eat(is_register_addressing_mode() ? 0 : 1);
+	return;
+
+JMP:
+	m_pc.w = m_ea.w;
+	change_pc(m_pc.w);
+	return;
+
+CLR8:
+	read_operand();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(60); return; }
+state_60:
+	m_cc &= ~CC_NZVC;
+	m_cc |= CC_Z;
+	eat(hd6309_native_mode() && is_register_addressing_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(61); return; }
+state_61:
+	write_operand(0);
+	return;
+
+NEG16:
+	m_temp.b.h = read_operand_ord(0);
+	m_temp.b.l = read_operand_ord(1);
+	m_temp.w = set_flags(CC_NZVC, (UINT16)0, m_temp.w, -m_temp.w);
+	eat(hd6309_native_mode() ? 0 : 1);
+	write_operand_ord(0, m_temp.b.h);
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+LSR16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(62); return; }
+state_62:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(63); return; }
+state_63:
+	m_cc &= ~CC_C;
+	m_cc |= (m_temp.w & 1) ? CC_C : 0;
+	m_temp.w = set_flags16(CC_NZ, m_temp.w >> 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(64); return; }
+state_64:
+	write_operand_ord(0, m_temp.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(65); return; }
+state_65:
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+ROR16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(66); return; }
+state_66:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(67); return; }
+state_67:
+	m_temp.w = set_flags16(CC_NZ, rotate_right(m_temp.w));
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(68); return; }
+state_68:
+	write_operand_ord(0, m_temp.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(69); return; }
+state_69:
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+ASR16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(70); return; }
+state_70:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(71); return; }
+state_71:
+	m_cc &= ~CC_NZC;
+	m_cc |= (m_temp.w & 1) ? CC_C : 0;
+	m_temp.w = set_flags16(CC_NZ, ((INT16) m_temp.w) >> 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(72); return; }
+state_72:
+	write_operand_ord(0, m_temp.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(73); return; }
+state_73:
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+ASL16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(74); return; }
+state_74:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(75); return; }
+state_75:
+	m_temp.w = set_flags16(CC_NZVC, m_temp.w, m_temp.w, m_temp.w << 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(76); return; }
+state_76:
+	write_operand_ord(0, m_temp.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(77); return; }
+state_77:
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+ROL16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(78); return; }
+state_78:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(79); return; }
+state_79:
+	m_temp.w = set_flags16(CC_NZV, rotate_left(m_temp.w));
+	eat(hd6309_native_mode() ? 0 : 1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(80); return; }
+state_80:
+	write_operand_ord(0, m_temp.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(81); return; }
+state_81:
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+DEC16:
+	m_temp.b.h = read_operand_ord(0);
+	m_temp.b.l = read_operand_ord(1);
+	m_temp.w = set_flags16(CC_NZVC, m_temp.w, 1, m_temp.w - 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	write_operand_ord(0, m_temp.b.h);
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+INC16:
+	m_temp.b.h = read_operand_ord(0);
+	m_temp.b.l = read_operand_ord(1);
+	m_temp.w = set_flags16(CC_NZVC, m_temp.w, 1, m_temp.w + 1);
+	eat(hd6309_native_mode() ? 0 : 1);
+	write_operand_ord(0, m_temp.b.h);
+	write_operand_ord(1, m_temp.b.l);
+	return;
+
+TST16:
+	m_temp.b.h = read_operand_ord(0);
+	m_temp.b.l = read_operand_ord(1);
+	set_flags(CC_NZV, m_temp.w);
+	eat(hd6309_native_mode() ? 0 : 1);
+	eat(is_register_addressing_mode() ? 0 : 1);
+	return;
+
+CLR16:
+	eat(hd6309_native_mode() ? 0 : 1);
+	m_cc &= ~CC_NZVC;
+	m_cc |= CC_Z;
+	write_operand_ord(0, 0x00);
+	write_operand_ord(1, 0x00);
+	return;
+
+SUB8:
+	m_temp.b.l = read_operand();
+	regop8() = set_flags(CC_NZVC, regop8(), m_temp.b.l, regop8() - m_temp.b.l);
+	return;
+
+CMP8:
+	m_temp.b.l = read_operand();
+	set_flags(CC_NZVC, regop8(), m_temp.b.l, regop8() - m_temp.b.l);
+	return;
+
+SBC8:
+	m_temp.w = (UINT16)read_operand() + (m_cc & CC_C ? 1 : 0);
+	regop8() = set_flags(CC_NZVC, regop8(), m_temp.b.l, regop8() - m_temp.w);
+	return;
+
+AND8:
+	m_cc &= ~CC_V;
+	regop8() = set_flags(CC_NZ, (UINT8)0, regop8(), regop8() & read_operand());
+	return;
+
+BIT8:
+	m_cc &= ~CC_V;
+	set_flags(CC_NZ, (UINT8)0, regop8(), regop8() & read_operand());
+	return;
+
+EOR8:
+	m_cc &= ~CC_V;
+	regop8() = set_flags(CC_NZ, (UINT8)0, regop8(), regop8() ^ read_operand());
+	return;
+
+ADC8:
+	m_temp.w = (UINT16)read_operand() + (m_cc & CC_C ? 1 : 0);
+	regop8() = set_flags(add8_sets_h() ? CC_HNZVC : CC_NZVC, regop8(), m_temp.b.l, regop8() + m_temp.w);
+	return;
+
+OR8:
+	m_cc &= ~CC_V;
+	regop8() = set_flags(CC_NZ, (UINT8)0, regop8(), regop8() | read_operand());
+	return;
+
+ADD8:
+	m_temp.b.l = read_operand();
+	regop8() = set_flags(add8_sets_h() ? CC_HNZVC : CC_NZVC, regop8(), m_temp.b.l, regop8() + m_temp.b.l);
+	return;
+
+ADD16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(82); return; }
+state_82:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(83); return; }
+state_83:
+	regop16().w = set_flags(CC_NZVC, regop16().w, m_temp.w, regop16().w + m_temp.w);
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+SUB16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(84); return; }
+state_84:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(85); return; }
+state_85:
+	regop16().w = set_flags(CC_NZVC, regop16().w, m_temp.w, regop16().w - m_temp.w);
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+CMP16:
+	m_temp.b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(86); return; }
+state_86:
+	m_temp.b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(87); return; }
+state_87:
+	set_flags(CC_NZVC, regop16().w, m_temp.w, regop16().w - m_temp.w);
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+LD8:
+	regop8() = read_operand();
+	set_flags(CC_NZV, regop8());
+	return;
+
+LD16:
+	regop16().b.h = read_operand_ord(0);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(88); return; }
+state_88:
+	regop16().b.l = read_operand_ord(1);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(89); return; }
+state_89:
+	set_flags(CC_NZV, regop16().w);
+	if (&regop16() == &m_s)
+		m_lds_encountered = true;
+	return;
+
+ST8:
+	write_ea(set_flags(CC_NZV, regop8()));
+	return;
+
+ST16:
+	write_operand_ord(0, regop16().b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(90); return; }
+state_90:
+	write_operand_ord(1, regop16().b.l);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(91); return; }
+state_91:
+	set_flags(CC_NZV, regop16().w);
+	return;
+
+NOP:
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+SYNC:
+	// SYNC stops processing instructions until an interrupt request happens.
+	// This doesn't require the corresponding interrupt to be enabled: if it
+	// is disabled, execution continues with the next instruction.
+	eat(3);
+
+	while(!m_nmi_asserted && !m_firq_line && !m_irq_line)
+	{
+		// massaging the PC this way makes the debugger's behavior more
+		// intuitive
+		m_pc.w--;
+		
+		eat_remaining();
+		if (UNEXPECTED(m_icount <= 0)) { push_state(92); return; }
+state_92:
+		
+		// unmassage...
+		m_pc.w++;
+	}
+	return;
+
+DAA:
+	daa();
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+ORCC:
+	m_cc |= read_operand();
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+ANDCC:
+	m_cc &= read_operand();
+	eat(1);
+	return;
+
+SEX:
+	m_d.w = set_flags16(CC_NZ, (INT8) m_d.b.l);
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+BRANCH:
+	m_temp.b.l = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(93); return; }
+state_93:
+	eat(1);
+	if (branch_taken())
+	{
+		m_pc.w += (INT8) m_temp.b.l;
+		change_pc(m_pc.w);
+	}
+	return;
+
+LBRANCH:
+	m_temp.b.h = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(94); return; }
+state_94:
+	m_temp.b.l = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(95); return; }
+state_95:
+	eat(1);
+	if (branch_taken())
+	{
+		m_pc.w += m_temp.w;
+		change_pc(m_pc.w);
+		eat(hd6309_native_mode() ? 0 : 1);
+	}
+	return;
+
+BSR:
+	m_temp.b.l = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(96); return; }
+state_96:
+	m_ea.w = m_pc.w + (INT8) m_temp.b.l;
+	eat(hd6309_native_mode() ? 2 : 3);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(97); return; }
+state_97:
+	goto GOTO_SUBROUTINE;
+
+LBSR:
+	m_temp.b.h = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(98); return; }
+state_98:
+	m_temp.b.l = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(99); return; }
+state_99:
+	m_ea.w = m_pc.w + (INT16) m_temp.w;
+	eat(hd6309_native_mode() ? 2 : 4);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(100); return; }
+state_100:
+	goto GOTO_SUBROUTINE;
+
+JSR:
+	eat(2);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(101); return; }
+state_101:
+	goto GOTO_SUBROUTINE;
+	
+GOTO_SUBROUTINE:
+	write_memory(--m_s.w, m_pc.b.l);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(102); return; }
+state_102:
+	write_memory(--m_s.w, m_pc.b.h);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(103); return; }
+state_103:
+	m_pc = m_ea;
+	change_pc(m_pc.w);
+	return;
+
+RTS:
+	m_temp.w = 0x80;	// RTS is equivalent to "PULS PC"
+	eat(hd6309_native_mode() ? 0 : 1);
+	set_regop16(m_s);
+	goto PULL_REGISTERS;
+
+ABX:
+	m_x.w += m_d.b.l;
+	eat(hd6309_native_mode() ? 0 : 2);
+	return;
+
+MUL:
+	mul();
+	eat(hd6309_native_mode() ? 9 : 10);
+	return;
+
+RTI:
+	set_regop16(m_s);
+	m_temp.w = 0x01;	// PULS CC
+	push_state(104);
+	goto PULL_REGISTERS;
+state_104:
+	m_temp.w = ((m_cc & CC_E) ? entire_state_registers() : partial_state_registers()) & ~0x01;
+	goto PULL_REGISTERS;
+
+CWAI:
+	m_cc &= read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(105); return; }
+state_105:
+	eat(2);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(106); return; }
+state_106:
+
+	m_cc |= CC_E;
+	set_regop16(m_s);
+	m_temp.w = entire_state_registers();
+	push_state(107);
+	goto PUSH_REGISTERS;
+state_107:
+
+	while((m_ea.w = get_pending_interrupt()) == 0)
+	{
+		// massaging the PC this way makes the debugger's behavior more
+		// intuitive
+		m_pc.w -= 2;
+
+		eat_remaining();
+		if (UNEXPECTED(m_icount <= 0)) { push_state(108); return; }
+state_108:
+		
+		// unmassage...
+		m_pc.w += 2;
+	}
+
+	if (m_nmi_asserted)
+		m_nmi_asserted = false;
+
+	set_ea(m_ea.w);	// need to do this to set the addressing mode
+	m_cc |= CC_I | (m_ea.w != VECTOR_IRQ ? CC_F : 0);
+
+	// invoke standard interrupt callback for MAME core
+	switch (m_ea.w)
+	{
+		case VECTOR_NMI:	standard_irq_callback(INPUT_LINE_NMI); break;
+		case VECTOR_FIRQ:	standard_irq_callback(M6809_FIRQ_LINE); break;
+		case VECTOR_IRQ:	standard_irq_callback(M6809_IRQ_LINE); break;
+		default:			break;
+	}
+
+	goto INTERRUPT_VECTOR;
+
+LEA_xy:
+	regop16().w = set_flags(CC_Z, m_ea.w);
+	eat(1);
+	return;
+
+LEA_us:
+	if (&regop16() == &m_s)
+		m_lds_encountered = true;
+	regop16().w = m_ea.w;
+	eat(1);
+	return;
+
+PSHS:
+	m_temp.w = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(109); return; }
+state_109:
+	eat(hd6309_native_mode() ? 2 : 3);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(110); return; }
+state_110:
+	set_regop16(m_s);
+	goto PUSH_REGISTERS;
+
+PULS:
+	m_temp.w = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(111); return; }
+state_111:
+	eat(hd6309_native_mode() ? 1 : 2);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(112); return; }
+state_112:
+	set_regop16(m_s);
+	goto PULL_REGISTERS;
+
+PSHU:
+	m_temp.w = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(113); return; }
+state_113:
+	eat(hd6309_native_mode() ? 2 : 3);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(114); return; }
+state_114:
+	set_regop16(m_u);
+	goto PUSH_REGISTERS;
+
+PULU:
+	m_temp.w = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(115); return; }
+state_115:
+	eat(hd6309_native_mode() ? 1 : 2);
+	if (UNEXPECTED(m_icount <= 0)) { push_state(116); return; }
+state_116:
+	set_regop16(m_u);
+	goto PULL_REGISTERS;
+
+SWI:
+	// doesn't use SOFTWARE_INTERRUPT label because SWI will
+	// inhibit IRQ/FIRQ
+	set_ea(VECTOR_SWI);
+	m_cc |= CC_E;
+	set_regop16(m_s);
+	m_temp.w = entire_state_registers();
+	push_state(117);
+	goto PUSH_REGISTERS;
+state_117:
+	m_cc |= CC_I | CC_F;
+	goto INTERRUPT_VECTOR;
+
+SWI2:
+	set_ea(VECTOR_SWI2);
+	goto SOFTWARE_INTERRUPT;
+
+SWI3:
+	set_ea(VECTOR_SWI3);
+	goto SOFTWARE_INTERRUPT;
+
+SOFTWARE_INTERRUPT:
+	// used for SWI2/SWI3 and illegal/div0 on 6309
+	m_cc |= CC_E;
+	set_regop16(m_s);
+	m_temp.w = entire_state_registers();
+	push_state(118);
+	goto PUSH_REGISTERS;
+state_118:
+	goto INTERRUPT_VECTOR;
+	
+DIRECT:
+	set_ea(((UINT16)m_dp << 8) | read_opcode_arg_next());
+	if (UNEXPECTED(m_icount <= 0)) { push_state(119); return; }
+state_119:
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+EXTENDED:
+	set_ea_h(read_opcode_arg_next());
+	if (UNEXPECTED(m_icount <= 0)) { push_state(120); return; }
+state_120:
+	set_ea_l(read_opcode_arg_next());
+	if (UNEXPECTED(m_icount <= 0)) { push_state(121); return; }
+state_121:
+	eat(hd6309_native_mode() ? 0 : 1);
+	return;
+
+PUSH_REGISTERS:
+	if (m_temp.w & 0x80)
+	{
+		write_memory(--regop16().w, m_pc.b.l);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(122); return; }
+state_122:
+		write_memory(--regop16().w, m_pc.b.h);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(123); return; }
+state_123:
+		nop();
+	}
+	if (m_temp.w & 0x40)
+	{
+		write_memory(--regop16().w, (&regop16() == &m_s) ? m_u.b.l : m_s.b.l);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(124); return; }
+state_124:
+		write_memory(--regop16().w, (&regop16() == &m_s) ? m_u.b.h : m_s.b.h);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(125); return; }
+state_125:
+		nop();
+	}
+	if (m_temp.w & 0x20)
+	{
+		write_memory(--regop16().w, m_y.b.l);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(126); return; }
+state_126:
+		write_memory(--regop16().w, m_y.b.h);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(127); return; }
+state_127:
+		nop();
+	}
+	if (m_temp.w & 0x10)
+	{
+		write_memory(--regop16().w, m_x.b.l);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(128); return; }
+state_128:
+		write_memory(--regop16().w, m_x.b.h);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(129); return; }
+state_129:
+		nop();
+	}
+	if (m_temp.w & 0x08)
+	{
+		write_memory(--regop16().w, m_dp);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(130); return; }
+state_130:
+		nop();
+	}
+	if (m_temp.w & 0x04)
+	{
+		write_memory(--regop16().w, m_d.b.l);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(131); return; }
+state_131:
+		nop();
+	}
+	if (m_temp.w & 0x02)
+	{
+		write_memory(--regop16().w, m_d.b.h);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(132); return; }
+state_132:
+		nop();
+	}
+	if (m_temp.w & 0x01)
+	{
+		write_memory(--regop16().w, m_cc);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(133); return; }
+state_133:
+		nop();
+	}
+	return;
+
+PULL_REGISTERS:
+	if (m_temp.w & 0x01)
+	{
+		m_cc = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(134); return; }
+state_134:
+		nop();
+	}
+	if (m_temp.w & 0x02)
+	{
+		m_d.b.h = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(135); return; }
+state_135:
+		nop();
+	}
+	if (m_temp.w & 0x04)
+	{
+		m_d.b.l = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(136); return; }
+state_136:
+		nop();
+	}
+	if (m_temp.w & 0x08)
+	{
+		m_dp = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(137); return; }
+state_137:
+		nop();
+	}
+	if (m_temp.w & 0x10)
+	{
+		m_x.b.h = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(138); return; }
+state_138:
+		m_x.b.l = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(139); return; }
+state_139:
+		nop();
+	}
+	if (m_temp.w & 0x20)
+	{
+		m_y.b.h = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(140); return; }
+state_140:
+		m_y.b.l = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(141); return; }
+state_141:
+		nop();
+	}
+	if (m_temp.w & 0x40)
+	{
+		(&regop16() == &m_s ? &m_u : &m_s)->b.h = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(142); return; }
+state_142:
+		(&regop16() == &m_s ? &m_u : &m_s)->b.l = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(143); return; }
+state_143:
+		nop();
+	}
+	if (m_temp.w & 0x80)
+	{
+		m_pc.b.h = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(144); return; }
+state_144:
+		m_pc.b.l = read_memory(regop16().w++);
+		if (UNEXPECTED(m_icount <= 0)) { push_state(145); return; }
+state_145:
+		nop();
+		change_pc(m_pc.w);
+	}
+	eat(1);
+	return;
+
+INDEXED:
+	m_opcode = read_opcode_arg_next();
+	if (UNEXPECTED(m_icount <= 0)) { push_state(146); return; }
+state_146:
+	if (m_opcode & 0x80)
+	{
+		switch(m_opcode & 0x7F)
+		{
+			case 0x00: case 0x20: case 0x40: case 0x60:
+			case 0x10: case 0x30: case 0x50: case 0x70:
+				m_temp.w = ireg();
+				ireg()++;
+				eat(3);
+				break;
+
+			case 0x01: case 0x21: case 0x41: case 0x61:
+			case 0x11: case 0x31: case 0x51: case 0x71:
+				m_temp.w = ireg();
+				ireg() += 2;
+				eat(4);
+				break;
+
+			case 0x02: case 0x22: case 0x42: case 0x62:
+			case 0x12: case 0x32: case 0x52: case 0x72:
+				ireg()--;
+				m_temp.w = ireg();
+				eat(3);
+				break;
+
+			case 0x03: case 0x23: case 0x43: case 0x63:
+			case 0x13: case 0x33: case 0x53: case 0x73:
+				ireg() -= 2;
+				m_temp.w = ireg();
+				eat(4);
+				break;
+
+			case 0x04: case 0x24: case 0x44: case 0x64:
+			case 0x14: case 0x34: case 0x54: case 0x74:
+				m_temp.w = ireg();
+				eat(1);
+				break;
+
+			case 0x05: case 0x25: case 0x45: case 0x65:
+			case 0x15: case 0x35: case 0x55: case 0x75:
+				m_temp.w = ireg() + (INT8) m_d.b.l;
+				eat(2);
+				break;
+
+			case 0x06: case 0x26: case 0x46: case 0x66:
+			case 0x16: case 0x36: case 0x56: case 0x76:
+				m_temp.w = ireg() + (INT8) m_d.b.h;
+				eat(2);
+				break;
+
+			case 0x08: case 0x28: case 0x48: case 0x68:
+			case 0x18: case 0x38: case 0x58: case 0x78:
+				m_temp.w = ireg() + (INT8) read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(147); return; }
+state_147:
+				eat(1);
+				break;
+
+			case 0x09: case 0x29: case 0x49: case 0x69:
+			case 0x19: case 0x39: case 0x59: case 0x79:
+				m_temp.b.h = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(148); return; }
+state_148:
+				m_temp.b.l = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(149); return; }
+state_149:
+				m_temp.w = ireg() + m_temp.w;
+				eat(3);
+				break;
+
+			case 0x0B: case 0x2B: case 0x4B: case 0x6B:
+			case 0x1B: case 0x3B: case 0x5B: case 0x7B:
+				m_temp.w = ireg() + m_d.w;
+				eat(5);
+				break;
+
+			case 0x0C: case 0x2C: case 0x4C: case 0x6C:
+			case 0x1C: case 0x3C: case 0x5C: case 0x7C:
+				m_temp.b.l = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(150); return; }
+state_150:
+				m_temp.w = m_pc.w + (INT8) m_temp.b.l;
+				eat(1);
+				break;
+
+			case 0x0D: case 0x2D: case 0x4D: case 0x6D:
+			case 0x1D: case 0x3D: case 0x5D: case 0x7D:
+				m_temp.b.h = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(151); return; }
+state_151:
+				m_temp.b.l = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(152); return; }
+state_152:
+				m_temp.w = m_pc.w + (INT16) m_temp.w;
+				eat(4);
+				break;
+
+			case 0x0F: case 0x2F: case 0x4F: case 0x6F:
+			case 0x1F: case 0x3F: case 0x5F: case 0x7F:
+				m_temp.b.h = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(153); return; }
+state_153:
+				m_temp.b.l = read_opcode_arg_next();
+				if (UNEXPECTED(m_icount <= 0)) { push_state(154); return; }
+state_154:
+				eat(1);
+				break;
+
+			default:
+				m_temp.w = 0x0000;
+				break;
 		}
-		switch(tb&15) {
-			case  0: t2 = D;  break;
-			case  1: t2 = X;  break;
-			case  2: t2 = Y;  break;
-			case  3: t2 = U;  break;
-			case  4: t2 = S;  break;
-			case  5: t2 = PC; break;
-			case  8: t2 = A;  break;
-			case  9: t2 = B;  break;
-			case 10: t2 = CC; break;
-			case 11: t2 = DP; break;
-			default: t2 = 0xff;
-        }
-	}
-	switch(tb>>4) {
-		case  0: D = t2;  break;
-		case  1: X = t2;  break;
-		case  2: Y = t2;  break;
-		case  3: U = t2;  break;
-		case  4: S = t2;  break;
-		case  5: PC = t2; CHANGE_PC; break;
-		case  8: A = t2;  break;
-		case  9: B = t2;  break;
-		case 10: CC = t2; break;
-		case 11: DP = t2; break;
-	}
-	switch(tb&15) {
-		case  0: D = t1;  break;
-		case  1: X = t1;  break;
-		case  2: Y = t1;  break;
-		case  3: U = t1;  break;
-		case  4: S = t1;  break;
-		case  5: PC = t1; CHANGE_PC; break;
-		case  8: A = t1;  break;
-		case  9: B = t1;  break;
-		case 10: CC = t1; break;
-		case 11: DP = t1; break;
-	}
-}
 
-/* $1F TFR inherent ----- */
-INLINE void tfr( void )
-{
-	UINT8 tb;
-	UINT16 t;
-
-	IMMBYTE(tb);
-	if( (tb^(tb>>4)) & 0x08 )	/* HJB 990225: mixed 8/16 bit case? */
-	{
-		/* transfer $ff to register */
-		t = 0xff;
-    }
+		// indirect mode
+		if (m_opcode & 0x10)
+		{
+			set_ea(m_temp.w);
+			m_temp.b.h = read_operand_ord(0);
+			if (UNEXPECTED(m_icount <= 0)) { push_state(155); return; }
+state_155:
+			m_temp.b.l = read_operand_ord(1);
+			if (UNEXPECTED(m_icount <= 0)) { push_state(156); return; }
+state_156:
+			eat(1);
+		}
+	}
 	else
 	{
-		switch(tb>>4) {
-			case  0: t = D;  break;
-			case  1: t = X;  break;
-			case  2: t = Y;  break;
-			case  3: t = U;  break;
-			case  4: t = S;  break;
-			case  5: t = PC; break;
-			case  8: t = A;  break;
-			case  9: t = B;  break;
-			case 10: t = CC; break;
-			case 11: t = DP; break;
-			default: t = 0xff;
-        }
+		// 5-bit offset
+		m_temp.w = ireg() + (INT8) ((m_opcode & 0x0F) | (m_opcode & 0x10 ? 0xF0 : 0x00));
+		eat(2);
 	}
-	switch(tb&15) {
-		case  0: D = t;  break;
-		case  1: X = t;  break;
-		case  2: Y = t;  break;
-		case  3: U = t;  break;
-		case  4: S = t;  break;
-		case  5: PC = t; CHANGE_PC; break;
-		case  8: A = t;  break;
-		case  9: B = t;  break;
-		case 10: CC = t; break;
-		case 11: DP = t; break;
-    }
-}
+	set_ea(m_temp.w);
+	return;
 
-#ifdef macintosh
-#pragma mark ____2x____
-#endif
-
-/* $20 BRA relative ----- */
-INLINE void bra( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	PC += SIGNED(t);
-    CHANGE_PC;
-	/* JB 970823 - speed up busy loops */
-	if( t == 0xfe )
-		if( m6809_ICount > 0 ) m6809_ICount = 0;
-}
-
-/* $21 BRN relative ----- */
-INLINE void brn( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-}
-
-/* $1021 LBRN relative ----- */
-INLINE void lbrn( void )
-{
-	IMMWORD(ea);
-}
-
-/* $22 BHI relative ----- */
-INLINE void bhi( void )
-{
-	BRANCH( !(CC & (CC_Z|CC_C)) );
-}
-
-/* $1022 LBHI relative ----- */
-INLINE void lbhi( void )
-{
-	LBRANCH( !(CC & (CC_Z|CC_C)) );
-}
-
-/* $23 BLS relative ----- */
-INLINE void bls( void )
-{
-	BRANCH( (CC & (CC_Z|CC_C)) );
-}
-
-/* $1023 LBLS relative ----- */
-INLINE void lbls( void )
-{
-	LBRANCH( (CC&(CC_Z|CC_C)) );
-}
-
-/* $24 BCC relative ----- */
-INLINE void bcc( void )
-{
-	BRANCH( !(CC&CC_C) );
-}
-
-/* $1024 LBCC relative ----- */
-INLINE void lbcc( void )
-{
-	LBRANCH( !(CC&CC_C) );
-}
-
-/* $25 BCS relative ----- */
-INLINE void bcs( void )
-{
-	BRANCH( (CC&CC_C) );
-}
-
-/* $1025 LBCS relative ----- */
-INLINE void lbcs( void )
-{
-	LBRANCH( (CC&CC_C) );
-}
-
-/* $26 BNE relative ----- */
-INLINE void bne( void )
-{
-	BRANCH( !(CC&CC_Z) );
-}
-
-/* $1026 LBNE relative ----- */
-INLINE void lbne( void )
-{
-	LBRANCH( !(CC&CC_Z) );
-}
-
-/* $27 BEQ relative ----- */
-INLINE void beq( void )
-{
-	BRANCH( (CC&CC_Z) );
-}
-
-/* $1027 LBEQ relative ----- */
-INLINE void lbeq( void )
-{
-	LBRANCH( (CC&CC_Z) );
-}
-
-/* $28 BVC relative ----- */
-INLINE void bvc( void )
-{
-	BRANCH( !(CC&CC_V) );
-}
-
-/* $1028 LBVC relative ----- */
-INLINE void lbvc( void )
-{
-	LBRANCH( !(CC&CC_V) );
-}
-
-/* $29 BVS relative ----- */
-INLINE void bvs( void )
-{
-	BRANCH( (CC&CC_V) );
-}
-
-/* $1029 LBVS relative ----- */
-INLINE void lbvs( void )
-{
-	LBRANCH( (CC&CC_V) );
-}
-
-/* $2A BPL relative ----- */
-INLINE void bpl( void )
-{
-	BRANCH( !(CC&CC_N) );
-}
-
-/* $102A LBPL relative ----- */
-INLINE void lbpl( void )
-{
-	LBRANCH( !(CC&CC_N) );
-}
-
-/* $2B BMI relative ----- */
-INLINE void bmi( void )
-{
-	BRANCH( (CC&CC_N) );
-}
-
-/* $102B LBMI relative ----- */
-INLINE void lbmi( void )
-{
-	LBRANCH( (CC&CC_N) );
-}
-
-/* $2C BGE relative ----- */
-INLINE void bge( void )
-{
-	BRANCH( !NXORV );
-}
-
-/* $102C LBGE relative ----- */
-INLINE void lbge( void )
-{
-	LBRANCH( !NXORV );
-}
-
-/* $2D BLT relative ----- */
-INLINE void blt( void )
-{
-	BRANCH( NXORV );
-}
-
-/* $102D LBLT relative ----- */
-INLINE void lblt( void )
-{
-	LBRANCH( NXORV );
-}
-
-/* $2E BGT relative ----- */
-INLINE void bgt( void )
-{
-	BRANCH( !(NXORV || (CC&CC_Z)) );
-}
-
-/* $102E LBGT relative ----- */
-INLINE void lbgt( void )
-{
-	LBRANCH( !(NXORV || (CC&CC_Z)) );
-}
-
-/* $2F BLE relative ----- */
-INLINE void ble( void )
-{
-	BRANCH( (NXORV || (CC&CC_Z)) );
-}
-
-/* $102F LBLE relative ----- */
-INLINE void lble( void )
-{
-	LBRANCH( (NXORV || (CC&CC_Z)) );
-}
-
-#ifdef macintosh
-#pragma mark ____3x____
-#endif
-
-/* $30 LEAX indexed --*-- */
-INLINE void leax( void )
-{
-	fetch_effective_address();
-    X = EA;
-	CLR_Z;
-	SET_Z(X);
-}
-
-/* $31 LEAY indexed --*-- */
-INLINE void leay( void )
-{
-	fetch_effective_address();
-    Y = EA;
-	CLR_Z;
-	SET_Z(Y);
-}
-
-/* $32 LEAS indexed ----- */
-INLINE void leas( void )
-{
-	fetch_effective_address();
-    S = EA;
-	m6809.int_state |= M6809_LDS;
-}
-
-/* $33 LEAU indexed ----- */
-INLINE void leau( void )
-{
-	fetch_effective_address();
-    U = EA;
-}
-
-/* $34 PSHS inherent ----- */
-INLINE void pshs( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	if( t&0x80 ) { PUSHWORD(pPC); m6809_ICount -= 2; }
-	if( t&0x40 ) { PUSHWORD(pU);  m6809_ICount -= 2; }
-	if( t&0x20 ) { PUSHWORD(pY);  m6809_ICount -= 2; }
-	if( t&0x10 ) { PUSHWORD(pX);  m6809_ICount -= 2; }
-	if( t&0x08 ) { PUSHBYTE(DP);  m6809_ICount -= 1; }
-	if( t&0x04 ) { PUSHBYTE(B);   m6809_ICount -= 1; }
-	if( t&0x02 ) { PUSHBYTE(A);   m6809_ICount -= 1; }
-	if( t&0x01 ) { PUSHBYTE(CC);  m6809_ICount -= 1; }
-}
-
-/* 35 PULS inherent ----- */
-INLINE void puls( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	if( t&0x01 ) { PULLBYTE(CC); m6809_ICount -= 1; }
-	if( t&0x02 ) { PULLBYTE(A);  m6809_ICount -= 1; }
-	if( t&0x04 ) { PULLBYTE(B);  m6809_ICount -= 1; }
-	if( t&0x08 ) { PULLBYTE(DP); m6809_ICount -= 1; }
-	if( t&0x10 ) { PULLWORD(XD); m6809_ICount -= 2; }
-	if( t&0x20 ) { PULLWORD(YD); m6809_ICount -= 2; }
-	if( t&0x40 ) { PULLWORD(UD); m6809_ICount -= 2; }
-	if( t&0x80 ) { PULLWORD(PCD); CHANGE_PC; m6809_ICount -= 2; }
-
-	/* HJB 990225: moved check after all PULLs */
-	if( t&0x01 ) { CHECK_IRQ_LINES; }
-}
-
-/* $36 PSHU inherent ----- */
-INLINE void pshu( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	if( t&0x80 ) { PSHUWORD(pPC); m6809_ICount -= 2; }
-	if( t&0x40 ) { PSHUWORD(pS);  m6809_ICount -= 2; }
-	if( t&0x20 ) { PSHUWORD(pY);  m6809_ICount -= 2; }
-	if( t&0x10 ) { PSHUWORD(pX);  m6809_ICount -= 2; }
-	if( t&0x08 ) { PSHUBYTE(DP);  m6809_ICount -= 1; }
-	if( t&0x04 ) { PSHUBYTE(B);   m6809_ICount -= 1; }
-	if( t&0x02 ) { PSHUBYTE(A);   m6809_ICount -= 1; }
-	if( t&0x01 ) { PSHUBYTE(CC);  m6809_ICount -= 1; }
-}
-
-/* 37 PULU inherent ----- */
-INLINE void pulu( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	if( t&0x01 ) { PULUBYTE(CC); m6809_ICount -= 1; }
-	if( t&0x02 ) { PULUBYTE(A);  m6809_ICount -= 1; }
-	if( t&0x04 ) { PULUBYTE(B);  m6809_ICount -= 1; }
-	if( t&0x08 ) { PULUBYTE(DP); m6809_ICount -= 1; }
-	if( t&0x10 ) { PULUWORD(XD); m6809_ICount -= 2; }
-	if( t&0x20 ) { PULUWORD(YD); m6809_ICount -= 2; }
-	if( t&0x40 ) { PULUWORD(SD); m6809_ICount -= 2; }
-	if( t&0x80 ) { PULUWORD(PCD); CHANGE_PC; m6809_ICount -= 2; }
-
-	/* HJB 990225: moved check after all PULLs */
-	if( t&0x01 ) { CHECK_IRQ_LINES; }
-}
-
-/* $38 ILLEGAL */
-
-/* $39 RTS inherent ----- */
-INLINE void rts( void )
-{
-	PULLWORD(PCD);
-	CHANGE_PC;
-}
-
-/* $3A ABX inherent ----- */
-INLINE void abx( void )
-{
-	X += B;
-}
-
-/* $3B RTI inherent ##### */
-INLINE void rti( void )
-{
-	UINT8 t;
-	PULLBYTE(CC);
-	t = CC & CC_E;		/* HJB 990225: entire state saved? */
-	if(t)
+EXG:
 	{
-        m6809_ICount -= 9;
-		PULLBYTE(A);
-		PULLBYTE(B);
-		PULLBYTE(DP);
-		PULLWORD(XD);
-		PULLWORD(YD);
-		PULLWORD(UD);
+		UINT8 param = read_opcode_arg_next();
+		exgtfr_register reg1 = read_exgtfr_register(param >> 4);
+		exgtfr_register reg2 = read_exgtfr_register(param >> 0);
+		write_exgtfr_register(param >> 4, reg2);
+		write_exgtfr_register(param >> 0, reg1);
 	}
-	PULLWORD(PCD);
-	CHANGE_PC;
-	CHECK_IRQ_LINES;	/* HJB 990116 */
-}
+	eat(hd6309_native_mode() ? 3 : 6);
+	return;
 
-/* $3C CWAI inherent ----1 */
-INLINE void cwai( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	CC &= t;
-	/*
-     * CWAI stacks the entire machine state on the hardware stack,
-     * then waits for an interrupt; when the interrupt is taken
-     * later, the state is *not* saved again after CWAI.
-     */
-	CC |= CC_E; 		/* HJB 990225: save entire state */
-	PUSHWORD(pPC);
-	PUSHWORD(pU);
-	PUSHWORD(pY);
-	PUSHWORD(pX);
-	PUSHBYTE(DP);
-	PUSHBYTE(B);
-	PUSHBYTE(A);
-	PUSHBYTE(CC);
-	m6809.int_state |= M6809_CWAI;	 /* HJB 990228 */
-    CHECK_IRQ_LINES;    /* HJB 990116 */
-	if( m6809.int_state & M6809_CWAI )
-		if( m6809_ICount > 0 )
-			m6809_ICount = 0;
-}
-
-/* $3D MUL inherent --*-@ */
-INLINE void mul( void )
-{
-	UINT16 t;
-	t = A * B;
-	CLR_ZC; SET_Z16(t); if(t&0x80) SEC;
-	D = t;
-}
-
-/* $3E ILLEGAL */
-
-/* $3F SWI (SWI2 SWI3) absolute indirect ----- */
-INLINE void swi( void )
-{
-	CC |= CC_E; 			/* HJB 980225: save entire state */
-	PUSHWORD(pPC);
-	PUSHWORD(pU);
-	PUSHWORD(pY);
-	PUSHWORD(pX);
-	PUSHBYTE(DP);
-	PUSHBYTE(B);
-	PUSHBYTE(A);
-	PUSHBYTE(CC);
-	CC |= CC_IF | CC_II;	/* inhibit FIRQ and IRQ */
-	PCD=RM16(0xfffa);
-	CHANGE_PC;
-}
-
-/* $103F SWI2 absolute indirect ----- */
-INLINE void swi2( void )
-{
-	CC |= CC_E; 			/* HJB 980225: save entire state */
-	PUSHWORD(pPC);
-	PUSHWORD(pU);
-	PUSHWORD(pY);
-	PUSHWORD(pX);
-	PUSHBYTE(DP);
-	PUSHBYTE(B);
-	PUSHBYTE(A);
-    PUSHBYTE(CC);
-	PCD = RM16(0xfff4);
-	CHANGE_PC;
-}
-
-/* $113F SWI3 absolute indirect ----- */
-INLINE void swi3( void )
-{
-	CC |= CC_E; 			/* HJB 980225: save entire state */
-	PUSHWORD(pPC);
-	PUSHWORD(pU);
-	PUSHWORD(pY);
-	PUSHWORD(pX);
-	PUSHBYTE(DP);
-	PUSHBYTE(B);
-	PUSHBYTE(A);
-    PUSHBYTE(CC);
-	PCD = RM16(0xfff2);
-	CHANGE_PC;
-}
-
-#ifdef macintosh
-#pragma mark ____4x____
-#endif
-
-/* $40 NEGA inherent ?**** */
-INLINE void nega( void )
-{
-	UINT16 r;
-	r = -A;
-	CLR_NZVC;
-	SET_FLAGS8(0,A,r);
-	A = r;
-}
-
-/* $41 ILLEGAL */
-
-/* $42 ILLEGAL */
-
-/* $43 COMA inherent -**01 */
-INLINE void coma( void )
-{
-	A = ~A;
-	CLR_NZV;
-	SET_NZ8(A);
-	SEC;
-}
-
-/* $44 LSRA inherent -0*-* */
-INLINE void lsra( void )
-{
-	CLR_NZC;
-	CC |= (A & CC_C);
-	A >>= 1;
-	SET_Z8(A);
-}
-
-/* $45 ILLEGAL */
-
-/* $46 RORA inherent -**-* */
-INLINE void rora( void )
-{
-	UINT8 r;
-	r = (CC & CC_C) << 7;
-	CLR_NZC;
-	CC |= (A & CC_C);
-	r |= A >> 1;
-	SET_NZ8(r);
-	A = r;
-}
-
-/* $47 ASRA inherent ?**-* */
-INLINE void asra( void )
-{
-	CLR_NZC;
-	CC |= (A & CC_C);
-	A = (A & 0x80) | (A >> 1);
-	SET_NZ8(A);
-}
-
-/* $48 ASLA inherent ?**** */
-INLINE void asla( void )
-{
-	UINT16 r;
-	r = A << 1;
-	CLR_NZVC;
-	SET_FLAGS8(A,A,r);
-	A = r;
-}
-
-/* $49 ROLA inherent -**** */
-INLINE void rola( void )
-{
-	UINT16 t,r;
-	t = A;
-	r = (CC & CC_C) | (t<<1);
-	CLR_NZVC; SET_FLAGS8(t,t,r);
-	A = r;
-}
-
-/* $4A DECA inherent -***- */
-INLINE void deca( void )
-{
-	--A;
-	CLR_NZV;
-	SET_FLAGS8D(A);
-}
-
-/* $4B ILLEGAL */
-
-/* $4C INCA inherent -***- */
-INLINE void inca( void )
-{
-	++A;
-	CLR_NZV;
-	SET_FLAGS8I(A);
-}
-
-/* $4D TSTA inherent -**0- */
-INLINE void tsta( void )
-{
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $4E ILLEGAL */
-
-/* $4F CLRA inherent -0100 */
-INLINE void clra( void )
-{
-	A = 0;
-	CLR_NZVC; SEZ;
-}
-
-#ifdef macintosh
-#pragma mark ____5x____
-#endif
-
-/* $50 NEGB inherent ?**** */
-INLINE void negb( void )
-{
-	UINT16 r;
-	r = -B;
-	CLR_NZVC;
-	SET_FLAGS8(0,B,r);
-	B = r;
-}
-
-/* $51 ILLEGAL */
-
-/* $52 ILLEGAL */
-
-/* $53 COMB inherent -**01 */
-INLINE void comb( void )
-{
-	B = ~B;
-	CLR_NZV;
-	SET_NZ8(B);
-	SEC;
-}
-
-/* $54 LSRB inherent -0*-* */
-INLINE void lsrb( void )
-{
-	CLR_NZC;
-	CC |= (B & CC_C);
-	B >>= 1;
-	SET_Z8(B);
-}
-
-/* $55 ILLEGAL */
-
-/* $56 RORB inherent -**-* */
-INLINE void rorb( void )
-{
-	UINT8 r;
-	r = (CC & CC_C) << 7;
-	CLR_NZC;
-	CC |= (B & CC_C);
-	r |= B >> 1;
-	SET_NZ8(r);
-	B = r;
-}
-
-/* $57 ASRB inherent ?**-* */
-INLINE void asrb( void )
-{
-	CLR_NZC;
-	CC |= (B & CC_C);
-	B= (B & 0x80) | (B >> 1);
-	SET_NZ8(B);
-}
-
-/* $58 ASLB inherent ?**** */
-INLINE void aslb( void )
-{
-	UINT16 r;
-	r = B << 1;
-	CLR_NZVC;
-	SET_FLAGS8(B,B,r);
-	B = r;
-}
-
-/* $59 ROLB inherent -**** */
-INLINE void rolb( void )
-{
-	UINT16 t,r;
-	t = B;
-	r = CC & CC_C;
-	r |= t << 1;
-	CLR_NZVC;
-	SET_FLAGS8(t,t,r);
-	B = r;
-}
-
-/* $5A DECB inherent -***- */
-INLINE void decb( void )
-{
-	--B;
-	CLR_NZV;
-	SET_FLAGS8D(B);
-}
-
-/* $5B ILLEGAL */
-
-/* $5C INCB inherent -***- */
-INLINE void incb( void )
-{
-	++B;
-	CLR_NZV;
-	SET_FLAGS8I(B);
-}
-
-/* $5D TSTB inherent -**0- */
-INLINE void tstb( void )
-{
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $5E ILLEGAL */
-
-/* $5F CLRB inherent -0100 */
-INLINE void clrb( void )
-{
-	B = 0;
-	CLR_NZVC; SEZ;
-}
-
-#ifdef macintosh
-#pragma mark ____6x____
-#endif
-
-/* $60 NEG indexed ?**** */
-INLINE void neg_ix( void )
-{
-	UINT16 r,t;
-	fetch_effective_address();
-	t = RM(EAD);
-	r=-t;
-	CLR_NZVC;
-	SET_FLAGS8(0,t,r);
-	WM(EAD,r);
-}
-
-/* $61 ILLEGAL */
-
-/* $62 ILLEGAL */
-
-/* $63 COM indexed -**01 */
-INLINE void com_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t = ~RM(EAD);
-	CLR_NZV;
-	SET_NZ8(t);
-	SEC;
-	WM(EAD,t);
-}
-
-/* $64 LSR indexed -0*-* */
-INLINE void lsr_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t=RM(EAD);
-	CLR_NZC;
-	CC |= (t & CC_C);
-	t>>=1; SET_Z8(t);
-	WM(EAD,t);
-}
-
-/* $65 ILLEGAL */
-
-/* $66 ROR indexed -**-* */
-INLINE void ror_ix( void )
-{
-	UINT8 t,r;
-	fetch_effective_address();
-	t=RM(EAD);
-	r = (CC & CC_C) << 7;
-	CLR_NZC;
-	CC |= (t & CC_C);
-	r |= t>>1; SET_NZ8(r);
-	WM(EAD,r);
-}
-
-/* $67 ASR indexed ?**-* */
-INLINE void asr_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t=RM(EAD);
-	CLR_NZC;
-	CC |= (t & CC_C);
-	t=(t&0x80)|(t>>1);
-	SET_NZ8(t);
-	WM(EAD,t);
-}
-
-/* $68 ASL indexed ?**** */
-INLINE void asl_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t=RM(EAD);
-	r = t << 1;
-	CLR_NZVC;
-	SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $69 ROL indexed -**** */
-INLINE void rol_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t=RM(EAD);
-	r = CC & CC_C;
-	r |= t << 1;
-	CLR_NZVC;
-	SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $6A DEC indexed -***- */
-INLINE void dec_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t = RM(EAD) - 1;
-	CLR_NZV; SET_FLAGS8D(t);
-	WM(EAD,t);
-}
-
-/* $6B ILLEGAL */
-
-/* $6C INC indexed -***- */
-INLINE void inc_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t = RM(EAD) + 1;
-	CLR_NZV; SET_FLAGS8I(t);
-	WM(EAD,t);
-}
-
-/* $6D TST indexed -**0- */
-INLINE void tst_ix( void )
-{
-	UINT8 t;
-	fetch_effective_address();
-	t = RM(EAD);
-	CLR_NZV;
-	SET_NZ8(t);
-}
-
-/* $6E JMP indexed ----- */
-INLINE void jmp_ix( void )
-{
-	fetch_effective_address();
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $6F CLR indexed -0100 */
-INLINE void clr_ix( void )
-{
-	fetch_effective_address();
-#ifdef MESS
-	RM(EAD);
-#endif
-	WM(EAD,0);
-	CLR_NZVC; SEZ;
-}
-
-#ifdef macintosh
-#pragma mark ____7x____
-#endif
-
-/* $70 NEG extended ?**** */
-INLINE void neg_ex( void )
-{
-	UINT16 r,t;
-	EXTBYTE(t); r=-t;
-	CLR_NZVC; SET_FLAGS8(0,t,r);
-	WM(EAD,r);
-}
-
-/* $71 ILLEGAL */
-
-/* $72 ILLEGAL */
-
-/* $73 COM extended -**01 */
-INLINE void com_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); t = ~t;
-	CLR_NZV; SET_NZ8(t); SEC;
-	WM(EAD,t);
-}
-
-/* $74 LSR extended -0*-* */
-INLINE void lsr_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); CLR_NZC; CC |= (t & CC_C);
-	t>>=1; SET_Z8(t);
-	WM(EAD,t);
-}
-
-/* $75 ILLEGAL */
-
-/* $76 ROR extended -**-* */
-INLINE void ror_ex( void )
-{
-	UINT8 t,r;
-	EXTBYTE(t); r=(CC & CC_C) << 7;
-	CLR_NZC; CC |= (t & CC_C);
-	r |= t>>1; SET_NZ8(r);
-	WM(EAD,r);
-}
-
-/* $77 ASR extended ?**-* */
-INLINE void asr_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); CLR_NZC; CC |= (t & CC_C);
-	t=(t&0x80)|(t>>1);
-	SET_NZ8(t);
-	WM(EAD,t);
-}
-
-/* $78 ASL extended ?**** */
-INLINE void asl_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t); r=t<<1;
-	CLR_NZVC; SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $79 ROL extended -**** */
-INLINE void rol_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t); r = (CC & CC_C) | (t << 1);
-	CLR_NZVC; SET_FLAGS8(t,t,r);
-	WM(EAD,r);
-}
-
-/* $7A DEC extended -***- */
-INLINE void dec_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); --t;
-	CLR_NZV; SET_FLAGS8D(t);
-	WM(EAD,t);
-}
-
-/* $7B ILLEGAL */
-
-/* $7C INC extended -***- */
-INLINE void inc_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); ++t;
-	CLR_NZV; SET_FLAGS8I(t);
-	WM(EAD,t);
-}
-
-/* $7D TST extended -**0- */
-INLINE void tst_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t); CLR_NZV; SET_NZ8(t);
-}
-
-/* $7E JMP extended ----- */
-INLINE void jmp_ex( void )
-{
-	EXTENDED;
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $7F CLR extended -0100 */
-INLINE void clr_ex( void )
-{
-	EXTENDED;
-#ifdef MESS
-	RM(EAD);
-#endif
-	WM(EAD,0);
-	CLR_NZVC; SEZ;
-}
-
-
-#ifdef macintosh
-#pragma mark ____8x____
-#endif
-
-/* $80 SUBA immediate ?**** */
-INLINE void suba_im( void )
-{
-	UINT16 t,r;
-	IMMBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $81 CMPA immediate ?**** */
-INLINE void cmpa_im( void )
-{
-	UINT16	  t,r;
-	IMMBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-}
-
-/* $82 SBCA immediate ?**** */
-INLINE void sbca_im( void )
-{
-	UINT16	  t,r;
-	IMMBYTE(t);
-	r = A - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $83 SUBD (CMPD CMPU) immediate -**** */
-INLINE void subd_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $1083 CMPD immediate -**** */
-INLINE void cmpd_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $1183 CMPU immediate -**** */
-INLINE void cmpu_im( void )
-{
-	UINT32 r, d;
-	PAIR b;
-	IMMWORD(b);
-	d = U;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $84 ANDA immediate -**0- */
-INLINE void anda_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	A &= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $85 BITA immediate -**0- */
-INLINE void bita_im( void )
-{
-	UINT8 t,r;
-	IMMBYTE(t);
-	r = A & t;
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $86 LDA immediate -**0- */
-INLINE void lda_im( void )
-{
-	IMMBYTE(A);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* is this a legal instruction? */
-/* $87 STA immediate -**0- */
-INLINE void sta_im( void )
-{
-	CLR_NZV;
-	SET_NZ8(A);
-	IMM8;
-	WM(EAD,A);
-}
-
-/* $88 EORA immediate -**0- */
-INLINE void eora_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	A ^= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $89 ADCA immediate ***** */
-INLINE void adca_im( void )
-{
-	UINT16 t,r;
-	IMMBYTE(t);
-	r = A + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $8A ORA immediate -**0- */
-INLINE void ora_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	A |= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $8B ADDA immediate ***** */
-INLINE void adda_im( void )
-{
-	UINT16 t,r;
-	IMMBYTE(t);
-	r = A + t;
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $8C CMPX (CMPY CMPS) immediate -**** */
-INLINE void cmpx_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = X;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $108C CMPY immediate -**** */
-INLINE void cmpy_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = Y;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $118C CMPS immediate -**** */
-INLINE void cmps_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = S;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $8D BSR ----- */
-INLINE void bsr( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	PUSHWORD(pPC);
-	PC += SIGNED(t);
-	CHANGE_PC;
-}
-
-/* $8E LDX (LDY) immediate -**0- */
-INLINE void ldx_im( void )
-{
-	IMMWORD(pX);
-	CLR_NZV;
-	SET_NZ16(X);
-}
-
-/* $108E LDY immediate -**0- */
-INLINE void ldy_im( void )
-{
-	IMMWORD(pY);
-	CLR_NZV;
-	SET_NZ16(Y);
-}
-
-/* is this a legal instruction? */
-/* $8F STX (STY) immediate -**0- */
-INLINE void stx_im( void )
-{
-	CLR_NZV;
-	SET_NZ16(X);
-	IMM16;
-	WM16(EAD,&pX);
-}
-
-/* is this a legal instruction? */
-/* $108F STY immediate -**0- */
-INLINE void sty_im( void )
-{
-	CLR_NZV;
-	SET_NZ16(Y);
-	IMM16;
-	WM16(EAD,&pY);
-}
-
-#ifdef macintosh
-#pragma mark ____9x____
-#endif
-
-/* $90 SUBA direct ?**** */
-INLINE void suba_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $91 CMPA direct ?**** */
-INLINE void cmpa_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-}
-
-/* $92 SBCA direct ?**** */
-INLINE void sbca_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = A - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $93 SUBD (CMPD CMPU) direct -**** */
-INLINE void subd_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $1093 CMPD direct -**** */
-INLINE void cmpd_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $1193 CMPU direct -**** */
-INLINE void cmpu_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = U;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(U,b.d,r);
-}
-
-/* $94 ANDA direct -**0- */
-INLINE void anda_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	A &= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $95 BITA direct -**0- */
-INLINE void bita_di( void )
-{
-	UINT8 t,r;
-	DIRBYTE(t);
-	r = A & t;
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $96 LDA direct -**0- */
-INLINE void lda_di( void )
-{
-	DIRBYTE(A);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $97 STA direct -**0- */
-INLINE void sta_di( void )
-{
-	CLR_NZV;
-	SET_NZ8(A);
-	DIRECT;
-	WM(EAD,A);
-}
-
-/* $98 EORA direct -**0- */
-INLINE void eora_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	A ^= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $99 ADCA direct ***** */
-INLINE void adca_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = A + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $9A ORA direct -**0- */
-INLINE void ora_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	A |= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $9B ADDA direct ***** */
-INLINE void adda_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = A + t;
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $9C CMPX (CMPY CMPS) direct -**** */
-INLINE void cmpx_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = X;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $109C CMPY direct -**** */
-INLINE void cmpy_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = Y;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $119C CMPS direct -**** */
-INLINE void cmps_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = S;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $9D JSR direct ----- */
-INLINE void jsr_di( void )
-{
-	DIRECT;
-	PUSHWORD(pPC);
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $9E LDX (LDY) direct -**0- */
-INLINE void ldx_di( void )
-{
-	DIRWORD(pX);
-	CLR_NZV;
-	SET_NZ16(X);
-}
-
-/* $109E LDY direct -**0- */
-INLINE void ldy_di( void )
-{
-	DIRWORD(pY);
-	CLR_NZV;
-	SET_NZ16(Y);
-}
-
-/* $9F STX (STY) direct -**0- */
-INLINE void stx_di( void )
-{
-	CLR_NZV;
-	SET_NZ16(X);
-	DIRECT;
-	WM16(EAD,&pX);
-}
-
-/* $109F STY direct -**0- */
-INLINE void sty_di( void )
-{
-	CLR_NZV;
-	SET_NZ16(Y);
-	DIRECT;
-	WM16(EAD,&pY);
-}
-
-#ifdef macintosh
-#pragma mark ____Ax____
-#endif
-
-
-/* $a0 SUBA indexed ?**** */
-INLINE void suba_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $a1 CMPA indexed ?**** */
-INLINE void cmpa_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-}
-
-/* $a2 SBCA indexed ?**** */
-INLINE void sbca_ix( void )
-{
-	UINT16	  t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = A - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $a3 SUBD (CMPD CMPU) indexed -**** */
-INLINE void subd_ix( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $10a3 CMPD indexed -**** */
-INLINE void cmpd_ix( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $11a3 CMPU indexed -**** */
-INLINE void cmpu_ix( void )
-{
-	UINT32 r;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	r = U - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(U,b.d,r);
-}
-
-/* $a4 ANDA indexed -**0- */
-INLINE void anda_ix( void )
-{
-	fetch_effective_address();
-	A &= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $a5 BITA indexed -**0- */
-INLINE void bita_ix( void )
-{
-	UINT8 r;
-	fetch_effective_address();
-	r = A & RM(EAD);
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $a6 LDA indexed -**0- */
-INLINE void lda_ix( void )
-{
-	fetch_effective_address();
-	A = RM(EAD);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $a7 STA indexed -**0- */
-INLINE void sta_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ8(A);
-	WM(EAD,A);
-}
-
-/* $a8 EORA indexed -**0- */
-INLINE void eora_ix( void )
-{
-	fetch_effective_address();
-	A ^= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $a9 ADCA indexed ***** */
-INLINE void adca_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = A + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $aA ORA indexed -**0- */
-INLINE void ora_ix( void )
-{
-	fetch_effective_address();
-	A |= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $aB ADDA indexed ***** */
-INLINE void adda_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = A + t;
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $aC CMPX (CMPY CMPS) indexed -**** */
-INLINE void cmpx_ix( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	d = X;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $10aC CMPY indexed -**** */
-INLINE void cmpy_ix( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	d = Y;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $11aC CMPS indexed -**** */
-INLINE void cmps_ix( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	fetch_effective_address();
-    b.d=RM16(EAD);
-	d = S;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $aD JSR indexed ----- */
-INLINE void jsr_ix( void )
-{
-	fetch_effective_address();
-    PUSHWORD(pPC);
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $aE LDX (LDY) indexed -**0- */
-INLINE void ldx_ix( void )
-{
-	fetch_effective_address();
-    X=RM16(EAD);
-	CLR_NZV;
-	SET_NZ16(X);
-}
-
-/* $10aE LDY indexed -**0- */
-INLINE void ldy_ix( void )
-{
-	fetch_effective_address();
-    Y=RM16(EAD);
-	CLR_NZV;
-	SET_NZ16(Y);
-}
-
-/* $aF STX (STY) indexed -**0- */
-INLINE void stx_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ16(X);
-	WM16(EAD,&pX);
-}
-
-/* $10aF STY indexed -**0- */
-INLINE void sty_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ16(Y);
-	WM16(EAD,&pY);
-}
-
-#ifdef macintosh
-#pragma mark ____Bx____
-#endif
-
-/* $b0 SUBA extended ?**** */
-INLINE void suba_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $b1 CMPA extended ?**** */
-INLINE void cmpa_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = A - t;
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-}
-
-/* $b2 SBCA extended ?**** */
-INLINE void sbca_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = A - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(A,t,r);
-	A = r;
-}
-
-/* $b3 SUBD (CMPD CMPU) extended -**** */
-INLINE void subd_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $10b3 CMPD extended -**** */
-INLINE void cmpd_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = D;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $11b3 CMPU extended -**** */
-INLINE void cmpu_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = U;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $b4 ANDA extended -**0- */
-INLINE void anda_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	A &= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $b5 BITA extended -**0- */
-INLINE void bita_ex( void )
-{
-	UINT8 t,r;
-	EXTBYTE(t);
-	r = A & t;
-	CLR_NZV; SET_NZ8(r);
-}
-
-/* $b6 LDA extended -**0- */
-INLINE void lda_ex( void )
-{
-	EXTBYTE(A);
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $b7 STA extended -**0- */
-INLINE void sta_ex( void )
-{
-	CLR_NZV;
-	SET_NZ8(A);
-	EXTENDED;
-	WM(EAD,A);
-}
-
-/* $b8 EORA extended -**0- */
-INLINE void eora_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	A ^= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $b9 ADCA extended ***** */
-INLINE void adca_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t);
-	r = A + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $bA ORA extended -**0- */
-INLINE void ora_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	A |= t;
-	CLR_NZV;
-	SET_NZ8(A);
-}
-
-/* $bB ADDA extended ***** */
-INLINE void adda_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t);
-	r = A + t;
-	CLR_HNZVC;
-	SET_FLAGS8(A,t,r);
-	SET_H(A,t,r);
-	A = r;
-}
-
-/* $bC CMPX (CMPY CMPS) extended -**** */
-INLINE void cmpx_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = X;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $10bC CMPY extended -**** */
-INLINE void cmpy_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = Y;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $11bC CMPS extended -**** */
-INLINE void cmps_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = S;
-	r = d - b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-}
-
-/* $bD JSR extended ----- */
-INLINE void jsr_ex( void )
-{
-	EXTENDED;
-	PUSHWORD(pPC);
-	PCD = EAD;
-	CHANGE_PC;
-}
-
-/* $bE LDX (LDY) extended -**0- */
-INLINE void ldx_ex( void )
-{
-	EXTWORD(pX);
-	CLR_NZV;
-	SET_NZ16(X);
-}
-
-/* $10bE LDY extended -**0- */
-INLINE void ldy_ex( void )
-{
-	EXTWORD(pY);
-	CLR_NZV;
-	SET_NZ16(Y);
-}
-
-/* $bF STX (STY) extended -**0- */
-INLINE void stx_ex( void )
-{
-	CLR_NZV;
-	SET_NZ16(X);
-	EXTENDED;
-	WM16(EAD,&pX);
-}
-
-/* $10bF STY extended -**0- */
-INLINE void sty_ex( void )
-{
-	CLR_NZV;
-	SET_NZ16(Y);
-	EXTENDED;
-	WM16(EAD,&pY);
-}
-
-
-#ifdef macintosh
-#pragma mark ____Cx____
-#endif
-
-/* $c0 SUBB immediate ?**** */
-INLINE void subb_im( void )
-{
-	UINT16	  t,r;
-	IMMBYTE(t);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $c1 CMPB immediate ?**** */
-INLINE void cmpb_im( void )
-{
-	UINT16	  t,r;
-	IMMBYTE(t);
-	r = B - t;
-	CLR_NZVC; SET_FLAGS8(B,t,r);
-}
-
-/* $c2 SBCB immediate ?**** */
-INLINE void sbcb_im( void )
-{
-	UINT16	  t,r;
-	IMMBYTE(t);
-	r = B - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $c3 ADDD immediate -**** */
-INLINE void addd_im( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	IMMWORD(b);
-	d = D;
-	r = d + b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $c4 ANDB immediate -**0- */
-INLINE void andb_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	B &= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $c5 BITB immediate -**0- */
-INLINE void bitb_im( void )
-{
-	UINT8 t,r;
-	IMMBYTE(t);
-	r = B & t;
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $c6 LDB immediate -**0- */
-INLINE void ldb_im( void )
-{
-	IMMBYTE(B);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* is this a legal instruction? */
-/* $c7 STB immediate -**0- */
-INLINE void stb_im( void )
-{
-	CLR_NZV;
-	SET_NZ8(B);
-	IMM8;
-	WM(EAD,B);
-}
-
-/* $c8 EORB immediate -**0- */
-INLINE void eorb_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	B ^= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $c9 ADCB immediate ***** */
-INLINE void adcb_im( void )
-{
-	UINT16 t,r;
-	IMMBYTE(t);
-	r = B + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $cA ORB immediate -**0- */
-INLINE void orb_im( void )
-{
-	UINT8 t;
-	IMMBYTE(t);
-	B |= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $cB ADDB immediate ***** */
-INLINE void addb_im( void )
-{
-	UINT16 t,r;
-	IMMBYTE(t);
-	r = B + t;
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $cC LDD immediate -**0- */
-INLINE void ldd_im( void )
-{
-	IMMWORD(pD);
-	CLR_NZV;
-	SET_NZ16(D);
-}
-
-/* is this a legal instruction? */
-/* $cD STD immediate -**0- */
-INLINE void std_im( void )
-{
-	CLR_NZV;
-	SET_NZ16(D);
-    IMM16;
-	WM16(EAD,&pD);
-}
-
-/* $cE LDU (LDS) immediate -**0- */
-INLINE void ldu_im( void )
-{
-	IMMWORD(pU);
-	CLR_NZV;
-	SET_NZ16(U);
-}
-
-/* $10cE LDS immediate -**0- */
-INLINE void lds_im( void )
-{
-	IMMWORD(pS);
-	CLR_NZV;
-	SET_NZ16(S);
-	m6809.int_state |= M6809_LDS;
-}
-
-/* is this a legal instruction? */
-/* $cF STU (STS) immediate -**0- */
-INLINE void stu_im( void )
-{
-	CLR_NZV;
-	SET_NZ16(U);
-    IMM16;
-	WM16(EAD,&pU);
-}
-
-/* is this a legal instruction? */
-/* $10cF STS immediate -**0- */
-INLINE void sts_im( void )
-{
-	CLR_NZV;
-	SET_NZ16(S);
-    IMM16;
-	WM16(EAD,&pS);
-}
-
-
-#ifdef macintosh
-#pragma mark ____Dx____
-#endif
-
-/* $d0 SUBB direct ?**** */
-INLINE void subb_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $d1 CMPB direct ?**** */
-INLINE void cmpb_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-}
-
-/* $d2 SBCB direct ?**** */
-INLINE void sbcb_di( void )
-{
-	UINT16	  t,r;
-	DIRBYTE(t);
-	r = B - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $d3 ADDD direct -**** */
-INLINE void addd_di( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	DIRWORD(b);
-	d = D;
-	r = d + b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $d4 ANDB direct -**0- */
-INLINE void andb_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	B &= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $d5 BITB direct -**0- */
-INLINE void bitb_di( void )
-{
-	UINT8 t,r;
-	DIRBYTE(t);
-	r = B & t;
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $d6 LDB direct -**0- */
-INLINE void ldb_di( void )
-{
-	DIRBYTE(B);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $d7 STB direct -**0- */
-INLINE void stb_di( void )
-{
-	CLR_NZV;
-	SET_NZ8(B);
-	DIRECT;
-	WM(EAD,B);
-}
-
-/* $d8 EORB direct -**0- */
-INLINE void eorb_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	B ^= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $d9 ADCB direct ***** */
-INLINE void adcb_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = B + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $dA ORB direct -**0- */
-INLINE void orb_di( void )
-{
-	UINT8 t;
-	DIRBYTE(t);
-	B |= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $dB ADDB direct ***** */
-INLINE void addb_di( void )
-{
-	UINT16 t,r;
-	DIRBYTE(t);
-	r = B + t;
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $dC LDD direct -**0- */
-INLINE void ldd_di( void )
-{
-	DIRWORD(pD);
-	CLR_NZV;
-	SET_NZ16(D);
-}
-
-/* $dD STD direct -**0- */
-INLINE void std_di( void )
-{
-	CLR_NZV;
-	SET_NZ16(D);
-    DIRECT;
-	WM16(EAD,&pD);
-}
-
-/* $dE LDU (LDS) direct -**0- */
-INLINE void ldu_di( void )
-{
-	DIRWORD(pU);
-	CLR_NZV;
-	SET_NZ16(U);
-}
-
-/* $10dE LDS direct -**0- */
-INLINE void lds_di( void )
-{
-	DIRWORD(pS);
-	CLR_NZV;
-	SET_NZ16(S);
-	m6809.int_state |= M6809_LDS;
-}
-
-/* $dF STU (STS) direct -**0- */
-INLINE void stu_di( void )
-{
-	CLR_NZV;
-	SET_NZ16(U);
-	DIRECT;
-	WM16(EAD,&pU);
-}
-
-/* $10dF STS direct -**0- */
-INLINE void sts_di( void )
-{
-	CLR_NZV;
-	SET_NZ16(S);
-	DIRECT;
-	WM16(EAD,&pS);
-}
-
-#ifdef macintosh
-#pragma mark ____Ex____
-#endif
-
-
-/* $e0 SUBB indexed ?**** */
-INLINE void subb_ix( void )
-{
-	UINT16	  t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $e1 CMPB indexed ?**** */
-INLINE void cmpb_ix( void )
-{
-	UINT16	  t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-}
-
-/* $e2 SBCB indexed ?**** */
-INLINE void sbcb_ix( void )
-{
-	UINT16	  t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = B - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $e3 ADDD indexed -**** */
-INLINE void addd_ix( void )
-{
-	UINT32 r,d;
-    PAIR b;
-    fetch_effective_address();
-	b.d=RM16(EAD);
-	d = D;
-	r = d + b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $e4 ANDB indexed -**0- */
-INLINE void andb_ix( void )
-{
-	fetch_effective_address();
-	B &= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $e5 BITB indexed -**0- */
-INLINE void bitb_ix( void )
-{
-	UINT8 r;
-	fetch_effective_address();
-	r = B & RM(EAD);
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $e6 LDB indexed -**0- */
-INLINE void ldb_ix( void )
-{
-	fetch_effective_address();
-	B = RM(EAD);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $e7 STB indexed -**0- */
-INLINE void stb_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ8(B);
-	WM(EAD,B);
-}
-
-/* $e8 EORB indexed -**0- */
-INLINE void eorb_ix( void )
-{
-	fetch_effective_address();
-	B ^= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $e9 ADCB indexed ***** */
-INLINE void adcb_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = B + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $eA ORB indexed -**0- */
-INLINE void orb_ix( void )
-{
-	fetch_effective_address();
-	B |= RM(EAD);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $eB ADDB indexed ***** */
-INLINE void addb_ix( void )
-{
-	UINT16 t,r;
-	fetch_effective_address();
-	t = RM(EAD);
-	r = B + t;
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $eC LDD indexed -**0- */
-INLINE void ldd_ix( void )
-{
-	fetch_effective_address();
-    D=RM16(EAD);
-	CLR_NZV; SET_NZ16(D);
-}
-
-/* $eD STD indexed -**0- */
-INLINE void std_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ16(D);
-	WM16(EAD,&pD);
-}
-
-/* $eE LDU (LDS) indexed -**0- */
-INLINE void ldu_ix( void )
-{
-	fetch_effective_address();
-    U=RM16(EAD);
-	CLR_NZV;
-	SET_NZ16(U);
-}
-
-/* $10eE LDS indexed -**0- */
-INLINE void lds_ix( void )
-{
-	fetch_effective_address();
-    S=RM16(EAD);
-	CLR_NZV;
-	SET_NZ16(S);
-	m6809.int_state |= M6809_LDS;
-}
-
-/* $eF STU (STS) indexed -**0- */
-INLINE void stu_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ16(U);
-	WM16(EAD,&pU);
-}
-
-/* $10eF STS indexed -**0- */
-INLINE void sts_ix( void )
-{
-	fetch_effective_address();
-    CLR_NZV;
-	SET_NZ16(S);
-	WM16(EAD,&pS);
-}
-
-#ifdef macintosh
-#pragma mark ____Fx____
-#endif
-
-/* $f0 SUBB extended ?**** */
-INLINE void subb_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $f1 CMPB extended ?**** */
-INLINE void cmpb_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = B - t;
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-}
-
-/* $f2 SBCB extended ?**** */
-INLINE void sbcb_ex( void )
-{
-	UINT16	  t,r;
-	EXTBYTE(t);
-	r = B - t - (CC & CC_C);
-	CLR_NZVC;
-	SET_FLAGS8(B,t,r);
-	B = r;
-}
-
-/* $f3 ADDD extended -**** */
-INLINE void addd_ex( void )
-{
-	UINT32 r,d;
-	PAIR b;
-	EXTWORD(b);
-	d = D;
-	r = d + b.d;
-	CLR_NZVC;
-	SET_FLAGS16(d,b.d,r);
-	D = r;
-}
-
-/* $f4 ANDB extended -**0- */
-INLINE void andb_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	B &= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $f5 BITB extended -**0- */
-INLINE void bitb_ex( void )
-{
-	UINT8 t,r;
-	EXTBYTE(t);
-	r = B & t;
-	CLR_NZV;
-	SET_NZ8(r);
-}
-
-/* $f6 LDB extended -**0- */
-INLINE void ldb_ex( void )
-{
-	EXTBYTE(B);
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $f7 STB extended -**0- */
-INLINE void stb_ex( void )
-{
-	CLR_NZV;
-	SET_NZ8(B);
-	EXTENDED;
-	WM(EAD,B);
-}
-
-/* $f8 EORB extended -**0- */
-INLINE void eorb_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	B ^= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $f9 ADCB extended ***** */
-INLINE void adcb_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t);
-	r = B + t + (CC & CC_C);
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $fA ORB extended -**0- */
-INLINE void orb_ex( void )
-{
-	UINT8 t;
-	EXTBYTE(t);
-	B |= t;
-	CLR_NZV;
-	SET_NZ8(B);
-}
-
-/* $fB ADDB extended ***** */
-INLINE void addb_ex( void )
-{
-	UINT16 t,r;
-	EXTBYTE(t);
-	r = B + t;
-	CLR_HNZVC;
-	SET_FLAGS8(B,t,r);
-	SET_H(B,t,r);
-	B = r;
-}
-
-/* $fC LDD extended -**0- */
-INLINE void ldd_ex( void )
-{
-	EXTWORD(pD);
-	CLR_NZV;
-	SET_NZ16(D);
-}
-
-/* $fD STD extended -**0- */
-INLINE void std_ex( void )
-{
-	CLR_NZV;
-	SET_NZ16(D);
-    EXTENDED;
-	WM16(EAD,&pD);
-}
-
-/* $fE LDU (LDS) extended -**0- */
-INLINE void ldu_ex( void )
-{
-	EXTWORD(pU);
-	CLR_NZV;
-	SET_NZ16(U);
-}
-
-/* $10fE LDS extended -**0- */
-INLINE void lds_ex( void )
-{
-	EXTWORD(pS);
-	CLR_NZV;
-	SET_NZ16(S);
-	m6809.int_state |= M6809_LDS;
-}
-
-/* $fF STU (STS) extended -**0- */
-INLINE void stu_ex( void )
-{
-	CLR_NZV;
-	SET_NZ16(U);
-	EXTENDED;
-	WM16(EAD,&pU);
-}
-
-/* $10fF STS extended -**0- */
-INLINE void sts_ex( void )
-{
-	CLR_NZV;
-	SET_NZ16(S);
-	EXTENDED;
-	WM16(EAD,&pS);
-}
-
-/* $10xx opcodes */
-INLINE void pref10( void )
-{
-	UINT8 ireg2 = ROP(PCD);
-	PC++;
-	switch( ireg2 )
+TFR:
 	{
-		case 0x21: lbrn();		m6809_ICount-=5;	break;
-		case 0x22: lbhi();		m6809_ICount-=5;	break;
-		case 0x23: lbls();		m6809_ICount-=5;	break;
-		case 0x24: lbcc();		m6809_ICount-=5;	break;
-		case 0x25: lbcs();		m6809_ICount-=5;	break;
-		case 0x26: lbne();		m6809_ICount-=5;	break;
-		case 0x27: lbeq();		m6809_ICount-=5;	break;
-		case 0x28: lbvc();		m6809_ICount-=5;	break;
-		case 0x29: lbvs();		m6809_ICount-=5;	break;
-		case 0x2a: lbpl();		m6809_ICount-=5;	break;
-		case 0x2b: lbmi();		m6809_ICount-=5;	break;
-		case 0x2c: lbge();		m6809_ICount-=5;	break;
-		case 0x2d: lblt();		m6809_ICount-=5;	break;
-		case 0x2e: lbgt();		m6809_ICount-=5;	break;
-		case 0x2f: lble();		m6809_ICount-=5;	break;
+		UINT8 param = read_opcode_arg_next();
+		exgtfr_register reg = read_exgtfr_register(param >> 4);
+		write_exgtfr_register(param >> 0, reg);
+		if ((param & 0x0F) == 4) {
+			m_lds_encountered = true;
+		}
+	}
+	eat(hd6309_native_mode() ? 2 : 4);
+	return;
 
-		case 0x3f: swi2();		m6809_ICount-=20;	break;
+ILLEGAL:
+	log_illegal();
+	return;
 
-		case 0x83: cmpd_im();	m6809_ICount-=5;	break;
-		case 0x8c: cmpy_im();	m6809_ICount-=5;	break;
-		case 0x8e: ldy_im();	m6809_ICount-=4;	break;
-		case 0x8f: sty_im();	m6809_ICount-=4;	break;
-
-		case 0x93: cmpd_di();	m6809_ICount-=7;	break;
-		case 0x9c: cmpy_di();	m6809_ICount-=7;	break;
-		case 0x9e: ldy_di();	m6809_ICount-=6;	break;
-		case 0x9f: sty_di();	m6809_ICount-=6;	break;
-
-		case 0xa3: cmpd_ix();	m6809_ICount-=7;	break;
-		case 0xac: cmpy_ix();	m6809_ICount-=7;	break;
-		case 0xae: ldy_ix();	m6809_ICount-=6;	break;
-		case 0xaf: sty_ix();	m6809_ICount-=6;	break;
-
-		case 0xb3: cmpd_ex();	m6809_ICount-=8;	break;
-		case 0xbc: cmpy_ex();	m6809_ICount-=8;	break;
-		case 0xbe: ldy_ex();	m6809_ICount-=7;	break;
-		case 0xbf: sty_ex();	m6809_ICount-=7;	break;
-
-		case 0xce: lds_im();	m6809_ICount-=4;	break;
-		case 0xcf: sts_im();	m6809_ICount-=4;	break;
-
-		case 0xde: lds_di();	m6809_ICount-=6;	break;
-		case 0xdf: sts_di();	m6809_ICount-=6;	break;
-
-		case 0xee: lds_ix();	m6809_ICount-=6;	break;
-		case 0xef: sts_ix();	m6809_ICount-=6;	break;
-
-		case 0xfe: lds_ex();	m6809_ICount-=7;	break;
-		case 0xff: sts_ex();	m6809_ICount-=7;	break;
-
-		default:   illegal();						break;
 	}
 }
-
-/* $11xx opcodes */
-INLINE void pref11( void )
-{
-	UINT8 ireg2 = ROP(PCD);
-	PC++;
-	switch( ireg2 )
-	{
-		case 0x3f: swi3();		m6809_ICount-=20;	break;
-
-		case 0x83: cmpu_im();	m6809_ICount-=5;	break;
-		case 0x8c: cmps_im();	m6809_ICount-=5;	break;
-
-		case 0x93: cmpu_di();	m6809_ICount-=7;	break;
-		case 0x9c: cmps_di();	m6809_ICount-=7;	break;
-
-		case 0xa3: cmpu_ix();	m6809_ICount-=7;	break;
-		case 0xac: cmps_ix();	m6809_ICount-=7;	break;
-
-		case 0xb3: cmpu_ex();	m6809_ICount-=8;	break;
-		case 0xbc: cmps_ex();	m6809_ICount-=8;	break;
-
-		default:   illegal();						break;
-	}
-}
-
-

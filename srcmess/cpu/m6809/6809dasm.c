@@ -1,18 +1,11 @@
-/* this code was hacked out of the fully-featured 6809 disassembler by Sean Riddle */
+// license:BSD-3-Clause
+// copyright-holders:Sean Riddle
+/*****************************************************************************
 
+    6809dasm.c - a 6809 opcode disassembler
 
-/* 6809dasm.c - a 6809 opcode disassembler */
-/* Version 1.4 1-MAR-95 */
-/* Copyright 1995 Sean Riddle */
+*****************************************************************************/
 
-/* thanks to Franklin Bowen for bug fixes, ideas */
-
-/* Freely distributable on any medium given all copyrights are retained */
-/* by the author and no charge greater than $7.00 is made for obtaining */
-/* this software */
-
-/* Please send all bug reports, update ideas and data files to: */
-/* sriddle@ionet.net */
 
 #include "debugger.h"
 #include "debug/eainfo.h"
