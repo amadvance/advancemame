@@ -39,6 +39,7 @@ Boulderdash use the same graphics chips but are different pcbs.
 
 #include "driver.h"
 #include "cpu/m6502/m6502.h"
+#include "cpu/i8051/i8051.h"
 #include "cpu/h6280/h6280.h"
 #include "dec0.h"
 #include "sound/2203intf.h"
@@ -121,6 +122,103 @@ static WRITE16_HANDLER( midres_sound_w )
 }
 
 /******************************************************************************/
+
+static UINT16 bandit_mcu_command, bandit_mcu_return;
+static UINT8 bandit_mcu_ports[4];
+static UINT16 bandit_track_reset[4];
+static int bandit_ym2203_irq, bandit_ym3812_irq;
+
+static READ8_HANDLER( bandit_mcu_p0_r )
+{
+	int result = 0xff;
+	if (!(bandit_mcu_ports[2] & 0x10)) result &= bandit_mcu_command >> 8;
+	if (!(bandit_mcu_ports[2] & 0x20)) result &= bandit_mcu_command & 0xff;
+	return result;
+}
+
+static WRITE8_HANDLER( bandit_mcu_p0_w )
+{
+	bandit_mcu_ports[0] = data;
+}
+
+static WRITE8_HANDLER( bandit_mcu_p2_w )
+{
+	UINT8 old = bandit_mcu_ports[2];
+	if (!(data & 4) && (old & 4)) cpunum_set_input_line(0, 5, HOLD_LINE);
+	if (!(data & 8)) cpunum_set_input_line(2, I8051_INT1_LINE, CLEAR_LINE);
+	if ((data & 0x40) && !(old & 0x40)) bandit_mcu_return = (bandit_mcu_return & 0xff00) | bandit_mcu_ports[0];
+	if ((data & 0x80) && !(old & 0x80)) bandit_mcu_return = (bandit_mcu_return & 0x00ff) | (bandit_mcu_ports[0] << 8);
+	bandit_mcu_ports[2] = data;
+}
+
+static ADDRESS_MAP_START( bandit_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bandit_mcu_io, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0, 0) AM_READWRITE(bandit_mcu_p0_r, bandit_mcu_p0_w)
+	AM_RANGE(2, 2) AM_WRITE(bandit_mcu_p2_w)
+ADDRESS_MAP_END
+
+static READ16_HANDLER( bandit_control_r )
+{
+	if (offset == 4) return bandit_mcu_return;
+	return dec0_controls_r(offset, mem_mask);
+}
+
+static WRITE16_HANDLER( bandit_control_w )
+{
+	if (offset == 3)
+	{
+		COMBINE_DATA(&bandit_mcu_command);
+		if (bandit_mcu_ports[2] & 8) cpunum_set_input_line(2, I8051_INT1_LINE, ASSERT_LINE);
+	}
+	else if (offset == 7)
+		bandit_mcu_command = bandit_mcu_return = 0;
+	else
+		dec0_control_w(offset, data, mem_mask);
+}
+
+static READ16_HANDLER( bandit_ram_r ) { return dec0_ram[offset]; }
+static WRITE16_HANDLER( bandit_ram_w ) { COMBINE_DATA(&dec0_ram[offset]); }
+static READ16_HANDLER( bandit_sprite_r ) { return spriteram16[offset]; }
+static WRITE16_HANDLER( bandit_sprite_w ) { COMBINE_DATA(&spriteram16[offset]); }
+
+static READ16_HANDLER( bandit_track_r )
+{
+	int axis = (offset / 4) * 2 + ((offset & 2) ? 1 : 0);
+	int value = (readinputport(5 + axis) - bandit_track_reset[axis]) & 0xfff;
+	return (offset & 1) ? value >> 8 : value & 0xff;
+}
+
+static WRITE16_HANDLER( bandit_track_reset_w )
+{
+	if (ACCESSING_LSB) bandit_track_reset[offset / 4] = readinputport(5 + offset / 4);
+}
+
+static READ16_HANDLER( bandit_analog_r ) { return 0xffff; }
+
+static MACHINE_RESET( bandit )
+{
+	bandit_mcu_command = bandit_mcu_return = 0;
+	memset(bandit_mcu_ports, 0xff, sizeof(bandit_mcu_ports));
+	memset(bandit_track_reset, 0, sizeof(bandit_track_reset));
+	bandit_ym2203_irq = bandit_ym3812_irq = 0;
+}
+
+static DRIVER_INIT( bandit )
+{
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x30c000, 0x30c00b, 0, 0, bandit_control_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x30c010, 0x30c01f, 0, 0, bandit_control_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x318000, 0x31bfff, 0, 0, bandit_ram_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x318000, 0x31bfff, 0, 0, bandit_ram_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x31c000, 0x31c7ff, 0, 0, bandit_sprite_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x31c000, 0x31c7ff, 0, 0, bandit_sprite_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300001, 0, 0, bandit_analog_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300008, 0x300009, 0, 0, bandit_analog_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300010, 0x30001f, 0, 0, bandit_track_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300019, 0, 0, bandit_track_reset_w);
+}
 
 static ADDRESS_MAP_START( dec0_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x05ffff) AM_READ(MRA16_ROM)
@@ -329,6 +427,24 @@ static ADDRESS_MAP_START( dec0_s_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 /* Physical memory map (21 bits) */
+static ADDRESS_MAP_START( bandit_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x07ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0800, 0x0800) AM_READ(YM2203_status_port_0_r)
+	AM_RANGE(0x0801, 0x0801) AM_READ(YM2203_read_port_0_r)
+	AM_RANGE(0x1000, 0x1000) AM_READ(YM3812_status_port_0_r)
+	AM_RANGE(0x3000, 0x3000) AM_READ(soundlatch_r)
+	AM_RANGE(0x3800, 0x3800) AM_READ(OKIM6295_status_0_r)
+	AM_RANGE(0x8000, 0xffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bandit_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x07ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x0800, 0x0801) AM_WRITE(YM2203_w)
+	AM_RANGE(0x1000, 0x1001) AM_WRITE(YM3812_w)
+	AM_RANGE(0x3800, 0x3800) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x8000, 0xffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( slyspy_s_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x000000, 0x00ffff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x0a0000, 0x0a0001) AM_READ(MRA8_NOP) /* Protection counter */
@@ -408,6 +524,77 @@ ADDRESS_MAP_END
 	PORT_DIPSETTING(    0x04, DEF_STR( 2C_1C ) ) \
 	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_1C ) ) \
 	PORT_DIPSETTING(    0x08, DEF_STR( 1C_2C ) ) \
+
+INPUT_PORTS_START( bandit )
+	DEC0_PLAYER1_CONTROL
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+	DEC0_MACHINE_CONTROL
+	PORT_START_TAG("DSW0")
+	PORT_DIPNAME( 0x01, 0x01, "Analog controls" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x02, 0x02, "Left/right control" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x04, 0x04, "Unknown 2" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x04, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x08, 0x00, "Road select" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x08, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x10, 0x10, "Flip Screen" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x20, 0x20, "Unknown 5" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x40, 0x40, "Unknown 6" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x40, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x80, 0x00, "Enable enemies" )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x80, DEF_STR( Off ) )
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x04, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x08, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x40, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPSETTING( 0x80, DEF_STR( Off ) )
+	PORT_START_TAG("TRACK0")
+	PORT_BIT( 0x0fff, 0, IPT_TRACKBALL_X ) PORT_SENSITIVITY(50) PORT_KEYDELTA(24) PORT_REVERSE PORT_PLAYER(1)
+	PORT_START_TAG("TRACK1")
+	PORT_BIT( 0x0fff, 0, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(50) PORT_KEYDELTA(24) PORT_PLAYER(1)
+	PORT_START_TAG("TRACK2")
+	PORT_BIT( 0x0fff, 0, IPT_TRACKBALL_X ) PORT_SENSITIVITY(50) PORT_KEYDELTA(24) PORT_REVERSE PORT_PLAYER(2)
+	PORT_START_TAG("TRACK3")
+	PORT_BIT( 0x0fff, 0, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(50) PORT_KEYDELTA(24) PORT_PLAYER(2)
+INPUT_PORTS_END
 
 INPUT_PORTS_START( hbarrel )
 	DEC0_PLAYER1_CONTROL
@@ -927,6 +1114,21 @@ static struct YM3812interface ym3812b_interface =
 
 /******************************************************************************/
 
+static void bandit_ym2203_irq_w(int state)
+{
+	bandit_ym2203_irq = state;
+	cpunum_set_input_line(1, 0, bandit_ym2203_irq || bandit_ym3812_irq ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static void bandit_ym3812_irq_w(int state)
+{
+	bandit_ym3812_irq = state;
+	cpunum_set_input_line(1, 0, bandit_ym2203_irq || bandit_ym3812_irq ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static struct YM2203interface bandit_ym2203_interface = { 0, 0, 0, 0, bandit_ym2203_irq_w };
+static struct YM3812interface bandit_ym3812_interface = { bandit_ym3812_irq_w };
+
 static MACHINE_DRIVER_START( hbarrel )
 
 	/* basic machine hardware */
@@ -962,6 +1164,55 @@ static MACHINE_DRIVER_START( hbarrel )
 
 	MDRV_SOUND_ADD(YM3812, 3000000)
 	MDRV_SOUND_CONFIG(ym3812_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.80)
+
+	MDRV_SOUND_ADD(OKIM6295, 7757)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.80)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( bandit )
+
+
+	MDRV_CPU_ADD(M68000, 10000000)
+	MDRV_CPU_PROGRAM_MAP(dec0_readmem,dec0_writemem)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+
+	MDRV_CPU_ADD(M65C02, 1500000)
+
+	MDRV_CPU_PROGRAM_MAP(bandit_sound_readmem,bandit_sound_writemem)
+
+	MDRV_CPU_ADD(I8751, 8000000)
+	MDRV_CPU_PROGRAM_MAP(bandit_mcu_program, 0)
+	MDRV_CPU_IO_MAP(bandit_mcu_io, 0)
+	MDRV_INTERLEAVE(100)
+	MDRV_MACHINE_RESET(bandit)
+
+	MDRV_FRAMES_PER_SECOND(57.41)
+	MDRV_VBLANK_DURATION(529)
+
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 1*8, 31*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+
+	MDRV_VIDEO_START(bandit)
+	MDRV_VIDEO_UPDATE(bandit)
+
+
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2203, 1500000)
+	MDRV_SOUND_CONFIG(bandit_ym2203_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 0.90)
+	MDRV_SOUND_ROUTE(1, "mono", 0.90)
+	MDRV_SOUND_ROUTE(2, "mono", 0.90)
+	MDRV_SOUND_ROUTE(3, "mono", 0.35)
+
+	MDRV_SOUND_ADD(YM3812, 3000000)
+	MDRV_SOUND_CONFIG(bandit_ym3812_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.80)
 
 	MDRV_SOUND_ADD(OKIM6295, 7757)
@@ -1743,6 +1994,56 @@ ROM_START( robocopb )
 	ROM_LOAD( "ep02", 0x00000, 0x10000, CRC(711ce46f) SHA1(939a8545e53776ff2180d2c7e63bc997689c088e) )
 ROM_END
 
+ROM_START( bandit )
+	ROM_REGION( 0x60000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "4.4",     0x00000, 0x10000, CRC(01a29133) SHA1(6a8e9b959828f82333ca17dbc751a9fbafae6935) )
+	ROM_LOAD16_BYTE( "1.1",     0x00001, 0x10000, CRC(dc61b11f) SHA1(3178a1247d2ef4d30f9c6c55b53db658214d2861) )
+	ROM_LOAD16_BYTE( "5.5",     0x20000, 0x10000, CRC(7dbfa088) SHA1(7046d84f0a00f86cfa0c4d77e43118adda111001) )
+	ROM_LOAD16_BYTE( "2.2",     0x20001, 0x10000, CRC(3e81e138) SHA1(b2eb57900fe110d64852a5c4c9d12c060ecb54e5) )
+	ROM_LOAD16_BYTE( "6.6",     0x40000, 0x10000, CRC(b12e33cc) SHA1(b551cc09d25bb8ae198415f75ac2a150f2789849) )
+	ROM_LOAD16_BYTE( "3.3",     0x40001, 0x10000, CRC(30bf52cf) SHA1(f45d3028d0e4e8c8f2c5968b52399a4e7eb9255f) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "7.7",     0x8000, 0x8000, CRC(69259ca4) SHA1(ce014836c71e269569279a09abef20cf03d46e31) )
+
+	ROM_REGION( 0x1000, REGION_CPU3, 0 )
+	ROM_LOAD( "hb31.9a",      0x0000, 0x1000, CRC(239d726f) SHA1(969f38ae981ffde6053ece93cc51614d492edbbb) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "25.25",     0x00000, 0x10000, CRC(4047ff81) SHA1(56a82c7694e6dbbdb9b42ed134120a76f848f7a5) )
+	ROM_LOAD( "26.26",     0x10000, 0x10000, CRC(3a0a2f1e) SHA1(f06b44e4a8c29ee2c0a6e8f786fbee144138ba72) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "18.18",     0x00000, 0x10000, CRC(ac38e585) SHA1(c1a6fb083c096d119351883dea121ee6358d9298) )
+	ROM_LOAD( "20.20",     0x20000, 0x10000, CRC(2194f737) SHA1(fbe2f7d0d6b80bf62fb9c38f9f2a001a728f3b7c) )
+	ROM_LOAD( "22.22",     0x40000, 0x10000, CRC(fcc6cb4d) SHA1(548bd8688b255cdd1eef82e4fbec3d88e1d0ab53) )
+	ROM_LOAD( "24.24",     0x60000, 0x10000, CRC(aa3c33b6) SHA1(f7770daedb5c1d5dd5099f1378c5c292c68a6a12) )
+
+	ROM_REGION( 0x40000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "29.29",     0x00000, 0x10000, CRC(32218c8a) SHA1(33e922ffd7000a03a8fa8bbe61483cd8e916ebd6) )
+	ROM_LOAD( "30.30",     0x10000, 0x10000, CRC(6a5fe9a9) SHA1(a750373e9fb1a0ad81d63a19bbac7a6079d3372f) )
+	ROM_LOAD( "27.27",     0x20000, 0x10000, CRC(62970304) SHA1(57606bedfd83429629593bbea50fb25db1f2d874) )
+	ROM_LOAD( "28.28",     0x30000, 0x10000, CRC(e018459f) SHA1(136ce96523988173425fa791742dab62ecaef5c9) )
+
+	ROM_REGION( 0x80000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "15.15",     0x00000, 0x10000, CRC(84c03235) SHA1(3b5a8e24dd0aba1d1530d37685aaa46a35b0249a) )
+	ROM_LOAD( "16.16",     0x10000, 0x10000, CRC(eaa35477) SHA1(08763d7937a6fa76f6029974d5b909ba05c69d81) )
+	ROM_LOAD( "11.11",     0x20000, 0x10000, CRC(c9e6b57f) SHA1(9c12e0e7e25d48c7679ea65c3dfeaca9fdfdcbb3) )
+	ROM_LOAD( "12.12",     0x30000, 0x10000, CRC(317f7e4a) SHA1(7d20722e75d69ef4f408e1995a29338c452b63c9) )
+
+	ROM_LOAD( "13.13",     0x40000, 0x10000, CRC(0c063bec) SHA1(e9808d20dc9e450c6a880ca1d8383246aff1ab36) )
+	ROM_LOAD( "14.14",     0x50000, 0x10000, CRC(2ebf06d3) SHA1(6381f978c0e719bf80d2c16a8355a0892473720a) )
+	ROM_LOAD( "9.9",       0x60000, 0x10000, CRC(046f9d58) SHA1(a3078c13d27f365f900be3b55d1a917a8cd712f8) )
+	ROM_LOAD( "10.10",     0x70000, 0x10000, CRC(3d2d704e) SHA1(3dcf3dd8cc91c5629e014bc6e2ccce234cf549a5) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "8.8",     0x0000, 0x10000, CRC(b0e79b9f) SHA1(6613c41234b8305d8959d06d6b4e9127bfc5eebe) )
+
+	ROM_REGION( 0x600, REGION_PROMS, 0 )
+	ROM_LOAD( "mb7116e_a-1.12c", 0x000, 0x200, CRC(86e775f8) SHA1(e8dee3d56fb5ca0fd7f9ce05a84674abb139d008) )
+	ROM_LOAD( "mb7122e_a-2.17e", 0x200, 0x400, CRC(a5cda23e) SHA1(d6c8534ae3c95b47a0701047fef67f15dd71f3fe) )
+ROM_END
+
 ROM_START( hippodrm )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 )	/* 4*64k for 68000 code */
 	ROM_LOAD16_BYTE( "ew02",         0x00000, 0x10000, CRC(df0d7dc6) SHA1(a60197ad6f19f730e05cf6a3be9181f28d425344) )
@@ -2253,6 +2554,7 @@ GAME( 1988, robocopj, robocop,  robocop,  robocop,  robocop,  ROT0,   "Data East
 GAME( 1988, robocopu, robocop,  robocop,  robocop,  robocop,  ROT0,   "Data East USA",         "Robocop (US revision 1)", 0 )
 GAME( 1988, robocpu0, robocop,  robocop,  robocop,  robocop,  ROT0,   "Data East USA",         "Robocop (US revision 0)", 0 )
 GAME( 1988, robocopb, robocop,  robocopb, robocop,  robocop,  ROT0,   "bootleg",               "Robocop (World bootleg)", 0)
+GAME( 1989, bandit,   0,        bandit,   bandit,   bandit,   ROT90,  "Data East USA / Incredible Technologies", "Bandit (US prototype)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1989, hippodrm, 0,        hippodrm, hippodrm, hippodrm, ROT0,   "Data East USA",         "Hippodrome (US)", 0 )
 GAME( 1989, ffantasy, hippodrm, hippodrm, hippodrm, hippodrm, ROT0,   "Data East Corporation", "Fighting Fantasy (Japan revision 2)", 0 )
 GAME( 1989, ffantasa, hippodrm, hippodrm, hippodrm, hippodrm, ROT0,   "Data East Corporation", "Fighting Fantasy (Japan)", 0 )

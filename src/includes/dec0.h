@@ -9,8 +9,10 @@ extern UINT8 *robocop_shared_ram;
 
 /* Video emulation definitions */
 VIDEO_START( dec0 );
+VIDEO_START( bandit );
 VIDEO_START( dec0_nodma );
 VIDEO_UPDATE( hbarrel );
+VIDEO_UPDATE( bandit );
 VIDEO_UPDATE( baddudes );
 VIDEO_UPDATE( birdtry );
 VIDEO_UPDATE( robocop );
