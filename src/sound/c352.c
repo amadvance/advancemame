@@ -1,9 +1,10 @@
 // license:BSD-3-Clause
-// copyright-holders:R. Belmont
+// copyright-holders:R. Belmont, superctr
 /*
     c352.c - Namco C352 custom PCM chip emulation
-    v1.0.1
+    v2.0
     By R. Belmont
+    Rewritten and improved by superctr
     Additional code by cync and the hoot development team
 
     Thanks to Cap of VivaNonno for info and The_Author for preliminary reverse-engineering
@@ -12,307 +13,139 @@
     32 voices
     Supports 8-bit linear and 8-bit muLaw samples
     Output: digital, 16 bit, 4 channels
-    Output sample rate is the input clock / 384.
+    Output sample rate is the input clock / (288 * 2).
  */
 
-#include <math.h>
+#include "driver.h"
 #include "sndintrf.h"
 #include "streams.h"
 #include "c352.h"
+#include <stddef.h>
 
 #define VERBOSE (0)
 
 // flags
 
-#define C352_FLG_REVPHASE	0x20000
-#define C352_FLG_LONGPHASE	0x10000 // first phase of "long sample mode" complete
-#define C352_FLG_CONTINUE	0x8000	// second phase of "long sample mode"
-#define	C352_FLG_ACTIVE		0x4000	// channel is active
-#define C352_FLG_PHASERL	0x0200	// REAR LEFT invert phase 180 degrees (e.g. flip sign of sample)
-#define C352_FLG_PHASEFL	0x0100	// FRONT LEFT invert phase 180 degrees (e.g. flip sign of sample)
-#define C352_FLG_PHASEFR	0x0080	// FRONT RIGHT invert phase 180 degrees (e.g. flip sign of sample)
-#define C352_FLG_LONG		0x0020	// "long-format" sample (can't loop, not sure what else it means)
-#define C352_FLG_NOISE		0x0010	// play noise instead of sample
-#define C352_FLG_MULAW		0x0008	// sample is mulaw instead of linear 8-bit PCM
-#define C352_FLG_FILTER		0x0004	// don't apply filter (linear interpolation)
-#define C352_FLG_REVLOOP   	0x0003	// loop backwards
-#define C352_FLG_LOOP		0x0002	// loop forward
-#define C352_FLG_REVERSE	0x0001	// play sample backwards
+#define C352_FLG_BUSY       0x8000   // channel is busy
+#define C352_FLG_KEYON      0x4000   // Keyon
+#define C352_FLG_KEYOFF     0x2000   // Keyoff
+#define C352_FLG_LOOPTRG    0x1000   // Loop Trigger
+#define C352_FLG_LOOPHIST   0x0800   // Loop History
+#define C352_FLG_FM         0x0400   // Frequency Modulation
+#define C352_FLG_PHASERL    0x0200   // Rear Left invert phase 180 degrees
+#define C352_FLG_PHASEFL    0x0100   // Front Left invert phase 180 degrees
+#define C352_FLG_PHASEFR    0x0080   // invert phase 180 degrees (e.g. flip sign of sample)
+#define C352_FLG_LDIR       0x0040   // loop direction
+#define C352_FLG_LINK       0x0020   // "long-format" sample
+#define C352_FLG_NOISE      0x0010   // play noise instead of sample
+#define C352_FLG_MULAW      0x0008   // sample is mulaw instead of linear 8-bit PCM
+#define C352_FLG_FILTER     0x0004   // don't apply filter
+#define C352_FLG_REVLOOP    0x0003   // loop backwards
+#define C352_FLG_LOOP       0x0002   // loop forward
+#define C352_FLG_REVERSE    0x0001   // play sample backwards
 
-typedef struct
+struct c352_voice_t
 {
-	UINT8	vol_l;
-	UINT8	vol_r;
-	UINT8	vol_l2;
-	UINT8	vol_r2;
-	UINT8	unk9;
-	UINT8	bank;
-	INT16	noise;
-	INT16   noisebuf;
-	UINT16  noisecnt;
-	UINT16	pitch;
-	UINT16	start_addr;
-	UINT16	end_addr;
-	UINT32	flag;
-	UINT32	current_addr;
-	UINT32	stop_addr;
-	UINT32	loop_addr;
-	UINT32  loop_point;
-	UINT32	pos;
-} c352_ch_t;
+	UINT32 pos;
+	UINT32 counter;
+
+	INT16 sample;
+	INT16 last_sample;
+
+	UINT16 vol_f;
+	UINT16 vol_r;
+	UINT8 curr_vol[4];
+
+	UINT16 freq;
+	UINT16 flags;
+
+	UINT16 wave_bank;
+	UINT16 wave_start;
+	UINT16 wave_end;
+	UINT16 wave_loop;
+};
 
 struct c352_info
 {
 	sound_stream *stream;
-	c352_ch_t c352_ch[32];
+	struct c352_voice_t c352_v[32];
 	unsigned char *c352_rom_samples;
+	UINT32 c352_rom_length;
 	int c352_region;
 	int sample_rate_base;
+	int divider;
 
-	INT16 level_table[256];
+	INT16 mulawtab[256];
 
-	long	channel_l[2048];
-	long	channel_r[2048];
-	long	channel_l2[2048];
-	long	channel_r2[2048];
-
-	short	mulaw_table[256];
-	unsigned int mseq_reg;
+	UINT16 random;
+	UINT16 control;
 };
 
-// noise generator
-static int get_mseq_bit(struct c352_info *info)
+static void c352_fetch_sample(struct c352_info *info, struct c352_voice_t *v)
 {
-	unsigned int mask = (1 << (7 - 1));
-	unsigned int reg = info->mseq_reg;
-	unsigned int bit = reg & (1 << (17 - 1));
+	v->last_sample = v->sample;
 
-	if (bit)
+	if (v->flags & C352_FLG_NOISE)
 	{
-       		reg = ((reg ^ mask) << 1) | 1;
+		info->random = (info->random >> 1) ^ ((-(info->random & 1)) & 0xfff6);
+		v->sample = info->random;
 	}
 	else
 	{
-		reg = reg << 1;
+		INT8 s = 0;
+		if (info->c352_rom_length > 0)
+			s = (INT8)info->c352_rom_samples[v->pos % info->c352_rom_length];
+
+		if (v->flags & C352_FLG_MULAW)
+			v->sample = info->mulawtab[(UINT8)s];
+		else
+			v->sample = s << 8;
+
+		UINT16 pos = v->pos & 0xffff;
+
+		if ((v->flags & C352_FLG_LOOP) && (v->flags & C352_FLG_REVERSE))
+		{
+			// backwards>forwards
+			if ((v->flags & C352_FLG_LDIR) && pos == v->wave_loop)
+				v->flags &= ~C352_FLG_LDIR;
+			// forwards>backwards
+			else if (!(v->flags & C352_FLG_LDIR) && pos == v->wave_end)
+				v->flags |= C352_FLG_LDIR;
+
+			v->pos += (v->flags & C352_FLG_LDIR) ? -1 : 1;
+		}
+		else if (pos == v->wave_end)
+		{
+			if ((v->flags & C352_FLG_LINK) && (v->flags & C352_FLG_LOOP))
+			{
+				v->pos = (v->wave_start << 16) | v->wave_loop;
+				v->flags |= C352_FLG_LOOPHIST;
+			}
+			else if (v->flags & C352_FLG_LOOP)
+			{
+				v->pos = (v->pos & 0xff0000) | v->wave_loop;
+				v->flags |= C352_FLG_LOOPHIST;
+			}
+			else
+			{
+				v->flags |= C352_FLG_KEYOFF;
+				v->flags &= ~C352_FLG_BUSY;
+				v->sample = 0;
+			}
+		}
+		else
+		{
+			v->pos += (v->flags & C352_FLG_REVERSE) ? -1 : 1;
+		}
 	}
-
-	info->mseq_reg = reg;
-
-	return (reg & 1);
 }
 
-static void c352_mix_one_channel(struct c352_info *info, UINT32 ch, long sample_count)
-
+static inline void c352_ramp_volume(struct c352_voice_t *v, int ch, UINT8 val)
 {
-
-	int i;
-	signed short sample, nextsample;
-	signed short noisebuf;
-	UINT16 noisecnt;
-	float pbase = (float)info->sample_rate_base / (float)Machine->sample_rate;
-	INT32 frequency, delta, offset, cnt, flag;
-	UINT32 pos;
-
-	frequency = info->c352_ch[ch].pitch;
-	delta=(long)((float)frequency * pbase);
-
-	pos = info->c352_ch[ch].current_addr;	// sample pointer
-	offset = info->c352_ch[ch].pos;	// 16.16 fixed-point offset into the sample
-	flag = info->c352_ch[ch].flag;
-	noisecnt = info->c352_ch[ch].noisecnt;
-	noisebuf = info->c352_ch[ch].noisebuf;
-
-	if ((flag & C352_FLG_ACTIVE) == 0)
-	{
-		return;
-	}
-
-	for(i = 0 ; i < sample_count ; i++)
-	{
-		offset += delta;
-		cnt = (offset>>16)&0x7fff;
-		if (cnt)			// if there is a whole sample part, chop it off now that it's been applied
-		{
-			offset &= 0xffff;
-		}
-
-		// apply the whole sample part of the fraction to the current pointer and check if we're at the end
-		if ((flag & C352_FLG_REVLOOP) == C352_FLG_REVLOOP)
-		{
-			if (flag & C352_FLG_REVPHASE)
-			{
-				pos -= cnt;
-
-				if (pos < info->c352_ch[ch].loop_point)
-				{
-					pos = info->c352_ch[ch].loop_point;
-					info->c352_ch[ch].flag &= ~C352_FLG_REVPHASE;
-				}
-			}
-			else
-			{
-				pos += cnt;
-
-				if (pos > info->c352_ch[ch].stop_addr)
-				{
-					pos = info->c352_ch[ch].stop_addr;
-					info->c352_ch[ch].flag |= C352_FLG_REVPHASE;
-				}
-			}
-		}
-		else if (flag & C352_FLG_REVERSE)
-		{
-			pos -= cnt;
-
-			if (pos < info->c352_ch[ch].stop_addr)
-			{
-				if (flag & C352_FLG_LONG)
-				{
-//                  printf("ch %02d: end chain part 1\n", ch);
-					info->c352_ch[ch].flag &= ~C352_FLG_ACTIVE;
-					info->c352_ch[ch].flag |= C352_FLG_LONGPHASE;
-					return;
-				}
-
-				if (flag & C352_FLG_LOOP)
-				{
-					pos = info->c352_ch[ch].loop_point;
-				}
-				else
-				{
-					info->c352_ch[ch].flag &= ~C352_FLG_ACTIVE;
-					return;
-				}
-			}
-		}
-		else
-		{
-			pos += cnt;
-
-			if (flag & C352_FLG_LONG)
-			{
-				if ((pos+256) > info->c352_ch[ch].stop_addr)
-				{
-//                  printf("ch %02d: end chain part 1\n", ch);
-					info->c352_ch[ch].flag |= C352_FLG_LONGPHASE;
-				}
-				if (pos > info->c352_ch[ch].stop_addr)
-				{
-					info->c352_ch[ch].flag &= ~C352_FLG_ACTIVE;
-					return;
-				}
-			}
-			else
-			{
-				if (pos > info->c352_ch[ch].stop_addr)
-				{
-					if (flag & C352_FLG_LOOP)
-					{
-						pos = info->c352_ch[ch].loop_point;
-					}
-					else
-					{
-						info->c352_ch[ch].flag &= ~C352_FLG_ACTIVE;
-						return;
-					}
-				}
-			}
-		}
-
-		if ((int)pos > memory_region_length(info->c352_region)) pos %= memory_region_length(info->c352_region);
-		sample = (char)info->c352_rom_samples[pos];
-		nextsample = (char)info->c352_rom_samples[pos+cnt];
-
-		// sample is muLaw, not 8-bit linear (Fighting Layer uses this extensively)
-		if (flag & C352_FLG_MULAW)
-		{
-			sample = info->mulaw_table[(unsigned char)sample];
-			nextsample = info->mulaw_table[(unsigned char)nextsample];
-		}
-		else
-		{
-			sample <<= 8;
-			nextsample <<= 8;
-		}
-
-		// play noise instead of sample data
-		if (flag & C352_FLG_NOISE)
-		{
-			int noise_level = 0x8000;
-			sample = info->c352_ch[ch].noise = (info->c352_ch[ch].noise << 1) | get_mseq_bit(info);
-			sample = (sample & (noise_level - 1)) - (noise_level >> 1);
-			if (sample > 0x7f)
-			{
-				sample = 0x7f;
-			}
-			else if (sample < 0)
-			{
-				sample = 0xff;
-			}
-			sample = info->mulaw_table[(unsigned char)sample];
-
-			if ( (pos+cnt) == pos )
-			{
-				noisebuf += sample;
-				noisecnt++;
-				sample = noisebuf / noisecnt;
-			}
-			else
-			{
-				if ( noisecnt )
-				{
-					sample = noisebuf / noisecnt;
-				}
-				else
-				{
-					sample = info->mulaw_table[0x7f];		// Nearest sound(s) is here.
-				}
-				noisebuf = 0;
-				noisecnt = ( flag & C352_FLG_FILTER ) ? 0 : 1;
-			}
-		}
-
-		// apply linear interpolation
-		if ( (flag & (C352_FLG_FILTER | C352_FLG_NOISE)) == 0 )
-		{
-			sample = (short)(sample + ((nextsample-sample) * (((double)(0x0000ffff&offset) )/0x10000)));
-		}
-
-		if ( flag & C352_FLG_PHASEFL )
-		{
-			info->channel_l[i]  += ((-sample * info->c352_ch[ch].vol_l)>>8);
-		}
-		else
-		{
-		info->channel_l[i] += ((sample * info->c352_ch[ch].vol_l)>>8);
-		}
-
-		if ( flag & C352_FLG_PHASEFR )
-		{
-			info->channel_r[i]  += ((-sample * info->c352_ch[ch].vol_r)>>8);
-		}
-		else
-		{
-		info->channel_r[i] += ((sample * info->c352_ch[ch].vol_r)>>8);
-		}
-
-		if ( flag & C352_FLG_PHASERL )
-		{
-			info->channel_l2[i] += ((-sample * info->c352_ch[ch].vol_l2)>>8);
-		}
-		else
-		{
-		info->channel_l2[i] += ((sample * info->c352_ch[ch].vol_l2)>>8);
-		}
-		info->channel_r2[i] += ((sample * info->c352_ch[ch].vol_r2)>>8);
-	}
-
-	info->c352_ch[ch].noisecnt = noisecnt;
-	info->c352_ch[ch].noisebuf = noisebuf;
-	info->c352_ch[ch].pos = offset;
-	info->c352_ch[ch].current_addr = pos;
+	INT16 vol_delta = v->curr_vol[ch] - val;
+	if (vol_delta != 0)
+		v->curr_vol[ch] += (vol_delta > 0) ? -1 : 1;
 }
-
 
 static void c352_update(void *param, stream_sample_t **inputs, stream_sample_t **buf, int sample_count)
 {
@@ -323,299 +156,144 @@ static void c352_update(void *param, stream_sample_t **inputs, stream_sample_t *
 	stream_sample_t *bufferl2 = buf[2];
 	stream_sample_t *bufferr2 = buf[3];
 
-	for(i = 0 ; i < sample_count ; i++)
+	for (i = 0; i < sample_count; i++)
 	{
-	       info->channel_l[i] = info->channel_r[i] = info->channel_l2[i] = info->channel_r2[i] = 0;
-	}
+		int out[4] = { 0, 0, 0, 0 };
 
-	for (j = 0 ; j < 32 ; j++)
-	{
-		c352_mix_one_channel(info, j, sample_count);
-	}
+		for (j = 0; j < 32; j++)
+		{
+			struct c352_voice_t *v = &info->c352_v[j];
+			INT16 s = 0;
 
-	for(i = 0 ; i < sample_count ; i++)
-	{
-		*bufferl++ = (short) (info->channel_l[i] >>3);
-		*bufferr++ = (short) (info->channel_r[i] >>3);
-		*bufferl2++ = (short) (info->channel_l2[i] >>3);
-		*bufferr2++ = (short) (info->channel_r2[i] >>3);
+			if (v->flags & C352_FLG_BUSY)
+			{
+				INT32 next_counter = v->counter + v->freq;
+
+				if (next_counter & 0x10000)
+				{
+					c352_fetch_sample(info, v);
+				}
+
+				if ((next_counter ^ v->counter) & 0x18000)
+				{
+					c352_ramp_volume(v, 0, v->vol_f >> 8);
+					c352_ramp_volume(v, 1, v->vol_f & 0xff);
+					c352_ramp_volume(v, 2, v->vol_r >> 8);
+					c352_ramp_volume(v, 3, v->vol_r & 0xff);
+				}
+
+				v->counter = next_counter & 0xffff;
+
+				s = v->sample;
+
+				// Interpolate samples
+				if ((v->flags & C352_FLG_FILTER) == 0)
+					s = v->last_sample + (v->counter * (v->sample - v->last_sample) >> 16);
+			}
+
+			// Left
+			out[0] += (((v->flags & C352_FLG_PHASEFL) ? -s : s) * v->curr_vol[0]) >> 8;
+			out[2] += (((v->flags & C352_FLG_PHASERL) ? -s : s) * v->curr_vol[2]) >> 8;
+
+			// Right
+			out[1] += (((v->flags & C352_FLG_PHASEFR) ? -s : s) * v->curr_vol[1]) >> 8;
+			out[3] += (((v->flags & C352_FLG_PHASEFR) ? -s : s) * v->curr_vol[3]) >> 8;
+		}
+
+		*bufferl++ = (stream_sample_t)(out[0] >> 3);
+		*bufferr++ = (stream_sample_t)(out[1] >> 3);
+		*bufferl2++ = (stream_sample_t)(out[2] >> 3);
+		*bufferr2++ = (stream_sample_t)(out[3] >> 3);
 	}
 }
 
-static unsigned short c352_read_reg16(struct c352_info *info, UINT32 address)
+static UINT16 c352_read_reg16(struct c352_info *info, UINT32 address)
 {
-	UINT32	chan;
-	unsigned short	val;
+	UINT32 offset = address / 2;
+	const int reg_map[8] =
+	{
+		offsetof(struct c352_voice_t, vol_f) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, vol_r) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, freq) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, flags) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_bank) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_start) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_end) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_loop) / sizeof(UINT16),
+	};
 
 	stream_update(info->stream, 0);
 
-	chan = (address >> 4) & 0xfff;
-	if (chan > 31)
-	{
-		val = 0;
-	}
+	if (offset < 0x100)
+		return *((UINT16 *)&info->c352_v[offset / 8] + reg_map[offset % 8]);
+	else if (offset == 0x200)
+		return info->control;
 	else
-	{
-		if ((address & 0xf) == 6)
-		{
-			int bits = (info->c352_ch[chan].flag & 0x0020) ? 0x8800 : 0x8000;
-			val = info->c352_ch[chan].flag;
-			val = (val & ~0x8800) | ((info->c352_ch[chan].flag & C352_FLG_LONGPHASE) ? bits : 0x0000);
-		}
-		else
-		{
-			val = 0;
-		}
-	}
-	return val;
+		return 0;
 }
 
-static void c352_write_reg16(struct c352_info *info, UINT32 address, unsigned short val)
+static void c352_write_reg16(struct c352_info *info, UINT32 address, UINT16 val, UINT16 mem_mask)
 {
-	UINT32	chan;
-	UINT32	temp;
-	chan = (address >> 4) & 0xfff;
+	UINT32 offset = address / 2;
+	int i;
+	const int reg_map[8] =
+	{
+		offsetof(struct c352_voice_t, vol_f) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, vol_r) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, freq) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, flags) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_bank) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_start) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_end) / sizeof(UINT16),
+		offsetof(struct c352_voice_t, wave_loop) / sizeof(UINT16),
+	};
 
 	stream_update(info->stream, 0);
 
-	if (chan > 31)
+	if (offset < 0x100)
 	{
-		#if VERBOSE
-		logerror("C352 CTRL %08x %04x\n", address, val);
-		#endif
-		return;
+		UINT16 *reg = (UINT16 *)&info->c352_v[offset / 8] + reg_map[offset % 8];
+		*reg = (*reg & mem_mask) | (val & ~mem_mask);
 	}
-	switch(address & 0xf)
+	else if (offset == 0x200)
 	{
-	case 0x0:
-		// volumes (output 1)
-		#if VERBOSE
-		logerror("CH %02d LVOL %02x RVOL %02x\n", chan, val & 0xff, val >> 8);
-		#endif
-		info->c352_ch[chan].vol_l = val & 0xff;
-		info->c352_ch[chan].vol_r = val >> 8;
-		break;
+		info->control = (info->control & mem_mask) | (val & ~mem_mask);
+	}
+	else if (offset == 0x202) // execute keyons/keyoffs
+	{
+		if (mem_mask != 0)
+			return;
 
-	case 0x2:
-		// volumes (output 2)
-		#if VERBOSE
-		logerror("CH %02d RLVOL %02x RRVOL %02x\n", chan, val & 0xff, val >> 8);
-		#endif
-		info->c352_ch[chan].vol_l2 = val & 0xff;
-		info->c352_ch[chan].vol_r2 = val >> 8;
-		break;
-
-	case 0x4:
-		// pitch
-		#if VERBOSE
-		logerror("CH %02d PITCH %04x\n", chan, val);
-		#endif
-		info->c352_ch[chan].pitch = val;
-		break;
-
-	case 0x6:
-		// flags
-		#if VERBOSE
-		logerror("CH %02d FLAG %02x\n", chan, val);
-		#endif
-		info->c352_ch[chan].flag = val;
-
-		// not chain mode, normal setup
-		if ((val & 0x8020) == 0)
+		for (i = 0; i < 32; i++)
 		{
-			temp = info->c352_ch[chan].bank<<16;
-			temp += info->c352_ch[chan].start_addr;
-			info->c352_ch[chan].current_addr = temp;
-
-			temp = info->c352_ch[chan].bank<<16;
-			temp += info->c352_ch[chan].end_addr;
-			info->c352_ch[chan].stop_addr = temp;
-
-			temp = info->c352_ch[chan].bank<<16;
-			temp += info->c352_ch[chan].loop_addr;
-			info->c352_ch[chan].loop_point = temp;
-
-			info->c352_ch[chan].noisebuf = 0;
-			info->c352_ch[chan].noisecnt = 0;
-
-			switch (val & 3)
+			if (info->c352_v[i].flags & C352_FLG_KEYON)
 			{
-				case 0:	// normal
-				case 2:	// loop
-				case 3:	// reverse loop
-					if (info->c352_ch[chan].current_addr >= info->c352_ch[chan].stop_addr)
-					{
-						info->c352_ch[chan].stop_addr += 0x10000;
-						info->c352_ch[chan].loop_point += 0x10000;
-					}
-					break;
-				case 1:	// reverse
-					if (info->c352_ch[chan].current_addr <= info->c352_ch[chan].stop_addr)
-					{
-						info->c352_ch[chan].stop_addr -= 0x10000;
-						info->c352_ch[chan].loop_point -= 0x10000;
-					}
-					break;
+				info->c352_v[i].pos = (info->c352_v[i].wave_bank << 16) | info->c352_v[i].wave_start;
+
+				info->c352_v[i].sample = 0;
+				info->c352_v[i].last_sample = 0;
+				info->c352_v[i].counter = 0xffff;
+
+				info->c352_v[i].flags |= C352_FLG_BUSY;
+				info->c352_v[i].flags &= ~(C352_FLG_KEYON | C352_FLG_LOOPHIST);
+
+				info->c352_v[i].curr_vol[0] = info->c352_v[i].curr_vol[1] = 0;
+				info->c352_v[i].curr_vol[2] = info->c352_v[i].curr_vol[3] = 0;
 			}
-
-//  printf("ch %02d: start: %08x\n", chan, info->c352_ch[chan].current_addr);
-
-/*          printf("ch %02d: normal start: %06x -> (%06x -> %06x)\n", chan,
-                info->c352_ch[chan].current_addr,
-                info->c352_ch[chan].loop_point,
-                info->c352_ch[chan].stop_addr);*/
-
-			info->c352_ch[chan].pos = 0;
-		}
-		else if ((val & 0x8020) == 0x0020) // chain mode, start first part
-		{
-			int bank2 = (info->c352_ch[chan].loop_addr & 0xff)<<16;
-
-			info->c352_ch[chan].current_addr = info->c352_ch[chan].start_addr + (info->c352_ch[chan].bank<<16);
-			info->c352_ch[chan].stop_addr = info->c352_ch[chan].end_addr + bank2;
-			info->c352_ch[chan].pos = 0;
-
-			info->c352_ch[chan].stop_addr &= 0xffffff;
-
-//          printf("ch %02d: start chain part 1: %06x -> %06x\n", chan, info->c352_ch[chan].current_addr, info->c352_ch[chan].stop_addr);
-
-		}
-		else if ((val & 0x8000) == 0x8000) // chain mode, phase 2
-		{
-			int bank = (info->c352_ch[chan].start_addr & 0xff)<<16;
-
-			info->c352_ch[chan].loop_point = info->c352_ch[chan].loop_addr + bank;
-			info->c352_ch[chan].stop_addr = info->c352_ch[chan].end_addr + bank;
-			info->c352_ch[chan].flag &= ~C352_FLG_LONGPHASE;
-			info->c352_ch[chan].flag |= C352_FLG_ACTIVE;
-			//info->c352_ch[chan].current_addr = info->c352_ch[chan].loop_point;
-			//info->c352_ch[chan].pos = 0;
-
-			switch (val & 3)
+			if (info->c352_v[i].flags & C352_FLG_KEYOFF)
 			{
-				case 0:	// normal
-				case 2:	// loop
-				case 3:	// reverse loop
-					if (info->c352_ch[chan].loop_point >= info->c352_ch[chan].stop_addr)
-					{
-						info->c352_ch[chan].stop_addr += 0x10000;
-					}
-					break;
-				case 1:	// reverse
-					if (info->c352_ch[chan].loop_point <= info->c352_ch[chan].stop_addr)
-					{
-						info->c352_ch[chan].stop_addr -= 0x10000;
-					}
-					break;
+				info->c352_v[i].flags &= ~(C352_FLG_BUSY | C352_FLG_KEYOFF);
+				info->c352_v[i].counter = 0xffff;
 			}
-
-//          printf("ch %02d: start chain part 2: %06x -> %06x\n", chan, info->c352_ch[chan].current_addr, info->c352_ch[chan].stop_addr);
 		}
-
-		break;
-
-	case 0x8:
-		// bank (bits 16-31 of address);
-		info->c352_ch[chan].bank = val & 0xff;
-		#if VERBOSE
-		logerror("CH %02d BANK %02x", chan, info->c352_ch[chan].bank);
-		#endif
-		break;
-
-	case 0xa:
-		// start address
-		#if VERBOSE
-		logerror("CH %02d SADDR %04x\n", chan, val);
-		#endif
-		info->c352_ch[chan].start_addr = val;
-		break;
-
-	case 0xc:
-		// end address
-		#if VERBOSE
-		logerror("CH %02d EADDR %04x\n", chan, val);
-		#endif
-		info->c352_ch[chan].end_addr = val;
-		break;
-
-	case 0xe:
-		// loop address
-		#if VERBOSE
-		logerror("CH %02d LADDR %04x\n", chan, val);
-		#endif
-		info->c352_ch[chan].loop_addr = val;
-		break;
-
-	default:
-		#if VERBOSE
-		logerror("CH %02d UNKN %01x %04x", chan, address & 0xf, val);
-		#endif
-		break;
-	}
-}
-
-static void c352_init(struct c352_info *info, int sndindex)
-{
-	int i;
-	double x_max = 25000.0;
-	double y_max = 127.0;
-	double u = 8.0;
-
-	// clear all channels states
-	memset(info->c352_ch, 0, sizeof(c352_ch_t)*32);
-
-	// generate mulaw table for mulaw format samples
-	for (i = 0; i < 256; i++)
-	{
-	      double y = (double) (i & 0x7f);
-	      double x = (exp (y / y_max * log (1.0 + u)) - 1.0) * x_max / u;
-
-	      if (i & 0x80)
-	      {
-	        x = -x;
-	      }
-	      info->mulaw_table[i] = (short)x;
-	}
-
-	// init noise generator
-	info->mseq_reg = 0x12345678;
-
-	// register save state info
-	for (i = 0; i < 32; i++)
-	{
-		char cname[32];
-
-		sprintf(cname, "C352 v %02d", i);
-
-		state_save_register_item(cname, sndindex, info->c352_ch[i].vol_l);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].vol_r);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].vol_l2);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].vol_r2);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].unk9);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].bank);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].noise);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].pitch);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].start_addr);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].end_addr);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].flag);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].current_addr);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].stop_addr);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].loop_addr);
-		state_save_register_item(cname, sndindex, info->c352_ch[i].pos);
-	}
-
-	for (i = 0; i < 256; i++)
-	{
-	      double max_level = 255.0;
-
-	      info->level_table[255-i] = (int) (pow (10.0, (double) i / 256.0 * -20.0 / 20.0) * max_level);
 	}
 }
 
 static void *c352_start(int sndindex, int clock, const void *config)
 {
-	const struct C352interface *intf;
 	struct c352_info *info;
+	const struct C352interface *intf;
+	int i, j;
 
 	info = auto_malloc(sizeof(*info));
 	memset(info, 0, sizeof(*info));
@@ -623,40 +301,82 @@ static void *c352_start(int sndindex, int clock, const void *config)
 	intf = config;
 
 	info->c352_rom_samples = memory_region(intf->region);
+	info->c352_rom_length = memory_region_length(intf->region);
 	info->c352_region = intf->region;
 
-	info->stream = stream_create(0, 4, Machine->sample_rate, info, c352_update);
+	info->divider = 288;
+	if (clock == 25401600 / 288 * 192)
+		info->divider = 192;
 
-	info->sample_rate_base = clock / 192;
+	info->sample_rate_base = clock / info->divider;
 
-	c352_init(info, sndindex);
+	info->stream = stream_create(0, 4, info->sample_rate_base, info, c352_update);
+
+	// generate mulaw table (Output similar to namco's VC emulator)
+	j = 0;
+	for (i = 0; i < 128; i++)
+	{
+		info->mulawtab[i] = j << 5;
+		if (i < 16)
+			j += 1;
+		else if (i < 24)
+			j += 2;
+		else if (i < 48)
+			j += 4;
+		else if (i < 100)
+			j += 8;
+		else
+			j += 16;
+	}
+	for (i = 0; i < 128; i++)
+		info->mulawtab[i + 128] = (~info->mulawtab[i]) & 0xffe0;
+
+	info->random = 0x1234;
+	info->control = 0;
+
+	// register save state info
+	for (i = 0; i < 32; i++)
+	{
+		char cname[32];
+		sprintf(cname, "C352 v %02d", i);
+
+		state_save_register_item(cname, sndindex, info->c352_v[i].pos);
+		state_save_register_item(cname, sndindex, info->c352_v[i].counter);
+		state_save_register_item(cname, sndindex, info->c352_v[i].sample);
+		state_save_register_item(cname, sndindex, info->c352_v[i].last_sample);
+		state_save_register_item(cname, sndindex, info->c352_v[i].vol_f);
+		state_save_register_item(cname, sndindex, info->c352_v[i].vol_r);
+		state_save_register_item_array(cname, sndindex, info->c352_v[i].curr_vol);
+		state_save_register_item(cname, sndindex, info->c352_v[i].freq);
+		state_save_register_item(cname, sndindex, info->c352_v[i].flags);
+		state_save_register_item(cname, sndindex, info->c352_v[i].wave_bank);
+		state_save_register_item(cname, sndindex, info->c352_v[i].wave_start);
+		state_save_register_item(cname, sndindex, info->c352_v[i].wave_end);
+		state_save_register_item(cname, sndindex, info->c352_v[i].wave_loop);
+	}
+	state_save_register_item("C352", sndindex, info->random);
+	state_save_register_item("C352", sndindex, info->control);
 
 	return info;
 }
 
+static void c352_reset(void *token)
+{
+	struct c352_info *info = token;
+	memset(info->c352_v, 0, sizeof(info->c352_v));
+	info->random = 0x1234;
+	info->control = 0;
+}
 
 READ16_HANDLER( c352_0_r )
 {
-	return(c352_read_reg16(sndti_token(SOUND_C352, 0), offset*2));
+	return c352_read_reg16(sndti_token(SOUND_C352, 0), offset * 2);
 }
 
 WRITE16_HANDLER( c352_0_w )
 {
-	if (mem_mask == 0)
-	{
-		c352_write_reg16(sndti_token(SOUND_C352, 0), offset*2, data);
-	}
-	else
-	{
-		logerror("C352: byte-wide write unsupported at this time!\n");
-	}
+	c352_write_reg16(sndti_token(SOUND_C352, 0), offset * 2, data, mem_mask);
 }
-
-
-
-
-
-
 
 /**************************************************************************
  * Generic get_info
@@ -670,7 +390,6 @@ static void c352_set_info(void *token, UINT32 state, sndinfo *info)
 	}
 }
 
-
 void c352_get_info(void *token, UINT32 state, sndinfo *info)
 {
 	switch (state)
@@ -681,14 +400,13 @@ void c352_get_info(void *token, UINT32 state, sndinfo *info)
 		case SNDINFO_PTR_SET_INFO:						info->set_info = c352_set_info;			break;
 		case SNDINFO_PTR_START:							info->start = c352_start;				break;
 		case SNDINFO_PTR_STOP:							/* nothing */							break;
-		case SNDINFO_PTR_RESET:							/* nothing */							break;
+		case SNDINFO_PTR_RESET:							info->reset = c352_reset;				break;
 
 		/* --- the following bits of info are returned as NULL-terminated strings --- */
 		case SNDINFO_STR_NAME:							info->s = "C352";						break;
 		case SNDINFO_STR_CORE_FAMILY:					info->s = "Namco PCM";					break;
-		case SNDINFO_STR_CORE_VERSION:					info->s = "1.0";						break;
+		case SNDINFO_STR_CORE_VERSION:					info->s = "2.0";						break;
 		case SNDINFO_STR_CORE_FILE:						info->s = __FILE__;						break;
-		case SNDINFO_STR_CORE_CREDITS:					info->s = "Copyright (c) 2004, The MAME Team"; break;
+		case SNDINFO_STR_CORE_CREDITS:					info->s = "Copyright (c) 2004-2016, The MAME Team"; break;
 	}
 }
-
