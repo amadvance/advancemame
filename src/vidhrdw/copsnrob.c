@@ -32,7 +32,7 @@ VIDEO_UPDATE( copsnrob )
 
     /* redrawing the entire display is faster in this case */
 
-    for (offs = videoram_size;offs >= 0;offs--)
+    for (offs = 0;offs < videoram_size;offs++)
     {
 		int sx,sy;
 

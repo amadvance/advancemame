@@ -57,6 +57,7 @@
 #include "driver.h"
 #include "artwork.h"
 #include "copsnrob.h"
+#include "sound/discrete.h"
 
 
 
@@ -94,22 +95,26 @@ OVERLAY_END
  *
  *************************************/
 
-static UINT8 misc = 0;
+extern struct discrete_sound_block copsnrob[];
 
 static READ8_HANDLER( copsnrob_misc_r )
 {
-	return misc | (readinputport(0) & 0x80);
+	return readinputport(0) & 0x80;
 }
 
 static WRITE8_HANDLER( copsnrob_misc_w )
 {
-	misc = data & 0x7f;
 	set_led_status(1, ~data & 0x40);
 }
 
-static WRITE8_HANDLER( copsnrob_led_w )
+static WRITE8_HANDLER( copsnrob_sound_w )
 {
-	set_led_status(0, ~data & 0x01);
+	static const int nodes[8] = { NODE_04, NODE_03, NODE_02, NODE_01,
+		NODE_08, NODE_07, 0, NODE_09 };
+	if (offset == 6)
+		set_led_status(0, !(data & 1));
+	else
+		discrete_sound_w(nodes[offset], data & 1);
 }
 
 
@@ -123,9 +128,7 @@ static WRITE8_HANDLER( copsnrob_led_w )
 static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(13) )
 	AM_RANGE(0x0000, 0x01ff) AM_RAM
-	AM_RANGE(0x0500, 0x0503) AM_WRITE(MWA8_RAM)
-//  AM_RANGE(0x0504, 0x0507) AM_WRITE(MWA8_NOP)  // ???
-	AM_RANGE(0x0506, 0x0506) AM_WRITE(copsnrob_led_w)
+	AM_RANGE(0x0500, 0x0507) AM_WRITE(copsnrob_sound_w)
 	AM_RANGE(0x0600, 0x0600) AM_WRITE(MWA8_RAM) AM_BASE(&copsnrob_trucky)
 	AM_RANGE(0x0700, 0x07ff) AM_WRITE(MWA8_RAM) AM_BASE(&copsnrob_truckram)
 	AM_RANGE(0x0800, 0x08ff) AM_RAM AM_BASE(&copsnrob_bulletsram)
@@ -290,6 +293,12 @@ static MACHINE_DRIVER_START( copsnrob )
 
 	MDRV_PALETTE_INIT(copsnrob)
 	MDRV_VIDEO_UPDATE(copsnrob)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(copsnrob)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
+
 MACHINE_DRIVER_END
 
 
@@ -351,4 +360,4 @@ static DRIVER_INIT( copsnrob )
  *
  *************************************/
 
-GAME( 1976, copsnrob, 0, copsnrob, copsnrob, copsnrob, ROT0, "Atari", "Cops'n Robbers", GAME_NO_SOUND )
+GAME( 1976, copsnrob, 0, copsnrob, copsnrob, copsnrob, ROT0, "Atari", "Cops'n Robbers", GAME_IMPERFECT_SOUND )
