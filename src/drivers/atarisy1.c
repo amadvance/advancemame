@@ -225,6 +225,9 @@ static READ16_HANDLER( joystick_r )
 	else if (joystick_type == 3)
 		newval = readinputport(1);
 
+	else if (joystick_type == 4 && (offset & 7) >= 4)
+		newval = readinputport((offset & 7) - 4);
+
 	/* the A4 bit enables/disables joystick IRQs */
 	joystick_int_enable = ((offset >> 3) & 1) ^ 1;
 
@@ -239,6 +242,12 @@ static READ16_HANDLER( joystick_r )
 
 static WRITE16_HANDLER( joystick_w )
 {
+	if (joystick_type == 4)
+	{
+		joystick_r(offset, mem_mask);
+		return;
+	}
+
 	/* the A4 bit enables/disables joystick IRQs */
 	joystick_int_enable = ((offset >> 3) & 1) ^ 1;
 }
@@ -622,6 +631,41 @@ INPUT_PORTS_START( indytemp )
 INPUT_PORTS_END
 
 
+INPUT_PORTS_START( reliefs1 )
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Y ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_REVERSE PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Y ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_REVERSE PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_VBLANK )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_SERVICE( 0x0040, IP_ACTIVE_LOW )
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x60, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SPECIAL )
+INPUT_PORTS_END
+
+
 INPUT_PORTS_START( roadrunn )
 	PORT_START	/* F40000 */
 	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Y ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
@@ -789,6 +833,21 @@ MACHINE_DRIVER_END
  *  ROM definition(s)
  *
  *************************************/
+
+#define ATARISY1_LSI_BIOS \
+	ROM_LOAD16_BYTE( "136032.114.j11", 0x00000, 0x04000, CRC(195c54ad) SHA1(d7cda3cd3db4c6f77074ca05e96ae11b62e048b7) ) \
+	ROM_LOAD16_BYTE( "136032.115.j10", 0x00001, 0x04000, CRC(7275b4dc) SHA1(0896ab37ea832a1335046353612c1b4c86d8d040) )
+
+ROM_START( atarisy1 )
+	ROM_REGION( 0x88000, REGION_CPU1, 0 )
+	ATARISY1_LSI_BIOS
+
+	ROM_REGION( 0x10000, REGION_CPU2, ROMREGION_ERASE00 )
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "136032.107.b2", 0x00000, 0x02000, CRC(7a29dc07) SHA1(72ba464da01bd6d3a91b8d9997d5ac14b6f47aad) )
+	ROM_REGION( 0x100000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_INVERT | ROMREGION_ERASEFF )
+	ROM_REGION( 0x400, REGION_PROMS, ROMREGION_ERASE00 )
+ROM_END
 
 ROM_START( marble )
 	ROM_REGION( 0x88000, REGION_CPU1, 0 )	/* 8.5*64k for 68000 code & slapstic ROM */
@@ -2090,6 +2149,62 @@ ROM_END
  *
  *************************************/
 
+ROM_START( reliefs1 )
+	ROM_REGION( 0x88000, REGION_CPU1, 0 )
+	ATARISY1_LSI_BIOS
+
+	ROM_LOAD16_BYTE( "rp-pgm-10k-hi-c45.bin", 0x010000, 0x008000, CRC(548c0276) SHA1(1bb10b398b5396a7ff8cb02841f03fcdedece7d8) )
+	ROM_LOAD16_BYTE( "rp-pgm-10k-lo-c44.bin", 0x010001, 0x008000, CRC(ca37684a) SHA1(a89f0b7efe331deecc5d0fdf3a1d6fb11ce17b95) )
+	ROM_LOAD16_BYTE( "rp-pgm-20k-hi-c58.bin", 0x020000, 0x008000, CRC(dd5c53c7) SHA1(1ca05339b3be009712abdc90528108ae0ef49fd6) )
+	ROM_LOAD16_BYTE( "rp-pgm-20k-lo-c57.bin", 0x020001, 0x008000, CRC(f064da9f) SHA1(1ac57b27d2c93f924a1e6c29532db5a47110f859) )
+	ROM_LOAD16_BYTE( "rp-pgm-30k-hi-c72.bin", 0x030000, 0x008000, CRC(da0d7a9c) SHA1(4dd5829a9d4f4946d1d71c0b06bf9b7daf84133a) )
+	ROM_LOAD16_BYTE( "rp-pgm-30k-lo-c71.bin", 0x030001, 0x008000, CRC(247faea5) SHA1(96bf19fd57522b28dbcb421321bdc3404aeb2673) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "rp-snd-4k-c68.bin", 0x4000, 0x4000, CRC(f6ff3d90) SHA1(ea93ea4331d6f38d67665b6b4c788a0d24309f56) )
+	ROM_LOAD( "rp-snd-8k-c73.bin", 0x8000, 0x4000, CRC(932b3ca0) SHA1(d1b8a2137a889cc4df5336a050f509f4edc23917) )
+	ROM_LOAD( "rp-snd-ck-c78.bin", 0xc000, 0x4000, CRC(7c5819db) SHA1(dc11d1a26cb98c8a90e2f220af66fddec228cf05) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "136032.107.b2", 0x00000, 0x02000, CRC(7a29dc07) SHA1(72ba464da01bd6d3a91b8d9997d5ac14b6f47aad) )
+
+	ROM_REGION( 0x380000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_INVERT | ROMREGION_ERASEFF )
+	ROM_LOAD( "rp-p0-1.c14.bin",  0x000000, 0x008000, CRC(fe82b82d) SHA1(56319cc7df1ac368443335a4ce9ef97b3585c6a9) )
+	ROM_LOAD( "rp-p1-1.c36.bin",  0x010000, 0x008000, CRC(8ebbbd7b) SHA1(d8c3a438d0416e81ce74dc870e1519ade858ae86) )
+	ROM_LOAD( "rp-p2-1.c16.bin",  0x020000, 0x008000, CRC(bdffa7ea) SHA1(33d8de21d0b8a1eddfce97bf7304ec2a416f2816) )
+	ROM_LOAD( "rp-p3-1.c38.bin",  0x030000, 0x008000, CRC(fb8866bc) SHA1(58dc64a49c75bcae80a3c508e1f34fd7a57f81e0) )
+
+	ROM_LOAD( "rp-p0-2.c10.bin",  0x080000, 0x008000, CRC(d2b0d119) SHA1(12531f8916321f0504f2efd2144c7d2f1b05a63c) )
+	ROM_LOAD( "rp-p1-2.c32.bin",  0x090000, 0x008000, CRC(0aa69c1e) SHA1(7a3b0dbed48893011b9fbcbd5e85efa86f37b246) )
+	ROM_LOAD( "rp-p2-2.c12.bin",  0x0a0000, 0x008000, CRC(27f6000a) SHA1(dd0174bc07d420b8daebd1abcfd3ed7e4d9c1d13) )
+	ROM_LOAD( "rp-p3-2.c34.bin",  0x0b0000, 0x008000, CRC(621f28f5) SHA1(e3b7076539ea49ac60869e579f3270dec46f43ec) )
+
+	ROM_LOAD( "rp-p0-3.c5.bin",   0x100000, 0x008000, CRC(6f05880e) SHA1(f77cd00b3040e46699eaad49787e8392ef072e0d) )
+	ROM_LOAD( "rp-p1-3.c27.bin",  0x110000, 0x008000, CRC(9b5a8f6b) SHA1(f3db5544c822a34ac969be319c2a79a1f8e1feb2) )
+	ROM_LOAD( "rp-p2-3.c7.bin",   0x120000, 0x008000, CRC(acc1586d) SHA1(d5fe9a094b97646848f81b535e7dc440ec6a83ee) )
+	ROM_LOAD( "rp-p3-3.c29.bin",  0x130000, 0x008000, CRC(ffc1b0f7) SHA1(75ea72029c5cf753d6dc7b3fda1b24a9f87ec104) )
+
+	ROM_LOAD( "rp-p0-4.c1.bin",   0x180000, 0x008000, CRC(a933d798) SHA1(6a04412977df418f87165b0632a72d4b82e1c0de) )
+	ROM_LOAD( "rp-p1-4.c23.bin",  0x190000, 0x008000, CRC(6946f9e5) SHA1(18e60bed9946a8960c13d2457cf14f9f7f11a82d) )
+	ROM_LOAD( "rp-p2-4.c3.bin",   0x1a0000, 0x008000, CRC(34141ef7) SHA1(25682c8d338bf0eb55d6375935097ad14ad35bb5) )
+	ROM_LOAD( "rp-p3-4.c25.bin",  0x1b0000, 0x008000, CRC(3f94cd0a) SHA1(75abd5b986a3d3ca7585124d4c07c2fcfa20123d) )
+
+	ROM_LOAD( "rp-p0-5.c15.bin",  0x200000, 0x008000, CRC(5e7e1f00) SHA1(7de8b9e45ac50c6c106dab1cc766ab73fb76c778) )
+	ROM_LOAD( "rp-p1-5.c37.bin",  0x210000, 0x008000, CRC(52ed4c87) SHA1(8ee8561bf1fd26a24bd64576ec231ed1075078a9) )
+	ROM_LOAD( "rp-p2-5.c6.bin",   0x220000, 0x008000, CRC(09c7608c) SHA1(9ddf8f2b706b4a9fe892b5af0f2197690bf79060) )
+	ROM_LOAD( "rp-p3-5.c28.bin",  0x230000, 0x008000, CRC(b87580ae) SHA1(83021e26f17b0ab2ad285fab5d7440e816e908dd) )
+
+	ROM_LOAD( "rp-p0-6.c11.bin",  0x280000, 0x008000, CRC(cb5b2352) SHA1(3225ed1c9258142ae741cc3c91eeef42c65d9eb3) )
+	ROM_LOAD( "rp-p1-6.c33.bin",  0x290000, 0x008000, CRC(bd16718f) SHA1(9f60c7442377e5380a72d160332a5dbe89e0f164) )
+	ROM_LOAD( "rp-p2-6.c2.bin",   0x2a0000, 0x008000, CRC(7a4f1469) SHA1(169db315d42fca7de1de1f84e54f018a5a54ca4c) )
+	ROM_LOAD( "rp-p3-6.c24.bin",  0x2b0000, 0x008000, CRC(f15426d3) SHA1(21e564973efde7e814a74aec8bfc56fd19492575) )
+
+	ROM_REGION( 0x400, REGION_PROMS, 0 )
+	ROM_LOAD( "brlf24k_bs.a7", 0x000, 0x200, CRC(62b8ff72) SHA1(83fdf2b554a10787598bcdaebd45765bb8842013) )
+	ROM_LOAD( "brlf24k_ps.a5", 0x200, 0x200, CRC(eaee166e) SHA1(c958b65d8bca08eeebef589e03e04024100534e4) )
+
+ROM_END
+
 static DRIVER_INIT( marble )
 {
 	via_config(0, &via_interface);
@@ -2166,11 +2281,22 @@ static DRIVER_INIT( roadb110 )
 
 
 
+static DRIVER_INIT( reliefs1 )
+{
+	via_config(0, &via_interface);
+	atarigen_eeprom_default = NULL;
+	atarigen_slapstic_init(0, 0x080000, 0);
+	joystick_type = 4;
+	trackball_type = 0;
+}
+
 /*************************************
  *
  *  Game driver(s)
  *
  *************************************/
+
+GAME( 1984, atarisy1, 0,        atarisy1, marble, reliefs1, ROT0, "Atari Games", "Atari System 1 BIOS (LSI)", NOT_A_DRIVER )
 
 GAME( 1984, marble,   0,        atarisy1, marble,   marble,   ROT0, "Atari Games", "Marble Madness (set 1)", 0 )
 GAME( 1984, marble2,  marble,   atarisy1, marble,   marble,   ROT0, "Atari Games", "Marble Madness (set 2)", 0 )
@@ -2199,3 +2325,5 @@ GAME( 1987, roadbls1, roadblst, atarisy1, roadblst, roadb109, ROT0, "Atari Games
 GAME( 1987, roadblsc, roadblst, atarisy1, roadblst, roadb110, ROT0, "Atari Games", "Road Blasters (cockpit, rev 2)", 0 )
 GAME( 1987, roadblcg, roadblst, atarisy1, roadblst, roadb109, ROT0, "Atari Games", "Road Blasters (cockpit, German, rev 1)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1987, roadblc1, roadblst, atarisy1, roadblst, roadb109, ROT0, "Atari Games", "Road Blasters (cockpit, rev 1)", GAME_IMPERFECT_GRAPHICS )
+
+GAME( 1986, reliefs1, atarisy1, atarisy1, reliefs1, reliefs1, ROT0, "Atari Games", "Relief Pitcher (System 1, prototype)", 0 )
