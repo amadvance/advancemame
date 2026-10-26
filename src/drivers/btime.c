@@ -414,6 +414,18 @@ static ADDRESS_MAP_START( disco_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xa000, 0xffff) AM_READ(MRA8_ROM)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( protenn_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x04ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x2000, 0x881f) AM_READ(MRA8_RAM)
+	AM_RANGE(0x9000, 0x9000) AM_READ(input_port_2_r)
+	AM_RANGE(0x9200, 0x9200) AM_READ(input_port_0_r)
+	AM_RANGE(0x9400, 0x9400) AM_READ(input_port_1_r)
+	AM_RANGE(0x9800, 0x9800) AM_READ(input_port_3_r)
+	AM_RANGE(0x9a01, 0x9a01) AM_READ(input_port_4_r)
+	AM_RANGE(0x9c00, 0x9c00) AM_READ(input_port_5_r)
+	AM_RANGE(0xa000, 0xffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( disco_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xffff) AM_WRITE(disco_w)    /* override the following entries to */
 												/* support ROM decryption */
@@ -1024,6 +1036,82 @@ INPUT_PORTS_START( bnj )
 	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( protenn )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x60, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_START1 )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x60, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_START2 )
+
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x1f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH,IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH,IPT_COIN2 )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, "Control Panel" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Upright ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x01, "2" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x08, "Amateur" )
+	PORT_DIPSETTING(    0x00, "Professional" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xe0, 0xe0, "Country Code" )
+	PORT_DIPSETTING(    0xe0, "A" )
+	PORT_DIPSETTING(    0xc0, "B" )
+	PORT_DIPSETTING(    0xa0, "C" )
+	PORT_DIPSETTING(    0x80, "D" )
+	PORT_DIPSETTING(    0x60, "E" )
+	PORT_DIPSETTING(    0x40, "F" )
+
+	PORT_START_TAG("VBLANK")
+	PORT_BIT( 0x7f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
+INPUT_PORTS_END
+
 INPUT_PORTS_START( disco )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_4WAY
@@ -1299,6 +1387,29 @@ static const gfx_decode disco_gfxdecodeinfo[] =
 
 
 
+static UINT8 protenn_audio_nmi_enabled;
+
+static WRITE8_HANDLER( protenn_audio_nmi_w )
+{
+	protenn_audio_nmi_enabled = (~data) & 1;
+}
+
+static INTERRUPT_GEN( protenn_sound_interrupt )
+{
+	if (protenn_audio_nmi_enabled)
+		cpunum_set_input_line(1, INPUT_LINE_NMI, PULSE_LINE);
+}
+
+static MACHINE_RESET( protenn )
+{
+	protenn_audio_nmi_enabled = 0;
+}
+
+static const struct AY8910interface protenn_ay8910_interface =
+{
+	0, 0, protenn_audio_nmi_w, 0
+};
+
 static MACHINE_DRIVER_START( btime )
 
 	/* basic machine hardware */
@@ -1328,7 +1439,7 @@ static MACHINE_DRIVER_START( btime )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_ADD_TAG("ay1", AY8910, 1500000)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.23)
 
 	MDRV_SOUND_ADD(AY8910, 1500000)
@@ -1446,6 +1557,17 @@ static MACHINE_DRIVER_START( disco )
 	MDRV_PALETTE_LENGTH(32)
 
 	MDRV_VIDEO_UPDATE(disco)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( protenn )
+	MDRV_IMPORT_FROM(disco)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(protenn_readmem,disco_writemem)
+	MDRV_CPU_MODIFY("sound")
+	MDRV_CPU_VBLANK_INT(protenn_sound_interrupt,16)
+	MDRV_MACHINE_RESET(protenn)
+	MDRV_SOUND_MODIFY("ay1")
+	MDRV_SOUND_CONFIG(protenn_ay8910_interface)
 MACHINE_DRIVER_END
 
 /***************************************************************************
@@ -1732,6 +1854,22 @@ ROM_START( zoar )
 	ROM_LOAD( "z21-1l",       0x0020, 0x0020, CRC(5e1e5788) SHA1(56068b209cc7c734bbcbb9858f40faa6474c8095) )
 ROM_END
 
+ROM_START( protenn )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "w5-t.1a",        0xa000, 0x1000, CRC(d75d708b) SHA1(6262b3e6e5ff94596606a184383833935aa7025f) )
+	ROM_LOAD( "w4-t.2a",        0xb000, 0x1000, CRC(9131ed87) SHA1(af2276a82e024bf00c6db02deb7f06ade89dd386) )
+	ROM_LOAD( "w3-t.4a",        0xc000, 0x1000, CRC(01dc0e71) SHA1(a359468fb9dab9cfadcf8ec22a4d7ce9341f4324) )
+	ROM_LOAD( "w2-t.6a",        0xd000, 0x1000, CRC(6253acec) SHA1(24aaac1cdea1c60f8ff05dff6c17ba3a0e732187) )
+	ROM_LOAD( "w1-t.8a",        0xe000, 0x1000, CRC(6faf561c) SHA1(7fd5430af4b3f255e2c01e9b092b960ebdca8d13) )
+	ROM_LOAD( "w0-t.9a",        0xf000, 0x1000, CRC(baa330ae) SHA1(b10c66d9a03b036d95926d0c0fe441bb7ca4015d) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "w6-t.1b",      0xf000, 0x1000, CRC(a6bcc2d1) SHA1(383cd170417256467dfce94939d6afa66518c6d2) )
+	ROM_REGION( 0x0040, REGION_PROMS, 0 )
+	ROM_LOAD( "8.8a",    0x0000, 0x0020, CRC(6a0006ac) SHA1(72265bc472fb7610af190130560ef507244ce41c) )
+	ROM_LOAD( "7.10j",   0x0020, 0x0020, CRC(27b004e3) SHA1(4b9960b99130281a3b07f44816001e5eabf7a6fc) )
+ROM_END
+
 ROM_START( disco )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "disco.w5",     0xa000, 0x1000, CRC(b2c87b78) SHA1(4095f0052ff0ac35ecd2ec1c1e99d21283d336e1) )
@@ -1872,6 +2010,7 @@ GAME( 1982, btime2,   btime,   btime,    btime,    btime,   ROT270, "Data East C
 GAME( 1982, btimem,   btime,   btime,    btime,    btime,   ROT270, "Data East (Bally Midway license)", "Burger Time (Midway)", 0 )
 GAME( 1982, cookrace, btime,   cookrace, cookrace, cookrace,ROT270, "bootleg", "Cook Race", 0 )
 GAME( 1981, lnc,      0,       lnc,      lnc,      lnc,     ROT270, "Data East Corporation", "Lock'n'Chase", 0 )
+GAME( 1982, protenn,  0,       protenn,  protenn,  btime,   ROT270, "Data East Corporation", "Pro Tennis (Japan)", 0 )
 GAME( 1982, wtennis,  0,       wtennis,  wtennis,  wtennis, ROT270, "bootleg", "World Tennis", 0 )
 GAME( 1982, mmonkey,  0,       mmonkey,  mmonkey,  lnc,     ROT270, "Technos + Roller Tron", "Minky Monkey", 0 )
 GAME( 1982, brubber,  0,       bnj,      bnj,      lnc,     ROT270, "Data East", "Burnin' Rubber", 0 )
