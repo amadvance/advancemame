@@ -1542,6 +1542,26 @@ ROM_START( dokaben )
 	ROM_LOAD( "db01.1d",      0x00000, 0x20000, CRC(62fa6b81) SHA1(0168b40df583f11cb28718aa8ab8be7cc08bf561) )
 ROM_END
 
+ROM_START( dokaben2 )
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "d2_06.11h",    0x00000, 0x08000, CRC(9adcc38c) SHA1(0cacc58a14d63dfb1565ff517cc45f3d8fc9b77c) )
+	ROM_LOAD( "d2_07.13h",    0x10000, 0x20000, CRC(43076e32) SHA1(fca84da82d427b3dca28ed2ec1e811eeddcee666) )
+	ROM_LOAD( "d2_08.14h",    0x30000, 0x20000, CRC(cb9deb7a) SHA1(a3e359e991a64190e25cf1c589c82008af2cb9b5) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "d2_02.1e",     0x000000, 0x20000, CRC(5dd7b941) SHA1(b0e93e733b9bbabe68896c92af34b90daf8dcd7c) )
+	ROM_LOAD( "d2_03.2e",     0x020000, 0x20000, CRC(b615e696) SHA1(f1ec11202fce23af4af15682b158795f7ff4234f) )
+	ROM_LOAD( "d2_04.1g",     0x080000, 0x20000, CRC(56b35605) SHA1(c065b03b5cb00ac75b8b439a4f35d9b04a886626) )
+	ROM_LOAD( "d2_05.2g",     0x0a0000, 0x20000, CRC(ce98ff74) SHA1(ddae2e035369886ab03074e947405ef916cc425a) )
+
+	ROM_REGION( 0x040000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "d2_10.2k",     0x000000, 0x20000, CRC(9b9bfb5f) SHA1(5969861e1fe900a3076785c7d1e304c10aa56435) )
+	ROM_LOAD( "d2_09.1k",     0x020000, 0x20000, CRC(84de2e1d) SHA1(692304332b37ca3b26dc96bcad797ee81ab8b819) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "db_01.1d",     0x00000, 0x20000, CRC(62fa6b81) SHA1(0168b40df583f11cb28718aa8ab8be7cc08bf561) )
+ROM_END
+
 ROM_START( pang )
 	ROM_REGION( 0x50000, REGION_CPU1, 0 )	/* 320k for code */
 	ROM_LOAD( "pang6.bin",    0x00000, 0x08000, CRC(68be52cd) SHA1(67b9ac15f4cbd3959c417f979beae36ae17334c1) )
@@ -2130,20 +2150,21 @@ GAME( 1989, pkladies, 0,        marukin, pkladies, mgakuen2, ROT0,   "Mitchell",
 GAME( 1989, pkladiel, pkladies, marukin, pkladies, mgakuen2, ROT0,   "Leprechaun", "Poker Ladies (Leprechaun ver. 510)", 0 )
 GAME( 1989, pkladila, pkladies, marukin, pkladies, mgakuen2, ROT0,   "Leprechaun", "Poker Ladies (Leprechaun ver. 401)", 0 )
 GAME( 1989, dokaben,  0,        pang,    pang,     dokaben,  ROT0,   "Capcom", "Dokaben (Japan)", 0 )
+GAME( 1989, dokaben2, 0,        pang,    pang,     dokaben,  ROT0,   "Capcom", "Dokaben 2 (Japan)", 0 )
 GAME( 1989, pang,     0,        pang,    pang,     pang,     ROT0,   "Mitchell", "Pang (World)", 0 )
-GAME( 1989, pangb,    pang,     pang,    pang,     pangb,    ROT0,   "bootleg", "Pang (bootleg)", 0 )
 GAME( 1989, bbros,    pang,     pang,    pang,     pang,     ROT0,   "Capcom", "Buster Bros. (US)", 0 )
 GAME( 1989, pompingw, pang,     pang,    pang,     pang,     ROT0,   "Mitchell", "Pomping World (Japan)", 0 )
+GAME( 1989, pangb,    pang,     pang,    pang,     pangb,    ROT0,   "bootleg", "Pang (bootleg)", 0 )
 GAME( 1989, cworld,   0,        pang,    qtono1,   cworld,   ROT0,   "Capcom", "Capcom World (Japan)", 0 )
 GAME( 1990, hatena,   0,        pang,    qtono1,   hatena,   ROT0,   "Capcom", "Adventure Quiz 2 Hatena Hatena no Dai-Bouken (Japan 900228)", 0 )
 GAME( 1990, spang,    0,        pang,    pang,     spang,    ROT0,   "Mitchell", "Super Pang (World 900914)", 0 )
+GAME( 1990, sbbros,   spang,    pang,    pang,     sbbros,   ROT0,   "Mitchell + Capcom", "Super Buster Bros. (US 901001)", 0 )
 GAME( 1990, spangj,   spang,    pang,    pang,     spangj,   ROT0,   "Mitchell", "Super Pang (Japan 901023)", 0 )
 GAME( 1994, mstworld, 0,        mstworld,mstworld, mstworld, ROT0,   "TCH", "Monsters World",GAME_IMPERFECT_GRAPHICS ) // bootleg of Spang
-GAME( 1990, sbbros,   spang,    pang,    pang,     sbbros,   ROT0,   "Mitchell + Capcom", "Super Buster Bros. (US 901001)", 0 )
 GAME( 1990, marukin,  0,        marukin, marukin,  marukin,  ROT0,   "Yuga", "Super Marukin-Ban (Japan 901017)", 0 )
 GAME( 1991, qtono1,   0,        pang,    qtono1,   qtono1,   ROT0,   "Capcom", "Quiz Tonosama no Yabou (Japan)", 0 )
 GAME( 1991, qsangoku, 0,        pang,    qtono1,   qsangoku, ROT0,   "Capcom", "Quiz Sangokushi (Japan)", 0 )
 GAME( 1991, block,    0,        pang,    block,    block,    ROT270, "Capcom", "Block Block (World 910910)", 0 )
-GAME( 1991, blockj,   block,    pang,    block,    block,    ROT270, "Capcom", "Block Block (Japan 910910)", 0 )
 GAME( 1991, blockjoy, block,    pang,    blockjoy, block,    ROT270, "Capcom", "Block Block (World 911106 Joystick)", 0 )
+GAME( 1991, blockj,   block,    pang,    block,    block,    ROT270, "Capcom", "Block Block (Japan 910910)", 0 )
 GAME( 1991, blockbl,  block,    pang,    block,    blockbl,  ROT270, "bootleg", "Block Block (bootleg)", 0 )
