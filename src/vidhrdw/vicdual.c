@@ -53,7 +53,7 @@ PALETTE_INIT( vicdual )
 
 	if (color_prom == 0) color_prom = bw_color_prom;
 
-	for (i = 0;i < Machine->drv->total_colors / 2;i++)
+	for (i = 0;i < 32;i++)
 	{
 		int bit,r,g,b;
 
@@ -87,7 +87,8 @@ PALETTE_INIT( vicdual )
 
 	{
 		/* Heiankyo Alien doesn't write to port 0x40, it expects it to default to 3 */
-		if (strcmp(Machine->gamedrv->name, "heiankyo") == 0)
+		if (strcmp(Machine->gamedrv->name, "heiankyo") == 0 ||
+			strcmp(Machine->gamedrv->name, "headon2") == 0)
 			palette_bank = 3;
 
 		/* and many others expect it to default to 1 */
@@ -185,5 +186,57 @@ VIDEO_UPDATE( vicdual )
 	for (offs = 0;offs < 256;offs++)
 	{
 		if (dirtycharacter[offs] == 2) dirtycharacter[offs] = 0;
+	}
+}
+
+static UINT8 nsub_background_bank;
+
+PALETTE_INIT( nsub )
+{
+	int i;
+	palette_init_vicdual(colortable, color_prom);
+	nsub_background_bank = 0;
+	for (i = 0; i < 256; i++)
+	{
+		int g = 0, b = 0;
+		if (i >= 24 && i < 105)
+			b = (i - 24) * 3;
+		else if (i >= 105 && i < 233)
+		{
+			g = 0x80 + i - 105;
+			b = 255;
+		}
+		palette_set_color(64 + i, 0, g, b);
+	}
+}
+
+WRITE8_HANDLER( nsub_palette_bank_w )
+{
+	nsub_background_bank = data & 0x0c;
+	vicdual_palette_bank_w(0, data);
+}
+
+VIDEO_UPDATE( nsub )
+{
+	int x, y;
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
+		{
+			int code = videoram[(y / 8) * 32 + x / 8];
+			int pixels = vicdual_characterram[code * 8 + (y & 7)];
+			int color = (code >> 5) + 8 * palette_bank;
+			int pen;
+			if (pixels & (0x80 >> (x & 7)))
+				pen = color * 2 + 1;
+			else
+			{
+				int index = (nsub_background_bank & 8) ? 255 - x : x;
+				pen = color * 2;
+				if ((nsub_background_bank & 4) && index >= 24 && index < 233)
+					pen = 64 + index;
+			}
+			plot_pixel(bitmap, x, y, Machine->pens[pen]);
+		}
 	}
 }
