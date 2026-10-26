@@ -3125,6 +3125,7 @@ V-V                           TP-027
 	DRIVER( invinco )	/* 310-318 (c) 1979 Sega */
 	DRIVER( invds )		/* 367-382 (c) 1979 Sega */
 	DRIVER( tranqgun )	/* 413-428 (c) 1980 Sega */
+	DRIVER( nostromo )
 				/* 450-465  Tranquilizer Gun (different version?) */
 				/* ???-??? Car Hunt / Deep Scan */
 	DRIVER( spacetrk )	/* 630-645 (c) 1980 Sega */

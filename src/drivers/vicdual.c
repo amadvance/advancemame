@@ -172,6 +172,86 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 
+static ADDRESS_MAP_START( headon_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_MIRROR(0x6000) AM_ROM
+	AM_RANGE(0xc000, 0xc3ff) AM_MIRROR(0x3000) AM_READWRITE(videoram_r, videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0xc400, 0xc7ff) AM_MIRROR(0x3000) AM_RAM
+	AM_RANGE(0xc800, 0xcfff) AM_MIRROR(0x3000) AM_READWRITE(vicdual_characterram_r, vicdual_characterram_w) AM_BASE(&vicdual_characterram)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nsub_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x3fff) AM_MIRROR(0x4000) AM_ROM
+	AM_RANGE(0xc000, 0xc3ff) AM_MIRROR(0x3000) AM_READWRITE(videoram_r, videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0xc400, 0xc7ff) AM_MIRROR(0x3000) AM_RAM
+	AM_RANGE(0xc800, 0xcfff) AM_MIRROR(0x3000) AM_READWRITE(vicdual_characterram_r, vicdual_characterram_w) AM_BASE(&vicdual_characterram)
+ADDRESS_MAP_END
+
+static READ8_HANDLER( headon_io_r )
+{
+	UINT8 value = 0xff;
+	if (offset & 0x01) value &= readinputport(0);
+	if (offset & 0x08) value &= (readinputport(1) & 0xfe) | ((cpu_getscanline() >> 6) & 1);
+	return value;
+}
+
+static READ8_HANDLER( headon2_io_r )
+{
+	UINT8 value = 0xff;
+	if (offset & 0x01) value &= readinputport(0);
+	if (offset & 0x04) value &= readinputport(1);
+	if (offset & 0x08) value &= readinputport(2);
+	return value;
+}
+
+static READ8_HANDLER( nsub_io_r )
+{
+	UINT8 value = 0xff;
+	if (offset & 0x01) value &= readinputport(0);
+	if (offset & 0x08) value &= readinputport(1);
+	return value;
+}
+
+static WRITE8_HANDLER( headon_io_w )
+{
+	if (offset & 0x02) headon_audio_w(0, data);
+}
+
+static WRITE8_HANDLER( nsub_io_w )
+{
+	if (offset & 0x02) nsub_audio_w(0, data);
+	if (offset & 0x04) nsub_palette_bank_w(0, data);
+}
+
+static WRITE8_HANDLER( tranqgun_io_w )
+{
+	if (offset & 0x01) tranqgun_audio_w(0, data);
+	if (offset & 0x02) vicdual_palette_bank_w(0, data);
+}
+
+static ADDRESS_MAP_START( headon_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(4) )
+	AM_RANGE(0x00, 0x0f) AM_READWRITE(headon_io_r, headon_io_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( headon2_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(5) )
+	AM_RANGE(0x00, 0x1f) AM_READWRITE(headon2_io_r, headon_io_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nsub_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(4) )
+	AM_RANGE(0x00, 0x0f) AM_READWRITE(nsub_io_r, nsub_io_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tranqgun_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(4) )
+	AM_RANGE(0x00, 0x00) AM_READ(input_port_0_r)
+	AM_RANGE(0x01, 0x01) AM_READ(input_port_1_r)
+	AM_RANGE(0x02, 0x02) AM_READ(input_port_2_r)
+	AM_RANGE(0x03, 0x03) AM_READ(input_port_3_r)
+	AM_RANGE(0x00, 0x0f) AM_WRITE(tranqgun_io_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( i8039_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x07ff) AM_READ(MRA8_ROM)
 ADDRESS_MAP_END
@@ -421,6 +501,28 @@ INPUT_PORTS_START( headon )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(30) /* PORT_RESETCPU */
 INPUT_PORTS_END
 
+INPUT_PORTS_START( nostromo )
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x02, "4" )
+	PORT_DIPSETTING(    0x03, "5" )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_VBLANK )
+	PORT_BIT( 0x7e, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(30)
+INPUT_PORTS_END
+
 INPUT_PORTS_START( headon2 )
 	PORT_START	/* IN0 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
@@ -434,11 +536,11 @@ INPUT_PORTS_START( headon2 )
 
 	PORT_START	/* IN1 */
 	PORT_BIT( 0x07, IP_ACTIVE_LOW, IPT_UNKNOWN )	/* probably unused */
-	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Lives ) )
-	PORT_DIPSETTING(    0x18, "4" )
+	PORT_DIPNAME( 0x18, 0x08, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x08, "4" )
 	PORT_DIPSETTING(    0x10, "5" )
 	PORT_DIPSETTING(    0x00, "6" )
-/*  PORT_DIPSETTING(    0x08, "5" )*/
+	PORT_DIPSETTING(    0x18, "5" )
 	PORT_BIT( 0xe0, IP_ACTIVE_LOW, IPT_UNKNOWN ) /* probably unused */
 
 	PORT_START	/* IN2 */
@@ -1204,6 +1306,66 @@ static MACHINE_DRIVER_START( 4ports )
 MACHINE_DRIVER_END
 
 
+static MACHINE_RESET( headon2 )
+{
+	last_coin_bit = coin_bit;
+	vicdual_palette_bank_w(0, 3);
+}
+
+static MACHINE_RESET( vicdual_samples )
+{
+	last_coin_bit = coin_bit;
+	vicdual_sample_reset();
+}
+
+static MACHINE_DRIVER_START( headon2 )
+	MDRV_IMPORT_FROM(3ports)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(headon_program, 0)
+	MDRV_CPU_IO_MAP(headon2_io, 0)
+	MDRV_MACHINE_RESET(headon2)
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(headon_discrete_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( nostromo )
+	MDRV_IMPORT_FROM(2ports)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(headon_program, 0)
+	MDRV_CPU_IO_MAP(headon_io, 0)
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(headon_discrete_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+MACHINE_DRIVER_END
+
+static struct Samplesinterface nsub_samples_interface = { 13, nsub_sample_names };
+static struct Samplesinterface tranqgun_samples_interface = { 8, tranqgun_sample_names };
+
+static MACHINE_DRIVER_START( nsub )
+	MDRV_IMPORT_FROM(2ports)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(nsub_program, 0)
+	MDRV_CPU_IO_MAP(nsub_io, 0)
+	MDRV_MACHINE_RESET(vicdual_samples)
+	MDRV_PALETTE_LENGTH(320)
+	MDRV_PALETTE_INIT(nsub)
+	MDRV_VIDEO_UPDATE(nsub)
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(nsub_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( tranqgun )
+	MDRV_IMPORT_FROM(4ports)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(tranqgun_io, 0)
+	MDRV_MACHINE_RESET(vicdual_samples)
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(tranqgun_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( depthch )
 
 	/* basic machine hardware */
@@ -1472,12 +1634,13 @@ ROM_START( nsub )
 	ROM_LOAD( "epr275.41",     0x3800, 0x0800, CRC(1c7d90cc) SHA1(8483825d9811c925407328836ae10f98b011c3dd) )
 
 	/* color prom? */
-	ROM_REGION( 0x0020, REGION_USER1, 0 )
+	ROM_REGION( 0x0020, REGION_PROMS, ROMREGION_INVERT )
 	ROM_LOAD( "pr69.11", 0x0000, 0x0020, CRC(c94dd091) SHA1(f88cfb033ff83adb7375652be1fa32ba489d8418) )
 
 /*
 Two other proms (PR33.u82, PR34.u83 probably common to other games) are on this PCB, but can't be read because aluminium cooler on it
 */
+
 ROM_END
 
 ROM_START( sspaceat )
@@ -1882,6 +2045,21 @@ ROM_START( brdrlinb )
 	ROM_LOAD( "borderb.14",  0x0000, 0x0020, CRC(55dcdef1) SHA1(6fbd041edc258b7e1b99bbe9526612cfb1b541f8) )
 ROM_END
 
+ROM_START( nostromo )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ns_1.bin", 0x0000, 0x0400, CRC(2ba4202a) SHA1(1e46e36c37c9f1cecb505a1fe393c24d0e271168) )
+	ROM_LOAD( "ns_2.bin", 0x0400, 0x0400, CRC(cf6081b8) SHA1(2294cf6849a8191928f268ba1dbef21659a1475f) )
+	ROM_LOAD( "ns_3.bin", 0x0800, 0x0400, CRC(fd983c0c) SHA1(a4aea8707878dcac8b4e3d9acad94f60eee956c6) )
+	ROM_LOAD( "ns_4.bin", 0x0c00, 0x0400, CRC(79e1dc92) SHA1(53fcf9b7b7e894122419b43adccb1aaf7dab8bf9) )
+	ROM_LOAD( "ns_5.bin", 0x1000, 0x0400, CRC(4deb2ce3) SHA1(2935a4ab4be0190e8efa560e30fa7349d83d3e69) )
+	ROM_LOAD( "ns_6.bin", 0x1400, 0x0400, CRC(e4ddf052) SHA1(8734c87742a1d0b68e679e1650806d0738c432c6) )
+	ROM_LOAD( "ns_7.bin", 0x1800, 0x0400, CRC(a5315dc8) SHA1(ba6d27d03c9f0100fe89ebbf4b58d166bf259fa8) )
+
+	ROM_REGION( 0x0040, REGION_USER1, 0 )
+	ROM_LOAD( "82s123.15c", 0x0000, 0x0020, BAD_DUMP CRC(e60a7960) SHA1(b8b8716e859c57c35310efc4594262afedb84823) )
+	ROM_LOAD( "82s123.14c", 0x0020, 0x0020, BAD_DUMP CRC(a1506b9d) SHA1(037c3db2ea40eca459e8acba9d1506dd28d72d10) )
+ROM_END
+
 ROM_START( digger )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "684.u27",      0x0000, 0x0400, CRC(bba0d7c2) SHA1(1e55dd95b07b562dcc1e52ecf9460d302b14ee60) )
@@ -2118,19 +2296,20 @@ GAME( 1979, sspacatc, sspaceat, 3ports,   sspaceat, sspaceat,  ROT270, "Sega", "
 GAME( 1979, sspacaho, 0,        4ports,   sspacaho, sspacaho,  ROT270, "Sega", "Space Attack / Head On", GAME_NO_SOUND )
 GAME( 1979, headon,   0,        2ports,   headon,   headon,    ROT0,   "Gremlin", "Head On (2 players)", GAME_NO_SOUND )
 GAME( 1979, headonb,  headon,   2ports,   headon,   headon,    ROT0,   "Gremlin", "Head On (1 player)", GAME_NO_SOUND )
-GAME( 1979, headon2,  0,        3ports,   headon2,  headon2,   ROT0,   "Sega", "Head On 2", GAME_NO_SOUND )
+GAME( 1979, headon2,  0,        headon2,  headon2,  headon2,   ROT0,   "Sega", "Head On 2", GAME_IMPERFECT_SOUND )
 GAME( 1979, invho2,   0,        invinco4, invho2,   invho2,    ROT270, "Sega", "Invinco / Head On 2", GAME_IMPERFECT_SOUND )
-GAME( 1980, nsub,     0,        2ports,   nsub,     safari,    ROT270, "Sega", "N-Sub (upright)", GAME_WRONG_COLORS | GAME_NO_SOUND )
+GAME( 1980, nsub,     0,        nsub,     nsub,     safari,    ROT270, "Sega", "N-Sub (upright)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1980, samurai,  0,        4ports,   samurai,  samurai,   ROT270, "Sega", "Samurai", GAME_NO_SOUND )
 GAME( 1979, invinco,  0,        invinco3, invinco,  invinco,   ROT270, "Sega", "Invinco", 0 )
 GAME( 1979, invds,    0,        invinco4, invds,    invds,     ROT270, "Sega", "Invinco / Deep Scan", GAME_IMPERFECT_SOUND )
-GAME( 1980, tranqgun, 0,        4ports,   tranqgun, tranqgun,  ROT270, "Sega", "Tranquilizer Gun", GAME_NO_SOUND )
+GAME( 1980, tranqgun, 0,        tranqgun, tranqgun, tranqgun,  ROT270, "Sega", "Tranquillizer Gun", GAME_IMPERFECT_SOUND )
 GAME( 1980, spacetrk, 0,        4ports,   spacetrk, spacetrk,  ROT270, "Sega", "Space Trek (upright)", GAME_NO_SOUND )
 GAME( 1980, sptrekct, spacetrk, 4ports,   sptrekct, sptrekct,  ROT270, "Sega", "Space Trek (cocktail)", GAME_NO_SOUND )
 GAME( 1980, carnival, 0,        carnival, carnival, carnival,  ROT270, "Sega", "Carnival (upright)", 0 )
 GAME( 1980, carnvckt, carnival, carnival, carnvckt, carnival,  ROT270, "Sega", "Carnival (cocktail)", 0 )
 GAME( 1981, brdrline, 0,        carnival, brdrline, carnival,  ROT270, "Sega", "Borderline", 0 )
 GAME( 1981, brdrlinb, brdrline, carnival, brdrline, carnival,  ROT270, "bootleg", "Borderline (bootleg)", 0 )
+GAME( 198?, nostromo, 0,        nostromo, nostromo, headon, ROT0, "bootleg", "Nostromo", GAME_IMPERFECT_SOUND )
 GAME( 1980, digger,   0,        3ports,   digger,   digger,    ROT270, "Sega", "Digger", GAME_NO_SOUND )
 GAME( 1981, pulsar,   0,        pulsar,   pulsar,   pulsar,    ROT270, "Sega", "Pulsar", 0 )
 GAME( 1979, heiankyo, 0,        4ports,   heiankyo, heiankyo,  ROT270, "Denki Onkyo", "Heiankyo Alien", GAME_NO_SOUND )

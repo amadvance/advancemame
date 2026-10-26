@@ -54,3 +54,15 @@ void croak_callback(int param);
 
 extern struct Samplesinterface frogs_samples_interface;
 extern struct discrete_sound_block frogs_discrete_interface[];
+
+extern struct discrete_sound_block headon_discrete_interface[];
+WRITE8_HANDLER( headon_audio_w );
+
+extern const char *nsub_sample_names[];
+extern const char *tranqgun_sample_names[];
+void vicdual_sample_reset(void);
+WRITE8_HANDLER( nsub_audio_w );
+WRITE8_HANDLER( tranqgun_audio_w );
+PALETTE_INIT( nsub );
+VIDEO_UPDATE( nsub );
+WRITE8_HANDLER( nsub_palette_bank_w );
