@@ -489,7 +489,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/sprint2.o $(OBJ)/sndhrdw/sprint2.o $(OBJ)/vidhrdw/sprint2.o \
 	$(OBJ)/drivers/sprint4.o $(OBJ)/sndhrdw/sprint4.o $(OBJ)/vidhrdw/sprint4.o \
 	$(OBJ)/drivers/sprint8.o $(OBJ)/vidhrdw/sprint8.o $(OBJ)/sndhrdw/sprint8.o \
-	$(OBJ)/drivers/starshp1.o $(OBJ)/vidhrdw/starshp1.o \
+	$(OBJ)/drivers/starshp1.o $(OBJ)/vidhrdw/starshp1.o $(OBJ)/sndhrdw/starshp1.o \
 	$(OBJ)/drivers/starwars.o $(OBJ)/machine/starwars.o $(OBJ)/sndhrdw/starwars.o \
 	$(OBJ)/drivers/subs.o $(OBJ)/machine/subs.o $(OBJ)/sndhrdw/subs.o $(OBJ)/vidhrdw/subs.o \
 	$(OBJ)/drivers/tank8.o $(OBJ)/sndhrdw/tank8.o $(OBJ)/vidhrdw/tank8.o \
