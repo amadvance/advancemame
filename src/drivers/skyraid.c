@@ -7,6 +7,7 @@ Atari Sky Raider driver
 ***************************************************************************/
 
 #include "driver.h"
+#include "skyraid.h"
 
 extern UINT8* skyraid_alpha_num_ram;
 extern UINT8* skyraid_pos_ram;
@@ -81,6 +82,11 @@ static WRITE8_HANDLER( skyraid_sound_w )
 	/* BIT5 => ATTRACT     */
 
 	set_led_status(0, !(data & 0x08));
+	discrete_sound_w(SKYRAID_PLANE_SWEEP_EN, data & 1);
+	discrete_sound_w(SKYRAID_MISSILE_EN, data & 2);
+	discrete_sound_w(SKYRAID_EXPLOSION_EN, data & 4);
+	discrete_sound_w(SKYRAID_PLANE_ON_EN, data & 16);
+	discrete_sound_w(SKYRAID_ATTRACT_EN, data & 32);
 }
 
 
@@ -107,9 +113,9 @@ static ADDRESS_MAP_START( skyraid_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0800, 0x087f) AM_READ(MRA8_RAM)
 	AM_RANGE(0x0880, 0x0bff) AM_READ(skyraid_alpha_num_r)
 	AM_RANGE(0x1000, 0x1000) AM_READ(skyraid_port_0_r)
-	AM_RANGE(0x1000, 0x1001) AM_READ(input_port_1_r)
+	AM_RANGE(0x1001, 0x1001) AM_READ(input_port_1_r)
 	AM_RANGE(0x1400, 0x1400) AM_READ(input_port_2_r)
-	AM_RANGE(0x1400, 0x1401) AM_READ(input_port_3_r)
+	AM_RANGE(0x1401, 0x1401) AM_READ(input_port_3_r)
 	AM_RANGE(0x7000, 0x7fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_ROM)
 ADDRESS_MAP_END
@@ -285,6 +291,10 @@ static MACHINE_DRIVER_START( skyraid )
 	MDRV_VIDEO_UPDATE(skyraid)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(skyraid_discrete)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -318,4 +328,4 @@ ROM_START( skyraid )
 ROM_END
 
 
-GAME( 1978, skyraid, 0, skyraid, skyraid, 0, ORIENTATION_FLIP_Y, "Atari", "Sky Raider", GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
+GAME( 1978, skyraid, 0, skyraid, skyraid, 0, ORIENTATION_FLIP_Y, "Atari", "Sky Raider", GAME_IMPERFECT_COLORS )
