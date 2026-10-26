@@ -580,6 +580,8 @@ static void init_nodes(struct discrete_info *info, struct discrete_sound_block *
 		/* static inits */
 		node->node = block->node;
 		node->module = module_list[modulenum];
+		if (block->type == DST_CUSTOM && block->custom)
+			node->module = *(const struct discrete_module *)block->custom;
 		node->output = 0.0;
 		node->block = block;
 

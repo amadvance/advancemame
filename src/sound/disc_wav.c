@@ -247,14 +247,8 @@ void dss_counter_reset(struct node_description *node)
 {
 	struct dss_counter_context *context = node->context;
 
-	context->clock_type = (int)DSS_COUNTER__CLOCK_TYPE;
-	if (context->clock_type == DISC_COUNTER_IS_7492)
-	{
-		context->clock_type = DISC_CLK_ON_F_EDGE;
-		context->is_7492 = 1;
-	}
-	else
-		context->is_7492 = 0;
+	context->is_7492 = ((int)DSS_COUNTER__CLOCK_TYPE & DISC_COUNTER_IS_7492) != 0;
+	context->clock_type = (int)DSS_COUNTER__CLOCK_TYPE & ~DISC_COUNTER_IS_7492;
 	if ((context->clock_type < DISC_CLK_ON_F_EDGE) || (context->clock_type > DISC_CLK_IS_FREQ))
 		discrete_log("Invalid clock type passed in NODE_%d\n", node->node - NODE_START);
 	context->last = 0;
