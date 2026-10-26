@@ -6,8 +6,6 @@
 
     Text mode window engine
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 *********************************************************************/
 
 #ifndef _WINDOW_H_

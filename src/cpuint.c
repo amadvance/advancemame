@@ -6,8 +6,6 @@
 
     Core multi-CPU interrupt engine.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ***************************************************************************/
 
 #include <signal.h>

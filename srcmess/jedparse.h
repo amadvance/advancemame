@@ -6,8 +6,6 @@
 
     Parser for .JED files into raw fusemaps.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ***************************************************************************/
 
 #ifndef __JEDPARSE_H__

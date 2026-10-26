@@ -7,8 +7,6 @@
     MAME debugger V0.54
     Juergen Buchmueller <pullmoll@t-online.de>
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************/
 
 #ifndef _MAMEDBG_H

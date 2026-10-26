@@ -6,8 +6,6 @@
 
     PNG reading functions.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
     07/15/1998 Created by Mathis Rosenhauer
     10/02/1998 Code clean up and abstraction by Mike Balfour
             and Mathis Rosenhauer

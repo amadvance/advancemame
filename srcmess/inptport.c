@@ -6,8 +6,6 @@
 
     Input port handling.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************
 
     Theory of operation

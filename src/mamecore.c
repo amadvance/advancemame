@@ -7,8 +7,6 @@
     Simple core functions that are defined in mamecore.h and which may
     need to be accessed by other MAME-related tools.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************/
 
 #include "mamecore.h"

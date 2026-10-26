@@ -7,8 +7,6 @@
     Deprecated code that is wedged into a few of the MAME disassemblers.
     Broken out here for eventual removal.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************/
 
 #include "cpuintrf.h"

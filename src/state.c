@@ -6,8 +6,6 @@
 
     Save state management functions.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************
 
     Save state file format:

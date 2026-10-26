@@ -6,8 +6,6 @@
 
     Controls execution of the core MAME system.
 
-    Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
-
 ****************************************************************************
 
     Since there has been confusion in the past over the order of
