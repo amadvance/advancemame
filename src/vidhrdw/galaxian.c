@@ -2195,3 +2195,126 @@ PALETTE_INIT( sbhoei )
 		palette_set_color(i, r, b, g);
 	}
 }
+
+static UINT8 dambustr_color1, dambustr_color2, dambustr_priority, dambustr_bank, dambustr_split;
+static UINT8 dambustr_videoram2[0x400];
+static tilemap *dambustr_tilemap2;
+static mame_bitmap *dambustr_background;
+
+static void dambustr_modify_charcode(UINT16 *code, UINT8 x)
+{
+	if (!dambustr_bank || x == 28) *code |= 0x300;
+	else *code &= 0xff;
+}
+
+static void dambustr_modify_spritecode(UINT8 *ram, int *code, int *flipx, int *flipy, int offs)
+{
+	*code += 0x40;
+}
+
+static void dambustr_draw_bullet(mame_bitmap *bitmap, int offs, int x, int y)
+{
+	int i;
+	if (flipscreen_x) x++;
+	x -= 6;
+	for (i = 0; i < 2; i++)
+	{
+		int color;
+		if (offs < 16) { color = BULLETS_COLOR_BASE; y--; }
+		else { color = BULLETS_COLOR_BASE + 1; x--; }
+		if (x >= Machine->visible_area.min_x && x <= Machine->visible_area.max_x &&
+			y >= Machine->visible_area.min_y && y <= Machine->visible_area.max_y)
+			plot_pixel(bitmap, x, y, Machine->pens[color]);
+	}
+}
+
+static void dambustr_draw_background(mame_bitmap *bitmap)
+{
+	int c1 = BACKGROUND_COLOR_BASE + (flipscreen_x ? dambustr_color2 : dambustr_color1);
+	int c2 = BACKGROUND_COLOR_BASE + (flipscreen_x ? dambustr_color1 : dambustr_color2);
+	if (dambustr_split < 256) plot_box(bitmap, 0, 0, 256 - dambustr_split, 256, Machine->pens[c1]);
+	if (dambustr_split) plot_box(bitmap, 256 - dambustr_split, 0, dambustr_split, 256, Machine->pens[c2]);
+}
+
+PALETTE_INIT( dambustr )
+{
+	int i;
+	palette_init_galaxian(colortable, color_prom);
+	for (i = 0; i < 32; i++)
+	{
+		int data = color_prom[i];
+		int b = 0x21 * BIT(data,0) + 0x47 * BIT(data,1) + 0x97 * BIT(data,2);
+		int r = 0x21 * BIT(data,3) + 0x47 * BIT(data,4) + 0x97 * BIT(data,5);
+		int g = 0x52 * BIT(data,6) + 0xad * BIT(data,7);
+		palette_set_color(i, r, g, b);
+	}
+	for (i = 0; i < 8; i++)
+		palette_set_color(BACKGROUND_COLOR_BASE + i, BIT(i,0) * 0x47, BIT(i,1) * 0x47, BIT(i,2) * 0x47);
+}
+
+static void dambustr_tile_info2(int tile_index)
+{
+	int x = tile_index & 31;
+	UINT16 code = dambustr_videoram2[tile_index];
+	int color = galaxian_attributesram[(x << 1) | 1] & color_mask;
+	dambustr_modify_charcode(&code, x);
+	SET_TILE_INFO(0, code, color, 0)
+}
+
+VIDEO_START( dambustr )
+{
+	if (video_start_galaxian()) return 1;
+	dambustr_color1 = dambustr_color2 = dambustr_priority = dambustr_bank = dambustr_split = 0;
+	modify_charcode = dambustr_modify_charcode;
+	modify_spritecode = dambustr_modify_spritecode;
+	draw_bullets = dambustr_draw_bullet;
+	draw_background = dambustr_draw_background;
+	dambustr_background = auto_bitmap_alloc(256, 256);
+	dambustr_tilemap2 = tilemap_create(dambustr_tile_info2, tilemap_scan_rows, TILEMAP_TRANSPARENT, 8, 8, 32, 32);
+	if (!dambustr_background || !dambustr_tilemap2) return 1;
+	tilemap_set_transparent_pen(dambustr_tilemap2, 0);
+	tilemap_set_scroll_cols(dambustr_tilemap2, 32);
+	return 0;
+}
+
+WRITE8_HANDLER( dambustr_bg_color_w )
+{
+	dambustr_color1 = data & 7;
+	dambustr_color2 = (data >> 4) & 7;
+	dambustr_priority = data & 8;
+	dambustr_bank = data >> 7;
+	tilemap_mark_all_tiles_dirty(bg_tilemap);
+}
+
+WRITE8_HANDLER( dambustr_bg_split_w )
+{
+	dambustr_split = data;
+}
+
+VIDEO_UPDATE( dambustr )
+{
+	int x, y;
+	dambustr_draw_background(bitmap);
+	if (galaxian_stars_on) draw_stars(bitmap);
+	copybitmap(dambustr_background, bitmap, 0, 0, 0, 0, cliprect, TRANSPARENCY_NONE, 0);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	draw_bullets_common(bitmap);
+	draw_sprites(bitmap, galaxian_spriteram, galaxian_spriteram_size);
+	if (dambustr_priority)
+	{
+		rectangle clip = *cliprect;
+		if (flipscreen_x) { clip.min_x = MAX(clip.min_x, 254 - dambustr_split); clip.max_x = MIN(clip.max_x, dambustr_split); }
+		else clip.max_x = MIN(clip.max_x, 254 - dambustr_split);
+		if (clip.min_x <= clip.max_x) copybitmap(bitmap, dambustr_background, 0, 0, 0, 0, &clip, TRANSPARENCY_NONE, 0);
+		memset(dambustr_videoram2, 0x20, sizeof(dambustr_videoram2));
+		for (x = 0; x < 32; x++)
+		{
+			tilemap_set_scrolly(dambustr_tilemap2, x, galaxian_attributesram[x * 2]);
+			if ((galaxian_attributesram[x * 2 + 1] & color_mask) > 3)
+				for (y = 0; y < 32; y++) dambustr_videoram2[y * 32 + x] = galaxian_videoram[y * 32 + x];
+		}
+		tilemap_set_flip(dambustr_tilemap2, (flipscreen_x ? TILEMAP_FLIPX : 0) | (flipscreen_y ? TILEMAP_FLIPY : 0));
+		tilemap_mark_all_tiles_dirty(dambustr_tilemap2);
+		tilemap_draw(bitmap, cliprect, dambustr_tilemap2, 0, 0);
+	}
+}
