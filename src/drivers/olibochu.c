@@ -14,8 +14,12 @@ TODO:
 
 #include "driver.h"
 #include "sound/ay8910.h"
+#include "sound/hc55516.h"
 
 static tilemap *bg_tilemap;
+static UINT16 sound_command;
+static UINT8 sample_latch;
+static UINT16 sample_address;
 
 PALETTE_INIT( olibochu )
 {
@@ -57,7 +61,7 @@ PALETTE_INIT( olibochu )
 
 	/* sprites */
 	for (i = 0;i < TOTAL_COLORS(1);i++)
-		COLOR(1,i) = (*(color_prom++) & 0x0f);
+		COLOR(1,i) = (*(color_prom++) & 0x0f) + 0x10;
 }
 
 WRITE8_HANDLER( olibochu_videoram_w )
@@ -97,15 +101,17 @@ static void get_bg_tile_info(int tile_index)
 	int flags = ((attr & 0x40) ? TILE_FLIPX : 0) | ((attr & 0x80) ? TILE_FLIPY : 0);
 
 	SET_TILE_INFO(0, code, color, flags)
+	tile_info.priority = (attr >> 5) & 1;
 }
 
 VIDEO_START( olibochu )
 {
 	bg_tilemap = tilemap_create(get_bg_tile_info, tilemap_scan_rows,
-		TILEMAP_OPAQUE, 8, 8, 32, 32);
+		TILEMAP_TRANSPARENT, 8, 8, 32, 32);
 
 	if ( !bg_tilemap )
 		return 1;
+	tilemap_set_transparent_pen(bg_tilemap, 0);
 
 	return 0;
 }
@@ -116,7 +122,7 @@ static void olibochu_draw_sprites( mame_bitmap *bitmap )
 
 	/* 16x16 sprites */
 
-	for (offs = 0;offs < spriteram_size;offs += 4)
+	for (offs = spriteram_size - 4;offs >= 0;offs -= 4)
 	{
 		int attr = spriteram[offs+1];
 		int code = spriteram[offs];
@@ -144,7 +150,7 @@ static void olibochu_draw_sprites( mame_bitmap *bitmap )
 
 	/* 8x8 sprites */
 
-	for (offs = 0;offs < spriteram_2_size;offs += 4)
+	for (offs = spriteram_2_size - 4;offs >= 0;offs -= 4)
 	{
 		int attr = spriteram_2[offs+1];
 		int code = spriteram_2[offs];
@@ -173,24 +179,66 @@ static void olibochu_draw_sprites( mame_bitmap *bitmap )
 
 VIDEO_UPDATE( olibochu )
 {
-	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
+	fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, TILEMAP_IGNORE_TRANSPARENCY, 0);
 	olibochu_draw_sprites(bitmap);
+	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 1, 0);
 }
 
 
 static WRITE8_HANDLER( sound_command_w )
 {
-	static int cmd;
+	UINT16 previous = sound_command & 0x003f;
+	UINT16 hi, lo;
 	int c;
 
+	if (offset == 0) sound_command = (sound_command & 0x00ff) | (data << 8);
+	else sound_command = (sound_command & 0xff00) | data;
+	hi = sound_command & 0xffc0;
+	lo = sound_command & 0x003f;
+	if (lo && lo != previous)
+	{
+		for (c = 5; c >= 0 && !(lo & (1 << c)); c--);
+		soundlatch2_w(0, 5 - c);
+	}
+	for (c = 0; c < 16 && !(hi & (1 << c)); c++);
+	soundlatch_w(0, (16 - c) & 0x0f);
+}
 
-	if (offset == 0) cmd = (cmd & 0x00ff) | (data << 8);
-	else cmd = (cmd & 0xff00) | data;
+static READ8_HANDLER( olibochu_soundlatch_r )
+{
+	return (soundlatch_r(0) & 0x0f) | ((soundlatch2_r(0) & 0x0f) << 4);
+}
 
-	for (c = 15;c >= 0;c--)
-		if (cmd & (1 << c)) break;
+static WRITE8_HANDLER( sample_latch_w )
+{
+	sample_latch = data;
+}
 
-	if (c >= 0) soundlatch_w(0,15-c);
+static WRITE8_HANDLER( sample_start_w )
+{
+	if (data & 0x80)
+	{
+		soundlatch2_clear_w(0, 0);
+		sample_address = sample_latch * 0x100;
+	}
+}
+
+static void sample_clock(int param)
+{
+	UINT8 *samples = memory_region(REGION_SOUND1);
+	hc55516_clock_w(0, 0);
+	hc55516_digit_w(0, (samples[sample_address >> 3] >> ((~sample_address) & 7)) & 1);
+	hc55516_clock_w(0, 1);
+	sample_address++;
+}
+
+static MACHINE_RESET( olibochu )
+{
+	sound_command = 0;
+	sample_latch = 0;
+	sample_address = 0;
+	timer_pulse(TIME_IN_HZ(16000), 0, sample_clock);
 }
 
 
@@ -212,15 +260,16 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x8400, 0x87ff) AM_WRITE(olibochu_colorram_w) AM_BASE(&colorram)
 	AM_RANGE(0xa800, 0xa801) AM_WRITE(sound_command_w)
 	AM_RANGE(0xa802, 0xa802) AM_WRITE(olibochu_flipscreen_w)	/* bit 6 = enable sound? */
+	AM_RANGE(0x9000, 0x901f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2) AM_SIZE(&spriteram_2_size)
+	AM_RANGE(0x9020, 0x903f) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x9800, 0x983f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
 	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0xf400, 0xf41f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
-	AM_RANGE(0xf440, 0xf47f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2) AM_SIZE(&spriteram_2_size)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x6000, 0x63ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x7000, 0x7000) AM_READ(soundlatch_r)
+	AM_RANGE(0x7000, 0x7000) AM_READ(olibochu_soundlatch_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -228,6 +277,8 @@ static ADDRESS_MAP_START( sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x6000, 0x63ff) AM_WRITE(MWA8_RAM)
 	AM_RANGE(0x7000, 0x7000) AM_WRITE(AY8910_control_port_0_w)
 	AM_RANGE(0x7001, 0x7001) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0x7004, 0x7004) AM_WRITE(sample_latch_w)
+	AM_RANGE(0x7006, 0x7006) AM_WRITE(sample_start_w)
 ADDRESS_MAP_END
 
 
@@ -385,17 +436,18 @@ static INTERRUPT_GEN( olibochu_interrupt )
 static MACHINE_DRIVER_START( olibochu )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 4000000)	/* 4 MHz ?? */
+	MDRV_CPU_ADD(Z80, 3072000)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(olibochu_interrupt,2)
 
-	MDRV_CPU_ADD(Z80, 4000000)
+	MDRV_CPU_ADD(Z80, 3072000)
 	/* audio CPU */	/* 4 MHz ?? */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(62.5)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(olibochu)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -412,7 +464,9 @@ static MACHINE_DRIVER_START( olibochu )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 2000000)
+	MDRV_SOUND_ADD(AY8910, 1536000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+	MDRV_SOUND_ADD(HC55516, 0)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
@@ -461,4 +515,4 @@ ROM_END
 
 
 
-GAME( 1981, olibochu, 0, olibochu, olibochu, 0, ROT270, "Irem + GDI", "Oli-Boo-Chu", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1981, olibochu, 0, olibochu, olibochu, 0, ROT270, "Irem (GDI license)", "Oli-Boo-Chu (USA)", GAME_IMPERFECT_SOUND )
