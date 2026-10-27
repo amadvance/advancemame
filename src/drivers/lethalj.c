@@ -48,7 +48,45 @@ Note 2: Lethal Justice uses a TMS34010FNL-50 instead of the TMS34010FNL-40
 #include "driver.h"
 #include "cpu/tms34010/tms34010.h"
 #include "lethalj.h"
+#include "machine/ticket.h"
 #include "sound/okim6295.h"
+
+
+static UINT32 ticket_status_r(void *param)
+{
+	return ticket_dispenser_0_r(0) >> 7;
+}
+
+static UINT32 cclownz_paddle_r(void *param)
+{
+	int value = readinputportbytag("PADDLE");
+	return ((value << 4) & 0xf00) | (value & 0x00f);
+}
+
+static WRITE16_HANDLER( ripribit_control_w )
+{
+	coin_counter_w(0, data & 1);
+	ticket_dispenser_0_w(0, ((data >> 1) & 1) << 7);
+	set_led_status(0, (data >> 2) & 1);
+}
+
+static WRITE16_HANDLER( cfarm_control_w )
+{
+	ticket_dispenser_0_w(0, ((data >> 0) & 1) << 7);
+	set_led_status(0, (data >> 2) & 1);
+	set_led_status(1, (data >> 3) & 1);
+	set_led_status(2, (data >> 4) & 1);
+	coin_counter_w(0, (data >> 7) & 1);
+}
+
+static WRITE16_HANDLER( cclownz_control_w )
+{
+	ticket_dispenser_0_w(0, ((data >> 0) & 1) << 7);
+	set_led_status(0, (data >> 2) & 1);
+	set_led_status(1, (data >> 4) & 1);
+	set_led_status(2, (data >> 5) & 1);
+	coin_counter_w(0, (data >> 6) & 1);
+}
 
 
 
@@ -251,6 +289,161 @@ INPUT_PORTS_START( eggvntdx )
 INPUT_PORTS_END
 
 
+INPUT_PORTS_START( ripribit )
+	PORT_START
+	PORT_BIT( 0x000f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(ticket_status_r, NULL)
+	PORT_BIT( 0xffc0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0002, IP_ACTIVE_HIGH )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00c0, 0x0000, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x0700, 0x0200, "Starting Jackpot" )
+	PORT_DIPSETTING(      0x0000, "0" )
+	PORT_DIPSETTING(      0x0100, "5" )
+	PORT_DIPSETTING(      0x0200, "10" )
+	PORT_DIPSETTING(      0x0300, "15" )
+	PORT_DIPSETTING(      0x0400, "20" )
+	PORT_DIPSETTING(      0x0500, "25" )
+	PORT_DIPSETTING(      0x0600, "30" )
+	PORT_DIPSETTING(      0x0700, "35" )
+	PORT_DIPNAME( 0x1800, 0x1800, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0000, "0" )
+	PORT_DIPSETTING(      0x0800, "1" )
+	PORT_DIPSETTING(      0x1000, "2" )
+	PORT_DIPSETTING(      0x1800, "3" )
+	PORT_DIPNAME( 0xe000, 0x8000, "Points per Ticket" )
+	PORT_DIPSETTING(      0xe000, "200" )
+	PORT_DIPSETTING(      0xc000, "300" )
+	PORT_DIPSETTING(      0xa000, "400" )
+	PORT_DIPSETTING(      0x8000, "500" )
+	PORT_DIPSETTING(      0x6000, "600" )
+	PORT_DIPSETTING(      0x4000, "700" )
+	PORT_DIPSETTING(      0x2000, "800" )
+	PORT_DIPSETTING(      0x0000, "1000" )
+
+INPUT_PORTS_END
+
+
+static INPUT_PORTS_START( cfarm )
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0002, IP_ACTIVE_HIGH )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00c0, 0x0000, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x0700, 0x0300, "Starting Jackpot" )
+	PORT_DIPSETTING(      0x0000, "0" )
+	PORT_DIPSETTING(      0x0100, "5" )
+	PORT_DIPSETTING(      0x0200, "8" )
+	PORT_DIPSETTING(      0x0300, "10" )
+	PORT_DIPSETTING(      0x0400, "12" )
+	PORT_DIPSETTING(      0x0500, "15" )
+	PORT_DIPSETTING(      0x0600, "18" )
+	PORT_DIPSETTING(      0x0700, "20" )
+	PORT_DIPNAME( 0x1800, 0x1800, "Bonus Screen Setting" )
+	PORT_DIPSETTING(      0x0000, "1" )
+	PORT_DIPSETTING(      0x0800, "2" )
+	PORT_DIPSETTING(      0x1000, "3" )
+	PORT_DIPSETTING(      0x1800, "4" )
+	PORT_DIPNAME( 0xe000, 0x8000, "Eggs per Ticket" )
+	PORT_DIPSETTING(      0xe000, "1" )
+	PORT_DIPSETTING(      0xc000, "2" )
+	PORT_DIPSETTING(      0xa000, "3" )
+	PORT_DIPSETTING(      0x8000, "4" )
+	PORT_DIPSETTING(      0x6000, "5" )
+	PORT_DIPSETTING(      0x4000, "6" )
+	PORT_DIPSETTING(      0x2000, "8" )
+	PORT_DIPSETTING(      0x0000, "10" )
+
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(ticket_status_r, NULL)
+	PORT_BIT( 0x0006, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0xffc0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+INPUT_PORTS_END
+
+
+static INPUT_PORTS_START( cclownz )
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0002, IP_ACTIVE_HIGH )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x0010, 0x0010, "Bonus Ticket Increment" )
+	PORT_DIPSETTING(      0x0010, "+1 Ticket Per Game" )
+	PORT_DIPSETTING(      0x0000, "Fixed" )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x00c0, 0x0000, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x0700, 0x0700, "Starting Jackpot" )
+	PORT_DIPSETTING(      0x0000, "0" )
+	PORT_DIPSETTING(      0x0100, "2" )
+	PORT_DIPSETTING(      0x0200, "5" )
+	PORT_DIPSETTING(      0x0300, "8" )
+	PORT_DIPSETTING(      0x0400, "10" )
+	PORT_DIPSETTING(      0x0500, "15" )
+	PORT_DIPSETTING(      0x0600, "20" )
+	PORT_DIPSETTING(      0x0700, "30" )
+	PORT_DIPNAME( 0x1800, 0x1800, "Bonus Screen Settings" )
+	PORT_DIPSETTING(      0x0000, "1" )
+	PORT_DIPSETTING(      0x0800, "2" )
+	PORT_DIPSETTING(      0x1000, "3" )
+	PORT_DIPSETTING(      0x1800, "4" )
+	PORT_DIPNAME( 0xe000, 0x8000, "Points per Ticket" )
+	PORT_DIPSETTING(      0xe000, "700" )
+	PORT_DIPSETTING(      0xc000, "900" )
+	PORT_DIPSETTING(      0xa000, "1200" )
+	PORT_DIPSETTING(      0x8000, "1500" )
+	PORT_DIPSETTING(      0x6000, "1800" )
+	PORT_DIPSETTING(      0x4000, "2100" )
+	PORT_DIPSETTING(      0x2000, "2400" )
+	PORT_DIPSETTING(      0x0000, "3000" )
+
+	PORT_START
+	PORT_BIT( 0x0f0f, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(cclownz_paddle_r, NULL)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(ticket_status_r, NULL)
+	PORT_BIT( 0x0060, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0xf000, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("PADDLE")
+	PORT_BIT( 0x00ff, 0x0080, IPT_PADDLE ) PORT_MINMAX(0, 255) PORT_PLAYER(1) PORT_SENSITIVITY(50) PORT_KEYDELTA(8) PORT_CENTERDELTA(0) PORT_REVERSE
+INPUT_PORTS_END
+
+
 
 /*************************************
  *
@@ -420,6 +613,117 @@ ROM_START( eggvntdx )
 ROM_END
 
 
+ROM_START( ripribit )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "ribbit_vc8_v3.5.vc8", 0x000000, 0x080000, CRC(8ce7f8f2) SHA1(b40b5127a0dc84a44e0283711cc526114e012c09) )
+	ROM_LOAD16_BYTE( "ribbit_vc9_v3.5.vc9", 0x000001, 0x080000, CRC(70be27c3) SHA1(61328e51d083b0ffde739711675d19cfe3253244) )
+
+	ROM_REGION16_LE( 0x600000, REGION_GFX1, 0 )
+	ROM_LOAD16_BYTE( "ribbit_gr1_rv2.81.gr1",   0x000000, 0x100000, CRC(e02c79b7) SHA1(75e352424c449cd5cba1057555928d7ee13ab113) )
+	ROM_LOAD16_BYTE( "ribbit_gr2_rv2.81.gr2",   0x000001, 0x100000, CRC(09f48db7) SHA1(d0156c6e3d05ff81540c0eeb66e9a5e7fc4d053c) )
+	ROM_LOAD16_BYTE( "ribbit_gr4_rv2.81.gr4",   0x200000, 0x100000, CRC(94d0db81) SHA1(aa46c2e5a627cf01c1d57002204ec3419f0d4503) )
+	ROM_LOAD16_BYTE( "ribbit_gr3_rv2.81.gr3",   0x200001, 0x100000, CRC(b65e1a36) SHA1(4feb7ea0bec509fa07d27c76e5a3904b8d1690c4) )
+	ROM_LOAD16_BYTE( "ribbit_gr6_rv2.81.gr6",   0x400000, 0x100000, CRC(c9ac211b) SHA1(75cbfa0f875da82d510d75ad28b9db0892b3da85) )
+	ROM_LOAD16_BYTE( "ribbit_gr5_rv2.81.gr5",   0x400001, 0x100000, CRC(84ae466a) SHA1(4e7b3dc27a46f735ff13a753806b3688f34a64fe) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "ribbit_rr_u20.u20", 0x00000, 0x80000, CRC(c345b779) SHA1(418058bbda74727ec99ac375982c9cd2c8bc5c86) )
+
+	ROM_REGION( 0x80000, REGION_SOUND2, ROMREGION_ERASE00 )
+
+	ROM_REGION( 0x80000, REGION_SOUND3, 0 )
+	ROM_LOAD( "ribbit_rr_u18.u18", 0x00000, 0x80000, CRC(badb9cb6) SHA1(716d65b5ff8d3f8ff25ae70426ce318af9a92b7e) )
+
+	ROM_REGION( 0x80000, REGION_USER2, 0 )
+	ROM_LOAD( "vc-12.jed", 0x0000, 0x3f03, CRC(6947ea9e) SHA1(5a418cd04851841a49beeeea274c1441fefde173) )
+	ROM_LOAD( "vc-16.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-22.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-23.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+	ROM_LOAD( "vc-24.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+ROM_END
+
+
+ROM_START( cfarm )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "cf-v2-vc8.bin", 0x000000, 0x080000, CRC(93bcf145) SHA1(134ac3ee4fd837f56fb0b338289cf03108346539) )
+	ROM_LOAD16_BYTE( "cf-v2-vc9.bin", 0x000001, 0x080000, CRC(954421f9) SHA1(bf1faa9b085f066d1e2ff6ee01c468b1c1d945e9) )
+
+	ROM_REGION16_LE( 0x600000, REGION_GFX1, 0 )
+	ROM_LOAD16_BYTE( "cf-gr1.bin",   0x000000, 0x100000, CRC(2241a06e) SHA1(f07a99372bb951dd345378da212b41cb8204e782) )
+	ROM_LOAD16_BYTE( "cf-gr2.bin",   0x000001, 0x100000, CRC(31182263) SHA1(d5d36f9b5d612f681e6aa563831b6704bc05489e) )
+	ROM_LOAD16_BYTE( "cf-gr4.bin",   0x200000, 0x100000, CRC(0883a6f2) SHA1(ef259dcdc7b1325f15a98f6c97ecb965b2b6f9b1) )
+	ROM_LOAD16_BYTE( "cf-gr3.bin",   0x200001, 0x100000, CRC(572f45d6) SHA1(a48cb6ab16654d5e07e8833e2848802ddc0e2667) )
+	ROM_LOAD16_BYTE( "cf-gr6.bin",   0x400000, 0x100000, CRC(8709a62c) SHA1(3691fb055155ae339c78ec8b7f485aa7d576556b) )
+	ROM_LOAD16_BYTE( "cf-gr5.bin",   0x400001, 0x100000, CRC(6de18621) SHA1(9e83f8ed3a2999ee4fdca389c5e792c5b1293717) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "cf-s-u20.bin", 0x00000, 0x80000, CRC(715a12dd) SHA1(374185b062853f3e2ea069ea53494cbe3d8dd511) )
+
+	ROM_REGION( 0x80000, REGION_SOUND2, 0 )
+	ROM_LOAD( "cf-s-u21.bin", 0x00000, 0x80000, CRC(bc27e3d5) SHA1(a25215b8314fe44974e9efe78cdc10de34f7bfba) )
+
+	ROM_REGION( 0x80000, REGION_SOUND3, 0 )
+	ROM_LOAD( "cf-s-u18.bin", 0x00000, 0x80000, CRC(63984658) SHA1(5594965c9304850187859ba730aff26001782f0f) )
+
+	ROM_REGION( 0x80000, REGION_USER2, 0 )
+	ROM_LOAD( "vc-12.jed", 0x0000, 0x3f03, CRC(6947ea9e) SHA1(5a418cd04851841a49beeeea274c1441fefde173) )
+	ROM_LOAD( "vc-16.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-22.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-23.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+	ROM_LOAD( "vc-24.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+ROM_END
+
+
+ROM_START( cclownz )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "cc-v1-vc8.bin", 0x000000, 0x080000, CRC(433fe6ac) SHA1(dea7aede9882ee52be88927418b7395418757d12) )
+	ROM_LOAD16_BYTE( "cc-v1-vc9.bin", 0x000001, 0x080000, CRC(9d1b3dae) SHA1(44a97c38bc9685e97721722c67505832fa06b44d) )
+
+	ROM_REGION16_LE( 0x600000, REGION_GFX1, 0 )
+	ROM_LOAD16_BYTE( "cc-gr1.bin",   0x000000, 0x100000, CRC(17c0ab2a) SHA1(f5ec66f4ac3292ef74f6434fe3ef17f9e977e8f6) )
+	ROM_LOAD16_BYTE( "cc-gr2.bin",   0x000001, 0x100000, CRC(dead9528) SHA1(195ad9f7da61ecb5a364da92ba837aa3fcb3a347) )
+	ROM_LOAD16_BYTE( "cc-gr4.bin",   0x200000, 0x100000, CRC(78cceed8) SHA1(bc8e5bb625072b17a5711402b07a39ea4a87a0f8) )
+	ROM_LOAD16_BYTE( "cc-gr3.bin",   0x200001, 0x100000, CRC(af836fee) SHA1(9e32d5030d3bc5ff106242e5d4969b0150b2c516) )
+	ROM_LOAD16_BYTE( "cc-gr6.bin",   0x400000, 0x100000, CRC(889d2771) SHA1(3222d7105c3a68e2050f00b07e8d84d57a9f7a19) )
+	ROM_LOAD16_BYTE( "cc-gr5.bin",   0x400001, 0x100000, CRC(2a15ef8f) SHA1(3e33cff2657bb1371acf25641080aff2d8da6c05) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "cc-s-u20.bin", 0x00000, 0x80000, CRC(252fc4b5) SHA1(bbc6c3599869f3f46d3df4f3f8d0a8d88d8e0132) )
+
+	ROM_REGION( 0x80000, REGION_SOUND2, 0 )
+	ROM_LOAD( "cc-s-u21.bin", 0x00000, 0x80000, CRC(6c3da4ed) SHA1(f10cbea6e03ada5ac1535041636e96b6224967fa) )
+
+	ROM_REGION( 0x80000, REGION_SOUND3, 0 )
+	ROM_LOAD( "cc-s-u18.bin", 0x00000, 0x80000, CRC(9cdf87af) SHA1(77dfc0bc1d535b5d585071dd4e9deb367003ab2d) )
+
+	ROM_REGION( 0x80000, REGION_USER2, 0 )
+	ROM_LOAD( "vc-12.jed", 0x0000, 0x3f03, CRC(6947ea9e) SHA1(5a418cd04851841a49beeeea274c1441fefde173) )
+	ROM_LOAD( "vc-16.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-22.jed", 0x0000, 0x3efb, CRC(e535b16a) SHA1(e2c17c2a42386be957b603d2c2da4f1ac28a4074) )
+	ROM_LOAD( "vc-23.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+	ROM_LOAD( "vc-24.jed", 0x0000, 0x3efa, CRC(c054cb13) SHA1(1a45548747712112e2457bd933db5ced70dae72e) )
+ROM_END
+
+
+static DRIVER_INIT( ripribit )
+{
+	ticket_dispenser_init(200, TICKET_MOTOR_ACTIVE_HIGH, TICKET_STATUS_ACTIVE_HIGH);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x04100010, 0x0410001f, 0, 0, ripribit_control_w);
+}
+
+static DRIVER_INIT( cfarm )
+{
+	ticket_dispenser_init(200, TICKET_MOTOR_ACTIVE_HIGH, TICKET_STATUS_ACTIVE_HIGH);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x04100010, 0x0410001f, 0, 0, cfarm_control_w);
+}
+
+static DRIVER_INIT( cclownz )
+{
+	ticket_dispenser_init(200, TICKET_MOTOR_ACTIVE_HIGH, TICKET_STATUS_ACTIVE_HIGH);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x04100010, 0x0410001f, 0, 0, cclownz_control_w);
+}
+
+
 
 /*************************************
  *
@@ -427,7 +731,10 @@ ROM_END
  *
  *************************************/
 
-GAME( 1996, lethalj,  0,        lethalj, lethalj,  0, ROT0, "The Game Room", "Lethal Justice", 0 )
-GAME( 1997, eggventr, 0,        lethalj, eggventr, 0, ROT0, "The Game Room", "Egg Venture (Release 10)", 0 )
-GAME( 1997, eggvent7, eggventr, lethalj, eggventr, 0, ROT0, "The Game Room", "Egg Venture (Release 7)", 0 )
-GAME( 1997, eggvntdx, eggventr, lethalj, eggvntdx, 0, ROT0, "The Game Room", "Egg Venture Deluxe", 0 )
+GAME( 1996, lethalj,  0,        lethalj, lethalj,  0,        ROT0,  "The Game Room", "Lethal Justice", 0 )
+GAME( 1997, eggventr, 0,        lethalj, eggventr, 0,        ROT0,  "The Game Room", "Egg Venture (Release 10)", 0 )
+GAME( 1997, eggvent7, eggventr, lethalj, eggventr, 0,        ROT0,  "The Game Room", "Egg Venture (Release 7)", 0 )
+GAME( 1997, eggvntdx, eggventr, lethalj, eggvntdx, 0,        ROT0,  "The Game Room", "Egg Venture Deluxe", 0 )
+GAME( 1997, ripribit, 0,        lethalj, ripribit, ripribit, ROT0,  "LAI Games",     "Ripper Ribbit (Version 3.5)", 0 )
+GAME( 1999, cfarm,    0,        lethalj, cfarm,    cfarm,    ROT90, "LAI Games",     "Chicken Farm (Version 2.0)", 0 )
+GAME( 1999, cclownz,  0,        lethalj, cclownz,  cclownz,  ROT0,  "LAI Games",     "Crazzy Clownz (Version 1.0)", 0 )

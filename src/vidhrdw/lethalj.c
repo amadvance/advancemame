@@ -19,6 +19,7 @@
 static UINT16 blitter_data[8];
 
 static UINT16 *screenram;
+static UINT8 vispage;
 static UINT16 *blitter_base;
 static int blitter_rows;
 
@@ -83,14 +84,31 @@ READ16_HANDLER( lethalj_gun_r )
  *
  *************************************/
 
+static int has_guns;
+
 VIDEO_START( lethalj )
 {
+	const input_port_entry *port;
+
 	/* allocate video RAM for screen */
 	screenram = auto_malloc(BLITTER_DEST_WIDTH * BLITTER_DEST_HEIGHT * sizeof(screenram[0]));
 
 	/* predetermine blitter info */
 	blitter_base = (UINT16 *)memory_region(REGION_GFX1);
 	blitter_rows = memory_region_length(REGION_GFX1) / (2*BLITTER_SOURCE_WIDTH);
+	vispage = 0;
+
+	has_guns = 0;
+	if (Machine->input_ports)
+	{
+		for (port = Machine->input_ports; port->type != IPT_END; port++)
+			if (port->type == IPT_LIGHTGUN_X)
+			{
+				has_guns = 1;
+				break;
+			}
+	}
+
 	return 0;
 }
 
@@ -113,37 +131,32 @@ static void do_blit(void)
 {
 	int dsty = (INT16)blitter_data[1];
 	int srcx = (UINT16)blitter_data[2];
-	int srcy = (UINT16)blitter_data[3];
+	int srcy = (UINT16)(blitter_data[3] + 1);
 	int width = (UINT16)blitter_data[5];
 	int dstx = (INT16)blitter_data[6];
 	int height = (UINT16)blitter_data[7];
 	int y;
 
-/*  logerror("blitter data = %04X %04X %04X %04X %04X %04X %04X %04X\n",
-            blitter_data[0], blitter_data[1], blitter_data[2], blitter_data[3],
-            blitter_data[4], blitter_data[5], blitter_data[6], blitter_data[7]);*/
-
 	/* loop over Y coordinates */
 	for (y = 0; y <= height; y++, srcy++, dsty++)
 	{
-		UINT16 *source = blitter_base + srcy * BLITTER_SOURCE_WIDTH;
-		UINT16 *dest = screenram + dsty * BLITTER_DEST_WIDTH;
-
 		/* clip in Y */
-		if (dsty >= 0 && dsty < BLITTER_DEST_HEIGHT)
+		if (dsty >= 0 && dsty < BLITTER_DEST_HEIGHT/2)
 		{
+			UINT16 *source = blitter_base + (srcy % blitter_rows) * BLITTER_SOURCE_WIDTH;
+			UINT16 *dest = screenram + (dsty + (vispage ^ 1) * 256) * BLITTER_DEST_WIDTH;
 			int sx = srcx;
 			int dx = dstx;
 			int x;
 
 			/* loop over X coordinates */
 			for (x = 0; x <= width; x++, sx++, dx++)
-				if (dx >= 0 && dx < BLITTER_DEST_WIDTH)
-				{
-					int pix = source[sx % BLITTER_SOURCE_WIDTH];
-					if (pix)
-						dest[dx] = pix;
-				}
+			{
+				dx &= 0x1ff;
+				int pix = source[sx & 0x3ff];
+				if (pix)
+					dest[dx] = pix;
+			}
 		}
 	}
 }
@@ -158,8 +171,12 @@ WRITE16_HANDLER( lethalj_blitter_w )
 	/* blit on a write to offset 7, and signal an IRQ */
 	if (offset == 7)
 	{
-		do_blit();
-		timer_set(TIME_IN_USEC(10), 0, gen_ext1_int);
+		if (blitter_data[6] == 2 && blitter_data[7] == 2)
+			vispage ^= 1;
+		else
+			do_blit();
+
+		timer_set(TIME_IN_HZ(32000000) * (double)((blitter_data[5] + 1) * (blitter_data[7] + 1)), 0, gen_ext1_int);
 	}
 
 	/* clear the IRQ on offset 0 */
@@ -189,20 +206,23 @@ VIDEO_UPDATE( lethalj )
 		int x, y;
 		for (y = cliprect->min_y; y <= cliprect->max_y; y++)
 		{
-			UINT16 *source = screenram + y * BLITTER_DEST_WIDTH + cliprect->min_x;
+			UINT16 *source = screenram + (y + vispage * 256) * BLITTER_DEST_WIDTH + cliprect->min_x;
 			UINT16 *dest = (UINT16 *)bitmap->base + y * bitmap->rowpixels + cliprect->min_x;
 			for (x = cliprect->min_x; x <= cliprect->max_x; x++)
 				*dest++ = *source++ & 0x7fff;
 		}
 	}
 
-	/* draw player 1's crosshair */
-	get_crosshair_xy(0, &beamx, &beamy);
-	draw_crosshair(bitmap, beamx, beamy, cliprect, 0);
+	if (has_guns)
+	{
+		/* draw player 1's crosshair */
+		get_crosshair_xy(0, &beamx, &beamy);
+		draw_crosshair(bitmap, beamx, beamy, cliprect, 0);
 
-	/* draw player 2's crosshair */
-	get_crosshair_xy(1, &beamx, &beamy);
-	draw_crosshair(bitmap, beamx, beamy, cliprect, 1);
+		/* draw player 2's crosshair */
+		get_crosshair_xy(1, &beamx, &beamy);
+		draw_crosshair(bitmap, beamx, beamy, cliprect, 1);
+	}
 
 	if (cliprect->max_y == Machine->visible_area.max_y)
 		blank_palette = 0;
