@@ -78,6 +78,11 @@ struct psxinfo
 	INT16 m_p_n_s1[ MAX_CHANNEL ];
 	INT16 m_p_n_s2[ MAX_CHANNEL ];
 	UINT32 m_n_loop[ MAX_CHANNEL ];
+	UINT32 m_n_endx;
+	UINT32 m_p_n_loopforced[ MAX_CHANNEL ];
+	UINT32 m_p_n_adsrstate[ MAX_CHANNEL ];
+	UINT32 m_p_n_adsrcounter[ MAX_CHANNEL ];
+	INT32 m_p_n_adsrlevel[ MAX_CHANNEL ];
 
 	sound_stream *stream;
 };
@@ -109,6 +114,87 @@ INLINE int limit( int v )
 		return 32767;
 	}
 	return v;
+}
+
+#define ADSR_OFF ( 0 )
+#define ADSR_ATTACK ( 1 )
+#define ADSR_DECAY ( 2 )
+#define ADSR_SUSTAIN ( 3 )
+#define ADSR_RELEASE ( 4 )
+
+/* advance one envelope rate: returns new level */
+INLINE int adsr_rate( struct psxinfo *chip, int n_channel, int n_level, int n_exp, int n_decrease, int n_shift, int n_step )
+{
+	int n_cycles = 1 << ( n_shift > 11 ? n_shift - 11 : 0 );
+	int n_value = n_step << ( n_shift < 11 ? 11 - n_shift : 0 );
+
+	if( n_exp && !n_decrease && n_level > 0x6000 )
+	{
+		n_cycles *= 4;
+	}
+	if( ++chip->m_p_n_adsrcounter[ n_channel ] < (UINT32)n_cycles )
+	{
+		return n_level;
+	}
+	chip->m_p_n_adsrcounter[ n_channel ] = 0;
+	if( n_exp && n_decrease )
+	{
+		n_value = ( n_value * n_level ) >> 15;
+	}
+	n_level += n_value;
+	if( n_level < 0 )
+	{
+		n_level = 0;
+	}
+	else if( n_level > 0x7fff )
+	{
+		n_level = 0x7fff;
+	}
+	return n_level;
+}
+
+static void adsr_update( struct psxinfo *chip, int n_channel )
+{
+	UINT16 ads = chip->m_p_n_attackdecaysustain[ n_channel ];
+	UINT16 sr = chip->m_p_n_sustainrelease[ n_channel ];
+	int n_level = chip->m_p_n_adsrlevel[ n_channel ];
+	int n_sustain = ( ( ads & 0x0f ) + 1 ) * 0x800;
+
+	switch( chip->m_p_n_adsrstate[ n_channel ] )
+	{
+	case ADSR_ATTACK:
+		n_level = adsr_rate( chip, n_channel, n_level, ads & 0x8000, 0, ( ads >> 10 ) & 0x1f, 7 - ( ( ads >> 8 ) & 3 ) );
+		if( n_level >= 0x7fff )
+		{
+			chip->m_p_n_adsrstate[ n_channel ] = ADSR_DECAY;
+		}
+		break;
+	case ADSR_DECAY:
+		n_level = adsr_rate( chip, n_channel, n_level, 1, 1, ( ads >> 4 ) & 0x0f, -8 );
+		if( n_level <= n_sustain )
+		{
+			chip->m_p_n_adsrstate[ n_channel ] = ADSR_SUSTAIN;
+		}
+		break;
+	case ADSR_SUSTAIN:
+		if( ( sr & 0x4000 ) != 0 )
+		{
+			n_level = adsr_rate( chip, n_channel, n_level, sr & 0x8000, 1, ( sr >> 8 ) & 0x1f, -8 + ( ( sr >> 6 ) & 3 ) );
+		}
+		else
+		{
+			n_level = adsr_rate( chip, n_channel, n_level, sr & 0x8000, 0, ( sr >> 8 ) & 0x1f, 7 - ( ( sr >> 6 ) & 3 ) );
+		}
+		break;
+	case ADSR_RELEASE:
+		n_level = adsr_rate( chip, n_channel, n_level, sr & 0x20, 1, sr & 0x1f, -8 );
+		if( n_level <= 0 )
+		{
+			chip->m_p_n_adsrstate[ n_channel ] = ADSR_OFF;
+		}
+		break;
+	}
+	chip->m_p_n_adsrlevel[ n_channel ] = n_level;
 }
 
 static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t **buffer, int length)
@@ -160,11 +246,21 @@ static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t
 				}
 
 				n_shift =   ( chip->m_p_n_spuram[ chip->m_p_n_blockaddress[ n_channel ] ] >> 0 ) & 0x0f;
+				if( n_shift > 12 )
+				{
+					n_shift = 9;
+				}
 				n_predict = ( chip->m_p_n_spuram[ chip->m_p_n_blockaddress[ n_channel ] ] >> 4 ) & 0x0f;
+				if( n_predict > 4 )
+				{
+					n_predict = 4;
+				}
 				n_flags =   ( chip->m_p_n_spuram[ chip->m_p_n_blockaddress[ n_channel ] ] >> 8 ) & 0xff;
-				if( ( n_flags & 4 ) != 0 )
+				if( ( n_flags & 4 ) != 0 && !chip->m_p_n_loopforced[ n_channel ] )
 				{
 					chip->m_n_loop[ n_channel ] = chip->m_p_n_blockaddress[ n_channel ];
+					chip->m_n_endx &= ~( 1 << n_channel );
+					chip->m_p_n_loopforced[ n_channel ] = 0;
 				}
 				chip->m_p_n_blockaddress[ n_channel ]++;
 				chip->m_p_n_blockaddress[ n_channel ] %= ( SPU_RAM_SIZE / 2 );
@@ -185,6 +281,7 @@ static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t
 						n_unpacked = ( n_unpacked >> n_shift ) +
 							( ( chip->m_p_n_s1[ n_channel ] * f[ n_predict ][ 0 ] ) >> 6 ) +
 							( ( chip->m_p_n_s2[ n_channel ] * f[ n_predict ][ 1 ] ) >> 6 );
+						n_unpacked = limit( n_unpacked );
 						chip->m_p_n_s2[ n_channel ] = chip->m_p_n_s1[ n_channel ];
 						chip->m_p_n_s1[ n_channel ] = n_unpacked;
 
@@ -194,18 +291,20 @@ static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t
 				}
 				if( ( n_flags & 1 ) != 0 )
 				{
-					if( n_flags != 3 )
+					chip->m_n_endx |= ( 1 << n_channel );
+					chip->m_p_n_blockaddress[ n_channel ] = chip->m_n_loop[ n_channel ];
+					if( ( n_flags & 2 ) == 0 )
 					{
-						chip->m_p_n_blockstatus[ n_channel ] = 0;
-					}
-					else
-					{
-						chip->m_p_n_blockaddress[ n_channel ] = chip->m_n_loop[ n_channel ];
+						/* like the real SPU: jump to the repeat address and mute, but keep running */
+						chip->m_p_n_adsrstate[ n_channel ] = ADSR_OFF;
+						chip->m_p_n_adsrlevel[ n_channel ] = 0;
 					}
 				}
 				chip->m_p_n_blockoffset[ n_channel ] %= ( SAMPLES_PER_BLOCK << PITCH_SHIFT );
 			}
+			adsr_update( chip, n_channel );
 			v = chip->m_p_n_blockbuffer[ ( n_channel * SAMPLES_PER_BLOCK ) + ( chip->m_p_n_blockoffset[ n_channel ] >> PITCH_SHIFT ) ];
+			v = ( v * chip->m_p_n_adsrlevel[ n_channel ] ) >> 15;
 			chip->m_p_n_blockoffset[ n_channel ] += chip->m_p_n_pitch[ n_channel ];
 			buffer[ 0 ][ n_sample ] = limit( buffer[ 0 ][ n_sample ] + ( ( v * voll ) / 0x4000 ) );
 			buffer[ 1 ][ n_sample ] = limit( buffer[ 1 ][ n_sample ] + ( ( v * volr ) / 0x4000 ) );
@@ -397,7 +496,7 @@ READ32_HANDLER( psx_spu_r )
 			{
 				verboselog( 1, "psx_spu_r() channel %d repeat address = %04x\n", n_channel, chip->m_p_n_repeataddress[ n_channel ] );
 			}
-			return ( chip->m_p_n_repeataddress[ n_channel ] << 16 ) | chip->m_p_n_adsrvolume[ n_channel ];
+			return ( chip->m_p_n_repeataddress[ n_channel ] << 16 ) | ( chip->m_p_n_adsrlevel[ n_channel ] & 0xffff );
 		default:
 			verboselog( 0, "psx_spu_r( %08x, %08x ) channel %d reg %d\n", offset, mem_mask, n_channel, offset % 4 );
 			return 0;
@@ -422,6 +521,8 @@ READ32_HANDLER( psx_spu_r )
 		case SPU_REG( 0xd98 ):
 			verboselog( 1, "psx_spu_r( %08x ) reverb mode = %08x\n", mem_mask, chip->m_n_reverbmode );
 			return chip->m_n_reverbmode;
+		case SPU_REG( 0xd9c ):
+			return chip->m_n_endx;
 		case SPU_REG( 0xda4 ):
 			verboselog( 1, "psx_spu_r( %08x ) dma/irq address = %08x\n", mem_mask, ( ( chip->m_n_spuoffset / 4 ) << 16 ) | chip->m_n_irqaddress );
 			return ( ( chip->m_n_spuoffset / 4 ) << 16 ) | chip->m_n_irqaddress;
@@ -492,6 +593,9 @@ WRITE32_HANDLER( psx_spu_w )
 			if( ACCESSING_MSW32 )
 			{
 				chip->m_p_n_repeataddress[ n_channel ] = data >> 16;
+				chip->m_n_loop[ n_channel ] = ( ( data >> 16 ) * 4 ) % ( SPU_RAM_SIZE / 2 );
+				/* like MAME: an explicit repeat address overrides loop start flags until the next key on */
+				chip->m_p_n_loopforced[ n_channel ] = 1;
 				verboselog( 1, "psx_spu_w() channel %d repeat address = %04x\n", n_channel, chip->m_p_n_repeataddress[ n_channel ] );
 			}
 			break;
@@ -541,6 +645,10 @@ WRITE32_HANDLER( psx_spu_w )
 					chip->m_p_n_s1[ n_channel ] = 0;
 					chip->m_p_n_s2[ n_channel ] = 0;
 					chip->m_p_n_blockstatus[ n_channel ] = 1;
+					chip->m_n_loop[ n_channel ] = chip->m_p_n_blockaddress[ n_channel ];
+					chip->m_p_n_adsrstate[ n_channel ] = ADSR_ATTACK;
+					chip->m_p_n_adsrcounter[ n_channel ] = 0;
+					chip->m_p_n_adsrlevel[ n_channel ] = 0;
 				}
 			}
 			break;
@@ -548,6 +656,17 @@ WRITE32_HANDLER( psx_spu_w )
 			chip->m_n_voiceoff = 0;
 			COMBINE_DATA( &chip->m_n_voiceoff );
 			verboselog( 1, "psx_spu_w() voice off = %08x\n", chip->m_n_voiceoff );
+			for( n_channel = 0; n_channel < MAX_CHANNEL; n_channel++ )
+			{
+				if( ( chip->m_n_voiceoff & ( 1 << n_channel ) ) != 0 )
+				{
+					if( chip->m_p_n_adsrstate[ n_channel ] != ADSR_OFF )
+					{
+						chip->m_p_n_adsrstate[ n_channel ] = ADSR_RELEASE;
+						chip->m_p_n_adsrcounter[ n_channel ] = 0;
+					}
+				}
+			}
 			break;
 		case SPU_REG( 0xd90 ):
 			COMBINE_DATA( &chip->m_n_modulationmode );
