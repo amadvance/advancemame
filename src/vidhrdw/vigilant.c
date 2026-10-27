@@ -19,6 +19,12 @@
 #include "driver.h"
 
 
+static rectangle bowmenvisiblearea =
+{
+	16*8, 48*8-1,
+	0, 32*8-1
+};
+
 static rectangle bottomvisiblearea =
 {
 	16*8, 48*8-1,
@@ -58,6 +64,26 @@ VIDEO_START( vigilant )
  There are three background ROMs, each one contains a 512x256 picture.
  Redraw them if the palette changes.
  **************************************************************************/
+VIDEO_START( bowmen )
+{
+	video_start_generic();
+	bg_bitmap = auto_bitmap_alloc(512*16,256);
+	rear_refresh = 1;
+	return bg_bitmap == 0;
+}
+
+static void update_background_bowmen( void )
+{
+	int page,row,col,charcode=0;
+	for (page=0; page<16; page++)
+		for (row=0; row<256; row++)
+			for (col=0; col<512; col+=32)
+			{
+				drawgfx(bg_bitmap,Machine->gfx[2],charcode++,0,0,0,
+					512*page+col,row,0,TRANSPARENCY_NONE,0);
+			}
+}
+
 static void update_background( void )
 {
 	int row,col,page;
@@ -175,6 +201,47 @@ WRITE8_HANDLER( vigilant_rear_color_w )
 
  ???
  **************************************************************************/
+
+WRITE8_HANDLER( bowmen_rear_horiz_scroll_w )
+{
+	if (offset == 0)
+		rear_horiz_scroll_low = data;
+	else
+		rear_horiz_scroll_high = (data & 0x1f) * 256;
+}
+
+WRITE8_HANDLER( bowmen_rear_color_w )
+{
+	rear_disable = data & 0x40;
+	rear_color = data & 0x0f;
+}
+
+static void draw_foreground_bowmen( mame_bitmap *bitmap, int opaque )
+{
+	int offs;
+	for (offs=0; offs<videoram_size; offs+=2)
+	{
+		int sy = 8 * ((offs/2)/64);
+		int sx = 8 * ((offs/2)%64);
+		int attributes = videoram[offs+1];
+		int color = attributes & 0x0f;
+		int tile_number = videoram[offs] | ((attributes & 0xf0) << 4);
+		drawgfx(bitmap,Machine->gfx[0],tile_number,color,0,0,sx,sy,
+			&bowmenvisiblearea,opaque ? TRANSPARENCY_NONE : TRANSPARENCY_PEN,0);
+	}
+}
+
+static void draw_background_bowmen( mame_bitmap *bitmap )
+{
+	int scrollx = 0x179 + 16*8 - (rear_horiz_scroll_low + rear_horiz_scroll_high);
+	if (rear_refresh)
+	{
+		update_background_bowmen();
+		rear_refresh = 0;
+	}
+	copyscrollbitmap(bitmap,bg_bitmap,1,&scrollx,0,0,
+		&bowmenvisiblearea,TRANSPARENCY_NONE,0);
+}
 
 static void draw_foreground( mame_bitmap *bitmap, int priority, int opaque )
 {
@@ -323,6 +390,31 @@ VIDEO_UPDATE( vigilant )
 		draw_sprites(bitmap,&bottomvisiblearea);
 		draw_foreground(bitmap,1,0); // priority tiles
 	}
+}
+
+VIDEO_UPDATE( bowmen )
+{
+	int i;
+	for (i=0; i<16; i++)
+	{
+		int r,g,b;
+		r = (paletteram[0x400+16*rear_color+i] << 3) & 0xff;
+		g = (paletteram[0x500+16*rear_color+i] << 3) & 0xff;
+		b = (paletteram[0x600+16*rear_color+i] << 3) & 0xff;
+		palette_set_color(512+i,r,g,b);
+		r = (paletteram[0x400+16*rear_color+32+i] << 3) & 0xff;
+		g = (paletteram[0x500+16*rear_color+32+i] << 3) & 0xff;
+		b = (paletteram[0x600+16*rear_color+32+i] << 3) & 0xff;
+		palette_set_color(528+i,r,g,b);
+	}
+	if (rear_disable)
+		draw_foreground_bowmen(bitmap,1);
+	else
+	{
+		draw_background_bowmen(bitmap);
+		draw_foreground_bowmen(bitmap,0);
+	}
+	draw_sprites(bitmap,&bowmenvisiblearea);
 }
 
 VIDEO_UPDATE( kikcubic )
