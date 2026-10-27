@@ -464,6 +464,28 @@ static READ32_HANDLER( trackball32_4bit_combined_r )
 }
 
 
+static READ32_HANDLER( shoottv_gunx1_low_r ) { return (readinputportbytag("GUNX1") & 0xff) << 16; }
+static READ32_HANDLER( shoottv_gunx1_high_r ) { return (readinputportbytag("GUNX1") & 0xff00) << 8; }
+static READ32_HANDLER( shoottv_guny1_r ) { return (readinputportbytag("GUNY1") & 0xff) << 16; }
+static READ32_HANDLER( shoottv_gunx2_low_r ) { return (readinputportbytag("GUNX2") & 0xff) << 16; }
+static READ32_HANDLER( shoottv_gunx2_high_r ) { return (readinputportbytag("GUNX2") & 0xff00) << 8; }
+static READ32_HANDLER( shoottv_guny2_r ) { return (readinputportbytag("GUNY2") & 0xff) << 16; }
+static READ32_HANDLER( shoottv_empty_r ) { return 0; }
+static READ32_HANDLER( shoottv_all_high_r ) { return 0xffffffff; }
+static READ32_HANDLER( shoottv_security_r ) { return 0x00002000; }
+static READ32_HANDLER( shoottv_irq5_ack_r )
+{
+	itech32_update_interrupts(-1,0,-1);
+	cpunum_set_input_line(0,5,CLEAR_LINE);
+	return 0;
+}
+static READ32_HANDLER( shoottv_irq6_ack_r )
+{
+	itech32_update_interrupts(-1,-1,0);
+	cpunum_set_input_line(0,6,CLEAR_LINE);
+	return 0;
+}
+
 static READ32_HANDLER( drivedge_steering_r )
 {
 	int val = readinputport(5) * 2 - 0x100;
@@ -925,6 +947,27 @@ static ADDRESS_MAP_START( itech020_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x800000, 0xbfffff) AM_ROM AM_REGION(REGION_USER1, 0) AM_BASE((UINT32 **)&main_rom)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( itech020_fullnvram_map, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x000000, 0x007fff) AM_RAM AM_BASE((UINT32 **)&main_ram) AM_SIZE(&main_ram_size)
+	AM_RANGE(0x080000, 0x080003) AM_READWRITE(input_port_0_msw_r, int1_ack32_w)
+	AM_RANGE(0x100000, 0x100003) AM_READ(input_port_1_msw_r)
+	AM_RANGE(0x180000, 0x180003) AM_READ(input_port_2_msw_r)
+	AM_RANGE(0x200000, 0x200003) AM_READ(input_port_3_msw_r)
+	AM_RANGE(0x280000, 0x280003) AM_READ(input_port_4_msw_r)
+	AM_RANGE(0x300000, 0x300003) AM_WRITE(itech020_color1_w)
+	AM_RANGE(0x380000, 0x380003) AM_WRITE(itech020_color2_w)
+	AM_RANGE(0x400000, 0x400003) AM_WRITE(watchdog_reset32_w)
+	AM_RANGE(0x480000, 0x480003) AM_WRITE(sound_data32_w)
+	AM_RANGE(0x500000, 0x5000ff) AM_READWRITE(itech020_video_r, itech020_video_w) AM_BASE((UINT32 **)&itech32_video)
+	AM_RANGE(0x578000, 0x57ffff) AM_READNOP
+	AM_RANGE(0x580000, 0x59ffff) AM_READWRITE(MRA32_RAM, itech020_paletteram_w) AM_BASE(&paletteram32)
+	AM_RANGE(0x600000, 0x61ffff) AM_RAM AM_BASE(&nvram) AM_SIZE(&nvram_size)
+	AM_RANGE(0x680000, 0x680003) AM_READWRITE(itech020_prot_result_r, MWA32_NOP)
+	AM_RANGE(0x680800, 0x68083f) AM_READWRITE(MRA32_RAM, MWA32_NOP)
+	AM_RANGE(0x700000, 0x700003) AM_WRITE(itech020_plane_w)
+	AM_RANGE(0x800000, 0xbfffff) AM_ROM AM_REGION(REGION_USER1, 0) AM_BASE((UINT32 **)&main_rom)
+ADDRESS_MAP_END
+
 
 
 /*************************************
@@ -1141,6 +1184,59 @@ INPUT_PORTS_START( pairs )
 	PORT_DIPSETTING(      0x0040, DEF_STR( On ))
 INPUT_PORTS_END
 
+
+INPUT_PORTS_START( shoottv )
+	PORT_INCLUDE(itech32_base)
+	PORT_MODIFY("P1")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x00fc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("P2")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x00fc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("P3")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x00fc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("DIPS")
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START_TAG("GUNX1")
+	PORT_BIT( 0x1ff, 0xc0, IPT_LIGHTGUN_X ) PORT_MINMAX(0x1c,0x19b) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_PLAYER(1)
+	PORT_START_TAG("GUNY1")
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_PLAYER(1)
+	PORT_START_TAG("GUNX2")
+	PORT_BIT( 0x1ff, 0xc0, IPT_LIGHTGUN_X ) PORT_MINMAX(0x1c,0x19b) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_PLAYER(2)
+	PORT_START_TAG("GUNY2")
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_PLAYER(2)
+INPUT_PORTS_END
+
+INPUT_PORTS_START( pubball )
+	PORT_INCLUDE(itech32_base)
+	PORT_MODIFY("P1")
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("P1 First Base") PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P1 Second Base") PORT_PLAYER(1)
+	PORT_BIT( 0x00f0, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("P2")
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("P2 First Base") PORT_PLAYER(2)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P2 Second Base") PORT_PLAYER(2)
+	PORT_BIT( 0x00f0, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("P3")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("P1 Third Base") PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("P2 Third Base") PORT_PLAYER(2)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("P1 Home") PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("P2 Home") PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_NAME("P1 Power Up") PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_NAME("P2 Power Up") PORT_PLAYER(2)
+	PORT_START_TAG("TRACKX1")
+	PORT_BIT( 0xff, 0, IPT_TRACKBALL_X ) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_REVERSE PORT_PLAYER(1)
+	PORT_START_TAG("TRACKY1")
+	PORT_BIT( 0xff, 0, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_PLAYER(1)
+	PORT_START_TAG("TRACKX2")
+	PORT_BIT( 0xff, 0, IPT_TRACKBALL_X ) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_REVERSE PORT_PLAYER(2)
+	PORT_START_TAG("TRACKY2")
+	PORT_BIT( 0xff, 0, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_PLAYER(2)
+INPUT_PORTS_END
 
 INPUT_PORTS_START( drivedge )
 	PORT_START	/* 8C000 */
@@ -1597,6 +1693,19 @@ static MACHINE_DRIVER_START( sftm )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( shoottv )
+	MDRV_IMPORT_FROM(sftm)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(itech020_fullnvram_map,0)
+	MDRV_CPU_VBLANK_INT(NULL,0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( pubball )
+	MDRV_IMPORT_FROM(sftm)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(itech020_fullnvram_map,0)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( gt3d )
 
 	/* basic machine hardware */
@@ -2015,6 +2124,28 @@ ROM_START( wcbowldx )	/* Deluxe version 2.00 (PCB P/N 1082 Rev 2) */
 	ROM_LOAD16_BYTE( "wcb_srom.3",  0x200000, 0x040000, CRC(1dfe3a31) SHA1(94947f495692288fbf14fc7796a84c5548a2e8a8) )
 ROM_END
 
+
+ROM_START( pairsred )
+	ROM_REGION16_BE( 0x80000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "pair0_u83_redv1.u83", 0x00000, 0x20000, CRC(cf27b93c) SHA1(4db1d5a756e237d49ace8b5c45d3c4d721a996d5) )
+	ROM_LOAD16_BYTE( "pair1_u88_redv1.u88", 0x00001, 0x20000, CRC(7ad48e7e) SHA1(ee4c543fbbeb26bcad45a06cda43572f081acb84) )
+
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )
+	ROM_LOAD( "pairsnd_u17_redv1.u17", 0x10000, 0x18000, CRC(198e1743) SHA1(16bd21b2d3cabbd51e4d84f7cf007ae6cd4cf624) )
+	ROM_CONTINUE(                      0x08000, 0x08000 )
+
+	ROM_REGION( 0x880000, REGION_GFX1, 0 )
+	ROM_LOAD32_BYTE( "pair-red_grom0",  0x000000, 0x40000, CRC(1bbcc6c6) SHA1(c31dc5b0bc83455e0ad60fcfa42dba49b91ed1b0) )
+	ROM_LOAD32_BYTE( "pair-red_grom5",  0x000001, 0x40000, CRC(eff93bde) SHA1(3b1234146677ca4dd16962411a2607d0eb933c01) )
+	ROM_LOAD32_BYTE( "pair-red_grom10", 0x000002, 0x40000, CRC(016f4d19) SHA1(32886b3ecfbebb835d0c311b3135521af3120a77) )
+	ROM_LOAD32_BYTE( "pair-red_grom15", 0x000003, 0x40000, CRC(dc95160d) SHA1(218d6c460780aadc0f371b8c1ae2d5fe6b1818c0) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "ensoniq.2m", 0x000000, 0x200000, CRC(9fdc4825) SHA1(71e5255c66d9010be7e6f27916b605441fc53839) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND3, ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "srom0_pairs_redv1", 0x000000, 0x80000, CRC(a998e29f) SHA1(fb0556d0e1a6621256e83fb6b0d0ed9885dff1b0) )
+ROM_END
 
 ROM_START( wcbowl )		/* Version 1.66 (PCB P/N 1082 Rev 2) */
 	ROM_REGION32_BE( CODE_SIZE, REGION_USER1, 0 )
@@ -3533,6 +3664,70 @@ ROM_END
 
 
 
+ROM_START( shoottv )
+	ROM_REGION32_BE( CODE_SIZE, REGION_USER1, ROMREGION_ERASEFF )
+	ROM_LOAD32_BYTE( "gun_0.bin", 0x00000, 0xc5f9, CRC(1086b219) SHA1(a9e9545911e427e819d4c98885cbfe871ce7e83a) )
+	ROM_LOAD32_BYTE( "gun_1.bin", 0x00001, 0xc5f9, CRC(a0f0e5ea) SHA1(39560d76759d17c34c353dbe202ec22af234238d) )
+	ROM_LOAD32_BYTE( "gun_2.bin", 0x00002, 0xc5f9, CRC(1b84cf05) SHA1(8f4b816ab2808258399072545f5dda0316e554ea) )
+	ROM_LOAD32_BYTE( "gun_3.bin", 0x00003, 0xc5f9, CRC(43ed58aa) SHA1(9d641b76956376e983e4d0ead3095932c4fb33c6) )
+
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )
+	ROM_LOAD( "gun.bim", 0x10000, 0x18000, CRC(7439569a) SHA1(f02ec03307a2fb8a00d2ab1c7e1a62c0c74a98e9) )
+	ROM_CONTINUE(        0x08000, 0x08000 )
+
+	ROM_REGION( 0x880000, REGION_GFX1, 0 )
+	ROM_LOAD32_BYTE( "grom00_0.bin", 0x000000, 0x80000, CRC(9a06d497) SHA1(c92826d2b7f356518e68282eef7c6f42779782f2) )
+	ROM_LOAD32_BYTE( "grom00_1.bin", 0x000001, 0x80000, CRC(018ff629) SHA1(34f9d79832daeeeefd0085bf41ee8ec31bdb6815) )
+	ROM_LOAD32_BYTE( "grom00_2.bin", 0x000002, 0x80000, CRC(f47ea010) SHA1(f83b2457d23095208bd6c200e1d358026ae5ad3a) )
+	ROM_LOAD32_BYTE( "grom00_3.bin", 0x000003, 0x80000, CRC(3c12be47) SHA1(a28c4eeb042025db36fa558b170891a296bb8a75) )
+	ROM_LOAD32_BYTE( "grom01_0.bin", 0x200000, 0x4fdd5, CRC(ebf70a20) SHA1(90b3748206ba32b676f01a104c57c0c9f03053fd) )
+	ROM_LOAD32_BYTE( "grom01_1.bin", 0x200001, 0x4fdd5, CRC(a78fedd1) SHA1(f6b61e509e289dad00024148b82e7c176f8f8ec4) )
+	ROM_LOAD32_BYTE( "grom01_2.bin", 0x200002, 0x4fdd5, CRC(3578d74d) SHA1(fe771f4ddef37822328832d0ed3df74a41e8607d) )
+	ROM_LOAD32_BYTE( "grom01_3.bin", 0x200003, 0x4fdd5, CRC(394be494) SHA1(901628df61c2870169555834f73c77e8553024d0) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "guns0.bin", 0x000000, 0x7fb51, CRC(35e9ba70) SHA1(602fce09fbb40e37430e5f89d296fceda9ced1d4) )
+	ROM_LOAD16_BYTE( "guns1.bin", 0x200000, 0x3dccd, CRC(ec1c3ab3) SHA1(c8961b92dd5d14ab1640c3feb64fe1ac6c3d2ed6) )
+ROM_END
+
+ROM_START( pubball )
+	ROM_REGION32_BE( CODE_SIZE, REGION_USER1, ROMREGION_ERASEFF )
+	ROM_LOAD32_BYTE( "bb0.bin", 0x00000, 0x25a91, CRC(f9350590) SHA1(91352373fb6a41495bb04db01d097e76770c5419) )
+	ROM_LOAD32_BYTE( "bb1.bin", 0x00001, 0x25a91, CRC(5711f503) SHA1(94765a5e9311fffbf0bc386c3b531c79acd7cada) )
+	ROM_LOAD32_BYTE( "bb2.bin", 0x00002, 0x25a91, CRC(3e202dc6) SHA1(a1a9fdff1957a8e43f002883666f1cd489879258) )
+	ROM_LOAD32_BYTE( "bb3.bin", 0x00003, 0x25a91, CRC(e6d1ba8d) SHA1(c07fe0f9093422505079785ef8e019d1ba69e2ff) )
+
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )
+	ROM_LOAD( "bball.bim", 0x10000, 0x18000, CRC(915a9116) SHA1(54dbb9f8eb358c5dbe2022fad86cdd411c893b83) )
+	ROM_CONTINUE(          0x08000, 0x08000 )
+
+	ROM_REGION( 0xe00000, REGION_GFX1, 0 )
+	ROM_LOAD32_BYTE( "grom00_0.bin", 0x000000, 0x100000, CRC(46822b0f) SHA1(0b9758a1ccad252973a1fc61dc1a4eb1d0eb1636) )
+	ROM_LOAD32_BYTE( "grom00_1.bin", 0x000001, 0x100000, CRC(c11236ce) SHA1(1459646b4d947aa63b037c7c5ab19d3261cbaa19) )
+	ROM_LOAD32_BYTE( "grom00_2.bin", 0x000002, 0x100000, CRC(e6be30f3) SHA1(832aff7b9a42fa57ccff09554c9f65f469e1045d) )
+	ROM_LOAD32_BYTE( "grom00_3.bin", 0x000003, 0x100000, CRC(e0d454fb) SHA1(26ca842682ad618619d4311f7ecd1bb326771c2e) )
+	ROM_LOAD32_BYTE( "grom01_0.bin", 0x400000, 0x100000, CRC(115a66f2) SHA1(9f514c82943d3a779bd44c93618a396b1f9184b9) )
+	ROM_LOAD32_BYTE( "grom01_1.bin", 0x400001, 0x100000, CRC(1dfc8dbd) SHA1(2e3018d61b1c7acec4a2f5da8184da33764e7965) )
+	ROM_LOAD32_BYTE( "grom01_2.bin", 0x400002, 0x100000, CRC(23386483) SHA1(9198b9d7e45d0a276947ebfbdda844113aa71928) )
+	ROM_LOAD32_BYTE( "grom01_3.bin", 0x400003, 0x100000, CRC(ac0123ce) SHA1(c6fe79ca8c3efdfaf9310dfab3e0142042319b11) )
+	ROM_LOAD32_BYTE( "grom02_0.bin", 0x800000, 0x100000, CRC(06cd3cca) SHA1(501b0be9388c5a6b89d453f3287217dd286eecff) )
+	ROM_LOAD32_BYTE( "grom02_1.bin", 0x800001, 0x100000, CRC(3df38e91) SHA1(f3adf29598481d050258d266a360d5b40d86f665) )
+	ROM_LOAD32_BYTE( "grom02_2.bin", 0x800002, 0x100000, CRC(7c47dde9) SHA1(654656878676278e0ea73e367337eaac5f1f1d50) )
+	ROM_LOAD32_BYTE( "grom02_3.bin", 0x800003, 0x100000, CRC(e6eb01bf) SHA1(f0e7f2372dfd072e005fbf7489f54242523b4a28) )
+	ROM_LOAD32_BYTE( "grom3_0.bin",  0xc00000, 0x080000, CRC(376beb10) SHA1(2dcea69b5e81d010b4c660df189a560742719ce6) )
+	ROM_LOAD32_BYTE( "grom3_1.bin",  0xc00001, 0x080000, CRC(3b3cb8ba) SHA1(eabac9e381dd652a4575f159dac45499406b2702) )
+	ROM_LOAD32_BYTE( "grom3_2.bin",  0xc00002, 0x080000, CRC(3bdfac73) SHA1(64777cdf92bbdfbfb6806039421a28f9810b6b03) )
+	ROM_LOAD32_BYTE( "grom3_3.bin",  0xc00003, 0x080000, CRC(1de04025) SHA1(25ba2fa49cc2423642020e05586662f67943381b) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "bbsrom0.bin",  0x000000, 0x0f8b8e, CRC(2a69f77e) SHA1(c98ccdb0d79e77bf87077ac29626d84a811d1326) )
+	ROM_LOAD16_BYTE( "bbsrom1.bin",  0x200000, 0x0fe442, CRC(4af8c871) SHA1(fe4b0ed0a4ef77147fe150c0cd70dff1929e9aff) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND2, ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "bbsrom2.bin",  0x000000, 0x0fe62d, CRC(e4f9ad52) SHA1(c8bf590de35155937bd656b39658880d9a40f5c3) )
+	ROM_LOAD16_BYTE( "bbsrom3.bin",  0x200000, 0x0f90b3, CRC(b37e2906) SHA1(f8c2fd54fe8579eb2875c77630efa8d715eae022) )
+ROM_END
+
 /*************************************
  *
  *  Driver-specific init
@@ -3755,6 +3950,32 @@ static DRIVER_INIT( gt3dl )
 }
 
 
+static DRIVER_INIT( pubball )
+{
+	init_sftm_common(0);
+	itech32_planes = 2;
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x180800, 0x180803, 0, 0, trackball32_4bit_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x181000, 0x181003, 0, 0, trackball32_4bit_p2_r);
+}
+
+static DRIVER_INIT( shoottv )
+{
+	init_sftm_common(0);
+	itech32_planes = 2;
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x183000, 0x183003, 0, 0, shoottv_irq6_ack_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x183800, 0x188003, 0, 0, shoottv_irq5_ack_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x190000, 0x190003, 0, 0, shoottv_gunx1_low_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x190800, 0x190803, 0, 0, shoottv_gunx1_high_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x191000, 0x191003, 0, 0, shoottv_guny1_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x191800, 0x191803, 0, 0, shoottv_empty_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x192000, 0x192003, 0, 0, shoottv_gunx2_low_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x192800, 0x192803, 0, 0, shoottv_gunx2_high_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x193000, 0x193003, 0, 0, shoottv_guny2_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x193800, 0x193803, 0, 0, shoottv_empty_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x200000, 0x200003, 0, 0, shoottv_all_high_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x680000, 0x680003, 0, 0, shoottv_security_r);
+}
+
 static DRIVER_INIT( gtclassp )
 {
 	/* a little extra protection */
@@ -3794,6 +4015,7 @@ GAME( 1994, bloods11, bloodstm, bloodstm, bloodstm, bloodstm, ROT0, "Strata/Incr
 GAME( 1994, pairs,    0,        bloodstm, pairs,    bloodstm, ROT0, "Strata/Incredible Technologies", "Pairs (V1.2, 09/30/94)", 0 )
 GAME( 1994, pairsa,   pairs,    bloodstm, pairs,    bloodstm, ROT0, "Strata/Incredible Technologies", "Pairs (09/07/94)", 0 )
 GAME( 1994, hotmemry, pairs,    bloodstm, pairs,    bloodstm, ROT0, "Tuning/Incredible Technologies", "Hot Memory (V1.2, Germany)", 0 )
+GAME( 1994, pairsred, 0, bloodstm, pairs, bloodstm, ROT0, "Strata / Incredible Technologies", "Pairs Redemption (V1.0, 10/25/94)", 0 )
 GAME( 1994, drivedge, 0,        drivedge, drivedge, drivedge, ROT0, "Strata/Incredible Technologies", "Driver's Edge", GAME_IMPERFECT_GRAPHICS )
 GAME( 1995, wcbowl,   0,        sftm,     wcbowln,  wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.66)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
 GAME( 1995, wcbwl165, wcbowl,   sftm,     shufbowl, wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.65)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
@@ -3882,4 +4104,5 @@ GAME( 2002, gtsuprem, gt2k,     gt3dt,   gt98s, aamat,    ROT0, "Incredible Tech
 GAME( 2001, gtclassc, 0,        gt3d,    aama,  aama,     ROT0, "Incredible Technologies", "Golden Tee Classic (v1.00)" , 0) /* PIC 16C54 labeled as ITGFCL */
 GAME( 2001, gtclassp, gtclassc, gt3d,    aama,  gtclassp, ROT0, "Incredible Technologies", "Golden Tee Classic (v1.00) Alt" , 0) /* PIC 16C54 labeled as ITGFCL */
 GAME( 2001, gtcls100, gtclassc, gt3d,    s_ver, s_ver,    ROT0, "Incredible Technologies", "Golden Tee Classic (v1.00S)" , 0) /* PIC 16C54 labeled as ITGFCL-M */
-
+GAME( 199?, shoottv, 0, shoottv, shoottv, shoottv, ROT0, "Incredible Technologies", "Must Shoot TV (prototype)", 0 )
+GAME( 1996, pubball, 0, pubball, pubball, pubball, ROT0, "Midway / Incredible Technologies", "Power Up Baseball (prototype)", 0 )
