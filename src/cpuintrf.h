@@ -52,6 +52,7 @@ enum
 	CPU_V20,
 	CPU_V30,
 	CPU_V33,
+	CPU_V25,
 	CPU_V60,
 	CPU_V70,
 	CPU_I8035,

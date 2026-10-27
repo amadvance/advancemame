@@ -44,6 +44,7 @@ void i286_get_info(UINT32 state, union cpuinfo *info);
 void v20_get_info(UINT32 state, union cpuinfo *info);
 void v30_get_info(UINT32 state, union cpuinfo *info);
 void v33_get_info(UINT32 state, union cpuinfo *info);
+void v25_get_info(UINT32 state, union cpuinfo *info);
 void v60_get_info(UINT32 state, union cpuinfo *info);
 void v70_get_info(UINT32 state, union cpuinfo *info);
 void i8035_get_info(UINT32 state, union cpuinfo *info);
@@ -334,6 +335,9 @@ static const struct
 #endif
 #if (HAS_V33)
 	{ CPU_V33, v33_get_info },
+#endif
+#if (HAS_V25)
+	{ CPU_V25, v25_get_info },
 #endif
 #if (HAS_V60)
 	{ CPU_V60, v60_get_info },
