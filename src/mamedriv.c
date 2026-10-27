@@ -6729,6 +6729,7 @@ Other Sun games
 	DRIVER( blueprnt )	/* (c) 1982 Bally Midway (Zilec in ROM 3U, and the programmer names) */
 	DRIVER( blueprnj )	/* (c) 1982 Jaleco (Zilec in ROM 3U, and the programmer names) */
 	DRIVER( saturn )	/* (c) 1983 Jaleco (Zilec in ROM R6, and the programmer names) */
+	DRIVER( grasspin )
 
 	/* Fuuki FG-2 games */
 	DRIVER( gogomile )	/* (c) 1995 */
