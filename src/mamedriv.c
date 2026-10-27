@@ -7419,7 +7419,7 @@ Other Sun games
 	DRIVER( ppcar )		/* (c) 1999 Icarus */
 	DRIVER( monzagp )	/* (c) 1981 Leante Games */
 	DRIVER( dambust )	/* (c) 19?? GAT */
-	DRIVER( dambustr )	/* (c) 19?? GAT */
+	DRIVER( dambustr )
 	DRIVER( gunpey )	/* (c) 2000 Banpresto */
 	DRIVER( spaceg )	/* (c) 19?? */
 	DRIVER( wldarrow )	/* (c) 19?? */
