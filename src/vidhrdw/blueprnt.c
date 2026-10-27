@@ -62,6 +62,8 @@ WRITE8_HANDLER( blueprnt_colorram_w )
 	{
 		colorram[offset] = data;
 		tilemap_mark_tile_dirty(bg_tilemap, offset);
+		tilemap_mark_tile_dirty(bg_tilemap, (offset - 32) & 0x3ff);
+		tilemap_mark_tile_dirty(bg_tilemap, (offset + 32) & 0x3ff);
 	}
 }
 
@@ -79,8 +81,11 @@ WRITE8_HANDLER( blueprnt_flipscreen_w )
 static void get_bg_tile_info(int tile_index)
 {
 	int attr = colorram[tile_index];
-	int code = videoram[tile_index] + 256 * gfx_bank;
+	int adjacent = (tile_index + (flip_screen ? 32 : -32)) & 0x3ff;
+	int code = videoram[tile_index];
 	int color = attr & 0x7f;
+	if (colorram[adjacent] & 0x40)
+		code += 256 * gfx_bank;
 
 	tile_info.priority = (attr & 0x80) ? 1 : 0;
 
@@ -104,6 +109,7 @@ VIDEO_START( blueprnt )
 static void blueprnt_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 {
 	int offs;
+	int flipy = 0;
 
 	for (offs = 0; offs < spriteram_size; offs += 4)
 	{
@@ -111,7 +117,6 @@ static void blueprnt_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprec
 		int sx = spriteram[offs + 3];
 		int sy = 240 - spriteram[offs];
 		int flipx = spriteram[offs + 2] & 0x40;
-		int flipy = spriteram[offs + 2 - 4] & 0x80;	// -4? Awkward, isn't it?
 
 		if (flip_screen)
 		{
@@ -124,6 +129,7 @@ static void blueprnt_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprec
 		// sprites are slightly misplaced, regardless of the screen flip
 		drawgfx(bitmap, Machine->gfx[1], code, 0, flipx, flipy, 2+sx, sy-1,
 			cliprect, TRANSPARENCY_PEN, 0);
+		flipy = spriteram[offs + 2] & 0x80;
 	}
 }
 
