@@ -81,6 +81,8 @@ extern int stlforce_sprxoffs;
 
 VIDEO_START( stlforce );
 VIDEO_UPDATE( stlforce );
+VIDEO_UPDATE( mortalr );
+WRITE16_HANDLER( mortalr_sprite_command_w );
 WRITE16_HANDLER( stlforce_tx_videoram_w );
 WRITE16_HANDLER( stlforce_mhigh_videoram_w );
 WRITE16_HANDLER( stlforce_mlow_videoram_w );
@@ -129,6 +131,29 @@ static ADDRESS_MAP_START( stlforce_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x410000, 0x410001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( mortalr_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_ROM
+	AM_RANGE(0x100000, 0x1007ff) AM_RAM AM_WRITE(stlforce_bg_videoram_w) AM_BASE(&stlforce_bg_videoram)
+	AM_RANGE(0x100800, 0x100fff) AM_RAM AM_WRITE(stlforce_mlow_videoram_w) AM_BASE(&stlforce_mlow_videoram)
+	AM_RANGE(0x101000, 0x1017ff) AM_RAM AM_WRITE(stlforce_mhigh_videoram_w) AM_BASE(&stlforce_mhigh_videoram)
+	AM_RANGE(0x101800, 0x1027ff) AM_RAM AM_WRITE(stlforce_tx_videoram_w) AM_BASE(&stlforce_tx_videoram)
+	AM_RANGE(0x102800, 0x102fff) AM_RAM /* unknown / ram */
+	AM_RANGE(0x103000, 0x1033ff) AM_RAM AM_BASE(&stlforce_bg_scrollram)
+	AM_RANGE(0x103400, 0x1037ff) AM_RAM AM_BASE(&stlforce_mlow_scrollram)
+	AM_RANGE(0x103800, 0x103bff) AM_RAM AM_BASE(&stlforce_mhigh_scrollram)
+	AM_RANGE(0x103c00, 0x103fff) AM_RAM AM_BASE(&stlforce_vidattrram)
+	AM_RANGE(0x104000, 0x104fff) AM_RAM AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x105000, 0x107fff) AM_RAM /* unknown / ram */
+	AM_RANGE(0x108000, 0x108fff) AM_RAM AM_BASE(&stlforce_spriteram)
+	AM_RANGE(0x109000, 0x11ffff) AM_RAM
+	AM_RANGE(0x120000, 0x12ffff) AM_RAM
+	AM_RANGE(0x400000, 0x400001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x400002, 0x400003) AM_READ(stlforce_input_port_1_r)
+	AM_RANGE(0x400010, 0x400011) AM_WRITE(eeprom_w)
+	AM_RANGE(0x40001e, 0x40001f) AM_WRITE(mortalr_sprite_command_w)
+	AM_RANGE(0x410000, 0x410001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
+ADDRESS_MAP_END
+
 INPUT_PORTS_START( stlforce )
 	PORT_START
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
@@ -171,6 +196,17 @@ static const gfx_layout stlforce_bglayout =
 	32*32
 };
 
+static const gfx_layout mortalr_bglayout =
+{
+	16,16,
+	RGN_FRAC(1,1),
+	4,
+	{0,1,2,3},
+	{4,0,12,8,20,16,28,24,16*32+4,16*32+0,16*32+12,16*32+8,16*32+20,16*32+16,16*32+28,16*32+24},
+	{0*32,1*32,2*32,3*32,4*32,5*32,6*32,7*32,8*32,9*32,10*32,11*32,12*32,13*32,14*32,15*32},
+	32*32
+};
+
 static const gfx_layout stlforce_txlayout =
 {
 	8,8,
@@ -187,7 +223,7 @@ static const gfx_layout stlforce_splayout =
 	16,16,
 	RGN_FRAC(1,4),
 	4,
-	{0x040000*3*8,0x040000*2*8,0x040000*1*8,0x040000*0*8},
+	{RGN_FRAC(3,4),RGN_FRAC(2,4),RGN_FRAC(1,4),RGN_FRAC(0,4)},
 	{16*8+7,16*8+6,16*8+5,16*8+4,16*8+3,16*8+2,16*8+1,16*8+0,7,6,5,4,3,2,1,0},
 	{0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8,8*8,9*8,10*8,11*8,12*8,13*8,14*8,15*8},
 	32*8
@@ -199,6 +235,14 @@ static const gfx_decode gfxdecodeinfo[] =
 	{ REGION_GFX1, 0, &stlforce_txlayout, 0, 256  },
 	{ REGION_GFX2, 0, &stlforce_splayout, 0, 256  },
 	{ -1 } /* end of array */
+};
+
+static const gfx_decode mortalr_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &mortalr_bglayout, 0, 256 },
+	{ REGION_GFX1, 0, &stlforce_txlayout, 0, 256 },
+	{ REGION_GFX2, 0, &stlforce_splayout, 0, 256 },
+	{ -1 }
 };
 
 static UINT8 stlforce_default_eeprom[128] = {
@@ -237,7 +281,8 @@ void nvram_handler_stlforce(mame_file *file,int read_or_write)
 		}
 		else
 		{
-			EEPROM_set_data(default_eeprom,128);
+			if (default_eeprom)
+				EEPROM_set_data(default_eeprom,128);
 		}
 	}
 }
@@ -267,7 +312,19 @@ static MACHINE_DRIVER_START( stlforce )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(OKIM6295, 937500 / 132)
+	MDRV_SOUND_ADD_TAG("oki", OKIM6295, 937500 / 132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( mortalr )
+	MDRV_IMPORT_FROM(stlforce)
+	MDRV_CPU_MODIFY("cpu")
+	MDRV_CPU_PROGRAM_MAP(mortalr_map, 0)
+	MDRV_GFXDECODE(mortalr_gfxdecodeinfo)
+	MDRV_VISIBLE_AREA(8, 373, 0, 239)
+	MDRV_VIDEO_UPDATE(mortalr)
+	MDRV_SOUND_REPLACE("oki", OKIM6295, 32220000 / 32 / 132)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
@@ -342,6 +399,31 @@ Notes:
 */
 
 
+ROM_START( mortalr )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "2.u105", 0x00000, 0x80000, CRC(550c48e3) SHA1(cdd2a00a6377273c73f37944f1ee6acfb4d41e82) )
+	ROM_LOAD16_BYTE( "3.u104", 0x00001, 0x80000, CRC(92fad747) SHA1(0b41f31e2f14607b572ef56751b3cb201cec1bf2) )
+
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_ERASE00 )
+	ROM_LOAD16_BYTE( "8_bot.u27",  0x000000, 0x080000, CRC(042297f3) SHA1(08640cb7997d10baae776f377a605fa70499f6ef) )
+	ROM_LOAD16_BYTE( "9_bot.u28",  0x000001, 0x080000, CRC(ab330185) SHA1(6403d472499897395e47a05f73e3760ef632ab8a) )
+	ROM_LOAD16_BYTE( "12_top.u27", 0x100000, 0x080000, CRC(fa95773c) SHA1(849f3ab4950b34200e3043d849273622e4bdbfa3) )
+	ROM_LOAD16_BYTE( "13_top.u28", 0x100001, 0x080000, CRC(f2342348) SHA1(0f197e88a1911715d3b98af9e303fd1f137e5fe3) )
+	ROM_LOAD16_BYTE( "10.u29",     0x200000, 0x080000, CRC(fb39b032) SHA1(c2dfb24fccd4b588d92214addee2a9bbb6e45065) )
+	ROM_LOAD16_BYTE( "11.u30",     0x200001, 0x080000, CRC(a82f2421) SHA1(b0787decd1b668af5b2ed032947ca5c0ccc020e8) )
+
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "4.u36", 0x000000, 0x80000, CRC(6d1e6367) SHA1(4e6d315206b4ebc75abe9cbec1a53a9ca0b29128) )
+	ROM_LOAD( "5.u31", 0x080000, 0x80000, CRC(54b223bf) SHA1(43e2a7f1d56f341f08cb04b979c4d930b58c4587) )
+	ROM_LOAD( "6.u32", 0x100000, 0x80000, CRC(dab08a04) SHA1(68e26cf52ebf86a6b1e96b35fb86fcafc57c9805) )
+	ROM_LOAD( "7.u33", 0x180000, 0x80000, CRC(9a856797) SHA1(265628d3b5c137ae8260ed530b7778496d863fc2) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "1.u1", 0x00000, 0x80000, CRC(e5c730c2) SHA1(a153a204c1452a0c95fe207d750b2df07c5e63f3) )
+
+ROM_END
+
 ROM_START( twinbrat )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_BYTE( "2.bin", 0x00000, 0x20000, CRC(5e75f568) SHA1(f42d2a73d737e6b01dd049eea2a10fc8c8096d8f) )
@@ -381,6 +463,12 @@ DRIVER_INIT(stlforce)
 	default_eeprom = stlforce_default_eeprom;
 }
 
+DRIVER_INIT(mortalr)
+{
+	stlforce_sprxoffs = 0;
+	default_eeprom = 0;
+}
+
 DRIVER_INIT(twinbrat)
 {
 	stlforce_sprxoffs = 9;
@@ -389,4 +477,5 @@ DRIVER_INIT(twinbrat)
 
 
 GAME( 1994, stlforce, 0, stlforce, stlforce, stlforce, ROT0, "Electronic Devices Italy / Ecogames S.L. Spain", "Steel Force", 0 )
+GAME( 1995, mortalr, 0, mortalr, stlforce, mortalr, ROT0, "New Dream Games", "Mortal Race", 0 )
 GAME( 1995, twinbrat, 0, twinbrat, stlforce, twinbrat, ROT0, "Elettronica Video-Games S.R.L.", "Twin Brats", 0 )

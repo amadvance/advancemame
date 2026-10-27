@@ -7080,6 +7080,7 @@ Other Sun games
 
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
+	DRIVER( mortalr )
 	DRIVER( stlforce )	/* (c) 1994 Electronic Devices (Italy) / Ecogames S.L. (Spain) */
 	DRIVER( fantland )	/* (c) 198? Electronic Devices Italy */
 	DRIVER( wheelrun )
