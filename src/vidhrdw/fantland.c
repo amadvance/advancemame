@@ -117,6 +117,9 @@ static void fantland_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 		y		+=	yoffs;
 		x		+=	xoffs;
 
+		if (Machine->visible_area.max_y - Machine->visible_area.min_y + 1 < 256 && y > 0)
+			y &= 0xff;
+
 		y		=	(y & 0xff) - (y & 0x100);
 		x		=	(x & 0x1ff);
 
