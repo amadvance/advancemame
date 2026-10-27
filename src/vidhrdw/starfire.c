@@ -72,44 +72,44 @@ WRITE8_HANDLER( starfire_vidctrl1_w )
  *
  *************************************/
 
+static void starfire_palette_update(int offset, int cl, int cr)
+{
+	int index = (offset & 0x1f) | ((offset & 0x200) >> 4);
+	int color = ((cl & 3) << 7) | ((cr & 15) << 3) | ((cl & 0x1c) >> 2);
+	int r = (color >> 6) & 7, g = (color >> 3) & 7, b = color & 7;
+	palette_set_color(index, (r << 5) | (r << 2) | (r >> 1),
+		(g << 5) | (g << 2) | (g >> 1), (b << 5) | (b << 2) | (b >> 1));
+}
+
 WRITE8_HANDLER( starfire_colorram_w )
 {
-	/* handle writes to the pseudo-color RAM */
 	if ((offset & 0xe0) == 0)
 	{
-		int palette_index = (offset & 0x1f) | ((offset & 0x200) >> 4);
-		int r = ((data << 1) & 0x06) | ((offset >> 8) & 0x01);
-		int b = (data >> 2) & 0x07;
-		int g = (data >> 5) & 0x07;
-
-		/* set RAM regardless */
-		starfire_colorram[offset & ~0x100] = data;
-		starfire_colorram[offset |  0x100] = data;
-
-		/* don't modify the palette unless the TRANS bit is set */
-		starfire_color = data & 0x1f;
-		if (!(starfire_vidctrl1 & 0x40))
-			return;
-
-		/* modify the pen */
-		r = (r << 5) | (r << 2) | (r >> 1);
-		b = (b << 5) | (b << 2) | (b >> 1);
-		g = (g << 5) | (g << 2) | (g >> 1);
-		palette_set_color(palette_index, r, g, b);
+		int cl = (starfire_vidctrl1 & 0x80) ? starfire_color : (data & 0x1f);
+		int cr = (data >> 5) | ((offset & 0x100) >> 5);
+		cr |= (starfire_vidctrl1 & 0x80) ? (starfire_color & 0x10) : (data & 0x10);
+		starfire_colorram[offset & ~0x100] = cl;
+		starfire_colorram[offset | 0x100] = cr;
+		starfire_color = cl;
+		if (starfire_vidctrl1 & 0x40) starfire_palette_update(offset, cl, cr);
 	}
-
-	/* handle writes to the rest of color RAM */
 	else
 	{
-		/* set RAM based on CDRM */
-		starfire_colorram[offset] = (starfire_vidctrl1 & 0x80) ? starfire_color : (data & 0x1f);
+		starfire_color = (starfire_vidctrl1 & 0x80) ? starfire_color : (data & 0x1f);
+		starfire_colorram[offset] = starfire_color;
 		scanline_dirty[offset & 0xff] = 1;
-		starfire_color = data & 0x1f;
 	}
 }
 
 READ8_HANDLER( starfire_colorram_r )
 {
+	if ((offset & 0xe0) == 0)
+	{
+		int cl = starfire_colorram[offset & ~0x100];
+		int cr = starfire_colorram[offset | 0x100];
+		if (starfire_vidctrl1 & 0x40) starfire_palette_update(offset, cl, cr);
+		return cl | ((cr & 7) << 5);
+	}
 	return starfire_colorram[offset];
 }
 

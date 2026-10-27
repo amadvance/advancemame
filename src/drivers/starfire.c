@@ -47,6 +47,9 @@ starfira has one less rom in total than starfire but everything passes as
 ***************************************************************************/
 
 #include "driver.h"
+#include "streams.h"
+#include "sound/custom.h"
+#include "machine/pit8253.h"
 
 
 /* In vidhrdw/starfire.c */
@@ -71,6 +74,136 @@ static read8_handler input_read;
 
 
 
+static int fireone_hardware;
+static UINT8 sound_control[2];
+static int sound_frequency[3];
+static int sound_envelope[8];
+static UINT32 sound_phase[8], sound_noise;
+static sound_stream *starfire_sound_stream;
+
+static void starfire_sound_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	int i, n;
+	int rate = Machine->sample_rate;
+	for (i = 0; i < samples; i++)
+	{
+		int mix = 0;
+		sound_noise = (sound_noise >> 1) ^ (-(sound_noise & 1) & 0x80200003U);
+		if (fireone_hardware)
+		{
+			if (!(sound_control[0] & 0x80))
+			{
+				for (n = 0; n < 3; n++)
+					if ((sound_control[0] & (0x10 << n)) && sound_frequency[n] > 0)
+					{
+						sound_phase[n] += (UINT32)((double)(sound_frequency[n] % rate) * 4294967296.0 / rate);
+						mix += (sound_phase[n] & 0x80000000U) ? 1200 : -1200;
+					}
+				for (n = 0; n < 6; n++)
+				{
+					if (sound_envelope[n] > 0)
+					{
+						mix += (sound_noise & (1 << (n + 8)) ? 1 : -1) * sound_envelope[n] / 10;
+						sound_envelope[n] -= sound_envelope[n] / 5000 + 1;
+					}
+				}
+				if (sound_control[1] & 0x10) mix += (sound_noise & 0x100 ? 400 : -400);
+				if (sound_control[1] & 0x20)
+				{
+					sound_phase[6] += (UINT32)(700.0 * 4294967296.0 / rate);
+					mix += (sound_phase[6] & 0x80000000U) ? 1200 : -1200;
+				}
+			}
+		}
+		else
+		{
+			static const int freq[8] = { 110, 80, 240, 950, 380, 520, 620, 1350 };
+			for (n = 0; n < 8; n++)
+			{
+				if (sound_envelope[n] > 0)
+				{
+					sound_phase[n] += (UINT32)((double)(freq[n] + (n == 3 ? sound_envelope[n] / 10 : 0)) * 4294967296.0 / rate);
+					if (n == 1 || n == 2)
+						mix += (sound_noise & (1 << (n + 10)) ? 1 : -1) * sound_envelope[n] / 8;
+					else
+						mix += (sound_phase[n] & 0x80000000U ? 1 : -1) * sound_envelope[n] / 10;
+					if (!(sound_control[0] & (1 << n)) || n == 1 || n == 2 || n == 3)
+						sound_envelope[n] -= sound_envelope[n] / 6000 + 1;
+				}
+			}
+		}
+		outputs[0][i] = mix;
+	}
+}
+
+static void *starfire_sound_start(int clock, const struct CustomSound_interface *config)
+{
+	starfire_sound_stream = stream_create(0, 1, Machine->sample_rate, NULL, starfire_sound_update);
+	return starfire_sound_stream;
+}
+
+static void starfire_sound_reset(void *token)
+{
+	stream_update(starfire_sound_stream, 0);
+	memset(sound_control, 0, sizeof(sound_control));
+	memset(sound_frequency, 0, sizeof(sound_frequency));
+	memset(sound_envelope, 0, sizeof(sound_envelope));
+	memset(sound_phase, 0, sizeof(sound_phase));
+	sound_noise = 1;
+}
+
+static const struct CustomSound_interface starfire_sound_interface =
+{
+	starfire_sound_start, 0, starfire_sound_reset, 0
+};
+
+static const struct pit8253_config fireone_pit_config =
+{
+	TYPE8253,
+	{{2500000, 0, 0}, {2500000, 0, 0}, {2500000, 0, 0}}
+};
+
+static MACHINE_START( starfire )
+{
+	if (fireone_hardware) pit8253_init(1, &fireone_pit_config);
+	return 0;
+}
+
+static void starfire_sound_w(int offset, UINT8 data)
+{
+	int n;
+	UINT8 old = sound_control[offset];
+	stream_update(starfire_sound_stream, 0);
+	sound_control[offset] = data;
+	if (fireone_hardware)
+	{
+		for (n = 0; n < 3; n++)
+			if ((data & (1 << n)) && !(old & (1 << n))) sound_envelope[offset * 3 + n] = 10000;
+		if (!offset)
+		{
+			fireone_select = (data >> 3) & 1;
+			for (n = 0; n < 3; n++)
+			{
+				pit8253_0_gate_w(n, (data >> (n + 4)) & 1);
+				sound_frequency[n] = pit8253_get_frequency(0, n);
+			}
+		}
+	}
+	else
+	{
+		for (n = 0; n < 8; n++)
+			if ((data & (1 << n)) && !(old & (1 << n))) sound_envelope[n] = 10000;
+	}
+}
+
+static void fireone_music_w(int offset, UINT8 data)
+{
+	int n;
+	stream_update(starfire_sound_stream, 0);
+	pit8253_0_w(offset, data);
+	for (n = 0; n < 3; n++) sound_frequency[n] = pit8253_get_frequency(0, n);
+}
+
 /*************************************
  *
  *  Video updates
@@ -92,6 +225,8 @@ static void update_callback(int scanline)
 
 MACHINE_RESET( starfire )
 {
+	fireone_select = 0;
+	if (fireone_hardware) pit8253_reset(0);
 	timer_set(cpu_getscanlinetime(32 + SCANLINE_UPDATE_CHUNK - 1), 32, update_callback);
 }
 
@@ -113,9 +248,8 @@ static WRITE8_HANDLER( starfire_scratch_w )
 			case 0:	starfire_vidctrl_w(0, data); break;
 			case 1: starfire_vidctrl1_w(0, data); break;
 			case 2:
-				/* Sounds */
-				fireone_select = (data & 0x8) ? 0 : 1;
-				break;
+			case 3: starfire_sound_w(offset & 1, data); break;
+			case 7: if (fireone_hardware) fireone_music_w((offset >> 10) & 3, data); break;
 		}
 	}
 
@@ -149,7 +283,7 @@ static READ8_HANDLER( starfire_input_r )
 	switch (offset & 15)
 	{
 		case 0:	return input_port_0_r(0);
-		case 1:	return input_port_1_r(0);	/* Note: need to loopback sounds lengths on that one */
+		case 1:	return (input_port_1_r(0) & ~0x18) | (sound_envelope[2] ? 0 : 0x08) | (sound_envelope[3] ? 0 : 0x10);
 		case 5: return input_port_4_r(0);
 		case 6:	return input_port_2_r(0);
 		case 7:	return input_port_3_r(0);
@@ -178,7 +312,7 @@ static READ8_HANDLER( fireone_input_r )
 		case 0:	return input_port_0_r(0);
 		case 1: return input_port_1_r(0);
 		case 2:
-			temp = fireone_select ? input_port_2_r(0) : input_port_3_r(0);
+			temp = fireone_select ? input_port_3_r(0) : input_port_2_r(0);
 			temp = (temp & 0xc0) | fireone_paddle_map[temp & 0x3f];
 			return temp;
 		default: return 0xff;
@@ -320,6 +454,7 @@ static MACHINE_DRIVER_START( starfire )
 	MDRV_FRAMES_PER_SECOND(57)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
+	MDRV_MACHINE_START(starfire)
 	MDRV_MACHINE_RESET(starfire)
 
 	/* video hardware */
@@ -331,7 +466,10 @@ static MACHINE_DRIVER_START( starfire )
 	MDRV_VIDEO_START(starfire)
 	MDRV_VIDEO_UPDATE(starfire)
 
-	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(starfire_sound_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -413,11 +551,13 @@ ROM_END
 
 static DRIVER_INIT( starfire )
 {
+	fireone_hardware = 0;
 	input_read = starfire_input_r;
 }
 
 static DRIVER_INIT( fireone )
 {
+	fireone_hardware = 1;
 	input_read = fireone_input_r;
 }
 
@@ -429,7 +569,7 @@ static DRIVER_INIT( fireone )
  *
  *************************************/
 
-GAME( 1979, starfire, 0,        starfire, starfire, starfire, ROT0, "Exidy", "Star Fire (set 1)", GAME_NO_SOUND )
-GAME( 1979, starfira, starfire, starfire, starfire, starfire, ROT0, "Exidy", "Star Fire (set 2)", GAME_NO_SOUND )
-GAME( 1979, fireone,  0,        starfire, fireone,  fireone,  ROT0, "Exidy", "Fire One", GAME_NO_SOUND )
-GAME( 1979, starfir2, 0,        starfire, starfire, starfire, ROT0, "Exidy", "Star Fire 2", GAME_NO_SOUND )
+GAME( 1979, starfire, 0,        starfire, starfire, starfire, ROT0, "Exidy", "Star Fire (set 1)", GAME_IMPERFECT_SOUND )
+GAME( 1979, starfira, starfire, starfire, starfire, starfire, ROT0, "Exidy", "Star Fire (set 2)", GAME_IMPERFECT_SOUND )
+GAME( 1979, fireone,  0,        starfire, fireone,  fireone,  ROT0, "Exidy", "Fire One", GAME_IMPERFECT_SOUND )
+GAME( 1979, starfir2, 0,        starfire, starfire, starfire, ROT0, "Exidy", "Star Fire 2", GAME_IMPERFECT_SOUND )
