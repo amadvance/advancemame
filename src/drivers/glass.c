@@ -6,12 +6,12 @@ Glass (c) 1993 Gaelco (Developed by OMK. Produced by Gaelco)
 
 Driver by Manuel Abadia <manu@teleline.es>
 
-The DS5002FP has up to 128KB undumped gameplay code making the game unplayable :_(
 
 ***************************************************************************/
 
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
+#include "cpu/ds5002fp/ds5002fp.h"
 #include "sound/okim6295.h"
 
 extern UINT16 *glass_vregs;
@@ -24,6 +24,46 @@ WRITE16_HANDLER( glass_vram_w );
 WRITE16_HANDLER( glass_blitter_w );
 VIDEO_START( glass );
 VIDEO_UPDATE( glass );
+
+static UINT16 *glass_sharedram;
+static ds5002fp_config glass_mcu_config = { 0x29, 0x00, 0x80 };
+
+static READ8_HANDLER( glass_mcu_shared_r )
+{
+	return ((UINT8 *)glass_sharedram)[BYTE_XOR_BE(offset & 0x3fff)];
+}
+
+static WRITE8_HANDLER( glass_mcu_shared_w )
+{
+	((UINT8 *)glass_sharedram)[BYTE_XOR_BE(offset & 0x3fff)] = data;
+}
+
+static READ8_HANDLER( glass_mcu_sram_r )
+{
+	return memory_region(REGION_CPU2)[offset];
+}
+
+static WRITE8_HANDLER( glass_mcu_sram_w )
+{
+	memory_region(REGION_CPU2)[offset] = data;
+}
+
+static ADDRESS_MAP_START( glass_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( glass_mcu_data, ADDRESS_SPACE_DATA, 8 )
+	AM_RANGE(0x00000, 0x0ffff) AM_READWRITE(glass_mcu_shared_r, glass_mcu_shared_w)
+	AM_RANGE(0x10000, 0x17fff) AM_READWRITE(glass_mcu_sram_r, glass_mcu_sram_w)
+ADDRESS_MAP_END
+
+static NVRAM_HANDLER( glass_mcu )
+{
+	if (read_or_write)
+		mame_fwrite(file, memory_region(REGION_CPU2), 0x8000);
+	else if (file)
+		mame_fread(file, memory_region(REGION_CPU2), 0x8000);
+}
 
 static int cause_interrupt;
 
@@ -123,7 +163,7 @@ static ADDRESS_MAP_START( glass_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x70000c, 0x70000d) AM_WRITE(OKIM6295_bankswitch_w)					/* OKI6295 bankswitch */
 	AM_RANGE(0x70000e, 0x70000f) AM_WRITE(OKIM6295_data_0_lsb_w)					/* OKI6295 data register */
 	AM_RANGE(0x70000a, 0x70004b) AM_WRITE(glass_coin_w)							/* Coin Counters/Lockout */
-	AM_RANGE(0xfec000, 0xfeffff) AM_WRITE(MWA16_RAM)								/* Work RAM (partially shared with DS5002FP) */
+	AM_RANGE(0xfec000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&glass_sharedram)
 ADDRESS_MAP_END
 
 
@@ -209,7 +249,7 @@ static MACHINE_DRIVER_START( glass )
 	MDRV_CPU_PROGRAM_MAP(glass_readmem,glass_writemem)
 	MDRV_CPU_VBLANK_INT(glass_interrupt, 1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(57.42)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
 	MDRV_MACHINE_RESET(glass)
@@ -232,89 +272,103 @@ static MACHINE_DRIVER_START( glass )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( glass_dallas )
+	MDRV_IMPORT_FROM(glass)
+	MDRV_CPU_ADD(DS5002FP, 12000000)
+	MDRV_CPU_CONFIG(glass_mcu_config)
+	MDRV_CPU_PROGRAM_MAP(glass_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(glass_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_NVRAM_HANDLER(glass_mcu)
+MACHINE_DRIVER_END
+
 ROM_START( glass )
-	ROM_REGION( 0x080000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "1.c23",	0x000000, 0x040000, CRC(aeebd4ed) SHA1(04759dc146dff0fc74b78d70e79dfaebe68328f9) )
-	ROM_LOAD16_BYTE( "2.c22",	0x000001, 0x040000, CRC(165e2e01) SHA1(180a2e2b5151f2321d85ac23eff7fbc9f52023a5) )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "europa_c23_3-2-94_3fb0 27c020.bin", 0x000000, 0x040000, CRC(f2932dc2) SHA1(7fc49da53f608599325670c8c92e0a1a7a8850a9) )
+	ROM_LOAD16_BYTE( "europa_c22_3-2-94_a20c_27c020.bin", 0x000001, 0x040000, CRC(165e2e01) SHA1(180a2e2b5151f2321d85ac23eff7fbc9f52023a5) )
 
-	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
-	/* 0x000000-0x3fffff filled in later in the DRIVER_INIT */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "glass_ds5002fp_sram.bin", 0x00000, 0x8000, CRC(47c9df4c) SHA1(e0ac4f3d3086a4e8164d42aaae125037c222118a) )
 
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Graphics */
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )
 	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
 	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
 
-	ROM_REGION( 0x100000, REGION_GFX3, 0 )	/* 16 bitmaps (320x200, indexed colors) */
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )
 	ROM_LOAD( "h9.bin", 0x000000, 0x100000, CRC(b9492557) SHA1(3f5c0d696d65e1cd492763dfa749c813dd56a9bf) )
 
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* ADPCM samples - sound chip is OKIM6295 */
-	ROM_LOAD( "c1.bin",	 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
-	ROM_RELOAD(				0x040000, 0x100000 )
-ROM_END
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+	ROM_LOAD( "c1.bin", 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
+	ROM_RELOAD( 0x040000, 0x100000 )
 
-ROM_START( glass10 )
-	ROM_REGION( 0x080000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "c23.bin",	0x000000, 0x040000, CRC(688cdf33) SHA1(b59dcc3fc15f72037692b745927b110e97d8282e) )
-	ROM_LOAD16_BYTE( "c22.bin",	0x000001, 0x040000, CRC(ab17c992) SHA1(1509b5b4bbfb4e022e0ab6fbbc0ffc070adfa531) )
-
-	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
-	/* 0x000000-0x3fffff filled in later in the DRIVER_INIT */
-
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Graphics */
-	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
-	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
-
-	ROM_REGION( 0x100000, REGION_GFX3, 0 )	/* 16 bitmaps (320x200, indexed colors) */
-	ROM_LOAD( "h9.bin", 0x000000, 0x100000, CRC(b9492557) SHA1(3f5c0d696d65e1cd492763dfa749c813dd56a9bf) )
-
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* ADPCM samples - sound chip is OKIM6295 */
-	ROM_LOAD( "c1.bin",	 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
-	ROM_RELOAD(				0x040000, 0x100000 )
-ROM_END
-
-ROM_START( glass10a )
-	ROM_REGION( 0x080000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "gl.c23",	0x000000, 0x040000, CRC(c1393bea) SHA1(a5f877ba38305a7b49fa3c96b9344cbf71e8c9ef
-) )
-	ROM_LOAD16_BYTE( "gl.c22",	0x000001, 0x040000, CRC(0d6fa33e) SHA1(37e9258ef7e108d034c80abc8e5e5ab6dacf0a61) )
-
-	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
-	/* 0x000000-0x3fffff filled in later in the DRIVER_INIT */
-
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Graphics */
-	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
-	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
-
-	ROM_REGION( 0x100000, REGION_GFX3, 0 )	/* 16 bitmaps (320x200, indexed colors) */
-	ROM_LOAD( "h9.bin", 0x000000, 0x100000, CRC(b9492557) SHA1(3f5c0d696d65e1cd492763dfa749c813dd56a9bf) )
-
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* ADPCM samples - sound chip is OKIM6295 */
-	ROM_LOAD( "c1.bin",	 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
-	ROM_RELOAD(				0x040000, 0x100000 )
 ROM_END
 
 ROM_START( glasskr )
-	ROM_REGION( 0x100000, REGION_CPU1, 0 )    /* 68000 code */
-	ROM_LOAD16_BYTE( "glassk.c23", 0x000000, 0x080000, CRC(6ee19376) SHA1(8a8fdeebe094bd3e29c35cf59584e3cab708732d) )
-	ROM_LOAD16_BYTE( "glassk.c22", 0x000001, 0x080000, CRC(bd546568) SHA1(bcd5e7591f4e68c9470999b8a0ef1ee4392c907c) )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "c_23_korea_4f3e_27c020.bin", 0x000000, 0x040000, CRC(4d7749e4) SHA1(a9bbf2c51fef89321042e5b65b1fe27ced1c25f1) )
+	ROM_LOAD16_BYTE( "c_22_korea_7522_27c020.bin", 0x000001, 0x040000, CRC(a23bba9e) SHA1(d4558e2d8c952296b930e09c265071d4fda7f731) )
 
-	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
-	/* 0x000000-0x3fffff filled in later in the DRIVER_INIT */
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )
 
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Graphics */
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )
 	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
 	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
 
-	ROM_REGION( 0x100000, REGION_GFX3, 0 )   /* 16 bitmaps (320x200, indexed colors) */
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )
 	ROM_LOAD( "glassk.h9", 0x000000, 0x100000, CRC(d499be4c) SHA1(204f754813be687e8dc00bfe7b5dbc4857ac8738) )
 
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )    /* ADPCM samples - sound chip is OKIM6295 */
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
 	ROM_LOAD( "c1.bin", 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
-	ROM_RELOAD(         0x040000, 0x100000 )
+	ROM_RELOAD( 0x040000, 0x100000 )
+
+ROM_END
+
+ROM_START( glass10 )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "c23.bin", 0x000000, 0x040000, CRC(688cdf33) SHA1(b59dcc3fc15f72037692b745927b110e97d8282e) )
+	ROM_LOAD16_BYTE( "c22.bin", 0x000001, 0x040000, CRC(ab17c992) SHA1(1509b5b4bbfb4e022e0ab6fbbc0ffc070adfa531) )
+
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "glass_ds5002fp_sram.bin", 0x00000, 0x8000, CRC(47c9df4c) SHA1(e0ac4f3d3086a4e8164d42aaae125037c222118a) )
+
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
+	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )
+	ROM_LOAD( "h9.bin", 0x000000, 0x100000, CRC(b9492557) SHA1(3f5c0d696d65e1cd492763dfa749c813dd56a9bf) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+	ROM_LOAD( "c1.bin", 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
+	ROM_RELOAD( 0x040000, 0x100000 )
+
+ROM_END
+
+ROM_START( glass10a )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "spl-c23.bin", 0x000000, 0x040000, CRC(c1393bea) SHA1(a5f877ba38305a7b49fa3c96b9344cbf71e8c9ef) )
+	ROM_LOAD16_BYTE( "spl-c22.bin", 0x000001, 0x040000, CRC(0d6fa33e) SHA1(37e9258ef7e108d034c80abc8e5e5ab6dacf0a61) )
+
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "glass_ds5002fp_sram.bin", 0x00000, 0x8000, CRC(47c9df4c) SHA1(e0ac4f3d3086a4e8164d42aaae125037c222118a) )
+
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
+	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )
+	ROM_LOAD( "h9.bin", 0x000000, 0x100000, CRC(b9492557) SHA1(3f5c0d696d65e1cd492763dfa749c813dd56a9bf) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+	ROM_LOAD( "c1.bin", 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
+	ROM_RELOAD( 0x040000, 0x100000 )
+
 ROM_END
 
 /***************************************************************************
@@ -361,7 +415,7 @@ static DRIVER_INIT( glass )
 	glass_ROM16_split(REGION_GFX2, REGION_GFX1, 0x0200000, 0x0200000, 0x0200000, 0x0300000);
 }
 
-GAME( 1993, glass,    0,     glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.1)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1993, glass10 , glass, glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1993, glass10a, glass, glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0 set 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1993, glasskr,  glass, glass, glass, glass, ROT0, "Gaelco (Promat license)", "Glass (Ver 1.1, Break Edition) (censored, unprotected)", 0 )
+GAME( 1994, glass, 0, glass_dallas, glass, glass, ROT0, "OMK / Gaelco", "Glass (ver 1.1, Break Edition, checksum 49D5E66B, Version 1994, set 1)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, glasskr, glass, glass, glass, glass, ROT0, "OMK / Gaelco (Promat license)", "Glass (ver 1.1, Break Edition, checksum D419AB69, Version 1994, unprotected, Korea)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, glass10, glass, glass_dallas, glass, glass, ROT0, "OMK / Gaelco", "Glass (ver 1.0, Break Edition, checksum C5513F3C)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, glass10a, glass, glass_dallas, glass, glass, ROT0, "OMK / Gaelco", "Glass (ver 1.0, Break Edition, checksum D3864FDB)", GAME_IMPERFECT_GRAPHICS )
