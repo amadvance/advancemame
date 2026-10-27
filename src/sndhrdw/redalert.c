@@ -41,6 +41,12 @@ static int AY8910_A_input_data = 0;
 static int c030_data = 0;
 static int sound_register_IC1 = 0;
 static int sound_register_IC2 = 0;
+static int sound_status = 0;
+
+READ8_HANDLER( redalert_sound_status_r )
+{
+	return readinputport(2) | sound_status;
+}
 
 WRITE8_HANDLER( redalert_c030_w )
 {
@@ -61,6 +67,7 @@ WRITE8_HANDLER( redalert_soundlatch_w )
 {
 	/* The byte is connected to Port A of the AY8910 */
 	AY8910_A_input_data = data;
+	sound_status = 1;
 
 	/* Bit D7 is also connected to the NMI input of the CPU */
 	if ((data & 0x80)!=0x80)
@@ -75,13 +82,14 @@ READ8_HANDLER( redalert_AY8910_A_r )
 WRITE8_HANDLER( redalert_AY8910_w )
 {
 	/* BC2 is connected to a pull-up resistor, so BC2=1 always */
-	switch (data)
+	switch (data & 0x03)
 	{
 		case 0x00:
 			/* BC1=0, BDIR=0 : INACTIVE */
 			break;
 		case 0x01:
 			/* BC1=1, BDIR=0 : READ FROM PSG */
+			sound_status = 0;
 			sound_register_IC1 = AY8910_read_port_0_r(offset);
 			break;
 		case 0x02:

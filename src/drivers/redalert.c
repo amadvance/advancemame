@@ -14,6 +14,8 @@ ask.  - Mike Balfour (mab22@po.cwru.edu)
 #include "driver.h"
 #include "machine/6821pia.h"
 #include "sound/ay8910.h"
+#include "cpu/i8085/i8085.h"
+#include "sound/hc55516.h"
 
 /* vidhrdw/redalert.c */
 extern unsigned char *redalert_backram;
@@ -30,6 +32,10 @@ WRITE8_HANDLER( redalert_spriteram4_w );
 WRITE8_HANDLER( redalert_characterram_w );
 WRITE8_HANDLER( redalert_characterram2_w );
 extern VIDEO_UPDATE( redalert );
+extern VIDEO_UPDATE( redalert_m27 );
+extern VIDEO_UPDATE( panther );
+extern PALETTE_INIT( redalert_m27 );
+extern PALETTE_INIT( panther );
 WRITE8_HANDLER( redalert_c040_w );
 WRITE8_HANDLER( demoneye_c040_w );
 WRITE8_HANDLER( redalert_backcolor_w );
@@ -44,6 +50,50 @@ WRITE8_HANDLER( redalert_AY8910_B_w );
 WRITE8_HANDLER( redalert_AY8910_w );
 READ8_HANDLER( redalert_sound_register_IC1_r );
 WRITE8_HANDLER( redalert_sound_register_IC2_w );
+READ8_HANDLER( redalert_sound_status_r );
+
+static int redalert_voice_clock_state;
+
+static void redalert_voice_digit(int state)
+{
+	hc55516_digit_w(0, state);
+}
+
+static void redalert_voice_clock(int param)
+{
+	redalert_voice_clock_state ^= 1;
+	hc55516_clock_w(0, redalert_voice_clock_state);
+	cpunum_set_info_int(2, CPUINFO_INT_I8085_SID, redalert_voice_clock_state);
+}
+
+static MACHINE_START( redalert )
+{
+	cpunum_set_info_fct(2, CPUINFO_PTR_I8085_SOD_CALLBACK, (genf *)redalert_voice_digit);
+	timer_pulse(TIME_IN_HZ(6000000/128), 0, redalert_voice_clock);
+	return 0;
+}
+
+static MACHINE_RESET( redalert )
+{
+	redalert_voice_clock_state = 0;
+}
+
+static READ8_HANDLER( redalert_irq_ack_r )
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	return cpu_getscanline();
+}
+
+static READ8_HANDLER( panther_irq_ack_r )
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	return readinputport(4);
+}
+
+static WRITE8_HANDLER( redalert_irq_ack_w )
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
 
 
 static ADDRESS_MAP_START( redalert_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -52,10 +102,10 @@ static ADDRESS_MAP_START( redalert_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x1000, 0x1fff) AM_READ(MRA8_RAM) /* Scratchpad video RAM */
 	AM_RANGE(0x2000, 0x4fff) AM_READ(MRA8_RAM) /* Video RAM */
 	AM_RANGE(0x5000, 0xbfff) AM_READ(MRA8_ROM)
-	AM_RANGE(0xc100, 0xc100) AM_READ(input_port_0_r)
-	AM_RANGE(0xc110, 0xc110) AM_READ(input_port_1_r)
-	AM_RANGE(0xc120, 0xc120) AM_READ(input_port_2_r)
-	AM_RANGE(0xc170, 0xc170) AM_READ(watchdog_reset_r)
+	AM_RANGE(0xc000, 0xc000) AM_MIRROR(0x0f8f) AM_READ(input_port_0_r)
+	AM_RANGE(0xc010, 0xc010) AM_MIRROR(0x0f8f) AM_READ(input_port_1_r)
+	AM_RANGE(0xc020, 0xc020) AM_MIRROR(0x0f8f) AM_READ(redalert_sound_status_r)
+	AM_RANGE(0xc070, 0xc070) AM_MIRROR(0x0f8f) AM_READ(redalert_irq_ack_r)
 	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_ROM) /* remapped ROM for 6502 vectors */
 ADDRESS_MAP_END
 
@@ -69,26 +119,63 @@ static ADDRESS_MAP_START( redalert_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x4800, 0x4bff) AM_WRITE(redalert_characterram_w) AM_BASE(&redalert_characterram)
 	AM_RANGE(0x4c00, 0x4fff) AM_WRITE(redalert_spriteram2_w) AM_BASE(&redalert_spriteram2)
 	AM_RANGE(0x5000, 0xbfff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0xc130, 0xc130) AM_WRITE(redalert_c030_w)
-	AM_RANGE(0xc140, 0xc140) AM_WRITE(redalert_c040_w)
-	AM_RANGE(0xc150, 0xc150) AM_WRITE(redalert_backcolor_w)
-	AM_RANGE(0xc160, 0xc160) AM_WRITE(redalert_soundlatch_w)
+	AM_RANGE(0xc030, 0xc030) AM_MIRROR(0x0f8f) AM_WRITE(redalert_c030_w)
+	AM_RANGE(0xc040, 0xc040) AM_MIRROR(0x0f8f) AM_WRITE(redalert_c040_w)
+	AM_RANGE(0xc050, 0xc050) AM_MIRROR(0x0f8f) AM_WRITE(redalert_backcolor_w)
+	AM_RANGE(0xc060, 0xc060) AM_MIRROR(0x0f8f) AM_WRITE(redalert_soundlatch_w)
+	AM_RANGE(0xc070, 0xc070) AM_MIRROR(0x0f8f) AM_WRITE(redalert_irq_ack_w)
 	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( panther_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x4fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x5000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc000) AM_MIRROR(0x0f8f) AM_READ(input_port_0_r)
+	AM_RANGE(0xc010, 0xc010) AM_MIRROR(0x0f8f) AM_READ(input_port_1_r)
+	AM_RANGE(0xc020, 0xc020) AM_MIRROR(0x0f8f) AM_READ(redalert_sound_status_r)
+	AM_RANGE(0xc070, 0xc070) AM_MIRROR(0x0f8f) AM_READ(panther_irq_ack_r)
+	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( panther_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x2000, 0x3fff) AM_WRITE(redalert_backram_w) AM_BASE(&redalert_backram)
+	AM_RANGE(0x4000, 0x43ff) AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4400, 0x47ff) AM_WRITE(redalert_spriteram1_w) AM_BASE(&redalert_spriteram1)
+	AM_RANGE(0x4800, 0x4bff) AM_WRITE(redalert_characterram_w) AM_BASE(&redalert_characterram)
+	AM_RANGE(0x4c00, 0x4fff) AM_WRITE(redalert_spriteram2_w) AM_BASE(&redalert_spriteram2)
+	AM_RANGE(0x5000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc030, 0xc030) AM_MIRROR(0x0f8f) AM_WRITE(redalert_soundlatch_w)
+	AM_RANGE(0xc040, 0xc040) AM_MIRROR(0x0f8f) AM_WRITE(redalert_c040_w)
+	AM_RANGE(0xc050, 0xc050) AM_MIRROR(0x0f8f) AM_WRITE(redalert_backcolor_w)
+	AM_RANGE(0xc070, 0xc070) AM_MIRROR(0x0f8f) AM_WRITE(redalert_irq_ack_w)
+	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( panther_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x03ff) AM_MIRROR(0x0c00) AM_READ(MRA8_RAM)
+	AM_RANGE(0x7000, 0x7fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x2001, 0x2001) AM_MIRROR(0x0ffe) AM_READ(redalert_sound_register_IC1_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( panther_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x03ff) AM_MIRROR(0x0c00) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x2000, 0x2000) AM_MIRROR(0x0ffe) AM_WRITE(redalert_AY8910_w)
+	AM_RANGE(0x2001, 0x2001) AM_MIRROR(0x0ffe) AM_WRITE(redalert_sound_register_IC2_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( redalert_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x03ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x7800, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0xf800, 0xffff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x1001, 0x1001) AM_READ(redalert_sound_register_IC1_r)
+	AM_RANGE(0x0000, 0x03ff) AM_MIRROR(0x0c00) AM_READ(MRA8_RAM)
+	AM_RANGE(0x7000, 0x7fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x1001, 0x1001) AM_MIRROR(0x0ffe) AM_READ(redalert_sound_register_IC1_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( redalert_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x03ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x7800, 0x7fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0xf800, 0xffff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x1000, 0x1000) AM_WRITE(redalert_AY8910_w)
-	AM_RANGE(0x1001, 0x1001) AM_WRITE(redalert_sound_register_IC2_w)
+	AM_RANGE(0x0000, 0x03ff) AM_MIRROR(0x0c00) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1000, 0x1000) AM_MIRROR(0x0ffe) AM_WRITE(redalert_AY8910_w)
+	AM_RANGE(0x1001, 0x1001) AM_MIRROR(0x0ffe) AM_WRITE(redalert_sound_register_IC2_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( redalert_voice_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -201,6 +288,12 @@ INPUT_PORTS_START( redalert )
 
 	PORT_START			   /* Fake input for coins */
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(1)
+INPUT_PORTS_END
+
+INPUT_PORTS_START( panther )
+	PORT_INCLUDE( redalert )
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Z ) PORT_MINMAX(0,255) PORT_SENSITIVITY(70) PORT_KEYDELTA(3) PORT_CENTERDELTA(0)
 INPUT_PORTS_END
 
 
@@ -340,14 +433,9 @@ static PALETTE_INIT( redalert )
 
 static INTERRUPT_GEN( redalert_interrupt )
 {
-	if( readinputport(3) )
-	{
+	if (readinputport(3))
 		cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
-	}
-	else
-	{
-		cpunum_set_input_line(0, 0, HOLD_LINE);
-	}
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
 }
 
 static struct AY8910interface redalert_ay8910_interface =
@@ -361,40 +449,70 @@ static struct AY8910interface redalert_ay8910_interface =
 static MACHINE_DRIVER_START( redalert )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M6502, 1000000)	   /* ???? */
+	MDRV_CPU_ADD(M6502, 12500000/16)
 	MDRV_CPU_PROGRAM_MAP(redalert_readmem,redalert_writemem)
 	MDRV_CPU_VBLANK_INT(redalert_interrupt,1)
 
-	MDRV_CPU_ADD(M6502, 1000000)
+	MDRV_CPU_ADD(M6502, 12500000/12)
 	/* audio CPU */	   /* 1 MHz */
 	MDRV_CPU_PROGRAM_MAP(redalert_sound_readmem,redalert_sound_writemem)
 			/* IRQ is hooked to a 555 timer, whose freq is 1150 Hz */
 	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(1150))
 
-	MDRV_CPU_ADD(8085A, 1000000)
+	MDRV_CPU_ADD(8085A, 6000000)
 	/* audio CPU */	   /* 1 MHz? */
 	MDRV_CPU_PROGRAM_MAP(redalert_voice_readmem,redalert_voice_writemem)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_START(redalert)
+	MDRV_MACHINE_RESET(redalert)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(32*8, 32*8)
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 1*8, 31*8-1)
 	MDRV_GFXDECODE(redalert_gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(9)
+	MDRV_PALETTE_LENGTH(0x209)
 	MDRV_COLORTABLE_LENGTH(sizeof(colortable_source) / sizeof(colortable_source[0]))
 
-	MDRV_PALETTE_INIT(redalert)
+	MDRV_PALETTE_INIT(redalert_m27)
 	MDRV_VIDEO_START(generic)
-	MDRV_VIDEO_UPDATE(redalert)
+	MDRV_VIDEO_UPDATE(redalert_m27)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-	MDRV_SOUND_ADD(AY8910, 2000000)
+	MDRV_SOUND_ADD(AY8910, 12500000/6)
 	MDRV_SOUND_CONFIG(redalert_ay8910_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 0.50)
+	MDRV_SOUND_ROUTE(1, "mono", 0.50)
+	MDRV_SOUND_ADD(HC55516, 0)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( panther )
+	MDRV_CPU_ADD(M6502, 12500000/16)
+	MDRV_CPU_PROGRAM_MAP(panther_readmem,panther_writemem)
+	MDRV_CPU_VBLANK_INT(redalert_interrupt,1)
+	MDRV_CPU_ADD(M6502, 12500000/12)
+	MDRV_CPU_PROGRAM_MAP(panther_sound_readmem,panther_sound_writemem)
+	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(1150))
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 1*8, 31*8-1)
+	MDRV_GFXDECODE(redalert_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(0x209)
+	MDRV_COLORTABLE_LENGTH(sizeof(colortable_source) / sizeof(colortable_source[0]))
+	MDRV_PALETTE_INIT(panther)
+	MDRV_VIDEO_START(generic)
+	MDRV_VIDEO_UPDATE(panther)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 12500000/6)
+	MDRV_SOUND_CONFIG(redalert_ay8910_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 0.18)
+	MDRV_SOUND_ROUTE(1, "mono", 0.18)
 MACHINE_DRIVER_END
 
 
@@ -462,6 +580,28 @@ MACHINE_DRIVER_END
 
 ***************************************************************************/
 
+ROM_START( panther )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "qr-1.bin",      0x8000, 0x0800, BAD_DUMP CRC(406dc606) SHA1(c12b91145aa579813b7b0e8eb7933bf35e4a5b97) )
+	ROM_RELOAD( 0xf000, 0x0800 )
+	ROM_LOAD( "qr-2.bin",      0x8800, 0x0800, BAD_DUMP CRC(e7e64b11) SHA1(0fcfbce552b22edce9051b6fad0974f81ab44973) )
+	ROM_RELOAD( 0xf800, 0x0800 )
+	ROM_LOAD( "qr-3.bin",      0x9000, 0x0800, BAD_DUMP CRC(dfec33f2) SHA1(4e631a3a8c7873e8f51a81e8b73704729269ee01) )
+	ROM_LOAD( "qr-4.bin",      0x9800, 0x0800, CRC(60571aa0) SHA1(257474383ad7cb90e9e4f9236b3f865a991d688a) )
+	ROM_LOAD( "qr-5.bin",      0xa000, 0x0800, CRC(2ac19b54) SHA1(613a800179f9705df03967889eb23ef71baed493) )
+	ROM_LOAD( "qr-6.bin",      0xa800, 0x0800, BAD_DUMP CRC(02fbd9d9) SHA1(65b5875c78886b51c9bdfc75e730b9f67ce72cfc) )
+	ROM_LOAD( "qr-7.bin",      0xb000, 0x0800, BAD_DUMP CRC(b3e2d6cc) SHA1(7bb18f17d635196e617e8f68bf8d866134c362d1) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "q7a.bin",       0x7000, 0x0800, CRC(febd1674) SHA1(e122d0855ab6a352d741f9013c20ec31e0068248) )
+	ROM_RELOAD( 0x7800, 0x0800 )
+	ROM_RELOAD( 0xf000, 0x0800 )
+	ROM_RELOAD( 0xf800, 0x0800 )
+
+	ROM_REGION( 0x0200, REGION_PROMS, 0 )
+	ROM_LOAD( "6349-1j-8026.1a",      0x0000, 0x0200, CRC(ea9c2ada) SHA1(cb720c0d77b24f995e0750b3fa42a68962c7a977) )
+ROM_END
+
 ROM_START( redalert )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "rag5",         	0x5000, 0x1000, CRC(d7c9cdd6) SHA1(5ff5cdceaa00083b745cf5c74b096f7edfadf737) )
@@ -475,6 +615,8 @@ ROM_START( redalert )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 64k for code */
 	ROM_LOAD( "w3s1",         	0x7800, 0x0800, CRC(4af956a5) SHA1(25368a40d7ebc60316fd2d78ec4c686e701b96dc) )
+	ROM_RELOAD(                0x7000, 0x0800 )
+	ROM_RELOAD(                0xf000, 0x0800 )
 	ROM_RELOAD(                0xf800, 0x0800 )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* 64k for code */
@@ -554,5 +696,6 @@ ROM_START( demoneye )
 	ROM_LOAD( "demoneye.1a2", 0x0200, 0x0200, CRC(eaf5a66e) SHA1(d8ebe05ba5d75fbf6ad45f710e5bd27b6afad44b) )
 ROM_END
 
-GAME( 1981, redalert, 0, redalert, redalert, 0, ROT270, "Irem + GDI",	"Red Alert",  GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1981, demoneye, 0, demoneye, demoneye, 0, ROT270, "Irem",		"Demoneye-X", GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
+GAME( 1981, panther,  0, panther,  panther,  0, ROT270, "Irem", "Panther (bootleg?)", 0 )
+GAME( 1981, redalert, 0, redalert, redalert, 0, ROT270, "Irem (GDI license)", "Red Alert", GAME_IMPERFECT_SOUND )
+GAME( 1981, demoneye, 0, demoneye, demoneye, 0, ROT270, "Irem", "Demoneye-X", GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )

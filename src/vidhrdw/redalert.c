@@ -9,6 +9,7 @@
 ***************************************************************************/
 
 #include "driver.h"
+#include "vidhrdw/res_net.h"
 
 unsigned char *redalert_backram;
 unsigned char *redalert_spriteram1;
@@ -310,3 +311,93 @@ VIDEO_UPDATE( redalert )
 	copybitmap(bitmap,tmpbitmap,flip,flip,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
 
 }
+
+static void m27_palette(const unsigned char *color_prom, int panther)
+{
+	static const int bitmap_resistor[] = { 100 };
+	static const int char_rg_resistors[] = { 390, 220, 180 };
+	static const int char_b_resistors[] = { 220, 100 };
+	static const int back_r_resistor[] = { 1100 };
+	static const int back_gb_resistor[] = { 570 };
+	double bitmap_weights[2], char_rg_weights[3], char_b_weights[2];
+	double back_r_weight[1], back_gb_weight[1], scale;
+	int i, data, r, g, b;
+
+	scale = compute_resistor_weights(0, 255, -1.0,
+		1, bitmap_resistor, bitmap_weights, 470, 0,
+		3, char_rg_resistors, char_rg_weights, 470, 0,
+		2, char_b_resistors, char_b_weights, 470, 0);
+	compute_resistor_weights(0, 255, scale,
+		1, back_r_resistor, back_r_weight, 470, 0,
+		1, back_gb_resistor, back_gb_weight, 470, 0,
+		0, 0, 0, 0, 0);
+	bitmap_weights[1] = 0;
+	for (i = 0; i < 0x200; i++)
+	{
+		data = color_prom[i];
+		if (panther)
+		{
+			r = bitmap_weights[(~data >> 2) & 1];
+			g = bitmap_weights[(~data >> 1) & 1];
+			b = bitmap_weights[(~data >> 0) & 1];
+		}
+		else
+		{
+			r = combine_3_weights(char_rg_weights, ((data >> 2) & 1), ((data >> 6) & 1), ((data >> 4) & 1));
+			g = combine_3_weights(char_rg_weights, ((data >> 1) & 1), ((data >> 3) & 1), ((data >> 5) & 1));
+			b = combine_2_weights(char_b_weights, (data & 1), ((data >> 7) & 1));
+		}
+		palette_set_color(i, r, g, b);
+	}
+	for (i = 0; i < 8; i++)
+		palette_set_color(0x200 + i,
+			bitmap_weights[(i >> 2) & 1], bitmap_weights[(i >> 1) & 1], bitmap_weights[i & 1]);
+	if (panther)
+		palette_set_color(0x208, 0, 0, 0);
+	else
+		palette_set_color(0x208, back_r_weight[0], back_gb_weight[0], back_gb_weight[0]);
+}
+
+PALETTE_INIT( redalert_m27 ) { m27_palette(color_prom, 0); }
+PALETTE_INIT( panther ) { m27_palette(color_prom, 1); }
+
+static void m27_draw(mame_bitmap *bitmap, int panther)
+{
+	int offs, i, x, y, base, charcode, data1, data2, bitmap_data, color, pen;
+	for (offs = 0; offs < 0x2000; offs++)
+	{
+		y = offs & 0xff;
+		x = ((~offs >> 8) & 0x1f) << 3;
+		bitmap_data = redalert_backram[offs];
+		color = redalert_backcolor[offs >> 3] & 7;
+		charcode = videoram[offs >> 3];
+		base = ((charcode & 0x7f) << 3) | (offs & 7);
+		if (charcode & 0x80)
+		{
+			data1 = redalert_spriteram1[base];
+			data2 = redalert_spriteram2[base];
+		}
+		else
+		{
+			data1 = 0;
+			data2 = redalert_characterram[base];
+		}
+		for (i = 0; i < 8; i++)
+		{
+			int bits = ((data2 & 0x80) >> 6) | ((data1 & 0x80) >> 7);
+			if (!bits || ((bitmap_data & 0x80) && (charcode & 0xc0) == 0xc0))
+				pen = (bitmap_data & 0x80) ? 0x200 + color : 0x208;
+			else
+				pen = ((charcode & 0xfe) << 1) | bits;
+			plot_pixel(bitmap, (flip ^ panther) ? x ^ 0xff : x,
+				(flip ^ panther) ? y ^ 0xff : y, Machine->pens[pen]);
+			x++;
+			bitmap_data <<= 1;
+			data1 <<= 1;
+			data2 <<= 1;
+		}
+	}
+}
+
+VIDEO_UPDATE( redalert_m27 ) { m27_draw(bitmap, 0); }
+VIDEO_UPDATE( panther ) { m27_draw(bitmap, 1); }
