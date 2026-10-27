@@ -1364,6 +1364,7 @@ const game_driver * const drivers[] =
 	DRIVER( kikcubib )	/* bootleg */
 	DRIVER( buccanrs )	/* (c) 1989 Duintronic */
 	DRIVER( buccanra )	/* (c) 1989 Duintronic */
+	DRIVER( bowmen )
 	/* M72 (and derivatives) */
 	DRIVER( rtype )		/* (c) 1987 (Japan) */
 	DRIVER( rtypepj )	/* (c) 1987 (Japan) */

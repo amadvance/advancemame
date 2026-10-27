@@ -24,6 +24,7 @@ Buccaneers has a 5.6888 Mhz and a 18.432 Mhz OSC
 
 /* vidhrdw/vigilant.c */
 VIDEO_START( vigilant );
+VIDEO_START( bowmen );
 WRITE8_HANDLER( vigilant_paletteram_w );
 WRITE8_HANDLER( vigilant_sprite_paletteram_w );
 WRITE8_HANDLER( vigilant_horiz_scroll_w );
@@ -31,6 +32,9 @@ WRITE8_HANDLER( vigilant_rear_horiz_scroll_w );
 WRITE8_HANDLER( vigilant_rear_color_w );
 VIDEO_UPDATE( vigilant );
 VIDEO_UPDATE( kikcubic );
+VIDEO_UPDATE( bowmen );
+WRITE8_HANDLER( bowmen_rear_horiz_scroll_w );
+WRITE8_HANDLER( bowmen_rear_color_w );
 
 
 WRITE8_HANDLER( vigilant_bank_select_w )
@@ -107,6 +111,15 @@ static ADDRESS_MAP_START( vigilant_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x84, 0x84) AM_WRITE(vigilant_rear_color_w) /* RCOD */
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( bowmen_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(m72_sound_command_w)
+	AM_RANGE(0x01, 0x01) AM_WRITE(vigilant_out2_w)
+	AM_RANGE(0x04, 0x04) AM_WRITE(vigilant_bank_select_w)
+	AM_RANGE(0x12, 0x13) AM_WRITE(bowmen_rear_horiz_scroll_w)
+	AM_RANGE(0x14, 0x14) AM_WRITE(bowmen_rear_color_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( kikcubic_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_BANK1)
@@ -175,6 +188,16 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( buccanrs_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bowmen_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xefff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bowmen_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xefff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_RAM)
 ADDRESS_MAP_END
 
@@ -466,6 +489,95 @@ INPUT_PORTS_START( buccanra )
 INPUT_PORTS_END
 
 
+INPUT_PORTS_START( bowmen )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x2f, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT(0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
+	PORT_BIT(0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT(0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
+	PORT_BIT(0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT(0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_BUTTON3 )
+	PORT_BIT(0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
+
+	PORT_START_TAG("IN2")
+	PORT_BIT(0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
+	PORT_BIT(0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT(0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
+	PORT_BIT(0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_COCKTAIL
+	PORT_BIT(0x10, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT(0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_COCKTAIL
+	PORT_BIT(0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x01, 0x01, "Screen Orientation" )
+	PORT_DIPSETTING(    0x01, "Normal Screen" )
+	PORT_DIPSETTING(    0x00, "Inverted Screen" )
+	PORT_DIPNAME( 0x02, 0x02, "Players" )
+	PORT_DIPSETTING(    0x02, "Two Players" )
+	PORT_DIPSETTING(    0x00, "One Player" )
+	PORT_DIPNAME( 0x0c, 0x0c, "Time for Round" )
+	PORT_DIPSETTING(    0x00, "Free Time per Round" )
+	PORT_DIPSETTING(    0x04, "30 Seconds per Round" )
+	PORT_DIPSETTING(    0x08, "50 Seconds per Round" )
+	PORT_DIPSETTING(    0x0c, "60 Seconds per Round" )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Hard ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Very_Easy ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Normal ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPNAME( 0x80, 0x80, "Test Type" )
+	PORT_DIPSETTING(    0x80, "Easy Test" )
+	PORT_DIPSETTING(    0x00, "Advanced Test" )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x0f, 0x0f, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, "5C / 2C" )
+	PORT_DIPSETTING(    0x01, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x02, "4C / 5C" )
+	PORT_DIPSETTING(    0x03, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x05, "3C / 5C" )
+	PORT_DIPSETTING(    0x06, DEF_STR( 3C_2C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x08, "2C / 5C" )
+	PORT_DIPSETTING(    0x09, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x0a, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x0b, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x0d, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x0e, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0f, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0xf0, 0xf0, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, "5C / 2C" )
+	PORT_DIPSETTING(    0x10, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x20, "4C / 5C" )
+	PORT_DIPSETTING(    0x30, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x50, "3C / 5C" )
+	PORT_DIPSETTING(    0x60, DEF_STR( 3C_2C ) )
+	PORT_DIPSETTING(    0x70, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x80, "2C / 5C" )
+	PORT_DIPSETTING(    0x90, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0xb0, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0xd0, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0xf0, DEF_STR( 1C_1C ) )
+INPUT_PORTS_END
+
+
 static const gfx_layout text_layout =
 {
 	8,8, /* tile size */
@@ -683,6 +795,59 @@ static MACHINE_DRIVER_START( buccanrs )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.35)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.35)
 MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( bowmen )
+
+	MDRV_CPU_ADD(Z80, 18000000/3)
+	MDRV_CPU_PROGRAM_MAP(vigilant_readmem,vigilant_writemem)
+	MDRV_CPU_IO_MAP(vigilant_readport,bowmen_writeport)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+
+	MDRV_CPU_ADD(Z80, 18000000/3)
+	MDRV_CPU_PROGRAM_MAP(bowmen_sound_readmem,bowmen_sound_writemem)
+	MDRV_CPU_IO_MAP(buccanrs_sound_readport,buccanrs_sound_writeport)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,128)
+	MDRV_FRAMES_PER_SECOND(54.9752)
+	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(m72_sound)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 32*8)
+	MDRV_VISIBLE_AREA(16*8, (64-16)*8-1, 0*8, 32*8-1 )
+	MDRV_GFXDECODE(buccanrs_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(512+32)
+
+	MDRV_VIDEO_START(bowmen)
+	MDRV_VIDEO_UPDATE(bowmen)
+
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2203, 18000000/6)
+	MDRV_SOUND_CONFIG(ym2203_interface)
+	MDRV_SOUND_ROUTE(0, "left",  0.35)
+	MDRV_SOUND_ROUTE(0, "right", 0.35)
+	MDRV_SOUND_ROUTE(1, "left",  0.35)
+	MDRV_SOUND_ROUTE(1, "right", 0.35)
+	MDRV_SOUND_ROUTE(2, "left",  0.35)
+	MDRV_SOUND_ROUTE(2, "right", 0.35)
+	MDRV_SOUND_ROUTE(3, "left",  0.50)
+	MDRV_SOUND_ROUTE(3, "right", 0.50)
+
+	MDRV_SOUND_ADD(YM2203, 18000000/6)
+	MDRV_SOUND_ROUTE(0, "left",  0.35)
+	MDRV_SOUND_ROUTE(0, "right", 0.35)
+	MDRV_SOUND_ROUTE(1, "left",  0.35)
+	MDRV_SOUND_ROUTE(1, "right", 0.35)
+	MDRV_SOUND_ROUTE(2, "left",  0.35)
+	MDRV_SOUND_ROUTE(2, "right", 0.35)
+	MDRV_SOUND_ROUTE(3, "left",  0.50)
+	MDRV_SOUND_ROUTE(3, "right", 0.50)
+
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.35)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.35)
+MACHINE_DRIVER_END
+
 
 static MACHINE_DRIVER_START( kikcubic )
 
@@ -956,6 +1121,45 @@ ROM_START( buccanra )
 	ROM_LOAD( "prom2.u99",  0x0300, 0x0100, CRC(e0aa8869) SHA1(ac8bdfeba69420ba56ec561bf3d0f1229d02cea2) )
 ROM_END
 
+static DRIVER_INIT( bowmen )
+{
+	UINT8 *rom = memory_region(REGION_CPU1);
+	int i;
+	for (i = 0; i < memory_region_length(REGION_CPU1); i++)
+		rom[i] = BITSWAP8(rom[i],2,5,0,7,6,1,4,3);
+}
+
+ROM_START( bowmen )
+	ROM_REGION( 0x30000, REGION_CPU1, 0 )
+	ROM_LOAD( "4_27256.bin",   0x00000, 0x08000, CRC(e8dcabb6) SHA1(d6baf9af0ebdced8b73a36486ffd9b48b0d446ca) )
+	ROM_LOAD( "3_27c512.bin",  0x10000, 0x10000, CRC(9c8af1eb) SHA1(e36efb2b6d1df4b313bf81c083df64ccf6764bbc) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "2_27c512.bin",  0x00000, 0x10000, CRC(477a5756) SHA1(675e066adec5fa34c491d71520827d568a5f8d7a) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "8_27c512.bin",  0x00000, 0x10000, CRC(782b0b7f) SHA1(35eef9bd32ca2063c730026a71300a7cf2e55778) )
+	ROM_LOAD( "7_27c512.bin",  0x10000, 0x10000, CRC(449720ea) SHA1(aa52ea17293ab86c87eeb04c0c4172001ec56379) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "10_27c512.bin", 0x00000, 0x10000, CRC(8cf4e040) SHA1(641a5d13a63ca0dc56fef42ea1ada3b5b28ca864) )
+	ROM_LOAD( "9_27c512.bin",  0x10000, 0x10000, CRC(3c06fdf7) SHA1(cfce7eda1e6353b850777c38cabc304e1b123ea0) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "5_27c040.bin",  0x00000, 0x80000, CRC(5bac2567) SHA1(bd773761ce31192efc69d031fee13a95ab13b2fd) )
+	ROM_LOAD( "6_27c4001.bin", 0x80000, 0x80000, CRC(35b3b7bc) SHA1(2b7dc0606deb52e5ac725cd63cd56e1e2ef040f8) )
+
+	ROM_REGION( 0x10000, REGION_SOUND1, 0 )
+	ROM_LOAD( "1_27c512.bin",  0x00000, 0x10000, CRC(456c478b) SHA1(c8c8bf682dcc2b3a28ffbadcfaaba524141f792b) )
+
+	ROM_REGION( 0x400, REGION_PROMS, 0 )
+	ROM_LOAD( "prom_4_82s129.bin",  0x0000, 0x0100, CRC(c324835e) SHA1(cf6ffe38523badfda211d341410e93e647de87a9) )
+	ROM_LOAD( "prom_3_82s129.bin",  0x0100, 0x0100, CRC(e6506ef4) SHA1(079841da7640b14d94aaaeb572bf018932b58293) )
+	ROM_LOAD( "prom_2_82s129.bin",  0x0200, 0x0100, CRC(b43d094f) SHA1(2bed4892d8a91d7faac5a07bf858d9294eb30606) )
+	ROM_LOAD( "prom_1_82s129.bin",  0x0300, 0x0100, CRC(e0aa8869) SHA1(ac8bdfeba69420ba56ec561bf3d0f1229d02cea2) )
+
+ROM_END
+
 GAME( 1988, vigilant, 0,        vigilant, vigilant, 0, ROT0, "Irem", "Vigilante (World)", GAME_NO_COCKTAIL )
 GAME( 1988, vigilntu, vigilant, vigilant, vigilant, 0, ROT0, "Irem (Data East USA license)", "Vigilante (US)", GAME_NO_COCKTAIL )
 GAME( 1988, vigilntj, vigilant, vigilant, vigilant, 0, ROT0, "Irem", "Vigilante (Japan)", GAME_NO_COCKTAIL )
@@ -963,3 +1167,4 @@ GAME( 1988, kikcubic, 0,        kikcubic, kikcubic, 0, ROT0, "Irem", "Meikyu Jim
 GAME( 1988, kikcubib, kikcubic, kikcubic, kikcubic, 0, ROT0, "bootleg", "Kickle Cubele", GAME_NO_COCKTAIL )
 GAME( 1989, buccanrs, 0,        buccanrs, buccanrs, 0, ROT0, "Duintronic", "Buccaneers (set 1)", GAME_NO_COCKTAIL )
 GAME( 1989, buccanra, buccanrs, buccanrs, buccanra, 0, ROT0, "Duintronic", "Buccaneers (set 2)", GAME_NO_COCKTAIL )
+GAME( 1994, bowmen, 0, bowmen, bowmen, bowmen, ROT0, "Ten-Level", "Bowmen", GAME_NO_COCKTAIL )
