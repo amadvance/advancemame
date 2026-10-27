@@ -6860,6 +6860,7 @@ Other Sun games
 	DRIVER( drgwrld3 )	/* (c) 1995 */
 
 	DRIVER( lordgun )	/* (c) 1994 */
+	DRIVER( aliencha )	/* (c) 1994 */
 	DRIVER( hfh )		/* (c) 199? */
 	DRIVER( tarzan )
 
