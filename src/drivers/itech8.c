@@ -463,6 +463,7 @@
 #include "vidhrdw/tlc34076.h"
 #include "itech8.h"
 #include "sound/2203intf.h"
+#include "sound/2608intf.h"
 #include "sound/3812intf.h"
 #include "sound/okim6295.h"
 #include <math.h>
@@ -645,6 +646,12 @@ static MACHINE_RESET( itech8 )
 	}
 }
 
+static MACHINE_RESET( grmatch )
+{
+	machine_reset_itech8();
+	memory_set_bankptr(1, memory_region(REGION_CPU1));
+}
+
 
 
 /*************************************
@@ -684,6 +691,13 @@ static WRITE8_HANDLER( blitter_w )
 		memory_set_bankptr(1, &memory_region(REGION_CPU1)[0x4000 + 0xc000 * ((data >> 5) & 1)]);
 
 	/* the rest is handled by the video hardware */
+	itech8_blitter_w(offset, data);
+}
+
+static WRITE8_HANDLER( grmatch_blitter_w )
+{
+	if (offset / 2 == 7)
+		memory_set_bankptr(1, &memory_region(REGION_CPU1)[0x4000 * ((data >> 5) & 1)]);
 	itech8_blitter_w(offset, data);
 }
 
@@ -956,6 +970,20 @@ static ADDRESS_MAP_START( tmshi_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x4000, 0xffff) AM_ROMBANK(1)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( grmatch_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x1000, 0x1fff) AM_READWRITE(itech8_tms34061_r, itech8_tms34061_w)
+	AM_RANGE(0x0100, 0x0100) AM_WRITENOP
+	AM_RANGE(0x0120, 0x0120) AM_WRITE(sound_data_w)
+	AM_RANGE(0x0140, 0x0140) AM_READWRITE(special_port0_r, MWA8_RAM) AM_BASE(&itech8_grom_bank)
+	AM_RANGE(0x0160, 0x0160) AM_READWRITE(input_port_1_r, grmatch_palette_w)
+	AM_RANGE(0x0180, 0x0180) AM_READWRITE(input_port_2_r, grmatch_xscroll_w)
+	AM_RANGE(0x01a0, 0x01a0) AM_WRITE(itech8_nmi_ack_w)
+	AM_RANGE(0x01c0, 0x01df) AM_READWRITE(itech8_blitter_r, grmatch_blitter_w)
+	AM_RANGE(0x2000, 0x3fff) AM_RAM AM_BASE(&main_ram) AM_SIZE(&main_ram_size)
+	AM_RANGE(0x4000, 0x7fff) AM_ROMBANK(1)
+	AM_RANGE(0x8000, 0xffff) AM_ROM AM_REGION(REGION_CPU1, 0x8000)
+ADDRESS_MAP_END
+
 
 /*------ Golden Tee Golf II 1992 layout ------*/
 static ADDRESS_MAP_START( gtg2_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -1004,6 +1032,17 @@ static ADDRESS_MAP_START( sound2203_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x2001, 0x2001) AM_MIRROR(0x0002) AM_WRITE(YM2203_write_port_0_w)
 	AM_RANGE(0x3000, 0x37ff) AM_RAM
 	AM_RANGE(0x4000, 0x4000) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+	AM_RANGE(0x8000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( sound2608_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x1000, 0x1000) AM_WRITENOP
+	AM_RANGE(0x2000, 0x2000) AM_READ(sound_data_r)
+	AM_RANGE(0x4000, 0x4000) AM_READWRITE(YM2608_status_port_0_A_r, YM2608_control_port_0_A_w)
+	AM_RANGE(0x4001, 0x4001) AM_READWRITE(YM2608_read_port_0_r, YM2608_data_port_0_A_w)
+	AM_RANGE(0x4002, 0x4002) AM_READWRITE(YM2608_status_port_0_B_r, YM2608_control_port_0_B_w)
+	AM_RANGE(0x4003, 0x4003) AM_WRITE(YM2608_data_port_0_B_w)
+	AM_RANGE(0x6000, 0x67ff) AM_RAM
 	AM_RANGE(0x8000, 0xffff) AM_ROM
 ADDRESS_MAP_END
 
@@ -1094,6 +1133,44 @@ INPUT_PORTS_START( wfortune )
 
 	PORT_START		/* analog F */
 	PORT_BIT( 0xff, 0x80, IPT_DIAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(75) PORT_KEYDELTA(10) PORT_COCKTAIL PORT_PLAYER(2)
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( grmatch )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x06, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x08, 0x08, "Adjustments Lockout" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x20, "1" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_SERVICE_NO_TOGGLE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN2 )
 INPUT_PORTS_END
 
 
@@ -1735,6 +1812,16 @@ static struct YM2203interface ym2203_interface =
 	generate_sound_irq
 };
 
+static struct YM2608interface ym2608_interface =
+{
+	0,
+	0,
+	0,
+	ym2203_portb_out,
+	generate_sound_irq,
+	REGION_SOUND1
+};
+
 
 static struct YM3812interface ym3812_interface =
 {
@@ -1805,6 +1892,14 @@ static MACHINE_DRIVER_START( itech8_sound_ym2203 )
 	MDRV_SOUND_ROUTE(3, "mono", 0.75)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( itech8_sound_ym2608 )
+	MDRV_CPU_ADD_TAG("sound", M6809, CLOCK_8MHz)
+	MDRV_CPU_PROGRAM_MAP(sound2608_map,0)
+	MDRV_SOUND_ADD_TAG("ym", YM2608, CLOCK_8MHz)
+	MDRV_SOUND_CONFIG(ym2608_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.75)
+MACHINE_DRIVER_END
+
 
 static MACHINE_DRIVER_START( itech8_sound_ym3812 )
 
@@ -1843,6 +1938,17 @@ static MACHINE_DRIVER_START( wfortune )
 	/* video hardware */
 	MDRV_VISIBLE_AREA(0, 255, 0, 239)
 	MDRV_VIDEO_UPDATE(itech8_2layer)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( grmatch )
+	MDRV_IMPORT_FROM(itech8_core_hi)
+	MDRV_IMPORT_FROM(itech8_sound_ym2608)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(grmatch_map,0)
+	MDRV_MACHINE_RESET(grmatch)
+	MDRV_VISIBLE_AREA(0, 399, 0, 239)
+	MDRV_PALETTE_LENGTH(32)
+	MDRV_VIDEO_UPDATE(grmatch)
 MACHINE_DRIVER_END
 
 
@@ -2026,6 +2132,27 @@ ROM_START( wfortuna )
 
 	ROM_REGION( 0x20000, REGION_SOUND1, 0 )
 	ROM_LOAD( "wofsbom0", 0x00000, 0x20000, CRC(5c28c3fe) SHA1(eba64ede749fb26f9926f644d66860b54b4c76e7) )
+ROM_END
+
+
+ROM_START( grmatch )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "grudgematch.u5", 0x00000, 0x10000, CRC(11cadec9) SHA1(e21df623d1311ea63bafa2d6d0d94eb7d13232da) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "grudgematch.u27", 0x08000, 0x8000, CRC(59c18e63) SHA1(0d00c9cc683ff17e3213ba343ae65d533b57a243) )
+
+	ROM_REGION( 0xe0000, REGION_GFX1, 0 )
+	ROM_LOAD( "grom0.bin", 0x00000, 0x20000, CRC(9064eff9) SHA1(4c80432ef359266c43b4691b503f529ed018a655) )
+	ROM_LOAD( "grom1.bin", 0x20000, 0x20000, CRC(6919c314) SHA1(e4a7ca77ee27ea8e41a236806e689c964d981210) )
+	ROM_LOAD( "grom2.bin", 0x40000, 0x20000, CRC(36b1682c) SHA1(6098b8aa576522c3cea66b5ac8f9406bf4222008) )
+	ROM_LOAD( "grom3.bin", 0x60000, 0x20000, CRC(7bf05f61) SHA1(269e1cacf319d9f2a2b865ac6573e690f36827a1) )
+	ROM_LOAD( "grom4.bin", 0x80000, 0x20000, CRC(55bded89) SHA1(61e0c60e391327a5fdda704c7756fcd6e11253c5) )
+	ROM_LOAD( "grom5.bin", 0xa0000, 0x20000, CRC(37b47b2e) SHA1(352204d3e95e6db556aacf053c42d0d5871245a7) )
+	ROM_LOAD( "grom6.bin", 0xc0000, 0x20000, CRC(860ee822) SHA1(2ca821c2fa220065b99b99b7487fe9666f338c75) )
+
+	ROM_REGION( 0x20000, REGION_SOUND1, 0 )
+	ROM_LOAD( "srom0.bin", 0x00000, 0x20000, CRC(49bce954) SHA1(68a8b11c03722349d673f7383288c63054f0d6f6) )
 ROM_END
 
 
@@ -2663,6 +2790,7 @@ static DRIVER_INIT( rimrockn )
 /* Wheel of Fortune-style PCB */
 GAME( 1989, wfortune, 0,        wfortune,          wfortune, 0,        ROT0,   "GameTek", "Wheel Of Fortune", 0 )
 GAME( 1989, wfortuna, wfortune, wfortune,          wfortune, 0,        ROT0,   "GameTek", "Wheel Of Fortune (alternate)", 0 )
+GAME( 1989, grmatch,  0,        grmatch,          grmatch, 0,        ROT0,   "Yankee Game Technology", "Grudge Match (Yankee Game Technology)", 0 )
 
 /* Strata Bowling-style PCB */
 GAME( 1990, stratab,  0,        stratab_hi,        stratab,  0,        ROT270, "Strata/Incredible Technologies", "Strata Bowling (V3)", 0 )
