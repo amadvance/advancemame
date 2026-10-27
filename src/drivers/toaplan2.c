@@ -273,6 +273,7 @@ To Do / Unknowns:
 #include "cpu/m68000/m68000.h"
 #include "cpu/z80/z80.h"
 #include "cpu/z180/z180.h"
+#include "cpu/nec/v25.h"
 #include "machine/eeprom.h"
 #include "machine/nmk112.h"
 #include "sound/2151intf.h"
@@ -285,7 +286,6 @@ To Do / Unknowns:
 
 /**************** Machine stuff ******************/
 #define HD64x180	0		/* Define if CPU support is available */
-#define V25			0
 
 #define CPU_2_NONE		0x00
 #define CPU_2_Z80		0x5a
@@ -476,22 +476,9 @@ static DRIVER_INIT( T2_Z180 )
 	toaplan2_sub_cpu = CPU_2_HD647180;
 }
 
-static DRIVER_INIT( T2_V25 )
-{
-	toaplan2_sub_cpu = CPU_2_V25;
-}
-
 static DRIVER_INIT( T2_noZ80 )
 {
 	toaplan2_sub_cpu = CPU_2_NONE;
-}
-
-static DRIVER_INIT( fixeight )
-{
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x28f002, 0x28fbff, 0, 0, MRA16_RAM );
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x28f002, 0x28fbff, 0, 0, MWA16_RAM );
-
-	toaplan2_sub_cpu = CPU_2_V25;
 }
 
 static DRIVER_INIT( fixeighb )
@@ -622,8 +609,11 @@ READ16_HANDLER( toaplan2_inputport_0_word_r )
 #endif
 }
 
+static double scanline_start_time;
+
 static void toaplan2_irq(int irq_line)
 {
+	scanline_start_time = timer_get_time();
 #if T2_VIDEO_CONTROL
 	int vpos = cpu_getscanline();
 	if (vpos == 240) cpunum_set_input_line(0, irq_line, HOLD_LINE);
@@ -704,6 +694,37 @@ static READ16_HANDLER( video_count_r )
 	return video_status;
 }
 
+/* The video status of the GP9001 as in MAME 0.264, where the blank signal is */
+/* active in the horizontal sync too: some game boot tests write a word on */
+/* each blank, and take several seconds more without it. */
+/* current_scanline is the count in the low byte (the screen line + 15). */
+static READ16_HANDLER( gp9001_video_count_r )
+{
+	UINT16 status = 0xff00;		/* Set signals inactive */
+	int vpos = (current_scanline + 262 - 15) % 262;
+	double line_time = 1.0 / (Machine->drv->frames_per_second * 262);
+	int hpos = (int)((timer_get_time() - scanline_start_time) / line_time * 432);
+	int hsync, vsync;
+
+	if (hpos < 0) hpos = 0;
+	if (hpos > 431) hpos = 431;
+	hsync = (hpos > 325) && (hpos < 380);
+	vsync = (vpos >= 232) && (vpos <= 245);
+
+	if (hsync)
+		status &= ~0x8000;
+	if (vsync)
+		status &= ~0x4000;
+	if (hsync || vsync)
+		status &= ~0x0100;
+	if (current_scanline < 256)
+		status |= current_scanline & 0xff;
+	else
+		status |= 0xff;
+
+	return status;
+}
+
 static WRITE8_HANDLER( toaplan2_coin_w )
 {
 	/* +----------------+------ Bits 7-5 not used ------+--------------+ */
@@ -744,6 +765,251 @@ static WRITE16_HANDLER( toaplan2_coin_word_w )
 		logerror("Writing unknown upper MSB command (%04x) to coin control\n",data & 0xff00);
 	}
 }
+
+/****************************************************************************
+  NEC V25 sound CPU (Dogyuun, V-Five / Grind Stormer, Knuckle Bash,
+  Batsugun, FixEight), as in MAME 0.264.
+
+  The V25 drives the YM2151 and the OKI M6295. Its program is uploaded by the
+  68000 into the RAM they share (except Knuckle Bash, which has a ROM), and
+  it reads the DIP switches and the territory jumpers on its ports, then
+  passes them to the 68000 through the shared RAM. The Toaplan V25s run
+  encrypted opcodes: the decryption table is the one of MAME.
+****************************************************************************/
+
+static const UINT8 nitro_decryption_table[256] =
+{
+	0x1b,0x56,0x75,0x88,0x8c,0x06,0x58,0x72, 0x83,0x86,0x36,0x1a,0x5f,0xd3,0x8c,0xe9,	/* 00 */
+	0x22,0x0f,0x03,0x2a,0xeb,0x2a,0xf9,0x0f, 0xa4,0xbd,0x75,0xf3,0x4f,0x53,0x8e,0xfe,	/* 10 */
+	0x87,0xe8,0xb1,0x8d,0x36,0xb5,0x43,0x73, 0x2a,0x5b,0xf9,0x02,0x24,0x8a,0x03,0x80,	/* 20 */
+	0x86,0x8b,0xd1,0x3e,0x8d,0x3e,0x58,0xfb, 0xc3,0x79,0xbd,0xb7,0x8a,0xe8,0x0f,0x81,	/* 30 */
+	0xb7,0xd0,0x8b,0xeb,0xff,0xb8,0x90,0x8b, 0x5e,0xa2,0x90,0xc1,0xab,0xb4,0x80,0x59,	/* 40 */
+	0x87,0x72,0xb5,0xbd,0xb0,0x88,0x50,0x0f, 0xfe,0xd2,0xc3,0x90,0x8a,0x90,0xf9,0x75,	/* 50 */
+	0x1a,0xb3,0x74,0x0a,0x68,0x24,0xbb,0x90, 0x75,0x47,0xfe,0x2c,0xbe,0xc3,0x88,0xd2,	/* 60 */
+	0x3e,0xc1,0x8c,0x33,0x0f,0x4f,0x8b,0x90, 0xb9,0x1e,0xff,0xa2,0x3e,0x22,0xbe,0x57,	/* 70 */
+	0x81,0x3a,0xf6,0x88,0xeb,0xb1,0x89,0x8a, 0x32,0x80,0x0f,0xb1,0x48,0xc3,0x68,0x72,	/* 80 */
+	0x53,0x02,0xc0,0x02,0xe8,0xb4,0x74,0xbc, 0x90,0x58,0x0a,0xf3,0x75,0xc6,0x90,0xe8,	/* 90 */
+	0x26,0x50,0xfc,0x8c,0x06,0xb1,0xc3,0xd1, 0xeb,0x83,0xa4,0xbf,0x26,0x4b,0x46,0xfe,	/* a0 */
+	0xe2,0x89,0xb3,0x88,0x03,0x56,0x0f,0x38, 0xbb,0x0c,0x90,0x0f,0x07,0x8a,0x8a,0x33,	/* b0 */
+	0xfe,0xf9,0xb1,0xa0,0x45,0x36,0x22,0x5e, 0x8a,0xbe,0xc6,0xea,0x3c,0xb2,0x1e,0xe8,	/* c0 */
+	0x90,0xeb,0x55,0xf6,0x8a,0xb0,0x5d,0xc0, 0xbb,0x8d,0xf6,0xd0,0xd1,0x88,0x4d,0x90,	/* d0 */
+	0x51,0x51,0x74,0xbd,0x32,0xd1,0xc6,0xd2, 0x53,0xc7,0xab,0x36,0x50,0xe9,0x33,0xb3,	/* e0 */
+	0x2e,0x05,0x88,0x59,0x74,0x74,0x22,0x8e, 0x8a,0x8a,0x36,0x08,0x0f,0x45,0x90,0x2e,	/* f0 */
+};
+
+static const UINT8 ts001turbo_decryption_table[256] =
+{
+	0x90,0x05,0x57,0x5f,0xfe,0x4f,0xbd,0x36, 0x80,0x8b,0x8a,0x0a,0x89,0x90,0x47,0x80,	/* 00 */
+	0x22,0x90,0x90,0x5d,0x81,0x3c,0xb5,0x83, 0x68,0xff,0x75,0x75,0x8d,0x5b,0x8a,0x38,	/* 10 */
+	0x8b,0xeb,0xd2,0x0a,0xb4,0xc7,0x46,0xd1, 0x0a,0x53,0xbd,0x77,0x22,0xff,0x1f,0x03,	/* 20 */
+	0xfb,0x45,0xc3,0x02,0x90,0x0f,0xa3,0x02, 0x0f,0xb7,0x90,0x24,0xc6,0xeb,0x1b,0x32,	/* 30 */
+	0x8d,0xb9,0xfe,0x08,0x88,0x90,0x8a,0x8a, 0x75,0x8a,0xbd,0x58,0xfe,0x51,0x1e,0x8b,	/* 40 */
+	0x0f,0x22,0xf6,0x90,0xc3,0x36,0x03,0x8d, 0xbb,0x16,0xbc,0x90,0x0f,0x5e,0xf9,0x2e,	/* 50 */
+	0x90,0x90,0x59,0x90,0xbb,0x1a,0x0c,0x8d, 0x89,0x72,0x83,0xa4,0xc3,0xb3,0x8b,0xe9,	/* 60 */
+	0x81,0x43,0xa0,0x2c,0x0f,0x55,0xf3,0x36, 0xb0,0x59,0xe8,0x03,0x26,0xe9,0x22,0xb0,	/* 70 */
+	0x90,0x8e,0x24,0x8a,0xd0,0x3e,0xc3,0x3a, 0x90,0x79,0x57,0x16,0x88,0x86,0x24,0x74,	/* 80 */
+	0x33,0xc3,0x53,0xb8,0xab,0x75,0x90,0x90, 0x8e,0xb1,0xe9,0x5d,0xf9,0x02,0x3c,0x90,	/* 90 */
+	0x80,0xd3,0x89,0xe8,0x90,0x90,0x2a,0x74, 0x90,0x5f,0xf6,0x88,0x4f,0x56,0x8c,0x03,	/* a0 */
+	0x47,0xa1,0x88,0x90,0x03,0xfe,0x90,0xfc, 0x2a,0x90,0x33,0x07,0xb1,0x50,0x0f,0x3e,	/* b0 */
+	0xbd,0x4d,0xf3,0xbf,0x59,0xd2,0xea,0xc6, 0x2a,0x74,0x72,0xe2,0x3e,0x2e,0x90,0x2e,	/* c0 */
+	0x2e,0x73,0x88,0x72,0x45,0x5d,0xc1,0xb9, 0x32,0x38,0x88,0xc1,0xa0,0x06,0x45,0x90,	/* d0 */
+	0x90,0x86,0x4b,0x87,0x90,0x8a,0x3b,0xab, 0x33,0xbe,0x90,0x32,0xbd,0xc7,0xb2,0x80,	/* e0 */
+	0x0f,0x75,0xc0,0xb9,0x07,0x74,0x3e,0xa2, 0x8a,0x48,0x3e,0x8d,0xeb,0x90,0xfe,0x90,	/* f0 */
+};
+
+static UINT8 *v25_shared_ram;			/* 8-bit RAM shared with the 68000 */
+static int v25_sound_reset_bit;		/* bit of the coin control register holding the V25 in reset */
+
+/* 68000 side: the low byte of each word */
+static READ16_HANDLER( v25_shared_ram_68k_r )
+{
+	return v25_shared_ram[offset & 0x7fff];
+}
+
+static WRITE16_HANDLER( v25_shared_ram_68k_w )
+{
+	if (ACCESSING_LSB)
+		v25_shared_ram[offset & 0x7fff] = data & 0xff;
+}
+
+/* V25 side */
+static READ8_HANDLER( v25_shared_ram_r )
+{
+	return v25_shared_ram[offset & 0x7fff];
+}
+
+static WRITE8_HANDLER( v25_shared_ram_w )
+{
+	v25_shared_ram[offset & 0x7fff] = data;
+}
+
+static void v25_sound_reset_w(int data)
+{
+	cpunum_set_input_line(1, INPUT_LINE_RESET, (data & v25_sound_reset_bit) ? CLEAR_LINE : ASSERT_LINE);
+}
+
+/* coin control, and the reset line of the V25 */
+static WRITE16_HANDLER( v25_coin_sound_reset_word_w )
+{
+	if (ACCESSING_LSB)
+	{
+		toaplan2_coin_w(offset, data & ~v25_sound_reset_bit & 0xff);
+		v25_sound_reset_w(data);
+	}
+}
+
+/* the RESET instruction of the 68000 resets the V25 */
+static void v25_68k_reset_instr(void)
+{
+	if (v25_sound_reset_bit)
+		v25_sound_reset_w(0);
+	else
+		cpunum_set_input_line(1, INPUT_LINE_RESET, PULSE_LINE);
+}
+
+/* the DIP switches are read inverted by the V25 */
+static READ8_HANDLER( v25_dswa_r ) { return ~readinputportbytag("DSWA") & 0xff; }
+static READ8_HANDLER( v25_dswb_r ) { return ~readinputportbytag("DSWB") & 0xff; }
+static READ8_HANDLER( v25_jmpr_r ) { return ~readinputportbytag("JMPR") & 0xff; }
+
+static MACHINE_RESET( v25 )
+{
+	machine_reset_toaplan2();
+	cpunum_set_info_fct(0, CPUINFO_PTR_M68K_RESET_CALLBACK, (genf *)v25_68k_reset_instr);
+	if (v25_sound_reset_bit)
+		v25_sound_reset_w(0);
+}
+
+static void v25_driver_init(int reset_bit, const UINT8 *table)
+{
+	v25_shared_ram = auto_malloc(0x8000);
+	memset(v25_shared_ram, 0, 0x8000);
+	v25_sound_reset_bit = reset_bit;
+	v25_set_decryption_table(1, table);
+	state_save_register_item_pointer("v25_shared", 0, v25_shared_ram, 0x8000);
+	toaplan2_sub_cpu = CPU_2_V25;
+}
+
+/* Dogyuun, Batsugun: DSWB on PT, DSWA on P0 */
+static DRIVER_INIT( dogyuun )
+{
+	v25_driver_init(0x20, nitro_decryption_table);
+	v25_set_port_handlers(1, v25_dswb_r, v25_dswa_r, v25_jmpr_r, NULL, NULL, NULL, NULL);
+}
+
+static DRIVER_INIT( batsugun )
+{
+	v25_driver_init(0x20, NULL);
+	v25_set_port_handlers(1, v25_dswa_r, v25_dswb_r, v25_jmpr_r, NULL, NULL, NULL, NULL);
+}
+
+/* V-Five / Grind Stormer: DSWA on PT, DSWB on P0 */
+static DRIVER_INIT( vfive )
+{
+	v25_driver_init(0x10, nitro_decryption_table);
+	v25_set_port_handlers(1, v25_dswa_r, v25_dswb_r, v25_jmpr_r, NULL, NULL, NULL, NULL);
+}
+
+/* FixEight: the V25 reads the inputs and the serial EEPROM holding the settings */
+static UINT8 fixeight_eeprom_out;
+
+static READ8_HANDLER( fixeight_v25_eeprom_r )
+{
+	return (EEPROM_read_bit() ? 0x80 : 0x00) | (fixeight_eeprom_out & 0x70);
+}
+
+static WRITE8_HANDLER( fixeight_v25_eeprom_w )
+{
+	fixeight_eeprom_out = data;
+	EEPROM_write_bit((data & 0x40) ? 1 : 0);
+	EEPROM_set_cs_line((data & 0x10) ? CLEAR_LINE : ASSERT_LINE);
+	EEPROM_set_clock_line((data & 0x20) ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static NVRAM_HANDLER( fixeight )
+{
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&eeprom_interface_93C46);
+		if (file)
+			EEPROM_load(file);
+		else	/* the default settings of the set */
+			EEPROM_set_data(memory_region(REGION_USER1), 0x80);
+	}
+}
+
+static WRITE16_HANDLER( fixeight_sound_reset_w )
+{
+	int val = 0;
+	if (ACCESSING_MSB) val |= (data >> 8) & 0xff;
+	if (ACCESSING_LSB) val |= data & 0xff;
+	v25_sound_reset_w(val);
+}
+
+static DRIVER_INIT( fixeight )
+{
+	v25_driver_init(0x08, ts001turbo_decryption_table);
+	v25_set_port_handlers(1, NULL, fixeight_v25_eeprom_r, NULL, NULL, fixeight_v25_eeprom_w, NULL, NULL);
+	fixeight_eeprom_out = 0;
+	state_save_register_item("fixeight", 0, fixeight_eeprom_out);
+}
+
+/* Knuckle Bash: the V25 runs from its ROM, and is not reset by the coin register */
+static DRIVER_INIT( kbash )
+{
+	v25_driver_init(0x00, nitro_decryption_table);
+	v25_set_port_handlers(1, v25_dswa_r, v25_dswb_r, v25_jmpr_r, NULL, NULL, NULL, NULL);
+}
+
+/* the V25 memory maps */
+static ADDRESS_MAP_START( v25_mem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x00001) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0x00000, 0x00000) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0x00001, 0x00001) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0x00004, 0x00004) AM_READ(OKIM6295_status_0_r)
+	AM_RANGE(0x00004, 0x00004) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x80000, 0xfffff) AM_READWRITE(v25_shared_ram_r, v25_shared_ram_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( vfive_v25_mem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x00001) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0x00000, 0x00000) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0x00001, 0x00001) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0x80000, 0xfffff) AM_READWRITE(v25_shared_ram_r, v25_shared_ram_w)
+ADDRESS_MAP_END
+
+static READ8_HANDLER( fixeight_v25_in1_r ) { return readinputportbytag("IN1") & 0xff; }
+static READ8_HANDLER( fixeight_v25_in2_r ) { return readinputportbytag("IN2") & 0xff; }
+static READ8_HANDLER( fixeight_v25_in3_r ) { return readinputportbytag("IN3") & 0xff; }
+
+static ADDRESS_MAP_START( fixeight_v25_mem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x00000) AM_READ(fixeight_v25_in1_r)
+	AM_RANGE(0x00002, 0x00002) AM_READ(fixeight_v25_in2_r)
+	AM_RANGE(0x00004, 0x00004) AM_READ(fixeight_v25_in3_r)
+	AM_RANGE(0x0000a, 0x0000b) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0x0000a, 0x0000a) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0x0000b, 0x0000b) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0x0000c, 0x0000c) AM_READ(OKIM6295_status_0_r)
+	AM_RANGE(0x0000c, 0x0000c) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x80000, 0xfffff) AM_READWRITE(v25_shared_ram_r, v25_shared_ram_w)
+ADDRESS_MAP_END
+
+static READ8_HANDLER( kbash_v25_rom_r )
+{
+	return memory_region(REGION_CPU2)[offset & 0x7fff];
+}
+
+static ADDRESS_MAP_START( kbash_v25_mem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x007ff) AM_READWRITE(v25_shared_ram_r, v25_shared_ram_w)
+	AM_RANGE(0x04000, 0x04001) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0x04000, 0x04000) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0x04001, 0x04001) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0x04002, 0x04002) AM_READ(OKIM6295_status_0_r)
+	AM_RANGE(0x04002, 0x04002) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x80000, 0xfffff) AM_READ(kbash_v25_rom_r)
+ADDRESS_MAP_END
 
 static READ16_HANDLER( toaplan2_shared_r )
 {
@@ -1768,18 +2034,8 @@ static ADDRESS_MAP_START( dogyuun_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x200010, 0x200011) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x200014, 0x200015) AM_READ(port_tag_to_handler16("IN2"))
 	AM_RANGE(0x200018, 0x200019) AM_READ(port_tag_to_handler16("SYS"))
-	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(toaplan2_coin_word_w)
-#if V25
-	AM_RANGE(0x21e000, 0x21fbff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)	/* $21f000 status port */
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#else
-	AM_RANGE(0x21e000, 0x21efff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)
-	AM_RANGE(0x21f000, 0x21f001) AM_READWRITE(toaplan2_snd_cpu_r, dogyuun_snd_cpu_w)	/* V25+ status/command port */
-	AM_RANGE(0x21f004, 0x21f005) AM_READ(port_tag_to_handler16("DSWA"))
-	AM_RANGE(0x21f006, 0x21f007) AM_READ(port_tag_to_handler16("DSWB"))
-	AM_RANGE(0x21f008, 0x21f009) AM_READ(port_tag_to_handler16("JMPR"))
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#endif
+	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(v25_coin_sound_reset_word_w)
+	AM_RANGE(0x210000, 0x21ffff) AM_READWRITE(v25_shared_ram_68k_r, v25_shared_ram_68k_w)
 	/***** The following locations in 0x30000x are for video controller 1 ******/
 	AM_RANGE(0x300000, 0x300001) AM_WRITE(toaplan2_0_voffs_w)	/* VideoRAM selector/offset */
 	AM_RANGE(0x300004, 0x300007) AM_READWRITE(toaplan2_0_videoram16_r, toaplan2_0_videoram16_w)	/* Tile/Sprite VideoRAM */
@@ -1791,7 +2047,7 @@ static ADDRESS_MAP_START( dogyuun_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x500004, 0x500007) AM_READWRITE(toaplan2_1_videoram16_r, toaplan2_1_videoram16_w)	/* Tile/Sprite VideoRAM */
 	AM_RANGE(0x500008, 0x500009) AM_WRITE(toaplan2_1_scroll_reg_select_w)
 	AM_RANGE(0x50000c, 0x50000d) AM_WRITE(toaplan2_1_scroll_reg_data_w)
-	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)			/* test bit 8 */
+	AM_RANGE(0x700000, 0x700001) AM_READ(gp9001_video_count_r)			/* test bit 8 */
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( dogyuun_z80_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -1834,11 +2090,7 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( kbash_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_ROM
 	AM_RANGE(0x100000, 0x103fff) AM_RAM
-	AM_RANGE(0x200000, 0x200001) AM_READWRITE(kbash_snd_cpu_r, kbash_snd_cpu_w)	/* Sound number to play */
-	AM_RANGE(0x200002, 0x200003) AM_WRITENOP					/* Control info to V25+ */
-	AM_RANGE(0x200004, 0x200005) AM_READ(port_tag_to_handler16("DSWA"))
-	AM_RANGE(0x200006, 0x200007) AM_READ(port_tag_to_handler16("DSWB"))
-	AM_RANGE(0x200008, 0x200009) AM_READ(port_tag_to_handler16("JMPR"))
+	AM_RANGE(0x200000, 0x200fff) AM_READWRITE(v25_shared_ram_68k_r, v25_shared_ram_68k_w)
 	AM_RANGE(0x208010, 0x208011) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x208014, 0x208015) AM_READ(port_tag_to_handler16("IN2"))
 	AM_RANGE(0x208018, 0x208019) AM_READ(port_tag_to_handler16("SYS"))
@@ -1848,7 +2100,7 @@ static ADDRESS_MAP_START( kbash_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x300008, 0x300009) AM_WRITE(toaplan2_0_scroll_reg_select_w)
 	AM_RANGE(0x30000c, 0x30000d) AM_READWRITE(toaplan2_inputport_0_word_r, toaplan2_0_scroll_reg_data_w)	/* VBlank */
 	AM_RANGE(0x400000, 0x400fff) AM_READWRITE(paletteram16_word_r, paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
-	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)			/* test bit 8 */
+	AM_RANGE(0x700000, 0x700001) AM_READ(gp9001_video_count_r)			/* test bit 8 */
 ADDRESS_MAP_END
 
 
@@ -1953,20 +2205,7 @@ static ADDRESS_MAP_START( fixeight_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x200008, 0x200009) AM_READ(port_tag_to_handler16("IN3"))
 	AM_RANGE(0x200010, 0x200011) AM_READ(port_tag_to_handler16("SYS"))
 	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(toaplan2_coin_word_w)	/* Coin count/lock */
-	AM_RANGE(0x280000, 0x28dfff) AM_RAM							/* part of shared ram ? */
-#if V25
-	AM_RANGE(0x28e000, 0x28fbff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)	/* $28f000 status port */
-	AM_RANGE(0x28fc00, 0x28ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#else
-	AM_RANGE(0x28e000, 0x28efff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)
-	AM_RANGE(0x28f000, 0x28f001) AM_READWRITE(fixeight_sec_cpu_r, fixeight_sec_cpu_w)	/* V25+ Command/Status port */
-//  AM_RANGE(0x28f002, 0x28f003) AM_READ(MRA16_RAM)             /* part of shared ram */
-//  AM_RANGE(0x28f004, 0x28f005) AM_READ(port_tag_to_handler16("DSWA")) /* Dip Switch A - Wrong !!! */
-//  AM_RANGE(0x28f006, 0x28f007) AM_READ(port_tag_to_handler16("DSWB")) /* Dip Switch B - Wrong !!! */
-//  AM_RANGE(0x28f008, 0x28f009) AM_READ(port_tag_to_handler16("JMPR")) /* Territory Jumper block - Wrong !!! */
-//  AM_RANGE(0x28f00a, 0x28fbff) AM_READ(MRA16_RAM)             /* part of shared ram */
-	AM_RANGE(0x28fc00, 0x28ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#endif
+	AM_RANGE(0x280000, 0x28ffff) AM_READWRITE(v25_shared_ram_68k_r, v25_shared_ram_68k_w)
 	AM_RANGE(0x300000, 0x300001) AM_WRITE(toaplan2_0_voffs_w)	/* VideoRAM selector/offset */
 	AM_RANGE(0x300004, 0x300007) AM_READWRITE(toaplan2_0_videoram16_r, toaplan2_0_videoram16_w)	/* Tile/Sprite VideoRAM */
 	AM_RANGE(0x300008, 0x300009) AM_WRITE(toaplan2_0_scroll_reg_select_w)
@@ -1976,7 +2215,8 @@ static ADDRESS_MAP_START( fixeight_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x502000, 0x5021ff) AM_READWRITE(toaplan2_txvideoram16_offs_r, toaplan2_txvideoram16_offs_w) AM_BASE(&toaplan2_txvideoram16_offs) AM_SIZE(&toaplan2_tx_offs_vram_size)
 	AM_RANGE(0x503000, 0x5031ff) AM_READWRITE(toaplan2_txscrollram16_r, toaplan2_txscrollram16_w) AM_BASE(&toaplan2_txscrollram16) AM_SIZE(&toaplan2_tx_scroll_vram_size)
 	AM_RANGE(0x600000, 0x60ffff) AM_READWRITE(toaplan2_tx_gfxram16_r, toaplan2_tx_gfxram16_w) AM_BASE(&toaplan2_tx_gfxram16)
-	AM_RANGE(0x800000, 0x800001) AM_READ(video_count_r)
+	AM_RANGE(0x700000, 0x700001) AM_WRITE(fixeight_sound_reset_w)
+	AM_RANGE(0x800000, 0x800001) AM_READ(gp9001_video_count_r)
 ADDRESS_MAP_END
 
 
@@ -2007,28 +2247,17 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( vfive_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_ROM
 	AM_RANGE(0x100000, 0x103fff) AM_RAM
-//  AM_RANGE(0x200000, 0x20ffff) AM_ROM                         /* Sound ROM is here ??? */
 	AM_RANGE(0x200010, 0x200011) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x200014, 0x200015) AM_READ(port_tag_to_handler16("IN2"))
 	AM_RANGE(0x200018, 0x200019) AM_READ(port_tag_to_handler16("SYS"))
-	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(toaplan2_coin_word_w)	/* Coin count/lock */
-#if V25
-	AM_RANGE(0x21e000, 0x21fbff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)	/* $21f000 status port */
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#else
-	AM_RANGE(0x21e000, 0x21efff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)
-	AM_RANGE(0x21f000, 0x21f001) AM_READWRITE(toaplan2_snd_cpu_r, vfive_snd_cpu_w)	/* V25+ Command/Status port */
-	AM_RANGE(0x21f004, 0x21f005) AM_READ(port_tag_to_handler16("DSWA"))
-	AM_RANGE(0x21f006, 0x21f007) AM_READ(port_tag_to_handler16("DSWB"))
-	AM_RANGE(0x21f008, 0x21f009) AM_READ(port_tag_to_handler16("JMPR"))
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#endif
+	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(v25_coin_sound_reset_word_w)	/* Coin count/lock, V25 reset line */
+	AM_RANGE(0x210000, 0x21ffff) AM_READWRITE(v25_shared_ram_68k_r, v25_shared_ram_68k_w)
 	AM_RANGE(0x300000, 0x300001) AM_WRITE(toaplan2_0_voffs_w)	/* VideoRAM selector/offset */
 	AM_RANGE(0x300004, 0x300007) AM_READWRITE(toaplan2_0_videoram16_r, toaplan2_0_videoram16_w)	/* Tile/Sprite VideoRAM */
 	AM_RANGE(0x300008, 0x300009) AM_WRITE(toaplan2_0_scroll_reg_select_w)
 	AM_RANGE(0x30000c, 0x30000d) AM_READWRITE(toaplan2_inputport_0_word_r, toaplan2_0_scroll_reg_data_w)
 	AM_RANGE(0x400000, 0x400fff) AM_READWRITE(paletteram16_word_r, paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
-	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)
+	AM_RANGE(0x700000, 0x700001) AM_READ(gp9001_video_count_r)
 ADDRESS_MAP_END
 
 
@@ -2038,19 +2267,8 @@ static ADDRESS_MAP_START( batsugun_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x200010, 0x200011) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x200014, 0x200015) AM_READ(port_tag_to_handler16("IN2"))
 	AM_RANGE(0x200018, 0x200019) AM_READ(port_tag_to_handler16("SYS"))
-	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(toaplan2_coin_word_w)	/* Coin count/lock */
-	AM_RANGE(0x210000, 0x21bbff) AM_RAM
-#if V25
-	AM_RANGE(0x21e000, 0x21fbff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)	/* $21f000 status port */
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#else
-	AM_RANGE(0x21e000, 0x21efff) AM_READWRITE(shared_ram_r, shared_ram_w) AM_BASE(&toaplan2_shared_ram16)
-	AM_RANGE(0x21f000, 0x21f001) AM_READWRITE(toaplan2_snd_cpu_r, batsugun_snd_cpu_w)	/* V25+ Command/Status port */
-	AM_RANGE(0x21f004, 0x21f005) AM_READ(port_tag_to_handler16("DSWA"))
-	AM_RANGE(0x21f006, 0x21f007) AM_READ(port_tag_to_handler16("DSWB"))
-	AM_RANGE(0x21f008, 0x21f009) AM_READ(port_tag_to_handler16("JMPR"))
-	AM_RANGE(0x21fc00, 0x21ffff) AM_READWRITE(V25_sharedram_r, V25_sharedram_w) AM_BASE(&V25_shared_ram)	/* 16-bit on 68000 side, 8-bit on V25+ side */
-#endif
+	AM_RANGE(0x20001c, 0x20001d) AM_WRITE(v25_coin_sound_reset_word_w)	/* Coin count/lock, V25 reset line */
+	AM_RANGE(0x210000, 0x21ffff) AM_READWRITE(v25_shared_ram_68k_r, v25_shared_ram_68k_w)
 	/***** The following in 0x30000x are for video controller 1 ******/
 	AM_RANGE(0x300000, 0x300001) AM_WRITE(toaplan2_0_voffs_w)	/* VideoRAM selector/offset */
 	AM_RANGE(0x300004, 0x300007) AM_READWRITE(toaplan2_0_videoram16_r, toaplan2_0_videoram16_w)	/* Tile/Sprite VideoRAM */
@@ -2062,7 +2280,7 @@ static ADDRESS_MAP_START( batsugun_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x500004, 0x500007) AM_READWRITE(toaplan2_1_videoram16_r, toaplan2_1_videoram16_w)	/* Tile/Sprite VideoRAM */
 	AM_RANGE(0x500008, 0x500009) AM_WRITE(toaplan2_1_scroll_reg_select_w)
 	AM_RANGE(0x50000c, 0x50000d) AM_WRITE(toaplan2_1_scroll_reg_data_w)
-	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)
+	AM_RANGE(0x700000, 0x700001) AM_READ(gp9001_video_count_r)
 ADDRESS_MAP_END
 
 
@@ -3975,20 +4193,17 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( dogyuun )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 16000000)			/* 16MHz Oscillator */
+	MDRV_CPU_ADD(M68000, 25000000/2)		/* 12.5MHz, 25MHz Oscillator */
 	MDRV_CPU_PROGRAM_MAP(dogyuun_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if V25
-	MDRV_CPU_ADD(Z180, 16000000)			/* NEC V25+ type Toaplan marked CPU ??? */
-	MDRV_CPU_PROGRAM_MAP(V25_mem, 0)
-	MDRV_CPU_IO_MAP(V25_port, 0)
-#endif
+	MDRV_CPU_ADD(V25, 25000000/2)			/* NEC V25 type Toaplan marked CPU (TS-002-MACH) */
+	MDRV_CPU_PROGRAM_MAP(v25_mem, 0)
 
 	MDRV_FRAMES_PER_SECOND( (27000000.0 / 4) / (432 * 263) )
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(dogyuun)
+	MDRV_MACHINE_RESET(v25)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
@@ -4001,24 +4216,17 @@ static MACHINE_DRIVER_START( dogyuun )
 	MDRV_VIDEO_EOF(toaplan2_1)
 	MDRV_VIDEO_UPDATE(dogyuun_1)
 
-	/* sound hardware */	
-	/*
+	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.25)
-	MDRV_SOUND_ROUTE(1, "right", 0.25)
+	MDRV_SOUND_ROUTE(0, "left", 0.5)
+	MDRV_SOUND_ROUTE(1, "right", 0.5)
 
-	MDRV_SOUND_ADD(OKIM6295, 27000000/10/132)
+	MDRV_SOUND_ADD(OKIM6295, 25000000/24/132)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
-	*/
-	MDRV_SPEAKER_STANDARD_MONO("mono")
-	
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(dogyuun_samples_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( dogyuunto )
@@ -4068,16 +4276,13 @@ static MACHINE_DRIVER_START( kbash )
 	MDRV_CPU_PROGRAM_MAP(kbash_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if V25
-	MDRV_CPU_ADD(Z180, 16000000)			/* NEC V25+ type Toaplan marked CPU ??? */
-	MDRV_CPU_PROGRAM_MAP(V25_mem, 0)
-	MDRV_CPU_IO_MAP(V25_port, 0)
-#endif
+	MDRV_CPU_ADD(V25, 16000000)				/* NEC V25 type Toaplan marked CPU (TS-004-Dash), with its ROM */
+	MDRV_CPU_PROGRAM_MAP(kbash_v25_mem, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(toaplan2)
+	MDRV_MACHINE_RESET(v25)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
@@ -4294,17 +4499,14 @@ static MACHINE_DRIVER_START( fixeight )
 	MDRV_CPU_PROGRAM_MAP(fixeight_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if V25
-	MDRV_CPU_ADD(Z180, 16000000)			/* NEC V25+ type Toaplan marked CPU ??? */
-	MDRV_CPU_PROGRAM_MAP(V25_mem, 0)
-	MDRV_CPU_IO_MAP(V25_port, 0)
-#endif
+	MDRV_CPU_ADD(V25, 16000000)				/* NEC V25 type Toaplan marked CPU (TS-001-Turbo) */
+	MDRV_CPU_PROGRAM_MAP(fixeight_v25_mem, 0)
 
 	MDRV_FRAMES_PER_SECOND( (27000000.0 / 4) / (432 * 263) )
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(toaplan2)
-//  MDRV_NVRAM_HANDLER(fixeight)        /* See 37B6 code */
+	MDRV_MACHINE_RESET(v25)
+	MDRV_NVRAM_HANDLER(fixeight)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
@@ -4324,7 +4526,7 @@ static MACHINE_DRIVER_START( fixeight )
 	MDRV_SOUND_ROUTE(0, "left", 0.45)
 	MDRV_SOUND_ROUTE(1, "right", 0.45)
 
-	MDRV_SOUND_ADD(OKIM6295, 32000000/32/132)
+	MDRV_SOUND_ADD(OKIM6295, 16000000/16/132)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.45)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.45)
@@ -4366,20 +4568,17 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( vfive )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 10000000)			/* 10MHz Oscillator */
+	MDRV_CPU_ADD(M68000, 20000000/2)		/* 10MHz, 20MHz Oscillator */
 	MDRV_CPU_PROGRAM_MAP(vfive_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if V25
-	MDRV_CPU_ADD(Z180, 10000000)			/* NEC V25+ type Toaplan marked CPU ??? */
-	MDRV_CPU_PROGRAM_MAP(V25_mem, 0)
-	MDRV_CPU_IO_MAP(V25_port, 0)
-#endif
+	MDRV_CPU_ADD(V25, 20000000/2)			/* NEC V25 type Toaplan marked CPU (TS-007-Spy) */
+	MDRV_CPU_PROGRAM_MAP(vfive_v25_mem, 0)
 
 	MDRV_FRAMES_PER_SECOND( (27000000.0 / 4) / (432 * 263) )
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(vfive)
+	MDRV_MACHINE_RESET(v25)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
@@ -4393,37 +4592,28 @@ static MACHINE_DRIVER_START( vfive )
 	MDRV_VIDEO_UPDATE(toaplan2_1)
 
 	/* sound hardware */
-	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	/*
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.25)
-	MDRV_SOUND_ROUTE(1, "right", 0.25)
-	*/
-
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(vfive_samples_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(0, "left", 0.5)
+	MDRV_SOUND_ROUTE(1, "right", 0.5)
 MACHINE_DRIVER_END
 
 
 static MACHINE_DRIVER_START( batsugun )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000,32000000/2)			/* 16MHz , 32MHz Oscillator */
+	MDRV_CPU_ADD(M68000, 32000000/2)			/* 16MHz , 32MHz Oscillator */
 	MDRV_CPU_PROGRAM_MAP(batsugun_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if V25
-	MDRV_CPU_ADD(Z180, 32000000/2)			/* NEC V25+ type Toaplan marked CPU ??? */
-	MDRV_CPU_PROGRAM_MAP(V25_mem, 0)
-	MDRV_CPU_IO_MAP(V25_port, 0)
-#endif
+	MDRV_CPU_ADD(V25, 32000000/2)			/* NEC V25 type Toaplan marked CPU (TS-007-Spy) */
+	MDRV_CPU_PROGRAM_MAP(v25_mem, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(toaplan2)
+	MDRV_MACHINE_RESET(v25)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
@@ -4437,22 +4627,16 @@ static MACHINE_DRIVER_START( batsugun )
 	MDRV_VIDEO_UPDATE(batsugun_1)
 
 	/* sound hardware */
-	MDRV_SPEAKER_STANDARD_MONO("mono")
-	/*
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.25)
-	MDRV_SOUND_ROUTE(1, "right", 0.25)
+	MDRV_SOUND_ROUTE(0, "left", 0.5)
+	MDRV_SOUND_ROUTE(1, "right", 0.5)
 
 	MDRV_SOUND_ADD(OKIM6295, 32000000/8/165)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
-	*/
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(batsugun_samples_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)	
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
 MACHINE_DRIVER_END
 
 
@@ -4799,15 +4983,9 @@ ROM_START( kbash )
 	ROM_LOAD16_WORD_SWAP( "kbash01.bin", 0x000000, 0x080000, CRC(2965f81d) SHA1(46f2df30fa92c80ba5a37f75e756424e15534784) )
 
 	/* Secondary CPU is a Toaplan marked chip, (TS-004-Dash  TOA PLAN) */
-	/* Its likely to be a NEC V25+ (PLCC94). */
-#if V25
-	ROM_REGION( 0x88000, REGION_CPU2, 0 )			/* Sound CPU code */
-	ROM_LOAD( "kbash02.bin", 0x80000, 0x08000, CRC(4cd882a1) SHA1(7199a5c384918f775f0815e09c46b2a58141814a) )
-#else
-	ROM_REGION( 0x08000, REGION_USER1, 0 )
-	ROM_LOAD( "kbash02.bin", 0x00200, 0x07e00, CRC(4cd882a1) SHA1(7199a5c384918f775f0815e09c46b2a58141814a) )
-	ROM_CONTINUE(			 0x00000, 0x00200 )
-#endif
+	/* It's a NEC V25 (PLCC94) */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )			/* Sound CPU code */
+	ROM_LOAD( "kbash02.bin", 0x0000, 0x08000, CRC(4cd882a1) SHA1(7199a5c384918f775f0815e09c46b2a58141814a) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "kbash03.bin", 0x000000, 0x200000, CRC(32ad508b) SHA1(e473489beaf649d3e5236770eb043327e309850c) )
@@ -4919,7 +5097,7 @@ ROM_START( fixeight )
 
 	ROM_REGION( 0x80, REGION_USER1, 0 )
 	/* Serial EEPROM (93C45) connected to Secondary CPU */
-	ROM_LOAD( "93c45.u21", 0x00, 0x80, CRC(40d75df0) SHA1(a22f1cc74ce9bc9bfe53f48f6a43ab60e921052b) )
+	ROM_LOAD( "fixeight.nv", 0x00, 0x80, CRC(02e925d0) SHA1(5839d10aceff84916ea99e9c6afcdc90eef7468b) )
 ROM_END
 
 
@@ -5573,22 +5751,22 @@ ROM_END
 GAME( 1991, tekipaki, 0,        tekipaki, tekipaki, T2_Z180,  ROT0,   "Toaplan", "Teki Paki", 0 )
 GAME( 1991, ghox,     0,        ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox", 0 )
 GAME( 1991, ghoxj,    ghox,     ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox (Joystick version)", 0 )
-GAME( 1992, dogyuun,  0,        dogyuun,  dogyuun,  T2_V25,   ROT270, "Toaplan", "Dogyuun", 0 )
+GAME( 1992, dogyuun,  0,        dogyuun,  dogyuun,  dogyuun,  ROT270, "Toaplan", "Dogyuun", 0 )
 GAME( 1992, dogyuunto,dogyuun,  dogyuunto,dogyuun,  T2_Z80,   ROT270, "Toaplan", "Dogyuun (8/25/1992 location test)", 0 )
-GAME( 1993, kbash,    0,        kbash,    kbash,    T2_V25,   ROT0,   "Toaplan", "Knuckle Bash", GAME_IMPERFECT_SOUND )
+GAME( 1993, kbash,    0,        kbash,    kbash,    kbash,    ROT0,   "Toaplan", "Knuckle Bash", 0 )
 GAME( 1999, kbash2,   0,        kbash2,   kbash2,   T2_noZ80, ROT0,   "bootleg", "Knuckle Bash 2 (bootleg)", 0 )
 GAME( 1992, truxton2, 0,        truxton2, truxton2, T2_noZ80, ROT270, "Toaplan", "Truxton II / Tatsujin II / Tatsujin Oh (Japan)", 0 )
 GAME( 1991, pipibibs, 0,        pipibibs, pipibibs, T2_Z80,   ROT0,   "Toaplan", "Pipi & Bibis / Whoopee!!", 0 )
 GAME( 1991, whoopee,  pipibibs, tekipaki, whoopee,  T2_Z180,  ROT0,   "Toaplan", "Whoopee!! / Pipi & Bibis", 0 )
 GAME( 1991, pipibibi, pipibibs, pipibibi, pipibibi, pipibibi, ROT0,   "[Toaplan] Ryouta Kikaku", "Pipi & Bibis / Whoopee!! (bootleg ?)", 0 )
-GAME( 1992, fixeight, 0,        fixeight, fixeight, fixeight, ROT270, "Toaplan", "FixEight", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
+GAME( 1992, fixeight, 0,        fixeight, fixeight, fixeight, ROT270, "Toaplan", "FixEight", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, fixeighb, fixeight, fixeighb, fixeighb, fixeighb, ROT270, "bootleg", "FixEight (bootleg)", 0 )
-GAME( 1992, grindstm, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer", 0 )
-GAME( 1992, grindsta, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer (older set)", 0 )
-GAME( 1993, vfive,    0,        vfive,    vfive,    T2_V25,   ROT270, "Toaplan", "V-Five (Japan)", 0 )
-GAME( 1993, batsugun, 0,        batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 1)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, batsugna, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, batugnsp, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1992, grindstm, vfive,    vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer", 0 )
+GAME( 1992, grindsta, vfive,    vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer (older set)", 0 )
+GAME( 1993, vfive,    0,        vfive,    vfive,    vfive,    ROT270, "Toaplan", "V-Five (Japan)", 0 )
+GAME( 1993, batsugun, 0,        batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (set 1)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, batsugna, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, batugnsp, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, snowbro2, 0,        snowbro2, snowbro2, T2_noZ80, ROT0,   "[Toaplan] Hanafram", "Snow Bros. 2 - With New Elves / Otenki Paradise", 0 )
 GAME( 1993, mahoudai, 0,        mahoudai, mahoudai, T2_Z80,   ROT270, "Raizing (Able license)", "Mahou Daisakusen (Japan)", 0 )
 GAME( 1993, sstriker, mahoudai, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World)" , 0) // from korean board

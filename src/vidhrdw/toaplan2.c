@@ -1482,73 +1482,6 @@ static void mark_tile_priority(int controller)
 }
 
 
-static void thunder_taisaku(void)
-{
-	if (thunder1 == 1)
-	{
-		thunder2 = input_port_1_word_r(0,0);
-		thunder3 = thunder2 & 0x10;
-		
-		if (thunder3 != 0x10 || sample_playing(7))
-		{
-			sample_stop (5);
-		}
-	}
-	
-	if (thunder4 == 1)
-	{
-		thunder5 = input_port_2_word_r(0,0);
-		thunder6 = thunder5 & 0x10;
-		
-		if (thunder6 != 0x10 || sample_playing(7))
-		{
-			sample_stop (6);
-		}
-	}
-}
-
-
-static void ese_fadeout(void)
-{
-	if (fadeout_stop == 1)
-	{
-		playing2 = 0xff;
-		fadeout_ready = 0;
-		fadeout_stop = 0;
-		sample_vol1 = 1.00;
-		sample_set_volume (0, 1.00);
-	}
-	
-	if (counter1 >= 20)
-	{
-		counter1 = 0;
-		if (fadeout_ready == 1)
-		{
-			sample_vol1 = sample_vol1 - 0.10;
-			if (sample_vol1 <= 0)
-			{
-				sample_vol1 = 0;
-			}
-			sample_set_volume (0, sample_vol1);
-		}
-		if (sample_vol1 == 0)
-		{
-			sample_stop (0);
-			fadeout_ready = 0;
-			fadeout_stop = 0;
-			sample_vol1 = 1.00;
-			sample_set_volume (0, 1.00);
-			if (playing2 != 0xff)
-			{
-			sample_start (0, playing2 , 1);
-			playing1 = 0xff;
-			playing2 = 0xff;
-			}
-		}
-	}
-	counter1++;
-}
-
 static UINT16 tag_to_word_r(const char *tag)
 {
 	if(port_tag_to_index(tag) != -1)
@@ -1621,7 +1554,6 @@ VIDEO_UPDATE( toaplan2_1 )
 		if (sprite_priority[0][priority])
 			draw_sprites(bitmap,cliprect,0,priority,0);
 	}
-	ese_fadeout();
 }
 
 VIDEO_UPDATE( dogyuun_1 )
@@ -1664,7 +1596,6 @@ VIDEO_UPDATE( dogyuun_1 )
 		if (sprite_priority[0][priority])
 			draw_sprites(bitmap,cliprect,0,priority,0);
 	}
-	thunder_taisaku();
 }
 
 VIDEO_UPDATE( batsugun_1 )

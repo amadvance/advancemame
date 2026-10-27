@@ -758,12 +758,19 @@ endif
 CPUDEFS += -DHAS_V20=$(if $(filter V20,$(CPUS)),1,0)
 CPUDEFS += -DHAS_V30=$(if $(filter V30,$(CPUS)),1,0)
 CPUDEFS += -DHAS_V33=$(if $(filter V33,$(CPUS)),1,0)
+CPUDEFS += -DHAS_V25=$(if $(filter V25,$(CPUS)),1,0)
 
 ifneq ($(filter V20 V30 V33,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/nec
 CPUOBJS += $(OBJ)/cpu/nec/nec.o
 DBGOBJS += $(OBJ)/cpu/i386/i386dasm.o
 $(OBJ)/cpu/nec/nec.o: nec.c nec.h necintrf.h necea.h nechost.h necinstr.h necmodrm.h
+endif
+
+ifneq ($(filter V25,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/nec
+CPUOBJS += $(OBJ)/cpu/nec/v25.o
+$(OBJ)/cpu/nec/v25.o: v25.c v25.h v25ops.h
 endif
 
 
