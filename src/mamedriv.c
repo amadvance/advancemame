@@ -3014,6 +3014,7 @@ V-V                           TP-027
 	DRIVER( bloods21 )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( bloods11 )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( pairs )		/* (c) 1994 Strata/Incredible Technologies */
+	DRIVER( pairsred )
 	DRIVER( pairsa )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( hotmemry )	/* (c) 1994 Tuning/Incredible Technologies */
 	DRIVER( drivedge )	/* (c) 1994 Strata/Incredible Technologies */
@@ -3060,6 +3061,8 @@ V-V                           TP-027
 	DRIVER( gt2ks100 )	/* (c) 2000 Incredible Technologies */
 	DRIVER( gt2kt500 )	/* (c) 2000 Incredible Technologies */
 	DRIVER( gtsuprem )	/* (c) 2000 Incredible Technologies */
+	DRIVER( shoottv )
+	DRIVER( pubball )
 	DRIVER( gtclassc )	/* (c) 2001 Incredible Technologies */
 	DRIVER( gtclassp )	/* (c) 2001 Incredible Technologies */
 	DRIVER( gtcls100 )	/* (c) 2001 Incredible Technologies */
