@@ -4644,6 +4644,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( fax )		/* (c) 1983 */
 	DRIVER( faxa )		/* (c) 1983 */
 	DRIVER( circus )	/* no copyright notice [1977?] */
+	DRIVER( trapeze )
 	DRIVER( robotbwl )	/* no copyright notice */
 	DRIVER( crash )		/* Exidy [1979?] */
 	DRIVER( ripcord )	/* Exidy [1977?] */

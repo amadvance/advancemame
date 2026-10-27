@@ -35,5 +35,8 @@ extern WRITE8_HANDLER( circus_videoram_w );
 extern VIDEO_START( circus );
 extern VIDEO_UPDATE( crash );
 extern VIDEO_UPDATE( circus );
+extern VIDEO_START( trapeze );
+extern VIDEO_UPDATE( trapeze );
+extern VIDEO_EOF( trapeze );
 extern VIDEO_UPDATE( robotbwl );
 extern VIDEO_UPDATE( ripcord ); //AT
