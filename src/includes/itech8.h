@@ -34,6 +34,8 @@ VIDEO_START( itech8 );
 WRITE8_HANDLER( itech8_page_w );
 
 WRITE8_HANDLER( itech8_palette_w );
+WRITE8_HANDLER( grmatch_palette_w );
+WRITE8_HANDLER( grmatch_xscroll_w );
 
 READ8_HANDLER( itech8_blitter_r );
 WRITE8_HANDLER( itech8_blitter_w );
@@ -44,3 +46,4 @@ READ8_HANDLER( itech8_tms34061_r );
 VIDEO_UPDATE( itech8_2layer );
 VIDEO_UPDATE( itech8_2page );
 VIDEO_UPDATE( itech8_2page_large );
+VIDEO_UPDATE( grmatch );

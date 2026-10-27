@@ -146,6 +146,8 @@ static UINT8 blitter_data[16];
 static UINT8 blit_in_progress;
 
 static UINT8 page_select;
+static UINT8 grmatch_palcontrol;
+static UINT8 grmatch_xscroll;
 
 static offs_t fetch_offset;
 static UINT8 fetch_rle_count;
@@ -198,6 +200,8 @@ VIDEO_START( itech8 )
 
 	/* reset statics */
 	page_select = 0xc0;
+	grmatch_palcontrol = 0;
+	grmatch_xscroll = 0;
 
 	/* fetch the GROM base */
 	grom_base = memory_region(REGION_GFX1);
@@ -217,6 +221,16 @@ VIDEO_START( itech8 )
 WRITE8_HANDLER( itech8_palette_w )
 {
 	tlc34076_w(offset/2, data);
+}
+
+WRITE8_HANDLER( grmatch_palette_w )
+{
+	grmatch_palcontrol = data;
+}
+
+WRITE8_HANDLER( grmatch_xscroll_w )
+{
+	grmatch_xscroll = data;
 }
 
 
@@ -666,6 +680,48 @@ VIDEO_UPDATE( itech8_2page_large )
 		{
 			dest[x + 0] = (latch[x/2] & 0xf0) | (base[x/2] >> 4);
 			dest[x + 1] = ((latch[x/2] << 4) & 0xf0) | (base[x/2] & 0x0f);
+		}
+	}
+}
+
+VIDEO_UPDATE( grmatch )
+{
+	UINT32 page_offset;
+	int page, x, y;
+
+	tms34061_get_display_state(&tms_state);
+	if (tms_state.blanked)
+	{
+		fillbitmap(bitmap, get_black_pen(), cliprect);
+		return;
+	}
+
+	page_offset = (tms_state.dispstart & 0x0ffff) | grmatch_xscroll;
+	if (grmatch_palcontrol & 0x80)
+	{
+		for (page = 0; page < 2; page++)
+		{
+			UINT8 *base = &tms_state.vram[(page * 0x20000 + page_offset) & 0x3ffff];
+			for (x = 0; x < 16; x++)
+			{
+				UINT8 data0 = base[x * 2];
+				UINT8 data1 = base[x * 2 + 1];
+				palette_set_color(page * 16 + x, (data0 & 15) * 17, (data1 >> 4) * 17, (data1 & 15) * 17);
+			}
+		}
+	}
+
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		UINT8 *base0 = &tms_state.vram[(page_offset + y * 256) & 0xffff];
+		UINT8 *base2 = &tms_state.vram[0x20000 + ((page_offset + y * 256) & 0xffff)];
+		UINT16 *dest = (UINT16 *)bitmap->line[y];
+		for (x = cliprect->min_x & ~1; x <= cliprect->max_x; x += 2)
+		{
+			UINT8 pix0 = base0[x / 2];
+			UINT8 pix2 = base2[x / 2];
+			dest[x] = (pix0 >> 4) ? (pix0 >> 4) : (16 + (pix2 >> 4));
+			dest[x + 1] = (pix0 & 15) ? (pix0 & 15) : (16 + (pix2 & 15));
 		}
 	}
 }

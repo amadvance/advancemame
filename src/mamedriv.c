@@ -2980,6 +2980,7 @@ V-V                           TP-027
 	DRIVER( bowlrama )	/* (c) 1991 P & P Marketing */
 	DRIVER( wfortune )	/* (c) 1989 GameTek */
 	DRIVER( wfortuna )	/* (c) 1989 GameTek */
+	DRIVER( grmatch )
 	DRIVER( stratab )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( stratab1 )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( sstrike )	/* (c) 1990 Strata/Incredible Technologies */
