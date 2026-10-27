@@ -2318,3 +2318,26 @@ VIDEO_UPDATE( dambustr )
 		tilemap_draw(bitmap, cliprect, dambustr_tilemap2, 0, 0);
 	}
 }
+
+static void harem_get_tile_info(int tile_index)
+{
+	int x = tile_index & 31;
+	int code = galaxian_videoram[tile_index] | (((racknrol_tiles_bank[0] >> (x / 4)) & 1) << 9);
+	int color = galaxian_attributesram[x * 2 + 1] & 7;
+	SET_TILE_INFO(0, code, color, 0)
+}
+
+static void harem_modify_spritecode(UINT8 *ram, int *code, int *flipx, int *flipy, int offs)
+{
+	*code |= ((gfxbank[0] & 1) << 7) | 0x40;
+}
+
+VIDEO_START( harem )
+{
+	if (video_start_galaxian_plain()) return 1;
+	bg_tilemap = tilemap_create(harem_get_tile_info, tilemap_scan_rows, TILEMAP_OPAQUE, 8, 8, 32, 32);
+	if (!bg_tilemap) return 1;
+	tilemap_set_scroll_cols(bg_tilemap, 32);
+	modify_spritecode = harem_modify_spritecode;
+	return 0;
+}

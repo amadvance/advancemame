@@ -1174,39 +1174,6 @@ static ADDRESS_MAP_START( hunchbkg_io, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(S2650_SENSE_PORT, S2650_SENSE_PORT) AM_READ(input_port_3_r)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( harem_cpu1, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x1fff) AM_ROM
-	AM_RANGE(0x2000, 0x27ff) AM_RAM
-	AM_RANGE(0x4000, 0x47ff) AM_RAM
-	AM_RANGE(0x4800, 0x4fff) AM_READWRITE(galaxian_videoram_r, galaxian_videoram_w) AM_BASE(&galaxian_videoram)
-	AM_RANGE(0x5000, 0x5000) AM_WRITENOP
-	AM_RANGE(0x5800, 0x5800) AM_READWRITE(MRA8_NOP, interrupt_enable_w)
-	AM_RANGE(0x5801, 0x5807) AM_WRITENOP
-	AM_RANGE(0x6101, 0x6101) AM_READ(input_port_0_r)
-	AM_RANGE(0x6102, 0x6102) AM_READ(input_port_1_r)
-	AM_RANGE(0x6103, 0x6103) AM_WRITENOP
-	AM_RANGE(0x6200, 0x6203) AM_WRITENOP AM_BASE(&galaxian_attributesram)
-	AM_RANGE(0x8000, 0x9fff) AM_ROM
-	AM_RANGE(0xffe6, 0xffff) AM_RAM AM_BASE(&galaxian_spriteram) AM_SIZE(&galaxian_spriteram_size)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( harem_cpu2, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x2fff) AM_ROM
-	AM_RANGE(0x8000, 0x83ff) AM_RAM
-	AM_RANGE(0xa000, 0xa000) AM_WRITENOP
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( harem_cpu2_io, ADDRESS_SPACE_IO, 8 )
-	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x04, 0x04) AM_WRITE(AY8910_control_port_0_w)
-	AM_RANGE(0x08, 0x08) AM_WRITE(AY8910_write_port_0_w)
-	AM_RANGE(0x10, 0x10) AM_WRITE(AY8910_control_port_1_w)
-	AM_RANGE(0x20, 0x20) AM_WRITE(AY8910_write_port_1_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(AY8910_control_port_2_w)
-	AM_RANGE(0x80, 0x80) AM_WRITE(AY8910_write_port_2_w)
-	AM_RANGE(0x80, 0x80) AM_READ(soundlatch_r)
-ADDRESS_MAP_END
-
 static ADDRESS_MAP_START( tazzmang, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x5fff) AM_ROM
 	AM_RANGE(0x7000, 0x7000) AM_READ(input_port_2_r) /* mirror */
@@ -3568,60 +3535,6 @@ INPUT_PORTS_START( hunchbkg )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
 INPUT_PORTS_END
 
-INPUT_PORTS_START( harem )
-	PORT_START_TAG("IN0")//Change tag when major usage uncovered.
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x01, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x02, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x04, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x20, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( On ) )
-
-	PORT_START_TAG("IN1")
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x01, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x02, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x04, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x20, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( On ) )
-INPUT_PORTS_END
-
 INPUT_PORTS_START( tazzmang )
 	PORT_START
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
@@ -4793,35 +4706,6 @@ static MACHINE_DRIVER_START( hunchbkg )
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(galaxian_custom_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-MACHINE_DRIVER_END
-
-static MACHINE_DRIVER_START( harem )
-	/* basic machine hardware */
-	MDRV_IMPORT_FROM(galaxian_base)
-	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(harem_cpu1,0)
-	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
-
-	MDRV_CPU_ADD(Z80, 1620000)
-	/* audio CPU */
-	MDRV_CPU_PROGRAM_MAP(harem_cpu2,0)
-	MDRV_CPU_IO_MAP(harem_cpu2_io,0)
-
-	MDRV_MACHINE_RESET(NULL)
-
-	MDRV_PALETTE_INIT(rockclim)
-	MDRV_PALETTE_LENGTH(32)
-
-	MDRV_VIDEO_START(galaxian_plain)
-
-	MDRV_SOUND_ADD(AY8910, 2000000)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.33/3)
-
-	MDRV_SOUND_ADD(AY8910, 2000000)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.33/3)
-
-	MDRV_SOUND_ADD(AY8910, 2000000)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.33/3)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( tazzmang )
@@ -6705,26 +6589,6 @@ ROM_START( hunchbkg )
 	ROM_LOAD( "gal_hb_cp",    0x0000, 0x0020, CRC(cbff6762) SHA1(4515a6e12a0a5c485a55291feee17a571120a549) )
 ROM_END
 
-ROM_START( harem )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )
-	ROM_LOAD( "p0_ic85.bin",  0x0000, 0x2000, CRC(4521b753) SHA1(9033f9c3be8fec1e5ff251e9f60faaf3848a1a1e) )
-	ROM_LOAD( "p1_ic87.bin",  0x8000, 0x2000, BAD_DUMP CRC(3cc5d1e8) SHA1(827e2d20de2a00ec016ead249ed3afdccd0c856c) )
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )
-	ROM_LOAD( "s1_ic12.bin",  0x0000, 0x2000, CRC(b54799dd) SHA1(b6aeb010257cba48a52afd33b4f8031c7d99550c) )
-	ROM_LOAD( "s2_ic13.bin",  0x2000, 0x1000, CRC(2d5573a4) SHA1(1fdcd99d89e078509634742b2116a35bb199fe4b) )
-
-	ROM_REGION( 0x2000, REGION_SOUND1, 0 )
-	ROM_LOAD( "a1_ic25.bin",  0x0000, 0x2000, CRC(279f923a) SHA1(166b1b625997766f0de7cc18af52c42268022fcb) )
-
-	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "m0_ic36.bin",  0x0000, 0x2000, CRC(64b3c6d6) SHA1(e71092585f7ffdae85b2a4c9add1bc71e5a608a8) )
-	ROM_LOAD( "m1_ic37.bin",  0x2000, 0x2000, CRC(cb0324fb) SHA1(61612f683810339d5d5f31daa4c475d0338d446f) )
-
-	ROM_REGION( 0x0020, REGION_PROMS, 0 )
-	ROM_LOAD( "harem.clr",    0x0000, 0x0020, CRC(c9a2bf73) SHA1(dad65ebf43a5df147e334afd552e67f5fcd26df7) )
-ROM_END
-
 ROM_START( tazzmang )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "tazzm1.4k",    0x0000, 0x1000, CRC(a14480a1) SHA1(60dac6b57e8331cc4daedaf87faf3e3acc68f378) )
@@ -7049,7 +6913,6 @@ GAME( 1984, drivfrcg, drivfrcp, drivfrcg, drivfrcg, 0,        ROT90,  "Shinkai I
 GAME( 1985, drivfrcb, drivfrcp, drivfrcg, drivfrcg, 0,        ROT90,  "bootleg", "Driving Force (Galaxian conversion bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1983, bongo,    0,        bongo,    bongo,    0,	      ROT90,  "Jetsoft", "Bongo", GAME_SUPPORTS_SAVE )
 GAME( 1983, hunchbkg, hunchbak,	hunchbkg, hunchbkg, 0,        ROT90,  "Century Electronics", "Hunchback (Galaxian hardware)", GAME_SUPPORTS_SAVE )
-GAME( 1983, harem,    0,        harem,    harem,    0,        ROT90,  "I.G.R.", "Harem", GAME_NO_SOUND | GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
 GAME( 1982, tazzmang, tazmania,	tazzmang, tazzmang, 0,        ROT90,  "bootleg", "Tazz-Mania (Galaxian Hardware)", GAME_SUPPORTS_SAVE )
 GAME( 1986, racknrol, 0,        racknrol, racknrol, 0,	      ROT0,   "Status (Shinkai License)", "Rack + Roll", GAME_SUPPORTS_SAVE )
 GAME( 1986, hexpool,  racknrol, racknrol, racknrol, 0,	      ROT90,  "Shinkai", "Hex Pool", GAME_SUPPORTS_SAVE )
