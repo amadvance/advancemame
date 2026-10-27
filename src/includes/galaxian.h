@@ -113,6 +113,7 @@ VIDEO_START( rockclim );
 VIDEO_START( drivfrcg );
 VIDEO_START( bongo );
 VIDEO_START( scorpion );
+VIDEO_START( harem );
 VIDEO_START( racknrol );
 VIDEO_START( ad2083 );
 

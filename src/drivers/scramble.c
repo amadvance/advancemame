@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Nicola Salmoria
+// copyright-holders:Nicola Salmoria, Olivier Galibert
 /***************************************************************************
 
  Scramble hardware
@@ -25,6 +25,8 @@ Notes:
 ***************************************************************************/
 
 #include "driver.h"
+#include "streams.h"
+#include "sound/custom.h"
 #include "cpu/s2650/s2650.h"
 #include "machine/8255ppi.h"
 #include "sound/ay8910.h"
@@ -33,6 +35,359 @@ Notes:
 #include "sound/tms5110.h"
 #include "galaxian.h"
 
+
+static const UINT8 *hdt_rom;
+static sound_stream *hdt_stream;
+static UINT8 hdt_data, hdt_cs, hdt_cms, hdt_wr, hdt_intr;
+static UINT16 hdt_bpos, hdt_apos;
+static UINT8 hdt_mode, hdt_cur_segment, hdt_cur_repeat, hdt_segments, hdt_repeats;
+static UINT8 hdt_prev_pitch, hdt_pitch, hdt_pitch_pos, hdt_stop_after, hdt_cur_dac, hdt_cur_bits;
+static UINT32 hdt_zero_count;
+static UINT8 hdt_dac_index;
+static INT16 hdt_dac[128];
+
+static const short hdt_pcm_levels[8][8] = {
+	{  473,  945,  1418,  1890,  2363,  2835,  3308,  3781 },
+	{  655, 1310,  1966,  2621,  3276,  3931,  4586,  5242 },
+	{  925, 1851,  2776,  3702,  4627,  5553,  6478,  7404 },
+	{ 1249, 2498,  3747,  4996,  6245,  7494,  8743,  9992 },
+	{ 1638, 3276,  4914,  6552,  8190,  9828, 11466, 13104 },
+	{ 2252, 4504,  6757,  9009, 11261, 13514, 15766, 18018 },
+	{ 2989, 5979,  8968, 11957, 14947, 17936, 20925, 23915 },
+	{ 4095, 8190, 12285, 16380, 20475, 24570, 28665, 32760 },
+};
+
+static const int hdt_delta1[16] = { -4, -4, -1, -1, -2, -2, 0, 0, 0, 0, 2, 2, 1, 1, 4, 4 };
+static const int hdt_delta2[16] = { 0, -1, -2, -3, 1, 0, -1, -2, 2, 1, 0, -1, 3, 2, 1, 0 };
+
+static const int hdt_pitch_vals[32] = {
+	97, 95, 92, 89, 87, 84, 82, 80, 77, 75, 73, 71, 69, 67, 65, 63,
+	61, 60, 58, 56, 55, 53, 52, 50, 49, 48, 46, 45, 43, 42, 41, 40
+};
+
+static void hdt_write(UINT8 *adr, UINT8 vol, INT8 dac)
+{
+	INT16 v;
+	dac &= 15;
+	if(dac >= 9)
+		v = -hdt_pcm_levels[vol][15-dac];
+	else if(dac)
+		v = hdt_pcm_levels[vol][dac-1];
+	else
+		v = 0;
+	hdt_dac[(*adr)++] = v;
+}
+
+static UINT8 hdt_pitch_next(UINT8 val, UINT8 prev, int step)
+{
+	int delta, nv;
+
+	delta = val & 0xf;
+	if(delta > step + 1)
+		delta = step + 1;
+	if(val & 0x10)
+		delta = -delta;
+
+	nv = prev + delta;
+	if(nv < 0)
+		nv = 0;
+	else if(nv > 31)
+		nv = 31;
+	return nv;
+}
+
+static void hdt_set_intr(UINT8 intr)
+{
+	hdt_intr = intr;
+}
+
+static void hdt_start_command(UINT8 cmd)
+{
+	hdt_bpos = ((hdt_rom[cmd*2] << 8) | hdt_rom[cmd*2+1]) & 0x3fff;
+	hdt_cur_segment = hdt_segments = hdt_cur_repeat = hdt_repeats = 0;
+	hdt_dac_index = 128;
+	hdt_zero_count = 0;
+	hdt_set_intr(0);
+}
+
+static void hdt_step_mode_0(void)
+{
+	INT8 dac = 0;
+	int i, k, l;
+	UINT8 wpos = 0;
+	UINT8 h = hdt_rom[hdt_apos];
+	UINT16 bits = 0x80;
+	UINT8 vol = h >> 5;
+	UINT8 pitch_id = hdt_cur_segment ? hdt_pitch_next(h, hdt_prev_pitch, hdt_cur_repeat) : h & 0x1f;
+
+	hdt_pitch = hdt_pitch_vals[pitch_id];
+
+	for(i=0; i<32; i++)
+		hdt_dac[wpos++] = 0;
+
+	for(k=1; k != 9; k++) {
+		bits |= hdt_rom[hdt_apos+k] << 8;
+		for(l=0; l<4; l++) {
+			dac += hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+		bits >>= 8;
+	}
+
+	hdt_write(&wpos, vol, dac);
+
+	for(k=7; k >= 0; k--) {
+		bits = (bits << 8) | (k ? hdt_rom[hdt_apos+k] : 0x80);
+		for(l=3; l>=0; l--) {
+			dac -= hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+	}
+
+	for(i=0; i<31; i++)
+		hdt_dac[wpos++] = 0;
+
+	hdt_cur_repeat++;
+	if(hdt_cur_repeat == hdt_repeats) {
+		hdt_apos += 9;
+		hdt_prev_pitch = pitch_id;
+		hdt_cur_repeat = 0;
+		hdt_cur_segment++;
+	}
+}
+
+static void hdt_step_mode_1(void)
+{
+	logerror("Digitalker mode 1 unsupported");
+	hdt_zero_count = 1;
+	hdt_cur_segment = hdt_segments;
+}
+
+static void hdt_step_mode_2(void)
+{
+	INT8 dac = 0;
+	int k, l;
+	UINT8 wpos=0;
+	UINT8 h = hdt_rom[hdt_apos];
+	UINT16 bits = 0x80;
+	UINT8 vol = h >> 5;
+	UINT8 pitch_id = hdt_cur_segment ? hdt_pitch_next(h, hdt_prev_pitch, hdt_cur_repeat) : h & 0x1f;
+
+	hdt_pitch = hdt_pitch_vals[pitch_id];
+
+	for(k=1; k != 9; k++) {
+		bits |= hdt_rom[hdt_apos+k] << 8;
+		for(l=0; l<4; l++) {
+			dac += hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+		bits >>= 8;
+	}
+
+	hdt_write(&wpos, vol, dac);
+
+	for(k=7; k >= 0; k--) {
+		int limit = k ? 0 : 1;
+		bits = (bits << 8) | (k ? hdt_rom[hdt_apos+k] : 0x80);
+		for(l=3; l>=limit; l--) {
+			dac -= hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+	}
+
+	hdt_write(&wpos, vol, dac);
+
+	for(k=1; k != 9; k++) {
+		int start = k == 1 ? 1 : 0;
+		bits |= hdt_rom[hdt_apos+k] << 8;
+		for(l=start; l<4; l++) {
+			dac += hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+		bits >>= 8;
+	}
+
+	hdt_write(&wpos, vol, dac);
+
+	for(k=7; k >= 0; k--) {
+		int limit = k ? 0 : 1;
+		bits = (bits << 8) | (k ? hdt_rom[hdt_apos+k] : 0x80);
+		for(l=3; l>=limit; l--) {
+			dac -= hdt_delta1[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+	}
+
+	hdt_cur_repeat++;
+	if(hdt_cur_repeat == hdt_repeats) {
+		hdt_apos += 9;
+		hdt_prev_pitch = pitch_id;
+		hdt_cur_repeat = 0;
+		hdt_cur_segment++;
+	}
+}
+
+static void hdt_step_mode_3(void)
+{
+	UINT8 h = hdt_rom[hdt_apos];
+	UINT8 vol = h >> 5;
+	UINT16 bits;
+	UINT8 dac, wpos;
+	int apos;
+	int k, l;
+
+	hdt_pitch = hdt_pitch_vals[h & 0x1f];
+	if(hdt_cur_segment == 0 && hdt_cur_repeat == 0) {
+		hdt_cur_bits = 0x40;
+		hdt_cur_dac = 0;
+	}
+	bits = hdt_cur_bits;
+	dac = 0;
+
+	apos = hdt_apos + 1 + 32*hdt_cur_segment;
+	wpos = 0;
+	for(k=0; k != 32; k++) {
+		bits |= hdt_rom[apos++] << 8;
+		for(l=0; l<4; l++) {
+			dac += hdt_delta2[(bits >> (6+2*l)) & 15];
+			hdt_write(&wpos, vol, dac);
+		}
+		bits >>= 8;
+	}
+
+	hdt_cur_bits = bits;
+	hdt_cur_dac = dac;
+
+	hdt_cur_segment++;
+	if(hdt_cur_segment == hdt_segments) {
+		hdt_cur_segment = 0;
+		hdt_cur_repeat++;
+	}
+}
+
+static void hdt_step(void)
+{
+	if(hdt_cur_segment == hdt_segments || hdt_cur_repeat == hdt_repeats) {
+		if(hdt_stop_after == 0 && hdt_bpos == 0xffff)
+			return;
+		if(hdt_stop_after == 0) {
+			UINT8 v1 = hdt_rom[hdt_bpos++];
+			UINT8 v2 = hdt_rom[hdt_bpos++];
+			UINT8 v3 = hdt_rom[hdt_bpos++];
+			hdt_apos = v2 | ((v3 << 8) & 0x3f00);
+			hdt_segments = (v1 & 15) + 1;
+			hdt_repeats = ((v1 >> 4) & 7) + 1;
+			hdt_mode = (v3 >> 6) & 3;
+			hdt_stop_after = (v1 & 0x80) != 0;
+
+			hdt_cur_segment = 0;
+			hdt_cur_repeat = 0;
+
+			if(!hdt_apos) {
+				hdt_zero_count = 40*128*hdt_segments*hdt_repeats;
+				hdt_segments = 0;
+				hdt_repeats = 0;
+				return;
+			}
+		} else if(hdt_stop_after == 1) {
+			hdt_bpos = 0xffff;
+			hdt_zero_count = 81920;
+			hdt_stop_after = 2;
+			hdt_cur_segment = 0;
+			hdt_cur_repeat = 0;
+			hdt_segments = 0;
+			hdt_repeats = 0;
+		} else {
+			hdt_stop_after = 0;
+			hdt_set_intr(1);
+		}
+	}
+
+	switch(hdt_mode) {
+	case 0: hdt_step_mode_0(); break;
+	case 1: hdt_step_mode_1(); break;
+	case 2: hdt_step_mode_2(); break;
+	case 3: hdt_step_mode_3(); break;
+	}
+	if(!hdt_zero_count)
+		hdt_dac_index = 0;
+}
+
+static void hdt_stream_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	stream_sample_t *out = outputs[0];
+	int pos = 0;
+	while (pos < samples)
+	{
+		if (!hdt_zero_count && hdt_dac_index == 128) hdt_step();
+		if (hdt_zero_count) { int n = MIN(samples - pos, hdt_zero_count); memset(out + pos, 0, n * sizeof(*out)); pos += n; hdt_zero_count -= n; }
+		else if (hdt_dac_index != 128)
+		{
+			while (pos < samples && hdt_dac_index != 128)
+			{
+				out[pos++] = hdt_dac[hdt_dac_index];
+				if (++hdt_pitch_pos == hdt_pitch) { hdt_pitch_pos = 0; hdt_dac_index++; }
+			}
+		}
+		else { memset(out + pos, 0, (samples - pos) * sizeof(*out)); break; }
+	}
+}
+
+static void *hdt_start(int clock, const struct CustomSound_interface *config)
+{
+	UINT8 *rom = auto_malloc(0x10000);
+	memset(rom, 0xff, 0x10000);
+	memcpy(rom, memory_region(REGION_SOUND1), MIN(0x4000, memory_region_length(REGION_SOUND1)));
+	hdt_rom = rom;
+	hdt_stream = stream_create(0, 1, clock / 4, 0, hdt_stream_update);
+	hdt_dac_index = 128; hdt_data = 0xff; hdt_cs = hdt_cms = hdt_wr = 1; hdt_bpos = 0xffff; hdt_intr = 1;
+	return hdt_stream;
+}
+
+static WRITE8_HANDLER( harem_speech_data_w )
+{
+	stream_update(hdt_stream, 0);
+	hdt_data = data;
+}
+
+static WRITE8_HANDLER( harem_speech_control_w )
+{
+	int cs = data & 1, cms = (data >> 1) & 1, wr = (data >> 2) & 1;
+	stream_update(hdt_stream, 0);
+	if (cs != hdt_cs)
+	{
+		hdt_cs = cs;
+		if (!cs && !hdt_wr) { if (hdt_cms) hdt_set_intr(1); else hdt_start_command(hdt_data); }
+	}
+	hdt_cms = cms;
+	if (wr != hdt_wr)
+	{
+		hdt_wr = wr;
+		if (!wr && !hdt_cs) { if (hdt_cms) hdt_set_intr(1); else hdt_start_command(hdt_data); }
+	}
+}
+
+static READ8_HANDLER( harem_speech_status_r )
+{
+	stream_update(hdt_stream, 0);
+	return hdt_intr;
+}
+
+static void hdt_reset(void *token)
+{
+	stream_update(hdt_stream, 0);
+	hdt_data = 0xff;
+	hdt_cs = hdt_cms = hdt_wr = hdt_intr = 1;
+	hdt_bpos = 0xffff;
+	hdt_apos = hdt_mode = hdt_cur_segment = hdt_cur_repeat = 0;
+	hdt_segments = hdt_repeats = hdt_prev_pitch = hdt_pitch = hdt_pitch_pos = 0;
+	hdt_stop_after = hdt_cur_dac = hdt_cur_bits = 0;
+	hdt_zero_count = 0;
+	hdt_dac_index = 128;
+}
+
+static const struct CustomSound_interface harem_speech_interface = { hdt_start, 0, hdt_reset, 0 };
+static struct AY8910interface harem_ay_interface = { 0, 0, harem_speech_data_w, harem_speech_control_w };
 
 /***************************************************************************
     AD2083 TMS5110 implementation (still wrong!)
@@ -125,6 +480,99 @@ static MACHINE_START( ad2083 )
 	return 0;
 }
 
+
+static UINT8 *harem_data, *harem_opcodes;
+static UINT8 harem_mode, harem_bit, harem_clk, harem_count;
+
+static void harem_set_bank(int bank)
+{
+	memory_set_bankptr(1, harem_data + bank * 0x2000);
+	memory_set_decrypted_region(0, 0x8000, 0x9fff, harem_opcodes + bank * 0x2000);
+}
+
+static MACHINE_RESET( harem )
+{
+	machine_reset_scramble();
+	harem_mode = harem_bit = harem_clk = harem_count = 0;
+	harem_set_bank(0);
+}
+
+static WRITE8_HANDLER( harem_bit_w ) { harem_bit = data; }
+static WRITE8_HANDLER( harem_reset_w ) { harem_mode = harem_count = 0; }
+static WRITE8_HANDLER( harem_clock_w )
+{
+	if ((data & 1) && !(harem_clk & 1))
+	{
+		harem_mode = ((harem_mode >> 1) | ((harem_bit & 1) << 3)) & 15;
+		if (++harem_count == 4)
+		{
+			int bank = harem_mode == 9 ? 1 : harem_mode == 10 ? 2 : 0;
+			harem_set_bank(bank);
+			harem_mode = harem_count = 0;
+		}
+	}
+	harem_clk = data;
+}
+
+static ADDRESS_MAP_START( harem_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_ROM
+	AM_RANGE(0x2000, 0x27ff) AM_RAM
+	AM_RANGE(0x4000, 0x403f) AM_RAM AM_WRITE(galaxian_attributesram_w) AM_BASE(&galaxian_attributesram)
+	AM_RANGE(0x4040, 0x405f) AM_RAM AM_BASE(&galaxian_spriteram) AM_SIZE(&galaxian_spriteram_size)
+	AM_RANGE(0x4060, 0x407f) AM_RAM AM_BASE(&galaxian_bulletsram) AM_SIZE(&galaxian_bulletsram_size)
+	AM_RANGE(0x4080, 0x47ff) AM_RAM
+	AM_RANGE(0x4800, 0x4bff) AM_READWRITE(galaxian_videoram_r, galaxian_videoram_w) AM_MIRROR(0x400) AM_BASE(&galaxian_videoram)
+	AM_RANGE(0x5000, 0x5000) AM_WRITE(racknrol_tiles_bank_w) AM_BASE(&racknrol_tiles_bank)
+	AM_RANGE(0x5800, 0x5800) AM_READWRITE(watchdog_reset_r, galaxian_nmi_enable_w)
+	AM_RANGE(0x5801, 0x5801) AM_WRITE(harem_clock_w)
+	AM_RANGE(0x5802, 0x5802) AM_WRITE(harem_bit_w)
+	AM_RANGE(0x5803, 0x5803) AM_WRITE(harem_reset_w)
+	AM_RANGE(0x5804, 0x5804) AM_WRITE(galaxian_coin_counter_w)
+	AM_RANGE(0x5805, 0x5805) AM_WRITE(galaxian_gfxbank_w)
+	AM_RANGE(0x5806, 0x5806) AM_WRITE(galaxian_flip_screen_x_w)
+	AM_RANGE(0x5807, 0x5807) AM_WRITE(galaxian_flip_screen_y_w)
+	AM_RANGE(0x6100, 0x6103) AM_READWRITE(ppi8255_0_r, ppi8255_0_w)
+	AM_RANGE(0x6200, 0x6203) AM_READWRITE(ppi8255_1_r, ppi8255_1_w)
+	AM_RANGE(0x8000, 0x9fff) AM_READ(MRA8_BANK1)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( harem_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x2fff) AM_ROM
+	AM_RANGE(0x6000, 0x6000) AM_READ(harem_speech_status_r)
+	AM_RANGE(0x8000, 0x83ff) AM_RAM
+	AM_RANGE(0xa000, 0xafff) AM_WRITENOP
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( harem_sound_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x04, 0x04) AM_WRITE(AY8910_control_port_2_w)
+	AM_RANGE(0x08, 0x08) AM_READWRITE(AY8910_read_port_2_r, AY8910_write_port_2_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0x20, 0x20) AM_READWRITE(AY8910_read_port_0_r, AY8910_write_port_0_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(AY8910_control_port_1_w)
+	AM_RANGE(0x80, 0x80) AM_READWRITE(AY8910_read_port_1_r, AY8910_write_port_1_w)
+ADDRESS_MAP_END
+
+static DRIVER_INIT( harem )
+{
+	int i;
+	const UINT8 *rom = memory_region(REGION_CPU1) + 0x8000;
+	harem_data = auto_malloc(0x6000);
+	harem_opcodes = auto_malloc(0x6000);
+	for (i = 0; i < 0x2000; i++)
+	{
+		UINT8 x = rom[i];
+		harem_opcodes[i] = BITSWAP8(x,7,0,5,2,3,4,1,6);
+		harem_data[i] = BITSWAP8(x,7,6,5,0,3,4,1,2);
+		harem_opcodes[0x2000+i] = BITSWAP8(x,7,0,5,6,3,2,1,4);
+		harem_data[0x2000+i] = BITSWAP8(x,7,4,5,0,3,6,1,2);
+		harem_opcodes[0x4000+i] = BITSWAP8(x,7,2,5,6,3,0,1,4);
+		harem_data[0x4000+i] = BITSWAP8(x,7,2,5,4,3,0,1,6);
+	}
+	harem_mode = harem_bit = harem_clk = harem_count = 0;
+	harem_set_bank(0);
+	init_scramble_ppi();
+}
 
 static ADDRESS_MAP_START( scramble_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x3fff) AM_READ(MRA8_ROM)
@@ -1678,6 +2126,49 @@ static const gfx_layout sfx_spritelayout =
 	32*8	/* every sprite takes 32 consecutive bytes */
 };
 
+INPUT_PORTS_START( harem )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x03, "2" )
+	PORT_DIPSETTING(    0x02, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Infinite ) )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_3C ) )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
+	PORT_DIPNAME( 0xa0, 0xa0, "Initial Bonus Points" )
+	PORT_DIPSETTING(    0xa0, "500" )
+	PORT_DIPSETTING(    0x80, "850" )
+	PORT_DIPSETTING(    0x20, "1150" )
+	PORT_DIPSETTING(    0x00, "1350" )
+INPUT_PORTS_END
+
 static const gfx_layout ad2083_charlayout =
 {
 	8,8,	/* 8*8 characters */
@@ -1806,6 +2297,24 @@ static MACHINE_DRIVER_START( scramble )
 
 	MDRV_SOUND_ADD_TAG("8910.2", AY8910, 14318000/8)
 	MDRV_SOUND_CONFIG(scobra_ay8910_interface_2)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.16)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( harem )
+	MDRV_IMPORT_FROM(scramble)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(harem_map, 0)
+	MDRV_CPU_MODIFY("audio")
+	MDRV_CPU_PROGRAM_MAP(harem_sound_map, 0)
+	MDRV_CPU_IO_MAP(harem_sound_io, 0)
+	MDRV_MACHINE_RESET(harem)
+	MDRV_GFXDECODE(ad2083_gfxdecodeinfo)
+	MDRV_VIDEO_START(harem)
+	MDRV_SOUND_ADD(AY8910, 14318000/8)
+	MDRV_SOUND_CONFIG(harem_ay_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.16)
+	MDRV_SOUND_ADD(CUSTOM, 4000000)
+	MDRV_SOUND_CONFIG(harem_speech_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.16)
 MACHINE_DRIVER_END
 
@@ -2974,6 +3483,26 @@ ROM_START( ad2083 )
 ROM_END
 
 
+ROM_START( harem )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "harem_prom0.ic85", 0x0000, 0x2000, CRC(4521b753) SHA1(9033f9c3be8fec1e5ff251e9f60faaf3848a1a1e) )
+	ROM_LOAD( "harem_prom1.ic87", 0x8000, 0x2000, CRC(3cc5d1e8) SHA1(827e2d20de2a00ec016ead249ed3afdccd0c856c) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "harem_sound1.ic12", 0x0000, 0x2000, CRC(b54799dd) SHA1(b6aeb010257cba48a52afd33b4f8031c7d99550c) )
+	ROM_LOAD( "harem_sound2.ic13", 0x2000, 0x1000, CRC(2d5573a4) SHA1(1fdcd99d89e078509634742b2116a35bb199fe4b) )
+
+	ROM_REGION( 0x2000, REGION_SOUND1, 0 )
+	ROM_LOAD( "harem_h1+h2.ic25",  0x0000, 0x2000, CRC(279f923a) SHA1(166b1b625997766f0de7cc18af52c42268022fcb) )
+
+	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "harem_mask1.ic37", 0x0000, 0x2000, CRC(cb0324fb) SHA1(61612f683810339d5d5f31daa4c475d0338d446f) )
+	ROM_LOAD( "harem_mask0.ic36", 0x2000, 0x2000, CRC(64b3c6d6) SHA1(e71092585f7ffdae85b2a4c9add1bc71e5a608a8) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "74s288.ic46", 0x0000, 0x0020, CRC(c9a2bf73) SHA1(dad65ebf43a5df147e334afd552e67f5fcd26df7) )
+ROM_END
+
 GAME( 1981, scramble, 0,        fscramble,scramble, scramble,     ROT90, "Konami", "Scramble", GAME_SUPPORTS_SAVE )
 GAME( 1981, scrambls, scramble, fscramble,scramble, scrambls,     ROT90, "[Konami] (Stern license)", "Scramble (Stern)", GAME_SUPPORTS_SAVE )
 GAME( 1981, explorer, scramble, explorer, explorer, 0,		      ROT90, "bootleg", "Explorer", GAME_SUPPORTS_SAVE )
@@ -3008,3 +3537,4 @@ GAME( 198?, mimonscr, mimonkey, mimonscr, mimonscr, mimonscr,     ROT90, "bootle
 GAME( 1982, scorpion, 0,		scorpion, scorpion, scorpion,	  ROT90, "Zaccaria", "Scorpion (set 1)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE)
 GAME( 1982, scrpiona, scorpion, scorpion, scorpion, scorpion,	  ROT90, "Zaccaria", "Scorpion (set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE)
 GAME( 1983, ad2083,   0,        ad2083,   ad2083,   ad2083,       ROT90, "Midcoin", "A. D. 2083", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE)
+GAME( 1983, harem, 0, harem, harem, harem, ROT90, "I.G.R.", "Harem", 0 )
