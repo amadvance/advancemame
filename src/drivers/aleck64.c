@@ -782,4 +782,4 @@ GAME( 1998, starsldr, aleck64, aleck64, starsldr, aleck64, ROT0, "Hudson / Seta"
 GAME( 1998, vivdolls, aleck64, aleck64, vivdolls, aleck64, ROT0, "Visco",                   "Vivid Dolls", GAME_IMPERFECT_GRAPHICS )
 GAME( 2003, twrshaft, aleck64, aleck64, twrshaft, aleck64, ROT0, "Aruze",                   "Tower & Shaft", GAME_IMPERFECT_GRAPHICS )
 GAME( 2003, doncdoon, aleck64, aleck64, doncdoon, aleck64, ROT0, "Aruze",                   "Hanabi de Doon! - Don-chan Puzzle", GAME_IMPERFECT_GRAPHICS )
-GAME( 2003, kurufev,  aleck64, aleck64, kurufev,  aleck64, ROT0, "Aruze / Takumi",          "Kurukuru Fever", GAME_IMPERFECT_GRAPHICS )
+GAME( 2003, kurufev,  aleck64, aleck64, kurufev,  aleck64, ROT0, "Aruze / Takumi",          "Kurukuru Fever", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS ) /* unsupported dynamic video area / interlacing during gameplay */
