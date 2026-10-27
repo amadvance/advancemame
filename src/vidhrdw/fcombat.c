@@ -30,13 +30,13 @@ static void get_bg_tile_info(int tile_index)
 	//palno=(tile_index-(tile_index/32*16)*32*16)/32;
 
 	tileno = memory_region(REGION_USER1)[tile_index];
-	palno=0x18;//memory_region(REGION_USER2)[tile_index]>>3;
+	palno=((tileno>>2)&3)|((tileno>>4)&0x0c);
 	SET_TILE_INFO(2,tileno,palno,0)
 }
 
 UINT8 fcombat_cocktail_flip;
 
-static UINT8 char_palette, sprite_palette;
+static UINT8 char_palette, sprite_bank;
 static UINT8 char_bank;
 
 
@@ -88,23 +88,11 @@ PALETTE_INIT( fcombat )
 
 	/* color_prom now points to the beginning of the char lookup table */
 
-	/* fg chars */
-	for (i = 0; i < 256; i++)
-		colortable[i + 0x000] = 16 + (color_prom[(i & 0xc0) | ((i & 3) << 4) | ((i >> 2) & 15)] & 15);
-	color_prom += 256;
+	for (i = 0; i < 0x200; i++)
+		colortable[i] = 16 + (color_prom[(i & 0x1c0) | ((i & 3) << 4) | ((i >> 2) & 15)] & 15);
 
-	/* color_prom now points to the beginning of the sprite lookup table */
-
-	/* sprites */
-	for (i = 0; i < 256; i++)
-		colortable[i + 0x100] = 16 + (color_prom[(i & 0xc0) | ((i & 3) << 4) | ((i >> 2) & 15)] & 15);
-	color_prom += 256;
-
-	/* bg chars (this is not the full story... there are four layers mixed */
-	/* using another PROM */
-	for (i = 0; i < 256; i++)
-		//colortable[i + 0x200] = 16 + (color_prom[(i & 0xc0) | ((i & 3) << 4) | ((i >> 2) & 15)] & 15);
-	colortable[i + 0x200] = *color_prom++ & 15;
+	for (i = 0x200; i < 0x300; i++)
+		colortable[i] = color_prom[(i & 0x3c0) | ((i & 3) << 4) | ((i >> 2) & 15)] & 15;
 }
 
 
@@ -143,7 +131,7 @@ WRITE8_HANDLER( fcombat_videoreg_w )
 	/* bits 4-5 unused */
 
 	/* bits 6-7 sprite lookup table bank */
-	sprite_palette = 0;//(data & 0xc0) >> 6;
+	sprite_bank = (data >> 6) & 3;
 	//ui_popup("%08x",data);
 }
 
@@ -151,11 +139,11 @@ WRITE8_HANDLER( fcombat_videoreg_w )
 
 VIDEO_UPDATE( fcombat )
 {
-	int sx, sy, offs, i;
+	int sx, sy, offs, i, j;
 
 	/* draw background */
 	tilemap_set_scrolly( bgmap,0, fcombat_sh);
-	tilemap_set_scrollx( bgmap,0, fcombat_sv-24);
+	tilemap_set_scrollx( bgmap,0, fcombat_cocktail_flip ? fcombat_sv+6 : fcombat_sv-8);
 
 tilemap_mark_all_tiles_dirty(bgmap);
 	tilemap_draw(bitmap,cliprect,bgmap,0,0);
@@ -165,59 +153,67 @@ tilemap_mark_all_tiles_dirty(bgmap);
 	for (i = 0; i < spriteram_size; i += 4)
 	{
 		int flags = spriteram[i + 0];
-		int y = spriteram[i + 1] ^ 255;
+		int y = 256 - spriteram[i + 1];
 		int code = spriteram[i + 2]+((flags&0x20)<<3);
-		int x = spriteram[i + 3] * 2 + 72;
+		int x = spriteram[i + 3] * 2 + (flags&1) + 52;
 
 		int xflip = flags & 0x80;
 		int yflip = flags & 0x40;
-		int doubled =0;// flags & 0x10;
-		int wide = flags & 0x08;
-		int code2 = code;
 
-		int color = ((flags >> 1) & 0x03) | ((code >> 5) & 0x04) | (code & 0x08) | (sprite_palette * 16);
-				const gfx_element *gfx =  Machine->gfx[1];
+		int color = ((flags >> 1) & 0x03) | ((code >> 5) & 0x04) | (code & 0x08) | ((code >> 4) & 0x10);
+		const gfx_element *gfx = Machine->gfx[1];
+		if ((code & 0x108) == 0x108)
+		{
+			static const int mask[4] = { 0x308, 0x300, 0x08, 0x00 };
+			code ^= mask[sprite_bank];
+		}
 
 		if (fcombat_cocktail_flip)
 		{
-			x = 64*8 - gfx->width - x;
-			y = 32*8 - gfx->height - y;
-			if (wide) y -= gfx->height;
+			x = 64 * 8 - gfx->width - x + 2;
+			y = 32 * 8 - gfx->height - y + 2;
 			xflip = !xflip;
 			yflip = !yflip;
 		}
 
-		if (wide)
+		switch ((flags >> 3) & 3)
 		{
-			if (yflip)
-				code |= 0x10, code2 &= ~0x10;
-			else
-				code &= ~0x10, code2 |= 0x10;
+			// 16x16
+			case 0:
+				drawgfx(bitmap, gfx, code, color, xflip, yflip, x, y,
+				        cliprect, TRANSPARENCY_PEN, 0);
+				break;
 
-			drawgfx(bitmap, gfx, code2, color, xflip, yflip, x, y + gfx->height,
-			        cliprect, TRANSPARENCY_PEN, 0);
+			// 16x32
+			case 1:
+				if (fcombat_cocktail_flip)
+					y -= 16;
+				code &= ~0x10;
+
+				drawgfx(bitmap, gfx, code | (yflip ? 16 : 0), color, xflip, yflip, x, y,
+				        cliprect, TRANSPARENCY_PEN, 0);
+				drawgfx(bitmap, gfx, code | (yflip ? 0 : 16), color, xflip, yflip, x, y + 16,
+				        cliprect, TRANSPARENCY_PEN, 0);
+				break;
+
+			// 16x64
+			case 2:
+				if (fcombat_cocktail_flip)
+					y -= 48;
+				code &= ~0x30;
+
+				for (j = 0; j < 4; j++)
+				{
+					int co = 16 * (j ^ (yflip ? 3 : 0));
+					drawgfx(bitmap, gfx, code | co, color, xflip, yflip, x, y + j * 16,
+					        cliprect, TRANSPARENCY_PEN, 0);
+				}
+				break;
+
+			// unused
+			case 3:
+				break;
 		}
-
-		if(flags&0x10)
-		{
-
-
-
-			drawgfx(bitmap, gfx, code2+16, color, xflip, yflip, x, y + gfx->height,
-			        cliprect, TRANSPARENCY_PEN, 0);
-			drawgfx(bitmap, gfx, code2+16*2, color, xflip, yflip, x, y + 2*gfx->height,
-			        cliprect, TRANSPARENCY_PEN, 0);
-			drawgfx(bitmap, gfx, code2+16*3, color, xflip, yflip, x, y + 3*gfx->height,
-			        cliprect, TRANSPARENCY_PEN, 0);
-
-		}
-
-
-
-		drawgfx(bitmap, gfx, code, color, xflip, yflip, x, y,
-		        cliprect, TRANSPARENCY_PEN, 0);
-
-		if (doubled) i += 4;
 	}
 
 	/* draw the visible text layer */
