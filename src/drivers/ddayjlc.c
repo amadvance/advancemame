@@ -58,12 +58,14 @@ $842f = lives
 
 static INT32 char_bank = 0;
 static tilemap *bg_tilemap;
+static tilemap *fg_tilemap;
 static UINT8 *bgram;
 static UINT8 *mainram;
 static INT32 bgadr=0;
 
 static INT32 sound_nmi_enable=0;
 static INT32 main_nmi_enable=0;
+static INT32 sound_irq_clock=0;
 
 static INT32 e00x_l[4];
 static INT32 e00x_d[4][2];
@@ -125,13 +127,14 @@ static WRITE8_HANDLER(prot_w)
 
 static WRITE8_HANDLER( char_bank_w )
 {
-	char_bank = data;
+	char_bank = data & 1;
+	tilemap_mark_all_tiles_dirty(fg_tilemap);
 }
 
 static WRITE8_HANDLER( ddayjlc_bgram_w )
 {
 	if(!offset)
-		tilemap_set_scrollx(bg_tilemap,0,data+8);
+		tilemap_set_scrollx(bg_tilemap,0,data);
 
 	if( bgram[offset] != data )
 	{
@@ -142,7 +145,8 @@ static WRITE8_HANDLER( ddayjlc_bgram_w )
 
 static WRITE8_HANDLER( ddayjlc_videoram_w )
 {
-		videoram[offset] = data;
+	videoram[offset] = data;
+	tilemap_mark_tile_dirty(fg_tilemap,offset);
 }
 
 
@@ -176,7 +180,13 @@ static WRITE8_HANDLER(bg2_w)
 static WRITE8_HANDLER( sound_w )
 {
 	soundlatch_w(offset,data);
-	cpunum_set_input_line_and_vector(1,0,HOLD_LINE,0xff);
+}
+
+static WRITE8_HANDLER( sound_irq_w )
+{
+	if (!(data & 1) && sound_irq_clock)
+		cpunum_set_input_line(1,0,HOLD_LINE);
+	sound_irq_clock = data & 1;
 }
 
 static WRITE8_HANDLER( i8257_CH0_w )
@@ -218,7 +228,7 @@ static ADDRESS_MAP_START( main_cpu, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe000, 0xe003) AM_WRITE(i8257_CH0_w)
 	AM_RANGE(0xe008, 0xe008) AM_WRITENOP
 	AM_RANGE(0xf000, 0xf000) AM_WRITE(sound_w)
-	AM_RANGE(0xf100, 0xf100) AM_WRITENOP
+	AM_RANGE(0xf100, 0xf100) AM_WRITE(sound_irq_w)
 	AM_RANGE(0xf080, 0xf080) AM_WRITE(char_bank_w)
 	AM_RANGE(0xf081, 0xf081) AM_WRITENOP
 	AM_RANGE(0xf083, 0xf083) AM_WRITE(i8257_LMSR_w)
@@ -334,21 +344,33 @@ static const gfx_decode gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0, &spritelayout,   0, 16 },
 	{ REGION_GFX2, 0, &charlayout,     0, 16 },
-	{ REGION_GFX3, 0, &charlayout,     0, 16 },
+	{ REGION_GFX3, 0, &charlayout, 0x100, 16 },
 
 	{ -1 }
 };
 
 static void get_tile_info_bg(int tile_index)
 {
-	int code = bgram[tile_index]+((bgram[tile_index+0x400]&(1<<3))<<(8-3));
+	UINT8 attr = bgram[tile_index+0x400];
+	int code = bgram[tile_index]+((attr&0x08)<<5);
+	int color = (attr&7)|((attr&0x40)>>3);
+	SET_TILE_INFO(2, code, color, 0)
+	tile_info.priority = (attr>>7)&1;
+}
 
-	SET_TILE_INFO(2, code, 0, 0)
+static void get_tile_info_fg(int tile_index)
+{
+	int code = videoram[tile_index]+(char_bank<<8);
+	int color = memory_region(REGION_PROMS)[0x400|((tile_index>>2)&0xe0)|(tile_index&0x1f)];
+	SET_TILE_INFO(1, code, color&0x0f, 0)
 }
 
 VIDEO_START( ddayjlc )
 {
-	bg_tilemap = tilemap_create(get_tile_info_bg,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32);
+	bg_tilemap = tilemap_create(get_tile_info_bg,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,32,32);
+	fg_tilemap = tilemap_create(get_tile_info_fg,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,32,32);
+	tilemap_set_transparent_pen(bg_tilemap,0);
+	tilemap_set_transparent_pen(fg_tilemap,0);
 
 	return 0;
 }
@@ -356,33 +378,44 @@ VIDEO_START( ddayjlc )
 VIDEO_UPDATE( ddayjlc )
 {
 	UINT32 i;
-	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
+	rectangle edge;
+	fillbitmap(bitmap, Machine->pens[0x100], cliprect);
+	tilemap_draw(bitmap,cliprect,bg_tilemap,1|TILEMAP_IGNORE_TRANSPARENCY,0);
 
 	for (i = 0; i < 0x400; i += 4)
 	{
 		INT32 flags = spriteram[i + 2];
-		INT32 y = 256-spriteram[i + 0]-8;
+		INT32 y = 256-spriteram[i]-8;
 		INT32 code = spriteram[i + 1];
-		INT32 x = spriteram[i + 3]-16;
+		INT32 x = spriteram[i + 3]-8;
 		INT32 xflip = flags&0x80;
-		INT32 yflip = (code&0x80);
-
-		code=(code&0x7f)|((flags&0x30)<<3);
-
-		drawgfx(bitmap, Machine->gfx[0], code, 1, xflip, yflip, x, y, cliprect, TRANSPARENCY_PEN, 0);
+		INT32 yflip = code&0x80;
+		code = (code&0x7f)|((flags&0x30)<<3);
+		drawgfx(bitmap, Machine->gfx[0], code, flags&0x0f, xflip, yflip, x, y, cliprect, TRANSPARENCY_PEN, 0);
 	}
 
+	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
+	tilemap_draw(bitmap,cliprect,fg_tilemap,0,0);
+	edge = *cliprect;
+	if (edge.max_x > 16) edge.max_x = 16;
+	if (edge.min_x <= edge.max_x)
+		tilemap_draw(bitmap,&edge,fg_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
+	edge = *cliprect;
+	if (edge.min_x < 239) edge.min_x = 239;
+	if (edge.min_x <= edge.max_x)
+		tilemap_draw(bitmap,&edge,fg_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
+}
+
+static PALETTE_INIT( ddayjlc )
+{
+	int i;
+	for (i = 0; i < 0x200; i++)
 	{
-		UINT32 x,y,c;
-		for(y=0;y<32;y++)
-			for(x=0;x<32;x++)
-			{
-				c=videoram[y*32+x];
-				if(x>1&&x<30)
-					drawgfx(bitmap, Machine->gfx[1], c+char_bank*0x100, 1, 0, 0, x*8, y*8, cliprect, TRANSPARENCY_PEN, 0);
-				else
-					drawgfx(bitmap, Machine->gfx[1], c+char_bank*0x100, 1, 0, 0, x*8, y*8, cliprect, TRANSPARENCY_NONE, 0);
-		}
+		int val = color_prom[i] | (color_prom[i+0x200] << 4);
+		int r = 0x21*((val>>0)&1) + 0x47*((val>>1)&1) + 0x97*((val>>2)&1);
+		int g = 0x21*((val>>3)&1) + 0x47*((val>>4)&1) + 0x97*((val>>5)&1);
+		int b = 0x47*((val>>6)&1) + 0x97*((val>>7)&1);
+		palette_set_color(i,r,g,b);
 	}
 }
 
@@ -404,7 +437,7 @@ static INTERRUPT_GEN( ddayjlc_snd_interrupt )
 }
 
 static MACHINE_DRIVER_START( ddayjlc )
-	MDRV_CPU_ADD(Z80,12000000/3)
+	MDRV_CPU_ADD(Z80,12000000/4)
 	MDRV_CPU_PROGRAM_MAP(main_cpu,0)
 	MDRV_CPU_VBLANK_INT(ddayjlc_interrupt,1)
 
@@ -424,18 +457,19 @@ static MACHINE_DRIVER_START( ddayjlc )
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
 
 	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(32)
+	MDRV_PALETTE_LENGTH(0x200)
+	MDRV_PALETTE_INIT(ddayjlc)
 
 	MDRV_VIDEO_START(ddayjlc)
 	MDRV_VIDEO_UPDATE(ddayjlc)
 
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 12000000/6)
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
 	MDRV_SOUND_CONFIG(ay8910_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 
-	MDRV_SOUND_ADD(AY8910, 12000000/6)
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -472,11 +506,12 @@ ROM_START( ddayjlc )
 	ROM_LOAD( "9",  0x08000, 0x2000, CRC(ccb82f09) SHA1(37c23f13aa0728bae82dba9e2858a8d81fa8afa5) )
 	ROM_LOAD( "10", 0x0a000, 0x2000, CRC(5452aba1) SHA1(03ef47161d0ab047c8675d6ffd3b7acf81f74721) )
 
-	ROM_REGION( 0x0400, REGION_PROMS, 0 )
-	ROM_LOAD( "prom1",  0x00000, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom2",  0x00100, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom3",  0x00200, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom4",  0x00300, 0x0100, NO_DUMP )
+	ROM_REGION( 0x0500, REGION_PROMS, 0 )
+	ROM_LOAD( "4l.bin",  0x00000, 0x0100, CRC(2c3fa534) SHA1(e4c0d06cf62459c1835cb27a4e659b01ad4be20c) )
+	ROM_LOAD( "5p.bin",  0x00100, 0x0100, CRC(4fd96b26) SHA1(0fb9928ab6c4ee937cefcf82145a4c9d43ca8517) )
+	ROM_LOAD( "4m.bin",  0x00200, 0x0100, CRC(e0ab9a8f) SHA1(77010c4039f9d408f40cea079c1ef56132ddbd2b) )
+	ROM_LOAD( "5n.bin",  0x00300, 0x0100, CRC(61d85970) SHA1(189e9da3dade54936872b80893b1318e5fbfbe5e) )
+	ROM_LOAD( "3l.bin",  0x00400, 0x0100, CRC(da6fe846) SHA1(e8386cf7f552facf2d1a5b7b63ca3d2f1801d215) )
 
 ROM_END
 
@@ -512,11 +547,12 @@ ROM_START( ddayjlca )
 	ROM_LOAD( "9",  0x08000, 0x2000, CRC(ccb82f09) SHA1(37c23f13aa0728bae82dba9e2858a8d81fa8afa5) )
 	ROM_LOAD( "10", 0x0a000, 0x2000, CRC(5452aba1) SHA1(03ef47161d0ab047c8675d6ffd3b7acf81f74721) )
 
-	ROM_REGION( 0x0400, REGION_PROMS, 0 )
-	ROM_LOAD( "prom1",  0x00000, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom2",  0x00100, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom3",  0x00200, 0x0100, NO_DUMP )
-	ROM_LOAD( "prom4",  0x00300, 0x0100, NO_DUMP )
+	ROM_REGION( 0x0500, REGION_PROMS, 0 )
+	ROM_LOAD( "4l.bin",  0x00000, 0x0100, CRC(2c3fa534) SHA1(e4c0d06cf62459c1835cb27a4e659b01ad4be20c) )
+	ROM_LOAD( "5p.bin",  0x00100, 0x0100, CRC(4fd96b26) SHA1(0fb9928ab6c4ee937cefcf82145a4c9d43ca8517) )
+	ROM_LOAD( "4m.bin",  0x00200, 0x0100, CRC(e0ab9a8f) SHA1(77010c4039f9d408f40cea079c1ef56132ddbd2b) )
+	ROM_LOAD( "5n.bin",  0x00300, 0x0100, CRC(61d85970) SHA1(189e9da3dade54936872b80893b1318e5fbfbe5e) )
+	ROM_LOAD( "3l.bin",  0x00400, 0x0100, CRC(da6fe846) SHA1(e8386cf7f552facf2d1a5b7b63ca3d2f1801d215) )
 
 ROM_END
 
@@ -580,5 +616,5 @@ static DRIVER_INIT( ddayjlc )
 
 }
 
-GAME( 1984, ddayjlc,  0,       ddayjlc, ddayjlc, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco - set 1)", GAME_IMPERFECT_GRAPHICS | GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, ddayjlca, ddayjlc, ddayjlc, ddayjlc, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco - set 2)", GAME_IMPERFECT_GRAPHICS | GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1984, ddayjlc,  0,       ddayjlc, ddayjlc, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco, set 1)", GAME_IMPERFECT_SOUND )
+GAME( 1984, ddayjlca, ddayjlc, ddayjlc, ddayjlc, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco, set 2)", GAME_IMPERFECT_SOUND )
