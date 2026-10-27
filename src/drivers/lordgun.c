@@ -32,6 +32,7 @@ To do:
 #include "machine/eeprom.h"
 #include "sound/3812intf.h"
 #include "sound/okim6295.h"
+#include "sound/ymf278b.h"
 
 // Variables defined in vidhrdw:
 
@@ -41,6 +42,7 @@ extern UINT16 *lordgun_vram_2, *lordgun_scroll_x_2, *lordgun_scroll_y_2;
 extern UINT16 *lordgun_vram_3, *lordgun_scroll_x_3, *lordgun_scroll_y_3;
 extern UINT16 *lordgun_scrollram;
 static UINT16 *lordgun_priority_ram, lordgun_priority;
+static UINT8 aliencha_dip_sel, aliencha_protection_data;
 extern int lordgun_whitescreen;
 
 extern struct
@@ -147,6 +149,64 @@ static WRITE8_HANDLER( lordgun_eeprom_w )
 	old = data;
 }
 
+static READ8_HANDLER( aliencha_dip_r )
+{
+	switch (aliencha_dip_sel & 0x70)
+	{
+		case 0x30: return readinputport(0);
+		case 0x60: return readinputport(1);
+		case 0x50: return readinputport(2);
+	}
+	return 0xff;
+}
+
+static READ8_HANDLER( aliencha_eeprom_r )
+{
+	return (EEPROM_read_bit() & 1) | (readinputport(3) & 0xfe);
+}
+
+static WRITE8_HANDLER( aliencha_eeprom_w )
+{
+	lordgun_whitescreen = !(data & 0x02);
+	coin_counter_w(0, data & 0x08);
+	coin_counter_w(1, data & 0x10);
+	EEPROM_write_bit(data & 0x80);
+	EEPROM_set_cs_line((data & 0x20) ? CLEAR_LINE : ASSERT_LINE);
+	EEPROM_set_clock_line((data & 0x40) ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static WRITE8_HANDLER( aliencha_dip_w ) { aliencha_dip_sel = data; }
+
+static READ16_HANDLER( aliencha_protection_r )
+{
+	UINT8 x;
+	switch (offset & 0x60)
+	{
+		case 0x00/2:
+			aliencha_protection_data = (aliencha_protection_data - 1) & 0x1f;
+			return 0;
+		case 0x40/2:
+			x = aliencha_protection_data;
+			aliencha_protection_data = ((((x >> 3) ^ (x >> 2)) & 1) << 4) |
+				((((x >> 2) ^ (x >> 1)) & 1) << 3) |
+				((((x >> 1) ^ x) & 1) << 2) |
+				((((x >> 4) ^ x) & 1) << 1) |
+				(((x >> 4) ^ (x >> 3)) & 1);
+			return 0;
+		case 0x80/2:
+			return ((aliencha_protection_data & 0x11) == 0 ||
+				(aliencha_protection_data & 0x06) != 0x06 ||
+				(aliencha_protection_data & 0x18) == 0) ? 0x20 : 0;
+	}
+	return 0;
+}
+
+static WRITE16_HANDLER( aliencha_protection_w )
+{
+	if ((offset & 0x60) == 0xc0/2)
+		aliencha_protection_data = 0;
+}
+
 static WRITE16_HANDLER( lordgun_priority_w )
 {
 	COMBINE_DATA(&lordgun_priority);
@@ -204,6 +264,32 @@ static ADDRESS_MAP_START( lordgun_map, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 
+static ADDRESS_MAP_START( aliencha_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x1fffff) AM_ROM
+	AM_RANGE(0x200000, 0x20ffff) AM_RAM
+	AM_RANGE(0x210000, 0x21ffff) AM_RAM AM_BASE(&lordgun_priority_ram)	// PRIORITY
+	AM_RANGE(0x300000, 0x30ffff) AM_READWRITE(MRA16_RAM, lordgun_vram_0_w) AM_BASE(&lordgun_vram_0)	// DISPLAY
+	AM_RANGE(0x310000, 0x313fff) AM_READWRITE(MRA16_RAM, lordgun_vram_1_w) AM_BASE(&lordgun_vram_1)	// DISPLAY
+	AM_RANGE(0x314000, 0x317fff) AM_READWRITE(MRA16_RAM, lordgun_vram_2_w) AM_BASE(&lordgun_vram_2)	// DISPLAY
+	AM_RANGE(0x318000, 0x319fff) AM_READWRITE(MRA16_RAM, lordgun_vram_3_w) AM_BASE(&lordgun_vram_3)	// DISPLAY
+	AM_RANGE(0x31c000, 0x31c7ff) AM_RAM AM_BASE(&lordgun_scrollram)		// LINE
+	AM_RANGE(0x400000, 0x4007ff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)	// ANIMATOR
+	AM_RANGE(0x500000, 0x500fff) AM_READWRITE(MRA16_RAM, paletteram16_xxxxBBBBGGGGRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x502000, 0x502001) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_0)
+	AM_RANGE(0x502200, 0x502201) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_1)
+	AM_RANGE(0x502400, 0x502401) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_2)
+	AM_RANGE(0x502600, 0x502601) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_3)
+	AM_RANGE(0x502800, 0x502801) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_0)
+	AM_RANGE(0x502a00, 0x502a01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_1)
+	AM_RANGE(0x502c00, 0x502c01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_2)
+	AM_RANGE(0x502e00, 0x502e01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_3)
+	AM_RANGE(0x503000, 0x503001) AM_WRITE(lordgun_priority_w)
+	AM_RANGE(0x504000, 0x504001) AM_WRITE(lordgun_soundlatch_w)
+	AM_RANGE(0x506000, 0x506007) AM_READWRITE(lordgun_ppi8255_0_r, lordgun_ppi8255_0_w)
+	AM_RANGE(0x508000, 0x508007) AM_READWRITE(lordgun_ppi8255_1_r, lordgun_ppi8255_1_w)
+	AM_RANGE(0x50b900, 0x50b9ff) AM_READWRITE(aliencha_protection_r, aliencha_protection_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( hfh_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM
 	AM_RANGE(0x200000, 0x20ffff) AM_RAM
@@ -259,6 +345,20 @@ static ADDRESS_MAP_START( lordgun_soundio_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x6000, 0x6000) AM_WRITE( lordgun_okibank_w )
 ADDRESS_MAP_END
 
+
+static ADDRESS_MAP_START( aliencha_soundio_map, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x3000, 0x3000) AM_READ(soundlatch2_r)
+	AM_RANGE(0x4000, 0x4000) AM_READ(soundlatch_r)
+	AM_RANGE(0x5000, 0x5000) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x7000, 0x7000) AM_READWRITE(YMF278B_status_port_0_r, YMF278B_control_port_0_A_w)
+	AM_RANGE(0x7001, 0x7001) AM_WRITE(YMF278B_data_port_0_A_w)
+	AM_RANGE(0x7002, 0x7002) AM_WRITE(YMF278B_control_port_0_B_w)
+	AM_RANGE(0x7003, 0x7003) AM_WRITE(YMF278B_data_port_0_B_w)
+	AM_RANGE(0x7004, 0x7004) AM_WRITE(YMF278B_control_port_0_C_w)
+	AM_RANGE(0x7005, 0x7005) AM_WRITE(YMF278B_data_port_0_C_w)
+	AM_RANGE(0x7400, 0x7400) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+	AM_RANGE(0x7800, 0x7800) AM_READWRITE(OKIM6295_status_1_r, OKIM6295_data_1_w)
+ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hfh_soundio_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x3000, 0x3000) AM_READ( soundlatch2_r )
@@ -404,7 +504,105 @@ INPUT_PORTS_START( lordgun )
 	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(2)
 INPUT_PORTS_END
 
+INPUT_PORTS_START( aliencha )
+	PORT_START	// DIP1
+	PORT_DIPNAME( 0x01, 0x01, "Credits To Start" )
+	PORT_DIPSETTING(    0x01, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPNAME( 0x0e, 0x0e, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x0e, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0a, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x70, 0x70, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x70, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x50, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x80, 0x80, "Coin Slots" )
+	PORT_DIPSETTING(    0x80, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
 
+	PORT_START	// DIP2
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_SERVICE( 0x04, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x08, 0x08, "Round Time" )
+	PORT_DIPSETTING(    0x00, "32 s" )
+	PORT_DIPSETTING(    0x08, "40 s" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, "Allow Join" )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Yes ) )
+
+	PORT_START	// DIP3
+	PORT_DIPNAME( 0x03, 0x03, "Buttons" )
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x02, "4" )
+	PORT_DIPSETTING(    0x03, "6" )
+	PORT_DIPNAME( 0x04, 0x04, "Vs. Rounds" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x04, "5" )
+
+	PORT_START	// SERVICE
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+
+	PORT_START	// P1
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1         )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(1)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON3        ) PORT_PLAYER(1)
+
+	PORT_START	// P2
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START2         )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON3        ) PORT_PLAYER(2)
+
+	PORT_START	// COIN
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1          )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2          )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON4        ) PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON5        ) PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON6        ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON4        ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON5        ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON6        ) PORT_PLAYER(2)
+INPUT_PORTS_END
 
 /***************************************************************************
 
@@ -478,6 +676,64 @@ static MACHINE_DRIVER_START( lordgun )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
+
+static ppi8255_interface aliencha_ppi8255_intf =
+{
+	2,
+	{ aliencha_dip_r, input_port_4_r },
+	{ 0, input_port_5_r },
+	{ aliencha_eeprom_r, input_port_6_r },
+	{ fake2_w, fake_w },
+	{ aliencha_eeprom_w, fake_w },
+	{ aliencha_dip_w, fake_w },
+};
+
+static MACHINE_RESET( aliencha )
+{
+	aliencha_dip_sel = 0;
+	aliencha_protection_data = 0;
+	lordgun_whitescreen = 0;
+	ppi8255_init(&aliencha_ppi8255_intf);
+}
+
+static struct YMF278B_interface aliencha_ymf278b_interface =
+{
+	REGION_SOUND3,
+	soundirq
+};
+
+static MACHINE_DRIVER_START( aliencha )
+	MDRV_CPU_ADD_TAG("main", M68000, 10000000)
+	MDRV_CPU_PROGRAM_MAP(aliencha_map,0)
+	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
+	MDRV_CPU_ADD_TAG("sound", Z80, 5000000)
+	MDRV_CPU_PROGRAM_MAP(lordgun_soundmem_map,0)
+	MDRV_CPU_IO_MAP(aliencha_soundio_map,0)
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(aliencha)
+	MDRV_NVRAM_HANDLER(93C46)
+	MDRV_GFXDECODE(lordgun_gfxdecodeinfo)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(0x200, 0x100)
+	MDRV_VISIBLE_AREA(0,0x1c0-1, 0,0xe0-1)
+	MDRV_PALETTE_LENGTH(0x800)
+	MDRV_VIDEO_START(lordgun)
+	MDRV_VIDEO_UPDATE(lordgun)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(YMF278B, 33868800)
+	MDRV_SOUND_CONFIG(aliencha_ymf278b_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
+	MDRV_SOUND_ADD(OKIM6295, 1000000)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
+	MDRV_SOUND_ADD(OKIM6295, 1000000)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( hfh )
 	MDRV_IMPORT_FROM(lordgun)
@@ -738,6 +994,38 @@ ROM_START( hfh )
 	ROM_LOAD( "hfh_g.u66", 0x00000, 0x40000, CRC(7cfcd98e) SHA1(3b03123160adfd3404a9e0c4c68420930e80ae48) )
 ROM_END
 
+ROM_START( aliencha )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD( "igsc0102.u81", 0x00000, 0x200000, CRC(e3432be3) SHA1(d3597c885571d4a996afaaf29c78da123798371e) )
+
+	ROM_REGION( 0x010000, REGION_CPU2, 0 )
+	ROM_LOAD( "hfh_s.u86", 0x00000, 0x10000, CRC(5728a9ed) SHA1(e5a9e4a1a2cc6c848b08608bc8727bc739270873) )
+
+	ROM_REGION( 0x300000, REGION_GFX2, 0 )
+	ROM_LOAD( "igst0101.u9",  0x000000, 0x100000, CRC(2ce12d7b) SHA1(aa93a82e5f4015c46bb705efb2051b62cd5d7e04) )
+	ROM_LOAD( "igst0102.u10", 0x100000, 0x100000, CRC(542a76a0) SHA1(6947b50a024d0053c1eaf9da8c90652bab875142) )
+	ROM_LOAD( "igst0103.u11", 0x200000, 0x100000, CRC(adf5698a) SHA1(4b798f8acc5d7581c7e0989260863ae0ca654acd) )
+
+	ROM_REGION( 0x600000, REGION_GFX3, 0 )
+	ROM_LOAD( "igsb0101.u8", 0x000000, 0x200000, CRC(5c995f7e) SHA1(4f08cf13e313c6802c924b914c73cab4b450da61) )
+	ROM_LOAD( "igsb0102.u7", 0x200000, 0x200000, CRC(a2ae9baf) SHA1(338ee260c33448568f138ca00e1d4edda4da018f) )
+	ROM_LOAD( "igsb0103.u6", 0x400000, 0x200000, CRC(11b927af) SHA1(2f15e5cea1b86cde3b679bdd0f3d79672d0ddd3e) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "igsa0101.u3", 0x000000, 0x400000, CRC(374d07c4) SHA1(87e9bfe32cbfe9964ba7253847fbd14aa3c8ed20) )
+	ROM_LOAD( "igsa0102.u2", 0x400000, 0x400000, CRC(dbeee7ac) SHA1(e0eb0d73d9230aa6f69f5ac25d44fa19affebe88) )
+	ROM_LOAD( "igsa0103.u1", 0x800000, 0x400000, CRC(e5f19041) SHA1(c92a29bbbcb9a1f63364c665e3e0f9679add4389) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "hfh_g.u65", 0x00000, 0x40000, CRC(ec469b57) SHA1(ba1668078987ad51f47bcd3e61c51a0cf2545350) )
+
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 )
+	ROM_LOAD( "hfh_g.u66", 0x00000, 0x40000, CRC(7cfcd98e) SHA1(3b03123160adfd3404a9e0c4c68420930e80ae48) )
+
+	ROM_REGION( 0x200000, REGION_SOUND3, 0 )
+	ROM_LOAD( "yrw801-m", 0x000000, 0x200000, CRC(2a9d8d43) SHA1(32760893ce06dbe3930627755ba065cc3d8ec6ca) )
+ROM_END
+
 /***************************************************************************
 
     Game Drivers
@@ -745,4 +1033,5 @@ ROM_END
 ***************************************************************************/
 
 GAME( 1994, lordgun, 0, lordgun, lordgun, lordgun, ROT0, "IGS", "Lord of Gun (USA)", GAME_IMPERFECT_GRAPHICS | GAME_UNEMULATED_PROTECTION )
+GAME( 1994, aliencha, 0, aliencha, aliencha, 0, ROT0, "IGS", "Alien Challenge (World)", 0 )
 GAME( 199?, hfh,     0, hfh,     lordgun, 0,       ROT0, "IGS", "Huang Fei Hong",    GAME_IMPERFECT_GRAPHICS | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
