@@ -6,13 +6,12 @@ Thunder Hoop II: Strikes Back (c) 1994 Gaelco
 
 Driver by Manuel Abadia <manu@teleline.es>
 
-Very similar to maniacsq and biomtoy but protected :_(
-The DS5002FP has up to 128 KB undumped gameplay code
 
 ***************************************************************************/
 
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
+#include "cpu/ds5002fp/ds5002fp.h"
 #include "sound/okim6295.h"
 
 extern UINT16 *thoop2_vregs;
@@ -24,6 +23,46 @@ WRITE16_HANDLER( thoop2_vram_w );
 VIDEO_START( thoop2 );
 VIDEO_UPDATE( thoop2 );
 
+
+static UINT16 *thoop2_sharedram;
+static ds5002fp_config thoop2_mcu_config = { 0x79, 0x00, 0x80 };
+
+static READ8_HANDLER( thoop2_mcu_shared_r )
+{
+	return ((UINT8 *)thoop2_sharedram)[BYTE_XOR_BE(offset & 0x7fff)];
+}
+
+static WRITE8_HANDLER( thoop2_mcu_shared_w )
+{
+	((UINT8 *)thoop2_sharedram)[BYTE_XOR_BE(offset & 0x7fff)] = data;
+}
+
+static READ8_HANDLER( thoop2_mcu_sram_r )
+{
+	return memory_region(REGION_CPU2)[offset];
+}
+
+static WRITE8_HANDLER( thoop2_mcu_sram_w )
+{
+	memory_region(REGION_CPU2)[offset] = data;
+}
+
+static ADDRESS_MAP_START( thoop2_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( thoop2_mcu_data, ADDRESS_SPACE_DATA, 8 )
+	AM_RANGE(0x08000, 0x0ffff) AM_READWRITE(thoop2_mcu_shared_r, thoop2_mcu_shared_w)
+	AM_RANGE(0x10000, 0x17fff) AM_READWRITE(thoop2_mcu_sram_r, thoop2_mcu_sram_w)
+ADDRESS_MAP_END
+
+static NVRAM_HANDLER( thoop2_mcu )
+{
+	if (read_or_write)
+		mame_fwrite(file, memory_region(REGION_CPU2), 0x8000);
+	else if (file)
+		mame_fread(file, memory_region(REGION_CPU2), 0x8000);
+}
 
 static const gfx_layout thoop2_tilelayout =
 {
@@ -69,7 +108,8 @@ static ADDRESS_MAP_START( thoop2_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x700006, 0x700007) AM_READ(input_port_3_word_r)/* INPUT #2 */
 	AM_RANGE(0x700008, 0x700009) AM_READ(input_port_4_word_r)/* INPUT #3 */
 	AM_RANGE(0x70000e, 0x70000f) AM_READ(OKIM6295_status_0_lsb_r)/* OKI6295 status register */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM (partially shared with DS5002FP) */
+	AM_RANGE(0xfe0000, 0xfe7fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xfe8000, 0xfeffff) AM_READ(MRA16_RAM)
 ADDRESS_MAP_END
 
 static WRITE16_HANDLER( OKIM6295_bankswitch_w )
@@ -110,7 +150,8 @@ static ADDRESS_MAP_START( thoop2_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x70000c, 0x70000d) AM_WRITE(OKIM6295_bankswitch_w)					/* OKI6295 bankswitch */
 	AM_RANGE(0x70000e, 0x70000f) AM_WRITE(OKIM6295_data_0_lsb_w)					/* OKI6295 data register */
 	AM_RANGE(0x70000a, 0x70005b) AM_WRITE(thoop2_coin_w)							/* Coin Counters + Coin Lockout */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)								/* Work RAM (partially shared with DS5002FP) */
+	AM_RANGE(0xfe0000, 0xfe7fff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0xfe8000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&thoop2_sharedram)
 ADDRESS_MAP_END
 
 
@@ -204,7 +245,7 @@ static MACHINE_DRIVER_START( thoop2 )
 	MDRV_CPU_PROGRAM_MAP(thoop2_readmem,thoop2_writemem)
 	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(59.24)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
 	/* video hardware */
@@ -226,19 +267,31 @@ static MACHINE_DRIVER_START( thoop2 )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( thoop2_dallas )
+	MDRV_IMPORT_FROM(thoop2)
+	MDRV_CPU_ADD(DS5002FP, 12000000)
+	MDRV_CPU_CONFIG(thoop2_mcu_config)
+	MDRV_CPU_PROGRAM_MAP(thoop2_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(thoop2_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_NVRAM_HANDLER(thoop2_mcu)
+MACHINE_DRIVER_END
+
 ROM_START( thoop2 )
-	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE(	"th2c23.040",	0x000000, 0x080000, CRC(3e465753) SHA1(1ea1173b9fe5d652e7b5fafb822e2535cecbc198) )
-	ROM_LOAD16_BYTE(	"th2c22.040",	0x000001, 0x080000, CRC(837205b7) SHA1(f78b90c2be0b4dddaba26f074ea00eff863cfdb2) )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "3.c23", 0x000000, 0x080000, CRC(6cd4a8dc) SHA1(7d0cdce64b390c3f9769b07d57cf1eee1e6a7bf5) )
+	ROM_LOAD16_BYTE( "2.c22", 0x000001, 0x080000, CRC(59ba9b43) SHA1(6c6690a2e389fc9f1e166c87748da1175e3b58f8) )
+
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "thoop2_ds5002fp.bin", 0x00000, 0x8000, CRC(6881384d) SHA1(c1eff5558716293e1325b766e2205783286c12f9) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "th2-h8.32m",		0x000000, 0x400000, CRC(60328a11) SHA1(fcdb374d2fc7ef5351a4181c471d192199dc2081) )
-	ROM_LOAD( "th2-h12.32m",	0x400000, 0x400000, CRC(b25c2d3e) SHA1(d70f3e4e2432d80c2ac87cd81208ada303bac04a) )
+	ROM_LOAD( "th2-h8.h8",   0x000000, 0x400000, CRC(60328a11) SHA1(fcdb374d2fc7ef5351a4181c471d192199dc2081) )
+	ROM_LOAD( "th2-h12.h12", 0x400000, 0x400000, CRC(b25c2d3e) SHA1(d70f3e4e2432d80c2ac87cd81208ada303bac04a) )
 
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* ADPCM samples - sound chip is OKIM6295 */
-	ROM_LOAD( "th2-c1.080",		0x000000, 0x100000, CRC(8fac8c30) SHA1(8e49bb596144761eae95f3e1266e57fb386664f2) )
-	ROM_RELOAD(					0x040000, 0x100000 )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched */
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+	ROM_LOAD( "th2-c1.c1",      0x000000, 0x100000, CRC(8fac8c30) SHA1(8e49bb596144761eae95f3e1266e57fb386664f2) )
+	ROM_RELOAD( 0x040000, 0x100000 )
 ROM_END
 
-GAME( 1994, thoop2,  0, thoop2, thoop2,  0, ROT0, "Gaelco", "TH Strikes Back", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING ) // coprocessor bad
+GAME( 1994, thoop2, 0, thoop2_dallas, thoop2, 0, ROT0, "Gaelco", "TH Strikes Back (non North America, version 1.0, checksum 020EB356)", GAME_IMPERFECT_GRAPHICS )

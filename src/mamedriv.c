@@ -6260,9 +6260,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( wrally )	/* (c) 1993 - Ref 930705 */
 	DRIVER( wrallya )	/* (c) 1993 - Ref 930705 */
 	DRIVER( glass )		/* (c) 1993 - Ref 931021 */
+	DRIVER( glasskr )	/* (c) 1994 - Ref 931021 Anime girls, unprotected */
 	DRIVER( glass10 )	/* (c) 1993 - Ref 931021 */
 	DRIVER( glass10a )	/* (c) 1993 - Ref 931021 */
-	DRIVER( glasskr )	/* (c) 1994 - Ref 931021 Anime girls, unprotected */
 	DRIVER( targeth )	/* (c) 1994 - Ref 940531 */
 	DRIVER( quickshts )	/* (c) 1994 - Ref 940531 */
 	DRIVER( thoop2 )	/* (c) 1994 - Ref ??? */

@@ -6,12 +6,12 @@ Target Hits (c) 1994 Gaelco (Designed & Developed by Zigurat. Produced by Gaelco
 
 Driver by Manuel Abadia <manu@teleline.es>
 
-The DS5002FP has 32KB undumped gameplay code making the game unplayable :_(
 
 ***************************************************************************/
 
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
+#include "cpu/ds5002fp/ds5002fp.h"
 #include "sound/okim6295.h"
 
 extern UINT16 *targeth_vregs;
@@ -23,6 +23,59 @@ WRITE16_HANDLER( targeth_vram_w );
 VIDEO_START( targeth );
 VIDEO_UPDATE( targeth );
 
+
+static UINT16 *targeth_sharedram;
+static ds5002fp_config targeth_mcu_config = { 0x49, 0x00, 0x80 };
+
+static READ8_HANDLER( targeth_mcu_shared_r )
+{
+	return ((UINT8 *)targeth_sharedram)[BYTE_XOR_BE(offset & 0x7fff)];
+}
+
+static WRITE8_HANDLER( targeth_mcu_shared_w )
+{
+	((UINT8 *)targeth_sharedram)[BYTE_XOR_BE(offset & 0x7fff)] = data;
+}
+
+static READ8_HANDLER( targeth_mcu_sram_r )
+{
+	return memory_region(REGION_CPU2)[offset];
+}
+
+static WRITE8_HANDLER( targeth_mcu_sram_w )
+{
+	memory_region(REGION_CPU2)[offset] = data;
+}
+
+static ADDRESS_MAP_START( targeth_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( targeth_mcu_data, ADDRESS_SPACE_DATA, 8 )
+	AM_RANGE(0x08000, 0x0ffff) AM_READWRITE(targeth_mcu_shared_r, targeth_mcu_shared_w)
+	AM_RANGE(0x10000, 0x17fff) AM_READWRITE(targeth_mcu_sram_r, targeth_mcu_sram_w)
+ADDRESS_MAP_END
+
+static NVRAM_HANDLER( targeth_mcu )
+{
+	if (read_or_write)
+		mame_fwrite(file, memory_region(REGION_CPU2), 0x8000);
+	else if (file)
+		mame_fread(file, memory_region(REGION_CPU2), 0x8000);
+}
+
+static MACHINE_RESET( targeth_mcu )
+{
+	UINT8 *scratch = memory_region(REGION_USER1);
+	int i;
+	if (scratch)
+	{
+		cpuintrf_push_context(1);
+		for (i=0; i<0x80; i++)
+			ds5002fp_internal_w(i,scratch[i]);
+		cpuintrf_pop_context();
+	}
+}
 
 static const gfx_layout tilelayout16_0x080000 =
 {
@@ -78,7 +131,8 @@ static ADDRESS_MAP_START( targeth_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x700008, 0x700009) AM_READ(input_port_7_word_r)/* Service & Guns Reload? */
 	AM_RANGE(0x70000a, 0x70000b) AM_READ(service_mirror_r)   /* quickshts reads the service switch here instead */
 	AM_RANGE(0x70000e, 0x70000f) AM_READ(OKIM6295_status_0_lsb_r)/* OKI6295 status register */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM (partially shared with DS5002FP) */
+	AM_RANGE(0xfe0000, 0xfe7fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xfe8000, 0xfeffff) AM_READ(MRA16_RAM)
 ADDRESS_MAP_END
 
 static WRITE16_HANDLER( OKIM6295_bankswitch_w )
@@ -106,7 +160,8 @@ static ADDRESS_MAP_START( targeth_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x70000e, 0x70000f) AM_WRITE(OKIM6295_data_0_lsb_w)					/* OKI6295 data register */
 	AM_RANGE(0x70002a, 0x70003b) AM_WRITE(targeth_coin_counter_w)					/* Coin counters */
 	AM_RANGE(0x700010, 0x70001b) AM_WRITE(MWA16_NOP)                                /* ??? Guns reload related? */ /* switch address to here fixes sound */							    /* ??? Guns reload related? */ /* switch address fixes sound */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)								/* Work RAM (partially shared with DS5002FP) */
+	AM_RANGE(0xfe0000, 0xfe7fff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0xfe8000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&targeth_sharedram)
 ADDRESS_MAP_END
 
 
@@ -223,22 +278,39 @@ static MACHINE_DRIVER_START( targeth )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( targeth_dallas )
+	MDRV_IMPORT_FROM(targeth)
+	MDRV_CPU_ADD(DS5002FP, 12000000)
+	MDRV_CPU_CONFIG(targeth_mcu_config)
+	MDRV_CPU_PROGRAM_MAP(targeth_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(targeth_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_MACHINE_RESET(targeth_mcu)
+	MDRV_NVRAM_HANDLER(targeth_mcu)
+MACHINE_DRIVER_END
+
 ROM_START( targeth )
-	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE(	"targeth.c23",	0x000000, 0x040000, CRC(840887d6) SHA1(9a36b346608d531a62a2e0704ea44f12e07f9d91) )
-	ROM_LOAD16_BYTE(	"targeth.c22",	0x000001, 0x040000, CRC(d2435eb8) SHA1(ce75a115dad8019c8e66a1c3b3e15f54781f65ae) )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "th2_b_c_23.c23", 0x000000, 0x040000, CRC(840887d6) SHA1(9a36b346608d531a62a2e0704ea44f12e07f9d91) )
+	ROM_LOAD16_BYTE( "th2_b_c_22.c22", 0x000001, 0x040000, CRC(d2435eb8) SHA1(ce75a115dad8019c8e66a1c3b3e15f54781f65ae) )
 
-	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
-	ROM_LOAD( "targeth.i13",	0x000000, 0x080000, CRC(b892be24) SHA1(9cccaaacf20e77c7358f0ceac60b8a1012f1216c) )
-	ROM_LOAD( "targeth.i11",	0x080000, 0x080000, CRC(6797faf9) SHA1(112cffe72f91cb46c262e19a47b0cab3237dd60f) )
-	ROM_LOAD( "targeth.i9",		0x100000, 0x080000, CRC(0e922c1c) SHA1(6920e345c82e76f7e0af6101f39eb65ac1f112b9) )
-	ROM_LOAD( "targeth.i7",		0x180000, 0x080000, CRC(d8b41000) SHA1(cbe91eb91bdc7a60b2333c6bea37d08a57902669) )
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "targeth_ds5002fp.bin", 0x0000, 0x8000, CRC(abcdfee4) SHA1(c5955d5dbbcecbe1c2ae77d59671ae40eb814d30) )
 
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* ADPCM samples - sound chip is OKIM6295 */
-	ROM_LOAD( "targeth.c1",		0x000000, 0x080000, CRC(d6c9dfbc) SHA1(3ec70dea94fc89df933074012a52de6034571e87) )
-	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
-	ROM_RELOAD(					0x040000, 0x080000 )
-	ROM_LOAD( "targeth.c3",		0x0c0000, 0x080000, CRC(d4c771df) SHA1(7cc0a86ef6aa3d26ab8f19d198f62112bf012870) )
+	ROM_REGION( 0x100, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_LOAD( "targeth_ds5002fp_scratch", 0x00, 0x80, CRC(c927bcb1) SHA1(86b5c7ee6a4a5f0aa538a6742253da1afadb4345) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "targeth.i13", 0x000000, 0x080000, CRC(b892be24) SHA1(9cccaaacf20e77c7358f0ceac60b8a1012f1216c) )
+	ROM_LOAD( "targeth.i11", 0x080000, 0x080000, CRC(6797faf9) SHA1(112cffe72f91cb46c262e19a47b0cab3237dd60f) )
+	ROM_LOAD( "targeth.i9",  0x100000, 0x080000, CRC(0e922c1c) SHA1(6920e345c82e76f7e0af6101f39eb65ac1f112b9) )
+	ROM_LOAD( "targeth.i7",  0x180000, 0x080000, CRC(d8b41000) SHA1(cbe91eb91bdc7a60b2333c6bea37d08a57902669) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+	ROM_LOAD( "targeth.c1", 0x000000, 0x080000, CRC(d6c9dfbc) SHA1(3ec70dea94fc89df933074012a52de6034571e87) )
+	ROM_RELOAD( 0x040000, 0x080000 )
+
+	ROM_LOAD( "targeth.c3", 0x0c0000, 0x080000, CRC(d4c771df) SHA1(7cc0a86ef6aa3d26ab8f19d198f62112bf012870) )
 ROM_END
 
 ROM_START( quickshts )
@@ -269,8 +341,5 @@ ROM_START( quickshts )
 	ROM_LOAD( "targeth.c3",		0x0c0000, 0x080000, CRC(d4c771df) SHA1(7cc0a86ef6aa3d26ab8f19d198f62112bf012870) )
 ROM_END
 
-GAME( 1994, targeth,   0,       targeth, targeth, 0, ROT0, "Gaelco", "Target Hits", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-/* This is a strange set, it reports the DS5002 / Coprocessor as "Not Ready" but isn't using it for the usual protection (maybe only NVRAM storage, check)
-   It also reads the service port on a different address, could be it has a different co-processor entirely? 
-*/
-GAME( 1994, quickshts, targeth, targeth, targeth, 0, ROT0, "Gaelco", "Quick Shots (ver 1.0)", 0 ) /* 16/Jun/1994. Marked "Book" internally at Gaelco */
+GAME( 1994, targeth, 0, targeth_dallas, targeth, 0, ROT0, "Gaelco", "Target Hits (ver 1.1, checksum 5152)", 0 )
+GAME( 1994, quickshts, targeth, targeth, targeth, 0, ROT0, "Zero / Gaelco", "Quick Shots (ver 1.0, checksum AD0C)", 0 )
