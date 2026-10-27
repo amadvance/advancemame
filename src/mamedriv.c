@@ -7090,6 +7090,7 @@ Other Sun games
 	DRIVER( diverboy )	/* (c) 1992 Electronic Devices */
 	DRIVER( twinbrat )	/* (c) 1995 */
 	DRIVER( ppmast93 )	/* (c) 1993 Electronic Devices S.R.L. */
+	DRIVER( spider )
 	DRIVER( twins )		/* (c) 1994 */
 	DRIVER( mwarr )
 
