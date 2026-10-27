@@ -17,6 +17,30 @@
 
 static tilemap *bg_layer,*fg_layer;
 UINT16 *crospang_bg_videoram,*crospang_fg_videoram;
+static UINT8 tilebank[4] = { 0, 1, 2, 3 };
+static UINT8 tilebank_select;
+
+MACHINE_RESET( pitapat )
+{
+	int i;
+	for (i = 0; i < 4; i++) tilebank[i] = i;
+	tilebank_select = 0;
+}
+
+WRITE16_HANDLER( pitapat_tilebank_select_w )
+{
+	if (ACCESSING_MSB) tilebank_select = (data >> 8) & 3;
+}
+
+WRITE16_HANDLER( pitapat_tilebank_data_w )
+{
+	if (ACCESSING_MSB)
+	{
+		tilebank[tilebank_select] = data >> 8;
+		tilemap_mark_all_tiles_dirty(fg_layer);
+		tilemap_mark_all_tiles_dirty(bg_layer);
+	}
+}
 
 WRITE16_HANDLER ( crospang_fg_scrolly_w )
 {
@@ -53,7 +77,7 @@ WRITE16_HANDLER ( crospang_bg_videoram_w )
 static void get_bg_tile_info(int tile_index)
 {
 	int data  = crospang_bg_videoram[tile_index];
-	int tile  = data & 0xfff;
+	int tile  = (data & 0x3ff) + (tilebank[(data >> 10) & 3] << 10);
 	int color = (data >> 12) & 0x0f;
 
 	SET_TILE_INFO(1,tile,color + 0x20,0)
@@ -62,7 +86,7 @@ static void get_bg_tile_info(int tile_index)
 static void get_fg_tile_info(int tile_index)
 {
 	int data  = crospang_fg_videoram[tile_index];
-	int tile  = data & 0xfff;
+	int tile  = (data & 0x3ff) + (tilebank[(data >> 10) & 3] << 10);
 	int color = (data >> 12) & 0x0f;
 
 	SET_TILE_INFO(1,tile,color + 0x10,0)
