@@ -141,6 +141,57 @@ VIDEO_UPDATE( circus )
 	circus_draw_fg(bitmap);
 }
 
+static mame_bitmap *trapeze_bitmap;
+static int trapeze_rendered;
+
+VIDEO_START( trapeze )
+{
+	if (video_start_circus()) return 1;
+	trapeze_bitmap = auto_bitmap_alloc(256, 256);
+	trapeze_rendered = 0;
+	return trapeze_bitmap == 0;
+}
+
+VIDEO_UPDATE( trapeze )
+{
+	const gfx_element *gfx = Machine->gfx[1];
+	const UINT8 *src = gfx->gfxdata + clown_z * gfx->char_modulo;
+	int x, y, collision = 0;
+
+	trapeze_rendered = 1;
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	draw_line(bitmap, 0, 18, 255, 18, 0);
+	draw_line(bitmap, 0, 249, 255, 249, 1);
+	draw_line(bitmap, 0, 18, 0, 248, 0);
+	draw_line(bitmap, 247, 18, 247, 248, 0);
+	draw_line(bitmap, 0, 136, 17, 136, 0);
+	draw_line(bitmap, 231, 136, 248, 136, 0);
+	draw_line(bitmap, 0, 192, 17, 192, 0);
+	draw_line(bitmap, 231, 192, 248, 192, 0);
+	for (y = 0; y < 16; y++)
+	{
+		int dy = clown_x + y - 1;
+		if (dy < 0 || dy >= bitmap->height) continue;
+		for (x = 0; x < 16; x++)
+		{
+			int dx = clown_y + x;
+			if (dx >= 0 && dx < bitmap->width && src[y * gfx->line_modulo + x])
+			{
+				if (read_pixel(bitmap, dx, dy) != Machine->pens[0]) collision = 1;
+				plot_pixel(bitmap, dx, dy, Machine->pens[1]);
+			}
+		}
+	}
+	if (collision) cpunum_set_input_line(0, 0, ASSERT_LINE);
+}
+
+VIDEO_EOF( trapeze )
+{
+	if (!trapeze_rendered)
+		video_update_trapeze(0, trapeze_bitmap, &Machine->visible_area);
+	trapeze_rendered = 0;
+}
+
 static void robotbwl_draw_scoreboard( mame_bitmap *bitmap )
 {
 	int offs;
