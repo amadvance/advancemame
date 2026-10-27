@@ -6241,6 +6241,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mastboy )	/* (c) 1987 - No Ref on the PCB */
 	DRIVER( mastboyi )	/* (c) 1987 - No Ref on the PCB */
 	DRIVER( xorworld )	/* (c) 1990 - prototype */
+	DRIVER( lastkm )
+	DRIVER( xorwflat )
 	DRIVER( bigkarnk )	/* (c) 1991 - Ref 901112-1 */
 	/* Master Boy 2 */	/* (c) 1991 - Ref ??? */
 	DRIVER( splash )	/* (c) 1992 - Ref 922804 */

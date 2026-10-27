@@ -112,6 +112,16 @@ VIDEO_START( maniacsq )
 }
 
 
+VIDEO_START( xorwflat )
+{
+	if (video_start_maniacsq()) return 1;
+	tilemap_set_scrolldx(pant[0], -208, 0);
+	tilemap_set_scrolldx(pant[1], -208, 0);
+	tilemap_set_scrolldy(pant[0], 8, 0);
+	tilemap_set_scrolldy(pant[1], 8, 0);
+	return 0;
+}
+
 /***************************************************************************
 
     Sprites
