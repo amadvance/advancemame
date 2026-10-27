@@ -7082,6 +7082,7 @@ Other Sun games
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( stlforce )	/* (c) 1994 Electronic Devices (Italy) / Ecogames S.L. (Spain) */
 	DRIVER( fantland )	/* (c) 198? Electronic Devices Italy */
+	DRIVER( wheelrun )
 	DRIVER( fantlnda )	/* (c) 198? Electronic Devices Italy */
 	DRIVER( galaxygn )	/* (c) 1989 Electronic Devices Italy */
 	DRIVER( borntofi )	/* (c) International Games? */
