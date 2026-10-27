@@ -1316,6 +1316,7 @@ const game_driver * const drivers[] =
 	DRIVER( greenber )	/* Irem */
 	DRIVER( headoni )	/* Irem no copyright notice */
 
+	DRIVER( panther )	/* (c) 1981 */
 	DRIVER( redalert )	/* (c) 1981 + "GDI presents" */
 	DRIVER( demoneye )	/* (c) 1981 */
 	DRIVER( olibochu )	/* M47 (c) 1981 + "GDI presents" */
