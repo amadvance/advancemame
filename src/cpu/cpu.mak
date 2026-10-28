@@ -513,7 +513,7 @@ CPUOBJS += $(OBJ)/cpu/mips/mips3drc.o
 $(OBJ)/cpu/mips/mips3drc.o: mips3drc.c mdrcold.c mips3.h
 else
 CPUOBJS += $(OBJ)/cpu/mips/mips3.o
-$(OBJ)/cpu/mips/mips3.o: mips3.c mips3.h
+$(OBJ)/cpu/mips/mips3.o: mips3.c mips3.h mips3jit.c mips3jit.h
 endif
 DBGOBJS += $(OBJ)/cpu/mips/mips3dsm.o
 endif

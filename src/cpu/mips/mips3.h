@@ -64,7 +64,7 @@ enum
 	MIPS3_WIRED, MIPS3_BADVADDR
 };
 
-#define MIPS3_MAX_FASTRAM		4
+#define MIPS3_MAX_FASTRAM		16
 #define MIPS3_MAX_HOTSPOTS		16
 
 enum
@@ -112,6 +112,12 @@ struct mips3_config
 /***************************************************************************
     PUBLIC FUNCTIONS
 ***************************************************************************/
+
+int mips3_jit_available(void);
+void mips3_set_jit(int enable);
+void mips3_add_fastram(offs_t start, offs_t end, int readonly, void *base);
+void mips3_add_fastram_wait(offs_t start, offs_t end, int readonly, void *base, int wait);
+void mips3_ram_written(offs_t address, UINT32 bytes);
 
 #if (HAS_R4600)
 void r4600be_get_info(UINT32 state, union cpuinfo *info);
