@@ -23,8 +23,8 @@ This document contains essential project overview, architecture details, build/t
 - `src/machine/`: Cryptography, co-processor, and peripheral MCU emulation.
 - `src/includes/`: Driver header definitions and shared structures.
 - `resource/`: Reference repositories and materials:
-  - `resource/mame/`: Git repository containing full MAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mamegit log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
-  - `resource/hbmame/`: Git repository containing full HBMAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mamegit log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
+  - `resource/mame/`: Git repository containing full MAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mame log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
+  - `resource/hbmame/`: Git repository containing full HBMAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mame log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
 
 ---
 
@@ -164,7 +164,7 @@ end)
 ```
 
 > [!TIP]
-> To find the exact input port tag (e.g. `":SYSTEM"`, `":IN0"`, `":DSW"`) and field bitmask (e.g. `0x10` for `IPT_COIN1`), inspect the driver's `INPUT_PORTS_START` macro in `resource/mamegit/`.
+> To find the exact input port tag (e.g. `":SYSTEM"`, `":IN0"`, `":DSW"`) and field bitmask (e.g. `0x10` for `IPT_COIN1`), inspect the driver's `INPUT_PORTS_START` macro in `resource/mame/`.
 
 ---
 
@@ -222,10 +222,10 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
    - *Symptom*: The CPU writes sprite coordinates and palettes correctly, but the screen remains blank or sprites lag by one frame.
    - *Fix*: Ensure sprite/palette buffering is invoked at VBLANK (e.g., calling `buffer_spriteram_w` or configuring `video_eof_*`), or ensure DMA trigger register handlers actually transfer the buffer rather than waiting for CPU writes.
 
-7. **Tracking Driver History in `resource/mamegit/` with `--follow`**:
-   - *Trap*: In the Git history of MAME (`resource/mamegit/`), drivers were repeatedly moved (e.g., from `src/mame/drivers/` into vendor-specific directories like `src/mame/nintendo/`, `src/mame/capcom/`, etc.).
+7. **Tracking Driver History in `resource/mame/` with `--follow`**:
+   - *Trap*: In the Git history of MAME (`resource/mame/`), drivers were repeatedly moved (e.g., from `src/mame/drivers/` into vendor-specific directories like `src/mame/nintendo/`, `src/mame/capcom/`, etc.).
    - *Symptom*: Running `git log` on an old path in HEAD may return fatal errors or miss older commits.
-   - *Rule*: Always use `--` before the path and pass `--follow` (e.g. `git -C resource/mamegit log --follow -- <path>`), or search commit messages and code changes with `git -C resource/mamegit log -S "<symbol_or_driver>"` to find the commit where a game was promoted from NOT_WORKING.
+   - *Rule*: Always use `--` before the path and pass `--follow` (e.g. `git -C resource/mame log --follow -- <path>`), or search commit messages and code changes with `git -C resource/mame log -S "<symbol_or_driver>"` to find the commit where a game was promoted from NOT_WORKING.
 
 ---
 
@@ -236,4 +236,10 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change. Do not use subsystem prefixes such as "psx spu: ..."; write a concise description starting directly with an imperative verb (e.g. "Fix ...", "Add ...", "Deactivate ...").
 - **Git Commits**: Never commit changes to git.
+- **License and Copyright Headers**: All source files (C, C++, and header files under `src/`) must include the two initial header lines indicating the license and copyright holders:
+  ```c
+  // license:<license-id>
+  // copyright-holders:<Author 1>, <Author 2>, ...
+  ```
+  Ensure these two lines are present at the very beginning of the file when creating, backporting, or updating source files.
 - **Temporary files** Create temporary files and directories under `/tmp/advancemame/`.
