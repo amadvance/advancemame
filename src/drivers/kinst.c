@@ -157,10 +157,7 @@ static const UINT8 *control_map;
 
 static MACHINE_RESET( kinst )
 {
-	/* set the fastest DRC options */
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_DRC_OPTIONS, MIPS3DRC_FASTEST_OPTIONS);
-
-	/* configure fast RAM regions for DRC */
+	/* configure fast RAM regions */
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_SELECT, 0);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_START, 0x08000000);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_END, 0x087fffff);

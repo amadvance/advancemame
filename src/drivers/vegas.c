@@ -563,10 +563,7 @@ static VIDEO_UPDATE( vegas )
 
 static MACHINE_RESET( vegas )
 {
-	/* set the fastest DRC options, but strict verification */
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_DRC_OPTIONS, MIPS3DRC_FASTEST_OPTIONS + MIPS3DRC_STRICT_VERIFY + MIPS3DRC_FLUSH_PC);
-
-	/* configure fast RAM regions for DRC */
+	/* configure fast RAM regions */
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_SELECT, 0);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_START, 0x00000000);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_END, ramsize - 1);
@@ -2524,17 +2521,6 @@ static DRIVER_INIT( gauntleg )
 {
 	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_CALSPEED, 340/* 340=39", 322=27", others? */);
-
-	/* speedups */
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_SELECT, 0);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_PC, 0x80015438);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_OPCODE, 0x1462fffd);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_CYCLES, 1000);
-
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_SELECT, 1);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_PC, 0x80015478);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_OPCODE, 0x1440fffa);
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_HOTSPOT_CYCLES, 1000);
 }
 
 

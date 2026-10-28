@@ -66,14 +66,6 @@ MESSCOREOBJS = \
 	$(MESSOBJ)/vidhrdw/generic.o \
 	$(MESSOBJ)/vidhrdw/vector.o \
 
-ifdef X86_MIPS3_DRC
-MESSCOREOBJS += $(MESSOBJ)/x86drc.o
-else
-ifdef X86_PPC_DRC
-MESSCOREOBJS += $(MESSOBJ)/x86drc.o
-endif
-endif
-
 
 #-------------------------------------------------
 # additional core files needed for the debugger

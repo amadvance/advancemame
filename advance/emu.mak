@@ -622,10 +622,6 @@ ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
 #EMUCFLAGS += -DX86_ASM
 endif
 
-ifneq (,$(findstring USE_ASM_EMUMIPS3,$(CFLAGS)))
-# Don't enable MIPS3 DRC otherwise various games crash. Like biofreak, blitz, calspeed, carnevil, kinst and others...
-#X86_MIPS3_DRC=1
-endif
 
 ifneq (,$(findstring USE_LSB,$(CFLAGS)))
 EMUCFLAGS += -DLSB_FIRST

@@ -307,26 +307,6 @@ elif test $ac_enable_asm = yes; then
 	fi
 fi
 
-AC_ARG_ENABLE(
-	[asm-mips3],
-	AS_HELP_STRING([--enable-asm-mips3],[enable the x86 assembler MIPS3 emulator (default no)]),
-	[ac_enable_asm_mips3=$enableval],
-	[ac_enable_asm_mips3=no]
-)
-if test $ac_enable_asm_mips3 = auto; then
-	if test $ac_enable_asm = yes; then
-		ac_enable_asm_mips3=yes
-	else
-		ac_enable_asm_mips3=no
-	fi
-fi
-if test $ac_enable_asm_mips3 = yes; then
-	if test ! $ac_enable_asm = yes; then
-		AC_MSG_ERROR([the x86 assembler is required for the "asm-mips3" compilation])
-	fi
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMUMIPS3"
-fi
-
 AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
 AC_ARG_ENABLE(
@@ -1250,11 +1230,6 @@ if test $ac_enable_asm = yes; then
 	echo "Assembler for x86 : yes"
 else
 	echo "Assembler for x86 : no"
-fi
-if test $ac_enable_asm_mips3 = yes; then
-	echo "Assembler MIPS3 emulator for x86 : yes"
-else
-	echo "Assembler MIPS3 emulator for x86 : no"
 fi
 
 echo ""

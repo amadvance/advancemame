@@ -119,7 +119,6 @@ INLINE UINT32 ppc_get_dcr(int dcr)
 
 
 
-#ifndef PPC_DRC
 INLINE void ppc403_check_interrupts(void)
 {
 	if (MSR & MSR_EE)
@@ -454,20 +453,7 @@ static void ppc403_dma_set_irq_line(int dma, int state)
 		}
 	}
 }
-#endif
 
-#ifdef PPC_DRC
-static void ppc403_dma_set_irq_line(int dma, int state)
-{
-	UINT32 mask = (1 << (3 - dma)) << 20;
-	if( state ) {
-		if( EXIER & mask ) {
-			ppc.external_int = mask;
-			ppc.exception_pending |= 0x1;
-		}
-	}
-}
-#endif
 
 
 
@@ -626,11 +612,7 @@ void ppc403_spu_w(UINT32 a, UINT8 d)
 					/* set receive buffer full */
 					ppc.spu.spls = 0x80;
 
-#ifndef PPC_DRC
 					ppc403_set_irq_line(PPC403_SPU_RX, ASSERT_LINE);
-#else
-					ppcdrc403_set_irq_line(PPC403_SPU_RX, ASSERT_LINE);
-#endif
 				}
 			}
 			else						/* disable RX */
@@ -663,11 +645,7 @@ void ppc403_spu_rx(UINT8 data)
 
 	/* generate interrupt if DMA is disabled and RBR interrupt is enabled */
 	if (((ppc.spu.sprc >> 5) & 0x3) == 0x01) {
-#ifndef PPC_DRC
 		ppc403_set_irq_line(PPC403_SPU_RX, ASSERT_LINE);
-#else
-		ppcdrc403_set_irq_line(PPC403_SPU_RX, ASSERT_LINE);
-#endif
 	}
 }
 
@@ -687,11 +665,7 @@ static void ppc403_spu_tx_callback(int cpu)
 
 		/* generate interrupt if DMA is disabled and TBR interrupt is enabled */
 		if (((ppc.spu.sptc >> 5) & 0x3) == 0x01) {
-#ifndef PPC_DRC
 			ppc403_set_irq_line(PPC403_SPU_TX, ASSERT_LINE);
-#else
-			ppcdrc403_set_irq_line(PPC403_SPU_TX, ASSERT_LINE);
-#endif
 		}
 	}
 }
@@ -791,11 +765,7 @@ static void ppc403_dma_exec(int ch)
 							spu_tx_dma_handler(length);
 						}
 
-#ifndef PPC_DRC
 						ppc403_set_irq_line(PPC403_SPU_TX, ASSERT_LINE);
-#else
-						ppcdrc403_set_irq_line(PPC403_SPU_TX, ASSERT_LINE);
-#endif
 					}
 					else {
 						fatalerror("ppc: dma_exec: buffered DMA to unknown peripheral ! (channel %d)", ch);

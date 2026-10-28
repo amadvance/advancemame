@@ -631,12 +631,6 @@ static void mips3_exit(void)
 }
 
 
-/* kludge for DRC support */
-static void mips3drc_set_options(UINT8 cpunum, UINT32 opts)
-{
-}
-
-
 
 /***************************************************************************
     TLB HANDLING

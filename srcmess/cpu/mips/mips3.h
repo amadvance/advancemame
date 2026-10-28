@@ -65,21 +65,13 @@ enum
 };
 
 #define MIPS3_MAX_FASTRAM		4
-#define MIPS3_MAX_HOTSPOTS		16
 
 enum
 {
-	CPUINFO_INT_MIPS3_DRC_OPTIONS = CPUINFO_INT_CPU_SPECIFIC,
-
-	CPUINFO_INT_MIPS3_FASTRAM_SELECT,
+	CPUINFO_INT_MIPS3_FASTRAM_SELECT = CPUINFO_INT_CPU_SPECIFIC + 1,
 	CPUINFO_INT_MIPS3_FASTRAM_START,
 	CPUINFO_INT_MIPS3_FASTRAM_END,
 	CPUINFO_INT_MIPS3_FASTRAM_READONLY,
-
-	CPUINFO_INT_MIPS3_HOTSPOT_SELECT,
-	CPUINFO_INT_MIPS3_HOTSPOT_PC,
-	CPUINFO_INT_MIPS3_HOTSPOT_OPCODE,
-	CPUINFO_INT_MIPS3_HOTSPOT_CYCLES,
 
 	CPUINFO_PTR_MIPS3_FASTRAM_BASE = CPUINFO_PTR_CPU_SPECIFIC
 };
@@ -137,23 +129,6 @@ void qed5271le_get_info(UINT32 state, union cpuinfo *info);
 void rm7000be_get_info(UINT32 state, union cpuinfo *info);
 void rm7000le_get_info(UINT32 state, union cpuinfo *info);
 #endif
-
-
-/***************************************************************************
-    COMPILER-SPECIFIC OPTIONS
-***************************************************************************/
-
-/* fix me -- how do we make this work?? */
-#define MIPS3DRC_STRICT_VERIFY		0x0001			/* verify all instructions */
-#define MIPS3DRC_STRICT_COP0		0x0002			/* validate all COP0 instructions */
-#define MIPS3DRC_STRICT_COP1		0x0004			/* validate all COP1 instructions */
-#define MIPS3DRC_STRICT_COP2		0x0008			/* validate all COP2 instructions */
-#define MIPS3DRC_DIRECT_RAM			0x0010			/* allow direct RAM access (no bankswitching!) */
-#define MIPS3DRC_FLUSH_PC			0x0020			/* flush the PC value before each memory access */
-#define MIPS3DRC_CHECK_OVERFLOWS	0x0040			/* actually check overflows on add/sub instructions */
-
-#define MIPS3DRC_COMPATIBLE_OPTIONS	(MIPS3DRC_STRICT_VERIFY | MIPS3DRC_STRICT_COP0 | MIPS3DRC_STRICT_COP1 | MIPS3DRC_STRICT_COP2 | MIPS3DRC_FLUSH_PC)
-#define MIPS3DRC_FASTEST_OPTIONS	(MIPS3DRC_DIRECT_RAM)
 
 
 
