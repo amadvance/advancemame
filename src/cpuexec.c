@@ -508,13 +508,16 @@ void cpuexec_timeslice(void)
 {
 	mame_time target = mame_timer_next_fire_time();
 	mame_time base = mame_timer_get_time();
+	/* CPU topology is fixed while the machine runs. Reuse the CPU
+	 * interface's count instead of walking the driver in each pass. */
+	const int total_cpus = cpu_gettotalcpu();
 	int cpunum, ran;
 
 	LOG(("------------------\n"));
 	LOG(("cpu_timeslice: target = %.9f\n", mame_time_to_double(target)));
 
 	/* process any pending suspends */
-	for (cpunum = 0; Machine->drv->cpu[cpunum].cpu_type != CPU_DUMMY; cpunum++)
+	for (cpunum = 0; cpunum < total_cpus; cpunum++)
 	{
 		if (cpu[cpunum].suspend != cpu[cpunum].nextsuspend)
 			LOG(("--> updated CPU%d suspend from %X to %X\n", cpunum, cpu[cpunum].suspend, cpu[cpunum].nextsuspend));
@@ -523,7 +526,7 @@ void cpuexec_timeslice(void)
 	}
 
 	/* loop over CPUs */
-	for (cpunum = 0; Machine->drv->cpu[cpunum].cpu_type != CPU_DUMMY; cpunum++)
+	for (cpunum = 0; cpunum < total_cpus; cpunum++)
 	{
 		/* only process if we're not suspended */
 		if (!cpu[cpunum].suspend)
@@ -566,7 +569,7 @@ void cpuexec_timeslice(void)
 	}
 
 	/* update the local times of all CPUs */
-	for (cpunum = 0; Machine->drv->cpu[cpunum].cpu_type != CPU_DUMMY; cpunum++)
+	for (cpunum = 0; cpunum < total_cpus; cpunum++)
 	{
 		/* if we're suspended and counting, process */
 		if (cpu[cpunum].suspend && cpu[cpunum].eatcycles && compare_mame_times(cpu[cpunum].localtime, target) < 0)
