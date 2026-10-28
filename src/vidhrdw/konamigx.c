@@ -23,14 +23,15 @@ static void (*game_tile_callback)(int, int *, int *);
 /* Run and Gun 2 / Rushing Heroes */
 static void get_gx_psac_tile_info(int tile_index)
 {
-	int tileno, colour, flipx;
-	UINT16 *map16 = (UINT16 *)gx_psacram;
+	int data = gx_psacram[tile_index / 2];
+	int tileno, colour, flip = 0;
 
-	tileno = map16[tile_index*2+1] & 0x3fff;
-	colour = (psac_colorbase << 4);
-	flipx = 0;
-
-	SET_TILE_INFO(0, tileno, colour, TILE_FLIPYX(flipx))
+	if (!(tile_index & 1)) data >>= 16;
+	tileno = data & 0x1fff;
+	colour = ((psac_colorbase << 4) + ((data >> 13) & 1)) % Machine->gfx[0]->total_colors;
+	if (data & 0x4000) flip |= TILE_FLIPX;
+	if (data & 0x8000) flip |= TILE_FLIPY;
+	SET_TILE_INFO(0, tileno, colour, TILE_FLIPYX(flip))
 }
 
 /* Soccer Superstars (tile and flip bits now TRUSTED) */
@@ -339,13 +340,20 @@ VIDEO_START(konamigx_type4)
 		return 1;
 	}
 
-	if (_gxcommoninit()) return 1;
+	if (!strcmp(Machine->gamedrv->name, "rushhero"))
+	{
+		int i;
+		if (K055673_vh_start(REGION_GFX2, K055673_LAYOUT_GX6, -78, -24, konamigx_type2_sprite_callback)) return 1;
+		if (_gxcommoninitnosprites()) return 1;
+		for (i = 0; i < 4; i++) K056832_set_LayerOffset(i, -22, 0);
+	}
+	else if (_gxcommoninit()) return 1;
 
-	gx_psac_tilemap = tilemap_create(get_gx_psac_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16, 16, 128, 128);
+	gx_psac_tilemap = tilemap_create(get_gx_psac_tile_info, tilemap_scan_cols, TILEMAP_TRANSPARENT, 16, 16, 128, 128);
 	gx_rozenable = 1;
 
 	K053936_wraparound_enable(0, 0);
-	K053936GP_set_offset(0, 0, 0);
+	K053936GP_set_offset(0, !strcmp(Machine->gamedrv->name, "rushhero") ? -36 : 0, 0);
 
 	return 0;
 }
@@ -484,7 +492,9 @@ VIDEO_UPDATE(konamigx)
 
 	if (dirty) K056832_MarkAllTilemapsDirty();
 
-	if (gx_rozenable)
+	if (gx_rozenable && !strcmp(Machine->gamedrv->name, "rushhero"))
+		konamigx_mixer(bitmap, cliprect, gx_psac_tilemap, GXSUB_8BPP, 0, 0, 0);
+	else if (gx_rozenable)
 		konamigx_mixer(bitmap, cliprect, 0, 0, gx_psac_tilemap, GXSUB_8BPP, 0);
 	else
 		konamigx_mixer(bitmap, cliprect, 0, 0, 0, 0, 0);
@@ -580,6 +590,7 @@ WRITE32_HANDLER( konamigx_t4_psacmap_w )
 {
 	COMBINE_DATA(&gx_psacram[offset]);
 
-	tilemap_mark_tile_dirty(gx_psac_tilemap, offset);
+	tilemap_mark_tile_dirty(gx_psac_tilemap, offset*2);
+	tilemap_mark_tile_dirty(gx_psac_tilemap, offset*2+1);
 }
 

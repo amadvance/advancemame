@@ -176,7 +176,6 @@ WRITE16_HANDLER( tms57002_data_word_w )
 /***************************************************************************/
 
 // Hardcoded constants and custom z-buffer
-#define GX_BMPPW (512+32)
 
 #if GX_DEBUG
 	#define GX_ZBUFW     512
@@ -353,8 +352,8 @@ INLINE void K053936GP_copyroz32clip( mame_bitmap *dst_bitmap, mame_bitmap *src_b
 		do {
 			eax = cy;      ebx = cx;
 			eax >>= 16;    ebx >>= 16;
-			eax &= 0x1fff; ebx &= 0x1fff;
-			eax = (eax<<5) + (eax<<13); //eax *= src_pitch;
+			eax &= src_bitmap->height - 1; ebx &= src_bitmap->width - 1;
+			eax *= src_pitch;
 			cy += incxy;   cx += incxx;
 			if (ebx < src_minx || ebx > src_maxx || eax < src_miny || eax > src_maxy) continue;
 
@@ -378,8 +377,8 @@ INLINE void K053936GP_copyroz32clip( mame_bitmap *dst_bitmap, mame_bitmap *src_b
 		do {
 			eax = cy;      ebx = cx;
 			eax >>= 16;    ebx >>= 16;
-			eax &= 0x1fff; ebx &= 0x1fff;
-			eax = (eax<<5) + (eax<<13); //eax *= src_pitch;
+			eax &= src_bitmap->height - 1; ebx &= src_bitmap->width - 1;
+			eax *= src_pitch;
 			cy += incxy;   cx += incxx;
 			if (ebx < src_minx || ebx > src_maxx || eax < src_miny || eax > src_maxy) continue;
 
@@ -570,7 +569,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 	shd_base  = (UINT32 *)palette_shadow_table;
 
 	dst_ptr   = bitmap->base;
-	dst_pitch = GX_BMPPW;
+	dst_pitch = bitmap->rowpixels;
 	dst_minx  = cliprect->min_x;
 	dst_maxx  = cliprect->max_x;
 	dst_miny  = cliprect->min_y;
@@ -655,7 +654,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 				while (++ecx);
 
 				ecx = src_fby;   src_fby += src_fdy;
-				dst_ptr += GX_BMPPW;
+				dst_ptr += dst_pitch;
 				ecx >>= FP;      src_fx = src_fbx;
 				src_x = src_fbx; src_fx += src_fdx;
 				ecx <<= 4;       src_ptr = src_base;
@@ -684,7 +683,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						ecx = src_fby;   src_fby += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx >>= FP;      src_fx = src_fbx;
 						src_x = src_fbx; src_fx += src_fdx;
 						ecx <<= 4;       src_ptr = src_base;
@@ -710,7 +709,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						ecx = src_fby;   src_fby += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx >>= FP;      src_fx = src_fbx;
 						src_x = src_fbx; src_fx += src_fdx;
 						ecx <<= 4;       src_ptr = src_base;
@@ -736,7 +735,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						ecx = src_fby;   src_fby += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx >>= FP;      src_fx = src_fbx;
 						src_x = src_fbx; src_fx += src_fdx;
 						ecx <<= 4;       src_ptr = src_base;
@@ -762,7 +761,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						ecx = src_fby;   src_fby += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx >>= FP;      src_fx = src_fbx;
 						src_x = src_fbx; src_fx += src_fdx;
 						ecx <<= 4;       src_ptr = src_base;
@@ -790,7 +789,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						ecx = src_fby;   src_fby += src_fdy;
 						szbuf_ptr += (GX_ZBUFW<<1);
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx >>= FP;      src_fx = src_fbx;
 						src_x = src_fbx; src_fx += src_fdx;
 						ecx <<= 4;       src_ptr = src_base;
@@ -820,7 +819,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 				while (++ecx);
 
 				src_ptr += src_fdy;
-				dst_ptr += GX_BMPPW;
+				dst_ptr += dst_pitch;
 				ecx = dst_w;
 			}
 			while (--dst_h);
@@ -843,7 +842,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						src_ptr += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx = dst_w;
 					}
 					while (--dst_h);
@@ -863,7 +862,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						src_ptr += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx = dst_w;
 					}
 					while (--dst_h);
@@ -883,7 +882,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						src_ptr += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx = dst_w;
 					}
 					while (--dst_h);
@@ -903,7 +902,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						src_ptr += src_fdy;
 						ozbuf_ptr += GX_ZBUFW;
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx = dst_w;
 					}
 					while (--dst_h);
@@ -925,7 +924,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 
 						src_ptr += src_fdy;
 						szbuf_ptr += (GX_ZBUFW<<1);
-						dst_ptr += GX_BMPPW;
+						dst_ptr += dst_pitch;
 						ecx = dst_w;
 					}
 					while (--dst_h);
@@ -1389,6 +1388,8 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 
 		// update shadows status
 		K054338_update_all_shadows();
+		if (!strcmp(Machine->gamedrv->name, "rushhero"))
+			for (i = 0; i < 3; i++) palette_set_shadow_dRGB32(i, -80, -80, -80, 0);
 	}
 
 	// pre-sort layers
@@ -1652,7 +1653,7 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 				continue;
 				case -2:
 				case -4:
-				if (disp & K55_INP_SUB1)
+				if ((disp & K55_INP_SUB1) || !strcmp(Machine->gamedrv->name, "rushhero"))
 				{
 					if (j == GXMIX_BLEND_NONE)  { temp1 = 0xff; temp2 = temp3 = 0; } else
 					if (j == GXMIX_BLEND_FORCE) { temp1 = 0x00; temp2 = mixerflags>>24; temp3 = 3; }
@@ -1782,12 +1783,12 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 
 		// apply wrapping and global offsets
 		temp = wrapsize-1;
+		ox += K053247_dx;
+		oy -= K053247_dy;
 		ox = ( ox - offx) & temp;
 		oy = (-oy - offy) & temp;
 		if (ox >= xwraplim) ox -= wrapsize;
 		if (oy >= ywraplim) oy -= wrapsize;
-		ox += K053247_dx;
-		oy += K053247_dy;
 
 
 		temp = temp4>>8 & 0x0f;
