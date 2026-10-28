@@ -1,10 +1,5 @@
 // license:BSD-3-Clause
 // copyright-holders:R. Belmont
-/*
-license:BSD-3-Clause
-copyright-holders:R. Belmont
-*/
-
 #include "driver.h"
 #include "debugger.h"
 #include "sh3.h"

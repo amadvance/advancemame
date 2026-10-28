@@ -2096,6 +2096,22 @@ Configuration
 		no - Disable the JIT recompiler and use the interpreter.
 		yes - Enable the JIT recompiler if supported (default).
 
+    misc_slowdown
+	Enables or disables authentic arcade hardware slowdown
+	simulation (such as CPU cache misses, bus wait states, and
+	memory contention).
+	When enabled (the default), hardware bottlenecks and latencies
+	are simulated, reproducing authentic arcade gameplay slowdowns
+	(essential for shmups/bullet hell games).
+	When disabled, bottlenecks and wait states are bypassed to
+	eliminate slowdowns and maximize execution speed.
+
+	:misc_slowdown yes | no
+
+	Options:
+		no - Disable hardware slowdown simulation.
+		yes - Enable authentic arcade slowdown simulation (default).
+
     misc_bios
 	Selects the game bios in AdvanceMAME.
 

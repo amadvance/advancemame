@@ -13,6 +13,7 @@
 #include "driver.h"
 #include "state.h"
 #include "usrintrf.h"
+#include "cpu/sh3/sh3.h"
 #include "includes/cv1k.h"
 
 #ifdef LSB_FIRST
@@ -453,7 +454,7 @@ DEFINE_BLIT(draw_sprite_f1_ti0_tr0_simple, 1, 0, 0, 0, 0, 0, 1)
 
 INLINE UINT16 read_next_word(offs_t *addr)
 {
-	UINT16 data = m_use_ram[((*addr & m_main_rammask) >> 1) ^ NATIVE_ENDIAN_VALUE_LE_BE(3, 0)];
+	UINT16 data = m_use_ram[((*addr & m_main_rammask) >> 1) ^ NATIVE_ENDIAN_VALUE_LE_BE(1, 0)];
 	*addr += 2;
 	return data;
 }
@@ -558,7 +559,7 @@ static void gfx_upload(UINT32 *addr)
 		{
 			/* the row doesn't wrap around the end of the RAM */
 			for (x = 0; x < cols; x++, a += 2)
-				dst[x] = m_use_ram[(a >> 1) ^ NATIVE_ENDIAN_VALUE_LE_BE(3, 0)];
+				dst[x] = m_use_ram[(a >> 1) ^ NATIVE_ENDIAN_VALUE_LE_BE(1, 0)];
 			*addr += dimx * 2;
 		}
 		else
@@ -807,10 +808,10 @@ static void blit_done(int param)
 
 static READ32_HANDLER(blitter_r)
 {
+	sh3_update_access_cycles(0xb8000000 + offset * 4, 0);
 	switch (offset * 4)
 	{
 		case 0x10:
-			if (m_blitter_busy) cpu_spinuntil_time(TIME_IN_USEC(10));
 			return m_blitter_busy ? 0 : 0x10;
 		case 0x24:
 		case 0x28:
@@ -823,6 +824,7 @@ static READ32_HANDLER(blitter_r)
 
 static WRITE32_HANDLER(blitter_w)
 {
+	sh3_update_access_cycles(0xb8000000 + offset * 4, 1);
 	switch (offset * 4)
 	{
 		case 0x04:
@@ -854,25 +856,21 @@ static WRITE32_HANDLER(blitter_w)
 	}
 }
 
-READ64_HANDLER(cv1k_blitter_r)
+READ32_HANDLER(cv1k_blitter_r)
 {
-	UINT64 result = 0;
-	if ((UINT32)(mem_mask >> 32) != 0xffffffff) result |= (UINT64)blitter_r(offset * 2, mem_mask >> 32) << 32;
-	if ((UINT32)mem_mask != 0xffffffff) result |= blitter_r(offset * 2 + 1, mem_mask);
-	return result;
+	return blitter_r(offset, mem_mask);
 }
 
-WRITE64_HANDLER(cv1k_blitter_w)
+WRITE32_HANDLER(cv1k_blitter_w)
 {
-	if ((UINT32)(mem_mask >> 32) != 0xffffffff) blitter_w(offset * 2, data >> 32, mem_mask >> 32);
-	if ((UINT32)mem_mask != 0xffffffff) blitter_w(offset * 2 + 1, data, mem_mask);
+	blitter_w(offset, data, mem_mask);
 }
 
 /***************************************************************************
 	video initialization & update
 ***************************************************************************/
 
-void cv1k_video_init(UINT64 *ram, int size)
+void cv1k_video_init(UINT32 *ram, int size)
 {
 	int p;
 

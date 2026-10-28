@@ -175,75 +175,158 @@ Blitter Timing
 
 #include "driver.h"
 #include "cpu/sh3/sh3.h"
-#include "cpu/sh3/sh3comn.h"
 #include "includes/cv1k.h"
 #include "sound/custom.h"
-static UINT64 *cv1k_ram;
+
+static UINT32 *cv1k_ram;
 static size_t cv1k_ram_size;
-static READ64_HANDLER(flash_r)
+
+#define LANE_ACCESSED(lane)		((mem_mask & (0xff000000 >> ((lane) * 8))) == 0)
+#define LANE_DATA(lane)			((data >> (24 - (lane) * 8)) & 0xff)
+
+static READ32_HANDLER(flash_r)
 {
-	UINT64 result = U64(0x00ffffffffffffff);
-	if (!(mem_mask & U64(0xff00000000000000))) result |= (UINT64)cv1k_flash_io_r() << 56;
+	UINT32 result = 0;
+	int lane;
+
+	for (lane = 0; lane < 4; lane++)
+	{
+		if (LANE_ACCESSED(lane))
+		{
+			UINT32 byte_offset = offset * 4 + lane;
+			UINT8 d = 0xff;
+			sh3_update_access_cycles(0xb0000000 + byte_offset, 0);
+			if (byte_offset == 0)
+				d = cv1k_flash_io_r();
+			result |= (UINT32)d << (24 - lane * 8);
+		}
+	}
 	return result;
 }
-static WRITE64_HANDLER(flash_w)
+
+static WRITE32_HANDLER(flash_w)
 {
-	if (!(mem_mask & U64(0xff00000000000000))) cv1k_flash_data_w(data >> 56);
-	if (!(mem_mask & U64(0x00ff000000000000))) cv1k_flash_cmd_w(data >> 48);
-	if (!(mem_mask & U64(0x0000ff0000000000))) cv1k_flash_addr_w(data >> 40);
-}
-static WRITE64_HANDLER(ymz_w)
-{
-	int i;
-	for (i = 0; i < 8; ++i) if (!((mem_mask >> (56 - i * 8)) & 0xff))
-		cv1k_ymz_write(i, data >> (56 - i * 8));
-}
-static READ64_HANDLER(rtc_r)
-{
-	return (UINT64)(0xfe | cv1k_rtc_read_bit()) << 48;
-}
-static WRITE64_HANDLER(rtc_w)
-{
-	if (!(mem_mask & U64(0x00ff000000000000))) {
-		UINT8 value = data >> 48;
-		cv1k_rtc_write_bit(value & 1);
-		cv1k_rtc_set_clock_line((value >> 1) & 1);
-		cv1k_rtc_set_cs_line((value & 4) ? CLEAR_LINE : ASSERT_LINE);
+	int lane;
+
+	for (lane = 0; lane < 4; lane++)
+	{
+		if (LANE_ACCESSED(lane))
+		{
+			UINT32 byte_offset = offset * 4 + lane;
+			sh3_update_access_cycles(0xb0000000 + byte_offset, 1);
+			switch (byte_offset)
+			{
+				case 0: cv1k_flash_data_w(LANE_DATA(lane)); break;
+				case 1: cv1k_flash_cmd_w(LANE_DATA(lane)); break;
+				case 2: cv1k_flash_addr_w(LANE_DATA(lane)); break;
+				default: break;
+			}
+		}
 	}
-	if (!(mem_mask & U64(0x000000ff00000000))) cv1k_flash_enab_w(data >> 32);
 }
-static READ64_HANDLER(port_c_r) { return readinputportbytag("PORT_C"); }
-static READ64_HANDLER(port_d_r) { return readinputportbytag("PORT_D"); }
-static READ64_HANDLER(port_e_r) { return 0xdf | (cv1k_flash_ready_r() ? 0x20 : 0); }
-static READ64_HANDLER(port_f_r) { return readinputportbytag("PORT_F"); }
-static READ64_HANDLER(port_l_r) { return readinputportbytag("PORT_L"); }
-static READ64_HANDLER(fpga_r) { return 0xff; }
-static WRITE64_HANDLER(fpga_w) {}
-static ADDRESS_MAP_START(cv1k_map, ADDRESS_SPACE_PROGRAM, 64)
+
+static WRITE32_HANDLER(ymz_w)
+{
+	int lane;
+
+	for (lane = 0; lane < 4; lane++)
+	{
+		if (LANE_ACCESSED(lane))
+		{
+			UINT32 byte_offset = offset * 4 + lane;
+			sh3_update_access_cycles(0xb0400000 + byte_offset, 1);
+			cv1k_ymz_write(byte_offset, LANE_DATA(lane));
+		}
+	}
+}
+
+static READ32_HANDLER(rtc_r)
+{
+	UINT32 result = 0;
+	int lane;
+
+	for (lane = 0; lane < 4; lane++)
+	{
+		if (LANE_ACCESSED(lane))
+		{
+			UINT32 byte_offset = offset * 4 + lane;
+			UINT8 d = 0;
+			sh3_update_access_cycles(0xb0c00000 + byte_offset, 0);
+			if (byte_offset == 1)
+				d = 0xfe | cv1k_rtc_read_bit();
+			result |= (UINT32)d << (24 - lane * 8);
+		}
+	}
+	return result;
+}
+
+static WRITE32_HANDLER(rtc_w)
+{
+	int lane;
+
+	for (lane = 0; lane < 4; lane++)
+	{
+		if (LANE_ACCESSED(lane))
+		{
+			UINT32 byte_offset = offset * 4 + lane;
+			sh3_update_access_cycles(0xb0c00000 + byte_offset, 1);
+			if (byte_offset == 1)
+			{
+				UINT8 value = LANE_DATA(lane);
+				cv1k_rtc_write_bit(value & 1);
+				cv1k_rtc_set_clock_line((value >> 1) & 1);
+				cv1k_rtc_set_cs_line((value & 4) ? CLEAR_LINE : ASSERT_LINE);
+			}
+			else if (byte_offset == 3)
+			{
+				cv1k_flash_enab_w(LANE_DATA(lane));
+			}
+		}
+	}
+}
+
+static UINT8 cv1k_port_r(int port)
+{
+	switch (port)
+	{
+		case SH3_PORT_C: return readinputportbytag("PORT_C");
+		case SH3_PORT_D: return readinputportbytag("PORT_D");
+		case SH3_PORT_E: return 0xdf | (cv1k_flash_ready_r() ? 0x20 : 0);
+		case SH3_PORT_F: return readinputportbytag("PORT_F");
+		case SH3_PORT_L: return readinputportbytag("PORT_L");
+		case SH3_PORT_J: return 0xff;
+	}
+	return 0;
+}
+
+static void cv1k_port_w(int port, UINT8 data)
+{
+}
+
+static struct sh3_config cv1k_sh3_config =
+{
+	1,					/* cache and bus timing */
+	102400000 / 4,		/* peripheral clock */
+	cv1k_port_r,
+	cv1k_port_w
+};
+
+static ADDRESS_MAP_START(cv1k_map, ADDRESS_SPACE_PROGRAM, 32)
 	AM_RANGE(0x00000000, 0x003fffff) AM_ROM AM_REGION(REGION_CPU1, 0)
 	AM_RANGE(0x0c000000, 0x0c7fffff) AM_RAM AM_BASE(&cv1k_ram) AM_SIZE(&cv1k_ram_size)
 	AM_RANGE(0x10000000, 0x10000007) AM_READWRITE(flash_r, flash_w)
 	AM_RANGE(0x10400000, 0x10400007) AM_WRITE(ymz_w)
 	AM_RANGE(0x10c00000, 0x10c00007) AM_READWRITE(rtc_r, rtc_w)
 	AM_RANGE(0x18000000, 0x18000057) AM_READWRITE(cv1k_blitter_r, cv1k_blitter_w)
-	AM_RANGE(0xf0000000, 0xf0ffffff) AM_RAM
 ADDRESS_MAP_END
-static ADDRESS_MAP_START(cv1k_d_map, ADDRESS_SPACE_PROGRAM, 64)
+
+static ADDRESS_MAP_START(cv1k_d_map, ADDRESS_SPACE_PROGRAM, 32)
 	AM_RANGE(0x00000000, 0x003fffff) AM_ROM AM_REGION(REGION_CPU1, 0)
 	AM_RANGE(0x0c000000, 0x0cffffff) AM_RAM AM_BASE(&cv1k_ram) AM_SIZE(&cv1k_ram_size)
 	AM_RANGE(0x10000000, 0x10000007) AM_READWRITE(flash_r, flash_w)
 	AM_RANGE(0x10400000, 0x10400007) AM_WRITE(ymz_w)
 	AM_RANGE(0x10c00000, 0x10c00007) AM_READWRITE(rtc_r, rtc_w)
 	AM_RANGE(0x18000000, 0x18000057) AM_READWRITE(cv1k_blitter_r, cv1k_blitter_w)
-	AM_RANGE(0xf0000000, 0xf0ffffff) AM_RAM
-ADDRESS_MAP_END
-static ADDRESS_MAP_START(cv1k_port, ADDRESS_SPACE_IO, 64)
-	AM_RANGE(SH3_PORT_C, SH3_PORT_C+7) AM_READ(port_c_r)
-	AM_RANGE(SH3_PORT_D, SH3_PORT_D+7) AM_READ(port_d_r)
-	AM_RANGE(SH3_PORT_E, SH3_PORT_E+7) AM_READ(port_e_r)
-	AM_RANGE(SH3_PORT_F, SH3_PORT_F+7) AM_READ(port_f_r)
-	AM_RANGE(SH3_PORT_L, SH3_PORT_L+7) AM_READ(port_l_r)
-	AM_RANGE(SH3_PORT_J, SH3_PORT_J+7) AM_READWRITE(fpga_r, fpga_w)
 ADDRESS_MAP_END
 static INPUT_PORTS_START( cv1k_base )
 	PORT_START_TAG("DSW")
@@ -324,8 +407,8 @@ static VIDEO_START(cv1k)
 static struct CustomSound_interface cv1k_sound = { cv1k_ymz_start, NULL, cv1k_ymz_reset, NULL };
 static MACHINE_DRIVER_START(cv1k)
 	MDRV_CPU_ADD_TAG("main", SH3BE, 102400000)
+	MDRV_CPU_CONFIG(cv1k_sh3_config)
 	MDRV_CPU_PROGRAM_MAP(cv1k_map, 0)
-	MDRV_CPU_IO_MAP(cv1k_port, 0)
 	MDRV_CPU_VBLANK_INT(irq2_line_hold, 1)
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(0)
@@ -356,19 +439,25 @@ static void cv1k_init(void)
 }
 static UINT32 cv1k_idle_offset;
 static UINT32 cv1k_idle_pc;
-static READ64_HANDLER(cv1k_speedup_r)
+static READ32_HANDLER(cv1k_speedup_r)
 {
-	unsigned pc = activecpu_get_pc();
-	if (pc == cv1k_idle_pc || pc == cv1k_idle_pc + 2)
-		cpu_spinuntil_time(TIME_IN_USEC(10));
-	return cv1k_ram[cv1k_idle_offset / 8];
+	offs_t pc = activecpu_get_pc();
+	if (pc == cv1k_idle_pc || pc == cv1k_idle_pc + 2 || pc == cv1k_idle_pc + 8)
+		activecpu_eat_cycles(1024);
+	return cv1k_ram[cv1k_idle_offset / 4 + offset];
 }
 static void cv1k_install_speedup(UINT32 offset, UINT32 pc)
 {
 	cv1k_init();
 	cv1k_idle_offset = offset;
 	cv1k_idle_pc = pc;
-	memory_install_read64_handler(0, ADDRESS_SPACE_PROGRAM, 0x0c000000 + offset, 0x0c000007 + offset, 0, 0, cv1k_speedup_r);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x0c000000 + offset, 0x0c000007 + offset, 0, 0, cv1k_speedup_r);
+
+	/* fast memory (sh3_set_fastram): ROM and work RAM (excluding the idle loop) */
+	sh3_set_fastram(0x00000000, 0x003fffff, 1, (UINT32 *)memory_region(REGION_CPU1));
+	if (offset)
+		sh3_set_fastram(0x0c000000, 0x0c000000 + offset - 1, 0, cv1k_ram);
+	sh3_set_fastram(0x0c000000 + offset + 8, 0x0c000000 + cv1k_ram_size - 1, 0, cv1k_ram + (offset + 8) / 4);
 }
 static DRIVER_INIT(mushisam)
 {

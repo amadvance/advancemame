@@ -1,143 +1,91 @@
 // license:BSD-3-Clause
-// copyright-holders:R. Belmont
-/*
-license:BSD-3-Clause
-copyright-holders:R. Belmont
-*****************************************************************************
- *
- *   sh3.h
- *   Portable Hitachi SH-3 / SH-4 (SH7750 family) emulator interface
- *
- *   By R. Belmont, based on sh2.c by Juergen Buchmueller, Mariusz Wojcieszek,
- *      Olivier Galibert, Sylvain Glaize, and James Forshaw.
- *
- *****************************************************************************/
+// copyright-holders:R. Belmont, David Haywood, Jesus Ramos
+/*****************************************************************************
 
+	sh3.h
 
-#ifndef __SH4_H__
-#define __SH4_H__
+	Hitachi SH-3 (SH7709S) CPU core, from current MAME (sh.cpp, sh4.cpp,
+	sh3comn.cpp, sh4comn.cpp, sh4tmu.cpp, sh7709s.cpp: R. Belmont,
+	David Haywood, Jesus Ramos and the other authors of those files).
 
-#define SH4_INT_NONE    -1
+	Big endian, 32-bit data bus (32bedw). No FPU and no MMU (current MAME
+	doesn't emulate the SH-3 MMU either). The internal registers of the
+	SH7709S are emulated in the core; the I/O ports call the driver.
+
+*****************************************************************************/
+
+#ifndef _SH3_H
+#define _SH3_H
+
+#include "cpuintrf.h"
+#include "osd_cpu.h"
+
+/* the external interrupt lines IRL0-IRL3 (current MAME: SH4_IRL0-SH4_IRL3) */
+#define SH3_IRL0		0
+#define SH3_IRL1		1
+#define SH3_IRL2		2
+#define SH3_IRL3		3
+
+/* the I/O ports, for the port callbacks */
 enum
 {
-	SH4_IRL0=0, SH4_IRL1, SH4_IRL2, SH4_IRL3, SH4_IRLn
-};
-
-enum
-{
-	SH4_PC=1, SH4_SR, SH4_PR, SH4_GBR, SH4_VBR, SH4_DBR, SH4_MACH, SH4_MACL,
-	SH4_R0, SH4_R1, SH4_R2, SH4_R3, SH4_R4, SH4_R5, SH4_R6, SH4_R7,
-	SH4_R8, SH4_R9, SH4_R10, SH4_R11, SH4_R12, SH4_R13, SH4_R14, SH4_R15, SH4_EA,
-	SH4_R0_BK0, SH4_R1_BK0, SH4_R2_BK0, SH4_R3_BK0, SH4_R4_BK0, SH4_R5_BK0, SH4_R6_BK0, SH4_R7_BK0,
-	SH4_R0_BK1, SH4_R1_BK1, SH4_R2_BK1, SH4_R3_BK1, SH4_R4_BK1, SH4_R5_BK1, SH4_R6_BK1, SH4_R7_BK1,
-	SH4_SPC, SH4_SSR, SH4_SGR, SH4_FPSCR, SH4_FPUL, SH4_FR0, SH4_FR1, SH4_FR2, SH4_FR3, SH4_FR4, SH4_FR5,
-	SH4_FR6, SH4_FR7, SH4_FR8, SH4_FR9, SH4_FR10, SH4_FR11, SH4_FR12, SH4_FR13, SH4_FR14, SH4_FR15,
-	SH4_XF0, SH4_XF1, SH4_XF2, SH4_XF3, SH4_XF4, SH4_XF5, SH4_XF6, SH4_XF7,
-	SH4_XF8, SH4_XF9, SH4_XF10, SH4_XF11, SH4_XF12, SH4_XF13, SH4_XF14, SH4_XF15
+	SH3_PORT_A = 0, SH3_PORT_B, SH3_PORT_C, SH3_PORT_D, SH3_PORT_E, SH3_PORT_F,
+	SH3_PORT_G, SH3_PORT_H, SH3_PORT_J, SH3_PORT_K, SH3_PORT_L, SH3_PORT_COUNT
 };
 
 enum
 {
-	SH4_INTC_NMI=23,
-	SH4_INTC_IRLn0,
-	SH4_INTC_IRLn1,
-	SH4_INTC_IRLn2,
-	SH4_INTC_IRLn3,
-	SH4_INTC_IRLn4,
-	SH4_INTC_IRLn5,
-	SH4_INTC_IRLn6,
-	SH4_INTC_IRLn7,
-	SH4_INTC_IRLn8,
-	SH4_INTC_IRLn9,
-	SH4_INTC_IRLnA,
-	SH4_INTC_IRLnB,
-	SH4_INTC_IRLnC,
-	SH4_INTC_IRLnD,
-	SH4_INTC_IRLnE,
-
-	SH4_INTC_IRL0,
-	SH4_INTC_IRL1,
-	SH4_INTC_IRL2,
-	SH4_INTC_IRL3,
-
-	SH4_INTC_HUDI,
-	SH4_INTC_GPOI,
-
-	SH4_INTC_DMTE0,
-	SH4_INTC_DMTE1,
-	SH4_INTC_DMTE2,
-	SH4_INTC_DMTE3,
-	SH4_INTC_DMTE4,
-	SH4_INTC_DMTE5,
-	SH4_INTC_DMTE6,
-	SH4_INTC_DMTE7,
-
-	SH4_INTC_DMAE,
-
-	SH4_INTC_TUNI3,
-	SH4_INTC_TUNI4,
-	SH4_INTC_TUNI0,
-	SH4_INTC_TUNI1,
-	SH4_INTC_TUNI2,
-	SH4_INTC_TICPI2,
-	SH4_INTC_ATI,
-	SH4_INTC_PRI,
-	SH4_INTC_CUI,
-	SH4_INTC_SCI1ERI,
-	SH4_INTC_SCI1RXI,
-
-	SH4_INTC_SCI1TXI,
-	SH4_INTC_SCI1TEI,
-	SH4_INTC_SCIFERI,
-	SH4_INTC_SCIFRXI,
-	SH4_INTC_SCIFBRI,
-	SH4_INTC_SCIFTXI,
-	SH4_INTC_ITI,
-	SH4_INTC_RCMI,
-	SH4_INTC_ROVI
+	SH3_PC=1, SH3_SR, SH3_PR, SH3_GBR, SH3_VBR, SH3_MACH, SH3_MACL,
+	SH3_R0, SH3_R1, SH3_R2, SH3_R3, SH3_R4, SH3_R5, SH3_R6, SH3_R7,
+	SH3_R8, SH3_R9, SH3_R10, SH3_R11, SH3_R12, SH3_R13, SH3_R14, SH3_R15,
+	SH3_SSR, SH3_SPC, SH3_EA
 };
 
-#define SH4_FPU_PZERO 0
-#define SH4_FPU_NZERO 1
-#define SH4_FPU_DENORM 2
-#define SH4_FPU_NORM 3
-#define SH4_FPU_PINF 4
-#define SH4_FPU_NINF 5
-#define SH4_FPU_qNaN 6
-#define SH4_FPU_sNaN 7
+typedef UINT8 data8_t;
+typedef UINT32 data32_t;
 
-enum
+struct sh3_config
 {
-	SH4_IOPORT_16=8*0,
-	SH4_IOPORT_4=8*1,
-	SH4_IOPORT_DMA=8*2,
-
-	SH4_IOPORT_SCI=8*3,
-	SH4_IOPORT_SCIF=8*4
+	/* the SH7709S cache and bus timing of current MAME (sh7709s.cpp, made
+	   for the CV1000): data accesses and cache misses cost cycles */
+	int cache_timing;
+	/* the clock of the peripheral modules (TMU), Hz */
+	int pm_clock;
+	/* the I/O ports (SH3_PORT_x); NULL reads 0 */
+	UINT8 (*port_r)(int port);
+	void (*port_w)(int port, UINT8 data);
 };
 
-struct sh4_device_dma
-{
-	UINT32 length;
-	UINT32 size;
-	void *buffer;
-	int channel;
-};
+extern int sh3_ICount;
 
-struct sh4_ddt_dma
-{
-	UINT32 source;
-	UINT32 length;
-	UINT32 size;
-	UINT32 destination;
-	void *buffer;
-	int direction;
-	int channel;
-	int mode;
-};
+/* the fast memory: plain RAM or ROM at base (an array of UINT32, as the
+   memory system keeps a 32-bit big-endian space), read, written and fetched
+   without the memory handlers; physical addresses (29 bits). Set from
+   DRIVER_INIT, emptied at the CPU init */
+#define SH3_FASTRAM_MAX		4
+void sh3_set_fastram(UINT32 start, UINT32 end, int readonly, UINT32 *base);
 
-typedef void (*sh4_ftcsr_callback)(UINT32);
+/* the cache and bus timing of an access done by a memory handler (current
+   MAME: sh7709s_device::update_access_cycles) */
+void sh3_update_access_cycles(UINT32 address, int write);
+
+/* the recompiler (sh3jit.c): available on this host, and on/off (off by default) */
+int sh3_jit_available(void);
+void sh3_set_jit(int enable);
+
+/* the total number of cycles run */
+UINT32 sh3_total_cycles_lo(void);
+
+void sh3_init(void);
+void sh3_reset(void *param);
+void sh3_exit(void);
+void sh3_get_context(void *dst);
+void sh3_set_context(void *src);
+void sh3_set_irq_line(int irqline, int state);
+void sh3_set_irq_callback(int (*callback)(int irqline));
+offs_t sh3_dasm(char *buffer, offs_t pc);
 
 void sh3be_get_info(UINT32 state, union cpuinfo *info);
 void cv1k_sh3_install(void);
+
 #endif
