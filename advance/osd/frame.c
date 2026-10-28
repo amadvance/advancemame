@@ -2065,8 +2065,10 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 	if (debug_frame) {
 		++record_context->state.debug_frame_counter;
 		if (record_context->config.debug_exit != 0
-			&& record_context->state.debug_frame_counter >= record_context->config.debug_exit)
+			&& record_context->state.debug_frame_counter >= record_context->config.debug_exit) {
+			record_context->state.debug_time_stop = target_clock();
 			CONTEXT.input.state.input_forced_exit_flag = 1;
+		}
 	}
 
 	/* bitmap */

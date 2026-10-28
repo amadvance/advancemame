@@ -160,8 +160,8 @@ void advance_video_update_sync(struct advance_video_context* context)
 		}
 
 		/* disable if measure active */
-		if (context->state.measure_flag) {
-			log_std(("emu:video: vsync disabled because measure active\n"));
+		if (context->state.measure_flag || CONTEXT.record.config.debug_exit != 0) {
+			log_std(("emu:video: vsync disabled because performance measurement active\n"));
 			context->state.vsync_flag = 0;
 		}
 
@@ -448,6 +448,7 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
+			&& CONTEXT.record.config.debug_exit == 0
 			&& context->state.sync_throttle_flag)
 			video_frame_sync(context);
 		else
