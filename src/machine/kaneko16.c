@@ -2185,10 +2185,10 @@ static const UINT8 toybox_mcu_decryption_table_alt[0x100] = {
 
 // I use a byteswapped MCU data rom to make the transfers to the 68k side easier
 //  not sure if it's all 100% endian safe
-DRIVER_INIT( decrypt_toybox_rom )
+void toybox_decrypt_region(int region)
 {
 
-	UINT8 *src = (UINT8 *)memory_region(REGION_CPU2);
+	UINT8 *src = (UINT8 *)memory_region(region);
 
 	int i;
 
@@ -2196,6 +2196,11 @@ DRIVER_INIT( decrypt_toybox_rom )
 	{
 		src[i] = src[i] + toybox_mcu_decryption_table[(i^1)&0xff];
 	}
+}
+
+DRIVER_INIT( decrypt_toybox_rom )
+{
+	toybox_decrypt_region(REGION_CPU2);
 }
 
 DRIVER_INIT( decrypt_toybox_rom_alt )
@@ -2210,9 +2215,9 @@ DRIVER_INIT( decrypt_toybox_rom_alt )
 	}
 }
 
-void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16*mcu_ram)
+void toybox_handle_04_region(UINT8 mcu_subcmd, UINT16 *mcu_ram, int region)
 {
-	UINT8 *src = (UINT8 *)memory_region(REGION_CPU2)+0x10000;
+	UINT8 *src = (UINT8 *)memory_region(region)+0x10000;
 	UINT8* dst = (UINT8 *)mcu_ram;
 
 	int offs = (mcu_subcmd&0x3f)*8;
@@ -2230,6 +2235,12 @@ void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16*mcu_ram)
 	{
 		dst[BYTE_XOR_LE(ramdest+x)] = src[(romstart+x)];
 	}
+}
+
+
+void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16 *mcu_ram)
+{
+	toybox_handle_04_region(mcu_subcmd, mcu_ram, REGION_CPU2);
 }
 
 

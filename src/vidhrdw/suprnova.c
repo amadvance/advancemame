@@ -34,9 +34,9 @@ static int old_depthB=0, depthB=0;
 static int sprite_kludge_x=0, sprite_kludge_y=0;
 
 
-static int skns_rle_decode ( int romoffset, int size )
+static int skns_rle_decode ( int romoffset, int size, int gfxregion )
 {
-	UINT8 *src = memory_region (REGION_GFX1)+ romoffset;
+	UINT8 *src = memory_region (gfxregion)+ romoffset;
 	UINT8 *dst = decodebuffer;
 
 	while(size>0) {
@@ -56,7 +56,7 @@ static int skns_rle_decode ( int romoffset, int size )
 			} while(code != 0xff);
 		}
 	}
-	return src-memory_region (REGION_GFX1);
+	return src-memory_region (gfxregion);
 }
 
 void skns_sprite_kludge(int x, int y)
@@ -235,7 +235,7 @@ static void (*blit_z[4])(mame_bitmap *bitmap, const rectangle *cliprect, const U
 	blit_fxy_z,
 };
 
-void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
+void skns_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, UINT32 *ram, int ram_size, int gfxregion, UINT32 *regs, int encode_priority)
 {
 	/*- SPR RAM Format -**
 
@@ -271,8 +271,8 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 
 	/* sprite ram start / end is not really fixed registers change it */
 
-	UINT32 *source = buffered_spriteram32;
-	UINT32 *finish = source + spriteram_size/4;
+	UINT32 *source = ram;
+	UINT32 *finish = source + ram_size/4;
 
 	int group_x_offset[4];
 	int group_y_offset[4];
@@ -281,7 +281,7 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 	int sprite_flip;
 	int sprite_x_scroll;
 	int sprite_y_scroll;
-	int disabled = skns_spc_regs[0x04/4] & 0x08; // RWR1
+	int disabled = regs[0x04/4] & 0x08; // RWR1
 	int xsize,ysize, size, xpos=0,ypos=0, pri=0, romoffset, colour=0, xflip,yflip, joint;
 	int sx,sy;
 	int endromoffs=0;
@@ -292,33 +292,33 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 
 	if (!disabled){
 
-		group_enable    = (skns_spc_regs[0x00/4] & 0x0040) >> 6; // RWR0
+		group_enable    = (regs[0x00/4] & 0x0040) >> 6; // RWR0
 
 		/* Sengekis uses global flip */
-		sprite_flip = (skns_spc_regs[0x04/4] & 0x03); // RWR1
+		sprite_flip = (regs[0x04/4] & 0x03); // RWR1
 
-		sprite_y_scroll = ((skns_spc_regs[0x08/4] & 0x7fc0) >> 6); // RWR2
-		sprite_x_scroll = ((skns_spc_regs[0x10/4] & 0x7fc0) >> 6); // RWR4
+		sprite_y_scroll = ((regs[0x08/4] & 0x7fc0) >> 6); // RWR2
+		sprite_x_scroll = ((regs[0x10/4] & 0x7fc0) >> 6); // RWR4
 		if (sprite_y_scroll&0x100) sprite_y_scroll -= 0x200; // Signed
 		if (sprite_x_scroll&0x100) sprite_x_scroll -= 0x200; // Signed
 
-		group_x_offset[0] = (skns_spc_regs[0x18/4] & 0xffc0) >> 6; // RWR6
-		group_y_offset[0] = (skns_spc_regs[0x1c/4] & 0xffc0) >> 6; // RWR7
+		group_x_offset[0] = (regs[0x18/4] & 0xffc0) >> 6; // RWR6
+		group_y_offset[0] = (regs[0x1c/4] & 0xffc0) >> 6; // RWR7
 		if (group_x_offset[0]&0x200) group_x_offset[0] -= 0x400; // Signed
 		if (group_y_offset[0]&0x200) group_y_offset[0] -= 0x400; // Signed
 
-		group_x_offset[1] = (skns_spc_regs[0x20/4] & 0xffc0) >> 6; // RWR8
-		group_y_offset[1] = (skns_spc_regs[0x24/4] & 0xffc0) >> 6; // RWR9
+		group_x_offset[1] = (regs[0x20/4] & 0xffc0) >> 6; // RWR8
+		group_y_offset[1] = (regs[0x24/4] & 0xffc0) >> 6; // RWR9
 		if (group_x_offset[1]&0x200) group_x_offset[1] -= 0x400; // Signed
 		if (group_y_offset[1]&0x200) group_y_offset[1] -= 0x400; // Signed
 
-		group_x_offset[2] = (skns_spc_regs[0x28/4] & 0xffc0) >> 6; // RWR10
-		group_y_offset[2] = (skns_spc_regs[0x2c/4] & 0xffc0) >> 6; // RWR11
+		group_x_offset[2] = (regs[0x28/4] & 0xffc0) >> 6; // RWR10
+		group_y_offset[2] = (regs[0x2c/4] & 0xffc0) >> 6; // RWR11
 		if (group_x_offset[2]&0x200) group_x_offset[2] -= 0x400; // Signed
 		if (group_y_offset[2]&0x200) group_y_offset[2] -= 0x400; // Signed
 
-		group_x_offset[3] = (skns_spc_regs[0x30/4] & 0xffc0) >> 6; // RWR12
-		group_y_offset[3] = (skns_spc_regs[0x34/4] & 0xffc0) >> 6; // RWR13
+		group_x_offset[3] = (regs[0x30/4] & 0xffc0) >> 6; // RWR12
+		group_y_offset[3] = (regs[0x34/4] & 0xffc0) >> 6; // RWR13
 		if (group_x_offset[3]&0x200) group_x_offset[3] -= 0x400; // Signed
 		if (group_y_offset[3]&0x200) group_y_offset[3] -= 0x400; // Signed
 
@@ -452,15 +452,15 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 			//zoomx = source[2] >> 16;
 			//zoomy = source[3] >> 16;
 
-			romoffset &= memory_region_length (REGION_GFX1)-1;
+			romoffset &= memory_region_length (gfxregion)-1;
 
-			endromoffs = skns_rle_decode ( romoffset, size );
+			endromoffs = skns_rle_decode ( romoffset, size, gfxregion );
 
 			// PriTest
 //          if(!( (keyboard_pressed(KEYCODE_Q)&&(pri==0)) || (keyboard_pressed(KEYCODE_W)&&(pri==1)) || (keyboard_pressed(KEYCODE_E)&&(pri==2)) || (keyboard_pressed(KEYCODE_D)&&(pri==3)) ))
 //          if( !(keyboard_pressed(KEYCODE_Q) && ((source[0] & 0x00800000)>>24)) )
 			{
-				int NewColour = colour*256;
+				int NewColour = colour*256 | (encode_priority ? pri << 14 : 0);
 
 				if(zoomx_m || zoomx_s || zoomy_m || zoomy_s)
 				{
@@ -552,6 +552,13 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 		}
 	}
 }
+
+void skns_drawsprites(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	skns_draw_sprites(bitmap, cliprect, buffered_spriteram32, spriteram_size,
+		REGION_GFX1, skns_spc_regs, 0);
+}
+
 
 static tilemap *skns_tilemap_A;
 static tilemap *skns_tilemap_B;

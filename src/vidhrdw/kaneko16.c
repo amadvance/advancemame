@@ -1163,3 +1163,36 @@ if ( code_pressed(KEYCODE_Z) ||
 		}
 	}
 }
+
+VIDEO_UPDATE( jchan_view2 )
+{
+	int i, row;
+	int ctrl = kaneko16_layers_0_regs[4];
+	int flip = ((ctrl & 0x0100) ? TILEMAP_FLIPY : 0) |
+		((ctrl & 0x0200) ? TILEMAP_FLIPX : 0);
+	tilemap_set_enable(kaneko16_tmap_0, !(ctrl & 0x1000));
+	tilemap_set_enable(kaneko16_tmap_1, !(ctrl & 0x0010));
+	tilemap_set_flip(kaneko16_tmap_0, flip);
+	tilemap_set_flip(kaneko16_tmap_1, flip);
+	tilemap_set_scrolldx(kaneko16_tmap_0, -25, 344);
+	tilemap_set_scrolldx(kaneko16_tmap_1, -27, 346);
+	tilemap_set_scrolldy(kaneko16_tmap_0, -11, 250);
+	tilemap_set_scrolldy(kaneko16_tmap_1, -11, 250);
+	tilemap_set_scrolly(kaneko16_tmap_0, 0, kaneko16_layers_0_regs[3] >> 6);
+	tilemap_set_scrolly(kaneko16_tmap_1, 0, kaneko16_layers_0_regs[1] >> 6);
+	for (row = 0; row < 0x200; row++)
+	{
+		UINT16 x0 = kaneko16_layers_0_regs[2];
+		UINT16 x1 = kaneko16_layers_0_regs[0];
+		if (ctrl & 0x0800) x0 += kaneko16_vscroll_0[row];
+		if (ctrl & 0x0008) x1 += kaneko16_vscroll_1[row];
+		tilemap_set_scrollx(kaneko16_tmap_0, row, x0 >> 6);
+		tilemap_set_scrollx(kaneko16_tmap_1, row, x1 >> 6);
+	}
+	fillbitmap(priority_bitmap, 0, cliprect);
+	for (i = 0; i < 8; i++)
+	{
+		tilemap_draw_primask(bitmap, cliprect, kaneko16_tmap_0, i, i, 0);
+		tilemap_draw_primask(bitmap, cliprect, kaneko16_tmap_1, i, i, 0);
+	}
+}

@@ -36,6 +36,8 @@ void bonkadv_mcu_run(void);
 void gtmr_mcu_run(void);
 void calc3_mcu_run(void);
 void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16*mcu_ram);
+void toybox_decrypt_region(int region);
+void toybox_handle_04_region(UINT8 mcu_subcmd, UINT16 *mcu_ram, int region);
 DRIVER_INIT( decrypt_toybox_rom );
 DRIVER_INIT( decrypt_toybox_rom_alt );
 DRIVER_INIT( calc3_scantables );
@@ -115,6 +117,7 @@ VIDEO_START( wingforce_1xVIEW2 );
 
 
 VIDEO_UPDATE( kaneko16 );
+VIDEO_UPDATE( jchan_view2 );
 
 
 /*----------- defined in drivers/galpani2.c -----------*/
