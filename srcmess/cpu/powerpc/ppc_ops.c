@@ -1029,7 +1029,6 @@ static void ppc_rlwnmx(UINT32 op)
 	}
 }
 
-#ifndef PPC_DRC
 static void ppc_sc(UINT32 op)
 {
 #if (HAS_PPC603)
@@ -1048,7 +1047,6 @@ static void ppc_sc(UINT32 op)
 	}
 #endif
 }
-#endif
 
 static void ppc_slwx(UINT32 op)
 {
@@ -1453,7 +1451,6 @@ static void ppc_sync(UINT32 op)
 
 }
 
-#ifndef PPC_DRC
 static void ppc_tw(UINT32 op)
 {
 	int exception = 0;
@@ -1495,9 +1492,7 @@ static void ppc_tw(UINT32 op)
 #endif
 	}
 }
-#endif
 
-#ifndef PPC_DRC
 static void ppc_twi(UINT32 op)
 {
 	int exception = 0;
@@ -1539,7 +1534,6 @@ static void ppc_twi(UINT32 op)
 #endif
 	}
 }
-#endif
 
 static void ppc_xorx(UINT32 op)
 {

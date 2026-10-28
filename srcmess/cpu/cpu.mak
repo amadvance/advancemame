@@ -469,13 +469,8 @@ MESSCPUDEFS += -DHAS_RM7000=$(if $(filter RM7000,$(MESSCPUS)),1,0)
 
 ifneq ($(filter R4600 R4650 R4700 R5000 QED5271 RM7000,$(MESSCPUS)),)
 MESSOBJDIRS += $(MESSOBJ)/cpu/mips
-ifdef X86_MIPS3_DRC
-MESSCPUOBJS += $(MESSOBJ)/cpu/mips/mips3drc.o
-$(MESSOBJ)/cpu/mips/mips3drc.o: mips3drc.c mdrcold.c mips3.h
-else
 MESSCPUOBJS += $(MESSOBJ)/cpu/mips/mips3.o
 $(MESSOBJ)/cpu/mips/mips3.o: mips3.c mips3.h
-endif
 MESSDBGOBJS += $(MESSOBJ)/cpu/mips/mips3dsm.o
 endif
 
@@ -700,13 +695,8 @@ MESSCPUDEFS += -DHAS_PPC603=$(if $(filter PPC603,$(MESSCPUS)),1,0)
 
 ifneq ($(filter PPC403 PPC602 PPC603,$(MESSCPUS)),)
 MESSOBJDIRS += $(MESSOBJ)/cpu/powerpc
-ifdef X86_PPC_DRC
-MESSCPUOBJS += $(MESSOBJ)/cpu/powerpc/ppcdrc.o
-$(MESSOBJ)/cpu/powerpc/ppcdrc.o: ppcdrc.c ppc.h drc_ops.c drc_ops.h ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc603.c
-else
 MESSCPUOBJS += $(MESSOBJ)/cpu/powerpc/ppc.o
 $(MESSOBJ)/cpu/powerpc/ppc.o: ppc.c ppc.h ppc_ops.c ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc603.c
-endif
 MESSDBGOBJS += $(MESSOBJ)/cpu/powerpc/ppc_dasm.o
 endif
 

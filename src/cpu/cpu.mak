@@ -508,13 +508,8 @@ CPUDEFS += -DHAS_RM7000=$(if $(filter RM7000,$(CPUS)),1,0)
 
 ifneq ($(filter R4600 R4650 R4700 R5000 QED5271 RM7000,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/mips
-ifdef X86_MIPS3_DRC
-CPUOBJS += $(OBJ)/cpu/mips/mips3drc.o
-$(OBJ)/cpu/mips/mips3drc.o: mips3drc.c mdrcold.c mips3.h
-else
 CPUOBJS += $(OBJ)/cpu/mips/mips3.o
 $(OBJ)/cpu/mips/mips3.o: mips3.c mips3.h mips3jit.c mips3jit.h $(srcdir)/src/cpu/jitcache.h
-endif
 DBGOBJS += $(OBJ)/cpu/mips/mips3dsm.o
 endif
 
@@ -739,13 +734,8 @@ CPUDEFS += -DHAS_PPC603=$(if $(filter PPC603,$(CPUS)),1,0)
 
 ifneq ($(filter PPC403 PPC602 PPC603,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/powerpc
-ifdef X86_PPC_DRC
-CPUOBJS += $(OBJ)/cpu/powerpc/ppcdrc.o
-$(OBJ)/cpu/powerpc/ppcdrc.o: ppcdrc.c ppc.h drc_ops.c drc_ops.h ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc603.c
-else
 CPUOBJS += $(OBJ)/cpu/powerpc/ppc.o
 $(OBJ)/cpu/powerpc/ppc.o: ppc.c ppc.h ppc_ops.c ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc603.c
-endif
 DBGOBJS += $(OBJ)/cpu/powerpc/ppc_dasm.o
 endif
 

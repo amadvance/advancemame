@@ -1263,9 +1263,7 @@ void n64_machine_reset(void)
 	UINT32 *cart = (UINT32*)memory_region(REGION_USER2);
 	UINT64 boot_checksum;
 
-	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_DRC_OPTIONS, MIPS3DRC_FASTEST_OPTIONS + MIPS3DRC_STRICT_VERIFY);
-
-		/* configure fast RAM regions for DRC */
+	/* configure fast RAM regions */
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_SELECT, 0);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_START, 0x00000000);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_END, 0x003fffff);
