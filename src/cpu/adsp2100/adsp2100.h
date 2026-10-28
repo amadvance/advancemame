@@ -59,6 +59,14 @@ enum
     PUBLIC FUNCTIONS
 ***************************************************************************/
 
+/* exact skip of one-instruction NOP delay loops: off unless a driver enables it */
+extern void adsp2100_set_nop_loop_skip(int enable);
+/* optional recompiler (adsp2100jit.c): off unless a driver enables it */
+extern int adsp2100_jit_available(void);
+extern void adsp2100_set_jit(int enable);
+/* data memory words [start, end] read through a handler with no side effects */
+extern void adsp2100_jit_pure_read(UINT32 start, UINT32 end);
+
 #if (HAS_ADSP2100)
 #define ADSP2100_IRQ0		0		/* IRQ0 */
 #define ADSP2100_SPORT1_RX	0		/* SPORT1 receive IRQ */
