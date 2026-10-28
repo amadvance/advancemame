@@ -4270,6 +4270,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( hyprolyb )	/* bootleg */
 	DRIVER( atlantol )	/* bootleg */
 	DRIVER( wizzquiz )	/* (c) 1985 Konami */
+	DRIVER( reaktor )
 	DRIVER( wizzquza )	/* (c) 1985 Zilec-Zenitone */
 	DRIVER( mastkin )	/* (c) 1988 Du Tech */
 	DRIVER( rocnrope )	/* GX364 (c) 1983 */
