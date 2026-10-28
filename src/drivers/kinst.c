@@ -182,6 +182,10 @@ static MACHINE_RESET( kinst )
 	/* keep the DCS held in reset at startup */
 	dcs_reset_w(1);
 
+	/* skip idle loops waiting for interrupts in Cause */
+	mips3_set_cause_poll_skip(1);
+	mips3_add_poll_read(0xb00000a0, 0xb00000a3);
+
 	/* reset the IDE controller */
 	ide_controller_reset(0);
 
