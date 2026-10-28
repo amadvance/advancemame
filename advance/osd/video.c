@@ -1307,7 +1307,9 @@ void osd2_video_done(void)
 	/* print the speed measure */
 	if (context->state.measure_flag
 		&& context->state.measure_stop > context->state.measure_start) {
-		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / TARGET_CLOCKS_PER_SEC);
+		double elapsed = (double)(context->state.measure_stop - context->state.measure_start) / TARGET_CLOCKS_PER_SEC;
+		target_out("Average speed: %.2f%%\n", (unsigned)(context->config.measure_time * context->state.game_fps) / context->state.game_fps / elapsed * 100.0);
+		target_out("Elapsed seconds: %.2f\n", elapsed);
 	}
 	if (CONTEXT.record.config.debug_exit != 0
 		&& CONTEXT.record.state.debug_time_start != 0
