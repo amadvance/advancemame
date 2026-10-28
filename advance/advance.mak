@@ -368,6 +368,14 @@ ZLIB_SRC = \
 	$(wildcard $(srcdir)/advance/zlib/README) \
 	$(wildcard $(srcdir)/advance/zlib/*.diff)
 
+SLJIT_SRC = \
+	$(wildcard $(srcdir)/advance/sljit/*.c) \
+	$(wildcard $(srcdir)/advance/sljit/*.h) \
+	$(wildcard $(srcdir)/advance/sljit/README)
+
+SLJIT_ALLOCATOR_SRC = \
+	$(wildcard $(srcdir)/advance/sljit/allocator_src/*.c)
+
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.usr \

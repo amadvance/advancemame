@@ -571,6 +571,20 @@ ADVANCEBUILDLIBS += \
 endif
 
 ############################################################################
+# sljit
+
+$(OBJ)/advance/libsljit.a: $(OBJ)/advance/sljit/sljit_mame.o
+	$(ECHO) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/advance/sljit
+ADVANCEOBJDIRS += \
+	$(OBJ)/advance/sljit
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libsljit.a
+
+############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
@@ -1150,6 +1164,10 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	cp $(ZLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/zlib
 	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
 	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
+	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit
+	cp $(SLJIT_SRC) $(EMU_DIST_DIR_SRC)/advance/sljit
+	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit/allocator_src
+	cp $(SLJIT_ALLOCATOR_SRC) $(EMU_DIST_DIR_SRC)/advance/sljit/allocator_src
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib
