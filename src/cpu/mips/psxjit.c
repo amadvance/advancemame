@@ -52,8 +52,6 @@
 #define JIT_HOST64		0
 #endif
 
-#define JIT_TABLE_BITS		18
-#define JIT_TABLE_SIZE		(1 << JIT_TABLE_BITS)
 #define JIT_MAX_BLOCK		64				/* instructions */
 #define JIT_CODEMAP_SHIFT	2				/* host address granules of 4 bytes (one word), one byte each */
 #define JIT_CODEMAP_BITS	22
@@ -72,6 +70,18 @@ struct jit_block
 	UINT32		op0;
 };
 
+#define JIT_TABLE_BITS 16
+#define JIT_TABLE_SIZE (1 << JIT_TABLE_BITS)
+#define JIT_CACHE_POLICY JIT_CACHE_POLICY_ROUND_ROBIN
+#define JIT_CACHE_WAYS 4
+#define JIT_CACHE_STATS 0
+#define JIT_CACHE_NAME "psx"
+#define JIT_CACHE_PC_SHIFT 2
+#define JIT_CACHE_XOR_SHIFT 20
+#define JIT_CACHE_CHAIN 1
+#define JIT_CACHE_INVALIDATE 1
+#include "../jitcache.h"
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 static void SLJIT_FUNC loop_skip_helper( sljit_u32 l );	/* psxloop.c */
@@ -83,10 +93,8 @@ static void docop2( int gteop );
 static void setcp2cr( int n_reg, UINT32 n_value );
 
 static int jit_enabled;
-static struct jit_block *jit_table;
 static UINT8 *jit_codemap;
 static int jit_code_present;
-static UINT32 jit_flushes;
 static size_t jit_code_bytes;		/* native code generated since the last flush */
 static int jit_nomem_logged;
 
@@ -102,26 +110,12 @@ INLINE UINT32 jit_codemap_index( const void *host )
 
 static void jit_flush( void )
 {
-	int i;
-
-	if( !jit_table )
-	{
+	if (!jit_table)
 		return;
-	}
-	for( i = 0; i < JIT_TABLE_SIZE; i++ )
-	{
-		if( jit_table[ i ].code )
-		{
-			sljit_free_code( jit_table[ i ].code, NULL );
-		}
-		jit_table[ i ].code = NULL;
-		jit_table[ i ].entry = NULL;
-		jit_table[ i ].valid = 0;
-	}
+	jit_cache_clear();
 	memset( jit_codemap, 0, JIT_CODEMAP_SIZE );
 	jit_code_present = 0;
 	jit_code_bytes = 0;
-	jit_flushes++;
 }
 
 /*
@@ -135,7 +129,6 @@ static void jit_flush( void )
 	The word stays marked in the codemap: the next store there comes
 	back here.
 */
-INLINE UINT32 jit_table_index( UINT32 pc );
 
 static void jit_invalidate_host( const void *host )
 {
@@ -151,17 +144,7 @@ static void jit_invalidate_host( const void *host )
 			for( k = 0; k < JIT_MAX_BLOCK; k++ )
 			{
 				UINT32 pc = addr - k * 4;
-				struct jit_block *block = &jit_table[ jit_table_index( pc ) ];
-				if( block->valid && block->pc == pc )
-				{
-					if( block->code )
-					{
-						sljit_free_code( block->code, NULL );
-					}
-					block->code = NULL;
-					block->entry = NULL;
-					block->valid = 0;
-				}
+				jit_cache_invalidate( pc );
 			}
 		}
 	}
@@ -204,7 +187,7 @@ void psxcpu_ram_written( const void *host, UINT32 bytes )
 static void jit_exit( void )
 {
 	jit_flush();
-	free( jit_table );
+	jit_cache_exit();
 	free( jit_codemap );
 	jit_table = NULL;
 	jit_codemap = NULL;
@@ -213,7 +196,7 @@ static void jit_exit( void )
 
 static void jit_init( void )
 {
-	jit_table = calloc( JIT_TABLE_SIZE, sizeof( jit_table[ 0 ] ) );
+	jit_cache_init();
 	jit_codemap = calloc( JIT_CODEMAP_SIZE, 1 );
 	if( !jit_table || !jit_codemap )
 	{
@@ -225,7 +208,6 @@ static void jit_init( void )
 		return;
 	}
 	jit_code_present = 0;
-	jit_flushes = 0;
 }
 
 
@@ -969,52 +951,10 @@ static int jit_target_index( struct jit_ctx *ctx, UINT32 target )
 	blocks compiled, replaced or flushed later are seen, and a block that
 	is not there or does not fit is simply a return to the dispatcher.
 */
-INLINE UINT32 jit_table_index( UINT32 pc )
-{
-	return ( ( pc >> 2 ) ^ ( pc >> 20 ) ) & ( JIT_TABLE_SIZE - 1 );
-}
-
 static void jit_emit_chain( struct sljit_compiler *C, sljit_s32 src, sljit_sw srcw )
 {
 #ifndef PSXJIT_VERIFY
-	struct sljit_jump *miss[ 3 ];
-	struct sljit_label *out;
-	int i;
-
-	if( src == SLJIT_IMM )
-	{
-		UINT32 target = (UINT32)srcw;
-		if( target & 3 )
-		{
-			return;
-		}
-		sljit_emit_op1( C, SLJIT_MOV_P, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)&jit_table[ jit_table_index( target ) ] );
-		miss[ 0 ] = sljit_emit_cmp( C, SLJIT_NOT_EQUAL | SLJIT_32, SLJIT_MEM1( SLJIT_R1 ), offsetof( struct jit_block, pc ), SLJIT_IMM, (sljit_sw)target );
-	}
-	else
-	{
-		/* R1 = &jit_table[ ( ( pc >> 2 ) ^ ( pc >> 20 ) ) & mask ] */
-		sljit_emit_op2( C, SLJIT_LSHR32, SLJIT_R1, 0, src, srcw, SLJIT_IMM, 2 );
-		sljit_emit_op2( C, SLJIT_LSHR32, SLJIT_R2, 0, src, srcw, SLJIT_IMM, 20 );
-		sljit_emit_op2( C, SLJIT_XOR32, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_R2, 0 );
-		sljit_emit_op2( C, SLJIT_AND32, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, JIT_TABLE_SIZE - 1 );
-		/* upper bits of a 32-bit result are undefined for word operations */
-		sljit_emit_op1( C, SLJIT_MOV_U32, SLJIT_R1, 0, SLJIT_R1, 0 );
-		sljit_emit_op2( C, SLJIT_MUL, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, sizeof( struct jit_block ) );
-		sljit_emit_op2( C, SLJIT_ADD, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)jit_table );
-		miss[ 0 ] = sljit_emit_cmp( C, SLJIT_NOT_EQUAL | SLJIT_32, SLJIT_MEM1( SLJIT_R1 ), offsetof( struct jit_block, pc ), src, srcw );
-	}
-	/* entry is NULL for a block that is flushed, being compiled or not translatable */
-	sljit_emit_op1( C, SLJIT_MOV_P, SLJIT_R2, 0, SLJIT_MEM1( SLJIT_R1 ), offsetof( struct jit_block, entry ) );
-	miss[ 1 ] = sljit_emit_cmp( C, SLJIT_EQUAL, SLJIT_R2, 0, SLJIT_IMM, 0 );
-	sljit_emit_op1( C, SLJIT_MOV32_U16, SLJIT_R1, 0, SLJIT_MEM1( SLJIT_R1 ), offsetof( struct jit_block, len ) );
-	miss[ 2 ] = sljit_emit_cmp( C, SLJIT_SIG_GREATER | SLJIT_32, SLJIT_R1, 0, SLJIT_MEM0(), (sljit_sw)&mips_ICount );
-	sljit_emit_ijump( C, SLJIT_JUMP, SLJIT_R2, 0 );
-	out = sljit_emit_label( C );
-	for( i = 0; i < 3; i++ )
-	{
-		sljit_set_label( miss[ i ], out );
-	}
+	jit_cache_emit_chain( C, src, srcw, SLJIT_MEM0(), (sljit_sw)&mips_ICount );
 #endif
 }
 
@@ -1359,6 +1299,8 @@ static void jit_compile( struct jit_block *block, UINT32 pc )
 	UINT32 count = 0, maxcount, i;
 	int ends = 0;
 
+	if( jit_code_bytes > JIT_CODE_BUDGET )
+		jit_flush();
 	block->pc = pc;
 	block->len = 0;
 	block->valid = 1;
@@ -1568,13 +1510,6 @@ static void jit_compile( struct jit_block *block, UINT32 pc )
 		return;
 	}
 
-	/* bounded code memory: start again once the budget is used */
-	if( jit_code_bytes > JIT_CODE_BUDGET )
-	{
-		jit_flush();
-		block->pc = pc;
-		block->valid = 1;
-	}
 	block->code = sljit_generate_code( C, 0, NULL );
 	if( block->code )
 	{
@@ -1629,21 +1564,16 @@ INLINE int jit_untranslatable_changed( const struct jit_block *block )
 
 INLINE struct jit_block *jit_lookup( UINT32 pc )
 {
-	struct jit_block *block = &jit_table[ jit_table_index( pc ) ];
-
-	if( !block->valid || block->pc != pc || jit_untranslatable_changed( block ) )
+	struct jit_block *block = jit_cache_find( pc );
+	if( !block || jit_untranslatable_changed( block ) )
 	{
 		if( mips_ICount < JIT_MAX_BLOCK )
-		{
 			return NULL;
-		}
-		/* the granules of a replaced block stay marked in the codemap (a byte */
-		/* per granule, possibly shared): a later write there flushes more */
-		/* than needed, never less */
-		if( block->code )
-		{
-			sljit_free_code( block->code, NULL );
-		}
+		if( block )
+			jit_cache_drop( block );
+		else
+			block = jit_cache_reserve( pc );
+		/* Replaced code remains conservatively marked in the codemap. */
 		jit_compile( block, pc );
 	}
 	return block->len ? block : NULL;
