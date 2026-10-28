@@ -219,6 +219,7 @@ typedef struct
 	int 		(*irq_callback)(int irqline);
 	UINT64		count_zero_time;
 	void *		compare_int_timer;
+	double		compare_timer_clock;
 	UINT8		is_mips4;
 	UINT32		ll_value;
 	UINT64		lld_value;
@@ -262,6 +263,7 @@ typedef struct
 ***************************************************************************/
 
 static void recompute_tlb_table(void);
+static void update_cycle_counting(void);
 
 static void lwl_be(UINT32 op);
 static void lwr_be(UINT32 op);
@@ -674,12 +676,21 @@ static void compare_int_callback(int cpu)
 }
 
 
+static void compare_int_postload(int cpu)
+{
+	cpuintrf_push_context(cpu);
+	mips3.compare_timer_clock = 0;
+	cpuintrf_pop_context();
+}
+
+
 static void mips3_init(int index, int clock, const void *_config, int (*irqcallback)(int))
 {
 	const struct mips3_config *config = _config;
 
 	mips3.irq_callback = irqcallback;
 	mips3.compare_int_timer = timer_alloc(compare_int_callback);
+	state_save_register_func_postload_int(compare_int_postload, index);
 
 	/* allocate memory */
 	mips3.icache = auto_malloc(config->icache);
@@ -792,6 +803,7 @@ static void mips3_reset(int bigendian, int mips4, UINT32 prid)
 
 	/* initialize JIT */
 	mips3_set_jit(options.jit);
+	update_cycle_counting();
 }
 
 
@@ -1083,20 +1095,27 @@ INLINE void WDOUBLE(offs_t address, UINT64 data)
 
 static void update_cycle_counting(void)
 {
+	int cpu = cpu_getactivecpu();
+	mips3.compare_timer_clock = cycles_to_sec[cpu];
+
 	/* modify the timer to go off */
 	if ((SR & 0x8000) && mips3.cpr[0][COP0_Compare] != 0xffffffff)
 	{
 		UINT32 count = (activecpu_gettotalcycles64() - mips3.count_zero_time) / 2;
 		UINT32 compare = mips3.cpr[0][COP0_Compare];
-		UINT32 cyclesleft = compare - count;
-		double newtime = TIME_IN_CYCLES(((INT64)cyclesleft * 2), cpu_getactivecpu());
+		UINT64 cyclesleft = (UINT64)(UINT32)(compare - count) * 2;
+		UINT32 clock = cycles_per_second[cpu];
+		mame_time duration = time_never;
 
-		/* due to accuracy issues, don't bother setting timers unless they're for less than 100msec */
-		if (newtime < TIME_IN_MSEC(100))
-			timer_adjust(mips3.compare_int_timer, newtime, cpu_getactivecpu(), 0);
+		/* Split before multiplying: a full Count wrap can be many seconds.
+		 * Keep the absolute deadline armed instead of refreshing it every slice. */
+		if (clock && cyclesleft / clock < MAX_SECONDS)
+			duration = make_mame_time(cyclesleft / clock,
+				(cyclesleft % clock) * subseconds_per_cycle[cpu]);
+		mame_timer_adjust(mips3.compare_int_timer, duration, cpu, time_zero);
 	}
 	else
-		timer_adjust(mips3.compare_int_timer, TIME_NEVER, cpu_getactivecpu(), 0);
+		mame_timer_adjust(mips3.compare_int_timer, time_never, cpu, time_zero);
 }
 
 INLINE UINT64 get_cop0_reg(int idx)
@@ -2579,8 +2598,10 @@ int mips3_execute(int cycles)
 	mips3_icount -= mips3.interrupt_cycles;
 	mips3.interrupt_cycles = 0;
 
-	/* update timers & such */
-	update_cycle_counting();
+	/* Register writes already update Compare; only a clock change needs
+	 * rescheduling here. A loaded state invalidates the cached clock too. */
+	if (mips3.compare_timer_clock != cycles_to_sec[cpu_getactivecpu()])
+		update_cycle_counting();
 
 	/* check for IRQs */
 	check_irqs();
@@ -3264,11 +3285,20 @@ static void mips3_set_info(UINT32 state, union cpuinfo *info)
 
 		case CPUINFO_INT_PC:
 		case CPUINFO_INT_REGISTER + MIPS3_PC:			mips3.pc = info->i;						break;
-		case CPUINFO_INT_REGISTER + MIPS3_SR:			mips3.cpr[0][COP0_Status] = info->i; 	break;
+		case CPUINFO_INT_REGISTER + MIPS3_SR:
+			mips3.cpr[0][COP0_Status] = info->i;
+			mips3.compare_timer_clock = 0;
+			break;
 		case CPUINFO_INT_REGISTER + MIPS3_EPC:			mips3.cpr[0][COP0_EPC] = info->i; 		break;
 		case CPUINFO_INT_REGISTER + MIPS3_CAUSE:		mips3.cpr[0][COP0_Cause] = info->i;		break;
-		case CPUINFO_INT_REGISTER + MIPS3_COUNT:		mips3.cpr[0][COP0_Count] = info->i; 	break;
-		case CPUINFO_INT_REGISTER + MIPS3_COMPARE:		mips3.cpr[0][COP0_Compare] = info->i; 	break;
+		case CPUINFO_INT_REGISTER + MIPS3_COUNT:
+			mips3.cpr[0][COP0_Count] = info->i;
+			mips3.compare_timer_clock = 0;
+			break;
+		case CPUINFO_INT_REGISTER + MIPS3_COMPARE:
+			mips3.cpr[0][COP0_Compare] = info->i;
+			mips3.compare_timer_clock = 0;
+			break;
 		case CPUINFO_INT_REGISTER + MIPS3_INDEX:		mips3.cpr[0][COP0_Index] = info->i; 	break;
 		case CPUINFO_INT_REGISTER + MIPS3_RANDOM:		mips3.cpr[0][COP0_Random] = info->i; 	break;
 		case CPUINFO_INT_REGISTER + MIPS3_ENTRYHI:		mips3.cpr[0][COP0_EntryHi] = info->i; 	break;
