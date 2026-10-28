@@ -6041,6 +6041,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( valtric )	/* (c) 1986 Jaleco */
 	DRIVER( butasan )	/* (c) 1987 Jaleco */
 	DRIVER( psychic5 )	/* (c) 1987 Jaleco */
+	DRIVER( bombsa )
 	DRIVER( ginganin )	/* (c) 1987 Jaleco */
 	DRIVER( gingania )	/* (c) 1987 Jaleco */
 	DRIVER( skyfox )	/* (c) 1987 Jaleco + Nichibutsu USA license */
