@@ -513,7 +513,7 @@ CPUOBJS += $(OBJ)/cpu/mips/mips3drc.o
 $(OBJ)/cpu/mips/mips3drc.o: mips3drc.c mdrcold.c mips3.h
 else
 CPUOBJS += $(OBJ)/cpu/mips/mips3.o
-$(OBJ)/cpu/mips/mips3.o: mips3.c mips3.h mips3jit.c mips3jit.h
+$(OBJ)/cpu/mips/mips3.o: mips3.c mips3.h mips3jit.c mips3jit.h $(srcdir)/src/cpu/jitcache.h
 endif
 DBGOBJS += $(OBJ)/cpu/mips/mips3dsm.o
 endif
@@ -878,7 +878,7 @@ ifneq ($(filter PSXCPU,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/mips
 CPUOBJS += $(OBJ)/cpu/mips/psx.o
 DBGOBJS += $(OBJ)/cpu/mips/mipsdasm.o
-$(OBJ)/cpu/mips/psx.o: psx.c psx.h psxjit.c psxloop.c
+$(OBJ)/cpu/mips/psx.o: psx.c psx.h psxjit.c psxloop.c $(srcdir)/src/cpu/jitcache.h
 endif
 
 
@@ -1067,5 +1067,5 @@ OBJDIRS += $(OBJ)/cpu/sh3
 CPUOBJS += $(OBJ)/cpu/sh3/sh3.o
 DBGOBJS += $(OBJ)/cpu/sh3/sh3dasm.o
 $(OBJ)/cpu/sh3/sh3.o: CFLAGS += -fno-strict-aliasing
-$(OBJ)/cpu/sh3/sh3.o: sh3.c sh3.h sh3jit.c
+$(OBJ)/cpu/sh3/sh3.o: sh3.c sh3.h sh3jit.c $(srcdir)/src/cpu/jitcache.h
 endif

@@ -45,8 +45,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#define JIT_TABLE_BITS		19
-#define JIT_TABLE_SIZE		(1 << JIT_TABLE_BITS)
 #define JIT_MAX_BLOCK		64				/* instructions */
 #define JIT_MAX_STUBS		(JIT_MAX_BLOCK * 4)
 #define JIT_CODE_BUDGET		(32 * 1024 * 1024)
@@ -59,11 +57,20 @@ struct jit_block
 	UINT8		valid;
 };
 
+#define JIT_TABLE_BITS 16
+#define JIT_TABLE_SIZE (1 << JIT_TABLE_BITS)
+#define JIT_CACHE_POLICY JIT_CACHE_POLICY_ROUND_ROBIN
+#define JIT_CACHE_WAYS 4
+#define JIT_CACHE_STATS 0
+#define JIT_CACHE_NAME "sh3"
+#define JIT_CACHE_PC_SHIFT 1
+#define JIT_CACHE_XOR_SHIFT 17
+#define JIT_CACHE_CHAIN 0
+#include "../jitcache.h"
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 static int jit_enabled;
-static struct jit_block *jit_table;
-static UINT32 jit_flushes;
 static size_t jit_code_bytes;
 static int jit_nomem_logged;
 
@@ -72,29 +79,20 @@ static sljit_u32 jit_stop;
 
 static void jit_flush(void)
 {
-	int i;
-
 	if (!jit_table)
 		return;
-	for (i = 0; i < JIT_TABLE_SIZE; i++)
-	{
-		if (jit_table[i].code)
-			sljit_free_code(jit_table[i].code, NULL);
-		jit_table[i].code = NULL;
-		jit_table[i].valid = 0;
-	}
+	jit_cache_clear();
 	if (jit_codemap)
 		memset(jit_codemap, 0, JIT_CODEMAP_SIZE);
 	jit_code_present = 0;
 	jit_flush_pending = 0;
 	jit_code_bytes = 0;
-	jit_flushes++;
 }
 
 static void jit_exit(void)
 {
 	jit_flush();
-	free(jit_table);
+	jit_cache_exit();
 	free(jit_codemap);
 	jit_table = NULL;
 	jit_codemap = NULL;
@@ -103,7 +101,7 @@ static void jit_exit(void)
 
 static void jit_init(void)
 {
-	jit_table = (struct jit_block *)calloc(JIT_TABLE_SIZE, sizeof(jit_table[0]));
+	jit_cache_init();
 	jit_codemap = (UINT8 *)calloc(JIT_CODEMAP_SIZE, 1);
 	if (!jit_table || !jit_codemap)
 	{
@@ -116,7 +114,6 @@ static void jit_init(void)
 	}
 	jit_code_present = 0;
 	jit_flush_pending = 0;
-	jit_flushes = 0;
 }
 
 
@@ -1058,11 +1055,6 @@ static void jit_emit_branch(struct jit_ctx *ctx, UINT16 op, UINT16 slot, UINT32 
 	}
 }
 
-static INLINE UINT32 jit_table_index(UINT32 pc)
-{
-	return (pc >> 1) & (JIT_TABLE_SIZE - 1);
-}
-
 static void jit_compile(struct jit_block *block, UINT32 pc)
 {
 	static struct jit_ctx ctx;
@@ -1072,6 +1064,8 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 	UINT32 count = 0, maxcount, i, a;
 	int ends = 0;
 
+	if (jit_code_bytes > JIT_CODE_BUDGET)
+		jit_flush();
 	block->pc = pc;
 	block->len = 0;
 	block->valid = 1;
@@ -1234,17 +1228,6 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 		return;
 	}
 
-	if (jit_code_bytes > JIT_CODE_BUDGET)
-	{
-		jit_flush();
-		block->pc = pc;
-		block->valid = 1;
-		if (!region->readonly)
-		{
-			jit_codemap[(a >> 2) & (JIT_CODEMAP_SIZE - 1)] = 1;
-			jit_code_present = 1;
-		}
-	}
 	block->code = sljit_generate_code(C, 0, NULL);
 	if (block->code)
 		jit_code_bytes += sljit_get_generated_code_size(C);
@@ -1272,15 +1255,10 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 /* the block at pc, or NULL */
 static INLINE struct jit_block *jit_lookup(UINT32 pc)
 {
-	struct jit_block *block = &jit_table[jit_table_index(pc)];
-
-	if (!block->valid || block->pc != pc)
+	struct jit_block *block = jit_cache_find(pc);
+	if (!block)
 	{
-		if (block->code)
-		{
-			sljit_free_code(block->code, NULL);
-			block->code = NULL;
-		}
+		block = jit_cache_reserve(pc);
 		jit_compile(block, pc);
 	}
 	return block->len ? block : NULL;
