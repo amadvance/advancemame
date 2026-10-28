@@ -4547,6 +4547,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* Konami 68020 games */
 	DRIVER( plygonet )	/* GX305 (c) 1993 */
+	DRIVER( polynetw )
 
 	/* Konami System GX games */
 	DRIVER( konamigx )

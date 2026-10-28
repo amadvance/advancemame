@@ -8,7 +8,6 @@
 
 ***************************************************************************/
 
-
 #ifndef _DSP56K_H
 #define _DSP56K_H
 
@@ -65,13 +64,16 @@ enum
 	DSP56K_ST15
 };
 
-
-
 extern void dsp56k_get_info(UINT32 state, union cpuinfo *info) ;
-
 
 // For Debugger and opcodes
 enum parallelMoveType { PARALLEL_TYPE_XMDM, PARALLEL_TYPE_XMDM_SPECIAL, PARALLEL_TYPE_NODM, PARALLEL_TYPE_ARU, PARALLEL_TYPE_RRDM } ;
 
+READ16_HANDLER( dsp56k_peripheral_r );
+WRITE16_HANDLER( dsp56k_peripheral_w );
+UINT8 dsp56k_host_read(int cpu, UINT8 offset);
+void dsp56k_host_write(int cpu, UINT8 offset, UINT8 data);
+void dsp56k_set_portc(int cpu, void (*callback)(UINT16));
+extern UINT16 *dsp56k_program_ram;
 
-#endif  // _DSP56K_H
+#endif
