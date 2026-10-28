@@ -2249,7 +2249,8 @@ Configuration
     misc_timetorun
 	Run the emulation only for the given number of seconds without
 	any throttling and at the exit print the number of real CPU
-	seconds used. Useful for benchmarking.
+	seconds used, followed by the emulation speed as a percentage.
+	Useful for benchmarking.
 
 	:misc_timetorun SECONDS
 
