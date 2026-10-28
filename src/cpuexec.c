@@ -123,6 +123,43 @@ static int cycles_stolen;
 
 
 
+/* Approximate time-to-cycle conversion using a cached long double
+ * reciprocal. There is deliberately no integer quotient correction, so
+ * rounding can move values near a cycle boundary to the adjacent cycle.
+ * Recompute the reciprocal whenever the CPU period changes. */
+static struct
+{
+	subseconds_t divisor;
+	long double reciprocal;
+} cycle_division[MAX_CPU];
+
+INLINE int cpu_time_to_cycles(int cpunum, mame_time time)
+{
+	subseconds_t period = subseconds_per_cycle[cpunum];
+	if (time.subseconds >= 0 && period > 0)
+	{
+		subseconds_t quotient;
+		if (cycle_division[cpunum].divisor != period)
+		{
+			cycle_division[cpunum].reciprocal = 1.0L / (long double)period;
+			cycle_division[cpunum].divisor = period;
+		}
+		quotient = (subseconds_t)((long double)time.subseconds * cycle_division[cpunum].reciprocal);
+		return time.seconds * cycles_per_second[cpunum] + quotient;
+	}
+	return MAME_TIME_TO_CYCLES(cpunum, time);
+}
+
+INLINE mame_time cpu_time_in_cycles(int cycles, int cpunum)
+{
+	/* Almost every scheduler slice is shorter than one second. Preserve
+	 * the original macro's unsigned division for longer/negative counts. */
+	if ((UINT32)cycles < cycles_per_second[cpunum])
+		return make_mame_time(0, (subseconds_t)cycles * subseconds_per_cycle[cpunum]);
+	return MAME_TIME_IN_CYCLES(cycles, cpunum);
+}
+
+
 /*************************************
  *
  *  Timer variables
@@ -492,7 +529,7 @@ void cpuexec_timeslice(void)
 		if (!cpu[cpunum].suspend)
 		{
 			/* compute how long to run */
-			cycles_running = MAME_TIME_TO_CYCLES(cpunum, sub_mame_times(target, cpu[cpunum].localtime));
+			cycles_running = cpu_time_to_cycles(cpunum, sub_mame_times(target, cpu[cpunum].localtime));
 			LOG(("  cpu %d: %d cycles\n", cpunum, cycles_running));
 
 			/* run for the requested number of cycles */
@@ -512,7 +549,7 @@ void cpuexec_timeslice(void)
 
 				/* account for these cycles */
 				cpu[cpunum].totalcycles += ran;
-				cpu[cpunum].localtime = add_mame_times(cpu[cpunum].localtime, MAME_TIME_IN_CYCLES(ran, cpunum));
+				cpu[cpunum].localtime = add_mame_times(cpu[cpunum].localtime, cpu_time_in_cycles(ran, cpunum));
 				LOG(("         %d ran, %d total, time = %.9f\n", ran, (INT32)cpu[cpunum].totalcycles, mame_time_to_double(cpu[cpunum].localtime)));
 
 				/* if the new local CPU time is less than our target, move the target up */
@@ -535,11 +572,11 @@ void cpuexec_timeslice(void)
 		if (cpu[cpunum].suspend && cpu[cpunum].eatcycles && compare_mame_times(cpu[cpunum].localtime, target) < 0)
 		{
 			/* compute how long to run */
-			cycles_running = MAME_TIME_TO_CYCLES(cpunum, sub_mame_times(target, cpu[cpunum].localtime));
+			cycles_running = cpu_time_to_cycles(cpunum, sub_mame_times(target, cpu[cpunum].localtime));
 			LOG(("  cpu %d: %d cycles (suspended)\n", cpunum, cycles_running));
 
 			cpu[cpunum].totalcycles += cycles_running;
-			cpu[cpunum].localtime = add_mame_times(cpu[cpunum].localtime, MAME_TIME_IN_CYCLES(cycles_running, cpunum));
+			cpu[cpunum].localtime = add_mame_times(cpu[cpunum].localtime, cpu_time_in_cycles(cycles_running, cpunum));
 			LOG(("         %d skipped, %d total, time = %.9f\n", cycles_running, (INT32)cpu[cpunum].totalcycles, mame_time_to_double(cpu[cpunum].localtime)));
 		}
 
@@ -606,7 +643,7 @@ mame_time cpunum_get_localtime(int cpunum)
 	if (cpunum == cpu_getexecutingcpu())
 	{
 		int cycles = cycles_currently_ran();
-		result = add_mame_times(result, MAME_TIME_IN_CYCLES(cycles, cpunum));
+		result = add_mame_times(result, cpu_time_in_cycles(cycles, cpunum));
 	}
 	return result;
 }
@@ -893,7 +930,7 @@ int activecpu_geticount(void)
 
 /* remove me - only used by mamedbg, m92 */
 	VERIFY_EXECUTINGCPU(cpu_geticount);
-	result = MAME_TIME_TO_CYCLES(activecpu, sub_mame_times(cpu[activecpu].vblankint_period, mame_timer_timeelapsed(cpu[activecpu].vblankint_timer)));
+	result = cpu_time_to_cycles(activecpu, sub_mame_times(cpu[activecpu].vblankint_period, mame_timer_timeelapsed(cpu[activecpu].vblankint_timer)));
 	return (result < 0) ? 0 : result;
 }
 
