@@ -178,6 +178,7 @@ struct upd7759_chip
 	UINT8		sample_rate;				/* number of UPD clocks per ADPCM nibble */
 	UINT8		first_valid_header;			/* did we get our first valid header yet? */
 	UINT32		offset;						/* current ROM offset */
+	UINT8		sample_offset_shift;
 	UINT32		repeat_offset;				/* current ROM repeat offset */
 
 	/* ADPCM processing */
@@ -319,8 +320,8 @@ static void advance_state(struct upd7759_chip *chip)
 		/* Address MSB state: latch the MSB of the sample address and issue a request for the fourth byte */
 		/* The expected response will be the LSB of the sample address */
 		case STATE_ADDR_MSB:
-			chip->offset = (chip->rom ? chip->rom[chip->req_sample * 2 + 5] : chip->fifo_in) << 9;
-			if (DEBUG_STATES) DEBUG_METHOD("UPD7759: offset_hi = %02X, requesting offset_lo\n", chip->offset >> 9);
+			chip->offset = (chip->rom ? chip->rom[chip->req_sample * 2 + 5] : chip->fifo_in) << (8 + chip->sample_offset_shift);
+			if (DEBUG_STATES) DEBUG_METHOD("UPD7759: offset_hi = %02X, requesting offset_lo\n", chip->offset >> (8 + chip->sample_offset_shift));
 			chip->drq = 1;
 
 			/* 44 cycles later, we will latch this value and request another byte */
@@ -331,8 +332,8 @@ static void advance_state(struct upd7759_chip *chip)
 		/* Address LSB state: latch the LSB of the sample address and issue a request for the fifth byte */
 		/* The expected response will be just a dummy */
 		case STATE_ADDR_LSB:
-			chip->offset |= (chip->rom ? chip->rom[chip->req_sample * 2 + 6] : chip->fifo_in) << 1;
-			if (DEBUG_STATES) DEBUG_METHOD("UPD7759: offset_lo = %02X, requesting dummy 2\n", (chip->offset >> 1) & 0xff);
+			chip->offset |= (chip->rom ? chip->rom[chip->req_sample * 2 + 6] : chip->fifo_in) << chip->sample_offset_shift;
+			if (DEBUG_STATES) DEBUG_METHOD("UPD7759: offset_lo = %02X, requesting dummy 2\n", (chip->offset >> chip->sample_offset_shift) & 0xff);
 			chip->drq = 1;
 
 			/* 36 cycles later, we will latch this value and request another byte */
@@ -599,6 +600,7 @@ static void *upd7759_start(int sndindex, int clock, const void *config)
 
 	/* set the intial state */
 	chip->state = STATE_IDLE;
+	chip->sample_offset_shift = 1;
 
 	/* compute the ROM base or allocate a timer */
 	if (intf->region != 0)
@@ -626,6 +628,13 @@ static void *upd7759_start(int sndindex, int clock, const void *config)
     I/O handlers
 
 *************************************************************/
+
+void upd7759_set_sample_offset_shift(int which, int shift)
+{
+	struct upd7759_chip *chip = sndti_token(SOUND_UPD7759, which);
+	stream_update(chip->channel, 0);
+	chip->sample_offset_shift = shift;
+}
 
 void upd7759_reset_w(int which, UINT8 data)
 {

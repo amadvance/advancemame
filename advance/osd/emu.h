@@ -1004,6 +1004,7 @@ struct advance_global_config_context {
 	adv_bool cocktail_flag; /**< Cocktail switch. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
 	adv_bool mutedemo_flag; /**< Mute demo mode. */
+	adv_bool jit_flag; /**< JIT recompiler switch. */
 	double pause_brightness; /**< Display brightness when paused. */
 	char lcd_server_buffer[256]; /**< Server (address:port) for the LCD output. */
 	int lcd_timeout; /**< LCD timeout in ms. */

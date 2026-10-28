@@ -2083,6 +2083,19 @@ Configuration
 
   Misc Configuration Options
 
+    misc_jit
+	Enables or disables the Just-In-Time (JIT) CPU recompiler for
+	supported CPUs. When disabled, the emulator falls back to the
+	standard C interpreter.
+	If built with debugger support, the JIT is automatically disabled
+	during instruction tracing (-debug_cpu) and breakpoints (-debug_break).
+
+	:misc_jit yes | no
+
+	Options:
+		no - Disable the JIT recompiler and use the interpreter.
+		yes - Enable the JIT recompiler if supported (default).
+
     misc_bios
 	Selects the game bios in AdvanceMAME.
 

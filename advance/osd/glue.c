@@ -803,6 +803,11 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.logfile = 0; /* use internal logging */
 	options.mame_debug = advance->debug_flag;
 	options.cheat = advance->cheat_flag;
+	options.jit = context->global.config.jit_flag;
+#ifdef MAME_DEBUG
+	if (options.mame_debug || debug_cpu_active >= -1 || debug_break_active)
+		options.jit = 0;
+#endif
 	options.gui_host = 1; /* this prevents text mode messages that may stop the execution */
 	options.skip_disclaimer = context->global.config.quiet_flag;
 	options.skip_gameinfo = context->global.config.quiet_flag;
