@@ -1733,9 +1733,16 @@ static void remap_dynamic_addresses(void)
  *
  *************************************/
 
+/* the CPU writes fast RAM directly: this only sees the other writers (DMA) */
+static WRITE32_HANDLER( vegas_ram_w )
+{
+	COMBINE_DATA(&rambase[offset]);
+	mips3_ram_written(0x80000000 + offset * 4, 4);
+}
+
 static ADDRESS_MAP_START( vegas_map_8mb, ADDRESS_SPACE_PROGRAM, 32 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
-	AM_RANGE(0x00000000, 0x007fffff) AM_RAM AM_BASE(&rambase) AM_SIZE(&ramsize)
+	AM_RANGE(0x00000000, 0x007fffff) AM_READ(MRA32_RAM) AM_WRITE(vegas_ram_w) AM_BASE(&rambase) AM_SIZE(&ramsize)
 	AM_RANGE(0x1fa00000, 0x1fa00fff) AM_READWRITE(nile_r, nile_w) AM_BASE(&nile_regs)
 	AM_RANGE(0x1fc00000, 0x1fc7ffff) AM_ROM AM_REGION(REGION_USER1, 0) AM_BASE(&rombase)
 ADDRESS_MAP_END
@@ -1743,7 +1750,7 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( vegas_map_32mb, ADDRESS_SPACE_PROGRAM, 32 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
-	AM_RANGE(0x00000000, 0x01ffffff) AM_RAM AM_BASE(&rambase) AM_SIZE(&ramsize)
+	AM_RANGE(0x00000000, 0x01ffffff) AM_READ(MRA32_RAM) AM_WRITE(vegas_ram_w) AM_BASE(&rambase) AM_SIZE(&ramsize)
 	AM_RANGE(0x1fa00000, 0x1fa00fff) AM_READWRITE(nile_r, nile_w) AM_BASE(&nile_regs)
 	AM_RANGE(0x1fc00000, 0x1fc7ffff) AM_ROM AM_REGION(REGION_USER1, 0) AM_BASE(&rombase)
 ADDRESS_MAP_END

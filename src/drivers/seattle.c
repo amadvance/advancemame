@@ -1774,9 +1774,21 @@ PCI Mem  = 08000000-09FFFFFF
 
 */
 
+/*
+	With fast RAM (mips3_add_fastram) the CPU writes the RAM directly; this
+	handler then only sees the other writers, the IDE and Galileo DMA, which
+	load the game's code from the disk. Code that the recompiler translated
+	must be dropped when they overwrite it.
+*/
+static WRITE32_HANDLER( seattle_ram_w )
+{
+	COMBINE_DATA(&rambase[offset]);
+	mips3_ram_written(0x80000000 + offset * 4, 4);
+}
+
 static ADDRESS_MAP_START( seattle_map, ADDRESS_SPACE_PROGRAM, 32 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
-	AM_RANGE(0x00000000, 0x007fffff) AM_RAM AM_BASE(&rambase)	// wg3dh only has 4MB; sfrush, blitz99 8MB
+	AM_RANGE(0x00000000, 0x007fffff) AM_READ(MRA32_RAM) AM_WRITE(seattle_ram_w) AM_BASE(&rambase)	// wg3dh only has 4MB; sfrush, blitz99 8MB
 	AM_RANGE(0x08000000, 0x08ffffff) AM_READWRITE(voodoo_0_r, seattle_voodoo_w)
 	AM_RANGE(0x0a000000, 0x0a0003ff) AM_READWRITE(ide_controller32_0_r, ide_controller32_0_w)
 	AM_RANGE(0x0a00040c, 0x0a00040f) AM_NOP						// IDE-related, but annoying

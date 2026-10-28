@@ -12,9 +12,14 @@
 ***************************************************************************/
 
 #include <math.h>
+#include <stddef.h>
 #include "driver.h"
 #include "debugger.h"
 #include "mips3.h"
+
+typedef UINT32 data32_t;
+
+#include "mips3jit.h"
 
 
 #define ENABLE_OVERFLOWS	0
@@ -316,6 +321,201 @@ static const memory_handlers le_memory =
 };
 
 
+/***************************************************************************
+    FAST RAM SUPPORT
+***************************************************************************/
+
+struct mips3_fastram
+{
+	offs_t		start;
+	offs_t		end;
+	UINT8 *		base;
+	UINT8		readonly;
+	int			wait;			/* cycles each data read costs (wait states), 0 = none */
+};
+
+static struct mips3_fastram fastram[MIPS3_MAX_FASTRAM];
+static int fastram_count;
+static offs_t fastram_byte_xor, fastram_word_xor;
+static memory_handlers fastram_slow;		/* handlers for everything else */
+static int fastram_has_wait;				/* a region with read wait states exists */
+
+struct raw_fastram
+{
+	offs_t start;
+	offs_t end;
+	int readonly;
+	void *base;
+};
+static struct raw_fastram fastram_raw[MIPS3_MAX_FASTRAM];
+static UINT32 fastram_select;
+
+static struct mips3_fastram *fastram_last = &fastram[0];
+
+/* recompiler hook (mips3jit.c): a write may hit translated code */
+INLINE void jit_check_write(const void *host);
+static void jit_flush(void);
+
+INLINE struct mips3_fastram *find_fastram(offs_t address)
+{
+	struct mips3_fastram *r = fastram_last;
+	int i;
+
+	/* most accesses hit the same region as the previous one */
+	if (address - r->start <= r->end - r->start)
+		return r;
+	for (i = 0; i < fastram_count; i++)
+		if (address - fastram[i].start <= fastram[i].end - fastram[i].start)
+			return fastram_last = &fastram[i];
+	return NULL;
+}
+
+static UINT8 fastram_readbyte(offs_t address)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r) { mips3_icount -= r->wait; return r->base[(address - r->start) ^ fastram_byte_xor]; }
+	return (*fastram_slow.readbyte)(address);
+}
+
+static UINT16 fastram_readword(offs_t address)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r) { mips3_icount -= r->wait; return *(UINT16 *)&r->base[(address - r->start) ^ fastram_word_xor]; }
+	return (*fastram_slow.readword)(address);
+}
+
+static UINT32 fastram_readlong(offs_t address)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r) { mips3_icount -= r->wait; return *(UINT32 *)&r->base[address - r->start]; }
+	return (*fastram_slow.readlong)(address);
+}
+
+static UINT64 fastram_readdouble(offs_t address)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r && address + 7 <= r->end)
+	{
+		UINT64 first;
+		UINT64 second;
+		mips3_icount -= r->wait;
+		first = *(UINT32 *)&r->base[address - r->start];
+		second = *(UINT32 *)&r->base[address + 4 - r->start];
+		return mips3.bigendian ? ((first << 32) | second) : (first | (second << 32));
+	}
+	return (*fastram_slow.readdouble)(address);
+}
+
+static void fastram_writebyte(offs_t address, UINT8 data)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r && !r->readonly) { jit_check_write(&r->base[address - r->start]); r->base[(address - r->start) ^ fastram_byte_xor] = data; return; }
+	(*fastram_slow.writebyte)(address, data);
+}
+
+static void fastram_writeword(offs_t address, UINT16 data)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r && !r->readonly) { jit_check_write(&r->base[address - r->start]); *(UINT16 *)&r->base[(address - r->start) ^ fastram_word_xor] = data; return; }
+	(*fastram_slow.writeword)(address, data);
+}
+
+static void fastram_writelong(offs_t address, UINT32 data)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r && !r->readonly) { jit_check_write(&r->base[address - r->start]); *(UINT32 *)&r->base[address - r->start] = data; return; }
+	(*fastram_slow.writelong)(address, data);
+}
+
+static void fastram_writedouble(offs_t address, UINT64 data)
+{
+	struct mips3_fastram *r = find_fastram(address);
+	if (r && !r->readonly && address + 7 <= r->end)
+	{
+		jit_check_write(&r->base[address - r->start]);
+		jit_check_write(&r->base[address + 4 - r->start]);
+		*(UINT32 *)&r->base[address - r->start] = mips3.bigendian ? (UINT32)(data >> 32) : (UINT32)data;
+		*(UINT32 *)&r->base[address + 4 - r->start] = mips3.bigendian ? (UINT32)data : (UINT32)(data >> 32);
+		return;
+	}
+	(*fastram_slow.writedouble)(address, data);
+}
+
+static const memory_handlers fastram_memory =
+{
+	fastram_readbyte,  fastram_readword,  fastram_readlong,  fastram_readdouble,
+	fastram_writebyte, fastram_writeword, fastram_writelong, fastram_writedouble
+};
+
+/* switch the memory handlers when fast RAM is in use */
+static void fastram_attach(void)
+{
+	if (!fastram_count || mips3.memory.readlong == fastram_readlong)
+		return;
+	fastram_slow = mips3.bigendian ? be_memory : le_memory;
+	fastram_byte_xor = mips3.bigendian ? BYTE4_XOR_BE(0) : BYTE4_XOR_LE(0);
+	fastram_word_xor = mips3.bigendian ? WORD_XOR_BE(0) : WORD_XOR_LE(0);
+	mips3.memory = fastram_memory;
+}
+
+void mips3_add_fastram_wait(offs_t start, offs_t end, int readonly, void *base, int wait)
+{
+	int i;
+	for (i = 0; i < fastram_count; i++)
+	{
+		if (fastram[i].start == start && fastram[i].end == end)
+		{
+			fastram[i].base = (UINT8 *)base;
+			fastram[i].readonly = readonly;
+			fastram[i].wait = wait;
+			if (wait)
+				fastram_has_wait = 1;
+			return;
+		}
+	}
+	if (fastram_count < MIPS3_MAX_FASTRAM)
+	{
+		fastram[fastram_count].start = start;
+		fastram[fastram_count].end = end;
+		fastram[fastram_count].base = (UINT8 *)base;
+		fastram[fastram_count].readonly = readonly;
+		fastram[fastram_count].wait = wait;
+		if (wait)
+			fastram_has_wait = 1;
+		fastram_count++;
+	}
+}
+
+void mips3_add_fastram(offs_t start, offs_t end, int readonly, void *base)
+{
+	mips3_add_fastram_wait(start, end, readonly, base, 0);
+}
+
+static void update_fastram_regions(UINT32 select)
+{
+	offs_t start = fastram_raw[select].start;
+	offs_t end = fastram_raw[select].end;
+	int readonly = fastram_raw[select].readonly;
+	void *base = fastram_raw[select].base;
+
+	if (!base || end <= start)
+		return;
+
+	if (start < 0x20000000)
+	{
+		/* physical address range: map KUSEG, KSEG0, and KSEG1 */
+		mips3_add_fastram(start, end, readonly, base);
+		mips3_add_fastram(0x80000000 | start, 0x80000000 | end, readonly, base);
+		mips3_add_fastram(0xa0000000 | start, 0xa0000000 | end, readonly, base);
+	}
+	else
+	{
+		mips3_add_fastram(start, end, readonly, base);
+	}
+}
+
+
+
 
 /***************************************************************************
     MEMORY ACCESSORS
@@ -470,6 +670,12 @@ static void mips3_init(int index, int clock, const void *_config, int (*irqcallb
 	mips3.dcache_size = config->dcache;
 	mips3.system_clock = config->system_clock;
 	mips3.cpu_clock = clock;
+
+	/* reset fast RAM and JIT */
+	fastram_count = 0;
+	fastram_has_wait = 0;
+	fastram_last = &fastram[0];
+	mips3_set_jit(0);
 }
 
 
@@ -560,6 +766,9 @@ static void mips3_reset(int bigendian, int mips4, UINT32 prid)
 
 	/* recompute the TLB table */
 	recompute_tlb_table();
+
+	/* initialize JIT */
+	mips3_set_jit(options.jit);
 }
 
 
@@ -630,6 +839,7 @@ static void rm7000le_reset(void)
 
 static void mips3_exit(void)
 {
+	mips3_set_jit(0);
 }
 
 
@@ -932,6 +1142,10 @@ INLINE void set_cop0_reg(int idx, UINT64 val)
 			mips3.cpr[0][idx] = val;
 			if (diff & 0x8000)
 				update_cycle_counting();
+			/* the recompiler translates FPU instructions only while COP1 is usable, */
+			/* and its native FPU code depends on the FR mode */
+			if (diff & (SR_COP1 | SR_FR))
+				jit_flush();
 			check_irqs();
 			break;
 		}
@@ -2153,6 +2367,18 @@ INLINE void handle_cop2(UINT32 op)
 }
 
 
+/* a COP1 instruction (not a branch) from translated code: exactly the interpreter's */
+static void jit_cop1_helper(UINT32 op)
+{
+	if (IS_FR0)
+		handle_cop1_fr0(op);
+	else
+		handle_cop1_fr1(op);
+}
+
+#include "mips3jit.c"
+
+
 
 /***************************************************************************
     CORE EXECUTION LOOP
@@ -2171,12 +2397,56 @@ int mips3_execute(int cycles)
 	/* check for IRQs */
 	check_irqs();
 
+	/* optional fast RAM (see mips3_add_fastram) */
+	fastram_attach();
+
 	/* core execution loop */
 	do
 	{
 		UINT32 op;
 		UINT64 temp64;
 		UINT32 temp;
+
+#if MIPS3_JIT_SUPPORTED
+		/* recompiled block, when there are enough cycles left for all of it */
+		if (jit_enabled && mips3.nextpc == ~0)
+		{
+			struct jit_block *block = jit_lookup(mips3.pc);
+			if (block && (int)block->len <= mips3_icount)
+			{
+				/* run blocks back to back while they fit in the timeslice; */
+				/* each takes its own cycles, and none taken means a side exit */
+				/* before its first instruction, which the interpreter then runs */
+				int ran = 0, stalled = 0;
+				for (;;)
+				{
+					int before = mips3_icount;
+					mips3.pc = ((jit_func)block->code)();
+					if (mips3_icount == before)
+					{
+						stalled = 1;
+						break;
+					}
+					ran = 1;
+					if (mips3_icount <= 0)
+						break;
+					block = jit_lookup(mips3.pc);
+					if (!block || (int)block->len > mips3_icount)
+						break;
+				}
+				if (ran)
+				{
+					update_pcbase();
+					if (!stalled)
+					{
+						mips3.ppc = mips3.pc - 4;
+						continue;
+					}
+					mips3.ppc = mips3.pc;
+				}
+			}
+		}
+#endif
 
 		/* see if we crossed a page boundary */
 		if ((mips3.pc ^ mips3.ppc) & 0xfffff000)
@@ -2855,6 +3125,12 @@ static void mips3_set_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_REGISTER + MIPS3_R31:			mips3.r[31] = info->i;					break;
 		case CPUINFO_INT_REGISTER + MIPS3_HI:			mips3.hi = info->i;						break;
 		case CPUINFO_INT_REGISTER + MIPS3_LO:			mips3.lo = info->i;						break;
+
+		case CPUINFO_INT_MIPS3_FASTRAM_SELECT:			if (info->i >= 0 && info->i < MIPS3_MAX_FASTRAM) fastram_select = info->i; break;
+		case CPUINFO_INT_MIPS3_FASTRAM_START:			fastram_raw[fastram_select].start = info->i; break;
+		case CPUINFO_INT_MIPS3_FASTRAM_END:				fastram_raw[fastram_select].end = info->i; break;
+		case CPUINFO_INT_MIPS3_FASTRAM_READONLY:		fastram_raw[fastram_select].readonly = info->i; update_fastram_regions(fastram_select); break;
+		case CPUINFO_PTR_MIPS3_FASTRAM_BASE:			fastram_raw[fastram_select].base = info->p; update_fastram_regions(fastram_select); break;
 	}
 }
 
