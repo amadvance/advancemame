@@ -683,7 +683,7 @@ static void dmastart_callback(int data)
 	}
 
 	// simulate DMA delay
-	timer_adjust(dmadelay_timer, TIME_IN_USEC(120), 0, 0);
+	timer_adjust(dmadelay_timer, TIME_IN_USEC(!strcmp(Machine->gamedrv->name, "rushhero") ? 64 : 120), 0, 0);
 }
 
 
@@ -935,12 +935,15 @@ static int sync_frame = 0;
 
 static READ32_HANDLER( type3_sync_r )
 {
+	if (!strcmp(Machine->gamedrv->name, "rushhero"))
+		return 0xfffffffe | (cpu_getcurrentframe() & 1);
+
 	sync_frame ^= 0xffffffff;
 
 	return sync_frame;
 }
 
-static int last_prot_op = -1, last_prot_clk;
+static int last_prot_op = -1, last_prot_clk, last_prot_param;
 
 /*
     Run and Gun 2, Rushing Heroes, Winning Spike, and Vs. Net Soccer contain a XILINX FPGA that serves as security.
@@ -1027,6 +1030,7 @@ static WRITE32_HANDLER( type4_prot_w )
 	}
 	else
 	{
+		if (ACCESSING_LSW32 && !(data & 0xff00)) last_prot_param = data & 0xffff;
 		data >>= 16;
 
 		clk = data & 0x200;
@@ -1064,9 +1068,15 @@ static WRITE32_HANDLER( type4_prot_w )
 					int dst = 0xd20000;
 					int spr;
 
+					if (last_prot_param == 0x62)
+					{
+						src = 0xc19ff0;
+						dst = 0xd21000;
+					}
+
 					for (spr = 0; spr < 256; spr++)
 					{
-						for (i = 0; i <= 0x10; i += 4)
+						for (i = 0; i < 0x10; i += 4)
 						{
 							program_write_dword(dst + i, program_read_dword(src+i));
 						}
@@ -1074,6 +1084,14 @@ static WRITE32_HANDLER( type4_prot_w )
 						src -= 0x10;
 						dst += 0x10;
 					}
+					program_write_byte(0xc01cc0, ~program_read_byte(0xc00507));
+					program_write_byte(0xc01cc1, ~program_read_byte(0xc00527));
+					program_write_byte(0xc01cc4, ~program_read_byte(0xc00547));
+					program_write_byte(0xc01cc5, ~program_read_byte(0xc00567));
+					program_write_byte(0xc11cc0, ~program_read_byte(0xc00507));
+					program_write_byte(0xc11cc1, ~program_read_byte(0xc00527));
+					program_write_byte(0xc11cc4, ~program_read_byte(0xc00547));
+					program_write_byte(0xc11cc5, ~program_read_byte(0xc00567));
 				}
 				else
 				{
@@ -1176,10 +1194,10 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( gx_type4_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0xcc0000, 0xcc0007) AM_WRITE(type4_prot_w)
 	AM_RANGE(0xd90000, 0xd97fff) AM_RAM
-	AM_RANGE(0xe00000, 0xe0001f) AM_RAM AM_BASE((UINT32**)&K053936_1_ctrl)
+	AM_RANGE(0xe00000, 0xe0001f) AM_RAM AM_BASE((UINT32**)&K053936_0_ctrl)
 	AM_RANGE(0xe20000, 0xe20003) AM_WRITE(MWA32_NOP)
 	AM_RANGE(0xe40000, 0xe40003) AM_WRITE(MWA32_NOP)
-	AM_RANGE(0xe60000, 0xe60fff) AM_RAM AM_BASE((UINT32**)&K053936_1_linectrl)  // 29C & 29G (PSAC2 line control)
+	AM_RANGE(0xe60000, 0xe60fff) AM_RAM AM_BASE((UINT32**)&K053936_0_linectrl)  // 29C & 29G (PSAC2 line control)
 	AM_RANGE(0xe80000, 0xe8ffff) AM_RAM AM_WRITE(konamigx_palette_w) AM_BASE(&paletteram32) // 11G/13G/15G (main screen palette RAM) (twice as large as reality)
 	AM_RANGE(0xea0000, 0xea7fff) AM_RAM AM_WRITE(konamigx_palette2_w) AM_BASE(&gx_subpaletteram32) // 5G/7G/9G (sub screen palette RAM)
 	AM_RANGE(0xec0000, 0xec0003) AM_READ(type3_sync_r)		// type 4 polls this too
@@ -1231,6 +1249,21 @@ static ADDRESS_MAP_START( gxsndmap, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x500000, 0x500001) AM_READWRITE(tms57002_status_word_r, tms57002_control_word_w)
 	AM_RANGE(0x580000, 0x580001) AM_WRITENOP
 ADDRESS_MAP_END
+
+static const gfx_layout rushhero_bglayout =
+{
+	16,16, RGN_FRAC(1,1), 8,
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*128, 1*128, 2*128, 3*128, 4*128, 5*128, 6*128, 7*128, 8*128, 9*128, 10*128, 11*128, 12*128, 13*128, 14*128, 15*128 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8, 10*8, 11*8, 12*8, 13*8, 14*8, 15*8 },
+	16*128
+};
+
+static const gfx_decode gfxdecodeinfo_rushhero[] =
+{
+	{ REGION_GFX3, 0, &rushhero_bglayout, 0x1800, 8 },
+	{ -1 }
+};
 
 static struct K054539interface k054539_interface =
 {
@@ -1414,6 +1447,13 @@ static MACHINE_DRIVER_START( gxtype4 )
 	MDRV_PALETTE_LENGTH(16384)
 	MDRV_GFXDECODE(gfxdecodeinfo_type34)
 	MDRV_VIDEO_START(konamigx_type4)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( rushhero )
+	MDRV_IMPORT_FROM(gxtype4)
+	MDRV_GFXDECODE(gfxdecodeinfo_rushhero)
+	MDRV_SCREEN_SIZE(128*8, 32*8)
+	MDRV_VISIBLE_AREA(0, 384-1, 16, 239)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( winspike )
@@ -2434,48 +2474,41 @@ ROM_END
 
 /* Rushing Heroes */
 ROM_START( rushhero )
-	/* main program */
 	ROM_REGION( 0x800000, REGION_CPU1, 0 )
 	GX_BIOS
-	ROM_LOAD32_WORD_SWAP( "605b02.31m", 0x200002, 512*1024, CRC(94c3d835) SHA1(f48d34987fa6575a2c41d3ca3359e9e2cbc817e0) )
-	ROM_LOAD32_WORD_SWAP( "605b03.29m", 0x200000, 512*1024, CRC(c5b8d31d) SHA1(6c5b359e1fcf511c50d6a876946631fc38a6dade) )
+	ROM_LOAD32_WORD_SWAP( "605uab03.29m", 0x200000, 0x080000, CRC(c5b8d31d) SHA1(6c5b359e1fcf511c50d6a876946631fc38a6dade) )
+	ROM_LOAD32_WORD_SWAP( "605uab02.31m", 0x200002, 0x080000, CRC(94c3d835) SHA1(f48d34987fa6575a2c41d3ca3359e9e2cbc817e0) )
 
-	/* data roms */
-	ROM_LOAD32_WORD_SWAP( "605a04.31r", 0x400000, 1024*1024, CRC(f6788154) SHA1(093c145d5348b4f10193acc258f5539bd59138a1))
-	ROM_LOAD32_WORD_SWAP( "605a05.29r", 0x400002, 1024*1024, CRC(9bca4297) SHA1(c20be1ffcee8bd56f69d4fcc19d0035b3f74b8f2))
+	ROM_LOAD32_WORD_SWAP( "605a05.29r", 0x400000, 0x100000, CRC(9bca4297) SHA1(c20be1ffcee8bd56f69d4fcc19d0035b3f74b8f2) )
+	ROM_LOAD32_WORD_SWAP( "605a04.31r", 0x400002, 0x100000, CRC(f6788154) SHA1(093c145d5348b4f10193acc258f5539bd59138a1) )
 
-	/* sound program */
 	ROM_REGION( 0x40000, REGION_CPU2, 0 )
-	ROM_LOAD16_BYTE("605a06.9m", 0x000000, 128*1024, CRC(9ca03dce) SHA1(008106e864d8390d7ae8645a2fe06d0eaaa746e0))
-	ROM_LOAD16_BYTE("605a07.7m", 0x000001, 128*1024, CRC(3116a8b0) SHA1(f0899d7027464d9aad45ffa6a464288a51a80dc1))
+	ROM_LOAD16_BYTE("605a06.9m", 0x000000, 0x020000, CRC(9ca03dce) SHA1(008106e864d8390d7ae8645a2fe06d0eaaa746e0) )
+	ROM_LOAD16_BYTE("605a07.7m", 0x000001, 0x020000, CRC(3116a8b0) SHA1(f0899d7027464d9aad45ffa6a464288a51a80dc1) )
 
-	/* tiles */
 	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_ERASE00 )
-	ROM_LOAD16_BYTE( "605a21.11r", 0x000000, 1024*1024, CRC(0e5add29) SHA1(f80d81ff8110825ba19ebc3cf50480b8cf275571))
-	ROM_LOAD16_BYTE( "605a20.11m", 0x000001, 1024*1024, CRC(a8fb4288) SHA1(b0ee6c2add5a8063f771ac8bbdfd78c0382a5036))
+	ROM_LOAD16_BYTE( "605a21.11r", 0x000000, 0x100000, CRC(0e5add29) SHA1(f80d81ff8110825ba19ebc3cf50480b8cf275571) )
+	ROM_LOAD16_BYTE( "605a20.11m", 0x000001, 0x100000, CRC(a8fb4288) SHA1(b0ee6c2add5a8063f771ac8bbdfd78c0382a5036) )
 
-	/* sprites */
 	ROM_REGION( 0x3000000, REGION_GFX2, ROMREGION_ERASE00 )
-	ROM_LOAD32_WORD( "605a19.14r", 0x0000000, 4*1024*1024, CRC(293427d0) SHA1(c31f93797bda09ea7e990100a5556eb0fde64968) )
-	ROM_LOAD32_WORD( "605a15.18r", 0x0000002, 4*1024*1024, CRC(19e6e356) SHA1(b2568e14d6fb9a9792f95aafcf694dbf00c0d2c8) )
-	ROM_LOAD32_WORD( "605a18.18m", 0x0800000, 4*1024*1024, CRC(b5115d76) SHA1(48c3119afb649c58d4df36806fe5530ddd379782) )
-	ROM_LOAD32_WORD( "605a14.14m", 0x0800002, 4*1024*1024, CRC(4d4dbecb) SHA1(7c3cb2739d6b729d855d652b1991c7af6cd79d1c) )
-	ROM_LOAD32_WORD( "605a13.21r", 0x1000000, 4*1024*1024, CRC(08137923) SHA1(c1af6b55c1c08e16384d2660b2210ccf3b955be9) )
-	ROM_LOAD32_WORD( "605a17.16r", 0x1000002, 4*1024*1024, CRC(42e6dc6f) SHA1(8035b7160267a988a1aa2690423c68b6f1975f1a) )
-	ROM_LOAD32_WORD( "605a12.21m", 0x1800000, 4*1024*1024, CRC(194ffad0) SHA1(1c56f4e89bfe72b435793b907e7ca3e62ecddf4b) )
-	ROM_LOAD32_WORD( "605a16.16m", 0x1800002, 4*1024*1024, CRC(aab542ca) SHA1(9728b028f48768236f47a7a9bddb27944297b583) )
-	ROM_LOAD32_WORD( "605a11.23r", 0x2000000, 4*1024*1024, CRC(bc61339c) SHA1(77a5737501bf8ffd7ae4192a6e5924c479eb6655) )
-	ROM_LOAD32_WORD( "605a10.23m", 0x2000002, 4*1024*1024, CRC(4f47d434) SHA1(c4503993c738e1b8df6f045f5a82504363682db7) )
-	ROM_LOAD32_WORD( "605a09.25r", 0x2800000, 4*1024*1024, CRC(624fd486) SHA1(edd81d5487f8239ffa89b931430cf41f06a17cf6) )
-	ROM_LOAD32_WORD( "605a08.25m", 0x2800002, 4*1024*1024, CRC(ea80ddfd) SHA1(4be61af09bcc80c97505196a6f43797753d14f85) )
+	_48_WORD_ROM_LOAD( "605a19.14r", 0x0000000, 0x400000, CRC(293427d0) SHA1(c31f93797bda09ea7e990100a5556eb0fde64968) )
+	_48_WORD_ROM_LOAD( "605a15.18r", 0x0000002, 0x400000, CRC(19e6e356) SHA1(b2568e14d6fb9a9792f95aafcf694dbf00c0d2c8) )
+	_48_WORD_ROM_LOAD( "605a11.23r", 0x0000004, 0x400000, CRC(bc61339c) SHA1(77a5737501bf8ffd7ae4192a6e5924c479eb6655) )
+	_48_WORD_ROM_LOAD( "605a17.16r", 0x0c00000, 0x400000, CRC(7a8f1cf9) SHA1(4c07f846915bded61c40876a10f5457e8895ad58) )
+	_48_WORD_ROM_LOAD( "605a13.21r", 0x0c00002, 0x400000, CRC(9a6dff6d) SHA1(cbc200bde5933098e768db8d3021f77bdfe454b8) )
+	_48_WORD_ROM_LOAD( "605a09.25r", 0x0c00004, 0x400000, CRC(624fd486) SHA1(edd81d5487f8239ffa89b931430cf41f06a17cf6) )
+	_48_WORD_ROM_LOAD( "605a18.14m", 0x1800000, 0x400000, CRC(4d4dbecb) SHA1(7c3cb2739d6b729d855d652b1991c7af6cd79d1c) )
+	_48_WORD_ROM_LOAD( "605a14.18m", 0x1800002, 0x400000, CRC(b5115d76) SHA1(48c3119afb649c58d4df36806fe5530ddd379782) )
+	_48_WORD_ROM_LOAD( "605a10.23m", 0x1800004, 0x400000, CRC(4f47d434) SHA1(c4503993c738e1b8df6f045f5a82504363682db7) )
+	_48_WORD_ROM_LOAD( "605a16.16m", 0x2400000, 0x400000, CRC(aab542ca) SHA1(9728b028f48768236f47a7a9bddb27944297b583) )
+	_48_WORD_ROM_LOAD( "605a12.21m", 0x2400002, 0x400000, CRC(194ffad0) SHA1(1c56f4e89bfe72b435793b907e7ca3e62ecddf4b) )
+	_48_WORD_ROM_LOAD( "605a08.25m", 0x2400004, 0x400000, CRC(ea80ddfd) SHA1(4be61af09bcc80c97505196a6f43797753d14f85) )
 
-	/* PSAC2 tiles */
 	ROM_REGION( 0x200000, REGION_GFX3, 0 )
-	ROM_LOAD("605a24.22h", 0x000000, 1024*1024, CRC(e5ba1bb7) SHA1(d677e03b418a8bde7a4e4932fd452924768e7d72))
+	ROM_LOAD("605a24.22h", 0x000000, 0x200000, CRC(73f06065) SHA1(8ca6747204a4c2cf59f19bcc9fce280e796e4a6e) )
 
-	/* sound data */
 	ROM_REGION( 0x400000, REGION_SOUND1, 0 )
-	ROM_LOAD( "605a23.7r", 0x000000, 4*1024*1024, CRC(992c4751) SHA1(18ecfc21138f9dc62f0658750808bbef649510f7))
+	ROM_LOAD( "605a23.7r", 0x000000, 0x400000, CRC(458ecee1) SHA1(4adcbbff312597716c6db1cd5df6cdf7022d4961) )
 ROM_END
 
 /* Taisen Tokkae-dama */
@@ -3292,6 +3325,7 @@ static DRIVER_INIT(konamigx)
 	konamigx_cfgport = -1;
 	last_prot_op = -1;
 	last_prot_clk = 0;
+	last_prot_param = 0;
 
 	esc_cb = 0;
 	snd020_hack = 0;
@@ -3531,4 +3565,4 @@ GAME( 1996, vsnetscr, konamigx, gxtype4, type3, konamigx, ROT0, "Konami", "Versu
 GAME( 1996, vsnetscj, vsnetscr, gxtype4, type3, konamigx, ROT0, "Konami", "Versus Net Soccer (ver JAB)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
 GAME( 1996, rungun2,  konamigx, gxtype4, type3, konamigx, ROT0, "Konami", "Run and Gun 2 (ver UAA)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
 GAME( 1996, slamdnk2, rungun2,  gxtype4, type3, konamigx, ROT0, "Konami", "Slam Dunk 2 (ver JAA)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
-GAME( 1996, rushhero, konamigx, gxtype4, type3, konamigx, ROT0, "Konami", "Rushing Heroes (ver UAB)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING  )
+GAME( 1996, rushhero, konamigx, rushhero, type3, konamigx, ROT0, "Konami", "Rushing Heroes (ver UAB)", GAME_IMPERFECT_GRAPHICS )
