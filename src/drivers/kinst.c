@@ -186,6 +186,11 @@ static MACHINE_RESET( kinst )
 	mips3_set_cause_poll_skip(1);
 	mips3_add_poll_read(0xb00000a0, 0xb00000a3);
 
+	/* configure ADSP-2100 JIT and delay loop skip for DCS */
+	adsp2100_set_nop_loop_skip(1);
+	adsp2100_set_jit(options.jit);
+	adsp2100_jit_pure_read(0x2000, 0x2fff);
+
 	/* reset the IDE controller */
 	ide_controller_reset(0);
 

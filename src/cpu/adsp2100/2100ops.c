@@ -556,7 +556,7 @@ INLINE void modify_address(UINT32 ireg, UINT32 mreg)
     Data memory accessors
 ===========================================================================*/
 
-INLINE void data_write_dag1(UINT32 op, INT32 val)
+INLINE void data_write_dag1_f(UINT32 op, INT32 val, int fast)
 {
 	UINT32 ireg = (op >> 2) & 3;
 	UINT32 mreg = op & 3;
@@ -567,10 +567,10 @@ INLINE void data_write_dag1(UINT32 op, INT32 val)
 	if ( adsp2100.mstat & MSTAT_REVERSE )
 	{
 		UINT32 ir = reverse_table[ i & 0x3fff ];
-		WWORD_DATA(ir, val);
+		WWORD_DATA_F(ir, val, fast);
 	}
 	else
-		WWORD_DATA(i, val);
+		WWORD_DATA_F(i, val, fast);
 
 	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
@@ -579,7 +579,7 @@ INLINE void data_write_dag1(UINT32 op, INT32 val)
 }
 
 
-INLINE UINT32 data_read_dag1(UINT32 op)
+INLINE UINT32 data_read_dag1_f(UINT32 op, int fast)
 {
 	UINT32 ireg = (op >> 2) & 3;
 	UINT32 mreg = op & 3;
@@ -591,10 +591,10 @@ INLINE UINT32 data_read_dag1(UINT32 op)
 	if (adsp2100.mstat & MSTAT_REVERSE)
 	{
 		UINT32 ir = reverse_table[i & 0x3fff];
-		res = RWORD_DATA(ir);
+		res = RWORD_DATA_F(ir, fast);
 	}
 	else
-		res = RWORD_DATA(i);
+		res = RWORD_DATA_F(i, fast);
 
 	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
@@ -604,7 +604,7 @@ INLINE UINT32 data_read_dag1(UINT32 op)
 	return res;
 }
 
-INLINE void data_write_dag2(UINT32 op, INT32 val)
+INLINE void data_write_dag2_f(UINT32 op, INT32 val, int fast)
 {
 	UINT32 ireg = 4 + ((op >> 2) & 3);
 	UINT32 mreg = 4 + (op & 3);
@@ -612,7 +612,7 @@ INLINE void data_write_dag2(UINT32 op, INT32 val)
 	UINT32 i = adsp2100.i[ireg];
 	UINT32 l = adsp2100.l[ireg];
 
-	WWORD_DATA(i, val);
+	WWORD_DATA_F(i, val, fast);
 
 	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
@@ -621,7 +621,7 @@ INLINE void data_write_dag2(UINT32 op, INT32 val)
 }
 
 
-INLINE UINT32 data_read_dag2(UINT32 op)
+INLINE UINT32 data_read_dag2_f(UINT32 op, int fast)
 {
 	UINT32 ireg = 4 + ((op >> 2) & 3);
 	UINT32 mreg = 4 + (op & 3);
@@ -629,7 +629,7 @@ INLINE UINT32 data_read_dag2(UINT32 op)
 	UINT32 i = adsp2100.i[ireg];
 	UINT32 l = adsp2100.l[ireg];
 
-	UINT32 res = RWORD_DATA(i);
+	UINT32 res = RWORD_DATA_F(i, fast);
 
 	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
@@ -638,6 +638,12 @@ INLINE UINT32 data_read_dag2(UINT32 op)
 
 	return res;
 }
+
+/* the interpreter's accessors (the recompiler passes fast = 1) */
+#define data_write_dag1(op, val)	data_write_dag1_f(op, val, 0)
+#define data_read_dag1(op)			data_read_dag1_f(op, 0)
+#define data_write_dag2(op, val)	data_write_dag2_f(op, val, 0)
+#define data_read_dag2(op)			data_read_dag2_f(op, 0)
 
 /*===========================================================================
     Program memory accessors

@@ -91,7 +91,7 @@ ifneq ($(filter ADSP2100 ADSP2101 ADSP2104 ADSP2105 ADSP2115 ADSP2181,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/adsp2100
 CPUOBJS += $(OBJ)/cpu/adsp2100/adsp2100.o
 DBGOBJS += $(OBJ)/cpu/adsp2100/2100dasm.o
-$(OBJ)/cpu/adsp2100/adsp2100.o: adsp2100.c adsp2100.h 2100ops.c
+$(OBJ)/cpu/adsp2100/adsp2100.o: adsp2100.c adsp2100.h 2100ops.c adsp2100jit.c
 endif
 
 

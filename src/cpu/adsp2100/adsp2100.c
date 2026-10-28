@@ -74,8 +74,12 @@
 
 ***************************************************************************/
 
+#include <stddef.h>
 #include "debugger.h"
 #include "adsp2100.h"
+#include "sljit_mame.h"
+
+#define ADSP2100_JIT_SUPPORTED SLJIT_MAME_SUPPORTED
 
 
 /***************************************************************************
@@ -269,15 +273,45 @@ static void check_irqs(void);
     MEMORY ACCESSORS
 ***************************************************************************/
 
-INLINE UINT16 RWORD_DATA(UINT32 addr)
+/* exact skip of one-instruction NOP delay loops: off unless a driver enables it */
+static int adsp2100_nop_loop_skip;
+
+void adsp2100_set_nop_loop_skip(int enable)
 {
+	adsp2100_nop_loop_skip = enable;
+}
+
+/* data memory words the recompiler reaches through a direct pointer (RAM), or NULL */
+static UINT16 **adsp_dm_rptr, **adsp_dm_wptr;
+
+/* 'fast' is a constant: bit 0 set in the recompiler's copies */
+INLINE UINT32 RWORD_DATA_F(UINT32 addr, int fast)
+{
+	if (fast & 1)
+	{
+		UINT16 *p = adsp_dm_rptr[addr & 0x3fff];
+		if (p && addr <= 0x3fff)
+			return *p;
+	}
 	return data_read_word_16le(addr << 1);
 }
 
-INLINE void WWORD_DATA(UINT32 addr, UINT16 data)
+INLINE void WWORD_DATA_F(UINT32 addr, UINT32 data, int fast)
 {
+	if (fast & 1)
+	{
+		UINT16 *p = adsp_dm_wptr[addr & 0x3fff];
+		if (p && addr <= 0x3fff)
+		{
+			*p = data;
+			return;
+		}
+	}
 	data_write_word_16le(addr << 1, data);
 }
+
+#define RWORD_DATA(addr)		RWORD_DATA_F(addr, 0)
+#define WWORD_DATA(addr, data)	WWORD_DATA_F(addr, data, 0)
 
 INLINE UINT16 RWORD_IO(UINT32 addr)
 {
@@ -294,8 +328,17 @@ INLINE UINT32 RWORD_PGM(UINT32 addr)
 	return program_read_dword_32le(addr << 2);
 }
 
+/* program memory changed: the recompiler drops its translations (all of
+   them, or those over one word written by an instruction) */
+static int adsp2100_pgm_dirty;
+static void **adsp_jit_code;
+static void adsp_jit_pgm_write(UINT32 addr, UINT32 data);
+static int adsp_jit_flush_all;
+
 INLINE void WWORD_PGM(UINT32 addr, UINT32 data)
 {
+	if (adsp_jit_code)
+		adsp_jit_pgm_write(addr, data);
 	program_write_dword_32le(addr << 2, data & 0xffffff);
 }
 
@@ -616,6 +659,10 @@ static void adsp2100_set_context(void *src)
 
 static void adsp2100_init(int index, int clock, const void *config, int (*irqcallback)(int))
 {
+	/* the recompiler and the NOP loop skip are off until a driver asks for them */
+	adsp2100_set_jit(0);
+	adsp2100_nop_loop_skip = 0;
+
 	/* create the tables */
 	if (!create_tables())
 		fatalerror("creating adsp2100 tables failed");
@@ -752,6 +799,7 @@ static void adsp2100_reset(void)
 
 	adsp2100.ppc = -1;
 	adsp2100.loop = 0xffff;
+	adsp_jit_flush_all = adsp2100_pgm_dirty = 1;
 	adsp2100.loop_condition = 0;
 
 	/* reset status registers */
@@ -872,6 +920,8 @@ static int create_tables(void)
 
 static void adsp2100_exit(void)
 {
+	adsp2100_set_jit(0);
+
 	if (reverse_table)
 		free(reverse_table);
 	reverse_table = NULL;
@@ -910,59 +960,69 @@ static void adsp2100_exit(void)
     CORE EXECUTION LOOP
 ***************************************************************************/
 
-/* execute instructions on this CPU until icount expires */
-static int adsp2100_execute(int cycles)
+/* advance the PC past the instruction 'op' just fetched at adsp2100.pc,
+   handling the end of a DO loop there */
+INLINE void adsp2100_advance(UINT32 op)
 {
-	/* reset the core */
-	set_mstat(adsp2100.mstat);
+	/* advance to the next instruction */
+	if (adsp2100.pc != adsp2100.loop)
+		adsp2100.pc++;
 
-	/* count cycles and interrupt cycles */
-	adsp2100_icount = cycles;
-	adsp2100_icount -= adsp2100.interrupt_cycles;
-	adsp2100.interrupt_cycles = 0;
-
-	CHANGEPC();
-
-	/* core execution loop */
-	do
+	/* handle looping */
+	else
 	{
-		UINT32 op, temp;
-
-		/* debugging */
-		adsp2100.ppc = adsp2100.pc;	/* copy PC to previous PC */
-		CALL_MAME_DEBUG;
-
-#if TRACK_HOTSPOTS
-		pcbucket[adsp2100.pc & 0x3fff]++;
-#endif
-
-		/* instruction fetch */
-		op = ROPCODE();
-
-		/* advance to the next instruction */
-		if (adsp2100.pc != adsp2100.loop)
-			adsp2100.pc++;
-
-		/* handle looping */
-		else
+		/* a one-instruction NOP loop counted by CNTR (a delay): run the */
+		/* iterations that fit in this timeslice at once, leaving at */
+		/* least one to the code below; nothing else changes in between */
+		/* (only for the drivers that enable it, adsp2100_set_nop_loop_skip) */
+		if (op == 0 && adsp2100_nop_loop_skip && adsp2100.loop_condition == 14 && pc_stack_top() == adsp2100.pc)
 		{
-			/* condition not met, keep looping */
-			if (CONDITION(adsp2100.loop_condition))
-				adsp2100.pc = pc_stack_top();
-
-			/* condition met; pop the PC and loop stacks and fall through */
-			else
+			INT32 skip = (INT32)adsp2100.cntr - 2;
+			if (skip > adsp2100_icount - 1)
+				skip = adsp2100_icount - 1;
+			if (skip > 0)
 			{
-				loop_stack_pop();
-				pc_stack_pop_val();
-				adsp2100.pc++;
+				adsp2100.cntr -= skip;
+				adsp2100_icount -= skip;
 			}
 		}
 
-		/* parse the instruction */
-		switch (op >> 16)
+		/* condition not met, keep looping */
+		if (CONDITION(adsp2100.loop_condition))
+			adsp2100.pc = pc_stack_top();
+
+		/* condition met; pop the PC and loop stacks and fall through */
+		else
 		{
-			case 0x00:
+			loop_stack_pop();
+			pc_stack_pop_val();
+			adsp2100.pc++;
+		}
+	}
+}
+
+#undef RWORD_DATA
+#undef WWORD_DATA
+#undef data_write_dag1
+#undef data_read_dag1
+#undef data_write_dag2
+#undef data_read_dag2
+
+#define RWORD_DATA(addr)		RWORD_DATA_F(addr, fast)
+#define WWORD_DATA(addr, data)	WWORD_DATA_F(addr, data, fast)
+#define data_write_dag1(op, val)	data_write_dag1_f(op, val, fast)
+#define data_read_dag1(op)			data_read_dag1_f(op, fast)
+#define data_write_dag2(op, val)	data_write_dag2_f(op, val, fast)
+#define data_read_dag2(op)			data_read_dag2_f(op, fast)
+
+INLINE void adsp2100_execute_op(UINT32 op, UINT32 opclass, int fast)
+{
+	UINT32 temp;
+
+	/* parse the instruction */
+	switch (opclass)
+	{
+		case 0x00:
 				/* 00000000 00000000 00000000  NOP */
 				break;
 			case 0x01:
@@ -1669,10 +1729,66 @@ static int adsp2100_execute(int cycles)
 				adsp2100.core.my1.u = pgm_read_dag2(op >> 4);
 				break;
 		}
+}
 
-		adsp2100_icount--;
+#undef RWORD_DATA
+#undef WWORD_DATA
+#undef data_write_dag1
+#undef data_read_dag1
+#undef data_write_dag2
+#undef data_read_dag2
 
-	} while (adsp2100_icount > 0);
+#define RWORD_DATA(addr)		RWORD_DATA_F(addr, 0)
+#define WWORD_DATA(addr, data)	WWORD_DATA_F(addr, data, 0)
+#define data_write_dag1(op, val)	data_write_dag1_f(op, val, 0)
+#define data_read_dag1(op)			data_read_dag1_f(op, 0)
+#define data_write_dag2(op, val)	data_write_dag2_f(op, val, 0)
+#define data_read_dag2(op)			data_read_dag2_f(op, 0)
+
+#include "adsp2100jit.c"
+
+/* execute instructions on this CPU until icount expires */
+static int adsp2100_execute(int cycles)
+{
+	/* reset the core */
+	set_mstat(adsp2100.mstat);
+
+	/* count cycles and interrupt cycles */
+	adsp2100_icount = cycles;
+	adsp2100_icount -= adsp2100.interrupt_cycles;
+	adsp2100.interrupt_cycles = 0;
+
+	CHANGEPC();
+
+	if (adsp_jit_enabled)
+		adsp_jit_run();
+	else
+	{
+		/* core execution loop */
+		do
+		{
+			UINT32 op;
+
+			/* debugging */
+			adsp2100.ppc = adsp2100.pc;	/* copy PC to previous PC */
+			CALL_MAME_DEBUG;
+
+#if TRACK_HOTSPOTS
+			pcbucket[adsp2100.pc & 0x3fff]++;
+#endif
+
+			/* instruction fetch */
+			op = ROPCODE();
+
+			adsp2100_advance(op);
+
+			/* parse the instruction */
+			adsp2100_execute_op(op, op >> 16, 0);
+
+			adsp2100_icount--;
+
+		} while (adsp2100_icount > 0);
+	}
 
 	adsp2100_icount -= adsp2100.interrupt_cycles;
 	adsp2100.interrupt_cycles = 0;
@@ -2267,6 +2383,7 @@ void adsp2104_load_boot_data(UINT8 *srcdata, UINT32 *dstdata)
 	/* see how many words we need to copy */
 	int pagelen = (srcdata[(3)] + 1) * 8;
 	int i;
+	adsp_jit_flush_all = adsp2100_pgm_dirty = 1;
 	for (i = 0; i < pagelen; i++)
 	{
 		UINT32 opcode = (srcdata[(i*4+0)] << 16) | (srcdata[(i*4+1)] << 8) | srcdata[(i*4+2)];
