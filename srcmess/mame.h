@@ -222,6 +222,7 @@ struct _global_options
 	const char * savegame;	/* string representing a savegame to load; if one length then interpreted as a character */
 	int		auto_save;		/* 1 to automatically save/restore at startup/quitting time */
 	char *	bios;			/* specify system bios (if used), 0 is default */
+	int		jit;			/* 1 to enable JIT recompiler */
 
 	int		debug_width;	/* requested width of debugger bitmap */
 	int		debug_height;	/* requested height of debugger bitmap */

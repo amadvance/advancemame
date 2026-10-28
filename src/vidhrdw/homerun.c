@@ -3,28 +3,26 @@
 #include "driver.h"
 
 static int homerun_gfx_ctrl;
-static int homerun_gc_up,homerun_gc_down;
 int homerun_xpa,homerun_xpb,homerun_xpc;
 
 tilemap *homerun_tilemap;
 UINT8 *homerun_videoram;
 
-#define half_screen 116
+void homerun_video_reset(void)
+{
+	homerun_gfx_ctrl = 0;
+	memory_set_bankptr(1, memory_region(REGION_CPU1));
+	tilemap_mark_all_tiles_dirty(homerun_tilemap);
+}
 
 WRITE8_HANDLER(homerun_banking_w)
 {
-	if(cpu_getscanline()>half_screen)
-		homerun_gc_down=data&3;
-	else
-		homerun_gc_up=data&3;
-
-  	tilemap_mark_all_tiles_dirty(homerun_tilemap);
-
-	data>>=5;
-	if(!data)
-		memory_set_bankptr(1, memory_region(REGION_CPU1) );
-	else
-		memory_set_bankptr(1, memory_region(REGION_CPU1) + 0x10000 + (((data-1)&0x7)*0x4000 ));
+	if (homerun_tilemap && ((homerun_gfx_ctrl ^ data) & 3))
+		force_partial_update(cpu_getscanline());
+	if (homerun_tilemap && ((homerun_gfx_ctrl ^ data) & 1))
+		tilemap_mark_all_tiles_dirty(homerun_tilemap);
+	homerun_gfx_ctrl = data;
+	memory_set_bankptr(1, memory_region(REGION_CPU1) + ((data >> 5) & 7) * 0x4000);
 }
 
 WRITE8_HANDLER( homerun_videoram_w )
@@ -76,8 +74,10 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 	{
 		int code,color,sx,sy,flipx,flipy;
 		sx = spriteram[offs+3];
-		sy = spriteram[offs+0]-16;
-		code = (spriteram[offs+1] ) +((spriteram[offs+2]&0x8)<<5 )+(homerun_gfx_ctrl<<9);
+		sy = spriteram[offs+0]-15;
+		if (!spriteram[offs] || sy < 0)
+			continue;
+		code = (spriteram[offs+1] ) +((spriteram[offs+2]&0x8)<<5 )+((homerun_gfx_ctrl&3)<<9);
 		color = (spriteram[offs+2] & 0x7)+8 ;
 		flipx=(spriteram[offs+2] & 0x40) ;
 		flipy=(spriteram[offs+2] & 0x80) ;
@@ -87,31 +87,15 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 				flipx,flipy,
 				sx,sy,
 				cliprect,TRANSPARENCY_PEN,0);
+		drawgfx(bitmap,Machine->gfx[1],code,color,flipx,flipy,
+			sx-256,sy,cliprect,TRANSPARENCY_PEN,0);
 	}
 }
 
 VIDEO_UPDATE(homerun)
 {
-	rectangle myclip=*cliprect;
-
-	/* upper part */
-
-	tilemap_set_scrollx(homerun_tilemap, 0, homerun_xpc+((homerun_xpa&2)<<7) );
-	tilemap_set_scrolly(homerun_tilemap, 0, homerun_xpb+((homerun_xpa&1)<<8) );
-	myclip.max_y/=2;
-	homerun_gfx_ctrl=homerun_gc_up;
-	tilemap_draw(bitmap,&myclip,homerun_tilemap,0,0);
-	draw_sprites(bitmap,&myclip);
-
-	/* lower part */
-
-	myclip.min_y+=myclip.max_y;
-	myclip.max_y*=2;
-	homerun_gfx_ctrl=homerun_gc_down;
-	tilemap_draw(bitmap,&myclip,homerun_tilemap,0,0);
-	draw_sprites(bitmap,&myclip);
-
-	homerun_gc_down=homerun_gc_up;
+	tilemap_set_scrollx(homerun_tilemap, 0, homerun_xpc+((homerun_xpa&2)<<7));
+	tilemap_set_scrolly(homerun_tilemap, 0, homerun_xpb+((homerun_xpa&1)<<8));
+	tilemap_draw(bitmap,cliprect,homerun_tilemap,0,0);
+	draw_sprites(bitmap,cliprect);
 }
-
-

@@ -16,6 +16,9 @@ struct upd7759_interface
 	void (*drqcallback)(int param);	/* drq callback (per chip, slave mode only) */
 };
 
+/* Select byte (0) or word (1) addresses in the sample table. */
+void upd7759_set_sample_offset_shift(int which, int shift);
+
 void upd7759_set_bank_base(int which, offs_t base);
 
 void upd7759_reset_w(int num, UINT8 data);
