@@ -804,6 +804,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.mame_debug = advance->debug_flag;
 	options.cheat = advance->cheat_flag;
 	options.jit = context->global.config.jit_flag;
+	options.slowdown = context->global.config.slowdown_flag;
 #ifdef MAME_DEBUG
 	if (options.mame_debug || debug_cpu_active >= -1 || debug_break_active)
 		options.jit = 0;

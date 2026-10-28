@@ -223,6 +223,7 @@ struct _global_options
 	int		auto_save;		/* 1 to automatically save/restore at startup/quitting time */
 	char *	bios;			/* specify system bios (if used), 0 is default */
 	int		jit;			/* 1 to enable JIT recompiler */
+	int		slowdown;		/* 1 to enable authentic hardware slowdown simulation */
 
 	int		debug_width;	/* requested width of debugger bitmap */
 	int		debug_height;	/* requested height of debugger bitmap */

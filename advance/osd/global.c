@@ -1289,6 +1289,7 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 	conf_bool_register_default(cfg_context, "misc_cocktail", 0);
 	conf_bool_register_default(cfg_context, "misc_mutedemo", 0);
 	conf_bool_register_default(cfg_context, "misc_jit", 1);
+	conf_bool_register_default(cfg_context, "misc_slowdown", 1);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
 
 #ifdef USE_LCD
@@ -1314,6 +1315,7 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 	context->config.cocktail_flag = conf_bool_get_default(cfg_context, "misc_cocktail");
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.jit_flag = conf_bool_get_default(cfg_context, "misc_jit");
+	context->config.slowdown_flag = conf_bool_get_default(cfg_context, "misc_slowdown");
 	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");
 
 #ifdef USE_LCD
