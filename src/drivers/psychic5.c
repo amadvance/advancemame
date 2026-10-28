@@ -327,6 +327,11 @@ extern MACHINE_RESET( psychic5 );
 extern VIDEO_START( psychic5 );
 extern VIDEO_UPDATE( psychic5 );
 
+extern READ8_HANDLER( bombsa_paged_ram_r );
+extern WRITE8_HANDLER( bombsa_paged_ram_w );
+extern VIDEO_START( bombsa );
+extern VIDEO_UPDATE( bombsa );
+
 static int psychic5_bank_latch = 0x0;
 
 
@@ -421,6 +426,65 @@ static ADDRESS_MAP_START( sound_writeport, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 
+static WRITE8_HANDLER( bombsa_bankselect_w )
+{
+	psychic5_bank_latch = data;
+	memory_set_bankptr(1, memory_region(REGION_CPU1) + 0x10000 + (data & 7) * 0x4000);
+}
+
+static WRITE8_HANDLER( bombsa_flipscreen_w )
+{
+	if (data & 0x80)
+		flip_screen_set(!flip_screen);
+}
+
+static MACHINE_RESET( bombsa )
+{
+	machine_reset_psychic5();
+	bombsa_bankselect_w(0, 0);
+	psychic5_vram_page_select_w(0, 0);
+	psychic5_title_screen_w(0, 0);
+}
+
+static ADDRESS_MAP_START( bombsa_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_BANK1)
+	AM_RANGE(0xc000, 0xcfff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xd000, 0xd001) AM_READ(MRA8_RAM)
+	AM_RANGE(0xd004, 0xd1ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xd002, 0xd002) AM_READ(psychic5_bankselect_r)
+	AM_RANGE(0xd003, 0xd003) AM_READ(psychic5_vram_page_select_r)
+	AM_RANGE(0xd200, 0xdfff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xe000, 0xffff) AM_READ(bombsa_paged_ram_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bombsa_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xcfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xd000, 0xd000) AM_WRITE(soundlatch_w)
+	AM_RANGE(0xd001, 0xd001) AM_WRITE(bombsa_flipscreen_w)
+	AM_RANGE(0xd002, 0xd002) AM_WRITE(bombsa_bankselect_w)
+	AM_RANGE(0xd003, 0xd003) AM_WRITE(psychic5_vram_page_select_w)
+	AM_RANGE(0xd004, 0xd1ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xd200, 0xd7ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xd800, 0xdfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xe000, 0xffff) AM_WRITE(bombsa_paged_ram_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bombsa_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xe000, 0xe000) AM_READ(soundlatch_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bombsa_sound_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(YM2203_status_port_0_r)
+	AM_RANGE(0x01, 0x01) AM_READ(YM2203_read_port_0_r)
+	AM_RANGE(0x80, 0x80) AM_READ(YM2203_status_port_1_r)
+	AM_RANGE(0x81, 0x81) AM_READ(YM2203_read_port_1_r)
+ADDRESS_MAP_END
+
 INPUT_PORTS_START( psychic5 )
     PORT_START_TAG("IN0")
     PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
@@ -506,6 +570,92 @@ INPUT_PORTS_END
 
 
 
+INPUT_PORTS_START( bombsa )
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x3c, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN2 )
+
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+
+	PORT_MODIFY("SYSTEM")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_SERVICE1 )
+
+	PORT_MODIFY("P1")
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )
+
+	PORT_MODIFY("P2")
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x40, "2 Coins 1 Credit/4 Coins 3 Credits" )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_4C ) )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+INPUT_PORTS_END
+
 static const gfx_layout charlayout =
 {
 	8,8,    /* 8x8 characters */
@@ -538,6 +688,14 @@ static const gfx_decode gfxdecodeinfo[] =
 
 
 
+static const gfx_decode bombsa_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &spritelayout, 32*16, 16 },
+	{ REGION_GFX2, 0, &spritelayout,  0*16, 16 },
+	{ REGION_GFX3, 0, &charlayout,   16*16, 16 },
+	{ -1 }
+};
+
 static void irqhandler(int irq)
 {
 	cpunum_set_input_line(1,0,irq ? ASSERT_LINE : CLEAR_LINE);
@@ -551,11 +709,11 @@ static struct YM2203interface ym2203_interface =
 static MACHINE_DRIVER_START( psychic5 )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 6000000)
+	MDRV_CPU_ADD_TAG("main", Z80, 6000000)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(psychic5_interrupt,2)
 
-	MDRV_CPU_ADD(Z80, 6000000)
+	MDRV_CPU_ADD_TAG("sound", Z80, 6000000)
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 	MDRV_CPU_IO_MAP(0,sound_writeport)
@@ -594,6 +752,20 @@ static MACHINE_DRIVER_START( psychic5 )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( bombsa )
+	MDRV_IMPORT_FROM(psychic5)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(bombsa_readmem,bombsa_writemem)
+	MDRV_CPU_REPLACE("sound", Z80, 5000000)
+	MDRV_CPU_PROGRAM_MAP(bombsa_sound_readmem,sound_writemem)
+	MDRV_CPU_IO_MAP(bombsa_sound_readport,sound_writeport)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (394 * 282))
+	MDRV_MACHINE_RESET(bombsa)
+	MDRV_GFXDECODE(bombsa_gfxdecodeinfo)
+	MDRV_VIDEO_START(bombsa)
+	MDRV_VIDEO_UPDATE(bombsa)
+MACHINE_DRIVER_END
+
 /***************************************************************************
 
   Game driver(s)
@@ -622,4 +794,33 @@ ROM_END
 
 
 
+ROM_START( bombsa )
+	ROM_REGION( 0x30000, REGION_CPU1, ROMREGION_ERASEFF )
+	ROM_LOAD( "4.7a",         0x00000, 0x08000, CRC(0191f6a7) SHA1(10a0434abbf4be068751e65c81b1a211729e3742) )
+
+	ROM_LOAD( "5.7c",         0x10000, 0x08000, CRC(095c451a) SHA1(892ca84376f89640ad4d28f1e548c26bc8f72c0e) )
+	ROM_RELOAD(               0x18000, 0x08000 )
+	ROM_LOAD( "6.7d",         0x20000, 0x10000, CRC(89f9dc0f) SHA1(5cf6a7aade3d56bc229d3771bc4141ad0c0e8da2) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "1.3a",         0x00000, 0x08000, CRC(92801404) SHA1(c4ff47989d355b18a909eaa88f138e2f68178ecc) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "2.4p",         0x00000, 0x10000, CRC(bd972ff4) SHA1(63bfb455bc0ae1d31e6f1066864ec0c8d2d0cf99) )
+	ROM_LOAD( "3.4s",         0x10000, 0x10000, CRC(9a8a8a97) SHA1(13328631202c196c9d8791cc6063048eb6be0472) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+
+	ROM_LOAD( "8.2l",         0x00000, 0x10000, CRC(3391c769) SHA1(7ae7575ac81d6e0d915c279c1f57a9bc6d096bd6) )
+	ROM_LOAD( "9.2m",         0x10000, 0x10000, CRC(5b315976) SHA1(d17cc1926f926bdd88b66ea6af88dac30880e7d4) )
+
+	ROM_REGION( 0x08000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "7.4f",         0x00000, 0x08000, CRC(400114b9) SHA1(db2f3ba05a2005ae0e0e7d19c8739353032cbeab) )
+
+	ROM_REGION( 0x08000, REGION_PROMS, 0 )
+	ROM_LOAD( "82s131.7l",    0x000, 0x200, CRC(6a7d13c0) SHA1(2a835a4ac1acb7663d0b915d0339af9800284da6) )
+	ROM_LOAD( "82s137.3t",    0x200, 0x400, CRC(59e44236) SHA1(f53d99694fa5acd7cc51dd78e09f0d2ef730e7a4) )
+ROM_END
+
 GAME( 1987, psychic5, 0, psychic5, psychic5, 0, ROT270, "Jaleco", "Psychic 5", 0 )
+GAME( 1988, bombsa, 0, bombsa, bombsa, 0, ROT270, "Jaleco", "Bombs Away (prototype)", 0 )
