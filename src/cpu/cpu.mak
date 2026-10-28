@@ -719,7 +719,9 @@ ifneq ($(filter DSP56156,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/dsp56k
 CPUOBJS += $(OBJ)/cpu/dsp56k/dsp56k.o
 DBGOBJS += $(OBJ)/cpu/dsp56k/dsp56dsm.o
-$(OBJ)/cpu/dsp56k/dsp56k.o: dsp56k.c dsp56ops.c dsp56k.h
+# Register and accumulator views share the same storage.
+$(OBJ)/cpu/dsp56k/dsp56k.o: CFLAGS += -fno-strict-aliasing
+$(OBJ)/cpu/dsp56k/dsp56k.o: dsp56k.c dsp56ops.c dsp56k.h dsp56core.h dsp56def.h dsp56pcu.c dsp56pcu.h dsp56mem.c dsp56mem.h
 endif
 
 

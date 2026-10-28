@@ -1,22 +1,19 @@
 // license:BSD-3-Clause
-// copyright-holders:R. Belmont, Andrew Gardner
-/*
-    Polygonet Commanders (Konami, 1993)
-
-    Video hardware emulation
-
-    Currently contains: TTL text plane (probably not complete, needs banking? colors?)
-    Needs: PSAC2 roz plane, polygons
-*/
+// copyright-holders:R. Belmont, Andrew Gardner, Ryan Holtz
+/* TTL text and K053936 background planes. */
 
 #include "driver.h"
 #include "vidhrdw/konamiic.h"
+
+void polygonet_draw_polys(mame_bitmap *bitmap, const rectangle *cliprect);
 
 /* TTL text plane stuff */
 
 static int ttl_gfx_index;
 static tilemap *ttl_tilemap;
-static UINT16 ttl_vram[0x800];
+static UINT32 ttl_vram[0x400];
+static UINT32 roz_vram[0x400];
+static tilemap *roz_tilemap;
 
 /* TTL text plane */
 
@@ -24,19 +21,38 @@ static void ttl_get_tile_info(int tile_index)
 {
 	int attr, code;
 
-	code = ttl_vram[tile_index]&0xff;
-	attr = 0;
+	UINT16 data = ttl_vram[tile_index / 2] >> ((tile_index & 1) ? 0 : 16);
+	code = data & 0xfff;
+	attr = data >> 12;
 
 	tile_info.flags = 0;
 
 	SET_TILE_INFO(ttl_gfx_index, code, attr, tile_info.flags);
 }
 
+static void roz_get_tile_info(int tile_index)
+{
+	UINT16 data = tile_index < 0x800 ? roz_vram[tile_index / 2] >> ((tile_index & 1) ? 0 : 16) : 0;
+	SET_TILE_INFO(0, data & 0x7ff, (data >> 12) + 16, 0);
+}
+
+READ32_HANDLER( polygonet_roz_ram_r )
+{
+	return roz_vram[offset];
+}
+
+WRITE32_HANDLER( polygonet_roz_ram_w )
+{
+	COMBINE_DATA(&roz_vram[offset]);
+	tilemap_mark_tile_dirty(roz_tilemap, offset * 2);
+	tilemap_mark_tile_dirty(roz_tilemap, offset * 2 + 1);
+}
+
 static UINT32 ttl_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 num_rows)
 {
 	/* logical (col,row) -> memory offset */
 
-	return row*64 + col;
+	return row * num_cols + col;
 }
 
 READ32_HANDLER( polygonet_ttl_ram_r )
@@ -95,8 +111,15 @@ VIDEO_START(polygonet_vh_start)
 	// create the tilemap
 	ttl_tilemap = tilemap_create(ttl_get_tile_info, ttl_scan, TILEMAP_TRANSPARENT, 8, 8, 64, 32);
 
+	if (!ttl_tilemap)
+		return 1;
 	tilemap_set_transparent_pen(ttl_tilemap, 0);
 
+	roz_tilemap = tilemap_create(roz_get_tile_info, ttl_scan, TILEMAP_TRANSPARENT, 16, 16, 64, 64);
+	if (!roz_tilemap)
+		return 1;
+	tilemap_set_transparent_pen(roz_tilemap, 0);
+	state_save_register_global_array(roz_vram);
 	state_save_register_global_array(ttl_vram);
 
 	return 0;
@@ -105,8 +128,10 @@ VIDEO_START(polygonet_vh_start)
 VIDEO_UPDATE(polygonet_vh_screenrefresh)
 {
 	fillbitmap(priority_bitmap, 0, NULL);
-	fillbitmap(bitmap, get_black_pen(), &Machine->visible_area);
+	fillbitmap(bitmap, Machine->pens[0x100], &Machine->visible_area);
 
+	K053936_0_zoom_draw(bitmap, cliprect, roz_tilemap, 0, 0);
+	polygonet_draw_polys(bitmap, cliprect);
 	tilemap_draw(bitmap, cliprect, ttl_tilemap, 0, 1<<0);
 }
 
