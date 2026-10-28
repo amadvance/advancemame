@@ -180,6 +180,7 @@ Blitter Timing
 
 static UINT32 *cv1k_ram;
 static size_t cv1k_ram_size;
+static int cv1k_boot_patch_frame;
 
 #define LANE_ACCESSED(lane)		((mem_mask & (0xff000000 >> ((lane) * 8))) == 0)
 #define LANE_DATA(lane)			((data >> (24 - (lane) * 8)) & 0xff)
@@ -395,6 +396,7 @@ static NVRAM_HANDLER(cv1k)
 }
 static MACHINE_RESET(cv1k)
 {
+	cv1k_boot_patch_frame = 0;
 	cv1k_flash_enab_w(0);
 	cv1k_flash_hard_reset();
 	cv1k_video_reset();
@@ -439,11 +441,94 @@ static void cv1k_init(void)
 }
 static UINT32 cv1k_idle_offset;
 static UINT32 cv1k_idle_pc;
+/* The program is copied/decompressed into work RAM at boot.  Recognize the
+ * memory-check function there, rather than keeping addresses for each set.
+ * Its caller treats R0 == 0 as completion.  The EEPROM task is separate and
+ * must still run to load/initialize the saved settings.
+ */
+static void cv1k_patch_memory_check(void)
+{
+	static const char message[] = "   CHECKING MEMORY.....";
+	UINT32 offset, literal, target = 0;
+	int matches = 0;
+
+	for (offset = 0; offset + 0x400 <= cv1k_ram_size; offset += 4)
+	{
+		int has_message = 0, has_result = 0;
+
+		/* Save R8-R14, initialize R9, and keep the task pointer in R10. */
+		if (cv1k_ram[offset / 4] != 0x2f862f96 ||
+			cv1k_ram[offset / 4 + 1] != 0x2fa6e900 ||
+			cv1k_ram[offset / 4 + 2] != 0x2fb66a43 ||
+			cv1k_ram[offset / 4 + 3] != 0x2fc62fd6 ||
+			(cv1k_ram[offset / 4 + 4] & 0xffffff00) != 0x2fe6d800)
+			continue;
+
+		for (literal = offset + 20; literal + 8 <= offset + 0x400; literal += 2)
+		{
+			UINT16 *ram16 = (UINT16 *)cv1k_ram;
+
+			/* CMP/EQ #3,R0; MOVT R10; TST R10,R10; MOVT R0. */
+			if (ram16[WORD_XOR_BE(literal) / 2] == 0x8803 &&
+				ram16[WORD_XOR_BE(literal + 2) / 2] == 0x0a29 &&
+				ram16[WORD_XOR_BE(literal + 4) / 2] == 0x2aa8 &&
+				ram16[WORD_XOR_BE(literal + 6) / 2] == 0x0029)
+				has_result = 1;
+
+			if (!(literal & 3))
+			{
+				UINT32 address = cv1k_ram[literal / 4];
+				if (address >= 0x0c000000 &&
+					address - 0x0c000000 <= cv1k_ram_size - sizeof(message))
+				{
+					UINT32 text = address - 0x0c000000;
+					unsigned i;
+					for (i = 0; i < sizeof(message) - 1; ++i)
+						if (((UINT8 *)cv1k_ram)[BYTE4_XOR_BE(text + i)] != message[i])
+							break;
+					if (i == sizeof(message) - 1)
+						has_message = 1;
+				}
+			}
+		}
+		if (has_message && has_result)
+		{
+			target = offset;
+			++matches;
+		}
+	}
+
+	/* Unknown or ambiguous program revisions retain their original checks. */
+	if (matches == 1)
+	{
+		/* MOV #0,R0; RTS; NOP (SH-3 delay slot). */
+		cv1k_ram[target / 4] = 0xe000000b;
+		cv1k_ram[target / 4 + 1] =
+			(cv1k_ram[target / 4 + 1] & 0x0000ffff) | 0x00090000;
+		cv1k_boot_patch_frame = -1;
+		logerror("CV1K: skipped boot RAM check at %08x\n", 0x0c000000 + target);
+	}
+}
+
 static READ32_HANDLER(cv1k_speedup_r)
 {
 	offs_t pc = activecpu_get_pc();
 	if (pc == cv1k_idle_pc || pc == cv1k_idle_pc + 2 || pc == cv1k_idle_pc + 8)
+	{
+		/* Patch only at the idle loop, outside the function being replaced.
+		 * Retry during decompression, then stop scanning after boot.
+		 */
+		if (cv1k_boot_patch_frame >= 0)
+		{
+			int frame = cpu_getcurrentframe();
+			if (frame >= cv1k_boot_patch_frame)
+			{
+				cv1k_boot_patch_frame = frame < 600 ? frame + 30 : -1;
+				cv1k_patch_memory_check();
+			}
+		}
 		activecpu_eat_cycles(1024);
+	}
 	return cv1k_ram[cv1k_idle_offset / 4 + offset];
 }
 static void cv1k_install_speedup(UINT32 offset, UINT32 pc)
