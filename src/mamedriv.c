@@ -6113,6 +6113,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( gratiaa )	/* (c) 1996 */
 	DRIVER( kirarast )	/* (c) 1996 */
 	DRIVER( tp2m32 )	/* (c) 1997 */
+	DRIVER( wpksocv2 )
 	DRIVER( f1superb )	/* (c) 1994 */
 
 	/* Video System Co. games */

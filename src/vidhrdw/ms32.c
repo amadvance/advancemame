@@ -88,6 +88,7 @@ VIDEO_START( ms32 )
 
 	/* i hate per game patches...how should priority really work? tetrisp2.c ? i can't follow it */
 	if (!strcmp(Machine->gamedrv->name,"kirarast"))	ms32_reverse_sprite_order = 0;
+	if (!strcmp(Machine->gamedrv->name,"wpksocv2"))	ms32_reverse_sprite_order = 0;
 	if (!strcmp(Machine->gamedrv->name,"tp2m32"))	ms32_reverse_sprite_order = 0;
 	if (!strcmp(Machine->gamedrv->name,"47pie2"))	ms32_reverse_sprite_order = 0;
 	if (!strcmp(Machine->gamedrv->name,"47pie2o"))	ms32_reverse_sprite_order = 0;
