@@ -1249,6 +1249,7 @@ static DRIVER_INIT( skns )     { memory_install_read32_handler(0, ADDRESS_SPACE_
 static DRIVER_INIT( galpani4 ) { skns_sprite_kludge(-5,-1); init_skns();  } // Idle Loop caught by sh-2 core
 static DRIVER_INIT( galpanis ) { skns_sprite_kludge(-5,-1); init_skns();  } // Idle Loop caught by sh-2 core
 static DRIVER_INIT( cyvern )   { skns_sprite_kludge(+0,+2); init_skns(); memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x604d3c8, 0x604d3cb, 0, 0, cyvern_speedup_r );   }
+static DRIVER_INIT( galpans3 ) { skns_sprite_kludge(-1,-1); init_skns(); }
 static DRIVER_INIT( galpans2 ) { skns_sprite_kludge(-1,-1); init_skns(); memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x60fb6bc, 0x60fb6bf, 0, 0, galpans2_speedup_r );  }
 static DRIVER_INIT( gutsn )    { skns_sprite_kludge(+0,+0); init_skns(); memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x600c780, 0x600c783, 0, 0, gutsn_speedup_r );  }
 static DRIVER_INIT( panicstr ) { skns_sprite_kludge(-1,-1); init_skns(); memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x60f19e4, 0x60f19e7, 0, 0, panicstr_speedup_r );  }
@@ -1376,6 +1377,26 @@ ROM_START( galpans2 )
 
 	ROM_REGION( 0x400000, REGION_SOUND1, 0 ) /* Samples */
       ROM_LOAD( "gs230000.u1",  0x000000, 0x400000, CRC(0348e8e1) SHA1(8a21c7e5cea0bc08a2595213d689c58c0251fdb5) )
+ROM_END
+
+ROM_START( galpans3 )
+	ROM_REGION( 0x080000, REGION_CPU1, 0 )
+	ROM_LOAD( "sknsj1.u10", 0x000000, 0x080000, CRC(7e2b836c) SHA1(92c5a7a2472496028bff0e5980d41dd294f42144) )
+
+	ROM_REGION32_BE( 0x200000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "gpss3.u10", 0x000000, 0x100000, CRC(c1449a72) SHA1(02db81a0ea349742d6ddf71d59fcfce45f0c5212) )
+	ROM_LOAD16_BYTE( "gpss3.u8",  0x000001, 0x100000, CRC(11eb44cf) SHA1(482ef27fa86d6777def46918eac8be019896c0b0) )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, 0 )
+	ROM_LOAD( "u24.bin", 0x000000, 0x800000, CRC(70613168) SHA1(637c50e733dbc0226b1e0acc8000faa7e8977cb6) )
+
+	ROM_REGION( 0x800000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "u16.bin", 0x000000, 0x800000, CRC(a96daf2a) SHA1(40f4c32158d320146aeeac34c15ca6816a6876bc) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, ROMREGION_ERASE00 )
+
+	ROM_REGION( 0x400000, REGION_SOUND1, 0 )
+	ROM_LOAD( "u4.bin", 0x000000, 0x400000, CRC(bf5736c6) SHA1(781292d87e9da1d21c1ac540baefff5e2f84a3f5) )
 ROM_END
 
 ROM_START( gutsn )
@@ -1744,24 +1765,23 @@ ROM_END
 /***** GAME DRIVERS *****/
 
 GAME( 1996, skns,     0,    skns, skns, 0,        ROT0,  "Kaneko", "Super Kaneko Nova System BIOS", NOT_A_DRIVER )
-
 GAME( 1996, galpani4, skns,    skns, cyvern,   galpani4, ROT0,  "Kaneko", "Gals Panic 4 (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, galpanis, skns,    skns, galpanis, galpanis, ROT0,  "Kaneko", "Gals Panic S - Extra Edition (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, cyvern,   skns,    skns, cyvern,   cyvern,   ROT90, "Kaneko", "Cyvern (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, galpans2, skns,    skns, galpanis, galpans2, ROT0,  "Kaneko", "Gals Panic S2 (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, panicstr, skns,    skns, galpanis, panicstr, ROT0,  "Kaneko", "Panic Street (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, senknow , skns,    skns, skns,     senknow,  ROT0,  "Kaneko / Kouyousha", "Sen-Know (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 2000, gutsn,    skns,    skns, skns,     gutsn,    ROT0,  "Kaneko / Kouyousha", "Guts'n (Japan)", GAME_IMPERFECT_GRAPHICS ) // quite fragile, started working of it's own accord in 0.69 :)
-GAME( 1998, puzzloop, skns,    skns, puzzloop, puzzloop, ROT0,  "Mitchell", "Puzz Loop (Europe)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, puzloopj, puzzloop,skns, puzzloop, puzloopj, ROT0,  "Mitchell", "Puzz Loop (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, puzloopu, puzzloop,skns, puzzloop, puzloopu, ROT0,  "Mitchell", "Puzz Loop (USA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, puzloopk, puzzloop,skns, puzzloop, puzloopu, ROT0,  "Mitchell", "Puzz Loop (Korea)", GAME_IMPERFECT_GRAPHICS ) // Same speed up as US version
 GAME( 1996, jjparads, skns,    skns, skns_1p,  jjparads, ROT0,  "Electro Design", "Jan Jan Paradise", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, galpanis, skns,    skns, galpanis, galpanis, ROT0,  "Kaneko", "Gals Panic S - Extra Edition (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, jjparad2, skns,    skns, skns_1p,  jjparad2, ROT0,  "Electro Design", "Jan Jan Paradise 2", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, ryouran , skns,    skns, skns_1p,  ryouran,  ROT0,  "Electro Design", "VS Mahjong Otome Ryouran", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, teljan  , skns,    skns, skns_1p,  teljan,   ROT0,  "Electro Design", "Tel Jan", GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, sengekis, skns,    skns, skns,     sengekis, ROT90, "Kaneko / Warashi", "Sengeki Striker (Asia)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, sengekij, sengekis,skns, skns,     sengekij, ROT90, "Kaneko / Warashi", "Sengeki Striker (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, vblokbrk, skns,    skns, vblokbrk, sarukani, ROT0,  "Kaneko / Mediaworks", "VS Block Breaker (Asia)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, sarukani, vblokbrk,skns, vblokbrk, sarukani, ROT0,  "Kaneko / Mediaworks", "Saru-Kani-Hamu-Zou (Japan)", GAME_IMPERFECT_GRAPHICS )
-
+GAME( 1998, cyvern,   skns,    skns, cyvern,   cyvern,   ROT90, "Kaneko", "Cyvern (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, puzzloop, skns,    skns, puzzloop, puzzloop, ROT0,  "Mitchell", "Puzz Loop (Europe)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, puzloopj, puzzloop,skns, puzzloop, puzloopj, ROT0,  "Mitchell", "Puzz Loop (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, puzloopk, puzzloop,skns, puzzloop, puzloopu, ROT0,  "Mitchell", "Puzz Loop (Korea)", GAME_IMPERFECT_GRAPHICS ) // Same speed up as US version
+GAME( 1998, puzloopu, puzzloop,skns, puzzloop, puzloopu, ROT0,  "Mitchell", "Puzz Loop (USA)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, ryouran , skns,    skns, skns_1p,  ryouran,  ROT0,  "Electro Design", "VS Mahjong Otome Ryouran", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, galpans2, skns,    skns, galpanis, galpans2, ROT0,  "Kaneko", "Gals Panic S2 (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, panicstr, skns,    skns, galpanis, panicstr, ROT0,  "Kaneko", "Panic Street (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, senknow , skns,    skns, skns,     senknow,  ROT0,  "Kaneko / Kouyousha", "Sen-Know (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, teljan  , skns,    skns, skns_1p,  teljan,   ROT0,  "Electro Design", "Tel Jan", GAME_IMPERFECT_GRAPHICS )
+GAME( 2000, gutsn,    skns,    skns, skns,     gutsn,    ROT0,  "Kaneko / Kouyousha", "Guts'n (Japan)", GAME_IMPERFECT_GRAPHICS ) // quite fragile, started working of it's own accord in 0.69 :)
+GAME( 2002, galpans3, skns,    skns, galpanis, galpans3, ROT0,  "Kaneko", "Gals Panic S3 (Japan)", GAME_IMPERFECT_GRAPHICS )
