@@ -792,6 +792,8 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 	context->config.debug_sound = conf_bool_get_default(cfg_context, "debug_sound");
 	context->config.debug_cpu = conf_int_get_default(cfg_context, "debug_cpu");
 	context->state.debug_frame_counter = 0;
+	context->state.debug_time_start = 0;
+	context->state.debug_time_stop = 0;
 	context->state.debug_break_pending = 0;
 	context->state.debug_break_failed = 0;
 	if (debug_option_parse("debug_watch", conf_string_get_default(cfg_context, "debug_watch"),

@@ -62,6 +62,7 @@ static adv_bool video_is_normal_speed(struct advance_video_context* context)
 	normal_speed = !context->state.turbo_flag
 		&& !context->state.fastest_flag
 		&& !context->state.measure_flag
+		&& CONTEXT.record.config.debug_exit == 0
 		&& context->state.sync_throttle_flag;
 
 	return normal_speed;
@@ -1308,6 +1309,13 @@ void osd2_video_done(void)
 		&& context->state.measure_stop > context->state.measure_start) {
 		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / TARGET_CLOCKS_PER_SEC);
 	}
+	if (CONTEXT.record.config.debug_exit != 0
+		&& CONTEXT.record.state.debug_time_start != 0
+		&& CONTEXT.record.state.debug_time_stop > CONTEXT.record.state.debug_time_start) {
+		double elapsed = (double)(CONTEXT.record.state.debug_time_stop - CONTEXT.record.state.debug_time_start) / TARGET_CLOCKS_PER_SEC;
+		target_out("Emulation time: %.6f s (%u frames, %.2f FPS)\n", elapsed,
+			CONTEXT.record.state.debug_frame_counter, CONTEXT.record.state.debug_frame_counter / elapsed);
+	}
 }
 
 void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
@@ -1431,6 +1439,9 @@ void osd_reset(void)
 	context->state.measure_counter = context->config.measure_time * context->state.game_fps;
 	context->state.measure_flag = context->state.measure_counter != 0;
 	context->state.measure_start = target_clock();
+	/* Keep frame-limited timing continuous across resets, like its frame counter. */
+	if (CONTEXT.record.config.debug_exit != 0 && CONTEXT.record.state.debug_time_start == 0)
+		CONTEXT.record.state.debug_time_start = context->state.measure_start;
 
 	advance_video_update_skip(context);
 	advance_video_update_sync(context);

@@ -447,6 +447,8 @@ struct advance_record_state_context {
 	adv_bool debug_break_failed; /**< Failure writing the breakpoint screenshot. */
 	adv_bool debug_break_pending; /**< Capture a frame and exit after a PC match. */
 	unsigned debug_frame_counter; /**< Frame counter for debug features. */
+	target_clock_t debug_time_start; /**< Emulation start for frame-limited timing. */
+	target_clock_t debug_time_stop; /**< Time when the frame limit is reached. */
 
 	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
 	adv_fz* video_f; /**< Video handle */
