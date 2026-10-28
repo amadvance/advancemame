@@ -545,6 +545,94 @@ INPUT_PORTS_START( hattrick )
 INPUT_PORTS_END
 
 
+INPUT_PORTS_START( teamht )
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING( 0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING( 0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x1c, 0x00, "Bonus Coin" )
+	PORT_DIPSETTING( 0x00, "None" )
+	PORT_DIPSETTING( 0x04, "2 Coins +1" )
+	PORT_DIPSETTING( 0x08, "3 Coins +1" )
+	PORT_DIPSETTING( 0x0c, "4 Coins +1" )
+	PORT_DIPSETTING( 0x10, "4 Coins +2" )
+	PORT_DIPSETTING( 0x14, "5 Coins +1" )
+	PORT_DIPSETTING( 0x18, "5 Coins +2" )
+	PORT_DIPSETTING( 0x1c, "5 Coins +3" )
+	PORT_DIPNAME( 0x20, 0x00, "Left Multiplier" )
+	PORT_DIPSETTING( 0x00, "1" )
+	PORT_DIPSETTING( 0x20, "2" )
+	PORT_DIPNAME( 0xc0, 0x00, "Right Multiplier" )
+	PORT_DIPSETTING( 0x00, "1" )
+	PORT_DIPSETTING( 0x40, "4" )
+	PORT_DIPSETTING( 0x80, "5" )
+	PORT_DIPSETTING( 0xc0, "6" )
+
+	PORT_START
+	PORT_DIPNAME( 0x07, 0x02, DEF_STR( Game_Time ) )
+	PORT_DIPSETTING( 0x00, "1:15" )
+	PORT_DIPSETTING( 0x01, "1:30" )
+	PORT_DIPSETTING( 0x02, "1:45" )
+	PORT_DIPSETTING( 0x03, "2:00" )
+	PORT_DIPSETTING( 0x04, "2:15" )
+	PORT_DIPSETTING( 0x05, "2:30" )
+	PORT_DIPSETTING( 0x06, "2:45" )
+	PORT_DIPSETTING( 0x07, "3:00" )
+	PORT_BIT( 0x78, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING( 0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4)
+	PORT_BIT( 0x30, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x3c, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
+
+	UNUSED_ANALOG_X4
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(3)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(3)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(3)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(3)
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(4)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(4)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(4)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(4)
+INPUT_PORTS_END
+
+
 INPUT_PORTS_START( otwalls )
 	PORT_START	/* IN0 */
 	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coinage ) )
@@ -1827,6 +1915,20 @@ ROM_START( hattrick )
 ROM_END
 
 
+ROM_START( teamht )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+	ROM_LOAD( "hat_trk_ab-0_11-12-84.u8a", 0x10000, 0x4000, CRC(cb746de8) SHA1(b0e5003370b65f2aed4dc9ccb2a2d3eb29050245) )
+	ROM_LOAD( "hat_trk_ab-1_11-16-84.u7a", 0x14000, 0x4000, CRC(5f2a0b24) SHA1(da1950a7e11014e47438a7c5831433390c1b1fd3) )
+	ROM_LOAD( "hat_trk_cd_11-16-84.u1a", 0x2c000, 0x4000, CRC(6c6cf2be) SHA1(80e82ae4bd129000e74c4a5fd06d2109d5417e39) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "sentesnd", 0x00000, 0x2000, CRC(4dd0a525) SHA1(f0c447adc5b67917851a9df978df851247e75c43) )
+
+	ROM_REGION( 0x10000, REGION_GFX1, 0 )
+	ROM_LOAD( "hat_trk_gr-0_11-16-84.u6b", 0x00000, 0x4000, CRC(6e299728) SHA1(f10fc020fdf8f61d059ac57306b0353ac7dbfb24) )
+ROM_END
+
+
 ROM_START( otwalls )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 )     /* 64k for code for the first CPU, plus 128k of banked ROMs */
 	ROM_LOAD( "otw-ab0.bin", 0x10000, 0x2000, CRC(474441c7) SHA1(16fb5be9f94e072d4f3003abcc9dcf6d7af2359a) )
@@ -2382,6 +2484,28 @@ static DRIVER_INIT( sentetst ) { expand_roms(EXPAND_ALL);  balsente_shooter = 0;
 static DRIVER_INIT( cshift )   { expand_roms(EXPAND_ALL);  balsente_shooter = 0; /* noanalog */ }
 static DRIVER_INIT( gghost )   { expand_roms(EXPAND_ALL);  balsente_shooter = 0; balsente_adc_shift = 1; }
 static DRIVER_INIT( hattrick ) { expand_roms(EXPAND_ALL);  balsente_shooter = 0; /* noanalog */ }
+static UINT8 teamht_input;
+
+static READ8_HANDLER( teamht_extra_r )
+{
+	return teamht_input;
+}
+
+static WRITE8_HANDLER( teamht_select_w )
+{
+	if (offset >= 4)
+		teamht_input = readinputport(offset + 4);
+}
+
+static DRIVER_INIT( teamht )
+{
+	init_hattrick();
+	teamht_input = 0xff;
+	state_save_register_global(teamht_input);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x9404, 0x9404, 0, 0, teamht_extra_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x9000, 0x9007, 0, 0, teamht_select_w);
+}
+
 static DRIVER_INIT( otwalls )  { expand_roms(EXPAND_ALL);  balsente_shooter = 0; balsente_adc_shift = 0; }
 static DRIVER_INIT( snakepit ) { expand_roms(EXPAND_ALL);  balsente_shooter = 0; balsente_adc_shift = 1; }
 static DRIVER_INIT( snakjack ) { expand_roms(EXPAND_ALL);  balsente_shooter = 0; balsente_adc_shift = 1; }
@@ -2471,6 +2595,7 @@ GAME( 1987, triviaes, 0,        balsente, triviaes, triviaes, ROT0, "Bally/Sente
 GAME( 1985, gimeabrk, 0,        balsente, gimeabrk, gimeabrk, ROT0, "Bally/Sente", "Gimme A Break", GAME_SUPPORTS_SAVE )
 GAME( 1985, minigolf, 0,        balsente, minigolf, minigolf, ROT0, "Bally/Sente", "Mini Golf (set 1)", GAME_SUPPORTS_SAVE | GAME_NOT_WORKING ) // uanble to control
 GAME( 1985, minigol2, minigolf, balsente, minigol2, minigol2, ROT0, "Bally/Sente", "Mini Golf (set 2)", GAME_SUPPORTS_SAVE | GAME_NOT_WORKING ) // uanble to control
+GAME( 1985, teamht,   0,        balsente, teamht,   teamht,   ROT0, "Bally/Sente", "Team Hat Trick (11/16/84)", GAME_SUPPORTS_SAVE )
 GAME( 1985, toggle,   0,        balsente, toggle,   toggle,   ROT0, "Bally/Sente", "Toggle (prototype)", GAME_SUPPORTS_SAVE )
 GAME( 1986, nametune, 0,        balsente, nametune, nametune, ROT0, "Bally/Sente", "Name That Tune", GAME_SUPPORTS_SAVE )
 GAME( 1986, nstocker, 0,        balsente, nstocker, nstocker, ROT0, "Bally/Sente", "Night Stocker", GAME_SUPPORTS_SAVE )

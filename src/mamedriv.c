@@ -1281,6 +1281,7 @@ const game_driver * const drivers[] =
 	DRIVER( sentetst )
 	DRIVER( cshift )	/* (c) 1984 */
 	DRIVER( gghost )	/* (c) 1984 */
+	DRIVER( teamht )
 	DRIVER( hattrick )	/* (c) 1984 */
 	DRIVER( otwalls )	/* (c) 1984 */
 	DRIVER( snakepit )	/* (c) 1984 */
