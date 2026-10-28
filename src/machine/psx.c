@@ -40,6 +40,7 @@ size_t g_n_psxramsize;
 
 INLINE void psxwriteword( UINT32 n_address, UINT16 n_data )
 {
+	psxcpu_ram_written( (UINT8 *)g_p_n_psxram + WORD_XOR_LE( n_address ), 2 );
 	*( (UINT16 *)( (UINT8 *)g_p_n_psxram + WORD_XOR_LE( n_address ) ) ) = n_data;
 }
 
@@ -249,6 +250,17 @@ void psx_dma_install_write_handler( int n_channel, psx_dma_read_handler p_fn_dma
 	m_p_fn_dma_write[ n_channel ] = p_fn_dma_write;
 }
 
+/* DMA handlers may wrap RAM; use a full notification only in that case. */
+static void psx_dma_ram_written( UINT32 address, INT32 words )
+{
+	if( words <= 0 )
+		return;
+	if( address < g_n_psxramsize && (UINT32)words <= ( g_n_psxramsize - address ) / 4 )
+		psxcpu_ram_written( (UINT8 *)g_p_n_psxram + address, (UINT32)words * 4 );
+	else
+		psxcpu_ram_written( g_p_n_psxram, g_n_psxramsize );
+}
+
 WRITE32_HANDLER( psx_dma_w )
 {
 	static int n_channel;
@@ -294,6 +306,7 @@ WRITE32_HANDLER( psx_dma_w )
 					m_p_fn_dma_read[ n_channel ] != NULL )
 				{
 					verboselog( 1, "dma %d read block %08x %08x\n", n_channel, n_address, n_size );
+					psx_dma_ram_written( n_address, n_size );
 					m_p_fn_dma_read[ n_channel ]( n_address, n_size );
 					dma_finished( n_channel );
 				}
@@ -301,6 +314,7 @@ WRITE32_HANDLER( psx_dma_w )
 					m_p_fn_dma_read[ n_channel ] != NULL )
 				{
 					verboselog( 1, "dma %d read block %08x %08x\n", n_channel, n_address, n_size );
+					psx_dma_ram_written( n_address, n_size );
 					m_p_fn_dma_read[ n_channel ]( n_address, n_size );
 					if( n_channel == 1 )
 					{
@@ -330,6 +344,7 @@ WRITE32_HANDLER( psx_dma_w )
 				else if( m_p_n_dmachannelcontrol[ n_channel ] == 0x11000002 &&
 					n_channel == 6 )
 				{
+					psx_dma_ram_written( n_address - ( (UINT32)n_size - 1 ) * 4, n_size );
 					verboselog( 1, "dma 6 reverse clear %08x %08x\n",
 						m_p_n_dmabase[ n_channel ], m_p_n_dmablockcontrol[ n_channel ] );
 					if( n_size > 0 )
@@ -1394,6 +1409,7 @@ static void mdec1_read( UINT32 n_address, INT32 n_size )
 			}
 			mdec_decoded -= n_this;
 
+			psx_dma_ram_written( n_address, n_this );
 			memcpy( (UINT8 *)g_p_n_psxram + n_address, (UINT8 *)mdec_output + mdec_offset, n_this * 4 );
 			mdec_offset += n_this * 4;
 			n_address += n_this * 4;
