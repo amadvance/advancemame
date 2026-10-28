@@ -878,7 +878,7 @@ ifneq ($(filter PSXCPU,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/mips
 CPUOBJS += $(OBJ)/cpu/mips/psx.o
 DBGOBJS += $(OBJ)/cpu/mips/mipsdasm.o
-$(OBJ)/cpu/mips/psx.o: psx.c psx.h
+$(OBJ)/cpu/mips/psx.o: psx.c psx.h psxjit.c psxloop.c
 endif
 
 

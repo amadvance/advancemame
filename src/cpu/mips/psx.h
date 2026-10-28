@@ -202,6 +202,11 @@ extern unsigned DasmMIPS( char *buffer, UINT32 pc, UINT8 *opram );
 #endif
 
 #if (HAS_PSXCPU)
+void psxcpu_set_jit( int enable );
+int psxcpu_jit_available( void );
+void psxcpu_add_fastram( offs_t start, offs_t end, int readonly, void *base );
+void psxcpu_ram_written( const void *host, UINT32 bytes );
+
 extern void psxcpu_get_info(UINT32 state, union cpuinfo *info);
 #endif
 

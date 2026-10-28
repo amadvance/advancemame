@@ -55,6 +55,7 @@ INLINE UINT8 psxreadbyte( UINT32 n_address )
 
 INLINE void psxwritebyte( UINT32 n_address, UINT8 n_data )
 {
+	psxcpu_ram_written( (UINT8 *)g_p_n_psxram + BYTE4_XOR_LE( n_address ), 1 );
 	*( (UINT8 *)g_p_n_psxram + BYTE4_XOR_LE( n_address ) ) = n_data;
 }
 
@@ -1175,6 +1176,7 @@ INTERRUPT_GEN( coh1000t_vblank )
 	{
 		if( g_p_n_psxram[ 0x1b358 / 4 ] == 0x34020001 )
 		{
+			psxcpu_ram_written( &g_p_n_psxram[ 0x1b358 / 4 ], 4 );
 			g_p_n_psxram[ 0x1b358 / 4 ] = 0x34020000;
 		}
 	}
@@ -1183,6 +1185,7 @@ INTERRUPT_GEN( coh1000t_vblank )
 	{
 		if( g_p_n_psxram[ 0x1b358 / 4 ] == 0x34020001 )
 		{
+			psxcpu_ram_written( &g_p_n_psxram[ 0x1b358 / 4 ], 4 );
 			g_p_n_psxram[ 0x1b358 / 4 ] = 0x34020000;
 		}
 	}
