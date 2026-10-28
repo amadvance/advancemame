@@ -6363,6 +6363,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( vblokbrk )	/* (c) 1997 Kaneko / Mediaworks (Asia) */
 	DRIVER( sarukani )	/* (c) 1997 Kaneko / Mediaworks (Japan) */
 	DRIVER( cyvern )	/* (c) 1998 Kaneko (Japan) */
+	DRIVER( galpans3 )
 	DRIVER( galpans2 )	/* (c) 1999 Kaneko (Japan) */
 	DRIVER( panicstr )	/* (c) 1999 Kaneko (Japan) */
 	DRIVER( senknow )	/* (c) 1999 Kaneko / Kouyousha (Japan) */
