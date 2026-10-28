@@ -152,6 +152,34 @@ static WRITE16_HANDLER( hypr_subcpu_control_w )
 	}
 }
 
+static WRITE16_HANDLER( magerror_subcpu_control_w )
+{
+	switch (data)
+	{
+		case 0x0d:
+		case 0x0f:
+		case 0x01:
+			if (!subcpu_resetline)
+			{
+				cpunum_set_input_line(1, INPUT_LINE_RESET, ASSERT_LINE);
+				subcpu_resetline = 1;
+			}
+			break;
+		case 0x00:
+			if (subcpu_resetline)
+			{
+				cpunum_set_input_line(1, INPUT_LINE_RESET, CLEAR_LINE);
+				subcpu_resetline = 0;
+			}
+			cpu_spinuntil_int();
+			break;
+		case 0x0c:
+		case 0x80:
+			cpunum_set_input_line(1, 2, HOLD_LINE);
+			break;
+	}
+}
+
 static WRITE16_HANDLER( hypr_scrollreg_w )
 {
 	int i;
@@ -184,7 +212,8 @@ static WRITE16_HANDLER( hypr_scrollreg_init_w )
 static void vblank_end_callback(int param)
 {
 	requested_int &= ~param;
-	cpunum_set_input_line(1, 2, HOLD_LINE);
+	if (int_num != 1)
+		cpunum_set_input_line(1, 2, HOLD_LINE);
 }
 
 INTERRUPT_GEN( hyprduel_interrupt )
@@ -196,7 +225,8 @@ INTERRUPT_GEN( hyprduel_interrupt )
 		requested_int |= 0x01;		/* vblank */
 		requested_int |= 0x20;
 		cpunum_set_input_line(0, 2, HOLD_LINE);
-		cpunum_set_input_line(1, 1, HOLD_LINE);
+		if (int_num != 1)
+			cpunum_set_input_line(1, 1, HOLD_LINE);
 		timer_set(TIME_IN_USEC(DEFAULT_REAL_60HZ_VBLANK_DURATION), 0x20, vblank_end_callback);
 		rastersplit = 0;
 	} else {
@@ -557,7 +587,7 @@ static ADDRESS_MAP_START( magerror_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x8788aa, 0x8788ab) AM_WRITE(MWA16_RAM) AM_BASE(&hyprduel_rombank		)	// Rom Bank
 	AM_RANGE(0x8788ac, 0x8788ad) AM_WRITE(MWA16_RAM) AM_BASE(&hyprduel_screenctrl	)	// Screen Control
 	AM_RANGE(0x879700, 0x879713) AM_WRITE(MWA16_RAM) AM_BASE(&hyprduel_videoregs	)	// Video Registers
-	AM_RANGE(0x400000, 0x400001) AM_WRITE(hypr_subcpu_control_w			)
+	AM_RANGE(0x400000, 0x400001) AM_WRITE(magerror_subcpu_control_w			)
 	AM_RANGE(0xc00000, 0xc1ffff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sharedram1	) //?
 	AM_RANGE(0xe00000, 0xe00001) AM_WRITE(MWA16_NOP						)
 	AM_RANGE(0xfe0000, 0xffffff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sharedram2	)
@@ -567,19 +597,18 @@ static ADDRESS_MAP_START( magerror_readmem2, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x003fff) AM_READ(MRA16_RAM						)
 	AM_RANGE(0x004000, 0x007fff) AM_READ(MRA16_RAM						)
 //  AM_RANGE(0x400002, 0x400003) AM_READ(YM2151_status_port_0_lsb_r )
-	AM_RANGE(0x400004, 0x400005) AM_READ(OKIM6295_status_0_lsb_r		)
-	AM_RANGE(0xc00000, 0xc07fff) AM_READ(MRA16_RAM						)
+	AM_RANGE(0x800004, 0x800005) AM_READ(OKIM6295_status_0_lsb_r		)
+	AM_RANGE(0xc00000, 0xc1ffff) AM_READ(MRA16_RAM						)
 	AM_RANGE(0xfe0000, 0xffffff) AM_READ(MRA16_RAM						)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( magerror_writemem2, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x003fff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sub_sharedram1_2	)	// shadow ($c00000 - $c03fff : vector, write ok)
 	AM_RANGE(0x004000, 0x007fff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sub_sharedram2_2	)	// shadow ($fe4000 - $fe7fff : read only)
-  	AM_RANGE(0x400000, 0x400001) AM_WRITE(YM2413_register_port_0_lsb_w  )
-  	AM_RANGE(0x400002, 0x400003) AM_WRITE(YM2413_data_port_0_lsb_w      )
-	AM_RANGE(0x400004, 0x400005) AM_WRITE(OKIM6295_data_0_lsb_w			)
-	AM_RANGE(0x800000, 0x800001) AM_WRITE(MWA16_NOP						)
-	AM_RANGE(0xc00000, 0xc07fff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sub_sharedram1_1	)	// (sound driver)
+	AM_RANGE(0x800000, 0x800001) AM_WRITE(YM2413_register_port_0_lsb_w  )
+	AM_RANGE(0x800002, 0x800003) AM_WRITE(YM2413_data_port_0_lsb_w      )
+	AM_RANGE(0x800004, 0x800005) AM_WRITE(OKIM6295_data_0_lsb_w			)
+	AM_RANGE(0xc00000, 0xc1ffff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sub_sharedram1_1	)	// (sound driver)
 	AM_RANGE(0xfe0000, 0xffffff) AM_WRITE(MWA16_RAM) AM_BASE(&hypr_sub_sharedram2_1	)
 ADDRESS_MAP_END
 
@@ -774,6 +803,7 @@ static MACHINE_DRIVER_START( magerror )
 
 	MDRV_CPU_ADD(M68000,20000000/2)		/* 10MHz */
 	MDRV_CPU_PROGRAM_MAP(magerror_readmem2,magerror_writemem2)
+	MDRV_CPU_PERIODIC_INT(irq1_line_hold, TIME_IN_HZ(968))
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
@@ -824,8 +854,10 @@ static DRIVER_INIT( hyprduel )
 //  ROM[(0x174b9*0x20)+0x1f] |= 0x0e;       /* I */
 //  ROM[(0x174e9*0x20)+0x1f] |= 0x0e;
 
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00000, 0xc07fff, 0, 0, hypr_sharedram1_w);
-	memory_install_write16_handler(1, ADDRESS_SPACE_PROGRAM, 0xc00000, 0xc07fff, 0, 0, hypr_sharedram1_w);
+	int_num = strcmp(Machine->gamedrv->name, "magerror") ? 2 : 1;
+
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00000, int_num == 1 ? 0xc1ffff : 0xc07fff, 0, 0, hypr_sharedram1_w);
+	memory_install_write16_handler(1, ADDRESS_SPACE_PROGRAM, 0xc00000, int_num == 1 ? 0xc1ffff : 0xc07fff, 0, 0, hypr_sharedram1_w);
 	memory_install_write16_handler(1, ADDRESS_SPACE_PROGRAM, 0x000000, 0x003fff, 0, 0, hypr_sharedram1_w);
 
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xfe0000, 0xffffff, 0, 0, hypr_sharedram2_w);
@@ -834,8 +866,6 @@ static DRIVER_INIT( hyprduel )
 	requested_int = 0x00;
 	blitter_bit = 2;
 	*hypr_irq_enable = 0xff;
-
-	int_num = strcmp(Machine->gamedrv->name, "magerror")?2:1;
 }
 
 
@@ -887,4 +917,4 @@ ROM_END
 GAME( 1993, hyprduel, 0,        hyprduel, hyprduel, hyprduel, ROT0, "Technosoft", "Hyper Duel (Japan set 1)", 0 )
 GAME( 1993, hyprdelj, hyprduel, hyprduel, hyprduel, hyprduel, ROT0, "Technosoft", "Hyper Duel (Japan set 2)", 0 )
 
-GAME( 199?, magerror, 0,        magerror, hyprduel, hyprduel, ROT0, "Technosoft / Jaleco", "Search for the Magical Error", GAME_NOT_WORKING )
+GAME( 1994, magerror, 0,        magerror, hyprduel, hyprduel, ROT0, "Technosoft / Jaleco", "Magical Error wo Sagase", 0 )
