@@ -355,6 +355,7 @@ const game_driver * const drivers[] =
 	DRIVER( wiping )	/* (c) 1982 */
 	DRIVER( rugrats )	/* (c) 1983 */
 	DRIVER( dacholer )	/* (c) 1983 */
+	DRIVER( itaten )
 	DRIVER( kickboy )	/* (c) 1983 */
 	DRIVER( friskyt )	/* (c) 1981 */
 	DRIVER( friskyta )	/* (c) 1981 */
