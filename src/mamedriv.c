@@ -545,7 +545,7 @@ const game_driver * const drivers[] =
 	DRIVER( pleiadbl )	/* bootleg */
 	DRIVER( pleiadce )	/* (c) 1981 Centuri + Tehkan */
 	DRIVER( capitol )	/* bootleg? */
-	DRIVER( survival )	/* (c) 1982 Rock-ola */
+	DRIVER( survival )	/* (c) 1982 Rock-Ola */
 	DRIVER( naughtyb )	/* (c) 1982 Jaleco */
 	DRIVER( naughtya )	/* bootleg */
 	DRIVER( naughtyc )	/* (c) 1982 Jaleco + Cinematronics */

@@ -18,20 +18,6 @@ Note:
 To Do:
 
 
-Survival:
-
-- Protection.  There is a 14 pin part connected to the 8910 Port B D0 labeled DL57S22.
-  There is a loop at $2002 that reads the player controls -- the game sits in this
-  loop as long as Port B changes.  Also, Port B seems to invert the input bits, and
-  the game checks for this at $2f32.  The game also uses the RIM instruction a lot,
-  that's purpose is unclear, as the result doesn't seem to be used (even when it's
-  stored, the result is never read again.)  I would think that this advances the
-  protection chip somehow, but isn't RIM a read only operation?
-
-- Check background visibile area.  When the background scrolls up, it
-  currently shows below the top and bottom of the border of the play area.
-
-
 Pleiads:
 
 - Palette banking.  Controlled by 3 custom chips marked T-X, T-Y and T-Z.
@@ -564,17 +550,17 @@ INPUT_PORTS_START( survival )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
 
 	PORT_START		/* IN1 */
 	PORT_BIT( 0x07, IP_ACTIVE_LOW, IPT_SPECIAL )	/* comes from IN0 0-2 */
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_COCKTAIL
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT  ) PORT_COCKTAIL
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_UP  ) PORT_COCKTAIL
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_COCKTAIL
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_COCKTAIL
 
     PORT_START
@@ -749,8 +735,9 @@ static MACHINE_DRIVER_START( survival )
 	MDRV_CPU_ADD(8085A,11000000/4)	/* 2.75 MHz */
 	MDRV_CPU_PROGRAM_MAP(survival_readmem,survival_writemem)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(survival)
+	MDRV_FRAMES_PER_SECOND(5500000.0 / (352 * 256))
+	MDRV_VBLANK_DURATION(1000000.0 * 352 * 48 / 5500000.0)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -760,7 +747,7 @@ static MACHINE_DRIVER_START( survival )
 	MDRV_PALETTE_LENGTH(256)
 	MDRV_COLORTABLE_LENGTH(16*4+16*4)
 
-	MDRV_PALETTE_INIT(phoenix)
+	MDRV_PALETTE_INIT(survival)
 	MDRV_VIDEO_START(phoenix)
 	MDRV_VIDEO_UPDATE(phoenix)
 
@@ -1150,26 +1137,26 @@ ROM_END
 
 ROM_START( survival )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "g959-32a.u45", 0x0000, 0x0800, CRC(0bc53541) SHA1(0d1bcf226b89d0cfe0864aab8126b276273a23c2) )
-	ROM_LOAD( "g959-33a.u46", 0x0800, 0x0800, CRC(726e9428) SHA1(515c6278ece9bf39827b9c886a1a900e274bd272) )
-	ROM_LOAD( "g959-34a.u47", 0x1000, 0x0800, CRC(78f166ff) SHA1(ad079372067319dcfad4a00e437d34a999ff9161) )
-	ROM_LOAD( "g959-35a.u48", 0x1800, 0x0800, CRC(59dbe099) SHA1(b7a60302510c72d61b397f7d0f615cfe1762ef5f) )
-	ROM_LOAD( "g959-36a.u49", 0x2000, 0x0800, CRC(bd5e586e) SHA1(8e53e5de7bf73cb56fbd6c18017f09cbbbb17769) )
-	ROM_LOAD( "g959-37a.u50", 0x2800, 0x0800, CRC(b2de1094) SHA1(c8b35b9dd57bd50f837087f10c50f2af04cea823) )
-	ROM_LOAD( "g959-38a.u51", 0x3000, 0x0800, CRC(131c4440) SHA1(c2610d8fbf63110767037c384b6776cfe981da4c) )
-	ROM_LOAD( "g959-39a.u52", 0x3800, 0x0800, CRC(213bc910) SHA1(a03b3ca8185e929898cc32ea2d5e944c4c897d0d) )
+	ROM_LOAD( "g959-32a_45.u45", 0x0000, 0x0800, CRC(0bc53541) SHA1(0d1bcf226b89d0cfe0864aab8126b276273a23c2) )
+	ROM_LOAD( "g959-33a_46.u46", 0x0800, 0x0800, CRC(726e9428) SHA1(515c6278ece9bf39827b9c886a1a900e274bd272) )
+	ROM_LOAD( "g959-34a_47.u47", 0x1000, 0x0800, CRC(78f166ff) SHA1(ad079372067319dcfad4a00e437d34a999ff9161) )
+	ROM_LOAD( "g959-35a_48.u48", 0x1800, 0x0800, CRC(59dbe099) SHA1(b7a60302510c72d61b397f7d0f615cfe1762ef5f) )
+	ROM_LOAD( "g959-36a_49.u49", 0x2000, 0x0800, CRC(bd5e586e) SHA1(8e53e5de7bf73cb56fbd6c18017f09cbbbb17769) )
+	ROM_LOAD( "g959-37a_50.u50", 0x2800, 0x0800, CRC(b2de1094) SHA1(c8b35b9dd57bd50f837087f10c50f2af04cea823) )
+	ROM_LOAD( "g959-38a_51.u51", 0x3000, 0x0800, CRC(131c4440) SHA1(c2610d8fbf63110767037c384b6776cfe981da4c) )
+	ROM_LOAD( "g959-39a_52.u52", 0x3800, 0x0800, CRC(213bc910) SHA1(a03b3ca8185e929898cc32ea2d5e944c4c897d0d) )
 
 	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "g959-42.u23",  0x0000, 0x0800, CRC(3d1ce38d) SHA1(48b94027467ba360c08a7f56bb75474e6859381f) )
-	ROM_LOAD( "g959-43.u24",  0x0800, 0x0800, CRC(cd150da9) SHA1(642264c0eed34ae2b9f1156d261786361f296d1a) )
+	ROM_LOAD( "g959-42-23.u23",  0x0000, 0x0800, CRC(3d1ce38d) SHA1(48b94027467ba360c08a7f56bb75474e6859381f) )
+	ROM_LOAD( "g959-43-24.u24",  0x0800, 0x0800, CRC(cd150da9) SHA1(642264c0eed34ae2b9f1156d261786361f296d1a) )
 
 	ROM_REGION( 0x1000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "g959-40.u39",  0x0000, 0x0800, CRC(41dee996) SHA1(55a792504b2ffc1236eb3f427dee38893e1ca5b7) )
-	ROM_LOAD( "g959-41.u40",  0x0800, 0x0800, CRC(a255d6dc) SHA1(1b2f635f4392d0df1cbd527dcf6cf662b2a1014e) )
+	ROM_LOAD( "g959-40-39.u39",  0x0000, 0x0800, CRC(41dee996) SHA1(55a792504b2ffc1236eb3f427dee38893e1ca5b7) )
+	ROM_LOAD( "g959-41-40.u40",  0x0800, 0x0800, CRC(a255d6dc) SHA1(1b2f635f4392d0df1cbd527dcf6cf662b2a1014e) )
 
 	ROM_REGION( 0x0200, REGION_PROMS, 0 )
-	ROM_LOAD( "clr.u40",      0x0000, 0x0100, CRC(b3e20669) SHA1(4f01c5d74fc8abe748dd88e4513edf52b977ee32) )   /* palette low bits */
-	ROM_LOAD( "clr.u41",      0x0100, 0x0100, CRC(abddf69a) SHA1(e22c380a94fb491bec95c4f4c2d4f072839c09cf) )   /* palette high bits */
+	ROM_LOAD( "n82s129n.u40",      0x0000, 0x0100, CRC(b3e20669) SHA1(4f01c5d74fc8abe748dd88e4513edf52b977ee32) )   /* palette low bits */
+	ROM_LOAD( "n82s129n.u41",      0x0100, 0x0100, CRC(abddf69a) SHA1(e22c380a94fb491bec95c4f4c2d4f072839c09cf) )   /* palette high bits */
 ROM_END
 
 
@@ -1178,15 +1165,6 @@ static DRIVER_INIT( condor )
 	/* additional inputs for coinage */
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x5000, 0x5000, 0, 0, input_port_4_r );
 }
-
-static DRIVER_INIT( survival )
-{
-	unsigned char *rom = memory_region(REGION_CPU1);
-
-	rom[0x0157] = 0x21;	/* ROM check */
-	rom[0x02e8] = 0x21; /* crash due to protection, it still locks up somewhere else */
-}
-
 
 
 GAME( 1980, phoenix,  0,       phoenix,  phoenix,  0,        ROT90, "Amstar", "Phoenix (Amstar)", 0 )
@@ -1205,4 +1183,4 @@ GAME( 1981, pleiads,  0,       pleiads,  pleiads,  0,        ROT90, "Tehkan", "P
 GAME( 1981, pleiadbl, pleiads, pleiads,  pleiads,  0,        ROT90, "bootleg", "Pleiads (bootleg)", GAME_IMPERFECT_COLORS )
 GAME( 1981, pleiadce, pleiads, pleiads,  pleiadce, 0,        ROT90, "Tehkan (Centuri license)", "Pleiads (Centuri)", GAME_IMPERFECT_COLORS )
 GAME( 1981, capitol,  pleiads, phoenix,  capitol,  0,        ROT90, "Universal Video Spiel", "Capitol", GAME_IMPERFECT_COLORS )
-GAME( 1982, survival, 0,       survival, survival, survival, ROT90, "Rock-ola", "Survival", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1982, survival, 0,       survival, survival, 0,        ROT90, "Rock-Ola", "Survival", 0 )

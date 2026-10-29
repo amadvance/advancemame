@@ -10,6 +10,7 @@
 
 #include "driver.h"
 #include "phoenix.h"
+#include "cpu/i8085/i8085.h"
 
 static UINT8 *videoram_pg1;
 static UINT8 *videoram_pg2;
@@ -18,7 +19,9 @@ static int current_videoram_pg_index;
 static int palette_bank;
 static int cocktail_mode;
 static int pleiads_protection_question;
-static int survival_protection_value;
+static UINT8 survival_protection_value;
+static UINT8 survival_input_latches[2];
+static UINT8 survival_input_readc;
 static tilemap *fg_tilemap, *bg_tilemap;
 
 
@@ -80,6 +83,55 @@ PALETTE_INIT( phoenix )
 
 		COLOR(0,i) = col;
 		COLOR(1,i) = col | 0x20;
+	}
+}
+
+PALETTE_INIT( survival )
+{
+	int i,bit,channel;
+	int levels[4];
+	int rgb[256][3];
+	int ymin = 255000, ymax = 0;
+	static const int shifts[3] = { 0, 2, 1 };
+	static const double resistors[2] = { 180.0, 1.0 };
+
+	palette_init_phoenix(colortable,color_prom);
+	for (i = 0; i < 4; i++)
+	{
+		double conductance = 1.0 / 100.0 + 1.0 / 270.0;
+		double voltage = 5.0 / 100.0;
+		for (bit = 0; bit < 2; bit++)
+			if (!(i & (1 << bit)))
+			{
+				conductance += 1.0 / resistors[bit];
+				voltage += 0.05 / resistors[bit];
+			}
+		levels[i] = voltage / conductance * 255.0 / 5.0 + 0.4;
+	}
+	for (i = 0; i < 256; i++)
+	{
+		int y;
+		for (channel = 0; channel < 3; channel++)
+		{
+			int value = ((color_prom[i] >> shifts[channel]) & 1) |
+				(((color_prom[i + 256] >> shifts[channel]) & 1) << 1);
+			rgb[i][channel] = levels[value];
+		}
+		y = 299 * rgb[i][0] + 587 * rgb[i][1] + 114 * rgb[i][2];
+		if (y < ymin) ymin = y;
+		if (y > ymax) ymax = y;
+	}
+	for (i = 0; i < 256; i++)
+	{
+		int y = 299 * rgb[i][0] + 587 * rgb[i][1] + 114 * rgb[i][2];
+		int u = (rgb[i][2] - y / 1000) * 492 / 1000;
+		int v = (rgb[i][0] - y / 1000) * 877 / 1000;
+		int target = (y - ymin) * 256 / (ymax - ymin);
+		int r = target + 1140 * v / 1000;
+		int g = target - 395 * u / 1000 - 581 * v / 1000;
+		int b = target + 2032 * u / 1000;
+		palette_set_color(i,r < 0 ? 0 : r > 255 ? 255 : r,
+			g < 0 ? 0 : g > 255 ? 255 : g,b < 0 ? 0 : b > 255 ? 255 : b);
 	}
 }
 
@@ -312,24 +364,82 @@ READ8_HANDLER( pleiads_input_port_0_r )
 
 READ8_HANDLER( survival_input_port_0_r )
 {
-	int ret = phoenix_input_port_0_r(0);
+	UINT8 ret;
+	int survival_sid_value = 0;
 
-	if (survival_protection_value)
+	if (cocktail_mode)
+		ret = ~input_port_1_r(0);
+	else
+		ret = ~input_port_0_r(0);
+
+	if (survival_input_readc++ == 2)
 	{
-		ret ^= 0xf0;
+		survival_input_readc = 0;
+		survival_protection_value = 0;
+		return ~ret;
 	}
 
-	return ret;
+	survival_protection_value = 0xff;
+
+	switch ((ret >> 4) & 0x0f)
+	{
+		case 0:
+			ret = (ret & 0x0f) | 0x70;
+			break;
+		case 1:
+			ret = (ret & 0x0f) | 0x80;
+			break;
+		case 2:
+			survival_sid_value = 0x80;
+			survival_protection_value = 0xfe;
+			ret = (ret & 0x0f) | 0x20;
+			break;
+		case 3:
+			survival_sid_value = 0x80;
+			ret = (ret & 0x0f) | 0xa0;
+			break;
+		case 4:
+			survival_sid_value = 0x80;
+			survival_protection_value = 0xfe;
+			ret = (ret & 0x0f) | 0x40;
+			break;
+		case 5:
+			survival_sid_value = 0x80;
+			ret = (ret & 0x0f) | 0xc0;
+			break;
+		case 8:
+			ret = (ret & 0x0f) | 0x10;
+			break;
+		case 0xa:
+			survival_sid_value = 0x80;
+			ret = (ret & 0x0f) | 0x30;
+			break;
+		case 0xc:
+			survival_sid_value = 0x80;
+			ret = (ret & 0x0f) | 0x50;
+			break;
+		default:
+			break;
+	}
+
+	activecpu_set_info_int(CPUINFO_INT_I8085_SID,survival_sid_value);
+	survival_input_latches[0] = survival_input_latches[1];
+	survival_input_latches[1] = ~ret;
+
+	return survival_input_latches[0];
 }
 
 READ8_HANDLER( survival_protection_r )
 {
-	if (activecpu_get_pc() == 0x2017)
-	{
-		survival_protection_value ^= 1;
-	}
-
 	return survival_protection_value;
+}
+
+MACHINE_RESET( survival )
+{
+	survival_protection_value = 0;
+	survival_input_readc = 0;
+	survival_input_latches[0] = survival_input_latches[1] = 0;
+	cpunum_set_info_int(0,CPUINFO_INT_I8085_SID,0);
 }
 
 /***************************************************************************
