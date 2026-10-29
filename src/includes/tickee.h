@@ -18,3 +18,11 @@ extern UINT16 *tickee_vram;
 VIDEO_START( tickee );
 
 VIDEO_UPDATE( tickee );
+
+extern int rapidfir_palette_blank;
+extern int rapidfir_has_two_guns;
+extern UINT8 rapidfir_gunx[2];
+VIDEO_START( mouseatk );
+VIDEO_START( rapidfir );
+VIDEO_UPDATE( mouseatk );
+VIDEO_UPDATE( rapidfir );
