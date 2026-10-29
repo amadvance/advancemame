@@ -7453,7 +7453,7 @@ Other Sun games
 	DRIVER( unkmeyco )	/* (c) 19?? */
 	DRIVER( laserbas )	/* (c) 1981 Amstar/HOEI */
 	DRIVER( laserbsa )	/* (c) 1981 Amstar/HOEI */
-	DRIVER( futflash )	/* (c) 19?? HOEI */
+	DRIVER( futflash )	/* (c) 1980 Hoei */
 	DRIVER( turbosub )	/* (c) 1986 Entertainment Sciences */
 	DRIVER( pipeline )	/* (c) 1990 Daehyun Electronics */
 	DRIVER( ttchamp )
