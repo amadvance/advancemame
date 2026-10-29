@@ -7140,6 +7140,8 @@ Other Sun games
 	DRIVER( crysbios )
 	DRIVER( crysking )	/* 2001 Brezzasoft. Crystal of the kings */
 	DRIVER( evosocc )	/* 2001 Evoga. Evolution Soccer */
+	DRIVER( urachamu )
+	DRIVER( topbladv )
 
 	/* Scorpion 2+Video Board Games */
 	DRIVER( qntoondo )	/* 1993 */
