@@ -6658,6 +6658,7 @@ Other Sun games
 	DRIVER( powerbls )	/* (c) 1994 */
 	DRIVER( magicstk )	/* (c) 1995 */
 	DRIVER( bigtwin )	/* (c) 1995 */
+	DRIVER( hrdtimes )
 	DRIVER( wbeachvl )	/* (c) 1995 */
 	DRIVER( wbeachv2 )	/* (c) 1995 */
 	DRIVER( excelsr )	/* (c) 1995 */

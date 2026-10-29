@@ -493,7 +493,7 @@ static void incfsz(void)
 static void iorlw(void)
 {
 	R.ALU = R.opcode.b.l | R.W;
-	STORE_RESULT(ADDR, R.ALU);
+	R.W = R.ALU;
 	CALCULATE_Z_FLAG();
 }
 
