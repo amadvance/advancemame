@@ -65,6 +65,9 @@ WRITE16_HANDLER( afega_palette_w );
 PALETTE_INIT( grdnstrm );
 
 VIDEO_START( afega );
+VIDEO_START( stagger1 );
+VIDEO_UPDATE( stagger1 );
+VIDEO_EOF( stagger1 );
 VIDEO_START( firehawk );
 VIDEO_UPDATE( afega );
 VIDEO_UPDATE( redhawkb );
@@ -1303,6 +1306,129 @@ Parts:
 
 ***************************************************************************/
 
+
+static UINT16 *stagger1_mainram;
+static int stagger1_sound_pending, stagger1_ym_irq_state;
+
+static void stagger1_update_irq(void)
+{
+	cpunum_set_input_line(1, 0,
+		(stagger1_sound_pending || stagger1_ym_irq_state) ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static WRITE16_HANDLER( stagger1_sound_w )
+{
+	if (ACCESSING_LSB)
+	{
+		soundlatch_w(0, data);
+		stagger1_sound_pending = 1;
+		stagger1_update_irq();
+	}
+}
+
+static READ8_HANDLER( stagger1_sound_r )
+{
+	stagger1_sound_pending = 0;
+	stagger1_update_irq();
+	return soundlatch_r(offset);
+}
+
+static void stagger1_ym_irq(int state)
+{
+	stagger1_ym_irq_state = state;
+	stagger1_update_irq();
+}
+
+static struct YM2151interface stagger1_ym_interface = { stagger1_ym_irq };
+
+static WRITE16_HANDLER( stagger1_ram_w )
+{
+	if (!ACCESSING_MSB)
+		stagger1_mainram[offset] = (data & 0xff) * 0x101;
+	else if (!ACCESSING_LSB)
+		stagger1_mainram[offset] = (data >> 8) * 0x101;
+	else
+		stagger1_mainram[offset] = data;
+}
+
+static MACHINE_RESET( stagger1_working )
+{
+	spriteram16 = stagger1_mainram + 0x8000/2;
+	spriteram_size = 0x1000;
+	stagger1_sound_pending = stagger1_ym_irq_state = 0;
+	stagger1_update_irq();
+}
+
+static ADDRESS_MAP_START( stagger1_working, ADDRESS_SPACE_PROGRAM, 16 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(20) )
+	AM_RANGE(0x000000, 0x07ffff) AM_ROM
+	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x080002, 0x080003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x080004, 0x080005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x080012, 0x080013) AM_READ(afega_unknown_r)
+	AM_RANGE(0x080000, 0x08001d) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x08001e, 0x08001f) AM_WRITE(stagger1_sound_w)
+	AM_RANGE(0x084000, 0x084003) AM_RAM AM_WRITE(afega_scroll0_w)
+	AM_RANGE(0x084004, 0x084007) AM_RAM AM_WRITE(afega_scroll1_w)
+	AM_RANGE(0x080020, 0x087fff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x088000, 0x0885ff) AM_READWRITE(MRA16_RAM, paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x088600, 0x08bfff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x08c000, 0x08c003) AM_RAM AM_WRITE(afega_scroll0_w) AM_BASE(&afega_scroll_0)
+	AM_RANGE(0x08c004, 0x08c007) AM_RAM AM_WRITE(afega_scroll1_w) AM_BASE(&afega_scroll_1)
+	AM_RANGE(0x08c008, 0x08ffff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x090000, 0x093fff) AM_READWRITE(MRA16_RAM, afega_vram_0_w) AM_BASE(&afega_vram_0)
+	AM_RANGE(0x09c000, 0x09c7ff) AM_READWRITE(MRA16_RAM, afega_vram_1_w) AM_BASE(&afega_vram_1)
+	AM_RANGE(0x0c0000, 0x0cffff) AM_RAM AM_SHARE(1) AM_WRITE(stagger1_ram_w) AM_BASE(&stagger1_mainram)
+	AM_RANGE(0x0f0000, 0x0fffff) AM_RAM AM_SHARE(1) AM_WRITE(stagger1_ram_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( stagger1_working_sound, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0003, 0x0003) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x0004, 0x0004) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x0000, 0xefff) AM_ROM
+	AM_RANGE(0xf000, 0xf7ff) AM_RAM
+	AM_RANGE(0xf800, 0xf800) AM_READ(stagger1_sound_r)
+	AM_RANGE(0xf808, 0xf808) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0xf809, 0xf809) AM_READWRITE(YM2151_status_port_0_r, YM2151_data_port_0_w)
+	AM_RANGE(0xf80a, 0xf80a) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+ADDRESS_MAP_END
+static MACHINE_DRIVER_START( stagger1_working )
+
+	MDRV_CPU_ADD(M68000,12000000)
+	MDRV_CPU_PROGRAM_MAP(stagger1_working,0)
+	MDRV_CPU_VBLANK_INT(interrupt_afega,2)
+
+	MDRV_CPU_ADD(Z80, 4000000)
+
+	MDRV_CPU_PROGRAM_MAP(stagger1_working_sound,0)
+
+	MDRV_MACHINE_RESET(stagger1_working)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (384 * 278))
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 256-1, 16, 239)
+	MDRV_GFXDECODE(stagger1_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(768)
+
+	MDRV_VIDEO_START(stagger1)
+	MDRV_VIDEO_UPDATE(stagger1)
+	MDRV_VIDEO_EOF(stagger1)
+
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2151, 4000000)
+	MDRV_SOUND_CONFIG(stagger1_ym_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.30)
+	MDRV_SOUND_ROUTE(1, "right", 0.30)
+
+	MDRV_SOUND_ADD(OKIM6295, 1000000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.70)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.70)
+MACHINE_DRIVER_END
+
 ROM_START( stagger1 )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )		/* 68000 Code */
 	ROM_LOAD16_BYTE( "2.bin", 0x000000, 0x020000, CRC(8555929b) SHA1(b405d81c2a45191111b1a4458ac6b5c0a129b8f1) )
@@ -1923,9 +2049,9 @@ static DRIVER_INIT( twinactn )
 ***************************************************************************/
 
 GAME( 1995, twinactn, 0,        twinactn, twinactn, twinactn, ROT0,               "Afega",    "Twin Action",                      0 )
+GAME( 1998, stagger1, 0,        stagger1_working, stagger1, 0,        ROT270,             "Afega",    "Stagger I (Japan)",                0 )
 GAME( 1997, redhawk,  stagger1, stagger1, stagger1, redhawk,  ROT270,             "Afega",    "Red Hawk (US)",                    GAME_NOT_WORKING )
 GAME( 1997, redhawkb, stagger1, redhawkb, redhawkb, 0,        ROT0,               "bootleg",  "Red Hawk (bootleg)",               GAME_NOT_WORKING )
-GAME( 1998, stagger1, 0,        stagger1, stagger1, 0,        ROT270,             "Afega",    "Stagger I (Japan)",                GAME_NOT_WORKING )
 GAME( 1998, grdnstrm, 0,        grdnstrm, grdnstrm, grdnstrm, ROT270,             "Afega",    "Sen Jin - Guardian Storm (Korea)", GAME_NOT_WORKING )
 GAME( 1998, bubl2000, 0,        bubl2000, bubl2000, bubl2000, ROT0,               "Tuning",   "Bubble 2000",                      0 ) // on a tuning board (bootleg?)
 GAME( 1998, hotbubl,  bubl2000, bubl2000, bubl2000, bubl2000, ROT0,               "Pandora",  "Hot Bubble" ,                      0 ) // on an afega board ..

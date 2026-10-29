@@ -114,6 +114,8 @@ UINT32 firehawk_tilemap_scan_pages(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 
 }
 
 static tilemap *tilemap_0, *tilemap_1;
+static UINT16 *stagger1_sprites;
+static int stagger1_video;
 
 static void get_tile_info_0(int tile_index)
 {
@@ -158,6 +160,7 @@ WRITE16_HANDLER( afega_vram_1_w )
 
 VIDEO_START( afega )
 {
+	stagger1_video = 0;
 	tilemap_0 = tilemap_create(	get_tile_info_0, afega_tilemap_scan_pages,
 								TILEMAP_OPAQUE,
 								16,16,
@@ -178,6 +181,7 @@ VIDEO_START( afega )
 
 VIDEO_START( firehawk )
 {
+	stagger1_video = 0;
 	tilemap_0 = tilemap_create(	get_tile_info_0, firehawk_tilemap_scan_pages,
 								TILEMAP_OPAQUE,
 								16,16,
@@ -253,8 +257,8 @@ static void afega_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect, UI
 		sy		=		spriteram16[offs + 0xc/2];
 		color	=		spriteram16[offs + 0xe/2];
 
-		flipx	=		attr & 0x000;	// ?
-		flipy	=		attr & 0x000;	// ?
+		flipx = stagger1_video ? (dim & 0x0100) : 0;
+		flipy = stagger1_video ? (dim & 0x0200) : 0;
 
 		xnum		=		((dim >> 0) & 0xf) + 1;
 		ynum		=		((dim >> 4) & 0xf) + 1;
@@ -359,4 +363,35 @@ VIDEO_UPDATE( firehawk )
 	afega_draw_sprites(bitmap,cliprect,1);
 
 	tilemap_draw(bitmap,cliprect,tilemap_1,0,0);
+}
+
+static UINT32 stagger1_scan(UINT32 col, UINT32 row, UINT32 num_cols, UINT32 num_rows)
+{
+	return (row & 0x0f) + (col << 4) + ((row & 0x10) << 8);
+}
+
+VIDEO_START( stagger1 )
+{
+	stagger1_video = 1;
+	tilemap_0 = tilemap_create(get_tile_info_0,stagger1_scan,TILEMAP_OPAQUE,16,16,256,32);
+	tilemap_1 = tilemap_create(get_tile_info_1,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,32,32);
+	stagger1_sprites = auto_malloc(0x1000);
+	if (!tilemap_0 || !tilemap_1 || !stagger1_sprites)
+		return 1;
+	memset(stagger1_sprites,0,0x1000);
+	tilemap_set_transparent_pen(tilemap_1,15);
+	return 0;
+}
+
+VIDEO_EOF( stagger1 )
+{
+	memcpy(stagger1_sprites,spriteram16,0x1000);
+}
+
+VIDEO_UPDATE( stagger1 )
+{
+	UINT16 *live_sprites = spriteram16;
+	spriteram16 = stagger1_sprites;
+	video_update(screen,bitmap,cliprect,1,-0x100,0,1);
+	spriteram16 = live_sprites;
 }
