@@ -465,13 +465,27 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/blit/hq3x.o \
 	$(OBJ)/advance/blit/hq4x.o \
 	$(OBJ)/advance/blit/xbr2x.o \
+	$(OBJ)/advance/blit/xbr2x_sse.o \
+	$(OBJ)/advance/blit/xbr2x_neon.o \
 	$(OBJ)/advance/blit/xbr3x.o \
+	$(OBJ)/advance/blit/xbr3x_sse.o \
+	$(OBJ)/advance/blit/xbr3x_neon.o \
 	$(OBJ)/advance/blit/xbr4x.o \
+	$(OBJ)/advance/blit/xbr4x_sse.o \
+	$(OBJ)/advance/blit/xbr4x_neon.o \
 	$(OBJ)/advance/blit/scale2x.o \
+	$(OBJ)/advance/blit/scale2x_sse.o \
+	$(OBJ)/advance/blit/scale2x_neon.o \
 	$(OBJ)/advance/blit/scale3x.o \
 	$(OBJ)/advance/blit/scale2k.o \
+	$(OBJ)/advance/blit/scale2k_sse.o \
+	$(OBJ)/advance/blit/scale2k_neon.o \
 	$(OBJ)/advance/blit/scale3k.o \
+	$(OBJ)/advance/blit/scale3k_sse.o \
+	$(OBJ)/advance/blit/scale3k_neon.o \
 	$(OBJ)/advance/blit/scale4k.o \
+	$(OBJ)/advance/blit/scale4k_sse.o \
+	$(OBJ)/advance/blit/scale4k_neon.o \
 	$(OBJ)/advance/blit/interp.o \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/blit/slice.o \
@@ -629,13 +643,10 @@ $(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.rc
 # emu compile
 
 # Target CFLAGS
-ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
 # Don't enable internam MAME assembler macros
 # There are issues in the z80 emulator when using modern gcc compilers like 6.4.0
 # For example, puckman/pengo games have video issues.
 #EMUCFLAGS += -DX86_ASM
-endif
-
 
 ifneq (,$(findstring USE_LSB,$(CFLAGS)))
 EMUCFLAGS += -DLSB_FIRST

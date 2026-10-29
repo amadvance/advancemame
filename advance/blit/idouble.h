@@ -33,91 +33,132 @@
 
 #include "icommon.h"
 
+#ifdef CONFIG_X86
+#include <emmintrin.h>
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+#include <arm_neon.h>
+#endif
+
 /***************************************************************************/
 /* internal double */
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double8_asm(uint8* dst, const uint8* src, unsigned count)
+#ifdef CONFIG_X86
+static inline __attribute__((target("sse2"))) void internal_double8_sse2(uint8* dst, const uint8* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
-
-	__asm__ __volatile__ (
-		"shrl $3, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"punpcklbw %%mm0, %%mm0\n"
-		"punpckhbw %%mm1, %%mm1\n"
-		"movq %%mm0, (%1)\n"
-		"movq %%mm1, 8(%1)\n"
-		"addl $8, %0\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc"
-	);
+	unsigned rest = count % 8;
+	count /= 8;
+	while (count) {
+		__m128i pixel = _mm_loadl_epi64((const __m128i*)src);
+		_mm_storeu_si128((__m128i*)dst, _mm_unpacklo_epi8(pixel, pixel));
+		src += 8;
+		dst += 16;
+		--count;
+	}
+	while (rest) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--rest;
+	}
 }
+
+static inline __attribute__((target("sse2"))) void internal_double16_sse2(uint16* dst, const uint16* src, unsigned count)
+{
+	unsigned rest = count % 4;
+	count /= 4;
+	while (count) {
+		__m128i pixel = _mm_loadl_epi64((const __m128i*)src);
+		_mm_storeu_si128((__m128i*)dst, _mm_unpacklo_epi16(pixel, pixel));
+		src += 4;
+		dst += 8;
+		--count;
+	}
+	while (rest) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--rest;
+	}
+}
+
+static inline __attribute__((target("sse2"))) void internal_double32_sse2(uint32* dst, const uint32* src, unsigned count)
+{
+	unsigned rest = count % 2;
+	count /= 2;
+	while (count) {
+		__m128i pixel = _mm_loadl_epi64((const __m128i*)src);
+		_mm_storeu_si128((__m128i*)dst, _mm_unpacklo_epi32(pixel, pixel));
+		src += 2;
+		dst += 4;
+		--count;
+	}
+	while (rest) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--rest;
+	}
+}
+
 #endif
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double16_asm(uint16* dst, const uint16* src, unsigned count)
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_double8_neon(uint8* dst, const uint8* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
-
-	__asm__ __volatile__ (
-		"shrl $2, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"punpcklwd %%mm0, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"punpckhwd %%mm1, %%mm1\n"
-		"movq %%mm1, 8(%1)\n"
-		"addl $8, %0\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc"
-	);
+	while (count >= 8) {
+		uint8x8_t pixel = vld1_u8(src);
+		uint8x8x2_t pair;
+		pair.val[0] = pixel;
+		pair.val[1] = pixel;
+		vst2_u8(dst, pair);
+		src += 8;
+		dst += 16;
+		count -= 8;
+	}
+	while (count) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--count;
+	}
 }
-#endif
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double32_asm(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_double16_neon(uint16* dst, const uint16* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
-
-	__asm__ __volatile__ (
-		"shrl $1, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"punpckldq %%mm0, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"punpckhdq %%mm1, %%mm1\n"
-		"movq %%mm1, 8(%1)\n"
-		"addl $8, %0\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc"
-	);
+	while (count >= 4) {
+		uint16x4_t pixel = vld1_u16(src);
+		uint16x4x2_t pair;
+		pair.val[0] = pixel;
+		pair.val[1] = pixel;
+		vst2_u16(dst, pair);
+		src += 4;
+		dst += 8;
+		count -= 4;
+	}
+	while (count) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--count;
+	}
 }
+
+static inline void internal_double32_neon(uint32* dst, const uint32* src, unsigned count)
+{
+	while (count >= 2) {
+		uint32x2_t pixel = vld1_u32(src);
+		uint32x2x2_t pair;
+		pair.val[0] = pixel;
+		pair.val[1] = pixel;
+		vst2_u32(dst, pair);
+		src += 2;
+		dst += 4;
+		count -= 2;
+	}
+	while (count) {
+		dst[0] = dst[1] = *src++;
+		dst += 2;
+		--count;
+	}
+}
+
 #endif
 
 static inline void internal_double8_def(uint8* restrict dst, const uint8* restrict src, unsigned count)
@@ -335,7 +376,6 @@ static inline void internal_quadruple32_step_def(uint32* restrict dst, const uin
 		--count;
 	}
 }
-
 
 #endif
 
