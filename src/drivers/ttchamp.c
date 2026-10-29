@@ -1,10 +1,7 @@
 // license:BSD-3-Clause
 // copyright-holders:David Haywood
-/* Peno Cup?
-
-no idea if this is the real title, I just see a large Peno Cup logo in the 2/3 roms
-
-looks like some kind of ping pong / tennis game?
+/* Table Tennis Champions
+   (c) 1995 Gamart
 
  ___________________________________________________
 |        __     _________ __________   __________  |
@@ -34,161 +31,282 @@ looks like some kind of ping pong / tennis game?
  _|   74LS244  74LS14N 74HC74  16MHz |D70116C-10 | |
 |__________________________________________________|
 
-The PCB is Spanish and manufacured by Gamart.
+The PCB is Spanish and manufactured by Gamart.
 
 
---- Need to work out how the program rom is banked
 --- hw is similar to hotblock and twins
 
 
 */
 
 #include "driver.h"
-static UINT8*peno_vram;
+#include "sound/okim6295.h"
 
+static UINT8 mainram[0x10000];
+static UINT8 vram[2][0x10000];
+static UINT8 backram[0x100];
+static UINT8 *rom;
+static UINT16 paloff, paldata, port10;
+static int rombank, spritesinit, spriteswidth;
+static UINT32 spritesaddr, pair_address, pair_pc;
+static int pair_pending;
+static int picmode, pic_readaddr, pic_writeaddr;
+static UINT8 pic_latched, pic_writelatched;
+static UINT16 pic_data;
+static int pic_pending;
 
-VIDEO_START(ttchamp)
+enum { PIC_IDLE, PIC_READADDRESS, PIC_WRITEADDRESS, PIC_WRITELATCH, PIC_READLATCH };
+
+static int video_bank(void)
+{
+	return (port10 & 0x0f) != 0;
+}
+
+static VIDEO_START( ttchamp )
 {
 	return 0;
 }
 
-VIDEO_UPDATE(ttchamp)
+static VIDEO_UPDATE( ttchamp )
 {
-	int y,x,count;
-//  int i;
-	static int xxx=320,yyy=204;
-
-	fillbitmap(bitmap, get_black_pen(), 0);
-
-//  for (i=0;i<256;i++)
-//  {
-//      int dat,r,g,b;
-//      dat=(hotblock_pal[i*2+1]<<8)|hotblock_pal[i*2];
-//
-//      b = (dat>>10)&0x1f;
-//      g = (dat>>5)&0x1f;
-//      r = (dat>>0)&0x1f;
-//      palette_set_color(i,r*8,g*8,b*8);
-//  }
-
-	count=0;
-	for (y=0;y<yyy;y++)
+	int x, y;
+	for (y = MAX(0, cliprect->min_y); y <= MIN(203, cliprect->max_y); y++)
 	{
-		for(x=0;x<xxx;x++)
+		UINT16 pixels[320];
+		for (x = 0; x < 320; x++)
 		{
-			/*if(hotblock_port0&0x40)*/plot_pixel(bitmap, x,y, peno_vram[count]+0x300);
-			count++;
+			int offset = y * 320 + x;
+			int fg = vram[1][offset];
+			int bg = vram[0][offset];
+			pixels[x] = fg == 0 ? bg + 0x300 :
+				(fg == 1 ? bg + 0x200 : (fg == 2 ? bg + 0x100 : fg));
+		}
+		draw_scanline16(bitmap, 0, y, 320, pixels, Machine->pens, -1);
+	}
+}
+
+static WRITE8_HANDLER( mem_w )
+{
+	UINT32 wordoffs = offset >> 1;
+	UINT8 *dest = vram[video_bank()];
+	int i;
+
+	/* Coalesce the two byte callbacks made by a V30 word store. */
+	if (pair_pending && offset == pair_address && activecpu_get_pc() == pair_pc)
+	{
+		pair_pending = 0;
+		return;
+	}
+	pair_pending = 0;
+
+	if (spritesinit == 1 || spritesinit == 2)
+	{
+		if (spritesinit == 1)
+			spritesaddr = wordoffs;
+		else
+			spriteswidth = wordoffs & 0xff;
+		spritesinit++;
+	}
+	else if (offset < 0x10000)
+	{
+		mainram[offset] = data;
+		return;
+	}
+	else if (offset < 0x20000)
+	{
+		dest[offset & 0xffff] = data;
+		return;
+	}
+	else if (offset >= 0x30000 && offset < 0x40000 && spritesinit == 3)
+	{
+		spritesinit = 0;
+		wordoffs &= 0x7fff;
+		for (i = 0; i < spriteswidth; i++)
+		{
+			int target = (wordoffs++ & 0x7fff) * 2;
+			if (port10 & 0x30)
+			{
+				if (port10 & 0x10)
+					vram[0][target] = vram[0][target + 1] = 0;
+				if (port10 & 0x20)
+					vram[1][target] = vram[1][target + 1] = 0;
+			}
+			else
+			{
+				UINT32 source = (rombank * 0x100000) + ((spritesaddr++ * 2) & 0xfffff);
+				UINT8 lo = rom[source];
+				UINT8 hi = rom[source + 1];
+				if (lo || !(port10 & 2)) dest[target] = lo;
+				if (hi || !(port10 & 2)) dest[target + 1] = hi;
+			}
+		}
+	}
+	else
+		return;
+
+	pair_address = offset + 1;
+	pair_pc = activecpu_get_pc();
+	pair_pending = 1;
+}
+
+static READ8_HANDLER( blit_start_r )
+{
+	spritesinit = 1;
+	pair_pending = 0;
+	return (offset & 1) ? 0 : 0xff;
+}
+
+static READ8_HANDLER( blit_repeat_r )
+{
+	spritesinit = 3;
+	pair_pending = 0;
+	return (offset & 1) ? 0 : 0xff;
+}
+
+static WRITE8_HANDLER( paloff_w )
+{
+	if (offset & 1) paloff = (paloff & 0x00ff) | (data << 8);
+	else paloff = (paloff & 0xff00) | data;
+}
+
+static WRITE8_HANDLER( paldat_w )
+{
+	if (offset & 1) paldata = (paldata & 0x00ff) | (data << 8);
+	else paldata = (paldata & 0xff00) | data;
+	palette_set_color(paloff & 0x3ff, pal5bit(paldata), pal5bit(paldata >> 5), pal5bit(paldata >> 10));
+}
+
+static WRITE8_HANDLER( port10_w )
+{
+	if (offset & 1) port10 = (port10 & 0x00ff) | (data << 8);
+	else port10 = (port10 & 0xff00) | data;
+	memory_set_bankptr(2, vram[video_bank()]);
+}
+
+static WRITE8_HANDLER( port20_w )
+{
+	rombank = 1;
+}
+static WRITE8_HANDLER( port62_w )
+{
+	rombank = 0;
+}
+
+static void pic_commit(int param)
+{
+	UINT16 data = pic_data;
+	if (!pic_pending)
+		return;
+	pic_pending = 0;
+	if (picmode == PIC_READADDRESS)
+	{
+		pic_readaddr = data & 0x1ff;
+		picmode = PIC_IDLE;
+	}
+	else if (picmode == PIC_WRITEADDRESS)
+	{
+		pic_writeaddr = data & 0xff;
+		picmode = PIC_IDLE;
+	}
+	else if (picmode == PIC_WRITELATCH)
+	{
+		pic_writelatched = data;
+		picmode = PIC_IDLE;
+	}
+	else if (picmode == PIC_IDLE)
+	{
+		switch (data)
+		{
+			case 0x11: picmode = PIC_READADDRESS; break;
+			case 0x12: picmode = PIC_WRITELATCH; break;
+			case 0x20: picmode = PIC_WRITEADDRESS; break;
+			case 0x21: backram[pic_writeaddr] = pic_writelatched; break;
+			case 0x22:
+				pic_latched = backram[pic_readaddr >> 1];
+				picmode = PIC_READLATCH;
+				break;
 		}
 	}
 }
 
-static UINT8 paloff_l;
-static UINT8 paloff_h;
-static UINT8 paldat_l;
-static UINT8 paldat_h;
-
-
-static WRITE8_HANDLER( paloff_l_w )
+static WRITE8_HANDLER( pic_w )
 {
-	paloff_l = data;
+	if (!(offset & 1))
+	{
+		/* Defer the command until both halves of an OUT word have arrived. */
+		pic_data = data;
+		pic_pending = 1;
+		timer_set(TIME_NOW, 0, pic_commit);
+	}
+	else if (pic_pending)
+		pic_data |= data << 8;
 }
 
-static WRITE8_HANDLER( paloff_h_w )
+static READ8_HANDLER( pic_r )
 {
-	paloff_h = data;
-}
-
-WRITE8_HANDLER( pcup_prgbank_w )
-{
-	int bank;
-	unsigned char *ROM1 = memory_region(REGION_USER1);
-
-	bank = (data>>4) &0x07;
-	memory_set_bankptr(2,&ROM1[0x80000*(bank)]);
-
-}
-
-
-static WRITE8_HANDLER( paldat_l_w )
-{
-	paldat_l = data;
-}
-
-static WRITE8_HANDLER( paldat_h_w )
-{
-	int paldat;
-	int paloff;
-	int r,g,b;
-
-	paldat_h = data;
-
-	paldat = (paldat_h <<8)|paldat_l;
-	paloff = (paloff_h <<8)|paloff_l;
-	paloff &=0x7fff;
-
-	b = (paldat>>10)&0x1f;
-	g = (paldat>>5)&0x1f;
-	r = (paldat>>0)&0x1f;
-
-	palette_set_color(paloff,r*8,g*8,b*8);
-}
-
-static READ8_HANDLER( peno_rand )
-{
-	return 0xff;// rand();
-}
-
-static READ8_HANDLER( peno_rand2 )
-{
-	return rand();
+	if ((offset & 1) && picmode == PIC_READLATCH)
+	{
+		picmode = PIC_IDLE;
+		return pic_latched;
+	}
+	return 0;
 }
 
 static ADDRESS_MAP_START( ttchamp_map, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x00000, 0x0ffff) AM_RAM
-	AM_RANGE(0x10000, 0x1ffff) AM_RAM AM_BASE(&peno_vram)
-	AM_RANGE(0x20000, 0x7ffff) AM_READ(MRA8_BANK1) // ?
-	AM_RANGE(0x80000, 0xfffff) AM_READ(MRA8_BANK2) // ?
+	AM_RANGE(0x00000, 0x0ffff) AM_READ(MRA8_BANK1)
+	AM_RANGE(0x10000, 0x1ffff) AM_READ(MRA8_BANK2)
+	AM_RANGE(0x20000, 0xfffff) AM_READ(MRA8_BANK3)
+	AM_RANGE(0x00000, 0xfffff) AM_WRITE(mem_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( ttchamp_io, ADDRESS_SPACE_IO, 8 )
-	AM_RANGE(0x0000, 0x0000) AM_WRITE(MWA8_NOP)
-
+	AM_RANGE(0x0000, 0x0001) AM_WRITENOP
 	AM_RANGE(0x0002, 0x0002) AM_READ(input_port_0_r)
 	AM_RANGE(0x0003, 0x0003) AM_READ(input_port_1_r)
 	AM_RANGE(0x0004, 0x0004) AM_READ(input_port_2_r)
 	AM_RANGE(0x0005, 0x0005) AM_READ(input_port_3_r)
-
-//  AM_RANGE(0x0018, 0x0018) AM_READ(peno_rand2)
-//  AM_RANGE(0x001e, 0x001e) AM_READ(peno_rand2)
-
-	AM_RANGE(0x0008, 0x0008) AM_WRITE(paldat_l_w)
-	AM_RANGE(0x0009, 0x0009) AM_WRITE(paldat_h_w)
-
-	AM_RANGE(0x000a, 0x000a) AM_WRITE(paloff_l_w)
-	AM_RANGE(0x000b, 0x000b) AM_WRITE(paloff_h_w)
-
-//  AM_RANGE(0x0010, 0x0010) AM_WRITE(pcup_prgbank_w)
-	AM_RANGE(0x0010, 0x0010) AM_WRITE(MWA8_NOP)
-	AM_RANGE(0x0011, 0x0011) AM_WRITE(MWA8_NOP)
-
-	AM_RANGE(0x0020, 0x0020) AM_WRITE(MWA8_NOP)
-	AM_RANGE(0x0021, 0x0021) AM_WRITE(MWA8_NOP)
-
-
-	AM_RANGE(0x0034, 0x0034) AM_READ(peno_rand) AM_WRITE(MWA8_NOP)
-	AM_RANGE(0x0035, 0x0035) AM_READ(peno_rand)
-
+	AM_RANGE(0x0006, 0x0006) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+	AM_RANGE(0x0008, 0x0009) AM_WRITE(paldat_w)
+	AM_RANGE(0x000a, 0x000b) AM_WRITE(paloff_w)
+	AM_RANGE(0x0010, 0x0011) AM_WRITE(port10_w)
+	AM_RANGE(0x0018, 0x0019) AM_READ(blit_start_r)
+	AM_RANGE(0x001e, 0x001f) AM_READ(blit_repeat_r)
+	AM_RANGE(0x0020, 0x0021) AM_WRITE(port20_w)
+	AM_RANGE(0x0034, 0x0035) AM_READWRITE(pic_r, pic_w)
+	AM_RANGE(0x0062, 0x0063) AM_WRITE(port62_w)
 ADDRESS_MAP_END
 
+static MACHINE_START( ttchamp )
+{
+	rom = memory_region(REGION_USER1);
+	memory_set_bankptr(1, mainram);
+	memory_set_bankptr(2, vram[0]);
+	memory_set_bankptr(3, rom + 0x120000);
+	generic_nvram = backram;
+	generic_nvram_size = sizeof(backram);
+	return 0;
+}
 
+static MACHINE_RESET( ttchamp )
+{
+	memset(mainram, 0, sizeof(mainram));
+	memset(vram, 0, sizeof(vram));
+	paloff = paldata = port10 = 0;
+	memory_set_bankptr(2, vram[0]);
+	rombank = spritesinit = spriteswidth = 0;
+	spritesaddr = pair_address = pair_pc = 0;
+	pair_pending = pic_pending = 0;
+	picmode = PIC_IDLE;
+	pic_readaddr = pic_writeaddr = 0;
+	pic_latched = pic_writelatched = 0;
+	pic_data = 0;
+}
 
 INPUT_PORTS_START(ttchamp)
 	PORT_START	/* 8bit */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
-	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x04, IP_ACTIVE_LOW )
 	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -249,120 +367,64 @@ INPUT_PORTS_START(ttchamp)
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START2 )
 
 INPUT_PORTS_END
 
-
-static INTERRUPT_GEN( ttchamp_irq ) /* right? */
+static INTERRUPT_GEN( ttchamp_irq )
 {
 	cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
 }
 
 static MACHINE_DRIVER_START( ttchamp )
-	/* basic machine hardware */
 	MDRV_CPU_ADD(V30, 8000000)
-	MDRV_CPU_PROGRAM_MAP(ttchamp_map, 0)
+	MDRV_CPU_PROGRAM_MAP(ttchamp_map,0)
 	MDRV_CPU_IO_MAP(ttchamp_io,0)
 	MDRV_CPU_VBLANK_INT(ttchamp_irq,1)
-
+	MDRV_MACHINE_START(ttchamp)
+	MDRV_MACHINE_RESET(ttchamp)
+	MDRV_NVRAM_HANDLER(generic_0fill)
 	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-
-	/* video hardware */
+	MDRV_VBLANK_DURATION(0)
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(1024,1024)
-	MDRV_VISIBLE_AREA(0, 320-1, 0, 200-1)
-	MDRV_PALETTE_LENGTH(0x8000)
-
+	MDRV_SCREEN_SIZE(320,204)
+	MDRV_VISIBLE_AREA(0,319,0,199)
+	MDRV_PALETTE_LENGTH(0x400)
 	MDRV_VIDEO_START(ttchamp)
 	MDRV_VIDEO_UPDATE(ttchamp)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(OKIM6295, 1000000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 ROM_START( ttchamp )
-
-	/* hopefully this is a good dump */
-
 	ROM_REGION( 0x200000, REGION_USER1, 0 )
 	ROM_LOAD16_BYTE( "2.bin", 0x000000, 0x080000,  CRC(6a6c6d75) SHA1(3742b82462176d77732a69e142db9e6f61f25dc5) )
 	ROM_LOAD16_BYTE( "3.bin", 0x000001, 0x080000,  CRC(6062c0b2) SHA1(c5f0ac58c847ce2588c805f40180f2586a6477b7) )
 	ROM_LOAD16_BYTE( "4.bin", 0x100000, 0x080000,  CRC(4388dead) SHA1(1965e4b84452b244e32c8d218aace8d287c67ec2) )
 	ROM_LOAD16_BYTE( "5.bin", 0x100001, 0x080000,  CRC(fdbf9b28) SHA1(2d260555586097c8a396f65111f55ace801c7a5d) )
 
-	/* dumps below are bad dumps */
-
-	/* dump a */
-//  ROM_REGION( 0x200000, REGION_USER1, 0 )
-//  ROM_LOAD16_BYTE( "27c040_dump_a.2", 0x000000, 0x080000, BAD_DUMP CRC(791d68c8) SHA1(641c989d50e95ac3ff7c87d148cfab44abbdc774) )
-//  ROM_LOAD16_BYTE( "27c040_dump_a.3", 0x000001, 0x080000, BAD_DUMP CRC(00c81241) SHA1(899d4d1566f5f5d2967b6a8ec7dca60833846bbe) )
-//  ROM_LOAD16_BYTE( "27c040_dump_a.4", 0x100000, 0x080000, BAD_DUMP CRC(11af50f6) SHA1(1e5b6cc5c5a6c1ec302b2de7ce40c9ebfb349b46) )
-//  ROM_LOAD16_BYTE( "27c040_dump_a.5", 0x100001, 0x080000, BAD_DUMP CRC(f6b87231) SHA1(3db461c0858c207e8a3dfd822c99d28e3a26b4ee) )
-
-	/* dump b */
-//  ROM_REGION( 0x200000, REGION_USER2, 0 )
-//  ROM_LOAD16_BYTE( "27c040_dump_b.2", 0x000000, 0x080000, BAD_DUMP CRC(df1f2618) SHA1(7c6abb7a6ec55c49b95809f003d217f1ea758729) )
-//  ROM_LOAD16_BYTE( "27c040_dump_b.3", 0x000001, 0x080000, BAD_DUMP CRC(0292ca69) SHA1(fe3b0e78d9e946d8f8a86e8246e5a94483f44ce1) )
-//  ROM_LOAD16_BYTE( "27c040_dump_b.4", 0x100000, 0x080000, BAD_DUMP CRC(f6bcadc6) SHA1(d8c61c207175d67f4229103696dc2a4447af2ba4) )
-//  ROM_LOAD16_BYTE( "27c040_dump_b.5", 0x100001, 0x080000, BAD_DUMP CRC(b872747c) SHA1(24d2aa2603a71cdfd3d45608177bb60ab7cfe8a2) )
-
-	/* dump c */
-//  ROM_REGION( 0x200000, REGION_USER3, 0 )
-//  ROM_LOAD16_BYTE( "27c040_dump_c.2", 0x000000, 0x080000, BAD_DUMP CRC(be70adc7) SHA1(fe439caa54856c75ef310e456a7e61b15321031d) )
-//  ROM_LOAD16_BYTE( "27c040_dump_c.3", 0x000001, 0x080000, BAD_DUMP CRC(8e3b3396) SHA1(f47243041b9283712e34ea58fa2456c35785c5ee) )
-//  ROM_LOAD16_BYTE( "27c040_dump_c.4", 0x100000, 0x080000, BAD_DUMP CRC(34ab75e9) SHA1(779f03139b336cdc46f4d00bf3fd9e6de79942e2) )
-//  ROM_LOAD16_BYTE( "27c040_dump_c.5", 0x100001, 0x080000, BAD_DUMP CRC(3e7b3533) SHA1(433439c2b8a8e54bb20fc3c1690d3f183c6fa6f6) )
-
-	/* these were the same in each dump..*/
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* not verified if this is correct yet, seems very empty, maybe protected */
-	ROM_LOAD( "pic16c84.rom", 0x000000, 0x4280,  CRC(900f2ef8) SHA1(08f206fe52f413437436e4b0d2b4ec310767446c) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "pic16c84.rom", 0x000000, 0x4280,  BAD_DUMP CRC(900f2ef8) SHA1(08f206fe52f413437436e4b0d2b4ec310767446c) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
 	ROM_LOAD( "27c020.1", 0x000000, 0x040000,  CRC(e2c4fe95) SHA1(da349035cc348db220a1e12b4c2a6021e2168425) )
 ROM_END
 
-/*
-
-Table tennis Championships by Gamart 1995
-
-This game come from Gamart,an obscure spanish software house.
-Hardware info:
-main cpu: V30
-sound chip: oki6295
-custom chip: tpc1020bfn x2
-osc: 16 mhz
-Rom files definition:
-ttennis2/3 main program
-ttennis1 adpcm data
-ttennis4/5 graphics
-*there is a pic16c84 that i cannot dump because my programmer doesn't support it.
-
-Dumped by tirino73 >isolani (at) interfree.it<
-
-*/
-
 ROM_START( ttchampa )
-	/* this is from a different board */
-
 	ROM_REGION( 0x200000, REGION_USER1, 0 )
 	ROM_LOAD16_BYTE( "ttennis2.bin", 0x000000, 0x080000,  CRC(b060e72c) SHA1(376e71bb4b1687fec4b719cbc5a7b25b64d159ac) )
 	ROM_LOAD16_BYTE( "ttennis3.bin", 0x000001, 0x080000,  CRC(33e085a8) SHA1(ea6af05690b4b0803c303a3c858df10e4d907fb1) )
 	ROM_LOAD16_BYTE( "4.bin", 0x100000, 0x080000,  CRC(4388dead) SHA1(1965e4b84452b244e32c8d218aace8d287c67ec2) )
 	ROM_LOAD16_BYTE( "5.bin", 0x100001, 0x080000,  CRC(fdbf9b28) SHA1(2d260555586097c8a396f65111f55ace801c7a5d) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* not verified if this is correct yet, seems very empty, maybe protected */
-	ROM_LOAD( "pic16c84.rom", 0x000000, 0x4280,  CRC(900f2ef8) SHA1(08f206fe52f413437436e4b0d2b4ec310767446c) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "pic16c84.rom", 0x000000, 0x4280, BAD_DUMP CRC(900f2ef8) SHA1(08f206fe52f413437436e4b0d2b4ec310767446c) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
 	ROM_LOAD( "27c020.1", 0x000000, 0x040000,  CRC(e2c4fe95) SHA1(da349035cc348db220a1e12b4c2a6021e2168425) )
 ROM_END
 
-static DRIVER_INIT (ttchamp)
-{
-	unsigned char *ROM1 = memory_region(REGION_USER1);
-	memory_set_bankptr(1,&ROM1[0x120000]);
-	memory_set_bankptr(2,&ROM1[0x180000]);
-}
-
-GAME( 199?, ttchamp, 0,        ttchamp, ttchamp, ttchamp, ROT0,  "Gamart?", "Table Tennis Champions (set 1)", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 199?, ttchampa,ttchamp,  ttchamp, ttchamp, ttchamp, ROT0,  "Gamart?", "Table Tennis Champions (set 2)", GAME_NOT_WORKING|GAME_NO_SOUND )
-
+GAME( 1995, ttchamp, 0, ttchamp, ttchamp, 0, ROT0, "Gamart", "Table Tennis Champions", 0 )
+GAME( 1995, ttchampa, ttchamp, ttchamp, ttchamp, 0, ROT0, "Gamart (Palencia Elektronik license)", "Table Tennis Champions (Palencia Elektronik license)", 0 )
