@@ -7453,7 +7453,7 @@ Other Sun games
 	DRIVER( pipeline )	/* (c) 1990 Daehyun Electronics */
 	DRIVER( ttchamp )
 	DRIVER( ttchampa )
-	DRIVER( cybertnk )	/* (c) 1990 Coreland */
+	DRIVER( cybertnk )	/* (c) 1988 Coreland */
 	DRIVER( pkscram )	/* (c) 1993 Cosmo Electronics Corporation */
 	DRIVER( jollycrd )	/* (c) 1985 TAB-Austria */
 	DRIVER( jolycdcr )	/* (c) 1993 Soft Design */
