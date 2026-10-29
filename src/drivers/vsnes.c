@@ -145,6 +145,7 @@ Changes:
 /* from vidhrdw */
 extern VIDEO_START( vsnes );
 extern PALETTE_INIT( vsnes );
+extern PALETTE_INIT( vsnes_rgb );
 extern VIDEO_UPDATE( vsnes );
 extern VIDEO_START( vsdual );
 extern VIDEO_UPDATE( vsdual );
@@ -315,11 +316,11 @@ ADDRESS_MAP_END
 	PORT_START	/* IN2 */ \
 	PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_UNUSED ) /* serial pin from controller */ \
 	PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
-	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(1) /* service credit? */ \
+	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(3) /* service credit? */ \
 	PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 0 of dsw goes here */ \
 	PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 1 of dsw goes here */ \
-	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(1) \
-	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(1) \
+	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(3) \
+	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(3) \
 	PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
 
 #define VS_CONTROLS_REVERSE( SELECT_IN0, START_IN0, SELECT_IN1, START_IN1 ) \
@@ -346,11 +347,11 @@ ADDRESS_MAP_END
 	PORT_START	/* IN2 */ \
 	PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_UNUSED ) /* serial pin from controller */ \
 	PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
-	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(1) /* service credit? */ \
+	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(3) /* service credit? */ \
 	PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 0 of dsw goes here */ \
 	PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 1 of dsw goes here */ \
-	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(1) \
-	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(1) \
+	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(3) \
+	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(3) \
 	PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
 
 #define VS_ZAPPER \
@@ -377,11 +378,11 @@ PORT_START	/* IN0 */ \
 	PORT_START	/* IN2 */ \
 	PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_UNUSED ) /* serial pin from controller */ \
 	PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
-	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(1) /* service credit? */ \
+	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_IMPULSE(3) /* service credit? */ \
 	PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 0 of dsw goes here */ \
 	PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_UNUSED )	/* bit 1 of dsw goes here */ \
-	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(1) \
-	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(1) \
+	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(3) \
+	PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(3) \
 	PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN ) \
 
 #define VS_DUAL_CONTROLS_L \
@@ -568,33 +569,32 @@ INPUT_PORTS_START( topgun )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( platoon )
-	VS_CONTROLS( IPT_START1, IPT_UNKNOWN, IPT_START2, IPT_UNKNOWN )
+	VS_CONTROLS_REVERSE( IPT_START1, IPT_UNKNOWN, IPT_START2, IPT_UNKNOWN )
 
-	PORT_START /* DSW0 - bit 0 and 1 read from bit 3 and 4 on $4016, rest of the bits read on $4017 */
+	PORT_START
 	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x01, DEF_STR( On ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( On ) )
 	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x02, DEF_STR( On ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( On ) )
 	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(	0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0xE0, 0x00, DEF_STR( Coinage ) )
-	PORT_DIPSETTING(	0xc0, DEF_STR( 5C_1C ) )
-	PORT_DIPSETTING(	0xa0, DEF_STR( 4C_1C ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( 3C_1C ) )
-	PORT_DIPSETTING(	0x60, DEF_STR( 2C_1C ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( 1C_1C ) )
-	PORT_DIPSETTING(	0x20, DEF_STR( 1C_2C ) )
-	PORT_DIPSETTING(	0x40, DEF_STR( 1C_3C ) )
-	PORT_DIPSETTING(	0xe0, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x18, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0xe0, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( Free_Play ) )
 INPUT_PORTS_END
 
 /*
@@ -1898,30 +1898,20 @@ INPUT_PORTS_END
 INPUT_PORTS_START( tkoboxng )
 	VS_CONTROLS( IPT_START1, IPT_UNKNOWN, IPT_START2, IPT_UNKNOWN )
 
-	PORT_START /* DSW0 - bit 0 and 1 read from bit 3 and 4 on $4016, rest of the bits read on $4017 */
+	PORT_START
 	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coinage ) )
-	PORT_DIPSETTING(	0x03, DEF_STR( 3C_1C ) )
-	PORT_DIPSETTING(	0x02, DEF_STR( 2C_1C ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( 1C_1C ) )
-	PORT_DIPSETTING(	0x01, DEF_STR( 1C_2C ) )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x04, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "Palette Color" )
-	PORT_DIPSETTING(	0x00, "Black" )
-	PORT_DIPSETTING(	0x20, "White" )
-	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( On ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x0c, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( Very_Hard ) )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_DIPNAME( 0xe0, 0x00, "PPU Type" )
+	PORT_DIPSETTING(    0x00, "RP2C04-0003" )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( bnglngby )
@@ -2114,6 +2104,11 @@ static MACHINE_DRIVER_START( vsnes )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
+
+static MACHINE_DRIVER_START( vsnes_rgb )
+	MDRV_IMPORT_FROM(vsnes)
+	MDRV_PALETTE_INIT(vsnes_rgb)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( vsdual )
 
@@ -2492,6 +2487,8 @@ ROM_START( tkoboxng )
 
 	ROM_REGION( 0x10000,REGION_GFX1, 0 ) /* PPU memory */
 	ROM_LOAD( "tkochr.bin",  0x0000, 0x10000, CRC(21275ba5) SHA1(160131586aeeca848deabff258a2ce5f62b17c5f) )
+	ROM_REGION( 0xc0, REGION_PROMS, 0 )
+	ROM_LOAD( "rp2c04-0003.pal", 0, 0xc0, CRC(fd6c578b) SHA1(653182ce0cbaff66a8fc5788e32cc088b6735f2e) )
 ROM_END
 
 ROM_START( rbibb )
@@ -2518,12 +2515,14 @@ ROM_START( vsskykid )
 	ROM_LOAD( "sk-cha",  0x0000, 0x8000, CRC(9bd44dad) SHA1(bf33d175b6ab991d63a0acaf83ba22d5b7ab11b9) )
 ROM_END
 
-ROM_START( platoon )
+ROM_START( nvs_platoon )
 	ROM_REGION( 0x30000,REGION_CPU1, 0 ) /* 6502 memory */
 	ROM_LOAD( "prgver0.ic4",  0x10000, 0x20000, CRC(e2c0a2be) SHA1(1f8e33d6da8402be6a376668a424bfde38471021) )
 
 	ROM_REGION( 0x20000,REGION_GFX1, 0 ) /* PPU memory */
 	ROM_LOAD( "chrver0.ic6",  0x00000, 0x20000, CRC(689df57d) SHA1(854aaa9feb16e3f239fba6069fbf65e69858fe73) )
+	ROM_REGION( 0xc0, REGION_PROMS, 0 )
+	ROM_LOAD( "rp2c04-0001.pal", 0, 0xc0, CRC(a6293faa) SHA1(190a410a3d818e124b2b9d2ef9fb3da003bb5d4c) )
 ROM_END
 
 ROM_START( bnglngby )
@@ -2787,11 +2786,9 @@ GAME( 1985, starlstr, 0,        vsnes,   starlstr, vsnormal, ROT0, "Namco",     
 GAME( 1987,	cstlevna, 0,        vsnes,   cstlevna, cstlevna, ROT0, "Konami",    "Vs. Castlevania", 0 )
 GAME( 1984, cluclu,   0,        vsnes,   cluclu,   suprmrio, ROT0, "Nintendo",  "Vs. Clu Clu Land", 0 )
 GAME( 1990,	drmario,  0,        vsnes,   drmario,  drmario,  ROT0, "Nintendo",  "Vs. Dr. Mario", 0 )
-GAME( 1985, duckhunt, 0,        vsnes,   duckhunt, duckhunt, ROT0, "Nintendo",  "Vs. Duck Hunt", 0 )
 GAME( 1984, excitebk, 0,        vsnes,   excitebk, excitebk, ROT0, "Nintendo",  "Vs. Excitebike", 0 )
 GAME( 1984, excitbkj, excitebk, vsnes,   excitebk, excitbkj, ROT0, "Nintendo",  "Vs. Excitebike (Japan)", 0 )
 GAME( 1986,	goonies,  0,        vsnes,   goonies,  goonies,  ROT0, "Konami",    "Vs. The Goonies", 0 )
-GAME( 1985, hogalley, 0,        vsnes,   hogalley, hogalley, ROT0, "Nintendo",  "Vs. Hogan's Alley", 0 )
 GAME( 1984, iceclimb, 0,        vsnes,   iceclimb, suprmrio, ROT0, "Nintendo",  "Vs. Ice Climber", 0 )
 GAME( 1984, iceclmbj, iceclimb, vsnes,   iceclmbj, suprmrio, ROT0, "Nintendo",  "Vs. Ice Climber (Japan)", 0 )
 GAME( 1985, machridr, 0,        vsnes,   machridr, machridr, ROT0, "Nintendo",  "Vs. Mach Rider (Endurance Course Version)", GAME_IMPERFECT_GRAPHICS )
@@ -2800,8 +2797,9 @@ GAME( 1986, rbibb,    0,        vsnes,   rbibb,    rbibb,    ROT0, "Namco",     
 GAME( 1986, rbibba,	  rbibb,    vsnes,   rbibb,    rbibb,    ROT0, "Namco",     "Vs. Atari R.B.I. Baseball (set 2)", 0 )
 GAME( 1986, suprmrio, 0,        vsnes,   suprmrio, suprmrio, ROT0, "Nintendo",  "Vs. Super Mario Bros.", 0 )
 GAME( 1985, vsskykid, 0,        vsnes,   vsskykid, MMC3,	 ROT0, "Namco",     "Vs. Super SkyKid" , 0 )
-GAME( 1987, tkoboxng, 0,        vsnes,   tkoboxng, tkoboxng, ROT0, "Namco LTD.","Vs. TKO Boxing", GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
+GAME( 1987, tkoboxng, 0, vsnes_rgb, tkoboxng, tkoboxng, ROT0, "Namco / Data East USA", "Vs. T.K.O. Boxing", GAME_IMPERFECT_GRAPHICS )
 GAME( 1984, smgolf,   0,        vsnes,   golf4s,   machridr, ROT0, "Nintendo",  "Vs. Stroke & Match Golf (Men Version)", 0 )
+GAME( 1985, smgolfb,  smgolf,   vsnes,   golf,     machridr, ROT0, "Nintendo",	"Vs. Stroke & Match Golf (Men set 2)", GAME_NOT_WORKING )
 GAME( 1984, smgolfj,  smgolf,   vsnes,   golf,     vsnormal, ROT0, "Nintendo",  "Vs. Stroke & Match Golf (Men Version) (Japan)", 0 )
 GAME( 1984, ladygolf, smgolf,   vsnes,   golf,     machridr, ROT0, "Nintendo",  "Vs. Stroke & Match Golf (Ladies Version)", 0 )
 GAME( 1984, vspinbal, 0,        vsnes,   vspinbal, vspinbal, ROT0, "Nintendo",  "Vs. Pinball", 0 )
@@ -2809,17 +2807,17 @@ GAME( 1984, vspinblj, vspinbal, vsnes,   vspinblj, vsnormal, ROT0, "Nintendo",  
 GAME( 1986, vsslalom, 0,        vsnes,   vsslalom, vsslalom, ROT0, "Rare LTD.", "Vs. Slalom", GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, vssoccer, 0,        vsnes,   vssoccer, excitebk, ROT0, "Nintendo",  "Vs. Soccer", 0 )
 GAME( 1986, vsgradus, 0,        vsnes,   vsgradus, vsgradus, ROT0, "Konami",    "Vs. Gradius", 0 )
-GAME( 1987, platoon,  0,        vsnes,   platoon,  platoon,  ROT0, "Ocean Software Limited", "Vs. Platoon", GAME_WRONG_COLORS )
+GAME( 1987, nvs_platoon, 0, vsnes_rgb, platoon, platoon, ROT0, "Ocean Software Limited", "Vs. Platoon", 0 )
 GAME( 1987, vstetris, 0,        vsnes,   vstetris, vstetris, ROT0, "Academysoft-Elory", "Vs. Tetris" , GAME_IMPERFECT_COLORS )
 GAME( 1986, mightybj, 0,        vsnes,   mightybj, mightybj, ROT0, "Tecmo",     "Vs. Mighty Bomb Jack (Japan)", 0 )
 GAME( 1985, jajamaru, 0,        vsnes,   jajamaru, jajamaru, ROT0, "Jaleco",    "Vs. Ninja Jajamaru Kun (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1987, topgun,   0,        vsnes,   topgun,   topgun,   ROT0, "Konami",    "Vs. Top Gun", 0)
 GAME( 1985, bnglngby, 0,        vsnes,   bnglngby, bnglngby, ROT0, "Nintendo / Broderbund Software Inc.",  "Vs. Raid on Bungeling Bay (Japan)", 0 )
 GAME( 1986, supxevs,  0,        vsnes,   supxevs,  supxevs,  ROT0, "Namco",		"Vs. Super Xevious", 0 )
-GAME( 1988, vsfdf,    0,        vsnes,   vsfdf,    vsfdf,	 ROT0, "Sunsoft",	"Vs. Freedom Force", 0 )
+GAME( 1985, duckhunt, 0,        vsnes,   duckhunt, duckhunt, ROT0, "Nintendo",  "Vs. Duck Hunt", 0 )
+GAME( 1985, hogalley, 0,        vsnes,   hogalley, hogalley, ROT0, "Nintendo",  "Vs. Hogan's Alley", 0 )
 GAME( 1986, vsgshoe,  0,        vsnes,   vsgshoe,  vsgshoe,  ROT0, "Nintendo",  "Vs. Gumshoe", 0 )
-
-/* Dual games */
+GAME( 1988, vsfdf,    0,        vsnes,   vsfdf,    vsfdf,	 ROT0, "Sunsoft",	"Vs. Freedom Force", 0 )
 GAME( 1984, vstennis, 0,        vsdual,  vstennis, vstennis, ROT0, "Nintendo",  "Vs. Tennis" , 0 )
 GAME( 1984, vstennij, vstennis, vsdual,  vstennis, vstennis, ROT0, "Nintendo",  "Vs. Tennis (Japan)" , 0 )
 GAME( 1984, wrecking, 0,        vsdual,  wrecking, wrecking, ROT0, "Nintendo",  "Vs. Wrecking Crew", 0 )
@@ -2828,8 +2826,5 @@ GAME( 1984, vsmahjng, 0,        vsdual,  vsmahjng, vstennis, ROT0, "Nintendo",  
 GAME( 1984, vsbball,  0,        vsdual,  vsbball,  vsbball,  ROT0, "Nintendo of America",  "Vs. BaseBall", 0 )
 GAME( 1984, vsbballj, vsbball,  vsdual,  vsbballj, vsbball,  ROT0, "Nintendo of America",  "Vs. BaseBall (Japan set 1)", 0 )
 GAME( 1984, vsbbalja, vsbball,  vsdual,  vsbballj, vsbball,  ROT0, "Nintendo of America",  "Vs. BaseBall (Japan set 2)", 0 )
-GAME( 1984, iceclmrj, 0,        vsdual,  iceclmrj, iceclmrj, ROT0, "Nintendo",  "Vs. Ice Climber Dual (Japan)" , 0 )
-
-/* Not Working (bad dumps) */
-GAME( 1985, smgolfb,  smgolf,   vsnes,   golf,     machridr, ROT0, "Nintendo",	"Vs. Stroke & Match Golf (Men set 2)", GAME_NOT_WORKING )
 GAME( 1984, vsbbaljb, vsbball,  vsdual,  vsbballj, vsbball,  ROT0, "Nintendo of America",  "Vs. BaseBall (Japan set 3)", GAME_NOT_WORKING )
+GAME( 1984, iceclmrj, 0,        vsdual,  iceclmrj, iceclmrj, ROT0, "Nintendo",  "Vs. Ice Climber Dual (Japan)" , 0 )

@@ -12,6 +12,21 @@ PALETTE_INIT( vsnes )
 	ppu2c03b_init_palette( 0 );
 }
 
+PALETTE_INIT( vsnes_rgb )
+{
+	const UINT8 *rgb = memory_region(REGION_PROMS);
+	int i;
+	for (i = 0; i < 64; i++)
+	{
+		int r = rgb[i * 3];
+		int g = rgb[i * 3 + 1];
+		int b = rgb[i * 3 + 2];
+		palette_set_color(i, (r << 5) | (r << 2) | (r >> 1),
+			(g << 5) | (g << 2) | (g >> 1),
+			(b << 5) | (b << 2) | (b >> 1));
+	}
+}
+
 PALETTE_INIT( vsdual )
 {
 	ppu2c03b_init_palette( 0 );

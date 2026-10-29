@@ -1029,7 +1029,7 @@ const game_driver * const drivers[] =
 	DRIVER( vsslalom )	/* (c) 1986 Nintendo */
 	DRIVER( vssoccer )	/* (c) 1985 Nintendo */
 	DRIVER( vsgradus )	/* (c) 1986 Konami */
-	DRIVER( platoon )	/* (c) 1987 Ocean */
+	DRIVER( nvs_platoon )	/* (c) 1987 Ocean */
 	DRIVER( vstetris )	/* (c) 1988 Atari */
 	DRIVER( mightybj )	/* (c) 1986 Tecmo */
 	DRIVER( jajamaru )	/* (c) 1985 Jaleco */
