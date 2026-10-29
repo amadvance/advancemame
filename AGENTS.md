@@ -235,7 +235,7 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 - **Coding Style**: Preserve the coding style and indentation of the file being modified. Use tabs for indentation in new files, except for backported files, which must preserve the indentation of the original source file. Avoid reformatting unrelated code.
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change. Do not use subsystem prefixes such as "psx spu: ..."; write a concise description starting directly with an imperative verb (e.g. "Fix ...", "Add ...", "Deactivate ...").
-- **Git Commits**: Never commit changes to git.
+- **Git Commits**: Do not commit changes to Git unless you are explicitly requested to commit a specific change.
 - **License and Copyright Headers**: All source files (C, C++, and header files under `src/`) must include the two initial header lines indicating the license and copyright holders:
   ```c
   // license:<license-id>
