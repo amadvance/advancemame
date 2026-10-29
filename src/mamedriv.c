@@ -135,6 +135,7 @@ const game_driver * const drivers[] =
 	DRIVER( theglob3 )	/* (c) 1983 */
 	DRIVER( igmo )		/* (c) 1984 */
 	DRIVER( dealer )	/* (c) 198? */
+	DRIVER( revngr84 )
 	DRIVER( revenger )	/* (c) 1984 */
 
 	/* "Galaxian hardware" games */
