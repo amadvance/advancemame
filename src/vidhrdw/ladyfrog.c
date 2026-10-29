@@ -9,6 +9,7 @@
 ***************************************************************************/
 #include "driver.h"
 static int tilebank=0;
+static int sprite_tilebase, sprite_ybase;
 
 static tilemap *bg_tilemap;
 static int palette_bank,gfxctrl;
@@ -105,10 +106,10 @@ void ladyfrog_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 		int offs = (pr & 0x1f) * 4;
 		{
 			int code,sx,sy,flipx,flipy,pal;
-			code = ladyfrog_spriteram[offs+2] + ((ladyfrog_spriteram[offs+1] & 0x10) << 4)+0x800;
+			code = ladyfrog_spriteram[offs+2] + ((ladyfrog_spriteram[offs+1] & 0x10) << 4)+sprite_tilebase;
 			pal=ladyfrog_spriteram[offs+1] & 0x0f;
 			sx = ladyfrog_spriteram[offs+3];
-			sy = 240-ladyfrog_spriteram[offs+0];
+			sy = sprite_ybase-ladyfrog_spriteram[offs+0];
 			flipx = ((ladyfrog_spriteram[offs+1]&0x40)>>6);
 			flipy = ((ladyfrog_spriteram[offs+1]&0x80)>>7);
 			drawgfx(bitmap,Machine->gfx[1],
@@ -135,6 +136,8 @@ void ladyfrog_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 
 VIDEO_START( ladyfrog )
 {
+  sprite_tilebase=0x800;
+  sprite_ybase=240;
   ladyfrog_spriteram = auto_malloc (160);
   bg_tilemap = tilemap_create( get_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,32,32 );
 
@@ -146,6 +149,14 @@ VIDEO_START( ladyfrog )
 
 }
 
+
+VIDEO_START( toucheme )
+{
+	int result=video_start_ladyfrog();
+	sprite_tilebase=0;
+	sprite_ybase=238;
+	return result;
+}
 
 VIDEO_UPDATE( ladyfrog )
 {
