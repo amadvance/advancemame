@@ -1444,6 +1444,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/dambustr.o \
 	$(OBJ)/drivers/dcheese.o $(OBJ)/vidhrdw/dcheese.o \
 	$(OBJ)/drivers/dgpix.o \
+	$(OBJ)/machine/ks0164.o \
 	$(OBJ)/drivers/dorachan.o $(OBJ)/vidhrdw/dorachan.o \
 	$(OBJ)/drivers/dreamwld.o \
 	$(OBJ)/drivers/dribling.o $(OBJ)/vidhrdw/dribling.o \

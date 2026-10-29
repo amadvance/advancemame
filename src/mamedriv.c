@@ -7376,7 +7376,9 @@ Other Sun games
 	DRIVER( fort2ba )	/* (c) 2001 Eolith */
 	DRIVER( klondkp )	/* (c) 1999 Eolith */
 	DRIVER( xfiles )	/* (c) 1999 dgPIX Entertainment Inc */
+	DRIVER( jumpjump )
 	DRIVER( kdynastg )	/* (c) 1999 EZ Graphics */
+	DRIVER( fmaniac2p )
 	DRIVER( fmaniac3 )	/* (c) 2002 Saero Entertainment */
 	DRIVER( promutrv )	/* (c) 1985 Enerdyne Technologies Inc */
 	DRIVER( promutra )	/* (c) 1985 Enerdyne Technologies Inc */

@@ -6,8 +6,10 @@
 
  Games Supported:
  ---------------------------------------------------------------------------
+ - Jump Jump                           (c) 1999 dgPIX Entertainment Inc.
  - X-Files                             (c) 1999 dgPIX Entertainment Inc.
  - King of Dynast Gear (version 1.8)   (c) 1999 EZ Graphics [*]
+ - Fishing Maniac 2+                   (c) 2000 Saero Entertainment
  - Fishing Maniac 3                    (c) 2002 Saero Entertainment
 
  [*] the version number is written at the beginning of the game settings
@@ -47,6 +49,8 @@
 *********************************************************************/
 
 #include "driver.h"
+#include "sound/custom.h"
+#include "machine/ks0164.h"
 
 static UINT32 *vram;
 static int vbuffer = 0;
@@ -213,9 +217,8 @@ static ADDRESS_MAP_START( io_map, ADDRESS_SPACE_IO, 32 )
 	AM_RANGE(0x0a10, 0x0a13) AM_READ(input_port_1_dword_r)
 	AM_RANGE(0x0200, 0x0203) AM_WRITE(coin_w)
 	AM_RANGE(0x0c00, 0x0c03) AM_WRITENOP // writes only: 1, 0, 1 at startup
-	AM_RANGE(0x0c80, 0x0c83) AM_WRITENOP // sound commands / latches
-	AM_RANGE(0x0c80, 0x0c83) AM_READNOP //read at startup -> cmp 0xFE
-	AM_RANGE(0x0c84, 0x0c87) AM_READNOP // sound status, checks bit 0x40 and 0x80
+	AM_RANGE(0x0c80, 0x0c83) AM_READWRITE(ks0164_data_r, ks0164_data_w)
+	AM_RANGE(0x0c84, 0x0c87) AM_READWRITE(ks0164_status_r, ks0164_ctrl_w)
 ADDRESS_MAP_END
 
 
@@ -305,10 +308,6 @@ static MACHINE_DRIVER_START( dgpix )
 	MDRV_CPU_PROGRAM_MAP(cpu_map,0)
 	MDRV_CPU_IO_MAP(io_map,0)
 
-/*
-    unknown 16bit sound cpu, embedded inside the KS0164 sound chip
-    running at 16.9MHz
-*/
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
@@ -325,7 +324,11 @@ static MACHINE_DRIVER_START( dgpix )
 	MDRV_VIDEO_UPDATE(dgpix)
 
 	/* sound hardware */
-	// KS0164 sound chip
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(CUSTOM, 16934400)
+	MDRV_SOUND_CONFIG(ks0164_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
 /*
@@ -381,6 +384,22 @@ T2316162         : Main program RAM (SOJ44)
 SEC KM6161002    : Graphics RAM (SOJ44)
 
 */
+
+ROM_START( jumpjump )
+	ROM_REGION32_BE( 0x2000000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_LOAD16_WORD_SWAP("jumpjump.u8",0x1800000,0x400000,CRC(210dfd8b) SHA1(a1aee4ec8c01832e77d2e4e334a62c246d7e3635))
+	ROM_LOAD16_WORD_SWAP("jumpjump.u9",0x1c00000,0x400000,CRC(16d1e352) SHA1(3c43974fb8d90b0c84472dd9f2167eb983142095))
+	ROM_REGION( 0x400000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP("jumpjump.u10",0,0x400000,CRC(2152ecce) SHA1(522d389952a07fa0830ca8aaa6de3aacf834e32e))
+ROM_END
+
+ROM_START( fmaniac2p )
+	ROM_REGION32_BE( 0x2000000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_LOAD16_WORD_SWAP("flash.u8",0x1800000,0x400000,CRC(acc7da30) SHA1(8c4ffbf646777104a0e108c9d1b49446c12adddc))
+	ROM_LOAD16_WORD_SWAP("flash.u9",0x1c00000,0x400000,CRC(b7f7079d) SHA1(2c97d106a8a28e6fa2a18fb324412533e24f46cc))
+	ROM_REGION( 0x400000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD_SWAP("flash.u10",0,0x400000,CRC(9a4b15fa) SHA1(64a7c6eff049b15a005a9f2d87b340c81c2ee69c))
+ROM_END
 
 ROM_START( xfiles )
 	ROM_REGION32_BE( 0x2000000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code & Data */
@@ -576,11 +595,22 @@ static DRIVER_INIT( kdynastg )
 	flash_roms = 4;
 }
 
+static DRIVER_INIT( jumpjump )
+{
+	UINT8 *rom = memory_region(REGION_USER1) + 0x1c00000;
+	int i;
+	for (i = 0; i < 6; i++)
+		rom[BYTE4_XOR_BE(0x3a829a + i)] = (i & 1) ? 0 : 3;
+	flash_roms = 2;
+}
+
 static DRIVER_INIT( fmaniac3 )
 {
 	flash_roms = 2;
 }
 
-GAME( 1999, xfiles,   0, dgpix, dgpix, xfiles,   ROT0, "dgPIX Entertainment Inc.", "X-Files",                           GAME_NO_SOUND )
-GAME( 1999, kdynastg, 0, dgpix, dgpix, kdynastg, ROT0, "EZ Graphics",              "King of Dynast Gear (version 1.8)", GAME_NO_SOUND )
-GAME( 2002, fmaniac3, 0, dgpix, dgpix, fmaniac3, ROT0, "Saero Entertainment",      "Fishing Maniac 3",                  GAME_NO_SOUND )
+GAME( 1999, jumpjump, 0, dgpix, dgpix, jumpjump, ROT0, "dgPIX Entertainment Inc.", "Jump Jump", GAME_IMPERFECT_SOUND )
+GAME( 1999, xfiles,   0, dgpix, dgpix, xfiles,   ROT0, "dgPIX Entertainment Inc.", "X-Files",                           GAME_IMPERFECT_SOUND )
+GAME( 1999, kdynastg, 0, dgpix, dgpix, kdynastg, ROT0, "EZ Graphics",              "King of Dynast Gear (version 1.8)", GAME_IMPERFECT_SOUND )
+GAME( 2000, fmaniac2p, 0, dgpix, dgpix, fmaniac3, ROT0, "Saero Entertainment", "Fishing Maniac 2+", GAME_IMPERFECT_SOUND )
+GAME( 2002, fmaniac3, 0, dgpix, dgpix, fmaniac3, ROT0, "Saero Entertainment",      "Fishing Maniac 3",                  GAME_IMPERFECT_SOUND )
