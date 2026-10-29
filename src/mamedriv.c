@@ -1080,6 +1080,7 @@ const game_driver * const drivers[] =
 	DRIVER( rushbets )      /* bootleg */
 	DRIVER( tmntmwb )       /* bootleg */
 	DRIVER( venom )         /* bootleg */
+	DRIVER( piratdwb )
 	DRIVER( wldgunsb )      /* bootleg */
 
 	/* Midway 8080 b/w games */
