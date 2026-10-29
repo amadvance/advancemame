@@ -201,6 +201,7 @@ enum
 #endif /* MESS */
     CPU_SH3BE,
     CPU_IGS036,
+	CPU_TMS32015,
     CPU_COUNT
 };
 

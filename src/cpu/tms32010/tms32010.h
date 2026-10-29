@@ -60,6 +60,7 @@ enum {
  */
 
 void tms32010_get_info(UINT32 state, union cpuinfo *info);
+void tms32015_get_info(UINT32 state, union cpuinfo *info);
 
 
 

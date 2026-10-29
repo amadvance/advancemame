@@ -11,9 +11,7 @@
 
     The main cpu is a 34010; it is encrypted in 9 Ball Shootout.
 
-    The second CPU in AmeriDarts is a 32015, whose built-in ROM hasn't
-    been read. A simulation of the I/O behavior is included, but since the
-    second CPU controls sound, there is no sound.
+    The second CPU in AmeriDarts is a TMS32015; it controls sound and inputs.
 
     The second CPU in Cool Pool and 9 Ball Shootout is a 320C26; the code
     is the same in the two games.
@@ -30,6 +28,7 @@
 #include "cpu/tms34010/tms34010.h"
 #include "cpu/tms34010/34010ops.h"
 #include "cpu/tms32025/tms32025.h"
+#include "cpu/tms32010/tms32010.h"
 #include "vidhrdw/tlc34076.h"
 #include "sound/dac.h"
 
@@ -51,7 +50,8 @@ static UINT8 cmd_pending;
 static UINT16 iop_cmd;
 static UINT16 iop_answer;
 static int iop_romaddr;
-static UINT8 amerdart_iop_echo;
+static UINT8 amerdart_oldx[2], amerdart_oldy[2];
+static UINT16 amerdart_lastresult;
 
 static const UINT16 nvram_unlock_seq[] =
 {
@@ -261,6 +261,11 @@ static WRITE16_HANDLER( coolpool_34010_io_register_w )
 static MACHINE_RESET( amerdart )
 {
 	nvram_write_enable = 0;
+	cmd_pending = 0;
+	iop_cmd = iop_answer = iop_romaddr = 0;
+	memset(amerdart_oldx, 0, sizeof(amerdart_oldx));
+	memset(amerdart_oldy, 0, sizeof(amerdart_oldy));
+	amerdart_lastresult = 0xffff;
 	nvram_write_timer = timer_alloc(nvram_write_timeout);
 }
 
@@ -323,79 +328,51 @@ static WRITE16_HANDLER( nvram_thrash_data_w )
 
 /*************************************
  *
- *  AmeriDarts fake IOP handling
+ *  Ameri Darts IOP handling
  *
  *************************************/
 
 static WRITE16_HANDLER( amerdart_misc_w )
 {
-	logerror("%08x:IOP_reset_w %04x\n",activecpu_get_pc(),data);
-
 	coin_counter_w(0, ~data & 0x0001);
 	coin_counter_w(1, ~data & 0x0002);
-
 	cpunum_set_input_line(1, INPUT_LINE_RESET, (data & 0x0400) ? ASSERT_LINE : CLEAR_LINE);
-
-	/* bits 10-15 are counted down over time */
-	if (data & 0x0400) amerdart_iop_echo = 1;
 }
-
-
-static void amerdart_iop_response(int param)
-{
-	/* echo values until we get 0x19 */
-	iop_answer = iop_cmd;
-	if (amerdart_iop_echo && iop_cmd != 0x19)
-	{
-		cpunum_set_input_line(0, 1, ASSERT_LINE);
-		return;
-	}
-	amerdart_iop_echo = 0;
-
-	/* rest is based off the command */
-	switch (iop_cmd)
-	{
-		default:
-			logerror("Unknown IOP command %04X\n", iop_cmd);
-
-		case 0x000:
-		case 0x019:
-		case 0x600:
-		case 0x60f:
-		case 0x6f0:
-		case 0x6ff:
-			iop_answer = 0x6c00;
-			break;
-
-		case 0x100:
-			iop_answer = (INT8)(-readinputportbytag("YAXIS2") - readinputportbytag("XAXIS2")) << 6;
-			break;
-		case 0x101:
-			iop_answer = (INT8)(-readinputportbytag("YAXIS2") + readinputportbytag("XAXIS2")) << 6;
-			break;
-		case 0x102:
-			iop_answer = (INT8)(-readinputportbytag("YAXIS1") - readinputportbytag("XAXIS1")) << 6;
-			break;
-		case 0x103:
-			iop_answer = (INT8)(-readinputportbytag("YAXIS1") + readinputportbytag("XAXIS1")) << 6;
-			break;
-
-		case 0x500:
-			iop_answer = readinputport(0);
-			break;
-	}
-
-	cpunum_set_input_line(0, 1, ASSERT_LINE);
-}
-
 
 static WRITE16_HANDLER( amerdart_iop_w )
 {
-	logerror("%08x:IOP write %04x\n", activecpu_get_pc(), data);
 	COMBINE_DATA(&iop_cmd);
-	timer_set(TIME_IN_USEC(100), 0, amerdart_iop_response);
+	cmd_pending = 1;
+	cpu_boost_interleave(0, TIME_IN_USEC(50));
 }
 
+static READ16_HANDLER( amerdart_trackball_r )
+{
+	int player;
+	UINT16 result = amerdart_lastresult | 0x00ff;
+	for (player = 0; player < 2; player++)
+	{
+		UINT8 x = readinputportbytag(player ? "XAXIS2" : "XAXIS1");
+		UINT8 y = readinputportbytag(player ? "YAXIS2" : "YAXIS1");
+		int dx = (INT8)(x - amerdart_oldx[player]);
+		int dy = (INT8)(y - amerdart_oldy[player]);
+		int shift = 8 + player * 4;
+		int nibble = (result >> shift) & 15;
+		int sx = (nibble >> 2) & 3, sy = nibble & 3;
+		int step_x = 0, step_y = 0;
+		if (dx < 0) { amerdart_oldx[player]--; step_x = 1; step_y = -1; }
+		if (dx > 0) { amerdart_oldx[player]++; step_x = -1; step_y = 1; }
+		if (dy < 0) { amerdart_oldy[player]--; step_x++; step_y++; }
+		if (dy > 0) { amerdart_oldy[player]++; step_x--; step_y--; }
+		if (step_x > 0) sx ^= (sx == 0 || sx == 3) ? 3 : 1;
+		if (step_x < 0) sx ^= (sx == 0 || sx == 3) ? 1 : 3;
+		if (step_y > 0) sy ^= (sy == 0 || sy == 3) ? 3 : 1;
+		if (step_y < 0) sy ^= (sy == 0 || sy == 3) ? 1 : 3;
+		result = (result & ~(15 << shift)) | (((sx << 2) | sy) << shift);
+	}
+	amerdart_lastresult = result;
+	return result;
+}
 
 
 /*************************************
@@ -641,8 +618,19 @@ ADDRESS_MAP_END
  *************************************/
 
 static ADDRESS_MAP_START( amerdart_dsp_map, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x0000, 0x011f) AM_RAM
-	AM_RANGE(0x8000, 0xffff) AM_ROM
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( amerdart_dsp_io_map, ADDRESS_SPACE_IO, 16 )
+	AM_RANGE(0x00, 0x01) AM_WRITE(dsp_romaddr_w)
+	AM_RANGE(0x02, 0x02) AM_WRITE(dsp_answer_w)
+	AM_RANGE(0x03, 0x03) AM_WRITE(dsp_dac_w)
+	AM_RANGE(0x04, 0x04) AM_READ(dsp_rom_r)
+	AM_RANGE(0x05, 0x05) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x06, 0x06) AM_READ(amerdart_trackball_r)
+	AM_RANGE(0x07, 0x07) AM_READ(dsp_cmd_r)
+	AM_RANGE(TMS32010_BIO, TMS32010_BIO) AM_READ(dsp_bio_line_r)
 ADDRESS_MAP_END
 
 
@@ -673,27 +661,27 @@ ADDRESS_MAP_END
 
 INPUT_PORTS_START( amerdart )
 	PORT_START_TAG("IN1")
-	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_BUTTON1 )	PORT_PLAYER(1)
-	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_COIN1 )
-	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_HIGH )
-	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_COIN2 )
-	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_SERVICE1 )
-	PORT_BIT( 0xff00, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON1 )	PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_LOW )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 	PORT_START_TAG("XAXIS1")
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_RESET PORT_PLAYER(1)
+	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(15) PORT_PLAYER(1)
 
 	PORT_START_TAG("YAXIS1")
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_RESET PORT_PLAYER(1)
+	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(15) PORT_PLAYER(1)
 
 	PORT_START_TAG("XAXIS2")
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_RESET PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(15) PORT_PLAYER(2)
 
 	PORT_START_TAG("YAXIS2")
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_RESET PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(15) PORT_PLAYER(2)
 INPUT_PORTS_END
 
 
@@ -790,9 +778,10 @@ MACHINE_DRIVER_START( amerdart )
 	MDRV_CPU_CONFIG(tms_config)
 	MDRV_CPU_PROGRAM_MAP(amerdart_map,0)
 
-	MDRV_CPU_ADD(TMS32010, 15000000/8)
-	MDRV_CPU_FLAGS(CPU_DISABLE)
+	MDRV_CPU_ADD(TMS32015, 20000000/TMS32010_CLOCK_DIVIDER)
 	MDRV_CPU_PROGRAM_MAP(amerdart_dsp_map,0)
+	MDRV_CPU_IO_MAP(amerdart_dsp_io_map,0)
+	MDRV_CPU_PERIODIC_INT(irq0_line_pulse, TIME_IN_HZ(14400))
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
@@ -875,26 +864,25 @@ ROM_START( amerdart )
 	ROM_LOAD16_BYTE( "u57",  0x080001, 0x10000, CRC(f620f935) SHA1(bf891fce1f04f3ad5b8b72d43d041ceacb0b65bc) )
 	ROM_LOAD16_BYTE( "u58",  0x080000, 0x10000, CRC(f1b3d7c4) SHA1(7b897230d110be7a5eb05eda927d00561ebb9ce3) )
 
-	ROM_REGION( 0x18000, REGION_CPU2, 0 )	/* 32015 code (missing) */
-	ROM_LOAD16_BYTE( "dspl",         0x00000, 0x08000, NO_DUMP )
-	ROM_LOAD16_BYTE( "dsph",         0x00001, 0x08000, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD( "tms320e15.bin", 0x0000, 0x2000, CRC(375db4ea) SHA1(11689c89ce62f44f43cb8973b4ec6e6b0024ed14) )
 
-	ROM_REGION( 0x100000, REGION_USER2, 0 )				/* 32015 data? (incl. samples?) */
+	ROM_REGION( 0x100000, REGION_USER2, 0 )				/* 32015 audio sample data */
 	ROM_LOAD16_WORD( "u1",   0x000000, 0x10000, CRC(3f459482) SHA1(d9d489efd0d9217fceb3bf1a3b37a78d6823b4d9) )
-	ROM_LOAD16_WORD( "u2",   0x010000, 0x10000, CRC(a587fffd) SHA1(f33f511d1bf1d6eb3c42535593a9718571174c4b) )
-	ROM_LOAD16_WORD( "u3",   0x020000, 0x10000, CRC(984d343a) SHA1(ee214830de4cb22d2d8e9d3ca335eff05af4abb6) )
-	ROM_LOAD16_WORD( "u4",   0x030000, 0x10000, CRC(c4765ff6) SHA1(7dca61d32300047ca1c089057e617553d60a0995) )
-	ROM_LOAD16_WORD( "u5",   0x040000, 0x10000, CRC(3b63b890) SHA1(a1223cb8884d5365af7d3f607657efff877f8845) )
-	ROM_LOAD16_WORD( "u6",   0x050000, 0x10000, CRC(5cdb9aa9) SHA1(fae5d2c7f649bcba8068c8bc8266ee411258535e) )
-	ROM_LOAD16_WORD( "u7",   0x060000, 0x10000, CRC(147083a2) SHA1(c04c38145ab159bd519e6325477a3f7d0eebbda1) )
-	ROM_LOAD16_WORD( "u8",   0x070000, 0x10000, CRC(975b368c) SHA1(1d637ce8c5d60833bb25aab2610e1a856720235e) )
-	ROM_LOAD16_WORD( "u16",  0x080000, 0x10000, CRC(7437e8bf) SHA1(754be4822cd586590f09e706d7eb48e5ba8c8817) )
-	ROM_LOAD16_WORD( "u17",  0x090000, 0x10000, CRC(e32bdd0f) SHA1(0662abbe84f0bad2631566b506ef016fcd79b9ee) )
-	ROM_LOAD16_WORD( "u18",  0x0a0000, 0x10000, CRC(de3b4d7c) SHA1(68e7ffe2d84aef7c24d1787c4f9b6950c0107741) )
-	ROM_LOAD16_WORD( "u19",  0x0b0000, 0x10000, CRC(7109247c) SHA1(201809ec6599b30c26823bde6851b6eaa2589710) )
-	ROM_LOAD16_WORD( "u20",  0x0c0000, 0x10000, CRC(038b7d2d) SHA1(80bab18ca36d2bc101da7f3f6e1c82d8a802c14c) )
-	ROM_LOAD16_WORD( "u21",  0x0d0000, 0x10000, CRC(9b0b8978) SHA1(b31d0451ecd7085c191d20b2b41d0e8fe551996c) )
-	ROM_LOAD16_WORD( "u22",  0x0e0000, 0x10000, CRC(4b92588a) SHA1(eea262c1a122015364a0046ff2bc7816f5f6821d) )
+	ROM_LOAD16_WORD( "u2",   0x020000, 0x10000, CRC(a587fffd) SHA1(f33f511d1bf1d6eb3c42535593a9718571174c4b) )
+	ROM_LOAD16_WORD( "u3",   0x040000, 0x10000, CRC(984d343a) SHA1(ee214830de4cb22d2d8e9d3ca335eff05af4abb6) )
+	ROM_LOAD16_WORD( "u4",   0x060000, 0x10000, CRC(c4765ff6) SHA1(7dca61d32300047ca1c089057e617553d60a0995) )
+	ROM_LOAD16_WORD( "u5",   0x080000, 0x10000, CRC(3b63b890) SHA1(a1223cb8884d5365af7d3f607657efff877f8845) )
+	ROM_LOAD16_WORD( "u6",   0x0a0000, 0x10000, CRC(5cdb9aa9) SHA1(fae5d2c7f649bcba8068c8bc8266ee411258535e) )
+	ROM_LOAD16_WORD( "u7",   0x0c0000, 0x10000, CRC(147083a2) SHA1(c04c38145ab159bd519e6325477a3f7d0eebbda1) )
+	ROM_LOAD16_WORD( "u8",   0x0e0000, 0x10000, CRC(975b368c) SHA1(1d637ce8c5d60833bb25aab2610e1a856720235e) )
+	ROM_LOAD16_WORD( "u16",  0x010000, 0x10000, CRC(7437e8bf) SHA1(754be4822cd586590f09e706d7eb48e5ba8c8817) )
+	ROM_LOAD16_WORD( "u17",  0x030000, 0x10000, CRC(e32bdd0f) SHA1(0662abbe84f0bad2631566b506ef016fcd79b9ee) )
+	ROM_LOAD16_WORD( "u18",  0x050000, 0x10000, CRC(de3b4d7c) SHA1(68e7ffe2d84aef7c24d1787c4f9b6950c0107741) )
+	ROM_LOAD16_WORD( "u19",  0x070000, 0x10000, CRC(7109247c) SHA1(201809ec6599b30c26823bde6851b6eaa2589710) )
+	ROM_LOAD16_WORD( "u20",  0x090000, 0x10000, CRC(038b7d2d) SHA1(80bab18ca36d2bc101da7f3f6e1c82d8a802c14c) )
+	ROM_LOAD16_WORD( "u21",  0x0b0000, 0x10000, CRC(9b0b8978) SHA1(b31d0451ecd7085c191d20b2b41d0e8fe551996c) )
+	ROM_LOAD16_WORD( "u22",  0x0d0000, 0x10000, CRC(4b92588a) SHA1(eea262c1a122015364a0046ff2bc7816f5f6821d) )
 	ROM_LOAD16_WORD( "u23",  0x0f0000, 0x10000, CRC(d7c2b13b) SHA1(3561e08011f649e4d0c47792745b2a014167e816) )
 ROM_END
 
@@ -911,26 +899,25 @@ ROM_START( amerdar2 )
 	ROM_LOAD16_BYTE( "u57.bin", 0x080001, 0x10000, CRC(8a70f849) SHA1(dfd4cf90de2ab8cbeff458f0fd20110c1ed009e9) )
 	ROM_LOAD16_BYTE( "u58.bin", 0x080000, 0x10000, CRC(8bb81975) SHA1(b7666572ab543991c7deaa0ebefb8b4526a7e386) )
 
-	ROM_REGION( 0x18000, REGION_CPU2, 0 )	/* 32015 code (missing) */
-	ROM_LOAD16_BYTE( "dspl",         0x00000, 0x08000, NO_DUMP )
-	ROM_LOAD16_BYTE( "dsph",         0x00001, 0x08000, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD16_WORD( "tms320e15.bin", 0x0000, 0x2000, CRC(375db4ea) SHA1(11689c89ce62f44f43cb8973b4ec6e6b0024ed14) )
 
-	ROM_REGION( 0x100000, REGION_USER2, 0 )				/* 32015 data? (incl. samples?) */
+	ROM_REGION( 0x100000, REGION_USER2, 0 )				/* 32015 audio sample data */
 	ROM_LOAD16_WORD( "u1.bin",   0x000000, 0x10000, CRC(e2bb7f54) SHA1(39eeb61a852b93331f445cc1c993727e52959660) )
-	ROM_LOAD16_WORD( "u2",      0x010000, 0x10000, CRC(a587fffd) SHA1(f33f511d1bf1d6eb3c42535593a9718571174c4b) )
-	ROM_LOAD16_WORD( "u3",      0x020000, 0x10000, CRC(984d343a) SHA1(ee214830de4cb22d2d8e9d3ca335eff05af4abb6) )
-	ROM_LOAD16_WORD( "u4",      0x030000, 0x10000, CRC(c4765ff6) SHA1(7dca61d32300047ca1c089057e617553d60a0995) )
-	ROM_LOAD16_WORD( "u5",      0x040000, 0x10000, CRC(3b63b890) SHA1(a1223cb8884d5365af7d3f607657efff877f8845) )
-	ROM_LOAD16_WORD( "u6",      0x050000, 0x10000, CRC(5cdb9aa9) SHA1(fae5d2c7f649bcba8068c8bc8266ee411258535e) )
-	ROM_LOAD16_WORD( "u7",      0x060000, 0x10000, CRC(147083a2) SHA1(c04c38145ab159bd519e6325477a3f7d0eebbda1) )
-	ROM_LOAD16_WORD( "u8",      0x070000, 0x10000, CRC(975b368c) SHA1(1d637ce8c5d60833bb25aab2610e1a856720235e) )
-	ROM_LOAD16_WORD( "u16",     0x080000, 0x10000, CRC(7437e8bf) SHA1(754be4822cd586590f09e706d7eb48e5ba8c8817) )
-	ROM_LOAD16_WORD( "u17",     0x090000, 0x10000, CRC(e32bdd0f) SHA1(0662abbe84f0bad2631566b506ef016fcd79b9ee) )
-	ROM_LOAD16_WORD( "u18",     0x0a0000, 0x10000, CRC(de3b4d7c) SHA1(68e7ffe2d84aef7c24d1787c4f9b6950c0107741) )
-	ROM_LOAD16_WORD( "u19",     0x0b0000, 0x10000, CRC(7109247c) SHA1(201809ec6599b30c26823bde6851b6eaa2589710) )
-	ROM_LOAD16_WORD( "u20",     0x0c0000, 0x10000, CRC(038b7d2d) SHA1(80bab18ca36d2bc101da7f3f6e1c82d8a802c14c) )
-	ROM_LOAD16_WORD( "u21",     0x0d0000, 0x10000, CRC(9b0b8978) SHA1(b31d0451ecd7085c191d20b2b41d0e8fe551996c) )
-	ROM_LOAD16_WORD( "u22",     0x0e0000, 0x10000, CRC(4b92588a) SHA1(eea262c1a122015364a0046ff2bc7816f5f6821d) )
+	ROM_LOAD16_WORD( "u2",      0x020000, 0x10000, CRC(a587fffd) SHA1(f33f511d1bf1d6eb3c42535593a9718571174c4b) )
+	ROM_LOAD16_WORD( "u3",      0x040000, 0x10000, CRC(984d343a) SHA1(ee214830de4cb22d2d8e9d3ca335eff05af4abb6) )
+	ROM_LOAD16_WORD( "u4",      0x060000, 0x10000, CRC(c4765ff6) SHA1(7dca61d32300047ca1c089057e617553d60a0995) )
+	ROM_LOAD16_WORD( "u5",      0x080000, 0x10000, CRC(3b63b890) SHA1(a1223cb8884d5365af7d3f607657efff877f8845) )
+	ROM_LOAD16_WORD( "u6",      0x0a0000, 0x10000, CRC(5cdb9aa9) SHA1(fae5d2c7f649bcba8068c8bc8266ee411258535e) )
+	ROM_LOAD16_WORD( "u7",      0x0c0000, 0x10000, CRC(147083a2) SHA1(c04c38145ab159bd519e6325477a3f7d0eebbda1) )
+	ROM_LOAD16_WORD( "u8",      0x0e0000, 0x10000, CRC(975b368c) SHA1(1d637ce8c5d60833bb25aab2610e1a856720235e) )
+	ROM_LOAD16_WORD( "u16",     0x010000, 0x10000, CRC(7437e8bf) SHA1(754be4822cd586590f09e706d7eb48e5ba8c8817) )
+	ROM_LOAD16_WORD( "u17",     0x030000, 0x10000, CRC(e32bdd0f) SHA1(0662abbe84f0bad2631566b506ef016fcd79b9ee) )
+	ROM_LOAD16_WORD( "u18",     0x050000, 0x10000, CRC(de3b4d7c) SHA1(68e7ffe2d84aef7c24d1787c4f9b6950c0107741) )
+	ROM_LOAD16_WORD( "u19",     0x070000, 0x10000, CRC(7109247c) SHA1(201809ec6599b30c26823bde6851b6eaa2589710) )
+	ROM_LOAD16_WORD( "u20",     0x090000, 0x10000, CRC(038b7d2d) SHA1(80bab18ca36d2bc101da7f3f6e1c82d8a802c14c) )
+	ROM_LOAD16_WORD( "u21",     0x0b0000, 0x10000, CRC(9b0b8978) SHA1(b31d0451ecd7085c191d20b2b41d0e8fe551996c) )
+	ROM_LOAD16_WORD( "u22",     0x0d0000, 0x10000, CRC(4b92588a) SHA1(eea262c1a122015364a0046ff2bc7816f5f6821d) )
 	ROM_LOAD16_WORD( "u23.bin", 0x0f0000, 0x10000, CRC(7c1e6f2e) SHA1(21ae530e4bd7c0c9f1a84f01f136c71952c8adc4) )
 ROM_END
 
@@ -1111,8 +1098,8 @@ static DRIVER_INIT( 9ballsht )
  *
  *************************************/
 
-GAME( 1989, amerdart, 0,        amerdart, amerdart, 0,        ROT0, "Ameri",   "AmeriDarts (set 1)", GAME_NO_SOUND )
-GAME( 1989, amerdar2, amerdart, amerdart, amerdart, 0,        ROT0, "Ameri",   "AmeriDarts (set 2)", GAME_NO_SOUND )
+GAME( 1989, amerdart, 0,        amerdart, amerdart, 0,        ROT0, "Ameri",   "Ameri Darts (set 1)", 0 )
+GAME( 1989, amerdar2, amerdart, amerdart, amerdart, 0,        ROT0, "Ameri",   "Ameri Darts (set 2)", 0 )
 GAME( 1992, coolpool, 0,        coolpool, coolpool, coolpool, ROT0, "Catalina", "Cool Pool", 0 )
 GAME( 1993, 9ballsht, 0,        9ballsht, 9ballsht, 9ballsht, ROT0, "E-Scape EnterMedia (Bundra license)", "9-Ball Shootout (set 1)", 0 )
 GAME( 1993, 9ballsh2, 9ballsht, 9ballsht, 9ballsht, 9ballsht, ROT0, "E-Scape EnterMedia (Bundra license)", "9-Ball Shootout (set 2)", 0 )

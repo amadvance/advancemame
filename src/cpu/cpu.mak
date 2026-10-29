@@ -941,8 +941,9 @@ endif
 #-------------------------------------------------
 
 CPUDEFS += -DHAS_TMS32010=$(if $(filter TMS32010,$(CPUS)),1,0)
+CPUDEFS += -DHAS_TMS32015=$(if $(filter TMS32015,$(CPUS)),1,0)
 
-ifneq ($(filter TMS32010,$(CPUS)),)
+ifneq ($(filter TMS32010 TMS32015,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/tms32010
 CPUOBJS += $(OBJ)/cpu/tms32010/tms32010.o
 DBGOBJS += $(OBJ)/cpu/tms32010/32010dsm.o
