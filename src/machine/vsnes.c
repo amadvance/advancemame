@@ -1072,6 +1072,31 @@ DRIVER_INIT( supxevs )
 	remapped_colortable = rp2c04001_colortable;
 }
 
+static int vs108_reg;
+
+static WRITE8_HANDLER( vs108_rom_banking_w )
+{
+	switch (offset & 0x6001)
+	{
+	case 0x0000:
+		vs108_reg = data & 7;
+		break;
+	case 0x0001:
+		if (vs108_reg < 2)
+			ppu2c03b_set_videorom_bank(0, vs108_reg * 2, 2, data, 64);
+		else if (vs108_reg < 6)
+			ppu2c03b_set_videorom_bank(0, vs108_reg + 2, 1, data, 64);
+		else
+		{
+			UINT8 *rom = memory_region(REGION_CPU1);
+			int mask = (memory_region_length(REGION_CPU1) - 0x10000) / 0x2000 - 1;
+			memcpy(rom + 0x8000 + (vs108_reg - 6) * 0x2000,
+				rom + 0x10000 + (data & mask) * 0x2000, 0x2000);
+		}
+		break;
+	}
+}
+
 /* Vs. TKO Boxing */
 
 static READ8_HANDLER( tko_security_r )
@@ -1090,21 +1115,18 @@ static READ8_HANDLER( tko_security_r )
 		return 0;
 	}
 
-	return security_data[(security_counter++)];
+	return security_data[(security_counter++) & 0x1f];
 
 }
 
 DRIVER_INIT( tkoboxng )
 {
-	init_MMC3();
-
-	/* security device at $5e00-$5e01 */
-	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x5e00, 0x5e01, 0, 0, tko_security_r );
-
-	/* now override the vidaccess callback */
-	/* we need to remap color tables */
-	/* this *is* the VS games protection, I guess */
-	remapped_colortable = rp2c04003_colortable;
+	UINT8 *rom = memory_region(REGION_CPU1);
+	init_vsnes();
+	vs108_reg = 0;
+	memcpy(rom + 0x8000, rom + memory_region_length(REGION_CPU1) - 0x8000, 0x8000);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x8000, 0xffff, 0, 0, vs108_rom_banking_w);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x5e00, 0x5e01, 0, 0, tko_security_r);
 }
 
 /* Vs. Freedom Force */
@@ -1125,50 +1147,29 @@ DRIVER_INIT( vsfdf )
 /**********************************************************************************/
 /* Platoon rom banking */
 
-static WRITE8_HANDLER( mapper68_rom_banking ){
-
-	switch (offset & 0x7000)
+static WRITE8_HANDLER( sunsoft3_rom_banking_w )
+{
+	switch (offset & 0x7800)
 	{
-		case 0x0000:
-		ppu2c03b_set_videorom_bank(0,0,2,data,128);
-
+	case 0x0800:
+	case 0x1800:
+	case 0x2800:
+	case 0x3800:
+		ppu2c03b_set_videorom_bank(0, (offset >> 11) & 6, 2, data, 128);
 		break;
-		case 0x1000:
-		ppu2c03b_set_videorom_bank(0,2,2,data,128);
-
+	case 0x7800:
+		memcpy(memory_region(REGION_CPU1) + 0x8000,
+			memory_region(REGION_CPU1) + 0x10000 + (data & 7) * 0x4000, 0x4000);
 		break;
-		case 0x2000:
-		ppu2c03b_set_videorom_bank(0,4,2,data,128);
-
-		break;
-		case 0x3000: /* ok? */
-		ppu2c03b_set_videorom_bank(0,6,2,data,128);
-
-		break;
-
-		case 0x7000:
-		memcpy( &memory_region( REGION_CPU1 )[0x08000], &memory_region( REGION_CPU1 )[0x10000 +data*0x4000], 0x4000 );
-		break;
-
 	}
-
 }
 
 DRIVER_INIT( platoon )
 {
-
-	/* when starting a mapper 68 game  the first 16K ROM bank in the cart is loaded into $8000
-    the LAST 16K ROM bank is loaded into $C000. The last 16K of ROM cannot be swapped. */
-
-	memcpy( &memory_region( REGION_CPU1 )[0x08000], &memory_region( REGION_CPU1 )[0x10000], 0x4000 );
-	memcpy( &memory_region( REGION_CPU1 )[0x0c000], &memory_region( REGION_CPU1 )[0x2c000], 0x4000 );
-
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x8000, 0xffff, 0, 0, mapper68_rom_banking );
-
+	UINT8 *rom = memory_region(REGION_CPU1);
+	memcpy(rom + 0x8000, rom + 0x28000, 0x8000);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x8000, 0xffff, 0, 0, sunsoft3_rom_banking_w);
 	init_vsnes();
-
- 	remapped_colortable = rp2c04001_colortable;
-
 }
 
 /**********************************************************************************/
