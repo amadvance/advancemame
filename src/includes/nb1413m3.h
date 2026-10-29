@@ -238,6 +238,7 @@ INTERRUPT_GEN( nb1413m3_interrupt );
 NVRAM_HANDLER( nb1413m3 );
 READ8_HANDLER( nb1413m3_sndrom_r );
 WRITE8_HANDLER( nb1413m3_sndrombank1_w );
+WRITE8_HANDLER( nb1413m3_sndrombank1_alt_w );
 WRITE8_HANDLER( nb1413m3_sndrombank2_w );
 READ8_HANDLER( nb1413m3_gfxrom_r );
 WRITE8_HANDLER( nb1413m3_gfxrombank_w );

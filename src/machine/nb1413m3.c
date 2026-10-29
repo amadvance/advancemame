@@ -351,6 +351,22 @@ WRITE8_HANDLER( nb1413m3_sndrombank1_w )
 	nb1413m3_sndrombank1 = (((data & 0xc0) >> 5) | ((data & 0x10) >> 4));
 }
 
+WRITE8_HANDLER( nb1413m3_sndrombank1_alt_w )
+{
+	coin_counter_w(0, data & 0x02);
+	coin_counter_w(1, data & 0x01);
+	nb1413m3_outcoin_enable = (data & 0x04) >> 2;
+	if (nb1413m3_outcoin_enable)
+	{
+		if (nb1413m3_counter++ == 2)
+		{
+			nb1413m3_outcoin_flag ^= 1;
+			nb1413m3_counter = 0;
+		}
+	}
+	nb1413m3_nmi_enable = (data & 0x80) >> 7;
+}
+
 WRITE8_HANDLER( nb1413m3_sndrombank2_w )
 {
 	nb1413m3_sndrombank2 = (data & 0x03);
