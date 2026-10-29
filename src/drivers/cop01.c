@@ -10,8 +10,7 @@ driver by Carlos A. Lozano <calb@gsyc.inf.uc3m.es>
 TODO:
 ----
 mightguy:
-- crashes during the confrontation with the final boss (only tested with Invincibility on)
-- missing emulation of the 1412M2 protection chip, used by the sound CPU.
+- verify 1412M2 sample clock and music tempo.
 
 
 Mighty Guy board layout:
@@ -54,6 +53,8 @@ Mighty Guy board layout:
 #include "driver.h"
 #include "sound/ay8910.h"
 #include "sound/3812intf.h"
+#include "sound/dac.h"
+#include "includes/nb1412m2.h"
 
 #define MIGHTGUY_HACK	0
 
@@ -71,7 +72,28 @@ WRITE8_HANDLER( cop01_vreg_w );
 static WRITE8_HANDLER( cop01_sound_command_w )
 {
 	soundlatch_w(offset,data);
-	cpunum_set_input_line_and_vector(1,0,HOLD_LINE,0xff);
+	cpunum_set_input_line_and_vector(1,0,ASSERT_LINE,0xff);
+}
+
+static WRITE8_HANDLER( cop01_irq_ack_w )
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
+
+static READ8_HANDLER( cop01_sound_irq_ack_r )
+{
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+	return 0;
+}
+
+static READ8_HANDLER( mightguy_sound_command_r )
+{
+	return soundlatch_r(offset) << 1;
+}
+
+static MACHINE_RESET( mightguy )
+{
+	nb1412m2_reset();
 }
 
 static READ8_HANDLER( cop01_sound_command_r )
@@ -148,12 +170,12 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x40, 0x43) AM_WRITE(cop01_vreg_w)
 	AM_RANGE(0x44, 0x44) AM_WRITE(cop01_sound_command_w)
-	AM_RANGE(0x45, 0x45) AM_WRITE(watchdog_reset_w) /* ? */
+	AM_RANGE(0x45, 0x45) AM_WRITE(cop01_irq_ack_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0x8000) AM_READ(MRA8_NOP)	/* irq ack? */
+	AM_RANGE(0x8000, 0x8000) AM_READ(cop01_sound_irq_ack_r)
 	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
 ADDRESS_MAP_END
 
@@ -177,21 +199,18 @@ static ADDRESS_MAP_START( sound_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x05, 0x05) AM_WRITE(AY8910_write_port_2_w)
 ADDRESS_MAP_END
 
-/* this just gets some garbage out of the YM3526 */
-static READ8_HANDLER( kludge ) { static int timer; return timer++; }
-
 static ADDRESS_MAP_START( mightguy_sound_readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x03, 0x03) AM_READ(kludge)		/* 1412M2? */
-	AM_RANGE(0x06, 0x06) AM_READ(cop01_sound_command_r)
+	AM_RANGE(0x03, 0x03) AM_READ(nb1412m2_data_r)
+	AM_RANGE(0x06, 0x06) AM_READ(mightguy_sound_command_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( mightguy_sound_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_WRITE(YM3526_control_port_0_w)
 	AM_RANGE(0x01, 0x01) AM_WRITE(YM3526_write_port_0_w)
-	AM_RANGE(0x02, 0x02) AM_WRITE(MWA8_NOP)	/* 1412M2? */
-	AM_RANGE(0x03, 0x03) AM_WRITE(MWA8_NOP)	/* 1412M2? */
+	AM_RANGE(0x02, 0x02) AM_WRITE(nb1412m2_command_w)
+	AM_RANGE(0x03, 0x03) AM_WRITE(nb1412m2_data_w)
 ADDRESS_MAP_END
 
 
@@ -418,10 +437,10 @@ static const gfx_decode gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( cop01 )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 4000000)	/* ???? */
+	MDRV_CPU_ADD(Z80, 4000000)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_IO_MAP(readport,writeport)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq0_line_assert,1)
 
 	MDRV_CPU_ADD(Z80, 3000000)
 	/* audio CPU */	/* ???? */
@@ -459,16 +478,18 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( mightguy )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 4000000)	/* ???? */
+	MDRV_CPU_ADD(Z80, 12000000/2)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_IO_MAP(mightguy_readport,writeport)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq0_line_assert,1)
 
-	MDRV_CPU_ADD(Z80, 3000000)
+	MDRV_CPU_ADD(Z80, 20000000/8)
 	/* audio CPU */	/* ???? */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 	MDRV_CPU_IO_MAP(mightguy_sound_readport,mightguy_sound_writeport)
 
+	MDRV_MACHINE_RESET(mightguy)
+	MDRV_INTERLEAVE(10)
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
@@ -489,6 +510,9 @@ static MACHINE_DRIVER_START( mightguy )
 
 	MDRV_SOUND_ADD(YM3526, 4000000)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
 MACHINE_DRIVER_END
 
 
@@ -601,6 +625,7 @@ ROM_END
 
 static DRIVER_INIT( mightguy )
 {
+	nb1412m2_init();
 #if MIGHTGUY_HACK
 	/* This is a hack to fix the game code to get a fully working
        "Starting Area" fake Dip Switch */
@@ -617,4 +642,4 @@ static DRIVER_INIT( mightguy )
 
 GAME( 1985, cop01,    0,     cop01,    cop01,    0,        ROT0,   "Nichibutsu", "Cop 01 (set 1)", 0 )
 GAME( 1985, cop01a,   cop01, cop01,    cop01,    0,        ROT0,   "Nichibutsu", "Cop 01 (set 2)", 0 )
-GAME( 1986, mightguy, 0,     mightguy, mightguy, mightguy, ROT270, "Nichibutsu", "Mighty Guy", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
+GAME( 1986, mightguy, 0,     mightguy, mightguy, mightguy, ROT270, "Nichibutsu", "Mighty Guy", GAME_IMPERFECT_SOUND )
