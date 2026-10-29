@@ -1,167 +1,164 @@
 // license:GPL-2.0+
-// copyright-holders:Juergen Buchmueller
-/* Ramtek M79 Ambush */
+// copyright-holders:Juergen Buchmueller,Al Kossow
+/* Ramtek M-79 Ambush */
 
 #include "driver.h"
-/*
- * in
- * 8000 DIP SW
- * 8002 D0=VBlank
- * 8004
- * 8005
- *
- * out
- * 8000
- * 8001 Mask Sel
- * 8002
- * 8003 D0=SelfTest LED
- *
- */
+#include "m79amb.h"
 
-WRITE8_HANDLER( ramtek_videoram_w );
-
-INTERRUPT_GEN( invaders_interrupt );
-void ramtek_sh_update(void);
-WRITE8_HANDLER( ramtek_mask_w );
-
-/*
- * since these functions aren't used anywhere else, i've made them
- * static, and included them here
- */
-static const int ControllerTable[32] = {
-    0  , 1  , 3  , 2  , 6  , 7  , 5  , 4  ,
-    12 , 13 , 15 , 14 , 10 , 11 , 9  , 8  ,
-    24 , 25 , 27 , 26 , 30 , 31 , 29 , 28 ,
-    20 , 21 , 23 , 22 , 18 , 19 , 17 , 16
-};
+static UINT8 gun_lut[2][256];
 
 static READ8_HANDLER( gray5bit_controller0_r )
 {
-    return (input_port_2_r(0) & 0xe0) | (~ControllerTable[input_port_2_r(0) & 0x1f] & 0x1f);
+	return (input_port_2_r(0) & 0xe0) | gun_lut[0][input_port_4_r(0)];
 }
 
 static READ8_HANDLER( gray5bit_controller1_r )
 {
-    return (input_port_3_r(0) & 0xe0) | (~ControllerTable[input_port_3_r(0) & 0x1f] & 0x1f);
+	return (input_port_3_r(0) & 0xe0) | gun_lut[1][input_port_5_r(0)];
 }
 
-static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x4000, 0x63ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x8000, 0x8000) AM_READ(input_port_0_r)
-	AM_RANGE(0x8002, 0x8002) AM_READ(input_port_1_r)
+static WRITE8_HANDLER( m79amb_sound0_w )
+{
+	discrete_sound_w(M79AMB_SHOT_EN,data & 1);
+	discrete_sound_w(M79AMB_BOOM_EN,data & 2);
+	discrete_sound_w(M79AMB_THUD_EN,data & 4);
+}
+
+static WRITE8_HANDLER( m79amb_sound3_w )
+{
+	set_led_status(0,data & 1);
+	discrete_sound_w(M79AMB_MC_REV_EN,data & 2);
+	discrete_sound_w(M79AMB_MC_CONTROL_EN,data & 4);
+	discrete_sound_w(M79AMB_TANK_TRUCK_JEEP_EN,data & 8);
+	discrete_sound_w(M79AMB_WHISTLE_B_EN,data & 0x10);
+	discrete_sound_w(M79AMB_WHISTLE_A_EN,data & 0x20);
+}
+
+static WRITE8_HANDLER( m79amb_lamp_w )
+{
+	set_led_status(1,data != 0);
+}
+
+static ADDRESS_MAP_START( m79amb_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_ROM
+	AM_RANGE(0x4000, 0x5fff) AM_RAM AM_WRITE(ramtek_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x6000, 0x63ff) AM_RAM
+	AM_RANGE(0x8000, 0x8000) AM_READWRITE(input_port_0_r,m79amb_sound0_w)
+	AM_RANGE(0x8001, 0x8001) AM_WRITE(ramtek_mask_w)
+	AM_RANGE(0x8002, 0x8002) AM_READWRITE(input_port_1_r,m79amb_lamp_w)
+	AM_RANGE(0x8003, 0x8003) AM_WRITE(m79amb_sound3_w)
 	AM_RANGE(0x8004, 0x8004) AM_READ(gray5bit_controller0_r)
 	AM_RANGE(0x8005, 0x8005) AM_READ(gray5bit_controller1_r)
-	AM_RANGE(0xC000, 0xC07f) AM_READ(MRA8_RAM)			/* ?? */
-	AM_RANGE(0xC200, 0xC27f) AM_READ(MRA8_RAM)			/* ?? */
+	AM_RANGE(0xc000, 0xc07f) AM_RAM
+	AM_RANGE(0xc200, 0xc27f) AM_RAM
 ADDRESS_MAP_END
 
-static WRITE8_HANDLER( sound_w )
-{
-}
+static INPUT_PORTS_START( m79amb )
+	PORT_START_TAG("8000")
+	PORT_DIPNAME( 0x03, 0x00, "Game Time")
+	PORT_DIPSETTING(    0x00, "60 Seconds" )
+	PORT_DIPSETTING(    0x01, "90 Seconds" )
+	PORT_DIPSETTING(    0x02, "90 Seconds" )
+	PORT_DIPSETTING(    0x03, "120 Seconds" )
+	PORT_DIPNAME( 0x1c, 0x04, "Points for Extended Time" )
+	PORT_DIPSETTING(    0x00, "1500" )
+	PORT_DIPSETTING(    0x04, "2500" )
+	PORT_DIPSETTING(    0x08, "3500" )
+	PORT_DIPSETTING(    0x0c, "5000" )
+	PORT_DIPSETTING(    0x1c, "No Extended Time" )
+	PORT_DIPNAME( 0xe0, 0x00, DEF_STR( Coinage ))
+	PORT_DIPSETTING(    0x20, DEF_STR( 2C_1C ))
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ))
+	PORT_DIPSETTING(    0x40, "1 Coin/2 Players")
+	PORT_DIPSETTING(    0xc0, DEF_STR( Free_Play ))
 
-static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x4000, 0x43ff) AM_WRITE(MWA8_RAM)
-    AM_RANGE(0x4400, 0x5fff) AM_WRITE(ramtek_videoram_w) AM_BASE(&videoram)
-    AM_RANGE(0x6000, 0x63ff) AM_WRITE(MWA8_RAM)		/* ?? */
-	AM_RANGE(0x8001, 0x8001) AM_WRITE(ramtek_mask_w)
-	AM_RANGE(0x8000, 0x8000) AM_WRITE(sound_w)
-	AM_RANGE(0x8002, 0x8003) AM_WRITE(sound_w)
-	AM_RANGE(0xC000, 0xC07f) AM_WRITE(MWA8_RAM)			/* ?? */
-	AM_RANGE(0xC200, 0xC27f) AM_WRITE(MWA8_RAM)			/* ?? */
-ADDRESS_MAP_END
+	PORT_START_TAG("8002")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_VBLANK )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("8004")
+	PORT_BIT( 0x1f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("8005")
+	PORT_BIT( 0x1f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 
-INPUT_PORTS_START( m79amb )
-	PORT_START      /* 8000 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )	/* dip switch */
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_UNUSED )
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNUSED )
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNUSED )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNUSED )
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_START_TAG("GUN1")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(19,255) PORT_SENSITIVITY(50) PORT_KEYDELTA(5) PORT_CENTERDELTA(0) PORT_PLAYER(1)
 
-	PORT_START      /* 8002 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_VBLANK )
-	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_START1 )
-	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_COIN1  )
-	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_TILT   )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNUSED )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNUSED )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
-
-	PORT_START		/* 8004 */
-	PORT_BIT( 0x1f, 0x10, IPT_PADDLE ) PORT_MINMAX(0,0x1f) PORT_SENSITIVITY(25) PORT_KEYDELTA(10) PORT_CENTERDELTA(0)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON1 )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNKNOWN )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
-
-	PORT_START      /* 8005 */
-	PORT_BIT( 0x1f, 0x10, IPT_PADDLE ) PORT_MINMAX(0,0x1f) PORT_SENSITIVITY(25) PORT_KEYDELTA(10) PORT_CENTERDELTA(0) PORT_PLAYER(2)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNKNOWN )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
-
+	PORT_START_TAG("GUN2")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0,234) PORT_SENSITIVITY(50) PORT_KEYDELTA(5) PORT_CENTERDELTA(0) PORT_PLAYER(2)
 INPUT_PORTS_END
 
 
-static PALETTE_INIT( m79amb )
+static INTERRUPT_GEN( m79amb_interrupt )
 {
-	palette_set_color(0,0x00,0x00,0x00); /* BLACK */
-	palette_set_color(1,0xff,0xff,0xff); /* WHITE */
-	palette_set_color(2,0xff,0x20,0x20); /* RED */
-	palette_set_color(3,0x20,0xff,0x20); /* GREEN */
-	palette_set_color(4,0xff,0xff,0x20); /* YELLOW */
-	palette_set_color(5,0x20,0xff,0xff); /* CYAN */
-	palette_set_color(6,0xff,0x20,0xff); /* PURPLE */
+	cpunum_set_input_line_and_vector(0,0,HOLD_LINE,0xcf);
 }
 
-static INTERRUPT_GEN( M79_interrupt )
+static PALETTE_INIT( m79amb )
 {
-	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0xcf);  /* RST 08h */
+	palette_set_color(0,0,0,0);
+	palette_set_color(1,255,255,255);
+}
+
+static MACHINE_RESET( m79amb )
+{
+	ramtek_mask_w(0,0);
+	m79amb_sound0_w(0,0);
+	m79amb_sound3_w(0,0);
+	m79amb_lamp_w(0,0);
 }
 
 static DRIVER_INIT( m79amb )
 {
-	unsigned char *rom = memory_region(REGION_CPU1);
-	int i;
-
-	/* PROM data is active low */
- 	for (i = 0;i < 0x2000;i++)
-		rom[i] = ~rom[i];
+	static const UINT8 cross[32] =
+	{
+		19,20,21,23,25,27,29,37,45,53,66,82,88,95,105,111,
+		118,130,142,149,158,165,170,177,191,203,209,218,228,243,249,255
+	};
+	int i,j = 0,k = 255;
+	for (i = 0; i < 32; i++)
+	{
+		UINT8 gray = i ^ (i >> 1) ^ 0x1f;
+		while (j < 256 && j <= cross[i]) gun_lut[0][j++] = gray;
+		while (k >= 0 && k >= 253 - cross[i]) gun_lut[1][k--] = gray;
+	}
 }
 
 static MACHINE_DRIVER_START( m79amb )
-
-	/* basic machine hardware */
-	MDRV_CPU_ADD(8080, 1996800)
-	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_VBLANK_INT(M79_interrupt,1)
-
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
-
-	/* video hardware */
+	MDRV_CPU_ADD(8080,19660800/10)
+	MDRV_CPU_PROGRAM_MAP(m79amb_map,0)
+	MDRV_CPU_VBLANK_INT(m79amb_interrupt,1)
+	MDRV_FRAMES_PER_SECOND(4915200.0 / (320 * 262))
+	MDRV_VBLANK_DURATION(1000000.0 * 320 * 38 / 4915200.0)
+	MDRV_MACHINE_RESET(m79amb)
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(32*8, 28*8)
-	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 28*8-1)
-	MDRV_PALETTE_LENGTH(7)
-
+	MDRV_SCREEN_SIZE(256,262)
+	MDRV_VISIBLE_AREA(0,255,32,255)
+	MDRV_PALETTE_LENGTH(2)
 	MDRV_PALETTE_INIT(m79amb)
-	MDRV_VIDEO_START(generic_bitmapped)
-	MDRV_VIDEO_UPDATE(generic_bitmapped)
-
-	/* sound hardware */
+	MDRV_VIDEO_UPDATE(m79amb)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(DISCRETE,0)
+	MDRV_SOUND_CONFIG(m79amb_discrete_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.125)
 MACHINE_DRIVER_END
 
-
-
 ROM_START( m79amb )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, ROMREGION_INVERT )     /* 64k for code */
 	ROM_LOAD( "m79.10t",      0x0000, 0x0200, CRC(ccf30b1e) SHA1(c1a77f8dc81c491928f81121ca5c9b7f8753794f) )
 	ROM_LOAD( "m79.9t",       0x0200, 0x0200, CRC(daf807dd) SHA1(16cd9d553bfb111c8380966cbde39dbddd5fe58c) )
 	ROM_LOAD( "m79.8t",       0x0400, 0x0200, CRC(79fafa02) SHA1(440620f5be44febdd7c64014739dc71fb570cc92) )
@@ -180,6 +177,4 @@ ROM_START( m79amb )
 	ROM_LOAD( "m79.3u",       0x1e00, 0x0200, CRC(e968691a) SHA1(7024d10f2af195fc4050861706b1f3d22cb22a9c) )
 ROM_END
 
-
-
-GAME( 1977, m79amb, 0, m79amb, m79amb, m79amb, ROT0, "RamTek", "M79 Ambush", GAME_NO_SOUND )
+GAME( 1977, m79amb, 0, m79amb, m79amb, m79amb, ROT0, "Ramtek", "M-79 Ambush", GAME_IMPERFECT_SOUND )
