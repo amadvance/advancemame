@@ -248,6 +248,7 @@ TILENAME(bpp,t,a)\
 			if(t)\
 			{\
 				UINT32 Index=Quad->Tile[(ty>>3)*(W)+(tx>>3)];\
+				if(!Index) goto Clamped;\
 				Offset=(Index<<6)+((ty&7)<<3)+(tx&7);\
 			}\
 			else\
@@ -281,8 +282,8 @@ TILENAME(bpp,t,a)\
 				else\
 					*pixel=Color;\
 			}\
-			++pixel;\
 Clamped:\
+			++pixel;\
 			x_tx+=Quad->Txdx;\
 			x_ty+=Quad->Tydx;\
 		}\
@@ -455,7 +456,7 @@ int ProcessPacket(UINT32 PacketPtr,UINT16 *Dest,UINT8 *TEXTURE)
 	{
 		_Quad Quad;
 
-		Quad.Pitch=512;
+		Quad.Pitch=1024;
 
 //      assert(Endx>=Dx && Endy>=Dy);
 
