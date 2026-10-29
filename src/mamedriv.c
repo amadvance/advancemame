@@ -2221,6 +2221,7 @@ V-V                           TP-027
 	DRIVER( colony7a )	/* (c) 1981 Taito */
 	DRIVER( jin )		/* Falcon bootleg/hack */
 	DRIVER( stargate )	/* (c) 1981 */
+	DRIVER( conquest )
 	DRIVER( robotron )	/* (c) 1982 */
 	DRIVER( robotryo )	/* (c) 1982 */
 	DRIVER( joust )		/* (c) 1982 */
