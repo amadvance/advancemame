@@ -402,6 +402,7 @@ const game_driver * const drivers[] =
 
 	DRIVER( pastelg )	/* (c) 1985 */
 
+	DRIVER( bikkuri )
 	DRIVER( crystalg )	/* (c) 1986 */
 	DRIVER( crystal2 )	/* (c) 1986 */
 	DRIVER( nightlov )	/* (c) 1986 */
