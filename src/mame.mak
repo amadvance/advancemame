@@ -888,7 +888,7 @@ $(OBJ)/midcoin.a: \
 
 $(OBJ)/midw8080.a: \
 	$(OBJ)/drivers/8080bw.o $(OBJ)/machine/8080bw.o $(OBJ)/sndhrdw/8080bw.o $(OBJ)/sndhrdw/mw8080bw.o $(OBJ)/vidhrdw/8080bw.o \
-	$(OBJ)/drivers/m79amb.o $(OBJ)/vidhrdw/m79amb.o \
+	$(OBJ)/drivers/m79amb.o $(OBJ)/vidhrdw/m79amb.o $(OBJ)/sndhrdw/m79amb.o \
 	$(OBJ)/drivers/rotaryf.o \
 	$(OBJ)/drivers/sspeedr.o $(OBJ)/vidhrdw/sspeedr.o \
 
