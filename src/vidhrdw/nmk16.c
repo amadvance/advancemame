@@ -4,6 +4,7 @@
 
 UINT16 *nmk_bgvideoram,*nmk_fgvideoram,*nmk_txvideoram;
 UINT16 *gunnail_scrollram;
+UINT16 *tomagic_scrollramy;
 static UINT16 gunnail_scrolly;
 UINT16 tharrier_scroll;
 
@@ -716,4 +717,36 @@ VIDEO_EOF( strahl )
 {
 	/* looks like sprites are *two* frames ahead */
 	memcpy(spriteram_old2,nmk16_mainram+0xf000/2,0x1000);
+}
+
+VIDEO_UPDATE( tomagic )
+{
+	int y;
+	rectangle line = *cliprect;
+	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		int scrolly = tomagic_scrollramy[0] + tomagic_scrollramy[y];
+		line.min_y = line.max_y = y;
+		tilemap_set_scrolly(bg_tilemap,0,scrolly);
+		tilemap_set_scrollx(bg_tilemap,(y + scrolly) & 0x1ff,
+			gunnail_scrollram[0] + gunnail_scrollram[y] - videoshift);
+		tilemap_draw(bitmap,&line,bg_tilemap,0,0);
+	}
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
+	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
+}
+
+WRITE16_HANDLER( dolmen_scroll_w )
+{
+	static UINT16 scrollx;
+	switch (data & 0xff00)
+	{
+		case 0x0000: scrollx = (scrollx & 0x00ff) | ((data & 0xff) << 8); break;
+		case 0x0100: scrollx = (scrollx & 0xff00) | (data & 0xff); break;
+	}
+	tilemap_set_scrollx(bg_tilemap,0,scrollx);
 }

@@ -5003,25 +5003,428 @@ static DRIVER_INIT( bjtwin )
 	init_nmk();
 }
 
+static INPUT_PORTS_START( tomagic )
+	PORT_START_TAG("IN0")
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_COIN1   )
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_START1  )
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_START2  )
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0xff00, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00e0, 0x00e0, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x00e0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0060, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x00a0, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Balls" )
+	PORT_DIPSETTING(      0x0040, "2" )
+	PORT_DIPSETTING(      0x00c0, "3" )
+	PORT_DIPSETTING(      0x0080, "4" )
+	PORT_DIPSETTING(      0x0000, "5" )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( dolmen )
+	PORT_START_TAG("IN0")
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_COIN1    )
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_COIN2    )
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_START1   )
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_START2   )
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_SERVICE  )
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0xff00, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT(  0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x000c, 0x000c, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x000c, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Free Credit" )
+	PORT_DIPSETTING(      0x0080, "500k" )
+	PORT_DIPSETTING(      0x00c0, "800k" )
+	PORT_DIPSETTING(      0x0040, "1000k" )
+	PORT_DIPSETTING(      0x0000, "1500k" )
+	PORT_DIPNAME( 0x0100, 0x0100, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0200, 0x0200, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1c00, 0x1c00, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x1800, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x1c00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0c00, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x1400, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0000, "Credits Don't Register" )
+	PORT_DIPNAME( 0xe000, 0xe000, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0xc000, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0xe000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x6000, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0xa000, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0000, "Credits Don't Register" )
+INPUT_PORTS_END
+
+WRITE16_HANDLER( dolmen_scroll_w );
+VIDEO_UPDATE( tomagic );
+extern UINT16 *tomagic_scrollramy;
+static UINT8 *dolmen_samples;
+
+static WRITE16_HANDLER( dolmen_sound_w )
+{
+	if (ACCESSING_LSB)
+	{
+		soundlatch_w(0, data);
+		cpunum_set_input_line(1, 0, ASSERT_LINE);
+	}
+}
+
+static READ8_HANDLER( dolmen_sound_r )
+{
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+	return soundlatch_r(offset);
+}
+
+static WRITE8_HANDLER( dolmen_bank_w )
+{
+	memcpy(memory_region(REGION_SOUND1) + 0x20000,
+		dolmen_samples + (data & 3) * 0x20000, 0x20000);
+}
+
+static WRITE16_HANDLER( tomagic_sound_w )
+{
+	if (ACCESSING_LSB)
+	{
+		soundlatch_w(0, data);
+		cpunum_set_input_line(1, INPUT_LINE_NMI, ASSERT_LINE);
+	}
+}
+
+static READ8_HANDLER( tomagic_sound_r )
+{
+	cpunum_set_input_line(1, INPUT_LINE_NMI, CLEAR_LINE);
+	return soundlatch_r(offset);
+}
+
+static WRITE8_HANDLER( tomagic_bank_w )
+{
+	memory_set_bankptr(1, memory_region(REGION_CPU2) + (data & 7) * 0x4000);
+}
+
+static ADDRESS_MAP_START( dolmen_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x03ffff) AM_ROM
+	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x080002, 0x080003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x080004, 0x080005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x08000e, 0x08000f) AM_WRITE(MWA16_NOP)
+	AM_RANGE(0x080014, 0x080015) AM_WRITE(nmk_flipscreen_w)
+	AM_RANGE(0x080016, 0x080017) AM_WRITE(MWA16_NOP)
+	AM_RANGE(0x08001e, 0x08001f) AM_WRITE(dolmen_sound_w)
+	AM_RANGE(0x088000, 0x0887ff) AM_RAM AM_WRITE(paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x08c000, 0x08c001) AM_WRITE(dolmen_scroll_w)
+	AM_RANGE(0x08c002, 0x08c087) AM_WRITE(MWA16_NOP)
+	AM_RANGE(0x090000, 0x093fff) AM_RAM AM_WRITE(nmk_bgvideoram_w) AM_BASE(&nmk_bgvideoram)
+	AM_RANGE(0x09c000, 0x09c7ff) AM_RAM AM_WRITE(nmk_txvideoram_w) AM_BASE(&nmk_txvideoram)
+	AM_RANGE(0x0f0000, 0x0fffff) AM_RAM AM_WRITE(nmk16_mainram_strange_w) AM_BASE(&nmk16_mainram)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dolmen_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0x87ff) AM_RAM
+	AM_RANGE(0x9000, 0x9000) AM_WRITE(dolmen_bank_w)
+	AM_RANGE(0x9800, 0x9800) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+	AM_RANGE(0xa000, 0xa000) AM_READ(dolmen_sound_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tomagic_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_ROM
+	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x080002, 0x080003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x080008, 0x080009) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x08000a, 0x08000b) AM_READ(input_port_3_word_r)
+	AM_RANGE(0x080014, 0x080015) AM_WRITE(nmk_flipscreen_w)
+	AM_RANGE(0x080018, 0x080019) AM_WRITE(nmk_tilebank_w)
+	AM_RANGE(0x08001e, 0x08001f) AM_WRITE(tomagic_sound_w)
+	AM_RANGE(0x088000, 0x0887ff) AM_RAM AM_WRITE(paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x08c000, 0x08c1ff) AM_RAM AM_BASE(&gunnail_scrollram)
+	AM_RANGE(0x08c200, 0x08c3ff) AM_RAM AM_BASE(&tomagic_scrollramy)
+	AM_RANGE(0x090000, 0x093fff) AM_RAM AM_WRITE(nmk_bgvideoram_w) AM_BASE(&nmk_bgvideoram)
+	AM_RANGE(0x094000, 0x094001) AM_WRITE(OKIM6295_data_0_lsb_w)
+	AM_RANGE(0x094002, 0x094003) AM_READ(OKIM6295_status_0_lsb_r)
+	AM_RANGE(0x09c000, 0x09cfff) AM_MIRROR(0x001000) AM_RAM AM_WRITE(nmk_txvideoram_w) AM_BASE(&nmk_txvideoram)
+	AM_RANGE(0x0f0000, 0x0fffff) AM_RAM AM_BASE(&nmk16_mainram)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tomagic_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_BANK1)
+	AM_RANGE(0xc000, 0xdfff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tomagic_sound_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(tomagic_bank_w)
+	AM_RANGE(0x02, 0x02) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
+	AM_RANGE(0x03, 0x03) AM_WRITE(YM3812_write_port_0_w)
+	AM_RANGE(0x06, 0x06) AM_READ(tomagic_sound_r)
+ADDRESS_MAP_END
+
+static INTERRUPT_GEN( nmk_bootleg_interrupt )
+{
+	int scanline = 255 - cpu_getiloops();
+	if (scanline == 240) cpunum_set_input_line(0, 4, HOLD_LINE);
+	if (scanline == 16) cpunum_set_input_line(0, 2, HOLD_LINE);
+	if (scanline == 68 || scanline == 196) cpunum_set_input_line(0, 1, HOLD_LINE);
+}
+
+static void tomagic_ym_irq(int state)
+{
+	cpunum_set_input_line(1, 0, state ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static struct YM3812interface tomagic_ym_interface = { tomagic_ym_irq };
+
+static MACHINE_RESET( dolmen )
+{
+	dolmen_bank_w(0, 0);
+	dolmen_scroll_w(0, 0, 0);
+	dolmen_scroll_w(0, 0x0100, 0);
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+}
+
+static MACHINE_RESET( tomagic )
+{
+	tomagic_bank_w(0, 0);
+	cpunum_set_input_line(1, INPUT_LINE_NMI, CLEAR_LINE);
+}
+
+static MACHINE_DRIVER_START( dolmen )
+	MDRV_CPU_ADD(M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(dolmen_map,0)
+	MDRV_CPU_VBLANK_INT(nmk_bootleg_interrupt,256)
+	MDRV_CPU_ADD(Z80, 4000000)
+	MDRV_CPU_PROGRAM_MAP(dolmen_sound_map,0)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (384 * 278))
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(dolmen)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256,256)
+	MDRV_VISIBLE_AREA(0,255,16,239)
+	MDRV_GFXDECODE(macross_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+	MDRV_VIDEO_START(macross)
+	MDRV_VIDEO_UPDATE(macross)
+	MDRV_VIDEO_EOF(nmk)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(OKIM6295,1000000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",1.0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( tomagic )
+	MDRV_CPU_ADD(M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(tomagic_map,0)
+	MDRV_CPU_VBLANK_INT(nmk_bootleg_interrupt,256)
+	MDRV_CPU_ADD(Z80, 3000000)
+	MDRV_CPU_PROGRAM_MAP(tomagic_sound_map,0)
+	MDRV_CPU_IO_MAP(tomagic_sound_io,0)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (384 * 278))
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(tomagic)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(512,256)
+	MDRV_VISIBLE_AREA(0,383,16,239)
+	MDRV_GFXDECODE(macross_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+	MDRV_VIDEO_START(gunnail)
+	MDRV_VIDEO_UPDATE(tomagic)
+	MDRV_VIDEO_EOF(nmk)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(YM3812,3000000)
+	MDRV_SOUND_CONFIG(tomagic_ym_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
+	MDRV_SOUND_ADD(OKIM6295,3000000/165)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
+MACHINE_DRIVER_END
+
+static DRIVER_INIT( dolmen )
+{
+	dolmen_samples = auto_malloc(0x80000);
+	memcpy(dolmen_samples, memory_region(REGION_SOUND1), 0x80000);
+}
+
+static DRIVER_INIT( tomagic )
+{
+	UINT8 *rom = memory_region(REGION_GFX3);
+	int i;
+	for (i = 0; i < memory_region_length(REGION_GFX3); i++)
+		rom[i] = BITSWAP8(rom[i],0,1,2,3,4,5,6,7);
+}
+
+ROM_START( tomagic )
+	ROM_REGION( 0x80000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "4.bin", 0x00000, 0x40000, CRC(5055664a) SHA1(d078bd5ab30aedb760bf0a0237484fb56a51d759) )
+	ROM_LOAD16_BYTE( "3.bin", 0x00001, 0x40000, CRC(3731ecbb) SHA1(25814bd78902cc341cc9d6b19d0a6f837cd802c6) )
+
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )
+	ROM_LOAD( "2.bin",      0x00000, 0x20000, CRC(10359b6a) SHA1(ce59750d2fa57049c424c62e0cbefc604e224e78) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "9.bin", 0x000000, 0x20000, CRC(fcceb24b) SHA1(49e3162c34dfa2ef54ffe190ba91bff73cebe12b) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "10.bin", 0x000000, 0x80000, CRC(14ef466c) SHA1(02711bd44e146dc30d68cd199023834a63170b0f) )
+
+	ROM_REGION( 0x200000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "7.bin", 0x100001, 0x80000, CRC(0a297c78) SHA1(effe1ee2ab64cb9fbeae0d168346168245942034) )
+	ROM_LOAD16_BYTE( "5.bin", 0x100000, 0x80000, CRC(88ef65e0) SHA1(20b50ffe6a9a3c17f7c2cbf90461fafa7a7bcf8d) )
+	ROM_LOAD16_BYTE( "8.bin", 0x000001, 0x80000, CRC(1708d3fb) SHA1(415b6a5079fced0306213953e6124ad4fecc680b) )
+	ROM_LOAD16_BYTE( "6.bin", 0x000000, 0x80000, CRC(83ae90ba) SHA1(84b0779d18dabcb6086880433b1c4620dcc722cb) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "1.bin",  0x00000, 0x40000, CRC(02b042e3) SHA1(05fca0f83292be49cef457633aba36fed3dc0114) )
+
+ROM_END
+
+ROM_START( dolmen )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "afega8.uj3", 0x00000, 0x20000, CRC(f1b73e4c) SHA1(fe5bbd1e91d1a81744c373effbd96adbbc896133) )
+	ROM_LOAD16_BYTE( "afega7.uj2", 0x00001, 0x20000, CRC(c91bda0b) SHA1(8c09e3020e72e8ab2ca3a3dad708d64f9bf75a4f) )
+
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "afega1.su6", 0x0000, 0x8000, CRC(166b53cb) SHA1(44864d1518205bdc445dc95e5825924f73d334b2) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "afega4.ub11", 0x00000, 0x80000, CRC(5a259393) SHA1(62c41ef4f398295d5cc1122c64487e12c4226ede) )
+	ROM_LOAD16_BYTE( "afega5.ub13", 0x00001, 0x80000, CRC(7f6a683d) SHA1(ab7026906b68aa9f4d75b0e56564216727decfde) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "afega9.ui20", 0x00000, 0x80000, CRC(b3fa7be6) SHA1(7ef8d902bd954960fbae727aae02dce9750f740e) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "afega6.uj11", 0x00000, 0x20000, CRC(13fa4415) SHA1(193524ebccbaae6b8c00893c42399c38cafdbd79) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "afega2.su12", 0x000000, 0x20000, CRC(1a2ce1c2) SHA1(ae6991fbfe57d35f32b541367d3b31244456713e) )
+	ROM_RELOAD(              0x020000, 0x20000 )
+	ROM_LOAD( "afega3.su13", 0x040000, 0x40000, CRC(d3531018) SHA1(940067a8634339258666c89319cb0e1b43f2af56) )
+ROM_END
+
 GAME( 1989, tharrier, 0,       tharrier, tharrier, 0, 	     ROT270, "UPL (American Sammy license)",	    "Task Force Harrier", 0 )
 GAME( 1989, tharierj, tharrier,tharrier, tharrier, 0,        ROT270, "UPL",	                            "Task Force Harrier (Japan)", 0 )
 GAME( 1990, mustang,  0,       mustang,  mustang,  0,        ROT0,   "UPL",				    "US AAF Mustang (Japan)", GAME_IMPERFECT_SOUND)
 GAME( 1990, mustangs, mustang, mustang,  mustang,  0,        ROT0,   "UPL (Seoul Trading license)",	    "US AAF Mustang (Seoul Trading)", GAME_IMPERFECT_SOUND )
-GAME( 1990, mustangb, mustang, mustang,  mustang,  0,        ROT0,   "bootleg",				    "US AAF Mustang (bootleg)", GAME_UNEMULATED_PROTECTION ) // Playable but there are Still Protection Problems
 GAME( 1990, bioship,  0,       bioship,  bioship,  0,        ROT0,   "UPL (American Sammy license)",	    "Bio-ship Paladin", GAME_IMPERFECT_SOUND )
 GAME( 1990, vandyke,  0,       vandyke,  vandyke,  0,        ROT270, "UPL",				    "Vandyke (Japan)",  GAME_IMPERFECT_SOUND )
 GAME( 1990, vandyjal, vandyke, vandyke,  vandyke,  0,        ROT270, "UPL (Jaleco license)",                "Vandyke (Jaleco, Set 1)",  GAME_IMPERFECT_SOUND )
 GAME( 1990, vandyja2, vandyke, vandyke,  vandyke,  0,        ROT270, "UPL (Jaleco license)",                "Vandyke (Jaleco, Set 2)",  GAME_IMPERFECT_SOUND )
-GAME( 1991, manybloc, 0,       manybloc, manybloc, 0,        ROT270, "Bee-Oh",                              "Many Block", GAME_NO_COCKTAIL | GAME_IMPERFECT_SOUND )
 GAME( 1991, blkheart, 0,       macross,  blkheart, 0,        ROT0,   "UPL",				    "Black Heart", GAME_IMPERFECT_SOUND  )
 GAME( 1991, blkhearj, blkheart,macross,  blkheart, 0,        ROT0,   "UPL",				    "Black Heart (Japan)", GAME_IMPERFECT_SOUND )
 GAME( 1991, acrobatm, 0,       acrobatm, acrobatm, 0,        ROT270, "UPL (Taito license)",		    "Acrobat Mission", GAME_IMPERFECT_SOUND )
 GAME( 1992, strahl,   0,       strahl,   strahl,   0,        ROT0,   "UPL",				    "Koutetsu Yousai Strahl (Japan set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1992, strahla,  strahl,  strahl,   strahl,   0,        ROT0,   "UPL",			            "Koutetsu Yousai Strahl (Japan set 2)", GAME_IMPERFECT_SOUND )
 GAME( 1991, tdragon,  0,       tdragon,  tdragon,  tdragon,  ROT270, "NMK (Tecmo license)",		    "Thunder Dragon (unprotected)", GAME_IMPERFECT_SOUND )
-GAME( 1991, tdragonb, tdragon, tdragonb, tdragonb, tdragonb, ROT270, "NMK / Tecmo",			    "Thunder Dragon (Bootleg)", 0 )
-GAME( 1992, ssmissin, 0,       ssmissin, ssmissin, ssmissin, ROT270, "Comad",				    "S.S. Mission", GAME_NO_COCKTAIL )
-GAME( 1996, airattck, 0,       ssmissin, airattck, ssmissin, ROT270, "Comad",				    "Air Attack", GAME_NO_COCKTAIL )
 GAME( 1991, hachamf,  0,       hachamf,  hachamf,  hachamf,  ROT0,   "NMK",		                    "Hacha Mecha Fighter", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1991, hachamfb, hachamf, hachamfb, hachamfb, hachamfb, ROT0,   "bootleg",                             "Hacha Mecha Fighter (unprotected)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) // appears to be a Thunder Dragon conversion, could be bootleg?
 GAME( 1992, macross,  0,       macross,  macross,  nmk,      ROT270, "Banpresto",			    "Super Spacefortress Macross / Chou-Jikuu Yousai Macross", GAME_IMPERFECT_SOUND )
@@ -5030,8 +5433,14 @@ GAME( 1993, macross2, 0,       macross2, macross2, 0,        ROT0,   "Banpresto"
 GAME( 1993, tdragon2, 0,       tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Thunder Dragon 2", GAME_NO_COCKTAIL )
 GAME( 1993, bigbang,  tdragon2,tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Big Bang", GAME_NO_COCKTAIL )
 GAME( 1994, raphero,  0,       raphero,  tdragon2, 0,        ROT270, "Media Trading Corp",                  "Rapid Hero (Japan)", 0 ) // 23rd July 1993 in test mode, (c)1994 on title screen
-
 GAME( 1992, sabotenb, 0,       bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 1)", GAME_NO_COCKTAIL )
 GAME( 1992, sabotnba, sabotenb,bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 2)", GAME_NO_COCKTAIL )
 GAME( 1993, bjtwin,   0,       bjtwin,   bjtwin,   bjtwin,   ROT270, "NMK",				    "Bombjack Twin", GAME_NO_COCKTAIL )
 GAME( 1995, nouryoku, 0,       bjtwin,   nouryoku, nmk,      ROT0,   "Tecmo",				    "Nouryoku Koujou Iinkai", GAME_NO_COCKTAIL )
+GAME( 1991, manybloc, 0,       manybloc, manybloc, 0,        ROT270, "Bee-Oh",                              "Many Block", GAME_NO_COCKTAIL | GAME_IMPERFECT_SOUND )
+GAME( 1997, tomagic, 0, tomagic, tomagic, tomagic, ROT0, "Hobbitron T.K.Trading Co. Ltd.", "Tom Tom Magic", 0 )
+GAME( 1990, mustangb, mustang, mustang,  mustang,  0,        ROT0,   "bootleg",				    "US AAF Mustang (bootleg)", GAME_UNEMULATED_PROTECTION ) // Playable but there are Still Protection Problems
+GAME( 1991, tdragonb, tdragon, tdragonb, tdragonb, tdragonb, ROT270, "NMK / Tecmo",			    "Thunder Dragon (Bootleg)", 0 )
+GAME( 1992, ssmissin, 0,       ssmissin, ssmissin, ssmissin, ROT270, "Comad",				    "S.S. Mission", GAME_NO_COCKTAIL )
+GAME( 1996, airattck, 0,       ssmissin, airattck, ssmissin, ROT270, "Comad",				    "Air Attack", GAME_NO_COCKTAIL )
+GAME( 1995, dolmen, 0, dolmen, dolmen, dolmen, ROT0, "Afega", "Dolmen", 0 )
