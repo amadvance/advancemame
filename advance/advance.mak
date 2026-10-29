@@ -368,6 +368,10 @@ ZLIB_SRC = \
 	$(wildcard $(srcdir)/advance/zlib/README) \
 	$(wildcard $(srcdir)/advance/zlib/*.diff)
 
+NANOJPEG_SRC = \
+	$(wildcard $(srcdir)/advance/nanojpeg/*.c) \
+	$(wildcard $(srcdir)/advance/nanojpeg/*.h)
+
 SLJIT_SRC = \
 	$(wildcard $(srcdir)/advance/sljit/*.c) \
 	$(wildcard $(srcdir)/advance/sljit/*.h) \
