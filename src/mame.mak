@@ -1447,7 +1447,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/machine/ks0164.o \
 	$(OBJ)/drivers/dorachan.o $(OBJ)/vidhrdw/dorachan.o \
 	$(OBJ)/drivers/dreamwld.o \
-	$(OBJ)/drivers/dribling.o $(OBJ)/vidhrdw/dribling.o \
+	$(OBJ)/drivers/dribling.o $(OBJ)/vidhrdw/dribling.o $(OBJ)/sndhrdw/dribling.o \
 	$(OBJ)/drivers/dwarfd.o \
 	$(OBJ)/drivers/dynadice.o \
 	$(OBJ)/drivers/epos.o $(OBJ)/vidhrdw/epos.o \

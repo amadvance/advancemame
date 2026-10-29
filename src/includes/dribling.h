@@ -16,3 +16,9 @@ extern UINT8 dribling_abca;
 PALETTE_INIT( dribling );
 WRITE8_HANDLER( dribling_colorram_w );
 VIDEO_UPDATE( dribling );
+
+struct CustomSound_interface;
+extern const struct CustomSound_interface dribling_sound_interface;
+void dribling_sound_data_w(UINT8 data);
+void dribling_sound_pitch_w(UINT8 data);
+void dribling_sound_control_w(UINT8 data);
