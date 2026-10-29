@@ -964,7 +964,7 @@ $(OBJ)/nichibut.a: \
 	$(OBJ)/drivers/armedf.o $(OBJ)/vidhrdw/armedf.o \
 	$(OBJ)/drivers/cclimber.o $(OBJ)/sndhrdw/cclimber.o $(OBJ)/vidhrdw/cclimber.o \
 	$(OBJ)/drivers/clshroad.o $(OBJ)/vidhrdw/clshroad.o \
-	$(OBJ)/drivers/cop01.o $(OBJ)/vidhrdw/cop01.o \
+	$(OBJ)/drivers/cop01.o $(OBJ)/vidhrdw/cop01.o $(OBJ)/machine/nb1412m2.o \
 	$(OBJ)/drivers/dacholer.o \
 	$(OBJ)/drivers/galivan.o $(OBJ)/vidhrdw/galivan.o \
 	$(OBJ)/drivers/gomoku.o $(OBJ)/sndhrdw/gomoku.o $(OBJ)/vidhrdw/gomoku.o \
