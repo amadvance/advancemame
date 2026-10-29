@@ -446,3 +446,121 @@ VIDEO_UPDATE( hotmind )
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
+
+static UINT16 hrdtimes_scroll[7];
+
+static void hrdtimes_get_tx_tile_info(int tile_index)
+{
+	int data = wbeachvl_videoram1[tile_index];
+	SET_TILE_INFO(3,data & 0x0fff,data >> 13,0)
+}
+
+static void hrdtimes_get_fg_tile_info(int tile_index)
+{
+	int data = wbeachvl_videoram2[tile_index];
+	SET_TILE_INFO(2,data & 0x1fff,(data >> 13) + 8,0)
+}
+
+static void hrdtimes_get_bg_tile_info(int tile_index)
+{
+	int data = wbeachvl_videoram3[tile_index];
+	SET_TILE_INFO(1,data & 0x1fff,data >> 13,0)
+}
+
+static UINT32 hrdtimes_scan(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 num_rows)
+{
+	return (col / 32) * 1024 + (col % 32) + row * 32;
+}
+
+VIDEO_START( hrdtimes )
+{
+	tx_tilemap = tilemap_create(hrdtimes_get_tx_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
+	fg_tilemap = tilemap_create(hrdtimes_get_fg_tile_info,hrdtimes_scan,TILEMAP_TRANSPARENT,16,16,128,32);
+	bg_tilemap = tilemap_create(hrdtimes_get_bg_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,16,16,32,32);
+	if (!tx_tilemap || !fg_tilemap || !bg_tilemap)
+		return 1;
+	tilemap_set_transparent_pen(tx_tilemap,0);
+	tilemap_set_transparent_pen(fg_tilemap,0);
+	tilemap_set_scrolldx(tx_tilemap,-14,-14);
+	tilemap_set_scrolldx(fg_tilemap,-10,-10);
+	tilemap_set_scrolldx(bg_tilemap,-12,-12);
+	xoffset = yoffset = -8;
+	memset(hrdtimes_scroll,0,sizeof(hrdtimes_scroll));
+	return 0;
+}
+
+WRITE16_HANDLER( hrdtimes_scroll_w )
+{
+	data = COMBINE_DATA(&hrdtimes_scroll[offset]);
+	switch (offset)
+	{
+		case 0: tilemap_set_scrollx(tx_tilemap,0,data); break;
+		case 1: tilemap_set_scrolly(tx_tilemap,0,data); break;
+		case 2: tilemap_set_scrollx(fg_tilemap,0,data); break;
+		case 3: tilemap_set_scrolly(fg_tilemap,0,data); break;
+		case 4: tilemap_set_scrollx(bg_tilemap,0,data); break;
+		case 5: tilemap_set_scrolly(bg_tilemap,0,data); break;
+	}
+}
+
+static void dumped_pic_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect,int codeshift)
+{
+	int offs, start = spriteram_size / 2 - 4;
+	static const UINT32 masks[3] = { 0xfff0, 0xfffc, 0 };
+	int height = Machine->gfx[0]->height;
+	int colordiv = Machine->gfx[0]->color_granularity / 16;
+	for (offs = 4; offs < spriteram_size / 2; offs += 4)
+		if (spriteram16[offs - 1] == 0x2000)
+		{
+			start = offs - 4;
+			break;
+		}
+	for (offs = start; offs >= 4; offs -= 4)
+	{
+		int sy = spriteram16[offs - 1];
+		int flipx = sy & 0x4000;
+		int sx = (spriteram16[offs + 1] & 0x1ff) - 23;
+		int code = spriteram16[offs + 2] >> codeshift;
+		int color = ((spriteram16[offs + 1] & 0x3e00) >> 9) / colordiv;
+		int pri = (spriteram16[offs + 1] >> 15) & 1;
+		sy = (248 - height - sy) & 0xff;
+		if (!pri && (color & 0x0c) == 0x0c) pri = 2;
+		pdrawgfx(bitmap,Machine->gfx[0],code,color,flipx,0,sx+xoffset,sy+yoffset,
+			cliprect,TRANSPARENCY_PEN,0,masks[pri]);
+	}
+}
+
+VIDEO_UPDATE( hrdtimes )
+{
+	fillbitmap(priority_bitmap,0,cliprect);
+	if (hrdtimes_scroll[6] & 1)
+	{
+		tilemap_draw(bitmap,cliprect,bg_tilemap,0,1);
+		tilemap_draw(bitmap,cliprect,fg_tilemap,0,2);
+		dumped_pic_draw_sprites(bitmap,cliprect,2);
+		tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
+	}
+	else
+		fillbitmap(bitmap,get_black_pen(),cliprect);
+}
+
+VIDEO_UPDATE( wbeachvl_pic )
+{
+	if (fg_rowscroll_enable)
+	{
+		int i;
+		tilemap_set_scroll_rows(fg_tilemap,512);
+		for (i = 0; i < 256; i++)
+			tilemap_set_scrollx(fg_tilemap,i+1,wbeachvl_rowscroll[8*i]);
+	}
+	else
+	{
+		tilemap_set_scroll_rows(fg_tilemap,1);
+		tilemap_set_scrollx(fg_tilemap,0,fgscrollx);
+	}
+	fillbitmap(priority_bitmap,0,cliprect);
+	tilemap_draw(bitmap,cliprect,bg_tilemap,0,1);
+	tilemap_draw(bitmap,cliprect,fg_tilemap,0,2);
+	dumped_pic_draw_sprites(bitmap,cliprect,0);
+	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
+}

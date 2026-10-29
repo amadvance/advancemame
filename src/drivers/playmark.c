@@ -5,6 +5,7 @@
 Big Twins
 World Beach Volley
 Excelsior
+Hard Times
 Hot Mind
 
 driver by Nicola Salmoria
@@ -53,6 +54,10 @@ VIDEO_START( bigtwin );
 VIDEO_START( wbeachvl );
 VIDEO_START( excelsr );
 VIDEO_START( hotmind );
+VIDEO_START( hrdtimes );
+VIDEO_UPDATE( hrdtimes );
+VIDEO_UPDATE( wbeachvl_pic );
+WRITE16_HANDLER( hrdtimes_scroll_w );
 WRITE16_HANDLER( wbeachvl_txvideoram_w );
 WRITE16_HANDLER( wbeachvl_fgvideoram_w );
 WRITE16_HANDLER( wbeachvl_bgvideoram_w );
@@ -362,6 +367,193 @@ ADDRESS_MAP_END
 
 
 
+
+
+static UINT8 *dumped_pic_samples;
+static int dumped_pic_bank, dumped_pic_bank_mask;
+
+static WRITE8_HANDLER( dumped_pic_bank_w )
+{
+	int bank = data & dumped_pic_bank_mask;
+	if (bank != dumped_pic_bank)
+	{
+		dumped_pic_bank = bank;
+		memcpy(memory_region(REGION_SOUND1) + 0x20000,
+			dumped_pic_samples + bank * 0x20000,0x20000);
+	}
+}
+
+static WRITE8_HANDLER( hrdtimes_snd_control_w )
+{
+	dumped_pic_bank_w(0,data & 3);
+	playmark_snd_control_w(offset,data);
+}
+
+static ADDRESS_MAP_START( dumped_pic_sound_io, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_WRITE(dumped_pic_bank_w)
+	AM_RANGE(0x01, 0x01) AM_READWRITE(playmark_snd_command_r,playmark_oki_w)
+	AM_RANGE(0x02, 0x02) AM_READWRITE(playmark_snd_flag_r,playmark_snd_control_w)
+	AM_RANGE(PIC16C5x_T0, PIC16C5x_T0) AM_READ(PIC16C5X_T0_clk_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hrdtimes_sound_io, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x01, 0x01) AM_READWRITE(playmark_snd_command_r,playmark_oki_w)
+	AM_RANGE(0x02, 0x02) AM_READWRITE(playmark_snd_flag_r,hrdtimes_snd_control_w)
+	AM_RANGE(PIC16C5x_T0, PIC16C5x_T0) AM_READ(PIC16C5X_T0_clk_r)
+ADDRESS_MAP_END
+
+static MACHINE_RESET( dumped_pic )
+{
+	playmark_snd_command = playmark_snd_flag = 0;
+	playmark_oki_control = playmark_oki_command = 0;
+	dumped_pic_bank = -1;
+	dumped_pic_bank_w(0,1);
+}
+
+static MACHINE_RESET( wbeachvl_pic )
+{
+	machine_reset_dumped_pic();
+	memory_install_write16_handler(0,ADDRESS_SPACE_PROGRAM,0x71001e,0x71001f,0,0,playmark_snd_command_w);
+}
+
+static DRIVER_INIT( dumped_pic )
+{
+	int length = memory_region_length(REGION_SOUND1);
+	dumped_pic_samples = auto_malloc(length);
+	memcpy(dumped_pic_samples,memory_region(REGION_SOUND1),length);
+	dumped_pic_bank_mask = length / 0x20000 - 1;
+	pic16c5x_config(0);
+}
+
+static WRITE16_HANDLER( hrdtimes_coin_w )
+{
+	if (ACCESSING_LSB)
+	{
+		coin_counter_w(0,data & 1);
+		coin_counter_w(1,data & 2);
+	}
+}
+
+static ADDRESS_MAP_START( hrdtimes_main_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_ROM
+	AM_RANGE(0x080000, 0x0bffff) AM_RAM
+	AM_RANGE(0x0c0000, 0x0fffff) AM_ROM AM_REGION(REGION_CPU1,0x0c0000)
+	AM_RANGE(0x100000, 0x1007ff) AM_RAM AM_WRITE(hotmind_bgvideoram_w) AM_BASE(&wbeachvl_videoram3)
+	AM_RANGE(0x100800, 0x103fff) AM_RAM
+	AM_RANGE(0x104000, 0x105fff) AM_RAM AM_WRITE(hotmind_fgvideoram_w) AM_BASE(&wbeachvl_videoram2)
+	AM_RANGE(0x106000, 0x107fff) AM_RAM
+	AM_RANGE(0x108000, 0x109fff) AM_RAM AM_WRITE(hotmind_txvideoram_w) AM_BASE(&wbeachvl_videoram1)
+	AM_RANGE(0x10a000, 0x10ffff) AM_RAM
+	AM_RANGE(0x110000, 0x11000d) AM_WRITE(hrdtimes_scroll_w)
+	AM_RANGE(0x200000, 0x200fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x280000, 0x2807ff) AM_RAM AM_WRITE(paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x280800, 0x280fff) AM_RAM
+	AM_RANGE(0x300010, 0x300011) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x300012, 0x300013) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x300014, 0x300015) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x300016, 0x300017) AM_WRITE(hrdtimes_coin_w)
+	AM_RANGE(0x30001a, 0x30001b) AM_READ(input_port_4_word_r)
+	AM_RANGE(0x30001c, 0x30001d) AM_READ(input_port_3_word_r)
+	AM_RANGE(0x30001e, 0x30001f) AM_WRITE(playmark_snd_command_w)
+	AM_RANGE(0x304000, 0x304001) AM_WRITENOP
+ADDRESS_MAP_END
+
+static INPUT_PORTS_START( hrdtimes )
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START2 )
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x01, 0x01, "Coin Slots" )
+	PORT_DIPSETTING(    0x00, "Separate" )
+	PORT_DIPSETTING(    0x01, "Common" )
+	PORT_DIPNAME( 0x1e, 0x1e, DEF_STR( Coinage ) ) PORT_CONDITION("DSW1", 0x01, PORTCOND_EQUALS, 0x01)
+	PORT_DIPSETTING(    0x14, DEF_STR( 6C_1C ) )
+	PORT_DIPSETTING(    0x16, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x1a, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 8C_3C ) )
+	PORT_DIPSETTING(    0x1c, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 5C_3C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 3C_2C ) )
+	PORT_DIPSETTING(    0x1e, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x12, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x0e, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x0a, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Coin_A ) ) PORT_CONDITION("DSW1", 0x01, PORTCOND_NOTEQUALS, 0x01)
+	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Coin_B ) ) PORT_CONDITION("DSW1", 0x01, PORTCOND_NOTEQUALS, 0x01)
+	PORT_DIPSETTING(    0x18, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_6C ) )
+
+
+	PORT_DIPNAME( 0x20, 0x20, "Credits to Start" )
+	PORT_DIPSETTING(    0x20, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPNAME( 0x40, 0x40, "1 Life If Continue" )
+	PORT_DIPSETTING(    0x40, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x01, "5" )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x0c, "Every 300k - 500k" )
+	PORT_DIPSETTING(    0x08, "Every 500k - 500k" )
+	PORT_DIPSETTING(    0x04, "Only 500k" )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Hard ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( bigtwin )
 	PORT_START_TAG("IN0")
@@ -833,6 +1025,75 @@ static const gfx_decode hotmind_gfxdecodeinfo[] =
 	{ -1 } /* end of array */
 };
 
+static const gfx_layout hrdtimes_full_layout =
+{
+	16,16,
+	RGN_FRAC(1,2),
+	4,
+	{ RGN_FRAC(2,4)+8, RGN_FRAC(2,4), RGN_FRAC(0,4)+8, RGN_FRAC(0,4) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7,
+			16*16+0, 16*16+1, 16*16+2, 16*16+3, 16*16+4, 16*16+5, 16*16+6, 16*16+7 },
+	{ 0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16,
+	8*16, 9*16, 10*16, 11*16, 12*16, 13*16, 14*16, 15*16 },
+	32*16
+};
+
+static const gfx_layout hrdtimes_tilelayout =
+{
+	16,16,
+	RGN_FRAC(1,4),
+	4,
+	{ RGN_FRAC(2,4)+8, RGN_FRAC(2,4), RGN_FRAC(0,4)+8, RGN_FRAC(0,4) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7,
+			16*16+0, 16*16+1, 16*16+2, 16*16+3, 16*16+4, 16*16+5, 16*16+6, 16*16+7 },
+	{ 0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16,
+	8*16, 9*16, 10*16, 11*16, 12*16, 13*16, 14*16, 15*16 },
+	32*16
+};
+
+static const gfx_layout hrdtimes_charlayout =
+{
+	8,8,
+	0x400,
+	4,
+	{ RGN_FRAC(2,4)+8, RGN_FRAC(2,4), RGN_FRAC(0,4)+8, RGN_FRAC(0,4) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16 },
+	8*16
+};
+
+static const gfx_decode hrdtimes_gfxdecodeinfo[] =
+{
+	{ REGION_GFX2, 0, &hrdtimes_full_layout, 0x200, 32 },
+	{ REGION_GFX1, 0, &hrdtimes_tilelayout, 0, 16 },
+	{ REGION_GFX1, 0x80000, &hrdtimes_tilelayout, 0, 16 },
+	{ REGION_GFX1, 0xfc000, &hrdtimes_charlayout, 0x100, 8 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( hrdtimes )
+	MDRV_CPU_ADD(M68000,12000000)
+	MDRV_CPU_PROGRAM_MAP(hrdtimes_main_map,0)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+	MDRV_CPU_ADD(PIC16C57,12000000/PIC16C5x_CLOCK_DIVIDER)
+	MDRV_CPU_IO_MAP(hrdtimes_sound_io,0)
+	MDRV_MACHINE_RESET(dumped_pic)
+	MDRV_INTERLEAVE(20)
+	MDRV_FRAMES_PER_SECOND(58)
+	MDRV_VBLANK_DURATION(0)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(512,512)
+	MDRV_VISIBLE_AREA(0,319,16,239)
+	MDRV_GFXDECODE(hrdtimes_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+	MDRV_VIDEO_START(hrdtimes)
+	MDRV_VIDEO_UPDATE(hrdtimes)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(OKIM6295,1000000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( bigtwin )
 
 	/* basic machine hardware */
@@ -898,6 +1159,37 @@ static MACHINE_DRIVER_START( wbeachvl )
 	MDRV_SOUND_ADD(OKIM6295, 1000000/132)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( wbeachvl_pic )
+
+	MDRV_CPU_ADD(M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(wbeachvl_main_map, 0)
+	MDRV_CPU_VBLANK_INT(irq2_line_hold,1)
+
+	MDRV_CPU_ADD(PIC16C57,12000000/PIC16C5x_CLOCK_DIVIDER)
+	MDRV_CPU_IO_MAP(dumped_pic_sound_io,0)
+	MDRV_MACHINE_RESET(wbeachvl_pic)
+	MDRV_INTERLEAVE(20)
+	MDRV_FRAMES_PER_SECOND(58)
+	MDRV_VBLANK_DURATION(0)
+
+	MDRV_NVRAM_HANDLER(wbeachvl)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 64*8)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 2*8, 32*8-1)
+	MDRV_GFXDECODE(wbeachvl_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(2048)
+
+	MDRV_VIDEO_START(wbeachvl)
+	MDRV_VIDEO_UPDATE(wbeachvl_pic)
+
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(OKIM6295, 1000000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( excelsr )
@@ -1002,12 +1294,13 @@ ROM_START( bigtwin )
 ROM_END
 
 ROM_START( wbeachvl )
-	ROM_REGION( 0x80000, REGION_CPU1, 0 )	/* 68000 code */
+	ROM_REGION( 0x80000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "wbv_02.bin",   0x000000, 0x40000, CRC(c7cca29e) SHA1(03af361081d688c4204a95f7f5babcc598b72c23) )
 	ROM_LOAD16_BYTE( "wbv_03.bin",   0x000001, 0x40000, CRC(db4e69d5) SHA1(119bf35a463d279ddde67ab08f6f1bab9f05cf0c) )
 
-	ROM_REGION( 0x1000, REGION_CPU2, ROMREGION_ERASE00 )	/* sound (missing) */
-	ROM_LOAD( "pic16c57",     0x0000, 0x1000, NO_DUMP )
+	ROM_REGION( 0x1009, REGION_CPU2, ROMREGION_ERASE00 )
+
+	ROM_LOAD( "pic16c57",       0x00000, 0x1009, CRC(35439064) SHA1(ab0c5bafd76a2cb2a2e5ddb9d0578fd7e2241e43) )
 
 	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "wbv_10.bin",   0x000000, 0x80000, CRC(50680f0b) SHA1(ed76ef6ced70ba7e9558162aa94bbe9f19bbabe6) )
@@ -1022,28 +1315,9 @@ ROM_START( wbeachvl )
 	ROM_LOAD( "wbv_08.bin",   0x480000, 0x80000, CRC(07e4b416) SHA1(a780ef0bd11897ab437359985f6e4852030ddbbf) )
 	ROM_LOAD( "wbv_15.bin",   0x500000, 0x80000, CRC(4e1a82d2) SHA1(9e66b52ba8e8144f772183396fc1a2fbb37ed2bc) )
 	ROM_LOAD( "wbv_09.bin",   0x580000, 0x20000, CRC(894ce354) SHA1(331aeabbe10cd645776da2dc0829acc2275e72dc) )
-	/* 5a0000-5fffff is empty */
 
-	ROM_REGION( 0x100000, REGION_USER2, 0 )	/* OKIM6295 samples */
+	ROM_REGION( 0x100000, REGION_SOUND1, 0 )
 	ROM_LOAD( "wbv_01.bin",   0x00000, 0x100000, CRC(ac33f25f) SHA1(5d9ed16650aeb297d565376a99b31c88ab611668) )
-
-	/* $00000-$20000 stays the same in all sound banks, */
-	/* the second half of the bank is what gets switched */
-	ROM_REGION( 0x1c0000, REGION_SOUND1, 0 ) /* Samples */
-	ROM_COPY( REGION_USER2, 0x000000, 0x000000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x020000, 0x020000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x040000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x040000, 0x060000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x080000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x060000, 0x0a0000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x0c0000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x080000, 0x0e0000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x100000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x0a0000, 0x120000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x140000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x0c0000, 0x160000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x000000, 0x180000, 0x020000)
-	ROM_COPY( REGION_USER2, 0x0e0000, 0x1a0000, 0x020000)
 ROM_END
 
 ROM_START( wbeachv2 )
@@ -1277,8 +1551,34 @@ static DRIVER_INIT( bigtwin )
 	} while (src_pos < 0x2d4c);		/* 0x2d4c is the size of the HEX rom loaded */
 }
 
+ROM_START( hrdtimes )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "31.u67",       0x00000, 0x80000, CRC(53eb041b) SHA1(7437da1ceb26e9518a3085560b8a42f37e77ace9) )
+	ROM_LOAD16_BYTE( "32.u66",       0x00001, 0x80000, CRC(f2c6b382) SHA1(d73affed091a261c4bfe17f409657e0a46b6c163) )
+
+	ROM_REGION( 0x1000, REGION_CPU2, ROMREGION_ERASE00 )
+
+	ROM_LOAD( "pic16c57.bin", 0x0000, 0x1000, CRC(db307198) SHA1(21e98a69e673f6d48eb48239b4c51f6e7aa19a66) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "33.u36",       0x000000, 0x80000, CRC(d1239ce5) SHA1(8e966a39a47f66c5e904ec4357c751e896ed47cb) )
+	ROM_LOAD16_BYTE( "37.u42",       0x000001, 0x80000, CRC(aa692005) SHA1(1e274da358a25ceebdc71cb8f7228ef39348a895) )
+	ROM_LOAD16_BYTE( "34.u39",       0x100000, 0x80000, CRC(e4108c59) SHA1(15f7b53a7bbdc4aefdae31a00be64c419326bfd1) )
+	ROM_LOAD16_BYTE( "38.u45",       0x100001, 0x80000, CRC(ff7cacf3) SHA1(5ed93e86fe3b0b594bdd62e314cd9e2ffd3c2a2a) )
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "36.u86",       0x000000, 0x80000, CRC(f2fc1ca3) SHA1(f70913d9b89338932e62ca6bb60e5f5e412d7f64) )
+	ROM_LOAD16_BYTE( "40.u85",       0x000001, 0x80000, CRC(368c15f4) SHA1(8ae95fd672448921964c4d0312d7366903362e27) )
+	ROM_LOAD16_BYTE( "35.u84",       0x100000, 0x80000, CRC(7bde46ec) SHA1(1d26d268e1fc937e23ae7d93a1f86386b899a0c2) )
+	ROM_LOAD16_BYTE( "39.u83",       0x100001, 0x80000, CRC(a0bae586) SHA1(0b2bb0c5c51b2717b820f0176d5775df21652667) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "30.io13",      0x00000, 0x80000, CRC(fa5e50ae) SHA1(f3bd87c83fca9269cc2f19db1fbf55540c96f931) )
+ROM_END
+
 GAME( 1995, bigtwin,  0,        bigtwin,  bigtwin,  bigtwin, ROT0, "Playmark", "Big Twin", GAME_NO_COCKTAIL )
-GAME( 1995, wbeachvl, 0,        wbeachvl, wbeachvl, 0,       ROT0, "Playmark", "World Beach Volley (set 1)", GAME_NO_COCKTAIL | GAME_NO_SOUND )
+GAME( 1995, wbeachvl, 0,        wbeachvl_pic, wbeachvl, dumped_pic, ROT0, "Playmark", "World Beach Volley (set 1, PIC16C57 audio CPU)", GAME_NO_COCKTAIL | GAME_IMPERFECT_SOUND )
 GAME( 1995, wbeachv2, wbeachvl, wbeachvl, wbeachvl, 0,       ROT0, "Playmark", "World Beach Volley (set 2)",  GAME_NO_COCKTAIL | GAME_NO_SOUND )
 GAME( 1996, excelsr,  0,        excelsr,  excelsr,  bigtwin, ROT0, "Playmark", "Excelsior", 0 )
+GAME( 1994, hrdtimes, 0, hrdtimes, hrdtimes, dumped_pic, ROT0, "Playmark", "Hard Times (set 1)", 0 )
 GAME( 1995, hotmind,  0,        hotmind,  hotmind,  bigtwin, ROT0, "Playmark", "Hot Mind", GAME_NOT_WORKING ) // unable to pass initial test
