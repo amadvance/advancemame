@@ -62,6 +62,7 @@ static UINT8 *vram1;
 static UINT8 *vram2;
 
 static UINT8 vidctrl;
+static UINT8 sound_data;
 static UINT8 *palram;
 static UINT8 toMCU, fromMCU, ddrA;
 
@@ -106,72 +107,84 @@ VIDEO_UPDATE ( pipeline)
 
 INPUT_PORTS_START( pipeline )
 	PORT_START
-	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
-	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
-	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
-	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
-	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
-	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_COIN1   )
-	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_START1  )
-
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )    PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )  PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )  PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )        PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )        PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_START
-	PORT_DIPNAME( 0x01, 0x00, "DIPSW 1-1" )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x00, "DIPSW 1-2" )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x00, "DIPSW 1-3" )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, "DIPSW 1-4" )
-	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, "DIPSW 1-5" )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "DIPSW 1-6" )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, "DIPSW 1-7" )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, "DIPSW 1-8" )
-	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
+	PORT_DIPNAME( 0x7f, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x07, "10 Coins/1 Credit" )
+	PORT_DIPSETTING(    0x03, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x0f, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x1f, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x3f, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x80, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
 	PORT_START
-	PORT_DIPNAME( 0x01, 0x00, "DIPSW 2-1" )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x07, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x18, 0x18, "Water Speed" )
+	PORT_DIPSETTING(    0x18, "Slowest" )
+	PORT_DIPSETTING(    0x10, "Slow" )
+	PORT_DIPSETTING(    0x08, "Fast" )
+	PORT_DIPSETTING(    0x00, "Fastest" )
+	PORT_DIPNAME( 0x20, 0x20, "Continue" )
+	PORT_DIPSETTING(    0x20, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, "Checkpoints" )
+	PORT_DIPNAME( 0xc0, 0x00, "Sounds/Music" )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x40, "Attract Mode" )
+	PORT_DIPSETTING(    0x80, "Normal Game" )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x00, "DIPSW 2-2" )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x00, "DIPSW 2-3" )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, "DIPSW 2-4" )
-	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, "DIPSW 2-5" )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "DIPSW 2-6" )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, "DIPSW 2-7" )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, "DIPSW 2-8" )
-	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
 INPUT_PORTS_END
+
+static void vidctrl_deferred_w(int data)
+{
+	vidctrl=data;
+	z80ctc_0_trg2_w(0, (data >> 1) & 1);
+}
 
 static WRITE8_HANDLER(vidctrl_w)
 {
-	vidctrl=data;
+	timer_set(TIME_NOW, data, vidctrl_deferred_w);
+}
+
+static READ8_HANDLER(sound_data_r)
+{
+	return sound_data;
+}
+
+static WRITE8_HANDLER(sound_data_w)
+{
+	sound_data=data;
+}
+
+static WRITE8_HANDLER(sound_bank_w)
+{
+	memory_set_bankptr(1, memory_region(REGION_CPU2) + 0x8000 + ((data >> 7) & 1) * 0x4000);
+}
+
+static READ8_HANDLER(ym2203_r)
+{
+	return (offset & 1) ? YM2203_read_port_0_r(0) : YM2203_status_port_0_r(0);
+}
+
+static WRITE8_HANDLER(ym2203_w)
+{
+	if (offset & 1)
+		YM2203_write_port_0_w(0, data);
+	else
+		YM2203_control_port_0_w(0, data);
 }
 
 static READ8_HANDLER(vram2_r)
@@ -233,14 +246,15 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( cpu1_mem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_BANK1)
 	AM_RANGE(0xc000, 0xc7ff) AM_RAM
-	AM_RANGE(0xe000, 0xe003) AM_READWRITE(ppi8255_2_r, ppi8255_2_w)
+	AM_RANGE(0xe000, 0xe003) AM_READWRITE(ym2203_r, ym2203_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_port, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x03) AM_READ(z80ctc_0_r) AM_WRITE(z80ctc_0_w)
-	AM_RANGE(0x06, 0x07) AM_NOP
+	AM_RANGE(0x04, 0x07) AM_READWRITE(ppi8255_2_r, ppi8255_2_w)
 ADDRESS_MAP_END
 
 static WRITE8_HANDLER(mcu_portA_w)
@@ -319,12 +333,12 @@ static struct z80_irq_daisy_chain daisy_chain_sound[] =
 static ppi8255_interface ppi8255_intf =
 {
 	3,
-	{ input_port_0_r,     input_port_1_r,	NULL },	/* Port A read */
-	{ NULL,             	input_port_2_r,	NULL },	/* Port B read */
-	{ NULL,        				protection_r,		NULL },	/* Port C read */
-	{ NULL, 							NULL,						NULL },	/* Port A write */
-	{ NULL, 							NULL,						NULL },	/* Port B write */
-	{ vidctrl_w,          protection_w,		NULL },	/* Port C write */
+	{ input_port_0_r, input_port_1_r, NULL },
+	{ NULL, input_port_2_r, sound_data_r },
+	{ NULL, protection_r, NULL },
+	{ NULL, NULL, NULL },
+	{ sound_data_w, NULL, NULL },
+	{ vidctrl_w, protection_w, sound_bank_w },
 };
 
 static struct YM2203interface ym2203_interface =
@@ -356,9 +370,11 @@ static PALETTE_INIT(pipeline)
 
 MACHINE_RESET( pipeline )
 {
-   ctc_intf.baseclock = Machine->drv->cpu[0].cpu_clock;
-   z80ctc_init(0, &ctc_intf);
-   ppi8255_init(&ppi8255_intf);
+	vidctrl = sound_data = toMCU = fromMCU = ddrA = 0;
+	memory_set_bankptr(1, memory_region(REGION_CPU2) + 0x8000);
+	ctc_intf.baseclock = Machine->drv->cpu[0].cpu_clock;
+	z80ctc_init(0, &ctc_intf);
+	ppi8255_init(&ppi8255_intf);
 }
 
 static MACHINE_DRIVER_START( pipeline )
@@ -398,7 +414,7 @@ static MACHINE_DRIVER_START( pipeline )
 
 	MDRV_SOUND_ADD(YM2203, 7372800/4)
 	MDRV_SOUND_CONFIG(ym2203_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
 
 MACHINE_DRIVER_END
 
@@ -410,7 +426,7 @@ ROM_START( pipeline )
 	ROM_LOAD( "rom2.u84", 0x00000, 0x08000, CRC(e77c43b7) SHA1(8b04005bc448083a429ace3319fc7e168a61f2f9) )
 
 	ROM_REGION( 0x1000, REGION_CPU3, 0 )
-	ROM_LOAD( "68705r3.u74", 0x00000, 0x01000, CRC(0550e87f) SHA1(bc051720ee2b1b871c883ab37140380a7b616445) )
+	ROM_LOAD( "68705r3.u74", 0x00000, 0x01000, CRC(9bef427e) SHA1(d8e9b144190ac1c837e379e4be69d1e258a6c666) )
 
 	ROM_REGION( 0x18000, REGION_GFX2,ROMREGION_DISPOSE  )
 	ROM_LOAD( "rom3.u32", 0x00000, 0x08000, CRC(d065ca46) SHA1(9fd8bb66735195d1cd20420096438abb5cb3fd54) )
@@ -433,5 +449,5 @@ ROM_START( pipeline )
 	ROM_LOAD( "82s123.u79", 0x00200, 0x00020,CRC(6df3f972) SHA1(0096a7f7452b70cac6c0752cb62e24b643015b5c) )
 ROM_END
 
-GAME( 1990, pipeline, 0, pipeline, pipeline, 0, ROT0, "Daehyun Electronics", "Pipeline",GAME_NO_SOUND )
+GAME( 1990, pipeline, 0, pipeline, pipeline, 0, ROT0, "Daehyun Electronics", "Pipeline",GAME_IMPERFECT_SOUND )
 
