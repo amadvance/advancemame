@@ -7394,6 +7394,7 @@ Other Sun games
 	DRIVER( funybubl )	/* (c) 1999 Comad Industries */
 	DRIVER( dcheese )	/* (c) 1993 HAR */
 	DRIVER( lottof2 )	/* (c) 1993 HAR */
+	DRIVER( cecmatch )
 	DRIVER( fredmem )	/* (c) 1993 HAR */
 	DRIVER( f15se )		/* (c) 1991 Microprose */
 	DRIVER( botss )		/* (c) 1992 Microprose */
