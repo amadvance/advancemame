@@ -36,11 +36,19 @@
 /****************************************************************************/
 /* filter8 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_filter8_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_filter8_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_mean8_horz_next_step1_asm(dst, src, count);
+	internal_mean8_horz_next_step1_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_filter8_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_mean8_horz_next_step1_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_filter8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -62,11 +70,19 @@ static void video_stage_filter8_set(struct video_stage_horz_struct* stage, unsig
 /****************************************************************************/
 /* filter16 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_filter16_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_filter16_step2_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_mean16_horz_next_step2_asm(dst, src, count);
+	internal_mean16_horz_next_step2_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_filter16_step2_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_mean16_horz_next_step2_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_filter16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -88,11 +104,19 @@ static void video_stage_filter16_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* filter32 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_filter32_step4_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_filter32_step4_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_mean32_horz_next_step4_asm(dst, src, count);
+	internal_mean32_horz_next_step4_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_filter32_step4_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_mean32_horz_next_step4_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_filter32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -114,42 +138,81 @@ static void video_stage_filter32_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* interlacefilter */
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_interlacefilter8_step1_asm(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_interlacefilter8_step1_sse2(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
 	if (line == 0) {
-		internal_copy8_asm(buffer, src, count);
-		internal_copy8_asm(dst, buffer, count);
+		internal_copy8_sse2(buffer, src, count);
+		internal_copy8_sse2(dst, buffer, count);
 	} else {
-		internal_mean8_vert_self_asm(buffer, src, count);
-		internal_copy8_asm(dst, buffer, count);
-		internal_copy8_asm(buffer, src, count);
+		internal_mean8_vert_self_sse2(buffer, src, count);
+		internal_copy8_sse2(dst, buffer, count);
+		internal_copy8_sse2(buffer, src, count);
 	}
 }
 
-static inline void internal_interlacefilter16_step1_asm(unsigned line, uint16* buffer, uint16* dst, const uint16* src, unsigned count)
+static inline void internal_interlacefilter16_step1_sse2(unsigned line, uint16* buffer, uint16* dst, const uint16* src, unsigned count)
 {
 	if (line == 0) {
-		internal_copy16_asm(buffer, src, count);
-		internal_copy16_asm(dst, buffer, count);
+		internal_copy16_sse2(buffer, src, count);
+		internal_copy16_sse2(dst, buffer, count);
 	} else {
-		internal_mean16_vert_self_asm(buffer, src, count);
-		internal_copy16_asm(dst, buffer, count);
-		internal_copy16_asm(buffer, src, count);
+		internal_mean16_vert_self_sse2(buffer, src, count);
+		internal_copy16_sse2(dst, buffer, count);
+		internal_copy16_sse2(buffer, src, count);
 	}
 }
 
-static inline void internal_interlacefilter32_step1_asm(unsigned line, uint32* buffer, uint32* dst, const uint32* src, unsigned count)
+static inline void internal_interlacefilter32_step1_sse2(unsigned line, uint32* buffer, uint32* dst, const uint32* src, unsigned count)
 {
 	if (line == 0) {
-		internal_copy32_asm(buffer, src, count);
-		internal_copy32_asm(dst, buffer, count);
+		internal_copy32_sse2(buffer, src, count);
+		internal_copy32_sse2(dst, buffer, count);
 	} else {
-		internal_mean32_vert_self_asm(buffer, src, count);
-		internal_copy32_asm(dst, buffer, count);
-		internal_copy32_asm(buffer, src, count);
+		internal_mean32_vert_self_sse2(buffer, src, count);
+		internal_copy32_sse2(dst, buffer, count);
+		internal_copy32_sse2(buffer, src, count);
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_interlacefilter8_step1_neon(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
+	if (line == 0) {
+		internal_copy8_neon(buffer, src, count);
+		internal_copy8_neon(dst, buffer, count);
+	} else {
+		internal_mean8_vert_self_neon(buffer, src, count);
+		internal_copy8_neon(dst, buffer, count);
+		internal_copy8_neon(buffer, src, count);
+	}
+}
+
+static inline void internal_interlacefilter16_step1_neon(unsigned line, uint16* buffer, uint16* dst, const uint16* src, unsigned count)
+{
+	if (line == 0) {
+		internal_copy16_neon(buffer, src, count);
+		internal_copy16_neon(dst, buffer, count);
+	} else {
+		internal_mean16_vert_self_neon(buffer, src, count);
+		internal_copy16_neon(dst, buffer, count);
+		internal_copy16_neon(buffer, src, count);
+	}
+}
+
+static inline void internal_interlacefilter32_step1_neon(unsigned line, uint32* buffer, uint32* dst, const uint32* src, unsigned count)
+{
+	if (line == 0) {
+		internal_copy32_neon(buffer, src, count);
+		internal_copy32_neon(dst, buffer, count);
+	} else {
+		internal_mean32_vert_self_neon(buffer, src, count);
+		internal_copy32_neon(dst, buffer, count);
+		internal_copy32_neon(buffer, src, count);
+	}
+}
+
 #endif
 
 static inline void internal_interlacefilter8_step1_def(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
@@ -188,11 +251,19 @@ static inline void internal_interlacefilter32_step1_def(unsigned line, uint32* b
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_interlacefilter8_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_interlacefilter8_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_interlacefilter8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+	internal_interlacefilter8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_interlacefilter8_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_interlacefilter8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+}
+
 #endif
 
 /****************************************************************************/
@@ -213,11 +284,19 @@ static void video_stage_interlacefilter8_set(struct video_stage_horz_struct* sta
 /****************************************************************************/
 /* interlacefilter16 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_interlacefilter16_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_interlacefilter16_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_interlacefilter8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+	internal_interlacefilter8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_interlacefilter16_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_interlacefilter8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+}
+
 #endif
 
 static void video_line_interlacefilter16_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -235,11 +314,19 @@ static void video_stage_interlacefilter16_set(struct video_stage_horz_struct* st
 /****************************************************************************/
 /* interlacefilter32 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_interlacefilter32_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_interlacefilter32_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_interlacefilter8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+	internal_interlacefilter8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_interlacefilter32_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_interlacefilter8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+}
+
 #endif
 
 static void video_line_interlacefilter32_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)

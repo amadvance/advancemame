@@ -275,38 +275,6 @@ AC_CHECK_SIZEOF(void*)
 dnl Large file supports
 AC_SYS_LARGEFILE
 
-AC_ARG_ENABLE(
-	[asm],
-	AS_HELP_STRING([--enable-asm],[enable the x86 assembler optimizations (default auto)]),
-	[ac_enable_asm=$enableval],
-	[ac_enable_asm=auto]
-)
-if test $ac_enable_asm = auto; then
-	AC_MSG_CHECKING([whether ${CC-cc} accepts x86 assembler])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-		]], [[
-			#if !defined(__GNUC__) || !defined(__i386__)
-			choke me
-			#endif
-		]])],[ac_enable_asm=yes],[ac_enable_asm=no])
-	AC_MSG_RESULT([$ac_enable_asm])
-	if test $ac_enable_asm = yes; then
-		AC_CHECK_PROGS([ASM], [${ac_tool_prefix}nasm], [none])
-		if test $ASM = none; then
-			ac_enable_asm=no
-		else
-			CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_INLINE"
-		fi
-	fi
-elif test $ac_enable_asm = yes; then
-	AC_CHECK_PROGS([ASM], [${ac_tool_prefix}nasm], [none])
-	if test $ASM = none; then
-		AC_MSG_ERROR([the NASM assembler is required for the "asm" compilation])
-	else
-		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_INLINE"
-	fi
-fi
-
 AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
 AC_ARG_ENABLE(
@@ -1226,11 +1194,6 @@ else
 	echo "Endianess : little"
 fi
 echo "Bits :" $((8 * $ac_cv_sizeof_voidp))
-if test $ac_enable_asm = yes; then
-	echo "Assembler for x86 : yes"
-else
-	echo "Assembler for x86 : no"
-fi
 
 echo ""
 echo "== Drivers/Libraries =="

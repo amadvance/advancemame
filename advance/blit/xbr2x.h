@@ -33,8 +33,18 @@
 
 #include "interp.h"
 
-void xbr2x_16_def(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_16_565_def(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_16_555_def(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
 void xbr2x_32_def(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, const interp_uint32* src3, const interp_uint32* src4, unsigned count);
+void xbr2x_16_565_neon(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_16_555_neon(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_32_neon(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, const interp_uint32* src3, const interp_uint32* src4, unsigned count);
+void xbr2x_16_565_neon_32(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_16_555_neon_32(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_32_neon_32(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, const interp_uint32* src3, const interp_uint32* src4, unsigned count);
+void xbr2x_16_565_sse41(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_16_555_sse41(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, const interp_uint16* src3, const interp_uint16* src4, unsigned count);
+void xbr2x_32_sse41(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, const interp_uint32* src3, const interp_uint32* src4, unsigned count);
 void xbr2x_yuy2_def(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, const interp_uint32* src3, const interp_uint32* src4, unsigned count);
 
 #endif

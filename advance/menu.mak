@@ -87,9 +87,14 @@ MENUOBJS += \
 	$(MENUOBJ)/blit/hq3x.o \
 	$(MENUOBJ)/blit/hq4x.o \
 	$(MENUOBJ)/blit/xbr2x.o \
+	$(MENUOBJ)/blit/xbr2x_sse.o \
+	$(MENUOBJ)/blit/xbr2x_neon.o \
+	$(MENUOBJ)/blit/xbr2x_neon32.o \
 	$(MENUOBJ)/blit/xbr3x.o \
 	$(MENUOBJ)/blit/xbr4x.o \
 	$(MENUOBJ)/blit/scale2x.o \
+	$(MENUOBJ)/blit/scale2x_sse.o \
+	$(MENUOBJ)/blit/scale2x_neon.o \
 	$(MENUOBJ)/blit/scale3x.o \
 	$(MENUOBJ)/blit/scale2k.o \
 	$(MENUOBJ)/blit/scale3k.o \

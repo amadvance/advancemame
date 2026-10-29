@@ -33,85 +33,95 @@
 
 #include "icommon.h"
 
+#ifdef CONFIG_X86
+#include <emmintrin.h>
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+#include <arm_neon.h>
+#endif
+
 /***************************************************************************/
 /* internal copy */
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy8_asm(uint8* dst, const uint8* src, unsigned count)
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_copy8_sse2(uint8* dst, const uint8* src, unsigned count)
 {
-	unsigned rest = count % 16;
-
-	__asm__ __volatile__ (
-		"shrl $4, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		/* unaligned move as the source may not be 16 bytes aligned */
-		/* like when dealing with bitmap copied to the screen */
-		"movdqu (%0), %%xmm0\n"
-		/* unaligned move as the screen scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+g" (count)
-		:
-		: "cc"
-	);
-
-	/* Note: the (count) register is marked "+" instead of "" to */
-	/* inform the compiler that this register is modified and */
-	/* it can't be used to compute the "rest" value */
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
-		src += 1;
-		--rest;
+	while (count >= 16) {
+		__m128i pixel = _mm_loadu_si128((const __m128i*)src);
+		_mm_storeu_si128((__m128i*)dst, pixel);
+		src += 16;
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = *src++;
+		--count;
 	}
 }
 #endif
 
-#if defined(USE_ASM_INLINE)
-static uint8 copy8_mask[16] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
-
-static inline void internal_copy8_step2_asm(uint8* dst, const uint8* src, unsigned count)
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy8_neon(uint8* dst, const uint8* src, unsigned count)
 {
-	unsigned rest = count % 16;
+	while (count >= 32) {
+		uint8x16_t a = vld1q_u8(src);
+		uint8x16_t b = vld1q_u8(src + 16);
+		vst1q_u8(dst, a);
+		vst1q_u8(dst + 16, b);
+		src += 32;
+		dst += 32;
+		count -= 32;
+	}
+	if (count >= 16) {
+		vst1q_u8(dst, vld1q_u8(src));
+		src += 16;
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = *src++;
+		--count;
+	}
+}
 
-	assert_align(((unsigned)src & 0xF) == 0);
+#endif
 
-	__asm__ __volatile__ (
-		"shrl $4, %2\n"
-		"jz 1f\n"
-		"movdqu (%3), %%xmm2\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movdqa (%0), %%xmm0\n"
-		"movdqa 16(%0), %%xmm1\n"
-		"pand %%xmm2, %%xmm0\n"
-		"pand %%xmm2, %%xmm1\n"
-		"packuswb %%xmm1, %%xmm0\n"
-
-		/* unaligned move as the scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%1)\n"
-		"addl $32, %0\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+g" (count)
-		: "r" (copy8_mask)
-		: "cc"
-	);
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_copy8_step2_sse2(uint8* dst, const uint8* src, unsigned count)
+{
+	const __m128i mask = _mm_set1_epi16(0xff);
+	while (count >= 16) {
+		__m128i lo = _mm_and_si128(_mm_load_si128((const __m128i*)src), mask);
+		__m128i hi = _mm_and_si128(_mm_load_si128((const __m128i*)(src + 16)), mask);
+		_mm_storeu_si128((__m128i*)dst, _mm_packus_epi16(lo, hi));
+		src += 32;
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = *src;
 		src += 2;
-		--rest;
+		--count;
+	}
+}
+
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy8_step2_neon(uint8* dst, const uint8* src, unsigned count)
+{
+	while (count >= 16) {
+		uint8x16x2_t pixel = vld2q_u8(src);
+		vst1q_u8(dst, pixel.val[0]);
+		src += 32;
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = *src;
+		src += 2;
+		--count;
 	}
 }
 
@@ -132,11 +142,19 @@ static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsign
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy16_asm(uint16* dst, const uint16* src, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_copy16_sse2(uint16* dst, const uint16* src, unsigned count)
 {
-	internal_copy8_asm((uint8*)dst, (uint8*)src, 2 * count);
+	internal_copy8_sse2((uint8*)dst, (uint8*)src, 2 * count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy16_neon(uint16* dst, const uint16* src, unsigned count)
+{
+	internal_copy8_neon((uint8*)dst, (uint8*)src, 2 * count);
+}
+
 #endif
 
 static inline void internal_copy16_def(uint16* dst, const uint16* src, unsigned count)
@@ -144,11 +162,19 @@ static inline void internal_copy16_def(uint16* dst, const uint16* src, unsigned 
 	internal_copy8_def((uint8*)dst, (uint8*)src, 2 * count);
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy32_asm(uint32* dst, const uint32* src, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_copy32_sse2(uint32* dst, const uint32* src, unsigned count)
 {
-	internal_copy8_asm((uint8*)dst, (uint8*)src, 4 * count);
+	internal_copy8_sse2((uint8*)dst, (uint8*)src, 4 * count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy32_neon(uint32* dst, const uint32* src, unsigned count)
+{
+	internal_copy8_neon((uint8*)dst, (uint8*)src, 4 * count);
+}
+
 #endif
 
 static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned count)
@@ -156,106 +182,44 @@ static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned 
 	internal_copy8_def((uint8*)dst, (uint8*)src, 4 * count);
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy8_step_asm(uint8* dst, const uint8* src, unsigned count, int step)
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_copy8_step_sse2(uint8* dst, const uint8* src, unsigned count, int step)
 {
-	unsigned rest = count % 16;
-
-	__asm__ __volatile__ (
-		"shrl $4, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm0\n"
-		"movd %%edx, %%xmm1\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm1, %%xmm0\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm1\n"
-		"movd %%edx, %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm2, %%xmm1\n"
-		"punpcklwd %%xmm1, %%xmm0\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm1\n"
-		"movd %%edx, %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm2, %%xmm1\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm2\n"
-		"movd %%edx, %%xmm3\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm3, %%xmm2\n"
-		"punpcklwd %%xmm2, %%xmm1\n"
-		"punpckldq %%xmm1, %%xmm0\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm1\n"
-		"movd %%edx, %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm2, %%xmm1\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm2\n"
-		"movd %%edx, %%xmm3\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm3, %%xmm2\n"
-		"punpcklwd %%xmm2, %%xmm1\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm2\n"
-		"movd %%edx, %%xmm3\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm3, %%xmm2\n"
-
-		"movzbl (%0), %%eax\n"
-		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm3\n"
-		"movd %%edx, %%xmm4\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklbw %%xmm4, %%xmm3\n"
-		"punpcklwd %%xmm3, %%xmm2\n"
-		"punpckldq %%xmm2, %%xmm1\n"
-		"punpcklqdq %%xmm1, %%xmm0\n"
-
-		/* unaligned move as the scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%1)\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-
-		: "+S" (src), "+D" (dst), "+g" (count)
-		: "r" (step)
-		: "cc", "%eax", "%edx"
-	);
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
+	while (count >= 16) {
+		__m128i pixel = _mm_set_epi8(P8DER(src, 15 * step), P8DER(src, 14 * step), P8DER(src, 13 * step), P8DER(src, 12 * step), P8DER(src, 11 * step), P8DER(src, 10 * step), P8DER(src, 9 * step), P8DER(src, 8 * step), P8DER(src, 7 * step), P8DER(src, 6 * step), P8DER(src, 5 * step), P8DER(src, 4 * step), P8DER(src, 3 * step), P8DER(src, 2 * step), P8DER(src, 1 * step), P8DER(src, 0 * step));
+		_mm_storeu_si128((__m128i*)dst, pixel);
+		PADD(src, 16 * step);
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = *src;
 		PADD(src, step);
-		--rest;
+		--count;
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy8_step_neon(uint8* dst, const uint8* src, unsigned count, int step)
+{
+	while (count >= 4) {
+		uint8 a = P8DER(src, 0);
+		uint8 b = P8DER(src, step);
+		uint8 c = P8DER(src, 2 * step);
+		uint8 d = P8DER(src, 3 * step);
+		dst[0] = a; dst[1] = b; dst[2] = c; dst[3] = d;
+		PADD(src, 4 * step);
+		dst += 4;
+		count -= 4;
+	}
+	while (count) {
+		*dst++ = *src;
+		PADD(src, step);
+		--count;
+	}
+}
+
 #endif
 
 static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step)
@@ -268,71 +232,44 @@ static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigne
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy16_step_asm(uint16* dst, const uint16* src, unsigned count, int step)
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_copy16_step_sse2(uint16* dst, const uint16* src, unsigned count, int step)
 {
-	unsigned rest = count % 8;
-
-	assert_align(((unsigned)src & 0x1) == 0);
-
-	__asm__ __volatile__ (
-		"shrl $3, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movzwl (%0), %%eax\n"
-		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm0\n"
-		"movd %%edx, %%xmm1\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklwd %%xmm1, %%xmm0\n"
-
-		"movzwl (%0), %%eax\n"
-		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm1\n"
-		"movd %%edx, %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklwd %%xmm2, %%xmm1\n"
-		"punpckldq %%xmm1, %%xmm0\n"
-
-		"movzwl (%0), %%eax\n"
-		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm1\n"
-		"movd %%edx, %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklwd %%xmm2, %%xmm1\n"
-
-		"movzwl (%0), %%eax\n"
-		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%xmm2\n"
-		"movd %%edx, %%xmm3\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpcklwd %%xmm3, %%xmm2\n"
-		"punpckldq %%xmm2, %%xmm1\n"
-		"punpcklqdq %%xmm1, %%xmm0\n"
-
-		/* unaligned move as the scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%1)\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+g" (count)
-		: "r" (step)
-		: "cc", "%eax", "%edx"
-	);
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
+	while (count >= 8) {
+		__m128i pixel = _mm_set_epi16(P16DER(src, 7 * step), P16DER(src, 6 * step), P16DER(src, 5 * step), P16DER(src, 4 * step), P16DER(src, 3 * step), P16DER(src, 2 * step), P16DER(src, 1 * step), P16DER(src, 0 * step));
+		_mm_storeu_si128((__m128i*)dst, pixel);
+		PADD(src, 8 * step);
+		dst += 8;
+		count -= 8;
+	}
+	while (count) {
+		*dst++ = *src;
 		PADD(src, step);
-		--rest;
+		--count;
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy16_step_neon(uint16* dst, const uint16* src, unsigned count, int step)
+{
+	while (count >= 4) {
+		uint16 a = P16DER(src, 0);
+		uint16 b = P16DER(src, step);
+		uint16 c = P16DER(src, 2 * step);
+		uint16 d = P16DER(src, 3 * step);
+		dst[0] = a; dst[1] = b; dst[2] = c; dst[3] = d;
+		PADD(src, 4 * step);
+		dst += 4;
+		count -= 4;
+	}
+	while (count) {
+		*dst++ = *src;
+		PADD(src, step);
+		--count;
+	}
+}
+
 #endif
 
 static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step)
@@ -345,49 +282,44 @@ static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsi
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy32_step_asm(uint32* dst, const uint32* src, unsigned count, int step)
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_copy32_step_sse2(uint32* dst, const uint32* src, unsigned count, int step)
 {
-	unsigned rest = count % 4;
-
-	assert_align(((unsigned)src & 0x3) == 0);
-
-	__asm__ __volatile__ (
-		"shrl $2, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movd (%0), %%xmm0\n"
-		"movd (%0, %3), %%xmm1\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpckldq %%xmm1, %%xmm0\n"
-
-		"movd (%0), %%xmm1\n"
-		"movd (%0, %3), %%xmm2\n"
-		"addl %3, %0\n"
-		"addl %3, %0\n"
-		"punpckldq %%xmm2, %%xmm1\n"
-		"punpcklqdq %%xmm1, %%xmm0\n"
-
-		/* unaligned move as the scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%1)\n"
-		"addl $16, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+g" (count)
-		: "r" (step)
-		: "cc"
-	);
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
+	while (count >= 4) {
+		__m128i pixel = _mm_set_epi32(P32DER(src, 3 * step), P32DER(src, 2 * step), P32DER(src, 1 * step), P32DER(src, 0 * step));
+		_mm_storeu_si128((__m128i*)dst, pixel);
+		PADD(src, 4 * step);
+		dst += 4;
+		count -= 4;
+	}
+	while (count) {
+		*dst++ = *src;
 		PADD(src, step);
-		--rest;
+		--count;
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_copy32_step_neon(uint32* dst, const uint32* src, unsigned count, int step)
+{
+	while (count >= 4) {
+		uint32 a = P32DER(src, 0);
+		uint32 b = P32DER(src, step);
+		uint32 c = P32DER(src, 2 * step);
+		uint32 d = P32DER(src, 3 * step);
+		dst[0] = a; dst[1] = b; dst[2] = c; dst[3] = d;
+		PADD(src, 4 * step);
+		dst += 4;
+		count -= 4;
+	}
+	while (count) {
+		*dst++ = *src;
+		PADD(src, step);
+		--count;
+	}
+}
+
 #endif
 
 static inline void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step)
@@ -439,34 +371,33 @@ static inline void internal_fill32(uint32* dst, unsigned src, unsigned count)
 /***************************************************************************/
 /* internal zero */
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_zero8_asm(uint8* dst, unsigned count)
+#if defined(CONFIG_X86)
+static inline __attribute__((target("sse2"))) void internal_zero8_sse2(uint8* dst, unsigned count)
 {
-	unsigned rest = count % 16;
-
-	__asm__ __volatile__ (
-		"shrl $3, %2\n"
-		"xorq %%xmm0, %%xmm0\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		/* unaligned move as the scanline may not be 16 bytes aligned */
-		"movdqu %%xmm0, (%0)\n"
-		"addl $16, %0\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+D" (dst), "+g" (count)
-		:
-		: "cc"
-	);
-
-	while (rest) {
-		dst[0] = 0;
-		dst += 1;
-		--rest;
+	while (count >= 16) {
+		_mm_storeu_si128((__m128i*)dst, _mm_setzero_si128());
+		dst += 16;
+		count -= 16;
+	}
+	while (count) {
+		*dst++ = 0;
+		--count;
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_zero8_neon(uint8* dst, unsigned count)
+{
+	const uint8x16_t zero = vdupq_n_u8(0);
+	while (count >= 16) {
+		vst1q_u8(dst, zero);
+		dst += 16;
+		count -= 16;
+	}
+	while (count--) *dst++ = 0;
+}
+
 #endif
 
 static inline void internal_zero8_def(uint8* dst, unsigned count)
@@ -474,11 +405,19 @@ static inline void internal_zero8_def(uint8* dst, unsigned count)
 	memset(dst, 0, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_zero16_asm(uint16* dst, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_zero16_sse2(uint16* dst, unsigned count)
 {
-	internal_zero8_asm((uint8*)dst, 2 * count);
+	internal_zero8_sse2((uint8*)dst, 2 * count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_zero16_neon(uint16* dst, unsigned count)
+{
+	internal_zero8_neon((uint8*)dst, 2 * count);
+}
+
 #endif
 
 static inline void internal_zero16_def(uint16* dst, unsigned count)
@@ -486,11 +425,19 @@ static inline void internal_zero16_def(uint16* dst, unsigned count)
 	internal_zero8_def((uint8*)dst, 2 * count);
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_zero32_asm(uint32* dst, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_zero32_sse2(uint32* dst, unsigned count)
 {
-	internal_zero8_asm((uint8*)dst, 4 * count);
+	internal_zero8_sse2((uint8*)dst, 4 * count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_zero32_neon(uint32* dst, unsigned count)
+{
+	internal_zero8_neon((uint8*)dst, 4 * count);
+}
+
 #endif
 
 static inline void internal_zero32_def(uint32* dst, unsigned count)

@@ -40,81 +40,16 @@
 #endif
 
 /***************************************************************************/
-/* mmx */
+/* SSE2 dispatch */
 
-#if defined(USE_ASM_INLINE)
-
-static void blit_cpuid(unsigned level, unsigned* regs)
-{
-	__asm__ __volatile__ (
-		"pushal\n"
-		".byte 0x0F, 0xA2\n"
-		"movl %%eax, (%1)\n"
-		"movl %%ebx, 4(%1)\n"
-		"movl %%ecx, 8(%1)\n"
-		"movl %%edx, 12(%1)\n"
-		"popal\n"
-		:
-		: "a" (level), "D" (regs)
-		: "cc", "memory"
-	);
-}
-
-static void blit_has_capability(adv_bool* has_asm)
-{
-	unsigned regs[4];
-	unsigned a, b;
-
-	*has_asm = 0;
-
-	blit_cpuid(0, regs);
-	if (regs[0] > 0) {
-		blit_cpuid(1, regs);
-		if ((regs[3] & 0x800000) != 0) {
-			if ((regs[3] & 0x4000000) != 0) {
-				*has_asm = 1; /* MMX/SSE2 */
-			}
-		}
-	}
-}
-
-adv_bool the_blit_asm = 0;
-
-#define BLITTER(name) (the_blit_asm ? name ## _asm : name ## _def)
-
-static adv_error blit_cpu(void)
-{
-	blit_has_capability(&the_blit_asm);
-
-	return 0;
-}
-
-static inline void internal_end(void)
-{
-	if (the_blit_asm) {
-		__asm__ __volatile__ (
-			"emms"
-		);
-	}
-}
-
+#if defined(CONFIG_X86_64)
+#define BLITTER(name) (name ## _sse2)
+#elif defined(CONFIG_X86_32)
+#define BLITTER(name) (__builtin_cpu_supports("sse2") ? name ## _sse2 : name ## _def)
+#elif defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+#define BLITTER(name) (name ## _neon)
 #else
-
-/* Assume that MMX/SSE2 is NOT present. */
-
-#define the_blit_asm 0
-
 #define BLITTER(name) (name ## _def)
-
-static adv_error blit_cpu(void)
-{
-	return 0;
-}
-
-static inline void internal_end(void)
-{
-}
-
 #endif
 
 /***************************************************************************/
@@ -270,11 +205,6 @@ static void video_buffer_done(void)
 
 adv_error video_blit_init(void)
 {
-	if (blit_cpu() != 0) {
-		error_set("This executable requires an SSE2 processor.\n");
-		return -1;
-	}
-
 	video_buffer_init();
 
 	return 0;
@@ -291,12 +221,12 @@ void video_blit_done(void)
 static inline void stage_copy(const struct video_stage_horz_struct* stage, void* dst, void* src)
 {
 	if ((int)stage->sbpp == stage->sdp) {
-		BLITTER(internal_copy8)(dst, src, stage->sdx * stage->sbpp);
+		BLITTER(internal_copy8)(dst, src, stage->sdx* stage->sbpp);
 	} else {
 		switch (stage->sbpp) {
-		case 1: BLITTER(internal_copy8_step)(dst, src, stage->sdx, stage->sdp); break;
-		case 2: BLITTER(internal_copy16_step)(dst, src, stage->sdx, stage->sdp); break;
-		case 4: BLITTER(internal_copy32_step)(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : BLITTER(internal_copy8_step)(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : BLITTER(internal_copy16_step)(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : BLITTER(internal_copy32_step)(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -305,15 +235,15 @@ static void stage_max_vert_self(const struct video_stage_horz_struct* stage, voi
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		switch (stage->sbpp) {
-		case 1: internal_max8_vert_self(dst, src, stage->sdx); break;
-		case 2: internal_max16_vert_self(dst, src, stage->sdx); break;
-		case 4: internal_max32_vert_self(dst, src, stage->sdx); break;
+		case 1 : internal_max8_vert_self(dst, src, stage->sdx); break;
+		case 2 : internal_max16_vert_self(dst, src, stage->sdx); break;
+		case 4 : internal_max32_vert_self(dst, src, stage->sdx); break;
 		}
 	} else {
 		switch (stage->sbpp) {
-		case 1: internal_max8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 2: internal_max16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 4: internal_max32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : internal_max8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : internal_max16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : internal_max32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -322,15 +252,15 @@ static void stage_max_rgb_vert_self(const struct video_stage_horz_struct* stage,
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		switch (stage->sbpp) {
-		case 1: internal_max_rgb8_vert_self(dst, src, stage->sdx); break;
-		case 2: internal_max_rgb16_vert_self(dst, src, stage->sdx); break;
-		case 4: internal_max_rgb32_vert_self(dst, src, stage->sdx); break;
+		case 1 : internal_max_rgb8_vert_self(dst, src, stage->sdx); break;
+		case 2 : internal_max_rgb16_vert_self(dst, src, stage->sdx); break;
+		case 4 : internal_max_rgb32_vert_self(dst, src, stage->sdx); break;
 		}
 	} else {
 		switch (stage->sbpp) {
-		case 1: internal_max_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 2: internal_max_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 4: internal_max_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : internal_max_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : internal_max_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : internal_max_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -339,15 +269,15 @@ static void stage_min_vert_self(const struct video_stage_horz_struct* stage, voi
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		switch (stage->sbpp) {
-		case 1: internal_min8_vert_self(dst, src, stage->sdx); break;
-		case 2: internal_min16_vert_self(dst, src, stage->sdx); break;
-		case 4: internal_min32_vert_self(dst, src, stage->sdx); break;
+		case 1 : internal_min8_vert_self(dst, src, stage->sdx); break;
+		case 2 : internal_min16_vert_self(dst, src, stage->sdx); break;
+		case 4 : internal_min32_vert_self(dst, src, stage->sdx); break;
 		}
 	} else {
 		switch (stage->sbpp) {
-		case 1: internal_min8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 2: internal_min16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 4: internal_min32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : internal_min8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : internal_min16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : internal_min32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -356,15 +286,15 @@ static void stage_min_rgb_vert_self(const struct video_stage_horz_struct* stage,
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		switch (stage->sbpp) {
-		case 1: internal_min_rgb8_vert_self(dst, src, stage->sdx); break;
-		case 2: internal_min_rgb16_vert_self(dst, src, stage->sdx); break;
-		case 4: internal_min_rgb32_vert_self(dst, src, stage->sdx); break;
+		case 1 : internal_min_rgb8_vert_self(dst, src, stage->sdx); break;
+		case 2 : internal_min_rgb16_vert_self(dst, src, stage->sdx); break;
+		case 4 : internal_min_rgb32_vert_self(dst, src, stage->sdx); break;
 		}
 	} else {
 		switch (stage->sbpp) {
-		case 1: internal_min_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 2: internal_min_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 4: internal_min_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : internal_min_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : internal_min_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : internal_min_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -373,15 +303,15 @@ static void stage_mean_vert_self(const struct video_stage_horz_struct* stage, vo
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		switch (stage->sbpp) {
-		case 1: BLITTER(internal_mean8_vert_self)(dst, src, stage->sdx); break;
-		case 2: BLITTER(internal_mean16_vert_self)(dst, src, stage->sdx); break;
-		case 4: BLITTER(internal_mean32_vert_self)(dst, src, stage->sdx); break;
+		case 1 : BLITTER(internal_mean8_vert_self)(dst, src, stage->sdx); break;
+		case 2 : BLITTER(internal_mean16_vert_self)(dst, src, stage->sdx); break;
+		case 4 : BLITTER(internal_mean32_vert_self)(dst, src, stage->sdx); break;
 		}
 	} else {
 		switch (stage->sbpp) {
-		case 1: internal_mean8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 2: internal_mean16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
-		case 4: internal_mean32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 1 : internal_mean8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 2 : internal_mean16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		case 4 : internal_mean32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -390,36 +320,36 @@ static void stage_mean_vert_self(const struct video_stage_horz_struct* stage, vo
 static inline void scale2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
-	case 1: BLITTER(scale2x_8)(dst0, dst1, src0, src1, src2, count); break;
-	case 2: BLITTER(scale2x_16)(dst0, dst1, src0, src1, src2, count); break;
-	case 4: BLITTER(scale2x_32)(dst0, dst1, src0, src1, src2, count); break;
+	case 1 : BLITTER(scale2x_8)(dst0, dst1, src0, src1, src2, count); break;
+	case 2 : BLITTER(scale2x_16)(dst0, dst1, src0, src1, src2, count); break;
+	case 4 : BLITTER(scale2x_32)(dst0, dst1, src0, src1, src2, count); break;
 	}
 }
 
 static inline void scale2x3(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
-	case 1: BLITTER(scale2x3_8)(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case 2: BLITTER(scale2x3_16)(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case 4: BLITTER(scale2x3_32)(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 1 : BLITTER(scale2x3_8)(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 2 : BLITTER(scale2x3_16)(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 4 : BLITTER(scale2x3_32)(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
 
 static inline void scale2x4(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
-	case 1: BLITTER(scale2x4_8)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case 2: BLITTER(scale2x4_16)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case 4: BLITTER(scale2x4_32)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case 1 : BLITTER(scale2x4_8)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case 2 : BLITTER(scale2x4_16)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case 4 : BLITTER(scale2x4_32)(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
 	}
 }
 
 static inline void scale2k(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: scale2k_16_def(dst0, dst1, src0, src1, src2, count); break;
-	case INTERP_32: scale2k_32_def(dst0, dst1, src0, src1, src2, count); break;
-	case INTERP_YUY2: scale2k_yuy2_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_16 : scale2k_16_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_32 : scale2k_32_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale2k_yuy2_def(dst0, dst1, src0, src1, src2, count); break;
 	}
 }
 
@@ -427,36 +357,76 @@ static inline void scale2k(void* dst0, void* dst1, void* src0, void* src1, void*
 static inline void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: hq2x_16_def(dst0, dst1, src0, src1, src2, count); break;
-	case INTERP_32: hq2x_32_def(dst0, dst1, src0, src1, src2, count); break;
-	case INTERP_YUY2: hq2x_yuy2_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_16 : hq2x_16_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_32 : hq2x_32_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_YUY2 : hq2x_yuy2_def(dst0, dst1, src0, src1, src2, count); break;
 	}
 }
 
 static inline void hq2x3(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: hq2x3_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_32: hq2x3_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_YUY2: hq2x3_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_16 : hq2x3_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_32 : hq2x3_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_YUY2 : hq2x3_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
 
 static inline void hq2x4(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: hq2x4_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_32: hq2x4_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_YUY2: hq2x4_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_16 : hq2x4_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_32 : hq2x4_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_YUY2 : hq2x4_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
 	}
 }
 
 static inline void xbr2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: xbr2x_16_def(dst0, dst1, src0, src1, src2, src3, src4, count); break;
-	case INTERP_32: xbr2x_32_def(dst0, dst1, src0, src1, src2, src3, src4, count); break;
-	case INTERP_YUY2: xbr2x_yuy2_def(dst0, dst1, src0, src1, src2, src3, src4, count); break;
+	case INTERP_16 :
+#if defined(CONFIG_NEON)
+		if (interp_is_565)
+			xbr2x_16_565_neon(dst0, dst1, src0, src1, src2, src3, src4, count);
+		else
+			xbr2x_16_555_neon(dst0, dst1, src0, src1, src2, src3, src4, count);
+#elif defined(CONFIG_NEON32)
+		if (interp_is_565)
+			xbr2x_16_565_neon_32(dst0, dst1, src0, src1, src2, src3, src4, count);
+		else
+			xbr2x_16_555_neon_32(dst0, dst1, src0, src1, src2, src3, src4, count);
+#else
+#if defined(CONFIG_X86)
+		if (__builtin_cpu_supports("sse4.1")) {
+			if (interp_is_565)
+				xbr2x_16_565_sse41(dst0, dst1, src0, src1, src2, src3, src4, count);
+			else
+				xbr2x_16_555_sse41(dst0, dst1, src0, src1, src2, src3, src4, count);
+		} else
+#endif
+		if (interp_is_565)
+			xbr2x_16_565_def(dst0, dst1, src0, src1, src2, src3, src4, count);
+		else
+			xbr2x_16_555_def(dst0, dst1, src0, src1, src2, src3, src4, count);
+#endif
+		break;
+	case INTERP_32 :
+#if defined(CONFIG_NEON)
+		xbr2x_32_neon(dst0, dst1, src0, src1, src2, src3, src4, count);
+#elif defined(CONFIG_NEON32)
+		xbr2x_32_neon_32(dst0, dst1, src0, src1, src2, src3, src4, count);
+#else
+#if defined(CONFIG_X86)
+		if (__builtin_cpu_supports("sse4.1"))
+			xbr2x_32_sse41(dst0, dst1, src0, src1, src2, src3, src4, count);
+		else
+#endif
+		xbr2x_32_def(dst0, dst1, src0, src1, src2, src3, src4, count);
+#endif
+		break;
+	case INTERP_YUY2 :
+		xbr2x_yuy2_def(dst0, dst1, src0, src1, src2, src3, src4, count);
+		break;
 	}
 }
 #endif
@@ -464,18 +434,18 @@ static inline void xbr2x(void* dst0, void* dst1, void* src0, void* src1, void* s
 static inline void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
-	case 1: scale3x_8_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case 2: scale3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case 4: scale3x_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 1 : scale3x_8_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 2 : scale3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case 4 : scale3x_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
 
 static inline void scale3k(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: scale3k_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_32: scale3k_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_YUY2: scale3k_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_16 : scale3k_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_32 : scale3k_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale3k_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
 
@@ -483,18 +453,18 @@ static inline void scale3k(void* dst0, void* dst1, void* dst2, void* src0, void*
 static inline void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: hq3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_32: hq3x_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
-	case INTERP_YUY2: hq3x_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_16 : hq3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_32 : hq3x_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_YUY2 : hq3x_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
 
 static inline void xbr3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: xbr3x_16_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
-	case INTERP_32: xbr3x_32_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
-	case INTERP_YUY2: xbr3x_yuy2_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
+	case INTERP_16 : xbr3x_16_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
+	case INTERP_32 : xbr3x_32_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
+	case INTERP_YUY2 : xbr3x_yuy2_def(dst0, dst1, dst2, src0, src1, src2, src3, src4, count); break;
 	}
 }
 #endif
@@ -502,9 +472,9 @@ static inline void xbr3x(void* dst0, void* dst1, void* dst2, void* src0, void* s
 static inline void scale4k(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: scale4k_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_32: scale4k_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_YUY2: scale4k_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_16 : scale4k_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_32 : scale4k_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale4k_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
 	}
 }
 
@@ -512,18 +482,18 @@ static inline void scale4k(void* dst0, void* dst1, void* dst2, void* dst3, void*
 static inline void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: hq4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_32: hq4x_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
-	case INTERP_YUY2: hq4x_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_16 : hq4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_32 : hq4x_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_YUY2 : hq4x_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
 	}
 }
 
 static inline void xbr4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned interp, unsigned count)
 {
 	switch (interp) {
-	case INTERP_16: xbr4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
-	case INTERP_32: xbr4x_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
-	case INTERP_YUY2: xbr4x_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
+	case INTERP_16 : xbr4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
+	case INTERP_32 : xbr4x_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
+	case INTERP_YUY2 : xbr4x_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, count); break;
 	}
 }
 #endif
@@ -811,78 +781,75 @@ static inline void video_pipeline_vert_run(const struct video_pipeline_struct* p
 {
 	/* draw */
 	video_pipeline_vert(pipeline)->put(&pipeline->target, video_pipeline_vert(pipeline), x, y, src);
-
-	/* restore the SSE2 micro state */
-	internal_end();
 }
 
 const char* pipe_name(enum video_stage_enum pipe)
 {
 	switch (pipe) {
-	case pipe_x_stretch: return "hstretch";
-	case pipe_x_maxmin: return "hmax";
-	case pipe_x_mean: return "hmean";
-	case pipe_x_double: return "hcopy2x";
-	case pipe_x_triple: return "hcopy3x";
-	case pipe_x_quadruple: return "hcopy4x";
-	case pipe_x_filter: return "hfilter";
-	case pipe_x_copy: return "hcopy";
-	case pipe_rotation: return "rotation";
-	case pipe_x_rgb_triad3pix: return "rgb 3";
-	case pipe_x_rgb_triad6pix: return "rgb 6";
-	case pipe_x_rgb_triad16pix: return "rgb 16";
-	case pipe_x_rgb_triadstrong3pix: return "rgb strong 3";
-	case pipe_x_rgb_triadstrong6pix: return "rgb strong 6";
-	case pipe_x_rgb_triadstrong16pix: return "rgb strong 16";
-	case pipe_x_rgb_scandoublehorz: return "hscanline x2";
-	case pipe_x_rgb_scantriplehorz: return "hscanline x3";
-	case pipe_x_rgb_scandoublevert: return "vscanline x2";
-	case pipe_x_rgb_scantriplevert: return "vscanline x3";
-	case pipe_swap_even: return "swap even";
-	case pipe_swap_odd: return "swap odd";
-	case pipe_interlace_filter: return "vfilter";
-	case pipe_palette8to8: return "palette 8>8";
-	case pipe_palette8to16: return "palette 8>16";
-	case pipe_palette8to32: return "palette 8>32";
-	case pipe_palette16to8: return "palette 16>8";
-	case pipe_palette16to16: return "palette 16>16";
-	case pipe_palette16to32: return "palette 16>32";
-	case pipe_imm16to8: return "conv 16>8";
-	case pipe_imm16to32: return "conv 16>32";
-	case pipe_bgra8888tobgr332: return "bgra 8888>bgr 332";
-	case pipe_bgra8888tobgr565: return "bgra 8888>bgr 565";
-	case pipe_bgra8888tobgra5551: return "bgra 8888>bgra 5551";
-	case pipe_bgra8888toyuy2: return "bgra 8888>yuy2";
-	case pipe_bgra5551tobgr332: return "bgra 5551>bgr 332";
-	case pipe_bgra5551tobgr565: return "bgra 5551>bgr 565";
-	case pipe_bgra5551tobgra8888: return "bgra 5551>bgra 8888";
-	case pipe_bgra5551toyuy2: return "bgra 5551>yuy2";
-	case pipe_rgb888tobgra8888: return "rgb 888>bgra 8888";
-	case pipe_rgba8888tobgra8888: return "rgba 8888>bgra 8888";
-	case pipe_bgr888tobgra8888: return "bgr 888>bgra 8888";
-	case pipe_rgbtorgb: return "rgb>rgb";
-	case pipe_rgbtoyuy2: return "rgb>yuy2";
-	case pipe_y_copy: return "vstretch";
-	case pipe_y_mean: return "vmean";
-	case pipe_y_filter: return "vlowpass";
-	case pipe_y_maxmin: return "vmaxmin";
-	case pipe_y_scale2x: return "scale2x";
-	case pipe_y_scale2x3: return "scale2x3";
-	case pipe_y_scale2x4: return "scale2x4";
-	case pipe_y_scale3x: return "scale3x";
-	case pipe_y_scale4x: return "scale4x";
-	case pipe_y_scale2k: return "scale2k";
-	case pipe_y_scale3k: return "scale3k";
-	case pipe_y_scale4k: return "scale4k";
+	case pipe_x_stretch : return "hstretch";
+	case pipe_x_maxmin : return "hmax";
+	case pipe_x_mean : return "hmean";
+	case pipe_x_double : return "hcopy2x";
+	case pipe_x_triple : return "hcopy3x";
+	case pipe_x_quadruple : return "hcopy4x";
+	case pipe_x_filter : return "hfilter";
+	case pipe_x_copy : return "hcopy";
+	case pipe_rotation : return "rotation";
+	case pipe_x_rgb_triad3pix : return "rgb 3";
+	case pipe_x_rgb_triad6pix : return "rgb 6";
+	case pipe_x_rgb_triad16pix : return "rgb 16";
+	case pipe_x_rgb_triadstrong3pix : return "rgb strong 3";
+	case pipe_x_rgb_triadstrong6pix : return "rgb strong 6";
+	case pipe_x_rgb_triadstrong16pix : return "rgb strong 16";
+	case pipe_x_rgb_scandoublehorz : return "hscanline x2";
+	case pipe_x_rgb_scantriplehorz : return "hscanline x3";
+	case pipe_x_rgb_scandoublevert : return "vscanline x2";
+	case pipe_x_rgb_scantriplevert : return "vscanline x3";
+	case pipe_swap_even : return "swap even";
+	case pipe_swap_odd : return "swap odd";
+	case pipe_interlace_filter : return "vfilter";
+	case pipe_palette8to8 : return "palette 8>8";
+	case pipe_palette8to16 : return "palette 8>16";
+	case pipe_palette8to32 : return "palette 8>32";
+	case pipe_palette16to8 : return "palette 16>8";
+	case pipe_palette16to16 : return "palette 16>16";
+	case pipe_palette16to32 : return "palette 16>32";
+	case pipe_imm16to8 : return "conv 16>8";
+	case pipe_imm16to32 : return "conv 16>32";
+	case pipe_bgra8888tobgr332 : return "bgra 8888>bgr 332";
+	case pipe_bgra8888tobgr565 : return "bgra 8888>bgr 565";
+	case pipe_bgra8888tobgra5551 : return "bgra 8888>bgra 5551";
+	case pipe_bgra8888toyuy2 : return "bgra 8888>yuy2";
+	case pipe_bgra5551tobgr332 : return "bgra 5551>bgr 332";
+	case pipe_bgra5551tobgr565 : return "bgra 5551>bgr 565";
+	case pipe_bgra5551tobgra8888 : return "bgra 5551>bgra 8888";
+	case pipe_bgra5551toyuy2 : return "bgra 5551>yuy2";
+	case pipe_rgb888tobgra8888 : return "rgb 888>bgra 8888";
+	case pipe_rgba8888tobgra8888 : return "rgba 8888>bgra 8888";
+	case pipe_bgr888tobgra8888 : return "bgr 888>bgra 8888";
+	case pipe_rgbtorgb : return "rgb>rgb";
+	case pipe_rgbtoyuy2 : return "rgb>yuy2";
+	case pipe_y_copy : return "vstretch";
+	case pipe_y_mean : return "vmean";
+	case pipe_y_filter : return "vlowpass";
+	case pipe_y_maxmin : return "vmaxmin";
+	case pipe_y_scale2x : return "scale2x";
+	case pipe_y_scale2x3 : return "scale2x3";
+	case pipe_y_scale2x4 : return "scale2x4";
+	case pipe_y_scale3x : return "scale3x";
+	case pipe_y_scale4x : return "scale4x";
+	case pipe_y_scale2k : return "scale2k";
+	case pipe_y_scale3k : return "scale3k";
+	case pipe_y_scale4k : return "scale4k";
 #ifndef USE_BLIT_SMALL
-	case pipe_y_hq2x: return "hq2x";
-	case pipe_y_hq2x3: return "hq2x3";
-	case pipe_y_hq2x4: return "hq2x4";
-	case pipe_y_hq3x: return "hq3x";
-	case pipe_y_hq4x: return "hq4x";
-	case pipe_y_xbr2x: return "xbr2x";
-	case pipe_y_xbr3x: return "xbr3x";
-	case pipe_y_xbr4x: return "xbr4x";
+	case pipe_y_hq2x : return "hq2x";
+	case pipe_y_hq2x3 : return "hq2x3";
+	case pipe_y_hq2x4 : return "hq2x4";
+	case pipe_y_hq3x : return "hq3x";
+	case pipe_y_hq4x : return "hq4x";
+	case pipe_y_xbr2x : return "xbr2x";
+	case pipe_y_xbr3x : return "xbr3x";
+	case pipe_y_xbr4x : return "xbr4x";
 #endif
 	}
 	return 0;
@@ -893,29 +860,29 @@ const char* pipe_name(enum video_stage_enum pipe)
 static adv_bool pipe_is_conversion(enum video_stage_enum pipe)
 {
 	switch (pipe) {
-	case pipe_palette8to8:
-	case pipe_palette8to16:
-	case pipe_palette8to32:
-	case pipe_palette16to8:
-	case pipe_palette16to16:
-	case pipe_palette16to32:
-	case pipe_imm16to8:
-	case pipe_imm16to32:
-	case pipe_bgra8888tobgr332:
-	case pipe_bgra8888tobgr565:
-	case pipe_bgra8888tobgra5551:
-	case pipe_bgra8888toyuy2:
-	case pipe_bgra5551tobgr332:
-	case pipe_bgra5551tobgr565:
-	case pipe_bgra5551tobgra8888:
-	case pipe_bgra5551toyuy2:
-	case pipe_rgb888tobgra8888:
-	case pipe_rgba8888tobgra8888:
-	case pipe_bgr888tobgra8888:
-	case pipe_rgbtorgb:
-	case pipe_rgbtoyuy2:
+	case pipe_palette8to8 :
+	case pipe_palette8to16 :
+	case pipe_palette8to32 :
+	case pipe_palette16to8 :
+	case pipe_palette16to16 :
+	case pipe_palette16to32 :
+	case pipe_imm16to8 :
+	case pipe_imm16to32 :
+	case pipe_bgra8888tobgr332 :
+	case pipe_bgra8888tobgr565 :
+	case pipe_bgra8888tobgra5551 :
+	case pipe_bgra8888toyuy2 :
+	case pipe_bgra5551tobgr332 :
+	case pipe_bgra5551tobgr565 :
+	case pipe_bgra5551tobgra8888 :
+	case pipe_bgra5551toyuy2 :
+	case pipe_rgb888tobgra8888 :
+	case pipe_rgba8888tobgra8888 :
+	case pipe_bgr888tobgra8888 :
+	case pipe_rgbtorgb :
+	case pipe_rgbtoyuy2 :
 		return 1;
-	default:
+	default :
 		return 0;
 	}
 }
@@ -925,21 +892,21 @@ static adv_bool pipe_is_conversion(enum video_stage_enum pipe)
 static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 {
 	switch (pipe) {
-	case pipe_x_rgb_triad3pix:
-	case pipe_x_rgb_triad6pix:
-	case pipe_x_rgb_triad16pix:
-	case pipe_x_rgb_triadstrong3pix:
-	case pipe_x_rgb_triadstrong6pix:
-	case pipe_x_rgb_triadstrong16pix:
-	case pipe_x_rgb_scandoublehorz:
-	case pipe_x_rgb_scantriplehorz:
-	case pipe_x_rgb_scandoublevert:
-	case pipe_x_rgb_scantriplevert:
-	case pipe_swap_even:
-	case pipe_swap_odd:
-	case pipe_interlace_filter:
+	case pipe_x_rgb_triad3pix :
+	case pipe_x_rgb_triad6pix :
+	case pipe_x_rgb_triad16pix :
+	case pipe_x_rgb_triadstrong3pix :
+	case pipe_x_rgb_triadstrong6pix :
+	case pipe_x_rgb_triadstrong16pix :
+	case pipe_x_rgb_scandoublehorz :
+	case pipe_x_rgb_scantriplehorz :
+	case pipe_x_rgb_scandoublevert :
+	case pipe_x_rgb_scantriplevert :
+	case pipe_swap_even :
+	case pipe_swap_odd :
+	case pipe_interlace_filter :
 		return 1;
-	default:
+	default :
 		return 0;
 	}
 }
@@ -948,17 +915,17 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 static adv_bool combine_is_rgb(unsigned combine)
 {
 	switch (combine & VIDEO_COMBINE_Y_MASK) {
-	case VIDEO_COMBINE_Y_MEAN:
-	case VIDEO_COMBINE_Y_FILTER:
+	case VIDEO_COMBINE_Y_MEAN :
+	case VIDEO_COMBINE_Y_FILTER :
 #ifndef USE_BLIT_TINY
-	case VIDEO_COMBINE_Y_SCALEK:
+	case VIDEO_COMBINE_Y_SCALEK :
 #ifndef USE_BLIT_SMALL
-	case VIDEO_COMBINE_Y_HQ:
-	case VIDEO_COMBINE_Y_XBR:
+	case VIDEO_COMBINE_Y_HQ :
+	case VIDEO_COMBINE_Y_XBR :
 #endif
 #endif
 		return 1;
-	default:
+	default :
 		return 0;
 	}
 }
@@ -971,15 +938,15 @@ static adv_bool combine_is_direct(unsigned combine)
 
 	switch (combine & VIDEO_COMBINE_Y_MASK) {
 #ifndef USE_BLIT_TINY
-	case VIDEO_COMBINE_Y_SCALEX:
-	case VIDEO_COMBINE_Y_SCALEK:
+	case VIDEO_COMBINE_Y_SCALEX :
+	case VIDEO_COMBINE_Y_SCALEK :
 #ifndef USE_BLIT_SMALL
-	case VIDEO_COMBINE_Y_HQ:
-	case VIDEO_COMBINE_Y_XBR:
+	case VIDEO_COMBINE_Y_HQ :
+	case VIDEO_COMBINE_Y_XBR :
 #endif
 		return 1;
 #endif
-	default:
+	default :
 		return 0;
 	}
 }
@@ -1392,7 +1359,6 @@ static void video_stage_stretchy_min_1x(const struct video_pipeline_target_struc
 
 	video_buffer_reset(mark);
 }
-
 
 /* The effect is applied at every line */
 static void video_stage_stretchy_filter_1x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -2068,7 +2034,7 @@ static void video_stage_stretchy_scale2k_openmp(const struct video_pipeline_targ
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 1; i < count - 1; ++i) {
 		stage_scale2k(stage_vert, final[i * X], final[i * X + 1], partial[i - 1], partial[i], partial[i + 1]);
 	}
@@ -2759,7 +2725,7 @@ static void video_stage_stretchy_xbr2x_openmp(const struct video_pipeline_target
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 2; i < count - 2; ++i) {
 		stage_xbr2x(stage_vert, final[i * X], final[i * X + 1], partial[i - 2], partial[i - 1], partial[i], partial[i + 1], partial[i + 2]);
 	}
@@ -2787,7 +2753,6 @@ static void video_stage_stretchy_xbr2x_openmp(const struct video_pipeline_target
 #endif
 #endif
 #endif
-
 
 /***************************************************************************/
 /* stretch scale3x */
@@ -3122,7 +3087,7 @@ static void video_stage_stretchy_scale3k_openmp(const struct video_pipeline_targ
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 1; i < count - 1; ++i) {
 		stage_scale3k(stage_vert, final[i * X], final[i * X + 1], final[i * X + 2], partial[i - 1], partial[i], partial[i + 1]);
 	}
@@ -3539,7 +3504,7 @@ static void video_stage_stretchy_xbr3x_openmp(const struct video_pipeline_target
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 2; i < count - 2; ++i) {
 		stage_xbr3x(stage_vert, final[i * X], final[i * X + 1], final[i * X + 2], partial[i - 2], partial[i - 1], partial[i], partial[i + 1], partial[i + 2]);
 	}
@@ -3983,7 +3948,7 @@ static void video_stage_stretchy_scale4k_openmp(const struct video_pipeline_targ
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 1; i < count - 1; ++i) {
 		stage_scale4k(stage_vert, final[i * X], final[i * X + 1], final[i * X + 2], final[i * X + 3], partial[i - 1], partial[i], partial[i + 1]);
 	}
@@ -4402,7 +4367,7 @@ static void video_stage_stretchy_xbr4x_openmp(const struct video_pipeline_target
 	}
 
 	/* central rows */
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 2; i < count - 2; ++i) {
 		stage_xbr4x(stage_vert, final[i * X], final[i * X + 1], final[i * X + 2], final[i * X + 3], partial[i - 2], partial[i - 1], partial[i], partial[i + 1], partial[i + 2]);
 	}
@@ -4430,7 +4395,6 @@ static void video_stage_stretchy_xbr4x_openmp(const struct video_pipeline_target
 #endif
 #endif
 #endif
-
 
 /***************************************************************************/
 /* stretchy copy */
@@ -4656,22 +4620,22 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		switch (combine_y) {
-		case VIDEO_COMBINE_Y_MAXMIN:
+		case VIDEO_COMBINE_Y_MAXMIN :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_min_1x;
 			stage_vert->type = pipe_y_maxmin;
 			break;
-		case VIDEO_COMBINE_Y_MEAN:
+		case VIDEO_COMBINE_Y_MEAN :
 			video_stage_pivot_late_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_mean_1x;
 			stage_vert->type = pipe_y_mean;
 			break;
-		case VIDEO_COMBINE_Y_FILTER:
+		case VIDEO_COMBINE_Y_FILTER :
 			video_stage_pivot_late_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_filter_1x;
 			stage_vert->type = pipe_y_filter;
 			break;
-		default:
+		default :
 			video_stage_pivot_late_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_1x;
 			stage_vert->type = pipe_y_copy;
@@ -4681,17 +4645,17 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		switch (combine_y) {
-		case VIDEO_COMBINE_Y_MEAN:
+		case VIDEO_COMBINE_Y_MEAN :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_mean_1x;
 			stage_vert->type = pipe_y_mean;
 			break;
-		case VIDEO_COMBINE_Y_FILTER:
+		case VIDEO_COMBINE_Y_FILTER :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_filter_1x;
 			stage_vert->type = pipe_y_filter;
 			break;
-		default:
+		default :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_11;
 			stage_vert->type = pipe_y_copy;
@@ -4701,22 +4665,22 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		switch (combine_y) {
-		case VIDEO_COMBINE_Y_MAXMIN:
+		case VIDEO_COMBINE_Y_MAXMIN :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_max_x1;
 			stage_vert->type = pipe_y_maxmin;
 			break;
-		case VIDEO_COMBINE_Y_MEAN:
+		case VIDEO_COMBINE_Y_MEAN :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_mean_x1;
 			stage_vert->type = pipe_y_mean;
 			break;
-		case VIDEO_COMBINE_Y_FILTER:
+		case VIDEO_COMBINE_Y_FILTER :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_filter_x1;
 			stage_vert->type = pipe_y_filter;
 			break;
-		default:
+		default :
 			video_stage_pivot_early_set(stage_vert, combine);
 			stage_vert->put = video_stage_stretchy_x1;
 			stage_vert->type = pipe_y_copy;
@@ -4779,9 +4743,9 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 	if ((combine & VIDEO_COMBINE_X_FILTER) != 0
 		&& src_dx > dst_dx) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_filter8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
-		case 2: video_stage_filter16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
-		case 4: video_stage_filter32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+		case 1 : video_stage_filter8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+		case 2 : video_stage_filter16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+		case 4 : video_stage_filter32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -4833,11 +4797,11 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 #ifndef USE_BLIT_TINY
 		/* disable the y effect if size doesn't match */
 		switch (combine_y) {
-		case VIDEO_COMBINE_Y_SCALEX:
-		case VIDEO_COMBINE_Y_SCALEK:
+		case VIDEO_COMBINE_Y_SCALEX :
+		case VIDEO_COMBINE_Y_SCALEK :
 #ifndef USE_BLIT_SMALL
-		case VIDEO_COMBINE_Y_HQ:
-		case VIDEO_COMBINE_Y_XBR:
+		case VIDEO_COMBINE_Y_HQ :
+		case VIDEO_COMBINE_Y_XBR :
 #endif
 			combine_y = VIDEO_COMBINE_Y_NONE;
 			break;
@@ -4846,23 +4810,23 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 		if (dst_dx != src_dx) {
 			if ((combine & VIDEO_COMBINE_X_MEAN) != 0) {
 				switch (bytes_per_pixel) {
-				case 1: video_stage_meanx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 2: video_stage_meanx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 4: video_stage_meanx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 1 : video_stage_meanx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 2 : video_stage_meanx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 4 : video_stage_meanx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
 			} else if ((combine & VIDEO_COMBINE_X_MAXMIN) != 0) {
 				switch (bytes_per_pixel) {
-				case 1: video_stage_maxminx8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 2: video_stage_maxminx16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 4: video_stage_maxminx32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 1 : video_stage_maxminx8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 2 : video_stage_maxminx16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 4 : video_stage_maxminx32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
 			} else {
 				switch (bytes_per_pixel) {
-				case 1: video_stage_stretchx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 2: video_stage_stretchx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
-				case 4: video_stage_stretchx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 1 : video_stage_stretchx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 2 : video_stage_stretchx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+				case 4 : video_stage_stretchx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
 			}
@@ -4873,9 +4837,9 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 	if ((combine & VIDEO_COMBINE_X_FILTER) != 0
 		&& src_dx <= dst_dx) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_filter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_filter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_filter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_filter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_filter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_filter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -4883,90 +4847,90 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 #ifndef USE_BLIT_TINY
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD16PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triad16pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triad16pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triad16pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triad16pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triad16pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triad16pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triadstrong16pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triadstrong16pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triadstrong16pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triadstrong16pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triadstrong16pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triadstrong16pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD6PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triad6pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triad6pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triad6pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triad6pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triad6pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triad6pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triadstrong6pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triadstrong6pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triadstrong6pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triadstrong6pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triadstrong6pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triadstrong6pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD3PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triad3pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triad3pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triad3pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triad3pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triad3pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triad3pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_triadstrong3pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_triadstrong3pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_triadstrong3pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_triadstrong3pix8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_triadstrong3pix16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_triadstrong3pix32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_scandouble8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_scandouble16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_scandouble32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_scandouble8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_scandouble16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_scandouble32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_scantriple8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_scantriple16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_scantriple32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_scantriple8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_scantriple16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_scantriple32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_scandoublevert8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_scandoublevert16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_scandoublevert32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_scandoublevert8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_scandoublevert16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_scandoublevert32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_rgb_scantriplevert8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_rgb_scantriplevert16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_rgb_scantriplevert32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_rgb_scantriplevert8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_rgb_scantriplevert16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_rgb_scantriplevert32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -4974,27 +4938,27 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 
 	if ((combine & VIDEO_COMBINE_INTERLACE_FILTER) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_interlacefilter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_interlacefilter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_interlacefilter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_interlacefilter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_interlacefilter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_interlacefilter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_SWAP_EVEN) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_swapeven8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_swapeven16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_swapeven32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_swapeven8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_swapeven16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_swapeven32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_SWAP_ODD) != 0) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_swapodd8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_swapodd16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_swapodd32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_swapodd8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_swapodd16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_swapodd32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -5009,9 +4973,9 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 		|| ((combine & VIDEO_COMBINE_BUFFER) != 0)
 	) {
 		switch (bytes_per_pixel) {
-		case 1: video_stage_copy8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 2: video_stage_copy16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
-		case 4: video_stage_copy32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 1 : video_stage_copy8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 2 : video_stage_copy16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+		case 4 : video_stage_copy32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -5120,9 +5084,9 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 		/* rotation */
 		if (src_dp != bytes_per_pixel) {
 			switch (bytes_per_pixel) {
-			case 1: video_stage_rot8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
-			case 2: video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
-			case 4: video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+			case 1 : video_stage_rot8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+			case 2 : video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+			case 4 : video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
 			}
 			src_dp = bytes_per_pixel;
 		}
@@ -5142,15 +5106,15 @@ void video_pipeline_palette16hw(struct video_pipeline_struct* pipeline, unsigned
 	/* conversion and rotation */
 
 	switch (bytes_per_pixel) {
-	case 1:
+	case 1 :
 		video_stage_imm16to8_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 		break;
-	case 2:
+	case 2 :
 		if (src_dp != bytes_per_pixel) {
 			video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 		}
 		break;
-	case 4:
+	case 4 :
 		video_stage_imm16to32_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 		break;
 	}
@@ -5169,13 +5133,13 @@ void video_pipeline_palette8(struct video_pipeline_struct* pipeline, unsigned ds
 
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
-	case 1:
+	case 1 :
 		video_stage_palette8to8_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette8);
 		break;
-	case 2:
+	case 2 :
 		video_stage_palette8to16_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette16);
 		break;
-	case 4:
+	case 4 :
 		video_stage_palette8to32_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette32);
 		break;
 	}
@@ -5194,13 +5158,13 @@ void video_pipeline_palette16(struct video_pipeline_struct* pipeline, unsigned d
 
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
-	case 1:
+	case 1 :
 		video_stage_palette16to8_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette8);
 		break;
-	case 2:
+	case 2 :
 		video_stage_palette16to16_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette16);
 		break;
-	case 4:
+	case 4 :
 		video_stage_palette16to32_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette32);
 		break;
 	}

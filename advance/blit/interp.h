@@ -35,6 +35,8 @@
 /* Basic types */
 
 typedef unsigned short interp_uint16;
+typedef unsigned short interp_uint16_565;
+typedef unsigned short interp_uint16_555;
 typedef unsigned interp_uint32;
 typedef unsigned interp_uintyuy2;
 
@@ -53,11 +55,11 @@ extern int interp_red_shift, interp_green_shift, interp_blue_shift;
 extern unsigned interp_near_mask;
 extern unsigned interp_highnot_mask;
 
+#define interp_is_565 (interp_green_mask == 0x7E0)
+
 /**
  * Select which method to use for computing pixels.
  */
-/* #define USE_INTERP_MASK_1 */
-/* #define USE_INTERP_MASK_2 */
 #define USE_INTERP_MASK_3
 
 #define INTERP_16_MASK_1(v) ((v) & interp_mask[0])
@@ -122,10 +124,6 @@ extern unsigned interp_highnot_mask;
 
 static inline interp_uint16 interp_16_11(interp_uint16 p1, interp_uint16 p2)
 {
-#ifdef USE_INTERP_MASK_1
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1) + INTERP_16_MASK_1(p2)) / 2)
-	       | INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1) + INTERP_16_MASK_2(p2)) / 2);
-#else
 	/*
 	 * This function compute (a + b) / 2 for any rgb nibble, using the
 	 * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
@@ -134,27 +132,16 @@ static inline interp_uint16 interp_16_11(interp_uint16 p1, interp_uint16 p2)
 	 * is used to clear the high bit of all the packed nibbles.
 	 */
 	return (((p1 ^ p2) >> 1) & INTERP_16_HNMASK) + (p1 & p2);
-#endif
 }
 
 static inline interp_uint16 interp_16_211(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1) * 2 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 4)
-	       | INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1) * 2 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 4);
-#else
 	return interp_16_11(p1, interp_16_11(p2, p3));
-#endif
 }
 
 static inline interp_uint16 interp_16_31(interp_uint16 p1, interp_uint16 p2)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1) * 3 + INTERP_16_MASK_1(p2)) / 4)
-	       | INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1) * 3 + INTERP_16_MASK_2(p2)) / 4);
-#else
 	return interp_16_11(p1, interp_16_11(p1, p2));
-#endif
 }
 
 static inline interp_uint16 interp_16_521(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
@@ -235,12 +222,26 @@ INTERP_16_GEN3(14, 1, 1)
 INTERP_16_GEN2(15, 1)
 INTERP_16_GEN2(9, 7)
 
+#define INTERP_16_SPECIALIZE(fmt, mask1, mask2, hnmask) \
+	static inline interp_uint16 interp_16_ ## fmt ## _11(interp_uint16 p1, interp_uint16 p2) \
+	{ \
+		return (((p1 ^ p2) >> 1) & (hnmask)) + (p1 & p2); \
+	} \
+	static inline interp_uint16 interp_16_ ## fmt ## _31(interp_uint16 p1, interp_uint16 p2) \
+	{ \
+		return interp_16_ ## fmt ## _11(p1, interp_16_ ## fmt ## _11(p1, p2)); \
+	} \
+	static inline interp_uint16 interp_16_ ## fmt ## _71(interp_uint16 p1, interp_uint16 p2) \
+	{ \
+		return (((((p1 & (mask1)) * 7 + (p2 & (mask1))) >> 3) & (mask1))) \
+		       | (((((p1 & (mask2)) * 7 + (p2 & (mask2))) >> 3) & (mask2))); \
+	}
+
+INTERP_16_SPECIALIZE(565, 0xF81F, 0x07E0, 0x7BEF)
+INTERP_16_SPECIALIZE(555, 0x7C1F, 0x03E0, 0x3DEF)
+
 static inline interp_uint32 interp_32_11(interp_uint32 p1, interp_uint32 p2)
 {
-#ifdef USE_INTERP_MASK_1
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) + INTERP_32_MASK_1(p2)) / 2)
-	       | INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1) + INTERP_32_MASK_2(p2)) / 2);
-#else
 	/*
 	 * This function compute (a + b) / 2 for any rgb nibble, using the
 	 * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
@@ -249,27 +250,16 @@ static inline interp_uint32 interp_32_11(interp_uint32 p1, interp_uint32 p2)
 	 * is used to clear the high bit of all the packed nibbles.
 	 */
 	return (((p1 ^ p2) >> 1) & INTERP_32_HNMASK) + (p1 & p2);
-#endif
 }
 
 static inline interp_uint32 interp_32_211(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) * 2 + INTERP_32_MASK_1(p2) + INTERP_32_MASK_1(p3)) / 4)
-	       | INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1) * 2 + INTERP_32_MASK_2(p2) + INTERP_32_MASK_2(p3)) / 4);
-#else
 	return interp_32_11(p1, interp_32_11(p2, p3));
-#endif
 }
 
 static inline interp_uint32 interp_32_31(interp_uint32 p1, interp_uint32 p2)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) * 3 + INTERP_32_MASK_1(p2)) / 4)
-	       | INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1) * 3 + INTERP_32_MASK_2(p2)) / 4);
-#else
 	return interp_32_11(p1, interp_32_11(p1, p2));
-#endif
 }
 
 static inline interp_uint32 interp_32_521(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
@@ -352,10 +342,6 @@ INTERP_32_GEN2(9, 7)
 
 static inline interp_uint32 interp_yuy2_11(interp_uint32 p1, interp_uint32 p2)
 {
-#ifdef USE_INTERP_MASK_1
-	return INTERP_YUY2_UNMASK_1((INTERP_YUY2_MASK_1(p1) + INTERP_YUY2_MASK_1(p2)) / 2)
-	       | INTERP_YUY2_UNMASK_2((INTERP_YUY2_MASK_2(p1) + INTERP_YUY2_MASK_2(p2)) / 2);
-#else
 	/*
 	 * This function compute (a + b) / 2 for any rgb nibble, using the
 	 * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
@@ -364,27 +350,16 @@ static inline interp_uint32 interp_yuy2_11(interp_uint32 p1, interp_uint32 p2)
 	 * is used to clear the high bit of all the packed nibbles.
 	 */
 	return (((p1 ^ p2) >> 1) & INTERP_YUY2_HNMASK) + (p1 & p2);
-#endif
 }
 
 static inline interp_uint32 interp_yuy2_211(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_YUY2_UNMASK_1((INTERP_YUY2_MASK_1(p1) * 2 + INTERP_YUY2_MASK_1(p2) + INTERP_YUY2_MASK_1(p3)) / 4)
-	       | INTERP_YUY2_UNMASK_2((INTERP_YUY2_MASK_2(p1) * 2 + INTERP_YUY2_MASK_2(p2) + INTERP_YUY2_MASK_2(p3)) / 4);
-#else
 	return interp_yuy2_11(p1, interp_yuy2_11(p2, p3));
-#endif
 }
 
 static inline interp_uint32 interp_yuy2_31(interp_uint32 p1, interp_uint32 p2)
 {
-#ifdef USE_INTERP_MASK_2
-	return INTERP_YUY2_UNMASK_1((INTERP_YUY2_MASK_1(p1) * 3 + INTERP_YUY2_MASK_1(p2)) / 4)
-	       | INTERP_YUY2_UNMASK_2((INTERP_YUY2_MASK_2(p1) * 3 + INTERP_YUY2_MASK_2(p2)) / 4);
-#else
 	return interp_yuy2_11(p1, interp_yuy2_11(p1, p2));
-#endif
 }
 
 static inline interp_uint32 interp_yuy2_521(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
@@ -479,9 +454,78 @@ int interp_yuy2_diff(interp_uint32 p1, interp_uint32 p2);
  * This is a very rought approximation taking into account only the luminosity.
  * See: http://www.compuphase.com/cmetric.htm
  */
-int interp_16_dist(interp_uint16 p1, interp_uint16 p2);
-int interp_32_dist(interp_uint32 p1, interp_uint32 p2);
-int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2);
+static inline int interp_16_dist(interp_uint16 p1, interp_uint16 p2)
+{
+	int r, g, b, gw;
+
+	b = (p1 & 31) - (p2 & 31);
+
+	if (interp_is_565) {
+		/* RGB565 */
+		r = (p1 >> 11) - (p2 >> 11);
+		g = ((p1 >> 5) & 63) - ((p2 >> 5) & 63);
+		gw = 3;
+	} else {
+		/* RGB555 */
+		r = ((p1 >> 10) & 31) - ((p2 >> 10) & 31);
+		g = ((p1 >> 5) & 31) - ((p2 >> 5) & 31);
+		gw = 6;
+	}
+
+	if (r < 0) r = -r;
+	if (g < 0) g = -g;
+	if (b < 0) b = -b;
+
+	return (3 * r + gw * g + b) * 8;
+}
+
+static inline int interp_16_565_dist(interp_uint16 p1, interp_uint16 p2)
+{
+	int r = (p1 >> 11) - (p2 >> 11);
+	int g = ((p1 >> 5) & 63) - ((p2 >> 5) & 63);
+	int b = (p1 & 31) - (p2 & 31);
+
+	if (r < 0) r = -r;
+	if (g < 0) g = -g;
+	if (b < 0) b = -b;
+
+	return (3 * (r + g) + b) * 8;
+}
+
+static inline int interp_16_555_dist(interp_uint16 p1, interp_uint16 p2)
+{
+	int r = ((p1 >> 10) & 31) - ((p2 >> 10) & 31);
+	int g = ((p1 >> 5) & 31) - ((p2 >> 5) & 31);
+	int b = (p1 & 31) - (p2 & 31);
+
+	if (r < 0) r = -r;
+	if (g < 0) g = -g;
+	if (b < 0) b = -b;
+
+	return (3 * r + 6 * g + b) * 8;
+}
+
+static inline int interp_32_dist(interp_uint32 a, interp_uint32 b)
+{
+	int r = (int)((a >> 16) & 255) - (int)((b >> 16) & 255);
+	int g = (int)((a >> 8) & 255) - (int)((b >> 8) & 255);
+	int bl = (int)(a & 255) - (int)(b & 255);
+
+	if (r < 0) r = -r;
+	if (g < 0) g = -g;
+	if (bl < 0) bl = -bl;
+
+	return 3 * r + 6 * g + bl;
+}
+
+static inline int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
+{
+	int y = (int)(p1 & 0xFF) - (int)(p2 & 0xFF);
+
+	if (y < 0) y = -y;
+
+	return y;
+}
 
 /**
  * Computes the distance between two three.
@@ -495,11 +539,31 @@ static int interp_16_dist3(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
 	return interp_16_dist(p1, p2) + interp_16_dist(p2, p3);
 }
 
+static inline int interp_16_565_dist3(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+	return interp_16_565_dist(p1, p2) + interp_16_565_dist(p2, p3);
+}
+
+static inline int interp_16_555_dist3(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+	return interp_16_555_dist(p1, p2) + interp_16_555_dist(p2, p3);
+}
+
 static inline int interp_32_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
 	return interp_32_dist(p1, p2) + interp_32_dist(p2, p3);
 }
-int interp_yuy2_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3);
+
+static inline int interp_yuy2_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+	int y1 = (p1 & 0xFF) - (p2 & 0xFF);
+	int y2 = (p2 & 0xFF) - (p3 & 0xFF);
+
+	if (y1 < 0) y1 = -y1;
+	if (y2 < 0) y2 = -y2;
+
+	return y1 + y2;
+}
 
 void interp_set(unsigned color_def);
 

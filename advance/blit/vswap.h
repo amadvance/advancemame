@@ -36,32 +36,61 @@
 /****************************************************************************/
 /* swap */
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_swapeven8_step1_asm(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+#if defined(CONFIG_X86)
+static inline void internal_swapeven8_step1_sse2(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
 	if (line == 0) {
-		internal_copy8_asm(dst, src, count);
-		internal_copy8_asm(buffer, src, count);
+		internal_copy8_sse2(dst, src, count);
+		internal_copy8_sse2(buffer, src, count);
 	} else if (line % 2) {
-		internal_copy8_asm(dst, src, count);
+		internal_copy8_sse2(dst, src, count);
 	} else {
-		internal_copy8_asm(dst, buffer, count);
-		internal_copy8_asm(buffer, src, count);
+		internal_copy8_sse2(dst, buffer, count);
+		internal_copy8_sse2(buffer, src, count);
 	}
 }
 
-static inline void internal_swapodd8_step1_asm(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_swapodd8_step1_sse2(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
 	if (line == 0) {
-		internal_copy8_asm(dst, src, count);
-		internal_copy8_asm(buffer, src, count);
+		internal_copy8_sse2(dst, src, count);
+		internal_copy8_sse2(buffer, src, count);
 	} else if (line % 2) {
-		internal_copy8_asm(dst, buffer, count);
-		internal_copy8_asm(buffer, src, count);
+		internal_copy8_sse2(dst, buffer, count);
+		internal_copy8_sse2(buffer, src, count);
 	} else {
-		internal_copy8_asm(dst, src, count);
+		internal_copy8_sse2(dst, src, count);
 	}
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static inline void internal_swapeven8_step1_neon(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
+	if (line == 0) {
+		internal_copy8_neon(dst, src, count);
+		internal_copy8_neon(buffer, src, count);
+	} else if (line % 2) {
+		internal_copy8_neon(dst, src, count);
+	} else {
+		internal_copy8_neon(dst, buffer, count);
+		internal_copy8_neon(buffer, src, count);
+	}
+}
+
+static inline void internal_swapodd8_step1_neon(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
+	if (line == 0) {
+		internal_copy8_neon(dst, src, count);
+		internal_copy8_neon(buffer, src, count);
+	} else if (line % 2) {
+		internal_copy8_neon(dst, buffer, count);
+		internal_copy8_neon(buffer, src, count);
+	} else {
+		internal_copy8_neon(dst, src, count);
+	}
+}
+
 #endif
 
 static inline void internal_swapeven8_step1_def(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
@@ -93,16 +122,29 @@ static inline void internal_swapodd8_step1_def(unsigned line, uint8* buffer, uin
 /****************************************************************************/
 /* swap8 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_swapeven8_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_swapeven8_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapeven8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+	internal_swapeven8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
 
-static void video_line_swapodd8_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+static void video_line_swapodd8_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapodd8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+	internal_swapodd8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_swapeven8_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapeven8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+}
+
+static void video_line_swapodd8_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapodd8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
+}
+
 #endif
 
 static void video_line_swapeven8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -132,16 +174,29 @@ static void video_stage_swapodd8_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* swap16 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_swapeven16_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_swapeven16_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapeven8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+	internal_swapeven8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
 
-static void video_line_swapodd16_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+static void video_line_swapodd16_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapodd8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+	internal_swapodd8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_swapeven16_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapeven8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+}
+
+static void video_line_swapodd16_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapodd8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
+}
+
 #endif
 
 static void video_line_swapeven16_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -171,16 +226,29 @@ static void video_stage_swapodd16_set(struct video_stage_horz_struct* stage, uns
 /****************************************************************************/
 /* swap32 */
 
-#if defined(USE_ASM_INLINE)
-static void video_line_swapeven32_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_swapeven32_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapeven8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+	internal_swapeven8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
 
-static void video_line_swapodd32_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+static void video_line_swapodd32_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_swapodd8_step1_asm(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+	internal_swapodd8_step1_sse2(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_swapeven32_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapeven8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+}
+
+static void video_line_swapodd32_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_swapodd8_step1_neon(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
+}
+
 #endif
 
 static void video_line_swapeven32_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
