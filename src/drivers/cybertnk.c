@@ -1,292 +1,418 @@
 // license:LGPL-2.1+
 // copyright-holders:Angelo Salese, David Haywood
-/*******************************************************************************************
-
-Cyber Tank HW (c) 1987 Coreland Technology
-
-WIP driver by Angelo Salese
-
-TODO:
--Understand the communication between Master & Slave CPUs.
--Fix the "USP" bug,which causes IC03 & IC04 to fail the self test.
- For now:
- Set a breakpoint at 1732
- Modify the USP register to 0
- Update: it reads from ROM 0x102 & 0x103,at PC 1a58 & 1a7c,it expects to read 0x61 & 0xe0.
- It seems to be a rom check at 0x20000 (odd & even bytes),but I don't know what rom is
- needed on it.
--Rom "SS5" is missing?Or it's a sound chip that's labelled SS5?
--Rom not yet hooked up?Or a left-over?
- cpu #1 (PC=000006D8): unmapped program memory word read from 00020000 & FF00
--Paletteram is likely to be buffered,the two banks are really similar.
-
-============================================================================================
-Cyber Tank
-Coreland Technology, Inc 1987
-
----------------------
-BA87015
-
-   SS2               -
-   SS4               SS3
-   -                 -
-   -                 SS1
-
-        Y8950             Y8950
-
-    2064
-    SS5
-
-    Z80B
-    3.5795MHz
-
----------------------
-BA87035
-
-        68000-10      20MHz    68000-10
-        SUBH  SUBL             P2A  P1A
-        2064  2064             2064 2064
-
-
- C04  C03  C02  C01
- C08  C07  C06  C05
- C12  C11  C10  C09
- C16  C15  C14  C13                        2016
-                                           2016
-                                        W31003
-               SW1 SW2 SW3
-
----------------------
-BA87034
-
-  T2   T1                               43256   43256
-              IC19  IC20                43256   43256
-              IC29  IC30
-                                        43256   43256
-                                        43256   43256
-
-                                        43256   43256
-  T3                                    43256   43256
-  T4
-                                        43256   43256
-                                        43256   43256
-
-
-
-                                                  W31004
-                                                  W31004
-----------------------
-BA87033
-
-     22.8MHz    IC2                       2016     W31001
-                           IC15           2016     W31004
-                                          ROAD_CHL
-                                          ROAD_CHH
-
-
-                        S01
-      2064              S02
-      2064              S03                    T6          T5
-    W31002       2064   S04      W31004
-
-                        S05
-                        S06
-      2064              S07                    2064        2064
-      2064       2064   S08      W31004        2064        2064
-    W31002
-                        S09
-      2064              S10
-      2064              S11
-    W31002       2064   S12      W31004
-                                                VID1CONN  VID2CONN
-********************************************************************************************
-M68k Master irq table:
-lev 1 : 0x64 : 0000 0870 - vblank
-lev 2 : 0x68 : 0000 0caa - input device clear?
-lev 3 : 0x6c : 0000 0caa - input device clear?
-lev 4 : 0x70 : 0000 0caa - input device clear?
-lev 5 : 0x74 : 0000 0caa - input device clear?
-lev 6 : 0x78 : 0000 0caa - input device clear?
-lev 7 : 0x7c : ffff ffff - illegal
-
-M68k Slave irq table:
-lev 1 : 0x64 : 0000 07e0 - input device clear?
-lev 2 : 0x68 : 0000 07e0 - input device clear?
-lev 3 : 0x6c : 0000 0764 - vblank?
-lev 4 : 0x70 : 0000 07e0 - input device clear?
-lev 5 : 0x74 : 0000 07e0 - input device clear?
-lev 6 : 0x78 : 0000 07e0 - input device clear?
-lev 7 : 0x7c : 0000 07e0 - input device clear?
-
-*******************************************************************************************/
-
 #include "driver.h"
 #include "sound/3812intf.h"
-
-static tilemap *tx_tilemap;
-static UINT16 *tx_vram;
-static UINT16 *slave_data;
-static UINT16 *com_ram;
-//static UINT16 mux_data;
-
-#define MASTER_CPU (cpu_getactivecpu() == 0)
-#define SLAVE_CPU (cpu_getactivecpu() == 1)
-
-static void get_tx_tile_info(int tile_index)
+static tilemap *tilemap0_tilemap,*tilemap1_tilemap,*tilemap2_tilemap;
+static UINT16 *spr_ram,*tilemap0_vram,*tilemap1_vram,*tilemap2_vram;
+static UINT16 *tilemap0scroll,*tilemap1scroll,*tilemap2scroll,*roadram,*sharedram;
+static UINT8 mux_data;
+static void get_tilemap0_tile_info(int tile_index)
 {
-	int code = tx_vram[tile_index];
+	int code = tilemap0_vram[tile_index];
+	int pal = (code & 0xe000) >> 13;
+	pal     |=(code & 0x1c00) >> 7;
+
 	SET_TILE_INFO(
 			0,
 			code & 0x1fff,
-			(code & 0xe000) >> 13,
-			0)
+			pal,
+			0);
 }
 
-VIDEO_START( cybertnk )
+static void get_tilemap1_tile_info(int tile_index)
 {
-	tx_tilemap = tilemap_create(get_tx_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,8,8,128,32);
+	int code = tilemap1_vram[tile_index];
+	int pal = (code & 0xe000) >> 13;
+	pal     |=(code & 0x1c00) >> 7;
 
-	if(!tx_tilemap)
-		return 1;
+	SET_TILE_INFO(
+			1,
+			code & 0x1fff,
+			pal,
+			0);
+}
+
+static void get_tilemap2_tile_info(int tile_index)
+{
+	int code = tilemap2_vram[tile_index];
+	int pal = (code & 0xe000) >> 13;
+	pal     |=(code & 0x1c00) >> 7;
+
+	SET_TILE_INFO(
+			2,
+			code & 0x1fff,
+			pal,
+			0);
+}
+
+static VIDEO_START( cybertnk )
+{
+	tilemap0_tilemap = tilemap_create(get_tilemap0_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,128,32);
+	tilemap_set_transparent_pen(tilemap0_tilemap,0);
+
+	tilemap1_tilemap = tilemap_create(get_tilemap1_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,128,32);
+	tilemap_set_transparent_pen(tilemap1_tilemap,0);
+
+	tilemap2_tilemap = tilemap_create(get_tilemap2_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,128,32);
+	tilemap_set_transparent_pen(tilemap2_tilemap,0);
+	return 0;
+}
+
+static void draw_road(mame_bitmap *bitmap, const rectangle *cliprect, int screen_shift, int pri)
+{
+	int i;
+	const gfx_element *gfx = Machine->gfx[3];
+
+	for (i=0;i<0x1000/4;i+=4)
+	{
+		UINT16 param1 = roadram[i+2];
+		UINT16 param2 = roadram[i+1];
+		UINT16 param3 = roadram[i+0];
+
+		int col = (param2 & 0x3f);
+
+		if ((param2&0x80) == pri)
+		{
+			drawgfx(bitmap,gfx,param1,col,0,0,-param3+screen_shift,i/4,cliprect,TRANSPARENCY_PEN,0);
+		}
+
+	}
+}
+
+static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int screen_shift)
+{
+	const UINT32 *sprrom = (UINT32*)memory_region(REGION_USER1);
+	const pen_t *paldata = Machine->pens;
+
+	int miny = cliprect->min_y;
+	int	maxy = cliprect->max_y;
+	int minx = cliprect->min_x;
+	int	maxx = cliprect->max_x;
+	UINT16* dest;
+
+	for(int offs=0;offs<0x1000/2;offs+=8)
+	{
+		if ((spr_ram[offs+0x0] & 8) == 0)
+			continue;
+
+		int x = (spr_ram[offs+0x5] & 0x3ff);
+		if (x&0x200) x-=0x400;
+
+		int y = (spr_ram[offs+0x2] & 0x1ff);
+		if (y&0x100) y-=0x200;
+
+		UINT32 spr_offs = (((spr_ram[offs+0x0] & 7) << 16) | (spr_ram[offs+0x1]));
+		int xsize = ((spr_ram[offs+0x6] & 0x000f)+1) << 3;
+		int ysize = (spr_ram[offs+0x4] & 0x00ff)+1;
+		int fx = (spr_ram[offs+0x5] & 0x8000) >> 15;
+		int zoom = (spr_ram[offs+0x6] & 0xff00) >> 8;
+
+		int col_bank = (spr_ram[offs+0x0] & 0xff00) >> 8;
+
+		int xf = 0;
+		int yf = 0;
+		int xz = 0;
+		int yz = 0;
+
+		for(int yi = 0;yi < ysize;yi++)
+		{
+			xf = xz = 0;
+
+			int yy = y+yz;
+
+			if ((yy>=miny) && (yy<=maxy))
+			{
+				dest = (UINT16*)bitmap->line[yy];
+
+				int start,end,inc;
+
+				if (!fx)
+				{
+					start = 0;
+					end = xsize;
+					inc = 8;
+				}
+				else
+				{
+					start = xsize-8;
+					end = -8;
+					inc = -8;
+				}
+
+				for(int xi=start;xi != end;xi+=inc)
+				{
+					UINT32 color;
+
+					color = sprrom[(spr_offs+xi/8) & 0x7ffff];
+
+					UINT16 dot;
+					int x_dec;
+
+					int shift_pen = 0;
+
+					x_dec = 0;
+
+					while(x_dec < 8)
+					{
+						if (!fx)
+						{
+							dot = (color >> shift_pen) & 0xf;
+						}
+						else
+						{
+							dot = (color >> (28-shift_pen)) & 0xf;
+						}
+
+						if (dot != 0)
+						{
+
+							int xx = (x+xz)+screen_shift;
+							if ((xx>=minx) && (xx<=maxx))
+							{
+
+									dest[xx] = paldata[col_bank << 4 | dot];
+							}
+
+						}
+						xf+=zoom;
+						if(xf >= 0x100)
+						{
+							xz++;
+							xf-=0x100;
+						}
+						else
+						{
+							shift_pen += 4;
+							x_dec++;
+							if(xf >= 0x80) { xz++; xf-=0x80; }
+						}
+					}
+				}
+			}
+
+			yf+=zoom;
+			if(yf >= 0x100)
+			{
+				yi--;
+				yz++;
+				yf-=0x100;
+			}
+			else
+			{
+				spr_offs += xsize/8;
+				if(yf >= 0x80) { yz++; yf-=0x80; }
+			}
+		}
+	}
+
+}
+
+static int update_screen(mame_bitmap *bitmap, const rectangle *cliprect, int screen_shift)
+{
+
+	tilemap_set_scrolldx(tilemap0_tilemap,screen_shift, screen_shift);
+	tilemap_set_scrolldx(tilemap1_tilemap,screen_shift, screen_shift);
+	tilemap_set_scrolldx(tilemap2_tilemap,screen_shift, screen_shift);
+
+	tilemap_set_scrolly(tilemap1_tilemap,0,tilemap1scroll[2]);
+	tilemap_set_scrolly(tilemap2_tilemap,0,tilemap2scroll[2]);
+
+	tilemap_set_scrollx(tilemap1_tilemap,0,tilemap1scroll[0]);
+	tilemap_set_scrollx(tilemap2_tilemap,0,tilemap2scroll[0]);
+
+	fillbitmap(bitmap,get_black_pen(),cliprect);
+
+	draw_road(bitmap,cliprect,screen_shift, 0x00);
+
+	tilemap_draw(bitmap,cliprect,tilemap2_tilemap,0,0);
+	tilemap_draw(bitmap,cliprect,tilemap1_tilemap,0,0);
+
+	draw_road(bitmap,cliprect,screen_shift, 0x80);
+
+	draw_sprites(bitmap,cliprect,screen_shift);
+
+	tilemap_draw(bitmap,cliprect,tilemap0_tilemap,0,0);
 
 	return 0;
 }
 
-VIDEO_UPDATE( cybertnk )
+static VIDEO_UPDATE( cybertnk ) { update_screen(bitmap,cliprect,0); }
+
+static WRITE16_HANDLER( tilemap0_vram_w )
 {
-	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
+	COMBINE_DATA(&tilemap0_vram[offset]);
+	tilemap_mark_tile_dirty(tilemap0_tilemap,offset);
 }
 
-static WRITE16_HANDLER( tx_vram_w )
+static WRITE16_HANDLER( tilemap1_vram_w )
 {
-	int oldword = tx_vram[offset];
-	int newword = oldword;
-	COMBINE_DATA(&newword);
+	COMBINE_DATA(&tilemap1_vram[offset]);
+	tilemap_mark_tile_dirty(tilemap1_tilemap,offset);
+}
 
-	if (oldword != newword)
+static WRITE16_HANDLER( tilemap2_vram_w )
+{
+	COMBINE_DATA(&tilemap2_vram[offset]);
+	tilemap_mark_tile_dirty(tilemap2_tilemap,offset);
+}
+
+static WRITE16_HANDLER( sound_cmd_w )
+{
+	if (ACCESSING_LSB)
 	{
-		tx_vram[offset] = newword;
-		tilemap_mark_tile_dirty(tx_tilemap,offset);
+		soundlatch_w(0,data & 0xff);
+		cpunum_set_input_line(2,0,HOLD_LINE);
 	}
 }
 
-static UINT16 master_cmd;
-
-static WRITE16_HANDLER( master_send )
+static WRITE16_HANDLER( mux_w )
 {
-	COMBINE_DATA(&master_cmd);
+	if (ACCESSING_LSB)
+		mux_data=data & 0x60;
 }
 
-static READ16_HANDLER( slave_receive )
+static READ16_HANDLER( mux_r )
 {
-	ui_popup("CPU #1 (PC=%06x) CMD = %04x",activecpu_get_pc(),master_cmd);
-	return master_cmd;
+	static const char *names[]={"TRAVERSE","ELEVATE","ACCEL","HANDLE"};
+	return readinputportbytag(names[mux_data>>5]);
 }
 
-static READ16_HANDLER( master_receive )
-{
-	ui_popup("CPU #0 (PC=%06x) CMD = %04x",activecpu_get_pc(),slave_data[0x10/2]);
-	return slave_data[0x10/2];
-}
+static READ16_HANDLER( dsw1_r ) { return readinputportbytag("DSW1"); }
+static READ16_HANDLER( dsw2_r ) { return readinputportbytag("DSW2"); }
+static READ16_HANDLER( in0_r ) { return readinputportbytag("IN0"); }
+static READ16_HANDLER( in1_r ) { return readinputportbytag("IN1"); }
+static READ16_HANDLER( shared_r ) { return sharedram[offset]; }
+static WRITE16_HANDLER( shared_w ) { COMBINE_DATA(&sharedram[offset]); }
 
-/*WRONG*/
-static READ8_HANDLER( master_to_sound )
-{
- 	switch(offset & 1)
- 	{
-		case 0: return ((master_cmd & 0x00ff) >> 0);
-		case 1: return ((master_cmd & 0xff00) >> 8);
-	}
-
-	return 0;//make the compiler happy...
-}
-
-/*I think this is the Network communication*/
-static UINT8 master_tx,slave_tx;
-
-static READ16_HANDLER( network_r )
-{
-	logerror("(PC=%06x) Read to input area [%04x]\n",activecpu_get_pc(),offset*2);
-
-	switch(offset)
-	{
-		case 0x002/2:
-			//printf("read at %06x %01x\n",activecpu_get_pc(),cpu_getactivecpu());
-			if(MASTER_CPU)
-				return slave_tx;//master RX
-			else if(SLAVE_CPU)
-				return master_tx;//slave RX
-	}
-
-	return com_ram[offset];
-}
-
-static WRITE16_HANDLER( network_w )
-{
-	COMBINE_DATA(&com_ram[offset]);
-
-	switch(offset)
-	{
-		case 0x002/2:
-			if(ACCESSING_LSB && MASTER_CPU)
-				master_tx = ((data & 0xff) << 8); //master TX
-			if(ACCESSING_MSB && SLAVE_CPU)
-				slave_tx = ((data & 0xff00) >> 8); //slave TX
-			break;
-	}
-}
-
-static ADDRESS_MAP_START( master_mem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x03ffff) AM_ROM
-	AM_RANGE(0x080000, 0x087fff) AM_RAM /*Work RAM*/
-	AM_RANGE(0x0a0000, 0x0a0fff) AM_RAM
-	AM_RANGE(0x0c0000, 0x0c3fff) AM_READWRITE(MRA16_RAM, tx_vram_w) AM_BASE(&tx_vram)
-	AM_RANGE(0x0c4000, 0x0cffff) AM_RAM
-	AM_RANGE(0x0e0008, 0x0e0009) AM_WRITE(master_send) /*Master->Slave*/
-//  AM_RANGE(0x0e000a, 0x0e000b) AM_READ(master_receive_2)
-	AM_RANGE(0x0e0010, 0x0e0011) AM_READ(master_receive) /*Slave->Master*/
-	AM_RANGE(0x100000, 0x107fff) AM_READWRITE(MRA16_RAM, paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
-	AM_RANGE(0x110000, 0x1101ff) AM_READWRITE(network_r,network_w) AM_BASE(&com_ram)
+static ADDRESS_MAP_START(master_mem,ADDRESS_SPACE_PROGRAM,16)
+	AM_RANGE(0x000000,0x03ffff) AM_ROM
+	AM_RANGE(0x080000,0x087fff) AM_RAM
+	AM_RANGE(0x0a0000,0x0a0fff) AM_RAM AM_BASE(&spr_ram)
+	AM_RANGE(0x0c0000,0x0c1fff) AM_READWRITE(MRA16_RAM,tilemap0_vram_w) AM_BASE(&tilemap0_vram)
+	AM_RANGE(0x0c4000,0x0c5fff) AM_READWRITE(MRA16_RAM,tilemap1_vram_w) AM_BASE(&tilemap1_vram)
+	AM_RANGE(0x0c8000,0x0c9fff) AM_READWRITE(MRA16_RAM,tilemap2_vram_w) AM_BASE(&tilemap2_vram)
+	AM_RANGE(0x0e0000,0x0e0fff) AM_RAM AM_BASE(&sharedram)
+	AM_RANGE(0x100000,0x107fff) AM_READWRITE(MRA16_RAM,paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x110000,0x110001) AM_WRITE(sound_cmd_w)
+	AM_RANGE(0x110002,0x110003) AM_READ(dsw1_r) AM_WRITENOP
+	AM_RANGE(0x110004,0x110005) AM_READ(MRA16_NOP)
+	AM_RANGE(0x110006,0x110007) AM_READWRITE(in0_r,mux_w)
+	AM_RANGE(0x110008,0x110009) AM_READ(in1_r) AM_WRITENOP
+	AM_RANGE(0x11000a,0x11000b) AM_READ(dsw2_r)
+	AM_RANGE(0x11000c,0x11000d) AM_WRITENOP
+	AM_RANGE(0x110040,0x110045) AM_RAM AM_BASE(&tilemap0scroll)
+	AM_RANGE(0x110048,0x11004d) AM_RAM AM_BASE(&tilemap1scroll)
+	AM_RANGE(0x110080,0x110085) AM_RAM AM_BASE(&tilemap2scroll)
+	AM_RANGE(0x1100d4,0x1100d5) AM_READ(mux_r)
 ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( slave_mem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x01ffff) AM_ROM
-	AM_RANGE(0x07fff8, 0x07fff9) AM_READ(slave_receive) /*Master->Slave*/
-	AM_RANGE(0x07fffa, 0x07fffb) AM_READ(slave_receive) /*Mirror?*/
-	AM_RANGE(0x080000, 0x083fff) AM_RAM/*Work RAM*/
-	AM_RANGE(0x0c0000, 0x0c3fff) AM_RAM
-	AM_RANGE(0x100000, 0x100fff) AM_RAM AM_BASE(&slave_data)
-	AM_RANGE(0x110000, 0x1101ff) AM_RAM
-	AM_RANGE(0x140000, 0x1401ff) AM_READWRITE(network_r,network_w) AM_BASE(&com_ram)
+static ADDRESS_MAP_START(slave_mem,ADDRESS_SPACE_PROGRAM,16)
+	AM_RANGE(0x000000,0x01ffff) AM_ROM
+	AM_RANGE(0x020000,0x020001) AM_READ(MRA16_NOP)
+	AM_RANGE(0x07fff8,0x07fffd) AM_READ(MRA16_NOP)
+	AM_RANGE(0x080000,0x083fff) AM_RAM
+	AM_RANGE(0x0c0000,0x0c0fff) AM_RAM AM_BASE(&roadram)
+	AM_RANGE(0x100000,0x100fff) AM_READWRITE(shared_r,shared_w)
+	AM_RANGE(0x140000,0x140003) AM_NOP
 ADDRESS_MAP_END
-
-/*WRONG*/
-static ADDRESS_MAP_START( sound_mem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff ) AM_ROM
-	AM_RANGE(0x8000, 0x9fff ) AM_RAM
-	AM_RANGE(0xa000, 0xa000 ) AM_READWRITE(Y8950_status_port_0_r,Y8950_control_port_0_w)
-	AM_RANGE(0xa001, 0xa001 ) AM_WRITE(Y8950_write_port_0_w)
-	AM_RANGE(0xa005, 0xa006 ) AM_READ(master_to_sound)
-	AM_RANGE(0xc000, 0xc000 ) AM_READWRITE(Y8950_status_port_1_r,Y8950_control_port_1_w)
-	AM_RANGE(0xc001, 0xc001 ) AM_WRITE(Y8950_write_port_1_w)
+static ADDRESS_MAP_START(sound_mem,ADDRESS_SPACE_PROGRAM,8)
+	AM_RANGE(0x0000,0x7fff) AM_ROM
+	AM_RANGE(0x8000,0x9fff) AM_RAM
+	AM_RANGE(0xa000,0xa000) AM_READWRITE(Y8950_status_port_0_r,Y8950_control_port_0_w)
+	AM_RANGE(0xa001,0xa001) AM_READWRITE(soundlatch_r,Y8950_write_port_0_w)
+	AM_RANGE(0xa005,0xa006) AM_NOP
+	AM_RANGE(0xc000,0xc000) AM_READWRITE(Y8950_status_port_1_r,Y8950_control_port_1_w)
+	AM_RANGE(0xc001,0xc001) AM_READWRITE(Y8950_read_port_1_r,Y8950_write_port_1_w)
 ADDRESS_MAP_END
+static INPUT_PORTS_START( cybertnk )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2) PORT_NAME("P2 Machine Gun 1 (Bomb)")
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1) PORT_NAME("P1 Cannon 1 (Bomb)")
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0800, IP_ACTIVE_LOW )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN1 )
 
-INPUT_PORTS_START( cybertnk )
-	/*Some inputs maps directly in ram,current implementation doesn't use it ATM*/
-	PORT_START_TAG("HAND1")
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x003f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) PORT_NAME("P2 Machine Gun 2 (Fire)")
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) PORT_NAME("P1 Cannon 2 (Fire)")
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_START_TAG("HAND2")
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
+	PORT_START_TAG("TRAVERSE")
+	PORT_BIT( 0xff, 0x00, IPT_AD_STICK_X) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_PLAYER(2) PORT_REVERSE PORT_NAME("P2 Machine Gun X")
 
-	PORT_START_TAG("HAND3")
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL3 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
+	PORT_START_TAG("ELEVATE")
+	PORT_BIT( 0xff, 0x00, IPT_AD_STICK_Y ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_PLAYER(2) PORT_REVERSE PORT_NAME("P2 Machine Gun Y")
 
-	PORT_START_TAG("HAND4")
-	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
+	PORT_START_TAG("ACCEL")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_PLAYER(1) PORT_NAME("P1 Accelerate")
 
+	PORT_START_TAG("HANDLE")
+	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4) PORT_PLAYER(1) PORT_REVERSE PORT_NAME("P1 Handle")
 
-	PORT_START_TAG("DSW1-2")
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x000c, 0x0004, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x000c, DEF_STR( Very_Easy ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Very_Hard ) )
+
+	PORT_DIPNAME( 0x0010, 0x0000, "Coin B Value" )
+	PORT_DIPSETTING(      0x0010, "Set by Dipswitches" )
+	PORT_DIPSETTING(      0x0000, "Same Value as Coin A" )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_SERVICE(0x0040, IP_ACTIVE_LOW)
+	PORT_DIPNAME( 0x0080, 0x0080, "2 Credits to Start" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_DIPNAME( 0x0f00, 0x0f00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0500, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( 3C_2C ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(      0x0f00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0300, DEF_STR( 3C_4C ) )
+	PORT_DIPSETTING(      0x0700, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0x0e00, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0600, DEF_STR( 2C_5C ) )
+	PORT_DIPSETTING(      0x0d00, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0c00, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0b00, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(      0x0a00, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(      0x0900, DEF_STR( 1C_7C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0xf000, 0xf000, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x5000, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 5C_3C ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( 3C_2C ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(      0xf000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x3000, DEF_STR( 3C_4C ) )
+	PORT_DIPSETTING(      0x7000, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0xe000, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x6000, DEF_STR( 2C_5C ) )
+	PORT_DIPSETTING(      0xd000, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0xc000, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0xb000, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(      0xa000, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(      0x9000, DEF_STR( 1C_7C ) )
+
+	PORT_START_TAG("DSW2")
 	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
@@ -311,57 +437,8 @@ INPUT_PORTS_START( cybertnk )
 	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0100, 0x0100, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0200, 0x0200, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0200, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
-	PORT_START_TAG("DSW3")
-	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_BIT( 	  0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT(	  0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
 static const gfx_layout tile_8x8x4 =
@@ -369,64 +446,60 @@ static const gfx_layout tile_8x8x4 =
 	8,8,
 	RGN_FRAC(1,4),
     4,
-    { RGN_FRAC(0,4),RGN_FRAC(1,4),RGN_FRAC(2,4),RGN_FRAC(3,4) },
+    { RGN_FRAC(3,4),RGN_FRAC(1,4),RGN_FRAC(2,4),RGN_FRAC(0,4) },
     { STEP8(0,1) },
     { STEP8(0,8) },
     8*8
 };
 
-static const gfx_layout tile_16x16x4 =
+static const UINT32 xoffsets[] =
 {
-	16,16,
-	RGN_FRAC(1,4),
-    4,
-    { RGN_FRAC(0,4),RGN_FRAC(1,4),RGN_FRAC(2,4),RGN_FRAC(3,4) },
-    { STEP16(0,1) },
-    { STEP16(0,16) },
-    32*8
+	STEP16(0,4), STEP16(64,4), STEP16(128,4), STEP16(192,4),
+	STEP16(256,4), STEP16(320,4), STEP16(384,4), STEP16(448,4),
+	STEP16(512,4), STEP16(576,4), STEP16(640,4), STEP16(704,4),
+	STEP16(768,4), STEP16(832,4), STEP16(896,4), STEP16(960,4),
+	STEP16(1024,4), STEP16(1088,4), STEP16(1152,4), STEP16(1216,4),
+	STEP16(1280,4), STEP16(1344,4), STEP16(1408,4), STEP16(1472,4),
+	STEP16(1536,4), STEP16(1600,4), STEP16(1664,4), STEP16(1728,4),
+	STEP16(1792,4), STEP16(1856,4), STEP16(1920,4), STEP16(1984,4),
+	STEP16(2048,4), STEP16(2112,4), STEP16(2176,4), STEP16(2240,4),
+	STEP16(2304,4), STEP16(2368,4), STEP16(2432,4), STEP16(2496,4),
+	STEP16(2560,4), STEP16(2624,4), STEP16(2688,4), STEP16(2752,4),
+	STEP16(2816,4), STEP16(2880,4), STEP16(2944,4), STEP16(3008,4),
+	STEP16(3072,4), STEP16(3136,4), STEP16(3200,4), STEP16(3264,4),
+	STEP16(3328,4), STEP16(3392,4), STEP16(3456,4), STEP16(3520,4),
+	STEP16(3584,4), STEP16(3648,4), STEP16(3712,4), STEP16(3776,4),
+	STEP16(3840,4), STEP16(3904,4), STEP16(3968,4), STEP16(4032,4),
+};
+static const gfx_layout roadlayout =
+{
+	1024,1,
+	RGN_FRAC(1,1),
+	4,
+	{ STEP4(0,1) },
+	EXTENDED_XOFFS,
+	{ 0 },
+	1024*4,
+	xoffsets
 };
 
-static const gfx_decode gfxdecodeinfo[] =
-{
-	{ REGION_GFX1, 0, &tile_8x8x4,     0x1400, 16 }, /*Pal offset???*/
-	{ REGION_GFX2, 0, &tile_8x8x4,     0,      0x400 },
-	{ REGION_GFX2, 0, &tile_16x16x4,   0,      0x400 },
-	{ REGION_GFX3, 0, &tile_8x8x4,     0,      0x400 },
-	{ REGION_GFX3, 0, &tile_16x16x4,   0,      0x400 },
-	{ -1 }	/* end of array */
+static const gfx_decode gfxdecodeinfo[] = {
+ { REGION_GFX1,0,&tile_8x8x4,0x1400,64 },
+ { REGION_GFX2,0,&tile_8x8x4,0x1800,64 },
+ { REGION_GFX3,0,&tile_8x8x4,0x1c00,64 },
+ { REGION_GFX4,0,&roadlayout,0x1000,64 },
+ { -1 }
 };
-
-static INTERRUPT_GEN( master_irq )
-{
-	switch(cpu_getiloops())
-	{
-		case 0: cpunum_set_input_line(0,1,HOLD_LINE); break;
-		case 1: cpunum_set_input_line(0,3,HOLD_LINE); break;
-	}
-}
-
-static INTERRUPT_GEN( slave_irq )
-{
-	switch(cpu_getiloops())
-	{
-		case 0: cpunum_set_input_line(0,3,HOLD_LINE); break;
-		case 1: cpunum_set_input_line(0,1,HOLD_LINE); break;
-	}
-}
-
-static struct Y8950interface y8950_interface = {
-	0, /* TODO */
-	REGION_SOUND1	/* memory region */
-};
-
+static struct Y8950interface y8950_interface1={0,REGION_SOUND1};
+static struct Y8950interface y8950_interface2={0,REGION_SOUND2};
 static MACHINE_DRIVER_START( cybertnk )
 	MDRV_CPU_ADD(M68000,20000000/2)
 	MDRV_CPU_PROGRAM_MAP(master_mem,0)
-	MDRV_CPU_VBLANK_INT(master_irq,2)
+	MDRV_CPU_VBLANK_INT(irq1_line_hold,1)
 
 	MDRV_CPU_ADD(M68000,20000000/2)
 	MDRV_CPU_PROGRAM_MAP(slave_mem,0)
-	MDRV_CPU_VBLANK_INT(slave_irq,2)
+	MDRV_CPU_VBLANK_INT(irq3_line_hold,1)
 
 	MDRV_CPU_ADD(Z80,3579500)
 	MDRV_CPU_PROGRAM_MAP(sound_mem,0)
@@ -434,12 +507,12 @@ static MACHINE_DRIVER_START( cybertnk )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_INTERLEAVE(100)//arbitrary value,needed to get the communication to work
+	MDRV_INTERLEAVE(1000)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(64*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 64*8-1, 2*8, 32*8-1)
+	MDRV_VISIBLE_AREA(0*8, 64*8-1, 0, 28*8-1)
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(0x4000)
 
@@ -450,98 +523,108 @@ static MACHINE_DRIVER_START( cybertnk )
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(Y8950, 3579500)
-	MDRV_SOUND_CONFIG(y8950_interface)
+	MDRV_SOUND_CONFIG(y8950_interface1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 
 	MDRV_SOUND_ADD(Y8950, 3579500)
-	MDRV_SOUND_CONFIG(y8950_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+	MDRV_SOUND_CONFIG(y8950_interface2)
+
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
-/***************************************************************************
-
-  Game driver(s)
-
-***************************************************************************/
-
 ROM_START( cybertnk )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )
-	ROM_LOAD16_BYTE( "p1a",   0x00000, 0x20000, CRC(de7ff83a) SHA1(64a34443b532db24ec2c86f0e288eaf12a2212af) )
-	ROM_LOAD16_BYTE( "p2a",   0x00001, 0x20000, CRC(9b6afa26) SHA1(387a6eb6e5da9752869fcc6433cc7516a28d6d30) )
+	ROM_LOAD16_BYTE( "p1a.37",   0x00000, 0x20000, CRC(be1abd16) SHA1(6ad01516301b44899971000c36f7e21070c3d2da) )
+	ROM_LOAD16_BYTE( "p2a.36",   0x00001, 0x20000, CRC(5290c89a) SHA1(5a11671505214c20770e2938dab1ee82a030b457) )
 
 	ROM_REGION( 0x20000, REGION_CPU2, 0 )
 	ROM_LOAD16_BYTE( "subl",   0x00000, 0x10000, CRC(3814a2eb) SHA1(252800b21f5cfada34ef5208cda33088daab132b) )
 	ROM_LOAD16_BYTE( "subh",   0x00001, 0x10000, CRC(1af7ad58) SHA1(450c65289729d74cd4d17e11be16469246e61b7d) )
 
 	ROM_REGION( 0x8000, REGION_CPU3, 0 )
-	ROM_LOAD( "ss1",    0x0000, 0x8000, CRC(c3ba160b) SHA1(cfbfcad443ff83cd4e707f045a650417aca03d85) )
+	ROM_LOAD( "ss5.37",    0x0000, 0x8000, CRC(c3ba160b) SHA1(cfbfcad443ff83cd4e707f045a650417aca03d85) )
 
-	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
-	ROM_LOAD( "ss2",    0x00000, 0x20000, CRC(da4b8733) SHA1(177372a53fd49629d1cda83bdd324ee90fbcdbb5) )
-	/*The following two are identical*/
-	ROM_LOAD( "ss3",    0x20000, 0x20000, CRC(cecdea53) SHA1(7e6a6499cab4720f4b6d6d8988bb9dd5766511ab) )
-	ROM_LOAD( "ss4",    0x40000, 0x20000, CRC(cecdea53) SHA1(7e6a6499cab4720f4b6d6d8988bb9dd5766511ab) )
-	//ss5?
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF )
+	ROM_LOAD( "ss1.10",    0x00000, 0x20000, CRC(27d1cf94) SHA1(26246f217192bcfa39692df6d388640d385e9ed9) )
+	ROM_LOAD( "ss3.11",    0x20000, 0x20000, CRC(a327488e) SHA1(b55357101e392f50f0cf75cf496a3ff4b79b2633) )
 
-	ROM_REGION( 0x40000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_REGION( 0x80000, REGION_SOUND2, ROMREGION_ERASEFF )
+	ROM_LOAD( "ss2.31",    0x00000, 0x20000, CRC(27d1cf94) SHA1(26246f217192bcfa39692df6d388640d385e9ed9) )
+	ROM_LOAD( "ss4.32",    0x20000, 0x20000, CRC(a327488e) SHA1(b55357101e392f50f0cf75cf496a3ff4b79b2633) )
+
+	ROM_REGION( 0x40000, REGION_GFX1, 0 )
 	ROM_LOAD( "s09", 0x00000, 0x10000, CRC(69e6470c) SHA1(8e7db6988366cae714fff72449623a7977af1db1) )
 	ROM_LOAD( "s10", 0x10000, 0x10000, CRC(77230f44) SHA1(b79fc841fa784d23855e4085310cee435c11348f) )
 	ROM_LOAD( "s11", 0x20000, 0x10000, CRC(bfda980d) SHA1(1f975fdd2cfdc345eeb03fbc26fc1be1b2d7737e) )
 	ROM_LOAD( "s12", 0x30000, 0x10000, CRC(8a11fcfa) SHA1(a406ac9cf841dd9d829cb83bfe8feb5128a3e77e) )
 
-	ROM_REGION( 0x40000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_REGION( 0x40000, REGION_GFX3, 0 )
 	ROM_LOAD( "s01", 0x00000, 0x10000, CRC(6513452c) SHA1(95ed2da8f90e16c50716011577606a7dc93ba65e) )
 	ROM_LOAD( "s02", 0x10000, 0x10000, CRC(3a270e3b) SHA1(97c8282d4d782c9d2fcfb5e5dabbe1ca88978f5c) )
 	ROM_LOAD( "s03", 0x20000, 0x10000, CRC(584eff66) SHA1(308ec058693ce3ce34b058a8dbeedf342134311c) )
 	ROM_LOAD( "s04", 0x30000, 0x10000, CRC(51ba5402) SHA1(c4522c4562ce0514bef3257e323bcc255b635544) )
 
-	ROM_REGION( 0x40000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_REGION( 0x40000, REGION_GFX2, 0 )
 	ROM_LOAD( "s05", 0x00000, 0x10000, CRC(bddb6008) SHA1(bacb822bac4893eee0648a19ce449e5559d32b5e) )
 	ROM_LOAD( "s06", 0x10000, 0x10000, CRC(d65b0fa5) SHA1(ce398a52ad408778fd910c42a9618194b862becf) )
 	ROM_LOAD( "s07", 0x20000, 0x10000, CRC(70220567) SHA1(44b48ded8581a6d78b27a3af833f62413ff31c76) )
 	ROM_LOAD( "s08", 0x30000, 0x10000, CRC(988c4fcb) SHA1(68d32be70605ad5415f2b6aeabbd92e269f0c9af) )
 
-	/*The following ROM regions aren't checked yet*/
 	ROM_REGION( 0x200000, REGION_USER1, 0 )
-	ROM_LOAD( "c01" , 0x000000, 0x20000, CRC(f7021069) SHA1(67835750f39effd362ccaee381765afce8fa16b2) )
-	ROM_LOAD( "c02" , 0x020000, 0x20000, CRC(665e193c) SHA1(12c116da0a2d4e881d8598727ff63299fb98c6d2) )
-	ROM_LOAD( "c03" , 0x040000, 0x20000, CRC(f230d700) SHA1(60fdba4b0fe4df5507e999bed917da93c6cd9a9c) )
-	ROM_LOAD( "c04" , 0x060000, 0x20000, CRC(999fd57d) SHA1(3e8b8dac595555419831784a27f95420e10b58bd) )
-	ROM_LOAD( "c05" , 0x080000, 0x20000, CRC(9bafb49c) SHA1(6deddbaa44c8e11e0ac73a5330935a9a260b5d43) )
-	ROM_LOAD( "c06" , 0x0a0000, 0x20000, CRC(e60de7a2) SHA1(9daa820eefddf079e3940341acc316b1f19ba7ed) )
-	ROM_LOAD( "c07" , 0x0c0000, 0x20000, CRC(e7cf992a) SHA1(610b2c78a16d8a9d420b1513e2dcfa693f1d8b42) )
-	ROM_LOAD( "c08" , 0x0e0000, 0x20000, CRC(ce0343b9) SHA1(ef511a04709c49250b32c5b47a6f5024af8acc5b) )
-	ROM_LOAD( "c09" , 0x100000, 0x20000, CRC(63a443d1) SHA1(9c0fdca3f8e65dc984ec3c089b379c5a61066630) )
-	ROM_LOAD( "c10" , 0x120000, 0x20000, CRC(01331635) SHA1(8af7fbe2609b6d96bcd63d884cf92095593130ff) )
-	ROM_LOAD( "c11" , 0x140000, 0x20000, CRC(d46ccfa3) SHA1(c872bc5a25f0b574cb2f9d3b1dff36c3eff751b4) )
-	ROM_LOAD( "c12" , 0x160000, 0x20000, CRC(c3c39c4a) SHA1(93f3572dd62ef7a92044345249efb0d9ec99bdf9) )
-	ROM_LOAD( "c13" , 0x180000, 0x20000, CRC(0f366b92) SHA1(2361ac9b1309d5fbd1dec93ca5aecdf45deaeaed) )
-	ROM_LOAD( "c14" , 0x1a0000, 0x20000, CRC(406d5a0d) SHA1(51e4e85d9c63ef687671fbb213b14d66930070ce) )
-	ROM_LOAD( "c15" , 0x1c0000, 0x20000, CRC(ad681c70) SHA1(84c6589464103091b39f1ccdbfed10bf538452f3) )
-	ROM_LOAD( "c16" , 0x1e0000, 0x20000, CRC(1f44dbb6) SHA1(ea1368d6367a2de6d5e6764f8ab705b182d6d276) )
+	ROM_LOAD32_BYTE( "c01.93" , 0x180001, 0x20000, CRC(b5ee3de2) SHA1(77b9a2818f36826891e510e8550f1025bacfa496) )
+	ROM_LOAD32_BYTE( "c02.92" , 0x180000, 0x20000, CRC(1f857d79) SHA1(f410d50970c10814b80baab27cbe69965bf0ccc0) )
+	ROM_LOAD32_BYTE( "c03.91" , 0x180003, 0x20000, CRC(d70a93e2) SHA1(e64bb10c58b27def4882f3006784be56de11b812) )
+	ROM_LOAD32_BYTE( "c04.90" , 0x180002, 0x20000, CRC(04d6fdc2) SHA1(56f8091c1a010014e951f5f47084e1400006123e) )
 
-	ROM_REGION( 0x200000, REGION_USER2, 0 )
-	ROM_LOAD16_BYTE( "road_chl" , 0x000000, 0x20000, CRC(862b109c) SHA1(9f81918362218ddc0a6bf0a5317c5150e514b699) )
-	ROM_LOAD16_BYTE( "road_chh" , 0x000001, 0x20000, CRC(9dedc988) SHA1(10bae1be0e35320872d4994f7e882cd1de988c90) )
+	ROM_LOAD32_BYTE( "c05.102", 0x100001, 0x20000, CRC(3f537490) SHA1(12d6545d29dda9f88019040fa33c73a22a2a213b) )
+	ROM_LOAD32_BYTE( "c06.101", 0x100000, 0x20000, CRC(ff69c6a4) SHA1(badd20d26ba771780aebf733e1fbd1d37aa66f9b) )
+	ROM_LOAD32_BYTE( "c07.100", 0x100003, 0x20000, CRC(5e8eba75) SHA1(6d0c1916517802acf808c8edc8e0b6074bdc90be) )
+	ROM_LOAD32_BYTE( "c08.98" , 0x100002, 0x20000, CRC(f0820ddd) SHA1(7fb6c7d66ff96148f14921bc8d0cc0c65ffce4c4) )
+
+	ROM_LOAD32_BYTE( "c09.109", 0x080001, 0x20000, CRC(080f87c3) SHA1(aedebc22ff03d4cc710e71ca14e09c7808f59c72) )
+	ROM_LOAD32_BYTE( "c10.108", 0x080000, 0x20000, CRC(777c6a62) SHA1(4684d1c5d88b37ecb20002b7aa4814bf566e7d4b) )
+	ROM_LOAD32_BYTE( "c11.107", 0x080003, 0x20000, CRC(330ca5a1) SHA1(4409da231a5abcec8c7d2d66eefdfd2019a322db) )
+	ROM_LOAD32_BYTE( "c12.106", 0x080002, 0x20000, CRC(c1ec8e61) SHA1(09f2f4ddc100e5675c9bd82c200718fb0b69655e) )
+
+	ROM_LOAD32_BYTE( "c13.119", 0x000001, 0x20000, CRC(4e22a7e0) SHA1(69cc7dd528b8af0c28b448285768a3ed079099ba) )
+	ROM_LOAD32_BYTE( "c14.118", 0x000000, 0x20000, CRC(bdbd6232) SHA1(94b0741d5eced558723dda32a89aa2b747cdcbbd) )
+	ROM_LOAD32_BYTE( "c15.117", 0x000003, 0x20000, CRC(f163d768) SHA1(e54e31a6f956f7de52b59bcdd0cd4ac1662b5664) )
+	ROM_LOAD32_BYTE( "c16.116", 0x000002, 0x20000, CRC(5e5017c4) SHA1(586cd729630f00cbaf10d1036edebed1672bc532) )
+
+	ROM_REGION( 0x40000, REGION_GFX4, 0 )
+	ROM_LOAD16_BYTE( "road_chl" , 0x000001, 0x20000, CRC(862b109c) SHA1(9f81918362218ddc0a6bf0a5317c5150e514b699) )
+	ROM_LOAD16_BYTE( "road_chh" , 0x000000, 0x20000, CRC(9dedc988) SHA1(10bae1be0e35320872d4994f7e882cd1de988c90) )
 
 	ROM_REGION( 0x30000, REGION_USER3, 0 )
 	ROM_LOAD( "t1",   0x00000, 0x08000, CRC(24890512) SHA1(2a6c9d39ca0c1c8316e85d9f565f6b3922d596b2) )
-	ROM_LOAD( "t2",   0x08000, 0x08000, CRC(5a10480d) SHA1(f17598442091dae14abe3505957d94793f3ed886))
+	ROM_LOAD( "t2",   0x08000, 0x08000, CRC(5a10480d) SHA1(f17598442091dae14abe3505957d94793f3ed886) )
 	ROM_LOAD( "t3",   0x10000, 0x08000, CRC(454af4dc) SHA1(e5b18a37715e50db2243432564f5a04fb39dea60) )
 	ROM_LOAD( "t4",   0x18000, 0x08000, CRC(0e1ef6a9) SHA1(d230841bbee6d07bab05aa8d37ec2409fc6278bc) )
-	/*The following two are identical*/
-	ROM_LOAD( "t5",   0x20000, 0x08000, CRC(12eb51bc) SHA1(35708eb456207ebee498c70dd82340b364797c56) )
-	ROM_LOAD( "t6",   0x28000, 0x08000, CRC(12eb51bc) SHA1(35708eb456207ebee498c70dd82340b364797c56) )
+
+	ROM_REGION( 0x10000, REGION_USER4, 0 )
+
+	ROM_LOAD( "t5",   0x00000, 0x08000, CRC(12eb51bc) SHA1(35708eb456207ebee498c70dd82340b364797c56) )
+	ROM_LOAD( "t6",   0x08000, 0x08000, CRC(12eb51bc) SHA1(35708eb456207ebee498c70dd82340b364797c56) )
 
 	ROM_REGION( 0x280, REGION_PROMS, 0 )
-	ROM_LOAD( "ic2",  0x0000, 0x0100, CRC(aad2a447) SHA1(a12923027e3093bd6d358af44d35d2e8e588dd1a) )//road proms related?
+	ROM_LOAD( "ic2",  0x0000, 0x0100, CRC(aad2a447) SHA1(a12923027e3093bd6d358af44d35d2e8e588dd1a) )
 	ROM_LOAD( "ic15", 0x0100, 0x0100, CRC(5f8c2c00) SHA1(50162503ac0ee9395377d7e45a84672a9493fb7d) )
-	ROM_LOAD( "ic19", 0x0200, 0x0020, CRC(bd15cd71) SHA1(e0946d12eebd5db8707d965be157914d70f7472b) )//T1-T6 proms related?
+	ROM_LOAD( "ic19", 0x0200, 0x0020, CRC(bd15cd71) SHA1(e0946d12eebd5db8707d965be157914d70f7472b) )
 	ROM_LOAD( "ic20", 0x0220, 0x0020, CRC(2f237563) SHA1(b0081c1cc6e357a6f10ab1ff357bd4e989ec7fb3) )
 	ROM_LOAD( "ic29", 0x0240, 0x0020, CRC(95b32c0f) SHA1(5a19f441ced983bacbf3bc1aaee94ca768166447) )
 	ROM_LOAD( "ic30", 0x0260, 0x0020, CRC(2bb6033f) SHA1(eb994108734d7d04f8e293eca21bb3051a63cfe9) )
 ROM_END
 
-GAME( 1990, cybertnk,  0,       cybertnk,  cybertnk,  0, ROT0, "Coreland", "Cyber Tank (v1.04)", GAME_NO_SOUND|GAME_NOT_WORKING )
+DRIVER_INIT( cybertnk )
+{
+	UINT32 *spr = (UINT32*)memory_region(REGION_USER1);
+
+	for (int x = 0; x< 0x200000/4;x++)
+	{
+
+		spr[x] = BITSWAP32(spr[x],  27,26,25,24,   19,18,17,16,  11,10,9,8,  3,2,1,0, 31,30,29,28,   23,22,21,20,   15,14,13,12,   7,6,5,4 );
+	}
+
+}
+
+GAME(1988,cybertnk,0,cybertnk,cybertnk,cybertnk,ROT0,"Coreland","Cyber Tank (v1.4)",GAME_IMPERFECT_GRAPHICS)
