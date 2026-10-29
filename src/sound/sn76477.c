@@ -1026,25 +1026,25 @@ static void *sn76477_start(int sndindex, int clock, const void *config)
 
 	/* set up interface (default) values */
 	sndintrf_register_token(sn);
-	SN76477_set_noise_res(0, sn->intf->noise_res);
-	SN76477_set_filter_res(0, sn->intf->filter_res);
-	SN76477_set_filter_cap(0, sn->intf->filter_cap);
-	SN76477_set_decay_res(0, sn->intf->decay_res);
-	SN76477_set_attack_decay_cap(0, sn->intf->attack_decay_cap);
-	SN76477_set_attack_res(0, sn->intf->attack_res);
-	SN76477_set_amplitude_res(0, sn->intf->amplitude_res);
-	SN76477_set_feedback_res(0, sn->intf->feedback_res);
-	SN76477_set_oneshot_res(0, sn->intf->oneshot_res);
-	SN76477_set_oneshot_cap(0, sn->intf->oneshot_cap);
-	SN76477_set_pitch_voltage(0, sn->intf->pitch_voltage);
-	SN76477_set_slf_res(0, sn->intf->slf_res);
-	SN76477_set_slf_cap(0, sn->intf->slf_cap);
-	SN76477_set_vco_res(0, sn->intf->vco_res);
-	SN76477_set_vco_cap(0, sn->intf->vco_cap);
-	SN76477_set_vco_voltage(0, sn->intf->vco_voltage);
-	SN76477_mixer_w(0, 0x07);		/* turn off mixing */
-	SN76477_envelope_w(0, 0x03);	/* envelope inputs open */
-	SN76477_enable_w(0, 0x01);		/* enable input open */
+	SN76477_set_noise_res(sndindex, sn->intf->noise_res);
+	SN76477_set_filter_res(sndindex, sn->intf->filter_res);
+	SN76477_set_filter_cap(sndindex, sn->intf->filter_cap);
+	SN76477_set_decay_res(sndindex, sn->intf->decay_res);
+	SN76477_set_attack_decay_cap(sndindex, sn->intf->attack_decay_cap);
+	SN76477_set_attack_res(sndindex, sn->intf->attack_res);
+	SN76477_set_amplitude_res(sndindex, sn->intf->amplitude_res);
+	SN76477_set_feedback_res(sndindex, sn->intf->feedback_res);
+	SN76477_set_oneshot_res(sndindex, sn->intf->oneshot_res);
+	SN76477_set_oneshot_cap(sndindex, sn->intf->oneshot_cap);
+	SN76477_set_pitch_voltage(sndindex, sn->intf->pitch_voltage);
+	SN76477_set_slf_res(sndindex, sn->intf->slf_res);
+	SN76477_set_slf_cap(sndindex, sn->intf->slf_cap);
+	SN76477_set_vco_res(sndindex, sn->intf->vco_res);
+	SN76477_set_vco_cap(sndindex, sn->intf->vco_cap);
+	SN76477_set_vco_voltage(sndindex, sn->intf->vco_voltage);
+	SN76477_mixer_w(sndindex, 0x07);		/* turn off mixing */
+	SN76477_envelope_w(sndindex, 0x03);	/* envelope inputs open */
+	SN76477_enable_w(sndindex, 0x01);		/* enable input open */
 
 	sn76477_state_save_register(sn, sndindex);
 
