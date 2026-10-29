@@ -585,6 +585,20 @@ ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libsljit.a
 
 ############################################################################
+# nanojpeg
+
+$(OBJ)/advance/libnanojpeg.a: $(OBJ)/advance/nanojpeg/nanojpeg.o
+	$(ECHO) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/advance/nanojpeg
+ADVANCEOBJDIRS += \
+	$(OBJ)/advance/nanojpeg
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libnanojpeg.a
+
+############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
@@ -1160,6 +1174,8 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	cp $(ZLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/zlib
 	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
 	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
+	mkdir $(EMU_DIST_DIR_SRC)/advance/nanojpeg
+	cp $(NANOJPEG_SRC) $(EMU_DIST_DIR_SRC)/advance/nanojpeg
 	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit
 	cp $(SLJIT_SRC) $(EMU_DIST_DIR_SRC)/advance/sljit
 	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit/allocator_src
