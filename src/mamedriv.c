@@ -7459,7 +7459,7 @@ Other Sun games
 	DRIVER( dambust )	/* (c) 19?? GAT */
 	DRIVER( dambustr )
 	DRIVER( gunpey )	/* (c) 2000 Banpresto */
-	DRIVER( spaceg )	/* (c) 19?? */
+	DRIVER( spaceg )	/* (c) 1979 Omori Electric Co., Ltd. */
 	DRIVER( wldarrow )	/* (c) 19?? */
 	DRIVER( unkmeyco )	/* (c) 19?? */
 	DRIVER( laserbas )	/* (c) 1981 Amstar/HOEI */

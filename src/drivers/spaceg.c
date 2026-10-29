@@ -2,8 +2,8 @@
 // copyright-holders:Jarek Burczynski, Tomasz Slanina
 #include "driver.h"
 #include "cpu/z80/z80.h"
-#include "sound/dac.h"
-#include "sound/sn76496.h"
+#include "sound/samples.h"
+#include "sound/sn76477.h"
 
 
 /*
@@ -171,294 +171,228 @@ Notes:
 
 
 
-static unsigned char unkram[65536];
+static UINT8 *spaceg_colorram;
+static UINT8 color_latch, palette_latch, pixel_shift, gfx_control;
+static UINT8 sound1, sound3;
 
-static int io9400;
-static int io9401;
-
-VIDEO_UPDATE( spaceg )
+static WRITE8_HANDLER( spaceg_videoram_w )
 {
-	copybitmap(bitmap,tmpbitmap,0,0,0,0,cliprect,TRANSPARENCY_NONE,0);
+	int next = (offset + 0x100) & 0x1fff;
+	UINT16 shifted = data << (8 - pixel_shift);
+	UINT16 pixels = (videoram[offset] << 8) | videoram[next];
 
+	switch (gfx_control & 0x0f)
+	{
+		case 0:
+			pixels &= ~(0xff00 >> pixel_shift);
+		case 1:
+			pixels |= shifted;
+			if (shifted & 0xff00) spaceg_colorram[offset] = color_latch;
+			if (shifted & 0x00ff) spaceg_colorram[next] = color_latch;
+			break;
+		case 0x0d:
+			pixels &= ~shifted;
+			break;
+		default:
+			return;
+	}
+	videoram[offset] = pixels >> 8;
+	videoram[next] = pixels & 0xff;
+}
+
+static WRITE8_HANDLER( spaceg_colorram_w )
+{
+	if (offset == 0x400)
+		color_latch = data & 0x1f;
+	else if (!(offset & 0x1ce0))
+		palette_latch = data;
+	else if (offset & 0xe0)
+		spaceg_colorram[offset] = data;
+}
+
+static READ8_HANDLER( spaceg_palette_r )
+{
+	if (offset & 0x1ce0)
+		return 0xff;
+	if (gfx_control & 0x40)
+	{
+		int index = (offset & 0x1f) | ((offset >> 4) & 0x20);
+		int rgb = (palette_latch << 1) | ((offset & 0x100) >> 8);
+		palette_set_color(index,pal3bit(rgb),pal3bit(rgb >> 6),pal3bit(rgb >> 3));
+	}
+	return 0;
 }
 
 static PALETTE_INIT( spaceg )
 {
 	int i;
-
-	for (i=0; i<128; i++)
-		palette_set_color (i, 0x00,0x00,0x00);
-
-
-	palette_set_color (0, 0x00,0x00,0x00);	//ok czarny
-	palette_set_color (1, 0x7f,0x00,0x00);//???
-	palette_set_color (2, 0xff,0xff,0xff);	//ok+ bialy
-	palette_set_color (3, 0xff,0x00,0x00);	//ok j.czerw.
-	palette_set_color (4, 0x3f,0x3f,0xff);	//ok j.niebieski
-	palette_set_color (5, 0x3f,0xff,0x3f);	//ok j.zielony
-	palette_set_color (6, 0xff,0xbf,0xbf);	//ok+ 'majtki'
-	palette_set_color (7, 0xff,0xff,0x00);	//ok+ zolty
-
-	palette_set_color (8, 0xff,0x7f,0x00);	//ok+ pomaranczowy
-	palette_set_color (9, 0x3f,0xbf,0xff);	//ok j.niebieski (ciemniejszy od 13)
-	palette_set_color (10,0x3f,0xbf,0x3f);	//ok+ c.zielony
-	palette_set_color (11,0x00,0xff,0x00);	//ok j.zielony
-	palette_set_color (12,0x7f,0x00,0x00);	//ok brazowy (c.czerw)
-	palette_set_color (13,0x7f,0xbf,0xff);	//ok j.niebieski (jasniejszy od 9)
-	palette_set_color (14,0x00,0xff,0xff);//???
-	palette_set_color (15,0x7f,0x7f,0x7f);//???
-
+	for (i = 0; i < 64; i++)
+		palette_set_color(i,0,0,0);
 }
 
-static WRITE8_HANDLER( zvideoram_w )
+VIDEO_UPDATE( spaceg )
 {
-	int i,x,y,col;
-
-	col = unkram[0x400];
-
-	if (col>0x0f) ui_popup("color>0x0f =%2d",col);
-
-	col &=0x0f;
-
-	switch(io9401)
-	{
-	case 0x0d:	/* 1101 */
-		videoram[offset] &= ~data;
-		data = videoram[offset];
-		break;
-
-	case 0x01:	/* 0001 */
-	case 0x00:	/* 0000 */
-		videoram[offset] = data;
-		break;
-
-	default:
-		logerror("mode =%02x pc=%04x\n",io9401,activecpu_get_pc() );
-		ui_popup("mode =%02x pc=%04x\n",io9401,activecpu_get_pc() );
-		return;
-		break;
-	}
-
-
-	unkram  [offset] = col;
-
-	y= 255 - (offset & 0xff);
-	x= 255 - ((offset>>8)*8);
-
-	/* draw modified eight pixels */
-	for (i = 0; i < 8; i++)
-	{
-		plot_pixel(tmpbitmap, x-((io9400&0xe0)>>5), y, (data&1)?Machine->pens[col]:Machine->pens[0]);
-		x++;
-		data >>= 1;
-	}
-}
-
-static READ8_HANDLER(fake_r)
-{
-//  logerror("vb %04x\n", activecpu_get_pc() );
-	return 0;
-}
-
-
-static READ8_HANDLER(spaceg_colorram_r)
-{
-
-int rgbcolor;
-
-	if (offset<0x400)
-	{
-		rgbcolor = (unkram[offset]<<1) | ((offset &0x100)>>8);
-
-		if ((offset>=0x200) && (offset<0x220)) /* 0xa200- 0xa21f */
+	int x,y;
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
 		{
-			/* palette 1 */
-			int r,g,b,col_ind;
-			r = (rgbcolor >> 0) & 7;
-			b = (rgbcolor >> 3) & 7;
-			g = (rgbcolor >> 6) & 7;
-			col_ind = offset & 0x1f;
-			palette_set_color(0x10 + 0x00 + col_ind, r*(255.0/7), g*(255.0/7), b*(255.0/7));
+			UINT8 sx = x, sy = y;
+			int offset,pixel,color;
+			if (flip_screen)
+			{
+				sx = ~sx;
+				sy = ~sy + 32;
+			}
+			offset = ((sx << 5) & 0x1f00) | sy;
+			pixel = (videoram[offset] >> (~sx & 7)) & 1;
+			color = (spaceg_colorram[offset] & 0x1f) | (pixel << 5);
+			plot_pixel(bitmap,x,y,Machine->pens[color]);
 		}
-		else
-		if ((offset>=0x300) && (offset<0x320)) /* 0xa300- 0xa31f */
-		{
-			/* palette 2 */
-			int r,g,b,col_ind;
-			r = (rgbcolor >> 0) & 7;
-			b = (rgbcolor >> 3) & 7;
-			g = (rgbcolor >> 6) & 7;
-			col_ind = offset & 0x1f;
-			palette_set_color(0x10 + 0x00 + col_ind, r*(255.0/7), g*(255.0/7), b*(255.0/7));
-		}
-		else
-			logerror("palette? read from unkram offset = %04x\n",offset);
-	}
-
-if (io9401!=0x40)
-	logerror("unkram read in mode: 9401 = %02x (offset=%04x)\n",io9401,offset);
-
-
-	return unkram[offset];
 }
 
-static WRITE8_HANDLER(spaceg_colorram_w)
+static WRITE8_HANDLER( spaceg_shift_w )
 {
-	int i,x,y,col;
-
-	unkram[offset] = data;
-
-
-	/* refresh eight pixels because the color might have just been changed */
-	data = videoram[offset];
-	col  = unkram  [offset];
-
-	y= 255 - (offset & 0xff);
-	x= 255 - ((offset>>8)*8);
-
-	/* draw modified eight pixels */
-	for (i = 0; i < 8; i++)
-	{
-		plot_pixel(tmpbitmap, x-((io9400&0xe0)>>5), y, (data&1)?Machine->pens[col]:Machine->pens[0]);
-		x++;
-		data >>= 1;
-	}
+	pixel_shift = data >> 5;
 }
 
-
-static READ8_HANDLER(zr_r)
+static WRITE8_HANDLER( spaceg_gfxctrl_w )
 {
-	return videoram[offset];
+	gfx_control = data;
 }
 
-static WRITE8_HANDLER(io9400_w)
+static WRITE8_HANDLER( spaceg_output_w )
 {
-	io9400=data;
-	if (io9400 & 0x1f)
-	{
-		logerror("!!9400 =%02x pc=%04x\n",io9400,activecpu_get_pc() );
-	}
+	set_led_status(0,data & 1);
+	set_led_status(1,data & 2);
+	flip_screen_set(data & 8);
 }
 
-static WRITE8_HANDLER(io9401_w)
+static WRITE8_HANDLER( spaceg_sound1_w )
 {
-	io9401 = data;
-
-
-//0x40 - loads the palette on READ, address line 0x100 is the ninth bit (3rd bit of the red component)
-
-	switch(io9401)
-	{
-	case 0x0d:
-	case 0x01:
-	case 0x00:
-			break;
-	default:
-		logerror("!!9401 mode =%02x pc=%04x\n",io9401,activecpu_get_pc() );
-		break;
-	}
+	if (!(sound1 & 2) && (data & 2)) sample_start(1,1,0);
+	if (!(sound1 & 4) && (data & 4)) sample_start(0,0,0);
+	SN76477_enable_w(0,!(data & 8));
+	sound1 = data;
 }
 
-static ADDRESS_MAP_START( readwritemem, ADDRESS_SPACE_PROGRAM, 8 )
+static WRITE8_HANDLER( spaceg_sound3_w )
+{
+	if (!(sound3 & 1) && (data & 1)) sample_start(4,8,0);
+	if (!(sound3 & 2) && (data & 2)) sample_start(5,8,0);
+	if (!(sound3 & 4) && (data & 4)) sample_start(2,2,0);
+	if (!(sound3 & 8) && (data & 8)) sample_start(3,7,0);
+	sound3 = data;
+}
+
+static MACHINE_RESET( spaceg )
+{
+	color_latch = palette_latch = pixel_shift = gfx_control = 0;
+	sound1 = sound3 = 0;
+	flip_screen_set(0);
+	SN76477_envelope_w(0,1);
+	SN76477_mixer_w(0,0);
+	SN76477_vco_w(0,1);
+	SN76477_enable_w(0,1);
+}
+
+static ADDRESS_MAP_START( spaceg_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x1fff) AM_ROM
 	AM_RANGE(0x3000, 0x3fff) AM_ROM
 	AM_RANGE(0x7000, 0x77ff) AM_RAM
-	AM_RANGE(0xc000, 0xdfff) AM_READWRITE(zr_r, zvideoram_w) AM_BASE(&videoram)
-	AM_RANGE(0xa000, 0xbfff) AM_READWRITE(spaceg_colorram_r, spaceg_colorram_w)
-
-
-	AM_RANGE(0x9400, 0x9400) AM_WRITE(io9400_w) /* gfx ctrl */
-	AM_RANGE(0x9401, 0x9401) AM_WRITE(io9401_w) /* gfx ctrl */
-	/* 9402 -
-        bits 0 and 1 probably control the lamps under the player 1 and player 2 start buttons
-        bit 3 is probably a flip screen
-        bit 7 - unknown - set to 1 during the gameplay (coinlock ?)
-    */
-	AM_RANGE(0x9402, 0x9407) AM_RAM
-
-	AM_RANGE(0x9800, 0x9800) AM_READ(fake_r) //watchdog read ? nmi mask/ack ?
-	AM_RANGE(0x9801, 0x9801) AM_READ(input_port_0_r)
-	AM_RANGE(0x9802, 0x9802) AM_READ(input_port_1_r)
-	AM_RANGE(0x9805, 0x9805) AM_READ(input_port_2_r) /* pl 1 */
-	AM_RANGE(0x9806, 0x9806) AM_READ(input_port_3_r) /* pl 2 */
+	AM_RANGE(0xa000, 0xbfff) AM_READWRITE(spaceg_palette_r,spaceg_colorram_w) AM_BASE(&spaceg_colorram)
+	AM_RANGE(0xc000, 0xdfff) AM_RAM AM_WRITE(spaceg_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x9400, 0x9400) AM_WRITE(spaceg_shift_w)
+	AM_RANGE(0x9401, 0x9401) AM_WRITE(spaceg_gfxctrl_w)
+	AM_RANGE(0x9402, 0x9402) AM_WRITE(spaceg_output_w)
+	AM_RANGE(0x9405, 0x9405) AM_WRITE(spaceg_sound1_w)
+	AM_RANGE(0x9406, 0x9406) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x9407, 0x9407) AM_WRITE(spaceg_sound3_w)
+	AM_RANGE(0x9800, 0x9800) AM_READ(input_port_0_r)
+	AM_RANGE(0x9801, 0x9801) AM_READ(input_port_1_r)
+	AM_RANGE(0x9802, 0x9802) AM_READ(input_port_2_r)
+	AM_RANGE(0x9805, 0x9805) AM_READ(input_port_3_r)
+	AM_RANGE(0x9806, 0x9806) AM_READ(input_port_4_r)
 ADDRESS_MAP_END
 
+static INPUT_PORTS_START( spaceg )
+	PORT_START_TAG("9800")
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x02, 0x00, "Swarm Trips" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x02, "4" )
+	PORT_DIPNAME( 0x0c, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x08, "5" )
+	PORT_DIPSETTING(    0x0c, "6" )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "10000" )
+	PORT_DIPSETTING(    0x20, "30000" )
+	PORT_DIPSETTING(    0x10, "40000" )
+	PORT_DIPSETTING(    0x30, "50000" )
 
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x00, "10000" )
+	PORT_DIPSETTING(    0x40, "30000" )
+	PORT_DIPSETTING(    0x80, "40000" )
+	PORT_DIPSETTING(    0xc0, "50000" )
 
-INPUT_PORTS_START( spaceg )
-	PORT_START
+	PORT_START_TAG("9801")
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
 	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 )
 
-	PORT_START
+	PORT_START_TAG("9802")
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_START1 )
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START2 )
 
-	PORT_START /* player 1 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 )
-	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2 )
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 )
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 )
+	PORT_START_TAG("9805")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY
 
-	PORT_START /* player 2 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 )
-	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2 )
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 )
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 )
-
-
+	PORT_START_TAG("9806")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY PORT_COCKTAIL
 INPUT_PORTS_END
 
 
+static const char *spaceg_sample_names[] =
+{
+	"*invaders", "1.wav", "2.wav", "3.wav", "4.wav", "5.wav",
+	"6.wav", "7.wav", "8.wav", "9.wav", 0
+};
+
+static struct Samplesinterface spaceg_samples = { 6, spaceg_sample_names };
+
+static struct SN76477interface spaceg_sn76477 =
+{
+	0, 0, 0, 0, 0, RES_K(100), RES_K(56), RES_K(10),
+	0, CAP_U(0.1), RES_K(8.2), 5.0, RES_K(120), CAP_U(1.0), 0, 0
+};
+
 static MACHINE_DRIVER_START( spaceg )
-
-	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80,2500000)		 /* 2.5 MHz */
-	MDRV_CPU_PROGRAM_MAP(readwritemem,0)
-	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)	/* 60 Hz NMIs (verified) */
-
+	MDRV_CPU_ADD(Z80,2500000)
+	MDRV_CPU_PROGRAM_MAP(spaceg_map,0)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
 	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-
-	/* video hardware */
+	MDRV_VBLANK_DURATION(TIME_IN_USEC(2500))
+	MDRV_MACHINE_RESET(spaceg)
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(256, 256)
-	MDRV_VISIBLE_AREA(0, 256-1, 0, 256-1-3*8)
-	MDRV_PALETTE_LENGTH(16+128-16)
-	MDRV_PALETTE_INIT( spaceg )
-	MDRV_VIDEO_START(generic_bitmapped)
-	MDRV_VIDEO_UPDATE( spaceg )
-
-	/* sound hardware */
+	MDRV_SCREEN_SIZE(256,256)
+	MDRV_VISIBLE_AREA(0,255,32,255)
+	MDRV_PALETTE_LENGTH(64)
+	MDRV_PALETTE_INIT(spaceg)
+	MDRV_VIDEO_UPDATE(spaceg)
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-
-//  MDRV_SOUND_ADD(SN76496, 15468480/4)
-//  MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-
-//  MDRV_SOUND_ADD(SN76496, 15468480/4)
-//  MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-
-//  MDRV_SOUND_ADD(SN76496, 15468480/4)
-//  MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-
-//  MDRV_SOUND_ADD(DAC, 0)
-//  MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ADD(SN76477,0)
+	MDRV_SOUND_CONFIG(spaceg_sn76477)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.25)
+	MDRV_SOUND_ADD(SAMPLES,0)
+	MDRV_SOUND_CONFIG(spaceg_samples)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
 MACHINE_DRIVER_END
-
-
-/***************************************************************************
-
-  Game driver(s)
-
-***************************************************************************/
 
 ROM_START( spaceg )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
@@ -474,7 +408,10 @@ ROM_START( spaceg )
 	ROM_LOAD( "14.8g",	0x3400, 0x0400, CRC(dc9a10c2) SHA1(8fb2316d6e8aeef558d0da5029e2932abf47a6b4) )
 	ROM_LOAD( "15.9h",	0x3800, 0x0400, CRC(55e2950d) SHA1(2241c3620c9a6df8b8bd234ccee9af5d3d19a5d4) )
 	ROM_LOAD( "16.8h",	0x3c00, 0x0400, CRC(567259c4) SHA1(b2c3f7aaceabea075af6a43b89fb7331732278c8) )
+	ROM_REGION( 0x40, REGION_PROMS, 0 )
+	ROM_LOAD( "74s288.6a", 0x00, 0x20, CRC(ae1f4acd) SHA1(1d502b61db73cf6a4ac3d235455a5c464f12652a) )
+	ROM_LOAD( "74s288.6b", 0x20, 0x20, CRC(ae1f4acd) SHA1(1d502b61db73cf6a4ac3d235455a5c464f12652a) )
 ROM_END
 
 
-GAME( 1979, spaceg, 0, spaceg, spaceg, 0, ROT90, "Omori", "Space Guerilla", GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND)
+GAME( 1979, spaceg, 0, spaceg, spaceg, 0, ROT270, "Omori Electric Co., Ltd.", "Space Guerrilla", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND)
