@@ -1728,9 +1728,10 @@ DrawSprites( mame_bitmap *bitmap, const rectangle *cliprect )
         0x9a0004:   palette, C381 ZC (depth cueing)
         ...
     */
-	int num_sprites = ((spriteram32[0x04/4]>>16)&0x3ff)+1;
-	const UINT32 *pSource = &spriteram32[0x4000/4];
-	const UINT32 *pPal = &spriteram32[0x20000/4];
+	int base = spriteram32[0] & 0xffff;
+	int num_sprites = (spriteram32[0x04/4] >> 16) - base + 1;
+	const UINT32 *pSource = &spriteram32[0x4000/4 + base*4];
+	const UINT32 *pPal = &spriteram32[0x20000/4 + base*2];
    int deltax = spriteram32[0x14/4]>>16;
 	int deltay = spriteram32[0x18/4]>>16;
    int enable = spriteram32[0]>>16;
@@ -1742,7 +1743,7 @@ DrawSprites( mame_bitmap *bitmap, const rectangle *cliprect )
 		deltay = 43;
    }
 
-   if( enable==6 /*&& namcos22_gametype!=NAMCOS22_AIR_COMBAT22*/ )
+   if( !(enable & 1) && num_sprites > 0 && num_sprites < 0x400 )
    {
       DrawSpritesHelper( bitmap, cliprect, pSource, pPal, num_sprites, deltax, deltay );
    }
@@ -1762,16 +1763,26 @@ DrawSprites( mame_bitmap *bitmap, const rectangle *cliprect )
         0x940060..0x94007c      set#2
 */
 
-	num_sprites = (namcos22_vics_control[0x40/4]&0xffff)/0x10;
-	if( num_sprites>=1 )
+	num_sprites = (namcos22_vics_control[0x40/4] >> 4) & 0x1ff;
+	if( !(namcos22_vics_control[0x30/4] & 0x01000000) && num_sprites >= 1 )
 	{
 		pSource = &namcos22_vics_data[(namcos22_vics_control[0x48/4]&0xffff)/4];
 		pPal    = &namcos22_vics_data[(namcos22_vics_control[0x58/4]&0xffff)/4];
 		DrawSpritesHelper( bitmap, cliprect, pSource, pPal, num_sprites, deltax, deltay );
 	}
 
-	num_sprites = (namcos22_vics_control[0x60/4]&0xffff)/0x10;
-	if( num_sprites>=1 )
+	num_sprites = (namcos22_vics_control[0x60/4] >> 4) & 0x1ff;
+	if( namcos22_gametype == NAMCOS22_AIR_COMBAT22 )
+	{
+		int list = (namcos22_vics_control[0x48/4] & 0xffff) / 4;
+		enable = !(namcos22_vics_data[list] & 0x00010000);
+		num_sprites = (namcos22_vics_data[list+1] >> 16) + 1;
+	}
+	else
+	{
+		enable = !(namcos22_vics_control[0x30/4] & 0x01000000);
+	}
+	if( enable && num_sprites >= 1 && num_sprites <= 0x400 )
 	{
 		pSource = &namcos22_vics_data[(namcos22_vics_control[0x68/4]&0xffff)/4];
 		pPal    = &namcos22_vics_data[(namcos22_vics_control[0x78/4]&0xffff)/4];
@@ -2272,7 +2283,7 @@ BlitPolyObject( mame_bitmap *pBitmap, int code, float M[4][4] )
 
 READ32_HANDLER( namcos22_dspram_r )
 {
-	return namcos22_polygonram[offset];
+	return namcos22_polygonram[offset] | 0xff000000;
 }
 
 WRITE32_HANDLER( namcos22_dspram_w )
@@ -2699,7 +2710,7 @@ WRITE16_HANDLER( namcos22_dspram16_bank_w )
 READ16_HANDLER( namcos22_dspram16_r )
 {
 	UINT32 value = namcos22_polygonram[offset];
-	switch( namcos22_dspram_bank )
+	switch( namcos22_dspram_bank & 3 )
 	{
 	case 0:
 		value &= 0xffff;
@@ -2714,8 +2725,8 @@ READ16_HANDLER( namcos22_dspram16_r )
 		value &= 0xffff;
 		break;
 
-	default:
-		break;
+	case 3:
+		return 0;
 	}
 	return (UINT16)value;
 } /* namcos22_dspram16_r */
@@ -2725,7 +2736,7 @@ WRITE16_HANDLER( namcos22_dspram16_w )
 	UINT32 value = namcos22_polygonram[offset];
 	UINT16 lo = value&0xffff;
 	UINT16 hi = value>>16;
-	switch( namcos22_dspram_bank )
+	switch( namcos22_dspram_bank & 3 )
 	{
 	case 0:
 		COMBINE_DATA( &lo );
