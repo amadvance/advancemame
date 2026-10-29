@@ -37,6 +37,7 @@
 
 
 static int counter = 0;
+static UINT8 input_multiplex, ay_multiplex, dealer_flip;
 
 MACHINE_RESET( dealer );
 
@@ -75,13 +76,14 @@ ADDRESS_MAP_END
 
 
 static ADDRESS_MAP_START( dealer_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x6fff) AM_READ(MRA8_BANK1)
+	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_BANK1)
+	AM_RANGE(0x6000, 0x6fff) AM_READ(MRA8_BANK2)
 	AM_RANGE(0x7000, 0xffff) AM_READ(MRA8_RAM)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( dealer_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x6fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x7000, 0x7fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x7000, 0x7fff) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)
 	AM_RANGE(0x8000, 0xffff) AM_WRITE(epos_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
 ADDRESS_MAP_END
 
@@ -109,28 +111,103 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 
+static WRITE8_HANDLER( dealer_palette_w )
+{
+	int r=0x92*((data>>7)&1)+0x4a*((data>>6)&1)+0x23*((data>>5)&1);
+	int g=0x92*((data>>4)&1)+0x4a*((data>>3)&1)+0x23*((data>>2)&1);
+	int b=0xad*((data>>1)&1)+0x52*(data&1);
+	palette_set_color(offset,r,g,b);
+}
+
+static READ8_HANDLER( dealer_inputs_r )
+{
+	UINT8 data=0xff;
+	if (!(input_multiplex&1)) data &= readinputportbytag("IN2");
+	if (!(input_multiplex&2)) data &= readinputportbytag("IN3");
+	return data;
+}
+
+static WRITE8_HANDLER( dealer_portc_w )
+{
+	memory_set_bankptr(2,memory_region(REGION_CPU1)+0x6000+(data&1)*0x1000);
+	input_multiplex=(data>>5)&3;
+}
+
+static READ8_HANDLER( dealer_dsw_r )
+{
+	return ay_multiplex ? 0xff : readinputportbytag("IN0");
+}
+
+static WRITE8_HANDLER( dealer_flip_w )
+{
+	dealer_flip=data&0x80;
+	ay_multiplex=data&0x40;
+}
+
+static const struct AY8910interface dealer_ay_interface =
+{
+	dealer_dsw_r, NULL, NULL, dealer_flip_w
+};
+
+static NVRAM_HANDLER( dealer )
+{
+	if (read_or_write) mame_fwrite(file,generic_nvram,generic_nvram_size);
+	else if (file) mame_fread(file,generic_nvram,generic_nvram_size);
+	else if (memory_region(REGION_USER1)) memcpy(generic_nvram,memory_region(REGION_USER1),generic_nvram_size);
+	else memset(generic_nvram,0,generic_nvram_size);
+}
+
+static PALETTE_INIT( dealer )
+{
+	int i;
+	for (i=0;i<32;i++) palette_set_color(i,0,0,0);
+}
+
+static VIDEO_UPDATE( dealer )
+{
+	int offs;
+	for (offs=0;offs<videoram_size;offs++)
+	{
+		int x=(offs%136)*2, y=offs/136;
+		UINT8 data=videoram[offs];
+		if (dealer_flip)
+		{
+			plot_pixel(bitmap,271-x,240-y,Machine->pens[data&15]);
+			plot_pixel(bitmap,270-x,240-y,Machine->pens[data>>4]);
+		}
+		else
+		{
+			plot_pixel(bitmap,x,y,Machine->pens[data&15]);
+			plot_pixel(bitmap,x+1,y,Machine->pens[data>>4]);
+		}
+	}
+}
+
 static ADDRESS_MAP_START( dealer_readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x10, 0x13) AM_READ(ppi8255_0_r)
-	AM_RANGE(0x38, 0x38) AM_READ(input_port_0_r)
+	AM_RANGE(0x38, 0x38) AM_READ(AY8910_read_port_0_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( dealer_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x0f) AM_WRITE(dealer_palette_w)
 	AM_RANGE(0x10, 0x13) AM_WRITE(ppi8255_0_w)
 	AM_RANGE(0x20, 0x24) AM_WRITE(dealer_decrypt_rom)
-//  AM_RANGE(0x40, 0x40) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x34, 0x34) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0x3c, 0x3c) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(watchdog_reset_w)
 ADDRESS_MAP_END
 
 static ppi8255_interface ppi8255_intf =
 {
 	1, 					/* 1 chip */
-	{ input_port_2_r },	/* Port A read */
+	{ dealer_inputs_r },	/* Port A read */
 	{ NULL },			/* Port B read */
 	{ NULL },			/* Port C read */
 	{ NULL },			/* Port A write */
 	{ NULL },			/* Port B write */
-	{ NULL },			/* Port C write */
+	{ dealer_portc_w },	/* Port C write */
 };
 
 /*************************************
@@ -387,8 +464,34 @@ INPUT_PORTS_START( dealer )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON6 )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON7 ) //coin in
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON8 )
+	PORT_START_TAG("IN3")
+	PORT_BIT(0x3f, IP_ACTIVE_LOW, IPT_UNKNOWN)
+	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_COIN1)
+	PORT_SERVICE_NO_TOGGLE(0x80, IP_ACTIVE_LOW)
 INPUT_PORTS_END
 
+
+static INPUT_PORTS_START( beastf )
+	PORT_INCLUDE( dealer )
+
+	PORT_MODIFY("IN2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START2 )
+
+	PORT_MODIFY("IN3")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+INPUT_PORTS_END
 
 /*************************************
  *
@@ -426,7 +529,7 @@ MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( dealer )
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 11000000/4)	/* 2.75 MHz (see notes) */
+	MDRV_CPU_ADD(Z80, 22118400/8)	/* 2.75 MHz (see notes) */
 	MDRV_CPU_PROGRAM_MAP(dealer_readmem,dealer_writemem)
 	MDRV_CPU_IO_MAP(dealer_readport,dealer_writeport)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
@@ -440,14 +543,16 @@ static MACHINE_DRIVER_START( dealer )
 	MDRV_VISIBLE_AREA(0, 271, 0, 235)
 	MDRV_PALETTE_LENGTH(32)
 
-	MDRV_PALETTE_INIT(epos)
+	MDRV_PALETTE_INIT(dealer)
 	MDRV_VIDEO_START(generic_bitmapped)
-	MDRV_VIDEO_UPDATE(epos)
+	MDRV_VIDEO_UPDATE(dealer)
 	MDRV_MACHINE_RESET(dealer)
+	MDRV_NVRAM_HANDLER(dealer)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-	MDRV_SOUND_ADD(AY8910, 11000000/4)
+	MDRV_SOUND_ADD(AY8910, 22118400/32)
+	MDRV_SOUND_CONFIG(dealer_ay_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -457,7 +562,7 @@ MACHINE_DRIVER_END
  *  ROM definitions
  *
  *************************************/
- 
+
 ROM_START( eeekk )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "u10_e12063.u10", 0x0000, 0x1000, CRC(edd05de2) SHA1(25dfa7ad2e29b1ca9ce9bb36bf1a573baabb4d5b) )
@@ -468,7 +573,7 @@ ROM_START( eeekk )
 	ROM_LOAD( "u5_e12063.u5",   0x5000, 0x1000, CRC(4c22c6d9) SHA1(94a8fc951994746f8ccfb77d80f8b98fde8a6f33) )
 	ROM_LOAD( "u4_e12063.u4",   0x6000, 0x1000, CRC(3d341208) SHA1(bc4d2567df2779d97e718376c4bf682ba459c01e) )
 	ROM_LOAD( "u11_e12063.u11", 0x7000, 0x0800, CRC(417faff0) SHA1(7965155ee32694ea9a10245db73d8beef229408c) )
-	
+
 	ROM_REGION( 0x0020, REGION_PROMS, 0 )
 	ROM_LOAD( "74s288.u66",     0x0000, 0x0020, CRC(f2078c38) SHA1(7bfd49932a6fd8840514b7af93a64cedb248122d) )
 ROM_END
@@ -615,6 +720,20 @@ EPOS TRISTAR 9000
                              22.1184MHz
 */
 
+ROM_START( revngr84 )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+	ROM_LOAD( "u_1__revenger__r06254__=c=_epos_corp.m5l2764k.u1",  0x0000, 0x2000, CRC(308f231f) SHA1(cf06695601bd0387e4fcb64d9b34143323e98b07) )
+	ROM_LOAD( "u_2__revenger__r06254__=c=_epos_corp.m5l2764k.u2",  0x2000, 0x2000, CRC(e80bbfb4) SHA1(9302beaef8bbb7376b6a20e9ee5adbcf60d66dd8) )
+	ROM_LOAD( "u_3__revenger__r06254__=c=_epos_corp.m5l2764k.u3",  0x4000, 0x2000, CRC(d9270929) SHA1(a95034b5387a40e02f04bdfa79e1d8e65dad30fe) )
+	ROM_LOAD( "u_4__revenger__r06254__=c=_epos_corp.m5l2764k.u4",  0x6000, 0x2000, CRC(d6e6cfa8) SHA1(f10131bb2e9d088c7b6d6a5d5520073d78ad69cc) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "dm74s288n.u60", 0x0000, 0x0020, CRC(be2b0641) SHA1(26982903b6d942af8e0a526412d8e01978d76420) )
+
+	ROM_REGION( 0x1000, REGION_USER1, 0)
+	ROM_LOAD( "revngr84.nv", 0, 0x1000, CRC(a4417770) SHA1(92eded82db0810e7818d2f52a0497032f390fcc1) )
+ROM_END
+
 ROM_START( revenger )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 )
 	ROM_LOAD( "r06124.u1",    0x0000, 0x2000, CRC(fad1a2a5) BAD_DUMP SHA1(a31052c91fe67e2e90441abc40b6483f921ecfe3) )
@@ -629,6 +748,10 @@ ROM_END
 MACHINE_RESET( dealer )
 {
 	memory_set_bankptr(1, memory_region(REGION_CPU1));
+	memory_set_bankptr(2, memory_region(REGION_CPU1)+0x6000);
+	counter=0;
+	input_multiplex=3;
+	ay_multiplex=dealer_flip=0;
 
 	ppi8255_init(&ppi8255_intf);
 }
@@ -682,11 +805,12 @@ DRIVER_INIT( dealer )
 
 GAME( 1982, megadon,  0,        epos,   megadon,  0,	     ROT270, "Epos Corporation (Photar Industries license)", "Megadon", 0 )
 GAME( 1982, catapult, 0,        epos,   igmo,     0,	     ROT270, "Epos Corporation", "Catapult", GAME_NOT_WORKING) /* bad rom, hold f2 for test mode */
-GAME( 1983, eeekk,    0,        epos,   eeekk,    0,         ROT270, "Epos Corporation", "Eeekk!", 0 )
 GAME( 1983, suprglob, 0,        epos,   suprglob, 0,	     ROT270, "Epos Corporation", "Super Glob", 0 )
 GAME( 1983, theglob,  suprglob, epos,   suprglob, 0,	     ROT270, "Epos Corporation", "The Glob", 0 )
 GAME( 1983, theglob2, suprglob, epos,   suprglob, 0,	     ROT270, "Epos Corporation", "The Glob (earlier)", 0 )
 GAME( 1983, theglob3, suprglob, epos,   suprglob, 0,	     ROT270, "Epos Corporation", "The Glob (set 3)", 0 )
 GAME( 1984, igmo,     0,        epos,   igmo,     0,	     ROT270, "Epos Corporation", "IGMO", 0 )
+GAME( 1983, eeekk,    0,        epos,   eeekk,    0,         ROT270, "Epos Corporation", "Eeekk!", 0 )
 GAME( 19??, dealer,   0,        dealer, dealer,   dealer,    ROT270, "Epos Corporation", "The Dealer", GAME_NOT_WORKING)
-GAME( 1984, revenger, 0,        dealer, dealer,   dealer,    ROT270, "Epos Corporation", "Revenger", GAME_NOT_WORKING)
+GAME( 1984, revngr84, 0, dealer, beastf, dealer, ROT270, "Epos Corporation", "Revenger '84 (newer)", 0 )
+GAME( 1984, revenger, revngr84, dealer, beastf,   dealer,    ROT270, "Epos Corporation", "Revenger '84 (older)", GAME_NOT_WORKING)
