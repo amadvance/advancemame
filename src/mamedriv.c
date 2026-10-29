@@ -7001,6 +7001,7 @@ Other Sun games
 
 	/* Omori games */
 	DRIVER( shuttlei )	/* (c) 197? Omori */
+	DRIVER( dodgeman )
 	DRIVER( battlex )	/* (c) 1982 Omori E. Co., Ltd. */
 	DRIVER( carjmbre )	/* (c) 1983 Omori Electric Co., Ltd. */
 	DRIVER( popper )	/* (c) 1983 Omori Electric Co., Ltd. */
