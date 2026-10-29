@@ -7387,6 +7387,7 @@ Other Sun games
 	DRIVER( strvmstr )	/* (c) 1986 Enerdyne Technologies Inc */
 	DRIVER( dorachan )	/* (c) 1980 Craul Denshi */
 	DRIVER( ladyfrog )	/* (c) 1990 Mondial Games */
+	DRIVER( toucheme )
 	DRIVER( rabbit )	/* (c) 1997 Electronic Arts */
 	DRIVER( tmmjprd )	/* (c) 1997 Media / Sonnet */
 	DRIVER( malzak )	/* (c) 1980? Kitronix */
