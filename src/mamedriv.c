@@ -823,6 +823,8 @@ const game_driver * const drivers[] =
 	DRIVER( raveracw )	/* (c) 1995 */
 	DRIVER( raveracj )	/* (c) 1995 */
 	DRIVER( raveraja )	/* (c) 1995 */
+	DRIVER( aquajet )
+	DRIVER( tokyowar )
 	DRIVER( airco22b )	/* (c) 1995 */
 	DRIVER( alpinr2b )	/* (c) 1995 */
 	DRIVER( cybrcomm )	/* (c) 1995 */
