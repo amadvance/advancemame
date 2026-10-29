@@ -326,6 +326,77 @@ READ8_HANDLER(tmntmwb_7010f1_r)
 	return 0x47;
 }
 
+static UINT8 piratdwb_latch, piratdwb_pending, piratdwb_prot_nmi, piratdwb_coin;
+
+static READ8_HANDLER( piratdwb_latch_r )
+{
+	return piratdwb_latch;
+}
+
+static WRITE8_HANDLER( piratdwb_latch_ack_w )
+{
+	piratdwb_pending = 0;
+}
+
+static READ8_HANDLER( piratdwb_status_r )
+{
+	return piratdwb_pending | (piratdwb_prot_nmi ? 0 : 2);
+}
+
+static READ8_HANDLER( piratdwb_dsw_r )
+{
+	return readinputportbytag("PIRATE_DSW");
+}
+
+static WRITE16_HANDLER( piratdwb_latch_w )
+{
+	if (ACCESSING_MSB)
+	{
+		piratdwb_latch = data >> 8;
+		piratdwb_pending = 1;
+	}
+}
+
+static WRITE16_HANDLER( piratdwb_nmi_ack_w )
+{
+	if (ACCESSING_MSB)
+	{
+		piratdwb_prot_nmi = 0;
+		cpunum_set_input_line(2, 7, CLEAR_LINE);
+	}
+}
+
+static READ16_HANDLER( piratdwb_coin_r )
+{
+	return readinputportbytag("PIRATE_COIN");
+}
+
+static INTERRUPT_GEN( piratdwb_coin_poll )
+{
+	UINT8 coin = readinputportbytag("PIRATE_COIN") & 2;
+	if (coin != piratdwb_coin)
+	{
+		piratdwb_coin = coin;
+		piratdwb_prot_nmi = 1;
+		cpunum_set_input_line(2, 7, ASSERT_LINE);
+	}
+}
+
+static ADDRESS_MAP_START( piratdwb_68k_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x01ffff) AM_ROM
+	AM_RANGE(0x04e000, 0x04ffff) AM_RAM
+	AM_RANGE(0x050000, 0x0503ff) AM_RAM
+	AM_RANGE(0x080000, 0x080001) AM_WRITE(piratdwb_latch_w)
+	AM_RANGE(0x100000, 0x100001) AM_READ(piratdwb_coin_r)
+	AM_RANGE(0x180000, 0x180001) AM_WRITE(piratdwb_nmi_ack_w)
+ADDRESS_MAP_END
+
+static MACHINE_RESET( piratdwb )
+{
+	piratdwb_latch = piratdwb_pending = piratdwb_prot_nmi = piratdwb_coin = 0;
+	machine_reset_snes();
+}
+
 static ADDRESS_MAP_START( snesb_map, ADDRESS_SPACE_PROGRAM, 8)
 	AM_RANGE(0x000000, 0x2fffff) AM_READWRITE(snes_r_bank1, snes_w_bank1)	/* I/O and ROM (repeats for each bank) */
 	AM_RANGE(0x300000, 0x3fffff) AM_READWRITE(snes_r_bank2, snes_w_bank2)	/* I/O and ROM (repeats for each bank) */
@@ -975,6 +1046,126 @@ static PALETTE_INIT( snes )
 		colortable[i] = 0;
 }
 
+INPUT_PORTS_START( piratdwb )
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_NAME("P1 Button A") PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_NAME("P1 Button X") PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_NAME("P1 Button L") PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_NAME("P1 Button R") PORT_PLAYER(1)
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("P1 Button B") PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("P1 Button Y") PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SERVICE1 ) PORT_NAME("P1 Select")
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START1 ) PORT_NAME("P1 Start")
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_NAME("P2 Button A") PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_NAME("P2 Button X") PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_NAME("P2 Button L") PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_NAME("P2 Button R") PORT_PLAYER(2)
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("P2 Button B") PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("P2 Button Y") PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SERVICE2 ) PORT_NAME("P2 Select")
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START2 ) PORT_NAME("P2 Start")
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_NAME("P3 Button A") PORT_PLAYER(3)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_NAME("P3 Button X") PORT_PLAYER(3)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_NAME("P3 Button L") PORT_PLAYER(3)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_NAME("P3 Button R") PORT_PLAYER(3)
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("P3 Button B") PORT_PLAYER(3)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("P3 Button Y") PORT_PLAYER(3)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SERVICE3 ) PORT_NAME("P3 Select")
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START3 ) PORT_NAME("P3 Start")
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(3)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(3)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(3)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(3)
+
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_NAME("P4 Button A") PORT_PLAYER(4)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_NAME("P4 Button X") PORT_PLAYER(4)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_NAME("P4 Button L") PORT_PLAYER(4)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_NAME("P4 Button R") PORT_PLAYER(4)
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("P4 Button B") PORT_PLAYER(4)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("P4 Button Y") PORT_PLAYER(4)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SERVICE4 ) PORT_NAME("P4 Select")
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START4 ) PORT_NAME("P4 Start")
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(4)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(4)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(4)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(4)
+
+	PORT_START
+	PORT_DIPNAME( 0x1, 0x1, "Enforce 32 sprites/line" )
+	PORT_DIPSETTING(   0x0, DEF_STR( No )  )
+	PORT_DIPSETTING(   0x1, DEF_STR( Yes ) )
+
+#ifdef MAME_DEBUG
+	PORT_START
+	PORT_DIPNAME( 0x3, 0x0, "Browse tiles" )
+	PORT_DIPSETTING(   0x0, DEF_STR( Off ) )
+	PORT_DIPSETTING(   0x1, "2bpl"  )
+	PORT_DIPSETTING(   0x2, "4bpl"  )
+	PORT_DIPSETTING(   0x3, "8bpl"  )
+	PORT_DIPNAME( 0xc, 0x0, "Browse maps" )
+	PORT_DIPSETTING(   0x0, DEF_STR( Off ) )
+	PORT_DIPSETTING(   0x4, "2bpl"  )
+	PORT_DIPSETTING(   0x8, "4bpl"  )
+	PORT_DIPSETTING(   0xc, "8bpl"  )
+
+	PORT_START
+	PORT_BIT( 0x1, IP_ACTIVE_HIGH, IPT_BUTTON7 ) PORT_NAME("Toggle BG 1") PORT_PLAYER(2)
+	PORT_BIT( 0x2, IP_ACTIVE_HIGH, IPT_BUTTON8 ) PORT_NAME("Toggle BG 2") PORT_PLAYER(2)
+	PORT_BIT( 0x4, IP_ACTIVE_HIGH, IPT_BUTTON9 ) PORT_NAME("Toggle BG 3") PORT_PLAYER(2)
+	PORT_BIT( 0x8, IP_ACTIVE_HIGH, IPT_BUTTON10 ) PORT_NAME("Toggle BG 4") PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON7 ) PORT_NAME("Toggle Objects") PORT_PLAYER(3)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON8 ) PORT_NAME("Toggle Main/Sub") PORT_PLAYER(3)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON9 ) PORT_NAME("Toggle Back col") PORT_PLAYER(3)
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON10 ) PORT_NAME("Toggle Windows") PORT_PLAYER(3)
+
+	PORT_START
+	PORT_BIT( 0x1, IP_ACTIVE_HIGH, IPT_BUTTON9 ) PORT_NAME("Pal prev")
+	PORT_BIT( 0x2, IP_ACTIVE_HIGH, IPT_BUTTON10 ) PORT_NAME("Pal next")
+	PORT_BIT( 0x4, IP_ACTIVE_HIGH, IPT_BUTTON7 ) PORT_NAME("Toggle Transparency") PORT_PLAYER(4)
+#else
+	PORT_START
+	PORT_START
+	PORT_START
+#endif
+
+	PORT_START_TAG("PIRATE_DSW")
+	PORT_BIT( 0x07, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x38, 0x30, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING( 0x38, "1 (Easiest)" )
+	PORT_DIPSETTING( 0x30, "2" )
+	PORT_DIPSETTING( 0x28, "3" )
+	PORT_DIPSETTING( 0x20, "4" )
+	PORT_DIPSETTING( 0x18, "5" )
+	PORT_DIPSETTING( 0x10, "6" )
+	PORT_DIPSETTING( 0x08, "7" )
+	PORT_DIPSETTING( 0x00, "8 (Hardest)" )
+	PORT_DIPNAME( 0xc0, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING( 0xc0, "1" )
+	PORT_DIPSETTING( 0x80, "2" )
+	PORT_DIPSETTING( 0x40, "3" )
+	PORT_DIPSETTING( 0x00, "4" )
+
+	PORT_START_TAG("PIRATE_COIN")
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_COIN1 )
+INPUT_PORTS_END
+
 static MACHINE_DRIVER_START( kinstb )
 	/* basic machine hardware */
 	MDRV_CPU_ADD_TAG("main", G65816, 3580000)	/* 2.68Mhz, also 3.58Mhz */
@@ -1021,6 +1212,23 @@ static MACHINE_DRIVER_START( ffight3b )
 	MDRV_IMPORT_FROM(kinstb)
 	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 20, 208)
 MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( piratdwb )
+	MDRV_IMPORT_FROM(kinstb)
+	MDRV_MACHINE_RESET(piratdwb)
+	MDRV_CPU_ADD(M68000, 16000000/2)
+	MDRV_CPU_PROGRAM_MAP(piratdwb_68k_map, 0)
+	MDRV_CPU_PERIODIC_INT(piratdwb_coin_poll, TIME_IN_HZ(120))
+MACHINE_DRIVER_END
+
+static DRIVER_INIT( piratdwb )
+{
+	init_snes();
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00000, 0xc00000, 0, 0, piratdwb_latch_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00001, 0xc00001, 0, 0, piratdwb_latch_ack_w);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00002, 0xc00002, 0, 0, piratdwb_status_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc00004, 0xc00004, 0, 0, piratdwb_dsw_r);
+}
 
 static DRIVER_INIT(kinstb)
 {
@@ -2011,18 +2219,32 @@ ROM_START( wldgunsb )
 	ROM_LOAD( "c20.bin", 0x080000, 0x080000, CRC(62ae4acb) SHA1(62aa320bcc7eeedb00c70baa909ac0230256c9a4) )
 ROM_END
 
+ROM_START( piratdwb )
+	ROM_REGION( 0x100000, REGION_USER3, 0 )
+	ROM_LOAD( "rom2", 0x000000, 0x080000, CRC(026247eb) SHA1(3eabfa06cce1f9227c5b957e7624a6879783133a) )
+	ROM_LOAD( "rom1", 0x080000, 0x080000, CRC(770a23f2) SHA1(ff4f750da7161089b4000a91e7c9b29bd7b73df1) )
+
+	ROM_REGION( 0x40000, REGION_CPU3, 0 )
+	ROM_LOAD16_BYTE( "1", 0x00000, 0x20000, CRC(4ad4d7ab) SHA1(15bf2a47af8c778ba81f8f17430f1ea0fe6cfc63) )
+	ROM_LOAD16_BYTE( "2", 0x00001, 0x20000, CRC(81fb1936) SHA1(ba7168a6f117eb9722180eb6cd78f69fc1db90ec) )
+	ROM_REGION(0x100, REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+	ROM_REGION(0x800, REGION_USER6, ROMREGION_ERASEFF)
+ROM_END
+
 GAME( 199?, kinstb,       0,         kinstb,	 kinstb,    kinstb,	ROT0, "bootleg",    "Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, ffight2b,     0,         ffight2b,	 ffight2b,  ffight2b,	ROT0, "bootleg",    "Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
-GAME( 1997, sblast2b,     0,         kinstb,	 sblast2b,  sblast2b,	ROT0, "bootleg",    "Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
+GAME( 199?, ffight3b,     0,         ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 199?, ffight3b2,    ffight3b,  ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, iron,         0,         kinstb,	 iron,      iron,	ROT0, "bootleg",    "Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib2,     denseib,   kinstb,	 denseib,   denseib2,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sblast2b,     0,         kinstb,	 sblast2b,  sblast2b,	ROT0, "bootleg",    "Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
+GAME( 1997, tmntmwb,      0,         kinstb,     sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endlessa,     endless,   kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b,     0,         ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b2,    ffight3b,  ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, legendsb,     0,         kinstb,     iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, rushbets,     0,         ffight2b,   sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, tmntmwb,      0,         kinstb,     sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, venom,        0,         kinstb,     iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, wldgunsb,     0,         kinstb,     iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
+GAME( 1996, piratdwb, 0, piratdwb, piratdwb, piratdwb, ROT0, "bootleg (Conny)", "The Pirates of Dark Water (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
