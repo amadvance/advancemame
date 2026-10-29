@@ -844,6 +844,37 @@ INPUT_PORTS_START( stargate )
 INPUT_PORTS_END
 
 
+static UINT32 conquest_dial_low_r(void *param)
+{
+	return readinputport(3) & 3;
+}
+
+static UINT32 conquest_dial_high_r(void *param)
+{
+	return (readinputport(3) >> 2) & 3;
+}
+
+INPUT_PORTS_START( conquest )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("Fire")
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("Thrust")
+	PORT_BIT( 0x0c, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(conquest_dial_high_r, NULL)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0x03, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(conquest_dial_low_r, NULL)
+	PORT_BIT( 0xfc, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0x0f, 0x00, IPT_DIAL ) PORT_SENSITIVITY(10) PORT_KEYDELTA(16) PORT_REVERSE
+INPUT_PORTS_END
+
+
 INPUT_PORTS_START( robotron )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICKLEFT_UP )
@@ -1833,6 +1864,20 @@ ROM_START( stargate )
 ROM_END
 
 
+ROM_START( conquest )
+	ROM_REGION( 0x19000, REGION_CPU1, ROMREGION_ERASE00 )
+	ROM_LOAD( "conquest_a.bin", 0x10000, 0x4000, CRC(a384f4a2) SHA1(819df35281216b8be2ba066602fc7d19a860e69e) )
+	ROM_LOAD( "conquest_b.bin", 0x0e000, 0x1000, CRC(9aab5516) SHA1(a71ce8f24fd7ffda8800d1af8c164085b0e2ec0a) )
+	ROM_RELOAD( 0x0f000, 0x1000 )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "video_sound_rom_1.ic12", 0xf800, 0x0800, CRC(fefd5b48) SHA1(ceb0d18483f0691978c604db94417e6941ad7ff2) )
+
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )
+	ROM_LOAD( "decoder.2", 0x0000, 0x0200, CRC(8dd98da5) SHA1(da979604f7a2aa8b5a6d4a5debd2e80f77569e35) )
+	ROM_LOAD( "decoder.3", 0x0200, 0x0200, CRC(c3f45f70) SHA1(d19036cbc46b130548873597b44b8b70758f25c4) )
+ROM_END
+
 ROM_START( robotron )
 	ROM_REGION( 0x19000, REGION_CPU1, 0 )
 	ROM_LOAD( "robotron.sba", 0x0d000, 0x1000, CRC(13797024) SHA1(d426a50e75dabe936de643c83a548da5e399331c) )
@@ -2734,6 +2779,7 @@ GAME( 1982, jin,      0,        jin,      jin,      defender, ROT90,  "Falcon", 
 
 /* Standard Williams hardware */
 GAME( 1981, stargate, 0,        williams, stargate, stargate, ROT0,   "Williams", "Stargate", GAME_SUPPORTS_SAVE )
+GAME( 1982, conquest, 0, williams, conquest, robotron, ROT270, "Williams / Vid Kidz", "Conquest (prototype)", GAME_SUPPORTS_SAVE )
 GAME( 1982, robotron, 0,        williams, robotron, robotron, ROT0,   "Williams", "Robotron (Solid Blue label)", GAME_SUPPORTS_SAVE )
 GAME( 1982, robotryo, robotron, williams, robotron, robotron, ROT0,   "Williams", "Robotron (Yellow/Orange label)", GAME_SUPPORTS_SAVE )
 GAME( 1982, joust,    0,        williams, joust,    joust,    ROT0,   "Williams", "Joust (White/Green label)", GAME_SUPPORTS_SAVE )
