@@ -30,6 +30,7 @@
 #include "driver.h"
 #include "machine/8255ppi.h"
 #include "dribling.h"
+#include "sound/custom.h"
 
 
 
@@ -77,14 +78,11 @@ static READ8_HANDLER( dsr_r )
 
 static READ8_HANDLER( input_mux0_r )
 {
-	/* low value in the given bit selects */
-	if (!(input_mux & 0x01))
-		return readinputport(0);
-	else if (!(input_mux & 0x02))
-		return readinputport(1);
-	else if (!(input_mux & 0x04))
-		return readinputport(2);
-	return 0xff;
+	UINT8 result = 0xff;
+	if (!(input_mux & 1)) result &= readinputport(0);
+	if (!(input_mux & 2)) result &= readinputport(1);
+	if (!(input_mux & 4)) result &= readinputport(2);
+	return result;
 }
 
 
@@ -102,6 +100,8 @@ static WRITE8_HANDLER( misc_w )
 	if (!di)
 		cpunum_set_input_line(0, 0, CLEAR_LINE);
 
+	dribling_sound_control_w(data);
+
 	/* bit 6 = parata */
 
 	/* bit 5 = ab. campo */
@@ -114,7 +114,6 @@ static WRITE8_HANDLER( misc_w )
 	/* bit 1 = (10) = PC1 */
 	/* bit 0 = (32) = PC0 */
 	input_mux = data & 7;
-	logerror("%04X:misc_w(%02X)\n", activecpu_get_previouspc(), data);
 }
 
 
@@ -128,21 +127,21 @@ static WRITE8_HANDLER( sound_w )
 	/* bit 2 = folla a */
 	/* bit 1 = folla m */
 	/* bit 0 = folla b */
-	logerror("%04X:sound_w(%02X)\n", activecpu_get_previouspc(), data);
+	dribling_sound_data_w(data);
 }
 
 
 static WRITE8_HANDLER( pb_w )
 {
 	/* write PB0-7 */
-	logerror("%04X:pb_w(%02X)\n", activecpu_get_previouspc(), data);
+	dribling_sound_pitch_w(data);
 }
 
 
 static WRITE8_HANDLER( shr_w )
 {
 	/* bit 3 = watchdog */
-	if (data & 0x08)
+	if (!(data & 0x08))
 		watchdog_reset_w(0, 0);
 
 	/* bit 2-0 = SH0-2 */
@@ -201,6 +200,8 @@ static ppi8255_interface ppi8255_intf =
 
 static MACHINE_RESET( dribling )
 {
+	dr = ds = sh = input_mux = di = dribling_abca = 0;
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
 	ppi8255_init(&ppi8255_intf);
 }
 
@@ -280,12 +281,12 @@ INPUT_PORTS_START( dribling )
 	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, "Game Duration" )
+	PORT_DIPSETTING(    0x00, "1:50" )
+	PORT_DIPSETTING(    0x40, "2:30" )
+	PORT_DIPNAME( 0x80, 0x80, "New game with one coin" )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 INPUT_PORTS_END
 
 
@@ -304,14 +305,14 @@ static MACHINE_DRIVER_START( dribling )
 	MDRV_CPU_IO_MAP(readport,writeport)
 	MDRV_CPU_VBLANK_INT(dribling_irq_gen,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_FRAMES_PER_SECOND(5000000.0/320/262)
+	MDRV_VBLANK_DURATION(1000000.0 * 46 * 320 / 5000000)
 
 	MDRV_MACHINE_RESET(dribling)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
-	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_SCREEN_SIZE(256, 262)
 	MDRV_VISIBLE_AREA(0, 255, 40, 255)
 	MDRV_PALETTE_LENGTH(256)
 
@@ -319,6 +320,10 @@ static MACHINE_DRIVER_START( dribling )
 	MDRV_VIDEO_UPDATE(dribling)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(dribling_sound_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -342,9 +347,9 @@ ROM_START( dribling )
 	ROM_LOAD( "3n.bin",  0x1000, 0x1000, CRC(356c9803) SHA1(8e2ce52f32b33886f4747dadf3aeb78148538173) )
 
 	ROM_REGION( 0x600, REGION_PROMS, 0 )
-	ROM_LOAD( "prom_3c.bin", 0x0000, 0x0400, CRC(25f068de) SHA1(ea4c56c47fe8153069acb9df80df0b099f3b81f1) )
-	ROM_LOAD( "prom_3e.bin", 0x0400, 0x0100, CRC(73eba798) SHA1(7be0e253624df53092e26c28eb18afdcf71434aa) )
-	ROM_LOAD( "prom_2d.bin", 0x0500, 0x0100, CRC(5d8c57c6) SHA1(abfb54812d66a36e797be47653dadda4843e8a90) )
+	ROM_LOAD( "93453-d9.3c", 0x0000, 0x0400, CRC(b045d005) SHA1(7e3ac10a99aa37f6348b3a57a747116b7025103e) )
+	ROM_LOAD( "63s140-d8.3e", 0x0400, 0x0100, CRC(8f1a9908) SHA1(12c513c589757f1282e9979d3589f9b49d30ec0f) )
+	ROM_LOAD( "tbp24s10.2d", 0x0500, 0x0100, CRC(a17d6956) SHA1(81724daf2e2d319f55cc34cc881b6a9a4e64e7ac) )
 ROM_END
 
 
@@ -361,9 +366,9 @@ ROM_START( driblino )
 	ROM_LOAD( "3n.bin",  0x1000, 0x1000, CRC(356c9803) SHA1(8e2ce52f32b33886f4747dadf3aeb78148538173) )
 
 	ROM_REGION( 0x600, REGION_PROMS, 0 )
-	ROM_LOAD( "prom_3c.bin", 0x0000, 0x0400, CRC(25f068de) SHA1(ea4c56c47fe8153069acb9df80df0b099f3b81f1) )
-	ROM_LOAD( "prom_3e.bin", 0x0400, 0x0100, CRC(73eba798) SHA1(7be0e253624df53092e26c28eb18afdcf71434aa) )
-	ROM_LOAD( "prom_2d.bin", 0x0500, 0x0100, CRC(5d8c57c6) SHA1(abfb54812d66a36e797be47653dadda4843e8a90) )
+	ROM_LOAD( "93453-d9.3c", 0x0000, 0x0400, CRC(b045d005) SHA1(7e3ac10a99aa37f6348b3a57a747116b7025103e) )
+	ROM_LOAD( "63s140-d8.3e", 0x0400, 0x0100, CRC(8f1a9908) SHA1(12c513c589757f1282e9979d3589f9b49d30ec0f) )
+	ROM_LOAD( "tbp24s10.2d", 0x0500, 0x0100, CRC(a17d6956) SHA1(81724daf2e2d319f55cc34cc881b6a9a4e64e7ac) )
 ROM_END
 
 
@@ -374,5 +379,5 @@ ROM_END
  *
  *************************************/
 
-GAME( 1983, dribling, 0,        dribling, dribling, 0, ROT0, "Model Racing", "Dribbling", GAME_NO_SOUND )
-GAME( 1983, driblino, dribling, dribling, dribling, 0, ROT0, "Model Racing (Olympia license)", "Dribbling (Olympia)", GAME_NO_SOUND )
+GAME( 1983, dribling, 0,        dribling, dribling, 0, ROT0, "Model Racing", "Dribbling (set 1)", GAME_IMPERFECT_SOUND )
+GAME( 1983, driblino, dribling, dribling, dribling, 0, ROT0, "Model Racing (Olympia license)", "Dribbling (Olympia)", GAME_IMPERFECT_SOUND )
