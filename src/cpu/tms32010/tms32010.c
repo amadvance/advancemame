@@ -471,7 +471,8 @@ static void ldpk(void)
 }
 static void lst(void)
 {
-	R.opcode.b.l |= 0x08; /* Next arp not supported here, so mask it */
+	if (R.opcode.b.l & 0x80)
+		R.opcode.b.l |= 0x08; /* In indirect addressing mode, next ARP is not supported */
 	getdata(0,0);
 	R.ALU.w.l &= (~INTM_FLAG);	/* Must not affect INTM */
 	R.STR &= INTM_FLAG;
@@ -587,7 +588,7 @@ static void subc(void)
 {
 	oldacc.d = R.ACC.d;
 	getdata(15,0);
-	R.ALU.d -= R.ALU.d;
+	R.ALU.d = (INT32)R.ACC.d - R.ALU.d;
 	if ((INT32)((oldacc.d ^ R.ALU.d) & (oldacc.d ^ R.ACC.d)) < 0)
 		SET(OV_FLAG);
 	if ( (INT32)(R.ALU.d) >= 0 )
@@ -1003,5 +1004,21 @@ void tms32010_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_STR_REGISTER + +TMS32010_STK1: 	sprintf(info->s = cpuintrf_temp_str(), "STK1:%04X", R.STACK[1]); break;
 		case CPUINFO_STR_REGISTER + +TMS32010_STK2: 	sprintf(info->s = cpuintrf_temp_str(), "STK2:%04X", R.STACK[2]); break;
 		case CPUINFO_STR_REGISTER + +TMS32010_STK3: 	sprintf(info->s = cpuintrf_temp_str(), "STK3:%04X", R.STACK[3]); break;
+	}
+}
+
+
+/* TMS32015 has 256 words of internal data RAM. */
+static ADDRESS_MAP_START( tms32015_ram, ADDRESS_SPACE_DATA, 16 )
+	AM_RANGE(0x00, 0xff) AM_RAM
+ADDRESS_MAP_END
+
+void tms32015_get_info(UINT32 state, union cpuinfo *info)
+{
+	switch (state)
+	{
+		case CPUINFO_PTR_INTERNAL_MEMORY_MAP + ADDRESS_SPACE_DATA: info->internal_map = construct_map_tms32015_ram; break;
+		case CPUINFO_STR_NAME: strcpy(info->s = cpuintrf_temp_str(), "TMS32015"); break;
+		default: tms32010_get_info(state, info); break;
 	}
 }
