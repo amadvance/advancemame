@@ -87,13 +87,27 @@ MENUOBJS += \
 	$(MENUOBJ)/blit/hq3x.o \
 	$(MENUOBJ)/blit/hq4x.o \
 	$(MENUOBJ)/blit/xbr2x.o \
+	$(MENUOBJ)/blit/xbr2x_sse.o \
+	$(MENUOBJ)/blit/xbr2x_neon.o \
 	$(MENUOBJ)/blit/xbr3x.o \
+	$(MENUOBJ)/blit/xbr3x_sse.o \
+	$(MENUOBJ)/blit/xbr3x_neon.o \
 	$(MENUOBJ)/blit/xbr4x.o \
+	$(MENUOBJ)/blit/xbr4x_sse.o \
+	$(MENUOBJ)/blit/xbr4x_neon.o \
 	$(MENUOBJ)/blit/scale2x.o \
+	$(MENUOBJ)/blit/scale2x_sse.o \
+	$(MENUOBJ)/blit/scale2x_neon.o \
 	$(MENUOBJ)/blit/scale3x.o \
 	$(MENUOBJ)/blit/scale2k.o \
+	$(MENUOBJ)/blit/scale2k_sse.o \
+	$(MENUOBJ)/blit/scale2k_neon.o \
 	$(MENUOBJ)/blit/scale3k.o \
+	$(MENUOBJ)/blit/scale3k_sse.o \
+	$(MENUOBJ)/blit/scale3k_neon.o \
 	$(MENUOBJ)/blit/scale4k.o \
+	$(MENUOBJ)/blit/scale4k_sse.o \
+	$(MENUOBJ)/blit/scale4k_neon.o \
 	$(MENUOBJ)/blit/interp.o \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \

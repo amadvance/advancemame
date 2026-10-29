@@ -19,7 +19,7 @@
  */
 
 /*
- * This file contains a C and MMX implementation of the Scale2x effect.
+ * This file contains a C and SSE2 implementation of the Scale2x effect.
  *
  * You can find an high level description of the effect at :
  *

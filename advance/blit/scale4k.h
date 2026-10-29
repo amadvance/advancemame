@@ -33,9 +33,70 @@
 
 #include "interp.h"
 
-void scale4k_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+/*
+        ABC
+        DEF
+        GHI
+
+        E0E1E2E3
+        E4E5E6E7
+        E8E9EAEB
+        ECEDEEEF
+ */
+
+/* Scalar Scale4K rotation. Output arguments are modifiable pixel expressions. */
+#define SCALE4K(fmt, A, B, C, D, E, F, G, H, I, E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, EA, EB, EC, ED, EE, EF) \
+	do { \
+		if ((D) == (B) && (B) != (E)) { \
+			/* diagonal */ \
+			if ((B) == (C) && (D) == (G)) { \
+				/* square block */ \
+				if ((A) != (E)) { \
+					/* no star */ \
+					(E0) = (D); \
+					(E1) = (D); \
+					(E2) = interp_ ## fmt ## _31((D), (E2)); \
+					(E3) = interp_ ## fmt ## _31((E3), (D)); \
+					(E4) = (D); \
+					(E8) = interp_ ## fmt ## _31((D), (E8)); \
+					(EC) = interp_ ## fmt ## _31((EC), (D)); \
+					(E5) = interp_ ## fmt ## _11((D), (E5)); \
+				} \
+			} else if ((B) == (C) && (C) != (F)) { \
+				/* horizontal slope */ \
+				(E0) = (D); \
+				(E1) = (D); \
+				(E2) = interp_ ## fmt ## _31((D), (E2)); \
+				(E3) = interp_ ## fmt ## _31((E3), (D)); \
+				(E4) = interp_ ## fmt ## _31((D), (E4)); \
+				(E5) = interp_ ## fmt ## _31((E5), (D)); \
+			} else if ((D) == (G) && (G) != (H)) { \
+				/* vertical slope */ \
+				(E0) = (D); \
+				(E4) = (D); \
+				(E8) = interp_ ## fmt ## _31((D), (E8)); \
+				(EC) = interp_ ## fmt ## _31((EC), (D)); \
+				(E1) = interp_ ## fmt ## _31((D), (E1)); \
+				(E5) = interp_ ## fmt ## _31((E5), (D)); \
+			} else { \
+				/* pure diagonal */ \
+				(E0) = (D); \
+				(E1) = interp_ ## fmt ## _11((D), (E1)); \
+				(E4) = interp_ ## fmt ## _11((D), (E4)); \
+			} \
+		} \
+	} while (0)
+
+void scale4k_16_565_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale4k_16_555_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
 void scale4k_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, interp_uint32* dst3, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
 void scale4k_yuy2_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, interp_uint32* dst3, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
+void scale4k_16_565_sse41(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale4k_16_555_sse41(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale4k_32_sse41(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, interp_uint32* dst3, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
+void scale4k_16_565_neon(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale4k_16_555_neon(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale4k_32_neon(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, interp_uint32* dst3, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
 
 #endif
 

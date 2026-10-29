@@ -33,9 +33,63 @@
 
 #include "interp.h"
 
-void scale3k_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+/*
+ *       A B C
+ *       D E F
+ *       G H I
+ *
+ *       E0 E1 E2
+ *       E3 E4 E5
+ *       E6 E7 E8
+ *
+ * Apply one of the four rotated Scale3k rules.
+ * Output arguments must be modifiable pixel expressions.
+ */
+#define SCALE3K(fmt, A, B, C, D, E, F, G, H, I, E0, E1, E2, E3, E4, E5, E6, E7, E8) \
+	do { \
+		if ((D) == (B) && (B) != (E)) { \
+			/* diagonal */ \
+			if ((B) == (C) && (D) == (G)) { \
+				/* square block */ \
+				if ((A) != (E)) { \
+					/* no star */ \
+					(E0) = interp_ ## fmt ## _31((D), (E0)); \
+					(E1) = interp_ ## fmt ## _31((D), (E1)); \
+					(E2) = interp_ ## fmt ## _31((E2), (D)); \
+					(E3) = interp_ ## fmt ## _31((D), (E3)); \
+					(E6) = interp_ ## fmt ## _31((E6), (D)); \
+				} \
+			} else if ((B) == (C) && (C) != (F)) { \
+				/* horizontal slope */ \
+				(E0) = (D); \
+				(E1) = interp_ ## fmt ## _31((D), (E1)); \
+				(E2) = interp_ ## fmt ## _31((E2), (D)); \
+				(E3) = interp_ ## fmt ## _31((E3), (D)); \
+			} else if ((D) == (G) && (G) != (H)) { \
+				/* vertical slope */ \
+				(E0) = (D); \
+				(E3) = interp_ ## fmt ## _31((D), (E3)); \
+				(E6) = interp_ ## fmt ## _31((E6), (D)); \
+				(E1) = interp_ ## fmt ## _31((E1), (D)); \
+			} else { \
+				/* pure diagonal */ \
+				(E0) = interp_ ## fmt ## _71((D), (E0)); \
+				(E1) = interp_ ## fmt ## _71((E1), (D)); \
+				(E3) = interp_ ## fmt ## _71((E3), (D)); \
+			} \
+		} \
+	} while (0)
+
+void scale3k_16_565_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale3k_16_555_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
 void scale3k_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
 void scale3k_yuy2_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
+void scale3k_16_565_sse41(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale3k_16_555_sse41(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale3k_32_sse41(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
+void scale3k_16_565_neon(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale3k_16_555_neon(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count);
+void scale3k_32_neon(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
 
 #endif
 

@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-#ifdef USE_ASM_INLINE
+#if defined(__i386__)
 
 /* Fast multiplication, return a*b/2^32 */
 #define vec_mult osd_vec_mult

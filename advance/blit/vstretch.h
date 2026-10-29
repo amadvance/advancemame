@@ -37,7 +37,7 @@
 /* stretchx8 */
 
 #define VIDEO8_LINE_INIT \
-	uint8 * dst8 = (uint8*)dst;
+	uint8* dst8 = (uint8*)dst;
 
 #define VIDEO8_LINE_WRITE1 \
 	dst8[0] = color; \
@@ -91,7 +91,6 @@ static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_st
 	int up = stage->slice.up;
 	int down = stage->slice.down;
 
-
 	VIDEO8_LINE_INIT
 
 	while (count) {
@@ -117,11 +116,19 @@ static void video_line_stretchx8_x1_step1(const struct video_stage_horz_struct* 
 	video_line_stretchx8_x1_step(stage, line, dst, src, 1, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx8_11_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx8_11_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy8_asm(dst, src, count);
+	internal_copy8_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx8_11_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy8_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx8_11_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -129,11 +136,19 @@ static void video_line_stretchx8_11_step1_def(const struct video_stage_horz_stru
 	internal_copy8_def(dst, src, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx8_11_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx8_11_step2_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy8_step2_asm(dst, src, count);
+	internal_copy8_step2_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx8_11_step2_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy8_step2_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx8_11_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -141,11 +156,19 @@ static void video_line_stretchx8_11_step2_def(const struct video_stage_horz_stru
 	internal_copy8_step2_def(dst, src, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx8_11_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx8_11_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy8_step_asm(dst, src, count, stage->sdp);
+	internal_copy8_step_sse2(dst, src, count, stage->sdp);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx8_11_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy8_step_neon(dst, src, count, stage->sdp);
+}
+
 #endif
 
 static void video_line_stretchx8_11_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -184,11 +207,19 @@ static void video_line_stretchx8_12_step1(const struct video_stage_horz_struct* 
 	video_line_stretchx8_12_step(stage, line, dst, src, 1, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx8_22_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx8_22_step1_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_double8_asm(dst, src, count);
+	internal_double8_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx8_22_step1_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_double8_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx8_22_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -287,7 +318,7 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 /* stretchx16 */
 
 #define VIDEO16_LINE_INIT \
-	uint16 * dst16 = (uint16*)dst;
+	uint16* dst16 = (uint16*)dst;
 
 #define VIDEO16_LINE_WRITE1 \
 	dst16[0] = color; \
@@ -371,11 +402,19 @@ static void video_line_stretchx16_x1_step2(const struct video_stage_horz_struct*
 	video_line_stretchx16_x1_step(stage, line, dst, src, 2, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx16_11_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx16_11_step2_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy16_asm(dst, src, count);
+	internal_copy16_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx16_11_step2_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy16_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx16_11_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -383,11 +422,19 @@ static void video_line_stretchx16_11_step2_def(const struct video_stage_horz_str
 	internal_copy16_def(dst, src, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx16_11_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx16_11_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy16_step_asm(dst, src, count, stage->sdp);
+	internal_copy16_step_sse2(dst, src, count, stage->sdp);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx16_11_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy16_step_neon(dst, src, count, stage->sdp);
+}
+
 #endif
 
 static void video_line_stretchx16_11_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -426,11 +473,19 @@ static void video_line_stretchx16_12_step2(const struct video_stage_horz_struct*
 	video_line_stretchx16_12_step(stage, line, dst, src, 2, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx16_22_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx16_22_step2_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_double16_asm(dst, src, count);
+	internal_double16_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx16_22_step2_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_double16_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx16_22_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -527,7 +582,7 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 /* stretchx32 */
 
 #define VIDEO32_LINE_INIT \
-	uint32 * dst32 = (uint32*)dst;
+	uint32* dst32 = (uint32*)dst;
 
 #define VIDEO32_LINE_WRITE1 \
 	dst32[0] = color; \
@@ -606,11 +661,19 @@ static void video_line_stretchx32_x1_step4(const struct video_stage_horz_struct*
 	video_line_stretchx32_x1_step(stage, line, dst, src, 4, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx32_11_step4_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx32_11_step4_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy32_asm(dst, src, count);
+	internal_copy32_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx32_11_step4_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy32_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx32_11_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -618,11 +681,19 @@ static void video_line_stretchx32_11_step4_def(const struct video_stage_horz_str
 	internal_copy32_def(dst, src, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx32_11_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx32_11_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_copy32_step_asm(dst, src, count, stage->sdp);
+	internal_copy32_step_sse2(dst, src, count, stage->sdp);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx32_11_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_copy32_step_neon(dst, src, count, stage->sdp);
+}
+
 #endif
 
 static void video_line_stretchx32_11_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
@@ -661,11 +732,19 @@ static void video_line_stretchx32_12_step4(const struct video_stage_horz_struct*
 	video_line_stretchx32_12_step(stage, line, dst, src, 4, count);
 }
 
-#if defined(USE_ASM_INLINE)
-static void video_line_stretchx32_22_step4_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+#if defined(CONFIG_X86)
+static void video_line_stretchx32_22_step4_sse2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_double32_asm(dst, src, count);
+	internal_double32_sse2(dst, src, count);
 }
+#endif
+
+#if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
+static void video_line_stretchx32_22_step4_neon(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
+{
+	internal_double32_neon(dst, src, count);
+}
+
 #endif
 
 static void video_line_stretchx32_22_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
