@@ -273,11 +273,13 @@ AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void*)
 
 dnl Use the compiler target, not the build machine or an ARM-looking host name.
-dnl Cyclone's assembly ABI requires 32-bit little-endian ARM (not AArch64).
+dnl Cyclone's checked-in assembly requires little-endian ARMv7-A AArch32.
 AC_CACHE_CHECK([whether the target supports Cyclone 68000], [ac_cv_cyclone], [
 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#if !defined(__arm__) || defined(__aarch64__) || defined(__ARMEB__)
-#error Cyclone requires little-endian ARM
+#if !defined(__arm__) || defined(__aarch64__) || defined(__ARMEB__) || \
+    !defined(__ARM_ARCH) || __ARM_ARCH < 7 || \
+    !defined(__ARM_ARCH_PROFILE) || __ARM_ARCH_PROFILE != 'A'
+#error Cyclone requires little-endian ARMv7-A or newer AArch32
 #endif
 typedef char cyclone_pointer_size[(sizeof(void *) == 4) ? 1 : -1];
 	]])], [ac_cv_cyclone=yes], [ac_cv_cyclone=no])

@@ -3,6 +3,9 @@
 #include "driver.h"
 #include "machine/pd4990a.h"
 #include "neogeo.h"
+#ifdef USE_CYCLONE
+#include "cpu/cyclone/cyclone_mame.h"
+#endif
 #include <time.h>
 #include "sound/2610intf.h"
 
@@ -34,6 +37,19 @@ MACHINE_RESET( neogeo )
 
 	/* Reset variables & RAM */
 	memset (neogeo_ram16, 0, 0x10000);
+
+#ifdef USE_CYCLONE
+	/* Stable Neo Geo regions, analogous to SH3 fast RAM. The
+	 * 0x200000 banked ROM and all device/protection handlers
+	 * intentionally keep using the generic memory subsystem.
+	 */
+	cyclone_mame_clear_fastram(0);
+	if (memory_region_length(REGION_CPU1) >= 0x100000)
+		cyclone_mame_set_fastram(0, 0x000000, 0x0fffff, 0x0fffff,
+			1, memory_region(REGION_CPU1));
+	cyclone_mame_set_fastram(0, 0x100000, 0x1fffff, 0x00ffff,
+		0, neogeo_ram16);
+#endif
 
 
 
