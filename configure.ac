@@ -272,6 +272,21 @@ AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void*)
 
+dnl Use the compiler target, not the build machine or an ARM-looking host name.
+dnl Cyclone's assembly ABI requires 32-bit little-endian ARM (not AArch64).
+AC_CACHE_CHECK([whether the target supports Cyclone 68000], [ac_cv_cyclone], [
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#if !defined(__arm__) || defined(__aarch64__) || defined(__ARMEB__)
+#error Cyclone requires little-endian ARM
+#endif
+typedef char cyclone_pointer_size[(sizeof(void *) == 4) ? 1 : -1];
+	]])], [ac_cv_cyclone=yes], [ac_cv_cyclone=no])
+])
+if test "$ac_is_bigendian" != no; then
+	ac_cv_cyclone=no
+fi
+AC_SUBST([CONF_CYCLONE], [$ac_cv_cyclone])
+
 dnl Large file supports
 AC_SYS_LARGEFILE
 

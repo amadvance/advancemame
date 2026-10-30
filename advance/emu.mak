@@ -775,6 +775,19 @@ $(OBJ)/%.o: $(srcdir)/src/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -c $< -o $@
 
+ifeq ($(CONF_CYCLONE),yes)
+# Use the target C compiler as assembler driver, retaining ABI/architecture flags.
+$(OBJ)/cpu/cyclone/cyclone.o: $(srcdir)/src/cpu/cyclone/cyclone.s
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MAMECFLAGS) -marm -c $< -o $@
+
+# Keep the adapter in ARM mode as well: ARMv4T LDM returns in the upstream
+# entry points do not interwork with a Thumb caller.
+$(OBJ)/cpu/cyclone/cyclone_imp.o: $(srcdir)/src/cpu/cyclone/cyclone_imp.c $(srcdir)/src/cpu/cyclone/cyclone.h $(srcdir)/src/cpu/m68000/m68kcpu.h
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -marm -c $< -o $@
+endif
+
 # Generate C source files for the 68000 emulator
 $(subst .c,.o,$(M68000_GENERATED_FILES)): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 	$(ECHO) $@ $(MSG)

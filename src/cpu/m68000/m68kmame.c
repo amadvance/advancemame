@@ -6,6 +6,11 @@
 #include "m68000.h"
 #include "state.h"
 
+#ifdef USE_CYCLONE
+extern void cyclone_mame_init(void);
+extern int cyclone_mame_execute(int cycles);
+#endif
+
 /* global access */
 
 struct m68k_memory_interface m68k_memory_intf;
@@ -232,6 +237,9 @@ static void m68000_init(int index, int clock, const void *config, int (*irqcallb
 	m68k_set_cpu_type(M68K_CPU_TYPE_68000);
 	m68k_memory_intf = interface_d16;
 	m68k_state_register("m68000", index);
+#ifdef USE_CYCLONE
+	cyclone_mame_init();
+#endif
 	m68k_set_int_ack_callback(irqcallback);
 }
 
@@ -247,7 +255,11 @@ static void m68000_exit(void)
 
 static int m68000_execute(int cycles)
 {
+#ifdef USE_CYCLONE
+	return cyclone_mame_execute(cycles);
+#else
 	return m68k_execute(cycles);
+#endif
 }
 
 static void m68000_get_context(void *dst)

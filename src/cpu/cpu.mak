@@ -682,6 +682,14 @@ OBJDIRS += $(OBJ)/cpu/m68000
 CPUOBJS += $(OBJ)/cpu/m68000/m68kcpu.o $(OBJ)/cpu/m68000/m68kmame.o $(subst .c,.o,$(M68000_GENERATED_FILES))
 DBGOBJS += $(OBJ)/cpu/m68000/m68kdasm.o
 
+ifeq ($(CONF_CYCLONE),yes)
+ifneq ($(filter M68000,$(CPUS)),)
+CPUDEFS += -DUSE_CYCLONE
+OBJDIRS += $(OBJ)/cpu/cyclone
+CPUOBJS += $(OBJ)/cpu/cyclone/cyclone_imp.o $(OBJ)/cpu/cyclone/cyclone.o
+endif
+endif
+
 # AdvanceMAME has its own rules for m68k, and then we comment the following ones
 #
 # when we compile source files we need to include generated files from the OBJ directory
