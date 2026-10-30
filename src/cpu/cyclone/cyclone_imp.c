@@ -26,6 +26,11 @@ extern int m68ki_initial_cycles;
 static struct Cyclone cyclone;
 static int running;
 static int pending_nmi;
+static UINT32 opcode_generation;
+#ifdef CYCLONE_TEST_STATS
+unsigned int cyclone_test_exports;
+#endif
+static int running_cpu;
 static struct m68k_memory_interface default_memory;
 static void (*default_reset)(void);
 static void (*default_cmpild)(unsigned int, int);
@@ -43,28 +48,64 @@ void cyclone_mame_init(void)
 
 static unsigned int checkpc(unsigned int pc)
 {
-	offs_t first, last, span;
+	offs_t first, last, span, map_first, map_last;
+	address_space *space = &active_address_space[ADDRESS_SPACE_PROGRAM];
+	UINT8 *lookup = space->readlookup;
+	UINT8 entry;
 	pc = (pc - cyclone.membase) & 0xffffff;
-	change_pc(pc);
+	if (opcode_generation != memory_opcode_generation)
+		memory_set_opbase(pc);
+	else
+		change_pc(pc);
 	cyclone.membase = (unsigned int)cpu_opptr(pc) - pc;
 	/* Also stop before an opcode address-mask wrap (mirrored ROM/RAM). */
 	span = (opcode_mask ^ (opcode_mask + 1)) >> 1;
 	first = MAX(opcode_memory_min, pc & ~span);
 	last = MIN(opcode_memory_max, pc | span);
+	/* Handler min/max alone can span holes introduced by dynamic maps.
+	 * Restrict the fast path to contiguous lookup entries of this bank.
+	 */
+	entry = lookup[LEVEL1_INDEX(pc & space->addrmask)];
+	if (entry >= SUBTABLE_BASE)
+	{
+		map_first = map_last = pc;
+		while (map_first > first && (map_first & ((1 << LEVEL2_BITS) - 1)) &&
+			lookup[LEVEL2_INDEX(entry, map_first - 1)] == opcode_entry)
+			map_first--;
+		while (map_last < last && ((map_last + 1) & ((1 << LEVEL2_BITS) - 1)) &&
+			lookup[LEVEL2_INDEX(entry, map_last + 1)] == opcode_entry)
+			map_last++;
+		entry = lookup[LEVEL2_INDEX(entry, pc)];
+	}
+	else
+	{
+		map_first = pc & ~((1 << LEVEL2_BITS) - 1);
+		map_last = pc | ((1 << LEVEL2_BITS) - 1);
+		while (map_first > first && lookup[LEVEL1_INDEX(map_first - 1)] == entry)
+			map_first -= 1 << LEVEL2_BITS;
+		while (map_last < last && lookup[LEVEL1_INDEX(map_last + 1)] == entry)
+			map_last += 1 << LEVEL2_BITS;
+	}
+	first = MAX(first, map_first);
+	last = MIN(last, map_last);
 	/* Leave room for the longest instruction and speculative next fetch. */
 	cyclone.internal[0] = cyclone.membase + first;
 	cyclone.internal[1] = cyclone.membase + last - 16;
-	if (last < first || last - first < 16 ||
-		opcode_base != opcode_arg_base || address_is_unsafe(pc))
+	if (entry != opcode_entry || last < first || last - first < 16 ||
+		opcode_base != opcode_arg_base || address_is_unsafe(pc) || cyclone.internal[2])
 	{
 		cyclone.internal[0] = 1;
 		cyclone.internal[1] = 0;
 	}
+	opcode_generation = memory_opcode_generation;
 	return cyclone.membase + pc;
 }
 
 static void export_state(void)
 {
+#ifdef CYCLONE_TEST_STATS
+	cyclone_test_exports++;
+#endif
 	memcpy(REG_D, cyclone.d, sizeof(cyclone.d));
 	memcpy(REG_A, cyclone.a, sizeof(cyclone.a));
 	REG_PC = (cyclone.pc - cyclone.membase) & 0xffffff;
@@ -80,22 +121,48 @@ static void export_state(void)
 	m68k_ICount = cyclone.cycles;
 }
 
-static void finish_memory(void)
+/* Direct banks cannot call drivers, change CPU state, or switch mappings.
+ * Resolve both lookup levels, exactly as the normal memory accessors do.
+ * Keep those accessors for endian conversion, masks and bank addressing.
+ */
+INLINE int has_handler(unsigned int address, int write)
 {
-	unsigned int pc = (cyclone.pc - cyclone.membase) & 0xffffff;
-	unsigned int previous = cyclone.prev_pc - cyclone.membase;
-	cyclone.cycles = m68k_ICount;
-	/* Handlers may switch an opcode bank without changing the logical PC. */
-	cyclone.pc = checkpc(cyclone.membase + pc);
-	cyclone.prev_pc = cyclone.membase + previous;
+	address_space *space = &active_address_space[ADDRESS_SPACE_PROGRAM];
+	UINT8 *lookup = write ? space->writelookup : space->readlookup;
+	UINT8 entry;
+	address &= space->addrmask;
+	entry = lookup[LEVEL1_INDEX(address)];
+	if (entry >= SUBTABLE_BASE)
+		entry = lookup[LEVEL2_INDEX(entry, address)];
+	return entry >= STATIC_RAM;
 }
 
-/* Live cycles and PC are needed by handlers which spin/yield or query time. */
+INLINE void begin_memory(int handler)
+{
+	if (handler)
+		export_state();
+	else
+		m68k_ICount = cyclone.cycles;
+}
+
+INLINE void finish_memory(void)
+{
+	cyclone.cycles = m68k_ICount;
+	if (UNEXPECTED(opcode_generation != memory_opcode_generation))
+	{
+		unsigned int pc = cyclone.pc;
+		unsigned int previous = cyclone.prev_pc - cyclone.membase;
+		cyclone.pc = checkpc(pc);
+		cyclone.prev_pc = cyclone.membase + previous;
+	}
+}
+
 static unsigned int read8(unsigned int address)
 {
 	unsigned int result;
-	export_state();
-	result = program_read_byte_16be(address & 0xffffff);
+	address &= 0xffffff;
+	begin_memory(has_handler(address, 0));
+	result = program_read_byte_16be(address);
 	finish_memory();
 	return result;
 }
@@ -103,36 +170,50 @@ static unsigned int read8(unsigned int address)
 static unsigned int read16(unsigned int address)
 {
 	unsigned int result;
-	export_state();
-	result = program_read_word_16be(address & 0xffffff);
+	address &= 0xffffff;
+	begin_memory(has_handler(address, 0));
+	result = program_read_word_16be(address);
 	finish_memory();
 	return result;
 }
 
 static unsigned int read32(unsigned int address)
 {
-	unsigned int high = read16(address);
-	return (high << 16) | read16(address + 2);
+	unsigned int high, low, next;
+	address &= 0xffffff;
+	next = (address + 2) & 0xffffff;
+	begin_memory(has_handler(address, 0) || has_handler(next, 0));
+	high = program_read_word_16be(address);
+	low = program_read_word_16be(next);
+	finish_memory();
+	return (high << 16) | low;
 }
 
 static void write8(unsigned int address, unsigned char data)
 {
-	export_state();
-	program_write_byte_16be(address & 0xffffff, data);
+	address &= 0xffffff;
+	begin_memory(has_handler(address, 1));
+	program_write_byte_16be(address, data);
 	finish_memory();
 }
 
 static void write16(unsigned int address, unsigned short data)
 {
-	export_state();
-	program_write_word_16be(address & 0xffffff, data);
+	address &= 0xffffff;
+	begin_memory(has_handler(address, 1));
+	program_write_word_16be(address, data);
 	finish_memory();
 }
 
 static void write32(unsigned int address, unsigned int data)
 {
-	write16(address, data >> 16);
-	write16(address + 2, data);
+	unsigned int next;
+	address &= 0xffffff;
+	next = (address + 2) & 0xffffff;
+	begin_memory(has_handler(address, 1) || has_handler(next, 1));
+	program_write_word_16be(address, data >> 16);
+	program_write_word_16be(next, data);
+	finish_memory();
 }
 
 static int irq_callback(int level)
@@ -150,7 +231,7 @@ static int irq_callback(int level)
  */
 int cyclone_mame_set_irq(unsigned int level)
 {
-	if (!running)
+	if (!running || cpu_getactivecpu() != running_cpu)
 		return 0;
 	/* Cyclone treats level 7 as continuously non-maskable. Use Musashi's
 	 * edge handling at the instruction boundary instead, retaining the pin
@@ -160,6 +241,8 @@ int cyclone_mame_set_irq(unsigned int level)
 	{
 		pending_nmi = 1;
 		cyclone.internal[2] = 1;
+		cyclone.internal[0] = 1;
+		cyclone.internal[1] = 0;
 	}
 	cyclone.irq = pending_nmi ? 0 : level;
 	CPU_INT_LEVEL = cyclone.irq << 8;
@@ -211,6 +294,7 @@ int cyclone_mame_execute(int cycles)
 	CPU_INT_CYCLES = 0;
 	m68ki_initial_cycles = cycles;
 	pending_nmi = 0;
+	running_cpu = cpu_getactivecpu();
 	running = 1;
 	CycloneRun(&cyclone);
 	running = 0;

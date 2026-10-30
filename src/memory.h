@@ -977,6 +977,14 @@ const char *memory_get_handler_string(int read0_or_write1, int cpunum, int space
 
 ***************************************************************************/
 
+#ifdef USE_CYCLONE
+/* Runtime invalidation only; never serialized into save states. */
+extern UINT32 memory_opcode_generation;
+#define memory_opcode_changed() (++memory_opcode_generation)
+#else
+#define memory_opcode_changed() ((void)0)
+#endif
+
 extern UINT8 			opcode_entry;				/* current entry for opcode fetching */
 extern UINT8 *			opcode_base;				/* opcode ROM base */
 extern UINT8 *			opcode_arg_base;			/* opcode RAM base */
@@ -1136,7 +1144,7 @@ do {																					\
 } while (0)																				\
 
 /* ----- forces the next branch to generate a call to the opbase handler ----- */
-#define catch_nextBranch()			(opcode_entry = 0xff)
+#define catch_nextBranch()			(memory_opcode_changed(), opcode_entry = 0xff)
 
 
 #endif	/* __MEMORY_H__ */

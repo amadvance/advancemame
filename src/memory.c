@@ -299,6 +299,10 @@ UINT8		 				opcode_entry;					/* opcode readmem entry */
 
 address_space				active_address_space[ADDRESS_SPACES];/* address space data */
 
+#ifdef USE_CYCLONE
+UINT32 memory_opcode_generation;
+#endif
+
 static UINT8 *				bank_ptr[STATIC_COUNT];			/* array of bank pointers */
 static UINT8 *				bankd_ptr[STATIC_COUNT];		/* array of decrypted bank pointers */
 static void *				shared_ptr[MAX_SHARED_POINTERS];/* array of shared pointers */
@@ -507,6 +511,8 @@ void memory_exit(void)
 
 void memory_set_context(int activecpu)
 {
+	memory_opcode_changed();
+
 	/* remember dynamic RAM/ROM */
 	if (cur_context != -1)
 	{
@@ -592,6 +598,7 @@ opbase_handler memory_set_opbase_handler(int cpunum, opbase_handler function)
 	cpudata[cpunum].opbase = function;
 	if (cpunum == cpu_getactivecpu())
 		opbasefunc = function;
+	memory_opcode_changed();
 	return old;
 }
 
@@ -607,6 +614,8 @@ void memory_set_opbase(offs_t pc)
 	UINT8 *base = NULL, *based = NULL;
 	handler_data *handlers;
 	UINT8 entry;
+
+	memory_opcode_changed();
 
 	/* allow overrides */
 	if (opbasefunc)
@@ -678,6 +687,7 @@ void memory_set_decrypted_region(int cpunum, offs_t start, offs_t end, void *bas
 			if (bdata->base >= start && bdata->end <= end)
 			{
 				bankd_ptr[banknum] = (UINT8 *)base + bdata->base - start;
+				memory_opcode_changed();
 				found = TRUE;
 
 				/* if this is live, adjust now */
@@ -877,6 +887,7 @@ void memory_set_bank(int banknum, int entrynum)
 
 	/* set the base */
 	bankdata[banknum].curentry = entrynum;
+	memory_opcode_changed();
 	bank_ptr[banknum] = bankdata[banknum].entry[entrynum];
 	bankd_ptr[banknum] = bankdata[banknum].entryd[entrynum];
 
@@ -906,6 +917,7 @@ void memory_set_bankptr(int banknum, void *base)
 
 	/* set the base */
 	bank_ptr[banknum] = base;
+	memory_opcode_changed();
 
 	/* if we're executing out of this bank, adjust the opbase pointer */
 	if (opcode_entry == banknum && cpu_getactivecpu() >= 0)
