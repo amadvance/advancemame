@@ -781,9 +781,8 @@ $(OBJ)/cpu/cyclone/cyclone.o: $(srcdir)/src/cpu/cyclone/cyclone.s
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MAMECFLAGS) -marm -c $< -o $@
 
-# Keep the adapter in ARM mode as well: ARMv4T LDM returns in the upstream
-# entry points do not interwork with a Thumb caller.
-$(OBJ)/cpu/cyclone/cyclone_imp.o: $(srcdir)/src/cpu/cyclone/cyclone_imp.c $(srcdir)/src/cpu/cyclone/cyclone.h $(srcdir)/src/cpu/m68000/m68kcpu.h
+# Keep the adapter in ARM mode to match the assembly entry points.
+$(OBJ)/cpu/cyclone/cyclone_imp.o: $(srcdir)/src/cpu/cyclone/cyclone_imp.c $(srcdir)/src/cpu/cyclone/cyclone.h $(srcdir)/src/cpu/m68000/m68kcpu.h $(srcdir)/src/memory.h
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -marm -c $< -o $@
 endif

@@ -5,6 +5,7 @@
 #include "cpu/m68000/m68kcpu.h"
 #include <assert.h>
 #include <stdarg.h>
+#include <time.h>
 #include "state.h"
 
 void cyclone_mame_init(void);
@@ -14,22 +15,38 @@ int activecpu;
 UINT8 *opcode_base, *opcode_arg_base;
 offs_t opcode_mask = 0xffffff, opcode_memory_min, opcode_memory_max;
 UINT8 opcode_entry;
+UINT32 memory_opcode_generation;
+static unsigned int opbase_calls;
+#ifdef CYCLONE_TEST_STATS
+extern unsigned int cyclone_test_exports;
+#endif
 address_space active_address_space[ADDRESS_SPACES];
 struct m68k_memory_interface m68k_memory_intf;
 offs_t m68k_encrypted_opcode_start[MAX_CPU], m68k_encrypted_opcode_end[MAX_CPU];
 static UINT8 ram[0x1000000], saved_ram[0x1000000];
-static UINT8 lookup[0x10000];
+static UINT8 lookup[(1 << LEVEL1_BITS) + (1 << LEVEL2_BITS)];
+static UINT8 wlookup[sizeof(lookup)];
 static unsigned int bank_size = sizeof(ram);
 static int irq_count, irq_vector = -1, hold, wait_cycles, reset_count;
-static int raise_irq, bank_switch;
+static int raise_irq, bank_switch, map_split;
+static unsigned int probe_address = ~0U, probe_pc, probe_d2, probe_count;
 static UINT8 alternate[0x1000];
 
 void memory_set_opbase(offs_t pc)
 {
+	memory_opcode_changed();
+	opbase_calls++;
 	opcode_base = opcode_arg_base = bank_switch ? alternate : ram;
 	opcode_memory_min = pc & ~(bank_size - 1);
 	opcode_memory_max = opcode_memory_min + bank_size - 1;
 	opcode_entry = 1;
+	if (map_split && pc >= 0x400 && pc < 0x500)
+	{
+		opcode_base = opcode_arg_base = (UINT8 *)((FPTR)alternate - 0x400);
+		opcode_memory_min = 0x400;
+		opcode_memory_max = 0x4ff;
+		opcode_entry = 2;
+	}
 }
 
 UINT8 program_read_byte_16be(offs_t address)
@@ -39,6 +56,11 @@ UINT8 program_read_byte_16be(offs_t address)
 }
 UINT16 program_read_word_16be(offs_t address)
 {
+	if (address == probe_address)
+	{
+		assert(REG_PC == probe_pc && REG_D[2] == probe_d2);
+		probe_count++;
+	}
 	m68k_ICount -= wait_cycles;
 	return *(UINT16 *)(ram + (address & 0xfffffe));
 }
@@ -59,6 +81,21 @@ void program_write_word_16be(offs_t address, UINT16 data)
 	{
 		bank_switch = 1;
 		memory_set_opbase(REG_PC);
+	}
+	if (address == 0xf004)
+	{
+		bank_size = 0x1000;
+		memory_opcode_changed();
+	}
+	if (address == 0xf006)
+	{
+		int i;
+		map_split = 1;
+		lookup[0] = SUBTABLE_BASE;
+		memset(lookup + (1 << LEVEL1_BITS), 1, 1 << LEVEL2_BITS);
+		for (i = 0x400; i < 0x500; ++i)
+			lookup[LEVEL2_INDEX(SUBTABLE_BASE, i)] = 2;
+		memory_opcode_changed();
 	}
 }
 static UINT32 readlong(offs_t address)
@@ -113,11 +150,16 @@ static void prepare(unsigned int pc)
 	memset(ram, 0, sizeof(ram));
 	memset(&m68ki_cpu, 0, sizeof(m68ki_cpu));
 	memset(lookup, 1, sizeof(lookup));
+	memset(wlookup, 1, sizeof(wlookup));
+	wlookup[LEVEL1_INDEX(0xf000)] = STATIC_RAM;
+	active_address_space[ADDRESS_SPACE_PROGRAM].writelookup = wlookup;
 	active_address_space[ADDRESS_SPACE_PROGRAM].readlookup = lookup;
 	active_address_space[ADDRESS_SPACE_PROGRAM].addrmask = 0xffffff;
 	bank_size = sizeof(ram);
 	opcode_mask = 0xffffff;
-	bank_switch = raise_irq = irq_count = wait_cycles = 0;
+	bank_switch = raise_irq = irq_count = wait_cycles = map_split = 0;
+	probe_address = ~0U;
+	probe_count = 0;
 	irq_vector = -1;
 	hold = 1;
 	m68k_memory_intf.read8 = program_read_byte_16be;
@@ -166,23 +208,79 @@ static void compare(int budget, const char *name)
 	printf("PASS %s\n", name);
 }
 
-int main(void)
+static double seconds(void)
+{
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	return now.tv_sec + now.tv_nsec * 1e-9;
+}
+
+static int benchmark(void)
+{
+	int kind, i;
+	const char *names[] = { "registers", "direct-memory", "handlers" };
+	for (kind = 0; kind < 3; ++kind)
+	{
+		double start;
+		prepare(0x100);
+		if (!kind)
+		{
+			putword(0x100, 0x7001);
+			putword(0x102, 0x5280);
+			putword(0x104, 0x5380);
+			putword(0x106, 0x51c9); putword(0x108, 0xfffa);
+			putword(0x10a, 0x60f4);
+		}
+		else
+		{
+			putword(0x100, 0x2010); /* move.l (a0),d0 */
+			putword(0x102, 0x2280); /* move.l d0,(a1) */
+			putword(0x104, 0x5280);
+			putword(0x106, 0x60f8);
+			REG_A[0] = 0x20000; REG_A[1] = 0x30000;
+			if (kind == 2)
+				lookup[LEVEL1_INDEX(0x20000)] = STATIC_RAM;
+			if (kind == 2)
+				wlookup[LEVEL1_INDEX(0x30000)] = STATIC_RAM;
+		}
+		start = seconds();
+		for (i = 0; i < 32; ++i)
+			cyclone_mame_execute(1000000);
+		printf("BENCH %s %.6f D0=%x PC=%x\n", names[kind], seconds() - start, REG_D[0], REG_PC);
+	}
+	return 0;
+}
+
+int main(int argc, char **argv)
 {
 	int i;
 	m68ki_cpu_core first, second;
 	setbuf(stdout, NULL);
+	if (argc == 2 && !strcmp(argv[1], "--bench"))
+		return benchmark();
 	prepare(0x100);
 	putword(0x100, 0x7001); /* moveq #1,d0 */
 	putword(0x102, 0x5280); /* addq.l #1,d0 */
 	putword(0x104, 0x60fc); /* bra.s 0x102 */
+	opbase_calls = 0;
 	compare(10000, "arithmetic and branches");
+#ifdef CYCLONE_TEST_STATS
+	/* Includes the reference run's first mapping setup. */
+	assert(opbase_calls <= 4);
+#endif
 
 	prepare(0x100);
 	putword(0x100, 0x203c); putword(0x102, 0x1234); putword(0x104, 0x5678);
 	putword(0x106, 0x23c0); putword(0x108, 0); putword(0x10a, 0x2000);
 	putword(0x10c, 0x2239); putword(0x10e, 0); putword(0x110, 0x2000);
 	putword(0x112, 0x4e72); putword(0x114, 0x2700);
+#ifdef CYCLONE_TEST_STATS
+	cyclone_test_exports = 0;
+#endif
 	compare(100, "longword memory and STOP");
+#ifdef CYCLONE_TEST_STATS
+	assert(cyclone_test_exports == 1);
+#endif
 	assert(REG_D[1] == 0x12345678);
 
 	prepare(0xff8);
@@ -211,6 +309,62 @@ int main(void)
 	putword(0xffa, 0x7003); putword(0xffc, 0x4e72); putword(0xffe, 0x2700);
 	bank_size = 0x1000;
 	compare(100, "jump near bank boundary");
+
+	prepare(0x100);
+	putword(0x100, 0x7002); putword(0x102, 0x7200);
+	putword(0x104, 0x5281); putword(0x106, 0x51c8); putword(0x108, 0xfffc);
+	putword(0x10a, 0x4e72); putword(0x10c, 0x2700);
+	compare(100, "DBRA within the current code mapping");
+	assert(REG_D[1] == 3);
+
+	prepare(0xf80);
+	bank_size = 0x1000;
+	putword(0xf80, 0x607e);
+	putword(0x1000, 0x7004); putword(0x1002, 0x4e72); putword(0x1004, 0x2700);
+	compare(100, "short branch across code banks");
+
+	prepare(0x1100);
+	bank_size = 0x1000;
+	putword(0x1100, 0x6000); putword(0x1102, 0xfefc);
+	putword(0xffe, 0x7003); putword(0x1000, 0x4e72); putword(0x1002, 0x2700);
+	compare(100, "backward word branch across code banks");
+
+	prepare(0x1010);
+	bank_size = 0x1000;
+	REG_D[0] = 1;
+	putword(0x1010, 0x51c8); putword(0x1012, 0xffde);
+	putword(0xff0, 0x7207); putword(0xff2, 0x4e72); putword(0xff4, 0x2700);
+	compare(100, "DBRA across code banks");
+
+	prepare(0x100);
+	putword(0x100, 0x7407);
+	putword(0x102, 0x2039); putword(0x104, 0); putword(0x106, 0x4000);
+	putword(0x108, 0x4e72); putword(0x10a, 0x2700);
+	putword(0x4000, 0x1234); putword(0x4002, 0x5678);
+	lookup[LEVEL1_INDEX(0x4000)] = SUBTABLE_BASE;
+	memset(lookup + (1 << LEVEL1_BITS), 1, 1 << LEVEL2_BITS);
+	lookup[LEVEL2_INDEX(SUBTABLE_BASE, 0x4002)] = STATIC_RAM;
+	probe_address = 0x4002; probe_pc = 0x108; probe_d2 = 7;
+	compare(100, "longword crossing from a bank into a subtable handler");
+	assert(REG_D[0] == 0x12345678 && probe_count == 2);
+
+	prepare(0x100);
+	putword(0x100, 0x33fc); putword(0x102, 1); putword(0x104, 0); putword(0x106, 0xf004);
+	putword(0x108, 0x6000); putword(0x10a, 0xee6);
+	putword(0xff0, 0x7009); putword(0xff2, 0x4e72); putword(0xff4, 0x2700);
+	cyclone_mame_execute(100);
+	assert(REG_D[0] == 9 && opcode_memory_max == 0xfff);
+	puts("PASS opcode invalidation with unchanged base and bank index");
+
+	prepare(0x100);
+	putword(0x100, 0x33fc); putword(0x102, 1); putword(0x104, 0); putword(0x106, 0xf006);
+	putword(0x108, 0x4ef9); putword(0x10a, 0); putword(0x10c, 0x400);
+	*(UINT16 *)(alternate + 0) = 0x7006;
+	*(UINT16 *)(alternate + 2) = 0x4e72;
+	*(UINT16 *)(alternate + 4) = 0x2700;
+	cyclone_mame_execute(100);
+	assert(REG_D[0] == 6);
+	puts("PASS dynamic subtable bank inserted inside a code region");
 
 	prepare(0x100);
 	putword(0x100, 0x4e70); putword(0x102, 0x4e72); putword(0x104, 0x2700);

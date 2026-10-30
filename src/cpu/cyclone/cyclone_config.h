@@ -8,21 +8,19 @@
 
 
 /*
- * By default, only ARMv4 instructions are used.
- * If you want Cyclone to make use of newer ARM instructions, enable the
- * options(s) below. You can also override this using make argument:
- *   make HAVE_ARMv6=1
- * Note: The highest enabled architecture version implicitly enables
- * all lower versions.
+ * AdvanceMAME targets ARMv7-A in AArch32 mode. Enable ARMv6T2 operations
+ * (MOVW/MOVT and bitfield instructions) and the earlier ARMv6/ARMv5 helpers.
+ * Changes require regenerating cyclone.s with generate.py; normal builds
+ * assemble the checked-in core and do not run the generator.
  */
 #ifndef HAVE_ARMv6T2
-#define HAVE_ARMv6T2                0
+#define HAVE_ARMv6T2                1
 #endif
 #ifndef HAVE_ARMv6
-#define HAVE_ARMv6                  0
+#define HAVE_ARMv6                  1
 #endif
 #ifndef HAVE_ARMv5
-#define HAVE_ARMv5                  0
+#define HAVE_ARMv5                  1
 #endif
 /*
  * This option enables indirect call optimizations on ARMv4 targets
@@ -46,7 +44,9 @@
  * This should be explicitly disabled if the target system has unaligned
  * access traps enabled, or if unaligned accesses have poor performance.
  */
-/* #define HAVE_UNALIGNED_ACCESSES     0 */
+/* Retain aligned fetches, including ARM kernels which
+ * enable alignment traps. The newer arithmetic/callback helpers remain enabled. */
+#define HAVE_UNALIGNED_ACCESSES     0
 
 /*
  * If this option is enabled, Microsoft ARMASM compatible output is generated
