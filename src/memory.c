@@ -216,6 +216,9 @@ struct _bank_data
 };
 typedef struct _bank_data bank_data;
 
+
+
+
 union _rwhandlers
 {
 	genf *					generic;				/* generic handler void */
@@ -301,6 +304,7 @@ address_space				active_address_space[ADDRESS_SPACES];/* address space data */
 
 #ifdef USE_CYCLONE
 UINT32 memory_opcode_generation;
+int memory_cyclone_custom_opbase;
 #endif
 
 static UINT8 *				bank_ptr[STATIC_COUNT];			/* array of bank pointers */
@@ -563,6 +567,9 @@ void memory_set_context(int activecpu)
 	}
 
 	opbasefunc = cpudata[activecpu].opbase;
+#ifdef USE_CYCLONE
+	memory_cyclone_custom_opbase = (opbasefunc != NULL);
+#endif
 
 #if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)
 	if (activecpu != -1)
@@ -597,7 +604,12 @@ opbase_handler memory_set_opbase_handler(int cpunum, opbase_handler function)
 	opbase_handler old = cpudata[cpunum].opbase;
 	cpudata[cpunum].opbase = function;
 	if (cpunum == cpu_getactivecpu())
+	{
 		opbasefunc = function;
+#ifdef USE_CYCLONE
+		memory_cyclone_custom_opbase = (function != NULL);
+#endif
+	}
 	memory_opcode_changed();
 	return old;
 }

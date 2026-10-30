@@ -570,6 +570,8 @@ union _write_handlers
 };
 typedef union _write_handlers write_handlers;
 
+
+
 /* ----- a generic address map type ----- */
 struct _address_map
 {
@@ -983,6 +985,11 @@ extern UINT32 memory_opcode_generation;
 #define memory_opcode_changed() (++memory_opcode_generation)
 #else
 #define memory_opcode_changed() ((void)0)
+#endif
+
+#ifdef USE_CYCLONE
+/* True when the active CPU uses a custom opcode-base callback. */
+extern int memory_cyclone_custom_opbase;
 #endif
 
 extern UINT8 			opcode_entry;				/* current entry for opcode fetching */
