@@ -617,13 +617,11 @@ static void NeoMVSDrawGfxLine(UINT16 **line,const gfx_element *gfx,
 /******************************************************************************/
 
 
-static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs, int fullmode, UINT16 **line, const rectangle *cliprect, int scanline )
+static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs, int fullmode, UINT16 **line, const rectangle *cliprect, int scanline, int min_spriteline, int max_spriteline )
 {
 	int drawn_lines = 0;
 	UINT8 *zoomy_rom;
 	int tileno,tileatr;
-	int min_spriteline;
-	int max_spriteline;
 	int tile,yoffs;
 	int zoom_line;
 	int invert=0;
@@ -631,8 +629,6 @@ static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs
 	zoomy_rom = memory_region_gfx4 + (zy << 8);
 
 	/* the maximum value for my is 0x200 */
-	min_spriteline = sy & 0x1ff;
-	max_spriteline = (sy + my*0x10)&0x1ff;
 
 	/* work out if we need to draw the sprite on this scanline */
 	/******* CHECK THE LOGIC HERE, NOT WELL TESTED */
@@ -808,7 +804,7 @@ static void neogeo_draw_s_layer(mame_bitmap *bitmap, const rectangle *cliprect)
 
 }
 
-VIDEO_UPDATE( neogeo )
+static void neogeo_video_update_fallback(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 	int sx =0,sy =0,my =0,zx = 0x0f, zy = 0xff;
 	int count;
@@ -874,8 +870,104 @@ VIDEO_UPDATE( neogeo )
 
 			offs = count<<6;
 
-			neogeo_draw_sprite( my, sx, sy, zx, zy, offs, fullmode, (UINT16 **)line, cliprect, scan );
+			neogeo_draw_sprite( my, sx, sy, zx, zy, offs, fullmode, (UINT16 **)line, cliprect, scan,
+				sy & 0x1ff, (sy + my*0x10) & 0x1ff );
 		}  /* for count */
 	}
 	neogeo_draw_s_layer(bitmap,cliprect);
+}
+
+/* NEO_GEO_SPRITE_COLUMN_CACHE_V1 */
+/* Stable per-update sprite column metadata. No frame-to-frame caching: callers
+ * may render partial raster updates after writes to sprite control VRAM.
+ */
+typedef struct neogeo_sprite_column
+{
+	int my, sx, sy, zx, zy;
+	int offs, fullmode;
+	int min_spriteline, max_spriteline;
+} neogeo_sprite_column;
+
+VIDEO_UPDATE( neogeo )
+{
+	neogeo_sprite_column columns[0x180];
+	int column_count = 0;
+	int sx = 0, sy = 0, my = 0, zx = 0x0f, zy = 0xff;
+	char fullmode = 0;
+	int count, t1, t2, t3, scan;
+	void **line = bitmap->line;
+	neogeo_sprite_column *c;
+
+	/* The original code carries column state between scanlines. This only
+	 * affects the following scanline when the first column continues the
+	 * previous strip; retain the exact original path for that case.
+	 */
+	if (neogeo_vidram16[0x10400 >> 1] & 0x40)
+	{
+		neogeo_video_update_fallback(bitmap, cliprect);
+		return;
+	}
+
+	/* Geometry and sprite control words do not change during one VIDEO_UPDATE
+	 * invocation. Decode the strip chain once, preserving its original order.
+	 */
+	for (count = 0; count < 0x180; count++)
+	{
+		t3 = neogeo_vidram16[(0x10000 >> 1) + count];
+		t1 = neogeo_vidram16[(0x10400 >> 1) + count];
+
+		if (t1 & 0x40)
+		{
+			sx += zx + 1;
+			if (sx >= 0x1f0)
+				sx -= 0x200;
+			zx = (t3 >> 8) & 0x0f;
+		}
+		else
+		{
+			t2 = neogeo_vidram16[(0x10800 >> 1) + count];
+			zx = (t3 >> 8) & 0x0f;
+			zy = t3 & 0xff;
+			sx = t2 >> 7;
+			if (sx >= 0x1f0)
+				sx -= 0x200;
+			my = t1 & 0x3f;
+			sy = 0x200 - (t1 >> 7);
+			if (my > 0x20)
+			{
+				my = 0x20;
+				fullmode = 1;
+			}
+			else
+				fullmode = 0;
+		}
+
+		if (my == 0 || sx >= 320 || sx <= -16)
+			continue;
+
+		c = &columns[column_count++];
+		c->my = my;
+		c->sx = sx;
+		c->sy = sy;
+		c->zx = zx;
+		c->zy = zy;
+		c->offs = count << 6;
+		c->fullmode = fullmode;
+		c->min_spriteline = sy & 0x1ff;
+		c->max_spriteline = (sy + my * 0x10) & 0x1ff;
+	}
+
+	fillbitmap(bitmap, Machine->pens[4095], cliprect);
+
+	for (scan = cliprect->min_y; scan <= cliprect->max_y; scan++)
+	{
+		for (count = 0; count < column_count; count++)
+		{
+			c = &columns[count];
+			neogeo_draw_sprite(c->my, c->sx, c->sy, c->zx, c->zy,
+				c->offs, c->fullmode, (UINT16 **)line, cliprect, scan,
+				c->min_spriteline, c->max_spriteline);
+		}
+	}
+	neogeo_draw_s_layer(bitmap, cliprect);
 }
