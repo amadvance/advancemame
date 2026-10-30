@@ -64,6 +64,8 @@ static int high_tile;
 static int vhigh_tile;
 static int vvhigh_tile;
 static int no_of_tiles;
+/* NEO_GEO_SPRITE_MODULO_OPT_V1 */
+static int no_of_tiles_is_power_of_two;
 static INT32 fix_bank;
 
 
@@ -338,6 +340,8 @@ static void register_savestate(void)
 VIDEO_START( neogeo_mvs )
 {
 	no_of_tiles=Machine->gfx[2]->total_elements;
+	no_of_tiles_is_power_of_two = no_of_tiles > 0 &&
+		(no_of_tiles & (no_of_tiles - 1)) == 0;
 	if (no_of_tiles>0x10000) high_tile=1; else high_tile=0;
 	if (no_of_tiles>0x20000) vhigh_tile=1; else vhigh_tile=0;
 	if (no_of_tiles>0x40000) vvhigh_tile=1; else vvhigh_tile=0;
@@ -490,7 +494,7 @@ WRITE16_HANDLER( neo_game_fix_16_w )
 /******************************************************************************/
 
 
-static void NeoMVSDrawGfxLine(UINT16 **line,const gfx_element *gfx,
+static void NeoMVSDrawGfxLine_pow2(UINT16 **line,const gfx_element *gfx,
 		unsigned int code,unsigned int color,int flipx,int sx,int sy,
 		int zx,int yoffs,const rectangle *clip)
 {
@@ -503,8 +507,130 @@ static void NeoMVSDrawGfxLine(UINT16 **line,const gfx_element *gfx,
 
 	if (sx <= -16) return;
 
-	/* Safety feature */
-	code %= no_of_tiles;
+	/* Power-of-two tile count: normalize with an AND. */
+	code &= (unsigned int)(no_of_tiles - 1);
+
+	/* Check for total transparency, no need to draw */
+	if ((gfx->pen_usage[code] & ~1) == 0)
+		return;
+
+	fspr += code*128 + 8*yoffs;
+
+	if (flipx)	/* X flip */
+	{
+		if (zx == 0x0f)
+		{
+			mydword = (fspr[4]<<0)|(fspr[5]<<8)|(fspr[6]<<16)|(fspr[7]<<24);
+			col = (mydword>>28)&0xf; if (col) bm[ 0] = paldata[col];
+			col = (mydword>>24)&0xf; if (col) bm[ 1] = paldata[col];
+			col = (mydword>>20)&0xf; if (col) bm[ 2] = paldata[col];
+			col = (mydword>>16)&0xf; if (col) bm[ 3] = paldata[col];
+			col = (mydword>>12)&0xf; if (col) bm[ 4] = paldata[col];
+			col = (mydword>> 8)&0xf; if (col) bm[ 5] = paldata[col];
+			col = (mydword>> 4)&0xf; if (col) bm[ 6] = paldata[col];
+			col = (mydword>> 0)&0xf; if (col) bm[ 7] = paldata[col];
+
+			mydword = (fspr[0]<<0)|(fspr[1]<<8)|(fspr[2]<<16)|(fspr[3]<<24);
+			col = (mydword>>28)&0xf; if (col) bm[ 8] = paldata[col];
+			col = (mydword>>24)&0xf; if (col) bm[ 9] = paldata[col];
+			col = (mydword>>20)&0xf; if (col) bm[10] = paldata[col];
+			col = (mydword>>16)&0xf; if (col) bm[11] = paldata[col];
+			col = (mydword>>12)&0xf; if (col) bm[12] = paldata[col];
+			col = (mydword>> 8)&0xf; if (col) bm[13] = paldata[col];
+			col = (mydword>> 4)&0xf; if (col) bm[14] = paldata[col];
+			col = (mydword>> 0)&0xf; if (col) bm[15] = paldata[col];
+		}
+		else
+		{
+			char *zoomx_draw = zoomx_draw_tables[zx];
+
+			mydword = (fspr[4]<<0)|(fspr[5]<<8)|(fspr[6]<<16)|(fspr[7]<<24);
+			if (zoomx_draw[ 0]) { col = (mydword>>28)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 1]) { col = (mydword>>24)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 2]) { col = (mydword>>20)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 3]) { col = (mydword>>16)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 4]) { col = (mydword>>12)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 5]) { col = (mydword>> 8)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 6]) { col = (mydword>> 4)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 7]) { col = (mydword>> 0)&0xf; if (col) *bm = paldata[col]; bm++; }
+
+			mydword = (fspr[0]<<0)|(fspr[1]<<8)|(fspr[2]<<16)|(fspr[3]<<24);
+			if (zoomx_draw[ 8]) { col = (mydword>>28)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 9]) { col = (mydword>>24)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[10]) { col = (mydword>>20)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[11]) { col = (mydword>>16)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[12]) { col = (mydword>>12)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[13]) { col = (mydword>> 8)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[14]) { col = (mydword>> 4)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[15]) { col = (mydword>> 0)&0xf; if (col) *bm = paldata[col]; bm++; }
+		}
+	}
+	else		/* normal */
+	{
+		if (zx == 0x0f)		/* fixed */
+		{
+			mydword = (fspr[0]<<0)|(fspr[1]<<8)|(fspr[2]<<16)|(fspr[3]<<24);
+			col = (mydword>> 0)&0xf; if (col) bm[ 0] = paldata[col];
+			col = (mydword>> 4)&0xf; if (col) bm[ 1] = paldata[col];
+			col = (mydword>> 8)&0xf; if (col) bm[ 2] = paldata[col];
+			col = (mydword>>12)&0xf; if (col) bm[ 3] = paldata[col];
+			col = (mydword>>16)&0xf; if (col) bm[ 4] = paldata[col];
+			col = (mydword>>20)&0xf; if (col) bm[ 5] = paldata[col];
+			col = (mydword>>24)&0xf; if (col) bm[ 6] = paldata[col];
+			col = (mydword>>28)&0xf; if (col) bm[ 7] = paldata[col];
+
+			mydword = (fspr[4]<<0)|(fspr[5]<<8)|(fspr[6]<<16)|(fspr[7]<<24);
+			col = (mydword>> 0)&0xf; if (col) bm[ 8] = paldata[col];
+			col = (mydword>> 4)&0xf; if (col) bm[ 9] = paldata[col];
+			col = (mydword>> 8)&0xf; if (col) bm[10] = paldata[col];
+			col = (mydword>>12)&0xf; if (col) bm[11] = paldata[col];
+			col = (mydword>>16)&0xf; if (col) bm[12] = paldata[col];
+			col = (mydword>>20)&0xf; if (col) bm[13] = paldata[col];
+			col = (mydword>>24)&0xf; if (col) bm[14] = paldata[col];
+			col = (mydword>>28)&0xf; if (col) bm[15] = paldata[col];
+		}
+		else
+		{
+			char *zoomx_draw = zoomx_draw_tables[zx];
+
+			mydword = (fspr[0]<<0)|(fspr[1]<<8)|(fspr[2]<<16)|(fspr[3]<<24);
+			if (zoomx_draw[ 0]) { col = (mydword>> 0)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 1]) { col = (mydword>> 4)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 2]) { col = (mydword>> 8)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 3]) { col = (mydword>>12)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 4]) { col = (mydword>>16)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 5]) { col = (mydword>>20)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 6]) { col = (mydword>>24)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 7]) { col = (mydword>>28)&0xf; if (col) *bm = paldata[col]; bm++; }
+
+			mydword = (fspr[4]<<0)|(fspr[5]<<8)|(fspr[6]<<16)|(fspr[7]<<24);
+			if (zoomx_draw[ 8]) { col = (mydword>> 0)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[ 9]) { col = (mydword>> 4)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[10]) { col = (mydword>> 8)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[11]) { col = (mydword>>12)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[12]) { col = (mydword>>16)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[13]) { col = (mydword>>20)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[14]) { col = (mydword>>24)&0xf; if (col) *bm = paldata[col]; bm++; }
+			if (zoomx_draw[15]) { col = (mydword>>28)&0xf; if (col) *bm = paldata[col]; bm++; }
+		}
+	}
+}
+
+static void NeoMVSDrawGfxLine_generic(UINT16 **line,const gfx_element *gfx,
+		unsigned int code,unsigned int color,int flipx,int sx,int sy,
+		int zx,int yoffs,const rectangle *clip)
+{
+	UINT16 *bm = line[sy]+sx;
+	int col;
+	int mydword;
+
+	UINT8 *fspr = memory_region_gfx3;
+	const pen_t *paldata = &gfx->colortable[gfx->color_granularity * color];
+
+	if (sx <= -16) return;
+
+	/* General tile count: preserve modulo normalization. */
+	code %= (unsigned int)no_of_tiles;
 
 	/* Check for total transparency, no need to draw */
 	if ((gfx->pen_usage[code] & ~1) == 0)
@@ -617,7 +743,7 @@ static void NeoMVSDrawGfxLine(UINT16 **line,const gfx_element *gfx,
 /******************************************************************************/
 
 
-static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs, int fullmode, UINT16 **line, const rectangle *cliprect, int scanline, int min_spriteline, int max_spriteline )
+static void neogeo_draw_sprite_pow2( int my, int sx, int sy, int zx, int zy, int offs, int fullmode, UINT16 **line, const rectangle *cliprect, int scanline, int min_spriteline, int max_spriteline )
 {
 	int drawn_lines = 0;
 	UINT8 *zoomy_rom;
@@ -670,10 +796,11 @@ static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs
 	{
 		if (zy)
 		{
-			zoom_line %= 2*(zy+1);	/* fixed */
-			if (zoom_line >= (zy+1))	/* fixed */
+			int period = 2 * (zy + 1);
+			zoom_line %= period;
+			if (zoom_line >= zy + 1)
 			{
-				zoom_line = 2*(zy+1)-1 - zoom_line;	/* fixed */
+				zoom_line = period - 1 - zoom_line;
 				invert ^= 1;
 			}
 		}
@@ -699,7 +826,101 @@ static void neogeo_draw_sprite( int my, int sx, int sy, int zx, int zy, int offs
 
 	if (tileatr & 0x02) yoffs ^= 0x0f;	/* flip y */
 
-	NeoMVSDrawGfxLine((UINT16 **)line,
+	NeoMVSDrawGfxLine_pow2((UINT16 **)line,
+			gfx,
+			tileno,
+			tileatr >> 8,
+			tileatr & 0x01,	/* flip x */
+			sx,scanline,zx,yoffs,
+			cliprect
+		);
+
+}
+
+static void neogeo_draw_sprite_generic( int my, int sx, int sy, int zx, int zy, int offs, int fullmode, UINT16 **line, const rectangle *cliprect, int scanline, int min_spriteline, int max_spriteline )
+{
+	int drawn_lines = 0;
+	UINT8 *zoomy_rom;
+	int tileno,tileatr;
+	int tile,yoffs;
+	int zoom_line;
+	int invert=0;
+	gfx_element *gfx=Machine->gfx[2]; /* Save constant struct dereference */
+	zoomy_rom = memory_region_gfx4 + (zy << 8);
+
+	/* the maximum value for my is 0x200 */
+
+	/* work out if we need to draw the sprite on this scanline */
+	/******* CHECK THE LOGIC HERE, NOT WELL TESTED */
+	if (my == 0x20)
+	{
+		/* if its a full strip we obviously want to draw */
+		drawn_lines = (scanline - min_spriteline)&0x1ff;
+	}
+	else if (min_spriteline < max_spriteline)
+	{
+		/* if the minimum is lower than the maximum we draw anytihng between the two */
+
+		if ((scanline >=min_spriteline) && (scanline < max_spriteline))
+			drawn_lines = (scanline - min_spriteline)&0x1ff;
+		else
+			return; /* outside of sprite */
+
+	}
+	else if (min_spriteline > max_spriteline)
+	{
+		/* if the minimum is higher than the maxium it has wrapped so we draw anything outside outside the two */
+		if ( (scanline < max_spriteline) || (scanline >= min_spriteline) )
+			drawn_lines = (scanline - min_spriteline)&0x1ff; // check!
+		else
+			return; /* outside of sprite */
+	}
+	else
+	{
+		return; /* outside of sprite */
+	}
+
+	zoom_line = drawn_lines & 0xff;
+	if (drawn_lines & 0x100)
+	{
+		zoom_line ^= 0xff;
+		invert = 1;
+	}
+	if (fullmode)	/* fix for joyjoy, trally... */
+	{
+		if (zy)
+		{
+			int period = 2 * (zy + 1);
+			zoom_line %= period;
+			if (zoom_line >= zy + 1)
+			{
+				zoom_line = period - 1 - zoom_line;
+				invert ^= 1;
+			}
+		}
+	}
+
+	yoffs = zoomy_rom[zoom_line] & 0x0f;
+	tile = zoomy_rom[zoom_line] >> 4;
+	if (invert)
+	{
+		tile ^= 0x1f;
+		yoffs ^= 0x0f;
+	}
+
+	tileno	= neogeo_vidram16[offs+2*tile];
+	tileatr = neogeo_vidram16[offs+2*tile+1];
+
+	if (  high_tile && (tileatr & 0x10)) tileno+=0x10000;
+	if ( vhigh_tile && (tileatr & 0x20)) tileno+=0x20000;
+	if (vvhigh_tile && (tileatr & 0x40)) tileno+=0x40000;
+
+	if (tileatr & 0x08) tileno=(tileno&~7)|(neogeo_frame_counter&7);	/* fixed */
+	else if (tileatr & 0x04) tileno=(tileno&~3)|(neogeo_frame_counter&3);	/* fixed */
+
+	if (tileatr & 0x02) yoffs ^= 0x0f;	/* flip y */
+
+	NeoMVSDrawGfxLine_generic((UINT16 **)line,
 			gfx,
 			tileno,
 			tileatr >> 8,
@@ -804,7 +1025,7 @@ static void neogeo_draw_s_layer(mame_bitmap *bitmap, const rectangle *cliprect)
 
 }
 
-static void neogeo_video_update_fallback(mame_bitmap *bitmap, const rectangle *cliprect)
+static void neogeo_video_update_fallback_pow2(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 	int sx =0,sy =0,my =0,zx = 0x0f, zy = 0xff;
 	int count;
@@ -870,7 +1091,80 @@ static void neogeo_video_update_fallback(mame_bitmap *bitmap, const rectangle *c
 
 			offs = count<<6;
 
-			neogeo_draw_sprite( my, sx, sy, zx, zy, offs, fullmode, (UINT16 **)line, cliprect, scan,
+			neogeo_draw_sprite_pow2( my, sx, sy, zx, zy, offs, fullmode, (UINT16 **)line, cliprect, scan,
+				sy & 0x1ff, (sy + my*0x10) & 0x1ff );
+		}  /* for count */
+	}
+	neogeo_draw_s_layer(bitmap,cliprect);
+}
+
+static void neogeo_video_update_fallback_generic(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	int sx =0,sy =0,my =0,zx = 0x0f, zy = 0xff;
+	int count;
+	int offs;
+	int t1,t2,t3;
+	char fullmode = 0;
+	void **line=bitmap->line;
+	int scan;
+
+	fillbitmap(bitmap,Machine->pens[4095],cliprect);
+
+	for (scan = cliprect->min_y; scan <= cliprect->max_y ; scan++)
+	{
+
+		/* Process Sprite List */
+		for (count = 0; count < 0x300 >> 1; count++)
+		{
+
+			t3 = neogeo_vidram16[(0x10000 >> 1) + count];
+			t1 = neogeo_vidram16[(0x10400 >> 1) + count];
+
+
+			/* If this bit is set this new column is placed next to last one */
+			if (t1 & 0x40)
+			{
+				sx += zx+1;
+				if ( sx >= 0x1F0 )
+					sx -= 0x200;
+
+				/* Get new zoom for this column */
+				zx = (t3 >> 8) & 0x0f;
+			}
+			else /* nope it is a new block */
+			{
+				/* Sprite scaling */
+				t2 = neogeo_vidram16[(0x10800 >> 1) + count];
+				zx = (t3 >> 8) & 0x0f;
+				zy = t3 & 0xff;
+
+				sx = (t2 >> 7);
+				if ( sx >= 0x1F0 )
+					sx -= 0x200;
+
+				/* Number of tiles in this strip */
+				my = t1 & 0x3f;
+
+				sy = 0x200 - (t1 >> 7);
+
+				if (my > 0x20)
+				{
+					my = 0x20;
+					fullmode = 1;
+				}
+				else
+					fullmode = 0;
+			}
+
+			/* No point doing anything if tile strip is 0 */
+			if (my==0) continue;
+
+			if (sx >= 320)
+				continue;
+
+			offs = count<<6;
+
+			neogeo_draw_sprite_generic( my, sx, sy, zx, zy, offs, fullmode, (UINT16 **)line, cliprect, scan,
 				sy & 0x1ff, (sy + my*0x10) & 0x1ff );
 		}  /* for count */
 	}
@@ -888,6 +1182,7 @@ typedef struct neogeo_sprite_column
 	int min_spriteline, max_spriteline;
 } neogeo_sprite_column;
 
+/* NEO_GEO_SPRITE_SPECIALIZED_DISPATCH_V2 */
 VIDEO_UPDATE( neogeo )
 {
 	neogeo_sprite_column columns[0x180];
@@ -904,7 +1199,10 @@ VIDEO_UPDATE( neogeo )
 	 */
 	if (neogeo_vidram16[0x10400 >> 1] & 0x40)
 	{
-		neogeo_video_update_fallback(bitmap, cliprect);
+		if (no_of_tiles_is_power_of_two)
+			neogeo_video_update_fallback_pow2(bitmap, cliprect);
+		else
+			neogeo_video_update_fallback_generic(bitmap, cliprect);
 		return;
 	}
 
@@ -959,14 +1257,31 @@ VIDEO_UPDATE( neogeo )
 
 	fillbitmap(bitmap, Machine->pens[4095], cliprect);
 
-	for (scan = cliprect->min_y; scan <= cliprect->max_y; scan++)
+	/* Choose the tile normalization path once per video update, not per sprite. */
+	if (no_of_tiles_is_power_of_two)
 	{
-		for (count = 0; count < column_count; count++)
+		for (scan = cliprect->min_y; scan <= cliprect->max_y; scan++)
 		{
-			c = &columns[count];
-			neogeo_draw_sprite(c->my, c->sx, c->sy, c->zx, c->zy,
-				c->offs, c->fullmode, (UINT16 **)line, cliprect, scan,
-				c->min_spriteline, c->max_spriteline);
+			for (count = 0; count < column_count; count++)
+			{
+				c = &columns[count];
+				neogeo_draw_sprite_pow2(c->my, c->sx, c->sy, c->zx, c->zy,
+					c->offs, c->fullmode, (UINT16 **)line, cliprect, scan,
+					c->min_spriteline, c->max_spriteline);
+			}
+		}
+	}
+	else
+	{
+		for (scan = cliprect->min_y; scan <= cliprect->max_y; scan++)
+		{
+			for (count = 0; count < column_count; count++)
+			{
+				c = &columns[count];
+				neogeo_draw_sprite_generic(c->my, c->sx, c->sy, c->zx, c->zy,
+					c->offs, c->fullmode, (UINT16 **)line, cliprect, scan,
+					c->min_spriteline, c->max_spriteline);
+			}
 		}
 	}
 	neogeo_draw_s_layer(bitmap, cliprect);
