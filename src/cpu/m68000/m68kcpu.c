@@ -854,9 +854,17 @@ void m68k_end_timeslice(void)
 /* KS: Modified so that IPL* bits match with mask positions in the SR
  *     and cleaned out remenants of the interrupt controller.
  */
+#ifdef USE_CYCLONE
+extern int cyclone_mame_set_irq(unsigned int level);
+#endif
+
 void m68k_set_irq(unsigned int int_level)
 {
 	uint old_level = CPU_INT_LEVEL;
+#ifdef USE_CYCLONE
+	if (cyclone_mame_set_irq(int_level))
+		return;
+#endif
 	CPU_INT_LEVEL = int_level << 8;
 
 	/* A transition from < 7 to 7 always interrupts (NMI) */
