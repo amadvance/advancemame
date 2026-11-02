@@ -1242,7 +1242,6 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		switch (resizeeffect) {
 		case COMBINE_SCALEX: combine = VIDEO_COMBINE_Y_SCALEX; break;
 		case COMBINE_SCALEK: combine = VIDEO_COMBINE_Y_SCALEK; break;
-		case COMBINE_HQ: combine = VIDEO_COMBINE_Y_HQ; break;
 		case COMBINE_XBR: combine = VIDEO_COMBINE_Y_XBR; break;
 		default: combine = VIDEO_COMBINE_Y_NONE; break;
 		}
@@ -1581,7 +1580,6 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		switch (resizeeffect) {
 		case COMBINE_SCALEX: combine = VIDEO_COMBINE_Y_SCALEX; break;
 		case COMBINE_SCALEK: combine = VIDEO_COMBINE_Y_SCALEK; break;
-		case COMBINE_HQ: combine = VIDEO_COMBINE_Y_HQ; break;
 		case COMBINE_XBR: combine = VIDEO_COMBINE_Y_XBR; break;
 		default: combine = VIDEO_COMBINE_Y_NONE; break;
 		}

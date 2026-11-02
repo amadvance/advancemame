@@ -81,11 +81,6 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/error.o \
 	$(MENUOBJ)/lib/filter.o \
 	$(MENUOBJ)/lib/complex.o \
-	$(MENUOBJ)/blit/hq2x.o \
-	$(MENUOBJ)/blit/hq2x3.o \
-	$(MENUOBJ)/blit/hq2x4.o \
-	$(MENUOBJ)/blit/hq3x.o \
-	$(MENUOBJ)/blit/hq4x.o \
 	$(MENUOBJ)/blit/xbr2x.o \
 	$(MENUOBJ)/blit/xbr2x_sse.o \
 	$(MENUOBJ)/blit/xbr2x_neon.o \

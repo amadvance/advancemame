@@ -1096,14 +1096,9 @@ void osd_stretch_palett16to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsig
 	case COMBINE_SCALEK:
 		combine = VIDEO_COMBINE_Y_SCALEK;
 		break;
-#ifndef USE_BLIT_SMALL
-	case COMBINE_HQ:
-		combine = VIDEO_COMBINE_Y_HQ;
-		break;
 	case COMBINE_XBR:
 		combine = VIDEO_COMBINE_Y_XBR;
 		break;
-#endif
 	default:
 		combine = VIDEO_COMBINE_Y_NONE;
 		break;
@@ -1143,14 +1138,9 @@ void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned ds
 	case COMBINE_SCALEK:
 		combine = VIDEO_COMBINE_Y_SCALEK;
 		break;
-#ifndef USE_BLIT_SMALL
-	case COMBINE_HQ:
-		combine = VIDEO_COMBINE_Y_HQ;
-		break;
 	case COMBINE_XBR:
 		combine = VIDEO_COMBINE_Y_XBR;
 		break;
-#endif
 	default:
 		combine = VIDEO_COMBINE_Y_NONE;
 		break;
@@ -1665,7 +1655,7 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 	{ "filter", COMBINE_FILTER },
 	{ "scalex", COMBINE_SCALEX },
 	{ "scalek", COMBINE_SCALEK },
-	{ "hq", COMBINE_HQ },
+	{ "hq", COMBINE_XBR }, /* deprecated hq effect */
 	{ "xbr", COMBINE_XBR }
 };
 
