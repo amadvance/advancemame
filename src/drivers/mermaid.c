@@ -12,7 +12,6 @@
         * Rougien
 
     Known issues:
-        * Hardware collision detection is not implemented.
         * Are the stars really supposed to go up in Rougien?
 
 
@@ -106,6 +105,7 @@ extern READ8_HANDLER( mermaid_collision_r );
 extern PALETTE_INIT( mermaid );
 extern VIDEO_START( mermaid );
 extern VIDEO_UPDATE( mermaid );
+extern VIDEO_EOF( mermaid );
 
 /* Read/Write Handlers */
 
@@ -275,6 +275,7 @@ static MACHINE_DRIVER_START( mermaid )
 	MDRV_PALETTE_INIT(mermaid)
 	MDRV_VIDEO_START(mermaid)
 	MDRV_VIDEO_UPDATE(mermaid)
+	MDRV_VIDEO_EOF(mermaid)
 
 	// sound hardware
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -391,6 +392,6 @@ ROM_END
 
 /* Game Drivers */
 
-GAME( 1982, mermaid, 0, mermaid, mermaid, 0, ROT0, "[Sanritsu] Rock-Ola", "Mermaid", GAME_NOT_WORKING )
-GAME( 1982, yachtmn, mermaid, mermaid, mermaid, 0, ROT0, "[Sanritsu] Esco", "Yachtsman", GAME_NOT_WORKING )
+GAME( 1982, mermaid, 0, mermaid, mermaid, 0, ROT0, "[Sanritsu] Rock-Ola", "Mermaid", 0 )
+GAME( 1982, yachtmn, mermaid, mermaid, mermaid, 0, ROT0, "[Sanritsu] Esco", "Yachtsman", 0 )
 GAME( 1982, rougien, 0, mermaid, mermaid, 0, ROT0, "Sanritsu",            "Rougien", 0 )
