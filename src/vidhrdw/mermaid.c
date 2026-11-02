@@ -8,6 +8,10 @@ UINT8* mermaid_videoram2;
 UINT8* mermaid_bg_scrollram;
 UINT8* mermaid_fg_scrollram;
 
+static mame_bitmap *helper;
+static mame_bitmap *helper2;
+static int collision_sprite_background, collision_sprite_foreground, collision_sprite_sprite_boat, collision_sprite_sprite_wind;
+
 static int rougien_gfxbank1, rougien_gfxbank2;
 
 static rectangle spritevisiblearea =
@@ -118,14 +122,22 @@ READ8_HANDLER( mermaid_collision_r )
         Bit 0
         Bit 1 - Sprite - Foreground
         Bit 2 - Sprite - Stream
-        Bit 3
+        Bit 3 - Sprite (Wind) - Sprite
         Bit 4
         Bit 5
-        Bit 6
+        Bit 6 - Sprite (Boat) - Sprite
         Bit 7
     */
 
-	return 0;	// not implemented
+	int collision = 0xff;
+
+	if (collision_sprite_foreground) collision &= 0xfd;
+	if (collision_sprite_background) collision &= 0xfb;
+
+	if (collision_sprite_sprite_wind) collision &= 0xf7;
+	if (collision_sprite_sprite_boat) collision &= 0xbf;
+
+	return collision;
 }
 
 static void get_bg_tile_info(int tile_index)
@@ -167,6 +179,9 @@ VIDEO_START( mermaid )
 	tilemap_set_scroll_cols(bg_tilemap, 32);
 	tilemap_set_scroll_cols(fg_tilemap, 32);
 	tilemap_set_transparent_pen(fg_tilemap, 0);
+
+	helper = auto_bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height);
+	helper2 = auto_bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height);
 
 	return 0;
 }
@@ -212,4 +227,221 @@ VIDEO_UPDATE( mermaid )
 	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
 	tilemap_draw(bitmap, cliprect, fg_tilemap, 0, 0);
 	mermaid_draw_sprites(bitmap);
+}
+
+static UINT8 collision_check(rectangle* rect)
+{
+	UINT8 data = 0;
+	int x, y;
+
+	for (y = rect->min_y; y <= rect->max_y; y++)
+	{
+		for (x = rect->min_x; x <= rect->max_x; x++)
+		{
+			UINT16 a = read_pixel(helper, x, y);
+			UINT16 b = read_pixel(helper2, x, y);
+
+			if (b != 0 && a != 0)
+				data |= 0x01;
+		}
+	}
+
+	return data;
+}
+
+VIDEO_EOF( mermaid )
+{
+	const rectangle *visarea = &Machine->visible_area;
+	int offs, offs2;
+
+	collision_sprite_background = 0;
+	collision_sprite_foreground = 0;
+	collision_sprite_sprite_boat = 0;
+	collision_sprite_sprite_wind = 0;
+
+	// check for "boat" sprite
+	for (offs = spriteram_size - 4; offs >= spriteram_size - (4 * 2); offs -= 4)
+	{
+		int attr = spriteram[offs + 2];
+		int bank = (attr & 0x30) >> 4;
+		int code = (spriteram[offs] & 0x3f) | (bank << 6);
+		int flipx = spriteram[offs] & 0x40;
+		int flipy = spriteram[offs] & 0x80;
+		int sx = spriteram[offs + 3] + 1;
+		int sy = 240 - spriteram[offs + 1];
+		rectangle rect;
+
+		code |= rougien_gfxbank1 * 0x2800;
+		code |= rougien_gfxbank2 * 0x2400;
+
+		if (flip_screen_x)
+		{
+			flipx = !flipx;
+			sx = 240 - sx;
+		}
+
+		if (flip_screen_y)
+		{
+			flipy = !flipy;
+			sy = 240 - sy;
+		}
+
+		rect.min_x = sx;
+		rect.min_y = sy;
+		rect.max_x = sx + Machine->gfx[1]->width - 1;
+		rect.max_y = sy + Machine->gfx[1]->height - 1;
+
+		if (rect.min_x < visarea->min_x)
+			rect.min_x = visarea->min_x;
+		if (rect.min_y < visarea->min_y)
+			rect.min_y = visarea->min_y;
+		if (rect.max_x > visarea->max_x)
+			rect.max_x = visarea->max_x;
+		if (rect.max_y > visarea->max_y)
+			rect.max_y = visarea->max_y;
+
+		// check collision sprite-background (stream)
+		fillbitmap(helper, 0, &rect);
+		fillbitmap(helper2, 0, &rect);
+
+		tilemap_draw(helper, &rect, bg_tilemap, 0, 0);
+		drawgfx(helper2, Machine->gfx[1], code, 0, flipx, flipy, sx, sy,
+			&rect, TRANSPARENCY_PEN, 0);
+
+		collision_sprite_background |= collision_check(&rect);
+
+		// check collision sprite-foreground
+		fillbitmap(helper, 0, &rect);
+		fillbitmap(helper2, 0, &rect);
+
+		tilemap_draw(helper, &rect, fg_tilemap, 0, 0);
+		drawgfx(helper2, Machine->gfx[1], code, 0, flipx, flipy, sx, sy,
+			&rect, TRANSPARENCY_PEN, 0);
+
+		collision_sprite_foreground |= collision_check(&rect);
+
+		// check collision sprite "boat" - sprite
+		fillbitmap(helper, 0, &rect);
+		fillbitmap(helper2, 0, &rect);
+
+		for (offs2 = spriteram_size - (4 * 6) - 4; offs2 >= 0; offs2 -= 4)
+		{
+			if (offs != offs2)
+			{
+				int attr2 = spriteram[offs2 + 2];
+				int bank2 = (attr2 & 0x30) >> 4;
+				int code2 = (spriteram[offs2] & 0x3f) | (bank2 << 6);
+				int flipx2 = spriteram[offs2] & 0x40;
+				int flipy2 = spriteram[offs2] & 0x80;
+				int sx2 = spriteram[offs2 + 3] + 1;
+				int sy2 = 240 - spriteram[offs2 + 1];
+
+				code2 |= rougien_gfxbank1 * 0x2800;
+				code2 |= rougien_gfxbank2 * 0x2400;
+
+				if (flip_screen_x)
+				{
+					flipx2 = !flipx2;
+					sx2 = 240 - sx2;
+				}
+
+				if (flip_screen_y)
+				{
+					flipy2 = !flipy2;
+					sy2 = 240 - sy2;
+				}
+
+				drawgfx(helper, Machine->gfx[1], code2, 0, flipx2, flipy2, sx2, sy2,
+					&rect, TRANSPARENCY_PEN, 0);
+			}
+		}
+
+		drawgfx(helper2, Machine->gfx[1], code, 0, flipx, flipy, sx, sy,
+			&rect, TRANSPARENCY_PEN, 0);
+
+		collision_sprite_sprite_boat |= collision_check(&rect);
+	}
+
+	// check for "sail" sprite
+	for (offs = spriteram_size - 4 * 3; offs >= spriteram_size - (4 * 4); offs -= 4)
+	{
+		int attr = spriteram[offs + 2];
+		int bank = (attr & 0x30) >> 4;
+		int code = (spriteram[offs] & 0x3f) | (bank << 6);
+		int flipx = spriteram[offs] & 0x40;
+		int flipy = spriteram[offs] & 0x80;
+		int sx = spriteram[offs + 3] + 1;
+		int sy = 240 - spriteram[offs + 1];
+		rectangle rect;
+
+		code |= rougien_gfxbank1 * 0x2800;
+		code |= rougien_gfxbank2 * 0x2400;
+
+		if (flip_screen_x)
+		{
+			flipx = !flipx;
+			sx = 240 - sx;
+		}
+
+		if (flip_screen_y)
+		{
+			flipy = !flipy;
+			sy = 240 - sy;
+		}
+
+		rect.min_x = sx;
+		rect.min_y = sy;
+		rect.max_x = sx + Machine->gfx[1]->width - 1;
+		rect.max_y = sy + Machine->gfx[1]->height - 1;
+
+		if (rect.min_x < visarea->min_x)
+			rect.min_x = visarea->min_x;
+		if (rect.min_y < visarea->min_y)
+			rect.min_y = visarea->min_y;
+		if (rect.max_x > visarea->max_x)
+			rect.max_x = visarea->max_x;
+		if (rect.max_y > visarea->max_y)
+			rect.max_y = visarea->max_y;
+
+		// check collision sprite "sail" - sprite
+		fillbitmap(helper, 0, &rect);
+		fillbitmap(helper2, 0, &rect);
+
+		for (offs2 = spriteram_size - (4 * 6) - 4; offs2 >= 0; offs2 -= 4)
+		{
+			if (offs != offs2)
+			{
+				int attr2 = spriteram[offs2 + 2];
+				int bank2 = (attr2 & 0x30) >> 4;
+				int code2 = (spriteram[offs2] & 0x3f) | (bank2 << 6);
+				int flipx2 = spriteram[offs2] & 0x40;
+				int flipy2 = spriteram[offs2] & 0x80;
+				int sx2 = spriteram[offs2 + 3] + 1;
+				int sy2 = 240 - spriteram[offs2 + 1];
+
+				code2 |= rougien_gfxbank1 * 0x2800;
+				code2 |= rougien_gfxbank2 * 0x2400;
+
+				if (flip_screen_x)
+				{
+					flipx2 = !flipx2;
+					sx2 = 240 - sx2;
+				}
+
+				if (flip_screen_y)
+				{
+					flipy2 = !flipy2;
+					sy2 = 240 - sy2;
+				}
+
+				drawgfx(helper, Machine->gfx[1], code2, 1, flipx2, flipy2, sx2, sy2,
+					&rect, TRANSPARENCY_PEN, 0);
+			}
+		}
+
+		drawgfx(helper2, Machine->gfx[1], code, 0, flipx, flipy, sx, sy,
+			&rect, TRANSPARENCY_PEN, 0);
+
+		collision_sprite_sprite_wind |= collision_check(&rect);
+	}
 }
