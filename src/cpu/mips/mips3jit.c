@@ -49,12 +49,13 @@
 
 struct jit_block
 {
+	void *		code;
+	void *		entry;			/* where a block leaving for this one jumps in (after the prologue) */
 	UINT32		pc;				/* MIPS address of the first instruction */
 	UINT32		len;			/* instructions (cycles) in the block, 0 = not translatable */
 	UINT32		lastpc;			/* MIPS address of the last instruction executed */
 	UINT8		valid;
-	void *		code;
-	void *		entry;			/* where a block leaving for this one jumps in (after the prologue) */
+	UINT8		pad[3];
 };
 #define JIT_TABLE_BITS 16
 #define JIT_TABLE_SIZE (1 << JIT_TABLE_BITS)
