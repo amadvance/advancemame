@@ -100,8 +100,10 @@
 /* on JP and JR opcodes check for tight loops */
 #define BUSY_LOOP_HACKS		1
 
-/* check for delay loops counting down BC */
-#define TIME_LOOP_HACKS		0
+/* Shortcuts for DEC rr / LD A,r / OR r / JR NZ or JP NZ delay loops.
+   Observed in Arabian (BC/JR), Athena and Galivan (DE/JR), HAL21 (DE/JR,
+   HL/JR), ASO (DE/JP, HL/JP), and Big Event Golf (HL/JP). */
+#define TIME_LOOP_HACKS		1
 
 #ifdef X86_ASM
 #undef	BIG_FLAGS_ARRAY
@@ -3226,6 +3228,7 @@ if( BC > 1 && PCD < 0xfffc ) {										\
 		if( op3==0x20 && op4==0xfb )								\
 		{															\
 			int cnt =												\
+				cc[Z80_TABLE_op][0x0b] +							\
 				cc[Z80_TABLE_op][0x78] +							\
 				cc[Z80_TABLE_op][0xb1] +							\
 				cc[Z80_TABLE_op][0x20] +							\
@@ -3244,6 +3247,7 @@ if( BC > 1 && PCD < 0xfffc ) {										\
 			if( (ad1 + 256 * ad2) == (PCD - 1) )					\
 			{														\
 				int cnt =											\
+					cc[Z80_TABLE_op][0x0b] +						\
 					cc[Z80_TABLE_op][0x78] +						\
 					cc[Z80_TABLE_op][0xb1] +						\
 					cc[Z80_TABLE_op][0xc2] +						\
@@ -3269,6 +3273,7 @@ if( DE > 1 && PCD < 0xfffc ) {										\
 		if( op3==0x20 && op4==0xfb )								\
 		{															\
 			int cnt =												\
+				cc[Z80_TABLE_op][0x1b] +							\
 				cc[Z80_TABLE_op][0x7a] +							\
 				cc[Z80_TABLE_op][0xb3] +							\
 				cc[Z80_TABLE_op][0x20] +							\
@@ -3287,6 +3292,7 @@ if( DE > 1 && PCD < 0xfffc ) {										\
 			if( (ad1 + 256 * ad2) == (PCD - 1) )					\
 			{														\
 				int cnt =											\
+					cc[Z80_TABLE_op][0x1b] +						\
 					cc[Z80_TABLE_op][0x7a] +						\
 					cc[Z80_TABLE_op][0xb3] +						\
 					cc[Z80_TABLE_op][0xc2] +						\
@@ -3312,6 +3318,7 @@ if( HL > 1 && PCD < 0xfffc ) {										\
 		if( op3==0x20 && op4==0xfb )								\
 		{															\
 			int cnt =												\
+				cc[Z80_TABLE_op][0x2b] +							\
 				cc[Z80_TABLE_op][0x7c] +							\
 				cc[Z80_TABLE_op][0xb5] +							\
 				cc[Z80_TABLE_op][0x20] +							\
@@ -3330,6 +3337,7 @@ if( HL > 1 && PCD < 0xfffc ) {										\
 			if( (ad1 + 256 * ad2) == (PCD - 1) )					\
 			{														\
 				int cnt =											\
+					cc[Z80_TABLE_op][0x2b] +						\
 					cc[Z80_TABLE_op][0x7c] +						\
 					cc[Z80_TABLE_op][0xb5] +						\
 					cc[Z80_TABLE_op][0xc2] +						\
