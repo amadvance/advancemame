@@ -956,6 +956,11 @@ static READ32_HANDLER(diehard_slave_speedup_r)
 
 DRIVER_INIT(diehard)
 {
+	UINT8 *rom = memory_region(REGION_USER1);
+
+	/* Allow cartridge to boot on default Japanese ST-V BIOS (originally "UET ") */
+	memcpy(&rom[0x40], "JUET", 4);
+
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x060986ac, 0x060986af, 0, 0, diehard_speedup_r );
 	//memory_install_read32_handler(1, ADDRESS_SPACE_PROGRAM, 0x060e0be0, 0x060e0be3, 0, 0, diehard_slave_speedup_r );
 
