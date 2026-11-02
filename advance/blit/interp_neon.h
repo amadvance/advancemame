@@ -181,10 +181,59 @@ static inline uint32x4_t interp_32_dist3_neon(uint32x4_t a, uint32x4_t b, uint32
 	return vaddq_u32(interp_32_dist_neon(a, b), interp_32_dist_neon(b, c));
 }
 
+/* Common edge scores for XBR2, XBR3 and XBR4. */
+static inline uint16x8_t interp_16_565_score_neon(uint16x8_t a, uint16x8_t b, uint16x8_t c, uint16x8_t d, uint16x8_t e, uint16x8_t f, uint16x8_t g, uint16x8_t h)
+{
+	uint16x8_t x = vaddq_u16(interp_16_565_dist3_neon(a, b, c), interp_16_565_dist3_neon(d, e, f));
+	uint16x8_t y = vshlq_n_u16(interp_16_565_dist_neon(g, h), 2);
+	return vaddq_u16(x, y);
+}
+
+static inline uint16x8_t interp_16_555_score_neon(uint16x8_t a, uint16x8_t b, uint16x8_t c, uint16x8_t d, uint16x8_t e, uint16x8_t f, uint16x8_t g, uint16x8_t h)
+{
+	uint16x8_t x = vaddq_u16(interp_16_555_dist3_neon(a, b, c), interp_16_555_dist3_neon(d, e, f));
+	uint16x8_t y = vshlq_n_u16(interp_16_555_dist_neon(g, h), 2);
+	return vaddq_u16(x, y);
+}
+
+/*
+ * RGB32: dist(a,b) + dist(b,c) + dist(d,e) + dist(e,f) + 4*dist(g,h).
+ * Bytes are B, G, R, ignored alpha; weights are 1, 6, 3, 0.
+ * Accumulate all five byte-wise weighted distances in 16-bit lanes and
+ * reduce once at the end. The maximum partial lane is 255*6*8=12240,
+ * safely within unsigned and signed 16-bit range.
+ * Works with ARMv7 NEON and AArch64 NEON.
+ */
+static inline uint32x4_t interp_32_score_neon(uint32x4_t a, uint32x4_t b, uint32x4_t c, uint32x4_t d, uint32x4_t e, uint32x4_t f, uint32x4_t g, uint32x4_t h)
+{
+	const uint8x8_t w = vreinterpret_u8_u32(vdup_n_u32(0x00030601U));
+	const uint8x8_t w4 = vreinterpret_u8_u32(vdup_n_u32(0x000C1804U));
+	uint8x16_t x0 = vabdq_u8(vreinterpretq_u8_u32(a), vreinterpretq_u8_u32(b));
+	uint8x16_t x1 = vabdq_u8(vreinterpretq_u8_u32(b), vreinterpretq_u8_u32(c));
+	uint8x16_t x2 = vabdq_u8(vreinterpretq_u8_u32(d), vreinterpretq_u8_u32(e));
+	uint8x16_t x3 = vabdq_u8(vreinterpretq_u8_u32(e), vreinterpretq_u8_u32(f));
+	uint8x16_t x4 = vabdq_u8(vreinterpretq_u8_u32(g), vreinterpretq_u8_u32(h));
+
+	uint16x8_t lo = vmull_u8(vget_low_u8(x0), w);
+	lo = vmlal_u8(lo, vget_low_u8(x1), w);
+	lo = vmlal_u8(lo, vget_low_u8(x2), w);
+	lo = vmlal_u8(lo, vget_low_u8(x3), w);
+	lo = vmlal_u8(lo, vget_low_u8(x4), w4);
+
+	uint16x8_t hi = vmull_u8(vget_high_u8(x0), w);
+	hi = vmlal_u8(hi, vget_high_u8(x1), w);
+	hi = vmlal_u8(hi, vget_high_u8(x2), w);
+	hi = vmlal_u8(hi, vget_high_u8(x3), w);
+	hi = vmlal_u8(hi, vget_high_u8(x4), w4);
+
+	uint16x4_t p0 = vpadd_u16(vget_low_u16(lo), vget_high_u16(lo));
+	uint16x4_t p1 = vpadd_u16(vget_low_u16(hi), vget_high_u16(hi));
+	return vcombine_u32(vpaddl_u16(p0), vpaddl_u16(p1));
+}
+
 static inline uint32x4_t interp_32_11_neon(uint32x4_t a, uint32x4_t b)
 {
-	const uint32x4_t mask = vdupq_n_u32(0xFF7F7F7FU);
-	return vaddq_u32(vandq_u32(vshrq_n_u32(veorq_u32(a, b), 1), mask), vandq_u32(a, b));
+	return vreinterpretq_u32_u8(vhaddq_u8(vreinterpretq_u8_u32(a), vreinterpretq_u8_u32(b)));
 }
 
 static inline uint32x4_t interp_32_31_neon(uint32x4_t a, uint32x4_t b)
@@ -196,10 +245,8 @@ static inline uint32x4_t interp_32_71_neon(uint32x4_t a, uint32x4_t b)
 {
 	uint8x16_t x = vreinterpretq_u8_u32(a);
 	uint8x16_t y = vreinterpretq_u8_u32(b);
-	uint8x8_t w = vdup_n_u8(7);
-	uint16x8_t lo = vaddw_u8(vmull_u8(vget_low_u8(x), w), vget_low_u8(y));
-	uint16x8_t hi = vaddw_u8(vmull_u8(vget_high_u8(x), w), vget_high_u8(y));
-	return vreinterpretq_u32_u8(vcombine_u8(vshrn_n_u16(lo, 3), vshrn_n_u16(hi, 3)));
+
+	return vreinterpretq_u32_u8(vhaddq_u8(x, vhaddq_u8(x, vhaddq_u8(x, y))));
 }
 
 static inline void interp_16_store3_neon(interp_uint16* dst, uint16x8_t a, uint16x8_t b, uint16x8_t c)
@@ -242,8 +289,7 @@ static inline void interp_32_store4_neon(interp_uint32* dst, uint32x4_t a, uint3
 
 static inline int interp_16_64_any_neon(uint16x4_t mask)
 {
-	return (vget_lane_u16(mask, 0) | vget_lane_u16(mask, 1) |
-	       vget_lane_u16(mask, 2) | vget_lane_u16(mask, 3)) != 0;
+	return (vget_lane_u16(mask, 0) | vget_lane_u16(mask, 1) | vget_lane_u16(mask, 2) | vget_lane_u16(mask, 3)) != 0;
 }
 
 static inline int interp_32_64_any_neon(uint32x2_t mask)
@@ -402,6 +448,40 @@ static inline uint32x2_t interp_32_64_dist3_neon(uint32x2_t a, uint32x2_t b, uin
 	return vadd_u32(interp_32_64_dist_neon(a, b), interp_32_64_dist_neon(b, c));
 }
 
+/* ARMv7: XBR edge scores for 64-bit input/output vectors. */
+static inline uint16x4_t interp_16_565_64_score_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c, uint16x4_t d, uint16x4_t e, uint16x4_t f, uint16x4_t g, uint16x4_t h)
+{
+	uint16x4_t x = vadd_u16(interp_16_565_64_dist3_neon(a, b, c), interp_16_565_64_dist3_neon(d, e, f));
+	return vadd_u16(x, vshl_n_u16(interp_16_565_64_dist_neon(g, h), 2));
+}
+
+static inline uint16x4_t interp_16_555_64_score_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c, uint16x4_t d, uint16x4_t e, uint16x4_t f, uint16x4_t g, uint16x4_t h)
+{
+	uint16x4_t x = vadd_u16(interp_16_555_64_dist3_neon(a, b, c), interp_16_555_64_dist3_neon(d, e, f));
+	return vadd_u16(x, vshl_n_u16(interp_16_555_64_dist_neon(g, h), 2));
+}
+
+/* Accumulate all five RGB32 distances at 16-bit precision, then reduce. */
+static inline uint32x2_t interp_32_64_score_neon(uint32x2_t a, uint32x2_t b, uint32x2_t c, uint32x2_t d, uint32x2_t e, uint32x2_t f, uint32x2_t g, uint32x2_t h)
+{
+	const uint8x8_t w = vreinterpret_u8_u32(vdup_n_u32(0x00030601U));
+	const uint8x8_t w4 = vreinterpret_u8_u32(vdup_n_u32(0x000C1804U));
+	uint8x8_t x0 = vabd_u8(vreinterpret_u8_u32(a), vreinterpret_u8_u32(b));
+	uint8x8_t x1 = vabd_u8(vreinterpret_u8_u32(b), vreinterpret_u8_u32(c));
+	uint8x8_t x2 = vabd_u8(vreinterpret_u8_u32(d), vreinterpret_u8_u32(e));
+	uint8x8_t x3 = vabd_u8(vreinterpret_u8_u32(e), vreinterpret_u8_u32(f));
+	uint8x8_t x4 = vabd_u8(vreinterpret_u8_u32(g), vreinterpret_u8_u32(h));
+
+	uint16x8_t sum = vmull_u8(x0, w);
+	sum = vmlal_u8(sum, x1, w);
+	sum = vmlal_u8(sum, x2, w);
+	sum = vmlal_u8(sum, x3, w);
+	sum = vmlal_u8(sum, x4, w4);
+
+	uint16x4_t pairs = vpadd_u16(vget_low_u16(sum), vget_high_u16(sum));
+	return vpaddl_u16(pairs);
+}
+
 static inline uint32x2_t interp_32_64_11_neon(uint32x2_t a, uint32x2_t b)
 {
 	const uint32x2_t mask = vdup_n_u32(0xFF7F7F7FU);
@@ -422,6 +502,5 @@ static inline uint32x2_t interp_32_64_71_neon(uint32x2_t a, uint32x2_t b)
 	return vreinterpret_u32_u8(vshrn_n_u16(sum, 3));
 }
 
-#endif /* CONFIG_NEON || CONFIG_NEON32 */
-#endif /* __INTERP_NEON_H */
-
+#endif
+#endif

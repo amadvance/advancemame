@@ -40,8 +40,8 @@
 	do { \
 		__m128i _gate = _mm_andnot_si128(_mm_or_si128(eq((PE), (PH)), eq((PE), (PF))), _mm_set1_epi32(-1)); \
 		if (!_mm_testz_si128(_gate, _gate)) { \
-			__m128i _e = add(add(interp_ ## fmt ## _dist3_sse((PC), (PE), (PG)), interp_ ## fmt ## _dist3_sse((H5), (PI), (F4))), shl(interp_ ## fmt ## _dist_sse((PH), (PF)), 2)); \
-			__m128i _i = add(add(interp_ ## fmt ## _dist3_sse((PD), (PH), (I5)), interp_ ## fmt ## _dist3_sse((I4), (PF), (PB))), shl(interp_ ## fmt ## _dist_sse((PE), (PI)), 2)); \
+			__m128i _e = interp_ ## fmt ## _score_sse((PC), (PE), (PG), (H5), (PI), (F4), (PH), (PF)); \
+			__m128i _i = interp_ ## fmt ## _score_sse((PD), (PH), (I5), (I4), (PF), (PB), (PE), (PI)); \
 			__m128i _active = _mm_and_si128(_gate, gt(_i, _e)); \
 			if (!_mm_testz_si128(_active, _active)) { \
 				__m128i _ke = interp_ ## fmt ## _dist_sse((PF), (PG)); \

@@ -59,6 +59,13 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_16_565_dist3_sse(
 	return _mm_add_epi16(interp_16_565_dist_sse(a, b), interp_16_565_dist_sse(b, c));
 }
 
+__attribute__((target("sse4.1"))) static inline __m128i interp_16_565_score_sse(__m128i a, __m128i b, __m128i c, __m128i d, __m128i e, __m128i f, __m128i g, __m128i h)
+{
+	__m128i x = _mm_add_epi16(interp_16_565_dist3_sse(a, b, c), interp_16_565_dist3_sse(d, e, f));
+	__m128i y = _mm_slli_epi16(interp_16_565_dist_sse(g, h), 2);
+	return _mm_add_epi16(x, y);
+}
+
 __attribute__((target("sse4.1"))) static inline __m128i interp_16_565_11_sse(__m128i a, __m128i b)
 {
 	return _mm_add_epi16(_mm_and_si128(_mm_srli_epi16(_mm_xor_si128(a, b), 1), _mm_set1_epi16(0x7BEF)), _mm_and_si128(a, b));
@@ -117,6 +124,13 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_16_555_dist3_sse(
 	return _mm_add_epi16(interp_16_555_dist_sse(a, b), interp_16_555_dist_sse(b, c));
 }
 
+__attribute__((target("sse4.1"))) static inline __m128i interp_16_555_score_sse(__m128i a, __m128i b, __m128i c, __m128i d, __m128i e, __m128i f, __m128i g, __m128i h)
+{
+	__m128i x = _mm_add_epi16(interp_16_555_dist3_sse(a, b, c), interp_16_555_dist3_sse(d, e, f));
+	__m128i y = _mm_slli_epi16(interp_16_555_dist_sse(g, h), 2);
+	return _mm_add_epi16(x, y);
+}
+
 __attribute__((target("sse4.1"))) static inline __m128i interp_16_555_11_sse(__m128i a, __m128i b)
 {
 	return _mm_add_epi16(_mm_and_si128(_mm_srli_epi16(_mm_xor_si128(a, b), 1), _mm_set1_epi16(0x3DEF)), _mm_and_si128(a, b));
@@ -151,24 +165,54 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_16_555_71_sse(__m
 	return interp_16_555_weight_sse(a, b, 7, 3);
 }
 
-__attribute__((target("sse4.1"))) static inline __m128i interp_32_dist_sse(__m128i a, __m128i b)
+/*
+ * Partial RGB32 distance:
+ *   low 16 bits: B + 6 * G
+ *   high 16 bits: 3 * R
+ *
+ * Two signed 16-bit lanes per pixel.
+ */
+__attribute__((target("sse4.1"))) static inline __m128i interp_32_dist16_sse(__m128i a, __m128i b)
 {
 	const __m128i weights = _mm_set1_epi32(0x00030601);
-	const __m128i ones = _mm_set1_epi16(1);
 	__m128i d = _mm_sub_epi8(_mm_max_epu8(a, b), _mm_min_epu8(a, b));
-	__m128i p = _mm_maddubs_epi16(d, weights);
-	return _mm_madd_epi16(p, ones);
+	return _mm_maddubs_epi16(d, weights);
+}
+
+__attribute__((target("sse4.1"))) static inline __m128i interp_32_dist_sse(__m128i a, __m128i b)
+{
+	return _mm_madd_epi16(interp_32_dist16_sse(a, b), _mm_set1_epi16(1));
 }
 
 __attribute__((target("sse4.1"))) static inline __m128i interp_32_dist3_sse(__m128i a, __m128i b, __m128i c)
 {
-	return _mm_add_epi32(interp_32_dist_sse(a, b), interp_32_dist_sse(b, c));
+	__m128i x = interp_32_dist16_sse(a, b);
+	__m128i y = interp_32_dist16_sse(b, c);
+	return _mm_madd_epi16(_mm_add_epi16(x, y), _mm_set1_epi16(1));
+}
+
+/*
+ * dist(a,b) + dist(b,c) + dist(d,e) + dist(e,f) + 4 * dist(g,h)
+ *
+ * Accumulate in 16-bit lanes and reduce to 32 bits only once.
+ */
+__attribute__((target("sse4.1"))) static inline __m128i interp_32_score_sse(__m128i a, __m128i b, __m128i c, __m128i d, __m128i e, __m128i f, __m128i g, __m128i h)
+{
+	__m128i x0 = interp_32_dist16_sse(a, b);
+	__m128i x1 = interp_32_dist16_sse(b, c);
+	__m128i x2 = interp_32_dist16_sse(d, e);
+	__m128i x3 = interp_32_dist16_sse(e, f);
+	__m128i x4 = interp_32_dist16_sse(g, h);
+	__m128i s0 = _mm_add_epi16(x0, x1);
+	__m128i s1 = _mm_add_epi16(x2, x3);
+	__m128i s2 = _mm_slli_epi16(x4, 2);
+	__m128i sum = _mm_add_epi16(_mm_add_epi16(s0, s1), s2);
+	return _mm_madd_epi16(sum, _mm_set1_epi16(1));
 }
 
 __attribute__((target("sse4.1"))) static inline __m128i interp_32_11_sse(__m128i a, __m128i b)
 {
-	const __m128i mask = _mm_set1_epi32((int)0xFF7F7F7FU);
-	return _mm_add_epi32(_mm_and_si128(_mm_srli_epi32(_mm_xor_si128(a, b), 1), mask), _mm_and_si128(a, b));
+	return _mm_avg_epu8(a, b);
 }
 
 __attribute__((target("sse4.1"))) static inline __m128i interp_32_31_sse(__m128i a, __m128i b)
