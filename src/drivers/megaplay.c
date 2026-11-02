@@ -41,7 +41,7 @@ Only a handful of games were released for this system.
 #define MP_ROM  0x10
 #define MP_GAME 0
 
-static unsigned int bios_bank; // ROM bank selection
+unsigned char bios_bank; // ROM bank selection
 static unsigned short game_banksel;  // Game bank selection
 static unsigned int bios_mode = MP_ROM;  // determines whether ROM banks or Game data
                                   // is to read from 0x8000-0xffff
@@ -57,6 +57,7 @@ static unsigned char ic37_ram[0x8000];
 UINT16 *ic36_ram;
 
 static unsigned int readpos = 1;  // serial bank selection position (9-bit)
+static UINT32 mp_bios_bank_addr;
 
 
 static MACHINE_RESET( megaplay )
@@ -68,8 +69,57 @@ static MACHINE_RESET( megaplay )
 	memory_set_bankptr(2, &ic36_ram[0]);
 	memory_set_bankptr(3, &genesis_68k_ram[0]);
 
+	bios_bank = 0x30;
+	bios_mode = MP_ROM;
+	mp_bios_bank_addr = 0;
+	readpos = 1;
+
 	machine_reset_genesis();
+	megaplay_enable_iack();
 }
+
+#define MEGAPLAY_GENESIS_PORTS \
+	PORT_START \
+ \
+	PORT_START	/* Player 1 Controls - part 1 */ \
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) \
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) \
+	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) \
+	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) \
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) \
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON3 ) \
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNUSED ) \
+ \
+	PORT_START	/* Player 1 Controls - part 2 */ \
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x04, IP_ACTIVE_HIGH, IPT_UNUSED ) \
+	PORT_BIT(  0x08, IP_ACTIVE_HIGH, IPT_UNUSED ) \
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) \
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNUSED ) \
+ \
+	PORT_START	/* Player 2 Controls - part 1 */ \
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2) \
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2) \
+	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2) \
+	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT  ) PORT_PLAYER(2) \
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2) \
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2) \
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNUSED ) \
+ \
+	PORT_START	/* Player 2 Controls - part 2 */ \
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x04, IP_ACTIVE_HIGH, IPT_UNUSED ) \
+	PORT_BIT(  0x08, IP_ACTIVE_HIGH, IPT_UNUSED ) \
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) \
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNUSED ) \
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNUSED )
 
 
 #define MEGAPLAY_TEST \
@@ -134,7 +184,7 @@ static MACHINE_RESET( megaplay )
     PORT_DIPSETTING( 0x00, " 1 coin/1 credit" )
 
 INPUT_PORTS_START ( megaplay )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -143,7 +193,7 @@ INPUT_PORTS_START ( megaplay )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_sonic )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -171,7 +221,7 @@ INPUT_PORTS_START ( mp_sonic )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_gaxe2 )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -204,7 +254,7 @@ INPUT_PORTS_START ( mp_gaxe2 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_col3 )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -235,7 +285,7 @@ INPUT_PORTS_START ( mp_col3 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_twc )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -260,7 +310,7 @@ INPUT_PORTS_START ( mp_twc )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_sor2 )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -283,7 +333,7 @@ INPUT_PORTS_START ( mp_sor2 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_bio )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -306,7 +356,7 @@ INPUT_PORTS_START ( mp_bio )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_gslam )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -332,7 +382,7 @@ INPUT_PORTS_START ( mp_gslam )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_mazin )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -340,26 +390,22 @@ INPUT_PORTS_START ( mp_mazin )
 
 	PORT_START
 	// DSW C  (per game settings)
-	PORT_DIPNAME( 0x01, 0x01, "DSW C-1" )
-    PORT_DIPSETTING( 0x01, DEF_STR ( Off ) )
-    PORT_DIPSETTING( 0x00, DEF_STR ( On ) )
-
-	PORT_DIPNAME( 0x02, 0x02, "DSW C-2" )
-    PORT_DIPSETTING( 0x02, DEF_STR ( Off ) )
-    PORT_DIPSETTING( 0x00, DEF_STR ( On ) )
-
-	PORT_DIPNAME( 0x04, 0x04, "DSW C-3" )
-    PORT_DIPSETTING( 0x04, DEF_STR ( Off ) )
-    PORT_DIPSETTING( 0x00, DEF_STR ( On ) )
-
-	PORT_DIPNAME( 0x08, 0x08, "DSW C-4" )
-    PORT_DIPSETTING( 0x08, DEF_STR ( Off ) )
-    PORT_DIPSETTING( 0x00, DEF_STR ( On ) )
+	PORT_DIPNAME( 0x03, 0x01, "Initial Player" )
+	PORT_DIPSETTING( 0x02, "1" )
+	PORT_DIPSETTING( 0x03, "2" )
+	PORT_DIPSETTING( 0x01, "3" )
+	PORT_DIPSETTING( 0x00, "4" )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR ( Difficulty ) )
+	PORT_DIPSETTING( 0x04, DEF_STR ( Normal ) )
+	PORT_DIPSETTING( 0x00, DEF_STR ( Hard ) )
+	PORT_DIPNAME( 0x08, 0x08, "Title" )
+	PORT_DIPSETTING( 0x08, "EUROPE" )
+	PORT_DIPSETTING( 0x00, "U.S.A" )
 
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_soni2 )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -382,7 +428,7 @@ INPUT_PORTS_START ( mp_soni2 )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START ( mp_shnb3 )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -404,7 +450,7 @@ static INPUT_PORTS_START ( mp_shnb3 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START ( mp_gunhe )
-	GENESIS_PORTS
+	MEGAPLAY_GENESIS_PORTS
 	MEGAPLAY_TEST
 	MEGAPLAY_COIN
 	MEGAPLAY_DSWA
@@ -460,51 +506,61 @@ static WRITE8_HANDLER( megaplay_bios_gamesel_w )
 
 static READ8_HANDLER( bank_r )
 {
+	UINT32 fulladdress = mp_bios_bank_addr + offset;
 	UINT8* bank = memory_region(REGION_CPU3);
-	UINT8* game = memory_region(REGION_CPU1);
 
-	if(game_banksel == 0x142) // Genesis I/O
-		return megaplay_genesis_io_r((offset/2) & 0x1f, 0xffff);
-
-	if(bios_mode & MP_ROM)
+	if (fulladdress <= 0x3fffff) // ROM addresses
 	{
-		int sel = (bios_bank >> 6) & 0x03;
+		if (bios_mode == MP_ROM)
+		{
+			int sel = (bios_bank >> 6) & 0x03;
 
-//      ui_popup("Reading from Bank %i",sel);
-
-		if(sel == 0)
-			return 0xff;
+			if (sel == 0)
+				return 0xff;
+			else
+				return bank[0x10000 + (sel - 1) * 0x8000 + offset];
+		}
+		else if (bios_width & 0x08)
+		{
+			if (offset >= 0x2000)
+				return ((UINT8 *)ic36_ram)[offset - 0x2000];
+			else
+				return ic37_ram[(0x2000 * (bios_bank & 0x03)) + offset];
+		}
 		else
-			return bank[0x10000 + (sel-1)*0x8000 + offset];
+		{
+			return memory_region(REGION_CPU1)[fulladdress ^ 0x01];
+		}
+	}
+	else if (fulladdress >= 0xa10000 && fulladdress <= 0xa1001f) // IO access
+	{
+		return megaplay_genesis_io_r((offset & 0x1f) / 2, 0xffff);
 	}
 	else
 	{
-		if(game_banksel == 0x60 || game_banksel == 0x61)  /* read game info ROM */
-			if(bios_width & 0x08)
-			{
-				if(offset >= 0x2000)
-					return ic36_ram[offset - 0x2000];
-				else
-					return ic37_ram[(0x2000 * (bios_bank & 0x03)) + offset];
-			}
-			else
-				return game[((game_banksel)*0x8000 + offset)];
-		else
-			return game[(game_banksel*0x8000 + (offset ^ 0x01))];
+		return 0x00;
 	}
 }
 
 static WRITE8_HANDLER ( bank_w )
 {
-	if(game_banksel == 0x142) // Genesis I/O
-		genesis_io_w((offset/2) & 0x1f, data, 0xffff);
+	UINT32 fulladdress = mp_bios_bank_addr + offset;
 
-	if(offset <= 0x1fff && (bios_width & 0x08))
-		ic37_ram[(0x2000 * (bios_bank & 0x03)) + offset] = data;
-
-	if(offset >= 0x2000 && (bios_width & 0x08))
-//      ic36_ram[offset] = data;
-		ic36_ram[offset - 0x2000] = data;
+	if (fulladdress <= 0x3fffff && (bios_width & 0x08)) // ROM / Megaplay Custom Addresses
+	{
+		if (offset <= 0x1fff)
+		{
+			ic37_ram[(0x2000 * (bios_bank & 0x03)) + offset] = data;
+		}
+		else
+		{
+			((UINT8 *)ic36_ram)[offset - 0x2000] = data;
+		}
+	}
+	else if (fulladdress >= 0xa10000 && fulladdress <= 0xa1001f) // IO Access
+	{
+		genesis_io_w((offset & 0x1f) / 2, data, 0xffff);
+	}
 }
 
 
@@ -523,9 +579,7 @@ static WRITE8_HANDLER( megaplay_bios_6402_w )
 
 static READ8_HANDLER( megaplay_bios_6404_r )
 {
-//  logerror("BIOS: 0x6404 read: returned 0x%02x\n",bios_6404 | (bios_6403 & 0x10) >> 4);
-	return (bios_6404 & 0xfe) | ((bios_6403 & 0x10) >> 4);
-//  return bios_6404 | (bios_6403 & 0x10) >> 4;
+	return ((bios_6403 & 0x10) >> 4);
 }
 
 static WRITE8_HANDLER( megaplay_bios_6404_w )
@@ -582,6 +636,8 @@ static WRITE8_HANDLER( megaplay_game_w )
 //      ui_popup("Game bank selected: 0x%03x",game_banksel);
 		logerror("BIOS [0x%04x]: 68K address space bank selected: 0x%03x\n",activecpu_get_previouspc(),game_banksel);
 	}
+
+	mp_bios_bank_addr = ((mp_bios_bank_addr >> 1) | (data << 23)) & 0xff8000;
 }
 
 
@@ -676,7 +732,7 @@ static MACHINE_DRIVER_START( megaplay )
 	/* basic machine hardware */
 	MDRV_CPU_ADD_TAG("main", M68000, MASTER_CLOCK / 7)
 	MDRV_CPU_PROGRAM_MAP(megaplay_genesis_readmem, genesis_writemem)
-	MDRV_CPU_VBLANK_INT(genesis_vblank_interrupt,1)
+	MDRV_CPU_VBLANK_INT(megaplay_vblank_interrupt,1)
 
 	MDRV_CPU_ADD_TAG("sound", Z80, MASTER_CLOCK / 15)
 	MDRV_CPU_PROGRAM_MAP(megaplay_z80_readmem, megaplay_z80_writemem)
@@ -935,22 +991,14 @@ didn't have original Sega part numbers it's probably a converted TWC cart
 /* -- */ GAMEB( 1993, megaplay, 0,        megaplay, megaplay, megaplay, megaplay, ROT0, "Sega",                  "Mega Play BIOS", NOT_A_DRIVER )
 /* 01 */ GAMEB( 1993, mp_sonic, megaplay, megaplay, megaplay, mp_sonic, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog (Mega Play)" , 0 )
 /* 02 */ GAMEB( 1993, mp_gaxe2, megaplay, megaplay, megaplay, mp_gaxe2, megaplay, ROT0, "Sega",                  "Golden Axe II (Mega Play)" , 0 )
-/* 03 */ GAMEB( 1993, mp_gslam, megaplay, megaplay, megaplay, mp_gslam,	megaplay, ROT0, "Sega",                  "Grand Slam (Mega Play)",GAME_NOT_WORKING  )
+/* 03 */ GAMEB( 1993, mp_gslam, megaplay, megaplay, megaplay, mp_gslam,	megaplay, ROT0, "Sega",                  "Grand Slam (Mega Play)", 0 )
 /* 04 */ GAMEB( 1993, mp_twc,   megaplay, megaplay, megaplay, mp_twc,	megaplay, ROT0, "Sega",                  "Tecmo World Cup (Mega Play)" , GAME_NOT_WORKING ) // doesn't boot
 /* 05 */ GAMEB( 1993, mp_sor2,  megaplay, megaplay, megaplay, mp_sor2,	megaplay, ROT0, "Sega",                  "Streets of Rage II (Mega Play)" , 0 )
 /* 06 */ GAMEB( 1993, mp_bio,   megaplay, megaplay, megaplay, mp_bio,	megaplay, ROT0, "Sega",                  "Bio-hazard Battle (Mega Play)" , 0 )
 /* 07 */ GAMEB( 1993, mp_soni2, megaplay, megaplay, megaplay, mp_soni2, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog 2 (Mega Play)" , 0 )
 /* 08 */
 /* 09 */ GAMEB( 1993, mp_shnb3, megaplay, megaplay, megaplay, mp_shnb3, megaplay, ROT0, "Sega",                  "Shinobi III (Mega Play)" , 0 )
-/* 10 */
-/* 11 */ GAMEB( 1993, mp_mazin,   megaplay, megaplay, megaplay, mp_mazin,	megaplay, ROT0, "Sega",                  "Mazin Wars (Mega Play)",GAME_NOT_WORKING  )
+/* 10 */ GAMEB( 1993, mp_gunhe, megaplay, megaplay, megaplay, mp_gunhe, megaplay, ROT0, "Sega",                  "Gunstar Heroes (Mega Play)", 0 )
+/* 11 */ GAMEB( 1993, mp_mazin, megaplay, megaplay, megaplay, mp_mazin,	megaplay, ROT0, "Sega",                  "Mazin Wars / Mazin Saga (Mega Play)", 0 )
 
-/* ?? */ GAMEB( 1993, mp_col3,   megaplay, megaplay, megaplay, mp_col3,	 megaplay, ROT0, "Sega",                  "Columns III (Mega Play)" , 0 )
-/* ?? */ GAMEB( 1993, mp_gunhe,  megaplay, megaplay, megaplay, mp_gunhe, megaplay, ROT0, "Sega",                  "Gunstar Heroes (Mega Play)", GAME_NOT_WORKING ) // player 1 button doesn't work
-
-
-/* Also known to exist:
-Gunstar Heroes
-+ at least 2 others?
-
-*/
+/* ?? */ GAMEB( 1993, mp_col3,  megaplay, megaplay, megaplay, mp_col3,	 megaplay, ROT0, "Sega",                  "Columns III (Mega Play)" , 0 )
