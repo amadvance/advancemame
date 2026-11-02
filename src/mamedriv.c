@@ -3740,6 +3740,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tfrceacb )	/* bootleg */
         DRIVER( tfrceacjpb )   /* Prototype Bootleg */
 	DRIVER( twinsqua )	/* (c) 1991 Sega */
+	DRIVER( soniccar )
 	DRIVER( ribbit )	/* (c) 1991 Sega */
         DRIVER( ssonicbr )      /* (c) 1992 Sega (Unreleased) */
         DRIVER( ooparts )       /* (c) 1992 Sega (Unreleased) */
@@ -3747,6 +3748,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tantrkor )	/* (c) 1992 Sega */
 	DRIVER( tantrbl )	/* bootleg */
 	DRIVER( tantrbl2 )	/* bootleg */
+	DRIVER( wwpajero )
 	DRIVER( puyo )		/* (c) 1992 Sega / Compile */
 	DRIVER( puyobl )	/* bootleg */
 	DRIVER( puyoj )		/* (c) 1992 Sega / Compile */
