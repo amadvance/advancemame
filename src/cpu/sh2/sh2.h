@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Juergen Buchmueller
+// copyright-holders:Juergen Buchmueller, zanac
 /*****************************************************************************
  *
  *   sh2.h
@@ -64,6 +64,17 @@ extern void sh2_get_info(UINT32 state, union cpuinfo *info);
 
 WRITE32_HANDLER( sh2_internal_w );
 READ32_HANDLER( sh2_internal_r );
+
+/* optional recompiler (sh2jit.c): a driver declares the RAM the CPUs run
+   from and read directly ('base': host memory of 'start', as the memory
+   system keeps it), then enables it; anything else stays with the
+   interpreter. Writes the driver makes there by other means than the
+   CPUs (DMA) must be reported with sh2_jit_ram_written. */
+int sh2_jit_available(void);
+void sh2_jit_add_fastram(offs_t start, offs_t end, int readonly, void *base);
+void sh2_jit_set(int enable);
+void sh2_jit_ram_written(UINT32 address, UINT32 bytes);
+extern int sh2_jit_code_present;
 
 #ifdef MAME_DEBUG
 extern unsigned DasmSH2( char *dst, unsigned pc );

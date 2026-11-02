@@ -253,7 +253,7 @@ ifneq ($(filter SH2,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/sh2
 CPUOBJS += $(OBJ)/cpu/sh2/sh2.o
 DBGOBJS += $(OBJ)/cpu/sh2/sh2dasm.o
-$(OBJ)/cpu/sh2/sh2.o: sh2.c sh2.h
+$(OBJ)/cpu/sh2/sh2.o: sh2.c sh2.h sh2jit.c $(srcdir)/src/cpu/jitcache.h
 endif
 
 
