@@ -40,12 +40,8 @@
 	do { \
 		vec _gate = inv(vor(eq((PE), (PH)), eq((PE), (PF)))); \
 		if (any(_gate)) { \
-			vec _e = add(add(interp_ ## fmt ## _dist3_neon((PC), (PE), (PG)), \
-					interp_ ## fmt ## _dist3_neon((H5), (PI), (F4))), \
-					shl(interp_ ## fmt ## _dist_neon((PH), (PF)), 2)); \
-			vec _i = add(add(interp_ ## fmt ## _dist3_neon((PD), (PH), (I5)), \
-					interp_ ## fmt ## _dist3_neon((I4), (PF), (PB))), \
-					shl(interp_ ## fmt ## _dist_neon((PE), (PI)), 2)); \
+			vec _e = interp_ ## fmt ## _score_neon((PC), (PE), (PG), (H5), (PI), (F4), (PH), (PF)); \
+			vec _i = interp_ ## fmt ## _score_neon((PD), (PH), (I5), (I4), (PF), (PB), (PE), (PI)); \
 			vec _active = vand(_gate, gt(_i, _e)); \
 			if (any(_active)) { \
 				vec _ke = interp_ ## fmt ## _dist_neon((PF), (PG)); \
@@ -104,29 +100,54 @@ void xbr2x_16_565_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 {
 	unsigned x = 0;
 
+	if (count == 0)
+		return;
+
+	/* First two pixels need clamped neighborhoods. */
 	for (; x < count && x < 2; ++x)
 		xbr565_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 
-	/* Eight source pixels per SIMD block. The widest source access is x+9. */
+#if defined(CONFIG_NEON)
+	/* 8 source pixels per block using 128-bit vectors. */
 	for (; count - x >= 10; x += 8) {
-#define LD565(row, off) vld1q_u16((row) + x + (off))
-		uint16x8_t A1 = LD565(src0, -1), B1 = LD565(src0, 0), C1 = LD565(src0, 1);
-		uint16x8_t A0 = LD565(src1, -2), PA = LD565(src1, -1), PB = LD565(src1, 0), PC = LD565(src1, 1), C4 = LD565(src1, 2);
-		uint16x8_t D0 = LD565(src2, -2), PD = LD565(src2, -1), PE = LD565(src2, 0), PF = LD565(src2, 1), F4 = LD565(src2, 2);
-		uint16x8_t G0 = LD565(src3, -2), PG = LD565(src3, -1), PH = LD565(src3, 0), PI = LD565(src3, 1), I4 = LD565(src3, 2);
-		uint16x8_t G5 = LD565(src4, -1), H5 = LD565(src4, 0), I5 = LD565(src4, 1);
-#undef LD565
+#define LD(row, off) vld1q_u16((row) + x + (off))
+		uint16x8_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
+		uint16x8_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
+		uint16x8_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
+		uint16x8_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
+		uint16x8_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
+#undef LD
 		uint16x8_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
 		XBR_NEON(16_565, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
 		XBR_NEON(16_565, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
 		XBR_NEON(16_565, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
 		XBR_NEON(16_565, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
-		/* Sequential interleaved stores on both architectures. */
 		interp_16_store2_neon(dst0 + 2 * x, E0, E1);
 		interp_16_store2_neon(dst1 + 2 * x, E2, E3);
 	}
+#elif defined(CONFIG_NEON32)
+	/* 4 source pixels per block using 64-bit vectors. */
+	for (; count - x >= 6; x += 4) {
+#define LD(row, off) vld1_u16((row) + x + (off))
+		uint16x4_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
+		uint16x4_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
+		uint16x4_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
+		uint16x4_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
+		uint16x4_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
+#undef LD
+		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
+		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
+		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
+		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
+		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
+		interp_16_64_store2_neon(dst0 + 2 * x, E0, E1);
+		interp_16_64_store2_neon(dst1 + 2 * x, E2, E3);
+	}
+#endif
+
+	/* Right border and scalar tail. No overlapping destination writes. */
 	for (; x < count; ++x)
 		xbr565_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 }
@@ -164,41 +185,62 @@ void xbr2x_16_555_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 {
 	unsigned x = 0;
 
+	if (count == 0)
+		return;
+
+	/* First two pixels need clamped neighborhoods. */
 	for (; x < count && x < 2; ++x)
 		xbr555_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 
-	/* Eight source pixels per SIMD block. The widest source access is x+9. */
+#if defined(CONFIG_NEON)
+	/* 8 source pixels per block using 128-bit vectors. */
 	for (; count - x >= 10; x += 8) {
-#define LD555(row, off) vld1q_u16((row) + x + (off))
-		uint16x8_t A1 = LD555(src0, -1), B1 = LD555(src0, 0), C1 = LD555(src0, 1);
-		uint16x8_t A0 = LD555(src1, -2), PA = LD555(src1, -1), PB = LD555(src1, 0), PC = LD555(src1, 1), C4 = LD555(src1, 2);
-		uint16x8_t D0 = LD555(src2, -2), PD = LD555(src2, -1), PE = LD555(src2, 0), PF = LD555(src2, 1), F4 = LD555(src2, 2);
-		uint16x8_t G0 = LD555(src3, -2), PG = LD555(src3, -1), PH = LD555(src3, 0), PI = LD555(src3, 1), I4 = LD555(src3, 2);
-		uint16x8_t G5 = LD555(src4, -1), H5 = LD555(src4, 0), I5 = LD555(src4, 1);
-#undef LD555
+#define LD(row, off) vld1q_u16((row) + x + (off))
+		uint16x8_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
+		uint16x8_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
+		uint16x8_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
+		uint16x8_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
+		uint16x8_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
+#undef LD
 		uint16x8_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
 		XBR_NEON(16_555, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
 		XBR_NEON(16_555, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
 		XBR_NEON(16_555, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
 		XBR_NEON(16_555, uint16x8_t, interp_16_any_neon, vceqq_u16, vcgtq_u16, vcleq_u16, vcgeq_u16, vaddq_u16, vshlq_n_u16, vandq_u16, vorrq_u16, vbicq_u16, vmvnq_u16, vbslq_u16, vdupq_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
-		/* Sequential interleaved stores on both architectures. */
 		interp_16_store2_neon(dst0 + 2 * x, E0, E1);
 		interp_16_store2_neon(dst1 + 2 * x, E2, E3);
 	}
+#elif defined(CONFIG_NEON32)
+	/* 4 source pixels per block using 64-bit vectors. */
+	for (; count - x >= 6; x += 4) {
+#define LD(row, off) vld1_u16((row) + x + (off))
+		uint16x4_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
+		uint16x4_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
+		uint16x4_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
+		uint16x4_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
+		uint16x4_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
+#undef LD
+		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
+		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
+		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
+		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
+		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
+		interp_16_64_store2_neon(dst0 + 2 * x, E0, E1);
+		interp_16_64_store2_neon(dst1 + 2 * x, E2, E3);
+	}
+#endif
+
+	/* Right border and scalar tail. No overlapping destination writes. */
 	for (; x < count; ++x)
 		xbr555_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 }
 
-static inline void xbr32_neon_edge_pixel(interp_uint32* restrict dst0,
-	interp_uint32* restrict dst1,
-	const interp_uint32* src0,
-	const interp_uint32* src1,
-	const interp_uint32* src2,
-	const interp_uint32* src3,
-	const interp_uint32* src4,
-	unsigned count, unsigned x)
+static inline void xbr32_neon_edge_pixel(interp_uint32* restrict dst0, interp_uint32* restrict dst1,
+	const interp_uint32* src0, const interp_uint32* src1,
+	const interp_uint32* src2, const interp_uint32* src3,
+	const interp_uint32* src4, unsigned count, unsigned x)
 {
 	unsigned xm2 = x >= 2 ? x - 2 : 0;
 	unsigned xm1 = x >= 1 ? x - 1 : 0;
@@ -210,13 +252,11 @@ static inline void xbr32_neon_edge_pixel(interp_uint32* restrict dst0,
 	interp_uint32 D0 = src2[xm2], PD = src2[xm1], PE = src2[x], PF = src2[xp1], F4 = src2[xp2];
 	interp_uint32 G0 = src3[xm2], PG = src3[xm1], PH = src3[x], PI = src3[xp1], I4 = src3[xp2];
 	interp_uint32 G5 = src4[xm1], H5 = src4[x], I5 = src4[xp1];
-
 	interp_uint32 E0 = PE, E1 = PE, E2 = PE, E3 = PE;
 	XBR2(32, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
 	XBR2(32, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
 	XBR2(32, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
 	XBR2(32, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
-
 	dst0[2 * x] = E0;
 	dst0[2 * x + 1] = E1;
 	dst1[2 * x] = E2;
@@ -233,11 +273,12 @@ void xbr2x_32_neon(interp_uint32* restrict dst0, interp_uint32* restrict dst1,
 	if (count == 0)
 		return;
 
-	/* Left border. No vector may load outside the actual input row. */
+	/* First two pixels need clamped neighborhoods. */
 	for (; x < count && x < 2; ++x)
 		xbr32_neon_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 
-	/* Four source pixels per iteration. Valid columns are x-2 through x+5. */
+#if defined(CONFIG_NEON)
+	/* 4 source pixels per block using 128-bit vectors. */
 	for (; count - x >= 6; x += 4) {
 #define LD(row, off) vld1q_u32((row) + x + (off))
 		uint32x4_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
@@ -247,21 +288,38 @@ void xbr2x_32_neon(interp_uint32* restrict dst0, interp_uint32* restrict dst1,
 		uint32x4_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
 #undef LD
 		uint32x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
-
 		XBR_NEON(32, uint32x4_t, interp_32_any_neon, vceqq_u32, vcgtq_u32, vcleq_u32, vcgeq_u32, vaddq_u32, vshlq_n_u32, vandq_u32, vorrq_u32, vbicq_u32, vmvnq_u32, vbslq_u32, vdupq_n_u32, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
 		XBR_NEON(32, uint32x4_t, interp_32_any_neon, vceqq_u32, vcgtq_u32, vcleq_u32, vcgeq_u32, vaddq_u32, vshlq_n_u32, vandq_u32, vorrq_u32, vbicq_u32, vmvnq_u32, vbslq_u32, vdupq_n_u32, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
 		XBR_NEON(32, uint32x4_t, interp_32_any_neon, vceqq_u32, vcgtq_u32, vcleq_u32, vcgeq_u32, vaddq_u32, vshlq_n_u32, vandq_u32, vorrq_u32, vbicq_u32, vmvnq_u32, vbslq_u32, vdupq_n_u32, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
 		XBR_NEON(32, uint32x4_t, interp_32_any_neon, vceqq_u32, vcgtq_u32, vcleq_u32, vcgeq_u32, vaddq_u32, vshlq_n_u32, vandq_u32, vorrq_u32, vbicq_u32, vmvnq_u32, vbslq_u32, vdupq_n_u32, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
-		/* Sequential interleaved stores on both architectures. */
 		interp_32_store2_neon(dst0 + 2 * x, E0, E1);
 		interp_32_store2_neon(dst1 + 2 * x, E2, E3);
 	}
+#elif defined(CONFIG_NEON32)
+	/* 2 source pixels per block using 64-bit vectors. */
+	for (; count - x >= 4; x += 2) {
+#define LD(row, off) vld1_u32((row) + x + (off))
+		uint32x2_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
+		uint32x2_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
+		uint32x2_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
+		uint32x2_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
+		uint32x2_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
+#undef LD
+		uint32x2_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
+		XBR_NEON(32_64, uint32x2_t, interp_32_64_any_neon, vceq_u32, vcgt_u32, vcle_u32, vcge_u32, vadd_u32, vshl_n_u32, vand_u32, vorr_u32, vbic_u32, vmvn_u32, vbsl_u32, vdup_n_u32, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
+		XBR_NEON(32_64, uint32x2_t, interp_32_64_any_neon, vceq_u32, vcgt_u32, vcle_u32, vcge_u32, vadd_u32, vshl_n_u32, vand_u32, vorr_u32, vbic_u32, vmvn_u32, vbsl_u32, vdup_n_u32, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
+		XBR_NEON(32_64, uint32x2_t, interp_32_64_any_neon, vceq_u32, vcgt_u32, vcle_u32, vcge_u32, vadd_u32, vshl_n_u32, vand_u32, vorr_u32, vbic_u32, vmvn_u32, vbsl_u32, vdup_n_u32, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
+		XBR_NEON(32_64, uint32x2_t, interp_32_64_any_neon, vceq_u32, vcgt_u32, vcle_u32, vcge_u32, vadd_u32, vshl_n_u32, vand_u32, vorr_u32, vbic_u32, vmvn_u32, vbsl_u32, vdup_n_u32, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
 
-	/* Right border and tail: direct writes, no scratch buffers. */
+		interp_32_64_store2_neon(dst0 + 2 * x, E0, E1);
+		interp_32_64_store2_neon(dst1 + 2 * x, E2, E3);
+	}
+#endif
+
+	/* Right border and scalar tail. No overlapping destination writes. */
 	for (; x < count; ++x)
 		xbr32_neon_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 }
 
 #endif
-
