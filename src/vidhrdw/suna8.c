@@ -75,6 +75,9 @@
 
 #define TILEMAPS 0
 
+int suna8_gfxbank;
+static int suna8_video_type;
+
 int suna8_text_dim; /* specifies format of text layer */
 
 UINT8 suna8_rombank, suna8_spritebank, suna8_palettebank;
@@ -184,6 +187,8 @@ WRITE8_HANDLER( brickzn_banked_paletteram_w )
 int suna8_vh_start_common(int dim)
 {
 	suna8_text_dim = dim;
+	suna8_video_type = 0;
+	suna8_gfxbank = 0;
 	if (!(suna8_text_dim > 0))
 	{
 		paletteram	=	auto_malloc(0x200 * 2);
@@ -208,6 +213,23 @@ VIDEO_START( suna8_textdim0 )	{ return suna8_vh_start_common(0);  }
 VIDEO_START( suna8_textdim8 )	{ return suna8_vh_start_common(8);  }
 VIDEO_START( suna8_textdim12 )	{ return suna8_vh_start_common(12); }
 
+VIDEO_START( suna8_sparkman )
+{
+	int result = suna8_vh_start_common(0);
+	suna8_video_type = 1;
+	/* two sprite chips each retain two banks of RAM */
+	spriteram = auto_malloc(0x8000);
+	memset(spriteram, 0, 0x8000);
+	return result;
+}
+
+VIDEO_START( suna8_starfigh )
+{
+	int result = suna8_vh_start_common(0);
+	suna8_video_type = 2;
+	return result;
+}
+
 /***************************************************************************
 
 
@@ -216,9 +238,10 @@ VIDEO_START( suna8_textdim12 )	{ return suna8_vh_start_common(12); }
 
 ***************************************************************************/
 
-void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
+void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect, int gfx)
 {
 	int i;
+	UINT8 *sprites = spriteram + gfx * 0x4000;
 	int mx = 0;	// multisprite x counter
 
 	int max_x	=	Machine->drv->screen_width	- 8;
@@ -229,10 +252,10 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 		int srcpg, srcx,srcy, dimx,dimy, tx, ty;
 		int gfxbank, colorbank = 0, flipx,flipy, multisprite;
 
-		int y		=	spriteram[i + 0];
-		int code	=	spriteram[i + 1];
-		int x		=	spriteram[i + 2];
-		int bank	=	spriteram[i + 3];
+		int y		=	sprites[i + 0];
+		int code	=	sprites[i + 1];
+		int x		=	sprites[i + 2];
+		int bank	=	sprites[i + 3];
 
 		if (suna8_text_dim > 0)
 		{
@@ -285,7 +308,8 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 				flipy = bank & 0x10;
 				srcy  = (((bank & 0x80)>>4) + (bank & 0x04) + ((~bank >> 4)&2)) * 2;
 				srcpg = (code >> 4) & 7;
-				gfxbank = (bank & 0x3) + (srcpg & 4);	// brickzn: 06,a6,a2,b2->6. starfigh: 01->01,4->0
+				gfxbank = (bank & 0x3) + (suna8_video_type ? 0 : (srcpg & 4));
+				if (suna8_video_type == 2 && gfxbank == 3) gfxbank += suna8_gfxbank;	// brickzn: 06,a6,a2,b2->6. starfigh: 01->01,4->0
 				colorbank = (bank & 8) >> 3;
 				break;
 			case 0x00:
@@ -295,6 +319,7 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 				flipx = 0;
 				flipy = 0;
 				gfxbank = bank & 0x03;
+				if (suna8_video_type == 2 && gfxbank == 3) gfxbank += suna8_gfxbank;
 				srcy  = (((bank & 0x80)>>4) + (bank & 0x04) + ((~bank >> 4)&3)) * 2;
 				srcpg = (code >> 4) & 3;
 				break;
@@ -319,8 +344,8 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 								((srcx + (flipx?dimx-tx-1:tx)) & 0x1f) * 0x20 +
 								((srcy + (flipy?dimy-ty-1:ty)) & 0x1f);
 
-				int tile	=	spriteram[addr*2 + 0];
-				int attr	=	spriteram[addr*2 + 1];
+				int tile	=	sprites[addr*2 + 0];
+				int attr	=	sprites[addr*2 + 1];
 
 				int tile_flipx	=	attr & 0x40;
 				int tile_flipy	=	attr & 0x80;
@@ -335,9 +360,9 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 				{	sx = max_x - sx;	tile_flipx = !tile_flipx;
 					sy = max_y - sy;	tile_flipy = !tile_flipy;	}
 
-				drawgfx(	bitmap,Machine->gfx[0],
+				drawgfx(	bitmap,Machine->gfx[gfx],
 							tile + (attr & 0x3)*0x100 + gfxbank,
-							((attr >> 2) & 0xf) | colorbank,	// hardhea2 player2
+							(((attr >> 2) & 0xf) ^ colorbank),	// hardhea2 player2
 							tile_flipx, tile_flipy,
 							sx, sy,
 							cliprect,TRANSPARENCY_PEN,15);
@@ -456,7 +481,8 @@ VIDEO_UPDATE( suna8 )
 #endif
 #endif
 	{
-		suna8_draw_normal_sprites(bitmap,cliprect);
+		suna8_draw_normal_sprites(bitmap,cliprect,0);
+		if (suna8_video_type == 1) suna8_draw_normal_sprites(bitmap,cliprect,1);
 		suna8_draw_text_sprites(bitmap,cliprect);
 	}
 }

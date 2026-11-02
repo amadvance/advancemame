@@ -17,21 +17,17 @@ Year + Game         Game     PCB         Epoxy CPU    Notes
 ---------------------------------------------------------------------------
 88  Hard Head       KRB-14   60138-0083  S562008      Encryption + Protection
 88  Rough Ranger    K030087  ?           S562008
-89  Spark Man       KRB-16   60136-081   T568009      Not Working (Protection)
-90  Star Fighter    ?        ?           ?            Not Working
+89  Spark Man       KRB-16   60136-081   T568009      Protection
+90  Star Fighter    ?        ?           ?            Missing starfield
 91  Hard Head 2     ?        ?           T568009      Encryption + Protection
 92  Brick Zone      ?        ?           Yes          Not Working
 ---------------------------------------------------------------------------
 
 To Do:
 
-- Samples playing in rranger, starfigh, sparkman (AY8910 ports A&B)
+- Samples playing in rranger (AY8910 ports A&B)
 
 Notes:
-
-- sparkman: to get past the roms test screen put a watchpoint at ca40.
-  When hit, clear ca41. Most of the garbage you'll see is probably due
-  to imperfect graphics emulation (e.g. gfx banking) than protection.
 
 - hardhea2: in test mode press P1&P2 button 2 to see a picture of each level
 
@@ -49,6 +45,8 @@ extern int suna8_text_dim; /* specifies format of text layer */
 
 extern UINT8 suna8_rombank, suna8_spritebank, suna8_palettebank;
 extern UINT8 suna8_unknown;
+extern int suna8_gfxbank;
+extern int suna8_sample_4bit;
 
 /* Functions defined in vidhrdw: */
 
@@ -62,6 +60,8 @@ WRITE8_HANDLER( suna8_banked_paletteram_w );
 WRITE8_HANDLER( brickzn_banked_paletteram_w );
 
 VIDEO_START( suna8_textdim0 );
+VIDEO_START( suna8_sparkman );
+VIDEO_START( suna8_starfigh );
 VIDEO_START( suna8_textdim8 );
 VIDEO_START( suna8_textdim12 );
 VIDEO_UPDATE( suna8 );
@@ -312,44 +312,45 @@ rom13:  0?, 1y, 2n, 3n      ?,?,?,? (palettes)
                                 Star Fighter
 ***************************************************************************/
 
-DRIVER_INIT( starfigh )
+static DRIVER_INIT( starfigh )
 {
-	UINT8	*RAM	=	memory_region(REGION_CPU1);
-	size_t	size	=	memory_region_length(REGION_CPU1);
-	UINT8   *decrypt = 	auto_malloc(size);
+	UINT8 *RAM = memory_region(REGION_CPU1);
+	size_t size = memory_region_length(REGION_CPU1);
+	UINT8 *decrypt = auto_malloc(size);
 	UINT8 x;
 	int i;
-
 	memory_set_decrypted_region(0, 0x0000, 0x7fff, decrypt);
 
-	/* Address lines scrambling */
 	memcpy(decrypt, RAM, size);
-	for (i = 0; i < 0x8000; i++)
+	for (i = 0; i < 0x50000; i++)
 	{
-		static const UINT8 swaptable[8] =
+		static const UINT8 swaptable[0x50] =
 		{
-			1,1,1,1,1,1,0,0,
+			1,1,1,1,    1,1,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    1,1,0,0,    0,0,0,0
 		};
 		int addr = i;
 
-		if (swaptable[(i & 0x7000) >> 12])
-			addr = BITSWAP16(addr, 15,14,13,12,11,10,9,8,6,7,5,4,3,2,1,0);
+		if (swaptable[(i & 0xff000) >> 12])
+			addr = BITSWAP24(addr, 23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,6,7,5,4,3,2,1,0);
 
 		RAM[i] = decrypt[addr];
 	}
 
-	/* Opcodes */
 	for (i = 0; i < 0x8000; i++)
 	{
 		static const UINT8 swaptable[32] =
 		{
 			0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
-			0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 		};
 		static const UINT8 xortable[32] =
 		{
 			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x41,0x01,0x00,0x00,0x00,0x00,
-			0x01,0x01,0x41,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+			0x01,0x01,0x41,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 		};
 		int table = (i & 0x7c00) >> 10;
 
@@ -362,7 +363,6 @@ DRIVER_INIT( starfigh )
 		decrypt[i] = x;
 	}
 
-	/* Data */
 	for (i = 0; i < 0x8000; i++)
 	{
 		static const UINT8 swaptable[8] = { 1,1,0,1,0,1,1,0 };
@@ -371,9 +371,15 @@ DRIVER_INIT( starfigh )
 			RAM[i] = BITSWAP8(RAM[i], 5,6,7,4,3,2,1,0) ^ 0x45;
 	}
 
-	memory_configure_bank(1, 0, 16, memory_region(REGION_CPU1) + 0x10000, 0x4000);
-}
+	/* incomplete protection checks must not execute writes into code RAM */
+	decrypt[0x07c0] = 0xc9;
 
+	decrypt[0x2696] = 0xc9;
+	decrypt[0x4e9a] = 0x00;
+
+	memory_configure_bank(1, 0, 16, RAM + 0x10000, 0x4000);
+	suna8_sample_4bit = 1;
+}
 
 /***************************************************************************
                                 Spark Man
@@ -381,42 +387,43 @@ DRIVER_INIT( starfigh )
 
 static DRIVER_INIT( sparkman )
 {
-	UINT8	*RAM	=	memory_region(REGION_CPU1);
-	size_t	size	=	memory_region_length(REGION_CPU1);
-	UINT8   *decrypt = 	auto_malloc(size);
+	UINT8 *RAM = memory_region(REGION_CPU1);
+	size_t size = memory_region_length(REGION_CPU1);
+	UINT8 *decrypt = auto_malloc(size);
 	UINT8 x;
 	int i;
-
 	memory_set_decrypted_region(0, 0x0000, 0x7fff, decrypt);
 
-	/* Address lines scrambling */
 	memcpy(decrypt, RAM, size);
-	for (i = 0; i < 0x8000; i++)
+	for (i = 0; i < 0x50000; i++)
 	{
-		static const UINT8 swaptable[8] =
+		static const UINT8 swaptable[0x50] =
 		{
-			1,1,1,1,0,0,1,1,
+			1,1,1,1,    0,0,1,1,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
+			0,0,0,0,    0,0,0,0,    1,1,0,0,    0,0,0,0
 		};
 		int addr = i;
 
-		if (swaptable[(i & 0x7000) >> 12])
-			addr = BITSWAP16(addr, 15,14,13,12,11,10,9,7,8,6,5,4,3,2,1,0);
+		if (swaptable[(i & 0xff000) >> 12])
+			addr = BITSWAP24(addr, 23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,7,8,6,5,4,3,2,1,0);
 
 		RAM[i] = decrypt[addr];
 	}
 
-	/* Opcodes */
 	for (i = 0; i < 0x8000; i++)
 	{
 		static const UINT8 swaptable[32] =
 		{
 			0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,
-			0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
 		};
 		static const UINT8 xortable[32] =
 		{
 			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x40,0x00,0x00,0x00,0x00,0x00,
+			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x40,0x00,0x00,0x00,0x00,0x00
 		};
 		int table = (i & 0x7c00) >> 10;
 
@@ -429,7 +436,6 @@ static DRIVER_INIT( sparkman )
 		decrypt[i] = x;
 	}
 
-	/* Data */
 	for (i = 0; i < 0x8000; i++)
 	{
 		static const UINT8 swaptable[8] = { 1,1,1,0,1,1,0,1 };
@@ -438,7 +444,17 @@ static DRIVER_INIT( sparkman )
 			RAM[i] = BITSWAP8(RAM[i], 5,6,7,4,3,2,1,0) ^ 0x44;
 	}
 
-	memory_configure_bank(1, 0, 16, memory_region(REGION_CPU1) + 0x10000, 0x4000);
+	/* the remaining protection input has no usable response */
+	decrypt[0x0ee0] = 0x00;
+	decrypt[0x0ee1] = 0x00;
+	decrypt[0x0ee2] = 0x00;
+
+	decrypt[0x1ac3] = 0x00;
+	decrypt[0x1ac4] = 0x00;
+	decrypt[0x1ac5] = 0x00;
+
+	memory_configure_bank(1, 0, 16, RAM + 0x10000, 0x4000);
+	suna8_sample_4bit = 1;
 }
 
 /***************************************************************************
@@ -858,16 +874,46 @@ ADDRESS_MAP_END
                                 Star Fighter
 ***************************************************************************/
 
-static UINT8 spritebank_latch;
+static UINT8 spritebank_latch, rombank_latch, write_disable;
+static UINT8 *sparkman_wram;
+
+static WRITE8_HANDLER( new_rombank_latch_w )
+{
+	rombank_latch = data;
+}
+
+static WRITE8_HANDLER( new_soundlatch_w )
+{
+	if (!(rombank_latch & 0x20)) soundlatch_w(0, data);
+}
+
 static WRITE8_HANDLER( starfigh_spritebank_latch_w )
 {
 	spritebank_latch = (data >> 2) & 1;
-	if (data & ~0x04) 	logerror("CPU #0 - PC %04X: unknown spritebank bits: %02X\n",activecpu_get_pc(),data);
+	suna8_nmi_enable = (data >> 5) & 1;
 }
 
 static WRITE8_HANDLER( starfigh_spritebank_w )
 {
 	suna8_spritebank = spritebank_latch;
+}
+
+static WRITE8_HANDLER( starfigh_leds_w )
+{
+	set_led_status(0, data & 1);
+	set_led_status(1, data & 2);
+	coin_counter_w(0, data & 4);
+	suna8_gfxbank = (data & 8) ? 4 : 0;
+	memory_set_bank(1, rombank_latch & 0xf);
+	suna8_rombank = rombank_latch;
+}
+
+static MACHINE_RESET( suna8_new )
+{
+	rombank_latch = spritebank_latch = write_disable = 0;
+	suna8_nmi_enable = 0;
+	suna8_gfxbank = 0;
+	memory_set_bank(1, 0);
 }
 
 static ADDRESS_MAP_START( starfigh_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -877,6 +923,7 @@ static ADDRESS_MAP_START( starfigh_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc001, 0xc001) AM_READ(input_port_1_r			)	// P2
 	AM_RANGE(0xc002, 0xc002) AM_READ(input_port_2_r			)	// DSW 1
 	AM_RANGE(0xc003, 0xc003) AM_READ(input_port_3_r			)	// DSW 2
+	AM_RANGE(0xc080, 0xc080) AM_READ(input_port_4_r)
 	AM_RANGE(0xc600, 0xc7ff) AM_READ(suna8_banked_paletteram_r	)	// Palette (Banked??)
 	AM_RANGE(0xc800, 0xdfff) AM_READ(MRA8_RAM					)	// RAM
 	AM_RANGE(0xe000, 0xffff) AM_READ(suna8_banked_spriteram_r	)	// Sprites (Banked)
@@ -887,10 +934,10 @@ static ADDRESS_MAP_START( starfigh_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_ROM						)	// Banked ROM
 	AM_RANGE(0xc200, 0xc200) AM_WRITE(starfigh_spritebank_w			)	// Sprite RAM Bank
 	AM_RANGE(0xc380, 0xc3ff) AM_WRITE(starfigh_spritebank_latch_w	)	// Sprite RAM Bank
-	AM_RANGE(0xc280, 0xc280) AM_WRITE(hardhea2_rombank_w			)	// ROM Bank (?mirrored up to c2ff?)
+	AM_RANGE(0xc280, 0xc2ff) AM_WRITE(new_rombank_latch_w			)	// ROM Bank (?mirrored up to c2ff?)
 	AM_RANGE(0xc300, 0xc300) AM_WRITE(hardhea2_flipscreen_w			)	// Flip Screen
-	AM_RANGE(0xc400, 0xc400) AM_WRITE(hardhea2_leds_w				)	// Leds + Coin Counter
-	AM_RANGE(0xc500, 0xc500) AM_WRITE(soundlatch_w					)	// To Sound CPU
+	AM_RANGE(0xc400, 0xc47f) AM_WRITE(starfigh_leds_w				)	// Leds + Coin Counter
+	AM_RANGE(0xc500, 0xc500) AM_WRITE(new_soundlatch_w					)	// To Sound CPU
 	AM_RANGE(0xc600, 0xc7ff) AM_WRITE(paletteram_RRRRGGGGBBBBxxxx_be_w) AM_BASE(&paletteram	)	// Palette (Banked??)
 	AM_RANGE(0xc800, 0xdfff) AM_WRITE(MWA8_RAM						)	// RAM
 	AM_RANGE(0xe000, 0xffff) AM_WRITE(suna8_banked_spriteram_w		)	// Sprites (Banked)
@@ -909,54 +956,41 @@ ADDRESS_MAP_END
                                 Spark Man
 ***************************************************************************/
 
-/* Probably wrong: */
-static WRITE8_HANDLER( sparkman_nmi_w )
+static WRITE8_HANDLER( sparkman_write_disable_w )
 {
-	suna8_nmi_enable = data & 0x01;
-	if (data & ~0x01) 	logerror("CPU #0 - PC %04X: unknown nmi bits: %02X\n",activecpu_get_pc(),data);
+	write_disable = data & 1;
+	suna8_nmi_enable = (data >> 5) & 1;
 }
 
-/*
-    7654 321-
-    ---- ---0   Flip Screen
-*/
-static WRITE8_HANDLER( sparkman_flipscreen_w )
+static WRITE8_HANDLER( sparkman_wram_w )
 {
-	flip_screen_set(data & 0x01);
-	if (data & ~0x01) 	logerror("CPU #0 - PC %04X: unknown flipscreen bits: %02X\n",activecpu_get_pc(),data);
+	/* protection probes deliberately attempt to overwrite live code in this RAM */
+	if (!write_disable) sparkman_wram[offset] = data;
 }
 
-WRITE8_HANDLER( sparkman_leds_w )
+static WRITE8_HANDLER( sparkman_spritebank_latch_w )
 {
-	set_led_status(0, data & 0x01);
-	set_led_status(1, data & 0x02);
-	coin_counter_w(0, data & 0x04);
-	if (data & ~0x07)	logerror("CPU#0  - PC %06X: unknown leds bits: %02X\n",activecpu_get_pc(),data);
+	flip_screen_set(data & 1);
+	spritebank_latch = (data >> 4) & 3;
 }
 
-/*
-    7654 32--
-    ---- --1-   Ram Bank
-    ---- ---0   Ram Bank?
-*/
 static WRITE8_HANDLER( sparkman_spritebank_w )
 {
-	suna8_spritebank = (data >> 1) & 1;
-	if (data & ~0x02) 	logerror("CPU #0 - PC %04X: unknown spritebank bits: %02X\n",activecpu_get_pc(),data);
+	suna8_spritebank = ((data >> 1) & 1) | ((data << 1) & 2);
+	if (spritebank_latch & 2) suna8_spritebank ^= 3;
 }
 
-/*
-    7654 ----
-    ---- 3210   ROM Bank
-*/
 static WRITE8_HANDLER( sparkman_rombank_w )
 {
-	int bank = data & 0x0f;
+	set_led_status(0, data & 1);
+	set_led_status(1, data & 2);
+	memory_set_bank(1, rombank_latch & 0xf);
+	suna8_rombank = rombank_latch;
+}
 
-	if (data & ~0x0f) 	logerror("CPU #0 - PC %04X: unknown rom bank bits: %02X\n",activecpu_get_pc(),data);
-
-	memory_set_bank(1, bank);
-	suna8_rombank = data;
+static WRITE8_HANDLER( sparkman_coin_w )
+{
+	coin_counter_w(0, data & 1);
 }
 
 static READ8_HANDLER( sparkman_c0a3_r )
@@ -971,7 +1005,7 @@ static ADDRESS_MAP_START( sparkman_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc001, 0xc001) AM_READ(input_port_1_r			)	// P2
 	AM_RANGE(0xc002, 0xc002) AM_READ(input_port_2_r			)	// DSW 1
 	AM_RANGE(0xc003, 0xc003) AM_READ(input_port_3_r			)	// DSW 2
-	AM_RANGE(0xc080, 0xc080) AM_READ(input_port_4_r			)	// Buttons
+	AM_RANGE(0xc080, 0xc081) AM_READ(input_port_4_r			)	// Buttons
 	AM_RANGE(0xc0a3, 0xc0a3) AM_READ(sparkman_c0a3_r			)	// ???
 	AM_RANGE(0xc600, 0xc7ff) AM_READ(paletteram_r				)	// Palette (Banked??)
 	AM_RANGE(0xc800, 0xdfff) AM_READ(MRA8_RAM					)	// RAM
@@ -981,14 +1015,15 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( sparkman_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM					)	// ROM
 	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_ROM					)	// Banked ROM
-	AM_RANGE(0xc200, 0xc200) AM_WRITE(sparkman_spritebank_w		)	// Sprite RAM Bank
-	AM_RANGE(0xc280, 0xc280) AM_WRITE(sparkman_rombank_w		)	// ROM Bank (?mirrored up to c2ff?)
-	AM_RANGE(0xc300, 0xc300) AM_WRITE(sparkman_flipscreen_w		)	// Flip Screen
-	AM_RANGE(0xc380, 0xc380) AM_WRITE(sparkman_nmi_w			)	// ? NMI related ?
-	AM_RANGE(0xc400, 0xc400) AM_WRITE(sparkman_leds_w			)	// Leds + Coin Counter
-	AM_RANGE(0xc500, 0xc500) AM_WRITE(soundlatch_w				)	// To Sound CPU
+	AM_RANGE(0xc200, 0xc27f) AM_WRITE(sparkman_spritebank_w		)	// Sprite RAM Bank
+	AM_RANGE(0xc280, 0xc2ff) AM_WRITE(new_rombank_latch_w		)	// ROM Bank (?mirrored up to c2ff?)
+	AM_RANGE(0xc300, 0xc37f) AM_WRITE(sparkman_spritebank_latch_w		)	// Flip Screen
+	AM_RANGE(0xc380, 0xc3ff) AM_WRITE(sparkman_write_disable_w			)	// ? NMI related ?
+	AM_RANGE(0xc400, 0xc47f) AM_WRITE(sparkman_rombank_w			)	// Leds + Coin Counter
+	AM_RANGE(0xc480, 0xc480) AM_WRITE(sparkman_coin_w)
+	AM_RANGE(0xc500, 0xc57f) AM_WRITE(new_soundlatch_w				)	// To Sound CPU
 	AM_RANGE(0xc600, 0xc7ff) AM_WRITE(paletteram_RRRRGGGGBBBBxxxx_be_w) AM_BASE(&paletteram	)	// Palette (Banked??)
-	AM_RANGE(0xc800, 0xdfff) AM_WRITE(MWA8_RAM					)	// RAM
+	AM_RANGE(0xc800, 0xdfff) AM_WRITE(sparkman_wram_w					) AM_BASE(&sparkman_wram)	// RAM
 	AM_RANGE(0xe000, 0xffff) AM_WRITE(suna8_banked_spriteram_w	)	// Sprites (Banked)
 ADDRESS_MAP_END
 
@@ -1415,15 +1450,15 @@ INPUT_PORTS_END
                                 Spark Man
 ***************************************************************************/
 
-INPUT_PORTS_START( sparkman )
+static INPUT_PORTS_START( starfigh )
 
-	PORT_START_TAG("IN0") // Player 1 - $c000
+	PORT_START_TAG("P1")
 	JOY(1)
 
-	PORT_START_TAG("IN1") // Player 2 - $c001
+	PORT_START_TAG("P2")
 	JOY(2)
 
-	PORT_START_TAG("IN2") // DSW 1 - $c002
+	PORT_START_TAG("DSW1")
 	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coinage ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( 4C_1C ) )
@@ -1433,7 +1468,78 @@ INPUT_PORTS_START( sparkman )
 	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
 	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( 1C_4C ) )
-	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Difficulty ) )
+	PORT_DIPNAME( 0x38, 0x18, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x38, DEF_STR( Easiest ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Very_Easy) )
+	PORT_DIPSETTING(    0x28, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x18, "Moderate" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Harder ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Very_Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_SERVICE( 0x40, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x04, 0x04, "Play Together" )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x38, 0x18, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x30, "10K" )
+	PORT_DIPSETTING(    0x28, "30K" )
+	PORT_DIPSETTING(    0x18, "50K, Every 50K" )
+	PORT_DIPSETTING(    0x20, "50K" )
+	PORT_DIPSETTING(    0x10, "100K, Every 50K" )
+	PORT_DIPSETTING(    0x08, "100K, Every 100K" )
+	PORT_DIPSETTING(    0x00, "200K, Every 100K" )
+	PORT_DIPSETTING(    0x38, DEF_STR( None ) )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x80, "2" )
+	PORT_DIPSETTING(    0xc0, "3" )
+	PORT_DIPSETTING(    0x40, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+
+	PORT_START_TAG("CHEATS")
+	PORT_BIT(  0x01, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT(  0x02, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT(  0x04, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_DIPNAME( 0x08, 0x08, "3: Copyright Screen Color + ?" )
+	PORT_DIPSETTING(    0x08, "Green" )
+	PORT_DIPSETTING(    0x00, "Blue" )
+	PORT_BIT(  0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT(  0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT(  0x40, IP_ACTIVE_HIGH, IPT_VBLANK )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW,  IPT_SPECIAL )
+
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( sparkman )
+
+	PORT_START_TAG("P1")
+	JOY(1)
+
+	PORT_START_TAG("P2")
+	JOY(2)
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x38, 0x18, DEF_STR( Difficulty ) )
 	PORT_DIPSETTING(    0x20, DEF_STR( Easiest ) )
 	PORT_DIPSETTING(    0x30, DEF_STR( Very_Easy) )
 	PORT_DIPSETTING(    0x28, DEF_STR( Easy ) )
@@ -1442,12 +1548,12 @@ INPUT_PORTS_START( sparkman )
 	PORT_DIPSETTING(    0x10, DEF_STR( Harder ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Very_Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_SERVICE(       0x40, IP_ACTIVE_LOW )
+	PORT_SERVICE( 0x40, IP_ACTIVE_LOW )
 	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
-	PORT_START_TAG("IN3") // DSW 2 - $c003
+	PORT_START_TAG("DSW2")
 	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -1472,7 +1578,7 @@ INPUT_PORTS_START( sparkman )
 	PORT_DIPSETTING(    0x40, "4" )
 	PORT_DIPSETTING(    0x00, "5" )
 
-	PORT_START_TAG("IN4") // Buttons - $c080
+	PORT_START_TAG("BUTTONS")
 	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
 	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
 	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
@@ -1480,9 +1586,11 @@ INPUT_PORTS_START( sparkman )
 	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_SPECIAL )
 
 INPUT_PORTS_END
+
+
 
 
 /***************************************************************************
@@ -1503,6 +1611,13 @@ static const gfx_layout layout_8x8x4 =
 	{ 3,2,1,0, 11,10,9,8},
 	{ STEP8(0,16) },
 	8*8*2
+};
+
+static const gfx_decode sparkman_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &layout_8x8x4, 0, 32 },
+	{ REGION_GFX2, 0, &layout_8x8x4, 0, 32 },
+	{ -1 }
 };
 
 static const gfx_decode suna8_gfxdecodeinfo[] =
@@ -1769,7 +1884,7 @@ static MACHINE_DRIVER_START( starfigh )
 	MDRV_CPU_ADD(Z80, 24000000 / 4)					/* ? */
 	MDRV_CPU_PROGRAM_MAP(starfigh_readmem,starfigh_writemem)
 	MDRV_CPU_IO_MAP(starfigh_readport,starfigh_writeport)
-	MDRV_CPU_VBLANK_INT(brickzn_interrupt,2)	/* IRQ & NMI */
+	MDRV_CPU_VBLANK_INT(hardhea2_interrupt,2)	/* IRQ & NMI */
 
 	/* The sound section is identical to that of hardhead */
 	MDRV_CPU_ADD(Z80, 24000000 / 4)
@@ -1778,7 +1893,8 @@ static MACHINE_DRIVER_START( starfigh )
 	MDRV_CPU_IO_MAP(hardhead_sound_readport,hardhead_sound_writeport)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,4)	/* No NMI */
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_MACHINE_RESET(suna8_new)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (384 * 264))
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 
 	/* video hardware */
@@ -1788,25 +1904,25 @@ static MACHINE_DRIVER_START( starfigh )
 	MDRV_GFXDECODE(suna8_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(256)
 
-	MDRV_VIDEO_START(suna8_textdim0)
+	MDRV_VIDEO_START(suna8_starfigh)
 	MDRV_VIDEO_UPDATE(suna8)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD(YM3812, 4000000)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
+	MDRV_SOUND_ADD(YM3812, 3000000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.70)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.70)
 
 	MDRV_SOUND_ADD(AY8910, 24000000 / 16)
 	MDRV_SOUND_CONFIG(starfigh_ay8910_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.50)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.50)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.35)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.35)
 
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(custom_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.50)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.50)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.35)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.35)
 MACHINE_DRIVER_END
 
 
@@ -1836,23 +1952,24 @@ static MACHINE_DRIVER_START( sparkman )
 	MDRV_CPU_IO_MAP(hardhead_sound_readport,hardhead_sound_writeport)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,4)	/* No NMI */
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_MACHINE_RESET(suna8_new)
+	MDRV_FRAMES_PER_SECOND(6000000.0 / (384 * 264))
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(256, 256)
 	MDRV_VISIBLE_AREA(0, 256-1, 0+16, 256-16-1)
-	MDRV_GFXDECODE(suna8_gfxdecodeinfo)
+	MDRV_GFXDECODE(sparkman_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(512)
 
-	MDRV_VIDEO_START(suna8_textdim0)
+	MDRV_VIDEO_START(suna8_sparkman)
 	MDRV_VIDEO_UPDATE(suna8)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD(YM3812, 4000000)
+	MDRV_SOUND_ADD(YM3812, 3000000)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 
@@ -2307,38 +2424,38 @@ ROM_END
 ***************************************************************************/
 
 ROM_START( starfigh )
-	ROM_REGION( 0x50000, REGION_CPU1, 0 )		/* Main Z80 Code */
-	ROM_LOAD( "starfgtr.l1", 0x00000, 0x08000, CRC(f93802c6) SHA1(4005b06b69dd440dfb6385766386a1168e73288f) )	// V.1
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "starfgtr.l1", 0x00000, 0x08000, CRC(f93802c6) SHA1(4005b06b69dd440dfb6385766386a1168e73288f) )
 	ROM_LOAD( "starfgtr.j1", 0x10000, 0x10000, CRC(fcfcf08a) SHA1(65fe1666aa5092f820b337bcbcbed7accdec440d) )
 	ROM_LOAD( "starfgtr.i1", 0x20000, 0x10000, CRC(6935fcdb) SHA1(f47812f6716ccf52dd7ab8522c29e059f1e38f31) )
-	ROM_LOAD( "starfgtr.l3", 0x30000, 0x10000, CRC(50c072a4) SHA1(e48ec5a786ef245e5b2b72390824b6b7c449a74b) )	// 0xxxxxxxxxxxxxxx = 0xFF (ROM Test: OK)
-	ROM_LOAD( "starfgtr.j3", 0x40000, 0x10000, CRC(3fe3c714) SHA1(ccc9a33cf29c0e43ae8ab91f08438a89c777c186) )	// clear text here
+	ROM_LOAD( "starfgtr.l3", 0x30000, 0x10000, CRC(50c072a4) SHA1(e48ec5a786ef245e5b2b72390824b6b7c449a74b) )
+	ROM_LOAD( "starfgtr.j3", 0x40000, 0x10000, CRC(3fe3c714) SHA1(ccc9a33cf29c0e43ae8ab91f08438a89c777c186) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )		/* Music Z80 Code */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "starfgtr.m8", 0x0000, 0x8000, CRC(ae3b0691) SHA1(41e004d09522cf7ddce6e4adc68841ad5553264a) )
 
-	ROM_REGION( 0x8000, REGION_SOUND1, 0 )	/* Samples */
+	ROM_REGION( 0x8000, REGION_SOUND1, 0 )
 	ROM_LOAD( "starfgtr.q10", 0x0000, 0x8000, CRC(fa510e94) SHA1(e2742385a4ba152dbc89534e4350d1d9ad49730f) )
 
-	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )	/* Sprites */
-	ROM_LOAD( "starfgtr.e4", 0x00000, 0x10000, CRC(54c0ca3d) SHA1(87f785502beb8a52d47bd48275d695ee303054f8) )
-	ROM_RELOAD(              0x20000, 0x10000             )
-	ROM_LOAD( "starfgtr.d4", 0x10000, 0x10000, CRC(4313ba40) SHA1(3c41f99dc40136517f172b3525987d8909f877c3) )
-	ROM_RELOAD(              0x30000, 0x10000             )
-	ROM_LOAD( "starfgtr.b4", 0x40000, 0x10000, CRC(ad8d0f21) SHA1(ffdb407c7fe76b5f290de6bbed2fec34e40daf3f) )
-	ROM_RELOAD(              0x60000, 0x10000             )
-	ROM_LOAD( "starfgtr.a4", 0x50000, 0x10000, CRC(6d8f74c8) SHA1(c40b77e27bd29d6c3a9b4d43189933c10543786b) )
-	ROM_RELOAD(              0x70000, 0x10000             )
-	ROM_LOAD( "starfgtr.e6", 0x80000, 0x10000, CRC(ceff00ff) SHA1(5e7df7f33f36f4bc511be48266eaec274dfb8706) )
-	ROM_RELOAD(              0xa0000, 0x10000             )
-	ROM_LOAD( "starfgtr.d6", 0x90000, 0x10000, CRC(7aaa358a) SHA1(56d75f4abe626de7923d5bcc9ad18c02ce162907) )
-	ROM_RELOAD(              0xb0000, 0x10000             )
-	ROM_LOAD( "starfgtr.b6", 0xc0000, 0x10000, CRC(47d6049c) SHA1(cae0795a19cb6bb8bdabc10c200aa6f8d78dd347) )
-	ROM_RELOAD(              0xe0000, 0x10000             )
-	ROM_LOAD( "starfgtr.a6", 0xd0000, 0x10000, CRC(4a33f6f3) SHA1(daa0a1a43b1b60e2f05b9934fdd6b5f285a0b93a) )
-	ROM_RELOAD(              0xf0000, 0x10000             )
-ROM_END
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 
+	ROM_LOAD( "starfgtr.e4",   0x00000, 0x10000, CRC(54c0ca3d) SHA1(87f785502beb8a52d47bd48275d695ee303054f8) )
+	ROM_LOAD( "starfgtr.d4",   0x10000, 0x10000, CRC(4313ba40) SHA1(3c41f99dc40136517f172b3525987d8909f877c3) )
+	ROM_COPY( REGION_GFX1, 0x00000, 0x20000, 0x20000 )
+	ROM_LOAD( "starfgtr.b4",   0x40000, 0x10000, CRC(ad8d0f21) SHA1(ffdb407c7fe76b5f290de6bbed2fec34e40daf3f) )
+	ROM_LOAD( "starfgtr.a4",   0x50000, 0x10000, CRC(6d8f74c8) SHA1(c40b77e27bd29d6c3a9b4d43189933c10543786b) )
+	ROM_COPY( REGION_GFX1, 0x40000, 0x60000, 0x20000 )
+
+	ROM_LOAD( "starfgtr.e6",   0x80000, 0x10000, CRC(ceff00ff) SHA1(5e7df7f33f36f4bc511be48266eaec274dfb8706) )
+	ROM_LOAD( "starfgtr.d6",   0x90000, 0x10000, CRC(7aaa358a) SHA1(56d75f4abe626de7923d5bcc9ad18c02ce162907) )
+	ROM_COPY( REGION_GFX1, 0x80000, 0xa0000, 0x20000 )
+	ROM_LOAD( "starfgtr.b6",   0xc0000, 0x10000, CRC(47d6049c) SHA1(cae0795a19cb6bb8bdabc10c200aa6f8d78dd347) )
+	ROM_LOAD( "starfgtr.a6",   0xd0000, 0x10000, CRC(4a33f6f3) SHA1(daa0a1a43b1b60e2f05b9934fdd6b5f285a0b93a) )
+	ROM_COPY( REGION_GFX1, 0xc0000, 0xe0000, 0x20000 )
+
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "82s129.5q", 0x000, 0x100, CRC(10bfcebb) SHA1(ae8708db7d3a8984f16e876867ecdbb4445e3378) )
+ROM_END
 
 /***************************************************************************
 
@@ -2355,34 +2472,60 @@ Sound is a Yamaha YM3812 and a  AY-3-8910A
 ***************************************************************************/
 
 ROM_START( sparkman )
-	ROM_REGION( 0x50000, REGION_CPU1, 0 )		/* Main Z80 Code */
-	ROM_LOAD( "sparkman.e7", 0x00000, 0x08000, CRC(d89c5780) SHA1(177f0ae21c00575a7eb078e86f3a790fc95211e4) )	/* "SPARK MAN MAIN PROGRAM 1989,8,12 K.H.T (SUNA ELECTRPNICS) V 2.0 SOULE KOREA" */
-	ROM_LOAD( "sparkman.g7", 0x10000, 0x10000, CRC(48b4a31e) SHA1(771d1f1a2ce950ce2b661a4081471e98a7a7d53e) )
-	ROM_LOAD( "sparkman.g8", 0x20000, 0x10000, CRC(b8a4a557) SHA1(10251b49fb44fb1e7c71fde8fe9544df29d27346) )
-	ROM_LOAD( "sparkman.i7", 0x30000, 0x10000, CRC(f5f38e1f) SHA1(25f0abbac1298fad1f8e7202db05e48c3598bc88) )
-	ROM_LOAD( "sparkman.i8", 0x40000, 0x10000,  CRC(e54eea25) SHA1(b8ea884ee1a24953b6406f2d1edf103700f542d2) )
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "sparkman.e7", 0x00000, 0x08000, CRC(d89c5780) SHA1(177f0ae21c00575a7eb078e86f3a790fc95211e4) )
+	ROM_LOAD( "10.g7",       0x10000, 0x10000, CRC(48b4a31e) SHA1(771d1f1a2ce950ce2b661a4081471e98a7a7d53e) )
+	ROM_LOAD( "12.g8",       0x20000, 0x10000, CRC(b8a4a557) SHA1(10251b49fb44fb1e7c71fde8fe9544df29d27346) )
+	ROM_LOAD( "11.i7",       0x30000, 0x10000, CRC(f5f38e1f) SHA1(25f0abbac1298fad1f8e7202db05e48c3598bc88) )
+	ROM_LOAD( "13.i8",       0x40000, 0x10000, CRC(e54eea25) SHA1(b8ea884ee1a24953b6406f2d1edf103700f542d2) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )		/* Music Z80 Code */
-	ROM_LOAD( "sparkman.h11", 0x00000, 0x08000, CRC(06822f3d) SHA1(d30592cecbcd4dbf67e5a8d9c151d60b3232a54d) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "14.h11", 0x00000, 0x08000, CRC(06822f3d) SHA1(d30592cecbcd4dbf67e5a8d9c151d60b3232a54d) )
 
-	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )	/* Sprites */
-	ROM_LOAD( "sparkman.u4", 0x00000, 0x10000, CRC(17c16ce4) SHA1(b4127e9aedab69193bef1d85e68003e225913417) )
-	ROM_LOAD( "sparkman.t1", 0x10000, 0x10000, CRC(2e474203) SHA1(a407126d92e529568129d5246f89d51330ff5d32) )
-	ROM_LOAD( "sparkman.r1", 0x20000, 0x08000, CRC(7115cfe7) SHA1(05fde6279a1edc97e79b1ff3f72b2da400a6a409) )
-	ROM_LOAD( "sparkman.u1", 0x30000, 0x10000, CRC(39dbd414) SHA1(03fe938ed1191329b6a2f7ed54c6ef69273998df) )
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT | ROMREGION_ERASEFF)
 
-	ROM_LOAD( "sparkman.u6", 0x40000, 0x10000, CRC(414222ea) SHA1(e05f0504c6e735c73027312a85cc55fc98728e53) )
-	ROM_LOAD( "sparkman.t2", 0x50000, 0x10000, CRC(0df5da2a) SHA1(abbd5ba22b30f17d203ecece7afafa0cbe78352c) )
-	ROM_LOAD( "sparkman.r2", 0x60000, 0x08000, CRC(6904bde2) SHA1(c426fa0c29b1874c729b981467f219c422f863aa) )
-	ROM_LOAD( "sparkman.u2", 0x70000, 0x10000, CRC(e6551db9) SHA1(bed2a9ba72895f3ba876b4e0a41c33ea8a3c5af2) )
+	ROM_LOAD( "p3.u1", 0x00000, 0x10000, CRC(39dbd414) SHA1(03fe938ed1191329b6a2f7ed54c6ef69273998df) )
+	ROM_LOAD( "p2.t1", 0x10000, 0x10000, CRC(2e474203) SHA1(a407126d92e529568129d5246f89d51330ff5d32) )
+	ROM_FILL(          0x20000, 0x10000, 0xFF )
+	ROM_FILL(          0x30000, 0x10000, 0xFF )
+	ROM_LOAD( "p1.r1", 0x40000, 0x08000, CRC(7115cfe7) SHA1(05fde6279a1edc97e79b1ff3f72b2da400a6a409) )
+	ROM_FILL(          0x50000, 0x10000, 0xFF )
+	ROM_FILL(          0x60000, 0x10000, 0xFF )
+	ROM_FILL(          0x70000, 0x10000, 0xFF )
 
-	ROM_REGION( 0x8000, REGION_SOUND1, 0 )		/* Samples */
-	ROM_LOAD( "sparkman.b10", 0x0000, 0x8000, CRC(46c7d4d8) SHA1(99f38cc044390ee4646498667ad2bf536ce91e8f) )
+	ROM_LOAD( "p6.u2", 0x80000, 0x10000, CRC(e6551db9) SHA1(bed2a9ba72895f3ba876b4e0a41c33ea8a3c5af2) )
+	ROM_LOAD( "p5.t2", 0x90000, 0x10000, CRC(0df5da2a) SHA1(abbd5ba22b30f17d203ecece7afafa0cbe78352c) )
+	ROM_FILL(          0xa0000, 0x10000, 0xFF )
+	ROM_FILL(          0xb0000, 0x10000, 0xFF )
+	ROM_LOAD( "p4.r2", 0xc0000, 0x08000, CRC(6904bde2) SHA1(c426fa0c29b1874c729b981467f219c422f863aa) )
+	ROM_FILL(          0xd0000, 0x10000, 0xFF )
+	ROM_FILL(          0xe0000, 0x10000, 0xFF )
+	ROM_FILL(          0xf0000, 0x10000, 0xFF )
 
-	ROM_REGION( 0x8000, REGION_SOUND2, 0 )		/* Samples */
-	ROM_LOAD( "sprkman.b11", 0x0000, 0x8000, CRC(d6823a62) SHA1(f8ce748aa7bdc9c95799dd111fd872717e46d416) )
+	ROM_REGION( 0x100000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_INVERT | ROMREGION_ERASEFF)
+
+	ROM_LOAD( "p7.u4",         0x00000, 0x10000, CRC(17c16ce4) SHA1(b4127e9aedab69193bef1d85e68003e225913417) )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x10000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x20000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x30000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x40000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x50000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x60000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x00000, 0x70000, 0x10000 )
+
+	ROM_LOAD( "p8.u6",         0x80000, 0x10000, CRC(414222ea) SHA1(e05f0504c6e735c73027312a85cc55fc98728e53) )
+	ROM_COPY( REGION_GFX2, 0x80000, 0x90000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xa0000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xb0000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xc0000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xd0000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xe0000, 0x10000 )
+	ROM_COPY( REGION_GFX2, 0x80000, 0xf0000, 0x10000 )
+
+	ROM_REGION( 0x8000 * 2, REGION_SOUND1, 0 )
+	ROM_LOAD( "15.b10", 0x0000, 0x8000, CRC(46c7d4d8) SHA1(99f38cc044390ee4646498667ad2bf536ce91e8f) )
+	ROM_LOAD( "16.b11", 0x8000, 0x8000, CRC(d6823a62) SHA1(f8ce748aa7bdc9c95799dd111fd872717e46d416) )
 ROM_END
-
 
 /***************************************************************************
 
@@ -2408,7 +2551,7 @@ GAME( 1991, hardhea2, 0,        hardhea2, hardhea2, hardhea2, ROT0,  "SunA",    
 GAME( 1988, sranger,  rranger, rranger,  rranger,	suna8,        ROT0,  "SunA",    "Super Ranger (v2.0)",           GAME_NOT_WORKING )
 GAME( 1988, srangerb, rranger, rranger,  rranger,	suna8,        ROT0,  "bootleg", "Super Ranger (bootleg)",        GAME_NOT_WORKING )
 GAME( 1988, srangerw, rranger, rranger,  rranger,	suna8,        ROT0,  "SunA (WDK license)", "Super Ranger (WDK)", GAME_NOT_WORKING )
-GAME( 1989, sparkman, 0,       sparkman, sparkman, sparkman, ROT0,  "SunA",    "Spark Man (v 2.0)",             GAME_NOT_WORKING )
-GAME( 1990, starfigh, 0,       starfigh, hardhea2, starfigh, ROT90, "SunA",    "Star Fighter (v1)",             GAME_NOT_WORKING )
+GAME( 1989, sparkman, 0,       sparkman, sparkman, sparkman, ROT0,  "SunA",    "Spark Man (v2.0, set 1)",        0 )
+GAME( 1990, starfigh, 0,       starfigh, starfigh, starfigh, ROT90, "SunA",    "Star Fighter (v1)",             GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, brickzn,  0,       brickzn,  brickzn,  brickzn,  ROT90, "SunA",    "Brick Zone (v5.0)",             GAME_NOT_WORKING )
 GAME( 1992, brickzn3, brickzn, brickzn,  brickzn,  brickzn3, ROT90, "SunA",    "Brick Zone (v4.0)",             GAME_NOT_WORKING )
