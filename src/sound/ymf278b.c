@@ -689,8 +689,8 @@ static void *ymf278b_start(int sndindex, int clock, const void *config)
 	state_save_register_item("ymf278b", sndindex, chip->pcm_r);
 	state_save_register_item("ymf278b", sndindex, chip->wavetblhdr);
 	state_save_register_item("ymf278b", sndindex, chip->memmode);
-	state_save_register_item("ymf278b", sndindex, chip->memadr);
-	state_save_register_memory("ymf278b", sndindex, "slots", &chip->slots[0], sizeof(YMF278BSlot), 24);
+	/* The slot block is not a scalar of a size accepted by the save system. */
+	state_save_register_memory("ymf278b", sndindex, "slots", &chip->slots[0], 1, sizeof(chip->slots));
 
 	return chip;
 }
