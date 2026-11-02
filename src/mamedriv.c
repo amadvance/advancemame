@@ -7035,6 +7035,7 @@ Other Sun games
 	DRIVER( robowres )	/* (c) 1986 Sega */
 	DRIVER( robowrb )	/* bootleg */
 	DRIVER( bankp )		/* (c) 1984 Sega,  made by Sanritsu */
+	DRIVER( combh )		/* (c) 1987 Sega / Sanritsu */
 	DRIVER( mjkjidai )	/* (c) 1986 Sanritsu */
 	DRIVER( mayumi )	/* (c) 1988 Victory L.L.C.,  made by Sanritsu */
 
