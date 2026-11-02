@@ -6545,6 +6545,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( sxyreact )	/* (c) 1998 Sammy */
 	DRIVER( sxyreac2 )	/* (c) 1999 Sammy */
 	DRIVER( cairblad )	/* (c) 1999 Sammy */
+	DRIVER( pastelis )
 	DRIVER( keithlcy )	/* (c) 1993 Visco */
 	DRIVER( drifto94 )	/* (c) 1994 Visco */
 	DRIVER( janjans1 )	/* (c) 1996 Visco */

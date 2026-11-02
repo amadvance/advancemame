@@ -251,6 +251,9 @@ VIDEO_START( gdfs )
 /* Scroll values + CRT controller registers */
 UINT16 *ssv_scroll;
 
+int ssv_raster_enabled;
+static rectangle ssv_clip;
+
 int ssv_special;	// kludge for hypreac2
 
 int ssv_tile_code[16];
@@ -352,14 +355,17 @@ char eaglshot_dirty, *eaglshot_dirty_tile;
 
 READ16_HANDLER( ssv_vblank_r )
 {
-	if (cpu_getvblank())
-		return 0x2000 | 0x1000;
-	else
-		return 0x0000;
+	int result = cpu_getvblank() ? 0x3000 : 0;
+	if (ssv_raster_enabled && cpu_gethorzbeampos() >= Machine->visible_area.max_x + 1)
+		result |= 0x0800;
+	return result;
 }
 
 WRITE16_HANDLER( ssv_scroll_w )
 {
+	/* finish the previous scanlines before changing registers used by raster effects */
+	if (ssv_raster_enabled && ((ssv_scroll[offset] & mem_mask) | (data & ~mem_mask)) != ssv_scroll[offset])
+		force_partial_update(cpu_getscanline() - 1);
 	COMBINE_DATA(ssv_scroll + offset);
 
 /*  offsets 60-7f: CRT Controller   */
@@ -566,6 +572,51 @@ From the above some noteworthy cases are:
 
 /* Draw a tilemap sprite */
 
+static void pastelis_draw_row(mame_bitmap *bitmap, int in_sy, int scroll)
+{
+	int line, sx, x, realy, code, attr, flipx, flipy, gfx, size, page;
+	int mode, scrollx, scrolly, tileline;
+	UINT16 *tile;
+	rectangle clip = ssv_clip;
+
+	scroll &= 7;
+	in_sy = (in_sy & 0x1ff) - (in_sy & 0x200);
+	if (clip.min_y < in_sy) clip.min_y = in_sy;
+	if (clip.max_y > in_sy + 63) clip.max_y = in_sy + 63;
+	mode = ssv_scroll[scroll * 4 + 3];
+	if ((mode & 0xe000) == 0) return;
+	size = 1 << (8 + ((mode & 0xe000) >> 13));
+	gfx = (mode & 0x0100) ? 0 : 1;
+
+	for (line = clip.min_y; line <= clip.max_y; ++line)
+	{
+		rectangle row = clip;
+		row.min_y = row.max_y = line;
+		scrollx = ssv_scroll[scroll * 4];
+		scrolly = ssv_scroll[scroll * 4 + 1];
+		page = (scrollx & 0x7fff) / size;
+		/* the raster interrupt changes the vertical origin independently for each player */
+		realy = scrolly + line + (ssv_scroll[0x70/2] & 0x1ff) - (ssv_scroll[0x70/2] & 0x200) + ssv_scroll[0x6a/2] + 2;
+		if (mode & 0x1000)
+			scrollx += spriteram16[((mode & 0xff) * 0x200 + (realy & 0x1ff)) & 0x1ffff];
+		x = scrollx;
+		for (sx = -(scrollx & 0xf); sx <= clip.max_x; sx += 16, x += 16)
+		{
+			tile = &spriteram16[page * size * 4 + ((x & ((size - 1) & ~0xf)) << 2) + ((realy & 0x1f0) >> 3)];
+			attr = tile[1];
+			code = tile[0] + ssv_tile_code[(attr & 0x3c00) >> 10];
+			flipx = (attr & 0x8000) != 0;
+			flipy = (attr & 0x4000) != 0;
+			if ((ssv_scroll[0x74/2] & 0x3000) == 0x1000) flipx = !flipx;
+			if ((ssv_scroll[0x74/2] & 0x6000) == 0x4000) flipy = !flipy;
+			if (flipy ? !(realy & 8) : (realy & 8)) ++code;
+			tileline = realy & 7;
+			ssv_drawgfx(bitmap, Machine->gfx[gfx], code, attr, flipx, flipy,
+				sx, line - (flipy ? 7 - tileline : tileline), &row, mode & 0x0800);
+		}
+	}
+}
+
 static void ssv_draw_row(mame_bitmap *bitmap, int sx, int sy, int scroll)
 {
 	rectangle clip;
@@ -573,6 +624,12 @@ static void ssv_draw_row(mame_bitmap *bitmap, int sx, int sy, int scroll)
 	int x, x1, sx1, flipx, xnum, xstart, xend, xinc;
 	int y, y1, sy1, flipy, ynum, ystart, yend, yinc;
 	UINT16 *s3;
+
+	if (ssv_raster_enabled)
+	{
+		pastelis_draw_row(bitmap, sy, scroll);
+		return;
+	}
 
 	xnum	=		0x20;		// width in tiles (screen-wide)
 	ynum	=		0x8;		// height in tiles (always 64 pixels?)
@@ -592,17 +649,17 @@ static void ssv_draw_row(mame_bitmap *bitmap, int sx, int sy, int scroll)
 
 	/* .. and clip it against the visible screen */
 
-	if (clip.min_x > Machine->visible_area.max_x)	return;
-	if (clip.min_y > Machine->visible_area.max_y)	return;
+	if (clip.min_x > ssv_clip.max_x)	return;
+	if (clip.min_y > ssv_clip.max_y)	return;
 
-	if (clip.max_x < Machine->visible_area.min_x)	return;
-	if (clip.max_y < Machine->visible_area.min_y)	return;
+	if (clip.max_x < ssv_clip.min_x)	return;
+	if (clip.max_y < ssv_clip.min_y)	return;
 
-	if (clip.min_x < Machine->visible_area.min_x)	clip.min_x = Machine->visible_area.min_x;
-	if (clip.max_x > Machine->visible_area.max_x)	clip.max_x = Machine->visible_area.max_x;
+	if (clip.min_x < ssv_clip.min_x)	clip.min_x = ssv_clip.min_x;
+	if (clip.max_x > ssv_clip.max_x)	clip.max_x = ssv_clip.max_x;
 
-	if (clip.min_y < Machine->visible_area.min_y)	clip.min_y = Machine->visible_area.min_y;
-	if (clip.max_y > Machine->visible_area.max_y)	clip.max_y = Machine->visible_area.max_y;
+	if (clip.min_y < ssv_clip.min_y)	clip.min_y = ssv_clip.min_y;
+	if (clip.max_y > ssv_clip.max_y)	clip.max_y = ssv_clip.max_y;
 
 	/* Get the scroll data */
 
@@ -722,17 +779,17 @@ static void ssv_draw_row2(mame_bitmap *bitmap, int sx, int sy, int scroll)
 
 	/* .. and clip it against the visible screen */
 
-	if (clip.min_x > Machine->visible_area.max_x)	return;
-	if (clip.min_y > Machine->visible_area.max_y)	return;
+	if (clip.min_x > ssv_clip.max_x)	return;
+	if (clip.min_y > ssv_clip.max_y)	return;
 
-	if (clip.max_x < Machine->visible_area.min_x)	return;
-	if (clip.max_y < Machine->visible_area.min_y)	return;
+	if (clip.max_x < ssv_clip.min_x)	return;
+	if (clip.max_y < ssv_clip.min_y)	return;
 
-	if (clip.min_x < Machine->visible_area.min_x)	clip.min_x = Machine->visible_area.min_x;
-	if (clip.max_x > Machine->visible_area.max_x)	clip.max_x = Machine->visible_area.max_x;
+	if (clip.min_x < ssv_clip.min_x)	clip.min_x = ssv_clip.min_x;
+	if (clip.max_x > ssv_clip.max_x)	clip.max_x = ssv_clip.max_x;
 
-	if (clip.min_y < Machine->visible_area.min_y)	clip.min_y = Machine->visible_area.min_y;
-	if (clip.max_y > Machine->visible_area.max_y)	clip.max_y = Machine->visible_area.max_y;
+	if (clip.min_y < ssv_clip.min_y)	clip.min_y = ssv_clip.min_y;
+	if (clip.max_y > ssv_clip.max_y)	clip.max_y = ssv_clip.max_y;
 
 	/* Get the scroll data */
 
@@ -829,13 +886,13 @@ static void ssv_draw_row2(mame_bitmap *bitmap, int sx, int sy, int scroll)
 static void ssv_draw_layer2(mame_bitmap *bitmap,int  nr)
 {
 	int sy;
-	for ( sy = 0; sy <= Machine->visible_area.max_y; sy += 0x40 )
+	for ( sy = 0; sy <= ssv_clip.max_y; sy += 0x40 )
 		ssv_draw_row2(bitmap, 0, sy, nr);
 }
 static void ssv_draw_layer(mame_bitmap *bitmap,int  nr)
 {
 	int sy;
-	for ( sy = 0; sy <= Machine->visible_area.max_y; sy += 0x40 )
+	for ( sy = 0; sy <= ssv_clip.max_y; sy += 0x40 )
 		ssv_draw_row(bitmap, 0, sy, nr);
 }
 
@@ -1039,7 +1096,7 @@ static void ssv_draw_sprites2(mame_bitmap *bitmap)
 											color,
 											flipx, flipy,
 											sx + x * 16, sy + y * 8,
-											&Machine->visible_area,
+											&ssv_clip,
 											transparency, 0 );
 					}
 				}
@@ -1145,7 +1202,8 @@ static void ssv_draw_sprites(mame_bitmap *bitmap)
 					}
 				}
 
-				if ((mode & 0x001f) != 0)
+				/* layer zero is already drawn before the sprite list */
+				if ((mode & 0x001f) != 0 && (!ssv_raster_enabled || scroll != 0))
 					ssv_draw_row(bitmap,sx, sy, scroll);
 			}
 			else
@@ -1262,7 +1320,7 @@ static void ssv_draw_sprites(mame_bitmap *bitmap)
 												color,
 												flipx, flipy,
 												sx + x * 16, sy + y * 8,
-												&Machine->visible_area, shadow	);
+												&ssv_clip, shadow	);
 					}
 				}
 
@@ -1528,6 +1586,7 @@ void ssv_enable_video(int enable)
 
 VIDEO_UPDATE( ssv )
 {
+	ssv_clip = *cliprect;
 	if (ssv_special !=3)
 	{
 	if (ssv_scroll[0x76/2] & 0x0080)
@@ -1545,7 +1604,7 @@ VIDEO_UPDATE( ssv )
 	shadow_pen_mask = (1 << shadow_pen_shift) - 1;
 	
 	/* The background color is the first one in the palette */
-	fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
+	fillbitmap(bitmap,Machine->pens[0],cliprect);
 
 	if (!enable_video)	return;
 
