@@ -26,7 +26,7 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with
 		horizontal Arcade Monitors or TVs.
-	* Special `scalex`, `scalek`, `lq`, `hq` and `xbr` effects to improve
+	* Special `scalex`, `scalek`, `lq`, and `xbr` effects to improve
 		the aspect on modern PC Monitors.
 	* Special `blit` effects to improve image quality when stretching.
 	* Special `rgb` effects to simulate the look of a real Arcade
@@ -202,7 +202,7 @@ Features
 	the image quality when it is stretched.
 
 	There are a lot of video effects: `none`, `max`, `mean`,
-	`filter`, `scalex`, `scalek`, `lq`, `hq` and `xbr`.
+	`filter`, `scalex`, `scalek`, `lq`, and `xbr`.
 	You can select the favorite effect with the `display_resizeeffect`
 	option, or from the runtime menu.
 
@@ -218,10 +218,10 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it is applied before.
-	The `scalex`, `scalek`, `lq`, `hq` and `xbr` effects add missing pixels
+	The `scalex`, `scalek`, `lq`, and `xbr` effects add missing pixels
 	by trying to match the image patterns.
 
-	The `scalex`, `scalek`, `lq`, `hq` and `xbr` effects work only if the image is
+	The `scalex`, `scalek`, `lq`, and `xbr` effects work only if the image is
 	magnified. To enable them you should also use the `display_magnify` option.
 
   RGB Effects
@@ -861,7 +861,7 @@ Configuration
 
     display_magnify
 	Suggests the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scalex`, `scalek`, `lq`, `hq` and `xbr`
+	It is mainly used to enable the `scalex`, `scalek`, `lq`, and `xbr`
 	effects. This option has no effect for vector games.
 
 	:display_magnify auto | 1 | 2 | 3 | 4
@@ -1023,7 +1023,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| scalex | scalek | lq | hq | xbr
+	:	| scalex | scalek | lq | xbr
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -1072,12 +1072,6 @@ Configuration
 			original bitmap pattern.
 			Uses a 3x3 mapping analysis with 8 comparisons.
 			Interpolates pixels and compares colors for equality.
-			Works only for expansion factors of 2, 3 and 4.
-		hq - Adds missing pixels by matching the
-			original bitmap pattern.
-			Uses a 3x3 mapping analysis with 8 comparisons.
-			Interpolates pixels and compares colors
-			for distance.
 			Works only for expansion factors of 2, 3 and 4.
 		xbr - Adds missing pixels by matching the
 			original bitmap pattern.
@@ -2230,7 +2224,7 @@ Configuration
 	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a speed improvement, especially if you are using
-	a heavy video effect like `hq` and `xbr`.
+	a heavy video effect like `xbr`.
 
 	:misc_smp yes | no
 

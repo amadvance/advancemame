@@ -459,11 +459,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/osd/fileio.o \
 	$(OBJ)/advance/osd/fuzzy.o \
 	$(OBJ)/advance/blit/blit.o \
-	$(OBJ)/advance/blit/hq2x.o \
-	$(OBJ)/advance/blit/hq2x3.o \
-	$(OBJ)/advance/blit/hq2x4.o \
-	$(OBJ)/advance/blit/hq3x.o \
-	$(OBJ)/advance/blit/hq4x.o \
 	$(OBJ)/advance/blit/xbr2x.o \
 	$(OBJ)/advance/blit/xbr2x_sse.o \
 	$(OBJ)/advance/blit/xbr2x_neon.o \

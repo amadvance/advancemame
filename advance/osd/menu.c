@@ -351,7 +351,6 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_FILTER: text = "Resize Effect [filter]"; break;
 	case COMBINE_SCALEX: text = "Resize Effect [scalex]"; break;
 	case COMBINE_SCALEK: text = "Resize Effect [scalek]"; break;
-	case COMBINE_HQ: text = "Resize Effect [hq]"; break;
 	case COMBINE_XBR: text = "Resize Effect [xbr]"; break;
 	}
 	switch (video_context->config.combine) {
@@ -362,7 +361,6 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_FILTER: option = "filter"; break;
 	case COMBINE_SCALEX: option = "scalex"; break;
 	case COMBINE_SCALEK: option = "scalek"; break;
-	case COMBINE_HQ: option = "hq"; break;
 	case COMBINE_XBR: option = "xbr"; break;
 	}
 	combine_index = advance_ui_menu_option_insert(&menu, text, option);
@@ -490,8 +488,7 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_MEAN: config.combine = COMBINE_FILTER; break;
 			case COMBINE_FILTER: config.combine = COMBINE_SCALEX; break;
 			case COMBINE_SCALEX: config.combine = COMBINE_SCALEK; break;
-			case COMBINE_SCALEK: config.combine = COMBINE_HQ; break;
-			case COMBINE_HQ: config.combine = COMBINE_XBR; break;
+			case COMBINE_SCALEK: config.combine = COMBINE_XBR; break;
 			case COMBINE_XBR: config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_reconfigure(video_context, &config);
@@ -567,8 +564,7 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_FILTER: config.combine = COMBINE_MEAN; break;
 			case COMBINE_SCALEX: config.combine = COMBINE_FILTER; break;
 			case COMBINE_SCALEK: config.combine = COMBINE_SCALEX; break;
-			case COMBINE_HQ: config.combine = COMBINE_SCALEK; break;
-			case COMBINE_XBR: config.combine = COMBINE_HQ; break;
+			case COMBINE_XBR: config.combine = COMBINE_SCALEK; break;
 			}
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {

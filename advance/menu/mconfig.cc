@@ -146,7 +146,7 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 	{ "none", COMBINE_NONE },
 	{ "scalex", COMBINE_SCALEX },
 	{ "scalek", COMBINE_SCALEK },
-	{ "hq", COMBINE_HQ },
+	{ "hq", COMBINE_XBR }, /* deprecated hq effect */
 	{ "xbr", COMBINE_XBR },
 };
 
