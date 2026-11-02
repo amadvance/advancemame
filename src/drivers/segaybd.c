@@ -7,6 +7,7 @@
 ****************************************************************************
 
     Known bugs:
+        * pdriftl cabinet networking is not emulated
         * still seems to be some glitchiness in the games in general
 
 ***************************************************************************/
@@ -390,6 +391,76 @@ static NVRAM_HANDLER( yboard )
  *
  *************************************/
 
+static UINT8 pdriftl_link_ram[0x800];
+
+static READ16_HANDLER( pdriftl_shared_r )
+{
+	return 0xff00 | pdriftl_link_ram[offset];
+}
+
+static WRITE16_HANDLER( pdriftl_shared_w )
+{
+	if (ACCESSING_LSB)
+	{
+		pdriftl_link_ram[offset] = data;
+		/* the mailbox interrupt stays asserted until the Z80 reads its last byte */
+		if (offset == 0x7ff)
+			cpunum_set_input_line_and_vector(4, 0, ASSERT_LINE, 0xef);
+	}
+}
+
+static READ8_HANDLER( pdriftl_link_r )
+{
+	if (offset == 0x7ff)
+		cpunum_set_input_line(4, 0, CLEAR_LINE);
+	return pdriftl_link_ram[offset];
+}
+
+static WRITE8_HANDLER( pdriftl_link_w )
+{
+	pdriftl_link_ram[offset] = data;
+}
+
+static READ16_HANDLER( pdriftl_status_r )
+{
+	return mame_rand();
+}
+
+static READ16_HANDLER( pdriftl_control_r )
+{
+	return 0;
+}
+
+static READ8_HANDLER( pdriftl_dsw1_r )
+{
+	return readinputportbytag("LinkID_DSW1");
+}
+
+static READ8_HANDLER( pdriftl_dsw2_r )
+{
+	return readinputportbytag("LinkID_DSW2");
+}
+
+static ADDRESS_MAP_START( pdriftl_link_map, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+	AM_RANGE(0x2000, 0x3fff) AM_RAM
+	AM_RANGE(0x4000, 0x47ff) AM_READWRITE(pdriftl_link_r, pdriftl_link_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( pdriftl_link_portmap, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) | AMEF_ABITS(8) )
+	AM_RANGE(0x40, 0x40) AM_READ(pdriftl_dsw1_r)
+	AM_RANGE(0xc0, 0xc0) AM_READ(pdriftl_dsw2_r)
+ADDRESS_MAP_END
+
+static MACHINE_RESET( pdriftl )
+{
+	machine_reset_yboard();
+	cpunum_set_input_line(4, 0, CLEAR_LINE);
+}
+
+
 static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) | AMEF_ABITS(21) )
 	AM_RANGE(0x000000, 0x07ffff) AM_ROM
@@ -765,6 +836,122 @@ static INPUT_PORTS_START( pdrift )
 INPUT_PORTS_END
 
 
+static INPUT_PORTS_START( pdriftl )
+	PORT_INCLUDE( pdrift )
+
+	PORT_MODIFY("DSW")
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x10, 0x00, "Ground Level Tilts" )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0xe0, 0x80, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0xe0, "0 - Easiest" )
+	PORT_DIPSETTING(    0xa0, "1" )
+	PORT_DIPSETTING(    0xc0, "2" )
+	PORT_DIPSETTING(    0x80, "3" )
+	PORT_DIPSETTING(    0x60, "4" )
+	PORT_DIPSETTING(    0x40, "5" )
+	PORT_DIPSETTING(    0x20, "6" )
+	PORT_DIPSETTING(    0x00, "7 - Hardest" )
+
+	PORT_MODIFY("COINAGE")
+	PORT_DIPNAME( 0x0f, 0x0f, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x0a, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0x0d, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x0e, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x02, "4 Coins/5 Credits" )
+	PORT_DIPSETTING(    0x03, "5 Coins/6 Credits" )
+	PORT_DIPSETTING(    0x0f, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(    0x05, "6 Coins/4 Credits" )
+	PORT_DIPSETTING(    0x09, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x0b, DEF_STR( 6C_1C ) )
+	PORT_DIPSETTING(    0x00, "Free Play (if Coin B too) or 1/1" )
+	PORT_DIPNAME( 0xf0, 0xf0, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0xd0, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x20, "4 Coins/5 Credits" )
+	PORT_DIPSETTING(    0x30, "5 Coins/6 Credits" )
+	PORT_DIPSETTING(    0xf0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 4C_3C ) )
+	PORT_DIPSETTING(    0x50, "6 Coins/4 Credits" )
+	PORT_DIPSETTING(    0x90, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x70, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0xb0, DEF_STR( 6C_1C ) )
+	PORT_DIPSETTING(    0x00, "Free Play (if Coin A too) or 1/1" )
+
+	PORT_START_TAG("LinkID_DSW1")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("LinkID_DSW2")
+	PORT_DIPNAME( 0x0f, 0x01, "Cabinet ID" )
+	PORT_DIPSETTING(    0x00, "0" )
+	PORT_DIPSETTING(    0x01, "1" )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x05, "5" )
+	PORT_DIPSETTING(    0x06, "6" )
+	PORT_DIPSETTING(    0x07, "7" )
+	PORT_DIPSETTING(    0x08, "8" )
+	PORT_DIPSETTING(    0x09, "9" )
+	PORT_DIPSETTING(    0x0a, "10" )
+	PORT_DIPSETTING(    0x0b, "11" )
+
+	PORT_DIPSETTING(    0x0c, "12 (invalid)" )
+	PORT_DIPSETTING(    0x0d, "13 (invalid)" )
+	PORT_DIPSETTING(    0x0e, "14 (invalid)" )
+	PORT_DIPSETTING(    0x0f, "15 (invalid)" )
+
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x00, "Communication Mode" )
+	PORT_DIPSETTING(    0x80, "Master/Slave" )
+	PORT_DIPSETTING(    0x00, "Stand-Alone" )
+INPUT_PORTS_END
+
+
+
 static INPUT_PORTS_START( rchase )
 	PORT_INCLUDE( yboard_generic )
 
@@ -946,6 +1133,15 @@ static MACHINE_DRIVER_START( yboard )
 	MDRV_SOUND_CONFIG(segapcm_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
 	MDRV_SOUND_ROUTE(1, "right", 1.0)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( pdriftl )
+	MDRV_IMPORT_FROM(yboard)
+	MDRV_CPU_ADD_TAG("link", Z80, 8000000)
+	MDRV_CPU_PROGRAM_MAP(pdriftl_link_map, 0)
+	MDRV_CPU_IO_MAP(pdriftl_link_portmap, 0)
+	MDRV_MACHINE_RESET(pdriftl)
 MACHINE_DRIVER_END
 
 
@@ -1474,6 +1670,89 @@ ROM_START( pdriftj )
 ROM_END
 
 
+ROM_START(pdriftl)
+	ROM_REGION(0x080000, REGION_CPU1, 0)
+	ROM_LOAD16_BYTE("epr-12107a.25", 0x000000, 0x20000, CRC(0acaed3c) SHA1(0a3d86346b7a75a53b07311c095a879a22048590) )
+	ROM_LOAD16_BYTE("epr-12106a.24", 0x000001, 0x20000, CRC(d222f7a6) SHA1(ce73b9a155c0ebd4b1c0c71c80fd3dce6043dcf6) )
+
+
+	ROM_REGION(0x040000, REGION_CPU2, 0)
+	ROM_LOAD16_BYTE("epr-12111.81", 0x000000, 0x20000, CRC(41b0622c) SHA1(9751c88f4c0df2e0852cee071683c8e6156da8cb) )
+	ROM_LOAD16_BYTE("epr-12110.80", 0x000001, 0x20000, CRC(26db4865) SHA1(963c10156cddf44abc86dbe66349bc83656eda15) )
+
+	ROM_REGION(0x040000, REGION_CPU3, 0)
+	ROM_LOAD16_BYTE("epr-12109.54", 0x000000, 0x20000, CRC(256350b8) SHA1(72b05d3583d63766690fed4827ec586e832168d1) )
+	ROM_LOAD16_BYTE("epr-12108.53", 0x000001, 0x20000, CRC(a3a56771) SHA1(f41d466f31a1b833d21a7011314c48d5056409eb) )
+
+	ROM_REGION( 0x08000, REGION_USER2, 0 )
+	ROM_LOAD( "epr-11485.ic27",  0x00000, 0x08000, CRC(069b4201) SHA1(7a9a87aef17cb65bc5b03ca9dea4d2d5cdda228a) )
+
+	ROM_REGION16_BE(0x080000, REGION_GFX2, 0)
+	ROM_LOAD16_BYTE("epr-12114.16", 0x000000, 0x20000, CRC(8b07e8eb) SHA1(22a4aff968d6de52372b7b2b5322d353f7b835ef) )
+	ROM_LOAD16_BYTE("epr-12115.14", 0x000001, 0x20000, CRC(045b2912) SHA1(697c8eff69bf1a23745d24171f0b50635cf8513e) )
+	ROM_LOAD16_BYTE("epr-12112.17", 0x040000, 0x20000, CRC(5dd13e81) SHA1(74ced668a36480a2ce9e3667e4915bfee2391534) )
+	ROM_LOAD16_BYTE("epr-12113.15", 0x040001, 0x20000, CRC(69b8bd5a) SHA1(e312b60fff672363326b6169be7aff6b943d27c9) )
+
+	ROM_REGION64_BE(0x400000, REGION_GFX1, 0)
+	ROMX_LOAD("epr-11757.67",  0x000000, 0x20000, CRC(e46dc478) SHA1(baf79e230aef3d63fb50373b2b1626f7c56ee94f) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11758.75",  0x000001, 0x20000, CRC(5b435c87) SHA1(6b42b08e73957c36cd8faa896ca14461d00afd29) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11773.63",  0x000002, 0x20000, CRC(1b5d5758) SHA1(54f58a274740a0566e0553d145c0c284ffd1d36b) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11774.71",  0x000003, 0x20000, CRC(2ca0c170) SHA1(7de74c045bf084659ba70da9458d720125ff25ae) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11759.86",  0x000004, 0x20000, CRC(ac8111f6) SHA1(6412716dc97ae697b438d9c9cd554d1087416bc2) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11760.114", 0x000005, 0x20000, CRC(91282af9) SHA1(fddee7982949b7da724c7830e7bd139aeb84672d) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11775.82",  0x000006, 0x20000, CRC(48225793) SHA1(ee003c2ea24c14e0968da94bac139735660932fe) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11776.110", 0x000007, 0x20000, CRC(78c46198) SHA1(d299e631843da47cb7a46103d52a3dabfab71746) , ROM_SKIP(7) )
+
+	ROMX_LOAD("epr-11761.66",  0x100000, 0x20000, CRC(baa5d065) SHA1(56dc71814e3f0f327781b0c1587038351c60f7b7) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11762.74",  0x100001, 0x20000, CRC(1d1af7a5) SHA1(86c02565b5aca201588c98678fb0c54faa8d4d6b) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11777.62",  0x100002, 0x20000, CRC(9662dd32) SHA1(454ec914b6c936f692bf90d2232c8169acec470a) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11778.70",  0x100003, 0x20000, CRC(2dfb7494) SHA1(4b9f1609e425c5e634e95dbc2d0ca820dd9212bc) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11763.85",  0x100004, 0x20000, CRC(1ee23407) SHA1(776c868e0e4e601fd6d0a83561b064b4be0560e2) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11764.113", 0x100005, 0x20000, CRC(e859305e) SHA1(aafcc3209a4fb6e0e8169ae6cce386b370b824f7) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11779.81",  0x100006, 0x20000, CRC(a49cd793) SHA1(efe77949be39a2ff88b50bfb2b4664b9267d9a09) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11780.109", 0x100007, 0x20000, CRC(d514ed81) SHA1(fbac3ad085363972a79e77aebb7fdae2200e7cda) , ROM_SKIP(7) )
+
+	ROMX_LOAD("epr-11765.65",  0x200000, 0x20000, CRC(649e2dff) SHA1(a6c61b71d08b31a0ca175ab0404e2eaf1d09ccc2) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11766.73",  0x200001, 0x20000, CRC(d92fb7fc) SHA1(2f5c2d88ae0766351b9efe8ffcbebc88fc3a6c59) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11781.61",  0x200002, 0x20000, CRC(9692d4cd) SHA1(967351ba2c781ca865e3c1ee9eeef1aad2247c27) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11782.69",  0x200003, 0x20000, CRC(c913bb43) SHA1(9bc15a3180cf4c3134bb55e99e6092f0faf95c56) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11767.84",  0x200004, 0x20000, CRC(1f8ad054) SHA1(289f5795116ee29540f28e35c3b4f72adeca7891) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11768.112", 0x200005, 0x20000, CRC(db2c4053) SHA1(a5b6daa6deb7afb0019e289acb81c82d507ec93a) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11783.80",  0x200006, 0x20000, CRC(6d189007) SHA1(dd871ea3166fdcb59d49707d35dde8b6c7fdc76b) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11784.108", 0x200007, 0x20000, CRC(57f5fd64) SHA1(6aff54d3f3f76ce0f1a93485d1a35a3987d456d9) , ROM_SKIP(7) )
+
+	ROMX_LOAD("epr-11769.64",  0x300000, 0x20000, CRC(28f0ab51) SHA1(d7cb7b83e5d85eb59d34cfd5c0d8e6c7ff81e24c) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11770.72",  0x300001, 0x20000, CRC(d7557ea9) SHA1(62430505d399ee2cc0f94e03144860056345573c) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11785.60",  0x300002, 0x20000, CRC(e6ef32c4) SHA1(869ba3816f5e3125f613f3b284fec74cd19db79e) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11786.68",  0x300003, 0x20000, CRC(2066b49d) SHA1(905ce70c921043d07591422a87fedd6e897ff38e) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11771.83",  0x300004, 0x20000, CRC(67635618) SHA1(f690ace026130ecb95532c92f2ad3741d0d167c1) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11772.111", 0x300005, 0x20000, CRC(0f798d3a) SHA1(71565ce28b93ae50d64af8c965fba6408a07f031) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11787.79",  0x300006, 0x20000, CRC(e631dc12) SHA1(3fd6db2eb297890b35dec566b6a90fc2d96bd085) , ROM_SKIP(7) )
+	ROMX_LOAD("epr-11788.107", 0x300007, 0x20000, CRC(8464c66e) SHA1(af93cbcc50acbd929d0298fb9a75da0369e13ff7) , ROM_SKIP(7) )
+
+	ROM_REGION(0x10000, REGION_CPU4, 0)
+	ROM_LOAD("epr-11753.ic102", 0x000000, 0x10000, CRC(e81f5748) SHA1(dea9425ddc0f9411b1446477b7fdd3c92a1d4742))
+
+	ROM_REGION(0x200000, REGION_SOUND1, ROMREGION_ERASEFF)
+	ROM_LOAD("epr-11894.ic107", 0x000000, 0x40000, CRC(b1e573f2) SHA1(e566dc49b8f2002ca8d72a813856a272e0c9a9ac))
+	ROM_RELOAD(0x040000, 0x40000)
+	ROM_LOAD("epr-11893.ic106", 0x080000, 0x40000, CRC(58b40f19) SHA1(20a06928392d0e612a5e764d4eb1492070afe526))
+	ROM_RELOAD(0x0c0000, 0x40000)
+	ROM_LOAD("epr-11892.ic105", 0x100000, 0x40000, CRC(3248a758) SHA1(e6fc3a7b2356ef017f59858f8b37eef5d92f54a2))
+	ROM_RELOAD(0x140000, 0x40000)
+
+	ROM_REGION(0x100000, REGION_USER1, 0)
+
+	ROM_LOAD("epr-11895.ic1", 0x000000, 0x20000, CRC(ee99a6fd) SHA1(4444826e751d9186e6d46b081e47cd99ee3cf853) )
+	ROM_LOAD("epr-11896.ic2", 0x000000, 0x20000, CRC(4bebc015) SHA1(307022ea1c1ee87c9ef3782526888c48c3c69fd2) )
+	ROM_LOAD("epr-11897.ic3", 0x000000, 0x20000, CRC(4463cb95) SHA1(e86fd4611cf83fe72d59950a60fc8c3a7381a1c7) )
+	ROM_LOAD("epr-11898.ic4", 0x000000, 0x20000, CRC(5d19d767) SHA1(d335cd3ef57c75e388df04b04fc3e2881a3902cf) )
+
+	ROM_REGION(0x10000, REGION_CPU5, 0)
+	ROM_LOAD("epr-12028", 0x000000, 0x08000, CRC(bb682a92) SHA1(0445bdbca0db9edecd826da37cd2d3afc57c5cf6) )
+ROM_END
+
+
 /**************************************************************************************************************************
  **************************************************************************************************************************
  **************************************************************************************************************************
@@ -1626,6 +1905,19 @@ static DRIVER_INIT( generic_yboard )
 
 
 
+static DRIVER_INIT( pdriftl )
+{
+	yboard_generic_init();
+	memset(pdriftl_link_ram, 0, sizeof(pdriftl_link_ram));
+	state_save_register_global_array(pdriftl_link_ram);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x190000, 0x190fff, 0, 0, pdriftl_shared_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x190000, 0x190fff, 0, 0, pdriftl_shared_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x191000, 0x191001, 0, 0, pdriftl_status_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x192000, 0x192001, 0, 0, pdriftl_control_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x192000, 0x192001, 0, 0, MWA16_NOP);
+}
+
+
 /*************************************
  *
  *  Game driver(s)
@@ -1639,5 +1931,6 @@ GAME( 1990, glocr360, gloc,    yboard, glocr360, generic_yboard, ROT0, "Sega", "
 GAME( 1988, pdrift,   0,       yboard, pdrift,   generic_yboard, ROT0, "Sega", "Power Drift (World Set 1)", GAME_SUPPORTS_SAVE )
 GAME( 1988, pdrifta,  pdrift,  yboard, pdrift,   generic_yboard, ROT0, "Sega", "Power Drift (World Set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1988, pdriftj,  pdrift,  yboard, pdrift,   generic_yboard, ROT0, "Sega", "Power Drift (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1988, pdriftl,  0,       pdriftl, pdriftl, pdriftl,       ROT0, "Sega", "Power Drift - Link Version (Japan, Rev A)", GAME_SUPPORTS_SAVE )
 GAME( 1991, rchase,   0,       rchase, rchase,   generic_yboard, ROT0, "Sega", "Rail Chase (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1991, strkfgtr, 0,       yboard, strkfgtr, generic_yboard, ROT0, "Sega", "Strike Fighter (Japan)", GAME_SUPPORTS_SAVE )
