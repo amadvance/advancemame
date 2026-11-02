@@ -3829,13 +3829,23 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( puckpkmn )	/* (c) 2000 Genie */
 	DRIVER( topshoot )	/* (c) 1995 Sun Mixing */
 	DRIVER( sbubsm )	/* (c) 1996 Sun Mixing */
-	DRIVER( barek3mb )  /* (c) 1994 bootleg / Sega */
-    DRIVER( aladmdb )   /* (c) 1993 bootleg / Sega */
-    DRIVER( barek2ch )  /* (c) 1994 bootleg / Sega */
-    DRIVER( sonic2mb )  /* (c) 1993 bootleg / Sega */
-    DRIVER( sonic3mb )  /* (c) 1993 bootleg / Sega */
-    DRIVER( jparkmb )   /* (c) 1993 bootleg / Sega */
-    DRIVER( twinktmb )  /* (c) 1993 bootleg / Sega */
+	/* Sega Mega Drive arcade bootlegs (megadriv_acbl.c) */
+	DRIVER( aladmdb )	/* (c) 1993 bootleg / Sega */
+	DRIVER( sonic2mb )	/* (c) 1993 bootleg / Sega */
+	DRIVER( sonic3mb )	/* (c) 1993 bootleg / Sega */
+	DRIVER( barek2mb )	/* (c) 1994 bootleg / Sega */
+	DRIVER( barek3mba )	/* (c) 1994 bootleg / Sega */
+	DRIVER( twinktmb )	/* (c) 1993 bootleg / Sega */
+	DRIVER( jparkmb )	/* (c) 1993 bootleg / Sega */
+	DRIVER( barekch )	/* (c) 1994 bootleg */
+	DRIVER( bk3ssrmb )	/* (c) 1994 bootleg / Sega */
+	DRIVER( srssf2mb )	/* (c) 1994 bootleg / Sega */
+	DRIVER( biohzdmb )	/* (c) 1995 bootleg / Sega */
+	DRIVER( mk3mdb )	/* (c) 1996 bootleg / Midway */
+	DRIVER( ssf2mdb )	/* (c) 1994 bootleg / Capcom */
+	DRIVER( srmdb )		/* (c) 1993 bootleg / Konami */
+	DRIVER( barek3mb )	/* (c) 1994 bootleg / Sega */
+	DRIVER( barek2ch )	/* (c) 1994 bootleg */
 
 	/* Sega MegaTech, the number shown is on the label of the instruction rom */
  	DRIVER( megatech )

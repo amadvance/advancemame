@@ -854,7 +854,7 @@ static int pic16C5x_execute(int cycles)
 			CALL_MAME_DEBUG;
 
 			R.opcode.d = M_RDOP(R.PC);
-			R.PC++;
+			R.PC = (R.PC + 1) & ADDR_MASK;	/* wraps to 0 after the reset vector 0x7ff of the 2K parts */
 			R.PCL++;
 
 			if ((R.opcode.w.l & 0xff0) != 0x000)	{	/* Do all opcodes except the 00? ones */

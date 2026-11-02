@@ -1112,6 +1112,7 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/system18.o \
 	$(OBJ)/drivers/system24.o $(OBJ)/machine/system24.o $(OBJ)/vidhrdw/system24.o \
 	$(OBJ)/drivers/topshoot.o \
+	$(OBJ)/drivers/megadriv_acbl.o \
 	$(OBJ)/drivers/turbo.o $(OBJ)/machine/turbo.o $(OBJ)/sndhrdw/turbo.o $(OBJ)/vidhrdw/turbo.o \
 	$(OBJ)/drivers/vicdual.o $(OBJ)/sndhrdw/vicdual.o $(OBJ)/vidhrdw/vicdual.o \
 	$(OBJ)/drivers/zaxxon.o $(OBJ)/sndhrdw/zaxxon.o $(OBJ)/vidhrdw/zaxxon.o \
