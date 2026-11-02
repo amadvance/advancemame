@@ -1784,7 +1784,7 @@ static MACHINE_DRIVER_START( coh700 )
 	MDRV_CPU_PROGRAM_MAP( namcos12_map, 0 )
 	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
 
-	MDRV_CPU_ADD_TAG("sub", H83002, 14745600 )	/* verified 14.7456 MHz */
+	MDRV_CPU_ADD_TAG("sub", H83002, 16934400 )	/* System 12 sound MCU */
 	MDRV_CPU_PROGRAM_MAP( s12h8rwmap, 0 )
 	MDRV_CPU_IO_MAP( s12h8iomap, 0 )
 	MDRV_CPU_VBLANK_INT( s12_sub_vblank, 1 );
@@ -1809,7 +1809,9 @@ static MACHINE_DRIVER_START( coh700 )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD_TAG("c352", C352, 14745600)
+	/* The C352 runs at 88.2 kHz (25.4016 MHz / 288); using the old
+	   sound MCU clock here lowers the pitch of every sample. */
+	MDRV_SOUND_ADD_TAG("c352", C352, 25401600)
 	MDRV_SOUND_CONFIG(c352_interface)
 	MDRV_SOUND_ROUTE(0, "right", 1.00)
 	MDRV_SOUND_ROUTE(1, "left", 1.00)
@@ -1819,8 +1821,8 @@ MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( ns12 )
 	MDRV_IMPORT_FROM(coh700)
-	MDRV_CPU_REPLACE("sub", H83002, 16934400)
-	MDRV_SOUND_REPLACE("c352", C352, 25401600 / 288 * 192)
+	/* Replace the device to retain this configuration's stereo routing. */
+	MDRV_SOUND_REPLACE("c352", C352, 25401600)
 	MDRV_SOUND_CONFIG(c352_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.00)
 	MDRV_SOUND_ROUTE(1, "right", 1.00)
