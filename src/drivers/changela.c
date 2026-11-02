@@ -1,752 +1,121 @@
 // license:GPL-2.0+
-// copyright-holders:Jarek Burczynski, Phil Stroffolino, Tomasz Slanina
+// copyright-holders:Jarek Burczynski, Phil Stroffolino, Tomasz Slanina, Adam Bousley
 /**************************************************************************
-Change Lanes
-(C) Taito 1983
 
-Jarek Burczynski
-Phil Stroffolino
-Tomasz Slanina
+Taito America's Change Lanes
 
 ***************************************************************************/
 
 #include "driver.h"
 #include "cpu/z80/z80.h"
+#include "cpu/m6805/m6805.h"
 #include "sound/ay8910.h"
 
-static unsigned char portA_in,portA_out,ddrA;
-static unsigned char portB_out,ddrB;
-static unsigned char portC_in,portC_out,ddrC;
+static void changela_video_reset(void);
+VIDEO_START( changela );
+VIDEO_UPDATE( changela );
 
-static unsigned char mcu_out;
-static unsigned char mcu_in;
-static unsigned char mcu_PC1;
-static unsigned char mcu_PC0;
+WRITE8_HANDLER( changela_colors_w );
+WRITE8_HANDLER( changela_mem_device_select_w );
+WRITE8_HANDLER( changela_mem_device_w );
+READ8_HANDLER( changela_mem_device_r );
+WRITE8_HANDLER( changela_slope_rom_addr_hi_w );
+WRITE8_HANDLER( changela_slope_rom_addr_lo_w );
 
-static UINT32 slopeROM_bank;
-static UINT32 address;
+static UINT8 portA_in,portA_out,ddrA;
+static UINT8 portB_out,ddrB;
+static UINT8 portC_in,portC_out,ddrC;
 
-static UINT8 * memory_devices;
-static UINT32  mem_dev_selected; /* an offset within memory_devices area */
+static UINT8 mcu_out;
+static UINT8 mcu_in;
+static UINT8 mcu_PC1;
+static UINT8 mcu_PC0;
 
-MACHINE_RESET (changela)
+UINT8 changela_tree0_col;
+UINT8 changela_tree1_col;
+UINT8 changela_left_bank_col;
+UINT8 changela_right_bank_col;
+UINT8 changela_boat_shore_col;
+UINT8 changela_collision_reset;
+UINT8 changela_tree_collision_reset;
+
+static MACHINE_RESET (changela)
 {
 	mcu_PC1=0;
 	mcu_PC0=0;
-}
-
-
-VIDEO_START( changela )
-{
-	memory_devices = auto_malloc(4 * 0x800); /* 0 - not connected, 1,2,3 - RAMs*/
-	return 0;
-}
-
-
-/*
---+-------------------+-----------------------------------------------------+-----------------------------------------------------------------
-St|  PROM contents:   |                Main signals:                        |                      DESCRIPTION
-at+-------------------+-----------------------------------------------------+-----------------------------------------------------------------
-e:|7 6 5 4 3 2 1 0 Hex|/RAMw /RAMr /ROM  /AdderOutput  AdderInput TrainInputs|
-  |                   |           enable GateU61Enable Enable     Enable    |
---+-------------------+-----------------------------------------------------+-----------------------------------------------------------------
-00|0 0 0 0 1 1 0 1 0d | 1     1      0      1            0          1       |                                       (noop ROM 00-lsb to adder)
-01|0 0 0 0 1 1 1 1 0f | 0     1      0      1            1          0       |   ROM 00-lsb to train, and to RAM 00
-02|0 1 0 0 1 1 0 1 4d | 1     0      1      1            0          1       |                                       (noop RAM 00 to adder)
-03|0 0 1 0 1 1 1 1 2f | 0     1      0      1            1          0       |   ROM 00-msb to train, and to RAM 01
-04|1 1 0 0 1 1 0 1 cd | 1     0      1      1            0          1       |                                       (noop RAM 00 to adder)
-05|0 0 0 0 1 1 1 1 0f | 0     1      0      1            1          0       |   ROM 01-lsb to train, and to RAM 02
-06|0 1 0 0 1 1 0 1 4d | 1     0      1      1            0          1       |                                       (noop RAM 02 to adder)
-07|0 0 1 0 1 1 1 1 2f | 0     1      0      1            1          0       |   ROM 01-msb to train, and to RAM 03
-08|1 1 0 0 0 1 0 1 c5 | 1     0      1      1            0          1       |   CLR carry
-09|0 0 0 0 1 1 0 1 0d | 1     1      0      1            0          1       |   ROM 02-lsb to adder
-0a|0 1 1 0 1 1 0 1 6d | 1     0      1      1            0          1       |   RAM 05 to adder
-0b|1 1 1 0 1 1 1 0 ee | 0     1      1      0            1          0       |   Adder to train, and to RAM 05, CLOCK carry
-0c|0 0 0 0 1 1 0 1 0d | 1     1      0      1            0          1       |   ROM 02-msb to adder
-0d|0 1 1 0 1 1 0 1 6d | 1     0      1      1            0          1       |   RAM 07 to adder
-0e|1 1 1 0 1 1 1 0 ee | 0     1      1      0            1          0       |   Adder to train, and to RAM 07, CLOCK carry
-0f|0 0 0 0 1 1 0 1 0d | 1     1      0      1            0          1       |   ROM 03-lsb to adder
-10|0 1 1 0 1 1 0 1 6d | 1     0      1      1            0          1       |   RAM 09 to adder
-11|1 1 1 0 1 1 1 0 ee | 0     1      1      0            1          0       |   Adder to train, and to RAM 09, CLOCK carry
-12|1 0 0 0 1 1 0 1 8d | 1     1      0      1            0          1       |                                       (noop ROM 03-msb to adder)
-13|0 1 0 0 1 1 0 1 4d | 1     0      1      1            0          1       |                                       (noop RAM 0c to adder)
-14|0 0 0 0 0 0 0 1 01 | 1     1      0      1            0          1       |   ROM 04-lsb to adder, CLR carry
-15|0 1 1 0 1 0 0 1 69 | 1     0      1      1            0          1       |   RAM 0d to adder
-16|1 1 1 0 1 0 1 0 ea | 0     1      1      0            1          0       |   Adder to train and to RAM 0d, CLOCK carry
-17|0 0 0 0 1 0 0 1 09 | 1     1      0      1            0          1       |   ROM 04-msb to adder
-18|0 1 1 0 1 0 0 1 69 | 1     0      1      1            0          1       |   RAM 0f to adder
-19|1 1 1 0 1 0 1 0 ea | 0     1      1      0            1          0       |   Adder to train and to RAM 0f, CLOCK carry
-1a|0 0 0 1 1 0 0 1 19 | 1     1      0      1            0          1       |   ROM 05-lsb to adder, /LD HOSC
-1b|0 1 1 0 1 0 0 1 69 | 1     0      1      1            0          1       |   RAM 11 to adder
-1c|1 1 1 0 1 0 1 0 ea | 0     1      1      0            1          0       |   Adder to train and to RAM 11, CLOCK carry
-1d|0 0 0 0 1 0 0 1 09 | 1     1      0      1            0          1       |   ROM 05-msb to adder
-1e|0 1 1 0 1 0 0 1 69 | 1     0      1      1            0          1       |   RAM 13 to adder
-1f|1 1 1 0 1 0 1 0 ea | 0     1      1      0            1          0       |   Adder to train and to RAM 13, CLOCK carry
-                        *   =========================   ====================
-                        *   only one of these signals   these signals select
-                        *   can be active at a time     the output for the result
-                        *    ------- SOURCE --------     ----- TARGET -----
-                        *
-                 ******************
-                 result needs to be
-                 written back to RAM
-*/
-
-
-static UINT8 train[16];
-static UINT8 ls195_latch;
-
-VIDEO_UPDATE( changela )
-{
-	int i;
-	int sx,sy;
-	const UINT8 * obj0rom;
-	const UINT8 *pSource;
-	const UINT8 *ROM1;
-	const UINT8 *ROM111;
-	UINT8 *RAM1;
-	UINT8 *RAM2;
-	UINT8 tile,attr;
-
-	UINT8 ls377_u110 = 0;
-	int carry, add1, add2;
-
-
-	fillbitmap( bitmap, 0x00, cliprect );
-
-
-	RAM1 = memory_devices + 0x0800;
-	RAM2 = memory_devices + 0x1000;
-	ROM1 = memory_region(REGION_USER2) + slopeROM_bank + ((address&0x7e)<<2);
-	ROM111 = memory_region(REGION_GFX1) + 0;
-
-	ls195_latch = 0;
-
-logerror("bank=%4x addr=%4x\n", slopeROM_bank, address);
-
-    /* /PRELOAD */
-	/* address = 0xff */
-
-		/* step 1: ROM 00-lsb to train, and to RAM 00 */
-		i =  ROM1[0] & 0x0f;
-		train[0] = RAM1[0x20] = i;
-		/* step 3: ROM 00-msb to train, and to RAM 01 */
-		i = (ROM1[0]>>4) & 0x0f;
-		train[1] = RAM1[0x21] = i;
-		/* step 5: ROM 01-lsb to train, and to RAM 02 */
-		i =  ROM1[1] & 0x0f;
-		train[2] = RAM1[0x22] = i;
-		/* step 7: ROM 01-msb to train, and to RAM 03 */
-		i = (ROM1[1]>>4) & 0x0f;
-		train[3] = RAM1[0x23] = i;
-
-		/* step 8: CLEAR CARRY */
-		carry = 0;
-
-		/* step 9: ROM 02-lsb to adder */
-		add1 = ROM1[2] & 0x0f;
-		/* step a: RAM 05 to adder */
-		add2 = RAM1[0x5] & 0x0f;
-		/* step b: Adder to train, and to RAM 05, CLOCK carry */
-		train[4] = RAM1[0x25] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step c: ROM 02-msb to adder */
-		add1 = (ROM1[2]>>4) & 0x0f;
-		/* step d: RAM 07 to adder */
-		add2 = RAM1[0x7] & 0x0f;
-		/* step e: Adder to train, and to RAM 07, CLOCK carry */
-		train[5] = RAM1[0x27] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step f: ROM 03-lsb to adder */
-		add1 = ROM1[3] & 0x0f;
-		/* step10: RAM 09 to adder */
-		add2 = RAM1[0x9] & 0x0f;
-		/* step11: Adder to train, and to RAM 09, CLOCK carry */
-		train[6] = RAM1[0x29] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step14: ROM 04-lsb to adder, CLR carry */
-		carry = 0;
-		add1 = ROM1[4] & 0x0f;
-		/* step15: RAM 0d to adder */
-		add2 = RAM1[0xd] & 0x0f;
-		/* step16: Adder to train and to RAM 0d, CLOCK carry */
-		train[7] = RAM1[0x2d] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step17: ROM 04-msb to adder */
-		add1 = (ROM1[4]>>4) & 0x0f;
-		/* step18: RAM 0f to adder */
-		add2 = RAM1[0xf] & 0x0f;
-		/* step19: Adder to train and to RAM 0f, CLOCK carry */
-		train[8] = RAM1[0x2f] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1a: ROM 05-lsb to adder, /LD HOSC */
-/* HOSC */
-
-		add1 = ROM1[5] & 0x0f;
-		/* step1b: RAM 11 to adder */
-		add2 = RAM1[0x11] & 0x0f;
-		/* step1c: Adder to train and to RAM 11, CLOCK carry */
-		train[9] = RAM1[0x31] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1d: ROM 05-msb to adder */
-		add1 = (ROM1[5]>>4) & 0x0f;
-		/* step1e: RAM 13 to adder */
-		add2 = RAM1[0x13] & 0x0f;
-		/* step1f: Adder to train and to RAM 13, CLOCK carry */
-		train[10] = RAM1[0x33] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-
-    /* /PRELOAD */
-	/* address = 0x00 */
-
-		/* step 1: ROM 00-lsb to train, and to RAM 00 */
-		i =  ROM1[0] & 0x0f;
-		train[0] = RAM1[0x20] = i;
-		/* step 3: ROM 00-msb to train, and to RAM 01 */
-		i = (ROM1[0]>>4) & 0x0f;
-		train[1] = RAM1[0x21] = i;
-		/* step 5: ROM 01-lsb to train, and to RAM 02 */
-		i =  ROM1[1] & 0x0f;
-		train[2] = RAM1[0x22] = i;
-		/* step 7: ROM 01-msb to train, and to RAM 03 */
-		i = (ROM1[1]>>4) & 0x0f;
-		train[3] = RAM1[0x23] = i;
-
-		/* step 8: CLEAR CARRY */
-		carry = 0;
-
-		/* step 9: ROM 02-lsb to adder */
-		add1 = ROM1[2] & 0x0f;
-		/* step a: RAM 05 to adder */
-		add2 = RAM1[0x5] & 0x0f;
-		/* step b: Adder to train, and to RAM 05, CLOCK carry */
-		train[4] = RAM1[0x25] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step c: ROM 02-msb to adder */
-		add1 = (ROM1[2]>>4) & 0x0f;
-		/* step d: RAM 07 to adder */
-		add2 = RAM1[0x7] & 0x0f;
-		/* step e: Adder to train, and to RAM 07, CLOCK carry */
-		train[5] = RAM1[0x27] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step f: ROM 03-lsb to adder */
-		add1 = ROM1[3] & 0x0f;
-		/* step10: RAM 09 to adder */
-		add2 = RAM1[0x9] & 0x0f;
-		/* step11: Adder to train, and to RAM 09, CLOCK carry */
-		train[6] = RAM1[0x29] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step14: ROM 04-lsb to adder, CLR carry */
-		carry = 0;
-		add1 = ROM1[4] & 0x0f;
-		/* step15: RAM 0d to adder */
-		add2 = RAM1[0xd] & 0x0f;
-		/* step16: Adder to train and to RAM 0d, CLOCK carry */
-		train[7] = RAM1[0x2d] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step17: ROM 04-msb to adder */
-		add1 = (ROM1[4]>>4) & 0x0f;
-		/* step18: RAM 0f to adder */
-		add2 = RAM1[0xf] & 0x0f;
-		/* step19: Adder to train and to RAM 0f, CLOCK carry */
-		train[8] = RAM1[0x2f] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1a: ROM 05-lsb to adder, /LD HOSC */
-/* HOSC */
-
-		add1 = ROM1[5] & 0x0f;
-		/* step1b: RAM 11 to adder */
-		add2 = RAM1[0x11] & 0x0f;
-		/* step1c: Adder to train and to RAM 11, CLOCK carry */
-		train[9] = RAM1[0x31] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1d: ROM 05-msb to adder */
-		add1 = (ROM1[5]>>4) & 0x0f;
-		/* step1e: RAM 13 to adder */
-		add2 = RAM1[0x13] & 0x0f;
-		/* step1f: Adder to train and to RAM 13, CLOCK carry */
-		train[10] = RAM1[0x33] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-
-	ROM1 = memory_region(REGION_USER2) + slopeROM_bank + (((address+1)&0x7e)<<2);
-
-
-logerror("addrlow=%4x (addr=%4x)\n", (((address+1)&0x7e)<<2), address );
-
-	for (sy = 0; sy < 128; sy++)
-	{
-		int ls163_u107;
-
-	/* compute the math train */
-
-		/* step 1: ROM 00-lsb to train, and to RAM 00 */
-		i =  ROM1[0] & 0x0f;
-		train[0] = RAM1[0x20] = i;
-		/* step 3: ROM 00-msb to train, and to RAM 01 */
-		i = (ROM1[0]>>4) & 0x0f;
-		train[1] = RAM1[0x21] = i;
-		/* step 5: ROM 01-lsb to train, and to RAM 02 */
-		i =  ROM1[1] & 0x0f;
-		train[2] = RAM1[0x22] = i;
-		/* step 7: ROM 01-msb to train, and to RAM 03 */
-		i = (ROM1[1]>>4) & 0x0f;
-		train[3] = RAM1[0x23] = i;
-
-
-if (sy&1)
-{
-		/* step 8: CLEAR CARRY */
-		carry = 0;
-
-		/* step 9: ROM 02-lsb to adder */
-		add1 = ROM1[2] & 0x0f;
-		/* step a: RAM 05 to adder */
-		add2 = RAM1[0x25] & 0x0f;
-		/* step b: add2 to train, and to RAM 05, CLOCK carry */
-		train[4] = RAM1[0x25] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step c: ROM 02-msb to adder */
-		add1 = (ROM1[2]>>4) & 0x0f;
-		/* step d: RAM 07 to adder */
-		add2 = RAM1[0x27] & 0x0f;
-		/* step e: add2 to train, and to RAM 07, CLOCK carry */
-		train[5] = RAM1[0x27] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step f: ROM 03-lsb to adder */
-		add1 = ROM1[3] & 0x0f;
-		/* step10: RAM 09 to adder */
-		add2 = RAM1[0x29] & 0x0f;
-		/* step11: Adder to train, and to RAM 09, CLOCK carry */
-		train[6] = RAM1[0x29] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step14: ROM 04-lsb to adder, CLR carry */
-		carry = 0;
-		add1 = ROM1[4] & 0x0f;
-		/* step15: RAM 0d to adder */
-		add2 = RAM1[0x2d] & 0x0f;
-		/* step16: Adder to train and to RAM 0d, CLOCK carry */
-		train[7] = RAM1[0x2d] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step17: ROM 04-msb to adder */
-		add1 = (ROM1[4]>>4) & 0x0f;
-		/* step18: RAM 0f to adder */
-		add2 = RAM1[0x2f] & 0x0f;
-		/* step19: Adder to train and to RAM 0f, CLOCK carry */
-		train[8] = RAM1[0x2f] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1a: ROM 05-lsb to adder, /LD HOSC */
-/* HOSC */
-
-		add1 = ROM1[5] & 0x0f;
-		/* step1b: RAM 11 to adder */
-		add2 = RAM1[0x31] & 0x0f;
-		/* step1c: Adder to train and to RAM 11, CLOCK carry */
-		train[9] = RAM1[0x31] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1d: ROM 05-msb to adder */
-		add1 = (ROM1[5]>>4) & 0x0f;
-		/* step1e: RAM 13 to adder */
-		add2 = RAM1[0x33] & 0x0f;
-		/* step1f: Adder to train and to RAM 13, CLOCK carry */
-		train[10] = RAM1[0x33] = ((add2) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-}
-else
-{
-		/* step 8: CLEAR CARRY */
-		carry = 0;
-
-		/* step 9: ROM 02-lsb to adder */
-		add1 = ROM1[2] & 0x0f;
-		/* step a: RAM 05 to adder */
-		add2 = RAM1[0x25] & 0x0f;
-		/* step b: Adder to train, and to RAM 05, CLOCK carry */
-		train[4] = RAM1[0x25] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step c: ROM 02-msb to adder */
-		add1 = (ROM1[2]>>4) & 0x0f;
-		/* step d: RAM 07 to adder */
-		add2 = RAM1[0x27] & 0x0f;
-		/* step e: Adder to train, and to RAM 07, CLOCK carry */
-		train[5] = RAM1[0x27] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step f: ROM 03-lsb to adder */
-		add1 = ROM1[3] & 0x0f;
-		/* step10: RAM 09 to adder */
-		add2 = RAM1[0x29] & 0x0f;
-		/* step11: Adder to train, and to RAM 09, CLOCK carry */
-		train[6] = RAM1[0x29] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step14: ROM 04-lsb to adder, CLR carry */
-		carry = 0;
-		add1 = ROM1[4] & 0x0f;
-		/* step15: RAM 0d to adder */
-		add2 = RAM1[0x2d] & 0x0f;
-		/* step16: Adder to train and to RAM 0d, CLOCK carry */
-		train[7] = RAM1[0x2d] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step17: ROM 04-msb to adder */
-		add1 = (ROM1[4]>>4) & 0x0f;
-		/* step18: RAM 0f to adder */
-		add2 = RAM1[0x2f] & 0x0f;
-		/* step19: Adder to train and to RAM 0f, CLOCK carry */
-		train[8] = RAM1[0x2f] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1a: ROM 05-lsb to adder, /LD HOSC */
-/* HOSC */
-
-		add1 = ROM1[5] & 0x0f;
-		/* step1b: RAM 11 to adder */
-		add2 = RAM1[0x31] & 0x0f;
-		/* step1c: Adder to train and to RAM 11, CLOCK carry */
-		train[9] = RAM1[0x31] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-
-		/* step1d: ROM 05-msb to adder */
-		add1 = (ROM1[5]>>4) & 0x0f;
-		/* step1e: RAM 13 to adder */
-		add2 = RAM1[0x33] & 0x0f;
-		/* step1f: Adder to train and to RAM 13, CLOCK carry */
-		train[10] = RAM1[0x33] = ((add1+add2+carry) & 0x0f);
-		carry = ((add1+add2+carry) & 0x10) >> 4;
-}
-
-
-
-/* "burst of 16 10 MHz clocks" */
-		for (sx = 0; sx < 16; sx++)
-		{
-			int tmph,tmpv;
-
-			tmpv = (train[8]<<0) | (train[9]<<4) | (train[10]<<8);
-			tmpv>>=2;
-
-			tmph = (train[4]<<0) | (train[5]<<4) | (train[6]<<8);
-					/* RWCLK */
-					train[4]++;
-					if (train[4] > 15)
-					{
-						train[4] &= 15;
-						train[5]++;
-						if (train[5] > 15)
-						{
-							train[5] &= 15;
-							train[6]++;
-							train[6] &= 15;
-						}
-					}
-					tmph = (train[4]<<0) | (train[5]<<4) | (train[6]<<8);
-
-					if ((tmph&7)==7)
-						ls377_u110 = RAM2[((tmph&0x1f8)>>3) | ((tmpv&0x1f0)<<2)];
-
-					if ((tmph&1)==0)
-						ls195_latch = ROM111[((tmph>>1)&3) | ((tmpv&15)<<2) | ((ls377_u110&0x7f)<<6) ];
-					else
-						ls195_latch>>=4;
-		}
-
-
-
-/* draw the scanline */
-
-		ls163_u107 = 0x80 | ((train[0] | (train[1]<<4)) >> 1);
-
-		for (sx = 0; sx < 256; sx++)
-		{
-			int tmph,tmpv;
-
-			tmpv = (train[8]<<0) | (train[9]<<4) | (train[10]<<8);
-			tmpv>>=2;
-			tmph = (train[4]<<0) | (train[5]<<4) | (train[6]<<8);
-
-			ls163_u107 += 4; /* ls163s clocked at 20MHz = 4 clocks per pixel */
-
-			if (ls163_u107 >= 256)
-			{
-				while (ls163_u107 >= 256)
-				{
-					ls163_u107-=256;
-					/* RWCLK */
-					train[4]++;
-					if (train[4] > 15)
-					{
-						train[4] &= 15;
-						train[5]++;
-						if (train[5] > 15)
-						{
-							train[5] &= 15;
-							train[6]++;
-							train[6] &= 15;
-						}
-					}
-					ls163_u107+= (0x80 | ((train[2] | (train[3]<<4)) >> 1));
-
-					tmph = (train[4]<<0) | (train[5]<<4) | (train[6]<<8);
-
-					if ((tmph&7)==7)
-						ls377_u110 = RAM2[((tmph&0x1f8)>>3) | ((tmpv&0x1f0)<<2)];
-
-					if ((tmph&1)==0)
-						ls195_latch = ROM111[((tmph>>1)&3) | ((tmpv&15)<<2) | ((ls377_u110&0x7f)<<6) ];
-					else
-						ls195_latch>>=4;
-				}
-				if (ls163_u107 >= 256)
-					ui_popup("ERROR!!!!");
-			}
-
-			if ( (sy>=cliprect->min_y) && (sy<=cliprect->max_y) )
-			{
-				int data  = (ls195_latch>>0) & 0x0f;
-				plot_pixel(bitmap, sx, sy, Machine->pens[data] );
-			}
-		}
-
-		if (sy&1)
-			ROM1+=8;	/* every second line */
-	}
-
-
-	/* OBJ 0 - sprites */
-	obj0rom = memory_region(REGION_USER1);
-
-	pSource = spriteram;
-	for (i = 0; i < 0x400; i+=4)
-	{
-		int vr,hr,hs;
-		UINT32 syy,hsize;
-		UINT8  roz;
-		UINT32 vsiz;
-		UINT32 ypos;
-		UINT32 xpos;
-
-		roz = pSource[i+0];			/* 0x80->VR, 0x40->HR, 0x20->HS */
-		vsiz= roz & 0x1f;			/* vertical size-1 (0 = one line) */
-		ypos= 0x100-pSource[i+1];
-		xpos= pSource[i+3];
-		tile= pSource[i+2];
-		vr = (roz&0x80)>>7;
-		hr = (roz&0x40)>>6;
-		hs = (roz&0x20)>>5;	/* horizontal size in 8 bytes units (2 pixels per byte) */
-
-		for (syy = 0; syy <= vsiz; syy++)
-		{
-			unsigned int ls00 = ( (vr^((syy>>4)&1)) & ((vsiz>>4)&1) )^1;
-			unsigned int A7 = (ls00 & (tile&1)) ^1;
-			unsigned int A8 = ((tile&2)>>1) ^ (hr&hs) ^ hs /*^hs = ^/Qls109*/ ;
-			UINT32 rom_addr = ((tile>>2)<<9) | (A8<<8) | (A7<<7) | ((syy&0x0f)<<3);
-
-			if (vr)	/* vertical rotate */
-				rom_addr ^= (0x0f<<3);
-
-			for (hsize = 0; hsize <= hs; hsize++)
-			{
-				if (hsize==1)
-					rom_addr ^= 0x100;
-
-				if ( ((syy+ypos)>=cliprect->min_y) && ((syy+ypos)<=cliprect->max_y) )
-				{
-
-					for (sx = 0; sx < 8; sx++)	/* 8 steps == 16 pixels */
-					{
-						UINT32 xp,yp,pixdata;
-						UINT8 data;
-
-						if (!hr)
-							data = obj0rom[rom_addr+sx];
-						else
-						{
-							data = obj0rom[rom_addr+(sx^7)];
-							data = ((data&0x0f)<<4) | ((data&0xf0)>>4); /* horizontal rotate */
-						}
-
-						xp = 2*sx + xpos + hsize*16;
-						yp = syy + ypos - vsiz;
-
-						pixdata = (data>>4) & 0x0f;
-						if ((xp<256) && (yp<256))
-						{
-							if ( (pixdata!=0x0f) && (pixdata!=0) )
-								plot_pixel(bitmap, xp, yp, Machine->pens[16+pixdata] );
-						}
-
-						pixdata = data & 0x0f;
-						xp++;
-						if ((xp<256) && (yp<256))
-						{
-							if ( (pixdata!=0x0f) && (pixdata!=0) )
-								plot_pixel(bitmap, xp, yp, Machine->pens[16+pixdata] );
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/* OBJ 1 - text */
-	pSource = videoram;
-	attr = 0;
-	for (sy = 0; sy < 256; sy+=8)
-	{
-		for (sx = 0; sx < 256; sx+=8)
-		{
-			tile = pSource[0];
-			if (!pSource[1]&0x10) /* D4=0 enables latch at U32 */
-				attr = pSource[1];
-			pSource += 2;
-#if 1
-			drawgfx(bitmap, Machine->gfx[1],
-				tile,
-				8 + ((attr>>6)&0x03), /* color; OBJ1s use palette entries 0x20-0x2f (color code=8) */
-				0,0, /* flip */
-				sx+(attr&0x0f),sy,
-				cliprect,
-				TRANSPARENCY_PEN,3 ); /* fix it: should be 7 */
-#endif
-		}
-	}
-}
-
-
-static WRITE8_HANDLER (colors_w)
-{
-	int bit0, bit1, bit2, r, g, b;
-	UINT32 c, color_index;
-
-	c = (data) | ((offset&1)<<8); /* a0 used as D8 bit input */
-
-	c ^= 0x1ff; /* active low */
-
-	color_index = offset/2;
-	color_index ^=0x30;	/* A4 and A5 lines are negated */
-
-	/* red component */
-	bit0 = (c >> 0) & 0x01;
-	bit1 = (c >> 1) & 0x01;
-	bit2 = (c >> 2) & 0x01;
-	r = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-
-	/* green component */
-	bit0 = (c >> 3) & 0x01;
-	bit1 = (c >> 4) & 0x01;
-	bit2 = (c >> 5) & 0x01;
-	g = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-
-	/* blue component */
-	bit0 = (c >> 6) & 0x01;
-	bit1 = (c >> 7) & 0x01;
-	bit2 = (c >> 8) & 0x01;
-	b = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
-
-	palette_set_color(color_index,r,g,b);
+	portA_in = portA_out = portC_out = mcu_in = mcu_out = 0xff;
+	ddrA = ddrB = ddrC = 0;
+	portC_in = 0xfe;
+	changela_video_reset();
+
+	changela_tree0_col = 0;
+	changela_tree1_col = 0;
+	changela_left_bank_col = 0;
+	changela_right_bank_col = 0;
+	changela_boat_shore_col = 0;
+	changela_collision_reset = 0;
+	changela_tree_collision_reset = 0;
 }
 
 static READ8_HANDLER( mcu_r )
 {
-	//printf("Z80 MCU  R = %x\n",mcu_out);
-	return mcu_out;
+
+	return mcu_out & ((portC_out & 4) ? 0xff : mcu_in);
 }
 
-/* latch LS374 at U39 */
 static WRITE8_HANDLER( mcu_w )
 {
 	mcu_in = data;
+	if (!(portC_out & 4)) portA_in = data;
 }
 
-
-
-/*********************************
-        MCU
-*********************************/
-
-
-
-READ8_HANDLER( changela_68705_portA_r )
+static READ8_HANDLER( changela_68705_portA_r )
 {
 	return (portA_out & ddrA) | (portA_in & ~ddrA);
 }
 
-WRITE8_HANDLER( changela_68705_portA_w )
+static WRITE8_HANDLER( changela_68705_portA_w )
 {
 	portA_out = data;
 }
 
-WRITE8_HANDLER( changela_68705_ddrA_w )
+static WRITE8_HANDLER( changela_68705_ddrA_w )
 {
 	ddrA = data;
 }
 
-
-READ8_HANDLER( changela_68705_portB_r )
+static READ8_HANDLER( changela_68705_portB_r )
 {
 	return (portB_out & ddrB) | (readinputport(4) & ~ddrB);
 }
 
-WRITE8_HANDLER( changela_68705_portB_w )
+static WRITE8_HANDLER( changela_68705_portB_w )
 {
 	portB_out = data;
 }
 
-WRITE8_HANDLER( changela_68705_ddrB_w )
+static WRITE8_HANDLER( changela_68705_ddrB_w )
 {
 	ddrB = data;
 }
 
-
-READ8_HANDLER( changela_68705_portC_r )
+static READ8_HANDLER( changela_68705_portC_r )
 {
 	return (portC_out & ddrC) | (portC_in & ~ddrC);
 }
 
-WRITE8_HANDLER( changela_68705_portC_w )
+static WRITE8_HANDLER( changela_68705_portC_w )
 {
-	/* PC3 is connected to the CLOCK input of the LS374,
-        so we latch the data on positive going edge of the clock */
-
-/* this is strange because if we do this corectly - it just doesn't work */
-	if( (data&8) /*& (!(portC_out&8))*/ )
-		mcu_out  = portA_out;
-
-
-	/* PC2 is connected to the /OE input of the LS374 */
-
-	if(!(data&4))
-		portA_in = mcu_in;
-
+	/* the reply latch clocks only on the rising edge; input pull-ups remain active */
+	if ((data & 8) && !(portC_out & 8)) mcu_out = portA_out;
+	portA_in = (data & 4) ? 0xff : mcu_in;
 	portC_out = data;
 }
 
-WRITE8_HANDLER( changela_68705_ddrC_w )
+static WRITE8_HANDLER( changela_68705_ddrC_w )
 {
 	ddrC = data;
 }
-
 
 static ADDRESS_MAP_START( mcu_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
@@ -771,63 +140,65 @@ static ADDRESS_MAP_START( mcu_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0080, 0x07ff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
 
-
-
-/* U30 */
 static READ8_HANDLER( changela_24_r )
 {
-	return ((portC_out&2)<<2) | 7;	/* bits 2,1,0-N/C inputs */
+	return ((portC_out&2)<<2) | 7;
 }
 
 static READ8_HANDLER( changela_25_r )
 {
-	return 0x03;//collisions on bits 3,2, bits 1,0-N/C inputs
+
+	return (changela_tree1_col << 3) | (changela_tree0_col << 2) | 0x03;
 }
 
 static READ8_HANDLER( changela_30_r )
 {
-	return readinputport(7);	//wheel control (clocked input) signal on bits 3,2,1,0
+	return readinputport(7) & 0x0f;
 }
 
 static READ8_HANDLER( changela_31_r )
 {
-	return 0x00;	//wheel UP/DOWN control signal on bit 3, collisions on bits:2,1,0
+
+	static UINT8 prev_value = 0;
+	UINT8 curr_value = readinputport(7);
+	static int dir = 0;
+
+	if( (curr_value < prev_value && (prev_value - curr_value) < 0x80)
+	||  (curr_value > prev_value && (curr_value - prev_value) > 0x80) )
+		dir = 1;
+	if( (prev_value < curr_value && (curr_value - prev_value) < 0x80)
+	||  (prev_value > curr_value && (prev_value - curr_value) > 0x80) )
+		dir = 0;
+
+	prev_value = curr_value;
+
+	return (dir << 3) | (changela_left_bank_col << 2) | (changela_right_bank_col << 1) | changela_boat_shore_col;
 }
 
 static READ8_HANDLER( changela_2c_r )
 {
-	int val = readinputport(5);
-
-    val = (val&0x30) | ((val&1)<<7) | (((val&1)^1)<<6);
-
-	return val;
+	return readinputport(5);
 }
 
 static READ8_HANDLER( changela_2d_r )
 {
-	/* the schems are unreadable - i'm not sure it is V8 (page 74, SOUND I/O BOARD SCHEMATIC 1 OF 2, FIGURE 24 - in the middle on the right side) */
-	int v8 = 0;
-
-	if ((cpu_getscanline() & 0xf8)==0xf8)
-		v8 = 1;
-
-	return (readinputport(6) & 0xe0) | (v8<<4);
+	static const UINT8 gas[3] = { 1, 0, 2 };
+	return (readinputport(6) & 0x20) | (gas[readinputport(8) % 3] << 6) | (BIT((cpu_getscanline() + 32) % 262, 8) << 4);
 }
 
 static WRITE8_HANDLER( mcu_PC0_w )
 {
 	portC_in = (portC_in&0xfe) | (data&1);
-	//printf("PC0 W = %x\n",data&1);
 }
 
 static WRITE8_HANDLER( changela_collision_reset_0 )
 {
-
+	changela_collision_reset = data & 0x01;
 }
 
 static WRITE8_HANDLER( changela_collision_reset_1 )
 {
-
+	changela_tree_collision_reset = data & 0x01;
 }
 
 static WRITE8_HANDLER( changela_coin_counter_w )
@@ -835,74 +206,17 @@ static WRITE8_HANDLER( changela_coin_counter_w )
 	coin_counter_w(offset,data);
 }
 
-
-static int dev_sel;
-
-
-static WRITE8_HANDLER( mem_device_select_w )
-{
-	dev_sel = data & 7;
-
-	mem_dev_selected = 0;
-
-	if(dev_sel > 3)
-	{
-		ui_popup("memory device selected = %i", dev_sel);
-	}
-
-	mem_dev_selected = dev_sel * 0x800;
-
-	/*
-    dev_sel possible settings:
-    0 - not connected (no device)
-    1 - ADR1 is 2114 RAM at U59 (state machine) (accessible range: 0x0000-0x003f)
-    2 - ADR2 is 2128 RAM at U109 (River RAM)    (accessible range: 0x0000-0x07ff)
-    3 - ADR3 is 2128 RAM at U114? (Tree RAM)    (accessible range: 0x0000-0x07ff)
-    4 - ADR4 is 2732 ROM at U7    (Tree ROM)    (accessible range: 0x0000-0x07ff)
-    5 - SLOPE is ROM at U44 (state machine)     (accessible range: 0x0000-0x07ff)
-    */
-}
-
-static WRITE8_HANDLER( mem_device_w )
-{
-	memory_devices[mem_dev_selected + offset] = data;
-
-    if((mem_dev_selected==0x800) & (offset>0x3f))
-		ui_popup("RAM1 offset=%4x",offset);
-
-}
-static READ8_HANDLER( mem_device_r )
-{
-	return memory_devices[mem_dev_selected + offset];
-}
-
-
-
-
-static WRITE8_HANDLER( slope_rom_addr_hi_w )
-{
-	slopeROM_bank = (data&3)<<9;
-//  ui_popup("bank = %04x", slopeROM_bank);
-}
-
-static WRITE8_HANDLER( slope_rom_addr_lo_w )
-{
-	address = data;
-//    ui_popup("address = %04x", address);
-}
-
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0x83ff) AM_READ(MRA8_RAM)				/* OBJ0 RAM */
-	AM_RANGE(0x9000, 0x97ff) AM_READ(MRA8_RAM)				/* OBJ1 RAM */
+	AM_RANGE(0x8000, 0x83ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x9000, 0x97ff) AM_READ(MRA8_RAM)
 	AM_RANGE(0xb000, 0xbfff) AM_READ(MRA8_ROM)
 
-	AM_RANGE(0xc000, 0xc7ff) AM_READ(mem_device_r)			/* RAM4 (River Bed RAM); RAM5 (Tree RAM) */
+	AM_RANGE(0xc000, 0xc7ff) AM_READ(changela_mem_device_r)
 
 	AM_RANGE(0xd000, 0xd000) AM_READ(AY8910_read_port_0_r)
 	AM_RANGE(0xd010, 0xd010) AM_READ(AY8910_read_port_1_r)
 
-	/* LS139 - U24 */
 	AM_RANGE(0xd024, 0xd024) AM_READ(changela_24_r)
 	AM_RANGE(0xd025, 0xd025) AM_READ(changela_25_r)
 	AM_RANGE(0xd028, 0xd028) AM_READ(mcu_r)
@@ -912,244 +226,213 @@ static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xd030, 0xd030) AM_READ(changela_30_r)
 	AM_RANGE(0xd031, 0xd031) AM_READ(changela_31_r)
 
-	AM_RANGE(0xf000, 0xf7ff) AM_READ(MRA8_RAM)	/* RAM2 (Processor RAM) */
+	AM_RANGE(0xf000, 0xf7ff) AM_READ(MRA8_RAM)
 ADDRESS_MAP_END
 
-
 static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM) 				/* Processor ROM */
-	AM_RANGE(0x8000, 0x83ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) 	/* OBJ0 RAM (A10 = GND )*/
-	AM_RANGE(0x9000, 0x97ff) AM_WRITE(MWA8_RAM) AM_BASE(&videoram)		/* OBJ1 RAM */
-	AM_RANGE(0xa000, 0xa07f) AM_WRITE(colors_w) AM_BASE(&colorram)		/* Color 93419 RAM 64x9(nine!!!) bits A0-used as the 8-th bit data input (d0-d7->normal, a0->d8) */
-	AM_RANGE(0xb000, 0xbfff) AM_WRITE(MWA8_ROM)				/* Processor ROM */
+	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x8000, 0x83ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram)
+	AM_RANGE(0x9000, 0x97ff) AM_WRITE(MWA8_RAM) AM_BASE(&videoram)
+	AM_RANGE(0xa000, 0xa07f) AM_WRITE(changela_colors_w) AM_BASE(&colorram)
+	AM_RANGE(0xb000, 0xbfff) AM_WRITE(MWA8_ROM)
 
-	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(mem_device_w)			/* River-Tree RAMs, slope ROM, tree ROM */
+	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(changela_mem_device_w)
 
-	/* LS138 - U16 */
-	AM_RANGE(0xc800, 0xc800) AM_WRITE(MWA8_NOP)				/* not connected */
-	AM_RANGE(0xc900, 0xc900) AM_WRITE(mem_device_select_w)	/* selects the memory device to be accessible at 0xc000-0xc7ff */
-	AM_RANGE(0xca00, 0xca00) AM_WRITE(slope_rom_addr_hi_w)
-	AM_RANGE(0xcb00, 0xcb00) AM_WRITE(slope_rom_addr_lo_w)
+	AM_RANGE(0xc800, 0xc800) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xc900, 0xc900) AM_WRITE(changela_mem_device_select_w)
+	AM_RANGE(0xca00, 0xca00) AM_WRITE(changela_slope_rom_addr_hi_w)
+	AM_RANGE(0xcb00, 0xcb00) AM_WRITE(changela_slope_rom_addr_lo_w)
 
 	AM_RANGE(0xd000, 0xd000) AM_WRITE(AY8910_control_port_0_w)
 	AM_RANGE(0xd001, 0xd001) AM_WRITE(AY8910_write_port_0_w)
 	AM_RANGE(0xd010, 0xd010) AM_WRITE(AY8910_control_port_1_w)
 	AM_RANGE(0xd011, 0xd011) AM_WRITE(AY8910_write_port_1_w)
 
-	/* LS259 - U44 */
 	AM_RANGE(0xd020, 0xd020) AM_WRITE(changela_collision_reset_0)
 	AM_RANGE(0xd021, 0xd022) AM_WRITE(changela_coin_counter_w)
-//AM_RANGE(0xd023, 0xd023) AM_WRITE(MWA8_NOP)
+
 	AM_RANGE(0xd024, 0xd024) AM_WRITE(mcu_PC0_w)
 	AM_RANGE(0xd025, 0xd025) AM_WRITE(changela_collision_reset_1)
 	AM_RANGE(0xd026, 0xd026) AM_WRITE(MWA8_NOP)
 
 	AM_RANGE(0xd030, 0xd030) AM_WRITE(mcu_w)
-	AM_RANGE(0xe000, 0xe000) AM_WRITE(watchdog_reset_w)		/* Watchdog */
-	AM_RANGE(0xf000, 0xf7ff) AM_WRITE(MWA8_RAM)				/* Processor RAM */
+	AM_RANGE(0xe000, 0xe000) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0xf000, 0xf7ff) AM_WRITE(MWA8_RAM)
 ADDRESS_MAP_END
 
-
-INPUT_PORTS_START( changela )
-	PORT_START /* 0 */ /* DSWA */
-	PORT_DIPNAME( 0x07, 0x06, "Steering Wheel Ratio" )
-	PORT_DIPSETTING(    0x06, "Recommended" )
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, "Loop on Memory Failures" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, "Control Type" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Joystick ) )
-	PORT_DIPSETTING(    0x20, "Steering Wheel" )
+static INPUT_PORTS_START( changela )
+	PORT_START_TAG("DSWA")
+	PORT_DIPNAME( 0x07, 0x01, "Steering Wheel Ratio" )
+	PORT_DIPSETTING(    0x00, "0" )
+	PORT_DIPSETTING(    0x01, "1" )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x05, "5" )
+	PORT_DIPSETTING(    0x06, "6" )
+	PORT_DIPSETTING(    0x07, "7" )
+	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x00, "Ignore Memory Failures" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Controls ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Joystick ) )
+	PORT_DIPSETTING(    0x00, "Steering Wheel" )
 	PORT_DIPNAME( 0x40, 0x40, "Diagnostic" )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, "Number of Players" )
-	PORT_DIPSETTING(    0x00, "1" )
-	PORT_DIPSETTING(    0x80, "2" )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Players ) )
+	PORT_DIPSETTING(    0x80, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
 
-	PORT_START /* 1 */ /* DSWB */
-	PORT_DIPNAME( 0x01, 0x00, "Max Bonus Fuels" )
-	PORT_DIPSETTING(    0x02, "1" )
-	PORT_DIPSETTING(    0x01, "2" )
-	PORT_DIPSETTING(    0x00, "3" )
-	PORT_DIPSETTING(    0x03, "99" )
-	PORT_DIPNAME( 0x0c, 0x00, "Game Difficulty" )
-	PORT_DIPSETTING(    0xc0, DEF_STR( Very_Easy) )
-	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Medium ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
-	PORT_DIPNAME( 0x30, 0x00, "Traffic Difficulty" )
-	PORT_DIPSETTING(    0x30, DEF_STR( Very_Easy) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Easy ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( Medium ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
-	PORT_DIPNAME( 0x40, 0x00, "Land Collisions Enabled" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, "Car Collisions Enabled" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
+	PORT_START_TAG("DSWB")
+	PORT_DIPNAME( 0x03, 0x00, "Max Bonus Fuels" )
+	PORT_DIPSETTING(    0x01, "1" )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x00, "99" )
+	PORT_DIPNAME( 0x0c, 0x08, "Game Difficulty" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Easy) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x30, 0x20, "Traffic Difficulty" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Easy) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x40, 0x00, "Land Collisions" )
+	PORT_DIPSETTING(    0x40, "Off (Cheat)" )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x00, "Car Collision" )
+	PORT_DIPSETTING(    0x80, "Off (Cheat)" )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
-	PORT_START /* 2 */ /* DSWC - coinage (see manual) */
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_START_TAG("DSWC")
+	PORT_DIPNAME( 0xf0, 0x10, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x90, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 2C_2C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0xb0, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 2C_4C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0xd0, DEF_STR( 2C_5C ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( 2C_6C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0xf0, DEF_STR( 2C_7C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x50, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0x70, DEF_STR( 1C_7C ) )
+	PORT_DIPNAME( 0x0f, 0x01, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x09, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x0a, DEF_STR( 2C_2C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x0b, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 2C_4C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0d, DEF_STR( 2C_5C ) )
+	PORT_DIPSETTING(    0x0e, DEF_STR( 2C_6C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x0f, DEF_STR( 2C_7C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_7C ) )
+
+	PORT_START_TAG("DSWD")
+	PORT_DIPNAME( 0x01, 0x01, "Right Slot" )
+	PORT_DIPSETTING(    0x01, "On Right (Bottom) Counter" )
+	PORT_DIPSETTING(    0x00, "On Left (Top) Counter" )
+	PORT_DIPNAME( 0x02, 0x00, "Left Slot" )
+	PORT_DIPSETTING(    0x02, "On Right (Bottom) Counter" )
+	PORT_DIPSETTING(    0x00, "On Left (Top) Counter" )
+	PORT_DIPNAME( 0x1c, 0x00, "Credits For Bonus" )
+	PORT_DIPSETTING(    0x00, "0" )
+	PORT_DIPSETTING(    0x04, "1" )
+	PORT_DIPSETTING(    0x08, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x10, "4" )
+	PORT_DIPSETTING(    0x14, "5" )
+	PORT_DIPSETTING(    0x18, "6" )
+	PORT_DIPSETTING(    0x1c, "7" )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, "'King Of The World' Name Length" )
+	PORT_DIPSETTING(    0x40, "3 Letters" )
+	PORT_DIPSETTING(    0x00, "Long" )
+	PORT_DIPNAME( 0x80, 0x00, "'King Of The World' Name" )
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
-	PORT_START /* 3 */ /* DSWD - bonus */
-	PORT_DIPNAME( 0x01, 0x01, "Right Coin" )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x02, "Left Coin" )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x1c, 0x00, "Credits for Bonus" )
-	PORT_DIPSETTING(    0x1c, "0" )
-	PORT_DIPSETTING(    0x14, "1" )
-	PORT_DIPSETTING(    0x10, "2" )
-	PORT_DIPSETTING(    0x0c, "3" )
-	PORT_DIPSETTING(    0x08, "4" )
-	PORT_DIPSETTING(    0x04, "6" )
-	PORT_DIPSETTING(    0x00, "7" )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0xc0, 0xc0, "King of the World" )
-	PORT_DIPSETTING(    0x00, "No Name" )
-	PORT_DIPSETTING(    0x80, "Short Name" )
-	PORT_DIPSETTING(    0xc0, "Long Name" )
-
-	PORT_START /* port 4 */ /* MCU */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_START_TAG("MCU")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_SERVICE( 0x04, IP_ACTIVE_LOW )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR(Free_Play) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( On ) )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN3 )	/* NC */
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 )
 
-	PORT_START /* 5 */ /* 0xDx2C */
-	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("Gear Shift") PORT_CODE(KEYCODE_SPACE) PORT_TOGGLE /* Gear shift */
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN ) /* FWD - negated bit 7 */
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN ) /* REV - gear position */
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED ) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x00)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED ) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x00)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x20)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x20)
+	PORT_BIT( 0x40, 0x40, IPT_SPECIAL ) PORT_CONDITION("GEAR", 0x01, PORTCOND_EQUALS, 0x00)
+	PORT_BIT( 0x80, 0x80, IPT_SPECIAL ) PORT_CONDITION("GEAR", 0x01, PORTCOND_EQUALS, 0x01)
 
-	PORT_START /* 6 */ /* 0xDx2D */
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_TILT )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON1 ) //gas1
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON2 ) //gas2
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_TILT )
 
-	PORT_START /* 7 */ /* 0xDx30 DRIVING_WHEEL */
-	PORT_BIT( 0x0f, 0x00, IPT_PADDLE ) PORT_MINMAX(0,0x0f) PORT_SENSITIVITY(50) PORT_KEYDELTA(1)
-//PORT_BIT(  mask,default,type ) PORT_MINMAX(min,max) PORT_SENSITIVITY(sensitivity) PORT_KEYDELTA(delta)
+	PORT_START_TAG("WHEEL")
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(50) PORT_KEYDELTA(8) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x00)
 
+	PORT_START_TAG("GAS")
+	PORT_BIT( 0x03, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00, 0x02) PORT_SENSITIVITY(10) PORT_KEYDELTA(1) PORT_CONDITION("DSWA", 0x20, PORTCOND_EQUALS, 0x00)
 
+	PORT_START_TAG("GEAR")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Gear Shift") PORT_TOGGLE
 INPUT_PORTS_END
-
-
-static const gfx_layout tile_layout =
-{
-	8,16,
-	RGN_FRAC(1,1),
-	4,
-	{ 0,1,2,3 },
-	{ 0*4, 1*4, 2*4, 3*4, 4*4, 5*4, 6*4, 7*4 },
-	{	0*32,1*32,2*32,3*32,4*32,5*32,6*32,7*32,
-		8*32,9*32,10*32,11*32,12*32,13*32,14*32,15*32 },
-	16*32
-};
-
-static const gfx_layout obj1_layout =
-{
-	8,8,
-	RGN_FRAC(1,1),
-	2,
-	{ 0,4 },
-	{ 0,1,2,3, 8,9,10,11 },
-	{ 0*16,1*16,2*16,3*16,4*16,5*16,6*16,7*16 },
-	8*8*2
-};
-
-static const gfx_decode gfxdecodeinfo[] =
-{
-	{ REGION_GFX1, 0x0000, &tile_layout, 0, 4 },
-	{ REGION_GFX2, 0x0000, &obj1_layout, 0, 16 },
-	{ -1 }
-};
 
 static struct AY8910interface ay8910_interface_1 = {
 	input_port_0_r,
-	input_port_2_r
+	input_port_1_r
 };
 
 static struct AY8910interface ay8910_interface_2 = {
-	input_port_1_r,
+	input_port_2_r,
 	input_port_3_r
 };
 
-
-INTERRUPT_GEN( chl_interrupt )
+static INTERRUPT_GEN( chl_interrupt )
 {
-	int vector = cpu_getvblank() ? 0xdf : 0xcf; /* 4 irqs per frame: 3 times 0xcf, 1 time 0xdf */
-
-//    force_partial_update(cpu_getscanline());
-
-	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, vector);
-
-	/* it seems the V8 == Vblank and it is connected to the INT on the 68705 */
-	//so we should cause an INT on the cpu 1 here, as well.
-	//but only once per frame !
-	if (vector == 0xdf) /* only on vblank */
-		cpunum_set_input_line(1, 0, PULSE_LINE );
-
+	cpunum_set_input_line(1, 0, PULSE_LINE);
 }
 
 static MACHINE_DRIVER_START( changela )
 
 	MDRV_CPU_ADD(Z80,5000000)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_VBLANK_INT(chl_interrupt,4)
+	MDRV_CPU_VBLANK_INT(chl_interrupt,1)
 
-	MDRV_CPU_ADD(M68705,2000000)
+	MDRV_CPU_ADD(M68705,2500000/4)
 	MDRV_CPU_PROGRAM_MAP(mcu_readmem,mcu_writemem)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_FRAMES_PER_SECOND(5000000.0 / (318 * 262))
+	MDRV_VBLANK_DURATION((int)(1000000.0 * 318 * (262 - 224) / 5000000))
 
 	MDRV_MACHINE_RESET(changela)
 
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(32*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 32*8-1)
-	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_SCREEN_SIZE(32*8, 262)
+	MDRV_VISIBLE_AREA(8, 255, 32, 255)
 	MDRV_PALETTE_LENGTH(0x40)
 
 	MDRV_VIDEO_START(changela)
@@ -1166,44 +449,678 @@ static MACHINE_DRIVER_START( changela )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
-
 ROM_START( changela )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* Z80 code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "cl25a",	0x0000, 0x2000, CRC(38530a60) SHA1(0b0ef1abe11c5271fcd1671322b77165217553c3) )
 	ROM_LOAD( "cl24a",	0x2000, 0x2000, CRC(2fcf4a82) SHA1(c33355e2d4d3fab32c8d713a680ec0fceedab341) )
 	ROM_LOAD( "cl23",	0x4000, 0x2000, CRC(08385891) SHA1(d8d66664ec25db067d5a4a6c35ec0ac65b9e0c6a) )
 	ROM_LOAD( "cl22",	0x6000, 0x2000, CRC(796e0abd) SHA1(64dd9fc1f9bc44519a253ef0c02e181dd13904bf) )
 	ROM_LOAD( "cl27",	0xb000, 0x1000, CRC(3668afb8) SHA1(bcfb788baf806edcb129ea9f9dcb1d4260684773) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 68705U3 */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "cl38a",	0x0000, 0x800, CRC(b70156ce) SHA1(c5eab8bbd65c4f587426298da4e22f991ce01dde) )
 
-	ROM_REGION( 0x4000, REGION_GFX1, 0 )	/* tile data */
+	ROM_REGION( 0x4000, REGION_GFX1, 0 )
 	ROM_LOAD( "cl111",	0x0000, 0x2000, CRC(41c0149d) SHA1(3ea53a3821b044b3d0451fec1b4ee2c28da393ca) )
 	ROM_LOAD( "cl113",	0x2000, 0x2000, CRC(ddf99926) SHA1(e816b88302c5639c7284f4845d450f232d63a10c) )
 
-	ROM_REGION( 0x1000, REGION_GFX2, ROMREGION_DISPOSE )	/* obj 1 data */
+	ROM_REGION( 0x1000, REGION_GFX2, 0 )
 	ROM_LOAD( "cl46",	0x0000, 0x1000, CRC(9c0a7d28) SHA1(fac9180ea0d9aeea56a84b35cc0958f0dd86a801) )
 
-	ROM_REGION( 0x8000, REGION_USER1, 0 )	/* obj 0 data */
+	ROM_REGION( 0x8000, REGION_USER1, 0 )
 	ROM_LOAD( "cl100",	0x0000, 0x2000, CRC(3fa9e4fa) SHA1(9abd7df5fcf143a0c476bd8c8753c5ea294b9f74) )
 	ROM_LOAD( "cl99",	0x2000, 0x2000, CRC(67b27b9e) SHA1(7df0f93851959359218c8d2272e30d242a77039d) )
 	ROM_LOAD( "cl98",	0x4000, 0x2000, CRC(bffe4149) SHA1(5cf0b98f9d342bd06d575c565ea01bbd79f5e04b) )
 	ROM_LOAD( "cl97",	0x6000, 0x2000, CRC(5abab8f9) SHA1(f5156855bbcdf0740fd44520386318ee53ebbf9a) )
 
-	ROM_REGION( 0x1000, REGION_USER2, 0 )	/* math tables: SLOPE ROM (river-tree schematic page 1/3) */
-	ROM_LOAD( "cl44",	0x0000, 0x1000, CRC(160d2bc7) SHA1(2609208c2bd4618ea340923ee01af69278980c36) ) /* first and 2nd half identical */
+	ROM_REGION( 0x1000, REGION_USER2, 0 )
+	ROM_LOAD( "cl44",	0x0000, 0x1000, CRC(160d2bc7) SHA1(2609208c2bd4618ea340923ee01af69278980c36) )
 
-	ROM_REGION( 0x3000, REGION_USER3, 0 )	/* math tables: TREE ROM (river-tree schematic page 3/3)*/
-	ROM_LOAD( "cl7",	0x0000, 0x0800, CRC(01e3efca) SHA1(b26203787f105ba32773e37035c39253050f9c82) ) /* fixed bits: 0xxxxxxx */
+	ROM_REGION( 0x3000, REGION_USER3, 0 )
+	ROM_LOAD( "cl7",	0x0000, 0x0800, CRC(01e3efca) SHA1(b26203787f105ba32773e37035c39253050f9c82) )
 	ROM_LOAD( "cl9",	0x1000, 0x2000, CRC(4e53cdd0) SHA1(6255411cfdccbe2c581c83f9127d582623453c3a) )
 
 	ROM_REGION( 0x0020, REGION_PROMS, 0 )
-	ROM_LOAD( "cl88",	0x0000, 0x0020, CRC(da4d6625) SHA1(2d9a268973518252eb36f479ab650af8c16c885c) ) /* math train state machine */
+	ROM_LOAD( "cl88",	0x0000, 0x0020, CRC(da4d6625) SHA1(2d9a268973518252eb36f479ab650af8c16c885c) )
 ROM_END
 
 static DRIVER_INIT(changela)
 {
+	state_save_register_global(portA_in);
+	state_save_register_global(portA_out);
+	state_save_register_global(ddrA);
+	state_save_register_global(portB_out);
+	state_save_register_global(ddrB);
+	state_save_register_global(portC_in);
+	state_save_register_global(portC_out);
+	state_save_register_global(ddrC);
+
+	state_save_register_global(mcu_out);
+	state_save_register_global(mcu_in);
+	state_save_register_global(mcu_PC1);
+	state_save_register_global(mcu_PC0);
+
+	state_save_register_global(changela_tree0_col);
+	state_save_register_global(changela_tree1_col);
+	state_save_register_global(changela_left_bank_col);
+	state_save_register_global(changela_right_bank_col);
+	state_save_register_global(changela_boat_shore_col);
+	state_save_register_global(changela_collision_reset);
+	state_save_register_global(changela_tree_collision_reset);
 }
 
-GAME( 1983, changela, 0, changela, changela, changela, ROT180, "Taito Corporation", "Change Lanes", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
+static UINT8 *chl_riverram, *chl_treeram;
+static UINT8 chl_treeram2[0x40], chl_stateram[0xc0];
+static UINT8 chl_mem_dev_selected, chl_tree_en, chl_horizon;
+static UINT8 chl_v_count_river, chl_v_count_tree, chl_tree_prio, chl_tree_on[2];
+static UINT32 chl_sloperom_bank;
+static mame_bitmap *chl_obj0_bitmap, *chl_river_bitmap, *chl_tree_bitmap[2];
+static mame_timer *changela_scanline_timer;
+
+#define CHL_PIXEL(bitmap, y, x) (((UINT16 *)(bitmap)->line[y])[x])
+
+static void draw_river(mame_bitmap *bitmap, int sy)
+{
+	UINT8 const *const ROM = memory_region(REGION_USER2);
+	UINT8 *const RAM = chl_stateram;
+	UINT8 const *const TILE_ROM = memory_region(REGION_GFX1);
+	UINT8 const *const TILE_RAM = chl_riverram;
+	UINT8 const *const PROM = memory_region(REGION_PROMS);
+
+	int preload = ((sy < 32) ? 1 : 0);
+
+	UINT8 math_train[10] = { 0 };
+	UINT8 pre_train[3] = { 0 };
+
+	UINT8 prev_state = 0;
+
+	UINT8 ram_count = 0;
+	UINT8 rom_count = 0;
+
+	int hosc = 0;
+	int carry = 0;
+
+	if (sy == 32)
+		chl_v_count_river = chl_horizon;
+	chl_v_count_river = (chl_v_count_river + 1) & 0xff;
+
+	for (int i = 0; i < 0x20; i++)
+	{
+		UINT8 curr_state = PROM[i];
+
+		if (prev_state & 0x80)
+			ram_count = (ram_count + 1) & 0x0f;
+		if ((curr_state & 0x40) && !(prev_state & 0x40))
+			rom_count = (rom_count + 1) & 0x0f;
+
+		if (prev_state & 0x02)
+			carry = (((pre_train[1] + pre_train[2] + carry) > 0x0f) ? 1 : 0);
+		if (!(curr_state & 0x08))
+			carry = 0;
+
+		if (prev_state & 0x10)
+			hosc = (math_train[8] << 4) | math_train[9];
+
+		int rom_addr = chl_sloperom_bank | ((chl_v_count_river & 0x7e) << 2) | ((rom_count & 0x0e) >> 1);
+		int ram_a5 = ((curr_state & 0x01) & ((curr_state & 0x40) >> 6) & preload) ^ 0x01;
+		int ram_addr = (ram_a5 << 5) | (ram_count << 1) | ((curr_state & 0x20) >> 5);
+		int mux45 = rom_count & 0x01;
+		int mux61 = chl_v_count_river & 0x01;
+
+		switch (curr_state)
+		{
+			case 0x01: case 0x09: case 0x19: case 0x0d: case 0x8d:
+				pre_train[0] = (mux45 ? ((ROM[rom_addr] & 0xf0) >> 4) : (ROM[rom_addr] & 0x0f));
+				break;
+			case 0x0f: case 0x2f:
+				math_train[0] = RAM[ram_addr] = (mux45 ? ((ROM[rom_addr] & 0xf0) >> 4) : (ROM[rom_addr] & 0x0f));
+				break;
+			case 0x4d: case 0x69: case 0x6d: case 0xc5: case 0xcd:
+				pre_train[0] = RAM[ram_addr] & 0x0f;
+				break;
+			case 0xea: case 0xee:
+				math_train[0] = RAM[ram_addr] = (mux61 ? (pre_train[1]) : ((pre_train[1] + pre_train[2] + carry) & 0x0f));
+				break;
+			default:
+				break;
+		}
+
+		if (curr_state & 0x02)
+		{
+			for (int j = 9; j > 0; j--)
+			{
+				math_train[j] = math_train[j - 1];
+			}
+		}
+		else
+		{
+			pre_train[2] = pre_train[1];
+			pre_train[1] = pre_train[0];
+		}
+
+		prev_state = curr_state;
+	}
+
+	if (!(chl_v_count_river & 0x80))
+	{
+		int h_count = 0x80 | (hosc >> 1);
+		int tile_v = ((math_train[3] & 0x0c) >> 2) | ((math_train[2] & 0x0f) << 2) | ((math_train[1] & 0x07) << 6);
+		int tile_h = ((math_train[7] & 0x0f) | ((math_train[6] & 0x0f) << 4) | ((math_train[5] & 0x01) << 8)) + 4;
+
+		for (int sx = 0; sx < 256; sx++)
+		{
+			for (int i = 0; i < ((sx < 16) ? 1 : 4); i++)
+			{
+				if (h_count > 0xff)
+				{
+					h_count = ((math_train[9] & 0x0f) >> 1) | ((math_train[8] & 0x0f) << 3) | 0x80;
+					tile_h = (tile_h + 1) & 0xfff;
+
+					if (((math_train[9] & 0x01) && (tile_h & 0x01)))
+						h_count--;
+				}
+				else
+					h_count++;
+			}
+
+			int ram_addr = ((tile_h & 0x1f8) >> 3) | ((tile_v & 0x1f0) << 2);
+			int rom_addr = ((tile_h & 0x06) >> 1) | ((tile_v & 0x0f) << 2) | ((TILE_RAM[ram_addr] & 0x7f) << 6);
+
+			int col;
+			if (tile_h & 0x01)
+				col = TILE_ROM[rom_addr] & 0x0f;
+			else
+				col = (TILE_ROM[rom_addr] & 0xf0) >> 4;
+
+			CHL_PIXEL(bitmap, sy, sx) = col;
+		}
+	}
+
+	if (chl_v_count_river == 0x7f)
+		chl_tree_prio = BIT(math_train[2], 2);
+}
+static void draw_tree(mame_bitmap *bitmap, int sy, int tree_num)
+{
+
+	UINT8 const *const ROM = memory_region(REGION_USER2);
+	UINT8 *const RAM = chl_stateram + 0x40 + 0x40 * tree_num;
+	UINT8 const *const PROM = memory_region(REGION_PROMS);
+
+	UINT8 *const RAM2 = chl_treeram2 + 0x20 * tree_num;
+	UINT8 const *const TILE_ROM = (tree_num ? (memory_region(REGION_USER3) + 0x1000) : (memory_region(REGION_GFX1) + 0x2000));
+	UINT8 const *const TILE_RAM = (tree_num ? memory_region(REGION_USER3) : chl_treeram);
+
+	int preload = ((sy < 32) ? 1 : 0);
+
+	UINT8 math_train[10] = { 0 };
+	UINT8 pre_train[3] = { 0 };
+	UINT8 tree_train[3] = { 0 };
+
+	UINT8 prev_state = 0;
+
+	UINT8 ram_count = 0;
+	UINT8 rom_count = 0;
+
+	int hosc = 0;
+	int carry = 0;
+	int tree_carry = 0;
+
+	int h_count, tile_v, tile_h;
+	int all_ff;
+
+	if (sy == 32)
+	{
+		chl_tree_on[tree_num] = 0;
+		if (tree_num == 0)
+			chl_v_count_tree = chl_horizon;
+	}
+	if (tree_num == 0)
+		chl_v_count_tree = (chl_v_count_tree + 1) & 0xff;
+
+	for (int i = 0; i < 0x20; i++)
+	{
+		UINT8 curr_state = PROM[i];
+
+		if (prev_state & 0x80)
+			ram_count = (ram_count + 1) & 0x0f;
+		if ((curr_state & 0x40) && !(prev_state & 0x40))
+			rom_count = (rom_count + 1) & 0x0f;
+
+		if (prev_state & 0x02)
+		{
+			carry = (((pre_train[1] + pre_train[2] + carry) > 0x0f) ? 1 : 0);
+			tree_carry = (((tree_train[1] + tree_train[2] + tree_carry) > 0x0f) ? 1 : 0);
+		}
+		if (!(curr_state & 0x08))
+			carry = tree_carry = 0;
+
+		if (prev_state & 0x10)
+			hosc = (math_train[8] << 4) | math_train[9];
+
+		int rom_addr = chl_sloperom_bank | ((chl_v_count_tree & 0x7e) << 2) | ((rom_count & 0x0e) >> 1);
+		int ram_a5 = ((curr_state & 0x01) & ((curr_state & 0x40) >> 6) & preload) ^ 0x01;
+		int ram_addr = (ram_a5 << 5) | (ram_count << 1) | ((curr_state & 0x20) >> 5);
+		int ram2_addr = (ram_count << 1) | ((curr_state & 0x20) >> 5);
+		int mux45 = rom_count & 0x01;
+		int mux61 = chl_v_count_tree & 0x01;
+
+		switch (curr_state)
+		{
+			case 0x01: case 0x09: case 0x19: case 0x0d: case 0x8d:
+				pre_train[0] = (mux45 ? ((ROM[rom_addr] & 0xf0) >> 4) : (ROM[rom_addr] & 0x0f));
+				break;
+			case 0x0f: case 0x2f:
+				RAM[ram_addr] = (mux45 ? ((ROM[rom_addr] & 0xf0) >> 4) : (ROM[rom_addr] & 0x0f));
+				break;
+			case 0x4d: case 0x69: case 0x6d: case 0xc5: case 0xcd:
+				pre_train[0] = RAM[ram_addr] & 0x0f;
+				break;
+			case 0xea: case 0xee:
+				RAM[ram_addr] = (mux61 ? (pre_train[1]) : ((pre_train[1] + pre_train[2] + carry) & 0x0f));
+				break;
+			default:
+				break;
+		}
+
+		if (!chl_tree_on[tree_num])
+		{
+			int mux82 = (chl_v_count_tree & 0x01) ^ 0x01;
+
+			switch (curr_state)
+			{
+				case 0x01: case 0x09: case 0x19: case 0x0d: case 0x8d:
+					tree_train[0] = RAM2[ram2_addr] = pre_train[0];
+					break;
+				case 0x0f: case 0x2f:
+					math_train[0] = RAM2[ram2_addr] = RAM[ram_addr] & 0x0f;
+					break;
+				case 0x4d: case 0x69: case 0x6d: case 0xc5: case 0xcd:
+					tree_train[0] = RAM2[ram2_addr] = pre_train[0];
+					break;
+				case 0xea: case 0xee:
+					math_train[0] = RAM2[ram2_addr] = (mux82 ? ((tree_train[1] + tree_train[2] + tree_carry) & 0x0f) : (tree_train[1]));
+					break;
+				default:
+					break;
+			}
+		}
+		else
+		{
+			int mux82 = ((curr_state & 0x04) ? 0 : 1);
+
+			switch (curr_state)
+			{
+				case 0x01: case 0x09: case 0x19: case 0x0d: case 0x8d:
+					tree_train[0] = RAM2[ram2_addr];
+					break;
+				case 0x0f: case 0x2f:
+					math_train[0] = RAM2[ram2_addr];
+					break;
+				case 0x4d: case 0x69: case 0x6d: case 0xc5: case 0xcd:
+					tree_train[0] = RAM2[ram2_addr];
+					break;
+				case 0xea: case 0xee:
+					math_train[0] = RAM2[ram2_addr] = (mux82 ? ((tree_train[1] + tree_train[2] + tree_carry) & 0x0f) : (tree_train[1]));
+					break;
+				default:
+					break;
+			}
+		}
+
+		if (curr_state & 0x02)
+		{
+			for (int j = 9; j > 0; j--)
+				math_train[j] = math_train[j-1];
+		}
+		else
+		{
+			pre_train[2] = pre_train[1];
+			pre_train[1] = pre_train[0];
+			tree_train[2] = tree_train[1];
+			tree_train[1] = tree_train[0];
+		}
+
+		prev_state = curr_state;
+	}
+
+	h_count = 0x80 | (hosc >> 1);
+	tile_v = ((math_train[3] & 0x0c) >> 2) | ((math_train[2] & 0x0f) << 2) | ((math_train[1] & 0x07) << 6);
+	tile_h = ((math_train[7] & 0x0f) | ((math_train[6] & 0x0f) << 4) | ((math_train[5] & 0x01) << 8)) + 4;
+	all_ff = 1;
+
+	for (int sx = 0; sx < 256; sx++)
+	{
+		for (int i = 0; i < ((sx < 16) ? 1 : 4); i++)
+		{
+			if (h_count > 0xff)
+			{
+				h_count = ((math_train[9] & 0x0f) >> 1) | ((math_train[8] & 0x0f) << 3) | 0x80;
+				tile_h = (tile_h + 1) & 0xfff;
+
+				if (((math_train[9] & 0x01) && (tile_h & 0x01)))
+					h_count--;
+			}
+			else
+				h_count++;
+		}
+
+		int ram_addr = ((tile_h & 0x1f8) >> 3) | ((tile_v & 0x1f0) << 2);
+		int rom_addr = ((tile_h & 0x06) >> 1) | ((tile_v & 0x0f) << 2) | ((TILE_RAM[ram_addr] & 0x7f) << 6);
+
+		if (!(chl_v_count_tree & 0x80) && (chl_tree_en & (0x01 << tree_num)) && ((TILE_ROM[rom_addr] & 0xf0) == 0))
+			chl_tree_on[tree_num] = 1;
+
+		if (chl_tree_on[tree_num])
+		{
+			int col;
+			if (tile_h & 0x01)
+				col = TILE_ROM[rom_addr] & 0x0f;
+			else
+				col = (TILE_ROM[rom_addr] & 0xf0) >> 4;
+
+			if (col != 0x0f)
+				all_ff = 0;
+
+			if (col != 0x0f && col != 0x00)
+				CHL_PIXEL(bitmap, sy, sx) = col | 0x30;
+		}
+	}
+
+	if (all_ff)
+		chl_tree_on[tree_num] = 0;
+}
+static void draw_obj0(mame_bitmap *bitmap, int sy)
+{
+	UINT8 const *const ROM = memory_region(REGION_USER1);
+	UINT8 const *const RAM = spriteram;
+
+	for (int sx = 0; sx < 256; sx++)
+	{
+		int vr = (RAM[sx * 4 + 0] & 0x80) >> 7;
+		int hr = (RAM[sx * 4 + 0] & 0x40) >> 6;
+		int hs = (RAM[sx * 4 + 0] & 0x20) >> 5;
+		UINT32 vsize = RAM[sx * 4 + 0] & 0x1f;
+		UINT8 ypos = ~RAM[sx * 4 + 1] + 1;
+		UINT8 tile = RAM[sx * 4 + 2];
+		UINT8 xpos = RAM[sx * 4 + 3];
+
+		if (sy - ypos <= vsize)
+		{
+			for (int i = 0; i < 16; i++)
+			{
+				UINT8 sum = sy - ypos;
+
+				UINT8 counter = i;
+				if (hr) counter ^= 0x0f;
+
+				UINT32 A8 = ((tile & 0x02) >> 1) ^ ((hr & hs) ^ hs);
+				UINT32 A7 = ((((vr ^ ((sum & 0x10) >> 4)) & ((vsize & 0x10) >> 4)) ^ 0x01) & (tile & 0x01)) ^ 0x01;
+				UINT32 rom_addr = (counter >> 1) | ((sum & 0x0f) << 3) | (A7 << 7) | (A8 << 8) | ((tile >> 2) << 9);
+				if (vr) rom_addr ^= (0x0f << 3);
+
+				UINT8 data;
+				if (counter & 1)
+					data = ROM[rom_addr] & 0x0f;
+				else
+					data = (ROM[rom_addr] & 0xf0) >> 4;
+
+				if ((data != 0x0f) && (data != 0) && (xpos + i) < 256)
+					CHL_PIXEL(bitmap, sy, xpos + i) = data | 0x10;
+
+				if (hs)
+				{
+					if (counter & 1)
+						data = ROM[rom_addr ^ 0x100] & 0x0f;
+					else
+						data = (ROM[rom_addr ^ 0x100] & 0xf0) >> 4;
+
+					if ((data != 0x0f) && (data != 0) && (xpos + i + 16) < 256)
+						CHL_PIXEL(bitmap, sy, xpos + i + 16) = data | 0x10;
+				}
+			}
+		}
+	}
+}
+static void draw_obj1(mame_bitmap *bitmap)
+{
+	UINT8 const *const ROM = memory_region(REGION_GFX2);
+	UINT8 const *const RAM = videoram;
+
+	UINT8 reg[4] = { 0 };
+
+	UINT8 attrib = 0;
+
+	for (int sy = 0; sy < 256; sy++)
+	{
+		for (int sx = 0; sx < 256; sx++)
+		{
+
+			int ram_addr = ((sx & 0xf8) >> 2) | ((sy & 0xf8) << 3);
+			int tile_addr = RAM[ram_addr];
+
+			if (!(RAM[ram_addr + 1] & 0x10) && (sx & 0x04))
+				attrib = RAM[ram_addr + 1];
+
+			UINT8 tile = ROM[(tile_addr << 4) | ((sx & 0x04) >> 2) | ((sy & 0x07) << 1)];
+			reg[(sx & 0x0c) >> 2] = tile;
+			int sum = (sx & 0x0f) + (attrib & 0x0f);
+
+			int c0, c1;
+			if ((sum & 0x03) == 0)
+			{
+				c0 = (reg[(sum & 0x0c) >> 2] & 0x08) >> 3;
+				c1 = (reg[(sum & 0x0c) >> 2] & 0x80) >> 7;
+			}
+			else if ((sum & 0x03) == 1)
+			{
+				c0 = (reg[(sum & 0x0c) >> 2] & 0x04) >> 2;
+				c1 = (reg[(sum & 0x0c) >> 2] & 0x40) >> 6;
+			}
+			else if ((sum & 0x03) == 2)
+			{
+				c0 = (reg[(sum & 0x0c) >> 2] & 0x02) >> 1;
+				c1 = (reg[(sum & 0x0c) >> 2] & 0x20) >> 5;
+			}
+			else
+			{
+				c0 = (reg[(sum & 0x0c) >> 2] & 0x01) >> 0;
+				c1 = (reg[(sum & 0x0c) >> 2] & 0x10) >> 4;
+			}
+
+			int col = c0 | (c1 << 1) | ((attrib & 0xc0) >> 4);
+			if ((col & 0x07) != 0x07)
+				CHL_PIXEL(bitmap, sy, sx) = col | 0x20;
+		}
+	}
+}
+WRITE8_HANDLER( changela_colors_w )
+{
+
+	static const UINT8 color_table[8] = { 0, 7, 18, 31, 58, 88, 146, 255 };
+
+	int r, g, b;
+	UINT32 c, color_index;
+
+	c = data | ((offset & 0x01) << 8);
+	c ^= 0x1ff;
+
+	color_index = offset >> 1;
+	color_index ^= 0x30;
+
+	r = color_table[(c >> 0) & 0x07];
+	g = color_table[(c >> 3) & 0x07];
+	b = color_table[(c >> 6) & 0x07];
+
+	palette_set_color(color_index,r,g,b);
+}
+WRITE8_HANDLER( changela_mem_device_select_w )
+{
+
+	chl_mem_dev_selected = data & 0x07;
+	chl_tree_en = (data & 0x30) >> 4;
+}
+WRITE8_HANDLER( changela_mem_device_w )
+{
+	switch (chl_mem_dev_selected)
+	{
+		case 1:
+			for (int i = 0; i < 3; i++)
+				chl_stateram[(i * 0x40) + (offset & 0x3f)] = data & 0xf;
+			break;
+
+		case 2:
+			chl_riverram[offset] = data;
+			break;
+
+		case 3:
+			chl_treeram[offset] = data;
+			break;
+
+		default:
+			break;
+	}
+}
+READ8_HANDLER( changela_mem_device_r )
+{
+	switch (chl_mem_dev_selected)
+	{
+		case 1: return chl_stateram[offset & 0x3f];
+		case 2: return chl_riverram[offset];
+		case 3: return chl_treeram[offset];
+		case 4: return memory_region(REGION_USER3)[offset];
+		case 5: return memory_region(REGION_USER2)[offset];
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+WRITE8_HANDLER( changela_slope_rom_addr_hi_w )
+{
+	chl_sloperom_bank = (data & 0x03) << 9;
+}
+WRITE8_HANDLER( changela_slope_rom_addr_lo_w )
+{
+	chl_horizon = data;
+}
+static void changela_scanline_callback(int param)
+{
+	int sy = param;
+
+	if (sy == 256)
+		cpunum_set_input_line_and_vector(0, 0, HOLD_LINE,0xdf);
+
+	else if (((sy % 64) == 0))
+		cpunum_set_input_line_and_vector(0, 0, HOLD_LINE,0xcf);
+
+	if (sy < 256)
+	{
+
+		const rectangle rect = { 0, 255, sy, sy };
+		fillbitmap(chl_river_bitmap, 0, &rect);
+		fillbitmap(chl_obj0_bitmap, 0, &rect);
+		fillbitmap(chl_tree_bitmap[0], 0, &rect);
+		fillbitmap(chl_tree_bitmap[1], 0, &rect);
+
+		draw_river(chl_river_bitmap, sy);
+		draw_obj0(chl_obj0_bitmap, sy);
+		draw_tree(chl_tree_bitmap[0], sy, 0);
+		draw_tree(chl_tree_bitmap[1], sy, 1);
+	}
+
+	if (sy >= 32 && sy < 256)
+	{
+
+		for (int sx = 1; sx < 256; sx++)
+		{
+			UINT16 pix = CHL_PIXEL(chl_river_bitmap, sy, sx);
+			const int riv_col = (pix == 0x08 || pix == 0x09 || pix == 0x0a);
+
+			pix = CHL_PIXEL(chl_river_bitmap, sy, sx-1);
+			const int prev_col = (pix == 0x08 || pix == 0x09 || pix == 0x0a);
+
+			if (CHL_PIXEL(chl_obj0_bitmap, sy, sx) == 0x14)
+			{
+
+				if (CHL_PIXEL(chl_tree_bitmap[0], sy, sx) != 0)
+					changela_tree0_col = 1;
+
+				if (CHL_PIXEL(chl_tree_bitmap[1], sy, sx) != 0)
+					changela_tree1_col = 1;
+
+				if (!riv_col && prev_col)
+					changela_right_bank_col = 1;
+
+				if (riv_col && !prev_col)
+					changela_left_bank_col = 1;
+
+				if (riv_col)
+					changela_boat_shore_col = 1;
+			}
+		}
+		if (!changela_tree_collision_reset)
+		{
+			changela_tree0_col = 0;
+			changela_tree1_col = 0;
+		}
+		if (!changela_collision_reset)
+		{
+			changela_left_bank_col = 0;
+			changela_right_bank_col = 0;
+			changela_boat_shore_col = 0;
+		}
+	}
+
+	sy = (sy + 1) % 262;
+	/* the core numbers scanlines from the first visible hardware line, 32 */
+	timer_adjust(changela_scanline_timer, cpu_getscanlinetime((sy + 230) % 262), sy, 0);
+}
+
+static void changela_video_reset(void)
+{
+	chl_sloperom_bank = chl_tree_en = chl_horizon = chl_mem_dev_selected = 0;
+	chl_v_count_river = chl_v_count_tree = chl_tree_prio = 0;
+	chl_tree_on[0] = chl_tree_on[1] = 0;
+}
+
+VIDEO_START( changela )
+{
+	chl_riverram = auto_malloc(0x800);
+	chl_treeram = auto_malloc(0x800);
+	memset(chl_riverram, 0, 0x800);
+	memset(chl_treeram, 0, 0x800);
+	chl_obj0_bitmap = auto_bitmap_alloc(256, 262);
+	chl_river_bitmap = auto_bitmap_alloc(256, 262);
+	chl_tree_bitmap[0] = auto_bitmap_alloc(256, 262);
+	chl_tree_bitmap[1] = auto_bitmap_alloc(256, 262);
+	changela_scanline_timer = timer_alloc(changela_scanline_callback);
+	timer_adjust(changela_scanline_timer, cpu_getscanlinetime(230), 0, 0);
+	state_save_register_global_pointer(chl_riverram, 0x800);
+	state_save_register_global_pointer(chl_treeram, 0x800);
+	state_save_register_global_array(chl_stateram);
+	state_save_register_global_array(chl_treeram2);
+	state_save_register_global_array(chl_tree_on);
+	state_save_register_global(chl_sloperom_bank);
+	state_save_register_global(chl_tree_en);
+	state_save_register_global(chl_horizon);
+	state_save_register_global(chl_mem_dev_selected);
+	state_save_register_global(chl_v_count_river);
+	state_save_register_global(chl_v_count_tree);
+	state_save_register_global(chl_tree_prio);
+	return 0;
+}
+
+VIDEO_UPDATE( changela )
+{
+	copybitmap(bitmap, chl_river_bitmap, 0, 0, 0, 0, cliprect, TRANSPARENCY_NONE, 0);
+	copybitmap(bitmap, chl_obj0_bitmap, 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	/* the river state machine determines which tree generator is in front */
+	copybitmap(bitmap, chl_tree_bitmap[chl_tree_prio], 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	copybitmap(bitmap, chl_tree_bitmap[1 ^ chl_tree_prio], 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	draw_obj1(bitmap);
+}
+
+#undef CHL_PIXEL
+
+GAME( 1983, changela, 0, changela, changela, changela, ROT180, "Taito America Corporation", "Change Lanes", 0 )
