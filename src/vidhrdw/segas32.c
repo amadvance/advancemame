@@ -1733,7 +1733,7 @@ static int draw_one_sprite(UINT16 *data, int xoffs, int yoffs, const rectangle *
 	int ypos     = (INT16)(data[4] << 4) >> 4;
 	int xpos     = (INT16)(data[5] << 4) >> 4;
 	UINT32 addr  = data[6] | ((data[2] & 0xf000) << 4);
-	int color    = 0x8000 | (data[7] & (bpp8 ? 0x7f00 : 0x7ff0));
+	int color    = data[7] & (bpp8 ? 0x7f00 : 0x7ff0);
 	int hzoom, vzoom;
 	int xdelta = 1, ydelta = 1;
 	int x, y, xtarget, ytarget, yacc = 0, pix, transmask;
@@ -1744,6 +1744,13 @@ static int draw_one_sprite(UINT16 *data, int xoffs, int yoffs, const rectangle *
 	/* if hidden, or top greater than/equal to bottom, or invalid bank, punt */
 	if (srcw == 0 || srch == 0 || dstw == 0 || dsth == 0)
 		goto bail;
+
+	/* Modes 0-3 use palette bit 15 as the top priority-group bit.
+	   Other modes reserve pixel bit 15 for shadow control. */
+	if ((mixer_control[(is_multi32 && (data[3] & 0x0800)) ? 1 : 0][0x4c/2] & 0x0c) == 0)
+		color |= data[7] & 0x8000;
+	else
+		color |= 0x8000;
 
 	/* determine the transparency mask for pixels */
 	transmask = transparency_masks[sprite_control_latched[0x08/2] & 3][sprite_control_latched[0x0a/2] & 3];
@@ -2051,7 +2058,7 @@ static void mix_all_layers(int which, int xoffs, mame_bitmap *bitmap, const rect
 		UINT8		coloroffs;			/* color offset index */
 	} layerorder[16][8], layersort[8];
 	struct layer_info temp_sprite_save = { 0 };
-	UINT8 sprgroup_shift, sprgroup_mask, sprgroup_or;
+	UINT8 sprgroup_shift, sprgroup_mask;
 	int numlayers, laynum, groupnum;
 	int rgboffs[3][3];
 	int sprpixmask, sprshadowmask;
@@ -2082,25 +2089,25 @@ static void mix_all_layers(int which, int xoffs, mame_bitmap *bitmap, const rect
 	switch (mixer_control[which][0x4c/2] & 0x0f)
 	{
 		default:
-		case 0x0:	sprgroup_shift = 14;	sprgroup_mask = 0x00;	sprgroup_or = 0x01;	break;
-		case 0x1:	sprgroup_shift = 14;	sprgroup_mask = 0x01;	sprgroup_or = 0x02;	break;
-		case 0x2:	sprgroup_shift = 13;	sprgroup_mask = 0x03;	sprgroup_or = 0x04;	break;
-		case 0x3:	sprgroup_shift = 12;	sprgroup_mask = 0x07;	sprgroup_or = 0x08;	break;
+		case 0x0:	sprgroup_shift = 15;	sprgroup_mask = 0x01;	break;
+		case 0x1:	sprgroup_shift = 14;	sprgroup_mask = 0x03;	break;
+		case 0x2:	sprgroup_shift = 13;	sprgroup_mask = 0x07;	break;
+		case 0x3:	sprgroup_shift = 12;	sprgroup_mask = 0x0f;	break;
 
-		case 0x4:	sprgroup_shift = 14;	sprgroup_mask = 0x01;	sprgroup_or = 0x00;	break;
-		case 0x5:	sprgroup_shift = 13;	sprgroup_mask = 0x03;	sprgroup_or = 0x00;	break;
-		case 0x6:	sprgroup_shift = 12;	sprgroup_mask = 0x07;	sprgroup_or = 0x00;	break;
-		case 0x7:	sprgroup_shift = 11;	sprgroup_mask = 0x0f;	sprgroup_or = 0x00;	break;
+		case 0x4:	sprgroup_shift = 14;	sprgroup_mask = 0x01;	break;
+		case 0x5:	sprgroup_shift = 13;	sprgroup_mask = 0x03;	break;
+		case 0x6:	sprgroup_shift = 12;	sprgroup_mask = 0x07;	break;
+		case 0x7:	sprgroup_shift = 11;	sprgroup_mask = 0x0f;	break;
 
-		case 0x8:	sprgroup_shift = 14;	sprgroup_mask = 0x01;	sprgroup_or = 0x00;	break;
-		case 0x9:	sprgroup_shift = 13;	sprgroup_mask = 0x03;	sprgroup_or = 0x00;	break;
-		case 0xa:	sprgroup_shift = 12;	sprgroup_mask = 0x07;	sprgroup_or = 0x00;	break;
-		case 0xb:	sprgroup_shift = 11;	sprgroup_mask = 0x0f;	sprgroup_or = 0x00;	break;
+		case 0x8:	sprgroup_shift = 14;	sprgroup_mask = 0x01;	break;
+		case 0x9:	sprgroup_shift = 13;	sprgroup_mask = 0x03;	break;
+		case 0xa:	sprgroup_shift = 12;	sprgroup_mask = 0x07;	break;
+		case 0xb:	sprgroup_shift = 11;	sprgroup_mask = 0x0f;	break;
 
-		case 0xc:	sprgroup_shift = 13;	sprgroup_mask = 0x01;	sprgroup_or = 0x00;	break;
-		case 0xd:	sprgroup_shift = 12;	sprgroup_mask = 0x03;	sprgroup_or = 0x00;	break;
-		case 0xe:	sprgroup_shift = 11;	sprgroup_mask = 0x07;	sprgroup_or = 0x00;	break;
-		case 0xf:	sprgroup_shift = 10;	sprgroup_mask = 0x0f;	sprgroup_or = 0x00;	break;
+		case 0xc:	sprgroup_shift = 13;	sprgroup_mask = 0x01;	break;
+		case 0xd:	sprgroup_shift = 12;	sprgroup_mask = 0x03;	break;
+		case 0xe:	sprgroup_shift = 11;	sprgroup_mask = 0x07;	break;
+		case 0xf:	sprgroup_shift = 10;	sprgroup_mask = 0x0f;	break;
 	}
 	sprshadowmask = (mixer_control[which][0x4c/2] & 0x04) ? 0x8000 : 0x0000;
 	sprpixmask = ((1 << sprgroup_shift) - 1) & 0x3fff;
@@ -2147,8 +2154,7 @@ static void mix_all_layers(int which, int xoffs, mame_bitmap *bitmap, const rect
 	/* for each possible sprite group, insert the sprites into the list at the appropriate point */
 	for (groupnum = 0; groupnum <= sprgroup_mask; groupnum++)
 	{
-		int effgroup = sprgroup_or | groupnum;
-		int priority = mixer_control[which][0x00/2 + effgroup] & 0x0f;
+		int priority = mixer_control[which][0x00/2 + groupnum] & 0x0f;
 		int effpri = (priority << 3) | 7;
 		int sprindex = numlayers;
 		int dstnum = 0;
@@ -2165,10 +2171,10 @@ static void mix_all_layers(int which, int xoffs, mame_bitmap *bitmap, const rect
 		layerorder[groupnum][sprindex].index = MIXER_LAYER_SPRITES;
 		layerorder[groupnum][sprindex].effpri = effpri;
 		if ((mixer_control[which][0x4c/2] & 3) != 3)
-			layerorder[groupnum][sprindex].palbase = (mixer_control[which][0x00/2 + effgroup] & 0x00f0) << 6;
+			layerorder[groupnum][sprindex].palbase = (mixer_control[which][0x00/2 + groupnum] & 0x00f0) << 6;
 		else
 			layerorder[groupnum][sprindex].palbase = (mixer_control[which][0x4c/2] & 0x00f0) << 6;
-		layerorder[groupnum][sprindex].mixshift = (mixer_control[which][0x00/2 + effgroup] >> 8) & 3;
+		layerorder[groupnum][sprindex].mixshift = (mixer_control[which][0x00/2 + groupnum] >> 8) & 3;
 		layerorder[groupnum][sprindex].blendmask = 0;
 		layerorder[groupnum][sprindex].sprblendmask = 0;
 		layerorder[groupnum][sprindex].coloroffs = compute_color_offsets(which, (mixer_control[which][0x3e/2] >> 6) & 1, (mixer_control[which][0x4c/2] >> 15) & 1);
