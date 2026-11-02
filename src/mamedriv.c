@@ -2641,6 +2641,7 @@ V-V                           TP-027
 	DRIVER( spf2xj )
 	DRIVER( spf2ta )
 	DRIVER( spf2th )
+	DRIVER( spf2xpri )
 	DRIVER( megaman2 )
 	DRIVER( megaman2a )
 	DRIVER( rockman2j )
