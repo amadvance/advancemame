@@ -3634,8 +3634,10 @@ static DRIVER_INIT( dbzvrvs )
 
 static WRITE16_HANDLER( f1en_comms_echo_w )
 {
-	// pretend that slave is following master op, enables attract mode video with sound
-	program_write_byte( 0x810049, data );
+	/* Mirror the master's reply into the slave byte so attract mode can
+	   continue with sound, without issuing another write to this handler. */
+	if (ACCESSING_LSB)
+		dual_pcb_comms[0x48/2] = (data & 0x00ff) | ((data & 0x00ff) << 8);
 }
 
 static DRIVER_INIT( f1en )
@@ -3643,6 +3645,7 @@ static DRIVER_INIT( f1en )
 	segas32_common_init(analog_custom_io_r, analog_custom_io_w, NULL);
 
 	dual_pcb_comms = auto_malloc(0x1000);
+	memset(dual_pcb_comms, 0, 0x1000);
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x810000, 0x810fff, 0, 0, dual_pcb_comms_r);
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x810000, 0x810fff, 0, 0, dual_pcb_comms_w);
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x818000, 0x818003, 0, 0, dual_pcb_masterslave);
