@@ -1,7 +1,7 @@
 // license:BSD-3-Clause
 // copyright-holders: Andrea Mazzoleni
 /*
- * Shared block cache for PSX, MIPS III and SH-3. Included once per CPU,
+ * Shared block cache for PSX, MIPS III, SH-2 and SH-3. Included once per CPU,
  * after struct jit_block and sljit_mame.h; intentionally no include guard.
  * Compilation, memory access, codemaps and code budgets stay in the CPU.
  *

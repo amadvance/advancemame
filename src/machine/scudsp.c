@@ -53,6 +53,7 @@ Changelog:
 ******************************************************************************************/
 #include "driver.h"
 #include "machine/scudsp.h"
+#include "cpu/sh2/sh2.h"
 
 /*DSP macros*/
 #define PRF ((stv_scu[32] & 0x04000000) >> 26)
@@ -691,6 +692,8 @@ static void dsp_dma( void )
 		for ( counter = 0; counter < transfer_cnt; counter++ )
 		{
 			program_write_dword(dest, dsp_get_mem_source_dma( dsp_mem, counter ) );
+			if ( sh2_jit_code_present )
+				sh2_jit_ram_written( dest, 4 );
 			dest += add;
 		}
 

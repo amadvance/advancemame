@@ -1622,6 +1622,9 @@ static void dma_direct_lv0()
 		scu_src_0+=scu_src_add_0;
 	}
 
+	if (sh2_jit_code_present)
+		sh2_jit_ram_written(tmp_dst, tmp_size);
+
 	scu_size_0 = tmp_size;
 	if(!(DRUP(0))) scu_src_0 = tmp_src;
 	if(!(DWUP(0))) scu_dst_0 = tmp_dst;
@@ -1724,6 +1727,9 @@ static void dma_direct_lv1()
 		scu_dst_1+=scu_dst_add_1;
 		scu_src_1+=scu_src_add_1;
 	}
+
+	if (sh2_jit_code_present)
+		sh2_jit_ram_written(tmp_dst, tmp_size);
 
 	scu_size_1 = tmp_size;
 	if(!(DRUP(1))) scu_src_1 = tmp_src;
@@ -1828,6 +1834,9 @@ static void dma_direct_lv2()
 		scu_src_2+=scu_src_add_2;
 	}
 
+	if (sh2_jit_code_present)
+		sh2_jit_ram_written(tmp_dst, tmp_size);
+
 	scu_size_2 = tmp_size;
 	if(!(DRUP(2))) scu_src_2 = tmp_src;
 	if(!(DWUP(2))) scu_dst_2 = tmp_dst;
@@ -1886,22 +1895,30 @@ static void dma_indirect_lv0()
 		scu_dst_0 &=0x07ffffff;
 		scu_size_0 &=0xfffff;
 
-		for (; scu_size_0 > 0; scu_size_0-=scu_dst_add_0)
 		{
-			if(scu_dst_add_0 == 2)
-				program_write_word(scu_dst_0,program_read_word(scu_src_0));
-			else
+			UINT32 cur_dst = scu_dst_0;
+			UINT32 cur_size = scu_size_0;
+
+			for (; scu_size_0 > 0; scu_size_0-=scu_dst_add_0)
 			{
-				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
-                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
-                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
-                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
-                  should be different, I don't know */
-				program_write_word(scu_dst_0,program_read_word(scu_src_0));
-				program_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
+				if(scu_dst_add_0 == 2)
+					program_write_word(scu_dst_0,program_read_word(scu_src_0));
+				else
+				{
+					/* some games, eg columns97 are a bit weird, I'm not sure this is correct
+	                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
+	                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
+	                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
+	                  should be different, I don't know */
+					program_write_word(scu_dst_0,program_read_word(scu_src_0));
+					program_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
+				}
+				scu_dst_0+=scu_dst_add_0;
+				scu_src_0+=scu_src_add_0;
 			}
-			scu_dst_0+=scu_dst_add_0;
-			scu_src_0+=scu_src_add_0;
+
+			if (sh2_jit_code_present)
+				sh2_jit_ram_written(cur_dst, cur_size);
 		}
 
 		//if(DRUP(0))   program_write_dword(tmp_src+8,scu_src_0|job_done ? 0x80000000 : 0);
@@ -1956,24 +1973,31 @@ static void dma_indirect_lv1()
 		scu_dst_1 &=0x07ffffff;
 		scu_size_1 &=0xffff;
 
-
-		for (; scu_size_1 > 0; scu_size_1-=scu_dst_add_1)
 		{
+			UINT32 cur_dst = scu_dst_1;
+			UINT32 cur_size = scu_size_1;
 
-			if(scu_dst_add_1 == 2)
-				program_write_word(scu_dst_1,program_read_word(scu_src_1));
-			else
+			for (; scu_size_1 > 0; scu_size_1-=scu_dst_add_1)
 			{
-				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
-                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
-                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
-                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
-                  should be different, I don't know */
-				program_write_word(scu_dst_1,program_read_word(scu_src_1));
-				program_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
+
+				if(scu_dst_add_1 == 2)
+					program_write_word(scu_dst_1,program_read_word(scu_src_1));
+				else
+				{
+					/* some games, eg columns97 are a bit weird, I'm not sure this is correct
+	                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
+	                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
+	                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
+	                  should be different, I don't know */
+					program_write_word(scu_dst_1,program_read_word(scu_src_1));
+					program_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
+				}
+				scu_dst_1+=scu_dst_add_1;
+				scu_src_1+=scu_src_add_1;
 			}
-			scu_dst_1+=scu_dst_add_1;
-			scu_src_1+=scu_src_add_1;
+
+			if (sh2_jit_code_present)
+				sh2_jit_ram_written(cur_dst, cur_size);
 		}
 
 		//if(DRUP(1))   program_write_dword(tmp_src+8,scu_src_1|job_done ? 0x80000000 : 0);
@@ -2028,23 +2052,31 @@ static void dma_indirect_lv2()
 		scu_dst_2 &=0x07ffffff;
 		scu_size_2 &=0xffff;
 
-		for (; scu_size_2 > 0; scu_size_2-=scu_dst_add_2)
 		{
-			if(scu_dst_add_2 == 2)
-				program_write_word(scu_dst_2,program_read_word(scu_src_2));
-			else
+			UINT32 cur_dst = scu_dst_2;
+			UINT32 cur_size = scu_size_2;
+
+			for (; scu_size_2 > 0; scu_size_2-=scu_dst_add_2)
 			{
-				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
-                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
-                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
-                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
-                  should be different, I don't know */
-				program_write_word(scu_dst_2,program_read_word(scu_src_2));
-				program_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
+				if(scu_dst_add_2 == 2)
+					program_write_word(scu_dst_2,program_read_word(scu_src_2));
+				else
+				{
+					/* some games, eg columns97 are a bit weird, I'm not sure this is correct
+	                  they start a dma on a 2 byte boundary in 4 byte add mode, using the dword reads we
+	                  can't access 2 byte boundaries, and the end of the sprite list never gets marked,
+	                  the length of the transfer is also set to a 2 byte boundary, maybe the add values
+	                  should be different, I don't know */
+					program_write_word(scu_dst_2,program_read_word(scu_src_2));
+					program_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
+				}
+
+				scu_dst_2+=scu_dst_add_2;
+				scu_src_2+=scu_src_add_2;
 			}
 
-			scu_dst_2+=scu_dst_add_2;
-			scu_src_2+=scu_src_add_2;
+			if (sh2_jit_code_present)
+				sh2_jit_ram_written(cur_dst, cur_size);
 		}
 
 		//if(DRUP(2))   program_write_dword(tmp_src+8,scu_src_2|job_done ? 0x80000000 : 0);
@@ -2995,6 +3027,26 @@ MACHINE_RESET( stv )
 	cpunum_set_input_line(1, INPUT_LINE_RESET, ASSERT_LINE);
 	stv_enable_slave_sh2 = 0;
 	cpunum_set_input_line(2, INPUT_LINE_RESET, ASSERT_LINE);
+
+	/* the SH-2 recompiler runs code from, and accesses directly, the BIOS */
+	/* and the work RAMs (the handlers a game installs there stay in use) */
+	sh2_jit_set(0);
+	if (options.jit)
+	{
+		sh2_jit_add_fastram(0x00000000, 0x0007ffff, 1, memory_region(REGION_CPU1));
+		sh2_jit_add_fastram(0x00200000, 0x002fffff, 0, stv_workram_l);
+		sh2_jit_add_fastram(0x06000000, 0x060fffff, 0, stv_workram_h);
+		/* the cartridge ROM, as far as it goes (the protection and */
+		/* decompression handlers some games install there stay in use) */
+		if (memory_region_length(REGION_USER1) >= 4)
+		{
+			UINT32 len = memory_region_length(REGION_USER1);
+			if (len > 0x3000000)
+				len = 0x3000000;
+			sh2_jit_add_fastram(0x02000000, 0x02000000 + (len & ~3) - 1, 1, memory_region(REGION_USER1));
+		}
+		sh2_jit_set(1);
+	}
 
 	timer_0 = 0;
 	timer_1 = 0;

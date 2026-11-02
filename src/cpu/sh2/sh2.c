@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Juergen Buchmueller
+// copyright-holders:Juergen Buchmueller, zanac
 /*****************************************************************************
  *
  *   sh2.c
@@ -91,6 +91,7 @@
  *****************************************************************************/
 
 #include <signal.h>
+#include "driver.h"
 #include "debugger.h"
 #include "sh2.h"
 
@@ -148,10 +149,26 @@ typedef struct
 	int     is_slave, cpu_number;
 
 	void	(*ftcsr_read_callback)(UINT32 data);
+
+	UINT8	**jit_rpage;	/* sh2jit.c: this CPU's page tables for direct reads and writes */
+	UINT8	**jit_wpage;
 } SH2;
 
-static int sh2_icount;
-static SH2 sh2;
+int sh2_icount;
+
+/*
+	The state of the active SH-2 is its own context buffer: switching
+	CPUs (every timeslice, many thousand times a frame on the ST-V with
+	its tight interleave) only moves this pointer instead of copying
+	the whole state out and in. Each CPU's saved state items point into
+	its buffer too, so a state save reads it whether it is active or not.
+*/
+static SH2 sh2_boot;			/* before a CPU's buffer is known */
+static SH2 *sh2p = &sh2_boot;
+#define sh2 (*sh2p)
+
+/* a store over translated code flushes the recompiler's cache */
+#define SH2JIT_STORE(A, size)	do { if (sh2_jit_code_present) sh2_jit_ram_written((A) & AM, size); } while (0)
 
 // Atrocious hack that makes the soldivid music correct
 
@@ -234,6 +251,7 @@ INLINE void WB(offs_t A, UINT8 V)
 	if (A >= 0xc0000000)
 	{
 		program_write_byte_32be(A,V);
+		SH2JIT_STORE(A, 1);
 		return;
 	}
 
@@ -241,6 +259,7 @@ INLINE void WB(offs_t A, UINT8 V)
 		return;
 
 	program_write_byte_32be(A & AM,V);
+	SH2JIT_STORE(A, 1);
 }
 
 INLINE void WW(offs_t A, UINT16 V)
@@ -254,6 +273,7 @@ INLINE void WW(offs_t A, UINT16 V)
 	if (A >= 0xc0000000)
 	{
 		program_write_word_32be(A,V);
+		SH2JIT_STORE(A, 2);
 		return;
 	}
 
@@ -261,6 +281,7 @@ INLINE void WW(offs_t A, UINT16 V)
 		return;
 
 	program_write_word_32be(A & AM,V);
+	SH2JIT_STORE(A, 2);
 }
 
 INLINE void WL(offs_t A, UINT32 V)
@@ -274,6 +295,7 @@ INLINE void WL(offs_t A, UINT32 V)
 	if (A >= 0xc0000000)
 	{
 		program_write_dword_32be(A,V);
+		SH2JIT_STORE(A, 4);
 		return;
 	}
 
@@ -281,6 +303,7 @@ INLINE void WL(offs_t A, UINT32 V)
 		return;
 
 	program_write_dword_32be(A & AM,V);
+	SH2JIT_STORE(A, 4);
 }
 
 INLINE void sh2_exception(const char *message, int irqline)
@@ -2291,6 +2314,62 @@ INLINE void op1111(UINT16 opcode)
 	NOP();
 }
 
+/* one instruction (in the interpreter's loop and for the recompiler's checks) */
+INLINE void sh2_dispatch(UINT16 opcode)
+{
+	switch (opcode & ( 15 << 12))
+	{
+	case  0<<12: op0000(opcode); break;
+	case  1<<12: op0001(opcode); break;
+	case  2<<12: op0010(opcode); break;
+	case  3<<12: op0011(opcode); break;
+	case  4<<12: op0100(opcode); break;
+	case  5<<12: op0101(opcode); break;
+	case  6<<12: op0110(opcode); break;
+	case  7<<12: op0111(opcode); break;
+	case  8<<12: op1000(opcode); break;
+	case  9<<12: op1001(opcode); break;
+	case 10<<12: op1010(opcode); break;
+	case 11<<12: op1011(opcode); break;
+	case 12<<12: op1100(opcode); break;
+	case 13<<12: op1101(opcode); break;
+	case 14<<12: op1110(opcode); break;
+	default: op1111(opcode); break;
+	}
+}
+
+/* one step of the interpreter (also called by the recompiler when leaving a block) */
+INLINE void sh2_step(void)
+{
+	UINT32 opcode;
+
+	if (sh2.delay)
+	{
+		opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.delay & AM)));
+		change_pc(sh2.pc & AM);
+		sh2.pc -= 2;
+	}
+	else
+		opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.pc & AM)));
+
+	CALL_MAME_DEBUG;
+
+	sh2.delay = 0;
+	sh2.pc += 2;
+	sh2.ppc = sh2.pc;
+
+	sh2_dispatch(opcode);
+
+	if(sh2.test_irq && !sh2.delay)
+	{
+		CHECK_PENDING_IRQ("mame_sh2_execute");
+		sh2.test_irq = 0;
+	}
+	sh2_icount--;
+}
+
+#include "sh2jit.c"
+
 /*****************************************************************************
  *  MAME CPU INTERFACE
  *****************************************************************************/
@@ -2326,6 +2405,10 @@ static void sh2_reset(void)
 	sh2.m = m;
 	memset(sh2.m, 0, 0x200);
 
+	/* code and memory handlers may differ after a reset */
+	if (jit_enabled)
+		jit_flush();
+
 	sh2.pc = RL(0);
 	sh2.r[15] = RL(4);
 	sh2.sr = I;
@@ -2337,9 +2420,12 @@ static void sh2_reset(void)
 /* Shut down CPU core */
 static void sh2_exit(void)
 {
+	sh2_jit_set(0);
 	if (sh2.m)
 		free(sh2.m);
 	sh2.m = NULL;
+	/* the core frees the buffers after this */
+	sh2p = &sh2_boot;
 }
 
 /* Execute cycles - returns number of cycles actually run */
@@ -2352,49 +2438,10 @@ static int sh2_execute(int cycles)
 
 	do
 	{
-		UINT32 opcode;
-
-		if (sh2.delay)
-		{
-			opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.delay & AM)));
-			change_pc(sh2.pc & AM);
-			sh2.pc -= 2;
-		}
-		else
-			opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.pc & AM)));
-
-		CALL_MAME_DEBUG;
-
-		sh2.delay = 0;
-		sh2.pc += 2;
-		sh2.ppc = sh2.pc;
-
-		switch (opcode & ( 15 << 12))
-		{
-		case  0<<12: op0000(opcode); break;
-		case  1<<12: op0001(opcode); break;
-		case  2<<12: op0010(opcode); break;
-		case  3<<12: op0011(opcode); break;
-		case  4<<12: op0100(opcode); break;
-		case  5<<12: op0101(opcode); break;
-		case  6<<12: op0110(opcode); break;
-		case  7<<12: op0111(opcode); break;
-		case  8<<12: op1000(opcode); break;
-		case  9<<12: op1001(opcode); break;
-		case 10<<12: op1010(opcode); break;
-		case 11<<12: op1011(opcode); break;
-		case 12<<12: op1100(opcode); break;
-		case 13<<12: op1101(opcode); break;
-		case 14<<12: op1110(opcode); break;
-		default: op1111(opcode); break;
-		}
-
-		if(sh2.test_irq && !sh2.delay)
-		{
-			CHECK_PENDING_IRQ("mame_sh2_execute");
-			sh2.test_irq = 0;
-		}
-		sh2_icount--;
+		/* a block, when there is one for the PC (no slot or interrupt test pending) */
+		if (jit_enabled && !sh2.delay && !sh2.test_irq && sh2_jit_run())
+			continue;
+		sh2_step();
 	} while( sh2_icount > 0 );
 
 	return cycles - sh2_icount;
@@ -2403,15 +2450,16 @@ static int sh2_execute(int cycles)
 /* Get registers, return context size */
 static void sh2_get_context(void *dst)
 {
-	if( dst )
-		memcpy(dst, &sh2, sizeof(SH2));
+	if( dst && dst != (void *)sh2p )
+		memcpy(dst, sh2p, sizeof(SH2));
 }
 
 /* Set registers */
 static void sh2_set_context(void *src)
 {
+	/* the core passes a CPU's own buffer: it becomes the live state */
 	if( src )
-		memcpy(&sh2, src, sizeof(SH2));
+		sh2p = (SH2 *)src;
 }
 
 static void sh2_timer_resync(void)
@@ -2589,6 +2637,7 @@ static void sh2_dmac_check(int dma)
 					if(incd == 2)
 						dst --;
 					program_write_byte_32be(dst, program_read_byte_32be(src));
+					SH2JIT_STORE(dst, 1);
 					if(incs == 1)
 						src ++;
 					if(incd == 1)
@@ -2605,6 +2654,7 @@ static void sh2_dmac_check(int dma)
 					if(incd == 2)
 						dst -= 2;
 					program_write_word_32be(dst, program_read_word_32be(src));
+					SH2JIT_STORE(dst, 2);
 					if(incs == 1)
 						src += 2;
 					if(incd == 1)
@@ -2621,6 +2671,7 @@ static void sh2_dmac_check(int dma)
 					if(incd == 2)
 						dst -= 4;
 					program_write_dword_32be(dst, program_read_dword_32be(src));
+					SH2JIT_STORE(dst, 4);
 					if(incs == 1)
 						src += 4;
 					if(incd == 1)
@@ -2640,6 +2691,7 @@ static void sh2_dmac_check(int dma)
 					program_write_dword_32be(dst+4, program_read_dword_32be(src+4));
 					program_write_dword_32be(dst+8, program_read_dword_32be(src+8));
 					program_write_dword_32be(dst+12, program_read_dword_32be(src+12));
+					SH2JIT_STORE(dst, 16);
 					src += 16;
 					if(incd == 1)
 						dst += 16;
@@ -2657,6 +2709,46 @@ static void sh2_dmac_check(int dma)
 			sh2.dma_timer_active[dma] = 0;
 		}
 	}
+}
+
+/* the division unit, as in current MAME (sh7604.cpp) */
+static void sh2_divu_start(INT64 dividend)
+{
+	INT32 divisor = (INT32)sh2.m[0x40];
+	INT64 remainder;
+	UINT32 quotient;
+	int i, negative;
+
+	sh2.m[0x41] = (UINT32)dividend;
+
+	if (divisor && (dividend != (INT64)((UINT64)1 << 63) || divisor != -1))
+	{
+		INT64 q = dividend / divisor;
+		if (q == (INT32)q)
+		{
+			sh2.m[0x45] = (UINT32)q;
+			sh2.m[0x44] = (UINT32)(dividend % divisor);
+			return;
+		}
+	}
+
+	/* overflow (zero divisor or a quotient outside 32 bits): the unit stops after three
+	   steps, leaving the partial remainder in DVDNTH; with OVFIE clear DVDNTL saturates */
+	remainder = dividend >> 32;
+	quotient = (UINT32)dividend;
+	for (i = 0; i < 3; i++)
+	{
+		int subtract = (remainder < 0) == (divisor < 0);
+		remainder = (remainder << 1) | ((quotient >> 31) & 1);
+		quotient <<= 1;
+		remainder += subtract ? -(INT64)divisor : (INT64)divisor;
+		quotient |= ((remainder < 0) == (divisor < 0)) ? 1 : 0;
+	}
+	negative = (dividend < 0) != (divisor < 0);
+	sh2.m[0x44] = (UINT32)remainder;
+	sh2.m[0x45] = (sh2.m[0x42] & 2) ? quotient : negative ? 0x80000000 : 0x7fffffff;
+	sh2.m[0x42] |= 1;
+	sh2_recalc_irq();
 }
 
 WRITE32_HANDLER( sh2_internal_w )
@@ -2721,64 +2813,19 @@ WRITE32_HANDLER( sh2_internal_w )
 		// Division box
 	case 0x40: // DVSR
 		break;
-	case 0x41: // DVDNT
-		{
-			INT32 a = sh2.m[0x41];
-			INT32 b = sh2.m[0x40];
-			LOG(("SH2 #%d div+mod %d/%d\n", cpu_getactivecpu(), a, b));
-			if (b)
-			{
-				sh2.m[0x45] = a / b;
-				sh2.m[0x44] = a % b;
-			}
-			else
-			{
-				sh2.m[0x42] |= 0x00010000;
-				sh2.m[0x45] = 0x7fffffff;
-				sh2.m[0x44] = 0x7fffffff;
-				sh2_recalc_irq();
-			}
-			break;
-		}
-	case 0x42: // DVCR
-		sh2.m[0x42] = (sh2.m[0x42] & ~0x00001000) | (old & sh2.m[0x42] & 0x00010000);
-		sh2_recalc_irq();
+	case 0x41: // DVDNT: a 32-bit division, the dividend sign-extended into DVDNTH
+		sh2_divu_start((INT32)sh2.m[0x41]);
+		break;
+	case 0x42: // DVCR: OVF (bit 0) and OVFIE (bit 1) are plain read/write bits
 		break;
 	case 0x43: // VCRDIV
 		sh2_recalc_irq();
 		break;
 	case 0x44: // DVDNTH
 		break;
-	case 0x45: // DVDNTL
-		{
-			INT64 a = sh2.m[0x45] | ((UINT64)(sh2.m[0x44]) << 32);
-			INT64 b = (INT32)sh2.m[0x40];
-			LOG(("SH2 #%d div+mod %lld/%lld\n", cpu_getactivecpu(), a, b));
-			if (b)
-			{
-				INT64 q = a / b;
-				if (q != (INT32)q)
-				{
-					sh2.m[0x42] |= 0x00010000;
-					sh2.m[0x45] = 0x7fffffff;
-					sh2.m[0x44] = 0x7fffffff;
-					sh2_recalc_irq();
-				}
-				else
-				{
-					sh2.m[0x45] = q;
-					sh2.m[0x44] = a % b;
-				}
-			}
-			else
-			{
-				sh2.m[0x42] |= 0x00010000;
-				sh2.m[0x45] = 0x7fffffff;
-				sh2.m[0x44] = 0x7fffffff;
-				sh2_recalc_irq();
-			}
-			break;
-		}
+	case 0x45: // DVDNTL: a 64-bit division of DVDNTH:DVDNTL
+		sh2_divu_start((INT64)(((UINT64)sh2.m[0x44] << 32) | sh2.m[0x45]));
+		break;
 
 		// DMA controller
 	case 0x60: // SAR0
@@ -2952,6 +2999,12 @@ static offs_t sh2_dasm(char *buffer, offs_t pc)
 static void sh2_init(int index, int clock, const void *config, int (*irqcallback)(int))
 {
 	const struct sh2_config *conf = config;
+
+	/* this CPU's buffer from now on (the core allocated it before the init) */
+	sh2p = (SH2 *)cpunum_get_context_ptr(index);
+	if (!sh2p)
+		sh2p = &sh2_boot;
+	memset(sh2p, 0, sizeof(SH2));
 
 	sh2.timer = timer_alloc(sh2_timer_callback);
 	timer_adjust(sh2.timer, TIME_NEVER, 0, 0);
