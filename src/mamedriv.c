@@ -3532,6 +3532,7 @@ DokiDoki Penguin Land *not confirmed
 	/* X Board */
 	DRIVER( aburner )	/* (c) 1987 */
 	DRIVER( aburner2 )	/* (c) 1987 */
+	DRIVER( lastsurv )
 	DRIVER( thndrbld )	/* (c) 1987 (FD1094, decrypted) */
 	DRIVER( thndrbdj )	/* (c) 1987 */
 	DRIVER( loffire )	/* (c) 1989 (FD1094, decrypted) */
