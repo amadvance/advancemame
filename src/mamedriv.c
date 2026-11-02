@@ -3560,6 +3560,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( strkfgtr )	/* (c) 1991 */
 	DRIVER( pdrift )	/* (c) 1988 */
 	DRIVER( pdrifta )	/* (c) 1988 */
+	DRIVER( pdriftl )
 	DRIVER( pdriftj )	/* (c) 1988 */
 	DRIVER( rchase )	/* (c) 1991 */
 
