@@ -84,6 +84,7 @@ WRITE16_HANDLER( suna16_flipscreen_w )
 
 VIDEO_START( suna16 )
 {
+	color_bank = 0;
 	paletteram16_2 = auto_malloc( 0x100 * sizeof(UINT16) );
 	return 0;
 }
@@ -114,7 +115,7 @@ WRITE16_HANDLER( suna16_paletteram16_w )
 
 ***************************************************************************/
 
-static void suna16_draw_sprites(mame_bitmap *bitmap)
+static void suna16_draw_sprites(mame_bitmap *bitmap, UINT16 *sprites, int gfx)
 {
 	int offs;
 
@@ -129,9 +130,9 @@ static void suna16_draw_sprites(mame_bitmap *bitmap)
 		int dx, dy;
 		int flipx, y0;
 
-		int y		=	spriteram16[ offs + 0 + 0x00000 / 2 ];
-		int x		=	spriteram16[ offs + 1 + 0x00000 / 2 ];
-		int dim 	=	spriteram16[ offs + 0 + 0x10000 / 2 ];
+		int y		=	sprites[ offs + 0 + 0x00000 / 2 ];
+		int x		=	sprites[ offs + 1 + 0x00000 / 2 ];
+		int dim 	=	sprites[ offs + 0 + 0x10000 / 2 ];
 
 		int bank	=	(x >> 12) & 0xf;
 
@@ -169,8 +170,8 @@ static void suna16_draw_sprites(mame_bitmap *bitmap)
 								((srcx + tile_x) & 0x1f) * 0x20 +
 								((srcy + tile_y) & 0x1f);
 
-				int tile	=	spriteram16[ addr + 0x00000 / 2 ];
-				int attr	=	spriteram16[ addr + 0x10000 / 2 ];
+				int tile	=	sprites[ addr + 0x00000 / 2 ];
+				int attr	=	sprites[ addr + 0x10000 / 2 ];
 
 				int sx		=	x + dx;
 				int sy		=	(y + dy) & 0xff;
@@ -188,7 +189,7 @@ static void suna16_draw_sprites(mame_bitmap *bitmap)
 					tile_flipy = !tile_flipy;
 				}
 
-				drawgfx(	bitmap, Machine->gfx[0],
+				drawgfx(	bitmap, Machine->gfx[gfx],
 							(tile & 0x3fff) + bank*0x4000,
 							attr + (color_bank ? 0x10 : 0),
 							tile_flipx, tile_flipy,
@@ -218,5 +219,17 @@ VIDEO_UPDATE( suna16 )
 {
 	/* I believe background is black */
 	fillbitmap(bitmap,get_black_pen(),&Machine->visible_area);
-	suna16_draw_sprites(bitmap);
+	suna16_draw_sprites(bitmap, spriteram16, 0);
+}
+
+WRITE16_HANDLER( bestbest_flipscreen_w )
+{
+	if (ACCESSING_LSB) flip_screen_set(data & 0x10);
+}
+
+VIDEO_UPDATE( bestbest )
+{
+	fillbitmap(bitmap, get_black_pen(), cliprect);
+	suna16_draw_sprites(bitmap, spriteram16, 0);
+	suna16_draw_sprites(bitmap, spriteram16_2, 1);
 }

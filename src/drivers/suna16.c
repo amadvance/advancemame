@@ -24,6 +24,8 @@ Year + Game                 By      Hardware
 #include "driver.h"
 #include "sound/dac.h"
 #include "sound/2151intf.h"
+#include "sound/3812intf.h"
+#include "sound/ay8910.h"
 
 /* Variables and functions defined in vidhrdw: */
 
@@ -34,6 +36,8 @@ WRITE16_HANDLER( suna16_paletteram16_w );
 
 VIDEO_START( suna16 );
 VIDEO_UPDATE( suna16 );
+VIDEO_UPDATE( bestbest );
+WRITE16_HANDLER( bestbest_flipscreen_w );
 
 
 /***************************************************************************
@@ -83,6 +87,89 @@ WRITE16_HANDLER( uballoon_leds_w )
 /***************************************************************************
                             Back Street Soccer
 ***************************************************************************/
+
+static UINT8 bestbest_prot;
+
+static READ16_HANDLER( bestbest_prot_r )
+{
+	return bestbest_prot;
+}
+
+static WRITE16_HANDLER( bestbest_prot_w )
+{
+	if (ACCESSING_LSB)
+	{
+		switch (data & 0xff)
+		{
+			case 0x00: bestbest_prot ^= 0x09; break;
+			case 0x08: bestbest_prot ^= 0x02; break;
+			case 0x0c: bestbest_prot ^= 0x03; break;
+		}
+	}
+}
+
+static WRITE16_HANDLER( bestbest_coin_w )
+{
+	if (ACCESSING_LSB) coin_counter_w(0, data & 4);
+}
+
+static ADDRESS_MAP_START( bestbest_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x03ffff) AM_MIRROR(0x0c0000) AM_ROM
+	AM_RANGE(0x200000, 0x2fffff) AM_ROM AM_REGION(REGION_USER1, 0)
+	AM_RANGE(0x500000, 0x500001) AM_READWRITE(input_port_0_word_r, suna16_soundlatch_w)
+	AM_RANGE(0x500002, 0x500003) AM_READWRITE(input_port_1_word_r, bestbest_flipscreen_w)
+	AM_RANGE(0x500004, 0x500005) AM_READWRITE(input_port_2_word_r, bestbest_coin_w)
+	AM_RANGE(0x500008, 0x500009) AM_WRITE(bestbest_prot_w)
+	AM_RANGE(0x500018, 0x500019) AM_READ(bestbest_prot_r)
+	AM_RANGE(0x540000, 0x540fff) AM_READWRITE(suna16_paletteram16_r, suna16_paletteram16_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x541000, 0x54ffff) AM_RAM
+	AM_RANGE(0x580000, 0x58ffff) AM_RAM
+	AM_RANGE(0x5c0000, 0x5dffff) AM_RAM AM_BASE(&spriteram16)
+	AM_RANGE(0x5e0000, 0x5fffff) AM_RAM AM_BASE(&spriteram16_2)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bestbest_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_ROM
+	AM_RANGE(0xc000, 0xc000) AM_WRITE(YM3526_control_port_0_w)
+	AM_RANGE(0xc001, 0xc001) AM_WRITE(YM3526_write_port_0_w)
+	AM_RANGE(0xc002, 0xc002) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0xc003, 0xc003) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0xe000, 0xe7ff) AM_RAM
+	AM_RANGE(0xf000, 0xf000) AM_WRITE(soundlatch2_w)
+	AM_RANGE(0xf800, 0xf800) AM_READ(soundlatch_r)
+ADDRESS_MAP_END
+
+static WRITE8_HANDLER( bestbest_pcm_w )
+{
+	/* each port drives a separate four-bit DAC */
+	DAC_data_w(offset, (data & 0xf) * 0x11);
+}
+
+static ADDRESS_MAP_START( bestbest_pcm_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bestbest_pcm_portmap, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(soundlatch2_r)
+	AM_RANGE(0x00, 0x03) AM_WRITE(bestbest_pcm_w)
+ADDRESS_MAP_END
+
+static void bestbest_sound_irq(int state)
+{
+	cpunum_set_input_line(1, 0, state ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static struct YM3526interface bestbest_ym3526_intf =
+{
+	bestbest_sound_irq
+};
+
+static MACHINE_RESET( bestbest )
+{
+	bestbest_prot = 0;
+	flip_screen_set(0);
+}
 
 static ADDRESS_MAP_START( bssoccer_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x1fffff) AM_READ(MRA16_ROM 				)	// ROM
@@ -337,6 +424,91 @@ ADDRESS_MAP_END
 
 ***************************************************************************/
 
+static INPUT_PORTS_START( bestbest )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN1 )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN2 )
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x0007, 0x0007, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0007, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0006, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0005, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x0018, 0x0010, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x0018, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0020, 0x0020, "Display Combos" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_SERVICE( 0x0040, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0080, 0x0000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_DIPNAME( 0x0100, 0x0100, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0600, 0x0400, "Play Time" )
+	PORT_DIPSETTING(      0x0600, "1:10" )
+	PORT_DIPSETTING(      0x0400, "1:20" )
+	PORT_DIPSETTING(      0x0200, "1:30" )
+	PORT_DIPSETTING(      0x0000, "1:40" )
+	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x4000, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
 #define JOY(_n_) \
 	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP	  ) PORT_PLAYER(_n_) \
 	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN   ) PORT_PLAYER(_n_) \
@@ -549,6 +721,24 @@ static const gfx_layout layout_8x8x4 =
 	8*8*4/2
 };
 
+static const gfx_layout bestbest_layout =
+{
+	8,8,
+	RGN_FRAC(1,1),
+	4,
+	{ 8,12,0,4 },
+	{ 3,2,1,0,19,18,17,16 },
+	{ STEP8(0,32) },
+	8*8*4
+};
+
+static const gfx_decode bestbest_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &bestbest_layout, 0, 128 },
+	{ REGION_GFX2, 0, &bestbest_layout, 0, 128 },
+	{ -1 }
+};
+
 static const gfx_decode suna16_gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0, &layout_8x8x4, 0, 16*2 }, // [0] Sprites
@@ -579,6 +769,44 @@ INTERRUPT_GEN( bssoccer_interrupt )
 		case 1: 	cpunum_set_input_line(0, 2, HOLD_LINE);	break;
 	}
 }
+
+static MACHINE_DRIVER_START( bestbest )
+	MDRV_CPU_ADD(M68000, 24000000/4)
+	MDRV_CPU_PROGRAM_MAP(bestbest_map, 0)
+	MDRV_CPU_VBLANK_INT(bssoccer_interrupt, 2)
+	MDRV_CPU_ADD(Z80, 24000000/4)
+	MDRV_CPU_PROGRAM_MAP(bestbest_sound_map, 0)
+	MDRV_CPU_ADD(Z80, 24000000/4)
+	MDRV_CPU_PROGRAM_MAP(bestbest_pcm_map, 0)
+	MDRV_CPU_IO_MAP(bestbest_pcm_portmap, 0)
+	MDRV_INTERLEAVE(100)
+	MDRV_FRAMES_PER_SECOND(59.1734)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(bestbest)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 255, 16, 239)
+	MDRV_GFXDECODE(bestbest_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(2048)
+	MDRV_VIDEO_START(suna16)
+	MDRV_VIDEO_UPDATE(bestbest)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(AY8910, 24000000/16)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.15)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.15)
+	MDRV_SOUND_ADD(YM3526, 24000000/8)
+	MDRV_SOUND_CONFIG(bestbest_ym3526_intf)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.50)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.50)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.20)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.20)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.20)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.20)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( bssoccer )
 
@@ -717,6 +945,43 @@ MACHINE_DRIVER_END
 
 ***************************************************************************/
 
+ROM_START( bestbest )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+
+	ROM_LOAD16_BYTE( "4.bin", 0x00000, 0x20000, CRC(06741994) SHA1(e872e9e9d02360dda9c9b6df8e6424b0f3e18c1f) )
+	ROM_LOAD16_BYTE( "2.bin", 0x00001, 0x20000, CRC(42843dec) SHA1(3705661a9740b3499297424e340da9a3606873fb) )
+
+	ROM_REGION16_BE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "3.bin", 0x00000, 0x80000, CRC(e2bb8f26) SHA1(d73bbe034718c77774dede61e751a9ae2d29118a) )
+	ROM_LOAD16_BYTE( "1.bin", 0x00001, 0x80000, CRC(d365e20a) SHA1(29706d6e422e71c7dad51a3369683a6539f72b54) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "5.bin", 0x00000, 0x10000, CRC(bb9265e6) SHA1(424eceac4fd48c9a99653ece2f3fcbc8b37569cf) )
+
+	ROM_REGION( 0x10000, REGION_CPU3, 0 )
+	ROM_LOAD( "6.bin", 0x00000, 0x10000, CRC(dd445f6b) SHA1(658417d72c003f25db273e3c731838317ed1876c) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_INVERT | ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "9.bin",  0x000000, 0x80000, CRC(b11994ea) SHA1(4ff2250a9dbb2e575982e2ffcad7686347368b5b) )
+	ROM_LOAD16_BYTE( "7.bin",  0x000001, 0x80000, CRC(16188b73) SHA1(1e67f9b100614466e2ff1169f25c90e34a2e7db9) )
+	ROM_LOAD16_BYTE( "10.bin", 0x100000, 0x80000, CRC(37b41ef5) SHA1(dd4500663537ffad369ee9415c56df90221bed23) )
+	ROM_LOAD16_BYTE( "8.bin",  0x100001, 0x80000, CRC(765ce06b) SHA1(6cc6d7c27b49eedd58104c50e4887f86bff9357c) )
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_INVERT | ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "16.bin", 0x000000, 0x80000, CRC(dc46cdea) SHA1(d601f5464894223ce8459093ae53006155a3e680) )
+	ROM_LOAD16_BYTE( "14.bin", 0x000001, 0x80000, CRC(c210fb53) SHA1(3d5a763bffaef922a77c95131b1e41f0f90629a5) )
+	ROM_LOAD16_BYTE( "17.bin", 0x100000, 0x80000, CRC(c6fadd57) SHA1(ce9bc4d7a288feebdd19de09d00bec8489346878) )
+	ROM_LOAD16_BYTE( "15.bin", 0x100001, 0x80000, CRC(3b1166c7) SHA1(7f2a0c9131fcf39dd67047b6e697c4076ca37b19) )
+	ROM_LOAD16_BYTE( "13.bin", 0x200000, 0x80000, CRC(23283ac4) SHA1(f7aa00f203b17b590f1c43990f3f1c4aba7ba0ad) )
+	ROM_LOAD16_BYTE( "11.bin", 0x200001, 0x80000, CRC(323eebc3) SHA1(0e82b583273c9ba5252f7a108538ae58edf39a03) )
+	ROM_LOAD16_BYTE( "18.bin", 0x300000, 0x80000, CRC(674c4609) SHA1(f1de78c01d26dfb1174203415ccf3c771398d163) )
+	ROM_LOAD16_BYTE( "12.bin", 0x300001, 0x80000, CRC(ca7c8176) SHA1(1ec99db3e0840b4647d6ccdf6fda118fa9ad4f42) )
+
+	ROM_REGION( 0x200, REGION_PROMS, 0 )
+	ROM_LOAD( "82s129.5", 0x000, 0x100, CRC(10bfcebb) SHA1(ae8708db7d3a8984f16e876867ecdbb4445e3378) )
+	ROM_LOAD( "82s129.6", 0x100, 0x100, CRC(10bfcebb) SHA1(ae8708db7d3a8984f16e876867ecdbb4445e3378) )
+ROM_END
+
 ROM_START( bssoccer )
 
 	ROM_REGION( 0x200000, REGION_CPU1, 0 ) 	/* 68000 Code */
@@ -811,5 +1076,6 @@ DRIVER_INIT( uballoon )
 
 ***************************************************************************/
 
+GAME( 1994, bestbest, 0, bestbest, bestbest, 0, ROT0, "SunA", "Best Of Best", 0 )
 GAME( 1996, bssoccer, 0, bssoccer, bssoccer, 0,        ROT0, "SunA", "Back Street Soccer", 0 )
 GAME( 1996, uballoon, 0, uballoon, uballoon, uballoon, ROT0, "SunA", "Ultra Balloon", 0 )
