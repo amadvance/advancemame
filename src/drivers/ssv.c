@@ -229,6 +229,14 @@ WRITE16_HANDLER( ssv_irq_enable_w )
 
 static int interrupt_ultrax;
 
+static void pastelis_raster_interrupt(int param)
+{
+	requested_int |= 1 << 2;
+	update_irq_state();
+	timer_set(cpu_getscanlinetime(120), 0, pastelis_raster_interrupt);
+}
+
+
 INTERRUPT_GEN( ssv_interrupt )
 {
 	if (cpu_getiloops())
@@ -317,6 +325,8 @@ MACHINE_RESET( ssv )
 	requested_int = 0;
 	cpunum_set_irq_callback(0, ssv_irq_callback);
 	memory_set_bankptr(1, memory_region(REGION_USER1));
+	if (ssv_raster_enabled)
+		timer_set(cpu_getscanlinetime(120), 0, pastelis_raster_interrupt);
 }
 
 
@@ -1758,6 +1768,94 @@ INPUT_PORTS_END
 /***************************************************************************
                                 Keith & Lucy
 ***************************************************************************/
+
+static INPUT_PORTS_START( pastelis_joystick )
+	PORT_START_TAG("DSW1")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW2")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(10)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(10)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT     )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME(DEF_STR( Test )) PORT_CODE(KEYCODE_F1)
+	PORT_BIT( 0x00e0, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( pastelis )
+	PORT_INCLUDE(pastelis_joystick)
+
+	PORT_MODIFY("DSW1")
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_SERVICE( 0x0004, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0030, 0x0030, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0x0030, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 1C_2C ) )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x0003, 0x0003, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Easy) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0030, 0x0030, DEF_STR( Lives ) )
+	PORT_DIPSETTING(      0x0020, "1" )
+	PORT_DIPSETTING(      0x0030, "2" )
+	PORT_DIPSETTING(      0x0010, "3" )
+	PORT_DIPSETTING(      0x0000, "4" )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Extend" )
+	PORT_DIPSETTING(      0x0000, "70000, every 90000" )
+	PORT_DIPSETTING(      0x0040, "every 70000" )
+	PORT_DIPSETTING(      0x0080, "50000, every 70000" )
+	PORT_DIPSETTING(      0x00c0, "every 50000" )
+
+	PORT_START_TAG("ADD_BUTTONS")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( keithlcy )
 	PORT_START	// IN0 - $210002
@@ -3279,6 +3377,7 @@ void init_ssv(void)
 	ssv_enable_video(1);
 	ssv_special = 0;
 	interrupt_ultrax = 0;
+	ssv_raster_enabled = 0;
 	eaglshot_dirty = 0;
 }
 
@@ -3311,6 +3410,16 @@ DRIVER_INIT( hypreac2 )		{	hypreac2_init();	// different
 DRIVER_INIT( janjans1 )		{	init_ssv();
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xe8;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf0;	}
+static DRIVER_INIT( pastelis )
+{
+	init_ssv();
+	ssv_raster_enabled = 1;
+	ssv_sprites_offsx = -8;
+	ssv_sprites_offsy = 0xf0;
+	ssv_tilemap_offsx = 0;
+	ssv_tilemap_offsy = -0xf0;
+}
+
 DRIVER_INIT( keithlcy )		{	init_ssv();
 								ssv_sprites_offsx = -8;	ssv_sprites_offsy = +0xf1;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf0;	}
@@ -3453,6 +3562,14 @@ static MACHINE_DRIVER_START( janjans1 )
 
 	/* video hardware */
 	MDRV_VISIBLE_AREA(0, 0x150-1, 0, 0xf0-1)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( pastelis )
+	MDRV_IMPORT_FROM(ssv)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(keithlcy_readmem, keithlcy_writemem)
+	MDRV_VISIBLE_AREA(0, 0x160-1, 0, 0xf0-1)
 MACHINE_DRIVER_END
 
 
@@ -4139,6 +4256,31 @@ ROM_END
 STS-0001 (ROM board)
 
 ***************************************************************************/
+
+ROM_START( pastelis )
+	ROM_REGION16_LE( 0x200000, REGION_USER1, 0 )
+	ROM_LOAD( "data.u28",  0x000000, 0x200000, CRC(e71dcc02) SHA1(38a66255c8fbf8f1a49a2180719bfaf26fd37ccf) )
+	ROM_LOAD16_BYTE( "prg_l.u26", 0x100000, 0x080000, CRC(96c9d4d7) SHA1(27ba8218f667ae12f8d1b14db259c0797220126f) )
+	ROM_LOAD16_BYTE( "prg_h.u27", 0x100001, 0x080000, CRC(a513733b) SHA1(c3caeb0d1b9c56a61552865815cddf67b649d435) )
+
+	ROM_REGION( 0x0a00000, REGION_GFX1, ROMREGION_ERASEFF | ROMREGION_DISPOSE )
+	ROM_LOAD( "a0.u13", 0x0000000, 0x200000, CRC(61688d29) SHA1(e5cb96ea9190bc20ad9c10e9d0773350f7defc3f) )
+	ROM_LOAD( "a1.u14", 0x0200000, 0x080000, CRC(d38b9805) SHA1(3b573f7e6b70ce68389001c1e119d4d8dd1cde3d) )
+	ROM_LOAD( "b0.u16", 0x0280000, 0x200000, CRC(fc93f7bb) SHA1(86baddd1809adc9b4a48919db58ddd008af3aa99) )
+	ROM_LOAD( "b1.u17", 0x0480000, 0x080000, CRC(b85f4933) SHA1(00b13a8ffd4d5fa6e9c399ff4e369e2563761a42) )
+	ROM_LOAD( "c0.u21", 0x0500000, 0x200000, CRC(7128bc51) SHA1(a858d4de3a2acedf7e1257a607a482781ac490e8) )
+	ROM_LOAD( "c1.u22", 0x0700000, 0x080000, CRC(2462206b) SHA1(35071e629877b77d23c865b407fd3dd824fbb8be) )
+	ROM_LOAD( "d0.u34", 0x0780000, 0x200000, CRC(4f79415a) SHA1(af70656f5a0f46f773a238260e53f646efb2d238) )
+	ROM_LOAD( "d1.u35", 0x0980000, 0x080000, CRC(d3c75994) SHA1(08ff739181e4316f55f3ba50513f8fdb16db7116) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, 0 )
+	ROM_LOAD16_WORD_SWAP( "snd_0.u29", 0x000000, 0x200000, CRC(8bc0dde9) SHA1(4dffef4d709da02d6dfd15b5266ed529e148c024) )
+	ROM_LOAD16_WORD_SWAP( "snd_1.u33", 0x200000, 0x200000, CRC(f958e0ea) SHA1(699ea44a0ef9f9a969e4eb692592b07d629923d1) )
+
+	ROM_REGION( 0x117, REGION_USER2, 0 )
+	ROM_LOAD( "u25.bin", 0x000, 0x117, CRC(e9d28bdf) SHA1(b83b798ce5a46bcda05e82fa1dd0d24260c9b5cc) )
+	ROM_LOAD( "u36.bin", 0x000, 0x117, CRC(6b5d083e) SHA1(1f127944c7b1f1e3c3e53f1091f8641f8d454445) )
+ROM_END
 
 ROM_START( keithlcy )
 	ROM_REGION16_LE( 0x200000, REGION_USER1, 0 )		/* V60 Code */
@@ -5224,6 +5366,7 @@ ROM_END
 
 GAME( 1993,  dynagear, 0,        dynagear, dynagear, dynagear, ROT0,   "Sammy",              "Dyna Gear",                                        GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
 GAME( 1993,  keithlcy, 0,        keithlcy, keithlcy, keithlcy, ROT0,   "Visco",              "Dramatic Adventure Quiz Keith & Lucy (Japan)",     GAME_NO_COCKTAIL )
+GAME( 1993,  pastelis, 0,        pastelis, pastelis, pastelis, ROT0,   "Visco",              "Pastel Island (Japan, prototype)", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
 GAME( 1993,  srmp4,    0,        srmp4,    srmp4,    srmp4,    ROT0,   "Seta",               "Super Real Mahjong PIV (Japan)",                   GAME_NO_COCKTAIL )
 GAME( 1993,  srmp4o,   srmp4,    srmp4,    srmp4,    srmp4,    ROT0,   "Seta",               "Super Real Mahjong PIV (Japan, older set)",        GAME_NO_COCKTAIL ) // by the numbering of the program roms this should be older
 GAME( 1993,  survarts, 0,        survarts, survarts, survarts, ROT0,   "Sammy",              "Survival Arts (World)",                            GAME_NO_COCKTAIL )

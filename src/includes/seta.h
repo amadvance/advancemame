@@ -63,6 +63,7 @@ VIDEO_EOF( seta2 );
 extern UINT16 *ssv_scroll;
 
 extern int ssv_special;
+extern int ssv_raster_enabled;
 
 extern int ssv_tile_code[16];
 
