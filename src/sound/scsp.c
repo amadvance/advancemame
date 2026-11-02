@@ -178,6 +178,8 @@ struct _SCSP
 	unsigned char *SCSPRAM;
 	char Master;
 	void (*Int68kCB)(int irq);
+	void (*IntMainCB)(int state);
+	int MainIRQ;
 	sound_stream * stream;
 
 	signed int *buffertmpl,*buffertmpr;
@@ -233,6 +235,16 @@ static unsigned char DecodeSCI(struct _SCSP *SCSP,unsigned char irq)
 	v=(SCILV2((SCSP))&(1<<irq))?1:0;
 	SCI|=v<<2;
 	return SCI;
+}
+
+static void CheckMainIRQ(struct _SCSP *SCSP)
+{
+	int state = (SCSP->udata.data[0x2c/2] & SCSP->udata.data[0x2a/2]) != 0;
+	if (SCSP->IntMainCB && state != SCSP->MainIRQ)
+	{
+		SCSP->MainIRQ = state;
+		SCSP->IntMainCB(state);
+	}
 }
 
 static void CheckPendingIRQ(struct _SCSP *SCSP)
@@ -592,7 +604,7 @@ static void SCSP_UpdateReg(struct _SCSP *SCSP, int reg)
 			break;
 		case 0x18:
 		case 0x19:
-			if(SCSP->Master)
+			if(SCSP->Master || SCSP->IntMainCB)
 			{
 				SCSP->TimPris[0]=1<<((SCSP->udata.data[0x18/2]>>8)&0x7);
 				SCSP->TimCnt[0]=(SCSP->udata.data[0x18/2]&0xff)<<8;
@@ -600,7 +612,7 @@ static void SCSP_UpdateReg(struct _SCSP *SCSP, int reg)
 			break;
 		case 0x1a:
 		case 0x1b:
-			if(SCSP->Master)
+			if(SCSP->Master || SCSP->IntMainCB)
 			{
 				SCSP->TimPris[1]=1<<((SCSP->udata.data[0x1A/2]>>8)&0x7);
 				SCSP->TimCnt[1]=(SCSP->udata.data[0x1A/2]&0xff)<<8;
@@ -608,7 +620,7 @@ static void SCSP_UpdateReg(struct _SCSP *SCSP, int reg)
 			break;
 		case 0x1C:
 		case 0x1D:
-			if(SCSP->Master)
+			if(SCSP->Master || SCSP->IntMainCB)
 			{
 				SCSP->TimPris[2]=1<<((SCSP->udata.data[0x1C/2]>>8)&0x7);
 				SCSP->TimCnt[2]=(SCSP->udata.data[0x1C/2]&0xff)<<8;
@@ -727,6 +739,7 @@ void SCSP_TimersAddTicks(struct _SCSP *SCSP, int ticks)
 		{
 			SCSP->TimCnt[0] = 0xFFFF;
 			SCSP->udata.data[0x20/2]|=0x40;
+			SCSP->udata.data[0x2c/2]|=0x40;
 		}
 		SCSP->udata.data[0x18/2]&=0xff00;
 		SCSP->udata.data[0x18/2]|=SCSP->TimCnt[0]>>8;
@@ -739,6 +752,7 @@ void SCSP_TimersAddTicks(struct _SCSP *SCSP, int ticks)
 		{
 			SCSP->TimCnt[1] = 0xFFFF;
 			SCSP->udata.data[0x20/2]|=0x80;
+			SCSP->udata.data[0x2c/2]|=0x80;
 		}
 		SCSP->udata.data[0x1a/2]&=0xff00;
 		SCSP->udata.data[0x1a/2]|=SCSP->TimCnt[1]>>8;
@@ -751,6 +765,7 @@ void SCSP_TimersAddTicks(struct _SCSP *SCSP, int ticks)
 		{
 			SCSP->TimCnt[2] = 0xFFFF;
 			SCSP->udata.data[0x20/2]|=0x100;
+			SCSP->udata.data[0x2c/2]|=0x100;
 		}
 		SCSP->udata.data[0x1c/2]&=0xff00;
 		SCSP->udata.data[0x1c/2]|=SCSP->TimCnt[2]>>8;
@@ -965,6 +980,7 @@ static void SCSP_DoMasterSamples(struct _SCSP *SCSP, int nsamples)
 		{
 			SCSP_TimersAddTicks(SCSP, 1);
 			CheckPendingIRQ(SCSP);
+			CheckMainIRQ(SCSP);
 		}
 
 		*bufl=ICLIP16(smpl);
@@ -981,9 +997,13 @@ static void SCSP_DoMasterSamples(struct _SCSP *SCSP, int nsamples)
 
 static void dma_scsp(struct _SCSP *SCSP)
 {
-	static UINT16 tmp_dma[3], *scsp_regs;
+	UINT16 tmp_dma[3], *scsp_regs;
+	int dgate, ddir;
 
 	scsp_regs = (UINT16 *)SCSP->udata.datab;
+	/* DMA can overwrite its own registers; retain the transfer direction. */
+	dgate = scsp_dgate;
+	ddir = scsp_ddir;
 
 	logerror("SCSP: DMA transfer START\n"
 			 "DMEA: %04x DRGA: %04x DTLG: %04x\n"
@@ -991,18 +1011,22 @@ static void dma_scsp(struct _SCSP *SCSP)
 
 	/* Copy the dma values in a temp storage for resuming later *
      * (DMA *can't* overwrite his parameters).                  */
-	if(!(scsp_ddir))
+	if(!ddir)
 	{
 		tmp_dma[0] = scsp_regs[0x412/2];
 		tmp_dma[1] = scsp_regs[0x414/2];
 		tmp_dma[2] = scsp_regs[0x416/2];
 	}
 
-	if(scsp_ddir)
+	if(ddir)
 	{
 		for(;SCSP->scsp_dtlg > 0;SCSP->scsp_dtlg-=2)
 		{
-			program_write_word(SCSP->scsp_dmea, program_read_word(0x100000|SCSP->scsp_drga));
+			/* Use the owning chip: DMA may also be started by the sub CPU. */
+			if (SCSP->IntMainCB)
+				((UINT16 *)SCSP->SCSPRAM)[(SCSP->scsp_dmea & 0x7ffff)/2] = dgate ? 0 : SCSP_r16(SCSP, SCSP->scsp_drga);
+			else
+				program_write_word(SCSP->scsp_dmea, program_read_word(0x100000|SCSP->scsp_drga));
 			SCSP->scsp_dmea+=2;
 			SCSP->scsp_drga+=2;
 		}
@@ -1011,14 +1035,17 @@ static void dma_scsp(struct _SCSP *SCSP)
 	{
 		for(;SCSP->scsp_dtlg > 0;SCSP->scsp_dtlg-=2)
 		{
-  			program_write_word(0x100000|SCSP->scsp_drga,program_read_word(SCSP->scsp_dmea));
+			if (SCSP->IntMainCB)
+				SCSP_w16(SCSP, SCSP->scsp_drga, dgate ? 0 : ((UINT16 *)SCSP->SCSPRAM)[(SCSP->scsp_dmea & 0x7ffff)/2]);
+			else
+				program_write_word(0x100000|SCSP->scsp_drga,program_read_word(SCSP->scsp_dmea));
 			SCSP->scsp_dmea+=2;
 			SCSP->scsp_drga+=2;
 		}
 	}
 
 	/*Resume the values*/
-	if(!(scsp_ddir))
+	if(!ddir)
 	{
 	 	scsp_regs[0x412/2] = tmp_dma[0];
 		scsp_regs[0x414/2] = tmp_dma[1];
@@ -1026,7 +1053,12 @@ static void dma_scsp(struct _SCSP *SCSP)
 	}
 
 	/*Job done,request a dma end irq*/
-	if(scsp_regs[0x41e/2] & 0x10)
+	if (SCSP->IntMainCB)
+	{
+		SCSP->udata.data[0x2c/2] |= 0x10;
+		CheckMainIRQ(SCSP);
+	}
+	else if(scsp_regs[0x41e/2] & 0x10)
 	cpunum_set_input_line(2,dma_transfer_end,HOLD_LINE);
 }
 
@@ -1062,6 +1094,7 @@ static void *scsp_start(int sndindex, int clock, const void *config)
 	// set up the IRQ callbacks
 	{
 		SCSP->Int68kCB = intf->irq_callback;
+		SCSP->IntMainCB = intf->main_irq_callback;
 
 		SCSP->stream = stream_create(0, 2, 44100, SCSP, SCSP_Update);
 	}
@@ -1070,6 +1103,7 @@ static void *scsp_start(int sndindex, int clock, const void *config)
 	state_save_register_item_array("scsp", sndindex, SCSP->udata.data);
 	state_save_register_item_array("scsp", sndindex, SCSP->RINGBUF);
 	state_save_register_item("scsp", sndindex, SCSP->BUFPTR);
+	state_save_register_item("scsp", sndindex, SCSP->MainIRQ);
 	state_save_register_item("scsp", sndindex, SCSP->IrqTimA);
 	state_save_register_item("scsp", sndindex, SCSP->IrqTimBC);
 	state_save_register_item("scsp", sndindex, SCSP->IrqMidi);
@@ -1083,7 +1117,8 @@ static void *scsp_start(int sndindex, int clock, const void *config)
 	state_save_register_item("scsp", sndindex, SCSP->scsp_dmea);
 	state_save_register_item("scsp", sndindex, SCSP->scsp_drga);
 	state_save_register_item("scsp", sndindex, SCSP->scsp_dtlg);
-	state_save_register_memory("scsp", sndindex, "slots", &SCSP->Slots[0], sizeof(struct _SLOT), 32);
+	/* The slot block is not a scalar of a size accepted by the save system. */
+	state_save_register_memory("scsp", sndindex, "slots", &SCSP->Slots[0], 1, sizeof(SCSP->Slots));
 
 	return SCSP;
 }
@@ -1108,13 +1143,14 @@ READ16_HANDLER( SCSP_0_r )
 
 extern UINT32* stv_scu;
 
-WRITE16_HANDLER( SCSP_0_w )
+static void SCSP_write(struct _SCSP *SCSP, offs_t offset, UINT16 data, UINT16 mem_mask)
 {
-	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
 	UINT16 tmp, *scsp_regs;
+	UINT16 pending;
 
 	stream_update(SCSP->stream, 0);
 
+	pending = SCSP->udata.data[0x2c/2];
 	tmp = SCSP_r16(SCSP, offset*2);
 	COMBINE_DATA(&tmp);
 	SCSP_w16(SCSP,offset*2, tmp);
@@ -1154,33 +1190,37 @@ WRITE16_HANDLER( SCSP_0_w )
 		break;
 		//check main cpu IRQ
 		case 0x42a:
-			if(stv_scu && !(stv_scu[40] & 0x40) /*&& scsp_regs[0x42c/2] & 0x20*/)/*Main CPU allow sound irq*/
+			if(!SCSP->IntMainCB && stv_scu && !(stv_scu[40] & 0x40) /*&& scsp_regs[0x42c/2] & 0x20*/)/*Main CPU allow sound irq*/
 			{
 				cpunum_set_input_line_and_vector(0, 9, HOLD_LINE , 0x46);
 			    logerror("SCSP: Main CPU interrupt\n");
 			}
 		break;
 		case 0x42c:
+			SCSP->udata.data[0x2c/2] = pending | (data & ~mem_mask & 0x20);
 		break;
 		case 0x42e:
+			SCSP->udata.data[0x2c/2] &= ~(data & ~mem_mask);
 		break;
 	}
+	CheckMainIRQ(SCSP);
+}
+
+WRITE16_HANDLER( SCSP_0_w )
+{
+	SCSP_write(sndti_token(SOUND_SCSP, 0), offset, data, mem_mask);
 }
 
 READ16_HANDLER( SCSP_1_r )
 {
 	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 1);
+	stream_update(SCSP->stream, 0);
 	return SCSP_r16(SCSP, offset*2);
 }
 
 WRITE16_HANDLER( SCSP_1_w )
 {
-	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 1);
-	unsigned short tmp;
-
-	tmp = SCSP_r16(SCSP, offset*2);
-	COMBINE_DATA(&tmp);
-	SCSP_w16(SCSP, offset*2, tmp);
+	SCSP_write(sndti_token(SOUND_SCSP, 1), offset, data, mem_mask);
 }
 
 WRITE16_HANDLER( SCSP_MidiIn )

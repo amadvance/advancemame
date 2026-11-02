@@ -13,6 +13,7 @@ struct SCSPinterface
 	int region; 				/* region of 512k RAM */
 	int roffset;				/* offset in the region */
 	void (*irq_callback)(int state);	/* irq callback */
+	void (*main_irq_callback)(int state); /* main CPU interrupt */
 };
 
 void SCSP_set_ram_base(int which, void *base);
