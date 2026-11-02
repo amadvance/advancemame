@@ -2280,6 +2280,24 @@ V-V                           TP-027
 	DRIVER( makaimur )	/*  9/1985 (c) 1985 */
 	DRIVER( makaimuc )	/*  9/1985 (c) 1985 */
 	DRIVER( makaimug )	/*  9/1985 (c) 1985 */
+	DRIVER( gngprincess )		/* Hack */
+	DRIVER( gngprincessa )		/* Hack */
+	DRIVER( gngprincessaenh )	/* Hack */
+	DRIVER( gngprincessb )		/* Hack */
+	DRIVER( gngprincessbenh )	/* Hack */
+	DRIVER( gngprincessc )		/* Hack */
+	DRIVER( gngprincesscenh )	/* Hack */
+	DRIVER( gngprincessenh )	/* Hack */
+	DRIVER( gngprincesst )		/* Hack */
+	DRIVER( gngprincesstenh )	/* Hack */
+	DRIVER( makprincess )		/* Hack */
+	DRIVER( makprincessb )		/* Hack */
+	DRIVER( makprincessbenh )	/* Hack */
+	DRIVER( makprincessc )		/* Hack */
+	DRIVER( makprincesscenh )	/* Hack */
+	DRIVER( makprincessenh )	/* Hack */
+	DRIVER( makprincessg )		/* Hack */
+	DRIVER( makprincessgenh )	/* Hack */
 	DRIVER( diamond )	/* (c) 1989 KH Video (NOT A CAPCOM GAME but runs on GnG hardware) */
 	DRIVER( gunsmoke )	/* 11/1985 (c) 1985 (World) */
 	DRIVER( gunsmoku )	/* 11/1985 (c) 1985 + Romstar (US) */
