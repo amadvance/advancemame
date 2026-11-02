@@ -610,6 +610,524 @@ ROM_START( diamond )
 	ROM_LOAD( "prom2",        0x0100, 0x0100, CRC(4a1285a4) SHA1(5018c3950b675af58db499e2883ecbc55419b491) )  /* priority (not used) */
 ROM_END
 
+ROM_START( gngprincess )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mm_c_princess_04", 0x04000, 0x004000, CRC(3b6d9dcf) )
+	ROM_LOAD( "mm_c_princess_03", 0x08000, 0x008000, CRC(134db50c) )
+	ROM_LOAD( "mm_c_princess_05", 0x10000, 0x008000, CRC(d7e126e2) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincessa )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mjg_04princess.10n", 0x04000, 0x004000, CRC(1299e52b) )
+	ROM_LOAD( "mjg_03princess.8n", 0x08000, 0x008000, CRC(be9d1e56) )
+	ROM_LOAD( "mjg_05princess.12n", 0x10000, 0x008000, CRC(f5eb84e6) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "capsom_m5m23256p_p_62410p_mjg_02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mjg_01p_princess.11e", 0x00000, 0x004000, CRC(4ef3637e) )
+	ROM_IGNORE( 0x004000 )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mmg_08.3e", 0x00000, 0x008000, CRC(c09a716f) )
+	ROM_LOAD( "capsom_m5m23256p_p_61710z_mmg_07.3c", 0x08000, 0x008000, CRC(0b92b129) )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mmg_06.3b", 0x10000, 0x008000, CRC(830176af) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "capsom_m5m23256p_p_61710g_mjg_12p_princess.4n", 0x00000, 0x008000, CRC(f23401c4) )
+	ROM_LOAD( "capsom_m5m23256p_p_620108_mjg_11p_princess.3n", 0x08000, 0x008000, CRC(1ab10e35) )
+	ROM_LOAD( "capsom_m5m23256p_p_62410p_mjg_10p_princess.4l", 0x10000, 0x008000, CRC(3801cb66) )
+	ROM_LOAD( "capsom_m5m23256p_p_61710g_mjg_09p_princess.3l", 0x18000, 0x008000, CRC(e9edb4bc) )
+ROM_END
+
+ROM_START( gngprincessaenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mjg_04princess.10n", 0x04000, 0x004000, CRC(1299e52b) )
+	ROM_LOAD( "mjg_03princess.8n", 0x08000, 0x008000, CRC(81cb0d2a) )
+	ROM_LOAD( "mjg_05princess.12n", 0x10000, 0x008000, CRC(2caa03e3) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "capsom_m5m23256p_p_62410p_mjg_02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mjg_01p_princess.11e", 0x00000, 0x004000, CRC(4ef3637e) )
+	ROM_IGNORE( 0x004000 )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mmg_08.3e", 0x00000, 0x008000, CRC(c09a716f) )
+	ROM_LOAD( "capsom_m5m23256p_p_61710z_mmg_07.3c", 0x08000, 0x008000, CRC(0b92b129) )
+	ROM_LOAD( "capsom_m5m23256p_p_616105_mmg_06.3b", 0x10000, 0x008000, CRC(830176af) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "capsom_m5m23256p_p_61710g_mjg_12p_princess.4n", 0x00000, 0x008000, CRC(f23401c4) )
+	ROM_LOAD( "capsom_m5m23256p_p_620108_mjg_11p_princess.3n", 0x08000, 0x008000, CRC(1ab10e35) )
+	ROM_LOAD( "capsom_m5m23256p_p_62410p_mjg_10p_princess.4l", 0x10000, 0x008000, CRC(3801cb66) )
+	ROM_LOAD( "capsom_m5m23256p_p_61710g_mjg_09p_princess.3l", 0x18000, 0x008000, CRC(e9edb4bc) )
+ROM_END
+
+ROM_START( gngprincessb )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "gg4princess.bin", 0x04000, 0x004000, CRC(1299e52b) )
+	ROM_LOAD( "gg3princess.bin", 0x08000, 0x008000, CRC(be9d1e56) )
+	ROM_LOAD( "gg5princess.bin", 0x10000, 0x008000, CRC(f5eb84e6) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincessbenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "gg4princess.bin", 0x04000, 0x004000, CRC(1299e52b) )
+	ROM_LOAD( "gg3princess.bin", 0x08000, 0x008000, CRC(81cb0d2a) )
+	ROM_LOAD( "gg5princess.bin", 0x10000, 0x008000, CRC(2caa03e3) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincessc )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "gngprincess.n10", 0x04000, 0x004000, CRC(36e043ad) )
+	ROM_LOAD( "gng.n9", 0x08000, 0x004000, CRC(b6b91cfb) )
+	ROM_LOAD( "gngprincess.n8", 0x0c000, 0x004000, CRC(bd17085c) )
+	ROM_LOAD( "gng.n13", 0x10000, 0x004000, CRC(fd9a8dda) )
+	ROM_LOAD( "gngprincess.n12", 0x14000, 0x004000, CRC(5199ea50) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincesscenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "gngprincess.n10", 0x04000, 0x004000, CRC(36e043ad) )
+	ROM_LOAD( "gngprincess.n9", 0x08000, 0x004000, CRC(3632f7f5) )
+	ROM_LOAD( "gngprincess.n8", 0x0c000, 0x004000, CRC(393780fd) )
+	ROM_LOAD( "gng.n13", 0x10000, 0x004000, CRC(fd9a8dda) )
+	ROM_LOAD( "gngprincess.n12", 0x14000, 0x004000, CRC(98ce9232) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincessenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mm_c_princess_04", 0x04000, 0x004000, CRC(3b6d9dcf) )
+	ROM_LOAD( "mm_c_princess_03", 0x08000, 0x008000, CRC(a5921aeb) )
+	ROM_LOAD( "mm_c_princess_05", 0x10000, 0x008000, CRC(d1542dec) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gg17princess.bin", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gg14princess.bin", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincesst )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mmt04dprincess.10n", 0x04000, 0x004000, CRC(11dd8836) )
+	ROM_LOAD( "mmt03dprincess.8n", 0x08000, 0x008000, CRC(9ff8665c) )
+	ROM_LOAD( "mmt05dprincess.13n", 0x10000, 0x008000, CRC(7e06e90f) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "mm02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm01princess.11e", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm11.3e", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "mm10.1e", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "mm09.3c", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "mm08.1c", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "mm07.3b", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "mm06.1b", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "mm17princess.4n", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "mm16princess.3n", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "mm15princess.1n", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "mm14princess.4l", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "mm13princess.3l", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "mm12princess.1l", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( gngprincesstenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mmt04dprincess.10n", 0x04000, 0x004000, CRC(11dd8836) )
+	ROM_LOAD( "mmt03dprincess.8n", 0x08000, 0x008000, CRC(b57e52d7) )
+	ROM_LOAD( "mmt05dprincess.13n", 0x10000, 0x008000, CRC(e4ee3423) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "mm02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm01princess.11e", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm11.3e", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "mm10.1e", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "mm09.3c", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "mm08.1c", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "mm07.3b", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "mm06.1b", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "mm17princess.4n", 0x00000, 0x004000, CRC(e2043162) )
+	ROM_LOAD( "mm16princess.3n", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "mm15princess.1n", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "mm14princess.4l", 0x10000, 0x004000, CRC(19847a61) )
+	ROM_LOAD( "mm13princess.3l", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "mm12princess.1l", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincess )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "10nprincess.rom", 0x04000, 0x004000, CRC(49dc2d12) )
+	ROM_LOAD( "8nprincess.rom", 0x08000, 0x008000, CRC(ff005be0) )
+	ROM_LOAD( "12nprincess.rom", 0x10000, 0x008000, CRC(7c2064ca) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessb )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04bprincess.10n", 0x04000, 0x004000, CRC(3084ed7d) )
+	ROM_LOAD( "mj03bprincess.8n", 0x08000, 0x008000, CRC(b80cae7a) )
+	ROM_LOAD( "mj05bprincess.12n", 0x10000, 0x008000, CRC(6f8d3556) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "mm02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "mj01princess.11e", 0x00000, 0x004000, CRC(824ae0fc) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm11.3e", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "mm10.1e", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "mm09.3c", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "mm08.1c", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "mm07.3b", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "mm06.1b", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "mj17princess.4n", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "mj16princess.3n", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "mj15princess.1n", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "mj14princess.4l", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "mj13princess.3l", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "mj12princess.1l", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessbenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04bprincess.10n", 0x04000, 0x004000, CRC(3084ed7d) )
+	ROM_LOAD( "mj03bprincess.8n", 0x08000, 0x008000, CRC(de44ac2d) )
+	ROM_LOAD( "mj05bprincess.12n", 0x10000, 0x008000, CRC(7aefa8a0) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "mm02.14h", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "mj01princess.11e", 0x00000, 0x004000, CRC(824ae0fc) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "mm11.3e", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "mm10.1e", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "mm09.3c", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "mm08.1c", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "mm07.3b", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "mm06.1b", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "mj17princess.4n", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "mj16princess.3n", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "mj15princess.1n", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "mj14princess.4l", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "mj13princess.3l", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "mj12princess.1l", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessc )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04cprincess.bin", 0x04000, 0x004000, CRC(daada743) )
+	ROM_LOAD( "mj03cprincess.bin", 0x08000, 0x008000, CRC(7d0909cf) )
+	ROM_LOAD( "mj05cprincess.bin", 0x10000, 0x008000, CRC(0c9ed2e0) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincesscenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04cprincess.bin", 0x04000, 0x004000, CRC(daada743) )
+	ROM_LOAD( "mj03cprincess.bin", 0x08000, 0x008000, CRC(16fe9d4a) )
+	ROM_LOAD( "mj05cprincess.bin", 0x10000, 0x008000, CRC(0547b319) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "10nprincess.rom", 0x04000, 0x004000, CRC(49dc2d12) )
+	ROM_LOAD( "8nprincess.rom", 0x08000, 0x008000, CRC(b526a64b) )
+	ROM_LOAD( "12nprincess.rom", 0x10000, 0x008000, CRC(1abdbe3e) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessg )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04gprincess.bin", 0x04000, 0x004000, CRC(bd45de21) )
+	ROM_LOAD( "mj03gprincess.bin", 0x08000, 0x008000, CRC(e6bbe084) )
+	ROM_LOAD( "mj05gprincess.bin", 0x10000, 0x008000, CRC(cd6ce99c) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
+ROM_START( makprincessgenh )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "mj04gprincess.bin", 0x04000, 0x004000, CRC(bd45de21) )
+	ROM_LOAD( "mj03gprincess.bin", 0x08000, 0x008000, CRC(20b5aeeb) )
+	ROM_LOAD( "mj05gprincess.bin", 0x10000, 0x008000, CRC(21288a1b) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "gg2.bin", 0x000000, 0x008000, CRC(615f5b6f) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg1princess.bin", 0x00000, 0x004000, CRC(7935494f) )
+
+	ROM_REGION( 0x18000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gg11.bin", 0x00000, 0x004000, CRC(ddd56fa9) )
+	ROM_LOAD( "gg10.bin", 0x04000, 0x004000, CRC(7302529d) )
+	ROM_LOAD( "gg9.bin", 0x08000, 0x004000, CRC(20035bda) )
+	ROM_LOAD( "gg8.bin", 0x0c000, 0x004000, CRC(f12ba271) )
+	ROM_LOAD( "gg7.bin", 0x10000, 0x004000, CRC(e525207d) )
+	ROM_LOAD( "gg6.bin", 0x14000, 0x004000, CRC(2d77e9b2) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "gng13princess.n4", 0x00000, 0x004000, CRC(07c9138a) )
+	ROM_LOAD( "gg16princess.bin", 0x04000, 0x004000, CRC(1ad1d899) )
+	ROM_LOAD( "gg15princess.bin", 0x08000, 0x004000, CRC(439d6e7b) )
+	ROM_LOAD( "gng16princess.l4", 0x10000, 0x004000, CRC(3cc87995) )
+	ROM_LOAD( "gg13princess.bin", 0x14000, 0x004000, CRC(05e0c809) )
+	ROM_LOAD( "gg12princess.bin", 0x18000, 0x004000, CRC(28fe68a2) )
+ROM_END
+
 
 
 static READ8_HANDLER( diamond_hack_r )
@@ -630,5 +1148,32 @@ GAME( 1985, gngt,	  gng, gng, gng,	  0,	   ROT0, "Capcom (Taito America license)
 GAME( 1985, makaimur, gng, gng, makaimur, 0,	   ROT0, "Capcom", "Makai-Mura (Japan)", 0 )
 GAME( 1985, makaimuc, gng, gng, makaimur, 0,	   ROT0, "Capcom", "Makai-Mura (Japan Revision C)", 0 )
 GAME( 1985, makaimug, gng, gng, makaimur, 0,	   ROT0, "Capcom", "Makai-Mura (Japan Revision G)", 0 )
+/*
+ * Ghosts'n Goblins - Princess Prin Prin Edition (+ Enhanced Gameplay Edition)
+ * Romhack by GoodLuckTrying (Wolfric) & Poody
+ * https://romhackplaza.org/romhacks/ghostsn-goblins-princess-prin-prin-edition-enhanced-gameplay-edition-arcade-romhack
+ *
+ * Sprite and gameplay hack changing Arthur into Princess Prin Prin and vice versa.
+ * Most enemies have been changed into monster girls.
+ * Enhanced Edition introduces fluid crouching and smooth ladder climbing.
+ */
+GAME( 2026, gngprincess, 0, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 1)", 0 )
+GAME( 2026, gngprincessa, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 2)", 0 )
+GAME( 2026, gngprincessaenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 2)", 0 )
+GAME( 2026, gngprincessb, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 3)", 0 )
+GAME( 2026, gngprincessbenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 3)", 0 )
+GAME( 2026, gngprincessc, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 4)", 0 )
+GAME( 2026, gngprincesscenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 4)", 0 )
+GAME( 2026, gngprincessenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 1)", 0 )
+GAME( 2026, gngprincesst, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (US)", 0 )
+GAME( 2026, gngprincesstenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (US)", 0 )
+GAME( 2026, makprincess, 0, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition", 0 )
+GAME( 2026, makprincessb, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Japan revision B)", 0 )
+GAME( 2026, makprincessbenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Enhanced) (Japan revision B)", 0 )
+GAME( 2026, makprincessc, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Japan revision C)", 0 )
+GAME( 2026, makprincesscenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Enhanced) (Japan revision C)", 0 )
+GAME( 2026, makprincessenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Enhanced)", 0 )
+GAME( 2026, makprincessg, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Japan revision G)", 0 )
+GAME( 2026, makprincessgenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Enhanced) (Japan revision G)", 0 )
 GAME( 1989, diamond,  0,   gng, diamond,  diamond, ROT0, "KH Video", "Diamond Run", 0 )
 
