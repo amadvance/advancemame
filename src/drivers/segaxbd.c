@@ -9,6 +9,7 @@
 ****************************************************************************
 
     Known bugs:
+        * lastsurv cabinet networking is not emulated
         * gprider has a hack to make it work
         * extra sound boards etc. in some smgp sets not hooked up
         * rachero doesn't like IC17/IC108 (divide chips) in self-test
@@ -786,6 +787,64 @@ static INPUT_PORTS_START( thndrbld )
 INPUT_PORTS_END
 
 
+static INPUT_PORTS_START( lastsurv )
+	PORT_INCLUDE( xboard_generic )
+
+	PORT_MODIFY("IO1PORTA")
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_SERVICE2 )
+
+	PORT_START_TAG("MUX0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("MUX1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("MUX2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0e, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0xe0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("MUX3")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_MODIFY("IO1PORTD")
+	PORT_DIPNAME( 0x03, 0x03, "I.D. No" )
+	PORT_DIPSETTING(    0x03, "1" )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "4" )
+	PORT_DIPNAME( 0x0c, 0x0c, "Network" )
+	PORT_DIPSETTING(    0x0c, "Off" )
+	PORT_DIPSETTING(    0x08, "On (2)" )
+	PORT_DIPSETTING(    0x04, "On (4)" )
+
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, "Coin Chute" )
+	PORT_DIPSETTING(    0x80, "Single" )
+	PORT_DIPSETTING(    0x00, "Twin" )
+	PORT_START_TAG("ROT1")
+	PORT_BIT( 0xff, 0x60, IPT_DIAL ) PORT_PLAYER(1) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_CODE_DEC(KEYCODE_Z) PORT_CODE_INC(KEYCODE_X)
+	PORT_START_TAG("ROT2")
+	PORT_BIT( 0xff, 0x60, IPT_DIAL ) PORT_PLAYER(2) PORT_SENSITIVITY(25) PORT_KEYDELTA(32) PORT_CODE_DEC(KEYCODE_Q) PORT_CODE_INC(KEYCODE_W)
+INPUT_PORTS_END
+
+
 static INPUT_PORTS_START( loffire )
 	PORT_INCLUDE( xboard_generic )
 
@@ -1101,6 +1160,15 @@ static MACHINE_DRIVER_START( xboard )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( lastsurv )
+	MDRV_IMPORT_FROM(xboard)
+
+	MDRV_SOUND_MODIFY("2151")
+	MDRV_SOUND_ROUTE(0, "right", 0.43)
+	MDRV_SOUND_ROUTE(1, "left", 0.43)
+MACHINE_DRIVER_END
+
+
 MACHINE_DRIVER_START( smgp )
 	MDRV_IMPORT_FROM(xboard)
 
@@ -1225,6 +1293,56 @@ ROM_START( aburner2 )
 	ROM_LOAD( "11102.13",    0x40000, 0x20000, CRC(6c07c78d) SHA1(3868b1824f43e4f2b4fbcd9274bfb3000c889d12) )
 ROM_END
 
+
+ROM_START( lastsurv )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr-12046.ic58", 0x000000, 0x20000, CRC(f94f3a1a) SHA1(f509cbccb1f36ce52ed3e44d4d7b31a047050700) )
+	ROM_LOAD16_BYTE( "epr-12047.ic63", 0x000001, 0x20000, CRC(1b45c116) SHA1(c46ad622a145baea52d918537fa43a2009ed0cca) )
+	ROM_LOAD16_BYTE( "epr-12048.ic57", 0x040000, 0x20000, CRC(648e38ca) SHA1(e5f7fd42f49dbbddd1a812a04d8b95c1a73e640b) )
+	ROM_LOAD16_BYTE( "epr-12049.ic62", 0x040001, 0x20000, CRC(6c5c4753) SHA1(6834542005bc8cad7918ae17d3764306d7f9a959) )
+
+	ROM_REGION( 0x2000, REGION_USER1, 0 )
+	ROM_LOAD( "317-0083.key", 0x0000, 0x2000, CRC(dca0b9cc) SHA1(77510804d36d486ffa1e0bb5b0a36d43adc63415) )
+
+	ROM_REGION( 0x100000, REGION_CPU2, 0 )
+	ROM_LOAD16_BYTE( "epr-12050.ic20", 0x000000, 0x20000, CRC(985a0f36) SHA1(bd0a93aa16565c8338db0c67b031bfa409bce5a9) )
+	ROM_LOAD16_BYTE( "epr-12051.ic29", 0x000001, 0x20000, CRC(f967d5a8) SHA1(16d742da755b5b7c3c3a9f6b4baaf242e5e54441) )
+	ROM_LOAD16_BYTE( "epr-12052.ic21", 0x040000, 0x20000, CRC(9f7a424d) SHA1(b8c2d3aa08ba71f08f2c1f403edac16bf4334184) )
+	ROM_LOAD16_BYTE( "epr-12053.ic30", 0x040001, 0x20000, CRC(efcf30f6) SHA1(55cd42c78f117995a89844529386ae3d11c718c1) )
+
+	ROM_REGION( 0x30000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "epr-12055.ic154", 0x00000, 0x10000, CRC(150014a4) SHA1(9fbab916ee903c541f61014e137ccecd071b5c3a) )
+	ROM_LOAD( "epr-12056.ic153", 0x10000, 0x10000, CRC(3cd4c306) SHA1(b0f178688870c67936a15383024c392072e3bc66) )
+	ROM_LOAD( "epr-12057.ic152", 0x20000, 0x10000, CRC(37e91770) SHA1(69e26f4d3c4ebfaf0225a9b1c60038595929ef05) )
+
+	ROM_REGION32_LE( 0x200000, REGION_GFX2, 0 )
+	ROM_LOAD32_BYTE( "mpr-12064.ic90",  0x000000, 0x20000, CRC(84562a69) SHA1(815189a65065def213ef171fe40a44a455dfe75a) )
+	ROM_LOAD32_BYTE( "mpr-12063.ic94",  0x000001, 0x20000, CRC(d163727c) SHA1(50ed2b401e107a359874dad5d86eec788f5504eb) )
+	ROM_LOAD32_BYTE( "mpr-12062.ic98",  0x000002, 0x20000, CRC(6b57833b) SHA1(1d70894c81a4cd39f43067701a598d2c4fbffa58) )
+	ROM_LOAD32_BYTE( "mpr-12061.ic102", 0x000003, 0x20000, CRC(8907d5ba) SHA1(f4f9a19f3c27ef02314e59294a9658e2b20d52e0) )
+	ROM_LOAD32_BYTE( "epr-12068.ic91",  0x080000, 0x20000, CRC(8b12d342) SHA1(0356a413c2438e9c6c660454f03c0e24c6325f6b) )
+	ROM_LOAD32_BYTE( "epr-12067.ic95",  0x080001, 0x20000, CRC(1a1cdd89) SHA1(cd725aa450efa60ecc7d4111d0690cb441633935) )
+	ROM_LOAD32_BYTE( "epr-12066.ic99",  0x080002, 0x20000, CRC(a91d16b5) SHA1(501ddedf79130979c90c72882c2d96f5fd01adea) )
+	ROM_LOAD32_BYTE( "epr-12065.ic103", 0x080003, 0x20000, CRC(f4ce14c6) SHA1(42221ee03f363e94bf7b6de0bd89172525500412) )
+	ROM_LOAD32_BYTE( "epr-12072.ic92",  0x100000, 0x20000, CRC(222064c8) SHA1(a3914f8dabd8a3d99eaf4e03fa45e177c9f30666) )
+	ROM_LOAD32_BYTE( "epr-12071.ic96",  0x100001, 0x20000, CRC(a329b78c) SHA1(33b1f27dcc5ac36fdfd7374e1edda4fc31421126) )
+	ROM_LOAD32_BYTE( "epr-12070.ic100", 0x100002, 0x20000, CRC(97cc6706) SHA1(9160f100bd85f9c8b774e27a5d68e1c513111a61) )
+	ROM_LOAD32_BYTE( "epr-12069.ic104", 0x100003, 0x20000, CRC(2c3ba66e) SHA1(087fbf9d17f38b06b134088d89965c8d17dd5846) )
+	ROM_LOAD32_BYTE( "epr-12076.ic93",  0x180000, 0x20000, CRC(24f628e1) SHA1(abbc22282c7a9df203a8c589ddf08413d67392b1) )
+	ROM_LOAD32_BYTE( "epr-12075.ic97",  0x180001, 0x20000, CRC(69b3507f) SHA1(c447ceb38b473a3f65847471ef6de559e6ecce4a) )
+	ROM_LOAD32_BYTE( "epr-12074.ic101", 0x180002, 0x20000, CRC(ee6cbb73) SHA1(c68d825ded83dd06ba7b816622db3d57631b4fcc) )
+	ROM_LOAD32_BYTE( "epr-12073.ic105", 0x180003, 0x20000, CRC(167e6342) SHA1(2f87074d6821a974cbb137ca2bec28fafc0df46f) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_ERASE00 )
+
+	ROM_REGION( 0x10000, REGION_CPU3, 0 )
+	ROM_LOAD( "epr-12054.ic17", 0x00000, 0x10000, CRC(e9b39216) SHA1(142764b40b4db69ff08d28338d1b12b1dd1ed0a0) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF )
+	ROM_LOAD( "epr-12058.ic11", 0x00000, 0x20000, CRC(4671cb46) SHA1(03ecaa4409a5b86a558313d4ccfb2334f79cff17) )
+	ROM_LOAD( "epr-12059.ic12", 0x20000, 0x20000, CRC(8c99aff4) SHA1(818418e4e92f601b09fcaa0979802a2c2c85b435) )
+	ROM_LOAD( "epr-12060.ic13", 0x40000, 0x20000, CRC(7ed382b3) SHA1(c87306d1b9edb8b4b97aee4af1317526750e2da2) )
+ROM_END
 
 /**************************************************************************************************************************
  **************************************************************************************************************************
@@ -2301,6 +2419,28 @@ static DRIVER_INIT( aburner2 )
 }
 
 
+static UINT8 lastsurv_port_r(offs_t offset, UINT8 portdata)
+{
+	static const UINT8 positions[8] = { 6, 14, 10, 11, 9, 13, 5, 7 };
+	int mux = (iochip_regs[0][3] >> 5) & 3;
+	static const char *const ports[4] = { "MUX0", "MUX1", "MUX2", "MUX3" };
+
+	if (offset != 1)
+		return portdata;
+	portdata = readinputportbytag(ports[mux]);
+	/* the rotary encoder drives active-low direction lines, not a binary angle */
+	if (mux < 2)
+		portdata = (portdata & 0x0f) | (positions[readinputportbytag(mux ? "ROT1" : "ROT2") >> 5] << 4);
+	return portdata;
+}
+
+static DRIVER_INIT( lastsurv )
+{
+	xboard_generic_init();
+	iochip_custom_io_r[1] = lastsurv_port_r;
+}
+
+
 static DRIVER_INIT( loffire )
 {
 	xboard_generic_init();
@@ -2337,6 +2477,7 @@ GAME( 1987, aburner2, 0,        xboard,  aburner2, aburner2,       ROT0, "Sega",
 GAME( 1987, aburner,  aburner2, xboard,  aburner,  aburner2,       ROT0, "Sega", "After Burner (Japan)", 0 )
 GAME( 1987, thndrbld, 0,        xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (FD1094 317-0056)", 0 )
 GAME( 1987, thndrbdj, thndrbld, xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (Japan)", 0 )
+GAME( 1989, lastsurv, 0,        lastsurv, lastsurv, lastsurv,       ROT0, "Sega", "Last Survivor (Japan) (FD1094 317-0083)", 0 )
 GAME( 1989, loffire,  0,        loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (World, FD1094 317-0136)", GAME_NOT_WORKING ) // fire button not working
 GAME( 1989, loffireu, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (US, FD1094 317-0135)", GAME_NOT_WORKING )
 GAME( 1989, loffirej, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (Japan, FD1094 317-0134)", GAME_NOT_WORKING )
