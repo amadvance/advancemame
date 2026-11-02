@@ -20,6 +20,8 @@
     1990  Columns II                 Sega                               C
     1990  Borench                    Sega                               C2
     1990  ThunderForce AC            Sega / Technosoft                  C2
+    1990  Waku Waku Pajero           Sega                               C2
+    1991  Waku Waku Sonic Patrol Car Sega              317-0140         C2
     1991  Twin Squash                Sega                               C2
     1992  Ribbit!                    Sega                               C2
     1992  Tant-R (Japan)             Sega              317-0211         C2
@@ -1020,6 +1022,62 @@ INPUT_PORTS_START( twinsqua )
 INPUT_PORTS_END
 
 
+INPUT_PORTS_START( soniccar )
+	PORT_INCLUDE( systemc_generic )
+
+	PORT_MODIFY("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Siren")
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Jump")
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Turbo")
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_RIGHT ) PORT_NAME("Turn Signal Right")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_LEFT ) PORT_NAME("Turn Signal Left")
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_RIGHT ) PORT_NAME("Steering Right")
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_LEFT ) PORT_NAME("Steering Left")
+
+	PORT_MODIFY("P2")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_MODIFY("SERVICE")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_SERVICE_NO_TOGGLE( 0x04, IP_ACTIVE_LOW )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Accelerator")
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x03, 0x03, "Demo Sound Interval" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, "Every 4 Minutes" )
+	PORT_DIPSETTING(    0x02, "Every 2 Minutes" )
+	PORT_DIPSETTING(    0x03, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, "Lighting Time" )
+	PORT_DIPSETTING(    0x04, "Advertise & Playtime" )
+	PORT_DIPSETTING(    0x00, "Playtime Only" )
+	PORT_DIPNAME( 0x08, 0x08, "Light" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, "Screen Display" )
+	PORT_DIPSETTING(    0x10, "Insert 100-400 Yen" )
+	PORT_DIPSETTING(    0x00, "Insert Money" )
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( wwpajero )
+	PORT_INCLUDE( systemc_generic )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x03, 0x03, "Demo Sound Interval" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, "Every 8 Demo Cycles" )
+	PORT_DIPSETTING(    0x02, "Every 4 Demo Cycles" )
+	PORT_DIPSETTING(    0x03, DEF_STR( On ) )
+INPUT_PORTS_END
+
+
 INPUT_PORTS_START( ribbit )
 	PORT_INCLUDE( systemc_generic )
 
@@ -1664,6 +1722,30 @@ ROM_START( twinsqua ) /* Twin Squash  (c)1991 Sega */
 
 	ROM_REGION( 0x020000, REGION_SOUND1, 0 )
 	ROM_LOAD( "ep14588.4", 0x000000, 0x020000, CRC(5a9b6881) SHA1(d86ec7f569fae5a1ce93a1cf40998cbb13726e0c) )
+ROM_END
+
+
+ROM_START( soniccar )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr-14369.ic32", 0x000000, 0x040000, CRC(2ea4c9a3) SHA1(92ee27c93bd1cbb99c88af39f5f227a8cadfb13c) )
+	ROM_LOAD16_BYTE( "epr-14395.ic31", 0x000001, 0x040000, CRC(39622e18) SHA1(b7093c6d86e429e9721a0e1fd781231dc4342b31) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr-14394.ic4", 0x000000, 0x040000, CRC(476e30dd) SHA1(c9d381160c58b05763ea286a53c7ca6de074fda2) )
+ROM_END
+
+
+ROM_START( wwpajero )
+	ROM_REGION( 0x200000, REGION_CPU1, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "epr-12925.ic32", 0x000000, 0x020000, CRC(47a814a1) SHA1(19199a13d823615fb804a2ae7896871442a844bb) )
+	ROM_LOAD16_BYTE( "epr-12924.ic31", 0x000001, 0x020000, CRC(69a5df3a) SHA1(39b082034c4800547bedffca47eb24b43f9832fc) )
+	ROM_LOAD16_BYTE( "epr-13125.ic34", 0x040000, 0x020000, CRC(a1ee9e69) SHA1(19bebb71aa3b8279b0e140f495f2df756d80c7f7) )
+	ROM_RELOAD(                        0x080000, 0x020000 )
+	ROM_LOAD16_BYTE( "epr-13124.ic33", 0x040001, 0x020000, CRC(edf17b0d) SHA1(3709c5a31766a81baf01188d09364fce6b75dd1a) )
+	ROM_RELOAD(                        0x080001, 0x020000 )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, ROMREGION_ERASEFF )
+	ROM_LOAD( "epr-12923.ic4", 0x000000, 0x020000, CRC(774557a9) SHA1(e267369338717b26546cb4e4706dd04a3eee0905) )
 ROM_END
 
 
@@ -2398,31 +2480,33 @@ GAME( 1990, columns2, 0,        segac,    columns2, columns2, ROT0, "Sega",     
 GAME( 1990, column2j, columns2, segac,    columns2, columns2, ROT0, "Sega",                   "Columns II: The Voyage Through Time (Japan)", 0 )
 
 /* System C-2 Games */
-GAME( 1990, borench,  0,        segac2,   borench,  borench,  ROT0, "Sega",                   "Borench", 0 )
 GAME( 1990, tfrceac,  0,        segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC", 0 )
 GAME( 1990, tfrceacj, tfrceac,  segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan)", 0 )
 GAME( 1990, tfrceacb, tfrceac,  segac2,   tfrceac,  tfrceacb, ROT0, "bootleg",                "ThunderForce AC (bootleg)", 0 )
 GAME( 1990, tfrceacjpb,tfrceac, tfrceacjpb,tfrceac, tfrceacjpb, ROT0, "Sega / Technosoft",    "ThunderForce AC (Japan, prototype, bootleg)", 0 )
-GAME( 1991, twinsqua, 0,        segac2,   twinsqua, twinsqua, ROT0, "Sega",                   "Twin Squash", 0 )
+GAME( 1990, borench,  0,        segac2,   borench,  borench,  ROT0, "Sega",                   "Borench", 0 )
 GAME( 1991, ribbit,   0,        segac2,   ribbit,   ribbit,   ROT0, "Sega",                   "Ribbit!", 0 )
-GAME( 1992, ooparts,  0,        segac2,   ooparts,  c2boot,   ROT270, "Sega / Success",       "OOPArts (Japan, Prototype)", 0 )
+GAME( 1991, twinsqua, 0,        segac2,   twinsqua, twinsqua, ROT0, "Sega",                   "Twin Squash", 0 )
+GAME( 1991, soniccar, 0,        segac2,   soniccar, c2boot,   ROT0, "Sega",                   "Waku Waku Sonic Patrol Car", 0 )
 GAME( 1992, ssonicbr, 0,        segac2,   ssonicbr, bloxeedc, ROT0, "Sega",                   "SegaSonic Bros (Japan, prototype)", 0 )
-GAME( 1992, tantr,    0,        segac2,   ichir,    tantr,    ROT0, "Sega",                   "Puzzle & Action: Tant-R (Japan)", 0 )
-GAME( 1993, tantrkor, tantr,    segac2,   ichir,    tantrkor, ROT0, "Sega",                   "Puzzle & Action: Tant-R (Korea)", 0 )
-GAME( 1992, tantrbl,  tantr,    segac2,   ichir,    c2boot,   ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 1)", 0 )
-GAME( 1994, tantrbl2, tantr,    segac,    ichir,    tantr,    ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 2)", 0 ) // Common bootleg in Europe, C board, no samples
+GAME( 1992, ooparts,  0,        segac2,   ooparts,  c2boot,   ROT270, "Sega / Success",       "OOPArts (Japan, Prototype)", 0 )
 GAME( 1992, puyo,     0,        segac2,   puyo,     puyo,     ROT0, "Sega / Compile",         "Puyo Puyo (World)", 0 )
 GAME( 1992, puyobl,   puyo,     segac2,   puyo,     puyo,     ROT0, "bootleg",                "Puyo Puyo (World, bootleg)", 0 )
 GAME( 1992, puyoj,    puyo,     segac2,   puyo,     puyo,     ROT0, "Sega / Compile",         "Puyo Puyo (Japan)", 0 )
 GAME( 1992, puyoja,   puyo,     segac2,   puyo,     puyo,     ROT0, "Sega / Compile",         "Puyo Puyo (Japan, Rev A)", 0 )
+GAME( 1992, tantr,    0,        segac2,   ichir,    tantr,    ROT0, "Sega",                   "Puzzle & Action: Tant-R (Japan)", 0 )
+GAME( 1993, tantrkor, tantr,    segac2,   ichir,    tantrkor, ROT0, "Sega",                   "Puzzle & Action: Tant-R (Korea)", 0 )
+GAME( 1992, tantrbl,  tantr,    segac2,   ichir,    c2boot,   ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 1)", 0 )
+GAME( 1994, tantrbl2, tantr,    segac,    ichir,    tantr,    ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 2)", 0 ) // Common bootleg in Europe, C board, no samples
+GAME( 1990, wwpajero, 0,        segac2,   wwpajero, c2boot,   ROT0, "Sega",                   "Waku Waku Pajero", 0 )
+GAME( 1994, potopoto, 0,        segac2,   potopoto, potopoto, ROT0, "Sega",                   "Poto Poto (Japan)", 0 )
+GAME( 1994, stkclmns, 0,        segac2,   stkclmns, stkclmns, ROT0, "Sega",                   "Stack Columns (World)", 0 )
+GAME( 1994, stkclmnj, stkclmns, segac2,   stkclmns, stkclmnj, ROT0, "Sega",                   "Stack Columns (Japan)", 0 )
 GAME( 1994, ichir,    0,        segac2,   ichir,    ichir,    ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (World)", 0 )
 GAME( 1994, ichirk,   ichir,    segac2,   ichir,    ichirk,   ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Korea)", 0 )
 GAME( 1994, ichirj,   ichir,    segac2,   ichir,    ichirj,   ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Japan)", 0 )
 GAME( 1994, ichirjbl, ichir,    segac,    ichir,    ichirjbl, ROT0, "bootleg",                "Puzzle & Action: Ichidant-R (Japan) (bootleg)", 0 ) // C board, no samples
-GAME( 1994, stkclmns, 0,        segac2,   stkclmns, stkclmns, ROT0, "Sega",                   "Stack Columns (World)", 0 )
-GAME( 1994, stkclmnj, stkclmns, segac2,   stkclmns, stkclmnj, ROT0, "Sega",                   "Stack Columns (Japan)", 0 )
 GAME( 1994, puyopuy2, 0,        segac2,   puyopuy2, puyopuy2, ROT0, "Compile (Sega license)", "Puyo Puyo 2 (Japan)", 0 )
-GAME( 1994, potopoto, 0,        segac2,   potopoto, potopoto, ROT0, "Sega",                   "Poto Poto (Japan)", 0 )
 GAME( 1994, zunkyou,  0,        segac2,   zunkyou,  zunkyou,  ROT0, "Sega",                   "Zunzunkyou No Yabou (Japan)", 0 )
 GAME( 1994, headonch, 0,        segac2,   headonch, c2boot,   ROT0, "Sega",                   "Head On Channel (Japan, prototype)", 0 )
 
