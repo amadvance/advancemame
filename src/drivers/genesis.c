@@ -15,6 +15,7 @@ segac2.c
 
 #include "driver.h"
 #include "genesis.h"
+#include "cpu/m68000/m68000.h"
 
 #define MASTER_CLOCK		53693100
 
@@ -28,6 +29,7 @@ static unsigned int	z80_latch_bitcount		= 0;
 /* interrupt states */
 static UINT8		irq2_int;			/* INT2 */
 static UINT8		scanline_int;		/* INT4 - programmable */
+int megaplay_iack;
 static UINT8		vblank_int;			/* INT6 - on every VBLANK */
 
 static mame_timer *	scan_timer;
@@ -75,8 +77,8 @@ static void update_interrupts(void)
 
 	/* determine which interrupt is active */
 	if (irq2_int) level = 2;
-	if (scanline_int) level = 4;
-	if (vblank_int) level = 6;
+	if (scanline_int && (!megaplay_iack || (genesis_vdp_regs[0] & 0x10))) level = 4;
+	if (vblank_int && (!megaplay_iack || (genesis_vdp_regs[1] & 0x20))) level = 6;
 
 	/* either set or clear the appropriate lines */
 	if (level)
@@ -103,7 +105,8 @@ void vdp_reload_counter(int scanline)
 		{
 			scanline_int = 1;
 			update_interrupts();
-			timer_set(cpu_getscanlinetime(scanline + 1), 0, vdp_int4_off);
+			if (!megaplay_iack)
+				timer_set(cpu_getscanlinetime(scanline + 1), 0, vdp_int4_off);
 		}
 
 	/* advance to the next scanline */
@@ -138,6 +141,48 @@ INTERRUPT_GEN( genesis_vblank_interrupt )
 }
 
 
+/* Keep pending interrupts until acknowledgement: timed pulses can be lost
+   while masked, or repeatedly enter a short horizontal interrupt handler. */
+static void megaplay_vint_delayed(int param)
+{
+	vblank_int = 1;
+	update_interrupts();
+}
+
+INTERRUPT_GEN( megaplay_vblank_interrupt )
+{
+	/* Mazin Wars polls VBLANK before V-INT, whose handler outlasts blanking.
+	   Give the polling loop the hardware gap of 788 master clock cycles. */
+	timer_set(TIME_IN_SEC(788.0 / MASTER_CLOCK), 0, megaplay_vint_delayed);
+}
+
+void megaplay_vdp_irq_update(void)
+{
+	if (megaplay_iack)
+		update_interrupts();
+}
+
+static int megaplay_irq_callback(int irqline)
+{
+	if (irqline == 4)
+		scanline_int = 0;
+	else if (irqline == 6)
+		vblank_int = 0;
+
+	/* Clear synchronously at IACK before scheduling any remaining source. */
+	activecpu_set_input_line(7, INTERNAL_CLEAR_LINE);
+	update_interrupts();
+	return MC68000_INT_ACK_AUTOVECTOR;
+}
+
+void megaplay_enable_iack(void)
+{
+	megaplay_iack = 1;
+	scanline_int = vblank_int = 0;
+	cpunum_set_irq_callback(0, megaplay_irq_callback);
+}
+
+
 /* interrupt callback to generate the YM3438 interrupt */
 void genesis_irq2_interrupt(int state)
 {
@@ -148,6 +193,7 @@ void genesis_irq2_interrupt(int state)
 
 MACHINE_START( genesis )
 {
+	state_save_register_global(megaplay_iack);
 	state_save_register_global(irq2_int);
 	state_save_register_global(scanline_int);
 	state_save_register_global(vblank_int);
@@ -157,6 +203,7 @@ MACHINE_START( genesis )
 
 MACHINE_RESET( genesis )
 {
+	megaplay_iack = 0;
 	/* C2 doesn't have a Z80, so we can't just assume */
 	if (Machine->drv->cpu[1].cpu_type == CPU_Z80)
 	{
@@ -323,10 +370,9 @@ READ16_HANDLER ( megaplay_68k_to_z80_r )
 
 	if ((offset >= 0x2000) && (offset <= 0x3fff))
 	{
+		UINT8 *ram = (UINT8 *)ic36_ram;
 		offset &=0x1fff;
-//      if(offset == 0)
-//          return (readinputport(8) << 8) ^ 0xff00;
-		return (ic36_ram[offset] << 8) + ic36_ram[offset+1];
+		return (ram[offset] << 8) | ram[offset+1];
 	}
 
 
@@ -383,10 +429,21 @@ WRITE16_HANDLER ( megaplay_68k_to_z80_w )
 
 	if ((offset >= 0x2000) && (offset <= 0x3fff))
 	{
+		UINT8 *ram = (UINT8 *)ic36_ram;
 		offset &=0x1fff;
 
-	if (ACCESSING_LSB) ic36_ram[offset+1] = data & 0xff;
-	if (ACCESSING_MSB) ic36_ram[offset] = (data >> 8) & 0xff;
+		if (!ACCESSING_LSB)
+		{
+			ram[offset] = (data >> 8) & 0xff;
+		}
+		else if (!ACCESSING_MSB)
+		{
+			ram[offset+1] = data & 0xff;
+		}
+		else
+		{
+			ram[offset] = (data >> 8) & 0xff;
+		}
 	}
 
 
@@ -554,26 +611,32 @@ READ16_HANDLER ( megaplay_genesis_io_r )
 		case 1: /* port A data (joypad 1) */
 
 			if (genesis_io_ram[offset] & 0x40)
-				return_value = readinputport(1) & (genesis_io_ram[4]^0xff);
+				return_value = readinputport(1) & 0x3f;
 			else
 			{
-				return_value = readinputport(2) & (genesis_io_ram[4]^0xff);
+				return_value = readinputport(2) & 0x10;
 				return_value |= readinputport(1) & 0x03;
+				return_value = (return_value & ~0x20) | ((bios_bank & 0x10) ? 0x20 : 0x00);
 			}
-			return_value = (genesis_io_ram[offset] & 0x80) | return_value;
+			/* Output pins, including TH, read back their latched value. */
+			return_value = (return_value & ~(genesis_io_ram[offset + 3] | 0x80))
+				| (genesis_io_ram[offset] & (genesis_io_ram[offset + 3] | 0x80));
 //          logerror ("reading joypad 1 , type %02x %02x\n",genesis_io_ram[offset] & 0xb0, return_value &0x7f);
 			break;
 
 		case 2: /* port B data (joypad 2) */
 
 			if (genesis_io_ram[offset] & 0x40)
-				return_value = readinputport(3) & (genesis_io_ram[5]^0xff);
+				return_value = readinputport(3) & 0x3f;
 			else
 			{
-				return_value = readinputport(4) & (genesis_io_ram[5]^0xff);
+				return_value = readinputport(4) & 0x10;
 				return_value |= readinputport(3) & 0x03;
+				return_value = (return_value & ~0x20) | ((bios_bank & 0x20) ? 0x20 : 0x00);
 			}
-			return_value = (genesis_io_ram[offset] & 0x80) | return_value;
+			/* Output pins, including TH, read back their latched value. */
+			return_value = (return_value & ~(genesis_io_ram[offset + 3] | 0x80))
+				| (genesis_io_ram[offset] & (genesis_io_ram[offset + 3] | 0x80));
 //          logerror ("reading joypad 2 , type %02x %02x\n",genesis_io_ram[offset] & 0xb0, return_value &0x7f);
 			break;
 

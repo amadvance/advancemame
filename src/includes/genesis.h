@@ -11,6 +11,11 @@
 
 extern UINT16 *ic36_ram;
 extern unsigned char bios_6204;
+extern unsigned char bios_bank;
+extern INTERRUPT_GEN( megaplay_vblank_interrupt );
+extern int megaplay_iack;
+extern void megaplay_enable_iack(void);
+extern void megaplay_vdp_irq_update(void);
 extern unsigned char bios_ctrl[6];
 
 /*----------- defined in drivers/megatech.c -----------*/

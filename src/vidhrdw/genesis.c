@@ -605,7 +605,15 @@ static int vdp_control_r(void)
 		status |= 0x0008;
 
 	/* set the HBLANK bit */
-	if (beampos < Machine->visible_area.min_x || beampos > Machine->visible_area.max_x)
+	/* The beam spans the full line in screen pixels. In H40 the visible
+	   area fills that range, so the old test never exposed HBLANK and
+	   Grand Slam waited forever while uploading its per-line data. */
+	if (megaplay_iack)
+	{
+		if (beampos >= (Machine->drv->screen_width * 4) / 5)
+			status |= 0x0004;
+	}
+	else if (beampos < Machine->visible_area.min_x || beampos > Machine->visible_area.max_x)
 		status |= 0x0004;
 
 	return (status);
@@ -650,6 +658,10 @@ static void vdp_register_w(int data, int vblank)
 	UINT8 regdat = (data & 0x00ff);      /* ---- ---- DDDD DDDD */
 
 	genesis_vdp_regs[regnum] = regdat;
+
+	/* Pending Mega Play interrupts follow changes to the VDP enable bits. */
+	if (regnum <= 1)
+		megaplay_vdp_irq_update();
 
 	/* these are mostly important writes; force an update if they */
 	/* are written during a screen refresh */
