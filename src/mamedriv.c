@@ -6662,6 +6662,7 @@ Other Sun games
 	DRIVER( hardhea2 )	/* (c) 1991 SunA */
 	DRIVER( brickzn )	/* (c) 1992 SunA */
 	DRIVER( brickzn3 )	/* (c) 1992 SunA */
+	DRIVER( bestbest )
 	DRIVER( bssoccer )	/* (c) 1996 SunA */
 	DRIVER( uballoon )	/* (c) 1996 SunA */
 
