@@ -2870,6 +2870,8 @@ V-V                           TP-027
 	DRIVER( flamegun )	/* Flame Gunner (USA) */
 	DRIVER( flameguj )	/* Flame Gunner (JAPAN) */
 	DRIVER( tecmowcm )	/* Tecmo World Cup Millenium (JAPAN) */
+	DRIVER( lpadv )
+	DRIVER( tblkkuzu )
 	DRIVER( mfjump )	/* Monster Farm Jump (JAPAN) */
 
 	/* Atlus ZN1 */
