@@ -676,6 +676,7 @@ static const struct game_keys2 keys_table2[] =
 	{ "sfiii2",   { 0x00000000, 0x00000000 },1 },
 	{ "sfiii3",   { 0xa55432b4, 0x0c129981 },0 },
 	{ "sfiii3a",  { 0xa55432b4, 0x0c129981 },0 },
+	{ "sfiii4n",  { 0xa55432b4, 0x0c129981 },0 },
 	{ "warzard",  { 0x9e300ab1, 0xa175b82c },0 },
 	{ 0 }	// end of table
 };
@@ -2631,6 +2632,56 @@ ROM_START( sfiii3a )
 //	DISK_IMAGE_READONLY( "cap-33s-2", 0, SHA1(24e78b8c66fb1573ffd642ee51607f3b53ed40b7) MD5(cf63f3dbcc2653b95709133fe79c7225) )
 ROM_END
 
+/* hack of 3rd Strike, from FBNeo: SIMM 1 and two chips of SIMM 5 changed */
+ROM_START( sfiii4n )
+	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
+	ROM_LOAD( "sfiii3_japan_nocd.29f400.u2", 0x000000, 0x080000, CRC(1edc6366) SHA1(60b4b9adeb030a33059d74fdf03873029e465b52) )
+
+	ROM_REGION32_BE( 0x1000000, REGION_USER4, 0 ) /* program (SIMM 1-2) */
+	ROM_LOAD32_BYTE( "4rd-simm1.0", 0x0000000, 0x200000, CRC(ca97f95e) SHA1(624f1af8c3722c0554a65bfb4f0682ed66a70b55) )
+	ROM_LOAD32_BYTE( "4rd-simm1.1", 0x0000001, 0x200000, CRC(5bc7faa6) SHA1(291b6102d8ad7478ea45e73d34ad8d65332beaf0) )
+	ROM_LOAD32_BYTE( "4rd-simm1.2", 0x0000002, 0x200000, CRC(ec2eaa29) SHA1(981d452f15da43d4577339ab5799c7561f298d62) )
+	ROM_LOAD32_BYTE( "4rd-simm1.3", 0x0000003, 0x200000, CRC(41c4ce7c) SHA1(273f21735200becb0da06ab3e40023918df2a062) )
+	ROM_LOAD32_BYTE( "sfiii3-simm2.0", 0x0800000, 0x200000, CRC(06eb969e) SHA1(d89f6a6585b76692d57d337f0f8186398fb056da) )
+	ROM_LOAD32_BYTE( "sfiii3-simm2.1", 0x0800001, 0x200000, CRC(e7039f82) SHA1(8e81e66b5a4f45ae14b070a491bde47a6a74499f) )
+	ROM_LOAD32_BYTE( "sfiii3-simm2.2", 0x0800002, 0x200000, CRC(645c96f7) SHA1(06d5a54874d4bf100b776131ec9060da209ad037) )
+	ROM_LOAD32_BYTE( "sfiii3-simm2.3", 0x0800003, 0x200000, CRC(610efab1) SHA1(bbc21ed6ff6220ff6017a3f02ebd9a341fbc9040) )
+
+	ROM_REGION16_BE( 0x4000000, REGION_USER5, 0 ) /* graphics & samples (SIMM 3-6) */
+	ROM_LOAD16_BYTE( "sfiii3-simm3.0", 0x0000000, 0x200000, CRC(7baa1f79) SHA1(3f409df28c24dd7221966b5340d59898ea756b6f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.1", 0x0000001, 0x200000, CRC(234bf8fe) SHA1(2191781ae4d726cab28de97f27efa4a13f3bdd69) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.2", 0x0400000, 0x200000, CRC(d9ebc308) SHA1(af6a0dca77e5181c9f20533a06760a782c5fd51d) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.3", 0x0400001, 0x200000, CRC(293cba77) SHA1(294604cacdc24261aec4d39e489de91c41fa1758) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.4", 0x0800000, 0x200000, CRC(6055e747) SHA1(3813852c5a4a5355ef739ca8f0913bbd390b984b) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.5", 0x0800001, 0x200000, CRC(499aa6fc) SHA1(5b9b6eab3e99ff3e1d7c1f50b9d8bc6a81f3f8a9) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.6", 0x0c00000, 0x200000, CRC(6c13879e) SHA1(de189b0b8f42bc7dd89983e62bc2ecb4237b3277) )
+	ROM_LOAD16_BYTE( "sfiii3-simm3.7", 0x0c00001, 0x200000, CRC(cf4f8ede) SHA1(e0fb68fcb0e445f824c62fa828d6e1dcd7e3683a) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.0", 0x1000000, 0x200000, CRC(091fd5ba) SHA1(3327ad7c2623c119bf728af717ea2ce3b74673a9) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.1", 0x1000001, 0x200000, CRC(0bca8917) SHA1(b7b284e2f16f46d46bcfaae779b232c5b980924f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.2", 0x1400000, 0x200000, CRC(a0fd578b) SHA1(100c9db9f00ecd88d518076f5a0822e6ac3695b3) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.3", 0x1400001, 0x200000, CRC(4bf8c699) SHA1(2c0b4288b5ebc5e54d9e782dfc39eb8c78fd4c21) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.4", 0x1800000, 0x200000, CRC(137b8785) SHA1(56a579520a8ce2abbf36be57777f024e80474eee) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.5", 0x1800001, 0x200000, CRC(4fb70671) SHA1(9aba83c18cfc099a5ce18793119bff0c2b9c777f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.6", 0x1c00000, 0x200000, CRC(832374a4) SHA1(c84629e32fbf47cb7b5b4ee7555bfc2ac9b3857f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm4.7", 0x1c00001, 0x200000, CRC(1c88576d) SHA1(0f039944d0c2305999ed5dbd351c3eb87812dc3b) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.0", 0x2000000, 0x200000, CRC(c67d9190) SHA1(d265475244099d0ec153059986f3445c7bd910a3) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.1", 0x2000001, 0x200000, CRC(6cb79868) SHA1(c94237f30e05bfcb2e23945530c812d9e4c73416) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.2", 0x2400000, 0x200000, CRC(df69930e) SHA1(c76b7c559a1d5558138afbc796249efa2f49f6a8) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.3", 0x2400001, 0x200000, CRC(333754e0) SHA1(4c18a569c26524a492ecd6f4c8b3c8e803a077d3) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.4", 0x2800000, 0x200000, CRC(78f6d417) SHA1(a69577cc5399fcf0a24548661168f27f3e7e8e40) )
+	ROM_LOAD16_BYTE( "sfiii3-simm5.5", 0x2800001, 0x200000, CRC(8ccad9b1) SHA1(f8bda399f87be2497b7ac39e9661f9863bf4f873) )
+	ROM_LOAD16_BYTE( "4rd-simm5.6", 0x2c00000, 0x200000, CRC(e9b61a56) SHA1(9277ac5da4715aa5325ae9f8c055f1e826b4ce54) )
+	ROM_LOAD16_BYTE( "4rd-simm5.7", 0x2c00001, 0x200000, CRC(8db3a249) SHA1(db38963ce011535a95f11426c17fb3eeda300917) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.0", 0x3000000, 0x200000, CRC(8da69042) SHA1(fd3d08295342635b2136e48d543c9350d287bb22) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.1", 0x3000001, 0x200000, CRC(1c8c7ac4) SHA1(ac9f8353a4c356ef98aa7c226baba00b01f5a80f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.2", 0x3400000, 0x200000, CRC(a671341d) SHA1(636f4c04962bc1e1ddb29d2e01244b00389b234f) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.3", 0x3400001, 0x200000, CRC(1a990249) SHA1(2acc639e2c0c53bf24096b8620eab090bc25d03b) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.4", 0x3800000, 0x200000, CRC(20cb39ac) SHA1(7d13a0fea1ef719dd2ff77dfb547d53c6023cc9e) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.5", 0x3800001, 0x200000, CRC(5f844b2f) SHA1(564e4934f89ed3b92a4c4874519f8f00f3b48696) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.6", 0x3c00000, 0x200000, CRC(450e8d28) SHA1(885db658132aa27926df617ec2d2a1f38abdbb60) )
+	ROM_LOAD16_BYTE( "sfiii3-simm6.7", 0x3c00001, 0x200000, CRC(cc5f4187) SHA1(248ddace21ed4736a56e92f77cc6ad219d7fef0b) )
+ROM_END
+
 ROM_START( warzard )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
 	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(f8e2f0c6) SHA1(93d6a986f44c211fff014e55681eca4d2a2774d6) )
@@ -2785,6 +2836,7 @@ static const struct cps3_speedups speedup_table[] =
 	{ "sfiii2",    0x0dfe4,         0x6000884  },
 	{ "sfiii3",    0x0d794,         0x6000884  },
 	{ "sfiii3a",   0x0d794,         0x6000884  },
+	{ "sfiii4n",   0x0d794,         0x6000884  },
 	{ "warzard",   0x2136c,         0x600194e  },
 	{ 0 }	// end of table
 };
@@ -2920,6 +2972,14 @@ DRIVER_INIT( sfiii3 )
 
 }
 
+DRIVER_INIT( sfiii4n )
+{
+	init_cps3crpt();
+	init_cps3_speedups();
+
+	precopy_to_flash();
+}
+
 DRIVER_INIT( sfiii2 )
 {
 //  UINT32 *rom =  (UINT32*)memory_region ( REGION_USER1 );
@@ -2958,6 +3018,7 @@ GAME( 1997, sfiii,   0,        cps3, cps3, sfiii,    ROT0,   "Capcom", "Street F
 GAME( 1997, sfiii2,  0,        cps3, cps3, sfiii2,   ROT0,   "Capcom", "Street Fighter III 2nd Impact: Giant Attack (Japan, 970930)", 0 )
 GAME( 1999, sfiii3,  0,        cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990512)", 0 )
 GAME( 1999, sfiii3a, sfiii3,   cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990608)", 0 )
+GAME( 2013, sfiii4n, sfiii3,   cps3, cps3, sfiii4n,  ROT0,   "hack",   "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013)", 0 )
 
 GAME( 1998, jojo,    0,        cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 981202)", 0 )
 GAME( 1998, jojoalt, jojo,     cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 990108)", 0 )

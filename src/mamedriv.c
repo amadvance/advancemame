@@ -2821,6 +2821,7 @@ V-V                           TP-027
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
 	DRIVER( sfiii3a )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
+	DRIVER( sfiii4n )	/* 2013 Street Fighter 3: Third Strike (4rd Arrange Edition) */
 
 	/* Capcom ZN1 */
 	DRIVER( cpzn1 )
