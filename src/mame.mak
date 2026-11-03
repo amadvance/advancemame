@@ -415,7 +415,7 @@ $(OBJ)/alliedl.a: \
 	$(OBJ)/drivers/clayshoo.o $(OBJ)/machine/clayshoo.o $(OBJ)/vidhrdw/clayshoo.o \
 
 $(OBJ)/alpha.a: \
-	$(OBJ)/drivers/alpha68k.o $(OBJ)/vidhrdw/alpha68k.o \
+	$(OBJ)/drivers/alpha68k.o $(OBJ)/drivers/alpha68k_n.o $(OBJ)/vidhrdw/alpha68k.o \
 	$(OBJ)/drivers/champbas.o $(OBJ)/vidhrdw/champbas.o \
 	$(OBJ)/drivers/equites.o $(OBJ)/machine/equites.o $(OBJ)/vidhrdw/equites.o \
 	$(OBJ)/drivers/exctsccr.o $(OBJ)/machine/exctsccr.o $(OBJ)/vidhrdw/exctsccr.o \

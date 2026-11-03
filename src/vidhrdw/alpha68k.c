@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Pierpaolo Prazzoli, Bryan McPhail,Stephane Humbert
+// copyright-holders:Pierpaolo Prazzoli, Bryan McPhail,Stephane Humbert,hap
 /***************************************************************************
 
    Alpha 68k video emulation - Bryan McPhail, mish@tendril.co.uk
@@ -475,22 +475,20 @@ static void kyros_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, i
 			if (data!=0x20)
 			{
 				color = color_prom[(data>>1&0x1000)|(data&0xffc)|(data>>14&3)];
-				if (color!=0xff)
+				/* Every color PROM value selects a visible palette group. */
+				fy = data & 0x1000;
+				fx = 0;
+
+				if(flipscreen)
 				{
-					fy = data & 0x1000;
-					fx = 0;
-
-					if(flipscreen)
-					{
-						if (fy) fy=0; else fy=1;
-						fx = 1;
-					}
-
-					tile = (data>>3 & 0x400) | (data & 0x3ff);
-					alpha68k_video_banking(&bank, data);
-					drawgfx(bitmap, Machine->gfx[bank], tile, color, fx, fy, mx, my,
-							cliprect, TRANSPARENCY_PEN, 0);
+					if (fy) fy=0; else fy=1;
+					fx = 1;
 				}
+
+				tile = (data>>3 & 0x400) | (data & 0x3ff);
+				alpha68k_video_banking(&bank, data);
+				drawgfx(bitmap, Machine->gfx[bank], tile, color, fx, fy, mx, my,
+						cliprect, TRANSPARENCY_PEN, 0);
 			}
 //ZT
 			if(flipscreen)
