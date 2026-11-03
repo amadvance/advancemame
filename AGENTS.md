@@ -233,6 +233,7 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 
 - **Efficiency First**: Prioritize maximum efficiency, even when this reduces emulation accuracy, provided the game remains functional.
 - **Coding Style**: Preserve the coding style and indentation of the file being modified. Use tabs for indentation in new files, except for backported files, which must preserve the indentation of the original source file. Avoid reformatting unrelated code.
+- **Game Database**: When adding, removing, renaming, or modifying an AdvanceMAME game or its metadata, read GAMES.md. For standard games supported by MAME, metadata is generated automatically. Modify `support/curated.json` only when necessary (e.g. hacks/bootlegs that must be standalone root records rather than clones, curated descriptions, or specific links/modifications). Do not regenerate `games.json`.
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change. Do not use subsystem prefixes such as "psx spu: ..."; write a concise description starting directly with an imperative verb (e.g. "Fix ...", "Add ...", "Deactivate ...").
 - **Git Commits**: Do not commit changes to Git unless you are explicitly requested to commit a specific change.

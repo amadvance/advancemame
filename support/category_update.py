@@ -98,7 +98,7 @@ def find_category(game, catver_map, renames):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Update category.ini and genre.ini from catver.ini for supported games."
+        description="Update category.ini and genre.ini from external/catver.ini for supported games."
     )
     parser.add_argument(
         "--category",
@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
         "--catver",
         type=Path,
-        default=Path("catver.ini"),
+        default=Path("external/catver.ini"),
         help="Path to catver.ini (default: catver.ini in current directory)",
     )
     parser.add_argument(
@@ -121,7 +121,7 @@ def main():
     parser.add_argument(
         "--rename",
         type=Path,
-        default=Path("renameSET.dat"),
+        default=Path("external/renameSET.dat"),
         help="Path to renameSET.dat (default: renameSET.dat in current directory)",
     )
     parser.add_argument(
