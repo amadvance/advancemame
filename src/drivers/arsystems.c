@@ -1,5 +1,5 @@
 // license:GPL-2.0+
-// copyright-holders:Peter Trauner
+// copyright-holders:Peter Trauner, Ernesto Corvi, Mariusz Wojcieszek, David Haywood
 /***************************************************************************
 
     Arcadia System - (c) 1988 Arcadia Systems
@@ -20,12 +20,13 @@
         World Darts
         Xenon
         World Trophy Soccer
+        Aaargh
+        Blastaball
+        Delta Command
+        Pharaohs Match
 
     Other Arcadia games (not dumped):
 
-        Aaargh!
-        Blasta Ball
-        N.Y. Warriors
         Pool
         Rockford
 
@@ -211,6 +212,19 @@ static ADDRESS_MAP_START( amiga_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xf00000, 0xf7ffff) AM_ROM AM_REGION(REGION_USER2, 0)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( argh_map, ADDRESS_SPACE_PROGRAM, 16 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x000000, 0x07ffff) AM_RAMBANK(1) AM_BASE(&amiga_chip_ram) AM_SIZE(&amiga_chip_ram_size)
+	AM_RANGE(0xbfd000, 0xbfefff) AM_READWRITE(amiga_cia_r, amiga_cia_w)
+	AM_RANGE(0xc00000, 0xdfffff) AM_READWRITE(amiga_custom_r, amiga_custom_w) AM_BASE(&amiga_custom_regs)
+	AM_RANGE(0xe80000, 0xe8ffff) AM_READWRITE(amiga_autoconfig_r, amiga_autoconfig_w)
+	AM_RANGE(0xf80000, 0xffffff) AM_ROM AM_REGION(REGION_USER1, 0)
+
+	AM_RANGE(0x800000, 0x97ffff) AM_ROMBANK(2) AM_REGION(REGION_USER3, 0)
+	AM_RANGE(0x9ff000, 0x9fffff) AM_RAM AM_BASE(&generic_nvram16) AM_SIZE(&generic_nvram_size)
+	AM_RANGE(0xf00000, 0xf7ffff) AM_ROM AM_REGION(REGION_USER3, 0)
+ADDRESS_MAP_END
+
 
 
 /*************************************
@@ -291,7 +305,7 @@ static struct CustomSound_interface amiga_custom_interface =
 static MACHINE_DRIVER_START( arcadia )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 7159090)        /* 7.15909 Mhz (NTSC) */
+	MDRV_CPU_ADD_TAG("main", M68000, 7159090)        /* 7.15909 Mhz (NTSC) */
 	MDRV_CPU_PROGRAM_MAP(amiga_map,0)
 	MDRV_CPU_VBLANK_INT(amiga_scanline_callback, 262)
 
@@ -321,6 +335,13 @@ static MACHINE_DRIVER_START( arcadia )
 	MDRV_SOUND_ROUTE(2, "right", 0.50)
 	MDRV_SOUND_ROUTE(3, "left", 0.50)
 MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( argh )
+	MDRV_IMPORT_FROM(arcadia)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(argh_map,0)
+MACHINE_DRIVER_END
+
 
 
 
@@ -637,6 +658,84 @@ ROM_END
  *
  *************************************/
 
+ROM_START( ar_blast )
+	ARCADIA_BIOS
+
+	ROM_REGION16_BE( 0x180000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "blsb-v2-1_1-hi.bin", 0x00000, 0x10000, CRC(6d2e38e5) SHA1(ef9b9ae7644b10892b09f15a3e916c3f51cbbe06) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_1-lo.bin", 0x00001, 0x10000, CRC(28b6db63) SHA1(09c4998f021ae7e25ec4a4009e6c8177fb6649c8) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_2-hi.bin", 0x20000, 0x10000, CRC(8b3c629c) SHA1(34872cd6cf5627517f43c7174f2b263bb1cf33ef) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_2-lo.bin", 0x20001, 0x10000, CRC(966c733c) SHA1(32d711fdea43d9c61532b71627afa5e518d3fb11) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_3-hi.bin", 0x40000, 0x10000, CRC(6013b0d2) SHA1(88b2adb76a60d8160673a3abfe97a4f3f97c1825) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_3-lo.bin", 0x40001, 0x10000, CRC(8c5d602d) SHA1(17f7fb2727210286f85d0b356411ee5302f59bef) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_4-hi.bin", 0x60000, 0x10000, CRC(cc091362) SHA1(2a3e945a17bd8b7b70b3a7efb00d62a37f0ececa) )
+	ROM_LOAD16_BYTE( "blsb-v2-1_4-lo.bin", 0x60001, 0x10000, CRC(16b7618a) SHA1(9857255eb47aff683893d6fe1bdf64a2ea2492a7) )
+ROM_END
+
+ROM_START( ar_pm )
+	ARCADIA_BIOS
+
+	ROM_REGION16_BE( 0x180000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "pm-1hi.bin", 0x00000, 0x10000, CRC(ed65f3db) SHA1(71022cd9f379e9511e472aa1cc60d9629dfb69d5) )
+	ROM_LOAD16_BYTE( "pm-1lo.bin", 0x00001, 0x10000, CRC(7189a482) SHA1(d2daba2f3ce7991b0a6f4f5fbda44e1c95554cfc) )
+	ROM_LOAD16_BYTE( "pm-2hi.bin", 0x20000, 0x10000, CRC(a33fd701) SHA1(9101c2bedefc7f480adf02542d335fadc28ba7bc) )
+	ROM_LOAD16_BYTE( "pm-2lo.bin", 0x20001, 0x10000, CRC(17dee8b9) SHA1(695c53c3317f8b82414101404950fe6b7f93912a) )
+ROM_END
+
+ROM_START( ar_dlta )
+	ARCADIA_BIOS
+
+	ROM_REGION16_BE( 0x180000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "dlta_v3_1-hi.bin", 0x00000, 0x10000, CRC(3d428b49) SHA1(a1b1173a2128115768634b23392f1536ffcb6f51) )
+	ROM_LOAD16_BYTE( "dlta_v3_1-lo.bin", 0x00001, 0x10000, CRC(e5d6508b) SHA1(f0d54f2b8c3f0752a77a33267c1c2333fcf6ecae) )
+	ROM_LOAD16_BYTE( "dlta_v3_2-hi.bin", 0x20000, 0x10000, CRC(e8a23dfe) SHA1(5d60162da160a6121d11d36a45c92f75ba5002d5) )
+	ROM_LOAD16_BYTE( "dlta_v3_2-lo.bin", 0x20001, 0x10000, CRC(84d82a8f) SHA1(851961e41796fc97af8f98214bd87d306db3b3d3) )
+	ROM_LOAD16_BYTE( "dlta_v3_3-hi.bin", 0x40000, 0x10000, CRC(75563b80) SHA1(ff35376c1db36b3e635f698190679697f3dc44cc) )
+	ROM_LOAD16_BYTE( "dlta_v3_3-lo.bin", 0x40001, 0x10000, CRC(30b911b2) SHA1(68f116d8d041aa482b9b578ba57dbd3fd2afe5b9) )
+	ROM_LOAD16_BYTE( "dlta_v3_4-hi.bin", 0x60000, 0x10000, CRC(80cd42a5) SHA1(67a7cba3778de9205ba9c31b533404e3afef8798) )
+	ROM_LOAD16_BYTE( "dlta_v3_4-lo.bin", 0x60001, 0x10000, CRC(2fe13d9e) SHA1(3240719383df436ba66111a2b4fe93a3b474d7a8) )
+	ROM_LOAD16_BYTE( "dlta_v3_5-hi.bin", 0x80000, 0x10000, CRC(960c9a17) SHA1(66b82b2f96ea473f20c306252c51370e3bd93754) )
+	ROM_LOAD16_BYTE( "dlta_v3_5-lo.bin", 0x80001, 0x10000, CRC(79cbc0dd) SHA1(11cd144e0f30feac1ecb8abc006e428eda71c63c) )
+	ROM_LOAD16_BYTE( "dlta_v3_6-hi.bin", 0xa0000, 0x10000, CRC(9df96431) SHA1(4d68ee592d4de1fc112a4579785d17443d8a0cfd) )
+	ROM_LOAD16_BYTE( "dlta_v3_6-lo.bin", 0xa0001, 0x10000, CRC(5b0d7f30) SHA1(e4ca74de30c325a18204446c3e547ca728402e74) )
+	ROM_LOAD16_BYTE( "dlta_v3_7-hi.bin", 0xc0000, 0x10000, CRC(8e966e69) SHA1(f0935710ad031c69b2aa758d3c78331838ac3f3d) )
+	ROM_LOAD16_BYTE( "dlta_v3_7-lo.bin", 0xc0001, 0x10000, CRC(42553743) SHA1(4df836b6cff80bde737a52a3ea45eb1bda14fa52) )
+	ROM_LOAD16_BYTE( "dlta_v3_8-hi.bin", 0xe0000, 0x10000, CRC(9ef08c31) SHA1(837d8b49e23e4ad493a1a167f477f5aeea48544a) )
+	ROM_LOAD16_BYTE( "dlta_v3_8-lo.bin", 0xe0001, 0x10000, CRC(7088bb88) SHA1(c57ea00c87252060a10660555f140ed2ace29b53) )
+ROM_END
+
+ROM_START( ar_argh )
+	ROM_REGION16_BE(0x80000, REGION_USER1, 0 )
+	ROM_LOAD16_WORD("315093-01.u2", 0x00000, 0x40000, CRC(a6ce1636) SHA1(11f9e62cf299f72184835b7b2a70a16333fc0d88))
+	ROM_COPY(REGION_USER1, 0x00000, 0x40000, 0x40000 )
+
+	ROM_REGION16_BE( 0x180000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "argh-1-hi-11-28-87.u12",  0x000000, 0x10000, CRC(3b1f8075) SHA1(61aeff9f6a2dff6efe4276cb0bcbb80b495e26b6) )
+	ROM_LOAD16_BYTE( "argh-1-lo-11-28-87.u16",  0x000001, 0x10000, CRC(78b77071) SHA1(5848e30cfd08f9241f8ff9267fdcf2c87c72cdb0) )
+	ROM_LOAD16_BYTE( "argh-2-hi-11-28-87.u11",  0x020000, 0x10000, CRC(9604e1e9) SHA1(03c010fc7075db953b47282ce54097c4921e3560) )
+	ROM_LOAD16_BYTE( "argh-2-lo-11-28-87.u15",  0x020001, 0x10000, CRC(0c7c8133) SHA1(cd8013fa7c2d1c3a518c3e26e5b10c6c78b2a8ee) )
+	ROM_LOAD16_BYTE( "argh-3-hi-11-28-87.u10",  0x040000, 0x10000, CRC(84d60a2c) SHA1(7284db16642bd598390d63408113a0e9622f0b3d) )
+	ROM_LOAD16_BYTE( "argh-3-lo-11-28-87.u14",  0x040001, 0x10000, CRC(f43a6107) SHA1(2075739d7cbd8565df7a0333c1a16838df9aa97c) )
+	ROM_LOAD16_BYTE( "argh-4-hi-11-28-87.u9",   0x060000, 0x10000, CRC(7d9d514d) SHA1(a77a4db1ab0ae41e75fe334fcb1c16bb7627fa6d) )
+	ROM_LOAD16_BYTE( "argh-4-lo-11-28-87.u13",  0x060001, 0x10000, CRC(da797e5c) SHA1(59f000fa43f80d7730e8a5ca3f13571ff150ead2) )
+	ROM_LOAD16_BYTE( "argh-5-hi-11-28-87.u20",  0x080000, 0x10000, CRC(75a395c5) SHA1(3064028b78025bc3d9f96884d155f449ef285be9) )
+	ROM_LOAD16_BYTE( "argh-5-lo-11-28-87.u24",  0x080001, 0x10000, CRC(b69db0ed) SHA1(b47b46e0a69ba40c8b59864469b9836ff7a9b3fb) )
+	ROM_LOAD16_BYTE( "argh-6-hi-11-28-87.u19",  0x0a0000, 0x10000, CRC(f06ee4d5) SHA1(2555c97666ff319089d4e767b99718d21ab43f7d) )
+	ROM_LOAD16_BYTE( "argh-6-lo-11-28-87.u23",  0x0a0001, 0x10000, CRC(9d49526a) SHA1(604731ebdeb6961d6faccc44dc7c762275bc7b3e) )
+	ROM_LOAD16_BYTE( "argh-7-hi-11-28-87.u18",  0x0c0000, 0x10000, CRC(2fda9f36) SHA1(26431fad4aeaa068fa15de9803e818b93547edd6) )
+	ROM_LOAD16_BYTE( "argh-7-lo-11-28-87.u22",  0x0c0001, 0x10000, CRC(ad6f16d4) SHA1(91fb41db567eeccc0088ba3530049921d19f2df2) )
+	ROM_LOAD16_BYTE( "argh-8-hi-11-28-87.u17",  0x0e0000, 0x10000, CRC(06be1705) SHA1(dbbd0471a82075775279ef149862379211dead17) )
+	ROM_LOAD16_BYTE( "argh-8-lo-11-28-87.u21",  0x0e0001, 0x10000, CRC(48f7bed1) SHA1(9864de95f0ad73ec5982b37d35d3fc9776bb18fa) )
+	ROM_LOAD16_BYTE( "argh-9-hi-11-28-87.u28",  0x100000, 0x10000, CRC(f6ef5a54) SHA1(db8df6dd29392154fba65de73a641321baecba3c) )
+	ROM_LOAD16_BYTE( "argh-9-lo-11-28-87.u32",  0x100001, 0x10000, CRC(209fc834) SHA1(d190b84eb18ea6d9aee4279b63e7fe6029e173a9) )
+	ROM_LOAD16_BYTE( "argh-10-hi-11-28-87.u27", 0x120000, 0x10000, CRC(e75c9ac1) SHA1(5f1678e6946beaeb2e79853a2416d8565a84a815) )
+	ROM_LOAD16_BYTE( "argh-10-lo-11-28-87.u31", 0x120001, 0x10000, CRC(dc4da335) SHA1(449c1de89cb6ea6296196051bef5470765872285) )
+	ROM_LOAD16_BYTE( "argh-11-hi-11-28-87.u26", 0x140000, 0x10000, CRC(2932054f) SHA1(f03e71170bd24719c26427c3fbf4fdf1363bc64f) )
+	ROM_LOAD16_BYTE( "argh-11-lo-11-28-87.u30", 0x140001, 0x10000, CRC(3ebf8c30) SHA1(b2018b55cf2339fcf67b338fa2804afa2e47d577) )
+	ROM_LOAD16_BYTE( "argh-12-hi-11-28-87.u25", 0x160000, 0x10000, CRC(0e055d4a) SHA1(8993596018e90107623e04c24e91b02887d6252c) )
+	ROM_LOAD16_BYTE( "argh-12-lo-11-28-87.u29", 0x160001, 0x10000, CRC(940168b0) SHA1(7f86226d533a5d5a84fbcaeea5c4ac08e0e7df09) )
+ROM_END
+
 INLINE void generic_decode(int region, int bit7, int bit6, int bit5, int bit4, int bit3, int bit2, int bit1, int bit0)
 {
 	UINT16 *rom = (UINT16 *)memory_region(region);
@@ -679,7 +778,8 @@ DRIVER_INIT( arcadia )
 
 	/* OnePlay bios is encrypted, TenPlay is not */
 	biosrom = (UINT16 *)memory_region(REGION_USER2);
-	if (biosrom[0] != 0x4afc)
+	/* Aaargh has no Arcadia BIOS board; its game ROM supplies the boot entry. */
+	if (biosrom && biosrom[0] != 0x4afc)
 		generic_decode(REGION_USER2, 6, 1, 0, 2, 3, 4, 5, 7);
 
 	/* request notifications when the coins change */
@@ -706,6 +806,11 @@ DRIVER_INIT( sdwr )  { generic_decode(REGION_USER3, 6, 3, 4, 5, 2, 1, 0, 7); ini
 DRIVER_INIT( socc )  { generic_decode(REGION_USER3, 0, 7, 1, 6, 5, 4, 3, 2); init_arcadia(); }
 DRIVER_INIT( sprg )  { generic_decode(REGION_USER3, 4, 7, 3, 0, 6, 5, 2, 1); init_arcadia(); }
 DRIVER_INIT( xeon )  { generic_decode(REGION_USER3, 3, 1, 2, 4, 0, 5, 6, 7); init_arcadia(); }
+DRIVER_INIT( blast ) { generic_decode(REGION_USER3, 4, 1, 7, 6, 2, 0, 3, 5); init_arcadia(); }
+DRIVER_INIT( pm )    { init_arcadia(); }
+DRIVER_INIT( dlta )  { generic_decode(REGION_USER3, 4, 1, 7, 6, 2, 0, 3, 5); init_arcadia(); }
+DRIVER_INIT( argh )  { generic_decode(REGION_USER3, 5, 0, 2, 4, 7, 6, 1, 3); init_arcadia(); }
+
 
 
 
@@ -715,10 +820,8 @@ DRIVER_INIT( xeon )  { generic_decode(REGION_USER3, 3, 1, 2, 4, 0, 5, 6, 7); ini
  *
  *************************************/
 
-/* BIOS */
 GAMEB( 1988, ar_bios,	0,		 ar_bios, arcadia, arcadia, 0,	   ROT0, "Arcadia Systems", "Arcadia System BIOS", NOT_A_DRIVER )
-
-/* working */
+GAMEB( 1988, ar_blast, ar_bios, ar_bios, arcadia, arcadia, blast, ROT0, "Arcadia Systems", "Blastaball (Arcadia, V 2.1)", 0 )
 GAMEB( 1988, ar_airh,	ar_bios, ar_bios, arcadia, arcadia, airh,  ROT0, "Arcadia Systems", "SportTime Table Hockey (Arcadia, V 2.1)", 0 )
 GAMEB( 1988, ar_bowl,	ar_bios, ar_bios, arcadia, arcadia, bowl,  ROT0, "Arcadia Systems", "SportTime Bowling (Arcadia, V 2.1)", 0 )
 GAMEB( 1987, ar_dart,	ar_bios, ar_bios, arcadia, arcadia, dart,  ROT0, "Arcadia Systems", "World Darts (Arcadia, V 2.1)", 0 )
@@ -732,3 +835,6 @@ GAMEB( 1989, ar_socc,	ar_bios, ar_bios, arcadia, arcadia, socc,  ROT0, "Arcadia 
 GAMEB( 1990, ar_spot,	ar_bios, ar_bios, arcadia, arcadia, none,  ROT0, "Arcadia Systems", "Spot (Arcadia)", 0 )
 GAMEB( 1987, ar_sprg,	ar_bios, ar_bios, arcadia, arcadia, sprg,  ROT0, "Arcadia Systems", "Space Ranger (Arcadia, V 2.0)", 0 )
 GAMEB( 1988, ar_xeon,	ar_bios, ar_bios, arcadia, arcadia, xeon,  ROT0, "Arcadia Systems", "Xenon (Arcadia, V 2.3)", 0 )
+GAMEB( 1988, ar_pm, ar_bios, ar_bios, arcadia, arcadia, pm, ROT0, "Arcadia Systems", "Pharaohs Match (Arcadia)", 0 )
+GAMEB( 1988, ar_dlta, ar_bios, ar_bios, arcadia, arcadia, dlta, ROT0, "Arcadia Systems", "Delta Command (Arcadia)", 0 )
+GAMEB( 1988, ar_argh, ar_bios, ar_bios, argh, arcadia, argh, ROT0, "Arcadia Systems", "Aaargh (Arcadia)", 0 )

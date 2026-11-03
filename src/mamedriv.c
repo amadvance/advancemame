@@ -7202,6 +7202,7 @@ Other Sun games
 
 	/* Arcadia System */
 	DRIVER( ar_bios )
+	DRIVER( ar_blast )
 	DRIVER( ar_airh )	/* (c) 1988 */
 	DRIVER( ar_bowl )	/* (c) 1988 */
 	DRIVER( ar_dart )	/* (c) 1987 */
@@ -7215,6 +7216,9 @@ Other Sun games
 	DRIVER( ar_spot )	/* (c) 1990 */
 	DRIVER( ar_sprg )	/* (c) 1987 */
 	DRIVER( ar_xeon )	/* (c) 1988 */
+	DRIVER( ar_pm )
+	DRIVER( ar_dlta )
+	DRIVER( ar_argh )
 
 	/* Sente Super System */
 	DRIVER( mquake )

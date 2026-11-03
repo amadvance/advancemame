@@ -425,7 +425,7 @@ $(OBJ)/alpha.a: \
 
 $(OBJ)/amiga.a: \
 	$(OBJ)/machine/amiga.o $(OBJ)/sndhrdw/amiga.o $(OBJ)/vidhrdw/amiga.o \
-	$(OBJ)/drivers/arcadia.o \
+	$(OBJ)/drivers/arsystems.o \
 	$(OBJ)/drivers/mquake.o \
 	$(OBJ)/drivers/upscope.o \
 
