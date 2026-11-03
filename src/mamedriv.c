@@ -3669,6 +3669,7 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( bakubaku )	/* (c) 1996 */
 	DRIVER( colmns97 )	/* (c) 1996 */
 	DRIVER( cotton2 )	/* (c) 1997 Success */
+	DRIVER( cotton2e )	/* bootleg, English translation */
 	DRIVER( cottonbm )	/* (c) 1998 Success */
 	DRIVER( decathlt )	/* (c) 1995 */
 	DRIVER( diehard )	/* (c) 1996 */
@@ -3691,6 +3692,7 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( pblbeach )	/* (c) 1995 T&E Soft */
 	DRIVER( prikura )	/* (c) 1996 Atlus */
 	DRIVER( puyosun )	/* (c) 1996 Compile */
+	DRIVER( puyosune )	/* bootleg, English translation */
 	DRIVER( rsgun )		/* (c) 1998 Treasure */
 	DRIVER( sandor )	/* (c) 1995 */
 	DRIVER( thunt )		/* (c) 1995 Sega (Deniam License) */

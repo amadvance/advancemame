@@ -347,6 +347,14 @@ DRIVER_INIT(puyosun)
 	minit_boost_timeslice = sinit_boost_timeslice = TIME_IN_USEC(50);
 }
 
+DRIVER_INIT(puyosune)
+{
+	init_stv();
+
+	minit_boost = sinit_boost = 0;
+	minit_boost_timeslice = sinit_boost_timeslice = TIME_IN_USEC(50);
+}
+
 /* mausuke
 
 CPU0 Data East Logo:
