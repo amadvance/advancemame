@@ -452,6 +452,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/canyon.o $(OBJ)/sndhrdw/canyon.o $(OBJ)/vidhrdw/canyon.o \
 	$(OBJ)/drivers/cball.o \
 	$(OBJ)/drivers/ccastles.o $(OBJ)/vidhrdw/ccastles.o \
+	$(OBJ)/drivers/akkaarrh.o \
 	$(OBJ)/drivers/centiped.o $(OBJ)/vidhrdw/centiped.o \
 	$(OBJ)/drivers/cloak.o $(OBJ)/vidhrdw/cloak.o \
 	$(OBJ)/drivers/cloud9.o $(OBJ)/vidhrdw/cloud9.o \
