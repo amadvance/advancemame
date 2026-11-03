@@ -5,8 +5,6 @@
 Equites           (c) 1984 Alpha Denshi Co./Sega
 Bull Fighter      (c) 1984 Alpha Denshi Co./Sega
 The Koukouyakyuh  (c) 1985 Alpha Denshi Co.
-Splendor Blast    (c) 1985 Alpha Denshi Co.
-High Voltage      (c) 1985 Alpha Denshi Co.
 
 drivers by Acho A. Tang
 
@@ -134,7 +132,6 @@ SNK/Eastern  1985 (ACT) Gekisoh          ????
 
 #include "driver.h"
 
-#define HVOLTAGE_HACK	0
 #define EASY_TEST_MODE	1
 
 // Equites Hardware
@@ -214,19 +211,6 @@ extern WRITE16_HANDLER(equites_charram_w);
 extern WRITE16_HANDLER(equites_scrollreg_w);
 extern WRITE16_HANDLER(equites_bgcolor_w);
 
-// Splendor Blast Hareware
-extern MACHINE_RESET( splndrbt );
-extern PALETTE_INIT( splndrbt );
-extern VIDEO_START( splndrbt );
-extern VIDEO_UPDATE( splndrbt );
-extern READ16_HANDLER(splndrbt_bankedchar_r);
-extern WRITE16_HANDLER(splndrbt_charram_w);
-extern WRITE16_HANDLER(splndrbt_bankedchar_w);
-extern WRITE16_HANDLER(splndrbt_selchar0_w);
-extern WRITE16_HANDLER(splndrbt_selchar1_w);
-extern WRITE16_HANDLER(splndrbt_scrollram_w);
-extern WRITE16_HANDLER(splndrbt_bgcolor_w);
-extern UINT16 *splndrbt_scrollx, *splndrbt_scrolly;
 
 /******************************************************************************/
 // Locals
@@ -244,8 +228,6 @@ int equites_id;
 // Equites Hardware
 int equites_flip;
 
-// Splendor Blast Hardware
-int splndrbt_flip;
 
 /******************************************************************************/
 // Local Functions
@@ -262,14 +244,6 @@ static INTERRUPT_GEN( equites_interrupt )
 		cpunum_set_input_line(0, 1, HOLD_LINE);
 }
 
-// Splendor Blast Hareware
-static INTERRUPT_GEN( splndrbt_interrupt )
-{
-	if (cpu_getiloops())
-		cpunum_set_input_line(0, 2, HOLD_LINE);
-	else
-		cpunum_set_input_line(0, 1, HOLD_LINE);
-}
 
 /******************************************************************************/
 // Main CPU Handlers
@@ -359,24 +333,8 @@ static MACHINE_RESET( gekisou )
 	disablejoyport2 = 0;
 }
 
-// Splendor Blast Hardware
-#if HVOLTAGE_HACK
-static READ16_HANDLER(hvoltage_debug_r)
-{
-	return(readinputport(2));
-}
-#endif
 
-static WRITE16_HANDLER(splndrbt_flip0_w)
-{
-	if (ACCESSING_LSB) splndrbt_flip = 0;
-	if (ACCESSING_MSB) equites_bgcolor_w(offset, data, 0x00ff);
-}
 
-static WRITE16_HANDLER(splndrbt_flip1_w)
-{
-	if (ACCESSING_LSB) splndrbt_flip = 1;
-}
 #if 0
 static WRITE16_HANDLER(log16_w)
 {
@@ -420,41 +378,7 @@ static ADDRESS_MAP_START( equites_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x780000, 0x780001) AM_WRITE(MWA16_NOP) // watchdog
 ADDRESS_MAP_END
 
-// Splendor Blast Hardware
-static ADDRESS_MAP_START( splndrbt_readmem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x00ffff) AM_READ(MRA16_ROM) // main program
-	AM_RANGE(0x040000, 0x040fff) AM_READ(MRA16_RAM) // work RAM
-	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r) // joyport [2211]
-	AM_RANGE(0x0c0000, 0x0c0001) AM_READ(input_port_1_word_r) // MSB: DIP switches LSB: not used
-	AM_RANGE(0x100000, 0x100001) AM_READ(MRA16_RAM) // no read
-	AM_RANGE(0x1c0000, 0x1c0001) AM_READ(MRA16_RAM) // LSB: watchdog
-	AM_RANGE(0x180000, 0x1807ff) AM_READ(equites_8404_r) // 8404 RAM
-	AM_RANGE(0x200000, 0x200fff) AM_READ(MRA16_RAM) // char page 0
-	AM_RANGE(0x201000, 0x201fff) AM_READ(splndrbt_bankedchar_r) // banked char page 1, 2
-	AM_RANGE(0x400000, 0x400fff) AM_READ(MRA16_RAM) // scroll RAM 0,1
-	AM_RANGE(0x600000, 0x6001ff) AM_READ(MRA16_RAM) // sprite RAM 0,1,2
-ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( splndrbt_writemem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x00ffff) AM_WRITE(MWA16_NOP)
-	AM_RANGE(0x040000, 0x040fff) AM_WRITE(MWA16_RAM) AM_BASE(&equites_workram) // work RAM
-	AM_RANGE(0x0c0000, 0x0c0001) AM_WRITE(splndrbt_flip0_w) // [MMLL] MM: bg color register, LL: normal screen
-	AM_RANGE(0x0c4000, 0x0c4001) AM_WRITE(MWA16_NOP) // 8404 control port1
-	AM_RANGE(0x0c8000, 0x0c8001) AM_WRITE(MWA16_NOP) // 8404 control port2
-	AM_RANGE(0x0cc000, 0x0cc001) AM_WRITE(splndrbt_selchar0_w) // select active char map
-	AM_RANGE(0x0e0000, 0x0e0001) AM_WRITE(splndrbt_flip1_w) // [MMLL] MM: not used, LL: flip screen
-	AM_RANGE(0x0e4000, 0x0e4001) AM_WRITE(MWA16_NOP) // 8404 control port3
-	AM_RANGE(0x0e8000, 0x0e8001) AM_WRITE(MWA16_NOP) // 8404 control port4
-	AM_RANGE(0x0ec000, 0x0ec001) AM_WRITE(splndrbt_selchar1_w) // select active char map
-	AM_RANGE(0x100000, 0x100001) AM_WRITE(MWA16_RAM) AM_BASE(&splndrbt_scrollx) // scrollx
-	AM_RANGE(0x140000, 0x140001) AM_WRITE(soundlatch_word_w) // LSB: sound command
-	AM_RANGE(0x1c0000, 0x1c0001) AM_WRITE(MWA16_RAM) AM_BASE(&splndrbt_scrolly) // scrolly
-	AM_RANGE(0x180000, 0x1807ff) AM_WRITE(MWA16_RAM) AM_BASE(&equites_8404ram) // 8404 RAM
-	AM_RANGE(0x200000, 0x200fff) AM_WRITE(splndrbt_charram_w) AM_BASE(&videoram16) AM_SIZE(&videoram_size) // char RAM page 0
-	AM_RANGE(0x201000, 0x201fff) AM_WRITE(splndrbt_bankedchar_w) // banked char RAM page 1,2
-	AM_RANGE(0x400000, 0x400fff) AM_WRITE(splndrbt_scrollram_w) AM_BASE(&spriteram16_2) // scroll RAM 0,1
-	AM_RANGE(0x600000, 0x6001ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size) // sprite RAM 0,1,2
-ADDRESS_MAP_END
 
 /******************************************************************************/
 // Common Port Map
@@ -591,85 +515,10 @@ INPUT_PORTS_START( kouyakyu )
 INPUT_PORTS_END
 
 /******************************************************************************/
-// Splendor Blast Port Map
 
-INPUT_PORTS_START( splndrbt )
-	PORT_START
-	EQUITES_PLAYER_INPUT_LSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START1 )
-	EQUITES_PLAYER_INPUT_MSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START2 )
-
-	PORT_START
-	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_COIN1 )
-	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_COIN2 )
-#if EASY_TEST_MODE
-	PORT_SERVICE( 0x0300, IP_ACTIVE_HIGH )
-#endif
-	PORT_DIPNAME( 0x0c00, 0x0000, DEF_STR ( Difficulty ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( Easy ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Normal ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Hard ) )
-	PORT_DIPSETTING(      0x0c00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0x1000, 0x0000, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Cabinet ) )
-	PORT_DIPSETTING(      0x2000, DEF_STR( Upright ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Cocktail ) )
-	PORT_DIPNAME( 0xc000, 0x0000, DEF_STR( Coinage ) )
-	PORT_DIPSETTING(      0xc000, "A 2C/1C B 3C/1C" )
-	PORT_DIPSETTING(      0x0000, "A 1C/1C B 2C/1C" )
-	PORT_DIPSETTING(      0x4000, "A 1C/2C B 1C/4C" )
-	PORT_DIPSETTING(      0x8000, "A 1C/3C B 1C/6C" )
-INPUT_PORTS_END
 
 /******************************************************************************/
-// High Voltage Port Map
 
-INPUT_PORTS_START( hvoltage )
-	PORT_START
-	EQUITES_PLAYER_INPUT_LSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START1 )
-	EQUITES_PLAYER_INPUT_MSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START2 )
-
-	PORT_START
-	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_COIN1 )
-	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_COIN2 )
-#if EASY_TEST_MODE
-	PORT_SERVICE( 0x0300, IP_ACTIVE_HIGH )
-#endif
-#if HVOLTAGE_HACK
-	PORT_DIPNAME( 0x0400, 0x0000, "Invulnerability" )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0800, 0x0000, "Need to kill Bosses" )
-	PORT_DIPSETTING(      0x0800, DEF_STR( No ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Yes ) )
-#else
-	PORT_DIPNAME( 0x0c00, 0x0000, DEF_STR ( Difficulty ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( Easy ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Normal ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Hard ) )
-	PORT_DIPSETTING(      0x0c00, DEF_STR( Hardest ) )
-#endif
-	PORT_DIPNAME( 0x1000, 0x0000, DEF_STR ( Lives ) )			// See notes
-	PORT_DIPSETTING(      0x0000, "3" )
-	PORT_DIPSETTING(      0x1000, "5" )
-	PORT_DIPNAME( 0x2000, 0x0000, DEF_STR ( Bonus_Life ) )
-	PORT_DIPSETTING(      0x0000, "50k, 100k then every 100k" )
-	PORT_DIPSETTING(      0x2000, "50k, 200k then every 100k" )
-	PORT_DIPNAME( 0xc000, 0x0000, DEF_STR( Coinage ) )			// See notes
-	PORT_DIPSETTING(      0xc000, "A 2C/1C B 3C/1C" )
-	PORT_DIPSETTING(      0x0000, "A 1C/1C B 2C/1C" )
-	PORT_DIPSETTING(      0x4000, "A 1C/2C B 1C/4C" )
-	PORT_DIPSETTING(      0x8000, "A 1C/3C B 1C/6C" )
-
-#if HVOLTAGE_HACK
-	/* Fake port to handle debug mode */
-	PORT_START
-	PORT_DIPNAME( 0xffff, 0xffff, "Debug Mode" )
-	PORT_DIPSETTING(      0xffff, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-#endif
-INPUT_PORTS_END
 
 /******************************************************************************/
 // Graphics Layouts
@@ -728,63 +577,9 @@ static const gfx_decode equites_gfxdecodeinfo[] =
 	{ -1 } // end of array
 };
 
-// Splendor Blast Hardware
-static const gfx_layout sp_charlayout =
-{
-	8, 8,
-	512,
-	2,
-	{ 0, 4 },
-	{ 8*8+3, 8*8+2, 8*8+1, 8*8, 3, 2, 1, 0 },
-	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
-	16*8
-};
 
-static const gfx_layout sp_tilelayout =
-{
-	16,16,
-	256,
-	2,
-	{ 0, 4 },
-	{
-	  16*8+3, 16*8+2, 16*8+1, 16*8+0,
-	  32*8+3, 32*8+2, 32*8+1, 32*8+0,
-	  48*8+3, 48*8+2, 48*8+1, 48*8+0,
-	       3,      2,      1,      0
-	},
-	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8, 10*8, 11*8, 12*8, 13*8, 14*8, 15*8 },
-	64*8
-};
 
-static const gfx_layout sp_spritelayout =
-{
-	32,32,
-	128,
-	3,
-	{ 0, 0x8000*8, 0x8000*8+4 },
-	{
-	  0*8+3, 0*8+2, 0*8+1, 0*8+0, 1*8+3, 1*8+2, 1*8+1, 1*8+0,
-	  2*8+3, 2*8+2, 2*8+1, 2*8+0, 3*8+3, 3*8+2, 3*8+1, 3*8+0,
-	  4*8+3, 4*8+2, 4*8+1, 4*8+0, 5*8+3, 5*8+2, 5*8+1, 5*8+0,
-	  6*8+3, 6*8+2, 6*8+1, 6*8+0, 7*8+3, 7*8+2, 7*8+1, 7*8+0
-	},
-	{
-	  0*8*8, 1*8*8, 2*8*8, 3*8*8, 4*8*8, 5*8*8, 6*8*8, 7*8*8,
-	  8*8*8, 9*8*8,10*8*8,11*8*8,12*8*8,13*8*8,14*8*8,15*8*8,
-	 31*8*8,30*8*8,29*8*8,28*8*8,27*8*8,26*8*8,25*8*8,24*8*8,
-	 23*8*8,22*8*8,21*8*8,20*8*8,19*8*8,18*8*8,17*8*8,16*8*8
-	},
-	8*32*8
-};
 
-static const gfx_decode splndrbt_gfxdecodeinfo[] =
-{
-	{ REGION_GFX1, 0, &sp_charlayout,     0, 256/4 }, // 512 4-color chars
-	{ REGION_GFX2, 0, &sp_tilelayout,   256, 256/4 }, // 256 4-color tiles
-	{ REGION_GFX3, 0, &sp_tilelayout,   256, 256/4 }, // 256 4-color tiles
-	{ REGION_GFX4, 0, &sp_spritelayout, 512, 256/8 }, // 256 8-color sprites
-	{ -1 } // end of array
-};
 
 /******************************************************************************/
 // Hardware Definitions
@@ -826,33 +621,6 @@ static MACHINE_DRIVER_START( gekisou )
 	MDRV_NVRAM_HANDLER(gekisou)
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( splndrbt )
-
-	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 12000000/2) // OSC: 12Mhz
-	MDRV_CPU_PROGRAM_MAP(splndrbt_readmem, splndrbt_writemem)
-	MDRV_CPU_VBLANK_INT(splndrbt_interrupt, 2)
-
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(600)
-	MDRV_MACHINE_RESET(splndrbt)
-
-	/* video hardware */
-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK)
-	MDRV_SCREEN_SIZE(256, 256)
-	MDRV_VISIBLE_AREA(0, 256-1, 64, 256-1)
-	MDRV_PALETTE_LENGTH(256)
-	MDRV_COLORTABLE_LENGTH(1536)
-	MDRV_GFXDECODE(splndrbt_gfxdecodeinfo)
-
-	MDRV_PALETTE_INIT(splndrbt)
-	MDRV_VIDEO_START(splndrbt)
-	MDRV_VIDEO_UPDATE(splndrbt)
-
-	/* sound hardware */
-	EQUITES_ADD_SOUNDBOARD7
-
-MACHINE_DRIVER_END
 
 /******************************************************************************/
 // Equites ROM Map
@@ -1251,107 +1019,10 @@ ROM_START( bullfgts )
 ROM_END
 
 /******************************************************************************/
-// Splendor Blast ROM Map
 
-ROM_START( splndrbt )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 ) // 68000 ROMs(16k x 4)
-	ROM_LOAD16_BYTE( "1.16a", 0x00001, 0x4000, CRC(4bf4b047) SHA1(ef0efffa2f49905e17e4ed3a03cac419793b26d1) )
-	ROM_LOAD16_BYTE( "2.16c", 0x00000, 0x4000, CRC(27acb656) SHA1(5f2f8d05f2f1c6c92c8364e9e6831ca525cbacd0) )
-	ROM_LOAD16_BYTE( "3.15a", 0x08001, 0x4000, CRC(5b182189) SHA1(50ebb1fddcb6838442e8a20261f200f3386ce8a8) )
-	ROM_LOAD16_BYTE( "4.15c", 0x08000, 0x4000, CRC(cde99613) SHA1(250b59f75eee84442da3cc7c599d1e16f0294df9) )
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) // Z80 ROMs(8k x 4)
-	ROM_LOAD( "1_v.1m", 0x00000, 0x2000, CRC(1b3a6e42) SHA1(41a4f0503c939ec0a739c8bc6bf3c8fc354912ee) )
-	ROM_LOAD( "2_v.1l", 0x02000, 0x2000, CRC(2a618c72) SHA1(6ad459d94352c317150ae6344d4db9bb613938dd) )
-	ROM_LOAD( "3_v.1k", 0x04000, 0x2000, CRC(bbee5346) SHA1(753cb784b04f081fa1f8590dc28056d9918f313b) )
-	ROM_LOAD( "4_v.1h", 0x06000, 0x2000, CRC(10f45af4) SHA1(00fa599bad8bf3ba6deee54165f381403096e8f9) )
-
-	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE ) // 512 chars(8k x 1)
-	ROM_LOAD( "10.8c",  0x00000, 0x2000, CRC(501887d4) SHA1(3cf4401d6fddff1500066219a71ac3b30ecbdd28) )
-
-	ROM_REGION( 0x4000, REGION_GFX2, ROMREGION_DISPOSE ) // 256 tiles(16k x 1)
-	ROM_LOAD( "8.14m",  0x00000, 0x4000, CRC(c2c86621) SHA1(a715c70ace98502f2c0d4a81539cd79d19e9b6c4) )
-
-	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE ) // 256 tiles(16k x 1)
-	ROM_LOAD( "9.12m",  0x00000, 0x4000, CRC(4f7da6ff) SHA1(0516271df4a36d6ea38d1b8a5e471e1d2a79e8c1) )
-
-	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE ) // 256 sprites
-	ROM_LOAD_NIB_HIGH( "6.18n", 0x00000, 0x2000, CRC(aa72237f) SHA1(0a26746a6c448a7fb853ef708e2bdeb76edd99cf) )
-	ROM_CONTINUE     (          0x04000, 0x2000 )
-	ROM_LOAD         ( "6.18n", 0x02000, 0x2000, CRC(aa72237f) SHA1(0a26746a6c448a7fb853ef708e2bdeb76edd99cf) )
-	ROM_CONTINUE     (          0x06000, 0x2000 )
-	ROM_LOAD         ( "5.18m", 0x08000, 0x4000, CRC(5f618b39) SHA1(2891067e71b8e1183ee5741487faa1561316cade) )
-	ROM_LOAD         ( "7.17m", 0x0c000, 0x4000, CRC(abdd8483) SHA1(df8c8338c24fa487c49b01ce26db7eb28c8c6b85) )
-
-	ROM_REGION( 0x0300, REGION_PROMS, 0 ) // RGB PROMs
-	ROM_LOAD( "r.3a",   0x00000, 0x100, CRC(ca1f08ce) SHA1(e46e2850d3ee3c8cbb23c10645f07d406c7ff50b) ) // R
-	ROM_LOAD( "g.1a",   0x00100, 0x100, CRC(66f89177) SHA1(caa51c1bf071764d5089487342794cbf023136c0) ) // G
-	ROM_LOAD( "b.2a",   0x00200, 0x100, CRC(d14318bc) SHA1(e219963b3e40eb246e608fbe10daa85dbb4c1226) ) // B
-
-	ROM_REGION( 0x0500, REGION_USER1, 0 ) // CLUT(256bytes x 5)
-	ROM_LOAD( "2.8k",   0x00000, 0x100, CRC(e1770ad3) SHA1(e408b175b8fff934e07b0ded1ee21d7f91a9523d) )
-	ROM_LOAD( "s5.15p", 0x00100, 0x100, CRC(7f6cf709) SHA1(5938faf937b682dcc83e53444cbf5e0bd7741363) )
-	ROM_LOAD( "s3.8l",  0x00200, 0x100, CRC(1314b0b5) SHA1(31ef4b916110581390afc1ba90c5dca7c08c619f) ) // unknown
-	ROM_LOAD( "1.9j",   0x00300, 0x100, CRC(f5b9b777) SHA1(a4ec731be77306db6baf319391c4fe78517fe43e) ) // unknown
-	ROM_LOAD( "4.7m",   0x00400, 0x100, CRC(12cbcd2c) SHA1(a7946820bbf3f7e110a328b673123988af97ce7e) ) // unknown
-
-	ROM_REGION( 0x2000, REGION_USER2, 0 ) // unknown(8k x 1)
-	ROM_LOAD( "0.8h",   0x00000, 0x2000, CRC(12681fb5) SHA1(7a0930819d4cd00475d1897128daa6ac865e07d0) )
-
-	ROM_REGION( 0x0020, REGION_USER3, 0 ) // MSM5232 PROMs?(identical to bprom.3h in Equites)
-	ROM_LOAD( "3h.bpr", 0x00000, 0x020, CRC(33b98466) SHA1(017c73cf8c17dc5047c89316ae5b45f8d22092e8) )
-ROM_END
 
 /******************************************************************************/
-// High Voltage ROM Map
 
-ROM_START( hvoltage )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 ) // 68000 ROMs(16k x 4)
-	ROM_LOAD16_BYTE( "1.16a", 0x00001, 0x4000, CRC(82606e3b) SHA1(25c3172928d8f1eda2c4c757d505fdfd91f21ea1) )
-	ROM_LOAD16_BYTE( "2.16c", 0x00000, 0x4000, CRC(1d74fef2) SHA1(3df3dc98a78a137da8c5cddf6a8519b477824fb9) )
-	ROM_LOAD16_BYTE( "3.15a", 0x08001, 0x4000, CRC(677abe14) SHA1(78b343122f9ad187c823bf49e8f001288c762586) )
-	ROM_LOAD16_BYTE( "4.15c", 0x08000, 0x4000, CRC(8aab5a20) SHA1(fb90817173ad69c0e00d03814b4e10b18955c07e) )
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) // Z80 ROMs(8k x 3)
-	ROM_LOAD( "5_v.1l", 0x00000, 0x4000, CRC(ed9bb6ea) SHA1(73b0251b86835368ec2a4e98a5f61e28e58fd234) )
-	ROM_LOAD( "6_v.1h", 0x04000, 0x4000, CRC(e9542211) SHA1(482f2c90e842fe5cc31cc6a39025adf65ba47ce9) )
-	ROM_LOAD( "7_v.1e", 0x08000, 0x4000, CRC(44d38554) SHA1(6765971376eafa218fda1accb1e173a7c1850cc8) )
-
-	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE ) // 512 chars(8k x 1)
-	ROM_LOAD( "5.8c",   0x00000, 0x2000, CRC(656d53cd) SHA1(9971ed7e7da0e8bf46e97e8f75a2c2201b33fc2f) )
-
-	ROM_REGION( 0x4000, REGION_GFX2, ROMREGION_DISPOSE ) // 256 tiles(16k x 1)
-	ROM_LOAD( "9.14m",  0x00000, 0x4000, CRC(506a0989) SHA1(0e7f2c9bab5e83f06a8148f69d8d0cbfe7d55c5e) )
-
-	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE ) // 256 tiles(16k x 1)
-	ROM_LOAD( "10.12m", 0x00000, 0x4000, CRC(98f87d4f) SHA1(94a7a14b0905597993595b347102436d97fc1dc9) )
-
-	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE ) // 256 sprites
-	ROM_LOAD_NIB_HIGH( "8.18n", 0x00000, 0x2000, CRC(725acae5) SHA1(ba54598a087f8bb5fa7182b0e85d0e038003e622) )
-	ROM_CONTINUE     (          0x04000, 0x2000 )
-	ROM_LOAD         ( "8.18n", 0x02000, 0x2000, CRC(725acae5) SHA1(ba54598a087f8bb5fa7182b0e85d0e038003e622) )
-	ROM_CONTINUE     (          0x06000, 0x2000 )
-	ROM_LOAD         ( "6.18m", 0x08000, 0x4000, CRC(9baf2c68) SHA1(208e5ac8eb157d4bf949ab4330827da032a04235) )
-	ROM_LOAD         ( "7.17m", 0x0c000, 0x4000, CRC(12d25fb1) SHA1(99f5d68bd6d6ee5f2acb7685aceacfb0894c4961) )
-
-	ROM_REGION( 0x0300, REGION_PROMS, 0 ) // RGB PROMs
-	ROM_LOAD( "r.3a",   0x00000, 0x100, CRC(98eccbf6) SHA1(a55755e8388d3edf3020b1129a638fe1e99362b6) ) // R
-	ROM_LOAD( "g.1a",   0x00100, 0x100, CRC(fab2ed23) SHA1(6f63b6a3196dda76eb9a885b17d886a14365f922) ) // G
-	ROM_LOAD( "b.2a",   0x00200, 0x100, CRC(7274961b) SHA1(d13070060e216d633675a528cf0dc3de94c95ffb) ) // B
-
-	ROM_REGION( 0x0500, REGION_USER1, 0 ) // CLUT(256bytes x 5)
-	ROM_LOAD( "2.8k",   0x00000, 0x100, CRC(685f4e44) SHA1(110cb8f5a37f22ce9d391bd0cd46dcbb8fcf66b8) )
-	ROM_LOAD( "s5.15p", 0x00100, 0x100, CRC(b09bcc73) SHA1(f8139feaa9563324b69aeac5c17beccfdbfa0864) )
-	ROM_LOAD( "3.8l",   0x00200, 0x100, CRC(1314b0b5) SHA1(31ef4b916110581390afc1ba90c5dca7c08c619f) ) // unknown(identical to s3.8l in Splendor Blast)
-	ROM_LOAD( "1.9j",   0x00300, 0x100, CRC(f5b9b777) SHA1(a4ec731be77306db6baf319391c4fe78517fe43e) ) // unknown(identical to 1.9j in Splendor Blast)
-	ROM_LOAD( "4.7m",   0x00400, 0x100, CRC(12cbcd2c) SHA1(a7946820bbf3f7e110a328b673123988af97ce7e) ) // unknown(identical to 4.7m in Splendor Blast)
-
-	ROM_REGION( 0x2000, REGION_USER2, 0 ) // unknown(8k x 1, identical to 0.8h in Splendor Blast )
-	ROM_LOAD( "0.8h",   0x00000, 0x2000, CRC(12681fb5) SHA1(7a0930819d4cd00475d1897128daa6ac865e07d0) )
-
-	ROM_REGION( 0x0020, REGION_USER3, 0 ) // MSM5232 PROMs?(identical to bprom.3h in Equites)
-	ROM_LOAD( "3h.bpr", 0x00000, 0x020, CRC(33b98466) SHA1(017c73cf8c17dc5047c89316ae5b45f8d22092e8) )
-ROM_END
 
 /******************************************************************************/
 // Initializations
@@ -1363,10 +1034,6 @@ static void equites_init_common(void)
 	equites_8404init();
 }
 
-static void splndrbt_init_common(void)
-{
-	equites_8404init();
-}
 
 static DRIVER_INIT( equites )
 {
@@ -1465,113 +1132,7 @@ static DRIVER_INIT( kouyakyu )
 	equites_8404rule(0x5582, 0x603, 0x05); // home run
 }
 
-static DRIVER_INIT( splndrbt )
-{
-	equites_id = 0x8510;
 
-	splndrbt_init_common();
-
-	equites_8404rule(0x06f8, 0x007, 0x04); // 8404 test
-	equites_8404rule(0x06fc, 0x049, 0x00); // 8404 test
-
-	equites_8404rule(0x12dc, 0x01b, 0x04); // guard point
-	equites_8404rule(0x12e4, 0x01f, 0x04); // guard point
-
-	equites_8404rule(0x0dc2, 0x00b, 0x04); // guard point (start race)
-	equites_8404rule(0x0dd4, 0x5e1, 0x00); // no. of addresses to look up - 1
-	equites_8404rule(0x0dd8, 0x5e3, 0x0c); // race start/respawn addr hi
-	equites_8404rule(0x0dde, 0x5e5, 0x32); // race start/respawn addr lo
-
-	equites_8404rule(0x1268, 0x023, 0x04); // guard point
-
-	equites_8404rule(0x1298, 0x25f,-0x0c); // stage number?
-
-	// game params. (180261-18027f)->(40060-4006f)
-	equites_8404rule(0x12a0, 0x261, 0x0a); // max speed hi
-	equites_8404rule(0x12a0, 0x263, 0x00); // max speed lo
-	equites_8404rule(0x12a0, 0x265, 0x00); // accel hi
-	equites_8404rule(0x12a0, 0x267, 0x10); // accel lo
-	equites_8404rule(0x12a0, 0x269, 0x0c); // max turbo speed hi
-	equites_8404rule(0x12a0, 0x26b, 0x00); // max turbo speed lo
-	equites_8404rule(0x12a0, 0x26d, 0x00); // turbo accel hi
-	equites_8404rule(0x12a0, 0x26f, 0x20); // turbo accel lo
-	equites_8404rule(0x12a0, 0x271,-0x09); // random enemy spwan list
-	equites_8404rule(0x12a0, 0x273,-0x09); // .
-	equites_8404rule(0x12a0, 0x275,-0x09); // .
-	equites_8404rule(0x12a0, 0x277,-0x09); // .
-	equites_8404rule(0x12a0, 0x279,-0x09); // .
-	equites_8404rule(0x12a0, 0x27b,-0x09); // .
-	equites_8404rule(0x12a0, 0x27d,-0x09); // .
-	equites_8404rule(0x12a0, 0x27f,-0x09); // .
-
-	equites_8404rule(0x500e, 0x281,-0x08); // power-up's (random?)
-	equites_8404rule(0x500e, 0x283,-0x08); // power-up's (random?)
-
-	equites_8404rule(0x132e, 0x285,-0xa0); // object spawn table addr hi
-	equites_8404rule(0x1334, 0x287,-0x0a); // object spawn table addr lo
-
-	equites_8404rule(0x739a, 0x289,-0xb0); // level section table addr hi
-	equites_8404rule(0x73a0, 0x28b,-0x0b); // level section table addr lo
-
-	equites_8404rule(0x0912, 0x017, 0x04); // guard point
-	equites_8404rule(0x0b4c, 0x013, 0x04); // guard point
-
-	equites_8404rule(0x0bfc, 0x00f, 0x04); // guard point (miss/no gas/end level)
-	equites_8404rule(0x0c08, 0x5e1, 0x05); // no. of addresses to look up - 1
-	equites_8404rule(0x0c0c, 0x5e3,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5e5,-0x07); // game over/respawn addr lo
-	equites_8404rule(0x0c0c, 0x5e7,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5e9,-0x07); // game over/respawn addr lo
-	equites_8404rule(0x0c0c, 0x5eb,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5ed,-0x07); // game over/respawn addr lo
-	equites_8404rule(0x0c0c, 0x5ef,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5f1,-0x07); // game over/respawn addr lo
-	equites_8404rule(0x0c0c, 0x5f3,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5f5,-0x07); // game over/respawn addr lo
-	equites_8404rule(0x0c0c, 0x5f7,-0x70); // game over/respawn addr hi
-	equites_8404rule(0x0c12, 0x5f9,-0x07); // game over/respawn addr lo
-}
-
-static DRIVER_INIT( hvoltage )
-{
-	int i;
-
-#if HVOLTAGE_HACK
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x000038, 0x000039, 0, 0, hvoltage_debug_r);
-#endif
-
-	equites_id = 0x8511;
-
-	splndrbt_init_common();
-
-	equites_8404rule(0x0b18, 0x007, 0x04); // 8404 test
-	equites_8404rule(0x0b1c, 0x049, 0x00); // 8404 test
-
-	for(i=0x07; i<0x47; i+=4) equites_8404rule(0x0c64, i, 0xff); // checksum
-
-	equites_8404rule(0x0df6, 0x00f, 0x04); // 1st gateway (init)
-	equites_8404rule(0x0e02, 0x247, 0x01); // no. of addresses to look up - 1
-	equites_8404rule(0x0e06, 0x249, 0x10); // addr hi
-	equites_8404rule(0x0e0c, 0x24b, 0x12); // addr lo
-	equites_8404rule(0x0e06, 0x24d, 0x19); // addr hi
-	equites_8404rule(0x0e0c, 0x24f, 0x96); // addr lo
-
-	equites_8404rule(0x10fc, 0x017, 0x04); // 2nd gateway (intro)
-	equites_8404rule(0x111e, 0x6a5, 0x00); // no. of addresses to look up - 1
-	equites_8404rule(0x1122, 0x6a7, 0x11); // addr hi
-	equites_8404rule(0x1128, 0x6a9, 0xa4); // addr lo
-
-	equites_8404rule(0x0f86, 0x013, 0x04); // 3rd gateway (miss)
-	equites_8404rule(0x0f92, 0x491, 0x03); // no. of addresses to look up - 1
-	equites_8404rule(0x0f96, 0x493,-0x60); // addr hi
-	equites_8404rule(0x0f9c, 0x495,-0x06); // addr lo
-	equites_8404rule(0x0f96, 0x497,-0x60); // addr hi
-	equites_8404rule(0x0f9c, 0x499,-0x06); // addr lo
-	equites_8404rule(0x0f96, 0x49b,-0x60); // addr hi
-	equites_8404rule(0x0f9c, 0x49d,-0x06); // addr lo
-	equites_8404rule(0x0f96, 0x49f,-0x60); // addr hi
-	equites_8404rule(0x0f9c, 0x4a1,-0x06); // addr lo
-}
 
 /******************************************************************************/
 
@@ -1585,7 +1146,3 @@ GAME( 1984, bullfgts, bullfgtr, equites,  bullfgtr, bullfgts, ROT90, "Alpha Dens
 GAME( 1985, kouyakyu, 0,        equites,  kouyakyu, kouyakyu, ROT0,  "Alpha Denshi Co.",                "The Koukouyakyuh", GAME_UNEMULATED_PROTECTION )
 
 GAME( 1985, gekisou,  0,        gekisou,  gekisou,  gekisou,  ROT90, "Eastern Corp.", "Gekisou (Japan)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
-
-// Splendor Blast Hardware
-GAME( 1985, splndrbt, 0,        splndrbt, splndrbt, splndrbt, ROT0,  "Alpha Denshi Co.", "Splendor Blast", GAME_UNEMULATED_PROTECTION | GAME_NO_COCKTAIL )
-GAME( 1985, hvoltage, 0,        splndrbt, hvoltage, hvoltage, ROT0,  "Alpha Denshi Co.", "High Voltage", GAME_UNEMULATED_PROTECTION )
