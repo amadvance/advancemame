@@ -1505,6 +1505,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ssingles.o \
 	$(OBJ)/drivers/starspnr.o \
 	$(OBJ)/drivers/statriv2.o \
+	$(OBJ)/drivers/superga2.o \
 	$(OBJ)/drivers/supertnk.o \
 	$(OBJ)/drivers/tattack.o \
 	$(OBJ)/drivers/taxidrvr.o $(OBJ)/vidhrdw/taxidrvr.o \
