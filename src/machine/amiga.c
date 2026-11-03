@@ -164,6 +164,8 @@ const char *amiga_custom_names[0x100] =
  *
  *************************************/
 
+static mame_timer *amiga_irq_timer;
+static void amiga_irq_delayed(int param);
 static void custom_reset(void);
 static void autoconfig_reset(void);
 static void amiga_cia_0_irq(int state);
@@ -182,6 +184,7 @@ void amiga_machine_config(const amiga_machine_interface *intf)
 	cia6526_interface cia_intf[2];
 
 	amiga_intf = intf;
+	amiga_irq_timer = timer_alloc(amiga_irq_delayed);
 
 	/* set up CIA interfaces */
 	memset(&cia_intf, 0, sizeof(cia_intf));
@@ -224,6 +227,7 @@ MACHINE_RESET( amiga )
 	/* set m68k reset  function */
 	cpunum_set_info_fct(0, CPUINFO_PTR_M68K_RESET_CALLBACK, (genf *)amiga_m68k_reset);
 
+	timer_adjust(amiga_irq_timer, TIME_NEVER, 0, 0);
 	/* Initialize the various chips */
 	cia_reset();
 	custom_reset();
@@ -319,6 +323,12 @@ static void update_irqs(void)
 		cpunum_set_input_line(0, irq, ASSERT_LINE);
 	else
 		cpunum_set_input_line(0, 7, CLEAR_LINE);
+}
+
+
+static void amiga_irq_delayed(int param)
+{
+	update_irqs();
 }
 
 
@@ -1200,16 +1210,30 @@ WRITE16_HANDLER( amiga_custom_w )
 			break;
 
 		case REG_INTENA:
+		{
+			int set = data & 0x8000;
 			data = (data & 0x8000) ? (CUSTOM_REG(offset) | (data & 0x7fff)) : (CUSTOM_REG(offset) & ~(data & 0x7fff));
 			CUSTOM_REG(offset) = data;
-			update_irqs();
+			/* Paula exposes pending requests before the CPU interrupt arrives. */
+			if (set)
+				timer_adjust(amiga_irq_timer, TIME_IN_CYCLES(24, 0), 0, 0);
+			else
+				update_irqs();
 			break;
+		}
 
 		case REG_INTREQ:
+		{
+			int set = data & 0x8000;
 			data = (data & 0x8000) ? (CUSTOM_REG(offset) | (data & 0x7fff)) : (CUSTOM_REG(offset) & ~(data & 0x7fff));
 			CUSTOM_REG(offset) = data;
-			update_irqs();
+			/* Paula exposes pending requests before the CPU interrupt arrives. */
+			if (set)
+				timer_adjust(amiga_irq_timer, TIME_IN_CYCLES(24, 0), 0, 0);
+			else
+				update_irqs();
 			break;
+		}
 
 		case REG_ADKCON:
 			amiga_audio_update();
