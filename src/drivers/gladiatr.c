@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Victor Trucco,Steve Ellenoff,Phil Stroffolino,Tatsuyuki Satoh,Tomasz Slanina,Nicola Salmoria
+// copyright-holders:Victor Trucco,Steve Ellenoff,Phil Stroffolino,Tatsuyuki Satoh,Tomasz Slanina,Nicola Salmoria,Angelo Salese
 /***************************************************************************
 
 Ping Pong King  (c) Taito 1985
@@ -339,48 +339,222 @@ WRITE8_HANDLER( gladiatr_irq_patch_w )
 
 
 
-static int data1,data2,flag1=1,flag2=1;
-
-static WRITE8_HANDLER(qx0_w)
+static struct
 {
-	if(!offset)
+	UINT8 rxd, txd, rst, state, packet_type;
+} ppking_mcu[2];
+
+static WRITE8_HANDLER( ppking_adpcm_w )
+{
+	MSM5205_data_w(0, data);
+	MSM5205_reset_w(0, (data >> 5) & 1);
+	MSM5205_vclk_w(0, (data >> 4) & 1);
+}
+
+static WRITE8_HANDLER( ppking_irq_ack_w )
+{
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+}
+
+static WRITE8_HANDLER( ppking_latch_w )
+{
+	if (offset == 0)
+		gladiatr_spritebuffer_w(0, data);
+	else if (offset == 7)
+		flip_screen_set(data & 1);
+}
+
+static int mcu_parity_check(void)
+{
+	int i;
+	UINT8 res = 0;
+
+	for(i=0;i<8;i++)
 	{
-		data2=data;
-		flag2=1;
+		if(ppking_mcu[0].rxd & (1 << i))
+			res++;
+	}
+
+	if(res % 2)
+		return 0;
+
+	return 1;
+}
+
+static void mcu_input_check(void)
+{
+	if(ppking_mcu[0].txd == 0x41)
+	{
+		ppking_mcu[0].state = 1;
+	}
+	else if(ppking_mcu[0].txd == 0x42)
+	{
+		ppking_mcu[0].state = 2;
+	}
+	else if(ppking_mcu[0].txd == 0x44)
+	{
+		ppking_mcu[0].state = 3;
 	}
 }
 
-static WRITE8_HANDLER(qx1_w)
+static READ8_HANDLER( ppking_qx0_r )
 {
-	if(!offset)
+	if(offset == 1)
+		return 1;
+
+	if(ppking_mcu[0].rst)
 	{
-		data1=data;
-		flag1=1;
+		switch(ppking_mcu[0].state)
+		{
+			case 1:
+			{
+				ppking_mcu[0].packet_type^=1;
+
+				if(ppking_mcu[0].packet_type & 1)
+				{
+					ppking_mcu[0].rxd = ((readinputportbytag("DSW3")) & 0x9f) | 0x20;
+				}
+				else
+				{
+					ppking_mcu[0].rxd = ((readinputportbytag("SYSTEM")) & 0x9f);
+				}
+
+				break;
+			}
+
+			case 2:
+			{
+				ppking_mcu[0].packet_type^=1;
+				if(ppking_mcu[0].packet_type & 1)
+				{
+					/* Alternate the input packet with the required MCU acknowledgement. */
+					ppking_mcu[0].rxd = 0x17;
+				}
+				else
+				{
+					ppking_mcu[0].rxd = ((readinputportbytag("P1")) & 0x3f);
+					ppking_mcu[0].rxd |= ((readinputportbytag("SYSTEM")) & 0x80);
+				}
+
+				break;
+			}
+
+			case 3:
+			{
+				ppking_mcu[0].packet_type^=1;
+				if(ppking_mcu[0].packet_type & 1)
+				{
+					/* Alternate the input packet with the required MCU acknowledgement. */
+					ppking_mcu[0].rxd = 0x17;
+				}
+				else
+				{
+					ppking_mcu[0].rxd = ((readinputportbytag("P2")) & 0x3f);
+					ppking_mcu[0].rxd |= ((readinputportbytag("SYSTEM")) & 0x80);
+				}
+
+				break;
+			}
+		}
+
+		if(mcu_parity_check() == 0)
+			ppking_mcu[0].rxd |= 0x40;
+	}
+
+	return ppking_mcu[0].rxd;
+}
+
+static WRITE8_HANDLER( ppking_qx0_w )
+{
+	if(offset == 1)
+	{
+		switch(data)
+		{
+			case 0:
+				ppking_mcu[0].rxd = 0x40;
+				ppking_mcu[0].rst = 0;
+				ppking_mcu[0].state = 0;
+				break;
+			case 1:
+
+				ppking_mcu[0].rxd = 0x40;
+				ppking_mcu[0].rst = 0;
+				break;
+			case 2:
+				ppking_mcu[0].rxd = ((readinputportbytag("DSW2") & 0x1f) << 2);
+				ppking_mcu[0].rst = 0;
+				break;
+			case 3:
+				mcu_input_check();
+				ppking_mcu[0].rst = 1;
+				break;
+
+			default:
+				break;
+		}
+	}
+	else
+	{
+		ppking_mcu[0].txd = data;
+
+		ppking_mcu[1].rst = 0;
+		soundlatch2_w(0, data);
+
+		mcu_input_check();
 	}
 }
 
-static WRITE8_HANDLER(qx2_w){ }
-
-static WRITE8_HANDLER(qx3_w){ }
-
-static READ8_HANDLER(qx2_r){ return rand(); }
-
-static READ8_HANDLER(qx3_r){ return rand()&0xf; }
-
-static READ8_HANDLER(qx0_r)
+static WRITE8_HANDLER( ppking_qx1_w )
 {
-	if(!offset)
-		 return data1;
-	else
-		return flag2;
+	if(offset == 1)
+	{
+		if(data == 0xf0)
+			ppking_mcu[1].rst = 1;
+	}
 }
 
-static READ8_HANDLER(qx1_r)
+static WRITE8_HANDLER( ppking_qx3_w )
 {
-	if(!offset)
-		return data2;
-	else
-		return flag1;
+}
+
+static READ8_HANDLER( ppking_qx1_r )
+{
+	if(offset == 1)
+		return 1;
+
+	if(ppking_mcu[1].rst == 1)
+		return 0x40;
+
+	return soundlatch2_r(0);
+}
+
+static READ8_HANDLER( ppking_qx3_r )
+{
+	if(offset == 1)
+		return 1;
+
+	return 0;
+}
+
+static READ8_HANDLER( ppking_qxcomu_r )
+{
+	if(offset == 1)
+		return 1;
+
+	return 0;
+}
+
+static WRITE8_HANDLER( ppking_qxcomu_w )
+{
+}
+
+static MACHINE_RESET( ppking )
+{
+	memset(ppking_mcu, 0, sizeof(ppking_mcu));
+
+	ppking_mcu[0].rxd = (readinputportbytag("DSW1") & 0x1f) << 2;
+	ppking_mcu[0].rst = 0;
+	ppking_mcu[0].state = 0;
 }
 
 static ADDRESS_MAP_START( ppking_cpu1_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -396,26 +570,27 @@ ADDRESS_MAP_END
 
 
 static ADDRESS_MAP_START( ppking_cpu3_map, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x2000, 0x2fff) AM_ROM
-	AM_RANGE(0xc000, 0xffff) AM_ROM
+	AM_RANGE(0x1000, 0x1fff) AM_WRITE(ppking_adpcm_w)
+	AM_RANGE(0x2000, 0x2fff) AM_READ(glad_cpu_sound_command_r)
+	AM_RANGE(0x8000, 0xffff) AM_ROM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( ppking_cpu1_io, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x00, 0x00) AM_WRITE(gladiatr_spritebuffer_w)
-	AM_RANGE(0x04, 0x04) AM_NOP	// WRITE(ppking_irq_patch_w)
-	AM_RANGE(0x9e, 0x9f) AM_READ(qx0_r) AM_WRITE(qx0_w)
+	AM_RANGE(0x00, 0x07) AM_WRITE(ppking_latch_w)
+	AM_RANGE(0x9e, 0x9f) AM_READ(ppking_qx0_r) AM_WRITE(ppking_qx0_w)
 	AM_RANGE(0xbf, 0xbf) AM_NOP
+	AM_RANGE(0xc0, 0xc1) AM_READWRITE(ppking_qxcomu_r, ppking_qxcomu_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( ppking_cpu2_io, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_READ(YM2203_status_port_0_r) AM_WRITE(YM2203_control_port_0_w)
 	AM_RANGE(0x01, 0x01) AM_READ(YM2203_read_port_0_r) AM_WRITE(YM2203_write_port_0_w)
-	AM_RANGE(0x20, 0x21) AM_READ(qx1_r) AM_WRITE(qx1_w)
-	AM_RANGE(0x40, 0x40) AM_READ(MRA8_NOP)
-	AM_RANGE(0x60, 0x61) AM_READ(qx2_r) AM_WRITE(qx2_w)
-	AM_RANGE(0x80, 0x81) AM_READ(qx3_r) AM_WRITE(qx3_w)
+	AM_RANGE(0x20, 0x21) AM_READ(ppking_qx1_r) AM_WRITE(ppking_qx1_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(ppking_irq_ack_w)
+	AM_RANGE(0x80, 0x81) AM_READ(ppking_qx3_r) AM_WRITE(ppking_qx3_w)
+	AM_RANGE(0xe0, 0xe0) AM_WRITE(glad_cpu_sound_command_w)
 ADDRESS_MAP_END
 
 
@@ -471,7 +646,89 @@ ADDRESS_MAP_END
 
 
 INPUT_PORTS_START( ppking )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )  PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )    PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )  PORT_8WAY
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON2 )
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
 
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )  PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )    PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )  PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_DIPNAME( 0x04, 0x00, "SYSTEM" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( On ) )
+	PORT_BIT( 0x60, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(2)
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_DIPNAME( 0x08, 0x08, "VS Mode (link)" )
+	PORT_DIPSETTING(    0x08, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( No ) )
+	PORT_BIT( 0xe0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START_TAG("DSW2")
+
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_5C ) )
+	PORT_DIPNAME( 0x0c, 0x00, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 5C_1C ) )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Cocktail ) )
+	PORT_BIT( 0xe0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START_TAG("DSW3")
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Yes ) )
+
+	PORT_DIPNAME( 0x02, 0x00, "Win Round even when losing (Cheat)" )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Yes ) )
+
+	PORT_DIPNAME( 0x04, 0x00, "Backup RAM Clear" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_BIT( 0x60, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_SERVICE( 0x80, IP_ACTIVE_HIGH )
 INPUT_PORTS_END
 
 
@@ -656,13 +913,16 @@ static const gfx_decode gladiatr_gfxdecodeinfo[] =
 
 static READ8_HANDLER(f1_r)
 {
-	return rand();
+	return 0xff;
 }
 
 static struct YM2203interface ppking_ym2203_interface =
 {
 	f1_r,
-	f1_r
+	gladiator_dsw3_r,
+	0,
+	0,
+	gladiator_ym_irq
 };
 
 static struct YM2203interface gladiatr_ym2203_interface =
@@ -693,7 +953,8 @@ static MACHINE_DRIVER_START( ppking )
 	MDRV_CPU_ADD(Z80, 12000000/4) /* 3 MHz */
 	MDRV_CPU_PROGRAM_MAP(cpu2_map,0)
 	MDRV_CPU_IO_MAP(ppking_cpu2_io,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	/* The sound program clears this interrupt through port 0x40. */
+	MDRV_CPU_PERIODIC_INT(irq0_line_assert,TIME_IN_HZ(60))
 
 	MDRV_CPU_ADD(M6809, 12000000/16) /* 750 kHz */
 	/* audio CPU */
@@ -703,6 +964,7 @@ static MACHINE_DRIVER_START( ppking )
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(100)
 
+	MDRV_MACHINE_RESET(ppking)
 	MDRV_NVRAM_HANDLER(generic_0fill)
 
 	/* video hardware */
@@ -797,8 +1059,10 @@ ROM_START( ppking )
 	ROM_LOAD( "q0_16.6e",       0x4000, 0x2000, CRC(b1e32588) SHA1(13c74479238a34a08e249f9120b42a52d80f8274) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )
-	ROM_LOAD( "q0_19.5n",       0x0c000, 0x2000, CRC(4bcf896d) SHA1(f587a66fcc63e989742ce2d5f4cf2bb464987038) )
+	ROM_LOAD( "q0_19.5n",       0x0a000, 0x2000, CRC(4bcf896d) SHA1(f587a66fcc63e989742ce2d5f4cf2bb464987038) )
+	ROM_RELOAD(                 0x08000, 0x2000 )
 	ROM_LOAD( "q0_18.5m",       0x0e000, 0x2000, CRC(89ba64f8) SHA1(fa01316ea744b4277ee64d5f14cb6d7e3a949f2b) )
+	ROM_RELOAD(                 0x0c000, 0x2000 )
 
 	ROM_REGION( 0x02000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "q0_15.1r",       0x00000, 0x2000, CRC(fbd33219) SHA1(78b9bb327ededaa818d26c41c5e8fd1c041ef142) )
@@ -1009,14 +1273,6 @@ static DRIVER_INIT( gladiatr )
 }
 
 
-static READ8_HANDLER(f6a3_r)
-{
-	if(activecpu_get_previouspc()==0x8e)
-		generic_nvram[0x6a3]=1;
-
-	return generic_nvram[0x6a3];
-}
-
 static DRIVER_INIT(ppking)
 {
 	UINT8 *rom;
@@ -1040,12 +1296,16 @@ static DRIVER_INIT(ppking)
 		}
 	}
 
-	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xf6a3,0xf6a3,0,0, f6a3_r );
+	/* The simulated MCU handshake cannot satisfy these sound startup checks. */
+	rom = memory_region(REGION_CPU2);
+	rom[0x1b9] = rom[0x1ba] = rom[0x1bb] = 0;
+	rom[0x839] = rom[0x83a] = rom[0x83b] = 0;
+	rom[0x845] = rom[0x846] = rom[0x847] = 0;
 }
 
 
 
-GAME( 1985, ppking,   0,        ppking,   ppking,   ppking,   ROT90, "Taito America Corporation", "Ping-Pong King", GAME_NOT_WORKING)
+GAME( 1985, ppking,   0,        ppking,   ppking,   ppking,   ROT90, "Taito America Corporation", "Ping-Pong King", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL)
 GAME( 1986, gladiatr, 0,        gladiatr, gladiatr, gladiatr, ROT0,  "Taito America Corporation", "Gladiator (US)", 0 )
 GAME( 1986, ogonsiro, gladiatr, gladiatr, gladiatr, gladiatr, ROT0,  "Taito Corporation", "Ohgon no Siro (Japan)", 0 )
 GAME( 1986, greatgur, gladiatr, gladiatr, gladiatr, gladiatr, ROT0,  "Taito Corporation", "Great Gurianos (Japan?)", 0 )

@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Victor Trucco,Steve Ellenoff,Phil Stroffolino,Tatsuyuki Satoh,Tomasz Slanina,Nicola Salmoria
+// copyright-holders:Victor Trucco,Steve Ellenoff,Phil Stroffolino,Tatsuyuki Satoh,Tomasz Slanina,Nicola Salmoria,Angelo Salese
 /***************************************************************************
 
     Video Hardware description for Taito Gladiator
@@ -267,6 +267,9 @@ static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 						xflip, yflip,
 						sx+x*16, sy+y*16,
 						cliprect,TRANSPARENCY_PEN,0);
+				/* Scrolling sprites cross the vertical counter boundary. */
+				drawgfx(bitmap,Machine->gfx[2],t,color,xflip,yflip,
+						sx+x*16,sy+y*16+256,cliprect,TRANSPARENCY_PEN,0);
 			}
 		}
 	}
