@@ -7596,4 +7596,15 @@ Other Sun games
 
 	DRIVER( bazooka )       /* (c) 1977 Taito do Brasil */
 
+	/* EFO / Cedar Magnet System */
+	DRIVER( cedmag )
+	DRIVER( mag_boob )
+	DRIVER( mag_burn )
+	DRIVER( mag_day )
+	DRIVER( mag_exzi )
+	DRIVER( mag_pdak )
+	DRIVER( mag_time )
+	DRIVER( mag_war )
+	DRIVER( mag_xain )
+
 #endif	/* DRIVER_RECURSIVE */
