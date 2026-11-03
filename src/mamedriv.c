@@ -5186,6 +5186,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tmekprot )	/* 136100           (c) 1994 */
 	DRIVER( primrage )	/* 136102           (c) 1994 */
 	DRIVER( primraga )	/* 136102           (c) 1994 */
+	DRIVER( fishfren )
+	DRIVER( freezeat )
 	DRIVER( area51 )	/* 136105           (c) 1995 */
 	DRIVER( area51t )	/* 136105           (c) 1995 */
 	DRIVER( area51a )	/* 136105           (c) 1995 */

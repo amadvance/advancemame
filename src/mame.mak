@@ -458,7 +458,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/centiped.o $(OBJ)/vidhrdw/centiped.o \
 	$(OBJ)/drivers/cloak.o $(OBJ)/vidhrdw/cloak.o \
 	$(OBJ)/drivers/cloud9.o $(OBJ)/vidhrdw/cloud9.o \
-	$(OBJ)/drivers/cojag.o $(OBJ)/sndhrdw/jaguar.o $(OBJ)/vidhrdw/jaguar.o \
+	$(OBJ)/drivers/jaguar.o $(OBJ)/sndhrdw/jaguar.o $(OBJ)/vidhrdw/jaguar.o \
 	$(OBJ)/drivers/copsnrob.o $(OBJ)/machine/copsnrob.o $(OBJ)/vidhrdw/copsnrob.o $(OBJ)/sndhrdw/copsnrob.o \
 	$(OBJ)/drivers/cyberbal.o $(OBJ)/sndhrdw/cyberbal.o $(OBJ)/vidhrdw/cyberbal.o \
 	$(OBJ)/drivers/destroyr.o $(OBJ)/vidhrdw/destroyr.o $(OBJ)/sndhrdw/destroyr.o \

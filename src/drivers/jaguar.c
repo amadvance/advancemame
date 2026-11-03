@@ -11,8 +11,6 @@
         * Maximum Force (2 Sets)
         * Area 51/Maximum Force Duo (2 Sets)
         * Vicious Circle
-
-    In the future:
         * Fishin' Frenzy
         * Freeze
 
@@ -164,6 +162,7 @@ static UINT32 misc_control_data;
 static UINT8 eeprom_enable;
 
 static UINT32 *rom_base;
+static UINT8 *romboard;
 
 static struct ide_interface ide_intf =
 {
@@ -191,6 +190,12 @@ static MACHINE_RESET( cojag )
 	/* halt the CPUs */
 	jaguargpu_ctrl_w(1, G_CTRL, 0, 0);
 	jaguardsp_ctrl_w(2, D_CTRL, 0, 0);
+
+	if (romboard)
+	{
+		memory_set_bankptr(3, romboard + 0x800000);
+		memory_set_bankptr(4, romboard);
+	}
 
 	/* init the sound system */
 	cojag_sound_reset();
@@ -242,6 +247,8 @@ static WRITE32_HANDLER( misc_control_w )
 	}
 
 	COMBINE_DATA(&misc_control_data);
+	if (romboard)
+		memory_set_bankptr(4, romboard + ((misc_control_data >> 1) & 7) * 0x200000);
 }
 
 
@@ -305,7 +312,7 @@ static READ32_HANDLER( status_r )
 	// D5     = /VOLUMEUP
 	// D4     = /VOLUMEDOWN
 	// D3-D0  = ACTC4-1
-	return readinputport(2) | (readinputport(2) << 16);
+	return readinputport(2) | (readinputport(romboard ? 3 : 2) << 16);
 }
 
 
@@ -319,6 +326,8 @@ static READ32_HANDLER( status_r )
 static WRITE32_HANDLER( latch_w )
 {
 	logerror("%08X:latch_w(%X)\n", activecpu_get_previouspc(), data);
+	if (romboard && (mem_mask & 0xff) != 0xff)
+		memory_set_bankptr(3, romboard + 0x800000 + (data & 1) * 0x400000);
 }
 
 
@@ -761,6 +770,55 @@ INPUT_PORTS_END
 
 
 
+static INPUT_PORTS_START( freezeat )
+	PORT_START
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_COIN4 )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_VOLUME_UP )
+	PORT_SERVICE( 0x0040, IP_ACTIVE_LOW )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_SPECIAL )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x000f, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0xfff0, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( fishfren )
+	PORT_INCLUDE(freezeat)
+	/* The program also reads the gun registers during startup. */
+	PORT_START
+	PORT_START
+	PORT_START
+	PORT_START
+INPUT_PORTS_END
+
+
 /*************************************
  *
  *  Machine driver
@@ -825,6 +883,11 @@ MACHINE_DRIVER_START( cojagr3k )
 
 	MDRV_SOUND_ADD(DAC, 0)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( cojagr3k_rom )
+	MDRV_IMPORT_FROM(cojagr3k)
 MACHINE_DRIVER_END
 
 
@@ -981,17 +1044,84 @@ ROM_END
 
 
 
+ROM_START( fishfren )
+	ROM_REGION32_BE( 0x200000, REGION_USER1, 0 )
+	ROM_LOAD32_BYTE( "hh", 0x00000, 0x80000, CRC(2ef79767) SHA1(abcea584f2cbd71b05f9d7e61f40ca9da6799215) )
+	ROM_LOAD32_BYTE( "hl", 0x00001, 0x80000, CRC(7eefd4a2) SHA1(181be04836704098082fd78cacc68ffa70e77892) )
+	ROM_LOAD32_BYTE( "lh", 0x00002, 0x80000, CRC(bbe9ed15) SHA1(889af29afe6d984b39105aa238400392a5dfb2c5) )
+	ROM_LOAD32_BYTE( "ll", 0x00003, 0x80000, CRC(d70d0f2c) SHA1(2689cbe56ae3d491348b241528b0fe345fa8484c) )
+
+	ROM_REGION16_BE( 0x1000, REGION_SOUND1, 0 )
+	ROM_LOAD16_WORD("jagwave.rom", 0x0000, 0x1000, CRC(7a25ee5b) SHA1(58117e11fd6478c521fbd3fdbe157f39567552f0) )
+
+	ROM_REGION32_BE( 0x1000000, REGION_USER2, 0 )
+	ROM_LOAD64_BYTE( "l63-56", 0x000000, 0x100000, CRC(42764ea5) SHA1(805245f01006bd974fbac56f688cfcf137ddc914) )
+	ROM_LOAD64_BYTE( "l55-48", 0x000001, 0x100000, CRC(0c7592bb) SHA1(d5bd6b872abad58947842205f9eac46fd065e88f) )
+	ROM_LOAD64_BYTE( "l47-40", 0x000002, 0x100000, CRC(6d7dcdb1) SHA1(914dae3b9df5c861f794b683571c5fb0c2c3c3fd) )
+	ROM_LOAD64_BYTE( "l39-32", 0x000003, 0x100000, CRC(ef3b8d98) SHA1(858c3342e9693bfe887b91dde1116a1656a1a105) )
+	ROM_LOAD64_BYTE( "l31-24", 0x000004, 0x100000, CRC(132d628e) SHA1(3ff9fa86092eb01f21ca3ccf1ee1e3a583cbdecb) )
+	ROM_LOAD64_BYTE( "l23-16", 0x000005, 0x100000, CRC(b841f039) SHA1(79f661aee009aef2f5ad4122ae3e0ac94097a427) )
+	ROM_LOAD64_BYTE( "l15-08", 0x000006, 0x100000, CRC(0800214e) SHA1(5372f2c3470619a4967958c76055486f76b5f150) )
+	ROM_LOAD64_BYTE( "l07-00", 0x000007, 0x100000, CRC(f83b2e78) SHA1(83ee9d2bfba83e04fb794270926bd3e558c9aaa4) )
+	ROM_LOAD64_BYTE( "h63-56", 0x800000, 0x080000, CRC(67740765) SHA1(8b22413d25e0dbfe2227d1a8a023961a4c13cb76) )
+	ROM_LOAD64_BYTE( "h55-48", 0x800001, 0x080000, CRC(ffed0091) SHA1(6c8104acd7e6d95a111f9c7a4d3b6984293d72c4) )
+	ROM_LOAD64_BYTE( "h47-40", 0x800002, 0x080000, CRC(6f448f72) SHA1(3a298b9851e4ba7aa611aa6c2b0dcf06f4301463) )
+	ROM_LOAD64_BYTE( "h39-32", 0x800003, 0x080000, CRC(25a5bd67) SHA1(79f29bd36afb4574b9c923eee293964284713540) )
+	ROM_LOAD64_BYTE( "h31-24", 0x800004, 0x080000, CRC(e7088cc0) SHA1(4cb184de748c5633e669a4675e6db9920d34811e) )
+	ROM_LOAD64_BYTE( "h23-16", 0x800005, 0x080000, CRC(ab477a76) SHA1(ae9aa97dbc758cd741710fe08c6ea94a0a318451) )
+	ROM_LOAD64_BYTE( "h15-08", 0x800006, 0x080000, CRC(25a423f1) SHA1(7530cf2e28e0755bfcbd70789ef5cbbfb3d94f9f) )
+	ROM_LOAD64_BYTE( "h07-00", 0x800007, 0x080000, CRC(0f5f4cc6) SHA1(caa2b514fb1f2a815e63f7b8c6b79ce2dfa308c4) )
+	ROM_COPY( REGION_USER2, 0x800000, 0xc00000, 0x400000 )
+ROM_END
+
+ROM_START( freezeat )
+	ROM_REGION32_BE( 0x200000, REGION_USER1, 0 )
+	ROM_LOAD32_BYTE( "prog_eng.hh",          0x000000, 0x040000, CRC(f7cffafd) SHA1(62369de4cf0a5abab86f6bcf9621028b9e171ec3) )
+	ROM_LOAD32_BYTE( "prog_eng.hl",          0x000001, 0x040000, CRC(17150705) SHA1(c5a32d334bffb58a816920cc1251a21acc5a6f92) )
+	ROM_LOAD32_BYTE( "prog_eng.lh",          0x000002, 0x040000, CRC(12a903bf) SHA1(41f5949d7ed2081917af8411f92666b754564b37) )
+	ROM_LOAD32_BYTE( "prog_eng.ll",          0x000003, 0x040000, CRC(cf69f971) SHA1(132b06f5fb49801fff7e5deb7aa71b44d5b1c6ca) )
+
+	ROM_REGION16_BE( 0x1000, REGION_SOUND1, 0 )
+	ROM_LOAD16_WORD("jagwave.rom", 0x0000, 0x1000, CRC(7a25ee5b) SHA1(58117e11fd6478c521fbd3fdbe157f39567552f0) )
+
+	ROM_REGION32_BE( 0x1000000, REGION_USER2, 0 )
+	ROM_LOAD64_BYTE( "fish_gr0.63-56", 0x000000, 0x100000, CRC(b61061c5) SHA1(aeb409aa5073232d80ed81b27946e753290234f4) )
+	ROM_LOAD64_BYTE( "fish_gr0.55-48", 0x000001, 0x100000, CRC(c85acf42) SHA1(c3365caeb126a83a7e7afcda25f05849ceb5c98b) )
+	ROM_LOAD64_BYTE( "fish_gr0.47-40", 0x000002, 0x100000, CRC(67f78f59) SHA1(40b256a8939fad365c7e896cff4a959fcc70a477) )
+	ROM_LOAD64_BYTE( "fish_gr0.39-32", 0x000003, 0x100000, CRC(6be0508a) SHA1(20f617278ce1666348822d80686cecd8d9b1bc78) )
+	ROM_LOAD64_BYTE( "fish_gr0.31-24", 0x000004, 0x100000, CRC(905606e0) SHA1(866cd98ea2399fed96f76b16dce751e2c7cfdc98) )
+	ROM_LOAD64_BYTE( "fish_gr0.23-16", 0x000005, 0x100000, CRC(cdeef6fa) SHA1(1b4d58951b662040540e7d51f88c1b6f282562ee) )
+	ROM_LOAD64_BYTE( "fish_gr0.15-08", 0x000006, 0x100000, CRC(ad81f204) SHA1(58584a6c8c6cfb6366eaa10aba8a226e419f5ce9) )
+	ROM_LOAD64_BYTE( "fish_gr0.07-00", 0x000007, 0x100000, CRC(10ce7254) SHA1(2a88d45dbe78ea8358ecd8522b38d775a2fdb34a) )
+	ROM_LOAD64_BYTE( "fish_eng.63-56", 0x800000, 0x100000, CRC(4a03f971) SHA1(1ae5ad9a6cd2d612c6519193134dcd5a3f6a5049) )
+	ROM_LOAD64_BYTE( "fish_eng.55-48", 0x800001, 0x100000, CRC(6bc00de0) SHA1(b1b180c33906826703452875ce250b28352e2797) )
+	ROM_LOAD64_BYTE( "fish_eng.47-40", 0x800002, 0x100000, CRC(41ccc677) SHA1(76ee042632cfdcc99a9bfb75f2a4ef04e08f101b) )
+	ROM_LOAD64_BYTE( "fish_eng.39-32", 0x800003, 0x100000, CRC(59a8fa03) SHA1(19e91a4791e0d2dbd8578cee0fa07c491204b0dc) )
+	ROM_LOAD64_BYTE( "fish_eng.31-24", 0x800004, 0x100000, CRC(c3bb50a1) SHA1(b868ac0812d1c13feae82d293bb323a93a72e1d3) )
+	ROM_LOAD64_BYTE( "fish_eng.23-16", 0x800005, 0x100000, CRC(237cfc93) SHA1(15f61dc621c5328cc7752c76b2b1dae265a5e886) )
+	ROM_LOAD64_BYTE( "fish_eng.15-08", 0x800006, 0x100000, CRC(65bec279) SHA1(5e99972279ee9ad32e67866fc63799579a10f2dd) )
+	ROM_LOAD64_BYTE( "fish_eng.07-00", 0x800007, 0x100000, CRC(13fa20ad) SHA1(0a04fdea025109c0e604ef2a6d58cfb3adce9bd1) )
+ROM_END
+
+
 /*************************************
  *
  *  Driver initialization
  *
  *************************************/
 
+static READ32_HANDLER( romboard_ide_r )
+{
+	/* No ATA drive is fitted; the controller data bus is undriven. */
+	return 0xffffffff;
+}
+
 static void cojag_common_init(UINT8 crosshair, UINT16 gpu_jump_offs, UINT16 spin_pc)
 {
 	/* copy over the ROM */
 	cojag_is_r3000 = (Machine->drv->cpu[0].cpu_type == CPU_R3000BE);
 	cojag_draw_crosshair = crosshair;
+	romboard = memory_region(REGION_USER2);
 
 	/* install synchronization hooks for GPU */
 	if (cojag_is_r3000)
@@ -1007,6 +1137,25 @@ static void cojag_common_init(UINT8 crosshair, UINT16 gpu_jump_offs, UINT16 spin
 
 	/* spin up the hard disk */
 	ide_controller_init(0, &ide_intf);
+	if (romboard)
+	{
+		UINT16 *wave = (UINT16 *)memory_region(REGION_SOUND1);
+		int i;
+		/* The main CPU, GPU and DSP must observe the same selected banks. */
+		memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04800000, 0x04bfffff, 0, 0, MRA32_BANK3);
+		memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04c00000, 0x04dfffff, 0, 0, MRA32_BANK4);
+		for (i = 1; i <= 2; ++i)
+		{
+			memory_install_read32_handler(i, ADDRESS_SPACE_PROGRAM, 0x800000, 0xbfffff, 0, 0, MRA32_BANK3);
+			memory_install_read32_handler(i, ADDRESS_SPACE_PROGRAM, 0xc00000, 0xdfffff, 0, 0, MRA32_BANK4);
+		}
+		memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04e001f0, 0x04e001f7, 0, 0, romboard_ide_r);
+		memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04e003f0, 0x04e003f7, 0, 0, romboard_ide_r);
+		/* Pack the real waveform samples in DSP bus order. */
+		for (i = 0; i < 0x400; ++i)
+			jaguar_wave_rom[i] = ((UINT32)wave[i * 2] << 16) | wave[i * 2 + 1];
+	}
+
 }
 
 
@@ -1076,6 +1225,37 @@ static DRIVER_INIT( a51mxr3k )
 }
 
 
+#if ENABLE_SPEEDUP_HACKS
+static UINT32 *main_gpu_wait;
+
+static READ32_HANDLER( main_gpu_wait_r )
+{
+	if (gpu_command_pending)
+		cpu_spinuntil_int();
+	return *main_gpu_wait;
+}
+#endif
+
+static DRIVER_INIT( fishfren )
+{
+	cojag_common_init(0, 0x578, 0x554);
+#if ENABLE_SPEEDUP_HACKS
+	main_speedup_max_cycles = 200;
+	main_speedup = memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x10021b60, 0x10021b63, 0, 0, cojagr3k_main_speedup_r);
+#endif
+}
+
+static DRIVER_INIT( freezeat )
+{
+	cojag_common_init(0, 0x0bc, 0x09c);
+#if ENABLE_SPEEDUP_HACKS
+	main_speedup_max_cycles = 200;
+	main_speedup = memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x1001a9f4, 0x1001a9f7, 0, 0, cojagr3k_main_speedup_r);
+	/* Do not spend main-CPU cycles waiting for a pending GPU command. */
+	main_gpu_wait = memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x0400d900, 0x0400d903, 0, 0, main_gpu_wait_r);
+#endif
+}
+
 static DRIVER_INIT( vcircle )
 {
 	cojag_common_init(0, 0x5c0, 0x5a0);
@@ -1098,6 +1278,8 @@ static DRIVER_INIT( vcircle )
 GAME( 1996, area51,   0,        r3knarrow, area51,   area51,   ROT0, "Atari Games", "Area 51 (R3000)", 0 )
 GAME( 1995, area51t,  area51,   cojag68k,  area51,   area51a,  ROT0, "Time Warner", "Area 51 (Time Warner License)", 0 )
 GAME( 1995, area51a,  area51,   cojag68k,  area51,   area51a,  ROT0, "Atari Games", "Area 51 (Atari Games License)", 0 )
+GAME( 1995, fishfren, 0,        cojagr3k_rom, fishfren, fishfren, ROT0, "Time Warner Interactive", "Fishin' Frenzy (prototype)", 0 )
+GAME( 1996, freezeat, 0,        cojagr3k_rom, freezeat, freezeat, ROT0, "Atari Games", "Freeze (Atari) (prototype, English voice, 96/10/25)", 0 )
 GAME( 1996, maxforce, 0,        r3knarrow, area51,   maxforce, ROT0, "Atari Games", "Maximum Force v1.05", 0 )
 GAME( 1996, maxf_102, maxforce, r3knarrow, area51,   maxforce, ROT0, "Atari Games", "Maximum Force v1.02", 0 )
 GAME( 1998, area51mx, 0,        cojag68k,  area51,   area51mx, ROT0, "Atari Games", "Area 51 / Maximum Force Duo v2.0", 0 )
