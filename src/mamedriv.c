@@ -5583,6 +5583,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( bullfgts )	/* (c) 1984 Alpha Denshi Co./Sega */
 	DRIVER( kouyakyu )	/* (c) 1985 Alpha Denshi Co. */
 	DRIVER( splndrbt )	/* (c) 1985 Alpha Denshi Co. */
+	DRIVER( splndrbt2 )	/* (c) 1985 Alpha Denshi Co. */
 	DRIVER( hvoltage )	/* (c) 1985 Alpha Denshi Co. */
 
 	/* SNK / Alpha 68K games */

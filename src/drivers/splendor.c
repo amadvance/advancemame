@@ -1,0 +1,485 @@
+// license:BSD-3-Clause
+// copyright-holders:Acho A. Tang, Nicola Salmoria, hap
+/*******************************************************************************
+
+Splendor Blast    (c) 1985 Alpha Denshi Co.
+Splendor Blast II (c) 1985 Alpha Denshi Co.
+High Voltage      (c) 1985 Alpha Denshi Co.
+
+Driver by Acho A. Tang, Nicola Salmoria
+
+*******************************************************************************/
+
+#include "driver.h"
+#include "includes/alpha8303.h"
+
+#define EASY_TEST_MODE 1
+
+extern void equites_8404init(void);
+extern UINT16 *equites_workram;
+extern int equites_id;
+int splndrbt_flip;
+
+/* Leave headroom for simultaneous tone generators and sample DACs. */
+#define EQUITES_ADD_SOUNDBOARD7 \
+	MDRV_CPU_ADD(8085A, 5000000) \
+	 \
+	MDRV_CPU_PROGRAM_MAP(equites_s_readmem, equites_s_writemem) \
+	MDRV_CPU_IO_MAP(0, equites_s_writeport) \
+	MDRV_CPU_PERIODIC_INT(nmi_line_pulse, TIME_IN_HZ(4000)) \
+	MDRV_SPEAKER_STANDARD_MONO("mono") \
+	\
+	MDRV_SOUND_ADD(MSM5232, 2500000) \
+	MDRV_SOUND_CONFIG(equites_5232intf) \
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60) \
+	\
+	MDRV_SOUND_ADD(AY8910, 6144444/4) \
+	MDRV_SOUND_CONFIG(equites_8910intf) \
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40) \
+	\
+	MDRV_SOUND_ADD(DAC, 0) \
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60) \
+	\
+	MDRV_SOUND_ADD(DAC, 0) \
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60) \
+
+extern WRITE8_HANDLER(equites_5232_w);
+extern WRITE8_HANDLER(equites_8910control_w);
+extern WRITE8_HANDLER(equites_8910data_w);
+extern WRITE8_HANDLER(equites_dac0_w);
+extern WRITE8_HANDLER(equites_dac1_w);
+
+extern UINT16 *equites_8404ram;
+extern struct MSM5232interface equites_5232intf;
+extern struct AY8910interface equites_8910intf;
+
+static ADDRESS_MAP_START( equites_s_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc000) AM_READ(soundlatch_r)
+	AM_RANGE(0xe000, 0xe0ff) AM_READ(MRA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( equites_s_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc080, 0xc08d) AM_WRITE(equites_5232_w)
+	AM_RANGE(0xc0a0, 0xc0a0) AM_WRITE(equites_8910data_w)
+	AM_RANGE(0xc0a1, 0xc0a1) AM_WRITE(equites_8910control_w)
+	AM_RANGE(0xc0b0, 0xc0b0) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xc0c0, 0xc0c0) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xc0d0, 0xc0d0) AM_WRITE(equites_dac0_w)
+	AM_RANGE(0xc0e0, 0xc0e0) AM_WRITE(equites_dac1_w)
+	AM_RANGE(0xc0f8, 0xc0fe) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xc0ff, 0xc0ff) AM_WRITE(soundlatch_clear_w)
+	AM_RANGE(0xe000, 0xe0ff) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( equites_s_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00e0, 0x00e5) AM_WRITE(MWA8_NOP)
+ADDRESS_MAP_END
+
+extern MACHINE_RESET( splndrbt );
+extern PALETTE_INIT( splndrbt );
+extern VIDEO_START( splndrbt );
+extern VIDEO_UPDATE( splndrbt );
+extern READ16_HANDLER(splndrbt_bankedchar_r);
+extern WRITE16_HANDLER(splndrbt_charram_w);
+extern WRITE16_HANDLER(splndrbt_bankedchar_w);
+extern WRITE16_HANDLER(splndrbt_selchar0_w);
+extern WRITE16_HANDLER(splndrbt_selchar1_w);
+extern WRITE16_HANDLER(splndrbt_scrollram_w);
+extern WRITE16_HANDLER(splndrbt_bgcolor_w);
+extern UINT16 *splndrbt_scrollx, *splndrbt_scrolly;
+
+static INTERRUPT_GEN( splndrbt_interrupt )
+{
+	if (cpu_getiloops())
+		cpunum_set_input_line(0, 2, HOLD_LINE);
+	else
+		cpunum_set_input_line(0, 1, HOLD_LINE);
+}
+
+static WRITE16_HANDLER( splendor_control_w )
+{
+	int index = (offset >> 13) & 7;
+	int state = (offset >> 16) & 1;
+	if (index == 0 && ACCESSING_MSB) splndrbt_bgcolor_w(0, data, mem_mask);
+	if (!ACCESSING_LSB) return;
+	switch (index)
+	{
+	case 0: splndrbt_flip = state; break;
+	case 1: alpha8303_start(state); break;
+	case 2:
+		/* The address latch selects bus ownership independently of GO. */
+		alpha8303_bus_dir(!state);
+		break;
+	case 3:
+		if (state) splndrbt_selchar1_w(0, data, mem_mask);
+		else splndrbt_selchar0_w(0, data, mem_mask);
+		break;
+	}
+}
+
+static MACHINE_RESET( splendor )
+{
+	machine_reset_splndrbt();
+	splndrbt_flip = 0;
+	alpha8303_reset();
+}
+
+static ADDRESS_MAP_START( splndrbt_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x00ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x040000, 0x040fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x0c0000, 0x0c0001) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x100000, 0x100001) AM_READ(MRA16_RAM)
+	AM_RANGE(0x1c0000, 0x1c0001) AM_READ(MRA16_RAM)
+	AM_RANGE(0x180000, 0x1807ff) AM_READ(alpha8303_ram_r)
+	AM_RANGE(0x200000, 0x200fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x201000, 0x201fff) AM_READ(splndrbt_bankedchar_r)
+	AM_RANGE(0x400000, 0x400fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x600000, 0x6001ff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( splndrbt_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x00ffff) AM_WRITE(MWA16_NOP)
+	AM_RANGE(0x040000, 0x040fff) AM_WRITE(MWA16_RAM) AM_BASE(&equites_workram)
+	AM_RANGE(0x0c0000, 0x0fffff) AM_WRITE(splendor_control_w)
+	AM_RANGE(0x100000, 0x100001) AM_WRITE(MWA16_RAM) AM_BASE(&splndrbt_scrollx)
+	AM_RANGE(0x140000, 0x140001) AM_WRITE(soundlatch_word_w)
+	AM_RANGE(0x1c0000, 0x1c0001) AM_WRITE(MWA16_RAM) AM_BASE(&splndrbt_scrolly)
+	AM_RANGE(0x180000, 0x1807ff) AM_WRITE(alpha8303_ram_w)
+	AM_RANGE(0x200000, 0x200fff) AM_WRITE(splndrbt_charram_w) AM_BASE(&videoram16) AM_SIZE(&videoram_size)
+	AM_RANGE(0x201000, 0x201fff) AM_WRITE(splndrbt_bankedchar_w)
+	AM_RANGE(0x400000, 0x400fff) AM_WRITE(splndrbt_scrollram_w) AM_BASE(&spriteram16_2)
+	AM_RANGE(0x600000, 0x6001ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+ADDRESS_MAP_END
+
+#define EQUITES_PLAYER_INPUT_LSB( button1, button2, button3, start ) \
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY \
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY \
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY \
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY \
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, button1 ) \
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, button2 ) \
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, button3 ) \
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, start )
+
+#define EQUITES_PLAYER_INPUT_MSB( button1, button2, button3, start ) \
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_COCKTAIL \
+	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_COCKTAIL \
+	PORT_BIT( 0x0400, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_COCKTAIL \
+	PORT_BIT( 0x0800, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_COCKTAIL \
+	PORT_BIT( 0x1000, IP_ACTIVE_HIGH, button1 ) PORT_COCKTAIL \
+	PORT_BIT( 0x2000, IP_ACTIVE_HIGH, button2 ) PORT_COCKTAIL \
+	PORT_BIT( 0x4000, IP_ACTIVE_HIGH, button3 ) PORT_COCKTAIL \
+	PORT_BIT( 0x8000, IP_ACTIVE_HIGH, start )
+
+INPUT_PORTS_START( splndrbt )
+	PORT_START
+	EQUITES_PLAYER_INPUT_LSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START1 )
+	EQUITES_PLAYER_INPUT_MSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START2 )
+
+	PORT_START
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_COIN2 )
+#if EASY_TEST_MODE
+	PORT_SERVICE( 0x0300, IP_ACTIVE_HIGH )
+#endif
+	PORT_DIPNAME( 0x0c00, 0x0000, DEF_STR ( Difficulty ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0c00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x1000, 0x0000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Upright ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0xc000, 0x0000, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0xc000, "A 2C/1C B 3C/1C" )
+	PORT_DIPSETTING(      0x0000, "A 1C/1C B 2C/1C" )
+	PORT_DIPSETTING(      0x4000, "A 1C/2C B 1C/4C" )
+	PORT_DIPSETTING(      0x8000, "A 1C/3C B 1C/6C" )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( hvoltage )
+	PORT_START
+	EQUITES_PLAYER_INPUT_LSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START1 )
+	EQUITES_PLAYER_INPUT_MSB( IPT_BUTTON1, IPT_BUTTON2, IPT_UNKNOWN, IPT_START2 )
+
+	PORT_START
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_COIN2 )
+#if EASY_TEST_MODE
+	PORT_SERVICE( 0x0300, IP_ACTIVE_HIGH )
+#endif
+	PORT_DIPNAME( 0x0c00, 0x0000, DEF_STR ( Difficulty ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0c00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x1000, 0x0000, DEF_STR ( Lives ) )
+	PORT_DIPSETTING(      0x0000, "3" )
+	PORT_DIPSETTING(      0x1000, "5" )
+	PORT_DIPNAME( 0x2000, 0x0000, DEF_STR ( Bonus_Life ) )
+	PORT_DIPSETTING(      0x0000, "50k, 100k then every 100k" )
+	PORT_DIPSETTING(      0x2000, "50k, 200k then every 100k" )
+	PORT_DIPNAME( 0xc000, 0x0000, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0xc000, "A 2C/1C B 3C/1C" )
+	PORT_DIPSETTING(      0x0000, "A 1C/1C B 2C/1C" )
+	PORT_DIPSETTING(      0x4000, "A 1C/2C B 1C/4C" )
+	PORT_DIPSETTING(      0x8000, "A 1C/3C B 1C/6C" )
+
+INPUT_PORTS_END
+
+static const gfx_layout sp_charlayout =
+{
+	8, 8,
+	512,
+	2,
+	{ 0, 4 },
+	{ 8*8+3, 8*8+2, 8*8+1, 8*8, 3, 2, 1, 0 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+	16*8
+};
+
+static const gfx_layout sp_tilelayout =
+{
+	16,16,
+	256,
+	2,
+	{ 0, 4 },
+	{
+	  16*8+3, 16*8+2, 16*8+1, 16*8+0,
+	  32*8+3, 32*8+2, 32*8+1, 32*8+0,
+	  48*8+3, 48*8+2, 48*8+1, 48*8+0,
+	       3,      2,      1,      0
+	},
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8, 10*8, 11*8, 12*8, 13*8, 14*8, 15*8 },
+	64*8
+};
+
+static const gfx_layout sp_spritelayout =
+{
+	32,32,
+	128,
+	3,
+	{ 0, 0x8000*8, 0x8000*8+4 },
+	{
+	  0*8+3, 0*8+2, 0*8+1, 0*8+0, 1*8+3, 1*8+2, 1*8+1, 1*8+0,
+	  2*8+3, 2*8+2, 2*8+1, 2*8+0, 3*8+3, 3*8+2, 3*8+1, 3*8+0,
+	  4*8+3, 4*8+2, 4*8+1, 4*8+0, 5*8+3, 5*8+2, 5*8+1, 5*8+0,
+	  6*8+3, 6*8+2, 6*8+1, 6*8+0, 7*8+3, 7*8+2, 7*8+1, 7*8+0
+	},
+	{
+	  0*8*8, 1*8*8, 2*8*8, 3*8*8, 4*8*8, 5*8*8, 6*8*8, 7*8*8,
+	  8*8*8, 9*8*8,10*8*8,11*8*8,12*8*8,13*8*8,14*8*8,15*8*8,
+	 31*8*8,30*8*8,29*8*8,28*8*8,27*8*8,26*8*8,25*8*8,24*8*8,
+	 23*8*8,22*8*8,21*8*8,20*8*8,19*8*8,18*8*8,17*8*8,16*8*8
+	},
+	8*32*8
+};
+
+static const gfx_decode splndrbt_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &sp_charlayout,     0, 256/4 },
+	{ REGION_GFX2, 0, &sp_tilelayout,   256, 256/4 },
+	{ REGION_GFX3, 0, &sp_tilelayout,   256, 256/4 },
+	{ REGION_GFX4, 0, &sp_spritelayout, 512, 256/8 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( splndrbt )
+
+	MDRV_CPU_ADD(M68000, 12000000/2)
+	MDRV_CPU_PROGRAM_MAP(splndrbt_readmem, splndrbt_writemem)
+	MDRV_CPU_VBLANK_INT(splndrbt_interrupt, 2)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(600)
+	MDRV_MACHINE_RESET(splendor)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 256-1, 64, 256-1)
+	MDRV_PALETTE_LENGTH(256)
+	MDRV_COLORTABLE_LENGTH(1536)
+	MDRV_GFXDECODE(splndrbt_gfxdecodeinfo)
+
+	MDRV_PALETTE_INIT(splndrbt)
+	MDRV_VIDEO_START(splndrbt)
+	MDRV_VIDEO_UPDATE(splndrbt)
+
+	EQUITES_ADD_SOUNDBOARD7
+
+MACHINE_DRIVER_END
+
+ROM_START( splndrbt )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "1.16a", 0x00001, 0x4000, CRC(4bf4b047) SHA1(ef0efffa2f49905e17e4ed3a03cac419793b26d1) )
+	ROM_LOAD16_BYTE( "2.16c", 0x00000, 0x4000, CRC(27acb656) SHA1(5f2f8d05f2f1c6c92c8364e9e6831ca525cbacd0) )
+	ROM_LOAD16_BYTE( "3.15a", 0x08001, 0x4000, CRC(5b182189) SHA1(50ebb1fddcb6838442e8a20261f200f3386ce8a8) )
+	ROM_LOAD16_BYTE( "4.15c", 0x08000, 0x4000, CRC(cde99613) SHA1(250b59f75eee84442da3cc7c599d1e16f0294df9) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "1_v.1m", 0x00000, 0x2000, CRC(1b3a6e42) SHA1(41a4f0503c939ec0a739c8bc6bf3c8fc354912ee) )
+	ROM_LOAD( "2_v.1l", 0x02000, 0x2000, CRC(2a618c72) SHA1(6ad459d94352c317150ae6344d4db9bb613938dd) )
+	ROM_LOAD( "3_v.1k", 0x04000, 0x2000, CRC(bbee5346) SHA1(753cb784b04f081fa1f8590dc28056d9918f313b) )
+	ROM_LOAD( "4_v.1h", 0x06000, 0x2000, CRC(10f45af4) SHA1(00fa599bad8bf3ba6deee54165f381403096e8f9) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "10.8c",  0x00000, 0x2000, CRC(501887d4) SHA1(3cf4401d6fddff1500066219a71ac3b30ecbdd28) )
+
+	ROM_REGION( 0x4000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "8.14m",  0x00000, 0x4000, CRC(c2c86621) SHA1(a715c70ace98502f2c0d4a81539cd79d19e9b6c4) )
+
+	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "9.12m",  0x00000, 0x4000, CRC(4f7da6ff) SHA1(0516271df4a36d6ea38d1b8a5e471e1d2a79e8c1) )
+
+	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD_NIB_HIGH( "6.18n", 0x00000, 0x2000, CRC(aa72237f) SHA1(0a26746a6c448a7fb853ef708e2bdeb76edd99cf) )
+	ROM_CONTINUE     (          0x04000, 0x2000 )
+	ROM_LOAD         ( "6.18n", 0x02000, 0x2000, CRC(aa72237f) SHA1(0a26746a6c448a7fb853ef708e2bdeb76edd99cf) )
+	ROM_CONTINUE     (          0x06000, 0x2000 )
+	ROM_LOAD         ( "5.18m", 0x08000, 0x4000, CRC(5f618b39) SHA1(2891067e71b8e1183ee5741487faa1561316cade) )
+	ROM_LOAD         ( "7.17m", 0x0c000, 0x4000, CRC(abdd8483) SHA1(df8c8338c24fa487c49b01ce26db7eb28c8c6b85) )
+
+	ROM_REGION( 0x0300, REGION_PROMS, 0 )
+	ROM_LOAD( "r.3a",   0x00000, 0x100, CRC(ca1f08ce) SHA1(e46e2850d3ee3c8cbb23c10645f07d406c7ff50b) )
+	ROM_LOAD( "g.1a",   0x00100, 0x100, CRC(66f89177) SHA1(caa51c1bf071764d5089487342794cbf023136c0) )
+	ROM_LOAD( "b.2a",   0x00200, 0x100, CRC(d14318bc) SHA1(e219963b3e40eb246e608fbe10daa85dbb4c1226) )
+
+	ROM_REGION( 0x0500, REGION_USER1, 0 )
+	ROM_LOAD( "2.8k",   0x00000, 0x100, CRC(e1770ad3) SHA1(e408b175b8fff934e07b0ded1ee21d7f91a9523d) )
+	ROM_LOAD( "s5.15p", 0x00100, 0x100, CRC(7f6cf709) SHA1(5938faf937b682dcc83e53444cbf5e0bd7741363) )
+	ROM_LOAD( "s3.8l",  0x00200, 0x100, CRC(1314b0b5) SHA1(31ef4b916110581390afc1ba90c5dca7c08c619f) )
+	ROM_LOAD( "1.9j",   0x00300, 0x100, CRC(f5b9b777) SHA1(a4ec731be77306db6baf319391c4fe78517fe43e) )
+	ROM_LOAD( "4.7m",   0x00400, 0x100, CRC(12cbcd2c) SHA1(a7946820bbf3f7e110a328b673123988af97ce7e) )
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 )
+	ROM_LOAD( "0.8h",   0x00000, 0x2000, CRC(12681fb5) SHA1(7a0930819d4cd00475d1897128daa6ac865e07d0) )
+
+	ROM_REGION( 0x0020, REGION_USER3, 0 )
+	ROM_LOAD( "3h.bpr", 0x00000, 0x020, CRC(33b98466) SHA1(017c73cf8c17dc5047c89316ae5b45f8d22092e8) )
+	ROM_REGION( 0x2000, REGION_USER4, 0 )
+	ROM_LOAD( "alpha-8303_44801b42.bin", 0, 0x2000, CRC(66adcb37) SHA1(e1c72ecb161129dcbddc0b16dd90e716d0c79311) )
+ROM_END
+
+ROM_START( splndrbt2 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "1.a16", 0x00001, 0x4000, CRC(0fd3121d) SHA1(f9767af477442a09a70c04e4d427914557fddcd9) )
+	ROM_LOAD16_BYTE( "2.c16", 0x00000, 0x4000, CRC(227d8a1b) SHA1(8ce976e6d3dce1236a784e48f4829f42c801249c) )
+	ROM_LOAD16_BYTE( "3.a15", 0x08001, 0x4000, CRC(936f7cc9) SHA1(ef1601097659700f4a4b53fb57cd6d73efa03e0d) )
+	ROM_LOAD16_BYTE( "4.c15", 0x08000, 0x4000, CRC(3ff7c7b5) SHA1(4997efd4427f09a5427f752d0147b648fbdce252) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "s1.m1", 0x00000, 0x2000, CRC(045eac1b) SHA1(49ecc73b999719e470b2ef0afee6a84df620e0d9) )
+	ROM_LOAD( "s2.l1", 0x02000, 0x2000, CRC(65a3d094) SHA1(f6415eb323478a2d38acd4507404d9530fac77c4) )
+	ROM_LOAD( "s3.k1", 0x04000, 0x2000, CRC(980d38be) SHA1(c07f9851cfb6352781568f333d931b4ca08fd888) )
+	ROM_LOAD( "s4.h1", 0x06000, 0x2000, CRC(10f45af4) SHA1(00fa599bad8bf3ba6deee54165f381403096e8f9) )
+
+	ROM_LOAD( "s5.f1", 0x08000, 0x02000, CRC(0d76cac0) SHA1(15d0d5860035f06020589115b40d347c06d7ecbe) )
+	ROM_LOAD( "s6.e1", 0x0a000, 0x02000, CRC(bc65d469) SHA1(45145974d3ae7040fd00c776418702166c06b0dc) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "5.b8",  0x00000, 0x2000, CRC(77a5dc55) SHA1(49f19e8816629b661c135b0db6f6e087eb2690ff) )
+
+	ROM_REGION( 0x4000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "8.m13",  0x00000, 0x4000, CRC(c2c86621) SHA1(a715c70ace98502f2c0d4a81539cd79d19e9b6c4) )
+
+	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "9.m12",  0x00000, 0x4000, CRC(4f7da6ff) SHA1(0516271df4a36d6ea38d1b8a5e471e1d2a79e8c1) )
+
+	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD_NIB_HIGH( "8.n18", 0x00000, 0x2000, CRC(15b8277b) SHA1(36d80e9c1200f587cafdf43fafafe844d56296aa) )
+	ROM_CONTINUE     (          0x04000, 0x2000 )
+	ROM_LOAD         ( "8.n18", 0x02000, 0x2000, CRC(15b8277b) SHA1(36d80e9c1200f587cafdf43fafafe844d56296aa) )
+	ROM_CONTINUE     (          0x06000, 0x2000 )
+	ROM_LOAD         ( "5.m18", 0x08000, 0x4000, CRC(5f618b39) SHA1(2891067e71b8e1183ee5741487faa1561316cade) )
+	ROM_LOAD         ( "7.m17", 0x0c000, 0x4000, CRC(abdd8483) SHA1(df8c8338c24fa487c49b01ce26db7eb28c8c6b85) )
+
+	ROM_REGION( 0x0300, REGION_PROMS, 0 )
+	ROM_LOAD( "r.3a",   0x00000, 0x100, CRC(ca1f08ce) SHA1(e46e2850d3ee3c8cbb23c10645f07d406c7ff50b) )
+	ROM_LOAD( "g.1a",   0x00100, 0x100, CRC(66f89177) SHA1(caa51c1bf071764d5089487342794cbf023136c0) )
+	ROM_LOAD( "b.2a",   0x00200, 0x100, CRC(d14318bc) SHA1(e219963b3e40eb246e608fbe10daa85dbb4c1226) )
+
+	ROM_REGION( 0x0500, REGION_USER1, 0 )
+	ROM_LOAD( "2.8k",   0x00000, 0x100, CRC(e1770ad3) SHA1(e408b175b8fff934e07b0ded1ee21d7f91a9523d) )
+	ROM_LOAD( "s5.15p", 0x00100, 0x100, CRC(7f6cf709) SHA1(5938faf937b682dcc83e53444cbf5e0bd7741363) )
+	ROM_LOAD( "s3.8l",  0x00200, 0x100, CRC(1314b0b5) SHA1(31ef4b916110581390afc1ba90c5dca7c08c619f) )
+	ROM_LOAD( "1.9j",   0x00300, 0x100, CRC(f5b9b777) SHA1(a4ec731be77306db6baf319391c4fe78517fe43e) )
+	ROM_LOAD( "4.7m",   0x00400, 0x100, CRC(12cbcd2c) SHA1(a7946820bbf3f7e110a328b673123988af97ce7e) )
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 )
+	ROM_LOAD( "0.h7",   0x00000, 0x2000, CRC(12681fb5) SHA1(7a0930819d4cd00475d1897128daa6ac865e07d0) )
+
+	ROM_REGION( 0x0020, REGION_USER3, 0 )
+	ROM_LOAD( "3h.bpr", 0x00000, 0x020, CRC(33b98466) SHA1(017c73cf8c17dc5047c89316ae5b45f8d22092e8) )
+	ROM_REGION( 0x2000, REGION_USER4, 0 )
+	ROM_LOAD( "alpha-8303_44801b42.bin", 0, 0x2000, CRC(66adcb37) SHA1(e1c72ecb161129dcbddc0b16dd90e716d0c79311) )
+ROM_END
+
+ROM_START( hvoltage )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "1.16a", 0x00001, 0x4000, CRC(82606e3b) SHA1(25c3172928d8f1eda2c4c757d505fdfd91f21ea1) )
+	ROM_LOAD16_BYTE( "2.16c", 0x00000, 0x4000, CRC(1d74fef2) SHA1(3df3dc98a78a137da8c5cddf6a8519b477824fb9) )
+	ROM_LOAD16_BYTE( "3.15a", 0x08001, 0x4000, CRC(677abe14) SHA1(78b343122f9ad187c823bf49e8f001288c762586) )
+	ROM_LOAD16_BYTE( "4.15c", 0x08000, 0x4000, CRC(8aab5a20) SHA1(fb90817173ad69c0e00d03814b4e10b18955c07e) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "5_v.1l", 0x00000, 0x4000, CRC(ed9bb6ea) SHA1(73b0251b86835368ec2a4e98a5f61e28e58fd234) )
+	ROM_LOAD( "6_v.1h", 0x04000, 0x4000, CRC(e9542211) SHA1(482f2c90e842fe5cc31cc6a39025adf65ba47ce9) )
+	ROM_LOAD( "7_v.1e", 0x08000, 0x4000, CRC(44d38554) SHA1(6765971376eafa218fda1accb1e173a7c1850cc8) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "5.8c",   0x00000, 0x2000, CRC(656d53cd) SHA1(9971ed7e7da0e8bf46e97e8f75a2c2201b33fc2f) )
+
+	ROM_REGION( 0x4000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "9.14m",  0x00000, 0x4000, CRC(506a0989) SHA1(0e7f2c9bab5e83f06a8148f69d8d0cbfe7d55c5e) )
+
+	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "10.12m", 0x00000, 0x4000, CRC(98f87d4f) SHA1(94a7a14b0905597993595b347102436d97fc1dc9) )
+
+	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD_NIB_HIGH( "8.18n", 0x00000, 0x2000, CRC(725acae5) SHA1(ba54598a087f8bb5fa7182b0e85d0e038003e622) )
+	ROM_CONTINUE     (          0x04000, 0x2000 )
+	ROM_LOAD         ( "8.18n", 0x02000, 0x2000, CRC(725acae5) SHA1(ba54598a087f8bb5fa7182b0e85d0e038003e622) )
+	ROM_CONTINUE     (          0x06000, 0x2000 )
+	ROM_LOAD         ( "6.18m", 0x08000, 0x4000, CRC(9baf2c68) SHA1(208e5ac8eb157d4bf949ab4330827da032a04235) )
+	ROM_LOAD         ( "7.17m", 0x0c000, 0x4000, CRC(12d25fb1) SHA1(99f5d68bd6d6ee5f2acb7685aceacfb0894c4961) )
+
+	ROM_REGION( 0x0300, REGION_PROMS, 0 )
+	ROM_LOAD( "r.3a",   0x00000, 0x100, CRC(98eccbf6) SHA1(a55755e8388d3edf3020b1129a638fe1e99362b6) )
+	ROM_LOAD( "g.1a",   0x00100, 0x100, CRC(fab2ed23) SHA1(6f63b6a3196dda76eb9a885b17d886a14365f922) )
+	ROM_LOAD( "b.2a",   0x00200, 0x100, CRC(7274961b) SHA1(d13070060e216d633675a528cf0dc3de94c95ffb) )
+
+	ROM_REGION( 0x0500, REGION_USER1, 0 )
+	ROM_LOAD( "2.8k",   0x00000, 0x100, CRC(685f4e44) SHA1(110cb8f5a37f22ce9d391bd0cd46dcbb8fcf66b8) )
+	ROM_LOAD( "s5.15p", 0x00100, 0x100, CRC(b09bcc73) SHA1(f8139feaa9563324b69aeac5c17beccfdbfa0864) )
+	ROM_LOAD( "3.8l",   0x00200, 0x100, CRC(1314b0b5) SHA1(31ef4b916110581390afc1ba90c5dca7c08c619f) )
+	ROM_LOAD( "1.9j",   0x00300, 0x100, CRC(f5b9b777) SHA1(a4ec731be77306db6baf319391c4fe78517fe43e) )
+	ROM_LOAD( "4.7m",   0x00400, 0x100, CRC(12cbcd2c) SHA1(a7946820bbf3f7e110a328b673123988af97ce7e) )
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 )
+	ROM_LOAD( "0.8h",   0x00000, 0x2000, CRC(12681fb5) SHA1(7a0930819d4cd00475d1897128daa6ac865e07d0) )
+
+	ROM_REGION( 0x0020, REGION_USER3, 0 )
+	ROM_LOAD( "3h.bpr", 0x00000, 0x020, CRC(33b98466) SHA1(017c73cf8c17dc5047c89316ae5b45f8d22092e8) )
+	ROM_REGION( 0x2000, REGION_USER4, 0 )
+	ROM_LOAD( "alpha-8505_44801c57.bin", 0, 0x2000, BAD_DUMP CRC(1f5a1405) SHA1(23f2e23db402f88037a5cbdab2935ec1b9a05298) )
+ROM_END
+
+static void splendor_init(int id)
+{
+	equites_id = id;
+	equites_8404init();
+	alpha8303_init(REGION_USER4);
+}
+
+static DRIVER_INIT( splndrbt ) { splendor_init(0x8510); }
+static DRIVER_INIT( hvoltage ) { splendor_init(0x8511); }
+
+GAME( 1985, splndrbt, 0, splndrbt, splndrbt, splndrbt, ROT0, "Alpha Denshi Co.", "Splendor Blast", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
+GAME( 1985, splndrbt2, 0, splndrbt, splndrbt, splndrbt, ROT0, "Alpha Denshi Co.", "Splendor Blast II", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
+GAME( 1985, hvoltage, 0, splndrbt, hvoltage, hvoltage, ROT0, "Alpha Denshi Co.", "High Voltage", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
