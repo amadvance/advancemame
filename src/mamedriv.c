@@ -4880,6 +4880,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( bullsdrt )	/* (c) 1985 Shinkai */
 
 	/* misc Atari games */
+	DRIVER( cybstorm )
 	DRIVER( akkaarrh )
 	DRIVER( laststar )
 	DRIVER( airrace )
