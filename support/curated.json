@@ -1,0 +1,1093 @@
+{
+  "schema_version": 1,
+  "games": [
+    {
+      "shortnames": [
+        "19yy"
+      ],
+      "title": "19YY",
+      "category": "homebrew",
+      "description": "19YY is a vertical-scrolling shoot-'em-up developed by Ichikyu Wai Wai, EKORZ, and Elrayzeur for the Neo Geo MVS platform in 2022. Inspired by classic 1940s-style military arcade shooters, players pilot a twin-propeller fighter aircraft across ocean and air stages, shooting down waves of enemy planes and bosses while collecting power-ups and deploying screen-clearing bombs.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "akatana"
+      ],
+      "title": "Akai Katana",
+      "category": "original",
+      "description": "Akai Katana is a horizontal-scrolling bullet-hell shoot-'em-up developed and published by Cave for the Cave CV1000-D arcade hardware in 2010. Set in a parallel Taisho-era Japan powered by a mystical mineral called Bloodstone, players choose between three fighter-pilot teams who can switch dynamically between a traditional Fighter craft and a giant phantom-warrior Soul form, altering their attack patterns, bullet-canceling mechanics, and katana-based scoring system."
+    },
+    {
+      "shortnames": [
+        "akatanaultd"
+      ],
+      "title": "Akai Katana Unlimited",
+      "category": "hack",
+      "original_game": "akatana",
+      "parent_shortname": "akatana",
+      "hack_author": "IAmTheChuckster",
+      "hack_year": 2022,
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Removes the phantom Soul timer drain so players can remain in Soul form indefinitely and alters katana generation mechanics."
+        }
+      ],
+      "description": "Akai Katana Unlimited is a gameplay modification of Cave's 2010 horizontal shoot-'em-up Akai Katana created by IAmTheChuckster. It removes the time limit on the phantom Soul transformation, allowing players to stay in Soul form continuously and experiment freely with the katana-summoning and bullet-reflection mechanics."
+    },
+    {
+      "shortnames": [
+        "alphaona"
+      ],
+      "title": "Alpha One",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "mhavoc",
+      "parent_shortname": "mhavoc"
+    },
+    {
+      "shortnames": [
+        "aquario"
+      ],
+      "title": "Clockwork Aquario",
+      "category": "prototype",
+      "release_status": "prototype",
+      "description": "Clockwork Aquario is a two-player side-scrolling action platformer developed by Westone Bit Entertainment for the Sega System 18 arcade board. Originally planned for release in 1993, the project was cancelled after location testing and remained unreleased for nearly three decades before its prototype ROM was recovered and restored."
+    },
+    {
+      "shortnames": [
+        "batrid",
+        "batridc",
+        "batridj",
+        "batridja",
+        "batridk",
+        "batridta",
+        "batridu"
+      ],
+      "title": "Armed Police Batrider",
+      "category": "original",
+      "description": "Armed Police Batrider is a vertical-scrolling manic shoot-'em-up developed by Raizing and published by Eighting in 1998. Set in the futuristic crime-ridden island city of Gigantea, players assemble a three-character team from a large roster of Batrider pilots and guest characters from earlier Raizing titles such as Battle Garegga and Kingdom Grandprix, featuring dynamic rank control and dozens of hidden bosses."
+    },
+    {
+      "shortnames": [
+        "batugnsp"
+      ],
+      "title": "Batsugun (Special Ver.)",
+      "category": "original",
+      "original_game": "batsugun",
+      "parent_shortname": "batsugun",
+      "description": "Batsugun (Special Ver.) is an enhanced version of Toaplan's 1993 vertical-scrolling shoot-'em-up Batsugun. It introduces a smaller player hitbox, a protective shield when leveling up weapons, a reworked scoring system, and multiple loops with bullet-canceling mechanics that helped define the modern manic shooter genre."
+    },
+    {
+      "shortnames": [
+        "bkraidu",
+        "bkraidj",
+        "bkraiduj"
+      ],
+      "title": "Battle Bakraid - Unlimited Version",
+      "category": "original",
+      "original_game": "bbakraid",
+      "description": "Battle Bakraid - Unlimited Version is an updated release of Eighting's 1999 vertical-scrolling shoot-'em-up Battle Bakraid. Built around high-scoring chain multipliers and boss-rush style aerial combat, Unlimited Version expands the game beyond the original training and normal courses with an extended nine-stage Advanced Course."
+    },
+    {
+      "shortnames": [
+        "bktigerb"
+      ],
+      "title": "Black Tiger",
+      "category": "bootleg",
+      "original_game": "blktiger",
+      "parent_shortname": "blktiger"
+    },
+    {
+      "shortnames": [
+        "blkdrgnb"
+      ],
+      "title": "Black Dragon",
+      "category": "bootleg",
+      "original_game": "blktiger",
+      "parent_shortname": "blktiger"
+    },
+    {
+      "shortnames": [
+        "bpanicdx"
+      ],
+      "title": "Block Panic DX",
+      "category": "homebrew",
+      "description": "Block Panic DX is a fast-paced action puzzle game developed by Blastar for the Neo Geo MVS platform and released on January 1, 2025. Players clear and rearrange falling blocks under time pressure across single-player and competitive modes.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "btlfildb"
+      ],
+      "title": "Battle Field",
+      "category": "bootleg",
+      "original_game": "timesold",
+      "parent_shortname": "timesold"
+    },
+    {
+      "shortnames": [
+        "bublboblu"
+      ],
+      "title": "Bubble Bobble (Ultra Version)",
+      "category": "hack",
+      "original_game": "bublbobl",
+      "parent_shortname": "bublbobl",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Replaces stage layouts and enemy placements with redesigned levels."
+        }
+      ],
+      "description": "Bubble Bobble (Ultra Version) is a level and gameplay modification of Taito's 1986 arcade platformer Bubble Bobble, featuring redesigned single-screen stages and altered enemy arrangements.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "caravan"
+      ],
+      "title": "Project Neon Caravan Edition",
+      "category": "homebrew",
+      "release_status": "beta",
+      "description": "Project Neon Caravan Edition is a pre-alpha score-attack demo of the homebrew vertical-scrolling shoot-'em-up Project Neon developed by Team Fullset for the Neo Geo MVS in 2019. Designed in the tradition of classic caravan shooting competitions, it challenges players to achieve the highest possible score within a timed stage."
+    },
+    {
+      "shortnames": [
+        "cbarrel"
+      ],
+      "title": "Captain Barrel",
+      "category": "homebrew",
+      "description": "Captain Barrel is a homebrew arcade action game developed and published by Neo Byte Force Ltd for the Neo Geo MVS platform in 2024.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "cnbe2018"
+      ],
+      "title": "Codename: Blut Engel",
+      "category": "homebrew",
+      "original_game": "cnbe",
+      "description": "Codename: Blut Engel is a homebrew horizontal shoot-'em-up developed by Blastar for the Neo Geo MVS platform, represented here by its September 5, 2018 revision.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "columnsn",
+        "columnsncd"
+      ],
+      "title": "Columns",
+      "category": "homebrew",
+      "original_game": "columns",
+      "description": "Columns is an unofficial homebrew adaptation of Sega's tile-matching puzzle game created by Jeff Kurtz for the Neo Geo platform, where players align falling vertical triplets of colored jewels horizontally, vertically, or diagonally."
+    },
+    {
+      "shortnames": [
+        "cotton2e"
+      ],
+      "title": "Cotton 2 (English translation)",
+      "category": "hack",
+      "original_game": "cotton2",
+      "parent_shortname": "cotton2",
+      "hack_author": "Zanac",
+      "modifications": [
+        {
+          "type": "translation",
+          "description": "Translates the attract-mode prologue, character profiles, stage-continue hints, all story dialogue scenes (VS0-VS6), ending sequence (VS7), and staff roll into English."
+        }
+      ],
+      "description": "Cotton 2 (English translation) is an English localization patch by Zanac (with help from Katrin and Danthrax) for Success's 1997 Sega ST-V cute-'em-up Cotton 2: Magical Night Dreams. Adapting the script and graphics from the Sega Saturn fan translation to native ST-V arcade hardware, it translates the attract-mode prologue scroll, character profiles, continue-screen hints across all seven stages, in-game story cutscenes, and the ending credits into English while preserving original arcade gameplay timing."
+    },
+    {
+      "shortnames": [
+        "crmaze"
+      ],
+      "title": "The Crystal Maze: Team Challenge",
+      "category": "original"
+    },
+    {
+      "shortnames": [
+        "crmazea"
+      ],
+      "title": "The Crystal Maze",
+      "category": "clone",
+      "original_game": "crmaze",
+      "parent_shortname": "crmaze"
+    },
+    {
+      "shortnames": [
+        "crmazeb"
+      ],
+      "title": "The Crystal Maze - Now Featuring Ocean Zone",
+      "category": "clone",
+      "original_game": "crmaze",
+      "parent_shortname": "crmaze"
+    },
+    {
+      "shortnames": [
+        "cyberb21",
+        "cyberb22",
+        "cyberb23",
+        "cyberb2p"
+      ],
+      "title": "Cyberball 2072",
+      "category": "clone",
+      "original_game": "cyberbal",
+      "parent_shortname": "cyberbal"
+    },
+    {
+      "shortnames": [
+        "cyberbap"
+      ],
+      "title": "Cyberball",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "cyberbal",
+      "parent_shortname": "cyberbal"
+    },
+    {
+      "shortnames": [
+        "cyberbt",
+        "cyberbt1"
+      ],
+      "title": "Tournament Cyberball 2072",
+      "category": "clone",
+      "original_game": "cyberbal",
+      "parent_shortname": "cyberbal"
+    },
+    {
+      "shortnames": [
+        "cyborg"
+      ],
+      "title": "Cyborg Force",
+      "category": "homebrew",
+      "description": "Cyborg Force is a homebrew run-and-gun action game developed and published by Neo Byte Force for the Neo Geo MVS platform in 2023.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "ddp3blk"
+      ],
+      "title": "DoDonPachi Dai-Ou-Jou (Black Label)",
+      "category": "original",
+      "original_game": "ddp3",
+      "parent_shortname": "ddp3",
+      "description": "DoDonPachi Dai-Ou-Jou (Black Label) is Cave's updated 2002 edition of the vertical bullet-hell shoot-'em-up DoDonPachi Dai-Ou-Jou on PolyGame Master (PGM) hardware. It allows players to choose between a single-loop (1-ALL) or two-loop (2-ALL) game at the start, lets Hyper items carry over across lives, and adjusts rank progression and scoring balance."
+    },
+    {
+      "shortnames": [
+        "ddpsdoj",
+        "ddpsdojo"
+      ],
+      "title": "DoDonPachi SaiDaiOuJou",
+      "category": "original",
+      "description": "DoDonPachi SaiDaiOuJou is a vertical-scrolling bullet-hell shoot-'em-up developed and published by Cave for the Cave CV1000-D arcade platform in 2012. As the final arcade installment in the DoDonPachi series, it features three playable Element Dolls with customizable Shot, Laser, and Expert outfits, a Hyper Overflow system that increases both firepower and enemy bullet density, and five stages culminating in the true final boss Hibachi."
+    },
+    {
+      "shortnames": [
+        "deathsml01"
+      ],
+      "title": "Deathsmiles (Hidden Elements Full Open + Character Enhancement)",
+      "category": "hack",
+      "original_game": "deathsml",
+      "parent_shortname": "deathsml",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Unlocks hidden stage routes and boss content by default and enhances player character attack capabilities."
+        }
+      ],
+      "description": "Deathsmiles (Hidden Elements Full Open + Character Enhancement) is a modified version of Cave's 2007 horizontal gothic shoot-'em-up Deathsmiles on Cave CV1000 hardware, unlocking secret elements and boosting character firepower.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "dogosokj"
+      ],
+      "title": "Dogou Souken",
+      "category": "hack",
+      "original_game": "victroad",
+      "parent_shortname": "victroad",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adapts the rotary/positional control scheme for standard 8-way joystick input."
+        }
+      ]
+    },
+    {
+      "shortnames": [
+        "doubled1"
+      ],
+      "title": "Double Dragon One",
+      "category": "homebrew",
+      "release_status": "beta",
+      "original_game": "ddragon",
+      "description": "Double Dragon One is a homebrew side-scrolling beat-'em-up adaptation for the Neo Geo MVS developed by La Casa De Ruivo and Neo Byte Force in 2025.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "downtowj"
+      ],
+      "title": "DownTown",
+      "category": "hack",
+      "original_game": "downtown",
+      "parent_shortname": "downtown",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adapts the rotary/positional control scheme for standard 8-way joystick input."
+        }
+      ]
+    },
+    {
+      "shortnames": [
+        "downtowp"
+      ],
+      "title": "DownTown",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "downtown",
+      "parent_shortname": "downtown"
+    },
+    {
+      "shortnames": [
+        "eggvntdx"
+      ],
+      "title": "Egg Venture Deluxe",
+      "category": "clone",
+      "original_game": "eggventr",
+      "parent_shortname": "eggventr"
+    },
+    {
+      "shortnames": [
+        "falcona"
+      ],
+      "title": "Falcon",
+      "category": "bootleg",
+      "original_game": "phoenix",
+      "parent_shortname": "phoenix"
+    },
+    {
+      "shortnames": [
+        "ffeast"
+      ],
+      "title": "Frog Feast",
+      "category": "homebrew",
+      "description": "Frog Feast is a homebrew two-player action game developed by Rastersoft (Charles Doty) for the Neo Geo platform in 2006, inspired by classic frog-catching pond games where players leap across lily pads and use their tongues to catch flies."
+    },
+    {
+      "shortnames": [
+        "flapchck"
+      ],
+      "title": "Flappy Chicken",
+      "category": "homebrew",
+      "description": "Flappy Chicken is a homebrew one-button arcade action game developed by Blastar for the Neo Geo MVS platform and released on April 30, 2023.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "futari15bc"
+      ],
+      "title": "Mushihime-Sama Futari Ver 1.5 (Black Label Color)",
+      "category": "hack",
+      "original_game": "futari15",
+      "parent_shortname": "futari15",
+      "hack_author": "ArcCabView",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Applies the palette and color scheme from Mushihime-Sama Futari Black Label to Mushihime-Sama Futari Ver 1.5."
+        }
+      ],
+      "description": "Mushihime-Sama Futari Ver 1.5 (Black Label Color) is a palette modification by ArcCabView for Cave's 2006 vertical shoot-'em-up Mushihime-Sama Futari Ver 1.5, importing the stage and sprite color palettes from the Black Label edition."
+    },
+    {
+      "shortnames": [
+        "futariblc"
+      ],
+      "title": "Mushihime-Sama Futari Black Label - Another Ver (Original Color)",
+      "category": "hack",
+      "original_game": "futaribl",
+      "parent_shortname": "futaribl",
+      "hack_author": "ArcCabView",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Restores the original Mushihime-Sama Futari Ver 1.5 color palettes in the international Another Ver release of Black Label."
+        }
+      ],
+      "description": "Mushihime-Sama Futari Black Label - Another Ver (Original Color) is a palette modification by ArcCabView for the international Another Ver release of Cave's Mushihime-Sama Futari Black Label, restoring the original Ver 1.5 color palettes."
+    },
+    {
+      "shortnames": [
+        "futaribljc"
+      ],
+      "title": "Mushihime-Sama Futari Black Label (Original Color)",
+      "category": "hack",
+      "original_game": "futaribl",
+      "parent_shortname": "futaribl",
+      "hack_author": "ArcCabView",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Restores the original Mushihime-Sama Futari Ver 1.5 color palettes in the Japanese Black Label release."
+        }
+      ],
+      "description": "Mushihime-Sama Futari Black Label (Original Color) is a palette modification by ArcCabView for the Japanese release of Cave's Mushihime-Sama Futari Black Label, restoring the original Ver 1.5 color palettes."
+    },
+    {
+      "shortnames": [
+        "gladmort"
+      ],
+      "title": "Gladmort",
+      "category": "homebrew",
+      "description": "Gladmort is a dark-fantasy run-and-gun action platformer developed by ChipsOnSteroids and published by PixelHeart for the Neo Geo MVS platform in 2024. Inspired by classic arcade action-platformers such as Ghosts'n Goblins, players battle through undead legions using medieval weaponry and armor upgrades."
+    },
+    {
+      "shortnames": [
+        "glprac2l"
+      ],
+      "title": "Gallop Racer 2 Link HW",
+      "category": "regional_variant",
+      "original_game": "glpracr2",
+      "parent_shortname": "glpracr2"
+    },
+    {
+      "shortnames": [
+        "gngknight",
+        "gngknighta",
+        "gngknightaenh",
+        "gngknightb",
+        "gngknightbenh",
+        "gngknightc",
+        "gngknightcenh",
+        "gngknightenh",
+        "gngknightt",
+        "gngknighttenh",
+        "makknight",
+        "makknightb",
+        "makknightbenh",
+        "makknightc",
+        "makknightcenh",
+        "makknightenh",
+        "makknightg",
+        "makknightgenh"
+      ],
+      "title": "Ghosts'n Goblins - Knight Artoria Edition",
+      "category": "hack",
+      "original_game": "gng",
+      "hack_author": "GoodLuckTrying / Poody",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Replaces the protagonist Sir Arthur with Knight Artoria."
+        },
+        {
+          "type": "gameplay",
+          "description": "Enhanced variants add fluid crouching and smooth ladder-climbing mechanics."
+        }
+      ],
+      "description": "Ghosts'n Goblins - Knight Artoria Edition is a 2026 character and gameplay modification of Capcom's 1985 arcade action-platformer Ghosts'n Goblins (and its Japanese release Makaimura) created by GoodLuckTrying (Wolfric) and Poody. It replaces Sir Arthur with Knight Artoria across all World, US, and Japanese ROM revisions, and includes optional Enhanced Gameplay variants featuring fluid crouching and smoother ladder climbing."
+    },
+    {
+      "shortnames": [
+        "gngmaiden",
+        "gngmaidena",
+        "gngmaidenaenh",
+        "gngmaidenb",
+        "gngmaidenbenh",
+        "gngmaidenc",
+        "gngmaidencenh",
+        "gngmaidenenh",
+        "gngmaident",
+        "gngmaidentenh",
+        "makmaiden",
+        "makmaidenb",
+        "makmaidenbenh",
+        "makmaidenc",
+        "makmaidencenh",
+        "makmaidenenh",
+        "makmaideng",
+        "makmaidengenh"
+      ],
+      "title": "Ghosts'n Goblins - Maiden Artoria Edition",
+      "category": "hack",
+      "original_game": "gng",
+      "hack_author": "GoodLuckTrying / Poody",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Replaces the protagonist Sir Arthur with Maiden Artoria."
+        },
+        {
+          "type": "gameplay",
+          "description": "Enhanced variants add fluid crouching and smooth ladder-climbing mechanics."
+        }
+      ],
+      "description": "Ghosts'n Goblins - Maiden Artoria Edition is a 2026 character and gameplay modification of Capcom's 1985 arcade action-platformer Ghosts'n Goblins (and its Japanese release Makaimura) created by GoodLuckTrying (Wolfric) and Poody. It replaces Sir Arthur with Maiden Artoria across all World, US, and Japanese ROM revisions, and includes optional Enhanced Gameplay variants featuring fluid crouching and smoother ladder climbing."
+    },
+    {
+      "shortnames": [
+        "gngprincess",
+        "gngprincessa",
+        "gngprincessaenh",
+        "gngprincessb",
+        "gngprincessbenh",
+        "gngprincessc",
+        "gngprincesscenh",
+        "gngprincessenh",
+        "gngprincesst",
+        "gngprincesstenh",
+        "makprincess",
+        "makprincessb",
+        "makprincessbenh",
+        "makprincessc",
+        "makprincesscenh",
+        "makprincessenh",
+        "makprincessg",
+        "makprincessgenh"
+      ],
+      "title": "Ghosts'n Goblins - Princess Prin Prin Edition",
+      "category": "hack",
+      "original_game": "gng",
+      "hack_author": "GoodLuckTrying / Poody",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Swaps the roles of Sir Arthur and Princess Prin Prin and replaces most enemy sprites with monster girls."
+        },
+        {
+          "type": "gameplay",
+          "description": "Enhanced variants add fluid crouching and smooth ladder-climbing mechanics."
+        }
+      ],
+      "description": "Ghosts'n Goblins - Princess Prin Prin Edition is a 2026 sprite and gameplay modification of Capcom's 1985 arcade action-platformer Ghosts'n Goblins (and its Japanese counterpart Makaimura) created by GoodLuckTrying (Wolfric) and Poody. Players control Princess Prin Prin on a quest to rescue Sir Arthur while battling enemy sprites redrawn as monster girls. The family covers World, US, and Japanese revisions alongside Enhanced Gameplay variants with fluid crouching and smooth ladder climbing."
+    },
+    {
+      "shortnames": [
+        "gravp"
+      ],
+      "title": "Gravitar",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "gravitar",
+      "parent_shortname": "gravitar"
+    },
+    {
+      "shortnames": [
+        "hiimpacp"
+      ],
+      "title": "High Impact Football",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "hiimpact",
+      "parent_shortname": "hiimpact"
+    },
+    {
+      "shortnames": [
+        "hypernoi"
+      ],
+      "title": "Hypernoid",
+      "category": "homebrew",
+      "description": "Hypernoid is a brick-breaking ball-and-paddle arcade game developed by M. Priewe (NeoHomeBrew) for the Neo Geo MVS platform in 2021, featuring power-ups, multi-ball hazards, and boss encounters."
+    },
+    {
+      "shortnames": [
+        "ibarablkcs"
+      ],
+      "title": "Ibara Kuro Black Label (Color Sat)",
+      "category": "hack",
+      "original_game": "ibarablk",
+      "parent_shortname": "ibarablk",
+      "hack_author": "ArcCabView",
+      "hack_year": 2022,
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Increases color saturation across stage backgrounds and sprites for improved bullet visibility."
+        }
+      ],
+      "description": "Ibara Kuro Black Label (Color Sat) is a graphic palette hack by ArcCabView for Cave's 2006 vertical shoot-'em-up Ibara Kuro: Black Label, boosting color saturation to improve visual contrast and enemy bullet visibility."
+    },
+    {
+      "shortnames": [
+        "ibaracs"
+      ],
+      "title": "Ibara (Color Sat)",
+      "category": "hack",
+      "original_game": "ibara",
+      "parent_shortname": "ibara",
+      "hack_author": "ArcCabView",
+      "hack_year": 2022,
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Increases color saturation across stage backgrounds and sprites for improved bullet visibility."
+        }
+      ],
+      "description": "Ibara (Color Sat) is a graphic palette hack by ArcCabView for Cave's 2005 vertical shoot-'em-up Ibara, adjusting background and sprite color saturation for clearer contrast."
+    },
+    {
+      "shortnames": [
+        "jspectr2"
+      ],
+      "title": "Jatre Specter",
+      "category": "clone",
+      "original_game": "invaders",
+      "parent_shortname": "invaders"
+    },
+    {
+      "shortnames": [
+        "kagekia"
+      ],
+      "title": "Kageki",
+      "category": "hack",
+      "original_game": "kageki",
+      "parent_shortname": "kageki",
+      "hack_author": "Taito Corporation"
+    },
+    {
+      "shortnames": [
+        "karnovn"
+      ],
+      "title": "Karnov (Neo-Geo port)",
+      "category": "port",
+      "original_game": "karnov",
+      "description": "Karnov (Neo-Geo port) is a 2025 homebrew port of Data East's 1987 side-scrolling action-platformer Karnov to the Neo Geo MVS hardware created by iq132."
+    },
+    {
+      "shortnames": [
+        "ketikd"
+      ],
+      "title": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)",
+      "category": "original",
+      "original_game": "ket",
+      "parent_shortname": "ket",
+      "description": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special) is a special event version of Cave's 2003 vertical bullet-hell shoot-'em-up Ketsui directed by Tsuneki Ikeda (IKD) and exhibited at the 2007 Cave Matsuri festival."
+    },
+    {
+      "shortnames": [
+        "kinstp"
+      ],
+      "title": "Killer Instinct",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "kinst",
+      "parent_shortname": "kinst"
+    },
+    {
+      "shortnames": [
+        "knightsc"
+      ],
+      "title": "Knight's Chance",
+      "category": "homebrew",
+      "description": "Knight's Chance is a collection of four medieval fantasy-themed casino and pub games developed and published by Neobitz (Jeff Kurtz) for the Neo Geo MVS and AES platforms in 2014."
+    },
+    {
+      "shortnames": [
+        "looptris"
+      ],
+      "title": "Looptris",
+      "category": "homebrew",
+      "description": "Looptris is a homebrew falling-block puzzle game developed by Blastar for the Neo Geo MVS platform and released in December 2021.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "looptrsp"
+      ],
+      "title": "Looptris Plus",
+      "category": "homebrew",
+      "original_game": "looptris",
+      "parent_shortname": "looptris",
+      "description": "Looptris Plus is an expanded 2022 edition of Blastar's Neo Geo falling-block puzzle game Looptris, adding new modes and presentation refinements.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "mhavocpex7"
+      ],
+      "title": "Major Havoc - The Promised End",
+      "category": "hack",
+      "release_status": "beta",
+      "original_game": "mhavoc",
+      "parent_shortname": "mhavoc",
+      "hack_author": "JMA",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Adds new mission stages, enemy encounters, and a final boss ending sequence to Atari's vector arcade game Major Havoc."
+        }
+      ],
+      "description": "Major Havoc - The Promised End is an extensive homebrew expansion hack by JMA for Atari's 1983 vector arcade game Major Havoc, introducing new levels, gameplay mechanics, and an ending mission sequence."
+    },
+    {
+      "shortnames": [
+        "msmatsuri"
+      ],
+      "title": "Mushihime-Sama Matsuri Ver 1.5",
+      "category": "original",
+      "original_game": "mushisam",
+      "description": "Mushihime-Sama Matsuri Ver 1.5 is a special festival edition of Cave's vertical shoot-'em-up Mushihime-Sama produced for the May 2011 Cave Matsuri event on Cave CV1000 hardware, reworking the original game with Ver 1.5 scoring and bullet patterns."
+    },
+    {
+      "shortnames": [
+        "neopang"
+      ],
+      "title": "Neo Pang",
+      "category": "homebrew",
+      "original_game": "pang",
+      "description": "Neo Pang is a 2010 homebrew arcade action game by CeL for the Neo Geo platform inspired by Mitchell's classic balloon-popping game Pang.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "neopong"
+      ],
+      "title": "Neo Pong",
+      "category": "homebrew",
+      "description": "Neo Pong is an early homebrew ball-and-paddle game developed by Neodev for the Neo Geo platform in 2002."
+    },
+    {
+      "shortnames": [
+        "ngtetris"
+      ],
+      "title": "NeoGeo 2-Player Tetris",
+      "category": "homebrew",
+      "description": "NeoGeo 2-Player Tetris is a homebrew two-player falling-block puzzle game developed by Crim and Stephen for the Neo Geo platform in 2008.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "nsmb"
+      ],
+      "title": "New! Super Mario Bros.",
+      "category": "homebrew",
+      "release_status": "demo",
+      "description": "New! Super Mario Bros. is a 2020 homebrew side-scrolling platformer demo created by OzzyOuzo for the Neo Geo platform.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "nzerotea"
+      ],
+      "title": "New Zero Team",
+      "category": "clone",
+      "original_game": "zeroteam",
+      "parent_shortname": "nzeroteam"
+    },
+    {
+      "shortnames": [
+        "pbobbl2x"
+      ],
+      "title": "Puzzle Bobble 2X",
+      "category": "clone",
+      "original_game": "pbobble2",
+      "parent_shortname": "pbobble2"
+    },
+    {
+      "shortnames": [
+        "popflamb"
+      ],
+      "title": "Pop Flamer",
+      "category": "hack",
+      "original_game": "popflame",
+      "parent_shortname": "popflame"
+    },
+    {
+      "shortnames": [
+        "psyfrcex"
+      ],
+      "title": "Psychic Force EX",
+      "category": "clone",
+      "original_game": "psyforce",
+      "parent_shortname": "psyforce"
+    },
+    {
+      "shortnames": [
+        "puyosune"
+      ],
+      "title": "Puyo Puyo Sun (English translation)",
+      "category": "hack",
+      "original_game": "puyosun",
+      "parent_shortname": "puyosun",
+      "hack_author": "Zanac / Puyo Nexus",
+      "modifications": [
+        {
+          "type": "translation",
+          "description": "Translates all 24 story cutscenes, 69 character win quotes, menus, character select, rule demonstrations, and endings into English."
+        }
+      ],
+      "description": "Puyo Puyo Sun (English translation) is an English localization patch by Zanac for Compile's 1996 Sega ST-V falling-piece puzzle game Puyo Puyo Sun. Building upon the Puyo Nexus community translation and adding translations for ST-V arcade-exclusive content, it localizes all 24 story cutscenes across Arle, Draco, and Schezo's courses, all 69 character win quotes, the secret Carbuncle final stage, menus, in-game chain graphics, and endings into English."
+    },
+    {
+      "shortnames": [
+        "quartt2j"
+      ],
+      "title": "Quartet 2",
+      "category": "regional_variant",
+      "original_game": "quartet",
+      "parent_shortname": "quartet"
+    },
+    {
+      "shortnames": [
+        "rainbowe"
+      ],
+      "title": "Rainbow Islands",
+      "category": "clone",
+      "original_game": "rainbow",
+      "parent_shortname": "rainbow"
+    },
+    {
+      "shortnames": [
+        "sboblbob"
+      ],
+      "title": "Super Bobble Bobble",
+      "category": "bootleg",
+      "original_game": "bublbobl",
+      "parent_shortname": "bublbobl"
+    },
+    {
+      "shortnames": [
+        "scudp"
+      ],
+      "title": "Scud Race Plus",
+      "category": "clone",
+      "original_game": "scud",
+      "parent_shortname": "scud"
+    },
+    {
+      "shortnames": [
+        "sdoja"
+      ],
+      "title": "DoDonPachi SaiDaiOuJou (hack)",
+      "category": "hack",
+      "original_game": "ddpsdoj",
+      "parent_shortname": "sdojak",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Modifies DoDonPachi SaiDaiOuJou gameplay parameters on Cave CV1000-D hardware."
+        }
+      ],
+      "description": "DoDonPachi SaiDaiOuJou (hack) is a 2021 modified build of Cave's vertical bullet-hell shoot-'em-up DoDonPachi SaiDaiOuJou.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "sdojak"
+      ],
+      "title": "DoDonPachi SaiDaiOuJou & Knuckles",
+      "category": "hack",
+      "original_game": "ddpsdoj",
+      "hack_author": "CaveDwellers",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Rebalances scoring, hyper gauge mechanics, and stage routing in DoDonPachi SaiDaiOuJou."
+        }
+      ],
+      "description": "DoDonPachi SaiDaiOuJou & Knuckles is a 2021 gameplay and balance modification of Cave's vertical bullet-hell shoot-'em-up DoDonPachi SaiDaiOuJou created by CaveDwellers."
+    },
+    {
+      "shortnames": [
+        "sdojb"
+      ],
+      "title": "DoDonPachi SaiDaiOuJou Saya Type B",
+      "category": "hack",
+      "original_game": "ddpsdoj",
+      "parent_shortname": "sdojak",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Adds a playable Saya configuration in DoDonPachi SaiDaiOuJou."
+        }
+      ],
+      "description": "DoDonPachi SaiDaiOuJou Saya Type B is a 2022 character modification of Cave's vertical bullet-hell shoot-'em-up DoDonPachi SaiDaiOuJou featuring a playable Saya Type B variant.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "searthia"
+      ],
+      "title": "Super Earth Invasion",
+      "category": "bootleg",
+      "original_game": "invaders",
+      "parent_shortname": "invaders"
+    },
+    {
+      "shortnames": [
+        "sf2t",
+        "sf2tj"
+      ],
+      "title": "Street Fighter II' - Hyper Fighting",
+      "category": "original",
+      "original_game": "sf2",
+      "parent_shortname": "sf2ce",
+      "description": "Street Fighter II' - Hyper Fighting (released in Japan as Street Fighter II' Turbo - Hyper Fighting) is Capcom's 1992 competitive update to Street Fighter II': Champion Edition on CPS-1 hardware, increasing game speed and adding new special moves across the twelve-character roster."
+    },
+    {
+      "shortnames": [
+        "sfiii4n"
+      ],
+      "title": "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013)",
+      "category": "hack",
+      "original_game": "sfiii3",
+      "parent_shortname": "sfiii3",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Rebalances character frame data, hitboxes, juggle properties, and Super Arts across the roster."
+        }
+      ],
+      "description": "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013) is a community balance and gameplay arrangement hack of Capcom's 1999 CPS-3 fighting game Street Fighter III: 3rd Strike, modifying move properties, juggle potential, and Super Art behavior across the cast."
+    },
+    {
+      "shortnames": [
+        "shangnle"
+      ],
+      "title": "Limited Edition Hang-On",
+      "category": "clone",
+      "original_game": "shangon",
+      "parent_shortname": "shangon"
+    },
+    {
+      "shortnames": [
+        "shangupb"
+      ],
+      "title": "Super Hang-On",
+      "category": "bootleg",
+      "original_game": "shangon",
+      "parent_shortname": "shangon"
+    },
+    {
+      "shortnames": [
+        "sichuana"
+      ],
+      "title": "Sichuan II",
+      "category": "hack",
+      "original_game": "sichuan2",
+      "parent_shortname": "sichuan2"
+    },
+    {
+      "shortnames": [
+        "sinista1"
+      ],
+      "title": "Sinistar",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "sinistar",
+      "parent_shortname": "sinistar"
+    },
+    {
+      "shortnames": [
+        "spf2xpri"
+      ],
+      "title": "Super Puzzle Fighter 2 X'",
+      "category": "hack",
+      "original_game": "spf2t",
+      "parent_shortname": "spf2t",
+      "hack_author": "Kaito Sinclaire",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Backports the X' mode character drop-pattern rebalances and gem-attack adjustments from Super Puzzle Fighter II Turbo HD Remix to the CPS-2 arcade version."
+        }
+      ],
+      "description": "Super Puzzle Fighter 2 X' (X Prime) is a 2021 balance hack of Capcom's 1996 CPS-2 falling-gem puzzle game Super Puzzle Fighter II Turbo created by Kaito Sinclaire. It recreates the rebalanced X' mode from Super Puzzle Fighter II Turbo HD Remix on original arcade hardware, adjusting attack drop patterns and character balance."
+    },
+    {
+      "shortnames": [
+        "steeltap"
+      ],
+      "title": "Steel Talons",
+      "category": "prototype",
+      "release_status": "prototype",
+      "original_game": "steeltal",
+      "parent_shortname": "steeltal"
+    },
+    {
+      "shortnames": [
+        "teot"
+      ],
+      "title": "The Eye of Typhoon (Tsunami Edition)",
+      "category": "homebrew",
+      "release_status": "beta",
+      "description": "The Eye of Typhoon (Tsunami Edition) is a homebrew Neo Geo port and enhancement by OzzyOuzo of Viccom's 1996 martial-arts fighting game The Eye of Typhoon, originally developed for the 3DO and PC."
+    },
+    {
+      "shortnames": [
+        "timesup"
+      ],
+      "title": "Time's Up!",
+      "category": "homebrew",
+      "description": "Time's Up! is a homebrew horizontal-scrolling shoot-'em-up developed and published by NGF Dev. Inc. for the Neo Geo platform in 2012."
+    },
+    {
+      "shortnames": [
+        "topracra",
+        "topracrb"
+      ],
+      "title": "Top Racer",
+      "category": "bootleg",
+      "original_game": "polepos",
+      "parent_shortname": "polepos"
+    },
+    {
+      "shortnames": [
+        "totc"
+      ],
+      "title": "Treasure of the Caribbean",
+      "category": "homebrew",
+      "description": "Treasure of the Caribbean is a pirate-themed puzzle game originally developed by FACE Corporation for the Neo Geo in 1994 and later published in 2011 by N.C.I / Le Cortex."
+    },
+    {
+      "shortnames": [
+        "vautour2"
+      ],
+      "title": "Vautour",
+      "category": "bootleg",
+      "original_game": "phoenix",
+      "parent_shortname": "phoenix"
+    },
+    {
+      "shortnames": [
+        "vsyard",
+        "vsyard2"
+      ],
+      "title": "Vs 10-Yard Fight",
+      "category": "regional_variant",
+      "original_game": "yard",
+      "parent_shortname": "yard"
+    },
+    {
+      "shortnames": [
+        "wc90b"
+      ],
+      "title": "Euro League",
+      "category": "bootleg",
+      "original_game": "wc90",
+      "parent_shortname": "wc90"
+    },
+    {
+      "shortnames": [
+        "wexpresb",
+        "wexpresc"
+      ],
+      "title": "Western Express",
+      "category": "bootleg",
+      "original_game": "exprraid",
+      "parent_shortname": "exprraid"
+    },
+    {
+      "shortnames": [
+        "xeno"
+      ],
+      "title": "Xeno Crisis",
+      "category": "homebrew",
+      "description": "Xeno Crisis is a one- or two-player top-down arena run-and-gun shooter developed and published by Bitmap Bureau for the Neo Geo MVS in 2019. Players control battle-hardened marines clearing procedurally arranged alien-infested outpost rooms using twin-stick style eight-way firing, dodge rolls, grenades, and temporary heavy weapons."
+    }
+  ]
+}
