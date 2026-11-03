@@ -5590,6 +5590,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kyros )		/* (c) 1987 World Games */
 	DRIVER( kyrosj )	/* (c) 1986 Alpha Denshi Co. */
 	DRIVER( jongbou )	/* (c) 1987 SNK */
+	DRIVER( jongbou2 )	/* (c) 1987 SNK */
 	DRIVER( paddlema )	/* Alpha-68K96I  'PM' (c) 1988 SNK */
 	DRIVER( timesold )	/* Alpha-68K96II 'BT' (c) 1987 SNK / Romstar */
 	DRIVER( timesol1 )	/* Alpha-68K96II 'BT' (c) 1987 */
