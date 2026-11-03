@@ -177,7 +177,7 @@ pen_t get_white_pen(void);
 
 INLINE UINT8 pal1bit(UINT8 bits)
 {
-	return bits ? 0xff : 0x00;
+	return (bits & 1) ? 0xff : 0x00;
 }
 
 

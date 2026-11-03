@@ -6,7 +6,7 @@
 #include "artwork.h"
 
 #define VECTOR_COLOR111(c) \
-	MAKE_RGB(pal1bit((c) >> 2), pal1bit((c) >> 1), pal1bit((c) >> 0))
+	MAKE_RGB(pal1bit(((c) >> 2) & 1), pal1bit(((c) >> 1) & 1), pal1bit(((c) >> 0) & 1))
 
 #define VECTOR_COLOR222(c) \
 	MAKE_RGB(pal2bit((c) >> 4), pal2bit((c) >> 2), pal2bit((c) >> 0))

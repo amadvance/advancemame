@@ -24,6 +24,7 @@ VIDEO_START( avg );
 VIDEO_START( avg_tempest );
 VIDEO_START( avg_mhavoc );
 VIDEO_START( avg_starwars );
+VIDEO_START( avg_tomcat );
 VIDEO_START( avg_quantum );
 VIDEO_START( avg_bzone );
 VIDEO_START( avg_redbaron );

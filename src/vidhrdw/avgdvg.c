@@ -474,6 +474,12 @@ static void starwars_data(vgdata *vg)
 	vg->data = vectorram[vg->pc];
 }
 
+static void tomcat_data(vgdata *vg)
+{
+	/* Vector bytes retain 68010 bus order in host-native 16-bit RAM. */
+	vg->data = vectorram[BYTE_XOR_BE(vg->pc)];
+}
+
 static void quantum_data(vgdata *vg)
 {
 	vg->data = quantum_vectorram[vg->pc >> 1];
@@ -1389,6 +1395,18 @@ VIDEO_START( avg_starwars )
 	memset(&vgd, 0, sizeof(vgd));
 	vg = &vgd;
 	vg->state_prom = memory_region(REGION_PROMS) + 0x1000;
+	return avgdvg_init();
+}
+
+VIDEO_START( avg_tomcat )
+{
+	static vgconf tomcat_config;
+	tomcat_config = avg_starwars;
+	tomcat_config.update_databus = tomcat_data;
+	vgc = &tomcat_config;
+	memset(&vgd, 0, sizeof(vgd));
+	vg = &vgd;
+	vg->state_prom = memory_region(REGION_PROMS);
 	return avgdvg_init();
 }
 
