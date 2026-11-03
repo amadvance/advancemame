@@ -7613,4 +7613,6 @@ Other Sun games
 	DRIVER( mag_war )
 	DRIVER( mag_xain )
 
+	DRIVER( kuzmich )
+
 #endif	/* DRIVER_RECURSIVE */
