@@ -4881,6 +4881,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* misc Atari games */
 	DRIVER( akkaarrh )
+	DRIVER( laststar )
+	DRIVER( airrace )
 	DRIVER( tunhunt )	/* 136000           (c) 1979 */
 	DRIVER( tunhuntc )	/* 136000           (c) 1981 */ /* licensed to / distributed by Centuri */
 	DRIVER( liberatr )	/* 136012           (c) 1982 */
