@@ -2376,6 +2376,7 @@ V-V                           TP-027
 	DRIVER( sfus )		/*  8/1987 (c) 1987 (US) */
 	DRIVER( sfjp )		/*  8/1987 (c) 1987 (Japan) */
 	DRIVER( sfp )		/*  8/1987 (c) 1987 */
+	DRIVER( supduck )
 	DRIVER( tigeroad )	/* 11/1987 (c) 1987 + Romstar (US) */
 	DRIVER( toramich )	/* 11/1987 (c) 1987 (Japan) */
 	DRIVER( tigerodb )	/* bootleg */

@@ -558,6 +558,7 @@ $(OBJ)/capcom.a: \
 	$(OBJ)/drivers/srumbler.o $(OBJ)/vidhrdw/srumbler.o \
 	$(OBJ)/drivers/vulgus.o $(OBJ)/vidhrdw/vulgus.o \
 	$(OBJ)/drivers/tigeroad.o $(OBJ)/vidhrdw/tigeroad.o \
+	$(OBJ)/drivers/supduck.o \
 	$(OBJ)/drivers/zn.o $(OBJ)/machine/znsec.o $(OBJ)/machine/at28c16.o $(OBJ)/machine/mb3773.o \
 	$(OBJ)/drivers/cps2.o $(OBJ)/machine/cps2crpt.o \
 	$(OBJ)/machine/kabuki.o \
