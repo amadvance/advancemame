@@ -7,10 +7,13 @@
 /*************************************************************/
 
 #include "driver.h"
-#include "sound/samples.h"
+
+extern void zac_tone_w(UINT8 data);
 
 UINT8 *s2636ram;
 static mame_bitmap *spritebitmap;
+static mame_bitmap *collision_frame;
+static int frame_drawn;
 
 static UINT8 dirtychar[256>>3];
 static int CollisionBackground;
@@ -37,14 +40,7 @@ WRITE8_HANDLER( tinvader_videoram_w )
 WRITE8_HANDLER( zac_s2636_w )
 {
 	if (offset == 0xc7)
-	{
-		if (data != 0 && data != s2636ram[0xc7])
-		{
-			static int fleet_step = 0;
-			sample_start(3, 3 + (fleet_step & 3), 0);
-			fleet_step++;
-		}
-	}
+		zac_tone_w(data);
 
 	if (s2636ram[offset] != data)
     {
@@ -167,12 +163,18 @@ VIDEO_START( tinvader )
 	if ((tmpbitmap = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height)) == 0)
 		return 1;
 
+	collision_frame = auto_bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height);
+	if (!collision_frame)
+		return 1;
+
+	memset(dirtychar, 1, sizeof(dirtychar));
+	CollisionBackground = CollisionSprite = frame_drawn = 0;
 	return 0;
 }
 
 static void tinvader_draw_sprites( mame_bitmap *bitmap )
 {
-	int offs;
+	int offs, i;
 
     /* -------------------------------------------------------------- */
     /* There seems to be a strange setup with this board, in that it  */
@@ -190,12 +192,13 @@ static void tinvader_draw_sprites( mame_bitmap *bitmap )
 	// for collision detection checking
 	copybitmap(tmpbitmap,bitmap,0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
 
-    for(offs=0;offs<0x50;offs+=0x10)
+    for(i=0;i<4;++i)
     {
-    	if((s2636ram[offs+10]<0xF0) && (offs!=0x30))
+		int spriteno = i ? (1 << i) : 0;
+		offs = spriteno << 3;
+		if(s2636ram[offs+10]<0xF0)
 		{
-            int spriteno = (offs / 8);
-			int expand   = ((s2636ram[0xc0] & (spriteno*2))!=0) ? 2 : 1;
+			int expand   = ((s2636ram[0xc0] & (1 << (i * 2)))!=0) ? 2 : 1;
             int bx       = (s2636ram[offs+10] * 4) - 22;
             int by       = s2636ram[offs+12] + 1;
             int x,y;
@@ -262,4 +265,16 @@ VIDEO_UPDATE( tinvader )
 {
 	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
 	tinvader_draw_sprites(bitmap);
+	frame_drawn = 1;
+}
+
+VIDEO_EOF( tinvader )
+{
+	/* Collision latches must advance even when the output frame is skipped. */
+	if (!frame_drawn)
+	{
+		tilemap_draw(collision_frame, &Machine->visible_area, bg_tilemap, 0, 0);
+		tinvader_draw_sprites(collision_frame);
+	}
+	frame_drawn = 0;
 }
