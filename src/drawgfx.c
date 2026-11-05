@@ -3554,50 +3554,127 @@ void drawgfx_toggle_crosshair(void)
 
 void draw_crosshair(mame_bitmap *bitmap,int x,int y,const rectangle *clip,int player)
 {
-	unsigned short white;
+	unsigned short white, black;
 	int i;
 
 	if (!crosshair_enable)
 		return;
 
 	white = get_white_pen();
+	black = get_black_pen();
 
-	for (i = 1;i < 6;i++)
+	switch (player)
 	{
-		switch (player)
-		{
-			case 0:
+		case 0:
+		default:
+			/* Black outline for circle */
+			plotclip(bitmap,x-2,y-5,black,clip); plotclip(bitmap,x-1,y-5,black,clip); plotclip(bitmap,x,y-5,black,clip); plotclip(bitmap,x+1,y-5,black,clip); plotclip(bitmap,x+2,y-5,black,clip);
+			plotclip(bitmap,x-2,y+5,black,clip); plotclip(bitmap,x-1,y+5,black,clip); plotclip(bitmap,x,y+5,black,clip); plotclip(bitmap,x+1,y+5,black,clip); plotclip(bitmap,x+2,y+5,black,clip);
+			plotclip(bitmap,x-5,y-2,black,clip); plotclip(bitmap,x-5,y-1,black,clip); plotclip(bitmap,x-5,y,black,clip); plotclip(bitmap,x-5,y+1,black,clip); plotclip(bitmap,x-5,y+2,black,clip);
+			plotclip(bitmap,x+5,y-2,black,clip); plotclip(bitmap,x+5,y-1,black,clip); plotclip(bitmap,x+5,y,black,clip); plotclip(bitmap,x+5,y+1,black,clip); plotclip(bitmap,x+5,y+2,black,clip);
+			plotclip(bitmap,x-4,y-4,black,clip); plotclip(bitmap,x-3,y-4,black,clip); plotclip(bitmap,x-4,y-3,black,clip);
+			plotclip(bitmap,x+4,y-4,black,clip); plotclip(bitmap,x+3,y-4,black,clip); plotclip(bitmap,x+4,y-3,black,clip);
+			plotclip(bitmap,x-4,y+4,black,clip); plotclip(bitmap,x-3,y+4,black,clip); plotclip(bitmap,x-4,y+3,black,clip);
+			plotclip(bitmap,x+4,y+4,black,clip); plotclip(bitmap,x+3,y+4,black,clip); plotclip(bitmap,x+4,y+3,black,clip);
+
+			/* White circle (radius ~4) */
+			plotclip(bitmap,x-1,y-4,white,clip); plotclip(bitmap,x,y-4,white,clip); plotclip(bitmap,x+1,y-4,white,clip);
+			plotclip(bitmap,x-1,y+4,white,clip); plotclip(bitmap,x,y+4,white,clip); plotclip(bitmap,x+1,y+4,white,clip);
+			plotclip(bitmap,x-4,y-1,white,clip); plotclip(bitmap,x-4,y,white,clip); plotclip(bitmap,x-4,y+1,white,clip);
+			plotclip(bitmap,x+4,y-1,white,clip); plotclip(bitmap,x+4,y,white,clip); plotclip(bitmap,x+4,y+1,white,clip);
+			plotclip(bitmap,x-3,y-3,white,clip); plotclip(bitmap,x-2,y-3,white,clip); plotclip(bitmap,x-3,y-2,white,clip);
+			plotclip(bitmap,x+3,y-3,white,clip); plotclip(bitmap,x+2,y-3,white,clip); plotclip(bitmap,x+3,y-2,white,clip);
+			plotclip(bitmap,x-3,y+3,white,clip); plotclip(bitmap,x-2,y+3,white,clip); plotclip(bitmap,x-3,y+2,white,clip);
+			plotclip(bitmap,x+3,y+3,white,clip); plotclip(bitmap,x+2,y+3,white,clip); plotclip(bitmap,x+3,y+2,white,clip);
+
+			/* Crosshair lines with black borders */
+			for (i = 1; i <= 7; ++i)
+			{
+				if (i == 4) continue; /* gap where circle passes */
+				plotclip(bitmap,x+i,y-1,black,clip); plotclip(bitmap,x+i,y+1,black,clip);
+				plotclip(bitmap,x-i,y-1,black,clip); plotclip(bitmap,x-i,y+1,black,clip);
+				plotclip(bitmap,x-1,y+i,black,clip); plotclip(bitmap,x+1,y+i,black,clip);
+				plotclip(bitmap,x-1,y-i,black,clip); plotclip(bitmap,x+1,y-i,black,clip);
+
 				plotclip(bitmap,x+i,y,white,clip);
 				plotclip(bitmap,x-i,y,white,clip);
 				plotclip(bitmap,x,y+i,white,clip);
 				plotclip(bitmap,x,y-i,white,clip);
-				break;
+			}
+			plotclip(bitmap,x+8,y,black,clip);
+			plotclip(bitmap,x-8,y,black,clip);
+			plotclip(bitmap,x,y+8,black,clip);
+			plotclip(bitmap,x,y-8,black,clip);
+			break;
 
-			case 1:
+		case 1:
+			/* Black outline for circle */
+			plotclip(bitmap,x-2,y-5,black,clip); plotclip(bitmap,x-1,y-5,black,clip); plotclip(bitmap,x,y-5,black,clip); plotclip(bitmap,x+1,y-5,black,clip); plotclip(bitmap,x+2,y-5,black,clip);
+			plotclip(bitmap,x-2,y+5,black,clip); plotclip(bitmap,x-1,y+5,black,clip); plotclip(bitmap,x,y+5,black,clip); plotclip(bitmap,x+1,y+5,black,clip); plotclip(bitmap,x+2,y+5,black,clip);
+			plotclip(bitmap,x-5,y-2,black,clip); plotclip(bitmap,x-5,y-1,black,clip); plotclip(bitmap,x-5,y,black,clip); plotclip(bitmap,x-5,y+1,black,clip); plotclip(bitmap,x-5,y+2,black,clip);
+			plotclip(bitmap,x+5,y-2,black,clip); plotclip(bitmap,x+5,y-1,black,clip); plotclip(bitmap,x+5,y,black,clip); plotclip(bitmap,x+5,y+1,black,clip); plotclip(bitmap,x+5,y+2,black,clip);
+			plotclip(bitmap,x-4,y-4,black,clip); plotclip(bitmap,x-3,y-4,black,clip); plotclip(bitmap,x-4,y-3,black,clip);
+			plotclip(bitmap,x+4,y-4,black,clip); plotclip(bitmap,x+3,y-4,black,clip); plotclip(bitmap,x+4,y-3,black,clip);
+			plotclip(bitmap,x-4,y+4,black,clip); plotclip(bitmap,x-3,y+4,black,clip); plotclip(bitmap,x-4,y+3,black,clip);
+			plotclip(bitmap,x+4,y+4,black,clip); plotclip(bitmap,x+3,y+4,black,clip); plotclip(bitmap,x+4,y+3,black,clip);
+
+			/* White circle (radius ~4) */
+			plotclip(bitmap,x-1,y-4,white,clip); plotclip(bitmap,x,y-4,white,clip); plotclip(bitmap,x+1,y-4,white,clip);
+			plotclip(bitmap,x-1,y+4,white,clip); plotclip(bitmap,x,y+4,white,clip); plotclip(bitmap,x+1,y+4,white,clip);
+			plotclip(bitmap,x-4,y-1,white,clip); plotclip(bitmap,x-4,y,white,clip); plotclip(bitmap,x-4,y+1,white,clip);
+			plotclip(bitmap,x+4,y-1,white,clip); plotclip(bitmap,x+4,y,white,clip); plotclip(bitmap,x+4,y+1,white,clip);
+			plotclip(bitmap,x-3,y-3,white,clip); plotclip(bitmap,x-2,y-3,white,clip); plotclip(bitmap,x-3,y-2,white,clip);
+			plotclip(bitmap,x+3,y-3,white,clip); plotclip(bitmap,x+2,y-3,white,clip); plotclip(bitmap,x+3,y-2,white,clip);
+			plotclip(bitmap,x-3,y+3,white,clip); plotclip(bitmap,x-2,y+3,white,clip); plotclip(bitmap,x-3,y+2,white,clip);
+			plotclip(bitmap,x+3,y+3,white,clip); plotclip(bitmap,x+2,y+3,white,clip); plotclip(bitmap,x+3,y+2,white,clip);
+
+			/* Diagonal 'X' crosshair with black borders */
+			for (i = 1; i <= 6; ++i)
+			{
+				if (i == 3) continue; /* gap for circle */
+				plotclip(bitmap,x+i,y-i+1,black,clip); plotclip(bitmap,x+i-1,y-i,black,clip);
+				plotclip(bitmap,x-i,y-i+1,black,clip); plotclip(bitmap,x-i+1,y-i,black,clip);
+				plotclip(bitmap,x+i,y+i-1,black,clip); plotclip(bitmap,x+i-1,y+i,black,clip);
+				plotclip(bitmap,x-i,y+i-1,black,clip); plotclip(bitmap,x-i+1,y+i,black,clip);
+
 				plotclip(bitmap,x+i,y-i,white,clip);
 				plotclip(bitmap,x-i,y-i,white,clip);
 				plotclip(bitmap,x+i,y+i,white,clip);
 				plotclip(bitmap,x-i,y+i,white,clip);
-				break;
+			}
+			plotclip(bitmap,x+7,y-7,black,clip);
+			plotclip(bitmap,x-7,y-7,black,clip);
+			plotclip(bitmap,x+7,y+7,black,clip);
+			plotclip(bitmap,x-7,y+7,black,clip);
+			break;
 
-			case 2:
-				plotclip(bitmap,x-5,y-i,white,clip);
-				plotclip(bitmap,x+5,y-i,white,clip);
-				plotclip(bitmap,x-5,y+i,white,clip);
-				plotclip(bitmap,x+5,y+i,white,clip);
-				plotclip(bitmap,x-i,y-5,white,clip);
-				plotclip(bitmap,x+i,y-5,white,clip);
-				plotclip(bitmap,x-i,y+5,white,clip);
-				plotclip(bitmap,x+i,y+5,white,clip);
-				break;
+		case 2:
+			/* Square box with outline */
+			for (i = 1; i < 7; i++)
+			{
+				plotclip(bitmap,x-6,y-i,black,clip); plotclip(bitmap,x+6,y-i,black,clip);
+				plotclip(bitmap,x-6,y+i,black,clip); plotclip(bitmap,x+6,y+i,black,clip);
+				plotclip(bitmap,x-i,y-6,black,clip); plotclip(bitmap,x+i,y-6,black,clip);
+				plotclip(bitmap,x-i,y+6,black,clip); plotclip(bitmap,x+i,y+6,black,clip);
 
-			case 3:
-				plotclip(bitmap,x-i,y-5+i,white,clip);
-				plotclip(bitmap,x+i,y-5+i,white,clip);
-				plotclip(bitmap,x-i,y+5-i,white,clip);
-				plotclip(bitmap,x+i,y+5-i,white,clip);
-				break;
-		}
+				plotclip(bitmap,x-5,y-i,white,clip); plotclip(bitmap,x+5,y-i,white,clip);
+				plotclip(bitmap,x-5,y+i,white,clip); plotclip(bitmap,x+5,y+i,white,clip);
+				plotclip(bitmap,x-i,y-5,white,clip); plotclip(bitmap,x+i,y-5,white,clip);
+				plotclip(bitmap,x-i,y+5,white,clip); plotclip(bitmap,x+i,y+5,white,clip);
+			}
+			break;
+
+		case 3:
+			/* Diamond shape with outline */
+			for (i = 1; i < 7; i++)
+			{
+				plotclip(bitmap,x-i,y-6+i,black,clip); plotclip(bitmap,x+i,y-6+i,black,clip);
+				plotclip(bitmap,x-i,y+6-i,black,clip); plotclip(bitmap,x+i,y+6-i,black,clip);
+
+				plotclip(bitmap,x-i,y-5+i,white,clip); plotclip(bitmap,x+i,y-5+i,white,clip);
+				plotclip(bitmap,x-i,y+5-i,white,clip); plotclip(bitmap,x+i,y+5-i,white,clip);
+			}
+			break;
 	}
 }
 
