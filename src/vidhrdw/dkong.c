@@ -378,3 +378,10 @@ VIDEO_UPDATE( spclforc )
 	/* it uses spriteram[offs + 2] & 0x10 for sprite bank */
 	draw_sprites(bitmap, 0x10, 3);
 }
+
+VIDEO_UPDATE( shootgal )
+{
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	draw_sprites(bitmap, 0x40, 1);
+	draw_crosshair(bitmap, readinputport(0), readinputport(1), cliprect, 0);
+}
