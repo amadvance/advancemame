@@ -619,6 +619,7 @@ $(OBJ)/dataeast.a: \
 	$(OBJ)/drivers/madmotor.o $(OBJ)/vidhrdw/madmotor.o \
 	$(OBJ)/drivers/metlclsh.o $(OBJ)/vidhrdw/metlclsh.o \
 	$(OBJ)/drivers/pcktgal.o $(OBJ)/vidhrdw/pcktgal.o \
+	$(OBJ)/drivers/pokechmp.o \
 	$(OBJ)/drivers/pktgaldx.o $(OBJ)/vidhrdw/pktgaldx.o \
 	$(OBJ)/drivers/rohga.o $(OBJ)/vidhrdw/rohga.o \
 	$(OBJ)/drivers/shootout.o $(OBJ)/vidhrdw/shootout.o \
