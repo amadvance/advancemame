@@ -607,6 +607,7 @@ $(OBJ)/dataeast.a: \
 	$(OBJ)/drivers/dietgo.o $(OBJ)/vidhrdw/dietgo.o \
 	$(OBJ)/drivers/exprraid.o $(OBJ)/vidhrdw/exprraid.o \
 	$(OBJ)/drivers/chanbara.o \
+	$(OBJ)/drivers/progolf.o \
 	$(OBJ)/drivers/firetrap.o $(OBJ)/vidhrdw/firetrap.o \
 	$(OBJ)/drivers/funkyjet.o $(OBJ)/vidhrdw/funkyjet.o \
 	$(OBJ)/drivers/karnov.o $(OBJ)/vidhrdw/karnov.o \
