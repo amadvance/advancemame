@@ -370,6 +370,28 @@ static int validate_roms(int drivnum, const machine_config *drv, UINT32 *region_
 			}
 		}
 
+		/* if this is a default bios entry, verify it exists */
+		else if (ROMENTRY_ISDEFAULT_BIOS(romp))
+		{
+			const char *defbios = ROM_GETDEFAULTBIOS(romp);
+			const bios_entry *b = driver->bios;
+			int found = 0;
+			while (b && !BIOSENTRY_ISEND(b))
+			{
+				if (!strcmp(b->_name, defbios))
+				{
+					found = 1;
+					break;
+				}
+				b++;
+			}
+			if (!found)
+			{
+				printf("%s: %s default bios '%s' not found in system bios\n", driver->source_file, driver->name, defbios);
+				error = TRUE;
+			}
+		}
+
 		/* if this is a file, make sure it is properly formatted */
 		else if (ROMENTRY_ISFILE(romp))
 		{
@@ -400,7 +422,8 @@ static int validate_roms(int drivnum, const machine_config *drv, UINT32 *region_
 		}
 
 		/* for any non-region ending entries, make sure they don't extend past the end */
-		if (!ROMENTRY_ISREGIONEND(romp) && cur_region != -1)
+		if (!ROMENTRY_ISREGIONEND(romp) && !ROMENTRY_ISDEFAULT_BIOS(romp) && cur_region != -1)
+
 		{
 			items_since_region++;
 

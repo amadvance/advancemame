@@ -28,7 +28,9 @@
 #define ROMENTRYTYPE_COPY			6					/* this entry copies data from another region/offset */
 #define ROMENTRYTYPE_CARTRIDGE		7					/* this entry specifies a cartridge (MESS) */
 #define ROMENTRYTYPE_IGNORE			8
-#define ROMENTRYTYPE_COUNT			9
+#define ROMENTRYTYPE_DEFAULT_BIOS	9					/* this entry specifies a default BIOS */
+#define ROMENTRYTYPE_COUNT			10
+
 
 
 /* ----- per-region constants ----- */
@@ -170,6 +172,7 @@ struct _rom_load_data
 #define ROMENTRY_CARTRIDGE			((const char *)ROMENTRYTYPE_CARTRIDGE)
 
 #define ROMENTRY_IGNORE				((const char *)ROMENTRYTYPE_IGNORE)
+#define ROMENTRY_DEFAULT_BIOS		((const char *)ROMENTRYTYPE_DEFAULT_BIOS)
 
 #define ROMENTRY_GETTYPE(r)			((FPTR)(r)->_name)
 #define ROMENTRY_ISSPECIAL(r)		(ROMENTRY_GETTYPE(r) < ROMENTRYTYPE_COUNT)
@@ -181,6 +184,7 @@ struct _rom_load_data
 #define ROMENTRY_ISIGNORE(r)		((r)->_name == ROMENTRY_IGNORE)
 #define ROMENTRY_ISFILL(r)			((r)->_name == ROMENTRY_FILL)
 #define ROMENTRY_ISCOPY(r)			((r)->_name == ROMENTRY_COPY)
+#define ROMENTRY_ISDEFAULT_BIOS(r)	((r)->_name == ROMENTRY_DEFAULT_BIOS)
 #define ROMENTRY_ISREGIONEND(r)		(ROMENTRY_ISREGION(r) || ROMENTRY_ISEND(r))
 
 #define BIOSENTRY_ISEND(b)			((b)->_name == NULL)
@@ -205,8 +209,9 @@ struct _rom_load_data
 
 /* ----- per-ROM macros ----- */
 #define ROM_GETNAME(r)				((r)->_name)
-#define ROM_SAFEGETNAME(r)			(ROMENTRY_ISFILL(r) ? "fill" : ROMENTRY_ISCOPY(r) ? "copy" : ROM_GETNAME(r))
+#define ROM_SAFEGETNAME(r)			(ROMENTRY_ISFILL(r) ? "fill" : ROMENTRY_ISCOPY(r) ? "copy" : ROMENTRY_ISDEFAULT_BIOS(r) ? "default_bios" : ROMENTRY_ISREGION(r) ? "region" : ROMENTRY_ISEND(r) ? "end" : ROM_GETNAME(r))
 #define ROM_GETOFFSET(r)			((r)->_offset)
+
 #define ROM_GETLENGTH(r)			((r)->_length)
 #define ROM_GETFLAGS(r)				((r)->_flags)
 #define ROM_GETHASHDATA(r)          ((r)->_hashdata)
@@ -273,6 +278,8 @@ struct _rom_load_data
 /* ----- system BIOS macros ----- */
 #define SYSTEM_BIOS_ADD(value,name,description)		{ (int)value, (const char*)name, (const char*)description },
 #define BIOS_DEFAULT								"default"
+#define ROM_DEFAULT_BIOS(name)						{ ROMENTRY_DEFAULT_BIOS, 0, 0, 0, (name) },
+#define ROM_GETDEFAULTBIOS(r)						((r)->_hashdata)
 
 
 /* ----- disk loading macros ----- */

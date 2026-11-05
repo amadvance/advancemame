@@ -66,8 +66,12 @@ chd_file *get_disk_handle(int diskindex)
 
 const rom_entry *rom_first_region(const game_driver *drv)
 {
-	return drv->rom;
+	const rom_entry *romp = drv->rom;
+	while (romp && !ROMENTRY_ISREGION(romp) && !ROMENTRY_ISEND(romp))
+		romp++;
+	return (romp && ROMENTRY_ISREGION(romp)) ? romp : NULL;
 }
+
 
 
 /*-------------------------------------------------
@@ -160,27 +164,52 @@ void CLIB_DECL debugload(const char *string, ...)
 
 /*-------------------------------------------------
     determine_bios_rom - determine system_bios
-    from SystemBios structure and options.bios
+    from SystemBios structure, options.bios, and
+    optional ROM_DEFAULT_BIOS
 -------------------------------------------------*/
 
-int determine_bios_rom(const bios_entry *bios)
+int determine_bios_rom(const bios_entry *bios, const rom_entry *romp)
 {
 	const bios_entry *firstbios = bios;
+	const char *bios_name = NULL;
 
 	/* set to default */
 	int bios_no = 0;
 
-	/* Not system_bios_0 and options.bios is set  */
-	if(bios && (options.bios != NULL))
+	if (!bios)
+		return 0;
+
+	/* Not system_bios_0 and options.bios is set and not default */
+	if (options.bios != NULL && strcmp(options.bios, "default") != 0)
+	{
+		bios_name = options.bios;
+	}
+	else if (romp != NULL)
+	{
+		/* Look for ROM_DEFAULT_BIOS in the game's rom entries */
+		for (; !ROMENTRY_ISEND(romp); romp++)
+		{
+			if (ROMENTRY_ISDEFAULT_BIOS(romp))
+			{
+				bios_name = ROM_GETDEFAULTBIOS(romp);
+				break;
+			}
+		}
+	}
+
+	if (bios_name != NULL)
 	{
 		/* Allow '-bios n' to still be used */
-		while(!BIOSENTRY_ISEND(bios))
+		while (!BIOSENTRY_ISEND(bios))
 		{
-			char bios_number[3];
+			char bios_number[12];
 			sprintf(bios_number, "%d", bios->value);
 
-			if(!strcmp(bios_number, options.bios))
+			if (!strcmp(bios_number, bios_name))
+			{
 				bios_no = bios->value;
+				break;
+			}
 
 			bios++;
 		}
@@ -188,10 +217,13 @@ int determine_bios_rom(const bios_entry *bios)
 		bios = firstbios;
 
 		/* Test for bios short names */
-		while(!BIOSENTRY_ISEND(bios))
+		while (!BIOSENTRY_ISEND(bios))
 		{
-			if(!strcmp(bios->_name, options.bios))
+			if (!strcmp(bios->_name, bios_name))
+			{
 				bios_no = bios->value;
+				break;
+			}
 
 			bios++;
 		}
@@ -214,12 +246,12 @@ static int count_roms(const rom_entry *romp)
 	int count = 0;
 
 	/* determine the correct biosset to load based on options.bios string */
-	int this_bios = determine_bios_rom(Machine->gamedrv->bios);
+	int this_bios = determine_bios_rom(Machine->gamedrv->bios, Machine->gamedrv->rom);
 
 	/* loop over regions, then over files */
-	for (region = romp; region; region = rom_next_region(region))
+	for (region = rom_first_region(Machine->gamedrv); region; region = rom_next_region(region))
 		for (rom = rom_first_file(region); rom; rom = rom_next_file(rom))
-			if (!ROM_GETBIOSFLAGS(romp) || (ROM_GETBIOSFLAGS(romp) == (this_bios+1))) /* alternate bios sets */
+			if (!ROM_GETBIOSFLAGS(rom) || (ROM_GETBIOSFLAGS(rom) == (this_bios+1))) /* alternate bios sets */
 				count++;
 
 	/* return the total count */
@@ -957,10 +989,10 @@ int rom_init(const rom_entry *romp)
 	memset(disk_handle, 0, sizeof(disk_handle));
 
 	/* determine the correct biosset to load based on options.bios string */
-	system_bios = determine_bios_rom(Machine->gamedrv->bios);
+	system_bios = determine_bios_rom(Machine->gamedrv->bios, Machine->gamedrv->rom);
 
 	/* loop until we hit the end */
-	for (region = romp, regnum = 0; region; region = rom_next_region(region), regnum++)
+	for (region = rom_first_region(Machine->gamedrv), regnum = 0; region; region = rom_next_region(region), regnum++)
 	{
 		int regiontype = ROMREGION_GETTYPE(region);
 
