@@ -4044,6 +4044,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( sidepckt )	/* (c) 1986 Data East Corporation */
 	DRIVER( sidepctj )	/* (c) 1986 Data East Corporation */
 	DRIVER( sidepctb )	/* bootleg */
+	DRIVER( chanbara )
 	DRIVER( exprraid )	/* (c) 1986 Data East USA (US) */
 	DRIVER( exprrada )	/* (c) 1986 Data East USA (US) */
 	DRIVER( wexpress )	/* (c) 1986 Data East Corporation (World?) */
