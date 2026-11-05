@@ -525,6 +525,7 @@ $(OBJ)/atlus.a: \
 	$(OBJ)/drivers/powerins.o $(OBJ)/vidhrdw/powerins.o \
 
 $(OBJ)/bfm.a: \
+	$(OBJ)/drivers/bfcobra.o \
 	$(OBJ)/drivers/bfm_sc2.o $(OBJ)/vidhrdw/bfm_adr2.o \
 	$(OBJ)/drivers/mpu4.o \
 	$(OBJ)/machine/lamps.o \

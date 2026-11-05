@@ -7256,6 +7256,9 @@ Other Sun games
 	DRIVER( sltblgp1 )	/* 1996 */
 	DRIVER( gldncrwn )	/* 1997 */
 
+	/* Bell-Fruit Cobra II */
+	DRIVER( brkball )
+
 	/* MPU4+Video Board Games */
 	DRIVER( bctvidbs )
 	DRIVER( crmaze )	/* 1994 */

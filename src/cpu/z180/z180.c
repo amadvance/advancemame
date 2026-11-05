@@ -617,7 +617,7 @@ typedef struct {
 /* 31 DMA mode register */
 #define Z180_DMODE_DM			0x30
 #define Z180_DMODE_SM			0x0c
-#define Z180_DMODE_MMOD 		0x04
+#define Z180_DMODE_MMOD 		0x02
 
 #define Z180_DMODE_RESET		0x00
 #define Z180_DMODE_RMASK		0x3e
@@ -1472,16 +1472,29 @@ static void z180_dma0(void)
 	offs_t sar0 = 65536 * IO_SAR0B + 256 * IO_SAR0H + IO_SAR0L;
 	offs_t dar0 = 65536 * IO_DAR0B + 256 * IO_DAR0H + IO_DAR0L;
 	int bcr0 = 256 * IO_BCR0H + IO_BCR0L;
-	int count = (IO_DMODE & Z180_DMODE_MMOD) ? bcr0 : 1;
+	int count;
+	int mode = IO_DMODE & (Z180_DMODE_SM | Z180_DMODE_DM);
+
+	if (!(IO_DSTAT & Z180_DSTAT_DE0))
+		return;
 
 	if (bcr0 == 0)
 	{
-		IO_DSTAT &= ~Z180_DSTAT_DE0;
-		return;
+		bcr0 = 0x10000;
 	}
 
+	/* DMS0 selects the request edge; DIM0 belongs to channel 1 addressing. */
+	count = (IO_DMODE & Z180_DMODE_MMOD) ? bcr0 : 1;
 	while (count-- > 0)
 	{
+		/* A stalled I/O transfer must preserve both addresses and byte count. */
+		if ((mode == 0x0c || mode == 0x1c || mode == 0x30 || mode == 0x34)
+			&& !(Z180.iol & Z180_DREQ0))
+		{
+			z180_icount -= 6;
+			break;
+		}
+
 		/* last transfer happening now? */
 		if (bcr0 == 1)
 		{
@@ -1503,7 +1516,7 @@ static void z180_dma0(void)
 			{
 				program_write_byte_8(dar0++, IN(sar0));
 				/* edge sensitive DREQ0 ? */
-				if (IO_DCNTL & Z180_DCNTL_DIM0)
+				if (IO_DCNTL & Z180_DCNTL_DMS0)
 				{
 					Z180.iol &= ~Z180_DREQ0;
 					count = 0;
@@ -1524,7 +1537,7 @@ static void z180_dma0(void)
             {
 				program_write_byte_8(dar0--, IN(sar0));
 				/* edge sensitive DREQ0 ? */
-				if (IO_DCNTL & Z180_DCNTL_DIM0)
+				if (IO_DCNTL & Z180_DCNTL_DMS0)
 				{
 					Z180.iol &= ~Z180_DREQ0;
 					count = 0;
@@ -1546,7 +1559,7 @@ static void z180_dma0(void)
             {
 				OUT(dar0, program_read_byte_8(sar0++));
 				/* edge sensitive DREQ0 ? */
-				if (IO_DCNTL & Z180_DCNTL_DIM0)
+				if (IO_DCNTL & Z180_DCNTL_DMS0)
 				{
 					Z180.iol &= ~Z180_DREQ0;
 					count = 0;
@@ -1558,7 +1571,7 @@ static void z180_dma0(void)
             {
 				OUT(dar0, program_read_byte_8(sar0--));
 				/* edge sensitive DREQ0 ? */
-				if (IO_DCNTL & Z180_DCNTL_DIM0)
+				if (IO_DCNTL & Z180_DCNTL_DMS0)
 				{
 					Z180.iol &= ~Z180_DREQ0;
 					count = 0;
@@ -1571,7 +1584,6 @@ static void z180_dma0(void)
 			break;
 		}
 		bcr0--;
-		count--;
 		if ((z180_icount -= 6) < 0)
 			break;
 	}

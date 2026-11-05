@@ -679,6 +679,7 @@ void upd7759_port_w(int which, UINT8 data)
 {
 	/* update the FIFO value */
 	struct upd7759_chip *chip = sndti_token(SOUND_UPD7759, which);
+	stream_update(chip->channel, 0);
 	chip->fifo_in = data;
 }
 
@@ -687,6 +688,8 @@ int upd7759_busy_r(int which)
 {
 	/* return /BUSY */
 	struct upd7759_chip *chip = sndti_token(SOUND_UPD7759, which);
+	/* Polling must observe elapsed playback even between mixer updates. */
+	stream_update(chip->channel, 0);
 	return (chip->state == STATE_IDLE);
 }
 

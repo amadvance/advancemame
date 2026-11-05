@@ -109,11 +109,20 @@ INLINE void WM16( offs_t addr, PAIR *r )
  * reading opcodes. In case of system with memory mapped I/O,
  * this function can be used to greatly speed up emulation
  ***************************************************************/
+INLINE UINT8 z180_readop(offs_t addr)
+{
+	addr = MMU_REMAP_ADDR(addr);
+	/* Sequential fetches can cross MMU pages without taking a branch. */
+	if (addr < opcode_memory_min || addr > opcode_memory_max)
+		memory_set_opbase(addr);
+	return cpu_readop_unsafe(addr);
+}
+
 INLINE UINT8 ROP(void)
 {
 	offs_t addr = _PCD;
 	_PC++;
-	return cpu_readop(MMU_REMAP_ADDR(addr));
+	return z180_readop(addr);
 }
 
 /****************************************************************
@@ -126,14 +135,16 @@ INLINE UINT8 ARG(void)
 {
 	offs_t addr = _PCD;
 	_PC++;
-	return cpu_readop_arg(MMU_REMAP_ADDR(addr));
+	addr = MMU_REMAP_ADDR(addr);
+	if (addr < opcode_memory_min || addr > opcode_memory_max)
+		memory_set_opbase(addr);
+	return cpu_readop_arg_unsafe(addr);
 }
 
 INLINE UINT32 ARG16(void)
 {
-	offs_t addr = _PCD;
-	_PC += 2;
-	return cpu_readop_arg(MMU_REMAP_ADDR(addr)) | (cpu_readop_arg(MMU_REMAP_ADDR(addr+1)) << 8);
+	UINT32 low = ARG();
+	return low | (ARG() << 8);
 }
 
 /****************************************************************************
@@ -1160,7 +1171,7 @@ INLINE UINT8 SET(UINT8 bit, UINT8 value)
 		_PPC = _PCD;											\
 		CALL_MAME_DEBUG;										\
 		_R++;													\
-		while( cpu_readop(_PCD) == 0xfb ) /* more EIs? */		\
+		while( z180_readop(_PCD) == 0xfb ) /* more EIs? */		\
 		{														\
 			LOG(("Z180 #%d multiple EI opcodes at %04X\n",      \
 				cpu_getactivecpu(), _PC));						\
