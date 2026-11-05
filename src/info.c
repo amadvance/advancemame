@@ -322,9 +322,21 @@ static void print_game_input(FILE* out, const game_driver* game)
 static void print_game_bios(FILE* out, const game_driver* game)
 {
 	const bios_entry *thisbios;
+	const char *default_bios = NULL;
+	const rom_entry *romp;
 
 	if(!game->bios)
 		return;
+
+	/* Look for ROM_DEFAULT_BIOS in game's rom entries */
+	for (romp = game->rom; romp && !ROMENTRY_ISEND(romp); romp++)
+	{
+		if (ROMENTRY_ISDEFAULT_BIOS(romp))
+		{
+			default_bios = ROM_GETDEFAULTBIOS(romp);
+			break;
+		}
+	}
 
 	thisbios = game->bios;
 
@@ -337,7 +349,7 @@ static void print_game_bios(FILE* out, const game_driver* game)
 			fprintf(out, " name=\"%s\"", normalize_string(thisbios->_name));
 		if (thisbios->_description)
 			fprintf(out, " description=\"%s\"", normalize_string(thisbios->_description));
-		if (thisbios->value == 0)
+		if (default_bios ? (!strcmp(thisbios->_name, default_bios)) : (thisbios->value == 0))
 			fprintf(out, " default=\"yes\"");
 
 		fprintf(out, "/>\n");
