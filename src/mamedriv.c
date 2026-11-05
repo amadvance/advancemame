@@ -7530,6 +7530,7 @@ Other Sun games
 	DRIVER( witch )		/* (c) 1992 Sega / Vic Tokai / Excellent Systems */
 	DRIVER( pbchmp95 )	/* (c) 1995 Veltmeijer Automaten */
 	DRIVER( cardline )	/* (c) 199? Veltmeijer */
+	DRIVER( blackt96 )
 	DRIVER( popobear )
 	DRIVER( bmcbowl )	/* (c) 1994 BMC */
 	DRIVER( pitboss )	/* (c) 1983 Merit */
