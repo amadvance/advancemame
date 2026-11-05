@@ -1441,6 +1441,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/aztarac.o $(OBJ)/sndhrdw/aztarac.o $(OBJ)/vidhrdw/aztarac.o \
 	$(OBJ)/drivers/beaminv.o $(OBJ)/vidhrdw/beaminv.o \
 	$(OBJ)/drivers/bmcbowl.o \
+	$(OBJ)/drivers/popobear.o \
 	$(OBJ)/drivers/cave.o $(OBJ)/vidhrdw/cave.o \
 	$(OBJ)/drivers/cedar_magnet.o \
 	$(OBJ)/drivers/cherrym.o \
