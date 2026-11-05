@@ -317,6 +317,9 @@ def main():
     # Source file mappings tracker: adv_source -> {mame_source: set of families}
     source_mappings = defaultdict(lambda: defaultdict(set))
 
+    # Output grouping tracker: adv_source -> list of family data dicts
+    families_by_source = defaultdict(list)
+
     processed_mame_parents = set()
 
     # Iterate over AdvanceMAME families
@@ -543,52 +546,79 @@ def main():
         if not args.all and not has_differences:
             continue
 
-        # Print family details
-        fam_header = f"=== Family: AdvanceMAME '{adv_p_name}' / MAME '{mame_p_name}' ==="
-        print("=" * len(fam_header))
-        print(fam_header)
-        print("=" * len(fam_header))
+        # Store family result for grouped output by AdvanceMAME driver source
+        fam_data = {
+            "adv_p_name": adv_p_name,
+            "mame_p_name": mame_p_name,
+            "adv_p_info": adv_p_info,
+            "mame_p_info": mame_p_info,
+            "adv_sources": adv_sources,
+            "mame_sources": mame_sources,
+            "parent_notes": parent_notes,
+            "rom_diff_notes": rom_diff_notes,
+            "renamed_clones": renamed_clones,
+            "removed_clones": removed_clones,
+            "added_clones": added_clones,
+            "has_differences": has_differences,
+        }
 
-        print(f"Parent AdvanceMAME : {adv_p_name} ({adv_p_info.description})")
-        print(f"Parent MAME        : {mame_p_name} ({mame_p_info.description})")
-        print(f"Source AdvanceMAME : {', '.join(adv_sources) if adv_sources else 'N/A'}")
-        print(f"Source MAME        : {', '.join(mame_sources) if mame_sources else 'N/A'}")
+        # Primary source file of the AdvanceMAME parent
+        primary_adv_source = adv_p_info.sourcefile or "unknown"
+        families_by_source[primary_adv_source].append(fam_data)
 
-        if parent_notes:
-            print("  [*] Parent Differences:")
-            for note in parent_notes:
-                print(f"      - {note}")
+    # Print family details grouped by AdvanceMAME source file
+    for adv_src in sorted(families_by_source.keys()):
+        src_header = f"##### AdvanceMAME Driver Source: {adv_src} #####"
+        print("#" * len(src_header))
+        print(src_header)
+        print("#" * len(src_header) + "\n")
 
-        if rom_diff_notes:
-            print("  [*] Parent ROM Differences:")
-            for note in rom_diff_notes:
-                print(f"      - {note}")
+        for f in families_by_source[adv_src]:
+            fam_header = f"=== Family: AdvanceMAME '{f['adv_p_name']}' / MAME '{f['mame_p_name']}' ==="
+            print("=" * len(fam_header))
+            print(fam_header)
+            print("=" * len(fam_header))
 
-        if renamed_clones:
-            print(f"  [*] Renamed Clones ({len(renamed_clones)}):")
-            for a_c, m_c in renamed_clones:
-                print(f"      - AdvanceMAME '{a_c}' -> MAME '{m_c}' (same Key ROM)")
+            print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description})")
+            print(f"Parent MAME        : {f['mame_p_name']} ({f['mame_p_info'].description})")
+            print(f"Source AdvanceMAME : {', '.join(f['adv_sources']) if f['adv_sources'] else 'N/A'}")
+            print(f"Source MAME        : {', '.join(f['mame_sources']) if f['mame_sources'] else 'N/A'}")
 
-        if removed_clones:
-            print(f"  [-] Clones absent in MAME ({len(removed_clones)}):")
-            for a_c in sorted(removed_clones):
-                desc = adv_games[a_c].description
-                m_other_fam = mame_g2f.get(a_c)
-                if m_other_fam:
-                    print(f"      - '{a_c}': moved to MAME family '{m_other_fam}' ({desc})")
-                else:
-                    print(f"      - '{a_c}': {desc}")
+            if f["parent_notes"]:
+                print("  [*] Parent Differences:")
+                for note in f["parent_notes"]:
+                    print(f"      - {note}")
 
-        if added_clones:
-            print(f"  [+] New clones in MAME ({len(added_clones)}):")
-            for m_c in sorted(added_clones):
-                desc = mame_games[m_c].description
-                print(f"      - '{m_c}': {desc}")
+            if f["rom_diff_notes"]:
+                print("  [*] Parent ROM Differences:")
+                for note in f["rom_diff_notes"]:
+                    print(f"      - {note}")
 
-        if not has_differences:
-            print("  [OK] Family 100% identical (same parent, same ROMs, same clones).")
+            if f["renamed_clones"]:
+                print(f"  [*] Renamed Clones ({len(f['renamed_clones'])}):")
+                for a_c, m_c in f["renamed_clones"]:
+                    print(f"      - AdvanceMAME '{a_c}' -> MAME '{m_c}' (same Key ROM)")
 
-        print()
+            if f["removed_clones"]:
+                print(f"  [-] Clones absent in MAME ({len(f['removed_clones'])}):")
+                for a_c in sorted(f["removed_clones"]):
+                    desc = adv_games[a_c].description
+                    m_other_fam = mame_g2f.get(a_c)
+                    if m_other_fam:
+                        print(f"      - '{a_c}': moved to MAME family '{m_other_fam}' ({desc})")
+                    else:
+                        print(f"      - '{a_c}': {desc}")
+
+            if f["added_clones"]:
+                print(f"  [+] New clones in MAME ({len(f['added_clones'])}):")
+                for m_c in sorted(f["added_clones"]):
+                    desc = mame_games[m_c].description
+                    print(f"      - '{m_c}': {desc}")
+
+            if not f["has_differences"]:
+                print("  [OK] Family 100% identical (same parent, same ROMs, same clones).")
+
+            print()
 
     # Print final summary
     print("=" * 65)
