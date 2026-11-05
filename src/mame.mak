@@ -1420,7 +1420,7 @@ $(OBJ)/yunsung.a: \
 $(OBJ)/zaccaria.a: \
 	$(OBJ)/drivers/galaxia.o \
 	$(OBJ)/drivers/laserbat.o \
-	$(OBJ)/drivers/zac2650.o $(OBJ)/vidhrdw/zac2650.o \
+	$(OBJ)/drivers/zac1b1120.o $(OBJ)/vidhrdw/zac2650.o \
 	$(OBJ)/drivers/zaccaria.o $(OBJ)/vidhrdw/zaccaria.o \
 
 

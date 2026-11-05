@@ -1,7 +1,7 @@
 // license:BSD-3-Clause
-// copyright-holders:Mike Coates
+// copyright-holders:Mike Coates, Vas Crabb
 /*
- * Signetics 2650 CPU Games
+ * Zaccaria 1B1120 hardware (Signetics 2650 based)
  *
  * Zaccaria - The Invaders
  * Zaccaria - Super Invader Attack
@@ -14,6 +14,8 @@
 #include "artwork.h"
 #include "cpu/s2650/s2650.h"
 #include "sound/samples.h"
+#include "sound/custom.h"
+#include "streams.h"
 
 extern UINT8 *s2636ram;
 
@@ -25,6 +27,7 @@ extern READ8_HANDLER( tinvader_port_0_r );
 
 extern VIDEO_START( tinvader );
 extern VIDEO_UPDATE( tinvader );
+extern VIDEO_EOF( tinvader );
 
 #define WHITE           MAKE_ARGB(0x04,0xff,0xff,0xff)
 #define GREEN 			MAKE_ARGB(0x04,0x20,0xff,0x20)
@@ -36,6 +39,64 @@ OVERLAY_START( tinv2650_overlay )
 	OVERLAY_RECT(   0,  48,  48, 134, GREEN )
 	OVERLAY_RECT( 576,   0, 627, 256, PURPLE )
 OVERLAY_END
+
+OVERLAY_START( dodgem_overlay )
+	OVERLAY_RECT( 0, 0, 720, 256, MAKE_ARGB(0x04, 0x33, 0xff, 0xe6) )
+OVERLAY_END
+
+static sound_stream *tone_stream;
+static UINT8 tone_period;
+static int tone_count;
+static int tone_level;
+
+static void zac_tone_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	stream_sample_t *dest = outputs[0];
+	int i;
+
+	for (i = 0; i < samples; ++i)
+	{
+		if (!tone_count)
+		{
+			if (tone_period)
+			{
+				/* Each half-wave lasts period + 1 horizontal scanlines. */
+				tone_count = Machine->sample_rate * (tone_period + 1) / (Machine->drv->frames_per_second * 312);
+				tone_level = !tone_level;
+			}
+			else
+			{
+				tone_count = 1;
+				tone_level = 0;
+			}
+		}
+		*dest++ = tone_level ? 32767 : 0;
+		--tone_count;
+	}
+}
+
+static void *zac_tone_start(int clock, const struct CustomSound_interface *config)
+{
+	tone_period = tone_count = tone_level = 0;
+	tone_stream = stream_create(0, 1, Machine->sample_rate, 0, zac_tone_update);
+	return tone_stream;
+}
+
+static void zac_tone_reset(void *token)
+{
+	tone_period = tone_count = tone_level = 0;
+}
+
+void zac_tone_w(UINT8 data)
+{
+	stream_update(tone_stream, 0);
+	tone_period = data;
+}
+
+static struct CustomSound_interface zac_tone_interface =
+{
+	zac_tone_start, 0, zac_tone_reset, 0
+};
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x17ff) AM_READ(MRA8_ROM)
@@ -352,12 +413,12 @@ static struct Samplesinterface tinvader_samples_interface =
 static MACHINE_DRIVER_START( tinvader )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(S2650, 3800000/4)
+	MDRV_CPU_ADD_TAG("main", S2650, 15625000/16)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_IO_MAP(readport,0)
 
-	MDRV_FRAMES_PER_SECOND(55)
-	MDRV_VBLANK_DURATION(1041)
+	MDRV_FRAMES_PER_SECOND(15625000.0 / (227 * 4 * 312))
+	MDRV_VBLANK_DURATION(1000000.0 * (312 - 256) * 227 * 4 / 15625000)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -370,13 +431,26 @@ static MACHINE_DRIVER_START( tinvader )
 	MDRV_PALETTE_INIT(zac2650)
 	MDRV_VIDEO_START(tinvader)
 	MDRV_VIDEO_UPDATE(tinvader)
+	MDRV_VIDEO_EOF(tinvader)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_ADD_TAG("samples", SAMPLES, 0)
 	MDRV_SOUND_CONFIG(tinvader_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(zac_tone_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( dodgem )
+	MDRV_IMPORT_FROM(tinvader)
+	MDRV_CPU_REPLACE("main", S2650, 14318181/16)
+	MDRV_FRAMES_PER_SECOND(14318181.0 / (227 * 4 * 312))
+	MDRV_VBLANK_DURATION(1000000.0 * (312 - 256) * 227 * 4 / 14318181)
+	MDRV_SOUND_REMOVE("samples")
 MACHINE_DRIVER_END
 
 WRITE8_HANDLER( tinvader_sound_w )
@@ -450,6 +524,13 @@ static DRIVER_INIT( tinvader )
 }
 
 
-GAME( 1978, sia2650,  0,       tinvader, sinvader, 0,        ROT270, "Zaccaria/Zelco", "Super Invader Attack", 0 )
-GAME( 1978, tinv2650, 0,       tinvader, tinvader, tinvader, ROT270, "Zaccaria/Zelco", "The Invaders",			0 )
-GAME( 1979, dodgem,   0,       tinvader, dodgem,   0,        ROT0,   "Zaccaria",		"Dodgem",				GAME_NO_SOUND )
+static DRIVER_INIT( dodgem )
+{
+	/* The daughterboard latch has a different circuit from The Invaders. */
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x1e80, 0x1e80, 0, 0, MWA8_NOP);
+	artwork_set_overlay(dodgem_overlay);
+}
+
+GAME( 1978, tinv2650, 0, tinvader, tinvader, tinvader, ROT270, "Zaccaria/Zelco", "The Invaders", 0 )
+GAME( 1978, sia2650, 0, tinvader, sinvader, 0, ROT270, "Zaccaria/Zelco", "Super Invader Attack", 0 )
+GAME( 1979, dodgem, 0, dodgem, dodgem, dodgem, ROT0, "Zaccaria", "Dodgem", GAME_IMPERFECT_SOUND )
