@@ -142,7 +142,7 @@ CPUS += E132XT
 #CPUS += E132XS
 #CPUS += E132XSR
 CPUS += GMS30C2116
-#CPUS += GMS30C2132
+CPUS += GMS30C2132
 #CPUS += GMS30C2216
 #CPUS += GMS30C2232
 CPUS += I386
@@ -669,6 +669,7 @@ $(OBJ)/efo.a: \
 
 
 $(OBJ)/eolith.a: \
+	$(OBJ)/drivers/vegaeo.o \
 	$(OBJ)/drivers/ghosteo.o $(OBJ)/machine/s3c2410.o \
 	$(OBJ)/drivers/eolith.o $(OBJ)/vidhrdw/eolith.o $(OBJ)/sndhrdw/eolith.o \
 	$(OBJ)/drivers/eolith16.o \
