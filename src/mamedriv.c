@@ -6834,6 +6834,7 @@ Other Sun games
 	DRIVER( magix )		/* (c) 1995 Yun Sung */
 	DRIVER( magicbub )	/* (c) Yun Sung */
 	DRIVER( magicbua )	/* (c) Yun Sung */
+	DRIVER( paprazzi )	/* (c) 1996 Yun Sung */
 	DRIVER( shocking )	/* (c) 1997 Yun Sung */
 	DRIVER( bombkick )	/* (c) 1998 Yun Sung */
 	DRIVER( nmg5 )		/* (c) 1998 Yun Sung */
