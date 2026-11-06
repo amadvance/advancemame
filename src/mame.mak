@@ -1295,7 +1295,7 @@ $(OBJ)/taito.a: \
 $(OBJ)/tatsumi.a: \
 	$(OBJ)/drivers/lockon.o \
 	$(OBJ)/drivers/tatsumi.o $(OBJ)/machine/tatsumi.o $(OBJ)/vidhrdw/tatsumi.o \
-	$(OBJ)/drivers/tx1.o $(OBJ)/machine/tx1.o $(OBJ)/vidhrdw/tx1.o \
+	$(OBJ)/drivers/tx1.o $(OBJ)/machine/tx1.o $(OBJ)/vidhrdw/tx1.o $(OBJ)/sndhrdw/tx1.o \
 
 $(OBJ)/tch.a: \
 	$(OBJ)/drivers/kickgoal.o $(OBJ)/vidhrdw/kickgoal.o \

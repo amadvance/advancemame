@@ -78,6 +78,17 @@ typedef enum { AH,AL,CH,CL,DH,DL,BH,BL,SPH,SPL,BPH,BPL,SIH,SIL,DIH,DIL } BREGS;
 
 #define DefaultBase(Seg) 		((seg_prefix && (Seg == DS || Seg == SS)) ? prefix_base : I.base[Seg])
 
+#ifdef I86_NATIVE_ACCESS
+#define GetMemB(Seg,Off) i86_read_byte(DefaultBase(Seg) + (Off))
+#define GetMemW(Seg,Off) i86_read_word(DefaultBase(Seg) + (Off))
+#define PutMemB(Seg,Off,x) i86_write_byte(DefaultBase(Seg) + (Off), (x))
+#define PutMemW(Seg,Off,x) i86_write_word(DefaultBase(Seg) + (Off), (x))
+#define PEEKBYTE(ea) i86_read_byte(ea)
+#define ReadByte(ea) i86_read_byte(ea)
+#define ReadWord(ea) i86_read_word(ea)
+#define WriteByte(ea,val) i86_write_byte(ea, val);
+#define WriteWord(ea,val) i86_write_word(ea, val);
+#else
 #define GetMemB(Seg,Off)		(program_read_byte_8((DefaultBase(Seg) + (Off)) & AMASK))
 #define GetMemW(Seg,Off)		((WORD)GetMemB(Seg, Off) + (WORD)(GetMemB(Seg, (Off) + 1) << 8))
 #define PutMemB(Seg,Off,x)		program_write_byte_8((DefaultBase(Seg) + (Off)) & AMASK, (x))
@@ -88,6 +99,8 @@ typedef enum { AH,AL,CH,CL,DH,DL,BH,BL,SPH,SPL,BPH,BPL,SIH,SIL,DIH,DIL } BREGS;
 #define ReadWord(ea)			(program_read_byte_8((ea) & AMASK) + (program_read_byte_8(((ea) + 1) & AMASK) << 8))
 #define WriteByte(ea,val)		program_write_byte_8((ea) & AMASK, val);
 #define WriteWord(ea,val)		{ program_write_byte_8((ea) & AMASK, (val) & 0xff); program_write_byte_8(((ea) + 1) & AMASK, ((val) >> 8) & 0xff); }
+
+#endif
 
 #define read_port(port) 		io_read_byte_8(port)
 #define write_port(port,val) 	io_write_byte_8(port,val)

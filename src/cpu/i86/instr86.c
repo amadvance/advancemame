@@ -2067,8 +2067,7 @@ static void PREFIX86(_mov_axdisp)(void)    /* Opcode 0xa1 */
 	addr += FETCH << 8;
 
 	ICOUNT -= cycles.mov_am16;
-	I.regs.b[AL] = GetMemB(DS, addr);
-	I.regs.b[AH] = GetMemB(DS, addr+1);
+	I.regs.w[AX] = GetMemW(DS, addr);
 }
 
 static void PREFIX86(_mov_dispal)(void)    /* Opcode 0xa2 */
@@ -2090,8 +2089,7 @@ static void PREFIX86(_mov_dispax)(void)    /* Opcode 0xa3 */
 	addr += FETCH << 8;
 
 	ICOUNT -= cycles.mov_ma16;
-	PutMemB(DS, addr, I.regs.b[AL]);
-	PutMemB(DS, addr+1, I.regs.b[AH]);
+	PutMemW(DS, addr, I.regs.w[AX]);
 }
 
 static void PREFIX86(_movsb)(void)    /* Opcode 0xa4 */
