@@ -6832,6 +6832,7 @@ Other Sun games
 	DRIVER( madball )	/* (c) 1998 Yun Sung */
 	DRIVER( cannball )	/* (c) 1995 Yun Sung / Soft Visio */
 	DRIVER( magix )		/* (c) 1995 Yun Sung */
+	DRIVER( rocktris )	/* (c) 1994? Yun Sung */
 	DRIVER( magicbub )	/* (c) Yun Sung */
 	DRIVER( magicbua )	/* (c) Yun Sung */
 	DRIVER( paprazzi )	/* (c) 1996 Yun Sung */
