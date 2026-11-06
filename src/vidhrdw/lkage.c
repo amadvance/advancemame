@@ -3,7 +3,7 @@
 #include "driver.h"
 
 static tilemap *bg_tilemap, *fg_tilemap, *tx_tilemap;
-static unsigned char bg_tile_bank, fg_tile_bank;
+static unsigned char bg_tile_bank, fg_tile_bank, tx_tile_bank;
 unsigned char *lkage_scroll, *lkage_vreg;
 
 /*
@@ -78,13 +78,13 @@ static void get_fg_tile_info(int tile_index)
 
 static void get_tx_tile_info(int tile_index)
 {
-	int code = videoram[tile_index];
+	int code = videoram[tile_index] + 256 * (tx_tile_bank ? 4 : 0);
 	SET_TILE_INFO( 0/*gfx*/, code, 0/*color*/, 0/*flags*/)
 }
 
 VIDEO_START( lkage )
 {
-	bg_tile_bank = fg_tile_bank = 0;
+	bg_tile_bank = fg_tile_bank = tx_tile_bank = 0;
 
 	bg_tilemap = tilemap_create(get_bg_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,     8,8,32,32);
 	fg_tilemap = tilemap_create(get_fg_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,32,32);
@@ -98,10 +98,12 @@ VIDEO_START( lkage )
 	tilemap_set_transparent_pen(fg_tilemap,0);
 	tilemap_set_transparent_pen(tx_tilemap,0);
 
-	tilemap_set_scrolldx(bg_tilemap,-5,-5+24);
-	tilemap_set_scrolldx(fg_tilemap,-3,-3+24);
+	tilemap_set_scrolldx(bg_tilemap,-5,-5+32);
+	tilemap_set_scrolldx(fg_tilemap,-3,-3+28);
 	tilemap_set_scrolldx(tx_tilemap,-1,-1+24);
 
+	/* Hide uninitialized tiles until the program fills each layer. */
+	memset(videoram, 0xff, 0xc00);
 	return 0;
 } /* VIDEO_START( lkage ) */
 
@@ -125,8 +127,8 @@ draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 		int flipx = attributes&0x01;
 		int flipy = attributes&0x02;
 		int height = (attributes&0x08) ? 2 : 1;
-		int sx = source[0]-15;
-		int sy = 256-16*height-source[1];
+		int sx = source[0]-14;
+		int sy = 255-16*height-source[1];
 		int sprite_number = source[3] + ((attributes & 0x04) << 6);
 		int y;
 
@@ -141,7 +143,7 @@ draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 
 		if (flip_screen_x)
 		{
-			sx = 239 - sx - 24;
+			sx = 256 - source[0] - 14;
 			flipx = !flipx;
 		}
 		if( flip_screen_y )
@@ -193,9 +195,16 @@ VIDEO_UPDATE( lkage )
 		tilemap_mark_all_tiles_dirty( fg_tilemap );
 	}
 
+	bank = lkage_vreg[0]&0x02;
+	if( tx_tile_bank != bank )
+	{
+		tx_tile_bank = bank;
+		tilemap_mark_all_tiles_dirty( tx_tilemap );
+	}
+
 	tilemap_set_palette_offset( bg_tilemap, 0x300 + (lkage_vreg[1]&0xf0) );
 	tilemap_set_palette_offset( fg_tilemap, 0x200 + (lkage_vreg[1]&0xf0) );
-	tilemap_set_palette_offset( tx_tilemap, 0x110 );
+	tilemap_set_palette_offset( tx_tilemap, 0x100 + (lkage_vreg[1]&0xf0) );
 
 	tilemap_set_scrollx(tx_tilemap,0,lkage_scroll[0]);
 	tilemap_set_scrolly(tx_tilemap,0,lkage_scroll[1]);
@@ -207,15 +216,14 @@ VIDEO_UPDATE( lkage )
 	tilemap_set_scrolly(bg_tilemap,0,lkage_scroll[5]);
 
 	fillbitmap(priority_bitmap, 0, cliprect);
-	if ((lkage_vreg[2] & 0xf0) == 0xf0)
-	{
-		tilemap_draw( bitmap,cliprect,bg_tilemap,0,1 );
-		tilemap_draw( bitmap,cliprect,fg_tilemap,0,(lkage_vreg[1]&2)?2:4 );
-		tilemap_draw( bitmap,cliprect,tx_tilemap,0,4 );
-	}
-	else
-	{
-		tilemap_draw( bitmap,cliprect,tx_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
-	}
-	draw_sprites( bitmap,cliprect );
+	fillbitmap(bitmap, Machine->pens[0x300 + (lkage_vreg[1]&0xf0)], cliprect);
+
+	if (lkage_vreg[2] & 0x40)
+		tilemap_draw(bitmap,cliprect,bg_tilemap,0,1);
+	if (lkage_vreg[2] & 0x20)
+		tilemap_draw(bitmap,cliprect,fg_tilemap,0,(lkage_vreg[1]&2)?2:4);
+	if (lkage_vreg[2] & 0x10)
+		tilemap_draw(bitmap,cliprect,tx_tilemap,0,4);
+	if (lkage_vreg[2] & 0x80)
+		draw_sprites(bitmap,cliprect);
 } /* VIDEO_UPDATE( lkage ) */
