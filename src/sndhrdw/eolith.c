@@ -291,6 +291,13 @@ static READ32_HANDLER( qs_external_address )
 	return mem_mask == 0xff ? (qs_p2 << 8) | offset : offset;
 }
 
+void eolith_qs_configure(int cpu)
+{
+	cpuintrf_push_context(cpu);
+	i8051_set_eram_iaddr_callback(qs_external_address);
+	cpuintrf_pop_context();
+}
+
 static void configure_cpus(int param)
 {
 	cpuintrf_push_context(1);
@@ -303,10 +310,16 @@ static void configure_cpus(int param)
 	cpunum_set_input_line(1, I8051_INT1_LINE, ASSERT_LINE);
 }
 
-void eolith_sound_reset(void)
+void eolith_qs_reset(void)
 {
+	qs_p2 = 0xff;
 	memset(voices, 0, sizeof(voices));
 	memset(wave_regs, 0, sizeof(wave_regs));
+}
+
+void eolith_sound_reset(void)
+{
+	eolith_qs_reset();
 	serial_data = 0;
 	qs_p2 = 0xff;
 	memory_set_bankptr(1, memory_region(REGION_SOUND1));

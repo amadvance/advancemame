@@ -10,6 +10,8 @@ WRITE8_HANDLER(eolith_qs_wave_w);
 WRITE8_HANDLER(eolith_qs_p2_w);
 READ8_HANDLER(eolith_qs_port_r);
 void eolith_sound_reset(void);
+void eolith_qs_reset(void);
+void eolith_qs_configure(int cpu);
 extern struct CustomSound_interface eolith_sound_interface;
 
 READ32_HANDLER(eolith_vram_r);

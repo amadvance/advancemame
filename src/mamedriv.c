@@ -7490,6 +7490,8 @@ Other Sun games
 	DRIVER( linkypip )
 	DRIVER( penfan )
 	DRIVER( stealsee )
+	DRIVER( bballoon )
+	DRIVER( hapytour )
 	DRIVER( hidnctch )	/* (c) 1998 Eolith */
 	DRIVER( puzzlekg )	/* (c) 1998 Eolith */
 	DRIVER( hidctch2 )	/* (c) 1999 Eolith */
