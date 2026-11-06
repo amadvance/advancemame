@@ -111,7 +111,7 @@ CPUS += ASAP
 CPUS += UPD7810
 CPUS += UPD7807
 CPUS += ARM
-CPUS += ARM7
+CPUS += ARM7 ARM920T
 CPUS += IGS036
 CPUS += JAGUAR
 CPUS += R3000
@@ -669,6 +669,7 @@ $(OBJ)/efo.a: \
 
 
 $(OBJ)/eolith.a: \
+	$(OBJ)/drivers/ghosteo.o $(OBJ)/machine/s3c2410.o \
 	$(OBJ)/drivers/eolith.o $(OBJ)/vidhrdw/eolith.o $(OBJ)/sndhrdw/eolith.o \
 	$(OBJ)/drivers/eolith16.o \
 

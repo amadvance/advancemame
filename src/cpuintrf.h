@@ -208,6 +208,7 @@ enum
 	CPU_CDP1802,
 #endif
 	CPU_COP420,
+	CPU_ARM920T,
     CPU_COUNT
 };
 

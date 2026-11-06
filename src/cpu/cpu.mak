@@ -1077,3 +1077,14 @@ CPUOBJS += $(OBJ)/cpu/cop400/cop420.o
 DBGOBJS += $(OBJ)/cpu/cop400/cop420ds.o
 $(OBJ)/cpu/cop400/cop420.o: src/cpu/cop400/410ops.c src/cpu/cop400/420ops.c src/cpu/cop400/cop400.h
 endif
+
+CPUDEFS += -DHAS_ARM920T=$(if $(filter ARM920T,$(CPUS)),1,0)
+ifneq ($(filter ARM920T,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/arm920t
+CPUOBJS += $(OBJ)/cpu/arm920t/arm920t.o
+ifeq ($(filter ARM7 IGS036,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/arm7
+DBGOBJS += $(OBJ)/cpu/arm7/arm7dasm.o
+endif
+$(OBJ)/cpu/arm920t/arm920t.o: arm920t.c arm920t.h ../igs036/igs036core.h ../igs036/igs036help.h ../igs036/igs036ops.c ../igs036/igs036thumb.c ../igs036/igs036irq.c
+endif
