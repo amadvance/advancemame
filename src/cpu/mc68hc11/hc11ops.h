@@ -8,7 +8,12 @@ typedef struct {
 
 static HC11_OPCODE_LIST hc11_opcode_list[] =
 {
-	/*  page    opcode          handler                     */
+	{	0,		0x2f,			HC11OP(ble)					},
+	{	0x18,	0x8c,			HC11OP(cpy_imm)				},
+	{	0x18,	0x08,			HC11OP(iny)					},
+	{	0,		0x05,			HC11OP(lsld)				},
+	{	0,		0x3c,			HC11OP(pshx)				},
+	{	0,		0x38,			HC11OP(pulx)				},
 	{	0,		0x1b,			HC11OP(aba)					},
 	{	0,		0x3a,			HC11OP(abx)					},
 	{	0x18,	0x3a,			HC11OP(aby)					},

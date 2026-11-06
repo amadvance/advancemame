@@ -1,33 +1,33 @@
 // license:BSD-3-Clause
 // copyright-holders:Ville Linde
-INLINE void PUSH_PC(UINT16 pc)
+INLINE void PUSH_STACK(UINT16 pc)
 {
 	if (tms.pcstack_ptr >= 8)
 	{
-		fatalerror("32051: PC stack overflow!\n");
+		fatalerror("32051: stack overflow at %04X!\n", tms.pc);
 	}
 
 	tms.pcstack[tms.pcstack_ptr] = pc;
 	tms.pcstack_ptr++;
 }
 
-INLINE UINT16 POP_PC(void)
+INLINE UINT16 POP_STACK(void)
 {
 	UINT16 pc;
 	tms.pcstack_ptr--;
 	if (tms.pcstack_ptr < 0)
 	{
-		fatalerror("32051: PC stack underflow!\n");
+		fatalerror("32051: stack underflow at %04X!\n", tms.pc);
 	}
 
 	pc = tms.pcstack[tms.pcstack_ptr];
 	return pc;
 }
 
-INLINE INT32 SUB(INT32 a, INT32 b)
+INLINE INT32 SUB(INT32 a, INT32 b, int shift16)
 {
 	INT64 res = a - b;
-	if (tms.st0.ovm)	// overflow saturation mode
+	if (tms.st0.ovm)
 	{
 		if ((res & 0x80000000) && ((UINT32)(res >> 32) & 0xffffffff) != 0xffffffff)
 		{
@@ -38,33 +38,43 @@ INLINE INT32 SUB(INT32 a, INT32 b)
 			res = 0x7fffffff;
 		}
 	}
-	else				// normal mode, result is not modified
+	else
 	{
-		// set OV flag if overflow occured, this is a sticky flag
+
 		if (((a) ^ (b)) & ((a) ^ ((INT32)res)) & 0x80000000)
 		{
 			tms.st0.ov = 1;
 		}
 	}
 
-	// set carry
-	// TODO: shift with 16-bits works differently!
-	if (res & U64(0x100000000))
+	if (!shift16)
 	{
-		tms.st1.c = 0;
+
+		if (((UINT64)(a) + (UINT64)(~b)) & U64(0x100000000))
+		{
+			tms.st1.c = 0;
+		}
+		else
+		{
+			tms.st1.c = 1;
+		}
 	}
 	else
 	{
-		tms.st1.c = 1;
+
+		if (((UINT64)(a) + (UINT64)(~b)) & U64(0x100000000))
+		{
+			tms.st1.c = 0;
+		}
 	}
 
 	return (INT32)(res);
 }
 
-INLINE INT32 ADD(INT32 a, INT32 b)
+INLINE INT32 ADD(INT32 a, INT32 b, int shift16)
 {
 	INT64 res = a + b;
-	if (tms.st0.ovm)	// overflow saturation mode
+	if (tms.st0.ovm)
 	{
 		if ((res & 0x80000000) && ((UINT32)(res >> 32) & 0xffffffff) != 0xffffffff)
 		{
@@ -75,140 +85,208 @@ INLINE INT32 ADD(INT32 a, INT32 b)
 			res = 0x7fffffff;
 		}
 	}
-	else				// normal mode, result is not modified
+	else
 	{
-		// set OV flag if overflow occured, this is a sticky flag
+
 		if (((res) ^ (b)) & ((res) ^ (a)) & 0x80000000)
 		{
 			tms.st0.ov = 1;
 		}
 	}
 
-	// set carry
-	// TODO: shift with 16-bits works differently!
-	if (res & U64(0x100000000))
+	if (!shift16)
 	{
-		tms.st1.c = 0;
+
+		if (res & U64(0x100000000))
+		{
+			tms.st1.c = 1;
+		}
+		else
+		{
+			tms.st1.c = 0;
+		}
 	}
 	else
 	{
-		tms.st1.c = 1;
+
+		if (res & U64(0x100000000))
+		{
+			tms.st1.c = 1;
+		}
 	}
 
 	return (INT32)(res);
 }
 
+INLINE void UPDATE_AR(int ar, int step)
+{
+	int cenb1 = (tms.cbcr >> 3) & 0x1;
+	int car1 = tms.cbcr & 0x7;
+	int cenb2 = (tms.cbcr >> 7) & 0x1;
+	int car2 = (tms.cbcr >> 4) & 0x7;
+
+	if (cenb1 && ar == car1)
+	{
+
+		if (tms.ar[ar] == tms.cber1)
+		{
+			tms.ar[ar] = tms.cbsr1;
+		}
+		else
+		{
+			tms.ar[ar] += step;
+		}
+	}
+	else if (cenb2 && ar == car2)
+	{
+
+		if (tms.ar[ar] == tms.cber2)
+		{
+			tms.ar[ar] = tms.cbsr2;
+		}
+		else
+		{
+			tms.ar[ar] += step;
+		}
+	}
+	else
+	{
+		tms.ar[ar] += step;
+	}
+}
+
+INLINE void UPDATE_ARP(int nar)
+{
+	tms.st1.arb = tms.st0.arp;
+	tms.st0.arp = nar;
+}
 
 static UINT16 GET_ADDRESS(void)
 {
-	if (tms.op & 0x80)		// Indirect Addressing
+	if (tms.op & 0x80)
 	{
 		UINT16 ea;
 		int arp = tms.st0.arp;
 		int nar = tms.op & 0x7;
 
+		ea = tms.ar[arp];
+
 		switch ((tms.op >> 3) & 0xf)
 		{
-			case 0x0:	// *            (no operation)
+			case 0x0:
 			{
-				ea = tms.ar[arp];
 				break;
 			}
-			case 0x1:	// *, ARn       (NAR -> ARP)
+			case 0x1:
 			{
-				ea = tms.ar[arp];
-				tms.st1.arb = tms.st0.arp;
-				tms.st0.arp = nar;
+				UPDATE_ARP(nar);
 				break;
 			}
-			case 0x2:	// *-           ((CurrentAR)-1 -> CurrentAR)
+			case 0x2:
 			{
-				ea = tms.ar[arp];
-				tms.ar[arp]--;
+				UPDATE_AR(arp, -1);
 				break;
 			}
-			case 0x3:	// *-, ARn      ((CurrentAR)-1 -> CurrentAR, NAR -> ARP)
+			case 0x3:
 			{
-				ea = tms.ar[arp];
-				tms.ar[arp]--;
-				tms.st1.arb = tms.st0.arp;
-				tms.st0.arp = nar;
+				UPDATE_AR(arp, -1);
+				UPDATE_ARP(nar);
 				break;
 			}
-			case 0x4:	// *+           ((CurrentAR)+1 -> CurrentAR)
+			case 0x4:
 			{
-				ea = tms.ar[arp];
-				tms.ar[arp]++;
+				UPDATE_AR(arp, 1);
 				break;
 			}
-			case 0x5:	// *+, ARn      ((CurrentAR)+1 -> CurrentAR, NAR -> ARP)
+			case 0x5:
 			{
-				ea = tms.ar[arp];
-				tms.ar[arp]++;
-				tms.st1.arb = tms.st0.arp;
-				tms.st0.arp = nar;
+				UPDATE_AR(arp, 1);
+				UPDATE_ARP(nar);
+				break;
+			}
+			case 0xa:
+			{
+				UPDATE_AR(arp, -tms.indx);
+				break;
+			}
+			case 0xb:
+			{
+				UPDATE_AR(arp, -tms.indx);
+				UPDATE_ARP(nar);
+				break;
+			}
+			case 0xc:
+			{
+				UPDATE_AR(arp, tms.indx);
+				break;
+			}
+			case 0xd:
+			{
+				UPDATE_AR(arp, tms.indx);
+				UPDATE_ARP(nar);
 				break;
 			}
 
-			default:	fatalerror("32051: GET_ADDRESS: unimplemented indirect addressing mode %d\n", (tms.op >> 3) & 0xf);
+			default:	fatalerror("32051: GET_ADDRESS: unimplemented indirect addressing mode %d at %04X (%04X)\n", (tms.op >> 3) & 0xf, tms.pc, tms.op);
 		}
 
 		return ea;
 	}
-	else					// Direct Addressing
+	else
 	{
 		return tms.st0.dp | (tms.op & 0x7f);
 	}
 }
 
-static int GET_ZLCV_CONDITION(int zlcv, int zlcv_mask)
+static int GET_ZLVC_CONDITION(int zlvc, int zlvc_mask)
 {
 	int condition = 0;
 
-	if (zlcv_mask & 0x8)		// Z-bit
+	if (zlvc_mask & 0x8)
 	{
-		if ((zlcv & 0x8) && (INT32)(tms.acc) == 0)				// EQ
+		if ((zlvc & 0x8) && (INT32)(tms.acc) == 0)
 		{
 			condition = 1;
 		}
-		else if ((zlcv & 0x8) == 0 && (INT32)(tms.acc) != 0)	// NEQ
+		else if ((zlvc & 0x8) == 0 && (INT32)(tms.acc) != 0)
 		{
 			condition = 1;
 		}
 	}
-	if (zlcv_mask & 0x4)		// L-bit
+	if (zlvc_mask & 0x4)
 	{
-		if ((zlcv & 0x4) && (INT32)(tms.acc) < 0)				// LT
+		if ((zlvc & 0x4) && (INT32)(tms.acc) < 0)
 		{
 			condition = 1;
 		}
-		else if ((zlcv & 0x4) == 0 && (INT32)(tms.acc) > 0)		// GT
+		else if ((zlvc & 0x4) == 0 && (INT32)(tms.acc) > 0)
 		{
 			condition = 1;
 		}
 	}
-	if (zlcv_mask & 0x2)		// C-bit
+	if (zlvc_mask & 0x2)
 	{
-		if ((zlcv & 0x2) && tms.st1.c)							// C
+		if ((zlvc & 0x2) && tms.st0.ov)
 		{
 			condition = 1;
 		}
-		else if ((zlcv & 0x2) == 0 && tms.st1.c == 0)			// NC
+		else if ((zlvc & 0x2) == 0 && tms.st0.ov == 0)
 		{
 			condition = 1;
 		}
 	}
-	if (zlcv_mask & 0x1)		// OV-bit
+	if (zlvc_mask & 0x1)
 	{
-		if ((zlcv & 0x1) && tms.st0.ov)							// OV
+		if ((zlvc & 0x1) && tms.st1.c)
 		{
 			condition = 1;
 		}
-		else if ((zlcv & 0x1) == 0 && tms.st0.ov == 0)			// NOV
+		else if ((zlvc & 0x1) == 0 && tms.st1.c == 0)
 		{
 			condition = 1;
 		}
 	}
+
 	return condition;
 }
 
@@ -216,28 +294,50 @@ static int GET_TP_CONDITION(int tp)
 {
 	switch (tp)
 	{
-		case 0:		// BIO pin low
+		case 0:
 		{
-			// TODO
-			return 1;
+
+			return 0;
 		}
-		case 1:		// TC = 1
+		case 1:
 		{
 			return (tms.st1.tc == 1) ? 1 : 0;
 		}
-		case 2:		// TC = 0
+		case 2:
 		{
 			return (tms.st1.tc == 0) ? 1 : 0;
 		}
-		case 3:		// always true
+		case 3:
 		{
-			return 1;
+			return 0;
 		}
 	}
 	return 0;
 }
 
-
+INLINE INT32 PREG_PSCALER(INT32 preg)
+{
+	switch (tms.st1.pm & 3)
+	{
+		case 0:
+		{
+			return preg;
+		}
+		case 1:
+		{
+			return preg << 1;
+		}
+		case 2:
+		{
+			return preg << 4;
+		}
+		case 3:
+		{
+			return (INT32)(preg >> 6);
+		}
+	}
+	return 0;
+}
 
 static void op_invalid(void)
 {
@@ -246,8 +346,6 @@ static void op_invalid(void)
 
 static void op_group_be(void);
 static void op_group_bf(void);
-
-/*****************************************************************************/
 
 static void op_abs(void)
 {
@@ -275,7 +373,7 @@ static void op_add_mem(void)
 		d = (UINT32)(UINT16)(data) << shift;
 	}
 
-	tms.acc = ADD(tms.acc, d);
+	tms.acc = ADD(tms.acc, d, 0);
 
 	CYCLES(1);
 }
@@ -284,7 +382,7 @@ static void op_add_simm(void)
 {
 	UINT16 imm = tms.op & 0xff;
 
-	tms.acc = ADD(tms.acc, imm);
+	tms.acc = ADD(tms.acc, imm, 0);
 
 	CYCLES(1);
 }
@@ -304,7 +402,7 @@ static void op_add_limm(void)
 		d = (UINT32)(UINT16)(imm) << shift;
 	}
 
-	tms.acc = ADD(tms.acc, d);
+	tms.acc = ADD(tms.acc, d, 0);
 
 	CYCLES(2);
 }
@@ -316,7 +414,9 @@ static void op_add_s16_mem(void)
 
 static void op_addb(void)
 {
-	fatalerror("32051: unimplemented op addb at %08X", tms.pc-1);
+	tms.acc = ADD(tms.acc, tms.accb, 0);
+
+	CYCLES(1);
 }
 
 static void op_addc(void)
@@ -384,12 +484,42 @@ static void op_cmpl(void)
 
 static void op_crgt(void)
 {
-	fatalerror("32051: unimplemented op crgt at %08X", tms.pc-1);
+	if (tms.acc > tms.accb)
+	{
+		tms.accb = tms.acc;
+		tms.st1.c = 1;
+	}
+	else if (tms.acc < tms.accb)
+	{
+		tms.acc = tms.accb;
+		tms.st1.c = 0;
+	}
+	else
+	{
+		tms.st1.c = 1;
+	}
+
+	CYCLES(1);
 }
 
 static void op_crlt(void)
 {
-	fatalerror("32051: unimplemented op crlt at %08X", tms.pc-1);
+	if (tms.acc < tms.accb)
+	{
+		tms.accb = tms.acc;
+		tms.st1.c = 1;
+	}
+	else if (tms.acc > tms.accb)
+	{
+		tms.acc = tms.accb;
+		tms.st1.c = 0;
+	}
+	else
+	{
+		tms.st1.c = 0;
+	}
+
+	CYCLES(1);
 }
 
 static void op_exar(void)
@@ -445,7 +575,18 @@ static void op_lacc_limm(void)
 
 static void op_lacc_s16_mem(void)
 {
-	fatalerror("32051: unimplemented op lacc s16 mem at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+
+	if (tms.st1.sxm)
+	{
+		tms.acc = (INT32)(INT16)(DM_READ16(ea)) << 16;
+	}
+	else
+	{
+		tms.acc = (UINT32)(DM_READ16(ea)) << 16;
+	}
+
+	CYCLES(1);
 }
 
 static void op_lacl_simm(void)
@@ -479,7 +620,33 @@ static void op_lamm(void)
 
 static void op_neg(void)
 {
-	fatalerror("32051: unimplemented op neg at %08X", tms.pc-1);
+	if ((UINT32)(tms.acc) == 0x80000000)
+	{
+		tms.st0.ov = 1;
+		if (tms.st0.ovm)
+		{
+			tms.acc = 0x7fffffff;
+		}
+		else
+		{
+			tms.acc = 0x80000000;
+		}
+	}
+	else
+	{
+		tms.acc = 0 - (UINT32)(tms.acc);
+
+		if (tms.acc == 0)
+		{
+			tms.st1.c = 1;
+		}
+		else
+		{
+			tms.st1.c = 0;
+		}
+	}
+
+	CYCLES(1);
 }
 
 static void op_norm(void)
@@ -489,12 +656,22 @@ static void op_norm(void)
 
 static void op_or_mem(void)
 {
-	fatalerror("32051: unimplemented op or mem at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+
+	tms.acc |= (UINT32)(data);
+
+	CYCLES(1);
 }
 
 static void op_or_limm(void)
 {
-	fatalerror("32051: unimplemented op or limm at %08X", tms.pc-1);
+	UINT32 imm = ROPCODE();
+	int shift = tms.op & 0xf;
+
+	tms.acc |= imm << shift;
+
+	CYCLES(1);
 }
 
 static void op_or_s16_limm(void)
@@ -516,7 +693,15 @@ static void op_rol(void)
 
 static void op_rolb(void)
 {
-	fatalerror("32051: unimplemented op rolb at %08X", tms.pc-1);
+	UINT32 acc = tms.acc;
+	UINT32 accb = tms.accb;
+	UINT32 c = tms.st1.c & 1;
+
+	tms.acc = (acc << 1) | ((accb >> 31) & 1);
+	tms.accb = (accb << 1) | c;
+	tms.st1.c = (acc >> 31) & 1;
+
+	CYCLES(1);
 }
 
 static void op_ror(void)
@@ -531,7 +716,9 @@ static void op_rorb(void)
 
 static void op_sacb(void)
 {
-	fatalerror("32051: unimplemented op sacb at %08X", tms.pc-1);
+	tms.accb = tms.acc;
+
+	CYCLES(1);
 }
 
 static void op_sach(void)
@@ -573,7 +760,9 @@ static void op_satl(void)
 
 static void op_sbb(void)
 {
-	fatalerror("32051: unimplemented op sbb at %08X", tms.pc-1);
+	tms.acc = SUB(tms.acc, tms.accb, 0);
+
+	CYCLES(1);
 }
 
 static void op_sbbb(void)
@@ -583,17 +772,38 @@ static void op_sbbb(void)
 
 static void op_sfl(void)
 {
-	fatalerror("32051: unimplemented op sfl at %08X", tms.pc-1);
+	tms.st1.c = (tms.acc >> 31) & 1;
+	tms.acc = tms.acc << 1;
+
+	CYCLES(1);
 }
 
 static void op_sflb(void)
 {
-	fatalerror("32051: unimplemented op sflb at %08X", tms.pc-1);
+	UINT32 acc = tms.acc;
+	UINT32 accb = tms.accb;
+
+	tms.acc = (acc << 1) | ((accb >> 31) & 1);
+	tms.accb = (accb << 1);
+	tms.st1.c = (acc >> 31) & 1;
+
+	CYCLES(1);
 }
 
 static void op_sfr(void)
 {
-	fatalerror("32051: unimplemented op sfr at %08X", tms.pc-1);
+	tms.st1.c = tms.acc & 1;
+
+	if (tms.st1.sxm)
+	{
+		tms.acc = (INT32)(tms.acc) >> 1;
+	}
+	else
+	{
+		tms.acc = (UINT32)(tms.acc) >> 1;
+	}
+
+	CYCLES(1);
 }
 
 static void op_sfrb(void)
@@ -603,7 +813,23 @@ static void op_sfrb(void)
 
 static void op_sub_mem(void)
 {
-	fatalerror("32051: unimplemented op sub mem at %08X", tms.pc-1);
+	INT32 d;
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+	int shift = (tms.op >> 8) & 0xf;
+
+	if (tms.st1.sxm)
+	{
+		d = (INT32)(INT16)(data) << shift;
+	}
+	else
+	{
+		d = (UINT32)(UINT16)(data) << shift;
+	}
+
+	tms.acc = SUB(tms.acc, d, 0);
+
+	CYCLES(1);
 }
 
 static void op_sub_s16_mem(void)
@@ -615,7 +841,7 @@ static void op_sub_simm(void)
 {
 	UINT16 imm = tms.op & 0xff;
 
-	tms.acc = SUB(tms.acc, imm);
+	tms.acc = SUB(tms.acc, imm, 0);
 
 	CYCLES(1);
 }
@@ -635,7 +861,7 @@ static void op_sub_limm(void)
 		d = (UINT32)(UINT16)(imm) << shift;
 	}
 
-	tms.acc = SUB(tms.acc, d);
+	tms.acc = SUB(tms.acc, d, 0);
 
 	CYCLES(2);
 }
@@ -662,12 +888,22 @@ static void op_subt(void)
 
 static void op_xor_mem(void)
 {
-	fatalerror("32051: unimplemented op xor mem at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+
+	tms.acc ^= (UINT32)(data);
+
+	CYCLES(1);
 }
 
 static void op_xor_limm(void)
 {
-	fatalerror("32051: unimplemented op xor limm at %08X", tms.pc-1);
+	UINT32 imm = ROPCODE();
+	int shift = tms.op & 0xf;
+
+	tms.acc ^= imm << shift;
+
+	CYCLES(1);
 }
 
 static void op_xor_s16_limm(void)
@@ -693,19 +929,55 @@ static void op_zap(void)
 	CYCLES(1);
 }
 
-/*****************************************************************************/
-
 static void op_adrk(void)
 {
 	UINT16 imm = tms.op & 0xff;
-	tms.ar[tms.st0.arp] += imm;
+	UPDATE_AR(tms.st0.arp, imm);
 
 	CYCLES(1);
 }
 
 static void op_cmpr(void)
 {
-	fatalerror("32051: unimplemented op cmpr at %08X", tms.pc-1);
+	tms.st1.tc = 0;
+
+	switch (tms.op & 0x3)
+	{
+		case 0:
+		{
+			if (tms.ar[tms.st0.arp] == tms.arcr)
+			{
+				tms.st1.tc = 1;
+			}
+			break;
+		}
+		case 1:
+		{
+			if (tms.ar[tms.st0.arp] < tms.arcr)
+			{
+				tms.st1.tc = 1;
+			}
+			break;
+		}
+		case 2:
+		{
+			if (tms.ar[tms.st0.arp] > tms.arcr)
+			{
+				tms.st1.tc = 1;
+			}
+			break;
+		}
+		case 3:
+		{
+			if (tms.ar[tms.st0.arp] != tms.arcr)
+			{
+				tms.st1.tc = 1;
+			}
+			break;
+		}
+	}
+
+	CYCLES(1);
 }
 
 static void op_lar_mem(void)
@@ -749,7 +1021,7 @@ static void op_ldp_imm(void)
 
 static void op_mar(void)
 {
-	// direct addressing is NOP
+
 	if (tms.op & 0x80)
 	{
 		GET_ADDRESS();
@@ -760,23 +1032,25 @@ static void op_mar(void)
 static void op_sar(void)
 {
 	int arx = (tms.op >> 8) & 0x7;
+	UINT16 ar = tms.ar[arx];
 	UINT16 ea = GET_ADDRESS();
-	DM_WRITE16(ea, tms.ar[arx]);
+	DM_WRITE16(ea, ar);
 
 	CYCLES(1);
 }
 
 static void op_sbrk(void)
 {
-	fatalerror("32051: unimplemented op sbrk at %08X", tms.pc-1);
-}
+	UINT16 imm = tms.op & 0xff;
+	UPDATE_AR(tms.st0.arp, -imm);
 
-/*****************************************************************************/
+	CYCLES(1);
+}
 
 static void op_b(void)
 {
 	UINT16 pma = ROPCODE();
-	GET_ADDRESS();		// update AR/ARP
+	GET_ADDRESS();
 
 	CHANGE_PC(pma);
 	CYCLES(4);
@@ -791,7 +1065,12 @@ static void op_bacc(void)
 
 static void op_baccd(void)
 {
-	fatalerror("32051: unimplemented op baccd at %08X", tms.pc-1);
+	UINT16 pc = (UINT16)(tms.acc);
+
+	delay_slot(tms.pc);
+	CHANGE_PC(pc);
+
+	CYCLES(2);
 }
 
 static void op_banz(void)
@@ -808,7 +1087,7 @@ static void op_banz(void)
 		CYCLES(2);
 	}
 
-	GET_ADDRESS();		// modify AR/ARP
+	GET_ADDRESS();
 }
 
 static void op_banzd(void)
@@ -820,10 +1099,10 @@ static void op_bcnd(void)
 {
 	UINT16 pma = ROPCODE();
 
-	int zlcv_condition = GET_ZLCV_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+	int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
 	int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
 
-	if (zlcv_condition && tp_condition)
+	if (zlvc_condition || tp_condition)
 	{
 		CHANGE_PC(pma);
 		CYCLES(4);
@@ -836,17 +1115,36 @@ static void op_bcnd(void)
 
 static void op_bcndd(void)
 {
-	fatalerror("32051: unimplemented op bcndd at %08X", tms.pc-1);
+	UINT16 pma = ROPCODE();
+
+	int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+	int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
+
+	if (zlvc_condition || tp_condition)
+	{
+		delay_slot(tms.pc);
+		CHANGE_PC(pma);
+		CYCLES(4);
+	}
+	else
+	{
+		CYCLES(2);
+	}
 }
 
 static void op_bd(void)
 {
-	fatalerror("32051: unimplemented op bd at %08X", tms.pc-1);
+	UINT16 pma = ROPCODE();
+	GET_ADDRESS();
+
+	delay_slot(tms.pc);
+	CHANGE_PC(pma);
+	CYCLES(2);
 }
 
 static void op_cala(void)
 {
-	PUSH_PC(tms.pc);
+	PUSH_STACK(tms.pc);
 
 	CHANGE_PC(tms.acc);
 
@@ -855,14 +1153,20 @@ static void op_cala(void)
 
 static void op_calad(void)
 {
-	fatalerror("32051: unimplemented op calad at %08X", tms.pc-1);
+	UINT16 pma = tms.acc;
+	PUSH_STACK(tms.pc+2);
+
+	delay_slot(tms.pc);
+	CHANGE_PC(pma);
+
+	CYCLES(4);
 }
 
 static void op_call(void)
 {
 	UINT16 pma = ROPCODE();
-	GET_ADDRESS();		// update AR/ARP
-	PUSH_PC(tms.pc);
+	GET_ADDRESS();
+	PUSH_STACK(tms.pc);
 
 	CHANGE_PC(pma);
 
@@ -871,7 +1175,14 @@ static void op_call(void)
 
 static void op_calld(void)
 {
-	fatalerror("32051: unimplemented op calld at %08X", tms.pc-1);
+	UINT16 pma = ROPCODE();
+	GET_ADDRESS();
+	PUSH_STACK(tms.pc+2);
+
+	delay_slot(tms.pc);
+	CHANGE_PC(pma);
+
+	CYCLES(4);
 }
 
 static void op_cc(void)
@@ -881,7 +1192,19 @@ static void op_cc(void)
 
 static void op_ccd(void)
 {
-	fatalerror("32051: unimplemented op ccd at %08X", tms.pc-1);
+	UINT16 pma = ROPCODE();
+	int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+	int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
+
+	if (zlvc_condition || tp_condition)
+	{
+		PUSH_STACK(tms.pc+2);
+
+		delay_slot(tms.pc);
+		CHANGE_PC(pma);
+	}
+
+	CYCLES(2);
 }
 
 static void op_intr(void)
@@ -894,32 +1217,71 @@ static void op_nmi(void)
 	fatalerror("32051: unimplemented op nmi at %08X", tms.pc-1);
 }
 
-static void op_ret(void)
-{
-	UINT16 pc = POP_PC();
-	CHANGE_PC(pc);
-
-	CYCLES(4);
-}
-
 static void op_retc(void)
 {
-	fatalerror("32051: unimplemented op retc at %08X", tms.pc-1);
+	int condition = 0;
+
+	if ((tms.op & 0x3ff) == 0x300)
+	{
+		condition = 1;
+	}
+	else
+	{
+		int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+		int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
+		condition = zlvc_condition || tp_condition;
+	}
+
+	if (condition)
+	{
+		UINT16 pc = POP_STACK();
+		CHANGE_PC(pc);
+		CYCLES(4);
+	}
+	else
+	{
+		CYCLES(2);
+	}
 }
 
 static void op_retcd(void)
 {
-	fatalerror("32051: unimplemented op retcd at %08X", tms.pc-1);
-}
+	int condition = 0;
 
-static void op_retd(void)
-{
-	fatalerror("32051: unimplemented op retd at %08X", tms.pc-1);
+	if ((tms.op & 0x3ff) == 0x300)
+	{
+		condition = 1;
+	}
+	else
+	{
+		int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+		int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
+		condition = zlvc_condition || tp_condition;
+	}
+
+	if (condition)
+	{
+		UINT16 pc = POP_STACK();
+		delay_slot(tms.pc);
+		CHANGE_PC(pc);
+		CYCLES(4);
+	}
+	else
+	{
+		CYCLES(2);
+	}
 }
 
 static void op_rete(void)
 {
-	fatalerror("32051: unimplemented op rete at %08X", tms.pc-1);
+	UINT16 pc = POP_STACK();
+	CHANGE_PC(pc);
+
+	tms.st0.intm = 0;
+
+	restore_interrupt_context();
+
+	CYCLES(4);
 }
 
 static void op_reti(void)
@@ -934,10 +1296,20 @@ static void op_trap(void)
 
 static void op_xc(void)
 {
-	fatalerror("32051: unimplemented op xc at %08X", tms.pc-1);
-}
+	int n = ((tms.op >> 12) & 0x1) + 1;
+	int zlvc_condition = GET_ZLVC_CONDITION((tms.op >> 4) & 0xf, tms.op & 0xf);
+	int tp_condition = GET_TP_CONDITION((tms.op >> 8) & 0x3);
 
-/*****************************************************************************/
+	if (zlvc_condition || tp_condition)
+	{
+		CYCLES(1);
+	}
+	else
+	{
+		CHANGE_PC(tms.pc + n);
+		CYCLES(1 + n);
+	}
+}
 
 static void op_bldd_slimm(void)
 {
@@ -1029,8 +1401,6 @@ static void op_blpd_imm(void)
 	};
 }
 
-/*****************************************************************************/
-
 static void op_dmov(void)
 {
 	fatalerror("32051: unimplemented op dmov at %08X", tms.pc-1);
@@ -1096,19 +1466,37 @@ static void op_tblr(void)
 
 static void op_tblw(void)
 {
-	fatalerror("32051: unimplemented op tblw at %08X", tms.pc-1);
-}
+	UINT16 pfc = (UINT16)(tms.acc);
 
-/*****************************************************************************/
+	while (tms.rptc > -1)
+	{
+		UINT16 ea = GET_ADDRESS();
+		UINT16 data = DM_READ16(ea);
+		PM_WRITE16(pfc, data);
+		pfc++;
+		CYCLES(2);
+
+		tms.rptc--;
+	};
+}
 
 static void op_apl_dbmr(void)
 {
-	fatalerror("32051: unimplemented op apl dbmr at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+	data &= tms.dbmr;
+	DM_WRITE16(ea, data);
+	CYCLES(1);
 }
 
 static void op_apl_imm(void)
 {
-	fatalerror("32051: unimplemented op apl imm at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 imm = ROPCODE();
+	UINT16 data = DM_READ16(ea);
+	data &= imm;
+	DM_WRITE16(ea, data);
+	CYCLES(1);
 }
 
 static void op_cpl_dbmr(void)
@@ -1136,7 +1524,11 @@ static void op_cpl_imm(void)
 
 static void op_opl_dbmr(void)
 {
-	fatalerror("32051: unimplemented op opl dbmr at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+	data |= tms.dbmr;
+	DM_WRITE16(ea, data);
+	CYCLES(1);
 }
 
 static void op_opl_imm(void)
@@ -1171,7 +1563,10 @@ static void op_xpl_imm(void)
 
 static void op_apac(void)
 {
-	fatalerror("32051: unimplemented op apac at %08X", tms.pc-1);
+	INT32 spreg = PREG_PSCALER(tms.preg);
+	tms.acc = ADD(tms.acc, spreg, 0);
+
+	CYCLES(1);
 }
 
 static void op_lph(void)
@@ -1181,12 +1576,25 @@ static void op_lph(void)
 
 static void op_lt(void)
 {
-	fatalerror("32051: unimplemented op lt at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+
+	tms.treg0 = data;
+
+	CYCLES(1);
 }
 
 static void op_lta(void)
 {
-	fatalerror("32051: unimplemented op lta at %08X", tms.pc-1);
+	INT32 spreg;
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+
+	tms.treg0 = data;
+	spreg = PREG_PSCALER(tms.preg);
+	tms.acc = ADD(tms.acc, spreg, 0);
+
+	CYCLES(1);
 }
 
 static void op_ltd(void)
@@ -1226,7 +1634,12 @@ static void op_mads(void)
 
 static void op_mpy_mem(void)
 {
-	fatalerror("32051: unimplemented op mpy mem at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	INT16 data = DM_READ16(ea);
+
+	tms.preg = (INT32)(data) * (INT32)(INT16)(tms.treg0);
+
+	CYCLES(1);
 }
 
 static void op_mpy_simm(void)
@@ -1266,7 +1679,11 @@ static void op_spac(void)
 
 static void op_sph(void)
 {
-	fatalerror("32051: unimplemented op sph at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 spreg = (UINT16)(PREG_PSCALER(tms.preg) >> 16);
+	DM_WRITE16(ea, spreg);
+
+	CYCLES(1);
 }
 
 static void op_spl(void)
@@ -1276,7 +1693,9 @@ static void op_spl(void)
 
 static void op_spm(void)
 {
-	fatalerror("32051: unimplemented op spm at %08X", tms.pc-1);
+	tms.st1.pm = tms.op & 0x3;
+
+	CYCLES(1);
 }
 
 static void op_sqra(void)
@@ -1314,7 +1733,20 @@ static void op_bit(void)
 
 static void op_bitt(void)
 {
-	fatalerror("32051: unimplemented op bitt at %08X", tms.pc-1);
+	UINT16 ea = GET_ADDRESS();
+	UINT16 data = DM_READ16(ea);
+	int bit = 15 - (tms.treg2 & 0xf);
+
+	if (data & (1 << bit))
+	{
+		tms.st1.tc = 1;
+	}
+	else
+	{
+		tms.st1.tc = 0;
+	}
+
+	CYCLES(1);
 }
 
 static void op_clrc_ov(void)
@@ -1357,6 +1789,8 @@ static void op_clrc_intm(void)
 {
 	tms.st0.intm = 0;
 
+	check_interrupts();
+
 	CYCLES(1);
 }
 
@@ -1387,7 +1821,9 @@ static void op_lst_st1(void)
 
 static void op_pop(void)
 {
-	fatalerror("32051: unimplemented op pop at %08X", tms.pc-1);
+	tms.acc = POP_STACK();
+
+	CYCLES(1);
 }
 
 static void op_popd(void)
@@ -1411,7 +1847,7 @@ static void op_rpt_mem(void)
 	UINT16 data = DM_READ16(ea);
 	tms.rptc = data;
 	tms.rpt_start = tms.pc;
-	tms.rpt_end = tms.pc+1;
+	tms.rpt_end = tms.pc;
 
 	CYCLES(1);
 }
@@ -1420,7 +1856,7 @@ static void op_rpt_limm(void)
 {
 	tms.rptc = (UINT16)ROPCODE();
 	tms.rpt_start = tms.pc;
-	tms.rpt_end = tms.pc+1;
+	tms.rpt_end = tms.pc;
 
 	CYCLES(2);
 }
@@ -1429,7 +1865,7 @@ static void op_rpt_simm(void)
 {
 	tms.rptc = (tms.op & 0xff);
 	tms.rpt_start = tms.pc;
-	tms.rpt_end = tms.pc+1;
+	tms.rpt_end = tms.pc;
 
 	CYCLES(1);
 }
@@ -1485,12 +1921,16 @@ static void op_setc_xf(void)
 
 static void op_setc_cnf(void)
 {
-	fatalerror("32051: unimplemented op setc cnf at %08X", tms.pc-1);
+	tms.st1.cnf = 1;
+
+	CYCLES(1);
 }
 
 static void op_setc_intm(void)
 {
 	tms.st0.intm = 1;
+
+	check_interrupts();
 
 	CYCLES(1);
 }

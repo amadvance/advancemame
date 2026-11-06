@@ -1277,7 +1277,7 @@ $(OBJ)/taito.a: \
 	$(OBJ)/drivers/taito_x.o $(OBJ)/machine/cchip.o \
 	$(OBJ)/drivers/taito_z.o $(OBJ)/vidhrdw/taito_z.o \
 	$(OBJ)/drivers/taitoair.o $(OBJ)/vidhrdw/taitoair.o \
-	$(OBJ)/drivers/taitojc.o \
+	$(OBJ)/drivers/taitojc.o $(OBJ)/vidhrdw/taitojc.o \
 	$(OBJ)/drivers/taitosj.o $(OBJ)/machine/taitosj.o $(OBJ)/vidhrdw/taitosj.o \
 	$(OBJ)/drivers/taitowlf.o \
 	$(OBJ)/drivers/tnzs.o $(OBJ)/machine/tnzs.o $(OBJ)/vidhrdw/tnzs.o \

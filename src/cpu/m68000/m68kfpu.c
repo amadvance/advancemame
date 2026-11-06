@@ -1,7 +1,68 @@
 // license:BSD-3-Clause
-// copyright-holders:Karl Stenerud
+// copyright-holders:Karl Stenerud, Ville Linde
 #include "cpuintrf.h"
 #include <math.h>
+
+#define FPCC_N			0x08000000
+#define FPCC_Z			0x04000000
+#define FPCC_I			0x02000000
+#define FPCC_NAN		0x01000000
+
+#define DOUBLE_INFINITY					U64(0x7ff0000000000000)
+#define DOUBLE_EXPONENT					U64(0x7ff0000000000000)
+#define DOUBLE_MANTISSA					U64(0x000fffffffffffff)
+
+INLINE void SET_CONDITION_CODES(fp_reg reg)
+{
+	REG_FPSR &= ~(FPCC_N|FPCC_Z|FPCC_I|FPCC_NAN);
+
+	if (reg.i & U64(0x8000000000000000))
+	{
+		REG_FPSR |= FPCC_N;
+	}
+
+	if ((reg.i & U64(0x7fffffffffffffff)) == 0)
+	{
+		REG_FPSR |= FPCC_Z;
+	}
+
+	if ((reg.i & U64(0x7fffffffffffffff)) == DOUBLE_INFINITY)
+	{
+		REG_FPSR |= FPCC_I;
+	}
+
+	if (((reg.i & DOUBLE_EXPONENT) == DOUBLE_EXPONENT) && ((reg.i & DOUBLE_MANTISSA) != 0))
+	{
+		REG_FPSR |= FPCC_NAN;
+	}
+}
+
+INLINE int TEST_CONDITION(int condition)
+{
+	int n = (REG_FPSR & FPCC_N) != 0;
+	int z = (REG_FPSR & FPCC_Z) != 0;
+	int nan = (REG_FPSR & FPCC_NAN) != 0;
+	int r = 0;
+	switch (condition)
+	{
+		case 0x00:		return 0;
+		case 0x01:		return (z);
+		case 0x0e:		return (!z);
+		case 0x0f:		return 1;
+		case 0x12:		return (!(nan || z || n));
+		case 0x13:		return (z || !(nan || n));
+		case 0x14:		return (n && !(nan || z));
+		case 0x15:		return (z || (n && !nan));
+		case 0x1a:		return (nan || !(n || z));
+		case 0x1b:		return (nan || z || !n);
+		case 0x1c:		return (nan || (n && !z));
+		case 0x1d:		return (nan || z || n);
+
+		default:		fatalerror("M68040: test_condition: unhandled condition %02X\n", condition);
+	}
+
+	return r;
+}
 
 static UINT8 READ_EA_8(int ea)
 {
@@ -10,16 +71,16 @@ static UINT8 READ_EA_8(int ea)
 
 	switch (mode)
 	{
-		case 0:		// Dn
+		case 0:
 		{
 			return REG_D[reg];
 		}
-		case 5:		// (d16, An)
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_8();
 			return m68ki_read_8(ea);
 		}
-		case 6:		// (An) + (Xn) + d8
+		case 6:
 		{
 			UINT32 ea = EA_AY_IX_8();
 			return m68ki_read_8(ea);
@@ -28,14 +89,14 @@ static UINT8 READ_EA_8(int ea)
 		{
 			switch (reg)
 			{
-				case 1:		// (xxx).L
+				case 1:
 				{
 					UINT32 d1 = OPER_I_16();
 					UINT32 d2 = OPER_I_16();
 					UINT32 ea = (d1 << 16) | d2;
 					return m68ki_read_8(ea);
 				}
-				case 4:		// #<data>
+				case 4:
 				{
 					return  OPER_I_8();
 				}
@@ -45,6 +106,8 @@ static UINT8 READ_EA_8(int ea)
 		}
 		default:	fatalerror("MC68040: READ_EA_8: unhandled mode %d, reg %d at %08X\n", mode, reg, REG_PC);
 	}
+
+	return 0;
 }
 
 static UINT16 READ_EA_16(int ea)
@@ -54,22 +117,49 @@ static UINT16 READ_EA_16(int ea)
 
 	switch (mode)
 	{
-		case 0:		// Dn
+		case 0:
 		{
 			return (UINT16)(REG_D[reg]);
 		}
-		case 5:		// (d16, An)
+		case 2:
+		{
+			UINT32 ea = REG_A[reg];
+			return m68ki_read_16(ea);
+		}
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_16();
 			return m68ki_read_16(ea);
 		}
-		case 6:		// (An) + (Xn) + d8
+		case 6:
 		{
 			UINT32 ea = EA_AY_IX_16();
 			return m68ki_read_16(ea);
 		}
+		case 7:
+		{
+			switch (reg)
+			{
+				case 1:
+				{
+					UINT32 d1 = OPER_I_16();
+					UINT32 d2 = OPER_I_16();
+					UINT32 ea = (d1 << 16) | d2;
+					return m68ki_read_16(ea);
+				}
+				case 4:
+				{
+					return OPER_I_16();
+				}
+
+				default:	fatalerror("MC68040: READ_EA_16: unhandled mode %d, reg %d at %08X\n", mode, reg, REG_PC);
+			}
+			break;
+		}
 		default:	fatalerror("MC68040: READ_EA_16: unhandled mode %d, reg %d at %08X\n", mode, reg, REG_PC);
 	}
+
+	return 0;
 }
 
 static UINT32 READ_EA_32(int ea)
@@ -79,26 +169,26 @@ static UINT32 READ_EA_32(int ea)
 
 	switch (mode)
 	{
-		case 0:		// Dn
+		case 0:
 		{
 			return REG_D[reg];
 		}
-		case 2:		// (An)
+		case 2:
 		{
 			UINT32 ea = REG_A[reg];
 			return m68ki_read_32(ea);
 		}
-		case 3:		// (An)+
+		case 3:
 		{
 			UINT32 ea = EA_AY_PI_32();
 			return m68ki_read_32(ea);
 		}
-		case 5:		// (d16, An)
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_32();
 			return m68ki_read_32(ea);
 		}
-		case 6:		// (An) + (Xn) + d8
+		case 6:
 		{
 			UINT32 ea = EA_AY_IX_32();
 			return m68ki_read_32(ea);
@@ -107,19 +197,19 @@ static UINT32 READ_EA_32(int ea)
 		{
 			switch (reg)
 			{
-				case 1:		// (xxx).L
+				case 1:
 				{
 					UINT32 d1 = OPER_I_16();
 					UINT32 d2 = OPER_I_16();
 					UINT32 ea = (d1 << 16) | d2;
 					return m68ki_read_32(ea);
 				}
-				case 2:		// (d16, PC)
+				case 2:
 				{
 					UINT32 ea = EA_PCDI_32();
 					return m68ki_read_32(ea);
 				}
-				case 4:		// #<data>
+				case 4:
 				{
 					return  OPER_I_32();
 				}
@@ -129,6 +219,7 @@ static UINT32 READ_EA_32(int ea)
 		}
 		default:	fatalerror("MC68040: READ_EA_32: unhandled mode %d, reg %d at %08X\n", mode, reg, REG_PC);
 	}
+	return 0;
 }
 
 static void WRITE_EA_32(int ea, UINT32 data)
@@ -138,36 +229,36 @@ static void WRITE_EA_32(int ea, UINT32 data)
 
 	switch (mode)
 	{
-		case 0:		// Dn
+		case 0:
 		{
 			REG_D[reg] = data;
 			break;
 		}
-		case 2:		// (An)
+		case 2:
 		{
 			UINT32 ea = REG_A[reg];
 			m68ki_write_32(ea, data);
 			break;
 		}
-		case 3:		// (An)+
+		case 3:
 		{
 			UINT32 ea = EA_AY_PI_32();
 			m68ki_write_32(ea, data);
 			break;
 		}
-		case 4:		// -(An)
+		case 4:
 		{
 			UINT32 ea = EA_AY_PD_32();
 			m68ki_write_32(ea, data);
 			break;
 		}
-		case 5:		// (d16, An)
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_32();
 			m68ki_write_32(ea, data);
 			break;
 		}
-		case 6:		// (An) + (Xn) + d8
+		case 6:
 		{
 			UINT32 ea = EA_AY_IX_32();
 			m68ki_write_32(ea, data);
@@ -177,7 +268,7 @@ static void WRITE_EA_32(int ea, UINT32 data)
 		{
 			switch (reg)
 			{
-				case 1:		// (xxx).L
+				case 1:
 				{
 					UINT32 d1 = OPER_I_16();
 					UINT32 d2 = OPER_I_16();
@@ -185,7 +276,7 @@ static void WRITE_EA_32(int ea, UINT32 data)
 					m68ki_write_32(ea, data);
 					break;
 				}
-				case 2:		// (d16, PC)
+				case 2:
 				{
 					UINT32 ea = EA_PCDI_32();
 					m68ki_write_32(ea, data);
@@ -207,14 +298,14 @@ static UINT64 READ_EA_64(int ea)
 
 	switch (mode)
 	{
-		case 2:		// (An)
+		case 2:
 		{
 			UINT32 ea = REG_A[reg];
 			h1 = m68ki_read_32(ea+0);
 			h2 = m68ki_read_32(ea+4);
 			return  (UINT64)(h1) << 32 | (UINT64)(h2);
 		}
-		case 3:		// (An)+
+		case 3:
 		{
 			UINT32 ea = REG_A[reg];
 			REG_A[reg] += 8;
@@ -222,7 +313,7 @@ static UINT64 READ_EA_64(int ea)
 			h2 = m68ki_read_32(ea+4);
 			return  (UINT64)(h1) << 32 | (UINT64)(h2);
 		}
-		case 5:		// (d16, An)
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_32();
 			h1 = m68ki_read_32(ea+0);
@@ -233,13 +324,13 @@ static UINT64 READ_EA_64(int ea)
 		{
 			switch (reg)
 			{
-				case 4:		// #<data>
+				case 4:
 				{
 					h1 = OPER_I_32();
 					h2 = OPER_I_32();
 					return  (UINT64)(h1) << 32 | (UINT64)(h2);
 				}
-				case 2:		// (d16, PC)
+				case 2:
 				{
 					UINT32 ea = EA_PCDI_32();
 					h1 = m68ki_read_32(ea+0);
@@ -252,6 +343,8 @@ static UINT64 READ_EA_64(int ea)
 		}
 		default:	fatalerror("MC68040: READ_EA_64: unhandled mode %d, reg %d at %08X\n", mode, reg, REG_PC);
 	}
+
+	return 0;
 }
 
 static void WRITE_EA_64(int ea, UINT64 data)
@@ -261,7 +354,14 @@ static void WRITE_EA_64(int ea, UINT64 data)
 
 	switch (mode)
 	{
-		case 4:		// -(An)
+		case 2:
+		{
+			UINT32 ea = REG_A[reg];
+			m68ki_write_32(ea, (UINT32)(data >> 32));
+			m68ki_write_32(ea, (UINT32)(data));
+			break;
+		}
+		case 4:
 		{
 			UINT32 ea;
 			REG_A[reg] -= 8;
@@ -270,7 +370,7 @@ static void WRITE_EA_64(int ea, UINT64 data)
 			m68ki_write_32(ea+4, (UINT32)(data));
 			break;
 		}
-		case 5:		// (d16, An)
+		case 5:
 		{
 			UINT32 ea = EA_AY_DI_32();
 			m68ki_write_32(ea+0, (UINT32)(data >> 32));
@@ -281,17 +381,15 @@ static void WRITE_EA_64(int ea, UINT64 data)
 	}
 }
 
-fp_reg READ_EA_FPE(int ea)
+static fp_reg READ_EA_FPE(int ea)
 {
 	fp_reg r;
 	int mode = (ea >> 3) & 0x7;
 	int reg = (ea & 0x7);
 
-	// TODO: convert to extended floating-point!
-
 	switch (mode)
 	{
-		case 3:		// (An)+
+		case 3:
 		{
 			UINT32 d1,d2,d3;
 			UINT32 ea = REG_A[reg];
@@ -308,16 +406,14 @@ fp_reg READ_EA_FPE(int ea)
 	return r;
 }
 
-void WRITE_EA_FPE(int ea, fp_reg fpr)
+static void WRITE_EA_FPE(int ea, fp_reg fpr)
 {
 	int mode = (ea >> 3) & 0x7;
 	int reg = (ea & 0x7);
 
-	// TODO: convert to extended floating-point!
-
 	switch (mode)
 	{
-		case 4:		// -(An)
+		case 4:
 		{
 			UINT32 ea;
 			REG_A[reg] -= 12;
@@ -330,7 +426,6 @@ void WRITE_EA_FPE(int ea, fp_reg fpr)
 		default:	fatalerror("MC68040: WRITE_EA_FPE: unhandled mode %d, reg %d, data %f at %08X\n", mode, reg, fpr.f, REG_PC);
 	}
 }
-
 
 static void fpgen_rm_reg(UINT16 w2)
 {
@@ -345,41 +440,43 @@ static void fpgen_rm_reg(UINT16 w2)
 	{
 		switch (src)
 		{
-			case 0:		// Long-Word Integer
+			case 0:
 			{
 				INT32 d = READ_EA_32(ea);
 				source = (double)(d);
 				break;
 			}
-			case 1:		// Single-precision Real
+			case 1:
 			{
 				UINT32 d = READ_EA_32(ea);
-				source = (double)(*(float*)&d);
+				float f;
+				memcpy(&f, &d, sizeof(f));
+				source = f;
 				break;
 			}
-			case 2:		// Extended-precision Real
+			case 2:
 			{
 				fatalerror("fpgen_rm_reg: extended-precision real load unimplemented at %08X\n", REG_PC-4);
 				break;
 			}
-			case 3:		// Packed-decimal Real
+			case 3:
 			{
 				fatalerror("fpgen_rm_reg: packed-decimal real load unimplemented at %08X\n", REG_PC-4);
 				break;
 			}
-			case 4:		// Word Integer
+			case 4:
 			{
 				INT16 d = READ_EA_16(ea);
 				source = (double)(d);
 				break;
 			}
-			case 5:		// Double-precision Real
+			case 5:
 			{
 				UINT64 d = READ_EA_64(ea);
-				source = *(double*)&d;
+				memcpy(&source, &d, sizeof(source));
 				break;
 			}
-			case 6:		// Byte Integer
+			case 6:
 			{
 				INT8 d = READ_EA_8(ea);
 				source = (double)(d);
@@ -395,69 +492,73 @@ static void fpgen_rm_reg(UINT16 w2)
 
 	switch (opmode)
 	{
-		case 0x00:		// FMOVE
+		case 0x00:
 		{
 			REG_FP[dst].f = source;
 			USE_CYCLES(4);
 			break;
 		}
-		case 0x04:		// FSQRT
+		case 0x04:
 		{
 			REG_FP[dst].f = sqrt(source);
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(109);
 			break;
 		}
-		case 0x18:		// FABS
+		case 0x18:
 		{
 			REG_FP[dst].f = fabs(source);
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(3);
 			break;
 		}
-		case 0x1a:		// FNEG
+		case 0x1a:
 		{
 			REG_FP[dst].f = -source;
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(3);
 			break;
 		}
-		case 0x20:		// FDIV
+		case 0x20:
 		{
 			REG_FP[dst].f /= source;
 			USE_CYCLES(43);
 			break;
 		}
-		case 0x22:		// FADD
+		case 0x22:
 		{
 			REG_FP[dst].f += source;
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(9);
 			break;
 		}
-		case 0x23:		// FMUL
+		case 0x23:
 		{
 			REG_FP[dst].f *= source;
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(11);
 			break;
 		}
-		case 0x28:		// FSUB
+		case 0x28:
 		{
 			REG_FP[dst].f -= source;
-			// TODO: condition codes
+			SET_CONDITION_CODES(REG_FP[dst]);
 			USE_CYCLES(9);
 			break;
 		}
-		case 0x38:		// FCMP
+		case 0x38:
 		{
-			// TODO: condition codes !!!
+			fp_reg res;
+			res.f = REG_FP[dst].f - source;
+			SET_CONDITION_CODES(res);
 			USE_CYCLES(7);
 			break;
 		}
-		case 0x3a:		// FTST
+		case 0x3a:
 		{
-			// TODO: condition codes !!!
+			fp_reg res;
+			res.f = source;
+			SET_CONDITION_CODES(res);
 			USE_CYCLES(7);
 			break;
 		}
@@ -471,50 +572,50 @@ static void fmove_reg_mem(UINT16 w2)
 	int ea = REG_IR & 0x3f;
 	int src = (w2 >>  7) & 0x7;
 	int dst = (w2 >> 10) & 0x7;
-	//int kfactor = w2 & 0x7f;
 
 	switch (dst)
 	{
-		case 0:		// Long-Word Integer
+		case 0:
 		{
 			INT32 d = (INT32)(REG_FP[src].f);
 			WRITE_EA_32(ea, d);
 			break;
 		}
-		case 1:		// Single-precision Real
+		case 1:
 		{
 			float f = (float)(REG_FP[src].f);
-			UINT32 d = *(UINT32 *)&f;
+			UINT32 d;
+			memcpy(&d, &f, sizeof(d));
 			WRITE_EA_32(ea, d);
 			break;
 		}
-		case 2:		// Extended-precision Real
+		case 2:
 		{
 			fatalerror("fmove_reg_mem: extended-precision real store unimplemented at %08X\n", REG_PC-4);
 			break;
 		}
-		case 3:		// Packed-decimal Real with Static K-factor
+		case 3:
 		{
 			fatalerror("fmove_reg_mem: packed-decimal real store unimplemented at %08X\n", REG_PC-4);
 			break;
 		}
-		case 4:		// Word Integer
+		case 4:
 		{
 			fatalerror("fmove_reg_mem: word integer store unimplemented at %08X\n", REG_PC-4);
 			break;
 		}
-		case 5:		// Double-precision Real
+		case 5:
 		{
 			UINT64 d = REG_FP[src].i;
 			WRITE_EA_64(ea, d);
 			break;
 		}
-		case 6:		// Byte Integer
+		case 6:
 		{
 			fatalerror("fmove_reg_mem: byte integer store unimplemented at %08X\n", REG_PC-4);
 			break;
 		}
-		case 7:		// Packed-decimal Real with Dynamic K-factor
+		case 7:
 		{
 			fatalerror("fmove_reg_mem: packed-decimal real store unimplemented at %08X\n", REG_PC-4);
 			break;
@@ -530,7 +631,7 @@ static void fmove_fpcr(UINT16 w2)
 	int dir = (w2 >> 13) & 0x1;
 	int reg = (w2 >> 10) & 0x7;
 
-	if (dir)	// From system control reg to <ea>
+	if (dir)
 	{
 		switch (reg)
 		{
@@ -540,7 +641,7 @@ static void fmove_fpcr(UINT16 w2)
 			default:	fatalerror("fmove_fpcr: unknown reg %d, dir %d\n", reg, dir);
 		}
 	}
-	else		// From <ea> to system control reg
+	else
 	{
 		switch (reg)
 		{
@@ -562,11 +663,11 @@ static void fmovem(UINT16 w2)
 	int mode = (w2 >> 11) & 0x3;
 	int reglist = w2 & 0xff;
 
-	if (dir)	// From FP regs to mem
+	if (dir)
 	{
 		switch (mode)
 		{
-			case 0:		// Static register list, predecrement addressing mode
+			case 0:
 			{
 				for (i=0; i < 8; i++)
 				{
@@ -582,11 +683,11 @@ static void fmovem(UINT16 w2)
 			default:	fatalerror("040fpu0: FMOVEM: mode %d unimplemented at %08X\n", mode, REG_PC-4);
 		}
 	}
-	else		// From mem to FP regs
+	else
 	{
 		switch (mode)
 		{
-			case 2:		// Static register list, postincrement addressing mode
+			case 2:
 			{
 				for (i=0; i < 8; i++)
 				{
@@ -604,26 +705,37 @@ static void fmovem(UINT16 w2)
 	}
 }
 
-static void fbcc(void)
+static void fbcc16(void)
 {
-	INT32 disp;
-//  int condition = REG_IR & 0x3f;
-	int size = (REG_IR >> 6) & 0x1;
+	INT32 offset;
+	int condition = REG_IR & 0x3f;
 
-	if (size)	// 32-bit displacement
-	{
-		disp = OPER_I_32();
-	}
-	else
-	{
-		disp = (INT16)(OPER_I_16());
-	}
+	offset = (INT16)(OPER_I_16());
 
-	// TODO: condition and jump!!!
+	if (TEST_CONDITION(condition))
+	{
+		m68ki_trace_t0();
+		m68ki_branch_16(offset-2);
+	}
 
 	USE_CYCLES(7);
 }
 
+static void fbcc32(void)
+{
+	INT32 offset;
+	int condition = REG_IR & 0x3f;
+
+	offset = OPER_I_32();
+
+	if (TEST_CONDITION(condition))
+	{
+		m68ki_trace_t0();
+		m68ki_branch_32(offset-4);
+	}
+
+	USE_CYCLES(7);
+}
 
 void m68040_fpu_op0(void)
 {
@@ -634,28 +746,28 @@ void m68040_fpu_op0(void)
 			UINT16 w2 = OPER_I_16();
 			switch ((w2 >> 13) & 0x7)
 			{
-				case 0x0:	// FPU ALU FP, FP
-				case 0x2:	// FPU ALU ea, FP
+				case 0x0:
+				case 0x2:
 				{
 					fpgen_rm_reg(w2);
 					break;
 				}
 
-				case 0x3:	// FMOVE FP, ea
+				case 0x3:
 				{
 					fmove_reg_mem(w2);
 					break;
 				}
 
-				case 0x4:	// FMOVE ea, FPCR
-				case 0x5:	// FMOVE FPCR, ea
+				case 0x4:
+				case 0x5:
 				{
 					fmove_fpcr(w2);
 					break;
 				}
 
-				case 0x6:	// FMOVEM ea, list
-				case 0x7:	// FMOVEM list, ea
+				case 0x6:
+				case 0x7:
 				{
 					fmovem(w2);
 					break;
@@ -666,10 +778,14 @@ void m68040_fpu_op0(void)
 			break;
 		}
 
-		case 2:		// FBcc disp16
-		case 3:		// FBcc disp32
+		case 2:
 		{
-			fbcc();
+			fbcc16();
+			break;
+		}
+		case 3:
+		{
+			fbcc32();
 			break;
 		}
 
@@ -683,23 +799,20 @@ void m68040_fpu_op1(void)
 
 	switch ((REG_IR >> 6) & 0x3)
 	{
-		case 0:		// FSAVE <ea>
+		case 0:
 		{
 			WRITE_EA_32(ea, 0x00000000);
-			// TODO: correct state frame
+
 			break;
 		}
 
-		case 1:		// FRESTORE <ea>
+		case 1:
 		{
 			READ_EA_32(ea);
-			// TODO: correct state frame
+
 			break;
 		}
 
 		default:	fatalerror("m68040_fpu_op1: unimplemented op %d at %08X\n", (REG_IR >> 6) & 0x3, REG_PC-2);
 	}
 }
-
-
-

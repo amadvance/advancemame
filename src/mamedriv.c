@@ -1970,7 +1970,7 @@ const game_driver * const drivers[] =
 	DRIVER( landgear )	/* E17 (c) 199? Taito Corporation */
 	DRIVER( dendeg )	/* E35 (c) 199? Taito Corporation */
 	DRIVER( dendegx )	/* E35 (c) 199? Taito Corporation */
-	DRIVER( dendeg2 )	/* E52 (c) 199? Taito Corporation */
+	DRIVER( dendego2 )	/* E52 (c) 1998 Taito Corporation */
 	DRIVER( dendeg2x )	/* E52 (c) 199? Taito Corporation */
 	DRIVER( sidebs )	/* E23 (c) 199? Taito Corporation */
 	DRIVER( sidebs2 )	/* E38 (c) 199? Taito Corporation */
