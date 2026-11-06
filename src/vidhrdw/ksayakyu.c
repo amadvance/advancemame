@@ -27,27 +27,29 @@ WRITE8_HANDLER(ksayakyu_videoctrl_w)
      */
     video_ctrl=data;
 
-    flipscreen = (data&4)?(TILEMAP_FLIPX|TILEMAP_FLIPY):0;
-	tilemap_set_flip( ALL_TILEMAPS,flipscreen );
-	tilemap_set_scrolly( ksayakyu_tilemap, 0, (data&0xe0)<<3 );
+	flipscreen = data & 4;
+	flip_screen_set(flipscreen);
+	tilemap_set_scrolly(ksayakyu_tilemap, 0, (data & 0xe0) << 3);
+	if (flipscreen)
+		tilemap_set_flip(ksayakyu_tilemap, (data & 2) ? TILEMAP_FLIPY : TILEMAP_FLIPX | TILEMAP_FLIPY);
+	else
+		tilemap_set_flip(ksayakyu_tilemap, (data & 2) ? TILEMAP_FLIPX : 0);
 }
 
 PALETTE_INIT( ksayakyu )
 {
-	int i,j,r,g,b,b1,b2;
-	for(j=0;j<16;j++)
-		for(i=0;i<8;i++)
-		{
-			b1=memory_region(REGION_PROMS)[j*16+i];
-			b2=memory_region(REGION_PROMS)[j*16+i+8];
+	const UINT8 *prom = memory_region(REGION_PROMS);
+	int i;
 
-			b1=b2|(b1<<8);
-			g=(b1&31)<<3;
-			b=((b1>>5)&31)<<3;
-			r=((b1>>10)&31)<<3;
+	for (i = 0; i < 0x100; i++)
+	{
+		int r = prom[i] & 7;
+		int g = (prom[i] >> 3) & 7;
+		int b = (prom[i] >> 6) & 3;
 
-			palette_set_color(j*8+i,r,g,b);
-		}
+		palette_set_color(i, (r << 5) | (r << 2) | (r >> 1),
+			(g << 5) | (g << 2) | (g >> 1), b * 0x55);
+	}
 }
 
 static void get_ksayakyu_tile_info(int tile_index)
@@ -55,18 +57,19 @@ static void get_ksayakyu_tile_info(int tile_index)
 	int code = memory_region(REGION_USER1)[tile_index];
 	int attr = memory_region(REGION_USER1)[tile_index+0x2000];
 	code+=(attr&3)<<8;
-	SET_TILE_INFO(1,code,((attr>>2)&0x07)*2,(attr&0x80) ? TILE_FLIPX : 0)
+	SET_TILE_INFO(1,code,((attr>>2)&0x0f)*2,(attr&0x80) ? TILE_FLIPX : 0)
 }
 
 static void get_text_tile_info(int tile_index)
 {
 	int code = videoram[tile_index*2+1];
 	int attr = videoram[tile_index*2];
-	int  flags=((attr&0x80) ? TILE_FLIPX : 0) | ((attr&0x40) ? TILE_FLIPY : 0);
+	/* Bit 6 is used by sliding runners without reversing their tiles. */
+	int flags=(attr&0x80) ? TILE_FLIPX : 0;
 
 	code|=(attr&3)<<8;
 
-	SET_TILE_INFO(0,code,((attr>>2)&7),flags)
+	SET_TILE_INFO(0,code,((attr>>2)&15),flags)
 }
 
 static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
@@ -95,7 +98,7 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 
 			drawgfx(bitmap,gfx,
 				tile&0x7f,
-				(attributes) & 7,
+				(attributes & 0x78) >> 3,
 				flipx,flipy,
 				sx,sy,
 				cliprect,TRANSPARENCY_PEN,0 );
@@ -117,6 +120,6 @@ VIDEO_UPDATE(ksayakyu)
 	fillbitmap(bitmap,Machine->pens[0],cliprect);
 	if(video_ctrl&1)
 		tilemap_draw(bitmap,cliprect,ksayakyu_tilemap,0,0);
-	draw_sprites(bitmap,cliprect);
 	tilemap_draw(bitmap,cliprect,ksayakyu_textmap, 0,0);
+	draw_sprites(bitmap,cliprect);
 }

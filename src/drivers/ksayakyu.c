@@ -7,11 +7,7 @@ Kusayakyuu (Sandlot Baseball)
 driver by Tomasz Slanina
 
 TODO:
-- colors
-- correct communication between main and the sound cpu
-- DAC
-- sprite glitches (sometimes) .. missing vertical flip flag?
-- sound cpu int freq (timer ? $a008/$a010 writes ?)
+- verify sound CPU interrupt frequency and clock dividers
 
 M6100097A
 
@@ -75,7 +71,31 @@ PALETTE_INIT( ksayakyu );
 VIDEO_START( ksayakyu );
 VIDEO_UPDATE( ksayakyu );
 
-static int sound_status=0xff;
+static int sound_status;
+
+static MACHINE_RESET( ksayakyu )
+{
+	sound_status = 0xff;
+	memory_set_bankptr(1, memory_region(REGION_CPU1) + 0x10000);
+	ksayakyu_videoctrl_w(0, 0);
+}
+
+static INTERRUPT_GEN( main_interrupt )
+{
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
+}
+
+static READ8_HANDLER( int_ack_r )
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	return 0xff;
+}
+
+static WRITE8_HANDLER( dac_w )
+{
+	/* Only the low six bits reach the converter. */
+	DAC_data_16_w(0, (data & 0x3f) * 0xffff / 0x3f);
+}
 
 static WRITE8_HANDLER( bank_select_w )
 {
@@ -103,6 +123,8 @@ static READ8_HANDLER (sound_status_r)
 static WRITE8_HANDLER(tomaincpu_w)
 {
 	sound_status|=0x80;
+	/* The sound CPU also replaces the command after acknowledging it. */
+	soundlatch_w(0, data);
 }
 
 static ADDRESS_MAP_START( maincpu_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -117,7 +139,7 @@ static ADDRESS_MAP_START( maincpu_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xa804, 0xa804) AM_WRITE(ksayakyu_videoctrl_w)
 	AM_RANGE(0xa805, 0xa805) AM_WRITE(latch_w)
 	AM_RANGE(0xa806, 0xa806) AM_READ(sound_status_r)
-	AM_RANGE(0xa807, 0xa807) AM_READ(MRA8_NOP) /* watchdog ? */
+	AM_RANGE(0xa807, 0xa807) AM_READ(int_ack_r)
 	AM_RANGE(0xa808, 0xa808) AM_WRITE(bank_select_w)
 	AM_RANGE(0xb000, 0xb7ff) AM_READWRITE(videoram_r, ksayakyu_videoram_w) AM_BASE(&videoram)
 	AM_RANGE(0xb800, 0xbfff) AM_READWRITE(MRA8_RAM, MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
@@ -131,7 +153,7 @@ static ADDRESS_MAP_START( soundcpu_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xa003, 0xa003) AM_WRITE(AY8910_control_port_0_w)
 	AM_RANGE(0xa006, 0xa006) AM_WRITE(AY8910_write_port_1_w)
 	AM_RANGE(0xa007, 0xa007) AM_WRITE(AY8910_control_port_1_w)
-	AM_RANGE(0xa008, 0xa008) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xa008, 0xa008) AM_WRITE(dac_w)
 	AM_RANGE(0xa00c, 0xa00c) AM_WRITE(tomaincpu_w)
 	AM_RANGE(0xa010, 0xa010) AM_WRITE(MWA8_NOP)
 ADDRESS_MAP_END
@@ -178,7 +200,6 @@ INPUT_PORTS_END
 
 static WRITE8_HANDLER(dummy_w)
 {
-	//DAC ? communication with main cpu ?
 }
 
 static struct AY8910interface ay8910_interface_1 =
@@ -236,24 +257,25 @@ static const gfx_layout spritelayout =
 static const gfx_decode gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0, &charlayout,   0, 16 },
-	{ REGION_GFX3, 0, &charlayout2,  16*4, 32 },
+	{ REGION_GFX3, 0, &charlayout2,  0x80, 32 },
 	{ REGION_GFX2, 0, &spritelayout, 0, 16 },
 	{ -1 }
 };
 
 static MACHINE_DRIVER_START( ksayakyu )
-	MDRV_CPU_ADD(Z80,8000000/2)
+	MDRV_CPU_ADD(Z80,18432000/8)
 	MDRV_CPU_PROGRAM_MAP(maincpu_map,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	MDRV_CPU_VBLANK_INT(main_interrupt,1)
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_CPU_ADD(Z80, 80000000/2)
+	MDRV_CPU_ADD(Z80, 18432000/8)
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(soundcpu_map,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,4)
+	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(60))
 
 	MDRV_INTERLEAVE(1000)
+	MDRV_MACHINE_RESET(ksayakyu)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER )
@@ -271,16 +293,16 @@ static MACHINE_DRIVER_START( ksayakyu )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 2000000)
+	MDRV_SOUND_ADD(AY8910, 18432000/16)
 	MDRV_SOUND_CONFIG(ay8910_interface_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 
-	MDRV_SOUND_ADD(AY8910, 2000000)
+	MDRV_SOUND_ADD(AY8910, 18432000/16)
 	MDRV_SOUND_CONFIG(ay8910_interface_2)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 
 	MDRV_SOUND_ADD(DAC, 0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
 
 ROM_START( ksayakyu )
@@ -320,4 +342,4 @@ ROM_START( ksayakyu )
 	ROM_LOAD( "9f.bin", 0x0000, 0x0100, CRC(ff71b27f) SHA1(6aad2bd2be997595a05ddb81d24df8fe1435910b) )
 ROM_END
 
-GAME( 1985, ksayakyu, 0, ksayakyu, ksayakyu, 0, ORIENTATION_FLIP_Y, "Taito Corporation", "Kusayakyuu",GAME_IMPERFECT_SOUND|GAME_WRONG_COLORS )
+GAME( 1985, ksayakyu, 0, ksayakyu, ksayakyu, 0, ORIENTATION_FLIP_Y, "Taito Corporation", "Kusayakyuu",0 )
