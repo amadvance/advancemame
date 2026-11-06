@@ -1708,6 +1708,7 @@ const game_driver * const drivers[] =
 	DRIVER( ballbros )	/* no copyright notice */
 
 	/* Taito "tnzs" (Seta) hardware */
+	DRIVER( jpopnics )
 	DRIVER( plumppop )	/* A98 (c) 1987 Taito Corporation (Japan) */
 	DRIVER( extrmatn )	/* B06 (c) 1987 World Games */
 	DRIVER( arknoid2 )	/* B08 (c) 1987 Taito Corporation Japan (World) */
