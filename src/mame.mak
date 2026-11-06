@@ -23,6 +23,7 @@ COREOBJS += $(OBJ)/mamedriv.o
 # only for MESS and so aren't included
 #-------------------------------------------------
 
+CPUS += CDP1802 COP420
 CPUS += Z80
 CPUS += Z180
 CPUS += 8080
@@ -177,6 +178,7 @@ SOUNDS += SAMPLES
 SOUNDS += DAC
 SOUNDS += DMADAC
 SOUNDS += DISCRETE
+SOUNDS += CDP1869
 SOUNDS += AY8910
 SOUNDS += YM2203
 SOUNDS += YM2151
@@ -1546,3 +1548,8 @@ $(OBJ)/sndhrdw/mw8080bw.o: src/sound/mw_discrete.h
 
 $(OBJ)/drivers/stv.o: src/machine/stvrax.h
 $(OBJ)/cpu/adsp2100/adsp2100.o: src/cpu/adsp2100/2100ops.c
+
+DRVLIBS += $(OBJ)/cidelsa.a
+$(OBJ)/cidelsa.a: $(OBJ)/drivers/cidelsa.o $(OBJ)/vidhrdw/cdp1869.o
+$(OBJ)/drivers/cidelsa.o: src/cpu/cdp1802/cdp1802.h src/cpu/cop400/cop400.h src/vidhrdw/cdp1869.h
+$(OBJ)/vidhrdw/cdp1869.o: src/vidhrdw/cdp1869.h src/sound/cdp1869.h src/cpu/cdp1802/cdp1802.h

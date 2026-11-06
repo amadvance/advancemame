@@ -627,3 +627,9 @@ SOUNDDEFS += -DHAS_YMZ280B=$(if $(filter YMZ280B,$(SOUNDS)),1,0)
 ifneq ($(filter YMZ280B,$(SOUNDS)),)
 SOUNDOBJS += $(OBJ)/sound/ymz280b.o
 endif
+
+SOUNDDEFS += -DHAS_CDP1869=$(if $(filter CDP1869,$(SOUNDS)),1,0)
+ifneq ($(filter CDP1869,$(SOUNDS)),)
+SOUNDOBJS += $(OBJ)/sound/cdp1869.o
+$(OBJ)/sound/cdp1869.o: src/sound/cdp1869.h
+endif

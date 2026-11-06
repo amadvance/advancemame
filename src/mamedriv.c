@@ -7645,4 +7645,10 @@ Other Sun games
 
 	DRIVER( kuzmich )
 
+	/* Cidelsa */
+	DRIVER( destryer )
+	DRIVER( altair )
+	DRIVER( altair2 )
+	DRIVER( draco )
+
 #endif	/* DRIVER_RECURSIVE */

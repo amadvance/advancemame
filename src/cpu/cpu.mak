@@ -1062,3 +1062,18 @@ DBGOBJS += $(OBJ)/cpu/sh3/sh3dasm.o
 $(OBJ)/cpu/sh3/sh3.o: CFLAGS += -fno-strict-aliasing
 $(OBJ)/cpu/sh3/sh3.o: sh3.c sh3.h sh3jit.c $(srcdir)/src/cpu/jitcache.h
 endif
+
+CPUDEFS += -DHAS_CDP1802=$(if $(filter CDP1802,$(CPUS)),1,0)
+CPUDEFS += -DHAS_COP420=$(if $(filter COP420,$(CPUS)),1,0)
+ifneq ($(filter CDP1802,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/cdp1802
+CPUOBJS += $(OBJ)/cpu/cdp1802/cdp1802.o
+DBGOBJS += $(OBJ)/cpu/cdp1802/1802dasm.o
+$(OBJ)/cpu/cdp1802/cdp1802.o $(OBJ)/cpu/cdp1802/1802dasm.o: src/cpu/cdp1802/cdp1802.h
+endif
+ifneq ($(filter COP420,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/cop400
+CPUOBJS += $(OBJ)/cpu/cop400/cop420.o
+DBGOBJS += $(OBJ)/cpu/cop400/cop420ds.o
+$(OBJ)/cpu/cop400/cop420.o: src/cpu/cop400/410ops.c src/cpu/cop400/420ops.c src/cpu/cop400/cop400.h
+endif
