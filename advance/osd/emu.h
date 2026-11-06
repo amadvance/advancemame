@@ -704,6 +704,8 @@ struct advance_video_config_context {
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */
 	double fps_speed_factor; /**< Additional speed factor over the standard value. Multiplicative factor. */
+	double fps_record_speed_factor; /**< Speed factor with native recording. Multiplicative factor. */
+	adv_bool record_speed_flag; /**< If sync_recordspeed is active. */
 	double fps_fixed; /**< Fixed fps. If ==0 use the original fps. */
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
 	int measure_time; /**< Time for the speed measure [seconds]. */
@@ -750,6 +752,7 @@ struct advance_video_state_context {
 	/* Game info */
 	adv_bool game_vector_flag; /**< If is a vector game. */
 	double game_fps; /**< Frame rate of the game. */
+	double game_native_fps; /**< Native frame rate of the game without speed factor. */
 	unsigned long long game_pixelaspect_x; /**< Pixel aspect of the game */
 	unsigned long long game_pixelaspect_y; /**< Pixel aspect of the game */
 	unsigned game_area_size_x; /**< Max size of the used part. */

@@ -281,7 +281,7 @@ Features
 	it will execute very fast until this time.
 
 	More details are in the description of the `sync_fps`, `sync_speed`,
-	`sync_turbospeed` and `sync_startuptime` options.
+	`sync_recordspeed`, `sync_turbospeed` and `sync_startuptime` options.
 
 	The video and audio synchronization uses an advanced algorithm
 	that ensures the best performance.
@@ -1982,6 +1982,21 @@ Configuration
 
 	Examples:
 		:sync_speed 1.2
+
+    sync_recordspeed
+	Selects a speed factor always active, but keeps any audio and
+	video recording (MNG and WAV) at the native full speed.
+	The audio sent to the speakers is stretched to match the game
+	speed and avoid clicks or stuttering, while the recorded audio
+	and video remain clean, at normal pitch and 1.0x speed.
+
+	:sync_recordspeed FACTOR
+
+	Options:
+		FACTOR - Float speed factor (default 1.0).
+
+	Examples:
+		:sync_recordspeed 0.5
 
     sync_turbospeed
 	Selects the speed factor used when the `turbo` button is

@@ -281,15 +281,15 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		/* use a simpler video video effect */
 		if (context->config.combine == COMBINE_AUTO) {
 			switch (combine_max) {
-			case COMBINE_SCALEX:
+			case COMBINE_SCALEX :
 				combine_max = COMBINE_NONE;
 				log_std(("advance:skip: decrease combine from scalex to none\n"));
 				break;
-			case COMBINE_SCALEK:
+			case COMBINE_SCALEK :
 				combine_max = COMBINE_SCALEX;
 				log_std(("advance:skip: decrease combine from scalek to scalex\n"));
 				break;
-			case COMBINE_XBR:
+			case COMBINE_XBR :
 				combine_max = COMBINE_SCALEK;
 				log_std(("advance:skip: decrease combine from xbr to scalek\n"));
 				break;
@@ -1084,22 +1084,22 @@ void osd_stretch_palett16to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsig
 		combine = context->config.combine_max;
 
 	switch (combine) {
-	case COMBINE_MEAN:
+	case COMBINE_MEAN :
 		combine = VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
 		break;
-	case COMBINE_FILTER:
+	case COMBINE_FILTER :
 		combine = VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 		break;
-	case COMBINE_SCALEX:
+	case COMBINE_SCALEX :
 		combine = VIDEO_COMBINE_Y_SCALEX;
 		break;
-	case COMBINE_SCALEK:
+	case COMBINE_SCALEK :
 		combine = VIDEO_COMBINE_Y_SCALEK;
 		break;
-	case COMBINE_XBR:
+	case COMBINE_XBR :
 		combine = VIDEO_COMBINE_Y_XBR;
 		break;
-	default:
+	default :
 		combine = VIDEO_COMBINE_Y_NONE;
 		break;
 	}
@@ -1126,22 +1126,22 @@ void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned ds
 		combine = context->config.combine_max;
 
 	switch (combine) {
-	case COMBINE_MEAN:
+	case COMBINE_MEAN :
 		combine = VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
 		break;
-	case COMBINE_FILTER:
+	case COMBINE_FILTER :
 		combine = VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 		break;
-	case COMBINE_SCALEX:
+	case COMBINE_SCALEX :
 		combine = VIDEO_COMBINE_Y_SCALEX;
 		break;
-	case COMBINE_SCALEK:
+	case COMBINE_SCALEK :
 		combine = VIDEO_COMBINE_Y_SCALEK;
 		break;
-	case COMBINE_XBR:
+	case COMBINE_XBR :
 		combine = VIDEO_COMBINE_Y_XBR;
 		break;
-	default:
+	default :
 		combine = VIDEO_COMBINE_Y_NONE;
 		break;
 	}
@@ -1552,7 +1552,10 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		latency_diff = context->state.latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
 	}
 
-	if (context->config.internalresample_flag) {
+	if (context->config.record_speed_flag) {
+		sample_recount = (unsigned)((double)sample_count / context->config.fps_speed_factor + 0.5);
+		latency_diff = 0;
+	} else if (context->config.internalresample_flag) {
 		sample_recount = sample_count - latency_diff;
 
 		/* lower limit of number of samples */
@@ -1751,6 +1754,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "display_writeeffect", conf_enum(OPTION_WRITEEFFECT), COMBINE_NONE);
 	conf_string_register_default(cfg_context, "sync_fps", "auto");
 	conf_float_register_limit_default(cfg_context, "sync_speed", 0.1, 10.0, 1.0);
+	conf_float_register_limit_default(cfg_context, "sync_recordspeed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "sync_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "debug_crash", 0);
 	conf_bool_register_default(cfg_context, "debug_rawsound", 0);
@@ -1763,7 +1767,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_string_register_default(cfg_context, "display_aspect", "auto");
 
 	conf_string_register_default(cfg_context, "vector_aux_renderer", "none");
-	conf_bool_register_default(cfg_context,   "vector_aux_renderer_dual_display", 1);
+	conf_bool_register_default(cfg_context, "vector_aux_renderer_dual_display", 1);
 	conf_string_register_default(cfg_context, "vector_aux_renderer_port", "/dev/ttyACM0");
 
 #ifdef USE_SMP
@@ -1972,7 +1976,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.adjust = conf_int_get_default(cfg_context, "display_adjust");
 
 #ifndef __MSDOS__
-        s = conf_string_get_default(cfg_context, "vector_aux_renderer");
+	s = conf_string_get_default(cfg_context, "vector_aux_renderer");
 	if (strcmp(s, "dvg") == 0) {
 		vector_dual_display = conf_bool_get_default(cfg_context, "vector_aux_renderer_dual_display");
 		s = conf_string_get_default(cfg_context, "vector_aux_renderer_port");
@@ -2057,6 +2061,13 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		}
 	}
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "sync_speed");
+	context->config.fps_record_speed_factor = conf_float_get_default(cfg_context, "sync_recordspeed");
+	if (context->config.fps_record_speed_factor != 1.0) {
+		context->config.fps_speed_factor = context->config.fps_record_speed_factor;
+		context->config.record_speed_flag = 1;
+	} else {
+		context->config.record_speed_flag = 0;
+	}
 
 	s = conf_string_get_default(cfg_context, "sync_startuptime");
 	if (strcmp(s, "none") == 0) {
