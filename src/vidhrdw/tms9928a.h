@@ -1,5 +1,8 @@
 // license:BSD-3-Clause
 // copyright-holders:Sean Young, Nathan Woods, Aaron Giles, Wilbert Pol, hap
+#ifndef TMS9928A_H
+#define TMS9928A_H
+
 /*
 ** File: tms9928a.h -- software implementation of the TMS9928A VDP.
 **
@@ -74,3 +77,12 @@ typedef struct TMS9928a_interface
 extern void mdrv_tms9928a(machine_config *machine, const TMS9928a_interface *intf);
 
 #define MDRV_TMS9928A(intf)		mdrv_tms9928a(machine, (intf));
+
+int TMS9928A_start_indexed(int index, const TMS9928a_interface *intf);
+void TMS9928A_reset_indexed(int index);
+int TMS9928A_read_indexed(int index, int reg);
+void TMS9928A_write_indexed(int index, int reg, UINT8 data);
+int TMS9928A_update_indexed(int index, mame_bitmap *bitmap, const rectangle *cliprect);
+void TMS9928A_interrupt_indexed(int index);
+
+#endif

@@ -326,6 +326,14 @@ void tms5220_data_write(void *chip, int data)
         if (DEBUG_5220) logerror("Ran out of room in the FIFO!\n");
     }
 
+    /* TALK must change with the ninth FIFO byte, before the next audio sample.
+       Otherwise a fast status poll sees idle and terminates the speech transfer. */
+    if (tms->speak_external && !tms->talk_status && tms->fifo_count >= 9)
+    {
+        tms->talk_status = 1;
+        tms->first_frame = 1;
+    }
+
     /* update the buffer low state */
     check_buffer_low(tms);
 
