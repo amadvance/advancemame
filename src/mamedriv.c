@@ -5720,6 +5720,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tinv2650 )	/* (c) 1978 */
 	DRIVER( dodgem )	/* (c) 1979 */
 	DRIVER( galaxia )	/* (c) 1979 */
+	DRIVER( astrowar )	/* (c) 1980 Zaccaria / Zelco */
 	DRIVER( laserbat )	/* (c) 1981 */
 	DRIVER( lazarian )	/* (c) 1981 */
 	DRIVER( catnmous )	/* (c) 1982 */
