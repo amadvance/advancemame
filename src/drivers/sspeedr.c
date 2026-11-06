@@ -8,6 +8,7 @@ Taito Super Speed Race driver
 
 #include "driver.h"
 #include "artwork.h"
+#include "sspeedr.h"
 
 extern WRITE8_HANDLER( sspeedr_driver_horz_w );
 extern WRITE8_HANDLER( sspeedr_driver_horz_2_w );
@@ -59,6 +60,14 @@ static READ8_HANDLER( sspeedr_steering_r )
 	UINT8 val = readinputport(0);
 
 	return 0x3f ^ (val >> 2) ^ (val >> 3);
+}
+
+
+static READ8_HANDLER( sspeedr_pedal_r )
+{
+	/* The pedal covers encoder positions 2 through 31 in reflected Gray code. */
+	UINT8 val = 2 + readinputport(1) * 29 / 31;
+	return (0x3f ^ val ^ (val >> 1)) & 0x1f;
 }
 
 
@@ -117,12 +126,6 @@ static WRITE8_HANDLER( sspeedr_score_w )
 }
 
 
-static WRITE8_HANDLER( sspeedr_sound_w )
-{
-	/* not implemented */
-}
-
-
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x0fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x2000, 0x21ff) AM_READ(MRA8_RAM)
@@ -139,7 +142,7 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_READ(sspeedr_steering_r)
-	AM_RANGE(0x01, 0x01) AM_READ(input_port_1_r)
+	AM_RANGE(0x01, 0x01) AM_READ(sspeedr_pedal_r)
 	AM_RANGE(0x03, 0x03) AM_READ(input_port_2_r)
 	AM_RANGE(0x04, 0x04) AM_READ(input_port_3_r)
 ADDRESS_MAP_END
@@ -170,10 +173,10 @@ ADDRESS_MAP_END
 INPUT_PORTS_START( sspeedr )
 
 	PORT_START_TAG("IN0")
-	PORT_BIT( 0xff, 0x80, IPT_DIAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(10)
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(10)
 
 	PORT_START_TAG("IN1")
-	PORT_BIT( 0x1f, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0x1f) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_REVERSE
+	PORT_BIT( 0x1f, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0x1f) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
 
 	PORT_START_TAG("DSW")
 	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coinage ) )
@@ -239,8 +242,8 @@ static MACHINE_DRIVER_START( sspeedr )
 	MDRV_CPU_IO_MAP(readport, writeport)
 	MDRV_CPU_VBLANK_INT(irq0_line_assert, 1)
 
-	MDRV_FRAMES_PER_SECOND(59.39)
-	MDRV_VBLANK_DURATION(16 * 1000000 / 15680)
+	MDRV_FRAMES_PER_SECOND(14318181.0 / (2 * 456 * 264))
+	MDRV_VBLANK_DURATION(16 * 1000000.0 * 2 * 456 / 14318181)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -255,6 +258,10 @@ static MACHINE_DRIVER_START( sspeedr )
 	MDRV_VIDEO_EOF(sspeedr)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(sspeedr_discrete)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -274,4 +281,4 @@ ROM_START( sspeedr )
 ROM_END
 
 
-GAME( 1979, sspeedr, 0, sspeedr, sspeedr, 0, ROT270, "Midway", "Super Speed Race", GAME_NO_SOUND )
+GAME( 1979, sspeedr, 0, sspeedr, sspeedr, 0, ROT270, "Taito (Midway license)", "Super Speed Race", GAME_IMPERFECT_SOUND )
