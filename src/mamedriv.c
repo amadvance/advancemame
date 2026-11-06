@@ -6836,6 +6836,7 @@ Other Sun games
 	DRIVER( bombkick )	/* (c) 1998 Yun Sung */
 	DRIVER( nmg5 )		/* (c) 1998 Yun Sung */
 	DRIVER( searchey )	/* (c) 1999 Yun Sung */
+	DRIVER( searchp2 )	/* (c) 1999 Yun Sung */
 	DRIVER( pclubys )	/* (c) 2000 Yun Sung */
 	DRIVER( pclubysa )	/* (c) 2000 Yun Sung */
 	DRIVER( garogun )	/* (c) 2000 Yun Sung */

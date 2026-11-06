@@ -6,6 +6,7 @@
  ----------------------------------------------------------------------------
  Multi 5 / New Multi Game 5     (c) 1998 Yun Sung    YS-1300 / YS-1301
  Search Eye                     (c) 1999 Yun Sung    YS-1905
+ Search Eye Plus V2.0           (c) 1999 Yun Sung
  Puzzle Club (set 1)            (c) 2000 Yun Sung    YS-2113
  Puzzle Club (set 2)            (c) 2000 Yun Sung    YS-2111
  Wonder Stick                   (c) ???? Yun Sung    YS-2320
@@ -233,7 +234,7 @@ INPUT_PORTS_START( nmg5 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( searchey )
-	PORT_START
+	PORT_START_TAG("DSW")
 	PORT_DIPNAME( 0x0003, 0x0003, "Time Speed" )
 	PORT_DIPSETTING(      0x0000, "Fastest" )
 	PORT_DIPSETTING(      0x0001, "Fast" )
@@ -298,6 +299,53 @@ INPUT_PORTS_START( searchey )
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2) // not used
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_START2 )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( searchp2 )
+	PORT_INCLUDE(searchey)
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x0003, 0x0003, "Timer Speed" )
+	PORT_DIPSETTING(      0x0003, "Slowest" )
+	PORT_DIPSETTING(      0x0002, "Slow" )
+	PORT_DIPSETTING(      0x0001, "Fast" )
+	PORT_DIPSETTING(      0x0000, "Fastest" )
+	PORT_DIPNAME( 0x000c, 0x0000, "Helps" )
+	PORT_DIPSETTING(      0x000c, "1" )
+	PORT_DIPSETTING(      0x0008, "2" )
+	PORT_DIPSETTING(      0x0004, "3" )
+	PORT_DIPSETTING(      0x0000, "4" )
+	PORT_DIPNAME( 0x0030, 0x0030, DEF_STR( Lives ) )
+	PORT_DIPSETTING(      0x0020, "3" )
+	PORT_DIPSETTING(      0x0010, "4" )
+	PORT_DIPSETTING(      0x0030, "5" )
+	PORT_DIPSETTING(      0x0000, "6" )
+	PORT_DIPNAME( 0x00c0, 0x00c0, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 1C_2C ) )
+	PORT_SERVICE( 0x0100, IP_ACTIVE_LOW )
+
+	PORT_DIPNAME( 0x0600, 0x0600, "Lucky Chance" )
+	PORT_DIPSETTING(      0x0600, "Table 1" )
+	PORT_DIPSETTING(      0x0400, "Table 2" )
+	PORT_DIPSETTING(      0x0200, "Table 3" )
+	PORT_DIPSETTING(      0x0000, "Table 4" )
+	PORT_DIPNAME( 0x3800, 0x3000, DEF_STR( Language ) )
+	PORT_DIPSETTING(      0x0000, "Korean Duplicate 1" )
+	PORT_DIPSETTING(      0x0800, "Korean Duplicate 2" )
+	PORT_DIPSETTING(      0x1000, "Korean" )
+	PORT_DIPSETTING(      0x1800, DEF_STR( Italian ) )
+	PORT_DIPSETTING(      0x2000, "Chinese" )
+	PORT_DIPSETTING(      0x2800, DEF_STR( Japanese ) )
+	PORT_DIPSETTING(      0x3000, DEF_STR( English ) )
+	PORT_DIPSETTING(      0x3800, "Korean Duplicate 3" )
+	PORT_DIPNAME( 0x4000, 0x4000, "Lucky Timer" )
+	PORT_DIPSETTING(      0x0000, "Less" )
+	PORT_DIPSETTING(      0x4000, "More" )
+	PORT_DIPNAME( 0x8000, 0x8000, "Items to find" )
+	PORT_DIPSETTING(      0x0000, "Less" )
+	PORT_DIPSETTING(      0x8000, "More" )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( pclubys )
@@ -779,6 +827,12 @@ static MACHINE_DRIVER_START( pclubys )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( searchp2 )
+	MDRV_IMPORT_FROM(nmg5)
+	MDRV_FRAMES_PER_SECOND(55)
+	MDRV_GFXDECODE(pclubys_gfxdecodeinfo)
+MACHINE_DRIVER_END
+
 ROM_START( nmg5 )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )		/* 68000 Code */
 	ROM_LOAD16_BYTE( "ub15.bin", 0x000000, 0x80000, CRC(36af3e2f) SHA1(735aaa901290b1d921242869e81e59649905eb30) )
@@ -874,6 +928,31 @@ Notes:
       VSync       : 60Hz
 
 */
+
+ROM_START( searchp2 )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "u7", 0x000000, 0x80000, CRC(37fe9e18) SHA1(ddb5c8d7cc68823850af8a186a4500688115b00f) )
+	ROM_LOAD16_BYTE( "u2", 0x000001, 0x80000, CRC(8278513b) SHA1(a48870dc27147e0e9d9d76286028fab1088fa57a) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "u128", 0x00000, 0x10000, CRC(85bae10c) SHA1(a1e58d8b8c8718cc346aae400bb4eadf6873b86d) )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "0.u1", 0x000000, 0x400000, CRC(28a50dcf) SHA1(d00992675115e0187a9ca2193edfccdc6e03a0ed) )
+	ROM_LOAD( "2.u3", 0x400000, 0x400000, CRC(30d46e19) SHA1(e3b3d0c5eed29e104f2ecf89541fb74da4f2980f) )
+	ROM_LOAD( "1.u2", 0x800000, 0x400000, CRC(f9c4e824) SHA1(2b3216054060bc349dba87401ce9d8c5e0b60101) )
+	ROM_LOAD( "3.u4", 0xc00000, 0x400000, CRC(619f142f) SHA1(6568e8b2d103bf6aded1314f270c2d288700815e) )
+
+	ROM_REGION( 0x140000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "u83", 0x000000, 0x40000, CRC(2bae34cb) SHA1(8d18ca44033e064dbf20381158f5bd53931a7362) )
+	ROM_LOAD( "u82", 0x040000, 0x40000, CRC(5cb773f0) SHA1(f3b69073998c9521661c3cffa5d6d022172f30e6) )
+	ROM_LOAD( "u105",0x080000, 0x40000, CRC(e8adb15e) SHA1(f80a030c394fa4e48d569bbcfe945bb22551d542) )
+	ROM_LOAD( "u96", 0x0c0000, 0x40000, CRC(67efb536) SHA1(fb7a829245f1418865637329cbb78acf63e5640b) )
+	ROM_LOAD( "u97", 0x100000, 0x40000, CRC(f7b63826) SHA1(457b836b765c31dc7a162e0d072524de4bebba31) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "u137", 0x00000, 0x40000,  CRC(cd037524) SHA1(1f4accc909d73068fe16feb27dfe0c6f19234af1) )
+ROM_END
 
 ROM_START( pclubys )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )		/* 68000 Code */
@@ -1000,6 +1079,7 @@ DRIVER_INIT( prot_val_40 )
 
 GAME( 1998, nmg5,     0,       nmg5,    nmg5,      prot_val_10, ROT0, "Yun Sung", "Multi 5 / New Multi Game 5", GAME_SUPPORTS_SAVE )
 GAME( 1999, searchey, 0,       nmg5,    searchey,  prot_val_10, ROT0, "Yun Sung", "Search Eye", GAME_SUPPORTS_SAVE )
+GAME( 1999, searchp2, 0,       searchp2,searchp2,  prot_val_10, ROT0, "Yun Sung", "Search Eye Plus V2.0", GAME_SUPPORTS_SAVE )
 GAME( 2000, pclubys,  0,       pclubys, pclubys,   prot_val_10, ROT0, "Yun Sung", "Puzzle Club (Yun Sung - set 1)", GAME_SUPPORTS_SAVE )
 GAME( 2000, pclubysa, pclubys, pclubys, pclubys,   prot_val_10, ROT0, "Yun Sung", "Puzzle Club (Yun Sung - set 2)", GAME_SUPPORTS_SAVE )
 GAME( 2000, garogun,  0,       garogun, garogun,   prot_val_40, ROT0, "Yun Sung", "Garogun Seroyang (Korea)", GAME_SUPPORTS_SAVE )
