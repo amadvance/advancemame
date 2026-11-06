@@ -104,7 +104,7 @@ static struct advance_glue_context GLUE;
 
 /* MAME internal variables */
 extern char* cheatfile;
-extern const char *db_filename;
+extern const char* db_filename;
 
 /**
  * Check if the game is working perfectly.
@@ -421,35 +421,35 @@ unsigned mame_game_buttons(const mame_game* game)
 	nbutton = 0;
 	while (input->type != IPT_END) {
 		switch (input->type) {
-		case IPT_BUTTON1:
-			if (nbutton<1) nbutton = 1;
+		case IPT_BUTTON1 :
+			if (nbutton < 1) nbutton = 1;
 			break;
-		case IPT_BUTTON2:
-			if (nbutton<2) nbutton = 2;
+		case IPT_BUTTON2 :
+			if (nbutton < 2) nbutton = 2;
 			break;
-		case IPT_BUTTON3:
-			if (nbutton<3) nbutton = 3;
+		case IPT_BUTTON3 :
+			if (nbutton < 3) nbutton = 3;
 			break;
-		case IPT_BUTTON4:
-			if (nbutton<4) nbutton = 4;
+		case IPT_BUTTON4 :
+			if (nbutton < 4) nbutton = 4;
 			break;
-		case IPT_BUTTON5:
-			if (nbutton<5) nbutton = 5;
+		case IPT_BUTTON5 :
+			if (nbutton < 5) nbutton = 5;
 			break;
-		case IPT_BUTTON6:
-			if (nbutton<6) nbutton = 6;
+		case IPT_BUTTON6 :
+			if (nbutton < 6) nbutton = 6;
 			break;
-		case IPT_BUTTON7:
-			if (nbutton<7) nbutton = 7;
+		case IPT_BUTTON7 :
+			if (nbutton < 7) nbutton = 7;
 			break;
-		case IPT_BUTTON8:
-			if (nbutton<8) nbutton = 8;
+		case IPT_BUTTON8 :
+			if (nbutton < 8) nbutton = 8;
 			break;
-		case IPT_BUTTON9:
-			if (nbutton<9) nbutton = 9;
+		case IPT_BUTTON9 :
+			if (nbutton < 9) nbutton = 9;
 			break;
-		case IPT_BUTTON10:
-			if (nbutton<10) nbutton = 10;
+		case IPT_BUTTON10 :
+			if (nbutton < 10) nbutton = 10;
 			break;
 		}
 		++input;
@@ -479,10 +479,10 @@ const char* mame_game_control(const mame_game* game)
 
 	while (input->type != IPT_END) {
 		switch (input->type) {
-		case IPT_JOYSTICK_UP:
-		case IPT_JOYSTICK_DOWN:
-		case IPT_JOYSTICK_LEFT:
-		case IPT_JOYSTICK_RIGHT:
+		case IPT_JOYSTICK_UP :
+		case IPT_JOYSTICK_DOWN :
+		case IPT_JOYSTICK_LEFT :
+		case IPT_JOYSTICK_RIGHT :
 			if (!control) {
 				if (input->four_way)
 					control = "joy4way";
@@ -490,14 +490,14 @@ const char* mame_game_control(const mame_game* game)
 					control = "joy8way";
 			}
 			break;
-		case IPT_JOYSTICKRIGHT_UP:
-		case IPT_JOYSTICKRIGHT_DOWN:
-		case IPT_JOYSTICKRIGHT_LEFT:
-		case IPT_JOYSTICKRIGHT_RIGHT:
-		case IPT_JOYSTICKLEFT_UP:
-		case IPT_JOYSTICKLEFT_DOWN:
-		case IPT_JOYSTICKLEFT_LEFT:
-		case IPT_JOYSTICKLEFT_RIGHT:
+		case IPT_JOYSTICKRIGHT_UP :
+		case IPT_JOYSTICKRIGHT_DOWN :
+		case IPT_JOYSTICKRIGHT_LEFT :
+		case IPT_JOYSTICKRIGHT_RIGHT :
+		case IPT_JOYSTICKLEFT_UP :
+		case IPT_JOYSTICKLEFT_DOWN :
+		case IPT_JOYSTICKLEFT_LEFT :
+		case IPT_JOYSTICKLEFT_RIGHT :
 			if (!control) {
 				if (input->four_way)
 					control = "doublejoy4way";
@@ -505,39 +505,39 @@ const char* mame_game_control(const mame_game* game)
 					control = "doublejoy8way";
 			}
 			break;
-		case IPT_PADDLE:
-		case IPT_PADDLE_V:
+		case IPT_PADDLE :
+		case IPT_PADDLE_V :
 			if (!control) {
 				control = "paddle";
 			}
 			break;
-		case IPT_DIAL:
-		case IPT_DIAL_V:
+		case IPT_DIAL :
+		case IPT_DIAL_V :
 			if (!control) {
 				control = "dial";
 			}
 			break;
-		case IPT_TRACKBALL_X:
-		case IPT_TRACKBALL_Y:
+		case IPT_TRACKBALL_X :
+		case IPT_TRACKBALL_Y :
 			if (!control) {
 				control = "trackball";
 			}
 			break;
-		case IPT_AD_STICK_X:
-		case IPT_AD_STICK_Y:
-		case IPT_AD_STICK_Z:
+		case IPT_AD_STICK_X :
+		case IPT_AD_STICK_Y :
+		case IPT_AD_STICK_Z :
 			if (!control) {
 				control = "stick";
 			}
 			break;
-		case IPT_LIGHTGUN_X:
-		case IPT_LIGHTGUN_Y:
+		case IPT_LIGHTGUN_X :
+		case IPT_LIGHTGUN_Y :
 			if (!control) {
 				control = "lightgun";
 			}
 			break;
-		case IPT_MOUSE_X:
-		case IPT_MOUSE_Y:
+		case IPT_MOUSE_X :
+		case IPT_MOUSE_Y :
 			if (!control) {
 				control = "mouse";
 			}
@@ -778,7 +778,8 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		machine_config machine;
 		int count;
 		expand_machine_driver(((const game_driver*)context->game)->drv, &machine);
-		for (count = 0; count < MAX_CPU && machine.cpu[count].cpu_type != CPU_DUMMY; ++count) {}
+		for (count = 0; count < MAX_CPU && machine.cpu[count].cpu_type != CPU_DUMMY; ++count) {
+		}
 		if (context->record.config.debug_cpu >= count
 			|| context->record.config.debug_watch_cpu >= count
 			|| context->record.config.debug_break_cpu >= count) {
@@ -952,7 +953,10 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (!drivers[game_index])
 		return -1;
 
-	GLUE.sound_speed = context->video.config.fps_speed_factor;
+	if (context->video.config.record_speed_flag)
+		GLUE.sound_speed = 1.0;
+	else
+		GLUE.sound_speed = context->video.config.fps_speed_factor;
 	GLUE.sound_fps = context->video.config.fps_fixed;
 
 	hardware_script_info(mame_game_description(context->game), mame_game_manufacturer(context->game), mame_game_year(context->game), "Loading");
@@ -1101,7 +1105,6 @@ struct glue_port_name {
 	char desc[64];
 	const char* glob[8];
 };
-
 
 #ifdef MESS
 /**
@@ -1626,23 +1629,23 @@ int mame_port_player(unsigned port)
 	unsigned player = MAME_PORT_PLAYER_GET(port);
 
 	switch (type) {
-	case IPT_START1: return 1;
-	case IPT_START2: return 2;
-	case IPT_START3: return 3;
-	case IPT_START4: return 4;
-	case IPT_START5: return 5;
-	case IPT_START6: return 6;
-	case IPT_START7: return 7;
-	case IPT_START8: return 8;
-	case IPT_COIN1: return 1;
-	case IPT_COIN2: return 2;
-	case IPT_COIN3: return 3;
-	case IPT_COIN4: return 4;
-	case IPT_COIN5: return 5;
-	case IPT_COIN6: return 6;
-	case IPT_COIN7: return 7;
-	case IPT_COIN8: return 8;
-	case IPT_BILL1: return 1;
+	case IPT_START1 : return 1;
+	case IPT_START2 : return 2;
+	case IPT_START3 : return 3;
+	case IPT_START4 : return 4;
+	case IPT_START5 : return 5;
+	case IPT_START6 : return 6;
+	case IPT_START7 : return 7;
+	case IPT_START8 : return 8;
+	case IPT_COIN1 : return 1;
+	case IPT_COIN2 : return 2;
+	case IPT_COIN3 : return 3;
+	case IPT_COIN4 : return 4;
+	case IPT_COIN5 : return 5;
+	case IPT_COIN6 : return 6;
+	case IPT_COIN7 : return 7;
+	case IPT_COIN8 : return 8;
+	case IPT_BILL1 : return 1;
 	}
 
 	return player;
@@ -1667,19 +1670,19 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 		adv_bool c_set;
 
 		switch (mame_seq[j]) {
-		case CODE_OR:
+		case CODE_OR :
 			prev_or = 1; /* implicitely remove consecutive or */
 			c_set = 0;
 			break;
-		case CODE_NOT:
+		case CODE_NOT :
 			prev_not = 1;
 			c_set = 0;
 			break;
-		case CODE_DEFAULT:
+		case CODE_DEFAULT :
 			c = DIGITAL_SPECIAL_AUTO;
 			c_set = 1;
 			break;
-		default:
+		default :
 			c = code_to_oscode(mame_seq[j]);
 			if (c != 0) {
 				c_set = 1;
@@ -1740,19 +1743,19 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 		adv_bool c_set;
 
 		switch (seq[j]) {
-		case DIGITAL_SPECIAL_OR:
+		case DIGITAL_SPECIAL_OR :
 			prev_or = 1; /* implicitely remove consecutive or */
 			c_set = 0;
 			break;
-		case DIGITAL_SPECIAL_NOT:
+		case DIGITAL_SPECIAL_NOT :
 			prev_not = 1;
 			c_set = 0;
 			break;
-		case DIGITAL_SPECIAL_AUTO:
+		case DIGITAL_SPECIAL_AUTO :
 			c = CODE_DEFAULT;
 			c_set = 1;
 			break;
-		default:
+		default :
 			c = oscode_to_code(seq[j]);
 			/* ignore unmapped codes, it happen if the configuration */
 			/* file refers at a control now removed */
@@ -1928,8 +1931,8 @@ int glue_port_seqtype(unsigned type, unsigned index)
 {
 	if (port_type_is_analog(type)) {
 		switch (index) {
-		case 0: return SEQ_TYPE_INCREMENT;
-		case 1: return SEQ_TYPE_DECREMENT;
+		case 0 : return SEQ_TYPE_INCREMENT;
+		case 1 : return SEQ_TYPE_DECREMENT;
 		}
 	} else {
 		return SEQ_TYPE_STANDARD;
@@ -1947,13 +1950,13 @@ int glue_port_seqtype(unsigned type, unsigned index)
 input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype)
 {
 	switch (seqtype) {
-	case SEQ_TYPE_STANDARD:
+	case SEQ_TYPE_STANDARD :
 		return &port->defaultseq;
-	case SEQ_TYPE_INCREMENT:
+	case SEQ_TYPE_INCREMENT :
 		if (port_type_is_analog(port->type))
 			return &port->defaultincseq;
 		break;
-	case SEQ_TYPE_DECREMENT:
+	case SEQ_TYPE_DECREMENT :
 		if (port_type_is_analog(port->type))
 			return &port->defaultdecseq;
 		break;
@@ -1971,13 +1974,13 @@ input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype)
 input_seq* glue_port_seq_get(input_port_entry* port, int seqtype)
 {
 	switch (seqtype) {
-	case SEQ_TYPE_STANDARD:
+	case SEQ_TYPE_STANDARD :
 		return &port->seq;
-	case SEQ_TYPE_INCREMENT:
+	case SEQ_TYPE_INCREMENT :
 		if (port_type_is_analog(port->type))
 			return &port->analog.incseq;
 		break;
-	case SEQ_TYPE_DECREMENT:
+	case SEQ_TYPE_DECREMENT :
 		if (port_type_is_analog(port->type))
 			return &port->analog.decseq;
 		break;
@@ -2054,23 +2057,23 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 
 	if (port_type_is_analog(type)) {
 		switch (seqtype) {
-		case SEQ_TYPE_STANDARD:  /* used for the mame_analog port */
-		case SEQ_TYPE_INCREMENT:
+		case SEQ_TYPE_STANDARD :  /* used for the mame_analog port */
+		case SEQ_TYPE_INCREMENT :
 			index = 0;
 			break;
-		case SEQ_TYPE_DECREMENT:
+		case SEQ_TYPE_DECREMENT :
 			index = 1;
 			break;
-		default:
+		default :
 			log_std(("ERROR:glue: convert unsupported SEQ_TYPE_ constant %d\n", seqtype));
 			return 0;
 		}
 	} else {
 		switch (seqtype) {
-		case SEQ_TYPE_STANDARD:
+		case SEQ_TYPE_STANDARD :
 			index = 0;
 			break;
-		default:
+		default :
 			log_std(("ERROR:glue: convert unsupported SEQ_TYPE_ constant %d\n", seqtype));
 			return 0;
 		}
@@ -2448,35 +2451,35 @@ int mame_ui_port_pressed(unsigned port)
 	type = MAME_PORT_TYPE_GET(port);
 
 	switch (type) {
-	case IPT_MAME_PORT_SAFEQUIT:
+	case IPT_MAME_PORT_SAFEQUIT :
 		return advance_safequit_can_exit(safequit_context);
-	case IPT_MAME_PORT_EVENT1:
+	case IPT_MAME_PORT_EVENT1 :
 		return (advance_safequit_event_mask(safequit_context) & 0x4) != 0;
-	case IPT_MAME_PORT_EVENT2:
+	case IPT_MAME_PORT_EVENT2 :
 		return (advance_safequit_event_mask(safequit_context) & 0x8) != 0;
-	case IPT_MAME_PORT_EVENT3:
+	case IPT_MAME_PORT_EVENT3 :
 		return (advance_safequit_event_mask(safequit_context) & 0x10) != 0;
-	case IPT_MAME_PORT_EVENT4:
+	case IPT_MAME_PORT_EVENT4 :
 		return (advance_safequit_event_mask(safequit_context) & 0x20) != 0;
-	case IPT_MAME_PORT_EVENT5:
+	case IPT_MAME_PORT_EVENT5 :
 		return (advance_safequit_event_mask(safequit_context) & 0x40) != 0;
-	case IPT_MAME_PORT_EVENT6:
+	case IPT_MAME_PORT_EVENT6 :
 		return (advance_safequit_event_mask(safequit_context) & 0x80) != 0;
-	case IPT_MAME_PORT_EVENT7:
+	case IPT_MAME_PORT_EVENT7 :
 		return (advance_safequit_event_mask(safequit_context) & 0x100) != 0;
-	case IPT_MAME_PORT_EVENT8:
+	case IPT_MAME_PORT_EVENT8 :
 		return (advance_safequit_event_mask(safequit_context) & 0x200) != 0;
-	case IPT_MAME_PORT_EVENT9:
+	case IPT_MAME_PORT_EVENT9 :
 		return (advance_safequit_event_mask(safequit_context) & 0x400) != 0;
-	case IPT_MAME_PORT_EVENT10:
+	case IPT_MAME_PORT_EVENT10 :
 		return (advance_safequit_event_mask(safequit_context) & 0x800) != 0;
-	case IPT_MAME_PORT_EVENT11:
+	case IPT_MAME_PORT_EVENT11 :
 		return (advance_safequit_event_mask(safequit_context) & 0x1000) != 0;
-	case IPT_MAME_PORT_EVENT12:
+	case IPT_MAME_PORT_EVENT12 :
 		return (advance_safequit_event_mask(safequit_context) & 0x2000) != 0;
-	case IPT_MAME_PORT_EVENT13:
+	case IPT_MAME_PORT_EVENT13 :
 		return (advance_safequit_event_mask(safequit_context) & 0x4000) != 0;
-	case IPT_MAME_PORT_EVENT14:
+	case IPT_MAME_PORT_EVENT14 :
 		return (advance_safequit_event_mask(safequit_context) & 0x8000) != 0;
 	}
 
@@ -2564,7 +2567,7 @@ void osd_free_executable(void* p)
  * Ensure that a memory region is valid.
  * It can return alwasy 0 if this check is not possible.
  */
-int osd_is_bad_read_ptr(const void *ptr, size_t size)
+int osd_is_bad_read_ptr(const void* ptr, size_t size)
 {
 	return 0;
 }
@@ -2575,7 +2578,7 @@ int osd_is_bad_read_ptr(const void *ptr, size_t size)
  * - ==0 On success.
  * - ==-1 On error.
  */
-int osd_create_display(const osd_create_params *params, UINT32 *rgb_components)
+int osd_create_display(const osd_create_params* params, UINT32* rgb_components)
 {
 	unsigned width;
 	unsigned height;
@@ -2680,13 +2683,13 @@ int osd_menu(unsigned menu, int selected)
 		input |= OSD_INPUT_RIGHT;
 
 	switch (menu) {
-	case 0:
+	case 0 :
 		r = osd2_video_menu(selected, input);
 		break;
-	case 1:
+	case 1 :
 		r = osd2_audio_menu(selected, input);
 		break;
-	default:
+	default :
 		r = -1;
 		break;
 	}
@@ -2726,7 +2729,7 @@ static unsigned glue_sound_sample(void)
  * Update the video frame.
  * \note Called after osd_update_audio_stream().
  */
-void osd_update_video_and_audio(mame_display *display)
+void osd_update_video_and_audio(mame_display* display)
 {
 	struct osd_bitmap game;
 	struct osd_bitmap debug;
@@ -2822,7 +2825,7 @@ void osd_update_video_and_audio(mame_display *display)
 #else
 		display->knocker_state
 #endif
-		);
+	);
 
 	if (CONTEXT.input.state.input_forced_exit_flag) {
 		mame_schedule_exit();
@@ -3039,11 +3042,11 @@ static int on_exit_menu(int selected)
 	if (input_ui_pressed(IPT_UI_SELECT)) {
 		int key0 = 0;
 		switch (sel) {
-		case 0: key0 = KEYB_5; sel = -1; break;
-		case 1: sel = -2; break;
-		case 2: sel = -3; break;
-		case 3: sel = -4; break;
-		case 4: sel = -5; break;
+		case 0 : key0 = KEYB_5; sel = -1; break;
+		case 1 : sel = -2; break;
+		case 2 : sel = -3; break;
+		case 3 : sel = -4; break;
+		case 4 : sel = -5; break;
 		}
 		if (key0 != 0) {
 			sel = -1;
@@ -3136,15 +3139,15 @@ static int on_key_menu(int selected)
 		int key0 = 0;
 		int key1 = 0;
 		switch (sel) {
-		case 0: key0 = KEYB_1; break;
-		case 1: key0 = KEYB_2; break;
-		case 2: key0 = KEYB_3; break;
-		case 3: key0 = KEYB_4; break;
-		case 4: key0 = KEYB_A; break;
-		case 5: key0 = KEYB_B; break;
-		case 6: key0 = KEYB_8; key1 = KEYB_ALT; break;
-		case 7: key0 = KEYB_9; key1 = KEYB_ALT; break;
-		case 8: key0 = KEYB_ENTER; break;
+		case 0 : key0 = KEYB_1; break;
+		case 1 : key0 = KEYB_2; break;
+		case 2 : key0 = KEYB_3; break;
+		case 3 : key0 = KEYB_4; break;
+		case 4 : key0 = KEYB_A; break;
+		case 5 : key0 = KEYB_B; break;
+		case 6 : key0 = KEYB_8; key1 = KEYB_ALT; break;
+		case 7 : key0 = KEYB_9; key1 = KEYB_ALT; break;
+		case 8 : key0 = KEYB_ENTER; break;
 		}
 		if (key0 != 0) {
 			sel = -1;
@@ -3164,7 +3167,6 @@ static int on_key_menu(int selected)
 	return sel;
 }
 
-
 /**
  * Handle the OSD user interface.
  * \return
@@ -3174,7 +3176,7 @@ static int on_key_menu(int selected)
  * - ==3 User asked to save
  * - ==4 User asked to load
  */
-int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
+int osd_handle_user_interface(mame_bitmap* bitmap, int is_menu_active)
 {
 	unsigned input;
 
@@ -3197,10 +3199,10 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 			mame_pause(0);
 
 			switch (res) {
-			case -2: return 4;
-			case -3: return 3;
-			case -4: return 2;
-			case -5: return 1;
+			case -2 : return 4;
+			case -3 : return 3;
+			case -4 : return 2;
+			case -5 : return 1;
 			}
 		}
 	}
@@ -3449,7 +3451,6 @@ adv_error mame_init(struct advance_context* context)
 		printf("Internal error, increase GLUE_PORT_MAX!\n");
 		abort();
 	}
-
 
 	/* mark the end */
 	GLUE_PORT[j].name = 0;

@@ -541,13 +541,19 @@ void osd_record_start(void)
 	if (context->config.video_flag) {
 		unsigned size_x = video_context->state.game_used_size_x;
 		unsigned size_y = video_context->state.game_used_size_y;
+		double mng_fps;
 
 		/* restore the original orientation */
 		if ((video_context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
 			SWAP(unsigned, size_x, size_y);
 		}
 
-		video_start(context, path_mng, video_context->state.game_fps, size_x, size_y, video_context->config.game_orientation);
+		if (video_context->config.record_speed_flag)
+			mng_fps = video_context->state.game_native_fps;
+		else
+			mng_fps = video_context->state.game_fps;
+
+		video_start(context, path_mng, mng_fps, size_x, size_y, video_context->config.game_orientation);
 	}
 
 #ifdef USE_SMP
