@@ -38,6 +38,7 @@ int paradise_sprite_inc;
 /* Variables only used here */
 
 static UINT8 paradise_palbank, paradise_priority;
+static UINT8 paradise_pixbank;
 
 WRITE8_HANDLER( paradise_flipscreen_w )
 {
@@ -58,6 +59,10 @@ WRITE8_HANDLER( paradise_palette_w )
 	palette_set_color(offset,	paletteram[offset + 0x800 * 0],
 								paletteram[offset + 0x800 * 1],
 								paletteram[offset + 0x800 * 2]	);
+	/* Pixmap colors must follow RAM writes even when the bank was selected first. */
+	if ((offset & 0x7f0) == 0x200 + paradise_pixbank && (offset & 0x0f) < 15)
+		palette_set_color(0x800 + (offset & 0x0f),
+			paletteram[offset], paletteram[offset + 0x800], paletteram[offset + 0x1000]);
 }
 
 /***************************************************************************
@@ -89,6 +94,7 @@ WRITE8_HANDLER( paradise_palbank_w )
 	int i;
 	int bank1 = (data & 0x0e) | 1;
 	int bank2 = (data & 0xf0);
+	paradise_pixbank = bank2;
 
 	for (i = 0; i < 15; i++)
 		palette_set_color(0x800+i,	paletteram[0x200 + bank2 + i + 0x800 * 0],
