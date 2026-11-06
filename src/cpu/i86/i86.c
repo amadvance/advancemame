@@ -9,6 +9,7 @@
 #include "host.h"
 #include "debugger.h"
 
+#define I86_NATIVE_ACCESS
 #include "i86.h"
 #include "i86intf.h"
 
@@ -61,6 +62,7 @@ typedef struct
 	INT8 nmi_state;
 	INT8 irq_state;
 	INT8 test_state;	/* PJB 03/05 */
+	int bus16;
 	INT32 extra_cycles;       /* extra cycles for interrupts */
 }
 i86_Regs;
@@ -75,6 +77,40 @@ i86_Regs;
 int i86_ICount;
 
 static i86_Regs I;
+/* Aligned 8086 words must reach device handlers as a single bus cycle. */
+INLINE UINT8 i86_read_byte(offs_t address)
+{
+	return I.bus16 ? program_read_byte_16le(address & AMASK) : program_read_byte_8(address & AMASK);
+}
+
+INLINE void i86_write_byte(offs_t address, UINT8 data)
+{
+	if (I.bus16)
+		program_write_byte_16le(address & AMASK, data);
+	else
+		program_write_byte_8(address & AMASK, data);
+}
+
+INLINE UINT16 i86_read_word(offs_t address)
+{
+	UINT16 value;
+	if (I.bus16 && !(address & 1))
+		return program_read_word_16le(address & AMASK);
+	value = i86_read_byte(address);
+	return value | (i86_read_byte(address + 1) << 8);
+}
+
+INLINE void i86_write_word(offs_t address, UINT16 data)
+{
+	if (I.bus16 && !(address & 1))
+		program_write_word_16le(address & AMASK, data);
+	else
+	{
+		i86_write_byte(address, data);
+		i86_write_byte(address + 1, data >> 8);
+	}
+}
+
 static unsigned prefix_base;		   /* base address of the latest prefix segment */
 static char seg_prefix;				   /* prefix segment indicator */
 
@@ -835,3 +871,19 @@ void v33_get_info(UINT32 state, union cpuinfo *info)
 	}
 }
 #endif
+
+static void i86_16_reset(void)
+{
+	i86_reset();
+	I.bus16 = 1;
+}
+
+void i86_16_get_info(UINT32 state, union cpuinfo *info)
+{
+	switch (state)
+	{
+		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 16; break;
+		case CPUINFO_PTR_RESET: info->reset = i86_16_reset; break;
+		default: i86_get_info(state, info); break;
+	}
+}

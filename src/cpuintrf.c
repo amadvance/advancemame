@@ -37,6 +37,7 @@ void deco16_get_info(UINT32 state, union cpuinfo *info);
 void m4510_get_info(UINT32 state, union cpuinfo *info);
 void h6280_get_info(UINT32 state, union cpuinfo *info);
 void i86_get_info(UINT32 state, union cpuinfo *info);
+void i86_16_get_info(UINT32 state, union cpuinfo *info);
 void i88_get_info(UINT32 state, union cpuinfo *info);
 void i186_get_info(UINT32 state, union cpuinfo *info);
 void i188_get_info(UINT32 state, union cpuinfo *info);
@@ -315,6 +316,7 @@ static const struct
 #endif
 #if (HAS_I86)
 	{ CPU_I86, i86_get_info },
+	{ CPU_I86_16, i86_16_get_info },
 #endif
 #if (HAS_I88)
 	{ CPU_I88, i88_get_info },

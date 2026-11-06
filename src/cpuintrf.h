@@ -202,6 +202,8 @@ enum
     CPU_SH3BE,
     CPU_IGS036,
 	CPU_TMS32015,
+	/* Keep existing CPU identifiers stable for other drivers. */
+	CPU_I86_16,
     CPU_COUNT
 };
 
