@@ -3988,6 +3988,7 @@ static MACHINE_RESET(mw_dogpatch)
 	mw_controller = 0;
 	sound_global_enable(1);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 3, 3, 0, 0, mw_dogpatch_audio_w);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 4, 4, 0, 0, watchdog_reset_w);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 5, 5, 0, 0, mw_midway_tone_generator_lo_w);
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 6, 6, 0, 0, mw_midway_tone_generator_hi_w);
 }
