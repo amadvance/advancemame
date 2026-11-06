@@ -269,6 +269,88 @@ ADDRESS_MAP_END
 
 
 
+static UINT8 squaitsa_dial_old[2], squaitsa_dial_result[2];
+static UINT8 squaitsa_psg_select[2];
+
+static int squaitsa_dial_read(int player)
+{
+	UINT8 value = readinputport(3 + player);
+	UINT8 *result = &squaitsa_dial_result[player];
+
+	/* Each movement pulse must return to its idle state before another pulse. */
+	if (*result != 0x60)
+		*result = 0x60;
+	else if (value > squaitsa_dial_old[player])
+		*result = 0x40;
+	else if (value < squaitsa_dial_old[player])
+		*result = 0x20;
+	squaitsa_dial_old[player] = value;
+	return (readinputport(player) & 0x9f) | *result;
+}
+
+static READ8_HANDLER( squaitsa_p1_r ) { return squaitsa_dial_read(0); }
+static READ8_HANDLER( squaitsa_p2_r ) { return squaitsa_dial_read(1); }
+static READ8_HANDLER( squaitsa_unused_r ) { return 0xff; }
+
+static WRITE8_HANDLER( squaitsa_psg_select_w )
+{
+	squaitsa_psg_select[offset] = data & 1;
+}
+
+static READ8_HANDLER( squaitsa_psg_r )
+{
+	int data = 0xff;
+	if (!squaitsa_psg_select[0]) data &= AY8910_read_port_0_r(0);
+	if (!squaitsa_psg_select[1]) data &= AY8910_read_port_1_r(0);
+	return data;
+}
+
+static WRITE8_HANDLER( squaitsa_psg_w )
+{
+	/* Both chips share the bus, with independent active-low chip selects. */
+	if (!squaitsa_psg_select[0])
+	{
+		if (offset) AY8910_write_port_0_w(0, data);
+		else AY8910_control_port_0_w(0, data);
+	}
+	if (!squaitsa_psg_select[1])
+	{
+		if (offset) AY8910_write_port_1_w(0, data);
+		else AY8910_control_port_1_w(0, data);
+	}
+}
+
+static ADDRESS_MAP_START( squaitsa_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x5fff) AM_ROM
+	AM_RANGE(0x7000, 0x77ff) AM_RAM
+	AM_RANGE(0x8800, 0x8bff) AM_RAM AM_WRITE(bagman_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x9800, 0x9bff) AM_RAM AM_WRITE(bagman_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x9800, 0x981f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x9c00, 0x9fff) AM_WRITENOP
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0xa001, 0xa002) AM_WRITE(bagman_flipscreen_w)
+	AM_RANGE(0xa003, 0xa003) AM_WRITE(MWA8_RAM) AM_BASE(&bagman_video_enable)
+	AM_RANGE(0xa004, 0xa004) AM_WRITE(bagman_coin_counter_w)
+	AM_RANGE(0xa005, 0xa006) AM_WRITE(squaitsa_psg_select_w)
+	AM_RANGE(0xa800, 0xa800) AM_READ(input_port_2_r)
+	AM_RANGE(0xb800, 0xb800) AM_READ(watchdog_reset_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( squaitsa_ports, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x08, 0x09) AM_WRITE(squaitsa_psg_w)
+	AM_RANGE(0x0c, 0x0c) AM_READ(squaitsa_psg_r)
+ADDRESS_MAP_END
+
+static MACHINE_RESET( squaitsa )
+{
+	machine_reset_bagman();
+	memset(squaitsa_dial_old, 0, sizeof(squaitsa_dial_old));
+	memset(squaitsa_dial_result, 0x60, sizeof(squaitsa_dial_result));
+	memset(squaitsa_psg_select, 0, sizeof(squaitsa_psg_select));
+	*bagman_video_enable = 1;
+}
+
 INPUT_PORTS_START( bagman )
 	PORT_START	/* IN0 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
@@ -463,6 +545,56 @@ INPUT_PORTS_END
 
 
 
+static INPUT_PORTS_START( squaitsa )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_2WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_2WAY
+	PORT_BIT( 0x60, IP_ACTIVE_LOW, IPT_SPECIAL )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN4 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_2WAY PORT_COCKTAIL
+	PORT_BIT( 0x60, IP_ACTIVE_LOW, IPT_SPECIAL )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+
+	PORT_START
+	PORT_DIPNAME(    0x01, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING( 0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME(    0x06, 0x06, "Max Points" )
+	PORT_DIPSETTING( 0x06, "7" )
+	PORT_DIPSETTING( 0x04, "11" )
+	PORT_DIPSETTING( 0x02, "15" )
+	PORT_DIPSETTING( 0x00, "21" )
+	PORT_DIPNAME(    0x18, 0x18, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING( 0x00, "Level 1" )
+	PORT_DIPSETTING( 0x08, "Level 2" )
+	PORT_DIPSETTING( 0x10, "Level 3" )
+	PORT_DIPSETTING( 0x18, "Level 4" )
+	PORT_DIPNAME(    0x20, 0x20, DEF_STR( Language ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Spanish ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( English ) )
+	PORT_DIPNAME(    0x40, 0x40, "Body Fault" )
+	PORT_DIPSETTING( 0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+	PORT_DIPNAME(    0x80, 0x00, "Protection?" )
+	PORT_DIPSETTING( 0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
+
+	PORT_START
+	PORT_BIT( 0xff, 0, IPT_DIAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
+
+	PORT_START
+	PORT_BIT( 0xff, 0, IPT_DIAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(5) PORT_COCKTAIL
+INPUT_PORTS_END
+
 static const gfx_layout charlayout =
 {
 	8,8,	/* 8*8 characters */
@@ -641,6 +773,41 @@ MACHINE_DRIVER_END
   Game driver(s)
 
 ***************************************************************************/
+
+static struct AY8910interface squaitsa_ay_interface =
+{
+	squaitsa_p1_r, squaitsa_p2_r
+};
+
+static struct AY8910interface squaitsa_ay2_interface =
+{
+	squaitsa_unused_r, squaitsa_unused_r
+};
+
+static MACHINE_DRIVER_START( squaitsa )
+	MDRV_CPU_ADD(Z80, 3072000)
+	MDRV_CPU_PROGRAM_MAP(squaitsa_map, 0)
+	MDRV_CPU_IO_MAP(squaitsa_ports, 0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(squaitsa)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 255, 16, 239)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(64)
+	MDRV_PALETTE_INIT(bagman)
+	MDRV_VIDEO_START(bagman)
+	MDRV_VIDEO_UPDATE(bagman)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_CONFIG(squaitsa_ay_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40)
+	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_CONFIG(squaitsa_ay2_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40)
+MACHINE_DRIVER_END
 
 ROM_START( bagman )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
@@ -895,6 +1062,25 @@ ROM_START( botanic )
 	ROM_LOAD( "bota_3a.3a",    0x0020, 0x0020, CRC(edf88f34) SHA1(b9c342d51303d552f87df2543a34e38c30acd07c) )
 ROM_END
 
+ROM_START( squaitsa )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "sq5.3.9e",    0x0000, 0x1000,CRC(04128d92) SHA1(ca7b7c4be5f40bcefc92b231ce3bba859c9967ee) )
+	ROM_LOAD( "sq6.4.9f",    0x1000, 0x1000,CRC(4ff7dd56) SHA1(1955675a9ee3ad7b9185cd027bc42284e15c7451) )
+	ROM_LOAD( "sq7.5.9j",    0x2000, 0x1000,CRC(e46ecda6) SHA1(25cd94b6c9602cc00fe3459b524639fd3beb72be) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "sq2.1.1e",   0x0000, 0x1000,CRC(0eb6ecad) SHA1(da2facbfa5f2fe233ea09777e9880b4f1d3c1079) )
+	ROM_LOAD( "sq4.2.1j",   0x1000, 0x1000,CRC(8d875b0e) SHA1(f949da71167aa81c1cfaefc6f3d88b57792b6191) )
+
+	ROM_REGION( 0x2000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "sq1.1c",    0x0000, 0x1000,CRC(b6d563e5) SHA1(90a89fd8e892a612c74bd2c7e38acb08c22c6046) )
+	ROM_LOAD( "sq3.1f",    0x1000, 0x1000,CRC(0d9d87e6) SHA1(881039d3b8805bb1a546e28abda3273e79714033) )
+
+	ROM_REGION( 0x0040, REGION_PROMS, 0 )
+	ROM_LOAD( "mmi6331.3p",    0x0000, 0x0020,CRC(06eab7ce) SHA1(d0bafedb340bf12d81446cc672307bb01e5d3026) )
+	ROM_LOAD( "mmi6331.3r",    0x0020, 0x0020,CRC(86c1e7db) SHA1(5c974b51d770a555ddab5c23f03a666c6f286cbf) )
+ROM_END
+
 DRIVER_INIT( bagnarda )
 {
 	/* initialize video enable because it's not done in the code */
@@ -911,3 +1097,5 @@ GAME( 1984, sbagmans, sbagman, bagman,  sbagman, 0,        ROT270, "Valadon Auto
 GAME( 1983, pickin,	 0, 	  pickin,  pickin,  0,        ROT270, "Valadon Automation", "Pickin'", 0 )
 GAME( 1984, botanic,  0,       botanic, pickin,  0,        ROT270, "Valadon Automation (Itisa license)", "Botanic", 0 )
 
+
+GAME( 1984, squaitsa, 0, squaitsa, squaitsa, 0, ROT0, "Itisa", "Squash (Itisa)", 0 )
