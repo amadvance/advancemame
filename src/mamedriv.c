@@ -7521,6 +7521,9 @@ Other Sun games
 	DRIVER( malzak2 )	/* (c) 1980? Kitronix */
 	DRIVER( supertnk )	/* (c) 1981 VIDEO GAMES GmbH, W.-GERMANY */
 	DRIVER( pitapat )
+	DRIVER( silvmil )
+	DRIVER( puzzlove )
+	DRIVER( puzzlovek )
 	DRIVER( crospang )	/* (c) 1998 F2 System */
 	DRIVER( funybubl )	/* (c) 1999 Comad Industries */
 	DRIVER( dcheese )	/* (c) 1993 HAR */

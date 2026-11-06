@@ -691,6 +691,7 @@ $(OBJ)/exidy.a: \
 	$(OBJ)/sndhrdw/targ.o \
 
 $(OBJ)/f32.a: \
+	$(OBJ)/drivers/silvmil.o \
 	$(OBJ)/drivers/crospang.o $(OBJ)/vidhrdw/crospang.o \
 	$(OBJ)/drivers/f-32.o \
 
