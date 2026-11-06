@@ -863,7 +863,7 @@ const game_driver * const drivers[] =
 	DRIVER( devzone2 )	/* 8022 (c) [1980] */
 	DRIVER( nomnlnd )	/* (c) [1980?] */
 	DRIVER( nomnlndg )	/* (c) [1980?] + Gottlieb */
-	DRIVER( cheekyms )	/* (c) [1980?] */
+	DRIVER( cheekyms )	/* (c) 1980 Universal */
 	DRIVER( ladybug )	/* (c) 1981 */
 	DRIVER( ladybugb )	/* bootleg */
 	DRIVER( ladybgb2 )	/* bootleg */

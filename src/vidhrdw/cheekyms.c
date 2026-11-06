@@ -1,24 +1,14 @@
 // license:BSD-3-Clause
 // copyright-holders:Lee Taylor, Chris Moore
-/*************************************************************************
- Universal Cheeky Mouse Driver
- (c)Lee Taylor May 1998, All rights reserved.
-
- For use only in offical Mame releases.
- Not to be distrabuted as part of any commerical work.
-***************************************************************************
-Functions to emulate the video hardware of the machine.
-***************************************************************************/
+/* Universal Cheeky Mouse video hardware */
 
 #include "driver.h"
 #include "sound/dac.h"
 
-
-static int redraw_man = 0;
-static int man_scroll = -1;
 static UINT8 sprites[0x20];
-static int char_palette = 0;
-
+UINT8 cheekyms_port80;
+static tilemap *playfield;
+static mame_bitmap *bitmap_buffer;
 
 PALETTE_INIT( cheekyms )
 {
@@ -67,75 +57,70 @@ PALETTE_INIT( cheekyms )
 }
 
 
+
+static void get_tile_info(int index)
+{
+	int x = index & 0x1f;
+	int y = index >> 5;
+	int color;
+	int palette = (cheekyms_port80 >> 2) & 0x10;
+
+	if (x >= 0x1e)
+		color = y < 0x0c ? 0x15 : (y < 0x14 ? 0x16 : 0x14);
+	else
+		color = palette | ((y == 4 || y == 0x1b) ? 0x0c : x >> 1);
+	SET_TILE_INFO(0, videoram[index], color, 0)
+}
+
+WRITE8_HANDLER( cheekyms_videoram_w )
+{
+	if (videoram[offset] != data)
+	{
+		videoram[offset] = data;
+		tilemap_mark_tile_dirty(playfield, offset);
+	}
+}
+
 WRITE8_HANDLER( cheekyms_sprite_w )
 {
 	sprites[offset] = data;
 }
 
-
 WRITE8_HANDLER( cheekyms_port_40_w )
 {
-	static int last_dac = -1;
-
-	/* The lower bits probably trigger sound samples */
-
-	if (last_dac != (data & 0x80))
-	{
-		last_dac = data & 0x80;
-
-		DAC_data_w(0, last_dac ? 0x80 : 0);
-	}
+	DAC_data_w(0, (data & 0x80) ? 0x80 : 0);
 }
-
 
 WRITE8_HANDLER( cheekyms_port_80_w )
 {
-	int new_man_scroll;
-
-	/* Bits 0-1 Sound enables, not sure which bit is which */
-
-	/* Bit 2 is interrupt enable */
-	interrupt_enable_w(offset, data & 0x04);
-
-	/* Bit 3-5 Man scroll amount */
-    new_man_scroll = (data >> 3) & 0x07;
-	if (man_scroll != new_man_scroll)
-	{
-		man_scroll = new_man_scroll;
-		redraw_man = 1;
-	}
-
-	/* Bit 6 is palette select (Selects either 0 = PROM M8, 1 = PROM M9) */
-	set_vh_global_attribute(&char_palette, (data >> 2) & 0x10);
-
-	/* Bit 7 is screen flip */
+	if ((cheekyms_port80 ^ data) & 0x40)
+		tilemap_mark_all_tiles_dirty(playfield);
+	cheekyms_port80 = data;
+	if (!(data & 4))
+		cpunum_set_input_line(0, 0, CLEAR_LINE);
 	flip_screen_set(data & 0x80);
 }
 
+VIDEO_START( cheekyms )
+{
+	memset(sprites, 0, sizeof(sprites));
+	cheekyms_port80 = 0;
+	bitmap_buffer = auto_bitmap_alloc(256, 256);
+	playfield = tilemap_create(get_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 8, 8, 32, 32);
+	if (!playfield)
+		return 1;
+	tilemap_set_transparent_pen(playfield, 0);
+	return 0;
+}
 
-
-/***************************************************************************
-
-  Draw the game screen in the given mame_bitmap.
-  Do NOT call osd_update_display() from this function, it will be called by
-  the main emulation engine.
-
-***************************************************************************/
 VIDEO_UPDATE( cheekyms )
 {
-	int offs;
+	int offs, x, y;
+	int scrolly = (cheekyms_port80 >> 3) & 7;
 
+	fillbitmap(bitmap, Machine->pens[0], cliprect);
+	fillbitmap(bitmap_buffer, 0, &Machine->visible_area);
 
-	if (get_vh_global_attribute_changed())
-	{
-		memset(dirtybuffer, 1, videoram_size);
-	}
-
-
-	fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
-
-	/* Draw the sprites first, because they're supposed to appear below
-       the characters */
 	for (offs = 0; offs < sizeof(sprites)/sizeof(sprites[0]); offs += 4)
 	{
 		int v1, sx, sy, col, code;
@@ -143,7 +128,7 @@ VIDEO_UPDATE( cheekyms )
 		v1  = sprites[offs + 0];
 		sy  = sprites[offs + 1];
 		sx  = 256 - sprites[offs + 2];
-		col = (sprites[offs + 3] & 0x07);
+		col = (~sprites[offs + 3] & 0x07);
 
 		if (!(sprites[offs + 3] & 0x08)) continue;
 
@@ -160,7 +145,7 @@ VIDEO_UPDATE( cheekyms )
 					code,col,
 					0,0,
 					sx,sy,
-					&Machine->visible_area,TRANSPARENCY_PEN,0);
+					cliprect,TRANSPARENCY_PEN,0);
 		}
 		else
 		{
@@ -169,57 +154,39 @@ VIDEO_UPDATE( cheekyms )
 					col,
 					0,0,
 					sx,sy,
-					&Machine->visible_area,TRANSPARENCY_PEN,0);
+					cliprect,TRANSPARENCY_PEN,0);
 
 			drawgfx(bitmap,Machine->gfx[1],
 					code + 0x21,
 					col,
 					0,0,
 					sx + 8*(v1 & 2),sy + 8*(~v1 & 2),
-					&Machine->visible_area,TRANSPARENCY_PEN,0);
+					cliprect,TRANSPARENCY_PEN,0);
 		}
 	}
 
-	/* for every character in the Video RAM, check if it has been modified */
-	/* since last time and update it accordingly. */
-	for (offs = videoram_size - 1;offs >= 0;offs--)
+
+	tilemap_draw(bitmap_buffer, &Machine->visible_area, playfield, 0, 0);
+
+	/* Scroll only the character window; source pixels must not wrap into the border. */
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
 	{
-		int sx,sy,man_area;
-
-		sx = offs % 32;
-		sy = offs / 32;
-
-		if (flip_screen)
+		UINT16 *dest = (UINT16 *)bitmap->base + y * bitmap->rowpixels;
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
 		{
-			man_area = ((sy >=  5) && (sy <= 25) && (sx >=  8) && (sx <= 12));
-		}
-		else
-		{
-			man_area = ((sy >=  6) && (sy <= 26) && (sx >=  8) && (sx <= 12));
-		}
-
-		if (dirtybuffer[offs] ||
-			(redraw_man && man_area))
-		{
-			dirtybuffer[offs] = 0;
-
-			if (flip_screen)
+			int min_x = flip_screen ? (32 - 12 - 1) * 8 : 8 * 8;
+			int max_x = flip_screen ? (32 - 8) * 8 : 12 * 8;
+			int source_y = y;
+			UINT16 pixel;
+			if (x >= min_x && x < max_x && y > 5 * 8 && y < 27 * 8)
 			{
-				sx = 31 - sx;
-				sy = 31 - sy;
+				source_y += scrolly;
+				if (source_y >= 27 * 8)
+					continue;
 			}
-
-			drawgfx(tmpbitmap,Machine->gfx[0],
-					videoram[offs],
-					0 + char_palette,
-					flip_screen,flip_screen,
-					8*sx, 8*sy - (man_area ? man_scroll : 0),
-					&Machine->visible_area,TRANSPARENCY_NONE,0);
+			pixel = *((UINT16 *)bitmap_buffer->base + source_y * bitmap_buffer->rowpixels + x);
+			if (pixel)
+				dest[x] = pixel;
 		}
 	}
-
-	redraw_man = 0;
-
-	/* copy the temporary bitmap to the screen over the sprites */
-	copybitmap(bitmap,tmpbitmap,0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN,Machine->pens[4*char_palette]);
 }

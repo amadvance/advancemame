@@ -1,12 +1,6 @@
 // license:BSD-3-Clause
 // copyright-holders:Lee Taylor, Chris Moore
-/*************************************************************************
- Universal Cheeky Mouse Driver
- (c)Lee Taylor May/June 1998, All rights reserved.
-
- For use only in offical Mame releases.
- Not to be distributed as part of any commerical work.
-**************************************************************************/
+/* Universal Cheeky Mouse */
 
 #include "driver.h"
 #include "sound/dac.h"
@@ -15,6 +9,9 @@
 
 PALETTE_INIT( cheekyms );
 VIDEO_UPDATE( cheekyms );
+VIDEO_START( cheekyms );
+WRITE8_HANDLER( cheekyms_videoram_w );
+extern UINT8 cheekyms_port80;
 WRITE8_HANDLER( cheekyms_sprite_w );
 WRITE8_HANDLER( cheekyms_port_40_w );
 WRITE8_HANDLER( cheekyms_port_80_w );
@@ -30,7 +27,7 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0x3000, 0x33ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x3800, 0x3bff) AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x3800, 0x3bff) AM_WRITE(cheekyms_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( readport, ADDRESS_SPACE_IO, 8 )
@@ -49,10 +46,11 @@ ADDRESS_MAP_END
 
 static INTERRUPT_GEN( cheekyms_interrupt )
 {
-	if (readinputport(2) & 1)	/* Coin */
-		nmi_line_pulse();
-	else
-		irq0_line_hold();
+	/* Coin NMI must remain independent of the VBLANK interrupt mask. */
+	if (readinputport(2) & 1)
+		cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
+	if (cheekyms_port80 & 4)
+		cpunum_set_input_line(0, 0, HOLD_LINE);
 }
 
 
@@ -106,7 +104,7 @@ static const gfx_layout charlayout =
 	8,8,	/* 16*16 sprites */
 	256,	/* 64 sprites */
 	2,	/* 2 bits per pixel */
-	{ 0, 256*8*8 },	/* the two bitplanes are separated */
+	{ 256*8*8, 0 },	/* the two bitplanes are separated */
 	{ 0, 1, 2, 3, 4, 5, 6, 7 },
 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 	8*8	/* every sprite takes 8 consecutive bytes */
@@ -154,7 +152,7 @@ static MACHINE_DRIVER_START( cheekyms )
 	MDRV_COLORTABLE_LENGTH(64*3)
 
 	MDRV_PALETTE_INIT(cheekyms)
-	MDRV_VIDEO_START(generic)
+	MDRV_VIDEO_START(cheekyms)
 	MDRV_VIDEO_UPDATE(cheekyms)
 
 	/* sound hardware */
@@ -181,19 +179,19 @@ ROM_START( cheekyms )
 	ROM_LOAD( "cm06.c8",       0x1800, 0x0800, CRC(7031660c) SHA1(1370702e30897e45ee172609c1d983f8a4fdf157) )
 
 	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "cm01.c1",       0x0000, 0x0800, CRC(26f73bd7) SHA1(fa4db5df5be1a5f4531cba86a83f89b7eb7fa3ec) )
-	ROM_LOAD( "cm02.c2",       0x0800, 0x0800, CRC(885887c3) SHA1(62ce8e39d27c0cfea9ebd51757ad31b0baf6b3cd) )
+	ROM_LOAD( "cm01.c1",       0x0800, 0x0800, CRC(26f73bd7) SHA1(fa4db5df5be1a5f4531cba86a83f89b7eb7fa3ec) )
+	ROM_LOAD( "cm02.c2",       0x0000, 0x0800, CRC(885887c3) SHA1(62ce8e39d27c0cfea9ebd51757ad31b0baf6b3cd) )
 
 	ROM_REGION( 0x1000, REGION_GFX2, ROMREGION_DISPOSE )
 	ROM_LOAD( "cm07.n5",       0x0000, 0x0800, CRC(2738c88d) SHA1(3ccd6c1d49bfe2c1b141854ec705e692252e8af8) )
 	ROM_LOAD( "cm08.n6",       0x0800, 0x0800, CRC(b3fbd4ac) SHA1(9f45cc6d9e0bf580149e18de5c3e37d4de347b92) )
 
 	ROM_REGION( 0x0060, REGION_PROMS, 0 )
-	ROM_LOAD( "cm.m8",         0x0000, 0x0020, CRC(2386bc68) SHA1(6676082860cd8678a71339a352d2c6286e78ba44) )	 /* Character colors \ Selected by Bit 6 of Port 0x80 */
-	ROM_LOAD( "cm.m9",         0x0020, 0x0020, CRC(db9c59a5) SHA1(357ed5ac8e954a4c8b4d78d36e57bf2de36c1d57) )	 /* Character colors /                                */
+	ROM_LOAD( "cm.m8",         0x0020, 0x0020, CRC(2386bc68) SHA1(6676082860cd8678a71339a352d2c6286e78ba44) )	 /* Character colors \ Selected by Bit 6 of Port 0x80 */
+	ROM_LOAD( "cm.m9",         0x0000, 0x0020, CRC(db9c59a5) SHA1(357ed5ac8e954a4c8b4d78d36e57bf2de36c1d57) )	 /* Character colors /                                */
 	ROM_LOAD( "cm.p3",         0x0040, 0x0020, CRC(6ac41516) SHA1(05bf40790a0de1e859362df892f7f158c183e247) )  /* Sprite colors */
 ROM_END
 
 
 
-GAME( 1980?, cheekyms, 0, cheekyms, cheekyms, 0, ROT270, "Universal", "Cheeky Mouse", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1980, cheekyms, 0, cheekyms, cheekyms, 0, ROT270, "Universal", "Cheeky Mouse", GAME_IMPERFECT_SOUND )
