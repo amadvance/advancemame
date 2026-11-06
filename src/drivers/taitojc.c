@@ -4,9 +4,6 @@
 
 Taito JC System
 
--- will need a 68040 core
--- they upload a font to ram, all games upload the same font, boring ;-)
-
 Side By Side 2
 Taito, 1997
 
@@ -52,7 +49,6 @@ Top board: MOTHER PCB-C K11X0838A  M43E0325A
 
 Notes:
       All 3K files are PALs type PALCE 16V8 and saved in Jedec format.
-
 
 Bottom board: JCG DAUGHTERL PCB-C K91E0677A
 |---------------------------------------------------------------------------------|
@@ -147,7 +143,6 @@ graphics are messed up. This is probably due to the different PALs and their cha
 This seems to mostly affect the texture mapping (tested with swapping Side By Side 2) as the title
 and most of the background graphics are ok but the car textures are just a mess of pixels.
 
-
 PCB Layout
 ----------
 
@@ -188,7 +183,6 @@ Top board: MOTHER PCB  K11X0835A  M43E0304A
 
 Notes:
       All 3K files are PALs type PALCE 16V8 and saved in Jedec format.
-
 
 Bottom board: JCG DAUGHTER PCB-L K91E0603A
 |---------------------------------------------------------------------------------|
@@ -291,7 +285,6 @@ Notes:
       LC321664: 64K x16 DRAM
       TC51832 : 32K x8 SRAM
 
-
 Bottom board: JCG DAUGHTERL PCB-C K9100633A J9100434A (Sticker K91J0633A)
 |---------------------------------------------------------------------------------|
 |                                                                                 |
@@ -343,169 +336,92 @@ Notes:
 
 #include "driver.h"
 #include "taito_f3.h"
+#include "taitojc.h"
+#include "cpu/mc68hc11/mc68hc11.h"
 #include "sound/es5506.h"
+#include "sound/okim6295.h"
 #include "machine/eeprom.h"
 
-static UINT32 *main_ram;
-static UINT16 *dsp_shared_ram;
-
-static UINT32 *vram;
-static UINT32 *palette_ram;
-
-static int taitojc_gfx_index;
-
-static UINT8 *taitojc_dirty_map;
-static UINT32 *taitojc_char_ram;
-static UINT32 *taitojc_tile_ram;
-static int taitojc_char_dirty = 1;
-static tilemap *taitojc_tilemap;
+struct taitojc_state jc;
+extern UINT32 *f3_shared_ram;
 static UINT16 *sound_ram;
 
-#define TAITOJC_NUM_TILES		0x180
-
-static const gfx_layout taitojc_char_layout =
-{
-	16,16,
-	TAITOJC_NUM_TILES,
-	4,
-	{ 0,1,2,3 },
-	{ 24,28,16,20,8,12,0,4, 56,60,48,52,40,44,32,36 },
-	{ 0*64, 1*64, 2*64, 3*64, 4*64, 5*64, 6*64, 7*64,8*64,9*64,10*64,11*64,12*64,13*64,14*64,15*64 },
-	16*64
-};
-
-static void taitojc_tile_info(int tile_index)
-{
-	UINT32 val = taitojc_tile_ram[tile_index];
-	int color = 0;
-	int tile = (val >> 2) & 0x7f;
-	SET_TILE_INFO(taitojc_gfx_index, tile, color, 0);
-}
-
-
-VIDEO_START( taitojc )
-{
- 	/* find first empty slot to decode gfx */
-	for (taitojc_gfx_index = 0; taitojc_gfx_index < MAX_GFX_ELEMENTS; taitojc_gfx_index++)
-		if (Machine->gfx[taitojc_gfx_index] == 0)
-			break;
-
-	if (taitojc_gfx_index == MAX_GFX_ELEMENTS)
-		return 1;
-
-	taitojc_tilemap = tilemap_create(taitojc_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16, 16, 64, 64);
-	taitojc_dirty_map = auto_malloc(TAITOJC_NUM_TILES);
-
-	tilemap_set_transparent_pen(taitojc_tilemap, 0);
-
-	taitojc_char_ram = auto_malloc(0x4000);
-	taitojc_tile_ram = auto_malloc(0x4000);
-
-	memset(taitojc_char_ram, 0, 0x4000);
-	memset(taitojc_tile_ram, 0, 0x4000);
-
-	palette_ram = auto_malloc(65536*sizeof(UINT32));
-	memset(palette_ram, 0, 65536*sizeof(UINT32));
-
-
-	/* create the char set (gfx will then be updated dynamically from RAM) */
-	Machine->gfx[taitojc_gfx_index] = allocgfx(&taitojc_char_layout);
-	if (!Machine->gfx[taitojc_gfx_index])
-		return 1;
-
-	/* set the color information */
-	if (Machine->drv->color_table_len)
-	{
-		Machine->gfx[taitojc_gfx_index]->colortable = Machine->remapped_colortable;
-		Machine->gfx[taitojc_gfx_index]->total_colors = Machine->drv->color_table_len / 16;
-	}
-	else
-	{
-		Machine->gfx[taitojc_gfx_index]->colortable = Machine->pens;
-		Machine->gfx[taitojc_gfx_index]->total_colors = Machine->drv->total_colors / 16;
-	}
-
-	return 0;
-}
-
-static void taitojc_tile_update(void)
-{
-	int i;
-	if (taitojc_char_dirty) {
-		for (i=0; i < TAITOJC_NUM_TILES; i++) {
-			if (taitojc_dirty_map[i]) {
-				taitojc_dirty_map[i] = 0;
-				decodechar(Machine->gfx[taitojc_gfx_index], i, (UINT8 *)taitojc_char_ram, &taitojc_char_layout);
-			}
-		}
-		tilemap_mark_all_tiles_dirty(taitojc_tilemap);
-		taitojc_char_dirty = 0;
-	}
-}
-
-static READ32_HANDLER(taitojc_tile_r)
-{
-	return taitojc_tile_ram[offset];
-}
-
-static READ32_HANDLER(taitojc_char_r)
-{
-	return taitojc_char_ram[offset];
-}
-
-static WRITE32_HANDLER(taitojc_tile_w)
-{
-	COMBINE_DATA(taitojc_tile_ram + offset);
-	tilemap_mark_tile_dirty(taitojc_tilemap, offset);
-}
-
-static WRITE32_HANDLER(taitojc_char_w)
-{
-	COMBINE_DATA(taitojc_char_ram + offset);
-	taitojc_dirty_map[offset/32] = 1;
-	taitojc_char_dirty = 1;
-}
-
-VIDEO_UPDATE( taitojc )
-{
-	fillbitmap(bitmap, 0, cliprect);
-
-	taitojc_tile_update();
-	tilemap_draw(bitmap, cliprect, taitojc_tilemap, 0,0);
-}
+#define POLYGON_FIFO_SIZE		100000
 
 static READ32_HANDLER( taitojc_palette_r )
 {
-	return palette_ram[offset];
+
+	return jc.m_palette_ram[offset];
 }
 
 static WRITE32_HANDLER( taitojc_palette_w )
 {
+
 	int r, g, b;
 	UINT32 color;
-	COMBINE_DATA( palette_ram + offset );
 
-	color = palette_ram[offset];
-	r = (color >> 16) & 0xff;
-	g = (color >>  8) & 0xff;
+	COMBINE_DATA( jc.m_palette_ram + offset );
+
+	color = jc.m_palette_ram[offset];
+	r = (color >>  8) & 0xff;
+	g = (color >> 16) & 0xff;
 	b = (color >>  0) & 0xff;
 
 	palette_set_color(offset, r, g, b);
 }
 
-
-
 static READ32_HANDLER ( jc_control_r )
 {
 	UINT32 r = 0;
+
 	switch(offset)
 	{
+		case 0x0:
+		{
+			if ((!(mem_mask & 0xff000000)))
+			{
+				r |= ((readinputportbytag("COINS") & 0x2) << 2) << 24;
+			}
+			return r;
+		}
 		case 0x1:
 		{
-			if (!(mem_mask & 0xff000000))
+			if ((!(mem_mask & 0xff000000)))
 			{
-				UINT32 data = EEPROM_read_bit() | 0x00;		/* 0x02 enables memory test. Test switch ? */
-				r |= data << 24;
+				r |= ((readinputportbytag("COINS") & ~1) | EEPROM_read_bit()) << 24;
+			}
+			return r;
+		}
+		case 0x2:
+		{
+			if ((!(mem_mask & 0xff000000)))
+			{
+				r |= readinputportbytag("START") << 24;
+			}
+			return r;
+		}
+		case 0x3:
+		{
+			if ((!(mem_mask & 0xff000000)))
+			{
+				r |= readinputportbytag("UNUSED") << 24;
+			}
+			return r;
+		}
+		case 0x4:
+		{
+			if ((!(mem_mask & 0xff000000)))
+			{
+
+			}
+			return r;
+		}
+		case 0x7:
+		{
+			if ((!(mem_mask & 0xff000000)))
+			{
+				static const UINT8 contacts[6] = { 0x01, 0x10, 0x02, 0x20, 0x04, 0x40 };
+				r |= (0xff ^ contacts[readinputportbytag("MASCON") >> 4]) << 24;
 			}
 			return r;
 		}
@@ -520,23 +436,26 @@ static READ32_HANDLER ( jc_control_r )
 
 static WRITE32_HANDLER ( jc_control_w )
 {
+
 	switch(offset)
 	{
 		case 0x3:
 		{
-			if (!(mem_mask & 0xff000000))
+			if ((!(mem_mask & 0xff000000)))
 			{
-				EEPROM_set_clock_line((data & 0x08) ? ASSERT_LINE : CLEAR_LINE);
-				EEPROM_write_bit(data & 0x04);
-				EEPROM_set_cs_line((data & 0x10) ? CLEAR_LINE : ASSERT_LINE);
+				EEPROM_write_bit(data & 0x04000000);
+				EEPROM_set_cs_line((data & 0x10000000) ? CLEAR_LINE : ASSERT_LINE);
+				EEPROM_set_clock_line((data & 0x08000000) ? ASSERT_LINE : CLEAR_LINE);
 			}
+			else
+				logerror("jc_control_w: %08X, %08X, %08X\n", data, offset, mem_mask);
 			return;
 		}
 
 		default:
+			logerror("jc_control_w: %08X, %08X, %08X\n", data, offset, mem_mask);
 			break;
 	}
-	logerror("jc_control_w: %08X, %08X, %08X\n", data, offset, mem_mask);
 }
 
 static WRITE32_HANDLER (jc_control1_w)
@@ -547,48 +466,143 @@ static WRITE32_HANDLER (jc_control1_w)
 	}
 }
 
-static int jc_unk2_regs[4] = { 0xff, 0x00, 0x01, 0x00 };
-static UINT32 jc_unk2_reg = 0;
-static READ32_HANDLER(hc11_r)
+static UINT8 mcu_comm_reg_r(int reg)
 {
-	if (offset == 0)
+
+	UINT8 r = 0;
+
+	switch (reg)
 	{
-		jc_unk2_reg++;
-		return (jc_unk2_regs[jc_unk2_reg & 0x3] << 0);
-	}
-	else
-	{
-		return 0xffffffff;
+		case 0x03:
+		{
+			r = jc.m_mcu_data_main;
+			break;
+		}
+		case 0x04:
+		{
+			r = jc.m_mcu_comm_main | 0x14;
+			break;
+		}
+		default:
+		{
+
+			break;
+		}
 	}
 
-	//logerror("hc11_r: %08X, %08X\n", offset, mem_mask);
-	return 0xffffffff;
+	return r;
 }
 
-static WRITE32_HANDLER(hc11_w)
+static void mcu_comm_reg_w(int reg, UINT8 data)
 {
-	//logerror("hc11_w: %08X, %08X, %08X\n", data, offset, mem_mask);
+
+	switch (reg)
+	{
+		case 0x00:
+		{
+			jc.m_mcu_data_hc11 = data;
+			jc.m_mcu_comm_hc11 &= ~0x04;
+			jc.m_mcu_comm_main &= ~0x20;
+			break;
+		}
+		case 0x04:
+		{
+			break;
+		}
+		default:
+		{
+
+			break;
+		}
+	}
+}
+
+static READ32_HANDLER(mcu_comm_r)
+{
+	UINT32 r = 0;
+	int reg = offset * 4;
+
+	if ((!(mem_mask & 0xff000000)))
+	{
+		r |= mcu_comm_reg_r(reg + 0) << 24;
+	}
+	if ((!(mem_mask & 0x00ff0000)))
+	{
+		r |= mcu_comm_reg_r(reg + 1) << 16;
+	}
+	if ((!(mem_mask & 0x0000ff00)))
+	{
+		r |= mcu_comm_reg_r(reg + 2) << 8;
+	}
+	if ((!(mem_mask & 0x000000ff)))
+	{
+		r |= mcu_comm_reg_r(reg + 3) << 0;
+	}
+
+	return r;
+}
+
+static WRITE32_HANDLER(mcu_comm_w)
+{
+	int reg = offset * 4;
+
+	if ((!(mem_mask & 0xff000000)))
+	{
+		mcu_comm_reg_w(reg + 0, (data >> 24) & 0xff);
+	}
+	if ((!(mem_mask & 0x00ff0000)))
+	{
+		mcu_comm_reg_w(reg + 1, (data >> 16) & 0xff);
+	}
+	if ((!(mem_mask & 0x0000ff00)))
+	{
+		mcu_comm_reg_w(reg + 2, (data >> 8) & 0xff);
+	}
+	if ((!(mem_mask & 0x000000ff)))
+	{
+		mcu_comm_reg_w(reg + 3, (data >> 0) & 0xff);
+	}
 }
 
 static READ32_HANDLER(jc_unknown1_r)
 {
-	return 0x31323334;
+	return 0;
 }
 
 static READ32_HANDLER(dsp_shared_r)
 {
-	return dsp_shared_ram[offset] << 16;
+
+	return jc.m_dsp_shared_ram[offset] << 16;
 }
 
 static WRITE32_HANDLER(dsp_shared_w)
 {
-	dsp_shared_ram[offset] = data >> 16;
+
+	if ((!(mem_mask & 0xff000000)))
+	{
+		jc.m_dsp_shared_ram[offset] &= 0x00ff;
+		jc.m_dsp_shared_ram[offset] |= (data >> 16) & 0xff00;
+	}
+	if ((!(mem_mask & 0x00ff0000)))
+	{
+		jc.m_dsp_shared_ram[offset] &= 0xff00;
+		jc.m_dsp_shared_ram[offset] |= (data >> 16) & 0x00ff;
+	}
+
+	if (offset == 0x1ff8/4)
+		cpunum_set_input_line(0, 6, CLEAR_LINE);
 
 	if (offset == 0x1ffc/4)
 	{
 		if ((data & 0x80000) == 0)
 		{
-			cpunum_set_input_line(3, INPUT_LINE_RESET, CLEAR_LINE);
+
+			/* The initial probe releases reset before a valid DSP program is uploaded. */
+			if (!jc.m_first_dsp_reset || !jc.m_has_dsp_hack)
+			{
+				cpunum_set_input_line(3, INPUT_LINE_RESET, CLEAR_LINE);
+			}
+			jc.m_first_dsp_reset = 0;
 		}
 		else
 		{
@@ -597,27 +611,307 @@ static WRITE32_HANDLER(dsp_shared_w)
 	}
 }
 
+static READ32_HANDLER(f3_share_r)
+{
+
+	switch (offset & 3)
+	{
+		case 0: return (f3_shared_ram[(offset/4)] <<  0) & 0xff000000;
+		case 1: return (f3_shared_ram[(offset/4)] <<  8) & 0xff000000;
+		case 2: return (f3_shared_ram[(offset/4)] << 16) & 0xff000000;
+		case 3: return (f3_shared_ram[(offset/4)] << 24) & 0xff000000;
+	}
+
+	return 0;
+}
+
+static WRITE32_HANDLER(f3_share_w)
+{
+
+	UINT32 d = (data >> 24) & 0xff;
+
+	switch (offset & 3)
+	{
+		case 0: f3_shared_ram[(offset/4)] &= ~0xff000000; f3_shared_ram[(offset/4)] |= d << 24; break;
+		case 1: f3_shared_ram[(offset/4)] &= ~0x00ff0000; f3_shared_ram[(offset/4)] |= d << 16; break;
+		case 2: f3_shared_ram[(offset/4)] &= ~0x0000ff00; f3_shared_ram[(offset/4)] |= d <<  8; break;
+		case 3: f3_shared_ram[(offset/4)] &= ~0x000000ff; f3_shared_ram[(offset/4)] |= d <<  0; break;
+	}
+}
+
+static WRITE32_HANDLER(jc_output_w)
+{
+
+}
+
+static READ32_HANDLER( jc_lan_r )
+{
+	return 0xffffffff;
+}
+
 static ADDRESS_MAP_START( taitojc_map, ADDRESS_SPACE_PROGRAM, 32 )
-	AM_RANGE(0x00000000, 0x001fffff) AM_ROM
+	AM_RANGE(0x00000000, 0x001fffff) AM_ROM AM_MIRROR(0x200000)
 	AM_RANGE(0x00400000, 0x01bfffff) AM_ROM AM_REGION(REGION_GFX1, 0)
-	AM_RANGE(0x04000000, 0x040f7fff) AM_RAM AM_BASE(&vram)
+	AM_RANGE(0x04000000, 0x040f7fff) AM_RAM AM_BASE(&jc.m_vram)
 	AM_RANGE(0x040f8000, 0x040fbfff) AM_READWRITE(taitojc_tile_r, taitojc_tile_w)
 	AM_RANGE(0x040fc000, 0x040fefff) AM_READWRITE(taitojc_char_r, taitojc_char_w)
-	AM_RANGE(0x040ff000, 0x040fffff) AM_RAM
+	AM_RANGE(0x040ff000, 0x040fffff) AM_RAM AM_BASE(&jc.m_objlist)
 	AM_RANGE(0x05800000, 0x05801fff) AM_READ(jc_unknown1_r)
-	AM_RANGE(0x05900000, 0x05900007) AM_READWRITE(hc11_r, hc11_w)
-	//AM_RANGE(0x05a00000, 0x05a01fff)
-	//AM_RANGE(0x05fc0000, 0x05fc3fff)
-	AM_RANGE(0x06400000, 0x0641ffff) AM_READWRITE(taitojc_palette_r, taitojc_palette_w)
-	AM_RANGE(0x06600000, 0x06600007) AM_READ(jc_control_r)
+	AM_RANGE(0x05900000, 0x05900007) AM_READWRITE(mcu_comm_r, mcu_comm_w)
+
+	AM_RANGE(0x06400000, 0x0641ffff) AM_READWRITE(taitojc_palette_r, taitojc_palette_w) AM_BASE(&jc.m_palette_ram)
+	AM_RANGE(0x06600000, 0x0660001f) AM_READ(jc_control_r)
 	AM_RANGE(0x06600000, 0x06600003) AM_WRITE(jc_control1_w)
+	AM_RANGE(0x06600010, 0x06600013) AM_NOP
 	AM_RANGE(0x06600040, 0x0660004f) AM_WRITE(jc_control_w)
-	//AM_RANGE(0x06800000, 0x06801fff) AM_RAM
-	AM_RANGE(0x06a00000, 0x06a01fff) AM_RAM
-	//AM_RANGE(0x06c00000, 0x06c0ffff) AM_RAM
-	//AM_RANGE(0x06e00000, 0x06e0ffff) AM_RAM
-	AM_RANGE(0x08000000, 0x081fffff) AM_RAM AM_BASE(&main_ram)
+	AM_RANGE(0x06800000, 0x06801fff) AM_NOP
+	AM_RANGE(0x06a00000, 0x06a01fff) AM_READWRITE(f3_share_r, f3_share_w)  AM_BASE(&f3_shared_ram)
+	AM_RANGE(0x06c00000, 0x06c0001f) AM_READ(jc_lan_r) AM_WRITE(MWA32_NOP)
+	AM_RANGE(0x06e00000, 0x06e0ffff) AM_WRITE(jc_output_w)
+	AM_RANGE(0x08000000, 0x080fffff) AM_RAM AM_BASE(&jc.m_main_ram)
 	AM_RANGE(0x10000000, 0x10001fff) AM_READWRITE(dsp_shared_r, dsp_shared_w)
+ADDRESS_MAP_END
+
+static READ8_HANDLER(hc11_comm_r)
+{
+
+	return jc.m_mcu_comm_hc11;
+}
+
+static WRITE8_HANDLER(hc11_comm_w)
+{
+}
+
+static READ8_HANDLER(hc11_data_r)
+{
+
+	jc.m_mcu_comm_hc11 |= 0x04;
+	jc.m_mcu_comm_main |= 0x20;
+	return jc.m_mcu_data_hc11;
+}
+
+static WRITE8_HANDLER(hc11_data_w)
+{
+
+	jc.m_mcu_data_main = data;
+}
+
+static READ8_HANDLER(hc11_analog_r)
+{
+	static const char *const portnames[] = { "ANALOG1", "ANALOG2", "ANALOG3", "ANALOG4",
+										"ANALOG5", "ANALOG6", "ANALOG7", "ANALOG8" };
+
+	return readinputportbytag_safe(portnames[offset], 0);
+}
+
+static READ32_HANDLER( train_sound_r )
+{
+	return OKIM6295_status_0_r(0) << 16;
+}
+
+static WRITE32_HANDLER( train_sound_w )
+{
+	if (!(mem_mask & 0x00ff0000))
+		OKIM6295_data_0_w(0, data >> 16);
+}
+
+
+static ADDRESS_MAP_START( hc11_pgm_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x4000, 0x5fff) AM_RAM
+	AM_RANGE(0x8000, 0xffff) AM_ROM AM_REGION(REGION_USER1, 0)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hc11_io_map, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(MC68HC11_IO_PORTA,     MC68HC11_IO_PORTA    ) AM_NOP
+	AM_RANGE(MC68HC11_IO_PORTG,     MC68HC11_IO_PORTG    ) AM_READWRITE(hc11_comm_r, hc11_comm_w)
+	AM_RANGE(MC68HC11_IO_PORTH,     MC68HC11_IO_PORTH    ) AM_NOP
+	AM_RANGE(MC68HC11_IO_SPI2_DATA, MC68HC11_IO_SPI2_DATA) AM_READWRITE(hc11_data_r, hc11_data_w)
+	AM_RANGE(MC68HC11_IO_AD0,       MC68HC11_IO_AD7      ) AM_READ(hc11_analog_r)
+ADDRESS_MAP_END
+
+static READ16_HANDLER( dsp_rom_r )
+{
+
+	UINT16 *rom = (UINT16*)memory_region(REGION_GFX2);
+	UINT16 data = rom[jc.m_dsp_rom_pos++];
+
+	return data;
+}
+
+static WRITE16_HANDLER( dsp_rom_w )
+{
+
+	if (offset == 0)
+	{
+		jc.m_dsp_rom_pos &= 0xffff;
+		jc.m_dsp_rom_pos |= data << 16;
+	}
+	else if (offset == 1)
+	{
+		jc.m_dsp_rom_pos &= 0xffff0000;
+		jc.m_dsp_rom_pos |= data;
+	}
+}
+
+static WRITE16_HANDLER( dsp_texture_w )
+{
+
+	int index;
+	int x, y;
+
+	x = (jc.m_dsp_tex_offset >> 0) & 0x1f;
+	y = (jc.m_dsp_tex_offset >> 5) & 0x1f;
+
+	x += (jc.m_dsp_tex_offset & 0x400) ? 0x20 : 0;
+	y += (jc.m_dsp_tex_offset & 0x800) ? 0x20 : 0;
+
+	index = (((jc.m_texture_y * 32) + y) * 2048) + ((jc.m_texture_x * 32) + x);
+	jc.m_texture[index] = data & 0xff;
+
+	jc.m_dsp_tex_offset++;
+}
+
+static READ16_HANDLER( dsp_texaddr_r )
+{
+
+	return jc.m_dsp_tex_address;
+}
+
+static WRITE16_HANDLER( dsp_texaddr_w )
+{
+
+	jc.m_dsp_tex_address = data;
+
+	jc.m_texture_x = (((data >> 0) & 0x1f) << 1) | ((data >> 12) & 0x1);
+	jc.m_texture_y = (((data >> 5) & 0x1f) << 1) | ((data >> 13) & 0x1);
+
+	jc.m_dsp_tex_offset = 0;
+}
+
+static WRITE16_HANDLER( dsp_polygon_fifo_w )
+{
+
+	jc.m_polygon_fifo[jc.m_polygon_fifo_ptr++] = data;
+
+	if (jc.m_polygon_fifo_ptr >= POLYGON_FIFO_SIZE)
+	{
+		fatalerror("dsp_polygon_fifo_w: fifo overflow!\n");
+	}
+}
+
+static READ16_HANDLER(dsp_unk_r)
+{
+	return 0x7fff;
+}
+
+static WRITE16_HANDLER(dsp_viewport_w)
+{
+
+	jc.m_viewport_data[offset] = (INT16)(data);
+}
+
+static WRITE16_HANDLER(dsp_projection_w)
+{
+
+	jc.m_projection_data[offset] = (INT16)(data);
+
+	if (offset == 2)
+	{
+		if (jc.m_projection_data[2] != 0)
+		{
+			jc.m_projected_point_y = (jc.m_projection_data[0] * jc.m_viewport_data[0]) / (jc.m_projection_data[2]);
+			jc.m_projected_point_x = (jc.m_projection_data[1] * jc.m_viewport_data[1]) / (jc.m_projection_data[2]);
+		}
+		else
+		{
+			jc.m_projected_point_y = 0;
+			jc.m_projected_point_x = 0;
+		}
+	}
+}
+
+static READ16_HANDLER(dsp_projection_r)
+{
+
+	if (offset == 0)
+	{
+		return jc.m_projected_point_y;
+	}
+	else if (offset == 2)
+	{
+		return jc.m_projected_point_x;
+	}
+
+	return 0;
+}
+
+static WRITE16_HANDLER(dsp_unk2_w)
+{
+
+	if (offset == 0)
+	{
+		taitojc_clear_frame();
+		taitojc_render_polygons(jc.m_polygon_fifo, jc.m_polygon_fifo_ptr);
+
+		jc.m_polygon_fifo_ptr = 0;
+	}
+}
+
+static WRITE16_HANDLER(dsp_intersection_w)
+{
+
+	jc.m_intersection_data[offset] = (INT32)(INT16)(data);
+}
+
+static READ16_HANDLER(dsp_intersection_r)
+{
+
+	return (INT16)((jc.m_intersection_data[0] * jc.m_intersection_data[1]) / jc.m_intersection_data[2]);
+}
+
+static READ16_HANDLER( dsp_to_main_r )
+{
+
+	return jc.m_dsp_shared_ram[0x7fe];
+}
+
+static WRITE16_HANDLER( dsp_to_main_w )
+{
+
+	cpunum_set_input_line(0, 6, ASSERT_LINE);
+
+	COMBINE_DATA(&jc.m_dsp_shared_ram[0x7fe]);
+}
+
+static READ16_HANDLER( dsp_idle_r )
+{
+	/* Yield at the DSP polling loop while the main CPU prepares its next job. */
+	if (activecpu_get_pc() == jc.m_dsp_idle_pc)
+		cpu_spinuntil_time(TIME_IN_USEC(500));
+	return jc.m_dsp_shared_ram[0x7f0];
+}
+
+static ADDRESS_MAP_START( tms_program_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x4000, 0x7fff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( tms_data_map, ADDRESS_SPACE_DATA, 16 )
+	AM_RANGE(0x6a01, 0x6a02) AM_WRITE(dsp_unk2_w)
+	AM_RANGE(0x6a11, 0x6a12) AM_NOP
+	AM_RANGE(0x6b20, 0x6b20) AM_WRITE(dsp_polygon_fifo_w)
+	AM_RANGE(0x6b22, 0x6b22) AM_WRITE(dsp_texture_w)
+	AM_RANGE(0x6b23, 0x6b23) AM_READWRITE(dsp_texaddr_r, dsp_texaddr_w)
+	AM_RANGE(0x6c00, 0x6c01) AM_READWRITE(dsp_rom_r, dsp_rom_w)
+	AM_RANGE(0x7000, 0x7002) AM_WRITE(dsp_projection_w)
+	AM_RANGE(0x7010, 0x7012) AM_WRITE(dsp_intersection_w)
+	AM_RANGE(0x7013, 0x7015) AM_WRITE(dsp_viewport_w)
+	AM_RANGE(0x701b, 0x701b) AM_READ(dsp_intersection_r)
+	AM_RANGE(0x701d, 0x701f) AM_READ(dsp_projection_r)
+	AM_RANGE(0x7022, 0x7022) AM_READ(dsp_unk_r)
+	AM_RANGE(0x7ff0, 0x7ff0) AM_READ(dsp_idle_r)
+	AM_RANGE(0x7ffe, 0x7ffe) AM_READWRITE(dsp_to_main_r,dsp_to_main_w)
+	AM_RANGE(0x7800, 0x7fff) AM_RAM AM_BASE(&jc.m_dsp_shared_ram)
+	AM_RANGE(0x8000, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -644,120 +938,73 @@ static ADDRESS_MAP_START( sound_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xff8000, 0xffffff) AM_WRITE(MWA16_RAM)
 ADDRESS_MAP_END
 
+INPUT_PORTS_START( dendeg )
+	PORT_START_TAG("COINS")
+	PORT_BIT( 0xec, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_SERVICE_NO_TOGGLE( 0x02, IP_ACTIVE_LOW )
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
 
-static ADDRESS_MAP_START( hc11_map, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x4000, 0x5fff) AM_RAM
-	AM_RANGE(0x8000, 0xffff) AM_ROM AM_REGION(REGION_USER1, 0)
-ADDRESS_MAP_END
+	PORT_START_TAG("START")
+	PORT_BIT( 0xec, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_TILT )
 
-/*****************************************************************************/
+	PORT_START_TAG("UNUSED")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Horn")
+	PORT_BIT( 0xfe, IP_ACTIVE_LOW, IPT_UNUSED )
 
-UINT32 dsp_rom_pos = 0;
+	PORT_START_TAG("BUTTONS")
 
-static READ16_HANDLER( dsp_rom_r )
-{
-	UINT16 *rom = (UINT16*)memory_region(REGION_GFX2);
-	UINT16 data = rom[dsp_rom_pos++];
-	return data;
-}
+	PORT_BIT( 0x88, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x77, IP_ACTIVE_LOW, IPT_SPECIAL )
 
-static WRITE16_HANDLER( dsp_rom_w )
-{
-	if (offset == 0)
-	{
-		dsp_rom_pos &= 0xffff;
-		dsp_rom_pos |= data << 16;
-	}
-	else if (offset == 1)
-	{
-		dsp_rom_pos &= 0xffff0000;
-		dsp_rom_pos |= data;
-	}
-}
+	PORT_START_TAG("MASCON")
+	PORT_BIT( 0x7f, 0x00, IPT_AD_STICK_Y ) PORT_MINMAX(0x00,0x5f) PORT_SENSITIVITY(25) PORT_KEYDELTA(16) PORT_CENTERDELTA(0) PORT_NAME("Throttle Lever")
 
-static UINT16 dsp_addr1 = 0;
-static UINT16 dsp_texaddr;
-
-
-static WRITE16_HANDLER( dsp_texture_w )
-{
-	//printf("texture write %08X\n", dsp_addr1);
-	dsp_addr1++;
-	/*{
-        FILE *file = fopen("dspdata1.bin", "a+b");
-        fputc((data >> 8) & 0xff, file);
-        fputc((data >> 0) & 0xff, file);
-        fclose(file);
-    }*/
-}
-
-static READ16_HANDLER( dsp_texaddr_r )
-{
-	return dsp_texaddr;
-}
-
-static WRITE16_HANDLER( dsp_texaddr_w )
-{
-	dsp_texaddr = data;
-	//printf("texaddr = %08X\n", data);
-
-	dsp_addr1 = 0;
-}
-
-
-static ADDRESS_MAP_START( tms_program_map, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x4000, 0x7fff) AM_RAM
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( tms_data_map, ADDRESS_SPACE_DATA, 16 )
-	//AM_RANGE(0x1400, 0x1401) AM_RAM
-	AM_RANGE(0x6b22, 0x6b22) AM_WRITE(dsp_texture_w)
-	AM_RANGE(0x6b23, 0x6b23) AM_READWRITE(dsp_texaddr_r, dsp_texaddr_w)
-	AM_RANGE(0x6c00, 0x6c01) AM_READWRITE(dsp_rom_r, dsp_rom_w)
-	AM_RANGE(0x7800, 0x7fff) AM_RAM AM_BASE(&dsp_shared_ram)
-	AM_RANGE(0x8000, 0xffff) AM_RAM
-ADDRESS_MAP_END
-
-
-/*****************************************************************************/
-
-
-INPUT_PORTS_START( taitojc )
+	PORT_START_TAG("ANALOG1")
+	PORT_BIT( 0xff, 0x00, IPT_PADDLE ) PORT_MINMAX(0x00, 0xef) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_CENTERDELTA(0) PORT_NAME("Brake Lever")
 INPUT_PORTS_END
-
-
-
-
-
-static const gfx_decode gfxdecodeinfo[] =
-{
-	{ -1 } /* end of array */
-};
 
 static MACHINE_RESET( taitojc )
 {
-	/* Sound cpu program loads to 0xc00000 so we use a bank */
-	UINT16 *ROM = (UINT16 *)memory_region(REGION_CPU2);
-	memory_set_bankptr(1,&ROM[0x80000]);
-	memory_set_bankptr(2,&ROM[0x90000]);
-	memory_set_bankptr(3,&ROM[0xa0000]);
 
-	sound_ram[0]=ROM[0x80000]; /* Stack and Reset vectors */
-	sound_ram[1]=ROM[0x80001];
-	sound_ram[2]=ROM[0x80002];
-	sound_ram[3]=ROM[0x80003];
-
-	cpunum_set_input_line(1, INPUT_LINE_RESET, ASSERT_LINE);
-// do not let the 68k start up until f3_shared_ram points to valid RAM
-//  cpunum_set_input_line(1, INPUT_LINE_RESET, CLEAR_LINE);
+	UINT16 *rom = (UINT16 *)memory_region(REGION_CPU2);
+	memory_set_bankptr(1, &rom[0x80000]);
+	memory_set_bankptr(2, &rom[0x90000]);
+	memory_set_bankptr(3, &rom[0xa0000]);
+	memcpy(sound_ram, &rom[0x80000], 8);
 	f3_68681_reset();
+	cpunum_set_input_line(1, INPUT_LINE_RESET, PULSE_LINE);
+	jc.m_polygon_fifo_ptr = 0;
+	jc.m_first_dsp_reset = 1;
 
-	// Code assumes RAM at 05800000 is initalized to all FF, but then tests it
-	// like normal RAM later.  Weird.
-	//memset(jc_weirdram, 0xff, 0xffff);
+	jc.m_mcu_comm_main = 0;
+	jc.m_mcu_comm_hc11 = 0;
+	jc.m_mcu_data_main = 0;
+	jc.m_mcu_data_hc11 = 0;
 
-	// hold the TMS in reset until we have code
+	jc.m_texture_x = 0;
+	jc.m_texture_y = 0;
+
+	jc.m_dsp_rom_pos = 0;
+	jc.m_dsp_tex_address = 0;
+	jc.m_dsp_tex_offset = 0;
+
+	jc.m_projected_point_x = 0;
+	jc.m_projected_point_y = 0;
+
+	memset(jc.m_viewport_data, 0, sizeof(jc.m_viewport_data));
+	memset(jc.m_projection_data, 0, sizeof(jc.m_projection_data));
+	memset(jc.m_intersection_data, 0, sizeof(jc.m_intersection_data));
+
 	cpunum_set_input_line(3, INPUT_LINE_RESET, ASSERT_LINE);
+}
+
+static INTERRUPT_GEN( taitojc_vblank )
+{
+	cpunum_set_input_line_and_vector(0, 2, HOLD_LINE, 130);
 }
 
 static struct ES5505interface es5505_interface =
@@ -766,13 +1013,8 @@ static struct ES5505interface es5505_interface =
 	REGION_SOUND1	/* Bank 1: All games seem to use this */
 };
 
-static INTERRUPT_GEN( taitojc_vblank )
-{
-	cpunum_set_input_line(0, 6, HOLD_LINE);
-}
-
 static MACHINE_DRIVER_START( taitojc )
-	MDRV_CPU_ADD(M68040, 25000000)
+	MDRV_CPU_ADD_TAG("maincpu", M68040, 25000000)
 	MDRV_CPU_PROGRAM_MAP(taitojc_map, 0)
 	MDRV_CPU_VBLANK_INT(taitojc_vblank, 1)
 
@@ -784,7 +1026,8 @@ static MACHINE_DRIVER_START( taitojc )
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 
 	MDRV_CPU_ADD(MC68HC11, 4000000)
-	MDRV_CPU_PROGRAM_MAP(hc11_map, 0)
+	MDRV_CPU_PROGRAM_MAP(hc11_pgm_map, 0)
+	MDRV_CPU_IO_MAP(hc11_io_map, 0)
 
 	MDRV_CPU_ADD(TMS32051, 50000000)
 	MDRV_CPU_PROGRAM_MAP(tms_program_map, 0)
@@ -793,12 +1036,12 @@ static MACHINE_DRIVER_START( taitojc )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_INTERLEAVE(100)
 
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(64*16, 48*16)
-	MDRV_VISIBLE_AREA(0*16, 32*16-1, 0*16, 24*16-1)
-	MDRV_PALETTE_LENGTH(65536)
+	MDRV_SCREEN_SIZE(512, 400)
+	MDRV_VISIBLE_AREA(0, 511, 0, 399)
+	MDRV_PALETTE_LENGTH(32768)
 
 	MDRV_VIDEO_START(taitojc)
 	MDRV_VIDEO_UPDATE(taitojc)
@@ -808,75 +1051,29 @@ static MACHINE_DRIVER_START( taitojc )
 	MDRV_SOUND_ADD(ES5505, 30476100/2)
 	MDRV_SOUND_CONFIG(es5505_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
-	MDRV_SOUND_ROUTE(0, "right", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( dendego2 )
+	MDRV_IMPORT_FROM(taitojc)
+	MDRV_SOUND_ADD(OKIM6295, 1056000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.20)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.20)
 MACHINE_DRIVER_END
 
 static DRIVER_INIT( taitojc )
 {
-
+	jc.m_polygon_fifo = auto_malloc(POLYGON_FIFO_SIZE * sizeof(UINT16));
+	jc.m_has_dsp_hack = 1;
+	jc.m_dsp_idle_pc = 0x404c;
 }
-
-static DRIVER_INIT( dendeg )
+static DRIVER_INIT( dendego2 )
 {
-	UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
 	init_taitojc();
-
-	rom[((0x100000 + 0x1330) / 2) ^ 1] = 0x4e71;		// (0x8071330): skip TMS wait loop
-	rom[((0x100000 + 0x22d0) / 2) ^ 1] = 0x6704;		// (0x80722d0): skip service switch error
-	rom[((0x100000 + 0x1d39c) / 2) ^ 1] = 0x4e71;
-}
-
-static DRIVER_INIT( dendegx )
-{
-	//UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-}
-
-static DRIVER_INIT( dendeg2 )
-{
-	UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-	rom[((0x100000 + 0x13c8) / 2) ^ 1] = 0x4e71;		// (0x8071330): skip TMS wait loop
-	rom[((0x100000 + 0x23b2) / 2) ^ 1] = 0x6704;		// (0x80722d0): skip service switch error
-}
-
-static DRIVER_INIT( dendeg2x )
-{
-	//UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-}
-
-static DRIVER_INIT( sidebs )
-{
-//  UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-}
-
-static DRIVER_INIT( sidebs2 )
-{
-	UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-	rom[((0x100000 + 0x12c0) / 2) ^ 1] = 0x4e71;
-	rom[((0x100000 + 0x26e0) / 2) ^ 1] = 0x6704;		// (0x80722d0): skip service switch error
-
-	rom[((0x100000 + 0x116bc) / 2) ^ 1] = 0x4e71;
-	rom[((0x100000 + 0x116c6) / 2) ^ 1] = 0x4e71;
-	rom[((0x100000 + 0x116d8) / 2) ^ 1] = 0x4e71;
-}
-
-static DRIVER_INIT( landgear )
-{
-	UINT16 *rom = (UINT16*)memory_region(REGION_CPU1);
-
-	init_taitojc();
-	rom[((0x100000 + 0x1366) / 2) ^ 1] = 0x4e71;
-	rom[((0x100000 + 0x3aa0) / 2) ^ 1] = 0x6704;		// (0x80722d0): skip service switch error
+	jc.m_dsp_idle_pc = 0x402e;
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x06e0000c, 0x06e0000f, 0, 0, train_sound_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x06e0000c, 0x06e0000f, 0, 0, train_sound_w);
 }
 
 ROM_START( sidebs )
@@ -1075,57 +1272,6 @@ ROM_START( dendegx )
 	ROM_LOAD16_BYTE( "e35-20.035",  0xc00000, 0x200000, CRC(a1d4b30d) SHA1(e02f613b93d3b3ee1eb23f5b7f62c5448ed3966d) )
 ROM_END
 
-ROM_START( dendeg2 )
-	ROM_REGION(0x200000, REGION_CPU1, 0) /* 68040 code */
- 	ROM_LOAD32_BYTE( "e52-25-1.036", 0x000000, 0x80000, CRC(fadf5b4c) SHA1(48f3e1425bb9552d472a2720e1c9a752db2b43ed) )
-	ROM_LOAD32_BYTE( "e52-26-1.037", 0x000001, 0x80000, CRC(7cf5230d) SHA1(b3416886d7cfc88520f6bf378529086bf0095db5) )
-	ROM_LOAD32_BYTE( "e52-27-1.038", 0x000002, 0x80000, CRC(25f0d81d) SHA1(c33c3e6b1ad49b63b31a2f1227d43141faef4eab) )
-	ROM_LOAD32_BYTE( "e52-28-1.039", 0x000003, 0x80000, CRC(e76ff6a1) SHA1(674c00f19df034de8134d48a8c2d2e42f7eb1be7) )
-
-	ROM_REGION( 0x180000, REGION_CPU2, 0 ) /* 68000 Code? */
-	ROM_LOAD16_BYTE( "e52-29.030",  0x100001, 0x040000, CRC(6010162a) SHA1(f14920b26887f5387b3e261b63573d850195982a) )
-	ROM_LOAD16_BYTE( "e52-30.031",  0x100000, 0x040000, CRC(2881af4a) SHA1(5918f6508b3cd3bef3751e3bda2a48152569c1cd) )
-
-	ROM_REGION( 0x010000, REGION_USER1, 0 ) /* MC68HC11M0 related? */
-	ROM_LOAD( "e17-23.065",  0x000000, 0x010000, CRC(80ac1428) SHA1(5a2a1e60a11ecdb8743c20ddacfb61f9fd00f01c) )
-
-	ROM_REGION( 0x00080, REGION_USER2, 0 ) /* eeprom */
-	ROM_FILL( 0x0000, 0x0080, 0 )
-
-	ROM_REGION( 0x1800000, REGION_GFX1, 0 ) /* other roms, not sorted */
-	ROM_LOAD32_WORD_SWAP( "e52-17.052",  0x0000002, 0x200000, CRC(4ac11921) SHA1(c4816e1d68bb52ee59e7a2e6de617c1093020944) )
-	ROM_LOAD32_WORD_SWAP( "e52-18.053",  0x0000000, 0x200000, CRC(7f3e4af7) SHA1(ab35744014175a802e73c8b70de4e7508f0a1cd1) )
-	ROM_LOAD32_WORD_SWAP( "e52-19.054",  0x0400002, 0x200000, CRC(2e5ff408) SHA1(91f95721b98198082e950c50f33324820719e9ed) )
-	ROM_LOAD32_WORD_SWAP( "e52-20.055",  0x0400000, 0x200000, CRC(e90eb71e) SHA1(f07518c718f773e20412393c0ebb3243f9b1d96c) )
-	ROM_LOAD32_WORD( "e52-05.009",  0x0800002, 0x200000, CRC(1ad0c612) SHA1(4ffc373fca8c1e1a5edbad3305b08f0867e9809c) )
-	ROM_LOAD32_WORD( "e52-13.022",  0x0800000, 0x200000, CRC(943af3f4) SHA1(bfc81aa5e5c22e44601428b9e980f09d0c65e38e) )
-	ROM_LOAD32_WORD( "e52-06.010",  0x0c00002, 0x200000, CRC(aa35e536) SHA1(2c1b2ee0d2587db6d6dd60b081bfcef3bb0dd9fa) )
-	ROM_LOAD32_WORD( "e52-14.023",  0x0c00000, 0x200000, CRC(f311a9b4) SHA1(1f25571ac9468d453e92886e003400fffdc149f2) )
-	ROM_LOAD32_WORD( "e52-07.011",  0x1000002, 0x200000, CRC(80a27984) SHA1(57b8c41809de09582600b8ff30c135d5abd044b8) )
-	ROM_LOAD32_WORD( "e52-15.024",  0x1000000, 0x200000, CRC(b45a6199) SHA1(9339a1520b38d1f6538171a0b01df87de3e9c2d1) )
-	ROM_LOAD32_WORD( "e52-08.012",  0x1400002, 0x200000, CRC(d52e6b9c) SHA1(382a5fd4533ab641a09321208464d83f72e161e3) )
-	ROM_LOAD32_WORD( "e52-16.025",  0x1400000, 0x200000, CRC(db6dd6e2) SHA1(d345dbd745514d4777d52c4360787ea8c462ffb1) )
-
-	ROM_REGION( 0x1000000, REGION_GFX2, 0 )
-	ROM_LOAD( "e52-01.005",  0x0000000, 0x200000, CRC(8db39c3c) SHA1(74b3305ebdf679ae274c73b7b32d2adea602bedc) )
-	ROM_LOAD( "e52-02.006",  0x0200000, 0x200000, CRC(b8d6f066) SHA1(99553ad66643ebf7fc71a9aee526d8f206b41dcc) )
-	ROM_LOAD( "e52-03.007",  0x0400000, 0x200000, CRC(a37d164b) SHA1(767a7d2de8b91a00c5fe74710937457e8568a422) )
-	ROM_LOAD( "e52-04.008",  0x0600000, 0x200000, CRC(403a4142) SHA1(aa5fea79a7a838642152586689d0f9b33311252c) )
-	ROM_LOAD( "e52-09.018",  0x0800000, 0x200000, CRC(830e0a3c) SHA1(ab96f380e53f72945f73a6cfcc80d12e1b1afce8) )
-	ROM_LOAD( "e52-10.019",  0x0a00000, 0x200000, CRC(671e41c6) SHA1(281899d83dba104daf7d7c2bd0834cab4c022472) )
-	ROM_LOAD( "e52-11.020",  0x0c00000, 0x200000, CRC(1bc22680) SHA1(1f71db88d6df3b4bdf090b77bc83a67906bb31da) )
-	ROM_LOAD( "e52-12.021",  0x0e00000, 0x200000, CRC(a8bb91c5) SHA1(959a9fedb7839e1e4e7658d920bd5da4fd8cae48) )
-
-	ROM_REGION( 0x40000, REGION_USER3, 0 )
-	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
-
-	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00  )
-	ROM_LOAD16_BYTE( "e52-21.032",  0x000000, 0x200000, CRC(ba58081d) SHA1(bcb6c8781191d48f906ed404a3e7388097a64781) )
-	ROM_LOAD16_BYTE( "e52-22.033",  0x400000, 0x200000, CRC(dda281b1) SHA1(4851a6bf7902548c5033090a0e5c15f74c00ef58) )
-	ROM_LOAD16_BYTE( "e52-23.034",  0x800000, 0x200000, CRC(ebe2dcef) SHA1(16ae41e0f3bb242cbc2922f53cacbd99961a3f97) ) // same as e35-19.034 from dendeg
-	ROM_LOAD16_BYTE( "e52-24.035",  0xc00000, 0x200000, CRC(a9a678da) SHA1(b980ae644ef0312acd63b017028af9bf2b084c29) )
-ROM_END
-
 ROM_START( dendeg2x )
 	ROM_REGION(0x200000, REGION_CPU1, 0) /* 68040 code */
  	ROM_LOAD32_BYTE( "e52-35.036", 0x000000, 0x80000, CRC(d5b33eb8) SHA1(e05ad73986741827b7bbeac72af0a8324384bf6b) ) //2ex
@@ -1232,13 +1378,58 @@ ROM_START( landgear )
     */
 ROM_END
 
+ROM_START( dendego2 )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD32_BYTE( "e52-25-1.ic36", 0x000000, 0x80000, CRC(fadf5b4c) SHA1(48f3e1425bb9552d472a2720e1c9a752db2b43ed) )
+	ROM_LOAD32_BYTE( "e52-26-1.ic37", 0x000001, 0x80000, CRC(7cf5230d) SHA1(b3416886d7cfc88520f6bf378529086bf0095db5) )
+	ROM_LOAD32_BYTE( "e52-27-1.ic38", 0x000002, 0x80000, CRC(25f0d81d) SHA1(c33c3e6b1ad49b63b31a2f1227d43141faef4eab) )
+	ROM_LOAD32_BYTE( "e52-28-1.ic39", 0x000003, 0x80000, CRC(e76ff6a1) SHA1(674c00f19df034de8134d48a8c2d2e42f7eb1be7) )
 
+	ROM_REGION( 0x180000, REGION_CPU2, 0 )
+	ROM_LOAD16_BYTE( "e52-29.ic30",   0x100001, 0x40000, CRC(6010162a) SHA1(f14920b26887f5387b3e261b63573d850195982a) )
+	ROM_LOAD16_BYTE( "e52-30.ic31",   0x100000, 0x40000, CRC(2881af4a) SHA1(5918f6508b3cd3bef3751e3bda2a48152569c1cd) )
 
+	ROM_REGION( 0x010000, REGION_USER1, 0 )
+	ROM_LOAD( "e17-23.ic65",  0x000000, 0x010000, CRC(80ac1428) SHA1(5a2a1e60a11ecdb8743c20ddacfb61f9fd00f01c) )
 
-GAME( 1997, dendeg,   0,       taitojc, taitojc, dendeg,   ROT0, "Taito", "Densya De Go", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1997, dendegx,  dendeg,  taitojc, taitojc, dendegx,  ROT0, "Taito", "Densya De Go Ex", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1998, dendeg2,  0,       taitojc, taitojc, dendeg2,  ROT0, "Taito", "Densya De Go 2", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1998, dendeg2x, dendeg2, taitojc, taitojc, dendeg2x, ROT0, "Taito", "Densya De Go 2 Ex", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1996, sidebs,   0,       taitojc, taitojc, sidebs,   ROT0, "Taito", "Side By Side", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1997, sidebs2,  0,       taitojc, taitojc, sidebs2,  ROT0, "Taito", "Side By Side 2", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1995, landgear, 0,       taitojc, taitojc, landgear, ROT0, "Taito", "Landing Gear", GAME_NOT_WORKING|GAME_NO_SOUND )
+	ROM_REGION( 0x1800000, REGION_GFX1, 0 )
+	ROM_LOAD32_WORD( "e52-17.ic52",  0x0000002, 0x200000, CRC(4ac11921) SHA1(c4816e1d68bb52ee59e7a2e6de617c1093020944) )
+	ROM_LOAD32_WORD( "e52-18.ic53",  0x0000000, 0x200000, CRC(7f3e4af7) SHA1(ab35744014175a802e73c8b70de4e7508f0a1cd1) )
+	ROM_LOAD32_WORD( "e52-19.ic54",  0x0400002, 0x200000, CRC(2e5ff408) SHA1(91f95721b98198082e950c50f33324820719e9ed) )
+	ROM_LOAD32_WORD( "e52-20.ic55",  0x0400000, 0x200000, CRC(e90eb71e) SHA1(f07518c718f773e20412393c0ebb3243f9b1d96c) )
+	ROM_LOAD32_WORD( "e52-05.ic9",   0x0800002, 0x200000, CRC(1ad0c612) SHA1(4ffc373fca8c1e1a5edbad3305b08f0867e9809c) )
+	ROM_LOAD32_WORD( "e52-13.ic22",  0x0800000, 0x200000, CRC(943af3f4) SHA1(bfc81aa5e5c22e44601428b9e980f09d0c65e38e) )
+	ROM_LOAD32_WORD( "e52-06.ic10",  0x0c00002, 0x200000, CRC(aa35e536) SHA1(2c1b2ee0d2587db6d6dd60b081bfcef3bb0dd9fa) )
+	ROM_LOAD32_WORD( "e52-14.ic23",  0x0c00000, 0x200000, CRC(f311a9b4) SHA1(1f25571ac9468d453e92886e003400fffdc149f2) )
+	ROM_LOAD32_WORD( "e52-07.ic11",  0x1000002, 0x200000, CRC(80a27984) SHA1(57b8c41809de09582600b8ff30c135d5abd044b8) )
+	ROM_LOAD32_WORD( "e52-15.ic24",  0x1000000, 0x200000, CRC(b45a6199) SHA1(9339a1520b38d1f6538171a0b01df87de3e9c2d1) )
+	ROM_LOAD32_WORD( "e52-08.ic12",  0x1400002, 0x200000, CRC(d52e6b9c) SHA1(382a5fd4533ab641a09321208464d83f72e161e3) )
+	ROM_LOAD32_WORD( "e52-16.ic25",  0x1400000, 0x200000, CRC(db6dd6e2) SHA1(d345dbd745514d4777d52c4360787ea8c462ffb1) )
+
+	ROM_REGION16_LE( 0x1000000, REGION_GFX2, 0 )
+	ROM_LOAD( "e52-01.ic5",   0x0000000, 0x200000, CRC(8db39c3c) SHA1(74b3305ebdf679ae274c73b7b32d2adea602bedc) )
+	ROM_LOAD( "e52-02.ic6",   0x0200000, 0x200000, CRC(b8d6f066) SHA1(99553ad66643ebf7fc71a9aee526d8f206b41dcc) )
+	ROM_LOAD( "e52-03.ic7",   0x0400000, 0x200000, CRC(a37d164b) SHA1(767a7d2de8b91a00c5fe74710937457e8568a422) )
+	ROM_LOAD( "e52-04.ic8",   0x0600000, 0x200000, CRC(403a4142) SHA1(aa5fea79a7a838642152586689d0f9b33311252c) )
+	ROM_LOAD( "e52-09.ic18",  0x0800000, 0x200000, CRC(830e0a3c) SHA1(ab96f380e53f72945f73a6cfcc80d12e1b1afce8) )
+	ROM_LOAD( "e52-10.ic19",  0x0a00000, 0x200000, CRC(671e41c6) SHA1(281899d83dba104daf7d7c2bd0834cab4c022472) )
+	ROM_LOAD( "e52-11.ic20",  0x0c00000, 0x200000, CRC(1bc22680) SHA1(1f71db88d6df3b4bdf090b77bc83a67906bb31da) )
+	ROM_LOAD( "e52-12.ic21",  0x0e00000, 0x200000, CRC(a8bb91c5) SHA1(959a9fedb7839e1e4e7658d920bd5da4fd8cae48) )
+
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 )
+	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
+
+	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00  )
+	ROM_LOAD16_BYTE( "e52-21.ic32",  0x000000, 0x200000, CRC(ba58081d) SHA1(bcb6c8781191d48f906ed404a3e7388097a64781) )
+	ROM_LOAD16_BYTE( "e52-22.ic33",  0x400000, 0x200000, CRC(dda281b1) SHA1(4851a6bf7902548c5033090a0e5c15f74c00ef58) )
+	ROM_LOAD16_BYTE( "e52-23.ic34",  0x800000, 0x200000, CRC(ebe2dcef) SHA1(16ae41e0f3bb242cbc2922f53cacbd99961a3f97) )
+	ROM_LOAD16_BYTE( "e52-24.ic35",  0xc00000, 0x200000, CRC(a9a678da) SHA1(b980ae644ef0312acd63b017028af9bf2b084c29) )
+ROM_END
+
+GAME( 1995, landgear, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Landing Gear", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1996, sidebs, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Side By Side", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1997, dendeg, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Densya De Go", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1997, dendegx, dendeg, taitojc, dendeg, taitojc, ROT0, "Taito", "Densya De Go Ex", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1997, sidebs2, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Side By Side 2", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1998, dendego2, 0, dendego2, dendeg, dendego2, ROT0, "Taito", "Densha de GO! 2 Kousoku-hen (Ver 2.5 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, dendeg2x, dendego2, taitojc, dendeg, taitojc, ROT0, "Taito", "Densya De Go 2 Ex", GAME_NOT_WORKING | GAME_NO_SOUND )

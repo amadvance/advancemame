@@ -2124,3 +2124,65 @@ static void HC11OP(invalid)(void)
 {
 	fatalerror("HC11: Invalid opcode 0x%02X at %04X", READ8(hc11.pc-1), hc11.pc-1);
 }
+
+static void HC11OP(ble)(void)
+{
+	UINT8 n = (hc11.ccr & CC_N) ? 1 : 0;
+	UINT8 v = (hc11.ccr & CC_V) ? 1 : 0;
+	INT8 rel = FETCH();
+	if ((hc11.ccr & CC_Z) || (n ^ v))
+	{
+		SET_PC(hc11.ppc + rel + 2);
+	}
+	CYCLES(3);
+}
+
+static void HC11OP(cpy_imm)(void)
+{
+	UINT16 i = FETCH16();
+	UINT32 r = hc11.iy - i;
+	CLEAR_NZVC();
+	SET_N16(r);
+	SET_Z16(r);
+	SET_V_SUB16(r, i, hc11.iy);
+	SET_C16(r);
+	CYCLES(5);
+}
+
+static void HC11OP(iny)(void)
+{
+	CLEAR_Z();
+	hc11.iy++;
+	SET_Z16(hc11.iy);
+	CYCLES(4);
+}
+
+static void HC11OP(lsld)(void)
+{
+	UINT32 r = hc11.d.d16 << 1;
+	CLEAR_NZVC();
+	SET_C16(r);
+	hc11.d.d16 = (UINT16)(r);
+	SET_N16(hc11.d.d16);
+	SET_Z16(hc11.d.d16);
+
+	if (((hc11.ccr & CC_N) == CC_N && (hc11.ccr & CC_C) == 0) ||
+		((hc11.ccr & CC_N) == 0 && (hc11.ccr & CC_C) == CC_C))
+	{
+		hc11.ccr |= CC_V;
+	}
+
+	CYCLES(3);
+}
+
+static void HC11OP(pshx)(void)
+{
+	PUSH16(hc11.ix);
+	CYCLES(4);
+}
+
+static void HC11OP(pulx)(void)
+{
+	hc11.ix = POP16();
+	CYCLES(5);
+}

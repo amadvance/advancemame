@@ -53,6 +53,7 @@ typedef struct
 	int icount;
 	int ram_position;
 	int reg_position;
+	UINT8 adctl;
 } HC11_REGS;
 
 static HC11_REGS hc11;
@@ -72,54 +73,96 @@ static UINT8 hc11_regs_r(UINT32 address)
 
 	switch(reg)
 	{
-		case 0x00:		/* PORTA */
+		case 0x00:
+			return io_read_byte(MC68HC11_IO_PORTA);
+		case 0x01:
 			return 0;
-		case 0x01:		/* DDRA */
+		case 0x09:
 			return 0;
-		case 0x09:		/* DDRD */
+		case 0x28:
 			return 0;
-		case 0x28:		/* SPCR1 */
-			return 0;
-		case 0x30:		/* ADCTL */
+		case 0x30:
 			return 0x80;
-		case 0x31:		/* ADR1 */
+		case 0x31:
+		{
+			if (hc11.adctl & 0x10)
+			{
+				return io_read_byte((hc11.adctl & 0x4) + MC68HC11_IO_AD0);
+			}
+			else
+			{
+				return io_read_byte((hc11.adctl & 0x7) + MC68HC11_IO_AD0);
+			}
+			break;
+		}
+		case 0x32:
+		{
+			if (hc11.adctl & 0x10)
+			{
+				return io_read_byte((hc11.adctl & 0x4) + MC68HC11_IO_AD1);
+			}
+			else
+			{
+				return io_read_byte((hc11.adctl & 0x7) + MC68HC11_IO_AD0);
+			}
+			break;
+		}
+		case 0x33:
+		{
+			if (hc11.adctl & 0x10)
+			{
+				return io_read_byte((hc11.adctl & 0x4) + MC68HC11_IO_AD2);
+			}
+			else
+			{
+				return io_read_byte((hc11.adctl & 0x7) + MC68HC11_IO_AD0);
+			}
+			break;
+		}
+		case 0x34:
+		{
+			if (hc11.adctl & 0x10)
+			{
+				return io_read_byte((hc11.adctl & 0x4) + MC68HC11_IO_AD3);
+			}
+			else
+			{
+				return io_read_byte((hc11.adctl & 0x7) + MC68HC11_IO_AD0);
+			}
+			break;
+		}
+		case 0x38:
 			return 0;
-		case 0x32:		/* ADR2 */
+		case 0x70:
 			return 0;
-		case 0x33:		/* ADR3 */
+		case 0x71:
 			return 0;
-		case 0x34:		/* ADR4 */
+		case 0x72:
 			return 0;
-		case 0x38:		/* OPT2 */
+		case 0x73:
 			return 0;
-		case 0x70:		/* SCBDH */
-			return 0;
-		case 0x71:		/* SCBDL */
-			return 0;
-		case 0x72:		/* SCCR1 */
-			return 0;
-		case 0x73:		/* SCCR2 */
-			return 0;
-		case 0x7c:		/* PORTH */
-			return 0;
-		case 0x7e:		/* PORTG */
-			return 0;
-		case 0x7f:		/* DDRG */
+		case 0x74:
+			return 0x40;
+		case 0x7c:
+			return io_read_byte(MC68HC11_IO_PORTH);
+		case 0x7e:
+			return io_read_byte(MC68HC11_IO_PORTG);
+		case 0x7f:
 			return 0;
 
-		case 0x88:		/* SPCR2 */
+		case 0x88:
 			return 0;
-		case 0x89:		/* SPSR2 */
+		case 0x89:
 			return 0x80;
-		case 0x8a:		/* SPDR2 */
-			return spi_data2;
+		case 0x8a:
+			return io_read_byte(MC68HC11_IO_SPI2_DATA);
 
-		case 0x8b:		/* OPT4 */
+		case 0x8b:
 			return 0;
 	}
 
 	fatalerror("HC11: regs_r %02X", reg);
-	return 0; // Dummy
+	return 0;
 }
 
 static void hc11_regs_w(UINT32 address, UINT8 value)
@@ -128,32 +171,33 @@ static void hc11_regs_w(UINT32 address, UINT8 value)
 
 	switch(reg)
 	{
-		case 0x00:		/* PORTA */
-			//printf("HC11: porta = %02X\n", value);
+		case 0x00:
+			io_write_byte(MC68HC11_IO_PORTA, value);
 			return;
-		case 0x01:		/* DDRA */
-			//printf("HC11: ddra = %02X\n", value);
+		case 0x01:
+
 			return;
-		case 0x08:		/* PORTD */
-			//printf("HC11: portd = %02X\n", value);
+		case 0x08:
+			io_write_byte(MC68HC11_IO_PORTD, value);
 			return;
-		case 0x09:		/* DDRD */
-			//printf("HC11: ddrd = %02X\n", value);
+		case 0x09:
+
 			return;
-		case 0x22:		/* TMSK1 */
+		case 0x22:
 			return;
-		case 0x24:		/* TMSK2 */
+		case 0x24:
 			return;
-		case 0x28:		/* SPCR1 */
+		case 0x28:
 			return;
-		case 0x30:		/* ADCTL */
+		case 0x30:
+			hc11.adctl = value;
 			return;
-		case 0x38:		/* OPT2 */
+		case 0x38:
 			return;
-		case 0x39:		/* OPTION */
+		case 0x39:
 			return;
 
-		case 0x3d:		/* INIT */
+		case 0x3d:
 		{
 			int reg_page = value & 0xf;
 			int ram_page = (value >> 4) & 0xf;
@@ -168,47 +212,46 @@ static void hc11_regs_w(UINT32 address, UINT8 value)
 			return;
 		}
 
-		case 0x3f:		/* CONFIG */
+		case 0x3f:
 			return;
 
-		case 0x70:		/* SCBDH */
+		case 0x70:
 			return;
-		case 0x71:		/* SCBDL */
+		case 0x71:
 			return;
-		case 0x72:		/* SCCR1 */
+		case 0x72:
 			return;
-		case 0x73:		/* SCCR2 */
+		case 0x73:
 			return;
-		case 0x7c:		/* PORTH */
-			//printf("HC11: porth = %02X\n", value);
+		case 0x77:
 			return;
-		case 0x7d:		/* DDRH */
-			//printf("HC11: ddrh = %02X\n", value);
+		case 0x7c:
+			io_write_byte(MC68HC11_IO_PORTH, value);
 			return;
-		case 0x7e:		/* PORTG */
-			//printf("HC11: portg = %02X\n", value);
+		case 0x7d:
+
 			return;
-		case 0x7f:		/* DDRG */
-			//printf("HC11: ddrg = %02X\n", value);
+		case 0x7e:
+			io_write_byte(MC68HC11_IO_PORTG, value);
+			return;
+		case 0x7f:
+
 			return;
 
-		case 0x88:		/* SPCR2 */
+		case 0x88:
 			return;
-		case 0x89:		/* SPSR2 */
+		case 0x89:
 			return;
-		case 0x8a:		/* SPDR2 */
-			spi_data2 = value;
-			//printf("HC11: SPI data 2 = %02X\n", value);
+		case 0x8a:
+			io_write_byte(MC68HC11_IO_SPI2_DATA, value);
 			return;
 
-		case 0x8b:		/* OPT4 */
+		case 0x8b:
 			return;
 
 	}
 	fatalerror("HC11: regs_w %02X, %02X", reg, value);
 }
-
-/*****************************************************************************/
 
 INLINE UINT8 FETCH(void)
 {
@@ -421,8 +464,8 @@ void mc68hc11_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 0;					break;
 		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA: 	info->i = 0;					break;
 		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA: 	info->i = 0;					break;
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 0;					break;
+		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 8;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 8;					break;
 		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO: 		info->i = 0;					break;
 
 		case CPUINFO_INT_INPUT_STATE:			info->i = CLEAR_LINE;	break;
