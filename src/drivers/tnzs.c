@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Luca Elia, Mirko Buffoni, Takahiro Nogi
+// copyright-holders:Luca Elia, Mirko Buffoni, Takahiro Nogi, David Haywood, Robin Cooper
 /***************************************************************************
 
 
@@ -222,6 +222,7 @@ Driver by Takahiro Nogi (nogi@kt.rim.or.jp) 1999/11/06
 #include "driver.h"
 #include "cpu/i8x41/i8x41.h"
 #include "sound/2203intf.h"
+#include "sound/2151intf.h"
 #include "sound/dac.h"
 #include "sound/samples.h"
 
@@ -545,6 +546,63 @@ static ADDRESS_MAP_START( i8742_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x02, 0x02) AM_WRITE(tnzs_port2_w)
 ADDRESS_MAP_END
 
+static WRITE8_HANDLER( jpopnics_palette_w )
+{
+	int r,g,b;
+	UINT16 paldata;
+	paletteram[offset] = data;
+
+	offset = offset >> 1;
+
+	paldata = (paletteram[offset*2]<<8) | paletteram[(offset*2+1)];
+
+	g = (paldata >> 12) & 0x000f;
+	r = (paldata >> 4) & 0x000f;
+	b = (paldata >> 8) & 0x000f;
+
+	/* The low nibble has an unresolved contribution to the colors. */
+	palette_set_color(offset, r * 17, g * 17, b * 17);
+}
+
+static ADDRESS_MAP_START( jpopnics_main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	/* Banks 0 and 1 hold writable work RAM used by game logic. */
+	AM_RANGE(0x8000, 0xbfff) AM_RAMBANK(1)
+	AM_RANGE(0xc000, 0xdfff) AM_RAM AM_BASE(&tnzs_objram)
+	AM_RANGE(0xe000, 0xefff) AM_READWRITE(tnzs_sharedram_r, tnzs_sharedram_w) AM_BASE(&tnzs_sharedram)
+	AM_RANGE(0xf000, 0xf1ff) AM_RAM AM_BASE(&tnzs_vdcram)
+	AM_RANGE(0xf200, 0xf2ff) AM_RAM AM_BASE(&tnzs_scrollram)
+	AM_RANGE(0xf300, 0xf303) AM_MIRROR(0xfc) AM_WRITE(MWA8_RAM) AM_BASE(&tnzs_objctrl)
+	AM_RANGE(0xf400, 0xf400) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xf600, 0xf600) AM_READWRITE(MRA8_NOP, tnzs_bankswitch_w)
+	AM_RANGE(0xf800, 0xffff) AM_RAM AM_WRITE(jpopnics_palette_w) AM_BASE(&paletteram)
+ADDRESS_MAP_END
+
+static WRITE8_HANDLER( jpopnics_subbankswitch_w )
+{
+	UINT8 *RAM = memory_region(REGION_CPU2);
+
+	memory_set_bankptr (2, &RAM[0x10000 + 0x2000 * (data & 3)]);
+}
+
+static ADDRESS_MAP_START( jpopnics_sub_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0x9fff) AM_READWRITE(MRA8_BANK2, MWA8_ROM)
+
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(jpopnics_subbankswitch_w)
+	AM_RANGE(0xb000, 0xb000) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0xb001, 0xb001) AM_READWRITE(YM2151_status_port_0_r, YM2151_data_port_0_w)
+	AM_RANGE(0xc000, 0xc000) AM_READ(input_port_1_r)
+	AM_RANGE(0xc001, 0xc001) AM_READ(input_port_2_r)
+	AM_RANGE(0xc600, 0xc600) AM_READ(input_port_3_r)
+	AM_RANGE(0xc601, 0xc601) AM_READ(input_port_4_r)
+
+	AM_RANGE(0xd000, 0xdfff) AM_RAM
+	AM_RANGE(0xe000, 0xefff) AM_READWRITE(tnzs_sharedram_r, tnzs_sharedram_w)
+
+	AM_RANGE(0xf000, 0xf003) AM_READ(arknoid2_sh_f000_r)
+ADDRESS_MAP_END
+
 #define TNZS_PLAYER_INPUT(_n_)\
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(_n_)\
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(_n_)\
@@ -803,6 +861,70 @@ INPUT_PORTS_START( plumppop )
 
 	PORT_START_TAG("AN2")		/* spinner 2 - read at f002/3 */
 	PORT_BIT( 0xffff, 0x0000, IPT_DIAL ) PORT_SENSITIVITY(70) PORT_KEYDELTA(15) PORT_PLAYER(2)
+INPUT_PORTS_END
+
+INPUT_PORTS_START( jpopnics )
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P1 Button 2 (Cheat)")
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("P2 Button 2 (Cheat)") PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START2 )
+
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x04, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x08, "50k 200k 150k+" )
+	PORT_DIPSETTING(    0x0c, "50k 250k 200k+" )
+	PORT_DIPSETTING(    0x04, "100k 300k 200k+" )
+	PORT_DIPSETTING(    0x00, "100k 400k 300k+" )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x20, "2" )
+	PORT_DIPSETTING(    0x30, "3" )
+	PORT_DIPSETTING(    0x10, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x40, 0x40, "P1 & P2 Children Collision" )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Yes ) )
+
+	PORT_START
+	PORT_START
+
+	PORT_START_TAG("AN1")
+	PORT_BIT( 0x0fff, 0x0000, IPT_DIAL ) PORT_SENSITIVITY(70) PORT_KEYDELTA(15)
+
+	PORT_START_TAG("AN2")
+	PORT_BIT( 0x0fff, 0x0000, IPT_DIAL ) PORT_SENSITIVITY(70) PORT_KEYDELTA(15) PORT_PLAYER(2)
 INPUT_PORTS_END
 
 #define DRTOPP_COMMON\
@@ -1472,6 +1594,37 @@ static MACHINE_DRIVER_START( insectx )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( jpopnics )
+
+	MDRV_CPU_ADD(Z80, 6000000)
+	MDRV_CPU_PROGRAM_MAP(jpopnics_main_map,0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+
+	MDRV_CPU_ADD(Z80, 6000000)
+	MDRV_CPU_PROGRAM_MAP(jpopnics_sub_map,0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_INTERLEAVE(100)
+
+	MDRV_MACHINE_RESET(tnzs)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
+	MDRV_GFXDECODE(tnzs_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+
+	MDRV_VIDEO_UPDATE(tnzs)
+	MDRV_VIDEO_EOF(tnzs)
+
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 3000000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( kageki )
 
 	/* basic machine hardware */
@@ -1622,6 +1775,27 @@ ROM_START( plumppop )
 	ROM_REGION( 0x0400, REGION_PROMS, 0 )		/* color proms */
 	ROM_LOAD( "a98-13.bpr", 0x0000, 0x200, CRC(7cde2da5) SHA1(0cccfc35fb716ebb4cffa85c75681f33ca80a56e) )	/* hi bytes */
 	ROM_LOAD( "a98-12.bpr", 0x0200, 0x200, CRC(90dc9da7) SHA1(f719dead7f4597e5ee6f1103599505b98cb58299) )	/* lo bytes */
+ROM_END
+
+ROM_START( jpopnics )
+	ROM_REGION( 0x30000, REGION_CPU1, 0 )
+	ROM_LOAD( "u96cpu2", 0x00000, 0x08000, CRC(649e951c) SHA1(b26bb157da9fcf5d3eddbb637a4cb2cb1b0fedac) )
+	ROM_CONTINUE(           0x18000, 0x08000 )
+	ROM_CONTINUE(           0x20000, 0x10000 )
+
+	ROM_REGION( 0x18000, REGION_CPU2, 0 )
+	ROM_LOAD( "u124cpu1", 0x00000, 0x08000,  CRC(8453e8e4) SHA1(aac1bd501a15f79e3ed566c949504169b2aa762d) )
+	ROM_CONTINUE(           0x10000, 0x08000 )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "u94gfx", 0x00000, 0x10000, CRC(e49f2fdd) SHA1(6824c6520d0039c062f028e69cbfa7b3790ea756) )
+	ROM_CONTINUE(       0x20000, 0x10000 )
+	ROM_LOAD( "u93gfx", 0x40000, 0x10000, CRC(a7791b5b) SHA1(4abfe9b2612ed0d17f1282a60879cf1d0620ae4c) )
+	ROM_CONTINUE(       0x60000, 0x10000 )
+	ROM_LOAD( "u92gfx", 0x80000, 0x10000, CRC(b30caac7) SHA1(a434f67e1bec9848d9c3e184734d8cebee048176) )
+	ROM_CONTINUE(       0xa0000, 0x10000 )
+	ROM_LOAD( "u91gfx", 0xc0000, 0x10000, CRC(18ada5f2) SHA1(3307dd11e5cd0d0abe8b7751a5fbf54998558b34) )
+	ROM_CONTINUE(       0xe0000, 0x10000 )
 ROM_END
 
 ROM_START( extrmatn )
@@ -2125,6 +2299,7 @@ ROM_END
 
 /*  ( YEAR  NAME      PARENT    MACHINE   INPUT     INIT      MONITOR COMPANY    FULLNAME     FLAGS ) */
 GAME( 1987, plumppop, 0,        drtoppel, plumppop, plumpop,  ROT0,   "Taito Corporation", "Plump Pop (Japan)", 0 )
+GAME( 1992, jpopnics, 0,        jpopnics, jpopnics, 0,        ROT0,   "Nics", "Jumping Pop (Nics, Korean hack of Plump Pop)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1987, extrmatn, 0,        arknoid2, extrmatn, extrmatn, ROT270, "[Taito] World Games", "Extermination (US)", 0 )
 GAME( 1987, arknoid2, 0,        arknoid2, arknoid2, arknoid2, ROT270, "Taito Corporation Japan", "Arkanoid - Revenge of DOH (World)", 0 )
 GAME( 1987, arknid2u, arknoid2, arknoid2, arknid2u, arknoid2, ROT270, "Taito America Corporation (Romstar license)", "Arkanoid - Revenge of DOH (US)", 0 )
