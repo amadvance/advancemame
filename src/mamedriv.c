@@ -6353,6 +6353,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* Gaelco 2D games */
 	DRIVER( mastboy )	/* (c) 1987 - No Ref on the PCB */
 	DRIVER( mastboyi )	/* (c) 1987 - No Ref on the PCB */
+	DRIVER( xorwldms )
 	DRIVER( xorworld )	/* (c) 1990 - prototype */
 	DRIVER( lastkm )
 	DRIVER( xorwflat )

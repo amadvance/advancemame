@@ -708,6 +708,7 @@ $(OBJ)/gaelco.a: \
 	$(OBJ)/drivers/splash.o $(OBJ)/vidhrdw/splash.o \
 	$(OBJ)/drivers/targeth.o $(OBJ)/vidhrdw/targeth.o \
 	$(OBJ)/drivers/thoop2.o $(OBJ)/vidhrdw/thoop2.o \
+	$(OBJ)/drivers/xorworld_ms.o \
 	$(OBJ)/drivers/xorworld.o $(OBJ)/vidhrdw/xorworld.o \
 	$(OBJ)/drivers/wrally.o $(OBJ)/machine/wrally.o $(OBJ)/vidhrdw/wrally.o $(OBJ)/machine/gaelcrpt.o \
 
