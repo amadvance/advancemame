@@ -28,6 +28,16 @@ COMMAND-LINE OPTIONS:
       Show all matching game families, including those that are 100% identical
       (by default, only families with detected differences are displayed).
 
+  --common-only
+      Show only families present in both emulators (suppressing AdvanceMAME-only
+      and MAME-only families).
+
+  --only-advmame
+      Show only families present in AdvanceMAME and absent in MAME.
+
+  --only-mame
+      Show only families present in MAME and absent in AdvanceMAME.
+
   --parent-diff-only
       Show only families where the parent set differs between AdvanceMAME and
       MAME (name change, clone promotion/inversion, or modified ROM set).
@@ -45,11 +55,17 @@ COMMAND-LINE OPTIONS:
 
 USAGE EXAMPLES:
 ---------------
-  # Standard comparison (Key ROM differences only + final summary):
+  # Standard comparison (all differences, AdvanceMAME-only, MAME-only + summary):
   ./family_compare.py
 
   # Inspect a specific game family:
   ./family_compare.py --game ddragon
+
+  # Show only families exclusive to AdvanceMAME:
+  ./family_compare.py --only-advmame
+
+  # Show only families exclusive to MAME:
+  ./family_compare.py --only-mame
 
   # Check differences across the entire ROMSET (not just Key ROM):
   ./family_compare.py --full-romset
@@ -246,6 +262,21 @@ def main():
         help="Show all matching families, including 100%% identical ones.",
     )
     parser.add_argument(
+        "--common-only",
+        action="store_true",
+        help="Show only families present in both emulators (suppressing AdvanceMAME-only and MAME-only).",
+    )
+    parser.add_argument(
+        "--only-advmame",
+        action="store_true",
+        help="Show only families present in AdvanceMAME and absent in MAME.",
+    )
+    parser.add_argument(
+        "--only-mame",
+        action="store_true",
+        help="Show only families present in MAME and absent in AdvanceMAME.",
+    )
+    parser.add_argument(
         "--parent-diff-only",
         action="store_true",
         help="Show only families where the parent differs (name, inversion, or ROM changed).",
@@ -302,7 +333,30 @@ def main():
         if ginfo.key_rom:
             mame_keyrom_to_games[ginfo.key_rom].append(gname)
 
-    print("[4/4] Comparing families present in both emulators...\n", flush=True)
+    print("[4/4] Comparing game families between emulators...\n", flush=True)
+
+    # Determine what categories to display
+    if args.parent_diff_only or args.rom_diff_only or args.common_only:
+        show_common = True
+        show_adv_only = False
+        show_mame_only = False
+    elif args.only_advmame and not args.only_mame:
+        show_common = False
+        show_adv_only = True
+        show_mame_only = False
+    elif args.only_mame and not args.only_advmame:
+        show_common = False
+        show_adv_only = False
+        show_mame_only = True
+    elif args.only_advmame and args.only_mame:
+        show_common = False
+        show_adv_only = True
+        show_mame_only = True
+    else:
+        # Default (or --all): show common, adv-only, and mame-only
+        show_common = True
+        show_adv_only = True
+        show_mame_only = True
 
     # Summary statistics
     total_matched_families = 0
@@ -321,15 +375,12 @@ def main():
     families_by_source = defaultdict(list)
 
     processed_mame_parents = set()
+    adv_only_families = []
 
     # Iterate over AdvanceMAME families
     for adv_p_name, adv_fam in sorted(adv_families.items()):
         adv_p_info = adv_games[adv_p_name]
         adv_members = {adv_p_name} | adv_fam["clones"]
-
-        # Filter by specific game if requested:
-        if args.game and args.game not in adv_members:
-            continue
 
         # Find corresponding family in MAME:
         # Method 1: Shortname intersection across members
@@ -355,7 +406,23 @@ def main():
                 mame_p_name = mame_g2f[mame_match_name]
 
         if not mame_p_name:
-            # Family only in AdvanceMAME (or driver removed/separated)
+            # Family only in AdvanceMAME
+            adv_sources = sorted({adv_games[m].sourcefile for m in adv_members if adv_games[m].sourcefile})
+            adv_only_data = {
+                "adv_p_name": adv_p_name,
+                "adv_p_info": adv_p_info,
+                "adv_sources": adv_sources,
+                "clones": sorted(adv_fam["clones"]),
+                "is_adv_only": True,
+            }
+            adv_only_families.append(adv_only_data)
+
+            if args.game and args.game not in adv_members:
+                continue
+
+            if show_adv_only and not args.summary_only:
+                primary_adv_source = adv_p_info.sourcefile or "unknown"
+                families_by_source[primary_adv_source].append(adv_only_data)
             continue
 
         mame_fam = mame_families[mame_p_name]
@@ -364,6 +431,9 @@ def main():
 
         total_matched_families += 1
         processed_mame_parents.add(mame_p_name)
+
+        if args.game and args.game not in adv_members and args.game not in mame_members:
+            continue
 
         # Collect driver source files for both emulators
         adv_sources = sorted({adv_games[m].sourcefile for m in adv_members if adv_games[m].sourcefile})
@@ -534,6 +604,9 @@ def main():
             identical_families += 1
 
         # Display filters
+        if not show_common:
+            continue
+
         if args.summary_only:
             continue
 
@@ -560,11 +633,51 @@ def main():
             "removed_clones": removed_clones,
             "added_clones": added_clones,
             "has_differences": has_differences,
+            "is_adv_only": False,
         }
 
         # Primary source file of the AdvanceMAME parent
         primary_adv_source = adv_p_info.sourcefile or "unknown"
         families_by_source[primary_adv_source].append(fam_data)
+
+    # Process MAME families not matched to any AdvanceMAME parent
+    mame_only_by_source = defaultdict(list)
+    mame_only_families = []
+    mame_split_families = []
+
+    for mame_p_name, mame_fam in sorted(mame_families.items()):
+        if mame_p_name in processed_mame_parents:
+            continue
+
+        mame_members = {mame_p_name} | mame_fam["clones"]
+        mame_p_info = mame_games[mame_p_name]
+        mame_sources = sorted({mame_games[m].sourcefile for m in mame_members if mame_games[m].sourcefile})
+        primary_mame_source = mame_p_info.sourcefile or "unknown"
+
+        shared = [m for m in mame_members if m in adv_g2f]
+        if shared:
+            adv_orig_fams = sorted({adv_g2f[m] for m in shared})
+            split_data = {
+                "mame_p_name": mame_p_name,
+                "mame_p_info": mame_p_info,
+                "mame_sources": mame_sources,
+                "clones": sorted(mame_fam["clones"]),
+                "shared": shared,
+                "adv_orig_fams": adv_orig_fams,
+            }
+            mame_split_families.append(split_data)
+            if (not args.game or args.game in mame_members) and show_mame_only and not args.summary_only:
+                mame_only_by_source[primary_mame_source].append(("split", split_data))
+        else:
+            only_data = {
+                "mame_p_name": mame_p_name,
+                "mame_p_info": mame_p_info,
+                "mame_sources": mame_sources,
+                "clones": sorted(mame_fam["clones"]),
+            }
+            mame_only_families.append(only_data)
+            if (not args.game or args.game in mame_members) and show_mame_only and not args.summary_only:
+                mame_only_by_source[primary_mame_source].append(("only", only_data))
 
     # Print family details grouped by AdvanceMAME source file
     for adv_src in sorted(families_by_source.keys()):
@@ -574,6 +687,22 @@ def main():
         print("#" * len(src_header) + "\n")
 
         for f in families_by_source[adv_src]:
+            if f.get("is_adv_only"):
+                fam_header = f"=== Family: AdvanceMAME '{f['adv_p_name']}' [ONLY IN ADVANCEMAME] ==="
+                print("=" * len(fam_header))
+                print(fam_header)
+                print("=" * len(fam_header))
+
+                print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description})")
+                print(f"Source AdvanceMAME : {', '.join(f['adv_sources']) if f['adv_sources'] else 'N/A'}")
+                print(f"  [!] Present only in AdvanceMAME (absent in MAME).")
+                if f["clones"]:
+                    print(f"  [*] Clones in AdvanceMAME ({len(f['clones'])}):")
+                    for a_c in f["clones"]:
+                        print(f"      - '{a_c}': {adv_games[a_c].description}")
+                print()
+                continue
+
             fam_header = f"=== Family: AdvanceMAME '{f['adv_p_name']}' / MAME '{f['mame_p_name']}' ==="
             print("=" * len(fam_header))
             print(fam_header)
@@ -620,6 +749,48 @@ def main():
 
             print()
 
+    # Print families present only in MAME (grouped by MAME driver source)
+    if show_mame_only and mame_only_by_source and not args.summary_only:
+        mame_section_header = "##### FAMILIES PRESENT ONLY IN MAME (OR SPLIT FROM ADVANCEMAME) #####"
+        print("#" * len(mame_section_header))
+        print(mame_section_header)
+        print("#" * len(mame_section_header) + "\n")
+
+        for mame_src in sorted(mame_only_by_source.keys()):
+            src_header = f"##### MAME Driver Source: {mame_src} #####"
+            print("#" * len(src_header))
+            print(src_header)
+            print("#" * len(src_header) + "\n")
+
+            for kind, item in mame_only_by_source[mame_src]:
+                if kind == "split":
+                    fam_header = f"=== Family: MAME '{item['mame_p_name']}' [SPLIT FROM ADVANCEMAME] ==="
+                    print("=" * len(fam_header))
+                    print(fam_header)
+                    print("=" * len(fam_header))
+                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description})")
+                    print(f"Source MAME        : {', '.join(item['mame_sources']) if item['mame_sources'] else 'N/A'}")
+                    print(f"  [*] Origin       : Split from AdvanceMAME family: {', '.join(item['adv_orig_fams'])}")
+                    print(f"  [*] Shared Games : {', '.join(item['shared'])}")
+                    if item["clones"]:
+                        print(f"  [*] Clones in MAME ({len(item['clones'])}):")
+                        for m_c in item["clones"]:
+                            print(f"      - '{m_c}': {mame_games[m_c].description}")
+                    print()
+                else:
+                    fam_header = f"=== Family: MAME '{item['mame_p_name']}' [ONLY IN MAME] ==="
+                    print("=" * len(fam_header))
+                    print(fam_header)
+                    print("=" * len(fam_header))
+                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description})")
+                    print(f"Source MAME        : {', '.join(item['mame_sources']) if item['mame_sources'] else 'N/A'}")
+                    print(f"  [!] Present only in MAME (absent in AdvanceMAME).")
+                    if item["clones"]:
+                        print(f"  [*] Clones in MAME ({len(item['clones'])}):")
+                        for m_c in item["clones"]:
+                            print(f"      - '{m_c}': {mame_games[m_c].description}")
+                    print()
+
     # Print final summary
     print("=" * 65)
     print("FINAL SUMMARY OF GAME FAMILY COMPARISON")
@@ -629,6 +800,10 @@ def main():
     print(f"Matching families found          : {total_matched_families:,}")
     print(f"100% identical families          : {identical_families:,}")
     print(f"Families with differences        : {total_matched_families - identical_families:,}")
+    print(f"Families only in AdvanceMAME     : {len(adv_only_families):,}")
+    print(f"Families only in MAME            : {len(mame_only_families):,}")
+    if mame_split_families:
+        print(f"MAME families split from AdvMAME : {len(mame_split_families):,}")
     print("-" * 65)
     print(f"Inverted parents / promoted clones : {parent_inverted_count:,}")
     print(f"Renamed parents (same Key ROM)     : {parent_renamed_count:,}")
