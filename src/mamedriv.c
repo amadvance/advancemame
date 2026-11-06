@@ -6771,6 +6771,7 @@ Other Sun games
 	DRIVER( crzralla )	/* (c) 1985 */
 	DRIVER( crzrallg )	/* (c) 1985 */
 	DRIVER( speedbal )	/* (c) 1987 */
+	DRIVER( musicbal )	/* (c) 1988 Tecfri / Desystem S.A. */
 	DRIVER( sauro )		/* (c) 1987 */
 	DRIVER( trckydoc )	/* (c) 1987 */
 	DRIVER( trckydca )	/* (c) 1987 */
