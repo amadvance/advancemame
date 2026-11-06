@@ -755,7 +755,7 @@ $(OBJ)/irem.a: \
 	$(OBJ)/drivers/olibochu.o \
 	$(OBJ)/drivers/redalert.o $(OBJ)/sndhrdw/redalert.o $(OBJ)/vidhrdw/redalert.o \
 	$(OBJ)/drivers/shisen.o $(OBJ)/vidhrdw/shisen.o \
-	$(OBJ)/drivers/skychut.o $(OBJ)/vidhrdw/skychut.o \
+	$(OBJ)/drivers/m10.o $(OBJ)/vidhrdw/skychut.o \
 	$(OBJ)/drivers/travrusa.o $(OBJ)/vidhrdw/travrusa.o \
 	$(OBJ)/drivers/troangel.o $(OBJ)/vidhrdw/troangel.o \
 	$(OBJ)/drivers/vigilant.o $(OBJ)/vidhrdw/vigilant.o \

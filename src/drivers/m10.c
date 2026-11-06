@@ -89,6 +89,7 @@ Notes:
 ***************************************************************************/
 
 #include "driver.h"
+#include "sound/samples.h"
 
 extern UINT8* iremm15_chargen;
 
@@ -188,7 +189,7 @@ INPUT_PORTS_START( skychut )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
 
-	PORT_START	/* IN1 */
+	PORT_START_TAG("DSW")
 	PORT_DIPNAME(0x03, 0x00, DEF_STR( Lives ) )
 	PORT_DIPSETTING (  0x00, "3" )
 	PORT_DIPSETTING (  0x01, "4" )
@@ -267,6 +268,164 @@ INPUT_PORTS_END
 
 
 
+static int m10_flip, m10_bottomline, m10_coin;
+static mame_timer *m10_irq_timer, *m10_irq_clear_timer;
+
+static double m10_irq_period(void)
+{
+	double resistance = 10000.0 + (readinputport(4) & 0xff) * 200.0;
+	return 0.25 * resistance * 2.2e-6 * (1.0 + 700.0 / resistance);
+}
+
+static void m10_irq_clear(int param)
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
+
+static void m10_irq_tick(int param)
+{
+	/* The free-running RC monostable triggers a shorter IRQ pulse independently of video. */
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
+	timer_adjust(m10_irq_clear_timer, TIME_IN_USEC(425), 0, 0);
+	timer_adjust(m10_irq_timer, m10_irq_period(), 0, 0);
+}
+
+static READ8_HANDLER( m10_irq_ack_r )
+{
+	/* Reading A700 resets the IRQ monostable without restarting its oscillator. */
+	timer_adjust(m10_irq_clear_timer, TIME_NEVER, 0, 0);
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	return 0;
+}
+
+static INTERRUPT_GEN( m10_coin_interrupt )
+{
+	int coin = readinputport(2) & 1;
+	if (coin && !m10_coin) cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
+	m10_coin = coin;
+}
+
+static WRITE8_HANDLER( m10_ctrl_w )
+{
+	static const int channel[] = { 0, 0, 1, 2, 3, 3, 2 };
+	static const int sample[] = { 0, 0, 1, 2, 8, 3, 7 };
+	int command = data & 7;
+	int demo_muted = !(readinputport(3) & 2) && (data & 0x80);
+	int i;
+
+	m10_bottomline = ~data & 0x20;
+	m10_flip = (readinputport(3) & 1) && !(data & 0x10);
+	/* Muting sample channels keeps the user's global audio setting independent of attract mode. */
+	for (i = 0; i < 6; ++i) sample_set_volume(i, demo_muted ? 0.0 : 1.0);
+	if (command > 0 && command < 7) sample_start(channel[command], sample[command], 0);
+	if (data & 8) sample_stop(4);
+	else if (!sample_playing(4)) sample_start(4, 9, 1);
+}
+
+static ADDRESS_MAP_START( m10_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x02ff) AM_RAM
+	AM_RANGE(0x1000, 0x2fff) AM_ROM
+	AM_RANGE(0x4000, 0x43ff) AM_RAM AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4800, 0x4bff) AM_RAM AM_WRITE(skychut_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x5000, 0x53ff) AM_RAM AM_BASE(&iremm15_chargen)
+	AM_RANGE(0xa200, 0xa200) AM_READ(input_port_1_r)
+	AM_RANGE(0xa300, 0xa300) AM_READ(input_port_0_r)
+	AM_RANGE(0xa400, 0xa400) AM_WRITE(m10_ctrl_w)
+	AM_RANGE(0xa500, 0xa500) AM_WRITENOP
+	AM_RANGE(0xa700, 0xa700) AM_READ(m10_irq_ack_r)
+	AM_RANGE(0xfc00, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( ipminvad )
+	PORT_INCLUDE(skychut)
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME(0x03, 0x00, DEF_STR(Lives))
+	PORT_DIPSETTING(0x00, "3")
+	PORT_DIPSETTING(0x01, "4")
+	PORT_DIPSETTING(0x02, "5")
+	PORT_DIPSETTING(0x03, "6")
+	PORT_DIPNAME(0x04, 0x00, "Capsules")
+	PORT_DIPSETTING(0x00, DEF_STR(No))
+	PORT_DIPSETTING(0x04, DEF_STR(Yes))
+	PORT_DIPNAME(0x08, 0x00, DEF_STR(Bonus_Life))
+	PORT_DIPSETTING(0x00, "1500")
+	PORT_DIPSETTING(0x08, "1000")
+	PORT_DIPNAME(0x10, 0x00, DEF_STR(Coin_A))
+	PORT_DIPSETTING(0x10, DEF_STR(2C_1C))
+	PORT_DIPSETTING(0x00, DEF_STR(1C_1C))
+	PORT_BIT(0xe0, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START
+	PORT_DIPNAME(0x01, 0x00, DEF_STR(Cabinet))
+	PORT_DIPSETTING(0x00, DEF_STR(Upright))
+	PORT_DIPSETTING(0x01, DEF_STR(Cocktail))
+	PORT_DIPNAME(0x02, 0x00, DEF_STR(Demo_Sounds))
+	PORT_DIPSETTING(0x00, DEF_STR(Off))
+	PORT_DIPSETTING(0x02, DEF_STR(On))
+	PORT_BIT(0xfc, IP_ACTIVE_HIGH, IPT_UNUSED)
+
+	PORT_START
+	PORT_ADJUSTER(30, "IRQ Frequency")
+INPUT_PORTS_END
+
+static VIDEO_UPDATE( ipminvad )
+{
+	static const int back_x[] = {32, 208, 56, 48};
+	static const int back_color[] = {3, 3, 5, 5};
+	int strip, y, bit, offs;
+	fillbitmap(bitmap, Machine->pens[7], cliprect);
+	for (strip = 0; strip < 4; ++strip)
+		for (y = 0; y < 256; ++y)
+		{
+			UINT8 mask = iremm15_chargen[strip * 256 + y];
+			for (bit = 0; bit < 8; ++bit)
+			{
+				int x = back_x[strip] + bit;
+				int py = y;
+				if (m10_flip) { x = 255 - x; py = 255 - py; }
+				if ((mask & (0x80 >> bit)) && x >= cliprect->min_x && x <= cliprect->max_x && py >= cliprect->min_y && py <= cliprect->max_y)
+					plot_pixel(bitmap, x, py, Machine->pens[back_color[strip]]);
+			}
+		}
+	if (m10_bottomline)
+	{
+		int x = m10_flip ? 239 : 16;
+		if (x >= cliprect->min_x && x <= cliprect->max_x)
+			for (y = cliprect->min_y; y <= cliprect->max_y; ++y) plot_pixel(bitmap, x, y, Machine->pens[0]);
+	}
+	for (offs = 0; offs < 0x400; ++offs)
+	{
+		int x = 31 - offs / 32, ty = offs % 32;
+		if (m10_flip) { x = 31 - x; ty = 31 - ty; }
+		drawgfx(bitmap, Machine->gfx[0], videoram[offs], colorram[offs] & 7, m10_flip, m10_flip, x * 8, ty * 8, cliprect, TRANSPARENCY_PEN, 0);
+	}
+}
+
+static const char *m10_sample_names[] =
+{
+	/* Native ipminvad recordings take precedence; compatible Invaders samples are a fallback. */
+	"*invaders", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", 0
+};
+static struct Samplesinterface m10_samples = { 6, m10_sample_names };
+
+static MACHINE_START( m10 )
+{
+	m10_irq_timer = timer_alloc(m10_irq_tick);
+	m10_irq_clear_timer = timer_alloc(m10_irq_clear);
+	return 0;
+}
+
+static MACHINE_RESET( m10 )
+{
+	int i;
+	m10_flip = m10_bottomline = m10_coin = 0;
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+	timer_adjust(m10_irq_timer, m10_irq_period(), 0, 0);
+	timer_adjust(m10_irq_clear_timer, TIME_NEVER, 0, 0);
+	for (i = 0; i < 6; ++i) { sample_stop(i); sample_set_volume(i, 1.0); }
+}
+
 static const gfx_layout charlayout =
 {
 	8,8,	/* 8*8 characters */
@@ -285,6 +444,29 @@ static const gfx_decode gfxdecodeinfo[] =
 	{ -1 } /* end of array */
 };
 
+
+static MACHINE_DRIVER_START( m10 )
+	MDRV_CPU_ADD(M6502, 12500000 / 16)
+	MDRV_CPU_PROGRAM_MAP(m10_map, 0)
+	MDRV_CPU_VBLANK_INT(m10_coin_interrupt, 1)
+	MDRV_FRAMES_PER_SECOND(6250000.0 / (360 * 281))
+	MDRV_VBLANK_DURATION(0)
+	MDRV_MACHINE_START(m10)
+	MDRV_MACHINE_RESET(m10)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(360, 281)
+	MDRV_VISIBLE_AREA(8, 247, 16, 239)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(8)
+	MDRV_COLORTABLE_LENGTH(16)
+	MDRV_PALETTE_INIT(skychut)
+	MDRV_VIDEO_START(generic)
+	MDRV_VIDEO_UPDATE(ipminvad)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(m10_samples)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( skychut )
 
@@ -436,9 +618,9 @@ ROM_START( greenber )
 	ROM_LOAD( "gb9", 0x3000, 0x0400, CRC(c27b9ba3) SHA1(a2f4f0c4b61eb03bba13ae5d25dc01009a4f86ee) ) // ok ?
 ROM_END
 
+GAME( 1979, ipminvad, 0, m10,        ipminvad,  0, ROT270, "IPM", "IPM Invader (M10, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_COLORS )
 GAME( 1979, andromed, 0, skychut,    skychut,   0, ROT270, "Irem", "Andromeda (Japan?)", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS | GAME_NOT_WORKING )
-GAME( 1979?,ipminvad, 0, skychut,    skychut,   0, ROT270, "Irem", "IPM Invader", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
 GAME( 1980, skychut,  0, skychut,    skychut,   0, ROT270, "Irem", "Sky Chuter", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
-GAME( 1979, spacbeam, 0, greenberet, spacebeam, 0, ROT270, "Irem", "Space Beam", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
 GAME( 1979?,headoni,  0, headoni,    headoni,   0, ROT270, "Irem", "Head On (Irem, M-15 Hardware)", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
+GAME( 1979, spacbeam, 0, greenberet, spacebeam, 0, ROT270, "Irem", "Space Beam", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS )
 GAME( 1980, greenber, 0, greenberet, spacebeam, 0, ROT270, "Irem", "Green Beret (Irem)", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_IMPERFECT_COLORS | GAME_NOT_WORKING )
