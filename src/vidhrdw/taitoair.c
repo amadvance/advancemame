@@ -81,11 +81,19 @@ static int zoomy_conv_table[] =
   Initialize and destroy video hardware emulation
 ***************************************************************************/
 
+static mame_bitmap *framebuffer[2];
+
 VIDEO_START( taitoair )
 {
 	if ( TC0080VCO_vh_start(0,0,1,1,-2))
 		return 1;
 
+	framebuffer[0] = auto_bitmap_alloc_depth(Machine->drv->screen_width, Machine->drv->screen_height, 16);
+	framebuffer[1] = auto_bitmap_alloc_depth(Machine->drv->screen_width, Machine->drv->screen_height, 16);
+	if (!framebuffer[0] || !framebuffer[1])
+		return 1;
+	fillbitmap(framebuffer[0], 0, 0);
+	fillbitmap(framebuffer[1], 0, 0);
 	return 0;
 }
 
@@ -94,7 +102,7 @@ VIDEO_START( taitoair )
   Screen refresh
 ***************************************************************************/
 
-static void taitoair_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
+static int taitoair_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int start_offset)
 {
 	/* Y chain size is 16/32?/64/64? pixels. X chain size
        is always 64 pixels. */
@@ -107,10 +115,11 @@ static void taitoair_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 	int tile_offs;				/* sprite chain offset */
 	int zoomx, zoomy;			/* zoom value */
 
-	for (offs = 0x03f8 / 2 ; offs >= 0 ; offs -= 0x008 / 2)
+	for (offs = start_offset ; offs >= 0 ; offs -= 0x008 / 2)
 	{
-		if (offs <  0x01b0 && priority == 0)	continue;
-		if (offs >= 0x01b0 && priority == 1)	continue;
+		/* The pause marker leaves the remaining sprites for the foreground pass. */
+		if (TC0080VCO_spriteram[offs] == 0x0c00 || TC0080VCO_spriteram[offs] == 0x0cff)
+			return offs - 4;
 
 		x0        =  TC0080VCO_spriteram[offs + 1] & 0x3ff;
 		y0        =  TC0080VCO_spriteram[offs + 0] & 0x3ff;
@@ -204,6 +213,7 @@ static void taitoair_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 			}
 		}
 	}
+	return -1;
 }
 
 extern UINT16	*taitoair_line_ram;
@@ -272,8 +282,14 @@ static void fill_slope(mame_bitmap *bitmap, int color, INT32 x1, INT32 x2, INT32
 			if(xx2 > view.x2)
 				xx2 = view.x2;
 
+			int pen;
+			if (paletteram16[(color & 0xff) + 0x300] & 0x8000)
+				pen = ((color & 0x3f) * 0x80) + 0x2040 + ((y1 >> 3) & 0x3f);
+			else
+				pen = (color & 0xff) + 0x300;
+
 			while(xx1 <= xx2) {
-				((UINT16 *)(bitmap->line[y1]))[xx1] = color;
+				((UINT16 *)(bitmap->line[y1]))[xx1] = pen;
 				xx1++;
 			}
 		}
@@ -296,7 +312,7 @@ static void fill_poly(mame_bitmap *bitmap, const struct poly *q)
 	int pcount = q->pcount;
 
 	for(i=0; i<pcount; i++) {
-		p[i].x = p[i+pcount].x = q->p[i].x << FRAC_SHIFT;
+		p[i].x = p[i+pcount].x = q->p[i].x * (1 << FRAC_SHIFT);
 		p[i].y = p[i+pcount].y = q->p[i].y;
 	}
 
@@ -369,37 +385,36 @@ static void fill_poly(mame_bitmap *bitmap, const struct poly *q)
 	}
 }
 
-VIDEO_UPDATE( taitoair )
+extern UINT16 *taitoair_tc0430grw;
+extern int taitoair_gradbank;
+
+void taitoair_fb_copy(void)
 {
-	TC0080VCO_tilemap_update();
+	/* Keep the displayed image stable while the DSP builds the next frame. */
+	fillbitmap(framebuffer[1], 0, 0);
+	copybitmap(framebuffer[1], framebuffer[0], 0, 0, 0, 0, 0, TRANSPARENCY_PEN, 0);
+	fillbitmap(framebuffer[0], 0, 0);
+}
 
-	fillbitmap(bitmap, Machine->pens[0x41], cliprect);
+void taitoair_fb_erase(void)
+{
+	fillbitmap(framebuffer[0], 0, 0);
+}
 
-#ifdef MAME_DEBUG
-	if ( !code_pressed(KEYCODE_A) )
-		TC0080VCO_tilemap_draw(bitmap,cliprect,0,0,0);
-	if ( !code_pressed(KEYCODE_S) )
-		taitoair_draw_sprites(bitmap,cliprect,0);
-	if ( !code_pressed(KEYCODE_D) )
-		TC0080VCO_tilemap_draw(bitmap,cliprect,1,0,0);
-	if ( !code_pressed(KEYCODE_F) )
-		taitoair_draw_sprites(bitmap,cliprect,1);
-#else
-	TC0080VCO_tilemap_draw(bitmap,cliprect,0,0,0);
-	taitoair_draw_sprites (bitmap,cliprect,0);
-	TC0080VCO_tilemap_draw(bitmap,cliprect,1,0,0);
-	taitoair_draw_sprites (bitmap,cliprect,1);
-#endif
+WRITE16_HANDLER( taitoair_dsp_flags_w )
+{
+	if (offset == 1)
+		taitoair_fb_copy();
+	if (!offset)
+		return;
 
-	TC0080VCO_tilemap_draw(bitmap,cliprect,2,0,0);
-
+	view.x1 = 0;
+	view.y1 = 48;
+	view.x2 = Machine->drv->screen_width - 1;
+	view.y2 = Machine->drv->screen_height - 1;
 	if(taitoair_line_ram[0x3fff]) {
 		int adr = 0x3fff;
 		struct poly q;
-		view.x1 = cliprect->min_x;
-		view.y1 = cliprect->min_y;
-		view.x2 = cliprect->max_x;
-		view.y2 = cliprect->max_y;
 
 		while(adr>=0 && taitoair_line_ram[adr] && taitoair_line_ram[adr] != 0x4000) {
 			int pcount;
@@ -407,18 +422,69 @@ VIDEO_UPDATE( taitoair )
 				logerror("quad: unknown value %04x at %04x\n", taitoair_line_ram[adr], adr);
 				break;
 			}
-			q.col = (taitoair_line_ram[adr] & 0x7fff) + 0x300;
+			q.col = taitoair_line_ram[adr];
 			adr--;
 			pcount = 0;
 			while(pcount < POLY_MAX_PT && adr>=1 && !(taitoair_line_ram[adr] & 0xc000)) {
 				q.p[pcount].y = taitoair_line_ram[adr]+3*16;
-				q.p[pcount].x = taitoair_line_ram[adr-1];
+				q.p[pcount].x = (INT16)taitoair_line_ram[adr-1];
 				pcount++;
 				adr -= 2;
 			}
 			adr--;
 			q.pcount = pcount;
-			fill_poly(bitmap, &q);
+			if (pcount >= 3)
+				fill_poly(framebuffer[0], &q);
 		}
 	}
+}
+
+VIDEO_UPDATE( taitoair )
+{
+	UINT32 counter1 = (taitoair_tc0430grw[0] << 16) | taitoair_tc0430grw[1];
+	UINT32 inc1x = (INT16)taitoair_tc0430grw[2];
+	UINT32 inc1y = (INT16)taitoair_tc0430grw[3];
+	UINT32 counter2 = (taitoair_tc0430grw[4] << 16) | taitoair_tc0430grw[5];
+	UINT32 inc2x = (INT16)taitoair_tc0430grw[6];
+	UINT32 inc2y = (INT16)taitoair_tc0430grw[7];
+	int dx = cliprect->min_x + 118;
+	int dy = cliprect->min_y - 48 + 31;
+	int x, y, sprite_ptr;
+
+	TC0080VCO_tilemap_update();
+	counter1 += dx * inc1x + dy * inc1y;
+	counter2 += dx * inc2x + dy * inc2y;
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
+	{
+		UINT32 c1b = counter1, c2b = counter2;
+		UINT16 *dest = (UINT16 *)bitmap->line[y];
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+		{
+			UINT16 base = 0;
+			UINT32 cntr = 0;
+			if (c2b & 0x800000)
+			{
+				base = 0x2040;
+				cntr = c2b;
+			}
+			else if (c1b & 0x800000)
+			{
+				base = 0x2000;
+				cntr = c1b;
+			}
+			if (taitoair_gradbank)
+				base |= 0x1000;
+			dest[x] = base | (cntr >= 0x83f000 ? 0x3f : (cntr >> 12) & 0x3f);
+			c1b += inc1x;
+			c2b += inc2x;
+		}
+		counter1 += inc1y;
+		counter2 += inc2y;
+	}
+	copybitmap(bitmap, framebuffer[1], 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	TC0080VCO_tilemap_draw(bitmap,cliprect,0,0,0);
+	sprite_ptr = taitoair_draw_sprites(bitmap,cliprect,0x3f8 / 2);
+	TC0080VCO_tilemap_draw(bitmap,cliprect,1,0,0);
+	TC0080VCO_tilemap_draw(bitmap,cliprect,2,0,0);
+	taitoair_draw_sprites(bitmap,cliprect,sprite_ptr);
 }

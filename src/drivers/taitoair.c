@@ -186,6 +186,17 @@ cpu #2 (PC=0000060E): unmapped memory word read from 0000683A & FFFF
 #include "sound/2610intf.h"
 
 static int dsp_HOLD_signal;
+UINT16 *taitoair_gradram;
+UINT16 *taitoair_tc0430grw;
+int taitoair_gradbank;
+void taitoair_fb_copy(void);
+void taitoair_fb_erase(void);
+WRITE16_HANDLER( taitoair_dsp_flags_w );
+
+static INT16 dsp_test_x, dsp_test_y, dsp_test_z;
+static UINT16 dsp_test_or_clip, dsp_test_and_clip;
+static INT16 dsp_muldiv_a_1, dsp_muldiv_b_1, dsp_muldiv_c_1;
+static INT16 dsp_muldiv_a_2, dsp_muldiv_b_2, dsp_muldiv_c_2;
 
 static UINT16 *taitoh_68000_mainram;
 UINT16 *taitoair_line_ram;
@@ -207,6 +218,7 @@ static WRITE16_HANDLER( system_control_w )
 		data >>= 8;
 	}
 
+	taitoair_gradbank = data & 0x40;
 	dsp_HOLD_signal = (data & 4) ? CLEAR_LINE : ASSERT_LINE;
 
 	cpunum_set_input_line(2, INPUT_LINE_RESET, (data & 1) ? CLEAR_LINE : ASSERT_LINE);
@@ -257,6 +269,10 @@ static WRITE16_HANDLER( airsys_paletteram16_w )	/* xxBBBBxRRRRxGGGG */
 	COMBINE_DATA(&paletteram16[offset]);
 
 	a = paletteram16[offset];
+	/* A12 is not decoded, so byte writes must share the mirrored word. */
+	offset &= 0xfff;
+	paletteram16[offset] = a;
+	paletteram16[offset + 0x1000] = a;
 
 	r = (a >> 0) & 0x0f;
 	g = (a >> 5) & 0x0f;
@@ -274,15 +290,54 @@ static WRITE16_HANDLER( airsys_paletteram16_w )	/* xxBBBBxRRRRxGGGG */
                 INPUTS
 ***********************************************************/
 
+static WRITE16_HANDLER( gradram_w )
+{
+	UINT32 pen;
+	UINT8 r, g, b;
+
+	COMBINE_DATA(&taitoair_gradram[offset]);
+	offset &= 0x1fff;
+
+	pen = (taitoair_gradram[offset]) | (taitoair_gradram[(offset + 0x2000)] << 16);
+
+	r = (pen & 0x00007f) >> 0;
+	g = (pen & 0x007f00) >> (8);
+	b = (pen & 0x7f0000) >> (16);
+
+	r = (r << 1) | (r & 1);
+	g = (g << 1) | (g & 1);
+	b = (b << 1) | (b & 1);
+
+	palette_set_color(offset + 0x2000, r, g, b);
+}
+
+
+static WRITE16_HANDLER( dma_regs_w )
+{
+	if (offset == 0 && ACCESSING_MSB)
+	{
+		if (data == 0x1fff)
+			taitoair_fb_erase();
+		else if (data & 0x8000)
+			taitoair_fb_copy();
+	}
+}
+
+static READ16_HANDLER( airsys_input_r )
+{
+	/* The spare IOC input is disconnected from the analog counter ports. */
+	return offset == 7 ? 0xff : TC0220IOC_halfword_r(offset, mem_mask);
+}
+
 static READ16_HANDLER( stick_input_r )
 {
 	switch( offset )
 	{
 		case 0x00:	/* "counter 1" lo */
-			return input_port_4_word_r(0,0);
+			return input_port_4_word_r(0,0) & 0xff;
 
 		case 0x01:	/* "counter 2" lo */
-			return input_port_5_word_r(0,0);
+			return input_port_5_word_r(0,0) & 0xff;
 
 		case 0x02:	/* "counter 1" hi */
 			return (input_port_4_word_r(0,0) &0xff00) >> 8;
@@ -309,6 +364,18 @@ static READ16_HANDLER( stick2_input_r )
 }
 
 
+static UINT32 yoke_limits_r(void *param)
+{
+	UINT16 throttle = readinputport(4) & 0xe00;
+	UINT16 x = readinputport(5) & 0xe00;
+	UINT16 y = readinputport(6) & 0xe00;
+
+	/* The digital contacts and counters must describe the same lever position. */
+	return (throttle == 0x600) | ((throttle == 0x800) << 1)
+		| ((x == 0x800) << 2) | ((x == 0x600) << 3)
+		| ((y == 0x600) << 4) | ((y == 0x800) << 5);
+}
+
 static INT32 banknum = -1;
 
 static void reset_sound_region(void)
@@ -323,9 +390,31 @@ static WRITE8_HANDLER( sound_bankswitch_w )
 }
 
 
-static MACHINE_START( taitoair )
+static MACHINE_RESET( taitoair )
 {
 	dsp_HOLD_signal = ASSERT_LINE;
+	taitoair_gradbank = 0;
+	dsp_test_x = dsp_test_y = dsp_test_z = 0;
+	dsp_test_or_clip = dsp_test_and_clip = 0;
+	dsp_muldiv_a_1 = dsp_muldiv_b_1 = dsp_muldiv_c_1 = 0;
+	dsp_muldiv_a_2 = dsp_muldiv_b_2 = dsp_muldiv_c_2 = 0;
+}
+
+static MACHINE_START( taitoair )
+{
+	state_save_register_global(dsp_HOLD_signal);
+	state_save_register_global(taitoair_gradbank);
+	state_save_register_global(dsp_test_x);
+	state_save_register_global(dsp_test_y);
+	state_save_register_global(dsp_test_z);
+	state_save_register_global(dsp_test_or_clip);
+	state_save_register_global(dsp_test_and_clip);
+	state_save_register_global(dsp_muldiv_a_1);
+	state_save_register_global(dsp_muldiv_b_1);
+	state_save_register_global(dsp_muldiv_c_1);
+	state_save_register_global(dsp_muldiv_a_2);
+	state_save_register_global(dsp_muldiv_b_2);
+	state_save_register_global(dsp_muldiv_c_2);
 
 	state_save_register_global(banknum);
 	state_save_register_func_postload(reset_sound_region);
@@ -346,9 +435,10 @@ static ADDRESS_MAP_START( airsys_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x800000, 0x820fff) AM_READ(TC0080VCO_word_r)	/* tilemaps, sprites */
 	AM_RANGE(0x908000, 0x90ffff) AM_READ(MRA16_RAM)			/* "line ram" */
 	AM_RANGE(0x910000, 0x91ffff) AM_READ(MRA16_RAM)			/* "dsp common ram" (TMS320C25) */
+	AM_RANGE(0x980000, 0x98000f) AM_READ(MRA16_RAM)
 	AM_RANGE(0xa00000, 0xa00007) AM_READ(stick_input_r)
 	AM_RANGE(0xa00100, 0xa00107) AM_READ(stick2_input_r)
-	AM_RANGE(0xa00200, 0xa0020f) AM_READ(TC0220IOC_halfword_r)	/* other I/O */
+	AM_RANGE(0xa00200, 0xa0020f) AM_READ(airsys_input_r)	/* other I/O */
 	AM_RANGE(0xa80000, 0xa80001) AM_READ(MRA16_NOP)
 	AM_RANGE(0xa80002, 0xa80003) AM_READ(taitosound_comm16_lsb_r)
 	AM_RANGE(0xb00000, 0xb007ff) AM_READ(MRA16_RAM)			/* "power common ram" (mecha drive) */
@@ -358,13 +448,14 @@ static ADDRESS_MAP_START( airsys_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0bffff) AM_WRITE(MWA16_ROM)
 	AM_RANGE(0x0c0000, 0x0cffff) AM_WRITE(MWA16_RAM) AM_BASE(&taitoh_68000_mainram)
 	AM_RANGE(0x140000, 0x140001) AM_WRITE(system_control_w)	/* Pause the TMS32025 */
-	AM_RANGE(0x180000, 0x183fff) AM_WRITE(MWA16_RAM)			/* "gradiation ram (0)" */
-	AM_RANGE(0x184000, 0x187fff) AM_WRITE(MWA16_RAM)			/* "gradiation ram (1)" */
+	AM_RANGE(0x180000, 0x187fff) AM_WRITE(gradram_w) AM_BASE(&taitoair_gradram)
 	AM_RANGE(0x188000, 0x18bfff) AM_WRITE(airsys_paletteram16_w) AM_BASE(&paletteram16)
 //  AM_RANGE(0x188000, 0x18bfff) AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
 	AM_RANGE(0x800000, 0x820fff) AM_WRITE(TC0080VCO_word_w)		/* tilemaps, sprites */
+	AM_RANGE(0x906000, 0x906007) AM_WRITE(dma_regs_w)
 	AM_RANGE(0x908000, 0x90ffff) AM_WRITE(MWA16_RAM) AM_BASE(&taitoair_line_ram)	/* "line ram" */
 	AM_RANGE(0x910000, 0x91ffff) AM_WRITE(MWA16_RAM) AM_BASE(&dsp_ram)	/* "dsp common ram" (TMS320C25) */
+	AM_RANGE(0x980000, 0x98000f) AM_WRITE(MWA16_RAM) AM_BASE(&taitoair_tc0430grw)
 	AM_RANGE(0xa00200, 0xa0020f) AM_WRITE(TC0220IOC_halfword_w)	/* I/O */
 	AM_RANGE(0xa80000, 0xa80001) AM_WRITE(taitosound_port16_lsb_w)
 	AM_RANGE(0xa80002, 0xa80003) AM_WRITE(taitosound_comm16_lsb_w)
@@ -401,6 +492,102 @@ static ADDRESS_MAP_START( sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 /********************************** TMS32025 ********************************/
+static WRITE16_HANDLER( dsp_test_start_w )
+{
+	dsp_test_or_clip = 0;
+	dsp_test_and_clip = 0xf;
+}
+
+static WRITE16_HANDLER( dsp_test_x_w )
+{
+	dsp_test_x = data;
+}
+
+static WRITE16_HANDLER( dsp_test_y_w )
+{
+	dsp_test_y = data;
+}
+
+static WRITE16_HANDLER( dsp_test_z_w )
+{
+	dsp_test_z = data;
+}
+
+static READ16_HANDLER( dsp_test_point_r )
+{
+	UINT16 r = 0;
+	if (dsp_test_x < -dsp_test_z)
+		r |= 1;
+	if (dsp_test_x >  dsp_test_z)
+		r |= 2;
+	if (dsp_test_y < -dsp_test_z)
+		r |= 4;
+	if (dsp_test_y >  dsp_test_z)
+		r |= 8;
+
+	dsp_test_or_clip |= r;
+	dsp_test_and_clip &= r;
+	return r;
+}
+
+static READ16_HANDLER( dsp_test_or_clip_r )
+{
+	return dsp_test_or_clip;
+}
+
+static READ16_HANDLER( dsp_test_and_clip_r )
+{
+	return dsp_test_and_clip;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_a_1_w )
+{
+	dsp_muldiv_a_1 = data;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_b_1_w )
+{
+	dsp_muldiv_b_1 = data;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_c_1_w )
+{
+	dsp_muldiv_c_1 = data;
+}
+
+static READ16_HANDLER( dsp_muldiv_1_r )
+{
+	if (dsp_muldiv_c_1 == 0)
+		return 0xffff;
+
+	return dsp_muldiv_a_1 * dsp_muldiv_b_1 / dsp_muldiv_c_1;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_a_2_w )
+{
+	dsp_muldiv_a_2 = data;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_b_2_w )
+{
+	dsp_muldiv_b_2 = data;
+}
+
+static WRITE16_HANDLER( dsp_muldiv_c_2_w )
+{
+	dsp_muldiv_c_2 = data;
+}
+
+static READ16_HANDLER( dsp_muldiv_2_r )
+{
+	if (dsp_muldiv_c_2 == 0)
+		return 0xffff;
+
+	return dsp_muldiv_a_2 * dsp_muldiv_b_2 / dsp_muldiv_c_2;
+}
+
+
+
 static ADDRESS_MAP_START( DSP_read_program, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA16_ROM)
 ADDRESS_MAP_END
@@ -410,11 +597,28 @@ static ADDRESS_MAP_START( DSP_write_program, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( DSP_read_data, ADDRESS_SPACE_DATA, 16 )
+	AM_RANGE(0x2003, 0x2003) AM_READ(MRA16_NOP)
+	AM_RANGE(0x3407, 0x3407) AM_READ(dsp_muldiv_1_r)
+	AM_RANGE(0x340b, 0x340b) AM_READ(dsp_muldiv_2_r)
+	AM_RANGE(0x341b, 0x341b) AM_READ(dsp_test_point_r)
+	AM_RANGE(0x341c, 0x341c) AM_READ(dsp_test_and_clip_r)
+	AM_RANGE(0x341d, 0x341d) AM_READ(dsp_test_or_clip_r)
 	AM_RANGE(0x4000, 0x7fff) AM_READ(lineram_r)
 	AM_RANGE(0x8000, 0xffff) AM_READ(dspram_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( DSP_write_data, ADDRESS_SPACE_DATA, 16 )
+	AM_RANGE(0x3000, 0x3002) AM_WRITE(taitoair_dsp_flags_w)
+	AM_RANGE(0x3404, 0x3404) AM_WRITE(dsp_muldiv_a_1_w)
+	AM_RANGE(0x3405, 0x3405) AM_WRITE(dsp_muldiv_b_1_w)
+	AM_RANGE(0x3406, 0x3406) AM_WRITE(dsp_muldiv_c_1_w)
+	AM_RANGE(0x3408, 0x3408) AM_WRITE(dsp_muldiv_a_2_w)
+	AM_RANGE(0x3409, 0x3409) AM_WRITE(dsp_muldiv_b_2_w)
+	AM_RANGE(0x340a, 0x340a) AM_WRITE(dsp_muldiv_c_2_w)
+	AM_RANGE(0x3418, 0x3418) AM_WRITE(dsp_test_x_w)
+	AM_RANGE(0x3419, 0x3419) AM_WRITE(dsp_test_y_w)
+	AM_RANGE(0x341a, 0x341a) AM_WRITE(dsp_test_z_w)
+	AM_RANGE(0x341b, 0x341b) AM_WRITE(dsp_test_start_w)
 	AM_RANGE(0x4000, 0x7fff) AM_WRITE(lineram_w)
 	AM_RANGE(0x8000, 0xffff) AM_WRITE(dspram_w)
 ADDRESS_MAP_END
@@ -432,6 +636,18 @@ ADDRESS_MAP_END
 /************************************************************
                INPUT PORTS & DIPS
 ************************************************************/
+
+#define TAITO_COINAGE_WORLD_8 \
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Coin_A ) ) \
+	PORT_DIPSETTING(    0x00, DEF_STR( 4C_1C ) ) \
+	PORT_DIPSETTING(    0x10, DEF_STR( 3C_1C ) ) \
+	PORT_DIPSETTING(    0x20, DEF_STR( 2C_1C ) ) \
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_1C ) ) \
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Coin_B ) ) \
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_2C ) ) \
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_3C ) ) \
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_4C ) ) \
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_6C ) )
 
 #define TAITO_COINAGE_JAPAN_8 \
 	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Coin_A ) ) \
@@ -475,26 +691,13 @@ INPUT_PORTS_START( topland )
 	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	TAITO_COINAGE_JAPAN_8
+	TAITO_COINAGE_WORLD_8
 
-	PORT_START  /* DSWB, all bogus !!! */
+	PORT_START  /* DSWB */
 	TAITO_DIFFICULTY_8
-	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Bonus_Life ) )
-	PORT_DIPSETTING(    0x08, "1000k only" )
-	PORT_DIPSETTING(    0x0c, "1500k only" )
-	PORT_DIPSETTING(    0x04, "2000k only" )
-	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
-	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Lives ) )
-	PORT_DIPSETTING(    0x00, "2" )
-	PORT_DIPSETTING(    0x30, "3" )
-	PORT_DIPSETTING(    0x20, "4" )
-	PORT_DIPSETTING(    0x10, "5" )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xfc, 0xfc, DEF_STR( Unused ) )
+	PORT_DIPSETTING( 0xfc, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( On ) )
 
 	PORT_START	/* IN0 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_UNKNOWN )
@@ -507,28 +710,21 @@ INPUT_PORTS_START( topland )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_BUTTON3 ) PORT_PLAYER(1)	/* "door" (!) */
 
 	PORT_START	/* IN1 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(1)	/* slot down */
-	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(1)	/* slot up */
-	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)	/* handle */
-	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
-	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_PLAYER(1)	/* freeze ??? */
+	PORT_BIT( 0x3f, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(yoke_limits_r, 0)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_SPECIAL )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
 
-	/* The range of these sticks reflects the range test mode displays.
-       Eventually we want standard 0-0xff input range and a scale-up later
-       in the stick_r routines.  And fake DSW with self-centering option
-       to make keyboard control feasible! */
+	/* The input scaler needs a representable positive magnitude for the negative
+	   endpoint; -2048 overflows its signed 12-bit intermediate, so use -2047. */
 
 	PORT_START  /* Stick 1 (4) */
-	PORT_BIT( 0xffff, 0x0000, IPT_AD_STICK_X ) PORT_MINMAX(0xf800,0x7ff) PORT_SENSITIVITY(30) PORT_KEYDELTA(40) PORT_PLAYER(1)
+	PORT_BIT( 0x0fff, 0x0000, IPT_AD_STICK_Z ) PORT_MINMAX(0x0801,0x7ff) PORT_SENSITIVITY(30) PORT_KEYDELTA(40) PORT_CENTERDELTA(0) PORT_PLAYER(1)
 
 	PORT_START  /* Stick 2 (5) */
-	PORT_BIT( 0xffff, 0x0000, IPT_AD_STICK_Y ) PORT_MINMAX(0xf800,0x7ff) PORT_SENSITIVITY(30) PORT_KEYDELTA(40) PORT_PLAYER(1)
+	PORT_BIT( 0x0fff, 0x0000, IPT_AD_STICK_X ) PORT_MINMAX(0x0801,0x7ff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_PLAYER(1)
 
 	PORT_START  /* Stick 3 (6) */
-	PORT_BIT( 0xffff, 0x0000, IPT_AD_STICK_Y ) PORT_MINMAX(0xf800,0x7ff) PORT_SENSITIVITY(30) PORT_KEYDELTA(40) PORT_PLAYER(2)
+	PORT_BIT( 0x0fff, 0x0000, IPT_AD_STICK_Y ) PORT_MINMAX(0x0801,0x7ff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_PLAYER(1)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( ainferno )
@@ -650,30 +846,31 @@ static struct YM2610interface airsys_ym2610_interface =
 static MACHINE_DRIVER_START( airsys )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000,24000000 / 2)		/* 12 MHz ??? */
+	MDRV_CPU_ADD(M68000,18000000 / 2)
 	MDRV_CPU_PROGRAM_MAP(airsys_readmem,airsys_writemem)
 	MDRV_CPU_VBLANK_INT(irq5_line_hold,1)
 
 	MDRV_CPU_ADD(Z80,8000000 / 2)			/* 4 MHz ??? */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 
-	MDRV_CPU_ADD(TMS32025,24000000)			/* 24 MHz ??? *///
+	MDRV_CPU_ADD(TMS32025,36000000)
 	MDRV_CPU_PROGRAM_MAP(DSP_read_program,DSP_write_program)
 	MDRV_CPU_DATA_MAP(DSP_read_data,DSP_write_data)
 	MDRV_CPU_IO_MAP(DSP_read_io,DSP_write_io)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(16000000.0 / 640 / 462)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-	MDRV_INTERLEAVE(10)
+	MDRV_INTERLEAVE(1000)
 
 	MDRV_MACHINE_START(taitoair)
+	MDRV_MACHINE_RESET(taitoair)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(64*16, 64*16)
+	MDRV_SCREEN_SIZE(640, 462)
 	MDRV_VISIBLE_AREA(0*16, 32*16-1, 3*16, 28*16-1)
 	MDRV_GFXDECODE(airsys_gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(512*16)
+	MDRV_PALETTE_LENGTH(512*16*2)
 
 	MDRV_VIDEO_START(taitoair)
 	MDRV_VIDEO_UPDATE(taitoair)
@@ -724,11 +921,11 @@ ROM_START( topland )
 	ROM_LOAD16_BYTE( "b62-32.30",  0x0c0001, 0x20000, CRC(66806646) SHA1(d8e0c37b5227d8583d523164ffc6828b4508d5a3) )
 
 	ROM_REGION( 0xa0000, REGION_SOUND1, 0 )	/* ADPCM samples */
-	ROM_LOAD( "b62-13.1",  0x00000, 0x20000, CRC(b37dc3ea) SHA1(198d4f828132316c624da998e49b1873b9886bf0) )
-	ROM_LOAD( "b62-14.2",  0x20000, 0x20000, CRC(617948a3) SHA1(4660570fa6263c28cfae7ccdf154763cc6144896) )
+	ROM_LOAD( "b62-17.5",  0x00000, 0x20000, CRC(36447066) SHA1(91c8cc4e99534b2d533895a342abb22766a20090) )
+	ROM_LOAD( "b62-16.4",  0x20000, 0x20000, CRC(203a5c27) SHA1(f6fc9322dea8d82bfec3be3fdc8616dc6adf666e) )
 	ROM_LOAD( "b62-15.3",  0x40000, 0x20000, CRC(e35ffe81) SHA1(f35afdd7cfd4c09907fb062beb5ae46c2286a381) )
-	ROM_LOAD( "b62-16.4",  0x60000, 0x20000, CRC(203a5c27) SHA1(f6fc9322dea8d82bfec3be3fdc8616dc6adf666e) )
-	ROM_LOAD( "b62-17.5",  0x80000, 0x20000, CRC(36447066) SHA1(91c8cc4e99534b2d533895a342abb22766a20090) )
+	ROM_LOAD( "b62-14.2",  0x60000, 0x20000, CRC(617948a3) SHA1(4660570fa6263c28cfae7ccdf154763cc6144896) )
+	ROM_LOAD( "b62-13.1",  0x80000, 0x20000, CRC(b37dc3ea) SHA1(198d4f828132316c624da998e49b1873b9886bf0) )
 
 	ROM_REGION( 0x20000, REGION_SOUND2, 0 )	/* Delta-T samples */
 	ROM_LOAD( "b62-18.31", 0x00000, 0x20000, CRC(3a4e687a) SHA1(43f07fe19dec351e851defdf9c7810fb9df04736) )
@@ -782,5 +979,5 @@ ROM_END
 
 
 /*   ( YEAR  NAME      PARENT    MACHINE   INPUT     INIT      MONITOR  COMPANY  FULLNAME */
-GAME( 1988, topland,  0,        airsys,   topland,  0,        ROT0,    "Taito Corporation Japan", "Top Landing (World)", GAME_NOT_WORKING )
+GAME( 1988, topland,  0,        airsys,   topland,  0,        ROT0,    "Taito Corporation Japan", "Top Landing (World)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1990, ainferno, 0,        airsys,   ainferno, 0,        ROT0,    "Taito America Corporation", "Air Inferno (US)", GAME_NOT_WORKING )
