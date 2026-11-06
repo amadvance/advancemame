@@ -1,150 +1,196 @@
 // license:BSD-3-Clause
-// copyright-holders:Pierpaolo Prazzoli, David Haywood
-/* Little Robin */
+// copyright-holders:Pierpaolo Prazzoli, David Haywood, Angelo Salese
+/* Little Robin, (c)1994 TCH
 
-/* driver by
-Pierpaolo Prazzoli
-David Haywood
-*/
-
-/*
-
-strange vdp/memory access chip..
-at the moment gfx / palettes etc. get drawn then erased
-
-maybe it needs read commands working so it knows how many sprites are in
-the list?
-
-maybe the vdp 'commands' can be used to store and get back
-write addresses?
-
+   Video commands update two persistent framebuffers. Scroll and copy
+   operations are not fully decoded.
 */
 
 #include "driver.h"
+#include "vidhrdw/tlc34076.h"
+#include "sound/dac.h"
 
-UINT16 littlerb_vdp_address_low;
-UINT16 littlerb_vdp_address_high;
-UINT16 littlerb_vdp_writemode;
-UINT32 littlerb_write_address;
+static UINT16 *video_ram, *work_ram, *sprite_list;
+static mame_bitmap *foreground, *background;
+static UINT16 host_address_low, host_address_high, host_control;
+static UINT32 host_address;
+static unsigned list_count;
+static UINT8 sound_index[2];
+static UINT16 sound_pointer[2];
+static unsigned sound_frame;
 
-void littlerb_recalc_regs(void)
+static UINT8 video_byte(UINT32 address)
 {
-	littlerb_vdp_address_low = littlerb_write_address&0xffff;
-	littlerb_vdp_address_high = (littlerb_write_address>>16)&0xffff;
-}
-
-UINT16* littlerb_region1;
-UINT16* littlerb_region2;
-UINT16* littlerb_region3;
-UINT16* littlerb_region4;
-
-
-void littlerb_data_write(UINT16 data)
-{
-	UINT32 addr = littlerb_write_address>>4; // is this right? should we shift?
-
-	if (addr>=0x00000000 && addr<=0x0003ffff)
-	{
-		addr &= 0x0003ffff;
-
-	//  littlerb_region1[addr] = data;
-		littlerb_region4[addr] = data; // it writes the 'slime' gfx you cover the enemy in with here
-		                               // it might be a mirror, or just another area of ram it can
-		                               // access but isn't because of the sprite drawing..
-	}
-	else if (addr>=0x00400000 && addr<=0x004007ff)
-	{
-		int x;
-		addr &= 0x7ff;
-		littlerb_region2[addr] = data;
-
-		for (x=0;x<0x100;x+=3)
-		{
-			int r,g,b;
-
-			b = littlerb_region2[x];
-			r = littlerb_region2[x+1];
-			g = littlerb_region2[x+2];
-
-			palette_set_color(x/3,r,g,b);
-		}
-
-
-	}
-	else if (addr>=0x0c000000 && addr<=0x0c00001f)
-	{
-		addr &= 0x1f;
-		littlerb_region3[addr] = data;
-	}
-	else if (addr>=0x0ffc0000 && addr<=0x0fffffff)
-	{
-		addr &=0x3ffff;
-		littlerb_region4[addr] = data;
-
-	}
+	UINT16 word;
+	if (address < 0x400000)
+		word = video_ram[(address >> 1) & 0x1fffff];
+	else if (address >= 0x1ff80000 && address <= 0x1fffffff)
+		word = work_ram[(address >> 1) & 0x3ffff];
 	else
-	{
-		printf("write data %04x to %08x\n",data,addr);
-	}
-
-	littlerb_write_address+=0x10;
-	littlerb_recalc_regs();
-
+		return 0;
+	return word >> ((address & 1) * 8);
 }
 
-
-
-
-void littlerb_recalc_address(void)
+static void draw_sprite(mame_bitmap *target, const rectangle *clip, UINT32 address,
+	int xpos, int ypos, int width, int height)
 {
-	littlerb_write_address = littlerb_vdp_address_low | littlerb_vdp_address_high<<16;
+	int x, y;
+	address >>= 3;
+	for (y = 0; y < height; ++y)
+		for (x = 0; x < width; ++x)
+		{
+			UINT8 pixel = video_byte(address);
+			int px = xpos + x, py = ypos + y;
+			/* Lines above the clipping window do not consume source data. */
+			if (py >= clip->min_y)
+				++address;
+			if (pixel && px >= clip->min_x && px <= clip->max_x &&
+				py >= clip->min_y && py <= clip->max_y)
+				plot_pixel(target, px, py, pixel);
+		}
 }
 
-READ16_HANDLER( littlerb_vdp_r )
+static void draw_list(void)
+{
+	unsigned offs = 0;
+	int layer = 0;
+	rectangle clip = { 0, 335, 0, 287 };
+
+	/* A layer clear belongs to the submitted list, not to screen refresh. */
+	if ((sprite_list[1] | sprite_list[2]) & 0x1000)
+		if (!(sprite_list[2] & 0x1000))
+			fillbitmap(background, 0, 0);
+
+	while (offs < list_count)
+	{
+		UINT16 *entry = &sprite_list[offs];
+		UINT32 command = entry[0] | (entry[1] << 16);
+		if (entry[0] == 0x0060)
+			offs += 6;
+		else if (entry[0] == 0x0040)
+		{
+			if (entry[4] == 0x6000)
+			{
+				if (entry[3] & 0x1000)
+					fillbitmap(background, 0, 0);
+			}
+			else if (entry[1] != 0xffd6)
+				fillbitmap(foreground, 0, 0);
+			offs += 6;
+		}
+		else if (command == 0x00e40020 || command == 0x00e40000)
+		{
+			layer = entry[4] == 0x6000;
+			clip.min_x = MIN(entry[6], 511);
+			clip.max_x = MIN(entry[8], 511);
+			clip.min_y = MIN(entry[7], 511);
+			clip.max_y = MIN(entry[9], 511);
+			offs += 10;
+		}
+		else if (!command)
+			++offs;
+		else
+		{
+			int x = entry[2] & 0x7ff;
+			int y = entry[3] & 0x3ff;
+			if (x & 0x400) x -= 0x800;
+			if (y & 0x200) y -= 0x400;
+			draw_sprite(layer ? background : foreground, &clip, command, x, y,
+				entry[4] & 0x1ff, entry[5] & 0xff);
+			offs += 6;
+		}
+	}
+	list_count = 0;
+	memset(sprite_list, 0, 0x20000);
+}
+
+static READ16_HANDLER( host_r )
 {
 	switch (offset)
 	{
-		case 0:
-		return littlerb_vdp_address_low;
-
-		case 1:
-		return littlerb_vdp_address_high;
-
+		case 0: return host_address_low;
+		case 1: return host_address_high;
 		case 2:
-		return 0; // data read? -- startup check expects 0 for something..
-
-		case 3:
-		return littlerb_vdp_writemode;
+			if ((host_address >> 3) == 0x1ff80804) return 0;
+			return video_byte(host_address >> 3) | (video_byte((host_address >> 3) + 1) << 8);
+		default: return host_control;
 	}
-
-	return -1;
 }
 
-WRITE16_HANDLER( littlerb_vdp_w )
+static WRITE16_HANDLER( host_w )
 {
+	UINT32 address;
 	switch (offset)
 	{
 		case 0:
-		littlerb_vdp_address_low = data;
-		littlerb_recalc_address();
-		break;
-
+			COMBINE_DATA(&host_address_low);
+			break;
 		case 1:
-		littlerb_vdp_address_high = data;
-		littlerb_recalc_address();
-		break;
-
-
-		case 2:
-		littlerb_data_write(data);
-		break;
-
+			COMBINE_DATA(&host_address_high);
+			break;
 		case 3:
-		littlerb_vdp_writemode = data;
-		break;
-
+			COMBINE_DATA(&host_control);
+			break;
+		case 2:
+			address = host_address >> 3;
+			if (host_control != 0x3800 && host_control != 0x2000 &&
+				host_control != 0xe000 && host_control != 0xf800)
+				return;
+			if (address < 0x400000)
+				COMBINE_DATA(&video_ram[address >> 1]);
+			else if (address >= 0x800000 && address <= 0x800005)
+				tlc34076_lsb_w((address - 0x800000) >> 1, data, mem_mask);
+			else if (address == 0x1ff80804)
+				draw_list();
+			else if (address == 0x1ff80806)
+			{
+				/* Leave room for the longest command when decoding the list. */
+				if (list_count < 0x10000 - 10)
+				{
+					COMBINE_DATA(&sprite_list[list_count]);
+					++list_count;
+				}
+			}
+			else if (address >= 0x1ff80000 && address <= 0x1fffffff)
+				COMBINE_DATA(&work_ram[(address >> 1) & 0x3ffff]);
+			if (host_control != 0x2000 && host_control != 0xe000 && address != 0x1ff80806)
+				host_address += 0x10;
+			host_address_low = host_address;
+			host_address_high = host_address >> 16;
+			return;
 	}
+	host_address = host_address_low | (host_address_high << 16);
+}
 
+static WRITE16_HANDLER( left_sound_w )
+{
+	sound_index[0] = data >> ((sound_frame % 16 == 0) ? 8 : 0);
+	sound_pointer[0] = 0;
+}
+
+static WRITE16_HANDLER( right_sound_w )
+{
+	sound_index[1] = data >> ((sound_frame % 16 == 0) ? 8 : 0);
+	sound_pointer[1] = 0;
+}
+
+static void sound_tick(int param)
+{
+	UINT8 *samples = memory_region(REGION_SOUND1);
+	DAC_signed_data_w(0, samples[0x40000 | (sound_index[0] << 10) | sound_pointer[0]]);
+	DAC_signed_data_w(1, samples[(sound_index[1] << 10) | sound_pointer[1]]);
+	sound_pointer[0] = (sound_pointer[0] + 1) & 0x3ff;
+	sound_pointer[1] = (sound_pointer[1] + 1) & 0x3ff;
+}
+
+static void sound_step(int param)
+{
+	++sound_frame;
+}
+
+static UINT32 frame_step_r(void *param)
+{
+	return sound_frame & 7;
 }
 
 static ADDRESS_MAP_START( littlerb_main, ADDRESS_SPACE_PROGRAM, 16 )
@@ -153,77 +199,64 @@ static ADDRESS_MAP_START( littlerb_main, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000070, 0x000073) AM_WRITENOP
 	AM_RANGE(0x060004, 0x060007) AM_WRITENOP
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM
-	AM_RANGE(0x200000, 0x203fff) AM_RAM // main ram?
+	AM_RANGE(0x200000, 0x203fff) AM_RAM
+	AM_RANGE(0x700000, 0x700007) AM_READWRITE(host_r, host_w)
+	AM_RANGE(0x740000, 0x740001) AM_WRITE(left_sound_w)
+	AM_RANGE(0x760000, 0x760001) AM_WRITE(right_sound_w)
+	AM_RANGE(0x780000, 0x780001) AM_WRITENOP
 	AM_RANGE(0x7c0000, 0x7c0001) AM_READ(input_port_0_word_r)
 	AM_RANGE(0x7e0000, 0x7e0001) AM_READ(input_port_1_word_r)
 	AM_RANGE(0x7e0002, 0x7e0003) AM_READ(input_port_2_word_r)
-	AM_RANGE(0x700000, 0x700007) AM_READ(littlerb_vdp_r) AM_WRITE(littlerb_vdp_w)
-	AM_RANGE(0x780000, 0x780001) AM_WRITE(MWA16_NOP)
-
-	/* below are fake.. just to see the data */
-	AM_RANGE(0xc00000, 0xc7ffff) AM_RAM AM_BASE(&littlerb_region1)
-	AM_RANGE(0xd00000, 0xd00fff) AM_RAM AM_BASE(&littlerb_region2)
-	AM_RANGE(0xe00000, 0xe0003f) AM_RAM AM_BASE(&littlerb_region3)
-	AM_RANGE(0xf00000, 0xf7ffff) AM_RAM AM_BASE(&littlerb_region4)
-
-
-
-
 ADDRESS_MAP_END
 
-
-INPUT_PORTS_START( littlerb )
-	PORT_START	/* 16bit */
-	PORT_DIPNAME( 0x0001, 0x0001, "1" )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+static INPUT_PORTS_START( littlerb )
+	PORT_START
+	PORT_DIPNAME( 0x0003, 0x0001, DEF_STR( Lives ) )
+	PORT_DIPSETTING(      0x0003, "2" )
+	PORT_DIPSETTING(      0x0001, "3" )
+	PORT_DIPSETTING(      0x0002, "4" )
+	PORT_DIPSETTING(      0x0000, "5" )
+	PORT_DIPNAME( 0x001c, 0x0004, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0018, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0014, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x000c, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x001c, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x00e0, 0x0020, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x00a0, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0060, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x00e0, DEF_STR( 1C_4C ) )
 	PORT_DIPNAME( 0x0100, 0x0100, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0200, 0x0200, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0200, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x4000, 0x4000, "GAME/TEST??" ) // changes what gets uploaded
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0600, 0x0600, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(      0x0600, "Every 150,000" )
+	PORT_DIPSETTING(      0x0200, "Every 200,000" )
+	PORT_DIPSETTING(      0x0400, "Every 300,000" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( None ) )
+	PORT_DIPNAME( 0x3800, 0x2800, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x3800, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x1800, "Medium Easy" )
+	PORT_DIPSETTING(      0x2800, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0800, "Medium Hard" )
+	PORT_DIPSETTING(      0x3000, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( Harder ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Very_Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_SERVICE( 0x4000, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( On ) )
 
-	PORT_START	/* 16bit */
+	PORT_START
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
@@ -239,11 +272,9 @@ INPUT_PORTS_START( littlerb )
 	PORT_DIPNAME( 0x1000, 0x1000, "???"  )
 	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0xe000, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(frame_step_r, 0)
 
-	PORT_START	/* 16bit */
+	PORT_START
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
@@ -255,114 +286,69 @@ INPUT_PORTS_START( littlerb )
 	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
-PALETTE_INIT( littlerb )
+static VIDEO_START( littlerb )
 {
-	int i;
-	for(i = 0; i < 256; i++)
-		palette_set_color(i,i,i,i);
-}
-
-VIDEO_START(littlerb)
-{
-
-//  littlerb_region1 = auto_malloc(0x40000*2);
-//  littlerb_region2 = auto_malloc(0x800*2);
-//  littlerb_region3 = auto_malloc(0x20*2);
-//  littlerb_region4 = auto_malloc(0x40000*2);
-
+	video_ram = auto_malloc(0x400000);
+	work_ram = auto_malloc(0x80000);
+	sprite_list = auto_malloc(0x20000);
+	foreground = auto_bitmap_alloc(512, 512);
+	background = auto_bitmap_alloc(512, 512);
 	return 0;
 }
 
-void littlerb_drawsprite(mame_bitmap *bitmap, int xsize,int ysize, int offset, int xpos, int ypos )
+static VIDEO_UPDATE( littlerb )
 {
-	UINT16* spritegfx = littlerb_region4;
-	int x,y;
-
-	for (y=0;y<ysize;y++)
-	{
-		for (x=0;x<xsize;x++)
-		{
-			int drawxpos, drawypos;
-			UINT8 pix1 = spritegfx[offset]&0x0f;
-			UINT8 pix2 = (spritegfx[offset]>>8)&0x0f;
-			drawxpos = xpos+x*2;
-			drawypos = ypos+y;
-
-			if ((drawxpos < 320) && (drawypos < 256) && (drawxpos >= 0) && (drawypos >=0))
-			{
-				if(pix1&0xf) plot_pixel(bitmap,drawxpos,  drawypos, pix1);
-			}
-			drawxpos++;
-			if ((drawxpos < 320) && (drawypos < 256) && (drawxpos >= 0) && (drawypos >=0))
-			{
-				if(pix2&0xf) plot_pixel(bitmap,drawxpos,  drawypos, pix2);
-			}
-
-			offset++;
-
-			offset&=0x3ffff;
-		}
-	}
+	fillbitmap(bitmap, Machine->pens[0], cliprect);
+	copybitmap(bitmap, background, 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	copybitmap(bitmap, foreground, 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
 }
 
-VIDEO_UPDATE(littlerb)
+static MACHINE_RESET( littlerb )
 {
-	int x,y,offs, code;
-	int xsize,ysize;
-	UINT16* spriteregion = &littlerb_region4[0x400];
-	fillbitmap(bitmap, get_black_pen(), cliprect);
-
-	/* the spriteram format is something like this .. */
-	for (offs=0x26/2;offs<0xc00;offs+=6) // start at 00x26?
-	{
-		x = spriteregion[offs+2] & 0x01ff;
-		ysize = (spriteregion[offs+5] & 0x007f);
-		y = (spriteregion[offs+3] & 0x01ff); // 1?
-		xsize = (spriteregion[offs+4] & 0x007f)/2;
-
-		// the code seems to be the same address as the blitter writes
-		// e.g  ffc010000
-		code =  (spriteregion[offs+0] & 0xfff0)>>4;
-		code |=  (spriteregion[offs+1] & 0x003f)<<12;
-		littlerb_drawsprite(bitmap,xsize,ysize,code,x-8,y-16);
-	}
-
+	host_address_low = host_address_high = host_control = 0;
+	host_address = list_count = 0;
+	memset(video_ram, 0, 0x400000);
+	memset(work_ram, 0, 0x80000);
+	memset(sprite_list, 0, 0x20000);
+	fillbitmap(foreground, 0, 0);
+	fillbitmap(background, 0, 0);
+	sound_frame = 0;
+	memset(sound_index, 0, sizeof(sound_index));
+	memset(sound_pointer, 0, sizeof(sound_pointer));
+	tlc34076_reset(8);
+	/* Sample selection advances at 50 Hz independently of screen refresh. */
+	timer_pulse(TIME_IN_HZ(7500), 0, sound_tick);
+	timer_pulse(TIME_IN_HZ(50), 0, sound_step);
 }
 
 static MACHINE_DRIVER_START( littlerb )
 	MDRV_CPU_ADD(M68000, 12000000)
 	MDRV_CPU_PROGRAM_MAP(littlerb_main, 0)
-	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
-
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-
+	MDRV_CPU_VBLANK_INT(irq4_line_hold, 1)
+	MDRV_MACHINE_RESET(littlerb)
+	MDRV_FRAMES_PER_SECOND(50)
+	MDRV_VBLANK_DURATION(0)
+	MDRV_SCREEN_SIZE(512, 288)
+	MDRV_VISIBLE_AREA(0, 335, 0, 287)
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(512, 256)
-	MDRV_VISIBLE_AREA(0*8, 320-1, 0*8, 256-1)
-
 	MDRV_PALETTE_LENGTH(256)
-
-//  MDRV_PALETTE_INIT(littlerb)
-	MDRV_VIDEO_START(generic_bitmapped)
+	MDRV_VIDEO_START(littlerb)
 	MDRV_VIDEO_UPDATE(littlerb)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
 MACHINE_DRIVER_END
 
-DRIVER_INIT ( littlerb )
-{
-//  data_type38 = auto_malloc(0x100000);
-
-}
-
 ROM_START( littlerb )
-	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* 68000 Code */
-	ROM_LOAD16_BYTE( "roma.u53", 0x00001, 0x80000, CRC(172fbc13) SHA1(cd165ca0d0546e2634cf182dc98004cbfb02cf9f) )
-	ROM_LOAD16_BYTE( "romb.u29", 0x00000, 0x80000, CRC(b2fb1d61) SHA1(9a9d7176c241928d07af651e5f7f21d4f019701d) )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "tch_1.u53", 0x00001, 0x80000, CRC(172fbc13) SHA1(cd165ca0d0546e2634cf182dc98004cbfb02cf9f) )
+	ROM_LOAD16_BYTE( "tch_2.u29", 0x00000, 0x80000, CRC(b2fb1d61) SHA1(9a9d7176c241928d07af651e5f7f21d4f019701d) )
 
-		ROM_REGION( 0x80000, REGION_SOUND1, 0 ) /* sound samples */
-	ROM_LOAD16_BYTE( "romc.u26", 0x00001, 0x40000, CRC(f193c5b6) SHA1(95548a40e2b5064c558b36cabbf507d23678b1b2) )
-	ROM_LOAD16_BYTE( "romd.u32", 0x00000, 0x40000, CRC(d6b81583) SHA1(b7a63d18a41ccac4d3db9211de0b0cdbc914317a) )
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "tch_3.u26", 0x40000, 0x40000, CRC(f193c5b6) SHA1(95548a40e2b5064c558b36cabbf507d23678b1b2) )
+	ROM_LOAD( "tch_4.u32", 0x00000, 0x40000, CRC(d6b81583) SHA1(b7a63d18a41ccac4d3db9211de0b0cdbc914317a) )
 ROM_END
 
-
-GAME( 1993, littlerb, 0, littlerb, littlerb, 0, ROT0, "TCH", "Little Robin", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1994, littlerb, 0, littlerb, littlerb, 0, ROT0, "TCH", "Little Robin", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
