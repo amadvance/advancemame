@@ -658,6 +658,7 @@ $(OBJ)/edevices.a: \
 	$(OBJ)/drivers/fantland.o $(OBJ)/vidhrdw/fantland.o \
 	$(OBJ)/drivers/mwarr.o \
 	$(OBJ)/drivers/mugsmash.o $(OBJ)/vidhrdw/mugsmash.o \
+	$(OBJ)/drivers/pzletime.o \
 	$(OBJ)/drivers/stlforce.o $(OBJ)/vidhrdw/stlforce.o \
 	$(OBJ)/drivers/ppmast93.o \
 	$(OBJ)/drivers/twins.o \
