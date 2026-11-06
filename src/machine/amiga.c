@@ -24,6 +24,7 @@
 
 #define LOG_CUSTOM	0
 #define LOG_CIA		0
+#define BLITTER_NASTY_DELAY	16
 #define LOG_BLITS	0
 
 
@@ -165,7 +166,9 @@ const char *amiga_custom_names[0x100] =
  *************************************/
 
 static mame_timer *amiga_irq_timer;
+static mame_timer *amiga_blitter_timer;
 static void amiga_irq_delayed(int param);
+static void blitter_proc(int param);
 static void custom_reset(void);
 static void autoconfig_reset(void);
 static void amiga_cia_0_irq(int state);
@@ -185,6 +188,7 @@ void amiga_machine_config(const amiga_machine_interface *intf)
 
 	amiga_intf = intf;
 	amiga_irq_timer = timer_alloc(amiga_irq_delayed);
+	amiga_blitter_timer = timer_alloc(blitter_proc);
 
 	/* set up CIA interfaces */
 	memset(&cia_intf, 0, sizeof(cia_intf));
@@ -228,6 +232,7 @@ MACHINE_RESET( amiga )
 	cpunum_set_info_fct(0, CPUINFO_PTR_M68K_RESET_CALLBACK, (genf *)amiga_m68k_reset);
 
 	timer_adjust(amiga_irq_timer, TIME_NEVER, 0, 0);
+	timer_adjust(amiga_blitter_timer, TIME_NEVER, 0, 0);
 	/* Initialize the various chips */
 	cia_reset();
 	custom_reset();
@@ -889,13 +894,16 @@ static void blitter_proc(int param)
 
 static void blitter_setup(void)
 {
-	int ticks, width, height;
+	int ticks, width, height, blittime;
 
 	/* is there another blitting in progress? */
 	if (CUSTOM_REG(REG_DMACON) & 0x4000)
 	{
-		logerror("This program is playing tricks with the blitter\n" );
-		return;
+		/* the blitter is emulated faster than a real one, but programs may still */
+		/* start a new blit while the previous one is pending: dropping the new one */
+		/* corrupts the graphics, so complete the pending one first */
+		timer_adjust(amiga_blitter_timer, TIME_NEVER, 0, 0);
+		blitter_proc(0);
 	}
 
 	/* line mode is 8 ticks/pixel */
@@ -924,8 +932,17 @@ static void blitter_setup(void)
 	if (height == 0)
 		height = 0x400;
 
+	/* if blitter-nasty is set, the blitter takes over the bus: make the blit semi-immediate */
+	blittime = ticks * width * height;
+	if (CUSTOM_REG(REG_DMACON) & 0x0400)
+	{
+		/* simulate the 68k not running while the blit is going */
+		activecpu_adjust_icount(-(blittime / 2));
+		blittime = BLITTER_NASTY_DELAY;
+	}
+
 	/* set a timer */
-	timer_set((double)(ticks * width * height) * TIME_IN_HZ(Machine->drv->cpu[0].cpu_clock), 0, blitter_proc);
+	timer_adjust(amiga_blitter_timer, (double)blittime * TIME_IN_HZ(Machine->drv->cpu[0].cpu_clock), 0, 0);
 
 	/* signal blitter busy */
  	CUSTOM_REG(REG_DMACON) |= 0x4000;
@@ -1207,6 +1224,10 @@ WRITE16_HANDLER( amiga_custom_w )
 			/* bits BBUSY (14) and BZERO (13) are read-only */
 			data &= 0x9fff;
 			data = (data & 0x8000) ? (CUSTOM_REG(offset) | (data & 0x7fff)) : (CUSTOM_REG(offset) & ~(data & 0x7fff));
+
+			/* if blitter-nasty has been turned on and we have a blit pending, reschedule it */
+			if ((data & 0x0400) && (CUSTOM_REG(offset) & 0x4000))
+				timer_adjust(amiga_blitter_timer, (double)BLITTER_NASTY_DELAY * TIME_IN_HZ(Machine->drv->cpu[0].cpu_clock), 0, 0);
 			break;
 
 		case REG_INTENA:
