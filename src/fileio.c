@@ -1410,3 +1410,55 @@ UINT64 chd_length_cb(chd_interface_file *file)
 {
 	return mame_fsize((mame_file *)file);
 }
+
+/* Open an artwork member in one specific directory or archive.
+ * Use an exact ZIP member path, not the basename/CRC fallback normally used
+ * for ROM sets. Returns a regular mame_file usable by the PNG/XML loaders. */
+mame_file *mame_fopen_artwork_member(int path_index, const char *game,
+                                    int zipped, const char *member)
+{
+    mame_file *result = NULL;
+    char name[1024];
+    osd_file_error error;
+    size_t n = strlen(game), m = strlen(member);
+    if (n + m + 3 >= sizeof(name)) return NULL;
+    if (path_index < 0 || path_index >= osd_get_path_count(FILETYPE_ARTWORK)) return NULL;
+    result = (mame_file *)calloc(1, sizeof(*result));
+    if (!result) return NULL;
+    result->back_char = EOF;
+    if (!zipped) {
+        sprintf(name, "%s/%s", game, member);
+        result->file = osd_fopen(FILETYPE_ARTWORK, path_index, name, "rb", &error);
+        if (result->file) {
+            result->type = PLAIN_FILE;
+            return result;
+        }
+    } else {
+        zip_file *zip;
+        zip_entry *entry;
+        sprintf(name, "%s.zip", game);
+        zip = openzip(FILETYPE_ARTWORK, path_index, name);
+        if (zip) {
+            while ((entry = readzip(zip)) != NULL) {
+                /* Keep path components significant. */
+                if (!strcmp(entry->name, member)) {
+                    UINT32 size = entry->uncompressed_size;
+                    UINT8 *data = (UINT8 *)malloc(size ? size : 1);
+                    if (data && !readuncompresszip(zip, entry, (char *)data)) {
+                        result->data = data;
+                        result->length = size;
+                        result->type = ZIPPED_FILE;
+                        closezip(zip);
+                        return result;
+                    }
+                    free(data);
+                    break;
+                }
+            }
+            closezip(zip);
+        }
+    }
+    free(result);
+    return NULL;
+}
+

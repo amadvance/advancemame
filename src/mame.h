@@ -218,6 +218,7 @@ struct _global_options
 	int		use_artwork;	/* bitfield indicating which artwork pieces to use */
 	int		artwork_res;	/* 1 for 1x game scaling, 2 for 2x */
 	int		artwork_crop;	/* 1 to crop artwork to the game screen */
+	const char *artwork_view; /* auto, none, or exact .lay view name */
 
 	const char * savegame;	/* string representing a savegame to load; if one length then interpreted as a character */
 	int		auto_save;		/* 1 to automatically save/restore at startup/quitting time */

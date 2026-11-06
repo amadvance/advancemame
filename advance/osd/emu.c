@@ -326,8 +326,6 @@ static adv_conf_conv STANDARD[] = {
 	{ "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
 	{ "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
 	{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
-/* 0.62.3 */
-	{ "*", "display_artwork", "*", "%s", "display_artwork_backdrop", "%s", 0 }, /* rename */
 /* 0.68.0 */
 	{ "*", "display_magnify", "yes", "%s", "%s", "2", 0 }, /* rename */
 	{ "*", "display_magnify", "no", "%s", "%s", "1", 0 }, /* rename */

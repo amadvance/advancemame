@@ -1190,6 +1190,24 @@ Configuration
 		no - Doesn't display the artwork (default for
 			bezel).
 
+    display_artwork_view
+	Selects an external MAME layout view.  The only supported layout file
+	is default.lay in the artwork game directory or ZIP archive.
+
+	:display_artwork_view auto | none | "view name"
+
+	auto - Prefer single-screen views with artwork, then single-screen
+		without artwork; multi-screen views are fallbacks (only the
+		first screen is drawn).
+	none - Disable external artwork and built-in driver overlays.
+	view name - Select a named view, for example "Upright Artwork" or
+		"Screen Only".  Selecting Screen Only explicitly also
+		disables built-in driver overlays.
+
+	Artwork is searched in dir_artwork for the game and its parents.
+	Only PNG and JPEG artwork images are supported; old .art files are not.
+	Layout errors are reported on the console only.
+
     display_artwork_magnify
 	Scales the artwork by the specified factor to use a bigger screen
 	resolution than the one originally used by the game.

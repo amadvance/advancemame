@@ -91,6 +91,7 @@ struct mame_option {
 	adv_bool artwork_bezel_flag;
 	adv_bool artwork_crop_flag;
 	int artwork_scale;
+	char artwork_view_buffer[MAME_MAXPATH];
 
 	char savegame_file_buffer[MAME_MAXPATH];
 	char language_file_buffer[MAME_MAXPATH];

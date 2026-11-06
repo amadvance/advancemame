@@ -17,6 +17,8 @@
 
 COREOBJS = \
 	$(OBJ)/artwork.o \
+	$(OBJ)/artwork_lay.o \
+	$(OBJ)/artwork_package.o \
 	$(OBJ)/audit.o \
 	$(OBJ)/cdrom.o \
 	$(OBJ)/chd.o \

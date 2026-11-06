@@ -844,6 +844,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (options.artwork_res == 0)
 		options.artwork_res = 2; /* auto is 2 */
 	options.artwork_crop = advance->artwork_crop_flag;
+#ifndef MESS
+	options.artwork_view = advance->artwork_view_buffer;
+#endif
 	if (advance->savegame_file_buffer[0] != 0)
 		options.savegame = advance->savegame_file_buffer;
 	else
@@ -3457,6 +3460,7 @@ adv_error mame_init(struct advance_context* context)
 	GLUE_PORT[j].desc = 0;
 	GLUE_PORT[j].port = 0;
 
+	conf_string_register_default(context->cfg, "display_artwork_view", "auto");
 	conf_bool_register_default(context->cfg, "display_artwork_backdrop", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_bezel", 0);
@@ -3499,6 +3503,13 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 {
 	char* s;
 	unsigned i, j;
+
+	const char *artwork_view = conf_string_get_default(cfg_context, "display_artwork_view");
+	if (strlen(artwork_view) >= sizeof(option->artwork_view_buffer)) {
+		printf("artwork: view name is too long\n");
+		return -1;
+	}
+	strcpy(option->artwork_view_buffer, artwork_view);
 
 	option->artwork_backdrop_flag = conf_bool_get_default(cfg_context, "display_artwork_backdrop");
 	option->artwork_overlay_flag = conf_bool_get_default(cfg_context, "display_artwork_overlay");
