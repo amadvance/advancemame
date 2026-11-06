@@ -162,7 +162,9 @@ typedef struct {
     char *DirtyColour, *DirtyName, *DirtyPattern;
 } TMS9928A;
 
-static TMS9928A tms;
+static TMS9928A tms_chip[2];
+static int tms_index;
+#define tms tms_chip[tms_index]
 
 /*
 ** initialize the palette
@@ -227,21 +229,21 @@ static int TMS9928A_start (const TMS9928a_interface *intf) {
     TMS9928A_reset ();
     tms.LimitSprites = 1;
 
-	state_save_register_item("tms9928a", 0, tms.Regs[0]);
-	state_save_register_item("tms9928a", 0, tms.Regs[1]);
-	state_save_register_item("tms9928a", 0, tms.Regs[2]);
-	state_save_register_item("tms9928a", 0, tms.Regs[3]);
-	state_save_register_item("tms9928a", 0, tms.Regs[4]);
-	state_save_register_item("tms9928a", 0, tms.Regs[5]);
-	state_save_register_item("tms9928a", 0, tms.Regs[6]);
-	state_save_register_item("tms9928a", 0, tms.Regs[7]);
-	state_save_register_item("tms9928a", 0, tms.StatusReg);
-	state_save_register_item("tms9928a", 0, tms.ReadAhead);
-	state_save_register_item("tms9928a", 0, tms.FirstByte);
-	state_save_register_item("tms9928a", 0, tms.latch);
-	state_save_register_item("tms9928a", 0, tms.Addr);
-	state_save_register_item("tms9928a", 0, tms.INT);
-	state_save_register_item_pointer("tms9928a", 0, tms.vMem, intf->vram);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[0]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[1]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[2]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[3]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[4]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[5]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[6]);
+	state_save_register_item("tms9928a", tms_index, tms.Regs[7]);
+	state_save_register_item("tms9928a", tms_index, tms.StatusReg);
+	state_save_register_item("tms9928a", tms_index, tms.ReadAhead);
+	state_save_register_item("tms9928a", tms_index, tms.FirstByte);
+	state_save_register_item("tms9928a", tms_index, tms.latch);
+	state_save_register_item("tms9928a", tms_index, tms.Addr);
+	state_save_register_item("tms9928a", tms_index, tms.INT);
+	state_save_register_item_pointer("tms9928a", tms_index, tms.vMem, intf->vram);
 
     return 0;
 }
@@ -941,4 +943,57 @@ void mdrv_tms9928a(machine_config *machine, const TMS9928a_interface *intf)
 
 	MDRV_VIDEO_START(TMS9928A_hack)
 	MDRV_VIDEO_UPDATE(tms9928a)
+}
+
+/* Each indexed operation restores chip zero for the original single-VDP API. */
+int TMS9928A_start_indexed(int index, const TMS9928a_interface *intf)
+{
+	int result;
+	tms_index = index;
+	result = TMS9928A_start(intf);
+	tms_index = 0;
+	return result;
+}
+
+void TMS9928A_reset_indexed(int index)
+{
+	tms_index = index;
+	TMS9928A_reset();
+	tms_index = 0;
+}
+
+int TMS9928A_read_indexed(int index, int reg)
+{
+	int result;
+	tms_index = index;
+	result = reg ? TMS9928A_register_r(0) : TMS9928A_vram_r(0);
+	tms_index = 0;
+	return result;
+}
+
+void TMS9928A_write_indexed(int index, int reg, UINT8 data)
+{
+	tms_index = index;
+	if (reg)
+		TMS9928A_register_w(0, data);
+	else
+		TMS9928A_vram_w(0, data);
+	tms_index = 0;
+}
+
+int TMS9928A_update_indexed(int index, mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	int backdrop;
+	tms_index = index;
+	video_update_tms9928a(0, bitmap, cliprect);
+	backdrop = tms.Regs[7] & 15;
+	tms_index = 0;
+	return backdrop;
+}
+
+void TMS9928A_interrupt_indexed(int index)
+{
+	tms_index = index;
+	TMS9928A_interrupt();
+	tms_index = 0;
 }

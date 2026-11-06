@@ -7209,6 +7209,9 @@ Other Sun games
 	DRIVER( cyclwarr )	/* (c) 1991 */
 	DRIVER( bigfight )	/* (c) 1992 */
 
+	/* E.F.O. */
+	DRIVER( nightmare )
+
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( mortalr )

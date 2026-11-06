@@ -274,6 +274,7 @@ DRVLIBS = \
 	$(OBJ)/dooyong.a \
 	$(OBJ)/dynax.a \
 	$(OBJ)/edevices.a \
+	$(OBJ)/efo.a \
 	$(OBJ)/eolith.a \
 	$(OBJ)/excelent.a \
 	$(OBJ)/exidy.a \
@@ -662,6 +663,10 @@ $(OBJ)/edevices.a: \
 	$(OBJ)/drivers/stlforce.o $(OBJ)/vidhrdw/stlforce.o \
 	$(OBJ)/drivers/ppmast93.o \
 	$(OBJ)/drivers/twins.o \
+
+$(OBJ)/efo.a: \
+	$(OBJ)/drivers/nightmare.o $(OBJ)/vidhrdw/tms9928a.o
+
 
 $(OBJ)/eolith.a: \
 	$(OBJ)/drivers/eolith.o $(OBJ)/vidhrdw/eolith.o $(OBJ)/sndhrdw/eolith.o \
