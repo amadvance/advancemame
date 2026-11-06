@@ -2,7 +2,7 @@
 // copyright-holders:Joseba Epalza,Andreas Naive
 /***************************************************************************
 
-Speed Ball map
+Speed Ball / Music Ball map
 
 driver by Joseba Epalza
 
@@ -111,7 +111,7 @@ ADDRESS_MAP_END
 
 
 INPUT_PORTS_START( speedbal )
-	PORT_START      /* DSW2 */
+	PORT_START_TAG("DSW2")      /* DSW2 */
 	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Bonus_Life ) )
 	PORT_DIPSETTING(    0x06, "70000 200000 1M" )
 	PORT_DIPSETTING(    0x07, "70000 200000" )
@@ -177,6 +177,21 @@ INPUT_PORTS_START( speedbal )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( musicbal )
+	PORT_INCLUDE(speedbal)
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x03, "1M 2M 2.5M" )
+	PORT_DIPSETTING(    0x06, "1.2M 1.8M 2.5M" )
+	PORT_DIPSETTING(    0x07, "1.2M 1.8M" )
+	PORT_DIPSETTING(    0x04, "1.5M 2M" )
+	PORT_DIPSETTING(    0x05, "1.5M" )
+	PORT_DIPSETTING(    0x01, "1.8M 2.5M" )
+	PORT_DIPSETTING(    0x02, "1.8M" )
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
 INPUT_PORTS_END
 
 
@@ -292,4 +307,49 @@ ROM_START( speedbal )
 ROM_END
 
 
+ROM_START( musicbal )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "01.bin",  0x0000,  0x8000, CRC(412298a2) SHA1(3c3247b466880cd78dd7f7f73911f475352c15df) )
+	ROM_LOAD( "03.bin",  0x8000,  0x8000, CRC(fdf14446) SHA1(9e52810ebc2b18d83f349fb78884b3c380d93903) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "02.bin",  0x0000,  0x8000, CRC(b7d3840d) SHA1(825289c3ca51284a47cfc4937a18d098183c396a) )
+
+	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "10.bin",  0x00000, 0x08000, CRC(5afd3c42) SHA1(5b9a44ef03e5519c9601bb636eb26768cf800278) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "09.bin",  0x00000, 0x08000, CRC(dcde4233) SHA1(99f204ddc97ee45330ea3cb0bc2971cd95f8e1ac) )
+	ROM_LOAD( "05.bin",  0x08000, 0x08000, CRC(e1eec437) SHA1(ce77f3bb01db80ec69da9639d193d8656f9c6692) )
+	ROM_LOAD( "08.bin",  0x10000, 0x08000, CRC(7e7af52b) SHA1(3bb1c5abfb1fe53f01520e93124708df6750d8b5) )
+	ROM_LOAD( "04.bin",  0x18000, 0x08000, CRC(bf931a33) SHA1(b2ab5c6103af0e0508f08fd58b425e5acfe9ef8a) )
+
+	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_INVERT | ROMREGION_DISPOSE )
+	ROM_LOAD( "07.bin",  0x00000, 0x08000, CRC(310e1e23) SHA1(290f3e1c7b907165fe60a4ebe7a8b04b2451b3b1) )
+	ROM_LOAD( "06.bin",  0x08000, 0x08000, CRC(2e7772f8) SHA1(caded1a72356501282e627e23718c30cb8f09370) )
+ROM_END
+
+static DRIVER_INIT( musicbal )
+{
+	UINT8 *rom = memory_region(REGION_CPU1);
+	static const UINT8 xor_table[8] = { 0x05, 0x06, 0x84, 0x84, 0x00, 0x87, 0x84, 0x84 };
+	static const int swap_table[4][4] =
+	{
+		{ 1, 0, 7, 2 },
+		{ 2, 7, 0, 1 },
+		{ 7, 2, 1, 0 },
+		{ 0, 2, 1, 7 }
+	};
+	int i;
+
+	/* Address lines select the data permutation only in the first program ROM. */
+	for (i = 0; i < 0x8000; ++i)
+	{
+		int index = BIT(i, 3) | (BIT(i, 5) << 1) | (BIT(i, 9) << 2);
+		const int *swap = swap_table[xor_table[index] & 3];
+		rom[i] = BITSWAP8(rom[i], swap[3], 6, 5, 4, 3, swap[2], swap[1], swap[0]) ^ xor_table[index];
+	}
+}
+
 GAME( 1987, speedbal, 0, speedbal, speedbal, 0, ROT270, "Tecfri", "Speed Ball", 0 )
+GAME( 1988, musicbal, 0, speedbal, musicbal, musicbal, ROT270, "Tecfri / Desystem S.A.", "Music Ball", 0 )
