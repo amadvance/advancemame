@@ -77,6 +77,7 @@ void samples_get_info(void *token, UINT32 state, sndinfo *info);
 void dac_get_info(void *token, UINT32 state, sndinfo *info);
 void dmadac_get_info(void *token, UINT32 state, sndinfo *info);
 void discrete_get_info(void *token, UINT32 state, sndinfo *info);
+void cdp1869_get_info(void *token, UINT32 state, sndinfo *info);
 void ay8910_get_info(void *token, UINT32 state, sndinfo *info);
 void ym2203_get_info(void *token, UINT32 state, sndinfo *info);
 void ym2151_get_info(void *token, UINT32 state, sndinfo *info);
@@ -191,6 +192,9 @@ static const struct
 #endif
 #if (HAS_DISCRETE)
 	{ SOUND_DISCRETE, discrete_get_info },
+#endif
+#if (HAS_CDP1869)
+	{ SOUND_CDP1869, cdp1869_get_info },
 #endif
 #if (HAS_AY8910)
 	{ SOUND_AY8910, ay8910_get_info },

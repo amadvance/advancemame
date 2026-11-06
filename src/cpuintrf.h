@@ -204,6 +204,10 @@ enum
 	CPU_TMS32015,
 	/* Keep existing CPU identifiers stable for other drivers. */
 	CPU_I86_16,
+#ifndef MESS
+	CPU_CDP1802,
+#endif
+	CPU_COP420,
     CPU_COUNT
 };
 

@@ -177,9 +177,11 @@ void tmp91640_get_info(UINT32 state, union cpuinfo *info);
 void tmp91641_get_info(UINT32 state, union cpuinfo *info);
 void mb86233_get_info(UINT32 state, union cpuinfo *info);
 
+void cdp1802_get_info(UINT32 state, union cpuinfo *info);
+void cop420_get_info(UINT32 state, union cpuinfo *info);
+
 #ifdef MESS
 void apexc_get_info(UINT32 state, union cpuinfo *info);
-void cdp1802_get_info(UINT32 state, union cpuinfo *info);
 void cp1610_get_info(UINT32 state, union cpuinfo *info);
 void f8_get_info(UINT32 state, union cpuinfo *info);
 void lh5801_get_info(UINT32 state, union cpuinfo *info);
@@ -711,12 +713,16 @@ static const struct
 	{ CPU_MB86233, mb86233_get_info },
 #endif
 
+#if (HAS_CDP1802)
+	{ CPU_CDP1802, cdp1802_get_info },
+#endif
+#if (HAS_COP420)
+	{ CPU_COP420, cop420_get_info },
+#endif
+
 #ifdef MESS
 #if (HAS_APEXC)
 	{ CPU_APEXC, apexc_get_info },
-#endif
-#if (HAS_CDP1802)
-	{ CPU_CDP1802, cdp1802_get_info },
 #endif
 #if (HAS_CP1610)
 	{ CPU_CP1610, cp1610_get_info },
