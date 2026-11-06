@@ -5,6 +5,9 @@ family_compare.py - Compare game families between AdvanceMAME and MAME.
 This tool executes 'advmame -listxml' and 'mame -listxml' found in PATH,
 streaming their XML outputs directly via pipes in O(1) memory to compare game
 families across emulator generations (MAME 0.106 baseline vs modern MAME).
+MAME machines are automatically filtered using 'support/external/catver.ini' and
+arcade heuristics (excluding isdevice, isbios, ismechanical, non-runnables, and
+preliminary status drivers) to focus strictly on working arcade games.
 
 It identifies sets by their "Key ROM" (largest dumped ROM by size, breaking ties
 with the lowest hexadecimal CRC) to accurately track:
@@ -107,6 +110,7 @@ class GameInfo:
         "name",
         "sourcefile",
         "description",
+        "category",
         "cloneof",
         "romof",
         "key_rom",
@@ -115,10 +119,11 @@ class GameInfo:
         "rom_hashes",
     )
 
-    def __init__(self, name, sourcefile, description, cloneof, romof, key_rom, rom_count, total_rom_size, rom_hashes):
+    def __init__(self, name, sourcefile, description, category, cloneof, romof, key_rom, rom_count, total_rom_size, rom_hashes):
         self.name = name
         self.sourcefile = sourcefile
         self.description = description
+        self.category = category
         self.cloneof = cloneof
         self.romof = romof
         self.key_rom = key_rom  # (size, crc_lower) or None
@@ -127,7 +132,101 @@ class GameInfo:
         self.rom_hashes = rom_hashes  # set of (size, crc_lower)
 
 
-def parse_listxml_stream(cmd, is_advmame=False):
+NON_ARCADE_CATEGORIES = {
+    "Slot Machine",
+    "System",
+    "Electromechanical",
+    "Computer",
+    "Computer Graphic Workstation",
+    "Gambling",
+    "Handheld",
+    "Tabletop",
+    "Game Console",
+    "Board Game",
+    "Quiz",
+    "Musical Instrument",
+    "Musical Instrument Accessory",
+    "Medal Game",
+    "Utilities",
+    "Calculator",
+    "Redemption Game",
+    "Telephone",
+    "Whac-A-Mole",
+    "Music Player",
+    "Printer",
+    "Player",
+    "Touchscreen",
+    "Card Games",
+    "Tablet",
+    "Watch",
+    "Casino",
+    "Medical Equipment",
+    "Non Arcade",
+    "Digital Camera",
+    "Robot",
+    "Road Indicator",
+    "Radio",
+    "Luna Park",
+    "Digital Simulator",
+    "TV Bundle",
+    "TTL * Quiz",
+    "Misc.",
+}
+
+
+def load_catver_dict(ini_path=None):
+    """
+    Load mapping {shortname: category} from catver.ini (or category.ini fallback).
+    """
+    candidates = []
+    if ini_path:
+        candidates.append(ini_path)
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates.extend([
+        os.path.join(script_dir, "external", "catver.ini"),
+        os.path.join(script_dir, "catver.ini"),
+        os.path.join(script_dir, "category.ini"),
+    ])
+
+    found_path = None
+    for c in candidates:
+        if os.path.isfile(c):
+            found_path = c
+            break
+
+    if not found_path:
+        sys.stderr.write("WARNING: No catver.ini found. Categories and arcade filtering will be disabled.\n")
+        return {}
+
+    mapping = {}
+    with open(found_path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith(";") or line.startswith("#") or line.startswith("["):
+                continue
+            if "=" in line:
+                k, v = line.split("=", 1)
+                mapping[k.strip()] = v.strip()
+
+    # Also load support/category.ini as fallback for any custom sets not in catver.ini
+    cat_fallback = os.path.join(script_dir, "category.ini")
+    if os.path.isfile(cat_fallback) and cat_fallback != found_path:
+        with open(cat_fallback, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith(";") or line.startswith("#") or line.startswith("["):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    if k not in mapping:
+                        mapping[k] = v.strip()
+
+    return mapping
+
+
+def parse_listxml_stream(cmd, is_advmame=False, catver=None):
     """
     Executes command via subprocess and parses XML stream with iterparse in O(1) memory.
     Returns dictionary: {shortname: GameInfo}.
@@ -144,15 +243,37 @@ def parse_listxml_stream(cmd, is_advmame=False):
 
         for event, elem in context:
             if event == "end" and elem.tag == target_tag:
-                # In modern MAME, discard hardware device nodes that are not games/machines
-                if not is_advmame and elem.attrib.get("isdevice") == "yes":
-                    root.clear()
-                    continue
+                # In modern MAME, discard devices, BIOS, mechanical, non-runnables, and preliminary drivers
+                if not is_advmame:
+                    if elem.attrib.get("isdevice") == "yes":
+                        root.clear()
+                        continue
+                    if elem.attrib.get("isbios") == "yes":
+                        root.clear()
+                        continue
+                    if elem.attrib.get("ismechanical") == "yes":
+                        root.clear()
+                        continue
+                    if elem.attrib.get("runnable") == "no":
+                        root.clear()
+                        continue
+
+                    drv = elem.find("driver")
+                    if drv is not None and drv.attrib.get("status") == "preliminary":
+                        root.clear()
+                        continue
 
                 name = elem.attrib.get("name")
                 if not name:
                     root.clear()
                     continue
+
+                category = catver.get(name, "") if catver else ""
+                if not is_advmame and category:
+                    top_cat = category.split("/")[0].strip()
+                    if top_cat in NON_ARCADE_CATEGORIES:
+                        root.clear()
+                        continue
 
                 sourcefile = elem.attrib.get("sourcefile", "").strip()
                 cloneof = elem.attrib.get("cloneof")
@@ -199,6 +320,7 @@ def parse_listxml_stream(cmd, is_advmame=False):
                     name=name,
                     sourcefile=sourcefile,
                     description=description,
+                    category=category,
                     cloneof=cloneof,
                     romof=romof,
                     key_rom=key_rom,
@@ -305,19 +427,24 @@ def main():
     print(f"    AdvanceMAME : {advmame_bin}")
     print(f"    MAME        : {mame_bin}\n")
 
+    # Load game categories from catver.ini (with category.ini fallback)
+    catver = load_catver_dict()
+    if catver:
+        print(f"[*] Loaded {len(catver):,} game categories from catver.ini.\n")
+
     # 1. Parsing AdvanceMAME
     print("[1/4] Running 'advmame -listxml' in streaming...", flush=True)
     t0 = time.time()
-    adv_games = parse_listxml_stream([advmame_bin, "-listxml"], is_advmame=True)
+    adv_games = parse_listxml_stream([advmame_bin, "-listxml"], is_advmame=True, catver=catver)
     t_adv = time.time() - t0
     print(f"      -> {len(adv_games):,} games parsed in {t_adv:.2f}s.\n", flush=True)
 
     # 2. Parsing MAME
-    print("[2/4] Running 'mame -listxml' in streaming (may take around one minute)...", flush=True)
+    print("[2/4] Running 'mame -listxml' in streaming (filtered by catver.ini and arcade heuristics)...", flush=True)
     t0 = time.time()
-    mame_games = parse_listxml_stream([mame_bin, "-listxml"], is_advmame=False)
+    mame_games = parse_listxml_stream([mame_bin, "-listxml"], is_advmame=False, catver=catver)
     t_mame = time.time() - t0
-    print(f"      -> {len(mame_games):,} machines/games parsed in {t_mame:.2f}s.\n", flush=True)
+    print(f"      -> {len(mame_games):,} arcade machines parsed in {t_mame:.2f}s.\n", flush=True)
 
     # 3. Grouping families
     print("[3/4] Grouping and indexing game families...", flush=True)
@@ -693,13 +820,15 @@ def main():
                 print(fam_header)
                 print("=" * len(fam_header))
 
-                print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description})")
+                adv_cat = f" [{f['adv_p_info'].category}]" if f['adv_p_info'].category else ""
+                print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description}){adv_cat}")
                 print(f"Source AdvanceMAME : {', '.join(f['adv_sources']) if f['adv_sources'] else 'N/A'}")
                 print(f"  [!] Present only in AdvanceMAME (absent in MAME).")
                 if f["clones"]:
                     print(f"  [*] Clones in AdvanceMAME ({len(f['clones'])}):")
                     for a_c in f["clones"]:
-                        print(f"      - '{a_c}': {adv_games[a_c].description}")
+                        a_cat = f" [{adv_games[a_c].category}]" if adv_games[a_c].category else ""
+                        print(f"      - '{a_c}': {adv_games[a_c].description}{a_cat}")
                 print()
                 continue
 
@@ -708,8 +837,10 @@ def main():
             print(fam_header)
             print("=" * len(fam_header))
 
-            print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description})")
-            print(f"Parent MAME        : {f['mame_p_name']} ({f['mame_p_info'].description})")
+            adv_cat = f" [{f['adv_p_info'].category}]" if f['adv_p_info'].category else ""
+            mame_cat = f" [{f['mame_p_info'].category}]" if f['mame_p_info'].category else ""
+            print(f"Parent AdvanceMAME : {f['adv_p_name']} ({f['adv_p_info'].description}){adv_cat}")
+            print(f"Parent MAME        : {f['mame_p_name']} ({f['mame_p_info'].description}){mame_cat}")
             print(f"Source AdvanceMAME : {', '.join(f['adv_sources']) if f['adv_sources'] else 'N/A'}")
             print(f"Source MAME        : {', '.join(f['mame_sources']) if f['mame_sources'] else 'N/A'}")
 
@@ -726,23 +857,26 @@ def main():
             if f["renamed_clones"]:
                 print(f"  [*] Renamed Clones ({len(f['renamed_clones'])}):")
                 for a_c, m_c in f["renamed_clones"]:
-                    print(f"      - AdvanceMAME '{a_c}' -> MAME '{m_c}' (same Key ROM)")
+                    m_cat = f" [{mame_games[m_c].category}]" if mame_games[m_c].category else ""
+                    print(f"      - AdvanceMAME '{a_c}' -> MAME '{m_c}' (same Key ROM){m_cat}")
 
             if f["removed_clones"]:
                 print(f"  [-] Clones absent in MAME ({len(f['removed_clones'])}):")
                 for a_c in sorted(f["removed_clones"]):
                     desc = adv_games[a_c].description
+                    a_cat = f" [{adv_games[a_c].category}]" if adv_games[a_c].category else ""
                     m_other_fam = mame_g2f.get(a_c)
                     if m_other_fam:
-                        print(f"      - '{a_c}': moved to MAME family '{m_other_fam}' ({desc})")
+                        print(f"      - '{a_c}': moved to MAME family '{m_other_fam}' ({desc}){a_cat}")
                     else:
-                        print(f"      - '{a_c}': {desc}")
+                        print(f"      - '{a_c}': {desc}{a_cat}")
 
             if f["added_clones"]:
                 print(f"  [+] New clones in MAME ({len(f['added_clones'])}):")
                 for m_c in sorted(f["added_clones"]):
                     desc = mame_games[m_c].description
-                    print(f"      - '{m_c}': {desc}")
+                    m_cat = f" [{mame_games[m_c].category}]" if mame_games[m_c].category else ""
+                    print(f"      - '{m_c}': {desc}{m_cat}")
 
             if not f["has_differences"]:
                 print("  [OK] Family 100% identical (same parent, same ROMs, same clones).")
@@ -768,27 +902,31 @@ def main():
                     print("=" * len(fam_header))
                     print(fam_header)
                     print("=" * len(fam_header))
-                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description})")
+                    mame_cat = f" [{item['mame_p_info'].category}]" if item['mame_p_info'].category else ""
+                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description}){mame_cat}")
                     print(f"Source MAME        : {', '.join(item['mame_sources']) if item['mame_sources'] else 'N/A'}")
                     print(f"  [*] Origin       : Split from AdvanceMAME family: {', '.join(item['adv_orig_fams'])}")
                     print(f"  [*] Shared Games : {', '.join(item['shared'])}")
                     if item["clones"]:
                         print(f"  [*] Clones in MAME ({len(item['clones'])}):")
                         for m_c in item["clones"]:
-                            print(f"      - '{m_c}': {mame_games[m_c].description}")
+                            m_cat = f" [{mame_games[m_c].category}]" if mame_games[m_c].category else ""
+                            print(f"      - '{m_c}': {mame_games[m_c].description}{m_cat}")
                     print()
                 else:
                     fam_header = f"=== Family: MAME '{item['mame_p_name']}' [ONLY IN MAME] ==="
                     print("=" * len(fam_header))
                     print(fam_header)
                     print("=" * len(fam_header))
-                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description})")
+                    mame_cat = f" [{item['mame_p_info'].category}]" if item['mame_p_info'].category else ""
+                    print(f"Parent MAME        : {item['mame_p_name']} ({item['mame_p_info'].description}){mame_cat}")
                     print(f"Source MAME        : {', '.join(item['mame_sources']) if item['mame_sources'] else 'N/A'}")
                     print(f"  [!] Present only in MAME (absent in AdvanceMAME).")
                     if item["clones"]:
                         print(f"  [*] Clones in MAME ({len(item['clones'])}):")
                         for m_c in item["clones"]:
-                            print(f"      - '{m_c}': {mame_games[m_c].description}")
+                            m_cat = f" [{mame_games[m_c].category}]" if mame_games[m_c].category else ""
+                            print(f"      - '{m_c}': {mame_games[m_c].description}{m_cat}")
                     print()
 
     # Print final summary
