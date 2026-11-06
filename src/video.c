@@ -11,6 +11,7 @@
 #include "osdepend.h"
 #include "driver.h"
 #include "artwork.h"
+#include "artwork_lay.h"
 #include "profiler.h"
 #include "png.h"
 #include "vidhrdw/vector.h"
@@ -258,6 +259,7 @@ static void video_exit(void)
 
 	/* stop recording any movie */
 	record_movie_stop();
+	artwork_lay_close();
 
 	/* free all the graphics elements */
 	for (i = 0; i < MAX_GFX_ELEMENTS; i++)

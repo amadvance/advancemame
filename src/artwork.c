@@ -307,6 +307,8 @@
 #include "driver.h"
 #include "png.h"
 #include "artwork.h"
+#include "artwork_lay.h"
+#include <stdint.h>
 #include "profiler.h"
 #include "vidhrdw/vector.h"
 #include <ctype.h>
@@ -421,6 +423,7 @@ static int original_attributes;
 static UINT8 global_artwork_enable;
 
 static const artwork_overlay_piece *overlay_list;
+static UINT32 *lay_scaled_game;
 
 extern mame_bitmap *scrbitmap[];
 
@@ -433,14 +436,11 @@ extern mame_bitmap *scrbitmap[];
 ***************************************************************************/
 
 static int artwork_prep(void);
+static void render_lay_transformed_game(mame_bitmap *, const rgb_t *, mame_display *);
 static int artwork_load(const game_driver *gamename, int width, int height, const artwork_callbacks *callbacks);
 static int compute_rgb_components(int depth, UINT32 rgb_components[3], UINT32 rgb32_components[3]);
-static int load_bitmap(const char *gamename, artwork_piece *piece);
-static int load_alpha_bitmap(const char *gamename, artwork_piece *piece, const png_info *original);
 static int scale_bitmap(artwork_piece *piece, int newwidth, int newheight);
 static void trim_bitmap(artwork_piece *piece);
-static int parse_art_file(mame_file *file);
-static int validate_pieces(void);
 static void sort_pieces(void);
 static void update_palette_lookup(mame_display *display);
 static int update_layers(void);
@@ -604,6 +604,14 @@ INLINE UINT32 blend_over(UINT32 game, UINT32 pre, UINT32 yrgb)
     to osd_create_display
 -------------------------------------------------*/
 
+static void artwork_lay_exit(void)
+{
+	if (lay_scaled_game) {
+		free(lay_scaled_game);
+		lay_scaled_game = NULL;
+	}
+}
+
 int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, const artwork_callbacks *callbacks)
 {
 	int original_width = params->width;
@@ -621,9 +629,15 @@ int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, co
 	artwork_list = NULL;
 	if (!artwork_load(Machine->gamedrv, original_width, original_height, callbacks))
 		return 1;
-	if (!artwork_list && (!callbacks->activate_artwork || !callbacks->activate_artwork(params)))
+	if (!artwork_list && !artwork_lay_active() && (!callbacks->activate_artwork || !callbacks->activate_artwork(params)))
 		return osd_create_display(params, rgb_components);
 
+	/* .lay rotation precedes the final OSD monitor orientation. */
+	if (artwork_lay_screen_swapped()) {
+		int t=original_width;
+		original_width=original_height;original_height=t;
+		t=params->aspect_x;params->aspect_x=params->aspect_y;params->aspect_y=t;
+	}
 	/* determine the game bitmap scale factor */
 	gamescale = options.artwork_res;
 	if (gamescale < 1 || (params->video_attributes & VIDEO_TYPE_VECTOR))
@@ -635,14 +649,19 @@ int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, co
 	min_x = min_y = 0.0;
 	max_x = max_y = 1.0;
 	if (!options.artwork_crop)
+	{
+		artwork_lay_range range;
+		artwork_lay_extents(&range);
+		min_x = range.left; min_y = range.top;
+		max_x = range.right; max_y = range.bottom;
 		for (piece = artwork_list; piece; piece = piece->next)
 		{
-			/* compute the outermost bounds */
 			if (piece->left < min_x) min_x = piece->left;
 			if (piece->right > max_x) max_x = piece->right;
 			if (piece->top < min_y) min_y = piece->top;
 			if (piece->bottom > max_y) max_y = piece->bottom;
 		}
+	}
 
 	/* now compute the altered width/height and the new aspect ratio */
 	params->width = (int)((max_x - min_x) * (double)(original_width * gamescale) + 0.5);
@@ -726,6 +745,7 @@ int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, co
 	}
 
 	/* now do the final prep on the artwork */
+	add_exit_callback(artwork_lay_exit);
 	return artwork_prep();
 }
 
@@ -738,7 +758,7 @@ int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, co
 
 static int artwork_system_active(void)
 {
-	return artwork_list || uioverlay;
+	return artwork_list || artwork_lay_active() || uioverlay;
 }
 
 
@@ -756,18 +776,27 @@ void artwork_update_visible_area(mame_display *display)
 	int original_height = ( display->game_visible_area.max_y - display->game_visible_area.min_y ) + 1;
 
 	artwork_piece *piece;
+	if (artwork_lay_screen_swapped()) {
+		int t=original_width;
+		original_width=original_height;original_height=t;
+	}
 	/* compute the extent of all the artwork */
 	min_x = min_y = 0.0;
 	max_x = max_y = 1.0;
 	if (!options.artwork_crop)
+	{
+		artwork_lay_range range;
+		artwork_lay_extents(&range);
+		min_x = range.left; min_y = range.top;
+		max_x = range.right; max_y = range.bottom;
 		for (piece = artwork_list; piece; piece = piece->next)
 		{
-			/* compute the outermost bounds */
 			if (piece->left < min_x) min_x = piece->left;
 			if (piece->right > max_x) max_x = piece->right;
 			if (piece->top < min_y) min_y = piece->top;
 			if (piece->bottom > max_y) max_y = piece->bottom;
 		}
+	}
 
 	width = (int)((max_x - min_x) * (double)(original_width * gamescale) + 0.5);
 	height = (int)((max_y - min_y) * (double)(original_height * gamescale) + 0.5);
@@ -871,9 +900,21 @@ void artwork_update_video_and_audio(mame_display *display)
 		{
 			/* update the underlay and overlay */
 			artwork_changed = update_layers();
+			/* Reset pixels outside gamerect before repainting the scene. */
+			if (artwork_lay_has_backdrop()) {
+				int y;
+				erase_rect(underlay, &screenrect, 0);
+				artwork_lay_draw(underlay, LAY_BACK, rshift, gshift, bshift, ashift);
+				for (y = 0; y < final->height; ++y)
+					memcpy(final->line[y], underlay->line[y], (size_t)final->width * sizeof(UINT32));
+			} else if (artwork_lay_active()) {
+				erase_rect(final, &screenrect, 0);
+			}
 
 			/* render to the final bitmap */
-			if (num_underlays && num_overlays)
+			if (artwork_lay_screen_transformed())
+				render_lay_transformed_game(display->game_bitmap, palette_lookup, display);
+			else if (num_underlays && num_overlays)
 				render_game_bitmap_underlay_overlay(display->game_bitmap, palette_lookup, display);
 			else if (num_underlays)
 				render_game_bitmap_underlay(display->game_bitmap, palette_lookup, display);
@@ -881,6 +922,12 @@ void artwork_update_video_and_audio(mame_display *display)
 				render_game_bitmap_overlay(display->game_bitmap, palette_lookup, display);
 			else
 				render_game_bitmap(display->game_bitmap, palette_lookup, display);
+
+			/* Static .lay foreground items respect their view ordering. */
+			if (artwork_lay_active()) {
+				artwork_lay_draw(final, LAY_FRONT, rshift, gshift, bshift, ashift);
+				artwork_changed = 1;
+			}
 
 			/* apply the bezel */
 			if (num_bezels)
@@ -999,7 +1046,7 @@ void artwork_mark_ui_dirty(int minx, int miny, int maxx, int maxy)
 
 void artwork_get_screensize(int *width, int *height)
 {
-	if (artwork_list)
+	if (artwork_list || artwork_lay_active())
 	{
 		*width = screenrect.max_x - screenrect.min_x + 1;
 		*height = screenrect.max_y - screenrect.min_y + 1;
@@ -2107,21 +2154,9 @@ static void render_ui_overlay(mame_bitmap *bitmap, UINT32 *dirty, const rgb_t *p
 
 mame_file *artwork_load_artwork_file(const game_driver **driver)
 {
-	char filename[100];
-	mame_file *artfile = NULL;
-
-	while (*driver)
-	{
-		if ((*driver)->name)
-		{
-			sprintf(filename, "%s.art", (*driver)->name);
-			artfile = mame_fopen((*driver)->name, filename, FILETYPE_ARTWORK, 0);
-			if (artfile)
-				break;
-		}
-		*driver = driver_get_clone(*driver);
-	}
-	return artfile;
+    /* Retained only for ABI compatibility with the video callback table. */
+    (void)driver;
+    return NULL;
 }
 
 
@@ -2138,304 +2173,40 @@ mame_file *artwork_load_artwork_file(const game_driver **driver)
 
 static int artwork_load(const game_driver *driver, int width, int height, const artwork_callbacks *callbacks)
 {
-	const artwork_overlay_piece *list = overlay_list;
-	artwork_piece *piece;
-	mame_file *artfile;
-	int result;
+    const artwork_overlay_piece *built_in = overlay_list;
+    artwork_piece *piece;
+    const char *requested = options.artwork_view ? options.artwork_view : "auto";
+    (void)callbacks;
+    num_pieces = num_underlays = num_overlays = num_bezels = 0;
+    overlay_list = NULL;
+    artwork_list = NULL;
+    artwork_lay_close();
+    if (lay_scaled_game) {
+        free(lay_scaled_game);
+        lay_scaled_game = NULL;
+    }
 
-	/* reset the list of artwork */
-	num_pieces = 0;
-	num_underlays = 0;
-	num_overlays = 0;
-	num_bezels = 0;
-	overlay_list = NULL;
+    if (!strcmp(requested, "none")) return 1;
+    if (!options.use_artwork) return 1;
 
-	/* if the user turned artwork off, bail */
-	if (!options.use_artwork)
-		return 1;
+    artwork_lay_open(driver, requested, width, height, options.use_artwork);
+    if (artwork_lay_has_backdrop()) num_underlays = 1;
 
-	/* first process any hard-coded overlays */
-	if (list && !generate_overlay(list, width, height))
-		return 0;
-
-	/* attempt to open the .ART file; if none, that's okay */
-	artfile = callbacks->load_artwork(&driver);
-	if (!artfile && !list)
-		return 1;
-
-	/* parse the file into pieces */
-	if (artfile)
-	{
-		result = parse_art_file(artfile);
-		mame_fclose(artfile);
-		if (!result)
-			return 0;
-	}
-
-	/* sort the pieces */
-	sort_pieces();
-
-	/* now read the artwork files */
-	for (piece = artwork_list; piece; piece = piece->next)
-	{
-		/* convert from pixel coordinates if necessary */
-		if (fabs(piece->left) > 4.0 || fabs(piece->right) > 4.0 ||
-			fabs(piece->top) > 4.0 || fabs(piece->bottom) > 4.0)
-		{
-			piece->left /= (double)width;
-			piece->right /= (double)width;
-			piece->top /= (double)height;
-			piece->bottom /= (double)height;
-		}
-
-		/* assign to one of the categories */
-		if (piece->layer == LAYER_BACKDROP)
-			num_underlays++;
-		else if (piece->layer == LAYER_OVERLAY)
-			num_overlays++;
-		else if (piece->layer >= LAYER_BEZEL)
-			num_bezels++;
-
-		/* load the graphics */
-		if (driver)
-			load_bitmap(driver->name, piece);
-	}
-// debugging
-//  fprintf(stderr, "backdrops=%d overlays=%d bezels=%d\n", num_underlays, num_overlays, num_bezels);
-
-	return 1;
-}
-
-
-
-/*-------------------------------------------------
-    open_and_read_png - open a PNG file, read it
-    in, and verify that we can do something with
-    it
--------------------------------------------------*/
-
-static int open_and_read_png(const char *gamename, const char *filename, png_info *png)
-{
-	int result;
-	mame_file *file;
-
-	/* open the file */
-	file = mame_fopen(gamename, filename, FILETYPE_ARTWORK, 0);
-	if (!file)
-		return 0;
-
-	/* read the PNG data */
-	result = png_read_file(file, png);
-	mame_fclose(file);
-	if (!result)
-		return 0;
-
-	/* verify we can handle this PNG */
-	if (png->bit_depth > 8)
-	{
-		logerror("Unsupported bit depth %d (8 bit max)\n", png->bit_depth);
-		free(png->image);
-		return 0;
-	}
-	if (png->interlace_method != 0)
-	{
-		logerror("Interlace unsupported\n");
-		free(png->image);
-		return 0;
-	}
-	if (png->color_type != 0 && png->color_type != 3 && png->color_type != 2 && png->color_type != 6)
-	{
-		logerror("Unsupported color type %d\n", png->color_type);
-		free(png->image);
-		return 0;
-	}
-
-	/* if less than 8 bits, upsample */
-	png_expand_buffer_8bit(png);
-	return 1;
-}
-
-
-
-/*-------------------------------------------------
-    load_bitmap - load the artwork into a bitmap
--------------------------------------------------*/
-
-static int load_bitmap(const char *gamename, artwork_piece *piece)
-{
-	png_info png;
-	UINT8 *src;
-	int x, y;
-
-	/* if we already have a bitmap, don't bother trying to read a file */
-	if (piece->rawbitmap)
-		return 1;
-
-	/* open and read the main png file */
-	if (!open_and_read_png(gamename, piece->filename, &png))
-	{
-		logerror("Can't load PNG file: %s\n", piece->filename);
-		return 0;
-	}
-
-	/* allocate the rawbitmap and erase it */
-	piece->rawbitmap = auto_bitmap_alloc_depth(png.width, png.height, 32);
-	if (!piece->rawbitmap)
-		return 0;
-	fillbitmap(piece->rawbitmap, 0, NULL);
-
-	/* handle 8bpp palettized case */
-	if (png.color_type == 3)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src++)
-			{
-				/* determine alpha */
-				UINT8 alpha = (*src < png.num_trans) ? png.trans[*src] : 0xff;
-				if (alpha != 0xff)
-					piece->has_alpha = 1;
-
-				/* expand to 32bpp */
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(alpha, png.palette[*src * 3], png.palette[*src * 3 + 1], png.palette[*src * 3 + 2]));
-			}
-
-		/* free memory for the palette */
-		free(png.palette);
-	}
-
-	/* handle 8bpp grayscale case */
-	else if (png.color_type == 0)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src++)
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(0xff, *src, *src, *src));
-	}
-
-	/* handle 32bpp non-alpha case */
-	else if (png.color_type == 2)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src += 3)
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(0xff, src[0], src[1], src[2]));
-	}
-
-	/* handle 32bpp alpha case */
-	else
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src += 4)
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(src[3], src[0], src[1], src[2]));
-		piece->has_alpha = 1;
-	}
-
-	/* free the raw image data and return after loading any alpha map */
-	free(png.image);
-	return load_alpha_bitmap(gamename, piece, &png);
-}
-
-
-
-/*-------------------------------------------------
-    load_alpha_bitmap - load the external alpha
-    mask
--------------------------------------------------*/
-
-static int load_alpha_bitmap(const char *gamename, artwork_piece *piece, const png_info *original)
-{
-	png_info png;
-	UINT8 *src;
-	int x, y;
-
-	/* if no file, we succeeded */
-	if (!piece->alpha_filename)
-		return 1;
-
-	/* open and read the alpha png file */
-	if (!open_and_read_png(gamename, piece->alpha_filename, &png))
-	{
-		logerror("Can't load PNG file: %s\n", piece->alpha_filename);
-		return 0;
-	}
-
-	/* must be the same size */
-	if (png.height != original->height || png.width != original->width)
-	{
-		logerror("Alpha PNG must match original's dimensions: %s\n", piece->alpha_filename);
-		return 0;
-	}
-
-	/* okay, we have alpha */
-	piece->has_alpha = 1;
-
-	/* handle 8bpp palettized case */
-	if (png.color_type == 3)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src++)
-			{
-				rgb_t pixel = read_pixel(piece->rawbitmap, x, y);
-				UINT8 alpha = compute_brightness(MAKE_RGB(png.palette[*src * 3], png.palette[*src * 3 + 1], png.palette[*src * 3 + 2]));
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(alpha, RGB_RED(pixel), RGB_GREEN(pixel), RGB_BLUE(pixel)));
-			}
-
-		/* free memory for the palette */
-		free(png.palette);
-	}
-
-	/* handle 8bpp grayscale case */
-	else if (png.color_type == 0)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src++)
-			{
-				rgb_t pixel = read_pixel(piece->rawbitmap, x, y);
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(*src, RGB_RED(pixel), RGB_GREEN(pixel), RGB_BLUE(pixel)));
-			}
-	}
-
-	/* handle 32bpp non-alpha case */
-	else if (png.color_type == 2)
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src += 3)
-			{
-				rgb_t pixel = read_pixel(piece->rawbitmap, x, y);
-				UINT8 alpha = compute_brightness(MAKE_RGB(src[0], src[1], src[2]));
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(alpha, RGB_RED(pixel), RGB_GREEN(pixel), RGB_BLUE(pixel)));
-			}
-	}
-
-	/* handle 32bpp alpha case */
-	else
-	{
-		/* loop over width/height */
-		src = png.image;
-		for (y = 0; y < png.height; y++)
-			for (x = 0; x < png.width; x++, src += 4)
-			{
-				rgb_t pixel = read_pixel(piece->rawbitmap, x, y);
-				UINT8 alpha = compute_brightness(MAKE_RGB(src[0], src[1], src[2]));
-				plot_pixel(piece->rawbitmap, x, y, MAKE_ARGB(alpha, RGB_RED(pixel), RGB_GREEN(pixel), RGB_BLUE(pixel)));
-			}
-	}
-
-	/* free the raw image data */
-	free(png.image);
-	return 1;
+    /* A selected external overlay replaces, never compounds, the built-in one. */
+    if (built_in && (options.use_artwork & ARTWORK_USE_OVERLAYS) &&
+        !artwork_lay_has_overlay() && !artwork_lay_screen_only()) {
+        if (!generate_overlay(built_in, width, height))
+            printf("artwork: unable to generate built-in overlay\n");
+    }
+    /* Built-in overlays are created in reverse linked-list order. Preserve
+     * the original priority sort and category counts. */
+    sort_pieces();
+    for (piece = artwork_list; piece; piece = piece->next) {
+        if (piece->layer == LAYER_OVERLAY) num_overlays++;
+        else if (piece->layer == LAYER_BACKDROP) num_underlays++;
+        else if (piece->layer >= LAYER_BEZEL) num_bezels++;
+    }
+    return 1;
 }
 
 
@@ -2452,6 +2223,28 @@ static int artwork_prep(void)
 	underlay_invalid = screenrect;
 	overlay_invalid = screenrect;
 	bezel_invalid = screenrect;
+
+	if (lay_scaled_game) {
+		free(lay_scaled_game);
+		lay_scaled_game = NULL;
+	}
+	if (artwork_lay_screen_transformed()) {
+		const int in_w = Machine->absolute_visible_area.max_x - Machine->absolute_visible_area.min_x + 1;
+		const int in_h = Machine->absolute_visible_area.max_y - Machine->absolute_visible_area.min_y + 1;
+		const int sw = in_w * gamescale, sh = in_h * gamescale;
+		if (sw > 0 && sh > 0 && (size_t)sw <= SIZE_MAX / (size_t)sh / sizeof(UINT32)) {
+			size_t bytes = (size_t)sw * sh * sizeof(UINT32);
+			lay_scaled_game = (UINT32 *)malloc(bytes);
+			if (!lay_scaled_game)
+				printf("artwork: cannot allocate transformed game bitmap\n");
+		}
+	}
+
+	if (artwork_lay_active() && !artwork_lay_prepare(screenrect.max_x + 1,
+			screenrect.max_y + 1, &gamerect)) {
+		printf("artwork: unable to prepare layout images\n");
+		artwork_lay_close();
+	}
 
 	/* loop through all the pieces, generating the scaled bitmaps */
 	for (piece = artwork_list; piece; piece = piece->next)
@@ -2889,44 +2682,7 @@ static void sort_pieces(void)
     validate_pieces - make sure we got valid data
 -------------------------------------------------*/
 
-static int validate_pieces(void)
-{
-	artwork_piece *piece;
 
-	/* verify each one */
-	for (piece = artwork_list; piece; piece = piece->next)
-	{
-		/* make sure we have a filename */
-		if ((!piece->filename || strlen(piece->filename) == 0) && !piece->rawbitmap)
-		{
-			logerror("Artwork piece '%s' has no file!\n", piece->tag);
-			return 0;
-		}
-
-		/* make sure we have a layer */
-		if (piece->layer == LAYER_UNKNOWN)
-		{
-			logerror("Artwork piece '%s' has no layer!\n", piece->tag);
-			return 0;
-		}
-
-		/* make sure we have a position */
-		if (piece->left == 0 && piece->right == 0)
-		{
-			logerror("Artwork piece '%s' has no position!\n", piece->tag);
-			return 0;
-		}
-
-		/* make sure the position is valid */
-		if (piece->left >= piece->right || piece->top >= piece->bottom)
-		{
-			logerror("Artwork piece '%s' has invalid position data!\n", piece->tag);
-			return 0;
-		}
-	}
-
-	return 1;
-}
 
 
 
@@ -3113,160 +2869,6 @@ static int generate_overlay(const artwork_overlay_piece *list, int width, int he
 #endif
 
 /*-------------------------------------------------
-    strip_space - strip leading/trailing spaces
--------------------------------------------------*/
-
-static char *strip_space(char *string)
-{
-	char *start, *end;
-
-	/* skip over leading space */
-	for (start = string; *start && isspace(*start); start++) ;
-
-	/* NULL terminate over trailing space */
-	for (end = start + strlen(start) - 1; end > start && isspace(*end); end--) *end = 0;
-	return start;
-}
-
-
-
-/*-------------------------------------------------
-    parse_tag_value - parse a tag/value pair
--------------------------------------------------*/
-
-static int parse_tag_value(artwork_piece *piece, const char *tag, const char *value)
-{
-	/* handle the various tags */
-	if (!strcmp(tag, "layer"))
-	{
-		if (!strcmp(value, "backdrop"))
-			piece->layer = LAYER_BACKDROP;
-		else if (!strcmp(value, "overlay"))
-			piece->layer = LAYER_OVERLAY;
-		else if (!strcmp(value, "bezel"))
-			piece->layer = LAYER_BEZEL;
-		else if (!strcmp(value, "marquee"))
-			piece->layer = LAYER_MARQUEE;
-		else if (!strcmp(value, "panel"))
-			piece->layer = LAYER_PANEL;
-		else if (!strcmp(value, "side"))
-			piece->layer = LAYER_SIDE;
-		else if (!strcmp(value, "flyer"))
-			piece->layer = LAYER_FLYER;
-		else
-			return 0;
-		return 1;
-	}
-	else if (!strcmp(tag, "priority"))
-	{
-		return (sscanf(value, "%d", &piece->priority) == 1);
-	}
-	else if (!strcmp(tag, "visible"))
-	{
-		return (sscanf(value, "%d", &piece->visible) == 1);
-	}
-	else if (!strcmp(tag, "alpha"))
-	{
-		return (sscanf(value, "%f", &piece->alpha) == 1);
-	}
-	else if (!strcmp(tag, "brightness"))
-	{
-		return (sscanf(value, "%f", &piece->brightness) == 1);
-	}
-	else if (!strcmp(tag, "position"))
-	{
-		return (sscanf(value, "%f,%f,%f,%f", &piece->left, &piece->top, &piece->right, &piece->bottom) == 4);
-	}
-	else if (!strcmp(tag, "file"))
-	{
-		piece->filename = auto_malloc(strlen(value) + 1);
-		strcpy(piece->filename, value);
-		return (piece->filename != NULL);
-	}
-	else if (!strcmp(tag, "alphafile"))
-	{
-		piece->alpha_filename = auto_malloc(strlen(value) + 1);
-		strcpy(piece->alpha_filename, value);
-		return (piece->alpha_filename != NULL);
-	}
-	return 0;
-}
-
-
-
-/*-------------------------------------------------
-    parse_art_file - parse a .art file
--------------------------------------------------*/
-
-static int parse_art_file(mame_file *file)
-{
-	artwork_piece *current = NULL;
-	char *tag, *value, *p;
-	char buffer[1000];
-
-	/* loop until we run out of lines */
-	while (mame_fgets(buffer, sizeof(buffer), file))
-	{
-		/* strip off any comments */
-		p = strstr(buffer, "//");
-		if (p)
-			*p = 0;
-
-		/* strip off leading/trailing spaces */
-		tag = strip_space(buffer);
-
-		/* anything left? */
-		if (tag[0] == 0)
-			continue;
-
-		/* is this the start of a new entry? */
-		if (tag[strlen(tag) - 1] == ':')
-		{
-			/* strip the space off the rest */
-			tag[strlen(tag) - 1] = 0;
-			tag = strip_space(tag);
-
-			/* create an entry for the new piece */
-			current = create_new_piece(tag);
-			if (!current)
-				return 0;
-			continue;
-		}
-
-		/* is this a tag/value pair? */
-		value = strchr(tag, '=');
-		if (value)
-		{
-			/* strip spaces off of both parts */
-			*value++ = 0;
-			tag = strip_space(tag);
-			value = strip_space(value);
-
-			/* convert both strings to lowercase */
-			for (p = tag; *p; p++) *p = tolower(*p);
-			for (p = value; *p; p++) *p = tolower(*p);
-
-			/* now parse the result */
-			if (current && parse_tag_value(current, tag, value))
-				continue;
-		}
-
-		/* what the heck is it? */
-		logerror("Invalid line in .ART file:\n%s\n", buffer);
-	}
-
-	/* validate the artwork */
-	return validate_pieces();
-}
-
-
-
-#if 0
-#pragma mark -
-#pragma mark MISC UTILITIES
-#endif
-
-/*-------------------------------------------------
     compute_rgb_components - compute the RGB
     components
 -------------------------------------------------*/
@@ -3424,7 +3026,7 @@ intersect:
  */
 const rectangle *artwork_get_game_rect(void)
 {
-	if (artwork_list)
+	if (artwork_list || artwork_lay_active())
 		return &gamerect;
 	else
 		return NULL;
@@ -3432,5 +3034,69 @@ const rectangle *artwork_get_game_rect(void)
 
 int artwork_overlay_active(void)
 {
-	return num_overlays;
+	return num_overlays || artwork_lay_has_overlay();
 }
+
+/* Draw the emulated screen into a transformed .lay screen rectangle.
+ * Uses the existing OSD stretcher for game video effects before applying the
+ * layout's orthogonal transform, keeping artwork images out of video filters. */
+static void render_lay_transformed_game(mame_bitmap *bitmap,
+                                        const rgb_t *palette,
+                                        mame_display *display)
+{
+    const int in_w=Machine->absolute_visible_area.max_x-
+                   Machine->absolute_visible_area.min_x+1;
+    const int in_h=Machine->absolute_visible_area.max_y-
+                   Machine->absolute_visible_area.min_y+1;
+    const int sw=in_w*gamescale, sh=in_h*gamescale;
+    const int dw=gamerect.max_x-gamerect.min_x+1;
+    const int dh=gamerect.max_y-gamerect.min_y+1;
+    const int depth=(bitmap->depth==32)?4:2;
+    const UINT8 *src=(const UINT8*)bitmap->base+
+        Machine->absolute_visible_area.min_y*bitmap->rowbytes+
+        Machine->absolute_visible_area.min_x*depth;
+    UINT32 *scaled=lay_scaled_game;
+    double m[6],det;
+    int x,y;
+    if(!scaled||in_w<=0||in_h<=0||sw<=0||sh<=0||dw<=0||dh<=0) return;
+    if(depth==2)
+        osd_stretch_palett16to32((UINT8*)scaled,sw,sh,sw*4,
+                                 src,in_w,in_h,bitmap->rowbytes,palette);
+    else
+        osd_stretch_32to32((UINT8*)scaled,sw,sh,sw*4,
+                            src,in_w,in_h,bitmap->rowbytes);
+    artwork_lay_screen_matrix(m);
+    det=m[0]*m[4]-m[1]*m[3];
+    if(fabs(det)<1e-12) return;
+    for(y=0;y<dh;y++){
+        UINT32 *dst=(UINT32*)final->line[gamerect.min_y+y];
+        UINT32 *und=num_underlays?(UINT32*)underlay->line[gamerect.min_y+y]:NULL;
+        for(x=0;x<dw;x++){
+            double nx=(x+0.5)/(double)dw-m[2];
+            double ny=(y+0.5)/(double)dh-m[5];
+            double ux=(m[4]*nx-m[1]*ny)/det;
+            double uy=(-m[3]*nx+m[0]*ny)/det;
+            int sx=(int)(ux*sw),sy=(int)(uy*sh);
+            UINT32 pix;
+            if(sx<0||sx>=sw||sy<0||sy>=sh)continue;
+            pix=scaled[(size_t)sy*sw+sx];
+            if(num_overlays){
+                int ox=(int)(ux*dw),oy=(int)(uy*dh);
+                if(ox>=0&&ox<dw&&oy>=0&&oy<dh){
+                    UINT32 ov=((UINT32*)overlay->line[gamerect.min_y+oy])[gamerect.min_x+ox];
+                    UINT32 oyv=((UINT32*)overlay_yrgb->line[gamerect.min_y+oy])[gamerect.min_x+ox];
+                    pix=blend_over(pix,ov,oyv);
+                }
+            }
+            if(und)pix=add_and_clamp(pix,und[gamerect.min_x+x]);
+            dst[gamerect.min_x+x]=pix;
+        }
+    }
+    /* A transformed vector screen is fully composed, not incrementally
+     * addressed using the untransformed vector dirty-pixel list. */
+    if(display->changed_flags & VECTOR_PIXELS_CHANGED){
+        display->changed_flags &= ~VECTOR_PIXELS_CHANGED;
+        display->vector_dirty_pixels=NULL;
+    }
+}
+

@@ -52,6 +52,8 @@ void fileio_init(void);
 void fileio_exit(void);
 
 int mame_faccess(const char *filename, int filetype);
+mame_file *mame_fopen_artwork_member(int path_index, const char *game,
+                                    int zipped, const char *member);
 mame_file *mame_fopen(const char *gamename, const char *filename, int filetype, int openforwrite);
 mame_file *mame_fopen_error(const char *gamename, const char *filename, int filetype, int openforwrite, osd_file_error *error);
 mame_file *mame_fopen_rom(const char *gamename, const char *filename, const char *exphash);
