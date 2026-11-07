@@ -7405,6 +7405,7 @@ Other Sun games
 	DRIVER( fitfight )	/* bootleg of Art of Fighting */
 	DRIVER( histryma )	/* bootleg of Fighter's History */
 	DRIVER( bbprot )
+	DRIVER( flipjack )
 	DRIVER( flower )	/* (c) 1986 Komax */
 	DRIVER( flowerbl )	/* bootleg but (c) 1986 Sega/Alpha */
 	DRIVER( beaminv )	/* Tekunon Kougyou */

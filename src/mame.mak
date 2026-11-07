@@ -1490,6 +1490,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ertictac.o \
 	$(OBJ)/drivers/esd16.o $(OBJ)/vidhrdw/esd16.o \
 	$(OBJ)/drivers/ettrivia.o \
+	$(OBJ)/drivers/flipjack.o \
 	$(OBJ)/drivers/flower.o $(OBJ)/sndhrdw/flower.o $(OBJ)/vidhrdw/flower.o \
 	$(OBJ)/drivers/fortecar.o \
 	$(OBJ)/drivers/freekick.o $(OBJ)/vidhrdw/freekick.o \
