@@ -1485,6 +1485,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/dribling.o $(OBJ)/vidhrdw/dribling.o $(OBJ)/sndhrdw/dribling.o \
 	$(OBJ)/drivers/dwarfd.o \
 	$(OBJ)/drivers/dynadice.o \
+	$(OBJ)/drivers/efdt.o \
 	$(OBJ)/drivers/epos.o $(OBJ)/vidhrdw/epos.o \
 	$(OBJ)/drivers/ertictac.o \
 	$(OBJ)/drivers/esd16.o $(OBJ)/vidhrdw/esd16.o \
