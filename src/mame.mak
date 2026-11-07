@@ -751,7 +751,7 @@ $(OBJ)/irem.a: \
 	$(OBJ)/drivers/m90.o $(OBJ)/vidhrdw/m90.o \
 	$(OBJ)/drivers/m92.o $(OBJ)/vidhrdw/m92.o \
 	$(OBJ)/drivers/m107.o $(OBJ)/vidhrdw/m107.o \
-	$(OBJ)/drivers/mpatrol.o $(OBJ)/vidhrdw/mpatrol.o \
+	$(OBJ)/drivers/m52.o $(OBJ)/vidhrdw/mpatrol.o \
 	$(OBJ)/drivers/olibochu.o \
 	$(OBJ)/drivers/redalert.o $(OBJ)/sndhrdw/redalert.o $(OBJ)/vidhrdw/redalert.o \
 	$(OBJ)/drivers/shisen.o $(OBJ)/vidhrdw/shisen.o \

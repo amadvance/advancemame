@@ -1329,6 +1329,7 @@ const game_driver * const drivers[] =
 	DRIVER( demoneye )	/* (c) 1981 */
 	DRIVER( olibochu )	/* M47 (c) 1981 + "GDI presents" */
 	DRIVER( mpatrol )	/* M52 (c) 1982 */
+	DRIVER( alpha1v )
 	DRIVER( mpatrolw )	/* M52 (c) 1982 + Williams license */
 	DRIVER( troangel )	/* (c) 1983 */
 	DRIVER( yard )		/* (c) 1983 */

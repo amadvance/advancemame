@@ -19,6 +19,7 @@ static unsigned char bg2ypos;
 static unsigned char bgcontrol;
 
 static tilemap* bg_tilemap;
+static int alpha1v_video;
 
 
 /***************************************************************************
@@ -148,7 +149,8 @@ PALETTE_INIT( mpatrol )
 	for (i = 0;i < TOTAL_COLORS(1);i++)
 	{
 		COLOR(1,i) = 512+32 + (*color_prom++);
-		if (i % 4 == 3) color_prom += 4;	/* half of the PROM is unused */
+		/* Two-bit sprites use four entries out of each eight-entry PROM group. */
+		if (Machine->gfx[1]->color_granularity == 4 && i % 4 == 3) color_prom += 4;
 	}
 
 	/* background */
@@ -193,13 +195,14 @@ static void get_tile_info(int tile_index)
 		flag |= TILE_IGNORE_TRANSPARENCY; /* lines 0 to 6 are opaqe? */
 	}
 
-	SET_TILE_INFO(0, code, color & 0x3f, flag)
+	SET_TILE_INFO(0, code, color & (alpha1v_video ? 0x7f : 0x3f), flag)
 }
 
 
 
 VIDEO_START( mpatrol )
 {
+	alpha1v_video = 0;
 	bg_tilemap = tilemap_create(get_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 8, 8, 32, 32);
 
 	if (bg_tilemap == 0)
@@ -386,4 +389,71 @@ VIDEO_UPDATE( mpatrol )
 			sx, sy,
 			cliprect, TRANSPARENCY_COLOR, 512+32);
 	}
+}
+
+WRITE8_HANDLER( alpha1v_scroll_w )
+{
+	int row;
+	/* The status row stays fixed while the three playfield rows scroll together. */
+	tilemap_set_scrollx(bg_tilemap, 0, 255);
+	for (row = 1; row < 4; ++row)
+		tilemap_set_scrollx(bg_tilemap, row, -(data + 1));
+}
+
+VIDEO_START( alpha1v )
+{
+	int ret = video_start_mpatrol();
+	alpha1v_video = 1;
+	bg1xpos = bg1ypos = bg2xpos = bg2ypos = bgcontrol = 0;
+	tilemap_set_scrolldx(bg_tilemap, 127, 127);
+	tilemap_set_scrolldy(bg_tilemap, 16, 16);
+	tilemap_set_scroll_rows(bg_tilemap, 4);
+	return ret;
+}
+
+static void alpha1v_background(mame_bitmap *bitmap, const rectangle *cliprect, int x, int y, int image)
+{
+	if (flip_screen)
+	{
+		x = 264 - x;
+		y = 264 - y - 128;
+	}
+	x += 124;
+	y += 16;
+	drawgfx(bitmap, Machine->gfx[image], 0, 0, flip_screen, flip_screen,
+		x, y, cliprect, TRANSPARENCY_PEN, 0);
+	drawgfx(bitmap, Machine->gfx[image], 0, 0, flip_screen, flip_screen,
+		x - 256, y, cliprect, TRANSPARENCY_PEN, 0);
+}
+
+VIDEO_UPDATE( alpha1v )
+{
+	int block, offs;
+	fillbitmap(bitmap, Machine->remapped_colortable[512], cliprect);
+	if (!(bgcontrol & 0x20))
+	{
+		if (!(bgcontrol & 0x10)) alpha1v_background(bitmap, cliprect, bg2xpos, bg2ypos, 2);
+		if (!(bgcontrol & 0x02)) alpha1v_background(bitmap, cliprect, bg1xpos, bg1ypos, 3);
+		else if (!(bgcontrol & 0x04)) alpha1v_background(bitmap, cliprect, bg1xpos, bg1ypos, 4);
+	}
+	tilemap_set_flip(bg_tilemap, flip_screen ? TILEMAP_FLIPX | TILEMAP_FLIPY : 0);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	/* Each block has its own sprite priority order; all eight blocks are visible. */
+	for (block = 0; block < 0x200; block += 0x40)
+		for (offs = block + 0x3c; offs >= block; offs -= 4)
+		{
+			int sx = spriteram[offs + 3];
+			int sy = 257 - spriteram[offs];
+			int flipx = spriteram[offs + 1] & 0x40;
+			int flipy = spriteram[offs + 1] & 0x80;
+			if (flip_screen)
+			{
+				flipx = !flipx;
+				flipy = !flipy;
+				sx = 238 - sx;
+				sy = 282 - sy;
+			}
+			drawgfx(bitmap, Machine->gfx[1], spriteram[offs + 2], spriteram[offs + 1] & 0x3f,
+				flipx, flipy, sx + 129, sy, cliprect, TRANSPARENCY_COLOR, 544);
+		}
 }

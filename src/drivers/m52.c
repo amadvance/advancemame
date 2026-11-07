@@ -2,6 +2,8 @@
 // copyright-holders:Nicola Salmoria
 /***************************************************************************
 
+Irem M52 hardware
+
 Moon Patrol memory map
 
 driver by Nicola Salmoria
@@ -41,6 +43,9 @@ are supported. What should really be filled in for each mode?
 #include "driver.h"
 #include "sndhrdw/irem.h"
 #include "cpu/z80/z80.h"
+#include "sound/ay8910.h"
+#include "sound/msm5205.h"
+#include "sound/discrete.h"
 
 
 
@@ -452,5 +457,295 @@ ROM_END
 
 
 
+
+WRITE8_HANDLER( alpha1v_scroll_w );
+VIDEO_START( alpha1v );
+VIDEO_UPDATE( alpha1v );
+
+static WRITE8_HANDLER( alpha1v_flipscreen_w )
+{
+	flip_screen_set(data & 1);
+}
+
+static ADDRESS_MAP_START( alpha1v_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x6fff) AM_ROM
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_WRITE(mpatrol_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x8400, 0x87ff) AM_RAM AM_WRITE(mpatrol_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x8800, 0x8fff) AM_READ(mpatrol_protection_r)
+	AM_RANGE(0xc800, 0xc9ff) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xd000, 0xd000) AM_READ(input_port_0_r) AM_WRITE(irem_sound_cmd_w)
+	AM_RANGE(0xd001, 0xd001) AM_READ(input_port_1_r) AM_WRITE(alpha1v_flipscreen_w)
+	AM_RANGE(0xd002, 0xd002) AM_READ(input_port_2_r)
+	AM_RANGE(0xd003, 0xd003) AM_READ(input_port_3_r)
+	AM_RANGE(0xd004, 0xd004) AM_READ(input_port_4_r)
+	AM_RANGE(0xe000, 0xefff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( alpha1v_ports, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x1f) AM_WRITE(alpha1v_scroll_w)
+	AM_RANGE(0x40, 0x5f) AM_WRITE(mpatrol_bg1xpos_w)
+	AM_RANGE(0x60, 0x7f) AM_WRITE(mpatrol_bg1ypos_w)
+	AM_RANGE(0x80, 0x9f) AM_WRITE(mpatrol_bg2xpos_w)
+	AM_RANGE(0xa0, 0xbf) AM_WRITE(mpatrol_bg2ypos_w)
+	AM_RANGE(0xc0, 0xdf) AM_WRITE(mpatrol_bgcontrol_w)
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( alpha1v )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )  PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )  PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )    PORT_8WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
+
+	PORT_START_TAG("IN2")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )  PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )  PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )    PORT_8WAY PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x03, "2" )
+	PORT_DIPSETTING(    0x02, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x0f, 0x00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x0b, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 3C_1C ) )
+
+
+
+	PORT_DIPSETTING(    0x0d, DEF_STR( 2C_1C ) )
+
+
+
+
+
+
+
+
+
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0xf0, 0x00, DEF_STR( Coin_B ) )
+
+
+
+
+
+
+
+
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+
+	PORT_DIPSETTING(    0xd0, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0xb0, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x90, DEF_STR( 1C_6C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_7C ) )
+INPUT_PORTS_END
+
+
+
+static const gfx_layout alpha1v_charlayout =
+{
+	8,8,512,2, { 0x1000*8, 0 },
+	{ 0,1,2,3,4,5,6,7 },
+	{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 }, 8*8
+};
+
+static const gfx_layout alpha1v_spritelayout =
+{
+	16,16,128,3, { 0x2000*8, 0, 0x1000*8 },
+	{ 0,1,2,3,4,5,6,7,16*8,16*8+1,16*8+2,16*8+3,16*8+4,16*8+5,16*8+6,16*8+7 },
+	{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8,8*8,9*8,10*8,11*8,12*8,13*8,14*8,15*8 },32*8
+};
+
+static const UINT32 alpha1v_bg_yoffset[128] =
+{
+	0x0, 0x200, 0x400, 0x600, 0x800, 0xa00, 0xc00, 0xe00,
+	0x1000, 0x1200, 0x1400, 0x1600, 0x1800, 0x1a00, 0x1c00, 0x1e00,
+	0x2000, 0x2200, 0x2400, 0x2600, 0x2800, 0x2a00, 0x2c00, 0x2e00,
+	0x3000, 0x3200, 0x3400, 0x3600, 0x3800, 0x3a00, 0x3c00, 0x3e00,
+	0x4000, 0x4200, 0x4400, 0x4600, 0x4800, 0x4a00, 0x4c00, 0x4e00,
+	0x5000, 0x5200, 0x5400, 0x5600, 0x5800, 0x5a00, 0x5c00, 0x5e00,
+	0x6000, 0x6200, 0x6400, 0x6600, 0x6800, 0x6a00, 0x6c00, 0x6e00,
+	0x7000, 0x7200, 0x7400, 0x7600, 0x7800, 0x7a00, 0x7c00, 0x7e00,
+	0x8000, 0x8200, 0x8400, 0x8600, 0x8800, 0x8a00, 0x8c00, 0x8e00,
+	0x9000, 0x9200, 0x9400, 0x9600, 0x9800, 0x9a00, 0x9c00, 0x9e00,
+	0xa000, 0xa200, 0xa400, 0xa600, 0xa800, 0xaa00, 0xac00, 0xae00,
+	0xb000, 0xb200, 0xb400, 0xb600, 0xb800, 0xba00, 0xbc00, 0xbe00,
+	0xc000, 0xc200, 0xc400, 0xc600, 0xc800, 0xca00, 0xcc00, 0xce00,
+	0xd000, 0xd200, 0xd400, 0xd600, 0xd800, 0xda00, 0xdc00, 0xde00,
+	0xe000, 0xe200, 0xe400, 0xe600, 0xe800, 0xea00, 0xec00, 0xee00,
+	0xf000, 0xf200, 0xf400, 0xf600, 0xf800, 0xfa00, 0xfc00, 0xfe00,
+};
+
+static const gfx_layout alpha1v_bglayout =
+{
+	256,128,1,2,{ 4,0 },EXTENDED_XOFFS,EXTENDED_YOFFS,0x8000,
+	bgcharlayout_xoffset,alpha1v_bg_yoffset
+};
+
+static const gfx_decode alpha1v_gfxdecode[] =
+{
+	{ REGION_GFX1, 0, &alpha1v_charlayout, 0, 128 },
+	{ REGION_GFX2, 0, &alpha1v_spritelayout, 512, 16 },
+	{ REGION_GFX3, 0, &alpha1v_bglayout, 768, 1 },
+	{ REGION_GFX4, 0, &alpha1v_bglayout, 772, 1 },
+	{ REGION_GFX5, 0, &alpha1v_bglayout, 776, 1 },
+	{ -1 }
+};
+
+ADDRESS_MAP_EXTERN( irem_sound_readmem );
+ADDRESS_MAP_EXTERN( irem_sound_readport );
+ADDRESS_MAP_EXTERN( irem_sound_writeport );
+
+static WRITE8_HANDLER( alpha1v_adpcm_w )
+{
+	if (offset & 1) MSM5205_data_w(0, data);
+}
+
+static WRITE8_HANDLER( alpha1v_sound_control_w )
+{
+	MSM5205_playmode_w(0, (data >> 2) & 7);
+	MSM5205_reset_w(0, data & 1);
+}
+
+static void alpha1v_adpcm_int(int data)
+{
+	cpunum_set_input_line(1, INPUT_LINE_NMI, PULSE_LINE);
+}
+
+static const struct AY8910interface alpha1v_ay_interface =
+{
+	soundlatch_r, 0, 0, alpha1v_sound_control_w
+};
+
+static const struct MSM5205interface alpha1v_msm_interface =
+{
+	alpha1v_adpcm_int, MSM5205_S96_4B
+};
+
+static ADDRESS_MAP_START( alpha1v_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_WRITE(alpha1v_adpcm_w)
+	AM_RANGE(0x8000, 0x8fff) AM_WRITE(alpha1v_adpcm_w)
+	AM_RANGE(0x1000, 0x1fff) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x9000, 0x9fff) AM_WRITE(MWA8_NOP)
+ADDRESS_MAP_END
+
+static DISCRETE_SOUND_START( alpha1v_filter )
+	DISCRETE_INPUT_STREAM(NODE_01)
+	/* The output coupling capacitor removes the decoder's idle DC level. */
+	DISCRETE_CRFILTER(NODE_02, 1, NODE_01, 560 + 330, CAP_U(1))
+	DISCRETE_OUTPUT(NODE_02, 0.50)
+DISCRETE_SOUND_END
+
+static MACHINE_DRIVER_START( alpha1v )
+	MDRV_CPU_ADD(Z80, 18432000/6)
+	MDRV_CPU_PROGRAM_MAP(alpha1v_map, 0)
+	MDRV_CPU_IO_MAP(alpha1v_ports, 0)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)
+	MDRV_FRAMES_PER_SECOND(18432000.0/3/384/282)
+	MDRV_VBLANK_DURATION((int)(1000000.0*26*384/(18432000.0/3)))
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(512, 282)
+	MDRV_VISIBLE_AREA(136, 375, 16, 271)
+	MDRV_GFXDECODE(alpha1v_gfxdecode)
+	MDRV_PALETTE_LENGTH(512+32+32)
+	MDRV_COLORTABLE_LENGTH(512+256+12)
+	MDRV_PALETTE_INIT(mpatrol)
+	MDRV_VIDEO_START(alpha1v)
+	MDRV_VIDEO_UPDATE(alpha1v)
+	MDRV_CPU_ADD(M6803, 3579545/4)
+	MDRV_CPU_PROGRAM_MAP(irem_sound_readmem, alpha1v_sound_writemem)
+	MDRV_CPU_IO_MAP(irem_sound_readport, irem_sound_writeport)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 3579545/4)
+	MDRV_SOUND_CONFIG(alpha1v_ay_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+	MDRV_SOUND_ADD(AY8910, 3579545/4)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+	/* This sound board has one ADPCM decoder; an idle second decoder adds DC. */
+	MDRV_SOUND_ADD(MSM5205, 384000)
+	MDRV_SOUND_CONFIG(alpha1v_msm_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "adpcm_filter", 1.0)
+	MDRV_SOUND_ADD_TAG("adpcm_filter", DISCRETE, 0)
+	MDRV_SOUND_CONFIG(alpha1v_filter)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
+ROM_START(alpha1v)
+	ROM_REGION(0x10000, REGION_CPU1, 0)
+	ROM_LOAD("2-m3",  0x0000, 0x1000, CRC(3a679d34) SHA1(1a54a43070c56dc91d4d258f29e29613bb309f1c))
+	ROM_LOAD("3-l3",  0x1000, 0x1000, CRC(2f09df64) SHA1(e91602e9e41ad24dd1d7f384ed81b9bdaadd03e1))
+	ROM_LOAD("4-k3",  0x2000, 0x1000, CRC(64fb9c8a) SHA1(735fd00cc42193a417e6cde75f12b4cf2e804942))
+	ROM_LOAD("5-j3",  0x3000, 0x1000, CRC(d1643d18) SHA1(7c794b82e17e2ba0a6237e3fc20d8314f6c2481c))
+	ROM_LOAD("6-h3",  0x4000, 0x1000, CRC(cf34ab51) SHA1(3696da71e2bc7edd1ee7aeaac87be5386608c09e))
+	ROM_LOAD("7-f3",  0x5000, 0x1000, CRC(99db9781) SHA1(a56a675cc4cbc9681bfe8052f51f19336eb2a0a6))
+	ROM_LOAD("7a e3", 0x6000, 0x1000, CRC(3b0b4b0d) SHA1(0d8eea1e2db269943611289b3490a578ee347f85))
+
+	ROM_REGION(0x10000, REGION_CPU2, 0)
+	ROM_LOAD("1-a1", 0xf000, 0x1000, CRC(9e07fdd5) SHA1(ed4f462fcfe91fa8e88bfeaaba0a0c11fa0b4601))
+
+	ROM_REGION(0x2000, REGION_GFX1, ROMREGION_DISPOSE)
+	ROM_LOAD("13-f3", 0x0000, 0x1000, CRC(4b799229) SHA1(42cbdcf787b08b041d30504d699a12c378224933))
+	ROM_LOAD("14-e3", 0x1000, 0x1000, CRC(cf00c737) SHA1(415e90289039cac4d04cb1d559f1378ca6a32132))
+
+	ROM_REGION(0x3000, REGION_GFX2, ROMREGION_DISPOSE)
+	ROM_LOAD("15-n3", 0x0000, 0x1000, CRC(dc26df76) SHA1(dd1cff7935f5559f9d1b440e02d5e5aa521b0054))
+	ROM_LOAD("16-l3", 0x1000, 0x1000, CRC(39b9863b) SHA1(da9da9a1066188f050c422dfed1bbbd3ba612ccc))
+	ROM_LOAD("17-k3", 0x2000, 0x1000, CRC(cfd90773) SHA1(052e126888b6de636db9c521a090699c282b620b))
+
+
+	ROM_REGION(0x2000, REGION_GFX3, ROMREGION_ERASEFF)
+	ROM_LOAD("11-k3",  0x0000, 0x1000, CRC(7659440a) SHA1(2efd27c82913513dd03e799f1ed3c10b0863677d))
+	ROM_LOAD("12-jh3", 0x1000, 0x1000, CRC(7659440a) SHA1(2efd27c82913513dd03e799f1ed3c10b0863677d))
+
+	ROM_REGION(0x2000, REGION_GFX4, ROMREGION_ERASEFF)
+	ROM_LOAD("9-n3",   0x0000, 0x1000, CRC(0fdb7d13) SHA1(e828254a4f94df633d338b5772719276d41c6b7f))
+	ROM_LOAD("10-lm3", 0x1000, 0x1000, CRC(9dde3a75) SHA1(293d093485be19bfb20685d76a08ac78e24062bf))
+
+	ROM_REGION(0x2000, REGION_GFX5, ROMREGION_ERASEFF)
+
+
+	ROM_REGION(0x0340, REGION_PROMS, 0)
+	ROM_LOAD("63s481-a2", 0x0000, 0x0200, CRC(58678ea8) SHA1(b13a78a5bca8ad5bdec1293512b53654768a7a7a))
+	ROM_LOAD("18s030-m1", 0x0200, 0x0020, CRC(6a57eff2) SHA1(2d1c12dab5915da2ccd466e39436c88be434d634))
+	ROM_LOAD("mb7051-f1", 0x0220, 0x0020, CRC(d8bdd0df) SHA1(ca522428927911808214d319af314f601497ded4))
+	ROM_LOAD("mb7052-h2", 0x0240, 0x0100, CRC(ce9f0ef9) SHA1(3afb94ed033f272983bbed22a59856df7824ef8a))
+ROM_END
+
+
 GAME( 1982, mpatrol,  0,       mpatrol, mpatrol,  0, ROT0, "Irem", "Moon Patrol", 0 )
 GAME( 1982, mpatrolw, mpatrol, mpatrol, mpatrolw, 0, ROT0, "Irem (Williams license)", "Moon Patrol (Williams)", 0 )
+
+GAME( 1988, alpha1v, 0, alpha1v, alpha1v, 0, ROT0, "Vision Electronics", "Alpha One (Vision Electronics)", 0 )
