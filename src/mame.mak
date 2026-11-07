@@ -124,7 +124,7 @@ CPUS += RM7000
 CPUS += SH2
 CPUS += SH3BE
 CPUS += DSP32C
-#CPUS += PIC16C54
+CPUS += PIC16C54
 CPUS += PIC16C55
 #CPUS += PIC16C56
 CPUS += PIC16C57
@@ -1510,6 +1510,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ladyfrog.o $(OBJ)/vidhrdw/ladyfrog.o \
 	$(OBJ)/drivers/laserbas.o \
 	$(OBJ)/drivers/lastfght.o \
+	$(OBJ)/drivers/megaphx.o \
 	$(OBJ)/drivers/limenko.o $(OBJ)/sndhrdw/limenko.o \
 	$(OBJ)/drivers/lethalj.o $(OBJ)/vidhrdw/lethalj.o \
 	$(OBJ)/drivers/ltcasino.o \

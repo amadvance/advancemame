@@ -7405,6 +7405,8 @@ Other Sun games
 	DRIVER( fitfight )	/* bootleg of Art of Fighting */
 	DRIVER( histryma )	/* bootleg of Fighter's History */
 	DRIVER( bbprot )
+	DRIVER( megaphx )
+	DRIVER( hamboy )
 	DRIVER( dynabomb )
 	DRIVER( legendoh )
 	DRIVER( hotbody )
