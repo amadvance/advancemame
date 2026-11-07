@@ -482,8 +482,10 @@ void game_set::cache(merge_t merge)
 		pair<dupe_set::const_iterator, bool> j = dar.insert(dupe(stripped_name, 0));
 		j.first->count_set(j.first->count_get() + 1);
 
+		/* an alias naming another game of the same emulator is a rename inside the emulator, not a duplicate */
+		std::string prefix = i->name_get().substr(0, i->name_get().find('/') + 1);
 		for (string_bag::const_iterator a = i->alt_name_bag_get().begin(); a != i->alt_name_bag_get().end(); ++a) {
-			if (*a != stripped_name) {
+			if (*a != stripped_name && find(game(prefix + *a)) == end()) {
 				pair<dupe_set::const_iterator, bool> ja = dar.insert(dupe(*a, 0));
 				ja.first->count_set(ja.first->count_get() + 1);
 			}
