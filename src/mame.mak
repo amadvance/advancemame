@@ -938,6 +938,7 @@ $(OBJ)/midway.a: \
 $(OBJ)/namco.a: \
 	$(OBJ)/drivers/baraduke.o $(OBJ)/vidhrdw/baraduke.o \
 	$(OBJ)/drivers/galaga.o $(OBJ)/vidhrdw/galaga.o \
+	$(OBJ)/drivers/119.o \
 	$(OBJ)/drivers/galaxian.o $(OBJ)/sndhrdw/galaxian.o $(OBJ)/vidhrdw/galaxian.o \
 	$(OBJ)/drivers/gaplus.o $(OBJ)/machine/gaplus.o $(OBJ)/vidhrdw/gaplus.o \
 	$(OBJ)/drivers/mappy.o $(OBJ)/vidhrdw/mappy.o \

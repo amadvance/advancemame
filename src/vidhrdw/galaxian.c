@@ -2042,6 +2042,11 @@ static void draw_sprites(mame_bitmap *bitmap, UINT8 *spriteram, size_t spriteram
 			code = (code & 0x0f) | ((gfxbank[0] & 1) << 4) |
 				((gfxbank[1] & 1) << 5) | (0x40 << (gfxbank[4] & 1));
 		if (extra_video == 4 && (spriteram[offs + 2] & 8)) code += 0x40;
+		if (extra_video == 6)
+		{
+			code |= (gfxbank[0] & 4) ? 0xc0 : 0x40;
+			if (flipscreen_x) sx -= 2;
+		}
 
 
 		if (modify_spritecode)
@@ -2080,7 +2085,11 @@ static void draw_sprites(mame_bitmap *bitmap, UINT8 *spriteram, size_t spriteram
 		/* Note that the adjustment must be done AFTER handling flipscreen, thus */
 		/* proving that this is a hardware related "feature" */
 
-		if (extra_video == 5 ? offs >= 3*4 : offs < 3*4) sy++;
+		if (extra_video == 5 ? offs >= 3*4 : offs < 3*4)
+		{
+			if (extra_video == 6 && flipscreen_y) --sy;
+			else ++sy;
+		}
 
 
 		drawgfx(bitmap,Machine->gfx[1],
@@ -2340,4 +2349,31 @@ VIDEO_START( harem )
 	tilemap_set_scroll_cols(bg_tilemap, 32);
 	modify_spritecode = harem_modify_spritecode;
 	return 0;
+}
+
+static void sega119_modify_charcode(UINT16 *code, UINT8 x)
+{
+	if (gfxbank[0] & 8) *code |= 0x200;
+}
+
+WRITE8_HANDLER( sega119_video_control_w )
+{
+	galaxian_gfxbank_w(0, data);
+	galaxian_flip_screen_x_w(0, data & 1);
+	galaxian_flip_screen_y_w(0, (data >> 1) & 1);
+}
+
+VIDEO_START( sega119 )
+{
+	static rectangle clip = { 0, 191, 16, 239 };
+	static rectangle clip_flip = { 64, 255, 16, 239 };
+	int ret = video_start_galaxian_plain();
+	extra_video = 6;
+	gfxbank[0] = 0;
+	modify_charcode = sega119_modify_charcode;
+	draw_bullets = galaxian_draw_bullets;
+	/* Sprites must not overlap the side panel, even when the screen is flipped. */
+	spritevisiblearea = &clip;
+	spritevisibleareaflipx = &clip_flip;
+	return ret;
 }

@@ -290,3 +290,6 @@ VIDEO_START( fantastc );
 VIDEO_START( namenayo );
 VIDEO_START( monsterz );
 VIDEO_START( sbhoei );
+
+WRITE8_HANDLER( sega119_video_control_w );
+VIDEO_START( sega119 );

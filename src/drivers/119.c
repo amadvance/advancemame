@@ -1,0 +1,221 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
+/* Coreland / Sega 119 (C) 1986, limited release.
+   Galaxian-like video with three graphics planes, AY8910 and DAC audio. */
+
+#include "driver.h"
+#include "includes/galaxian.h"
+#include "sound/ay8910.h"
+#include "sound/dac.h"
+
+static UINT8 sound_nmi_enable;
+
+static WRITE8_HANDLER( sound_command_w )
+{
+	soundlatch_w(0, data);
+	cpunum_set_input_line(1, 0, ASSERT_LINE);
+}
+
+static READ8_HANDLER( sound_command_r )
+{
+	/* Reading the command acknowledges the level-sensitive sound interrupt. */
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+	return soundlatch_r(0);
+}
+
+static WRITE8_HANDLER( sound_nmi_enable_w )
+{
+	sound_nmi_enable = data & 0x40;
+}
+
+static INTERRUPT_GEN( sound_nmi )
+{
+	if (sound_nmi_enable)
+		cpunum_set_input_line(1, INPUT_LINE_NMI, PULSE_LINE);
+}
+
+static MACHINE_RESET( 119 )
+{
+	sound_nmi_enable = 0;
+	sega119_video_control_w(0, 0);
+	cpunum_set_input_line(1, 0, CLEAR_LINE);
+}
+
+static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_WRITE(galaxian_videoram_w) AM_BASE(&galaxian_videoram)
+	AM_RANGE(0x9000, 0x903f) AM_RAM AM_WRITE(galaxian_attributesram_w) AM_BASE(&galaxian_attributesram)
+	AM_RANGE(0x9040, 0x905f) AM_RAM AM_BASE(&galaxian_spriteram) AM_SIZE(&galaxian_spriteram_size)
+	AM_RANGE(0x9060, 0x907f) AM_RAM AM_BASE(&galaxian_bulletsram) AM_SIZE(&galaxian_bulletsram_size)
+	AM_RANGE(0x9080, 0x90ff) AM_RAM
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(sound_command_w)
+	AM_RANGE(0xb000, 0xb000) AM_READ(input_port_0_r) AM_WRITE(sega119_video_control_w)
+	AM_RANGE(0xb001, 0xb001) AM_READ(input_port_1_r)
+	AM_RANGE(0xb002, 0xb002) AM_READ(input_port_2_r)
+	AM_RANGE(0xb003, 0xb003) AM_READ(input_port_3_r)
+	AM_RANGE(0xe000, 0xefff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x3fff) AM_ROM
+	AM_RANGE(0x8000, 0x83ff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( sound_ports, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0x01, 0x01) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0x02, 0x02) AM_WRITE(sound_nmi_enable_w)
+	AM_RANGE(0x03, 0x03) AM_WRITE(DAC_0_data_w)
+	AM_RANGE(0x04, 0x04) AM_READ(sound_command_r) AM_WRITE(sound_nmi_enable_w)
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( 119 )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_SERVICE1 )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_VBLANK )
+
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x04, "5" )
+	PORT_DIPSETTING(    0x00, "Free" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 2C_2C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 2C_2C ) )
+	PORT_DIPSETTING(    0x38, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x28, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
+
+
+static const gfx_layout tilelayout =
+{
+	8,8, RGN_FRAC(1,3), 3,
+	{ RGN_FRAC(2,3), RGN_FRAC(1,3), RGN_FRAC(0,3) },
+	{ 0,1,2,3,4,5,6,7 },
+	{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 },
+	8*8
+};
+
+static const gfx_layout spritelayout =
+{
+	16,16, RGN_FRAC(1,3), 3,
+	{ RGN_FRAC(2,3), RGN_FRAC(1,3), RGN_FRAC(0,3) },
+	{ 0,1,2,3,4,5,6,7,8*8+0,8*8+1,8*8+2,8*8+3,8*8+4,8*8+5,8*8+6,8*8+7 },
+	{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8,16*8,17*8,18*8,19*8,20*8,21*8,22*8,23*8 },
+	16*16
+};
+
+static const gfx_decode gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &tilelayout, 0, 4 },
+	{ REGION_GFX1, 0, &spritelayout, 0, 4 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( 119 )
+	MDRV_CPU_ADD(Z80, 18432000/6)
+	MDRV_CPU_PROGRAM_MAP(main_map, 0)
+	MDRV_CPU_ADD(Z80, 8000000/2)
+	MDRV_CPU_PROGRAM_MAP(sound_map, 0)
+	MDRV_CPU_IO_MAP(sound_ports, 0)
+	MDRV_CPU_PERIODIC_INT(sound_nmi, TIME_IN_HZ(8000000.0/0x800))
+	MDRV_MACHINE_RESET(119)
+	MDRV_FRAMES_PER_SECOND(18432000.0/3/384/264)
+	MDRV_VBLANK_DURATION((int)(1000000.0*40*384/(18432000.0/3)))
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 255, 16, 239)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(98)
+	MDRV_PALETTE_INIT(galaxian)
+	MDRV_VIDEO_START(sega119)
+	MDRV_VIDEO_UPDATE(galaxian)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(AY8910, 8000000/4)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
+MACHINE_DRIVER_END
+
+ROM_START( 119 )
+	ROM_REGION( 0x8000, REGION_CPU1, 0 )
+	ROM_LOAD( "119_4", 0x0000, 0x2000, CRC(b614229e) SHA1(06d0b17f5ff12222c74ff9325c21268bef25446e) )
+	ROM_LOAD( "119_3", 0x2000, 0x2000, CRC(d2a984bf) SHA1(d2d5a83deff894978394461f8779d296b855971f) )
+	ROM_LOAD( "119_2", 0x4000, 0x2000, CRC(d96611bc) SHA1(fffb516f00e747931941844b5358fe46d656bfb8) )
+	ROM_LOAD( "119_1", 0x6000, 0x2000, CRC(368723e2) SHA1(515724eed41138e2e852f53d63f9a226584126f5) )
+
+	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "119_6", 0x0000, 0x2000, CRC(1a7490a4) SHA1(e74141b04ffb63e5cc434fbce89ac0c51e79330f) )
+	ROM_LOAD( "119_7", 0x2000, 0x2000, CRC(fcff7f59) SHA1(87a4668ef0c28091c895b0aeae4d4c486396e549) )
+	ROM_LOAD( "119_5", 0x4000, 0x2000, CRC(1b08c881) SHA1(b372d614ec41cff49d6ff1c2256170c15069bd55) )
+
+	ROM_REGION( 0x4000, REGION_CPU2, 0 )
+	ROM_LOAD( "119_8", 0x0000, 0x2000, CRC(6570149c) SHA1(b139edbe7bd2f965804b0c850f87e2ef8e418256) )
+	ROM_LOAD( "119_9", 0x2000, 0x2000, BAD_DUMP CRC(b917e2c2) SHA1(8acd598b898204e18a4cfccc40720d149f401b42) )
+
+	ROM_REGION( 0x20, REGION_PROMS, 0 )
+	ROM_LOAD( "6331", 0x00, 0x20, CRC(b73e79f3) SHA1(8345d45699c51a90c1d2743623b923531a577993) )
+
+	ROM_REGION( 0x20, REGION_USER1, 0 )
+	ROM_LOAD( "7502", 0x00, 0x20, CRC(52bdbe39) SHA1(e6f126e22944b698bea599760a79bd5cfa8f0d1f) )
+ROM_END
+
+
+GAME( 1986, 119, 0, 119, 119, 0, ROT0, "Coreland / Sega", "119 (bootleg?)", 0 )

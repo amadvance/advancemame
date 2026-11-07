@@ -145,6 +145,7 @@ const game_driver * const drivers[] =
 	DRIVER( monsterz )
 	DRIVER( namenayo )
 	DRIVER( sbhoei )
+	DRIVER( 119 )
 	DRIVER( galaxian )	/* (c) Namco */
 	DRIVER( galaxiaj )	/* (c) Namco */
 	DRIVER( galmidw )	/* (c) Midway */
