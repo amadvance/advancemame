@@ -7195,6 +7195,7 @@ Other Sun games
 	DRIVER( mjikaga )	/* Mitchell */
 
 	/* Art & Magic games */
+	DRIVER( skimaxx )
 	DRIVER( ultennis )	/* (c) 1993 */
 	DRIVER( cheesech )	/* (c) 1994 */
 	DRIVER( stonebal )	/* (c) 1994 */

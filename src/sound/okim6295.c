@@ -540,6 +540,12 @@ READ8_HANDLER( OKIM6295_status_2_r )
 	return OKIM6295_status_r(2);
 }
 
+READ8_HANDLER( OKIM6295_status_3_r )
+{
+	return OKIM6295_status_r(3);
+}
+
+
 READ16_HANDLER( OKIM6295_status_0_lsb_r )
 {
 	return OKIM6295_status_r(0);
@@ -593,6 +599,12 @@ WRITE8_HANDLER( OKIM6295_data_2_w )
 {
 	OKIM6295_data_w(2, data);
 }
+
+WRITE8_HANDLER( OKIM6295_data_3_w )
+{
+	OKIM6295_data_w(3, data);
+}
+
 
 WRITE16_HANDLER( OKIM6295_data_0_lsb_w )
 {

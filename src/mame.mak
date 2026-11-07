@@ -1455,6 +1455,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ambush.o $(OBJ)/vidhrdw/ambush.o \
 	$(OBJ)/drivers/ampoker.o \
 	$(OBJ)/drivers/amspdwy.o $(OBJ)/vidhrdw/amspdwy.o \
+	$(OBJ)/drivers/skimaxx.o \
 	$(OBJ)/drivers/artmagic.o $(OBJ)/vidhrdw/artmagic.o \
 	$(OBJ)/drivers/attckufo.o $(OBJ)/sndhrdw/attckufo.o $(OBJ)/vidhrdw/attckufo.o \
 	$(OBJ)/drivers/aztarac.o $(OBJ)/sndhrdw/aztarac.o $(OBJ)/vidhrdw/aztarac.o \
