@@ -885,6 +885,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/tutankhm.o $(OBJ)/vidhrdw/tutankhm.o \
 	$(OBJ)/drivers/twin16.o $(OBJ)/vidhrdw/twin16.o \
 	$(OBJ)/drivers/ultraman.o $(OBJ)/vidhrdw/ultraman.o \
+	$(OBJ)/drivers/ultrsprt.o \
 	$(OBJ)/drivers/vendetta.o $(OBJ)/vidhrdw/vendetta.o \
 	$(OBJ)/drivers/wecleman.o $(OBJ)/vidhrdw/wecleman.o \
 	$(OBJ)/drivers/xexex.o $(OBJ)/vidhrdw/xexex.o \

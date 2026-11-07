@@ -1,8 +1,9 @@
 // license:BSD-3-Clause
-// copyright-holders:Aaron Giles
+// copyright-holders:Aaron Giles, Phil Bennett
 /* PowerPC 403 specific functions */
 
 static void ppc403_dma_exec(int ch);
+static void ppc403_dma_update_irq(void);
 
 #define DMA_CE		0x80000000
 #define DMA_CIE		0x40000000
@@ -49,10 +50,14 @@ INLINE void ppc_set_dcr(int dcr, UINT32 value)
 		case DCR_BR6:		ppc.br[6] = value; break;
 		case DCR_BR7:		ppc.br[7] = value; break;
 
-		case DCR_EXISR:		ppc.exisr &= ~value; break;
-		case DCR_EXIER:		EXIER = value; break;
+		case DCR_EXISR:
+			ppc.exisr &= ~value;
+			ppc.external_int &= ~value;
+			ppc403_dma_update_irq();
+			break;
+		case DCR_EXIER:		EXIER = value; ppc403_dma_update_irq(); break;
 		case DCR_IOCR:		ppc.iocr = value; break;
-		case DCR_DMASR:		break;		/* TODO */
+		case DCR_DMASR:		ppc.dmasr &= ~(value & 0xfff80070); ppc403_dma_update_irq(); break;
 		case DCR_DMADA0:	ppc.dma[0].da = value; break;
 		case DCR_DMADA1:	ppc.dma[1].da = value; break;
 		case DCR_DMADA2:	ppc.dma[2].da = value; break;
@@ -121,6 +126,7 @@ INLINE UINT32 ppc_get_dcr(int dcr)
 
 INLINE void ppc403_check_interrupts(void)
 {
+	if (ppc.exisr & EXIER & 0xf00000) ppc.interrupt_pending |= 1;
 	if (MSR & MSR_EE)
 	{
 		if (ppc.interrupt_pending != 0)
@@ -394,7 +400,7 @@ static void ppc403_set_irq_line(int irqline, int state)
 		UINT32 mask = (1 << (4 - irqline));
 		if( state == ASSERT_LINE) {
 			if( EXIER & mask ) {
-				ppc.external_int = mask;
+				ppc.external_int |= mask;
 				ppc.interrupt_pending |= 0x1;
 
 				if (ppc.irq_callback)
@@ -407,6 +413,7 @@ static void ppc403_set_irq_line(int irqline, int state)
 		else if (state == CLEAR_LINE)
 		{
 			ppc.exisr &= ~mask;
+			ppc.external_int &= ~mask;
 		}
 	}
 	else if (irqline == PPC403_SPU_RX)
@@ -414,7 +421,7 @@ static void ppc403_set_irq_line(int irqline, int state)
 		UINT32 mask = 0x08000000;
 		if (state) {
 			if( EXIER & mask ) {
-				ppc.external_int = mask;
+				ppc.external_int |= mask;
 				ppc.interrupt_pending |= 0x1;
 			}
 		}
@@ -424,7 +431,7 @@ static void ppc403_set_irq_line(int irqline, int state)
 		UINT32 mask = 0x04000000;
 		if (state) {
 			if( EXIER & mask ) {
-				ppc.external_int = mask;
+				ppc.external_int |= mask;
 				ppc.interrupt_pending |= 0x1;
 			}
 		}
@@ -443,22 +450,21 @@ static void ppc403_set_irq_line(int irqline, int state)
 	}
 }
 
-static void ppc403_dma_set_irq_line(int dma, int state)
+static void ppc403_dma_update_irq(void)
 {
-	UINT32 mask = (1 << (3 - dma)) << 20;
-	if( state ) {
-		if( EXIER & mask ) {
-			ppc.external_int = mask;
-			ppc.interrupt_pending |= 0x1;
-		}
+	UINT32 pending = 0;
+	int ch;
+	for (ch = 0; ch < 4; ch++)
+	{
+		UINT32 status = (0x11U << (27 - ch)) | (ch ? 1U << (7 - ch) : 0x80000);
+		if ((ppc.dma[ch].cr & DMA_CIE) && (ppc.dmasr & status))
+			pending |= 0x800000 >> ch;
 	}
+	ppc.exisr = (ppc.exisr & ~0xf00000) | pending;
+	ppc.external_int = (ppc.external_int & ~0xf00000) | pending;
+	if (pending & EXIER) ppc.interrupt_pending |= 1;
+	else if (!(ppc.external_int & EXIER)) ppc.interrupt_pending &= ~1;
 }
-
-
-
-
-
-
 
 static void ppc_dccci(UINT32 op)
 {
@@ -724,6 +730,8 @@ static void ppc403_dma_exec(int ch)
 	/* Is the DMA channel enabled ? */
 	if( ppc.dma[ch].cr & DMA_CE )
 	{
+		if (!ppc.dma[ch].ct) ppc.dma[ch].ct = 0x10000;
+
 		/* transfer width */
 		width = dma_transfer_width[(ppc.dma[ch].cr >> 26) & 0x3];
 
@@ -842,11 +850,11 @@ static void ppc403_dma_exec(int ch)
 		if( ppc.dma[ch].cr & DMA_CH )
 			fatalerror("ppc: dma_exec: DMA chaining not implemented");
 
-		/* generate interrupts */
-		if( ppc.dma[ch].cr & DMA_CIE )
-			ppc403_dma_set_irq_line( ch, PULSE_LINE );
-
+		/* Completion remains pending until software acknowledges DMASR. */
+		ppc.dma[ch].ct = 0;
+		ppc.dmasr |= 0x80000000U >> ch;
 	}
+	ppc403_dma_update_irq();
 }
 
 /*********************************************************************************/

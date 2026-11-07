@@ -4500,6 +4500,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( hotchase )	/* GX763 (c) 1988 */
 	DRIVER( chqflag )	/* GX717 (c) 1988 */
 	DRIVER( chqflagj )	/* GX717 (c) 1988 (Japan) */
+	DRIVER( fiveside )
 	DRIVER( ultraman )	/* GX910 (c) 1991 Banpresto/Bandai */
 	DRIVER( hexion )	/* GX122 (c) 1992 */
 	DRIVER( lethalen )	/* GX191 (c) 1992 */

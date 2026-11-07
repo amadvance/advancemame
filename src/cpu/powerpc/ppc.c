@@ -219,6 +219,7 @@ typedef struct {
 	UINT32 sgr;
 	UINT32 pid;
 	UINT32 pbl1, pbl2, pbu1, pbu2;
+	UINT32 dbcr, iac[2], dac[2];
 	UINT32 fit_bit;
 	UINT32 fit_int_enable;
 	UINT32 wdt_bit;
@@ -588,6 +589,11 @@ INLINE void ppc_set_spr(int spr, UINT32 value)
 				ppc.tcr = value;
 				return;
 
+			case SPR403_DBCR:		ppc.dbcr = value; return;
+			case SPR403_IAC1: case SPR403_IAC2: ppc.iac[spr - SPR403_IAC1] = value; return;
+			case SPR403_DAC1: case SPR403_DAC2: ppc.dac[spr - SPR403_DAC1] = value; return;
+			case SPR403_SRR2:		SRR2 = value; return;
+			case SPR403_SRR3:		SRR3 = value; return;
 			case SPR403_ESR:		ppc.esr = value; return;
 			case SPR403_ICCR:		ppc.iccr = value; return;
 			case SPR403_DCCR:		ppc.dccr = value; return;
@@ -634,6 +640,11 @@ INLINE UINT32 ppc_get_spr(int spr)
 			case SPR403_TBHU:
 			case SPR403_TBHI:		return (UINT32)(ppc_read_timebase() >> 32);
 
+			case SPR403_DBCR:		return ppc.dbcr;
+			case SPR403_IAC1: case SPR403_IAC2: return ppc.iac[spr - SPR403_IAC1];
+			case SPR403_DAC1: case SPR403_DAC2: return ppc.dac[spr - SPR403_DAC1];
+			case SPR403_SRR2:		return SRR2;
+			case SPR403_SRR3:		return SRR3;
 			case SPR403_EVPR:		return EVPR;
 			case SPR403_ESR:		return ppc.esr;
 			case SPR403_TCR:		return ppc.tcr;
