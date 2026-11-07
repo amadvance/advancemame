@@ -7661,6 +7661,8 @@ Other Sun games
 	DRIVER( mag_war )
 	DRIVER( mag_xain )
 
+	DRIVER( cocoloco )
+
 	DRIVER( kuzmich )
 
 	/* Cidelsa */

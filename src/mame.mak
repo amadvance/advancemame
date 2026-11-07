@@ -1468,6 +1468,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/cave.o $(OBJ)/vidhrdw/cave.o \
 	$(OBJ)/drivers/cedar_magnet.o \
 	$(OBJ)/drivers/cherrym.o \
+	$(OBJ)/drivers/cocoloco.o \
 	$(OBJ)/drivers/coinmstr.o \
 	$(OBJ)/drivers/coolpool.o \
 	$(OBJ)/drivers/crystal.o $(OBJ)/machine/ds1302.o $(OBJ)/vidhrdw/vrender0.o \
