@@ -4452,6 +4452,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( devstor2 )	/* GX890 (c) 1988 */
 	DRIVER( devstor3 )	/* GX890 (c) 1988 */
 	DRIVER( garuka )	/* GX890 (c) 1988 (Japan) */
+	DRIVER( ddboy )
 	DRIVER( divebomb )
 	DRIVER( 88games )	/* GX861 (c) 1988 */
 	DRIVER( konami88 )	/* GX861 (c) 1988 */

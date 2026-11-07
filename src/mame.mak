@@ -805,6 +805,7 @@ $(OBJ)/kaneko.a: \
 	$(OBJ)/drivers/suprnova.o $(OBJ)/vidhrdw/suprnova.o \
 
 $(OBJ)/konami.a: \
+	$(OBJ)/drivers/konmedal.o \
 	$(OBJ)/drivers/divebomb.o \
 	$(OBJ)/drivers/88games.o $(OBJ)/vidhrdw/88games.o \
 	$(OBJ)/drivers/ajax.o $(OBJ)/machine/ajax.o $(OBJ)/vidhrdw/ajax.o \
