@@ -7661,6 +7661,7 @@ Other Sun games
 	DRIVER( mag_war )
 	DRIVER( mag_xain )
 
+	DRIVER( dominob )
 	DRIVER( discoboy )
 	DRIVER( gemcrush )
 	DRIVER( cocoloco )
