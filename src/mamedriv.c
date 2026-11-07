@@ -7001,6 +7001,7 @@ Other Sun games
 	DRIVER( kof98umh )
 
 	/* IGS PGM System Games */
+	DRIVER( fearless )
 	DRIVER( pgm )
 	DRIVER( orlegend )	/* (c) 1997 */
 	DRIVER( orlegnde )	/* (c) 1997 */

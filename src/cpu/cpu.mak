@@ -27,7 +27,7 @@ ifneq ($(filter ARM7,$(CPUS)),)
 OBJDIRS += $(OBJ)/cpu/arm7
 CPUOBJS += $(OBJ)/cpu/arm7/arm7.o
 DBGOBJS += $(OBJ)/cpu/arm7/arm7dasm.o
-$(OBJ)/cpu/arm7/arm7.o: arm7.c arm7.h arm7exec.c
+$(OBJ)/cpu/arm7/arm7.o: arm7.c arm7.h arm7core.c arm7core.h arm7exec.c
 endif
 
 
@@ -1087,4 +1087,11 @@ OBJDIRS += $(OBJ)/cpu/arm7
 DBGOBJS += $(OBJ)/cpu/arm7/arm7dasm.o
 endif
 $(OBJ)/cpu/arm920t/arm920t.o: arm920t.c arm920t.h ../igs036/igs036core.h ../igs036/igs036help.h ../igs036/igs036ops.c ../igs036/igs036thumb.c ../igs036/igs036irq.c
+endif
+
+CPUDEFS += -DHAS_XA=$(if $(filter XA,$(CPUS)),1,0)
+ifneq ($(filter XA,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/xa
+CPUOBJS += $(OBJ)/cpu/xa/xa.o
+$(OBJ)/cpu/xa/xa.o: xa.c xa.h
 endif

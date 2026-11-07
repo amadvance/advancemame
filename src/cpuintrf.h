@@ -209,6 +209,7 @@ enum
 #endif
 	CPU_COP420,
 	CPU_ARM920T,
+	CPU_XA,
     CPU_COUNT
 };
 

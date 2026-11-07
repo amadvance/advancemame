@@ -554,6 +554,8 @@ static void arm7_check_irq_state(void)
     UINT32 cpsr = GET_CPSR;   /* save current CPSR */
     UINT32 pc = R15+4;        /* save old pc (already incremented in pipeline) */;
 
+    /* Exception entry can switch ROM regions; opcode fetches must follow the vector. */
+
     /* Exception priorities:
 
         Reset
@@ -572,6 +574,7 @@ static void arm7_check_irq_state(void)
         SET_REGISTER( SPSR, cpsr );             /* Save current CPSR */
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x10;                             /* IRQ Vector address */
+        change_pc(R15);
         ARM7.pendingAbtD = 0;
         return;
     }
@@ -584,6 +587,7 @@ static void arm7_check_irq_state(void)
         SET_CPSR(GET_CPSR | I_MASK | F_MASK);   /* Mask both IRQ & FIRQ*/
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x1c;                             /* IRQ Vector address */
+        change_pc(R15);
         return;
     }
 
@@ -595,6 +599,7 @@ static void arm7_check_irq_state(void)
         SET_CPSR(GET_CPSR | I_MASK);            /* Mask IRQ */
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x18;                             /* IRQ Vector address */
+        change_pc(R15);
         return;
     }
 
@@ -605,6 +610,7 @@ static void arm7_check_irq_state(void)
         SET_REGISTER( SPSR, cpsr );             /* Save current CPSR */
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x0c;                             /* IRQ Vector address */
+        change_pc(R15);
         ARM7.pendingAbtP = 0;
         return;
     }
@@ -616,6 +622,7 @@ static void arm7_check_irq_state(void)
         SET_REGISTER( SPSR, cpsr );             /* Save current CPSR */
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x04;                             /* IRQ Vector address */
+        change_pc(R15);
         ARM7.pendingUnd = 0;
         return;
     }
@@ -627,6 +634,7 @@ static void arm7_check_irq_state(void)
         SET_REGISTER( SPSR, cpsr );             /* Save current CPSR */
         SET_CPSR(GET_CPSR & ~T_MASK);
         R15 = 0x08;                             /* IRQ Vector address */
+        change_pc(R15);
         ARM7.pendingSwi = 0;
         return;
     }
