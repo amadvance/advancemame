@@ -56,6 +56,7 @@ typedef struct
     UINT16	initial_pc;
     UINT8	wait_state;
     UINT8	irq_state;
+	int external_irq_vector;
     INT32	interrupt_cycles;
     int		(*irq_callback)(int irqline);
 } t11_Regs;
@@ -228,11 +229,17 @@ static void t11_check_irqs(void)
 	if (irq->priority > priority)
 	{
 		/* get the priority of this interrupt */
-		int new_pc = RWORD(irq->vector);
-		int new_psw = RWORD(irq->vector + 2);
+		int vector = irq->vector;
+		int new_pc, new_psw;
+
+		/* PDP-11 peripherals supply their own vector during acknowledgment. */
+		if (t11.external_irq_vector && t11.irq_callback)
+			vector = (*t11.irq_callback)(0) & 0xff;
+		new_pc = RWORD(vector);
+		new_psw = RWORD(vector + 2);
 
 		/* call the callback */
-		if (t11.irq_callback)
+		if (t11.irq_callback && !t11.external_irq_vector)
 		{
 			int vector = 0;
 
@@ -322,6 +329,7 @@ static void t11_init(int index, int clock, const void *config, int (*irqcallback
 	const struct t11_setup *setup = config;
 
 	t11.initial_pc = initial_pc[setup->mode >> 13];
+	t11.external_irq_vector = setup->external_irq_vector;
 	t11.irq_callback = irqcallback;
 
 	state_save_register_item("t11", index, t11.ppc.w.l);

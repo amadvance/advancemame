@@ -28,6 +28,7 @@ enum {
 struct t11_setup
 {
 	UINT16	mode;			/* initial processor mode */
+	int external_irq_vector; /* use the acknowledgment callback vector */
 };
 
 

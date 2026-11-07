@@ -1495,6 +1495,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/fortecar.o \
 	$(OBJ)/drivers/freekick.o $(OBJ)/vidhrdw/freekick.o \
 	$(OBJ)/drivers/funworld.o \
+	$(OBJ)/drivers/galgame.o \
 	$(OBJ)/drivers/go2000.o \
 	$(OBJ)/drivers/gotcha.o $(OBJ)/vidhrdw/gotcha.o \
 	$(OBJ)/drivers/gumbo.o $(OBJ)/vidhrdw/gumbo.o \
