@@ -8210,9 +8210,9 @@ GAME( 1992, varthr1,  varth,    cps1,     varth,    cps1,     ROT270, "Capcom", 
 GAME( 1992, varthu,   varth,    cps1,     varth,    cps1,     ROT270, "Capcom (Romstar license)", "Varth - Operation Thunderstorm (US 920612)", 0 )
 GAME( 1992, varthj,   varth,    cps1,     varth,    cps1,     ROT270, "Capcom", "Varth - Operation Thunderstorm (Japan 920714)", 0 )
 GAME( 1992, cworld2j, 0,        cps1,     cworld2j, cps1,     ROT0,   "Capcom", "Capcom World 2 (Japan 920611)", 0 )
-GAME( 1992, sf2hf,    sf2ce,    sf2,      sf2,      cps1,     ROT0,   "Capcom", "Street Fighter II' - Hyper Fighting (World 921209)", 0 )
-GAME( 1992, sf2t,     sf2ce,    sf2,      sf2,      cps1,     ROT0,   "Capcom", "Street Fighter II' - Hyper Fighting (US 921209)", 0 )
-GAME( 1992, sf2tj,    sf2ce,    sf2,      sf2j,     cps1,     ROT0,   "Capcom", "Street Fighter II' Turbo - Hyper Fighting (Japan 921209)", 0 )
+GAME( 1992, sf2hf,    0,        sf2,      sf2,      cps1,     ROT0,   "Capcom", "Street Fighter II' - Hyper Fighting (World 921209)", 0 )
+GAME( 1992, sf2t,     sf2hf,    sf2,      sf2,      cps1,     ROT0,   "Capcom", "Street Fighter II' - Hyper Fighting (US 921209)", 0 )
+GAME( 1992, sf2tj,    sf2hf,    sf2,      sf2j,     cps1,     ROT0,   "Capcom", "Street Fighter II' Turbo - Hyper Fighting (Japan 921209)", 0 )
 GAME( 1992, qad,      0,        cps1,     qad,      cps1,     ROT0,   "Capcom", "Quiz & Dragons (US 920701)", 0 )
 GAME( 1994, qadj,     qad,      cps1,     qadj,     cps1,     ROT0,   "Capcom", "Quiz & Dragons (Japan 940921)", 0 )
 GAME( 1995, qtono2,   0,        cps1,     qtono2,   cps1,     ROT0,   "Capcom", "Quiz Tonosama no Yabou 2 Zenkoku-ban (Japan 950123)", 0 )
@@ -8232,8 +8232,8 @@ GAME( 1993, punishrj, punisher, qsound,   punisher, punisher, ROT0,   "Capcom", 
 GAME( 1993, slammast, 0,        qsound,   slammast, slammast, ROT0,   "Capcom", "Saturday Night Slam Masters (World 930713)" , 0)		// "ETC"
 GAME( 1993, slammasu, slammast, qsound,   slammast, slammast, ROT0,   "Capcom", "Saturday Night Slam Masters (US 930713)", 0 )
 GAME( 1993, mbomberj, slammast, qsound,   slammast, slammast, ROT0,   "Capcom", "Muscle Bomber - The Body Explosion (Japan 930713)", 0 )
-GAME( 1993, mbombrd,  slammast, qsound,   slammast, slammast, ROT0,   "Capcom", "Muscle Bomber Duo - Ultimate Team Battle (World 931206)" , 0)  // "ETC"
-GAME( 1993, mbombrdj, slammast, qsound,   slammast, slammast, ROT0,   "Capcom", "Muscle Bomber Duo - Heat Up Warriors (Japan 931206)", 0 )
+GAME( 1993, mbombrd,  0,        qsound,   slammast, slammast, ROT0,   "Capcom", "Muscle Bomber Duo - Ultimate Team Battle (World 931206)" , 0)  // "ETC"
+GAME( 1993, mbombrdj, mbombrd,  qsound,   slammast, slammast, ROT0,   "Capcom", "Muscle Bomber Duo - Heat Up Warriors (Japan 931206)", 0 )
 
 GAME( 2000, ganbare,  0, ganbare, ganbare,  ganbare,  ROT0, "Capcom", "Ganbare! Marine Kun (Japan 2K0411)", 0 )
 GAME( 1996, mpumpkin, 0, cps1,    mpumpkin, mpumpkin, ROT0, "Capcom", "Magical Pumpkin: Puroland de Daibouken (Japan 960712)", 0 )

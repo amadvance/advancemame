@@ -3120,7 +3120,7 @@ GAME( 1982, xeviousb, xevious, xevious, xeviousb, xevious, ROT90, "Namco (Atari 
 GAME( 1982, xeviousc, xevious, xevious, xeviousa, xevious, ROT90, "Namco (Atari license)", "Xevious (Atari set 3)", GAME_SUPPORTS_SAVE )
 GAME( 1982, xevios,   xevious, xevious, xevious,  xevios,  ROT90, "bootleg", "Xevios", GAME_SUPPORTS_SAVE )
 GAME( 1982, battles,  xevious, battles, xevious,  battles, ROT90, "bootleg", "Battles", GAME_SUPPORTS_SAVE )
-GAME( 1984, sxevious, xevious, xevious, sxevious, xevious, ROT90, "Namco", "Super Xevious", GAME_SUPPORTS_SAVE )
+GAME( 1984, sxevious, 0,       xevious, sxevious, xevious, ROT90, "Namco", "Super Xevious", GAME_SUPPORTS_SAVE )
 
 GAME( 1982, digdug,   0,       digdug,  digdug,   0,       ROT90, "Namco", "Dig Dug (rev 2)", GAME_SUPPORTS_SAVE )
 GAME( 1982, digdugb,  digdug,  digdug,  digdug,   0,       ROT90, "Namco", "Dig Dug (rev 1)", GAME_SUPPORTS_SAVE )

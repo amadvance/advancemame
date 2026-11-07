@@ -5873,7 +5873,7 @@ GAME( 1990, mjnquest, 0,        mjnquest, mjnquest, mjnquest, ROT0,   "Taito Cor
 GAME( 1990, mjnquesb, mjnquest, mjnquest, mjnquest, mjnquest, ROT0,   "Taito Corporation", "Mahjong Quest (No Nudity)", 0 )
 GAME( 1990, footchmp, 0,        footchmp, footchmp, 0,        ROT0,   "Taito Corporation Japan", "Football Champ (World)", 0 )
 GAME( 1990, hthero,   footchmp, hthero,   hthero,   0,        ROT0,   "Taito Corporation", "Hat Trick Hero (Japan)", 0 )
-GAME( 1992, euroch92, footchmp, footchmp, footchmp, 0,        ROT0,   "Taito Corporation Japan", "Euro Champ '92 (World)", 0 )
+GAME( 1992, euroch92, 0,        footchmp, footchmp, 0,        ROT0,   "Taito Corporation Japan", "Euro Champ '92 (World)", 0 )
 GAME( 1990, koshien,  0,        koshien,  koshien,  0,        ROT0,   "Taito Corporation", "Ah Eikou no Koshien (Japan)", 0 )
 GAME( 1990, yuyugogo, 0,        yuyugogo, yuyugogo, 0,        ROT0,   "Taito Corporation", "Yuuyu no Quiz de GO!GO! (Japan)", 0 )
 GAME( 1990, ninjak,   0,        ninjak,   ninjak,   0,        ROT0,   "Taito Corporation Japan", "The Ninja Kids (World)", 0 )

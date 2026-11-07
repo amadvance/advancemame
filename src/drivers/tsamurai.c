@@ -1486,5 +1486,5 @@ GAME( 1985, yamagchi,  0,        tsamurai, yamagchi,  0,        ROT90, "Taito", 
 GAME( 1986, m660,      0,        m660,     m660,      0,        ROT90, "[Woodplace Inc.] Taito America Corporation", "Mission 660 (US)", 0 )
 GAME( 1986, m660j,     m660,     m660,     m660,      0,        ROT90, "[Woodplace Inc.] Taito Corporation", "Mission 660 (Japan)", 0 )
 GAME( 1986, m660b,     m660,     m660,     m660,      0,        ROT90, "bootleg", "Mission 660 (bootleg)", 0 )
-GAME( 1986, alphaxz,   m660,     m660,     m660,      0,        ROT90, "Ed / Woodplace Inc.", "The Alphax Z (Japan)", 0 )
-GAME( 1986, the26thz,  m660,     m660,     m660,      the26thz, ROT90, "Ed / Woodplace Inc.", "The 26th Z (Japan, location test)", 0 )
+GAME( 1986, alphaxz,   0,        m660,     m660,      0,        ROT90, "Ed / Woodplace Inc.", "The Alphax Z (Japan)", 0 )
+GAME( 1986, the26thz,  alphaxz,  m660,     m660,      the26thz, ROT90, "Ed / Woodplace Inc.", "The 26th Z (Japan, location test)", 0 )

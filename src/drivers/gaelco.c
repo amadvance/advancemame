@@ -1612,7 +1612,7 @@ ROM_END
 
 GAME( 1991, bigkarnk, 0,        bigkarnk, bigkarnk, 0, ROT0, "Gaelco", "Big Karnak", 0 )
 GAME( 1995, biomtoy,  0,        maniacsq, biomtoy,  0, ROT0, "Gaelco", "Biomechanical Toy (unprotected)", 0 )
-GAME( 1996, maniacsp, maniacsq, maniacsq, maniacsq, 0, ROT0, "Gaelco", "Maniac Square (prototype)", 0 )
+GAME( 1996, maniacsp, 0,        maniacsq, maniacsq, 0, ROT0, "Gaelco", "Maniac Square (prototype)", 0 )
 GAME( 1995, lastkm, 0, lastkm, lastkm, 0, ROT0, "Gaelco / Zeus", "Last KM (ver 1.0.0275, checksum 13bff751, prototype)", 0 )
 GAME( 1992, squash,   0,        squash,   squash,   0, ROT0, "Gaelco", "Squash (Ver. 1.0)", GAME_IMPERFECT_GRAPHICS )  // problems with decryption + prioirites
 GAME( 1992, thoop,    0,	thoop,    thoop,    0, ROT0, "Gaelco", "Thunder Hoop (Ver. 1)", 0 )

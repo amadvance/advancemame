@@ -2532,7 +2532,7 @@ GAME( 1990, wintbob,  snowbros, wintbob,  snowbros, 0, ROT0, "bootleg", "The Win
 /* Cloned snow bros hardware */
 GAME( 1995, honeydol, 0,        honeydol, honeydol, 0,        ROT0, "Barko Corp.", "Honey Dolls", GAME_IMPERFECT_GRAPHICS ) // based on snowbros code..
 GAME( 1996, toto,     0,        snowbros, snowbros, toto,     ROT0, "SoftClub","Come Back Toto", 0 ) /* modified from 'snowbros' code */
-GAME( 2002, snowbro3, snowbros, snowbro3, snowbroj, snowbro3, ROT0, "bootleg", "Snow Brothers 3 - Magical Adventure", GAME_IMPERFECT_SOUND ) // its basically snowbros code?...
+GAME( 2002, snowbro3, 0,        snowbro3, snowbroj, snowbro3, ROT0, "bootleg", "Snow Brothers 3 - Magical Adventure", GAME_IMPERFECT_SOUND ) // its basically snowbros code?...
 
 /* SemiCom Games */
 GAME( 1995, hyperpac, 0,        semicom,  hyperpac, hyperpac, ROT0, "SemiCom", "Hyper Pacman", 0 )

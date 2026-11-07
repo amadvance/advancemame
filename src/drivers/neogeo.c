@@ -8816,8 +8816,8 @@ GAMEB( 1996, neomrdo,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco
 GAMEB( 1995, goalx3,   neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Goal! Goal! Goal!", 0 )
 GAMEB( 1996, neodrift, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Neo Drift Out - New Technology", 0 )
 GAMEB( 1996, breakers, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Breakers", 0 )
-GAMEB( 1997, puzzldpr, puzzledp, neogeo, neogeo, neogeo,  neogeo,   ROT0, "Taito (Visco license)", "Puzzle De Pon! R!", 0 )
-GAMEB( 1998, breakrev, breakers, neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Breakers Revenge", 0)
+GAMEB( 1997, puzzldpr, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Taito (Visco license)", "Puzzle De Pon! R!", 0 )
+GAMEB( 1998, breakrev, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Breakers Revenge", 0)
 GAMEB( 1998, flipshot, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Battle Flip Shot", 0 )
 GAMEB( 1999, ctomaday, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Captain Tomaday", 0 )
 GAMEB( 1999, ganryu,   neogeo,   neogeo, neogeo, neogeo,  ganryu,   ROT0, "Visco", "Ganryu / Musashi Ganryuki" , 0)	/* Encrypted GFX */

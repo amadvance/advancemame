@@ -1170,9 +1170,9 @@ ROM_END
 GAME( 1994, mk3,     0,         wunit, mk3,     mk3,     ROT0, "Midway", "Mortal Kombat 3 (rev 2.1)", 0 )
 GAME( 1994, mk3r20,  mk3,       wunit, mk3,     mk3r20,  ROT0, "Midway", "Mortal Kombat 3 (rev 2.0)", 0 )
 GAME( 1994, mk3r10,  mk3,       wunit, mk3,     mk3r10,  ROT0, "Midway", "Mortal Kombat 3 (rev 1.0)", 0 )
-GAME( 1994, umk3,    mk3,       wunit, mk3,     umk3,    ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.2)", 0 )
-GAME( 1994, umk3r11, mk3,       wunit, mk3,     umk3r11, ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.1)", 0 )
-GAME( 1994, umk3r10, mk3,       wunit, mk3,     umk3r11, ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.0)", 0 )
+GAME( 1994, umk3,    0,         wunit, mk3,     umk3,    ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.2)", 0 )
+GAME( 1994, umk3r11, umk3,      wunit, mk3,     umk3r11, ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.1)", 0 )
+GAME( 1994, umk3r10, umk3,      wunit, mk3,     umk3r11, ROT0, "Midway", "Ultimate Mortal Kombat 3 (rev 1.0)", 0 )
 
 GAME( 1995, wwfmania,0,         wunit, wwfmania,wwfmania,ROT0, "Midway", "WWF: Wrestlemania (rev 1.30 08/10/95)", 0 )
 GAME( 1995, openice, 0,         wunit, openice, openice, ROT0, "Midway", "2 On 2 Open Ice Challenge (rev 1.21)", 0 )

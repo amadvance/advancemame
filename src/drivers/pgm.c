@@ -6919,7 +6919,7 @@ GAME( 1999, raf102j,  photoy2k,   pgm, photoy2k, djlzz,      ROT0,   "IGS", "Rea
 GAME( 1999, kovsh, kov, kovsh, pgm, kovsh, ROT0, "IGS", "Knights of Valour Super Heroes / Sanguo Zhan Ji Fengyun Zaiqi / Sangoku Senki Super Heroes (ver. 104, CN)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2p,    kov2,       ddp2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2p,    pgm,        ddp2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,  ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
 GAME( 2001, ddp2,     pgm,        ddp2, pgm,      ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnt,     pgm,        pgm_arm22,  pgm,     dmnfrnt,    ROT0,   "IGS", "Demon Front / Moyu Zhanxian (68k label V105, ROM M105XX 08/05/02) (ARM label V105, ROM 08/05/02 S105XX)", GAME_IMPERFECT_SOUND )

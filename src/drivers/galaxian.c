@@ -6896,7 +6896,7 @@ GAME( 1980, moonal2,  0,        mooncrst, moonal2,  0,        ROT90,  "Nichibuts
 GAME( 1980, moonal2b, moonal2,  mooncrst, moonal2,  0,        ROT90,  "Nichibutsu", "Moon Alien Part 2 (older version)", GAME_SUPPORTS_SAVE )
 GAME( 1980, supergx,  moonal2,  galaxian, superg,   0,        ROT90,  "Nichibutsu", "Super GX", GAME_NOT_WORKING | GAME_WRONG_COLORS | GAME_SUPPORTS_SAVE )
 GAME( 1982, skybase,  0,        skybase,  skybase,  0,        ROT90,  "Omori Electric Co., Ltd.", "Sky Base", GAME_SUPPORTS_SAVE )
-GAME( 19??, omega,    theend,   galaxian, omega,    0,        ROT270, "bootleg?", "Omega", GAME_SUPPORTS_SAVE )
+GAME( 19??, omega,    0,        galaxian, omega,    0,        ROT270, "bootleg?", "Omega", GAME_SUPPORTS_SAVE )
 GAME( 1980, kingball, 0,        kingball, kingball, kingball, ROT90,  "Namco", "King & Balloon (US)", GAME_SUPPORTS_SAVE )
 GAME( 1980, kingbalj, kingball, kingball, kingball, kingball, ROT90,  "Namco", "King & Balloon (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 19??, scorpnmc, scorpion, scorpnmc, scorpnmc, 0,        ROT90,  "Dorneer", "Scorpion (Moon Cresta hardware)", GAME_SUPPORTS_SAVE )
