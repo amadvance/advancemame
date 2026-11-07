@@ -1,33 +1,32 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 5.1 2025/XX (WIP)
-	) Added Bazooka, Taito do Brasil, 1977 from https://github.com/ninomegadriver/bazooka [ninomegadriver]
-	) Updated video code to MAME 107 (#401) [arcadez2003]
-	) Updated ninjakd2.c to MAME107 (#400) [arcadez2003]
-	) Fixed slowdown in Taito's Fighting Hawk (#399) [arcadez2003]
-	) CPS1/2 "Buffer Delay" functions worked on DefMAME [Andrea Mazzoleni]
-	) Wild Fang / Tecmo Knight emulated missing gfx effect (#397) [arcadez2003]
-	) Fixed slowdown in U.S. Championship V'ball (#396) [arcadez2003]
-	) Fixed broken sounds for Inferno (#395) [arcadez2003]
-	) Thunder Cross: Fixed collisions (#394) [arcadez2003]
-	) Fixed some slowdown issues in Silent Dragon (#393) [arcadez2003]
-	) Fixed various graphical niggles for the video system games (#392) [arcadez2003]
-	) Fixed fading in CPS3 games [komazow]
-	) Lined up the Gun Targets (#390) [arcadez2003]
-	) Added Quick Shots, an unprotected version of Target Hits (#389) [arcadez2003]
-	) Fixed some gameplay issues with Chequered Flag and improved K051733 protection (#388) [arcadez2003]
-	) Konami's Chequered Flag: Improved sound and K05733 protection (#387) [arcadez2003]
-	) Overclocked ddragon and ddragon2 to avoid slowdowns [Andrea Mazzoleni]
-	) Updated list of CPS2 games with MAME 0.277 [Andrea Mazzoleni]
-	) Thoop: Fixed lives dipswitch default to 3 instead of 1 (#386) [arcadez2003]
-	) Supported rowscroll on the score layer of CPS3, fixing Jojoba combo meters [komazow]
-	) Final Fight 3: Patched out the protection sooner (#385) [arcadez2003]
-	) Revised the color distance function for XBR [Andrea Mazzoleni]
-	) Fixed saving of game-specific input configuration
+AdvanceMAME/MESS Version 6.0 (WIP)
+	) Added almost all missing games up to MAME 0.287, backporting hundreds of
+		drivers and titles across classic, 90s, and modern arcade platforms.
+	) Relicensed AdvanceMAME and AdvanceMESS under the GNU General Public License
+		version 2 or later (GPL-2.0+), completing a full audit of all source files
+		to eliminate legacy non-commercial restrictions, adopting standard SPDX
+		license identifiers, and replacing non-free components with clean BSD-3-Clause
+		and GPL-compatible implementations.
+	) Added Just-In-Time (JIT) dynamic recompilation support powered by the SLJIT
+		library for supported CPU and DSP architectures: SH-2 (ST-V), SH-3 (Cave CV1000),
+		MIPS III (Killer Instinct, Midway Seattle/Vegas), Sony PlayStation / PSX
+		(MIPS R3000A derivative), and ADSP-2100 DSP core, featuring shared block
+		caching and polling loop idle optimizations.
+	) Added support for modern XML artwork layout (.lay) format, completely replacing
+		the legacy .art artwork system with a static renderer supporting layout
+		parsing, PNG and JPEG image loading, view selection, aspect ratio correction,
+		and automatic artwork packaging.
+	) Optimized video blitting with SCALE/XBR scaler using portable SSE and NEON intrinsics
 	) Windows binaries were built with gcc 11.5.0 using the MXE cross compiler at
 		commit 8c4378fa2b55bc28515b23e96e05d03e671d9b90 with targets
 		i686-w64-mingw32.static and x86_64-w64-mingw32.static and optimization -O2.
+
+AdvanceMENU Version 6.0 (WIP)
+	) Added advbare standalone XML filter utility and optimized XML parsing in emuxml.cc
+		with direct attribute processing, sub-tree skipping, and zero-copy Expat
+		buffering to accelerate MAME XML database loading and menu startup.
 
 AdvanceMAME/MESS Version 5.0 2025/05
 	New games were supported or improved: [arcadez2003] [grant2258]
