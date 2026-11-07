@@ -9,12 +9,12 @@ MENUCFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_MENU
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/mpglib
+	-I$(srcdir)/alien/mpglib
 MENUOBJDIRS += \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
-	$(MENUOBJ)/mpglib
+	$(MENUOBJ)/alien/mpglib
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
@@ -107,12 +107,12 @@ MENUOBJS += \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/blit/slice.o \
-	$(MENUOBJ)/mpglib/interfac.o \
-	$(MENUOBJ)/mpglib/internal.o \
-	$(MENUOBJ)/mpglib/decode.o \
-	$(MENUOBJ)/mpglib/dct64.o \
-	$(MENUOBJ)/mpglib/layer3.o \
-	$(MENUOBJ)/mpglib/tabinit.o
+	$(MENUOBJ)/alien/mpglib/interfac.o \
+	$(MENUOBJ)/alien/mpglib/internal.o \
+	$(MENUOBJ)/alien/mpglib/decode.o \
+	$(MENUOBJ)/alien/mpglib/dct64.o \
+	$(MENUOBJ)/alien/mpglib/layer3.o \
+	$(MENUOBJ)/alien/mpglib/tabinit.o
 
 ifeq ($(CONF_SYSTEM),unix)
 
@@ -253,11 +253,11 @@ MENUCFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
-	-I$(srcdir)/advance/svgalib/svgados \
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib/svgados \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE -DUSE_SOUND_INT \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
@@ -417,11 +417,11 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib/svgawin
 MENUCFLAGS += \
 	-DUSE_ADV_SVGALIB_WIN \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
-	-I$(srcdir)/advance/svgalib/svgawin \
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib/svgawin \
 	-DUSE_VIDEO_SVGAWIN
 MENUOBJS += \
 	$(MENUOBJ)/windows/vsvgawin.o \
@@ -474,7 +474,7 @@ endif
 ############################################################################
 # expat
 
-$(MENUOBJ)/libexpat.a: $(MENUOBJ)/expat/xmlparse.o $(MENUOBJ)/expat/xmlrole.o $(MENUOBJ)/expat/xmltok.o
+$(MENUOBJ)/libexpat.a: $(MENUOBJ)/alien/expat/xmlparse.o $(MENUOBJ)/alien/expat/xmlrole.o $(MENUOBJ)/alien/expat/xmltok.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -482,9 +482,9 @@ ifeq ($(CONF_LIB_EXPAT),yes)
 MENULIBS += -lexpat
 else
 CFLAGS += \
-	-I$(srcdir)/advance/expat
+	-I$(srcdir)/alien/expat
 MENUOBJDIRS += \
-	$(MENUOBJ)/expat
+	$(MENUOBJ)/alien/expat
 MENUOBJS += \
 	$(MENUOBJ)/libexpat.a
 endif
@@ -492,10 +492,10 @@ endif
 ############################################################################
 # zlib
 
-$(MENUOBJ)/libz.a: $(MENUOBJ)/zlib/adler32.o $(MENUOBJ)/zlib/crc32.o $(MENUOBJ)/zlib/deflate.o \
-	$(MENUOBJ)/zlib/inffast.o $(MENUOBJ)/zlib/inflate.o \
-	$(MENUOBJ)/zlib/infback.o $(MENUOBJ)/zlib/inftrees.o $(MENUOBJ)/zlib/trees.o \
-	$(MENUOBJ)/zlib/zutil.o $(MENUOBJ)/zlib/uncompr.o $(MENUOBJ)/zlib/compress.o
+$(MENUOBJ)/libz.a: $(MENUOBJ)/alien/zlib/adler32.o $(MENUOBJ)/alien/zlib/crc32.o $(MENUOBJ)/alien/zlib/deflate.o \
+	$(MENUOBJ)/alien/zlib/inffast.o $(MENUOBJ)/alien/zlib/inflate.o \
+	$(MENUOBJ)/alien/zlib/infback.o $(MENUOBJ)/alien/zlib/inftrees.o $(MENUOBJ)/alien/zlib/trees.o \
+	$(MENUOBJ)/alien/zlib/zutil.o $(MENUOBJ)/alien/zlib/uncompr.o $(MENUOBJ)/alien/zlib/compress.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -503,9 +503,9 @@ ifeq ($(CONF_LIB_ZLIB),yes)
 MENULIBS += -lz
 else
 CFLAGS += \
-	-I$(srcdir)/advance/zlib
+	-I$(srcdir)/alien/zlib
 MENUOBJDIRS += \
-	$(MENUOBJ)/zlib
+	$(MENUOBJ)/alien/zlib
 MENUOBJS += \
 	$(MENUOBJ)/libz.a
 endif
@@ -522,6 +522,10 @@ $(MENUOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(CXX) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
 
 $(MENUOBJ)/%.o: $(srcdir)/advance/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
+
+$(MENUOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
 
@@ -667,8 +671,8 @@ MENU_ROOT_BIN += \
 endif
 ifeq ($(CONF_SYSTEM),windows)
 MENU_ROOT_BIN += \
-	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
-	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
+	$(srcdir)/alien/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/alien/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 endif
@@ -703,36 +707,37 @@ distmenu:
 	cp $(BLIT_SRC) $(MENU_DIST_DIR_SRC)/advance/blit
 	mkdir $(MENU_DIST_DIR_SRC)/advance/card
 	cp $(CARD_SRC) $(MENU_DIST_DIR_SRC)/advance/card
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib
-	cp $(SVGALIB_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/clockchi
-	cp $(SVGALIBCLOCKCHI_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/clockchi
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/ramdac
-	cp $(SVGALIBRAMDAC_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/ramdac
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/drivers
-	cp $(SVGALIBDRIVERS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/drivers
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgados
-	cp $(SVGALIBSVGADOS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgados
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin
-	cp $(SVGALIBSVGAWIN_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	cp $(SVGALIBSVGAWINSYS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	cp $(SVGALIBSVGAWININSTALL_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
-	cp $(SVGALIBSVGAWINDRIVER_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
-	mkdir $(MENU_DIST_DIR_SRC)/advance/mpglib
-	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/mpglib
+	mkdir $(MENU_DIST_DIR_SRC)/alien
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib
+	cp $(SVGALIB_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/clockchi
+	cp $(SVGALIBCLOCKCHI_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/clockchi
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/ramdac
+	cp $(SVGALIBRAMDAC_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/ramdac
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/drivers
+	cp $(SVGALIBDRIVERS_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/drivers
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/svgados
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	mkdir $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(MENU_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
+	mkdir $(MENU_DIST_DIR_SRC)/alien/mpglib
+	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/alien/mpglib
 	mkdir $(MENU_DIST_DIR_SRC)/advance/v
 	cp $(V_SRC) $(MENU_DIST_DIR_SRC)/advance/v
 	mkdir $(MENU_DIST_DIR_SRC)/advance/cfg
 	cp $(CFG_SRC) $(MENU_DIST_DIR_SRC)/advance/cfg
 	mkdir $(MENU_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(MENU_DIST_DIR_SRC)/advance/d2
-	mkdir $(MENU_DIST_DIR_SRC)/advance/expat
-	cp $(EXPAT_SRC) $(MENU_DIST_DIR_SRC)/advance/expat
-	mkdir $(MENU_DIST_DIR_SRC)/advance/zlib
-	cp $(ZLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/zlib
+	mkdir $(MENU_DIST_DIR_SRC)/alien/expat
+	cp $(EXPAT_SRC) $(MENU_DIST_DIR_SRC)/alien/expat
+	mkdir $(MENU_DIST_DIR_SRC)/alien/zlib
+	cp $(ZLIB_SRC) $(MENU_DIST_DIR_SRC)/alien/zlib
 	mkdir $(MENU_DIST_DIR_SRC)/contrib
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_SRC)/contrib
 	rm -f $(MENU_DIST_FILE_SRC).tar.gz

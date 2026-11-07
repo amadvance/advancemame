@@ -206,9 +206,9 @@ RCSRC = $(srcdir)/support/pcvga.rc \
 	$(srcdir)/support/ntsc.rc
 
 MPGLIB_SRC = \
-	$(wildcard $(srcdir)/advance/mpglib/*.c) \
-	$(wildcard $(srcdir)/advance/mpglib/*.h) \
-	$(wildcard $(srcdir)/advance/mpglib/*.txt)
+	$(wildcard $(srcdir)/alien/mpglib/*.c) \
+	$(wildcard $(srcdir)/alien/mpglib/*.h) \
+	$(wildcard $(srcdir)/alien/mpglib/*.txt)
 
 LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \
@@ -231,59 +231,59 @@ CARD_SRC = \
 	$(wildcard $(srcdir)/advance/card/*.h)
 
 SVGALIB_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/*.h) \
-	$(wildcard $(srcdir)/advance/svgalib/*.dif) \
-	$(wildcard $(srcdir)/advance/svgalib/*.txt) \
-	$(wildcard $(srcdir)/advance/svgalib/*.bat) \
-	$(wildcard $(srcdir)/advance/svgalib/*.sh) \
-	$(wildcard $(srcdir)/advance/svgalib/*.cfg) \
-	$(wildcard $(srcdir)/advance/svgalib/*.html)
+	$(wildcard $(srcdir)/alien/svgalib/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/*.h) \
+	$(wildcard $(srcdir)/alien/svgalib/*.dif) \
+	$(wildcard $(srcdir)/alien/svgalib/*.txt) \
+	$(wildcard $(srcdir)/alien/svgalib/*.bat) \
+	$(wildcard $(srcdir)/alien/svgalib/*.sh) \
+	$(wildcard $(srcdir)/alien/svgalib/*.cfg) \
+	$(wildcard $(srcdir)/alien/svgalib/*.html)
 
 SVGALIBDRIVERS_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/drivers/*.c) \
-        $(wildcard $(srcdir)/advance/svgalib/drivers/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/drivers/*.c) \
+        $(wildcard $(srcdir)/alien/svgalib/drivers/*.h)
 
 SVGALIBCLOCKCHI_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/clockchi/*.c) \
-        $(wildcard $(srcdir)/advance/svgalib/clockchi/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/clockchi/*.c) \
+        $(wildcard $(srcdir)/alien/svgalib/clockchi/*.h)
 
 SVGALIBRAMDAC_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/ramdac/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/ramdac/*.h)
 
 SVGALIBSVGADOS_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgados/*.c)
+	$(wildcard $(srcdir)/alien/svgalib/svgados/*.c)
 
 SVGALIBSVGAWIN_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/*.h)
 
 SVGALIBSVGAWINSYS_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/sys/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/sys/*.h)
 
 SVGALIBSVGAWININSTALL_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/makefile) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/install/makefile) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/install/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/install/*.h)
 
 SVGALIBSVGAWINDRIVER_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/makefile) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/sources) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.rc) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/driver/makefile) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/driver/sources) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/driver/*.rc) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/driver/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/svgawin/driver/*.h)
 
 SVGALIBSVGAVDD_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/*.c)
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/*.c)
 
 SVGALIBSVGAVDDVDD_SRC = \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/makefile) \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/sources) \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.rc) \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.def) \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.c) \
-	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.h)
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/makefile) \
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/sources) \
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/*.rc) \
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/*.def) \
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/*.c) \
+	$(wildcard $(srcdir)/alien/svgalib/svgavdd/vdd/*.h)
 
 V_SRC = \
 	$(wildcard $(srcdir)/advance/v/*.c) \
@@ -355,30 +355,30 @@ D2_SRC = \
 	$(wildcard $(srcdir)/advance/d2/*.cc)
 
 EXPAT_SRC = \
-	$(wildcard $(srcdir)/advance/expat/*.c) \
-	$(wildcard $(srcdir)/advance/expat/*.h) \
-	$(wildcard $(srcdir)/advance/expat/COPYING) \
-	$(wildcard $(srcdir)/advance/expat/README) \
-	$(wildcard $(srcdir)/advance/expat/*.diff)
+	$(wildcard $(srcdir)/alien/expat/*.c) \
+	$(wildcard $(srcdir)/alien/expat/*.h) \
+	$(wildcard $(srcdir)/alien/expat/COPYING) \
+	$(wildcard $(srcdir)/alien/expat/README) \
+	$(wildcard $(srcdir)/alien/expat/*.diff)
 
 ZLIB_SRC = \
-	$(wildcard $(srcdir)/advance/zlib/*.c) \
-	$(wildcard $(srcdir)/advance/zlib/*.h) \
-	$(wildcard $(srcdir)/advance/zlib/COPYING) \
-	$(wildcard $(srcdir)/advance/zlib/README) \
-	$(wildcard $(srcdir)/advance/zlib/*.diff)
+	$(wildcard $(srcdir)/alien/zlib/*.c) \
+	$(wildcard $(srcdir)/alien/zlib/*.h) \
+	$(wildcard $(srcdir)/alien/zlib/COPYING) \
+	$(wildcard $(srcdir)/alien/zlib/README) \
+	$(wildcard $(srcdir)/alien/zlib/*.diff)
 
 NANOJPEG_SRC = \
-	$(wildcard $(srcdir)/advance/nanojpeg/*.c) \
-	$(wildcard $(srcdir)/advance/nanojpeg/*.h)
+	$(wildcard $(srcdir)/alien/nanojpeg/*.c) \
+	$(wildcard $(srcdir)/alien/nanojpeg/*.h)
 
 SLJIT_SRC = \
-	$(wildcard $(srcdir)/advance/sljit/*.c) \
-	$(wildcard $(srcdir)/advance/sljit/*.h) \
-	$(wildcard $(srcdir)/advance/sljit/README)
+	$(wildcard $(srcdir)/alien/sljit/*.c) \
+	$(wildcard $(srcdir)/alien/sljit/*.h) \
+	$(wildcard $(srcdir)/alien/sljit/README)
 
 SLJIT_ALLOCATOR_SRC = \
-	$(wildcard $(srcdir)/advance/sljit/allocator_src/*.c)
+	$(wildcard $(srcdir)/alien/sljit/allocator_src/*.c)
 
 CONF_SRC = \
 	$(srcdir)/Makefile.in \

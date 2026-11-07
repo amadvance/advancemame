@@ -164,11 +164,11 @@ ADVANCECFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
-	-I$(srcdir)/advance/svgalib/svgados
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib/svgados
 ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE \
@@ -315,11 +315,11 @@ ADVANCEOBJDIRS += \
 	$(OBJ)/advance/svgalib/svgawin
 ADVANCECFLAGS += \
 	-DUSE_ADV_SVGALIB_WIN \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
-	-I$(srcdir)/advance/svgalib/svgawin \
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib/svgawin \
 	-DUSE_VIDEO_SVGAWIN
 ADVANCEOBJS += \
 	$(OBJ)/advance/windows/vsvgawin.o \
@@ -542,7 +542,7 @@ EMUCHDMANOBJS += \
 ############################################################################
 # expat
 
-$(OBJ)/advance/libexpat.a: $(OBJ)/advance/expat/xmlparse.o $(OBJ)/advance/expat/xmlrole.o $(OBJ)/advance/expat/xmltok.o
+$(OBJ)/advance/libexpat.a: $(OBJ)/alien/expat/xmlparse.o $(OBJ)/alien/expat/xmlrole.o $(OBJ)/alien/expat/xmltok.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -550,9 +550,9 @@ ifeq ($(CONF_LIB_EXPAT),yes)
 ADVANCELIBS += -lexpat
 else
 CFLAGS += \
-	-I$(srcdir)/advance/expat
+	-I$(srcdir)/alien/expat
 ADVANCEOBJDIRS += \
-	$(OBJ)/advance/expat
+	$(OBJ)/alien/expat
 ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libexpat.a
 endif
@@ -560,10 +560,10 @@ endif
 ############################################################################
 # zlib
 
-$(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o $(OBJ)/advance/zlib/deflate.o \
-	$(OBJ)/advance/zlib/inffast.o $(OBJ)/advance/zlib/inflate.o \
-	$(OBJ)/advance/zlib/infback.o $(OBJ)/advance/zlib/inftrees.o $(OBJ)/advance/zlib/trees.o \
-	$(OBJ)/advance/zlib/zutil.o $(OBJ)/advance/zlib/uncompr.o $(OBJ)/advance/zlib/compress.o
+$(OBJ)/advance/libz.a: $(OBJ)/alien/zlib/adler32.o $(OBJ)/alien/zlib/crc32.o $(OBJ)/alien/zlib/deflate.o \
+	$(OBJ)/alien/zlib/inffast.o $(OBJ)/alien/zlib/inflate.o \
+	$(OBJ)/alien/zlib/infback.o $(OBJ)/alien/zlib/inftrees.o $(OBJ)/alien/zlib/trees.o \
+	$(OBJ)/alien/zlib/zutil.o $(OBJ)/alien/zlib/uncompr.o $(OBJ)/alien/zlib/compress.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -572,9 +572,9 @@ ADVANCELIBS += -lz
 EMUCHDMANLDFLAGS += -lz
 else
 CFLAGS += \
-	-I$(srcdir)/advance/zlib
+	-I$(srcdir)/alien/zlib
 ADVANCEOBJDIRS += \
-	$(OBJ)/advance/zlib
+	$(OBJ)/alien/zlib
 ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libz.a
 endif
@@ -582,28 +582,28 @@ endif
 ############################################################################
 # sljit
 
-$(OBJ)/advance/libsljit.a: $(OBJ)/advance/sljit/sljit_mame.o
+$(OBJ)/advance/libsljit.a: $(OBJ)/alien/sljit/sljit_mame.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
 CFLAGS += \
-	-I$(srcdir)/advance/sljit
+	-I$(srcdir)/alien/sljit
 ADVANCEOBJDIRS += \
-	$(OBJ)/advance/sljit
+	$(OBJ)/alien/sljit
 ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libsljit.a
 
 ############################################################################
 # nanojpeg
 
-$(OBJ)/advance/libnanojpeg.a: $(OBJ)/advance/nanojpeg/nanojpeg.o
+$(OBJ)/advance/libnanojpeg.a: $(OBJ)/alien/nanojpeg/nanojpeg.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
 CFLAGS += \
-	-I$(srcdir)/advance/nanojpeg
+	-I$(srcdir)/alien/nanojpeg
 ADVANCEOBJDIRS += \
-	$(OBJ)/advance/nanojpeg
+	$(OBJ)/alien/nanojpeg
 ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libnanojpeg.a
 
@@ -618,6 +618,10 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
+$(OBJ)/alien/%.o: $(srcdir)/alien/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) -DADV_EMU $< -o $@
@@ -627,6 +631,10 @@ $(MESSOBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(MESSCFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
@@ -1090,8 +1098,8 @@ ifeq ($(CONF_LIB_DIRECT),yes)
 EMU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE) \
-	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
-	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
+	$(srcdir)/alien/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/alien/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/advmessv.bat \
 	$(srcdir)/support/advmessc.bat \
 	$(srcdir)/support/advmenuv.bat \
@@ -1136,26 +1144,27 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	cp $(BLIT_SRC) $(EMU_DIST_DIR_SRC)/advance/blit
 	mkdir $(EMU_DIST_DIR_SRC)/advance/card
 	cp $(CARD_SRC) $(EMU_DIST_DIR_SRC)/advance/card
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib
-	cp $(SVGALIB_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/clockchi
-	cp $(SVGALIBCLOCKCHI_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/clockchi
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/ramdac
-	cp $(SVGALIBRAMDAC_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/ramdac
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/drivers
-	cp $(SVGALIBDRIVERS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/drivers
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgados
-	cp $(SVGALIBSVGADOS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgados
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin
-	cp $(SVGALIBSVGAWIN_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	cp $(SVGALIBSVGAWINSYS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	cp $(SVGALIBSVGAWININSTALL_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
-	cp $(SVGALIBSVGAWINDRIVER_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
-	mkdir $(EMU_DIST_DIR_SRC)/advance/mpglib
-	cp $(MPGLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/mpglib
+	mkdir $(EMU_DIST_DIR_SRC)/alien
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib
+	cp $(SVGALIB_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/clockchi
+	cp $(SVGALIBCLOCKCHI_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/clockchi
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/ramdac
+	cp $(SVGALIBRAMDAC_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/ramdac
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/drivers
+	cp $(SVGALIBDRIVERS_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/drivers
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/svgados
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	mkdir $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(EMU_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
+	mkdir $(EMU_DIST_DIR_SRC)/alien/mpglib
+	cp $(MPGLIB_SRC) $(EMU_DIST_DIR_SRC)/alien/mpglib
 	mkdir $(EMU_DIST_DIR_SRC)/advance/v
 	cp $(V_SRC) $(EMU_DIST_DIR_SRC)/advance/v
 	mkdir $(EMU_DIST_DIR_SRC)/advance/k
@@ -1176,16 +1185,16 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	cp $(LINE_SRC) $(EMU_DIST_DIR_SRC)/advance/line
 	mkdir $(EMU_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(EMU_DIST_DIR_SRC)/advance/d2
-	mkdir $(EMU_DIST_DIR_SRC)/advance/zlib
-	cp $(ZLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/zlib
-	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
-	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
-	mkdir $(EMU_DIST_DIR_SRC)/advance/nanojpeg
-	cp $(NANOJPEG_SRC) $(EMU_DIST_DIR_SRC)/advance/nanojpeg
-	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit
-	cp $(SLJIT_SRC) $(EMU_DIST_DIR_SRC)/advance/sljit
-	mkdir $(EMU_DIST_DIR_SRC)/advance/sljit/allocator_src
-	cp $(SLJIT_ALLOCATOR_SRC) $(EMU_DIST_DIR_SRC)/advance/sljit/allocator_src
+	mkdir $(EMU_DIST_DIR_SRC)/alien/zlib
+	cp $(ZLIB_SRC) $(EMU_DIST_DIR_SRC)/alien/zlib
+	mkdir $(EMU_DIST_DIR_SRC)/alien/expat
+	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/alien/expat
+	mkdir $(EMU_DIST_DIR_SRC)/alien/nanojpeg
+	cp $(NANOJPEG_SRC) $(EMU_DIST_DIR_SRC)/alien/nanojpeg
+	mkdir $(EMU_DIST_DIR_SRC)/alien/sljit
+	cp $(SLJIT_SRC) $(EMU_DIST_DIR_SRC)/alien/sljit
+	mkdir $(EMU_DIST_DIR_SRC)/alien/sljit/allocator_src
+	cp $(SLJIT_ALLOCATOR_SRC) $(EMU_DIST_DIR_SRC)/alien/sljit/allocator_src
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib

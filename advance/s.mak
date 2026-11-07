@@ -5,7 +5,7 @@ SCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/mpglib
+	-I$(srcdir)/alien/mpglib
 SOBJS += \
 	$(SOBJ)/lib/portable.o \
 	$(SOBJ)/lib/snstring.o \
@@ -20,17 +20,17 @@ SOBJS += \
 	$(SOBJ)/lib/fz.o \
 	$(SOBJ)/lib/soundall.o \
 	$(SOBJ)/lib/error.o \
-	$(SOBJ)/mpglib/dct64.o \
-	$(SOBJ)/mpglib/decode.o \
-	$(SOBJ)/mpglib/interfac.o \
-	$(SOBJ)/mpglib/internal.o \
-	$(SOBJ)/mpglib/layer3.o \
-	$(SOBJ)/mpglib/tabinit.o \
+	$(SOBJ)/alien/mpglib/dct64.o \
+	$(SOBJ)/alien/mpglib/decode.o \
+	$(SOBJ)/alien/mpglib/interfac.o \
+	$(SOBJ)/alien/mpglib/internal.o \
+	$(SOBJ)/alien/mpglib/layer3.o \
+	$(SOBJ)/alien/mpglib/tabinit.o \
 	$(SOBJ)/s/s.o
 SOBJDIRS += \
 	$(SOBJ)/s \
 	$(SOBJ)/lib \
-	$(SOBJ)/mpglib
+	$(SOBJ)/alien/mpglib
 
 ifeq ($(CONF_SYSTEM),unix)
 SCFLAGS += \
@@ -113,10 +113,10 @@ endif
 ############################################################################
 # zlib
 
-$(SOBJ)/libz.a: $(SOBJ)/zlib/adler32.o $(SOBJ)/zlib/crc32.o $(SOBJ)/zlib/deflate.o \
-	$(SOBJ)/zlib/inffast.o $(SOBJ)/zlib/inflate.o \
-	$(SOBJ)/zlib/infback.o $(SOBJ)/zlib/inftrees.o $(SOBJ)/zlib/trees.o \
-	$(SOBJ)/zlib/zutil.o $(SOBJ)/zlib/uncompr.o $(SOBJ)/zlib/compress.o
+$(SOBJ)/libz.a: $(SOBJ)/alien/zlib/adler32.o $(SOBJ)/alien/zlib/crc32.o $(SOBJ)/alien/zlib/deflate.o \
+	$(SOBJ)/alien/zlib/inffast.o $(SOBJ)/alien/zlib/inflate.o \
+	$(SOBJ)/alien/zlib/infback.o $(SOBJ)/alien/zlib/inftrees.o $(SOBJ)/alien/zlib/trees.o \
+	$(SOBJ)/alien/zlib/zutil.o $(SOBJ)/alien/zlib/uncompr.o $(SOBJ)/alien/zlib/compress.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -124,9 +124,9 @@ ifeq ($(CONF_LIB_ZLIB),yes)
 SLIBS += -lz
 else
 CFLAGS += \
-	-I$(srcdir)/advance/zlib
+	-I$(srcdir)/alien/zlib
 SOBJDIRS += \
-	$(SOBJ)/zlib
+	$(SOBJ)/alien/zlib
 SOBJS += \
 	$(SOBJ)/libz.a
 endif
@@ -135,6 +135,10 @@ endif
 # s
 
 $(SOBJ)/%.o: $(srcdir)/advance/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(SCFLAGS) -c $< -o $@
+
+$(SOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(SCFLAGS) -c $< -o $@
 

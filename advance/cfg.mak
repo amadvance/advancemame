@@ -102,11 +102,11 @@ CFGCFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/svgados \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/svgados \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
 	-DUSE_INPUT_DOS
 CFGLIBS += -lalleg
@@ -207,11 +207,11 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/svgalib/svgawin
 CFGCFLAGS += \
 	-DUSE_ADV_SVGALIB_WIN \
-	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/clockchi \
-	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers \
-	-I$(srcdir)/advance/svgalib/svgawin \
+	-I$(srcdir)/alien/svgalib \
+	-I$(srcdir)/alien/svgalib/clockchi \
+	-I$(srcdir)/alien/svgalib/ramdac \
+	-I$(srcdir)/alien/svgalib/drivers \
+	-I$(srcdir)/alien/svgalib/svgawin \
 	-DUSE_VIDEO_SVGAWIN
 CFGOBJS += \
 	$(CFGOBJ)/windows/vsvgawin.o \

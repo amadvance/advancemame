@@ -11,7 +11,7 @@ doclib: reference
 	grep -v "not documented" reference/lib.log > reference/libdoc.log
 
 docsvgalib: reference
-	doxygen advance/svgalib/svgalib.cfg 2> reference/svgalib.log
+	doxygen alien/svgalib/svgalib.cfg 2> reference/svgalib.log
 
 LIB_ADVANCE_SRC = \
 	advance/lib.mak \
@@ -43,24 +43,25 @@ distlib:
 	cp $(BLIT_SRC) $(LIB_DIST_DIR_SRC)/advance/blit
 	mkdir $(LIB_DIST_DIR_SRC)/advance/card
 	cp $(CARD_SRC) $(LIB_DIST_DIR_SRC)/advance/card
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib
-	cp $(SVGALIB_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/clockchi
-	cp $(SVGALIBCLOCKCHI_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/clockchi
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/ramdac
-	cp $(SVGALIBRAMDAC_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/ramdac
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/drivers
-	cp $(SVGALIBDRIVERS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/drivers
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgados
-	cp $(SVGALIBSVGADOS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgados
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin
-	cp $(SVGALIBSVGAWIN_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	cp $(SVGALIBSVGAWINSYS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	cp $(SVGALIBSVGAWININSTALL_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
-	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
-	cp $(SVGALIBSVGAWINDRIVER_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	mkdir $(LIB_DIST_DIR_SRC)/alien
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib
+	cp $(SVGALIB_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/clockchi
+	cp $(SVGALIBCLOCKCHI_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/clockchi
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/ramdac
+	cp $(SVGALIBRAMDAC_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/ramdac
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/drivers
+	cp $(SVGALIBDRIVERS_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/drivers
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/svgados
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/sys
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/install
+	mkdir $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(LIB_DIST_DIR_SRC)/alien/svgalib/svgawin/driver
 	mkdir $(LIB_DIST_DIR_SRC)/advance/k
 	cp $(K_SRC) $(LIB_DIST_DIR_SRC)/advance/k
 	mkdir $(LIB_DIST_DIR_SRC)/advance/j

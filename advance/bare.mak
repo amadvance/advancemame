@@ -37,7 +37,7 @@ endif
 ############################################################################
 # expat
 
-$(BAREOBJ)/libexpat.a: $(BAREOBJ)/expat/xmlparse.o $(BAREOBJ)/expat/xmlrole.o $(BAREOBJ)/expat/xmltok.o
+$(BAREOBJ)/libexpat.a: $(BAREOBJ)/alien/expat/xmlparse.o $(BAREOBJ)/alien/expat/xmlrole.o $(BAREOBJ)/alien/expat/xmltok.o
 	$(ECHO) $@
 	$(AR) crs $@ $^
 
@@ -45,9 +45,9 @@ ifeq ($(CONF_LIB_EXPAT),yes)
 BARELIBS += -lexpat
 else
 BARECFLAGS += \
-	-I$(srcdir)/advance/expat
+	-I$(srcdir)/alien/expat
 BAREOBJDIRS += \
-	$(BAREOBJ)/expat
+	$(BAREOBJ)/alien/expat
 BAREOBJS += \
 	$(BAREOBJ)/libexpat.a
 endif
@@ -56,6 +56,10 @@ endif
 # rules
 
 $(BAREOBJ)/%.o: $(srcdir)/advance/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(BARECFLAGS) -c $< -o $@
+
+$(BAREOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(BARECFLAGS) -c $< -o $@
 
