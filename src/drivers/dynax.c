@@ -4116,7 +4116,7 @@ GAME( 1991, yarunara, 0,        yarunara, yarunara, 0,        ROT180, "Dynax",  
 GAME( 1991, mjangels, 0,        yarunara, yarunara, 0,        ROT180, "Dynax",                   "Mahjong Angels - Comic Theater Vol.2 (Japan)"         , 0 )
 GAME( 1992, quiztvqq, 0,        yarunara, quiztvqq, 0,        ROT180, "Dynax",                   "Quiz TV Gassyuukoku Q&Q (Japan)"                      , 0 )
 GAME( 1994, maya,     0,        sprtmtch, sprtmtch, maya,     ROT0,   "Promat",                  "Maya"                                                 , 0 )
-GAME( 199?, inca,     maya,     sprtmtch, sprtmtch, maya,     ROT0,   "<unknown>",               "Inca"                                                 , 0 )
+GAME( 199?, inca,     0,        sprtmtch, sprtmtch, maya,     ROT0,   "<unknown>",               "Inca"                                                 , 0 )
 GAME( 1990, jantouki, 0,        jantouki, jantouki, 0,        ROT0,   "Dynax",                   "Jong Tou Ki (Japan)"                                  , 0 )
 GAME( 1993, mjelctrn, 0,        mjelctrn, mjelctrn, mjelct3,  ROT180, "Dynax",                   "Mahjong Electron Base (parts 2 & 4, Japan)"           , 0 )
 GAME( 1990, mjelct3,  mjelctrn, mjelctrn, mjelct3,  mjelct3,  ROT180, "Dynax",                   "Mahjong Electron Base (parts 2 & 3, Japan)"           , 0 )

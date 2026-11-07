@@ -739,7 +739,7 @@ static DRIVER_INIT( kchampvs )
 
 
 
-GAME( 1984, kchamp,   0,      kchamp,   kchamp,   0,        ROT90, "Data East USA", "Karate Champ (US)", 0 )
-GAME( 1984, karatedo, kchamp, kchamp,   kchamp,   0,        ROT90, "Data East Corporation", "Karate Dou (Japan)", 0 )
-GAME( 1984, kchampvs, kchamp, kchampvs, kchampvs, kchampvs, ROT90, "Data East USA", "Karate Champ (US VS version)", 0 )
-GAME( 1984, karatevs, kchamp, kchampvs, kchampvs, kchampvs, ROT90, "Data East Corporation", "Taisen Karate Dou (Japan VS version)", 0 )
+GAME( 1984, kchamp,   0,        kchamp,   kchamp,   0,        ROT90, "Data East USA", "Karate Champ (US)", 0 )
+GAME( 1984, karatedo, kchamp,   kchamp,   kchamp,   0,        ROT90, "Data East Corporation", "Karate Dou (Japan)", 0 )
+GAME( 1984, kchampvs, 0,        kchampvs, kchampvs, kchampvs, ROT90, "Data East USA", "Karate Champ (US VS version)", 0 )
+GAME( 1984, karatevs, kchampvs, kchampvs, kchampvs, kchampvs, ROT90, "Data East Corporation", "Taisen Karate Dou (Japan VS version)", 0 )

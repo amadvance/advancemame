@@ -2276,7 +2276,7 @@ GAME( 1981,silvland, rpatrolb, cclimber, rpatrolb, 0,         ROT0,   "Falcon", 
 GAME( 1983, tangramq, 0, tangramq, tangramq, 0, ROT270, "SNK", "Tangram Q", 0 )
 
 GAME( 1985, cannonb,  0,        cannonb,  cannonb,  cannonb,  ROT90,  "Soft", "Cannon Ball (Crazy Climber hardware)" , GAME_IMPERFECT_GRAPHICS )
-GAME( 1985, cannonb2,  cannonb, cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
+GAME( 1985, cannonb2, 0,        cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
 GAME( 198?, ckongb  , ckong,    cclimber, ckongb,    ckongb,   ROT270, "bootleg", "Crazy Kong (Alternative levels)", 0 )
 
 GAME( 1982, swimmer,  0,        swimmer,  swimmer,  0,        ROT0,   "Tehkan", "Swimmer (set 1)", 0 )

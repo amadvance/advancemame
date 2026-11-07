@@ -723,6 +723,6 @@ GAME( 1986, arkblock, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "
 GAME( 1986, arkbloc2, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Block (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Paddle 2", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE )
 GAME( 1986, arkatayt, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg", "Arkanoid (Tayto bootleg, Japanese)", GAME_SUPPORTS_SAVE )
-GAME( 1987, arkatour, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US)", GAME_SUPPORTS_SAVE )
+GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US)", GAME_SUPPORTS_SAVE )
 GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )

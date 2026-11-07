@@ -3164,7 +3164,7 @@ GAME( 1988, cobracom, 0,        cobracom, cobracom, 0,       ROT0,   "Data East 
 GAME( 1988, cobracmj, cobracom, cobracom, cobracom, 0,       ROT0,   "Data East Corporation", "Cobra-Command (Japan)", 0 )
 GAME( 1987, ghostb,   0,        ghostb,   ghostb,   ghostb,  ROT0,   "Data East USA", "The Real Ghostbusters (US 2 Players)", 0 )
 GAME( 1987, ghostb3,  ghostb,   ghostb,   ghostb,   ghostb,  ROT0,   "Data East USA", "The Real Ghostbusters (US 3 Players)", 0 )
-GAME( 1987, meikyuh,  ghostb,   ghostb,   meikyuh,  meikyuh, ROT0,   "Data East Corporation", "Meikyuu Hunter G (Japan)", 0 )
+GAME( 1987, meikyuh,  0,        ghostb,   meikyuh,  meikyuh, ROT0,   "Data East Corporation", "Meikyuu Hunter G (Japan)", 0 )
 GAME( 1987, srdarwin, 0,        srdarwin, srdarwin, deco222, ROT270, "Data East Corporation", "Super Real Darwin (World)", 0 )
 GAME( 1987, srdarwnj, srdarwin, srdarwin, srdarwin, deco222, ROT270, "Data East Corporation", "Super Real Darwin (Japan)", 0 )
 GAME( 1987, gondo,    0,        gondo,    gondo,    0,       ROT270, "Data East USA", "Gondomania (US)", 0 )

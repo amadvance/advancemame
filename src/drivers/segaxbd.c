@@ -2474,7 +2474,7 @@ static DRIVER_INIT( gprider )
  *************************************/
 
 GAME( 1987, aburner2, 0,        xboard,  aburner2, aburner2,       ROT0, "Sega", "After Burner II", 0 )
-GAME( 1987, aburner,  aburner2, xboard,  aburner,  aburner2,       ROT0, "Sega", "After Burner (Japan)", 0 )
+GAME( 1987, aburner,  0,        xboard,  aburner,  aburner2,       ROT0, "Sega", "After Burner (Japan)", 0 )
 GAME( 1987, thndrbld, 0,        xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (FD1094 317-0056)", 0 )
 GAME( 1987, thndrbdj, thndrbld, xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (Japan)", 0 )
 GAME( 1989, lastsurv, 0,        lastsurv, lastsurv, lastsurv,       ROT0, "Sega", "Last Survivor (Japan) (FD1094 317-0083)", 0 )
