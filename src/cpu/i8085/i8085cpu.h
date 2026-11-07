@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Juergen Buchmueller
+// copyright-holders:Juergen Buchmueller, Roberto Fresca, Grull Osgo
 /*******************************************************
  *
  *      Portable (hopefully ;-) 8085A emulator
@@ -23,6 +23,7 @@
 #define VF              0x04
 #define NF              0x02
 #define CF              0x01
+#define I8085_VF        0x02    /* 8085 overflow, distinct from the legacy parity mask VF */
 
 #define IM_SID          0x80
 #define IM_SOD          0x40
@@ -312,13 +313,14 @@ int q = I.AF.b.h+R; 											\
 
 #define M_DSUB() {												\
 	int q = I.HL.b.l-I.BC.b.l;									\
-	I.AF.b.l=ZS[q&255]|((q>>8)&CF)|NF|							\
+	I.AF.b.l=ZS[q&255]|((q>>8)&CF)|							\
 		((I.HL.b.l^q^I.BC.b.l)&HF)|								\
 		(((I.BC.b.l^I.HL.b.l)&(I.HL.b.l^q)&SF)>>5);				\
 	I.HL.b.l=q; 												\
 	q = I.HL.b.h-I.BC.b.h-(I.AF.b.l&CF);						\
-	I.AF.b.l=ZS[q&255]|((q>>8)&CF)|NF|							\
+	I.AF.b.l=ZS[q&255]|((q>>8)&CF)|							\
 		((I.HL.b.h^q^I.BC.b.h)&HF)|								\
 		(((I.BC.b.h^I.HL.b.h)&(I.HL.b.h^q)&SF)>>5);				\
+	I.HL.b.h=q;											\
 	if (I.HL.b.l!=0) I.AF.b.l&=~ZF;								\
 }

@@ -1510,6 +1510,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ladyfrog.o $(OBJ)/vidhrdw/ladyfrog.o \
 	$(OBJ)/drivers/laserbas.o \
 	$(OBJ)/drivers/lastfght.o \
+	$(OBJ)/drivers/paracaidista.o \
 	$(OBJ)/drivers/musclem.o \
 	$(OBJ)/drivers/megaphx.o \
 	$(OBJ)/drivers/limenko.o $(OBJ)/sndhrdw/limenko.o \

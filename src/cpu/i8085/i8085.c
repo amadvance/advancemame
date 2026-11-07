@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Juergen Buchmueller
+// copyright-holders:Juergen Buchmueller, Roberto Fresca, Grull Osgo
 /*****************************************************************************
  *
  *   i8085.c
@@ -228,7 +228,7 @@ INLINE void execute_one(int opcode)
 			if( I.cputype ) {
 				i8085_ICount -= 7;		/* ASRH */
 				I.AF.b.l = (I.AF.b.l & ~CF) | (I.HL.b.l & CF);
-				I.HL.w.l = (I.HL.w.l >> 1);
+				I.HL.w.l = (I.HL.w.l & 0x8000) | (I.HL.w.l >> 1);
 			} else {
 				i8085_ICount -= 4;		/* NOP undocumented */
 			}
@@ -258,11 +258,13 @@ INLINE void execute_one(int opcode)
 
 		case 0x18:
 			if( I.cputype ) {
-				i8085_ICount -= 10;		/* RLDE */
-				I.AF.b.l = (I.AF.b.l & ~(CF | VF)) | (I.DE.b.h >> 7);
-				I.DE.w.l = (I.DE.w.l << 1) | (I.DE.w.l >> 15);
+				int carry = I.AF.b.l & CF;
+				i8085_ICount -= 10;
+				/* The incoming carry is distinct from the bit shifted out of D. */
+				I.AF.b.l = (I.AF.b.l & ~(CF | I8085_VF)) | (I.DE.b.h >> 7);
+				I.DE.w.l = (I.DE.w.l << 1) | carry;
 				if (0 != (((I.DE.w.l >> 15) ^ I.AF.b.l) & CF))
-					I.AF.b.l |= VF;
+					I.AF.b.l |= I8085_VF;
 			} else {
 				i8085_ICount -= 4;		/* NOP undocumented */
 			}
