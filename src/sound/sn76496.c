@@ -170,6 +170,7 @@ WRITE8_HANDLER( SN76496_1_w ) {	SN76496Write(1,data); }
 WRITE8_HANDLER( SN76496_2_w ) {	SN76496Write(2,data); }
 WRITE8_HANDLER( SN76496_3_w ) {	SN76496Write(3,data); }
 WRITE8_HANDLER( SN76496_4_w ) {	SN76496Write(4,data); }
+WRITE8_HANDLER( SN76496_5_w ) {	SN76496Write(5,data); }
 
 
 static void SN76496Update(void *param,stream_sample_t **inputs, stream_sample_t **_buffer,int length)
