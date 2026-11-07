@@ -608,6 +608,67 @@ ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libnanojpeg.a
 
 ############################################################################
+# lzma
+
+LZMACFLAGS = -I$(srcdir)/alien/lzma -I$(srcdir)/alien/lzma/include
+
+LZMA_OBJS = \
+	$(OBJ)/alien/lzma/src/LzmaDec.o
+
+$(OBJ)/advance/liblzma.a: $(LZMA_OBJS)
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/alien/lzma/include
+ADVANCEOBJDIRS += \
+	$(OBJ)/alien/lzma \
+	$(OBJ)/alien/lzma/src
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/liblzma.a
+
+############################################################################
+# zstd
+
+ZSTDCFLAGS = -I$(srcdir)/alien/zstd
+
+ZSTD_OBJS = \
+	$(OBJ)/alien/zstd/zstddeclib.o
+
+$(OBJ)/advance/libzstd.a: $(ZSTD_OBJS)
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/alien/zstd
+ADVANCEOBJDIRS += \
+	$(OBJ)/alien/zstd
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libzstd.a
+
+############################################################################
+# dr_flac
+
+DRFLACCFLAGS = -I$(srcdir)/alien/dr_flac
+
+DRFLAC_OBJS = \
+	$(OBJ)/alien/dr_flac/dr_flac.o
+
+$(OBJ)/advance/libdrflac.a: $(DRFLAC_OBJS)
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/alien/dr_flac
+ADVANCEOBJDIRS += \
+	$(OBJ)/alien/dr_flac
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libdrflac.a
+
+############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
@@ -617,6 +678,18 @@ $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(OBJ)/alien/lzma/%.o: $(srcdir)/alien/lzma/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(LZMACFLAGS) -c $< -o $@
+
+$(OBJ)/alien/zstd/%.o: $(srcdir)/alien/zstd/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(ZSTDCFLAGS) -c $< -o $@
+
+$(OBJ)/alien/dr_flac/%.o: $(srcdir)/alien/dr_flac/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(DRFLACCFLAGS) -c $< -o $@
 
 $(OBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
@@ -633,6 +706,18 @@ $(MESSOBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.
 $(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/lzma/%.o: $(srcdir)/alien/lzma/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(LZMACFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/zstd/%.o: $(srcdir)/alien/zstd/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(ZSTDCFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/dr_flac/%.o: $(srcdir)/alien/dr_flac/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(DRFLACCFLAGS) -c $< -o $@
 
 $(MESSOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
@@ -1192,9 +1277,21 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	mkdir $(EMU_DIST_DIR_SRC)/alien/nanojpeg
 	cp $(NANOJPEG_SRC) $(EMU_DIST_DIR_SRC)/alien/nanojpeg
 	mkdir $(EMU_DIST_DIR_SRC)/alien/sljit
-	cp $(SLJIT_SRC) $(EMU_DIST_DIR_SRC)/alien/sljit
-	mkdir $(EMU_DIST_DIR_SRC)/alien/sljit/allocator_src
-	cp $(SLJIT_ALLOCATOR_SRC) $(EMU_DIST_DIR_SRC)/alien/sljit/allocator_src
+	cp $(wildcard $(srcdir)/alien/sljit/*.c) $(EMU_DIST_DIR_SRC)/alien/sljit
+	cp $(wildcard $(srcdir)/alien/sljit/*.h) $(EMU_DIST_DIR_SRC)/alien/sljit
+	cp $(srcdir)/alien/sljit/README $(EMU_DIST_DIR_SRC)/alien/sljit
+	cp -R $(srcdir)/alien/sljit/allocator_src $(EMU_DIST_DIR_SRC)/alien/sljit
+	mkdir $(EMU_DIST_DIR_SRC)/alien/lzma
+	cp $(srcdir)/alien/lzma/LICENSE $(EMU_DIST_DIR_SRC)/alien/lzma
+	cp -R $(srcdir)/alien/lzma/include $(EMU_DIST_DIR_SRC)/alien/lzma
+	cp -R $(srcdir)/alien/lzma/src $(EMU_DIST_DIR_SRC)/alien/lzma
+	mkdir $(EMU_DIST_DIR_SRC)/alien/zstd
+	cp $(wildcard $(srcdir)/alien/zstd/*.c) $(EMU_DIST_DIR_SRC)/alien/zstd
+	cp $(wildcard $(srcdir)/alien/zstd/*.h) $(EMU_DIST_DIR_SRC)/alien/zstd
+	cp $(srcdir)/alien/zstd/LICENSE $(EMU_DIST_DIR_SRC)/alien/zstd
+	mkdir $(EMU_DIST_DIR_SRC)/alien/dr_flac
+	cp $(wildcard $(srcdir)/alien/dr_flac/*.c) $(EMU_DIST_DIR_SRC)/alien/dr_flac
+	cp $(wildcard $(srcdir)/alien/dr_flac/*.h) $(EMU_DIST_DIR_SRC)/alien/dr_flac
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib

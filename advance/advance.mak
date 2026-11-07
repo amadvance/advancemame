@@ -375,10 +375,22 @@ NANOJPEG_SRC = \
 SLJIT_SRC = \
 	$(wildcard $(srcdir)/alien/sljit/*.c) \
 	$(wildcard $(srcdir)/alien/sljit/*.h) \
-	$(wildcard $(srcdir)/alien/sljit/README)
-
-SLJIT_ALLOCATOR_SRC = \
+	$(wildcard $(srcdir)/alien/sljit/README) \
 	$(wildcard $(srcdir)/alien/sljit/allocator_src/*.c)
+
+LZMA_SRC = \
+	$(wildcard $(srcdir)/alien/lzma/LICENSE) \
+	$(wildcard $(srcdir)/alien/lzma/include/*.h) \
+	$(wildcard $(srcdir)/alien/lzma/src/*.c)
+
+ZSTD_SRC = \
+	$(wildcard $(srcdir)/alien/zstd/*.c) \
+	$(wildcard $(srcdir)/alien/zstd/*.h) \
+	$(wildcard $(srcdir)/alien/zstd/LICENSE)
+
+DR_FLAC_SRC = \
+	$(wildcard $(srcdir)/alien/dr_flac/*.c) \
+	$(wildcard $(srcdir)/alien/dr_flac/*.h)
 
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
