@@ -60,7 +60,7 @@ MAME Portions
 Copyright (c) 1997-2026  MAMEDev and contributors
 All rights reserved.
 
-The MAME emulation core and arcade drivers located in the `src/` directory are
+The MAME emulation core and arcade drivers located in the `mame/` directory are
 distributed under the GNU General Public License version 2 or later
 (see `LICENSES/GPL-2.0`), with individual components licensed under the
 3-Clause BSD License (see `LICENSES/BSD-3-Clause`) or other GPL-compatible
@@ -73,7 +73,7 @@ MESS Portions
 Copyright (c) 1997-2026  MAMEDev, MESSdev, and contributors
 All rights reserved.
 
-The MESS emulation core and computer/console drivers located in the `srcmess/`
+The MESS emulation core and computer/console drivers located in the `mame/` (shared core)
 and `mess/` directories are distributed under the GNU General Public License
 version 2 or later (see `LICENSES/GPL-2.0`), with individual components
 licensed under the 3-Clause BSD License (see `LICENSES/BSD-3-Clause`) or other

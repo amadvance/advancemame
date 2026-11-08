@@ -233,6 +233,14 @@ static INT32  scu_size_0,		/* Transfer DMA size lv 0*/
 			  scu_size_1,		/* lv 1*/
 			  scu_size_2;		/* lv 2*/
 
+/* SCU DMA bypasses CPU stores; invalidate any translations over its writes. */
+static void saturn_dma_write_word(offs_t address, UINT16 data)
+{
+	program_write_word(address, data);
+	if (sh2_jit_code_present)
+		sh2_jit_ram_written(address, 2);
+}
+
 static void dma_direct_lv0(void);	/*DMA level 0 direct transfer function*/
 static void dma_direct_lv1(void);   /*DMA level 1 direct transfer function*/
 static void dma_direct_lv2(void);   /*DMA level 2 direct transfer function*/
@@ -1491,18 +1499,18 @@ static void dma_direct_lv0()
 	for (; scu_size_0 > 0; scu_size_0-=scu_dst_add_0)
 	{
 		if(scu_dst_add_0 == 2)
-			program_write_word(scu_dst_0,program_read_word(scu_src_0));
+			saturn_dma_write_word(scu_dst_0,program_read_word(scu_src_0));
 		else if(scu_dst_add_0 == 8)
 		{
-			program_write_word(scu_dst_0,program_read_word(scu_src_0));
-			program_write_word(scu_dst_0+2,program_read_word(scu_src_0));
-			program_write_word(scu_dst_0+4,program_read_word(scu_src_0+2));
-			program_write_word(scu_dst_0+6,program_read_word(scu_src_0+2));
+			saturn_dma_write_word(scu_dst_0,program_read_word(scu_src_0));
+			saturn_dma_write_word(scu_dst_0+2,program_read_word(scu_src_0));
+			saturn_dma_write_word(scu_dst_0+4,program_read_word(scu_src_0+2));
+			saturn_dma_write_word(scu_dst_0+6,program_read_word(scu_src_0+2));
 		}
 		else
 		{
-			program_write_word(scu_dst_0,program_read_word(scu_src_0));
-			program_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
+			saturn_dma_write_word(scu_dst_0,program_read_word(scu_src_0));
+			saturn_dma_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
 		}
 
 		scu_dst_0+=scu_dst_add_0;
@@ -1601,11 +1609,11 @@ static void dma_direct_lv1()
 	for (; scu_size_1 > 0; scu_size_1-=scu_dst_add_1)
 	{
 		if(scu_dst_add_1 == 2)
-			program_write_word(scu_dst_1,program_read_word(scu_src_1));
+			saturn_dma_write_word(scu_dst_1,program_read_word(scu_src_1));
 		else
 		{
-			program_write_word(scu_dst_1,program_read_word(scu_src_1));
-			program_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
+			saturn_dma_write_word(scu_dst_1,program_read_word(scu_src_1));
+			saturn_dma_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
 		}
 
 		scu_dst_1+=scu_dst_add_1;
@@ -1704,11 +1712,11 @@ static void dma_direct_lv2()
 	for (; scu_size_2 > 0; scu_size_2-=scu_dst_add_2)
 	{
 		if(scu_dst_add_2 == 2)
-			program_write_word(scu_dst_2,program_read_word(scu_src_2));
+			saturn_dma_write_word(scu_dst_2,program_read_word(scu_src_2));
 		else
 		{
-			program_write_word(scu_dst_2,program_read_word(scu_src_2));
-			program_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
+			saturn_dma_write_word(scu_dst_2,program_read_word(scu_src_2));
+			saturn_dma_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
 		}
 
 		scu_dst_2+=scu_dst_add_2;
@@ -1776,7 +1784,7 @@ static void dma_indirect_lv0()
 		for (; scu_size_0 > 0; scu_size_0-=scu_dst_add_0)
 		{
 			if(scu_dst_add_0 == 2)
-				program_write_word(scu_dst_0,program_read_word(scu_src_0));
+				saturn_dma_write_word(scu_dst_0,program_read_word(scu_src_0));
 			else
 			{
 				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
@@ -1784,8 +1792,8 @@ static void dma_indirect_lv0()
                   can't access 2 byte boundaries, and the end of the sprite list never gets marked,
                   the length of the transfer is also set to a 2 byte boundary, maybe the add values
                   should be different, I don't know */
-				program_write_word(scu_dst_0,program_read_word(scu_src_0));
-				program_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
+				saturn_dma_write_word(scu_dst_0,program_read_word(scu_src_0));
+				saturn_dma_write_word(scu_dst_0+2,program_read_word(scu_src_0+2));
 			}
 			scu_dst_0+=scu_dst_add_0;
 			scu_src_0+=scu_src_add_0;
@@ -1848,7 +1856,7 @@ static void dma_indirect_lv1()
 		{
 
 			if(scu_dst_add_1 == 2)
-				program_write_word(scu_dst_1,program_read_word(scu_src_1));
+				saturn_dma_write_word(scu_dst_1,program_read_word(scu_src_1));
 			else
 			{
 				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
@@ -1856,8 +1864,8 @@ static void dma_indirect_lv1()
                   can't access 2 byte boundaries, and the end of the sprite list never gets marked,
                   the length of the transfer is also set to a 2 byte boundary, maybe the add values
                   should be different, I don't know */
-				program_write_word(scu_dst_1,program_read_word(scu_src_1));
-				program_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
+				saturn_dma_write_word(scu_dst_1,program_read_word(scu_src_1));
+				saturn_dma_write_word(scu_dst_1+2,program_read_word(scu_src_1+2));
 			}
 			scu_dst_1+=scu_dst_add_1;
 			scu_src_1+=scu_src_add_1;
@@ -1918,7 +1926,7 @@ static void dma_indirect_lv2()
 		for (; scu_size_2 > 0; scu_size_2-=scu_dst_add_2)
 		{
 			if(scu_dst_add_2 == 2)
-				program_write_word(scu_dst_2,program_read_word(scu_src_2));
+				saturn_dma_write_word(scu_dst_2,program_read_word(scu_src_2));
 			else
 			{
 				/* some games, eg columns97 are a bit weird, I'm not sure this is correct
@@ -1926,8 +1934,8 @@ static void dma_indirect_lv2()
                   can't access 2 byte boundaries, and the end of the sprite list never gets marked,
                   the length of the transfer is also set to a 2 byte boundary, maybe the add values
                   should be different, I don't know */
-				program_write_word(scu_dst_2,program_read_word(scu_src_2));
-				program_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
+				saturn_dma_write_word(scu_dst_2,program_read_word(scu_src_2));
+				saturn_dma_write_word(scu_dst_2+2,program_read_word(scu_src_2+2));
 			}
 
 			scu_dst_2+=scu_dst_add_2;

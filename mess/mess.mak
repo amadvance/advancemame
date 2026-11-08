@@ -744,6 +744,7 @@ $(MESSOBJ)/nascom1.a:  \
 	$(MESSOBJ)/mess/systems/nascom1.o
 
 $(MESSOBJ)/cpschngr.a: \
+	$(MESSOBJ)/machine/timekpr.o \
 	$(MESSOBJ)/machine/eeprom.o	     \
 	$(MESSOBJ)/mess/systems/cpschngr.o \
 	$(MESSOBJ)/vidhrdw/cps1.o

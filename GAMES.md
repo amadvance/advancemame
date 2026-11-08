@@ -2,7 +2,7 @@
 
 ## Purpose and mandatory maintenance rule
 
-`games.json` is the repository's structured, researched catalog covering **all games and ROM sets enabled in AdvanceMAME (`src/mamedriv.c`)**. Every active `DRIVER(...)` entry in `src/mamedriv.c` must appear in `shortnames` of exactly one record in `games.json`.
+`games.json` is the repository's structured, researched catalog covering **all games and ROM sets enabled in AdvanceMAME (`mame/mamedriv.c`)**. Every active `DRIVER(...)` entry in `mame/mamedriv.c` must appear in `shortnames` of exactly one record in `games.json`.
 
 **For standard arcade games supported by official MAME, metadata and grouping are generated automatically** by `support/build_games_json.py` (from `advmame -listxml` and `support/genre.ini`) and enriched by `support/enrich_games.py` (from `support/external/`). In general, no manual editing is required for standard MAME sets.
 
@@ -29,8 +29,8 @@ Use these resources while researching or updating a record:
 ### Local repository resources
 
 - AdvanceMAME: `amadvance/advancemame` (current repository)
-- Driver registration list: `src/mamedriv.c`
-- Driver implementations and header comments: `src/drivers/*.c`, `src/machine/*.c`, `src/vidhrdw/*.c`, including `GAME`, `GAMEB`, and related registration macros
+- Driver registration list: `mame/mamedriv.c`
+- Driver implementations and header comments: `mame/drivers/*.c`, `mame/machine/*.c`, `mame/vidhrdw/*.c`, including `GAME`, `GAMEB`, and related registration macros
 - Genre classification file: `support/genre.ini`
 - Curated game metadata and standalone hack/variant definitions: `support/curated.json`
 - Offline external reference databases in `support/external/` (documented in `support/external/README`):
@@ -104,9 +104,9 @@ An array of AdvanceMAME shortnames covered by this record.
 - **Selecting the primary identifier:**
   1. If the group includes the parent set registered in AdvanceMAME, use that parent set as `shortnames[0]`.
   2. If all sets in the group are clones of a parent in a separate record (for example, a standalone hack or conversion given its own record), choose the primary or most complete release in the group, or the first in ASCII alphabetical order when no single set is clearly primary.
-- Every active AdvanceMAME shortname in `src/mamedriv.c` must occur in **exactly one** record's `shortnames` array.
+- Every active AdvanceMAME shortname in `mame/mamedriv.c` must occur in **exactly one** record's `shortnames` array.
 - Do not create a redundant top-level `shortname` property.
-- Do not include shortnames that are not registered in AdvanceMAME (`src/mamedriv.c`); use relationship fields (`original_game`) if referencing an external shortname.
+- Do not include shortnames that are not registered in AdvanceMAME (`mame/mamedriv.c`); use relationship fields (`original_game`) if referencing an external shortname.
 - Grouping does not require identical direct parents, but it requires enough shared gameplay, content, and history for one accurate description.
 
 ### 2. Game identity (required fields)
@@ -242,7 +242,7 @@ Array of evidence objects with:
 
 - `type`: one of `source_code`, `official`, `documentation`, `archive`, `community`
 - `url`: URL or null
-- `path`: repository-relative path or null (for example, `src/drivers/cps1.c` for AdvanceMAME, or `resource/mame/...` and `resource/hbmame/...` when citing local reference repositories)
+- `path`: repository-relative path or null (for example, `mame/drivers/cps1.c` for AdvanceMAME, or `resource/mame/...` and `resource/hbmame/...` when citing local reference repositories)
 
 Use this for references consulted and supporting record facts. Do not invent references. Include source paths here only when they document relevant information; **do not add a general `source_file` field** to the record.
 
@@ -333,20 +333,20 @@ Do not copy invented example facts into real records.
 
 ## Grouping rules
 
-1. One record describes one distinct game or a cohesive family of nearly equivalent versions (typically a parent set registered in `src/mamedriv.c` together with its regional releases, revisions, and standard clones/bootlegs).
+1. One record describes one distinct game or a cohesive family of nearly equivalent versions (typically a parent set registered in `mame/mamedriv.c` together with its regional releases, revisions, and standard clones/bootlegs).
 2. `shortnames` is the authoritative coverage list; its first item is the primary identifier.
 3. `variants` records only actual per-shortname differences, and is omitted when unnecessary.
 4. Group regional releases, minor revisions, alternate ROM sets, and closely related hack revisions when they can share an accurate narrative.
 5. Split materially different hacks, games, ports, or projects when their gameplay, content, origin, or history requires a separate description.
 6. Sharing a driver file, hardware platform, manufacturer, or franchise is **not sufficient** justification to group games.
 7. Direct parent relationships are not required to match across a group, but must be represented accurately.
-8. Every active AdvanceMAME shortname in `src/mamedriv.c` must appear in exactly one record. Do not add shortnames that are not registered in `src/mamedriv.c`.
+8. Every active AdvanceMAME shortname in `mame/mamedriv.c` must appear in exactly one record. Do not add shortnames that are not registered in `mame/mamedriv.c`.
 
 ## Research and editing workflow
 
 For every new or changed AdvanceMAME game:
 
-1. **Verify driver registration:** Ensure the shortname is registered in `src/mamedriv.c` and builds cleanly.
+1. **Verify driver registration:** Ensure the shortname is registered in `mame/mamedriv.c` and builds cleanly.
 2. **Determine if curation is necessary:**
    - **Standard MAME games / clones:** No curation needed. Running the generation scripts will automatically place clones under their parent, assign genres from `genre.ini`, and fetch trivia, tips, scoring, and website links from `support/external/`.
    - **Standalone hacks, bootlegs, or homebrew:** If a set has a `cloneof` tag in the driver but must be a standalone root family in `games.json`, add an entry to `support/curated.json` specifying all covered `shortnames`, `category: "hack"` (or `"bootleg"`/`"homebrew"`), and `original_game`.
@@ -365,8 +365,8 @@ Before completing a change, check:
 
 - The JSON parses and `schema_version` is `1`.
 - All required fields and types are valid; optional fields use appropriate types if present.
-- Every covered shortname exists in the current AdvanceMAME registration list (`src/mamedriv.c`).
-- Every active shortname in `src/mamedriv.c` occurs exactly once across all records.
+- Every covered shortname exists in the current AdvanceMAME registration list (`mame/mamedriv.c`).
+- Every active shortname in `mame/mamedriv.c` occurs exactly once across all records.
 - No duplicate coverage, duplicate primary records, or stray unregistered shortnames exist.
 - The first `shortnames` element is the primary identifier, and the rest are sorted.
 - Game records are sorted by their primary identifier.

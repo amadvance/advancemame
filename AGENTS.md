@@ -15,13 +15,13 @@ This document contains essential project overview, architecture details, build/t
 
 ## 2. Source Code Organization
 
-- `src/drivers/`: Driver implementations for arcade hardware (e.g. `src/drivers/raiden2.c`, `src/drivers/cps1.c`, etc.).
-- `src/mamedriv.c`: Master list of all enabled game drivers.
+- `mame/drivers/`: Driver implementations for arcade hardware (e.g. `mame/drivers/raiden2.c`, `mame/drivers/cps1.c`, etc.).
+- `mame/mamedriv.c`: Master list of all enabled game drivers.
   - **Important**: Any newly added, renamed, or restored game driver MUST be registered here using the `DRIVER( <name> )` macro; otherwise, the binary will not recognize the ROM set.
-- `src/vidhrdw/`: Video hardware emulation routines.
-- `src/sndhrdw/`: Sound hardware implementations.
-- `src/machine/`: Cryptography, co-processor, and peripheral MCU emulation.
-- `src/includes/`: Driver header definitions and shared structures.
+- `mame/vidhrdw/`: Video hardware emulation routines.
+- `mame/sndhrdw/`: Sound hardware implementations.
+- `mame/machine/`: Cryptography, co-processor, and peripheral MCU emulation.
+- `mame/includes/`: Driver header definitions and shared structures.
 - `resource/`: Reference repositories and materials:
   - `resource/mame/`: Git repository containing full MAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mame log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
   - `resource/hbmame/`: Git repository containing full HBMAME history for researching commits, diffs, and promotion logs. Always use `--` before the path (e.g. `git -C resource/mame log -- src/mame/drivers/raiden2.c`), otherwise Git will fail if the file was moved, renamed, or does not exist at that path in HEAD.
@@ -185,7 +185,7 @@ When porting fixes from modern MAME (e.g., MAME 0.155+) into AdvanceMAME:
 4. **DMA & Video Buffering**:
    - When co-processor DMA (COP) or private buffer transfers are required (e.g. tilemap or palette DMA), ensure the DMA trigger handler actually copies the memory rather than assuming CPU writes directly mutate video RAM.
 5. **Driver Registration**:
-   - When adding or renaming sets, always update `src/mamedriv.c` to match the exact `GAME()` macro identifiers.
+   - When adding or renaming sets, always update `mame/mamedriv.c` to match the exact `GAME()` macro identifiers.
 
 ---
 
@@ -237,7 +237,7 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change. Do not use subsystem prefixes such as "psx spu: ..."; write a concise description starting directly with an imperative verb (e.g. "Fix ...", "Add ...", "Deactivate ...").
 - **Git Commits**: Do not commit changes to Git unless you are explicitly requested to commit a specific change.
-- **License and Copyright Headers**: All source files (C, C++, and header files under `src/`) must include the two initial header lines indicating the license and copyright holders:
+- **License and Copyright Headers**: All source files (C, C++, and header files under `mame/`) must include the two initial header lines indicating the license and copyright holders:
   ```c
   // license:<license-id>
   // copyright-holders:<Author 1>, <Author 2>, ...

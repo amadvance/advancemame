@@ -844,9 +844,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (options.artwork_res == 0)
 		options.artwork_res = 2; /* auto is 2 */
 	options.artwork_crop = advance->artwork_crop_flag;
-#ifndef MESS
 	options.artwork_view = advance->artwork_view_buffer;
-#endif
 	if (advance->savegame_file_buffer[0] != 0)
 		options.savegame = advance->savegame_file_buffer;
 	else
@@ -3504,7 +3502,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	char* s;
 	unsigned i, j;
 
-	const char *artwork_view = conf_string_get_default(cfg_context, "display_artwork_view");
+	const char* artwork_view = conf_string_get_default(cfg_context, "display_artwork_view");
 	if (strlen(artwork_view) >= sizeof(option->artwork_view_buffer)) {
 		printf("artwork: view name is too long\n");
 		return -1;

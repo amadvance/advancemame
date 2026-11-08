@@ -795,29 +795,32 @@ ADVANCELDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/advmame.map
 endif
 
 # MAME
-include $(srcdir)/src/core.mak
+include $(srcdir)/mame/core.mak
+include $(srcdir)/mame/cpu/cpu.mak
+include $(srcdir)/mame/sound/sound.mak
+$(eval $(call EMU_CORE,,$(OBJ),mame))
 ifeq ($(CONF_TINY),yes)
-include $(srcdir)/src/tiny.mak
+include $(srcdir)/mame/tiny.mak
 else
-include $(srcdir)/src/mame.mak
+include $(srcdir)/mame/mame.mak
 endif
-include $(srcdir)/src/cpu/cpu.mak
-include $(srcdir)/src/sound/sound.mak
+$(eval $(call EMU_CPU,,$(OBJ),mame))
+$(eval $(call EMU_SOUND,,$(OBJ),mame))
 
 # MESS
-include $(srcdir)/srcmess/core.mak
+$(eval $(call EMU_CORE,MESS,$(MESSOBJ),mess))
 ifeq ($(CONF_TINY),yes)
 include $(srcdir)/mess/tinyms.mak
 else
 include $(srcdir)/mess/mess.mak
 endif
-include $(srcdir)/srcmess/cpu/cpu.mak
+$(eval $(call EMU_CPU,MESS,$(MESSOBJ),mess))
 include $(srcdir)/mess/cpu/cpu.mak
-include $(srcdir)/srcmess/sound/sound.mak
+$(eval $(call EMU_SOUND,MESS,$(MESSOBJ),mess))
 include $(srcdir)/mess/sound/sound.mak
 
 # Special search paths required by the CPU core rules
-VPATH=$(wildcard $(srcdir)/src/cpu/* $(srcdir)/src/sound)
+VPATH=$(wildcard $(srcdir)/mame/cpu/* $(srcdir)/mame/sound)
 
 OBJDIRS += \
 	$(ADVANCEOBJDIRS) \
@@ -850,8 +853,8 @@ MESSOBJDIRS += \
 
 ifeq ($(CONF_DEBUGGER),yes)
 # CPU instruction hooks are defined in these headers; rebuild cores when they change.
-$(sort $(CPUOBJS)): $(srcdir)/src/debugger.h
-$(sort $(MESSCPUOBJS)): $(srcdir)/srcmess/debugger.h
+$(sort $(CPUOBJS)): $(srcdir)/mame/debugger.h
+$(sort $(MESSCPUOBJS)): $(srcdir)/mame/debugger.h
 EMUDEFS += -DMAME_DEBUG
 EMUCFLAGS += -DMAME_DEBUG
 else
@@ -862,25 +865,40 @@ endif
 
 MAMECFLAGS += \
 	$(EMUCFLAGS) \
-	-I$(srcdir)/src \
-	-I$(srcdir)/src/includes \
-	-I$(srcdir)/src/debug \
+	-I$(srcdir)/mame \
+	-I$(srcdir)/mame/includes \
+	-I$(srcdir)/mame/debug \
 	-I$(OBJ)/cpu/m68000 \
-	-I$(srcdir)/src/cpu/m68000
+	-I$(srcdir)/mame/cpu/m68000
 
 MESSCFLAGS += \
 	$(EMUCFLAGS) \
-	-I$(srcdir)/srcmess \
-	-I$(srcdir)/srcmess/includes \
-	-I$(srcdir)/srcmess/debug \
 	-I$(MESSOBJ)/cpu/m68000 \
-	-I$(srcdir)/srcmess/cpu/m68000
+	-I$(srcdir)/mame \
+	-I$(srcdir)/mame/includes \
+	-I$(srcdir)/mame/debug \
+	-I$(srcdir)/mame/cpu/m68000
 
 MAMEDEFS += $(EMUDEFS) $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 MESSDEFS += $(EMUDEFS) $(MESSCOREDEFS) $(MESSCPUDEFS) $(MESSSOUNDDEFS) $(MESSASMDEFS)
 
 MAMELIBS += $(EMULIBS) $(DRVLIBS)
 MESSLIBS += $(EMULIBS) $(MESSDRVLIBS)
+
+# Only opt in sources whose quoted-include dependencies have also been checked.
+# Static pattern rules keep the existing MESS object paths and flags, without
+# allowing VPATH to choose a different source.
+MESS_SHARED_SOURCES = md5.c sha1.c
+MESS_SHARED_OBJS = $(addprefix $(MESSOBJ)/,$(MESS_SHARED_SOURCES:.c=.o))
+MAME_SHARED_OBJS = $(addprefix $(OBJ)/,$(MESS_SHARED_SOURCES:.c=.o))
+
+$(MAME_SHARED_OBJS): $(OBJ)/%.o: $(srcdir)/mame/%.c $(srcdir)/advance/emu.mak
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -c $< -o $@
+
+$(MESS_SHARED_OBJS): $(MESSOBJ)/%.o: $(srcdir)/mame/%.c $(srcdir)/advance/emu.mak
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MESSCFLAGS) $(MESSDEFS) -c $< -o $@
 
 $(OBJ)/advmame$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(MAMEOBJS) $(MAMELIBS) $(ADVANCEBUILDLIBS)
 	$(ECHO) $@ $(MSG)
@@ -896,7 +914,7 @@ else
 	$(LN_S) $(OBJ)/advmame$(EXE) advmame$(EXE)
 endif
 
-$(OBJ)/%.o: $(srcdir)/src/%.c
+$(OBJ)/%.o: $(srcdir)/mame/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -c $< -o $@
 
@@ -908,10 +926,10 @@ $(subst .c,.o,$(M68000_GENERATED_FILES)): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BU
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
 $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 
-$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/src/cpu/m68000/m68kmake.c
+$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/mame/cpu/m68000/m68kmake.c $(srcdir)/mame/cpu/m68000/m68k_in.c
 	$(ECHO) $@
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
-	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(srcdir)/src/cpu/m68000/m68k_in.c
+	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(srcdir)/mame/cpu/m68000/m68k_in.c
 
 $(OBJ)/%.a:
 	$(ECHO) $@
@@ -942,7 +960,8 @@ else
 	$(LN_S) $(MESSOBJ)/advmess$(EXE) advmess$(EXE)
 endif
 
-$(MESSOBJ)/%.o: $(srcdir)/srcmess/%.c
+# Compile shared sources with target-specific flags and object paths.
+$(MESSOBJ)/%.o: $(srcdir)/mame/%.c $(srcdir)/advance/emu.mak
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MESSCFLAGS) $(MESSDEFS) -c $< -o $@
 
@@ -958,10 +977,10 @@ $(subst .c,.o,$(MESSM68000_GENERATED_FILES)): $(MESSOBJ)/cpu/m68000/m68kmake$(EX
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
 $(MESSOBJ)/cpu/m68000/m68kcpu.o: $(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 
-$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/srcmess/cpu/m68000/m68kmake.c
+$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/mame/cpu/m68000/m68kmake.c $(srcdir)/mame/cpu/m68000/m68k_in.c
 	$(ECHO) $@
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
-	@$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(MESSOBJ)/cpu/m68000 $(srcdir)/src/cpu/m68000/m68k_in.c
+	@$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(MESSOBJ)/cpu/m68000 $(srcdir)/mame/cpu/m68000/m68k_in.c
 
 $(MESSOBJ)/%.a:
 	$(ECHO) $@
@@ -1326,8 +1345,7 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib
 endif
-	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
-	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
+	cp -R $(srcdir)/mame $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
 	find $(EMU_DIST_DIR_SRC) \( -name "*.dat" \) -type f -exec dos2unix {} \;
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz

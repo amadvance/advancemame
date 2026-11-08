@@ -1,5 +1,7 @@
 # AdvanceMAME (`src/`) License Audit and GPL-2.0+ Compatibility Action Plan
 
+Historical audit: `src/` and `srcmess/` paths below describe the pre-unification tree. Shared sources now reside in `mame/`; MESS-specific sources remain in `mess/`.
+
 ## 1. Executive Summary & GPL Compatibility Assessment
 
 ### 1.1 Feasibility Assessment

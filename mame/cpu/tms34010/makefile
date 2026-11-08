@@ -1,0 +1,8 @@
+# license:BSD-3-Clause
+# copyright-holders:Aaron Giles, Nicola Salmoria
+dis34010.exe : dis34010.o -lalleg
+		gcc -m486 -O3 -ffast-math -fomit-frame-pointer -finline-functions dis34010.o -lalleg -o dis34010.exe
+
+dis34010.o : dis34010.c 34010dsm.c
+		gcc -c -m486 -O3 -ffast-math -fomit-frame-pointer -finline-functions -I../.. -I../../msdos dis34010.c
+

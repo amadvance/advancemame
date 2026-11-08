@@ -713,7 +713,7 @@ def build_record(group_key, names):
         sources.append({
             "type": "source_code",
             "url": None,
-            "path": f"src/drivers/{p_info['sourcefile']}"
+            "path": f"mame/drivers/{p_info['sourcefile']}"
         })
     rec["sources"] = sources
 

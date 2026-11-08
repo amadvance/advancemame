@@ -1,5 +1,7 @@
 # AdvanceMESS (`srcmess/` & `mess/`) License Verification and Quality Assurance Report
 
+Historical audit: `src/` and `srcmess/` paths below describe the pre-unification tree. Shared sources now reside in `mame/`; MESS-specific sources remain in `mess/`.
+
 ## 1. Executive Summary
 
 - **Overall Verification Outcome**: **PASSED** (100.00% Fully Compliant)

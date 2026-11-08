@@ -239,7 +239,7 @@ void device_unload_mess_hd(mess_image *image)
 
 /*************************************
  *
- *	Get the MESS/MAME hard disk handle (from the src/harddisk.c core)
+ *	Get the MESS/MAME hard disk handle (from the mame/harddisk.c core)
  *  after an image has been opened with the mess_hd core
  *
  *************************************/
@@ -254,7 +254,7 @@ hard_disk_file *mess_hd_get_hard_disk_file(mess_image *image)
 
 /*************************************
  *
- *	Get the MESS/MAME CHD file (from the src/chd.c core)
+ *	Get the MESS/MAME CHD file (from the mame/chd.c core)
  *  after an image has been opened with the mess_hd core
  *
  *************************************/

@@ -70,6 +70,8 @@ static OPBASE_HANDLER( psx_setopbase )
 
 		n_address = m_psxexe_header.t_addr;
 		n_left = m_psxexe_header.t_size;
+		/* The executable loader bypasses CPU stores and may replace translated RAM. */
+		psxcpu_ram_written( p_ram, n_ram );
 		while( n_left != 0 )
 		{
 			p_ram[ BYTE4_XOR_LE( n_address ) % n_ram ] = *( p_psxexe );

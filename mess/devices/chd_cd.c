@@ -152,7 +152,7 @@ void device_unload_mess_cd(mess_image *image)
 
 /*************************************
  *
- *  Get the MESS/MAME cdrom handle (from the src/cdrom.c core)
+ *  Get the MESS/MAME cdrom handle (from the mame/cdrom.c core)
  *  after an image has been opened with the mess_cd core
  *
  *************************************/
@@ -167,7 +167,7 @@ cdrom_file *mess_cd_get_cdrom_file(mess_image *image)
 
 /*************************************
  *
- *	Get the MESS/MAME CHD file (from the src/chd.c core)
+ *	Get the MESS/MAME CHD file (from the mame/chd.c core)
  *  after an image has been opened with the mess_cd core
  *
  *************************************/

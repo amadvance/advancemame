@@ -13,7 +13,7 @@
 
 #include "driver.h"
 #include "cpu/mips/mips3.h"
-#include "sound/custom.h"
+#include "sound/dmadac.h"
 #include "devices/cartslot.h"
 #include "streams.h"
 #include "includes/n64.h"
@@ -78,9 +78,99 @@ static INTERRUPT_GEN( n64_vblank )
 	signal_rcp_interrupt(VI_INTERRUPT);
 }
 
+/* Keep the console's generated PIF boot ROM; the arcade driver uses a dumped ROM. */
+static void n64_pif_bootstrap(void)
+{
+	int i;
+	UINT16 crc_seed = n64_get_cic_seed();
+	UINT32 *pif_rom = (UINT32*)memory_region(REGION_USER1);
+
+	// The PIF Boot ROM is not dumped, the following code simulates it
+
+	// clear all registers
+	for (i=1; i < 32; i++)
+	{
+		*pif_rom++ = 0x00000000 | 0 << 21 | 0 << 16 | i << 11 | 0x20;		// ADD ri, r0, r0
+	}
+
+	// R20 <- 0x00000001
+	*pif_rom++ = 0x34000000 | 20 << 16 | 0x0001;					// ORI r20, r0, 0x0001
+
+	// R22 <- 0x0000003F
+	*pif_rom++ = 0x34000000 | 22 << 16 | crc_seed;					// ORI r22, r0, 0x003f
+
+	// R29 <- 0xA4001FF0
+	*pif_rom++ = 0x3c000000 | 29 << 16 | 0xa400;					// LUI r29, 0xa400
+	*pif_rom++ = 0x34000000 | 29 << 21 | 29 << 16 | 0x1ff0;			// ORI r29, r29, 0x1ff0
+
+	// clear CP0 registers
+	for (i=0; i < 32; i++)
+	{
+		*pif_rom++ = 0x40000000 | 4 << 21 | 0 << 16 | i << 11;		// MTC2 cp0ri, r0
+	}
+
+	// Random <- 0x0000001F
+	*pif_rom++ = 0x34000000 | 1 << 16 | 0x001f;
+	*pif_rom++ = 0x40000000 | 4 << 21 | 1 << 16 | 1 << 11;			// MTC2 Random, r1
+
+	// Status <- 0x70400004
+	*pif_rom++ = 0x3c000000 | 1 << 16 | 0x7040;						// LUI r1, 0x7040
+	*pif_rom++ = 0x34000000 | 1 << 21 | 1 << 16 | 0x0004;			// ORI r1, r1, 0x0004
+	*pif_rom++ = 0x40000000 | 4 << 21 | 1 << 16 | 12 << 11;			// MTC2 Status, r1
+
+	// PRId <- 0x00000B00
+	*pif_rom++ = 0x34000000 | 1 << 16 | 0x0b00;						// ORI r1, r0, 0x0b00
+	*pif_rom++ = 0x40000000 | 4 << 21 | 1 << 16 | 15 << 11;			// MTC2 PRId, r1
+
+	// Config <- 0x0006E463
+	*pif_rom++ = 0x3c000000 | 1 << 16 | 0x0006;						// LUI r1, 0x0006
+	*pif_rom++ = 0x34000000 | 1 << 21 | 1 << 16 | 0xe463;			// ORI r1, r1, 0xe463
+	*pif_rom++ = 0x40000000 | 4 << 21 | 1 << 16 | 16 << 11;			// MTC2 Config, r1
+
+	// (0xa4300004) <- 0x01010101
+	*pif_rom++ = 0x3c000000 | 1 << 16 | 0x0101;						// LUI r1, 0x0101
+	*pif_rom++ = 0x34000000 | 1 << 21 | 1 << 16 | 0x0101;			// ORI r1, r1, 0x0101
+	*pif_rom++ = 0x3c000000 | 3 << 16 | 0xa430;						// LUI r3, 0xa430
+	*pif_rom++ = 0xac000000 | 3 << 21 | 1 << 16 | 0x0004;			// SW r1, 0x0004(r3)
+
+	// Copy 0xb0000000...1fff -> 0xa4000000...1fff
+	*pif_rom++ = 0x34000000 | 3 << 16 | 0x0400;						// ORI r3, r0, 0x0400
+	*pif_rom++ = 0x3c000000 | 4 << 16 | 0xb000;						// LUI r4, 0xb000
+	*pif_rom++ = 0x3c000000 | 5 << 16 | 0xa400;						// LUI r5, 0xa400
+	*pif_rom++ = 0x8c000000 | 4 << 21 | 1 << 16;					// LW r1, 0x0000(r4)
+	*pif_rom++ = 0xac000000 | 5 << 21 | 1 << 16;					// SW r1, 0x0000(r5)
+	*pif_rom++ = 0x20000000 | 4 << 21 | 4 << 16 | 0x0004;			// ADDI r4, r4, 0x0004
+	*pif_rom++ = 0x20000000 | 5 << 21 | 5 << 16 | 0x0004;			// ADDI r5, r5, 0x0004
+	*pif_rom++ = 0x20000000 | 3 << 21 | 3 << 16 | 0xffff;			// ADDI r3, r3, -1
+	*pif_rom++ = 0x14000000 | 3 << 21 | 0 << 16 | 0xfffa;			// BNE r3, r0, -6
+	*pif_rom++ = 0x00000000;
+
+	*pif_rom++ = 0x34000000 | 3 << 16 | 0x0000;						// ORI r3, r0, 0x0000
+	*pif_rom++ = 0x34000000 | 4 << 16 | 0x0000;						// ORI r4, r0, 0x0000
+	*pif_rom++ = 0x34000000 | 5 << 16 | 0x0000;						// ORI r5, r0, 0x0000
+
+	// Zelda and DK64 need these
+	*pif_rom++ = 0x3c000000 | 9 << 16 | 0xa400;
+	*pif_rom++ = 0x34000000 | 9 << 21 | 9 << 16 | 0x1ff0;
+	*pif_rom++ = 0x3c000000 | 11 << 16 | 0xa400;
+	*pif_rom++ = 0x3c000000 | 31 << 16 | 0xffff;
+	*pif_rom++ = 0x34000000 | 31 << 21 | 31 << 16 | 0xffff;
+
+	*pif_rom++ = 0x3c000000 | 1 << 16 | 0xa400;						// LUI r1, 0xa400
+	*pif_rom++ = 0x34000000 | 1 << 21 | 1 << 16 | 0x0040;			// ORI r1, r1, 0x0040
+	*pif_rom++ = 0x00000000 | 1 << 21 | 0x8;						// JR r1
+}
+
+static MACHINE_START( n64 )
+{
+	n64_machine_start();
+	return 0;
+}
+
 MACHINE_RESET( n64 )
 {
 	n64_machine_reset();
+	n64_pif_bootstrap();
 }
 
 MACHINE_DRIVER_START( n64 )
@@ -93,6 +183,7 @@ MACHINE_DRIVER_START( n64 )
 	MDRV_CPU_ADD(RSP, 62500000)
 	MDRV_CPU_PROGRAM_MAP(rsp_map, 0)
 	
+	MDRV_MACHINE_START( n64 )
 	MDRV_MACHINE_RESET( n64 )
 	MDRV_INTERLEAVE( 10)
 
@@ -109,10 +200,10 @@ MACHINE_DRIVER_START( n64 )
 	
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD(CUSTOM, 0)
-	MDRV_SOUND_CONFIG(n64_sound_interface)
-	MDRV_SOUND_ROUTE(0, "left", 1.00)
-	MDRV_SOUND_ROUTE(0, "right", 1.00)
+	MDRV_SOUND_ADD(DMADAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.00)
+	MDRV_SOUND_ADD(DMADAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.00)
 MACHINE_DRIVER_END
 
 DRIVER_INIT( n64 )

@@ -33,27 +33,13 @@
 
 #include "glue.h"
 
-#if defined(MESS)
-
-#include "../../srcmess/mamecore.h"
-#include "../../srcmess/mame.h"
-#include "../../srcmess/driver.h"
-#include "../../srcmess/info.h"
-#include "../../srcmess/osdepend.h"
-#include "../../srcmess/ui_text.h"
-#include "../../srcmess/profiler.h"
-
-#else
-
-#include "../../src/mamecore.h"
-#include "../../src/mame.h"
-#include "../../src/driver.h"
-#include "../../src/info.h"
-#include "../../src/osdepend.h"
-#include "../../src/ui_text.h"
-#include "../../src/profiler.h"
-
-#endif
+#include "../../mame/mamecore.h"
+#include "../../mame/mame.h"
+#include "../../mame/driver.h"
+#include "../../mame/info.h"
+#include "../../mame/osdepend.h"
+#include "../../mame/ui_text.h"
+#include "../../mame/profiler.h"
 
 #define IPT_UI_HELP IPT_OSD_1
 #define IPT_UI_TURBO IPT_OSD_2

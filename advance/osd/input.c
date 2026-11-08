@@ -2607,7 +2607,7 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
  * Another example is "cabal" that uses relative TRACKBALL input.
  * If relative is returned, it's applied as it's.
  * If absolute is returned, the value is used to scale
- * the digital input in src/intport.c:update_analog_port().
+ * the digital input in mame/intport.c:update_analog_port().
  *
  * Analog absolute inputs return a value between -65536 and +65536.
  *
