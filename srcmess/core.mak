@@ -33,7 +33,6 @@ MESSCOREOBJS = \
 	$(MESSOBJ)/info.o \
 	$(MESSOBJ)/input.o \
 	$(MESSOBJ)/inptport.o \
-	$(MESSOBJ)/jedparse.o \
 	$(MESSOBJ)/mame.o \
 	$(MESSOBJ)/mamecore.o \
 	$(MESSOBJ)/md5.o \
@@ -92,9 +91,3 @@ endif
 endif
 
 
-
-#-------------------------------------------------
-# set of tool targets
-#-------------------------------------------------
-
-TOOLS = romcmp$(EXE) xml2info$(EXE) jedutil$(EXE)

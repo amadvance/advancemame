@@ -845,12 +845,6 @@ MESSOBJDIRS += \
 	$(MESSOBJ)/mess/vidhrdw \
 	$(MESSOBJ)/mess/sndhrdw \
 	$(MESSOBJ)/mess/formats \
-	$(MESSOBJ)/mess/tools \
-	$(MESSOBJ)/mess/tools/dat2html \
-	$(MESSOBJ)/mess/tools/mkhdimg \
-	$(MESSOBJ)/mess/tools/messroms \
-	$(MESSOBJ)/mess/tools/imgtool \
-	$(MESSOBJ)/mess/tools/mkimage \
 	$(MESSOBJ)/mess/sound \
 	$(MESSOBJ)/mess/cpu
 

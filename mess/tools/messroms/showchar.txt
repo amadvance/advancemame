@@ -1,9 +1,0 @@
-Short MSDOS utility to display IBM PC/XT/AT/PCjr. character set, by PeT
-
-TO BE USED ONLY IN REAL DOS MODE!!!
-
-The character generator ROM is not easily dumpable without an EPROM reader:
-compile and run this program then make a snapshot of the resulting screens...
-
-then mail the images to a MESSDEV member! ;)
-
