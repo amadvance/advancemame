@@ -1042,7 +1042,7 @@ MESSCOREOBJS +=							\
 
 
 # additional tools
-TOOLS = dat2html$(EXE) messtest$(EXE) chdman$(EXE) messdocs$(EXE) imgtool$(EXE)
+TOOLS = dat2html$(EXE) messtest$(EXE) messdocs$(EXE) imgtool$(EXE)
 
 include mess/tools/imgtool/imgtool.mak
 

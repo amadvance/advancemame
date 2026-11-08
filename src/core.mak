@@ -19,9 +19,8 @@ COREOBJS = \
 	$(OBJ)/artwork.o \
 	$(OBJ)/artwork_lay.o \
 	$(OBJ)/artwork_package.o \
-	$(OBJ)/audit.o \
 	$(OBJ)/cdrom.o \
-	$(OBJ)/chd.o \
+	$(OBJ)/chdwrite.o \
 	$(OBJ)/cheat.o \
 	$(OBJ)/config.o \
 	$(OBJ)/cpuexec.o \
@@ -100,4 +99,4 @@ endif
 # set of tool targets
 #-------------------------------------------------
 
-TOOLS = romcmp$(EXE) chdman$(EXE) xml2info$(EXE) jedutil$(EXE)
+TOOLS = romcmp$(EXE) xml2info$(EXE) jedutil$(EXE)

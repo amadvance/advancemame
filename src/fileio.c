@@ -12,7 +12,6 @@
 
 #include "osdepend.h"
 #include "driver.h"
-#include "chd.h"
 #include "hash.h"
 #include "unzip.h"
 
@@ -106,26 +105,7 @@ int mess_ghost_images;
 static mame_file *generic_fopen(int pathtype, const char *gamename, const char *filename, const char *hash, UINT32 flags, osd_file_error *error);
 static const char *get_extension_for_filetype(int filetype);
 static int checksum_file(int pathtype, int pathindex, const char *file, UINT8 **p, UINT64 *size, char* hash);
-static chd_interface_file *chd_open_cb(const char *filename, const char *mode);
-static void chd_close_cb(chd_interface_file *file);
-static UINT32 chd_read_cb(chd_interface_file *file, UINT64 offset, UINT32 count, void *buffer);
-static UINT32 chd_write_cb(chd_interface_file *file, UINT64 offset, UINT32 count, const void *buffer);
-static UINT64 chd_length_cb(chd_interface_file *file);
 
-
-
-/***************************************************************************
-    HARD DISK INTERFACE
-***************************************************************************/
-
-static chd_interface mame_chd_interface =
-{
-	chd_open_cb,
-	chd_close_cb,
-	chd_read_cb,
-	chd_write_cb,
-	chd_length_cb
-};
 
 
 /*-------------------------------------------------
@@ -136,7 +116,6 @@ static chd_interface mame_chd_interface =
 
 void fileio_init(void)
 {
-	chd_set_interface(&mame_chd_interface);
 	add_exit_callback(fileio_exit);
 }
 
@@ -259,7 +238,7 @@ mame_file *mame_fopen_error(const char *gamename, const char *filename, int file
 
 		/* differencing disk images */
 		case FILETYPE_IMAGE_DIFF:
-			return generic_fopen(filetype, gamename, filename, 0, FILEFLAG_OPENREAD | FILEFLAG_OPENWRITE, error);
+			return generic_fopen(filetype, gamename, filename, 0, FILEFLAG_OPENREAD | FILEFLAG_OPENWRITE | (openforwrite ? 0 : FILEFLAG_MUST_EXIST), error);
 
 		/* NVRAM files */
 		case FILETYPE_NVRAM:
@@ -544,7 +523,7 @@ UINT64 mame_fsize(mame_file *file)
 	{
 		case PLAIN_FILE:
 		{
-			int size, offs;
+			UINT64 size, offs;
 			offs = osd_ftell(file->file);
 			osd_fseek(file->file, 0, SEEK_END);
 			size = osd_ftell(file->file);
@@ -1336,79 +1315,6 @@ static int checksum_file(int pathtype, int pathindex, const char *file, UINT8 **
 	/* close the file */
 	osd_fclose(f);
 	return 0;
-}
-
-
-/*-------------------------------------------------
-    chd_open_cb - interface for opening
-    a hard disk image
--------------------------------------------------*/
-
-chd_interface_file *chd_open_cb(const char *filename, const char *mode)
-{
-	/* look for read-only drives first in the ROM path */
-	if (mode[0] == 'r' && !strchr(mode, '+'))
-	{
-		const game_driver *drv;
-
-		/* attempt reading up the chain through the parents */
-		for (drv = Machine->gamedrv; drv != NULL; drv = driver_get_clone(drv))
-		{
-			void *file = mame_fopen(drv->name, filename, FILETYPE_IMAGE, 0);
-			if (file != NULL)
-				return file;
-		}
-		return NULL;
-	}
-
-	/* look for read/write drives in the diff area */
-	return (chd_interface_file *)mame_fopen(NULL, filename, FILETYPE_IMAGE_DIFF, 1);
-}
-
-
-/*-------------------------------------------------
-    chd_close_cb - interface for closing
-    a hard disk image
--------------------------------------------------*/
-
-void chd_close_cb(chd_interface_file *file)
-{
-	mame_fclose((mame_file *)file);
-}
-
-
-/*-------------------------------------------------
-    chd_read_cb - interface for reading
-    from a hard disk image
--------------------------------------------------*/
-
-UINT32 chd_read_cb(chd_interface_file *file, UINT64 offset, UINT32 count, void *buffer)
-{
-	mame_fseek((mame_file *)file, offset, SEEK_SET);
-	return mame_fread((mame_file *)file, buffer, count);
-}
-
-
-/*-------------------------------------------------
-    chd_write_cb - interface for writing
-    to a hard disk image
--------------------------------------------------*/
-
-UINT32 chd_write_cb(chd_interface_file *file, UINT64 offset, UINT32 count, const void *buffer)
-{
-	mame_fseek((mame_file *)file, offset, SEEK_SET);
-	return mame_fwrite((mame_file *)file, buffer, count);
-}
-
-
-/*-------------------------------------------------
-    chd_length_cb - interface for getting
-    the length a hard disk image
--------------------------------------------------*/
-
-UINT64 chd_length_cb(chd_interface_file *file)
-{
-	return mame_fsize((mame_file *)file);
 }
 
 /* Open an artwork member in one specific directory or archive.

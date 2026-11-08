@@ -12,7 +12,8 @@
 #define __HARDDISK_H__
 
 #include "mamecore.h"
-#include "chd.h"
+#include "libchdr/chd.h"
+#include "chdwrite.h"
 
 
 typedef struct _hard_disk_file hard_disk_file;
@@ -35,6 +36,7 @@ typedef struct _hard_disk_info hard_disk_info;
  *************************************/
 
 hard_disk_file *hard_disk_open(chd_file *chd);
+hard_disk_file *hard_disk_open_diff(chd_file *chd, chd_write_file *diff);
 void hard_disk_close(hard_disk_file *file);
 
 chd_file *hard_disk_get_chd(hard_disk_file *file);

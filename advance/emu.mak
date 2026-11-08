@@ -530,14 +530,43 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/error.o \
 	$(OBJ)/advance/lib/wave.o
 
-EMUCHDMANOBJS += \
-	$(OBJ)/chdman.o \
-	$(OBJ)/chd.o \
-	$(OBJ)/cdrom.o \
-	$(OBJ)/chdcd.o \
-	$(OBJ)/sha1.o \
-	$(OBJ)/md5.o \
-	$(OBJ)/version.o
+############################################################################
+# libchdr
+
+LIBCHDRCFLAGS = \
+	-I$(srcdir)/alien/libchdr/include \
+	-DCHDR_SYSTEM_ZLIB \
+	-DCHDR_SYSTEM_ZSTD
+
+LIBCHDR_OBJS = \
+	$(OBJ)/alien/libchdr/src/libchdr_bitstream.o \
+	$(OBJ)/alien/libchdr/src/libchdr_cdrom.o \
+	$(OBJ)/alien/libchdr/src/libchdr_chd.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_avhuff.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_cdfl.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_cdlz.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_cdzl.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_cdzs.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_flac.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_huff.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_lzma.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_zlib.o \
+	$(OBJ)/alien/libchdr/src/libchdr_codec_zstd.o \
+	$(OBJ)/alien/libchdr/src/libchdr_flac.o \
+	$(OBJ)/alien/libchdr/src/libchdr_huffman.o
+
+$(OBJ)/advance/libchdr.a: $(LIBCHDR_OBJS)
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/alien/libchdr/include
+ADVANCEOBJDIRS += \
+	$(OBJ)/alien/libchdr \
+	$(OBJ)/alien/libchdr/src
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libchdr.a
 
 ############################################################################
 # expat
@@ -569,7 +598,6 @@ $(OBJ)/advance/libz.a: $(OBJ)/alien/zlib/adler32.o $(OBJ)/alien/zlib/crc32.o $(O
 
 ifeq ($(CONF_LIB_ZLIB),yes)
 ADVANCELIBS += -lz
-EMUCHDMANLDFLAGS += -lz
 else
 CFLAGS += \
 	-I$(srcdir)/alien/zlib
@@ -679,6 +707,10 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
+$(OBJ)/alien/libchdr/%.o: $(srcdir)/alien/libchdr/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(LIBCHDRCFLAGS) -c $< -o $@
+
 $(OBJ)/alien/lzma/%.o: $(srcdir)/alien/lzma/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(LZMACFLAGS) -c $< -o $@
@@ -706,6 +738,10 @@ $(MESSOBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.
 $(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/libchdr/%.o: $(srcdir)/alien/libchdr/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(LIBCHDRCFLAGS) -c $< -o $@
 
 $(MESSOBJ)/alien/lzma/%.o: $(srcdir)/alien/lzma/%.c
 	$(ECHO) $@ $(MSG)
@@ -865,10 +901,6 @@ else
 	$(RM) advmame$(EXE)
 	$(LN_S) $(OBJ)/advmame$(EXE) advmame$(EXE)
 endif
-
-$(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
-	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) $(EMUCHDMANLIBS) $(LIBS) -o $@
 
 $(OBJ)/%.o: $(srcdir)/src/%.c
 	$(ECHO) $@ $(MSG)
@@ -1292,6 +1324,10 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	mkdir $(EMU_DIST_DIR_SRC)/alien/dr_flac
 	cp $(wildcard $(srcdir)/alien/dr_flac/*.c) $(EMU_DIST_DIR_SRC)/alien/dr_flac
 	cp $(wildcard $(srcdir)/alien/dr_flac/*.h) $(EMU_DIST_DIR_SRC)/alien/dr_flac
+	mkdir $(EMU_DIST_DIR_SRC)/alien/libchdr
+	cp $(srcdir)/alien/libchdr/LICENSE.txt $(EMU_DIST_DIR_SRC)/alien/libchdr
+	cp -R $(srcdir)/alien/libchdr/include $(EMU_DIST_DIR_SRC)/alien/libchdr
+	cp -R $(srcdir)/alien/libchdr/src $(EMU_DIST_DIR_SRC)/alien/libchdr
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib

@@ -2,7 +2,7 @@
 # copyright-holders:Nathan Woods
 IMGTOOL_LIB_OBJS =							\
 	$(OBJ)/unzip.o							\
-	$(OBJ)/chd.o							\
+	$(OBJ)/chdwrite.o						\
 	$(OBJ)/harddisk.o						\
 	$(OBJ)/mamecore.o						\
 	$(OBJ)/md5.o							\

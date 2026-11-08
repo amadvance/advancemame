@@ -1,0 +1,7 @@
+This is an adaption of the libchdr library to be directly
+included in a source project.
+
+From https://github.com/rtissera/libchdr at commit 47d794151b2b64f6aba60304e6480f4f5a2bc24b
+
+The patch libchdr.diff contains the difference
+from the original library.

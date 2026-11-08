@@ -392,6 +392,12 @@ DR_FLAC_SRC = \
 	$(wildcard $(srcdir)/alien/dr_flac/*.c) \
 	$(wildcard $(srcdir)/alien/dr_flac/*.h)
 
+LIBCHDR_SRC = \
+	$(wildcard $(srcdir)/alien/libchdr/LICENSE.txt) \
+	$(wildcard $(srcdir)/alien/libchdr/include/libchdr/*.h) \
+	$(wildcard $(srcdir)/alien/libchdr/src/*.c) \
+	$(wildcard $(srcdir)/alien/libchdr/src/*.h)
+
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.usr \

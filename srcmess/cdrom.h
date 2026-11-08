@@ -8,11 +8,11 @@
 
 ***************************************************************************/
 
-#ifndef __CDROM_H__
-#define __CDROM_H__
+#ifndef __MAME_CDROM_H__
+#define __MAME_CDROM_H__
 
 #include "mamecore.h"
-#include "chd.h"
+#include "libchdr/chd.h"
 #include "streams.h"
 
 typedef struct _cdrom_file cdrom_file;
@@ -23,8 +23,13 @@ typedef struct _cdrom_file cdrom_file;
 
 #define CD_FRAME_SIZE		(CD_MAX_SECTOR_DATA + CD_MAX_SUBCODE_DATA)
 #define CD_FRAMES_PER_HUNK	(4)
+#define CD_TRACK_PADDING	(4)
 
 #define CD_METADATA_WORDS	(1+(CD_MAX_TRACKS * 6))
+
+#define CD_FLAG_GDROM		0x00000001
+#define CD_FLAG_GDROMLE		0x00000002
+
 enum
 {
 	CD_TRACK_MODE1 = 0, 	/* mode 1 2048 bytes/sector */
@@ -34,7 +39,9 @@ enum
 	CD_TRACK_MODE2_FORM2,	/* mode 2 2324 bytes/sector */
 	CD_TRACK_MODE2_FORM_MIX, /* mode 2 2336 bytes/sector */
 	CD_TRACK_MODE2_RAW,	/* mode 2 2352 bytes / sector */
-	CD_TRACK_AUDIO		/* redbook audio track 2352 bytes/sector (588 samples) */
+	CD_TRACK_AUDIO,		/* redbook audio track 2352 bytes/sector (588 samples) */
+
+	CD_TRACK_RAW_DONTCARE	/* special flag for cdrom_read_data: just return me whatever is there */
 };
 
 enum
@@ -53,6 +60,13 @@ struct _cdrom_track_info
 	UINT32 subsize;		/* size of subchannel data in each sector of this track */
 	UINT32 frames;		/* number of frames in this track */
 	UINT32 extraframes;	/* number of "spillage" frames in this track */
+	UINT32 pregap;		/* number of pregap frames */
+	UINT32 postgap;		/* number of postgap frames */
+	UINT32 pgtype;		/* type of sectors in pregap */
+	UINT32 pgsub;		/* type of subchannel data in pregap */
+	UINT32 pgdatasize;	/* size of data in each sector of the pregap */
+	UINT32 pgsubsize;	/* size of subchannel data in each sector of the pregap */
+	UINT32 padframes;	/* number of frames of padding to add to the track */
 
 	/* fields used in MAME only */
 	UINT32 physframeofs;	/* frame number on the real CD this track starts at */
@@ -70,7 +84,8 @@ typedef struct _cdrom_track_input_info cdrom_track_input_info;
 struct _cdrom_toc
 {
 	UINT32 numtrks;		/* number of tracks */
-	cdrom_track_info tracks[CD_MAX_TRACKS];
+	UINT32 flags;		/* disc flags */
+	cdrom_track_info tracks[CD_MAX_TRACKS + 1];
 };
 typedef struct _cdrom_toc cdrom_toc;
 
@@ -108,5 +123,5 @@ int cdrom_get_track_type(cdrom_file *file, int track);
 cdrom_toc *cdrom_get_toc(cdrom_file *file);
 UINT32 cdrom_get_track_length(cdrom_file *file, int track);
 
-#endif	// __CDROM_H__
+#endif	// __MAME_CDROM_H__
 

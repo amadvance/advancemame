@@ -32,6 +32,7 @@
 
 /* disks */
 static chd_file *disk_handle[4];
+static chd_write_file *disk_diff_handle[4];
 
 /* system BIOS */
 int system_bios;
@@ -45,6 +46,20 @@ static int total_rom_load_warnings;
     Hard disk handling
 
 ***************************************************************************/
+
+
+static mame_file *open_disk_image_file(const game_driver *gamedrv, const char *filename)
+{
+	const game_driver *drv;
+
+	for (drv = gamedrv; drv != NULL; drv = driver_get_clone(drv))
+	{
+		mame_file *file = mame_fopen(drv->name, filename, FILETYPE_IMAGE, 0);
+		if (file != NULL)
+			return file;
+	}
+	return NULL;
+}
 
 chd_file *get_disk_handle(int diskindex)
 {
@@ -822,6 +837,124 @@ fatalerror:
 }
 
 
+#define MAX_CHD_PARENT_DEPTH 16
+
+static int chd_has_parent(const chd_header *header)
+{
+	static const UINT8 nullsha1[CHD_SHA1_BYTES] = { 0 };
+
+	if (header->version < 5)
+		return (header->flags & CHDFLAGS_HAS_PARENT) != 0;
+	return memcmp(nullsha1, header->parentsha1, sizeof(header->parentsha1)) != 0;
+}
+
+static chd_file *open_parent_disk_image_recursive(const game_driver *gamedrv, const chd_header *child_header, const chd_header *visited_headers, int depth)
+{
+	static const UINT8 nullmd5[CHD_MD5_BYTES] = { 0 };
+	static const UINT8 nullsha1[CHD_SHA1_BYTES] = { 0 };
+	const game_driver *drv;
+	int check_sha1;
+	int check_md5;
+	int i;
+
+	if (depth >= MAX_CHD_PARENT_DEPTH)
+		return NULL;
+
+	check_sha1 = (memcmp(nullsha1, child_header->parentsha1, CHD_SHA1_BYTES) != 0);
+	check_md5 = (memcmp(nullmd5, child_header->parentmd5, CHD_MD5_BYTES) != 0);
+
+	/* detect cycles in the parent chain */
+	for (i = 0; i < depth; i++)
+	{
+		if (check_sha1 && (memcmp(visited_headers[i].sha1, child_header->parentsha1, CHD_SHA1_BYTES) == 0 ||
+		                   (visited_headers[i].version >= 4 && memcmp(visited_headers[i].rawsha1, child_header->parentsha1, CHD_SHA1_BYTES) == 0)))
+			return NULL;
+		if (!check_sha1 && check_md5 && memcmp(visited_headers[i].md5, child_header->parentmd5, CHD_MD5_BYTES) == 0)
+			return NULL;
+	}
+
+	for (drv = gamedrv; drv != NULL; drv = driver_get_clone(drv))
+	{
+		const rom_entry *region, *rom;
+
+		for (region = rom_first_region(drv); region; region = rom_next_region(region))
+		{
+			if (!ROMREGION_ISDISKDATA(region))
+				continue;
+
+			for (rom = rom_first_file(region); rom; rom = rom_next_file(rom))
+			{
+				char parentname[1024];
+				mame_file *pfile;
+				chd_header pheader;
+
+				sprintf(parentname, "%s.chd", ROM_GETNAME(rom));
+				pfile = open_disk_image_file(drv, parentname);
+				if (!pfile)
+					continue;
+
+				if (chd_read_header_core_file_callbacks(&mame_core_file_callbacks, pfile, &pheader) == CHDERR_NONE)
+				{
+					int match = 0;
+					if (check_sha1 && (memcmp(pheader.sha1, child_header->parentsha1, CHD_SHA1_BYTES) == 0 ||
+					                   (pheader.version >= 4 && memcmp(pheader.rawsha1, child_header->parentsha1, CHD_SHA1_BYTES) == 0)))
+						match = 1;
+					else if (!check_sha1 && check_md5 && memcmp(pheader.md5, child_header->parentmd5, CHD_MD5_BYTES) == 0)
+						match = 1;
+
+					if (match)
+					{
+						chd_file *parent = 0;
+						chd_file *grandparent = 0;
+						chd_error err;
+
+						if (chd_has_parent(&pheader))
+						{
+							chd_header next_visited[MAX_CHD_PARENT_DEPTH];
+							if (depth > 0)
+								memcpy(next_visited, visited_headers, depth * sizeof(chd_header));
+							next_visited[depth] = *child_header;
+							grandparent = open_parent_disk_image_recursive(drv, &pheader, next_visited, depth + 1);
+							if (!grandparent)
+							{
+								mame_fclose(pfile);
+								continue;
+							}
+						}
+
+						/* the file is still owned by us, so we must close it on failure */
+						if (mame_fseek(pfile, 0, SEEK_SET) != 0)
+						{
+							if (grandparent)
+								chd_close(grandparent);
+							mame_fclose(pfile);
+							continue;
+						}
+
+						err = chd_open_core_file_callbacks(&mame_core_file_callbacks, pfile, CHD_OPEN_READ, grandparent, &parent);
+
+						/* libchdr owns pfile from now on, even on failure, and it must never be closed or reused here */
+						pfile = 0;
+
+						if (err == CHDERR_NONE)
+							return parent;
+
+						continue;
+					}
+				}
+				mame_fclose(pfile);
+			}
+		}
+	}
+	return NULL;
+}
+
+static chd_file *open_parent_disk_image(const game_driver *gamedrv, const chd_header *child_header)
+{
+	return open_parent_disk_image_recursive(gamedrv, child_header, NULL, 0);
+}
+
+
 /*-------------------------------------------------
     process_disk_entries - process all disk entries
     for a region
@@ -829,94 +962,180 @@ fatalerror:
 
 static int process_disk_entries(rom_load_data *romdata, const rom_entry *romp)
 {
+	static const UINT8 nullmd5[CHD_MD5_BYTES] = { 0 };
+	static const UINT8 nullsha1[CHD_SHA1_BYTES] = { 0 };
+
 	/* loop until we hit the end of this region */
 	while (!ROMENTRY_ISREGIONEND(romp))
 	{
 		/* handle files */
 		if (ROMENTRY_ISFILE(romp))
 		{
-			chd_file *source, *diff = NULL;
-			chd_header header;
+			chd_file *source = NULL;
+			chd_header child_header;
+			chd_file *parent = NULL;
+			const chd_header *header;
+			mame_file *file;
 			char filename[1024];
 			char acthash[HASH_BUF_SIZE];
-			int err;
+			chd_error err;
 
 			/* make the filename of the source */
 			sprintf(filename, "%s.chd", ROM_GETNAME(romp));
 
 			/* first open the source drive */
 			debugload("Opening disk image: %s\n", filename);
-			source = chd_open(filename, 0, NULL);
-			if (!source)
+			file = open_disk_image_file(Machine->gamedrv, filename);
+			if (!file)
 			{
-				if (chd_get_last_error() == CHDERR_UNSUPPORTED_VERSION)
+				handle_missing_file(romdata, romp);
+				romp++;
+				continue;
+			}
+
+			err = chd_read_header_core_file_callbacks(&mame_core_file_callbacks, file, &child_header);
+			if (err == CHDERR_NONE)
+			{
+				if (chd_has_parent(&child_header))
+					parent = open_parent_disk_image(Machine->gamedrv, &child_header);
+
+				mame_fseek(file, 0, SEEK_SET);
+				err = chd_open_core_file_callbacks(&mame_core_file_callbacks, file, CHD_OPEN_READ, parent, &source);
+			}
+			else
+			{
+				mame_fclose(file);
+			}
+
+			if (err != CHDERR_NONE || !source)
+			{
+				if (err == CHDERR_UNSUPPORTED_VERSION)
 					sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s UNSUPPORTED CHD VERSION\n", filename);
 				else
-					sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s NOT FOUND\n", filename);
+					sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s CHD ERROR: %s\n", filename, chd_error_string(err));
 				romdata->errors++;
 				romp++;
 				continue;
 			}
 
 			/* get the header and extract the MD5/SHA1 */
-			header = *chd_get_header(source);
+			header = chd_get_header(source);
 			hash_data_clear(acthash);
-			hash_data_insert_binary_checksum(acthash, HASH_MD5, header.md5);
-			hash_data_insert_binary_checksum(acthash, HASH_SHA1, header.sha1);
+			if (header->version <= 3 && memcmp(nullmd5, header->md5, CHD_MD5_BYTES) != 0)
+				hash_data_insert_binary_checksum(acthash, HASH_MD5, header->md5);
+			if (header->version >= 3 && memcmp(nullsha1, header->sha1, CHD_SHA1_BYTES) != 0)
+				hash_data_insert_binary_checksum(acthash, HASH_SHA1, header->sha1);
 
-			/* verify the MD5 */
-			if (!hash_data_is_equal(ROM_GETHASHDATA(romp), acthash, 0))
+			/* verify the checksum; for CHD v4-v5 also check rawsha1 against legacy driver definitions */
+			if (!hash_data_is_equal(ROM_GETHASHDATA(romp), acthash, 0) &&
+				header->version >= 4 && memcmp(nullsha1, header->rawsha1, CHD_SHA1_BYTES) != 0)
+			{
+				char rawhash[HASH_BUF_SIZE];
+				hash_data_clear(rawhash);
+				hash_data_insert_binary_checksum(rawhash, HASH_SHA1, header->rawsha1);
+				if (hash_data_is_equal(ROM_GETHASHDATA(romp), rawhash, 0))
+					hash_data_copy(acthash, rawhash);
+			}
+
+			if (hash_data_has_info(ROM_GETHASHDATA(romp), HASH_INFO_NO_DUMP))
+			{
+				sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s NO GOOD DUMP KNOWN\n", filename);
+				romdata->warnings++;
+			}
+			else if (!hash_data_is_equal(ROM_GETHASHDATA(romp), acthash, 0))
 			{
 				sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s WRONG CHECKSUMS:\n", filename);
 				dump_wrong_and_correct_checksums(romdata, ROM_GETHASHDATA(romp), acthash);
 				romdata->warnings++;
 			}
+			else if (hash_data_has_info(ROM_GETHASHDATA(romp), HASH_INFO_BAD_DUMP))
+			{
+				sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s CHD NEEDS REDUMP\n", filename);
+				romdata->warnings++;
+			}
 
-			/* if not read-only, make the diff file */
+			/* if not read-only, open or create the CHD v5 diff file */
 			if (!DISK_ISREADONLY(romp))
 			{
+				chd_write_file *diff = NULL;
+				mame_file *dfile;
+				osd_file_error ferr = FILEERR_SUCCESS;
+
 				/* make the filename of the diff */
 				sprintf(filename, "%s.dif", ROM_GETNAME(romp));
 
-				/* try to open the diff */
+				/* try to open an existing diff */
 				debugload("Opening differencing image: %s\n", filename);
-				diff = chd_open(filename, 1, source);
-				if (!diff)
+				dfile = mame_fopen_error(NULL, filename, FILETYPE_IMAGE_DIFF, 0, &ferr);
+				if (dfile)
 				{
-					/* didn't work; try creating it instead */
-					debugload("Creating differencing image: %s\n", filename);
-					err = chd_create(filename, 0, 0, CHDCOMPRESSION_NONE, source);
+					err = chd_open_diff_file(dfile, source, &diff);
+					if (err != CHDERR_NONE || !diff)
+					{
+						if (err == CHDERR_UNSUPPORTED_VERSION)
+							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s UNSUPPORTED CHD VERSION (old diff file, delete it to recreate)\n", filename);
+						else if (err == CHDERR_INVALID_PARENT || err == CHDERR_REQUIRES_PARENT)
+							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: DIFF FILE DOES NOT MATCH THE CHD (created for a different CHD, delete it to recreate)\n", filename);
+						else if (err == CHDERR_INVALID_FILE || err == CHDERR_READ_ERROR)
+							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: DIFF FILE CORRUPTED (delete it to recreate)\n", filename);
+						else
+							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T OPEN DIFF FILE\n", filename);
+						goto diff_error;
+					}
+				}
+				else if (ferr != FILEERR_NOT_FOUND)
+				{
+					sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T OPEN DIFF FILE\n", filename);
+					goto diff_error;
+				}
+				else
+				{
+					/* validate parent before creating the diff file on disk */
+					err = chd_validate_parent(source);
 					if (err != CHDERR_NONE)
 					{
-						if (chd_get_last_error() == CHDERR_UNSUPPORTED_VERSION)
+						if (err == CHDERR_UNSUPPORTED_VERSION)
 							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s UNSUPPORTED CHD VERSION\n", filename);
 						else
 							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T CREATE DIFF FILE\n", filename);
-						romdata->errors++;
-						romp++;
-						continue;
+						goto diff_error;
 					}
 
-					/* open the newly-created diff file */
-					debugload("Opening differencing image: %s\n", filename);
-					diff = chd_open(filename, 1, source);
-					if (!diff)
+					/* create a new CHD v5 diff file */
+					debugload("Creating differencing image: %s\n", filename);
+					dfile = mame_fopen_error(NULL, filename, FILETYPE_IMAGE_DIFF, 1, &ferr);
+					if (!dfile)
 					{
-						if (chd_get_last_error() == CHDERR_UNSUPPORTED_VERSION)
+						sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T CREATE DIFF FILE\n", filename);
+						goto diff_error;
+					}
+
+					err = chd_create_diff_file(dfile, source, &diff);
+					if (err != CHDERR_NONE || !diff)
+					{
+						if (err == CHDERR_UNSUPPORTED_VERSION)
 							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s UNSUPPORTED CHD VERSION\n", filename);
 						else
-							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T OPEN DIFF FILE\n", filename);
-						romdata->errors++;
-						romp++;
-						continue;
+							sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s: CAN'T CREATE DIFF FILE\n", filename);
+						goto diff_error;
 					}
 				}
+
+				chd_register_writable(source, diff);
+				disk_diff_handle[DISK_GETINDEX(romp)] = diff;
 			}
 
 			/* we're okay, set the handle */
 			debugload("Assigning to handle %d\n", DISK_GETINDEX(romp));
-			disk_handle[DISK_GETINDEX(romp)] = DISK_ISREADONLY(romp) ? source : diff;
+			disk_handle[DISK_GETINDEX(romp)] = source;
 			romp++;
+			continue;
+
+		diff_error:
+			chd_close(source);
+			romdata->errors++;
+			romp++;
+			continue;
 		}
 	}
 	return 1;
@@ -948,6 +1167,7 @@ int rom_init(const rom_entry *romp)
 
 	/* reset the disk list */
 	memset(disk_handle, 0, sizeof(disk_handle));
+	memset(disk_diff_handle, 0, sizeof(disk_diff_handle));
 
 	/* determine the correct biosset to load based on options.bios string */
 	system_bios = determine_bios_rom(Machine->gamedrv->bios);
@@ -1040,7 +1260,19 @@ void rom_exit(void)
 		free_memory_region(i);
 
 	/* close all hard drives */
-	chd_close_all();
+	for (i = 0; i < sizeof(disk_handle) / sizeof(disk_handle[0]); i++)
+	{
+		if (disk_diff_handle[i])
+		{
+			chd_close_diff(disk_diff_handle[i]);
+			disk_diff_handle[i] = NULL;
+		}
+		if (disk_handle[i])
+		{
+			chd_close(disk_handle[i]);
+			disk_handle[i] = NULL;
+		}
+	}
 }
 
 

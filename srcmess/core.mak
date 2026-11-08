@@ -17,9 +17,8 @@
 
 MESSCOREOBJS = \
 	$(MESSOBJ)/artwork.o \
-	$(MESSOBJ)/audit.o \
 	$(MESSOBJ)/cdrom.o \
-	$(MESSOBJ)/chd.o \
+	$(MESSOBJ)/chdwrite.o \
 	$(MESSOBJ)/cheat.o \
 	$(MESSOBJ)/config.o \
 	$(MESSOBJ)/cpuexec.o \
@@ -98,4 +97,4 @@ endif
 # set of tool targets
 #-------------------------------------------------
 
-TOOLS = romcmp$(EXE) chdman$(EXE) xml2info$(EXE) jedutil$(EXE)
+TOOLS = romcmp$(EXE) xml2info$(EXE) jedutil$(EXE)

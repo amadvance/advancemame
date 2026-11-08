@@ -9,43 +9,11 @@
 *********************************************************************/
 
 #include "chd_cd.h"
+#include "chdwrite.h"
 
 #define MAX_CDROMS	(4)	// up to this many drives
 
-static const char *error_strings[] =
-{
-	"no error",
-	"no drive interface",
-	"out of memory",
-	"invalid file",
-	"invalid parameter",
-	"invalid data",
-	"file not found",
-	"requires parent",
-	"file not writeable",
-	"read error",
-	"write error",
-	"codec error",
-	"invalid parent",
-	"hunk out of range",
-	"decompression error",
-	"compression error",
-	"can't create file",
-	"can't verify file"
-	"operation not supported",
-	"can't find metadata",
-	"invalid metadata size",
-	"unsupported CHD version"
-};
-
 static cdrom_file *drive_handles[MAX_CDROMS];
-
-static const char *chd_get_error_string(int chderr)
-{
-	if ((chderr < 0 ) || (chderr >= (sizeof(error_strings) / sizeof(error_strings[0]))))
-		return NULL;
-	return error_strings[chderr];
-}
 
 
 
@@ -62,6 +30,7 @@ static const char *mess_cd_option_spec =
 struct mess_cd
 {
 	cdrom_file *cdrom_handle;
+	chd_file *chd;
 };
 
 static struct mess_cd *get_drive(mess_image *img)
@@ -70,141 +39,6 @@ static struct mess_cd *get_drive(mess_image *img)
 }
 
 
-
-/*************************************
- *
- *  chdcd_create_ref()/chdcd_open_ref()
- *
- *  These are a set of wrappers that wrap the chd_open()
- *  and chd_create() functions to provide a way to open
- *  the images with a filename.  This is just a stopgap
- *  measure until I get the core CHD code changed.  For
- *  now, this is an ugly hack but it works very well
- *
- *  When these functions get moved into the core, it will
- *  remove the need to specify an 'open' function in the
- *  CHD interface
- *
- *************************************/
-
-#define ENCODED_IMAGE_REF_PREFIX	"/:/M/E/S/S//i/m/a/g/e//#"
-#define ENCODED_IMAGE_REF_FORMAT	(ENCODED_IMAGE_REF_PREFIX "%016x")
-#define ENCODED_IMAGE_REF_LEN		(sizeof(ENCODED_IMAGE_REF_PREFIX)+16)
-
-
-static void encode_ptr(void *ptr, char filename[ENCODED_IMAGE_REF_LEN])
-{
-	snprintf(filename, ENCODED_IMAGE_REF_LEN, ENCODED_IMAGE_REF_FORMAT,
-		(unsigned int) ptr);
-}
-
-
-
-int chdcd_create_ref(void *ref, UINT64 logicalbytes, UINT32 hunkbytes, UINT32 compression, chd_file *parent)
-{
-	char filename[ENCODED_IMAGE_REF_LEN];
-	encode_ptr(ref, filename);
-	return chd_create(filename, logicalbytes, hunkbytes, compression, parent);
-}
-
-
-
-chd_file *chdcd_open_ref(void *ref, int writeable, chd_file *parent)
-{
-	char filename[ENCODED_IMAGE_REF_LEN];
-	encode_ptr(ref, filename);
-	return chd_open(filename, writeable, parent);
-}
-
-
-
-/*************************************
- *
- *	decode_image_ref()
- *
- *	This function will decode an image pointer,
- *	provided one has been encoded in the ASCII
- *	string.
- *
- *************************************/
-
-static mess_image *decode_image_ref(const char encoded_image_ref[ENCODED_IMAGE_REF_LEN])
-{
-	unsigned int ptr;
-
-	if (sscanf(encoded_image_ref, ENCODED_IMAGE_REF_FORMAT, &ptr) == 1)
-		return (mess_image *) ptr;
-
-	return NULL;
-}
-
-
-
-/*************************************
- *
- *	Interface between MAME's CHD system and MESS's image system
- *
- *************************************/
-
-static chd_interface_file *mess_chd_open(const char *filename, const char *mode);
-static void mess_chd_close(chd_interface_file *file);
-static UINT32 mess_chd_read(chd_interface_file *file, UINT64 offset, UINT32 count, void *buffer);
-static UINT32 mess_chd_write(chd_interface_file *file, UINT64 offset, UINT32 count, const void *buffer);
-static UINT64 mess_chd_length(chd_interface_file *file);
-
-static chd_interface mess_cdrom_interface =
-{
-	mess_chd_open,
-	mess_chd_close,
-	mess_chd_read,
-	mess_chd_write,
-	mess_chd_length
-};
-
-
-static chd_interface_file *mess_chd_open(const char *filename, const char *mode)
-{
-	mess_image *img = decode_image_ref(filename);
-
-	/* invalid "file name"? */
-	assert(img);
-
-	/* cdroms are read-only */
-	if (!(mode[0] == 'r' && !strchr(mode, '+')))
-		return NULL;
-
-	/* otherwise return file pointer */
-	return (chd_interface_file *) image_fp(img);
-}
-
-
-
-static void mess_chd_close(chd_interface_file *file)
-{
-}
-
-
-
-static UINT32 mess_chd_read(chd_interface_file *file, UINT64 offset, UINT32 count, void *buffer)
-{
-	mame_fseek((mame_file *)file, offset, SEEK_SET);
-	return mame_fread((mame_file *)file, buffer, count);
-}
-
-
-
-static UINT32 mess_chd_write(chd_interface_file *file, UINT64 offset, UINT32 count, const void *buffer)
-{
-	mame_fseek((mame_file *)file, offset, SEEK_SET);
-	return mame_fwrite((mame_file *)file, buffer, count);
-}
-
-
-
-static UINT64 mess_chd_length(chd_interface_file *file)
-{
-	return mame_fsize((mame_file *)file);
-}
 
 
 
@@ -225,9 +59,8 @@ int device_init_mess_cd(mess_image *image)
 	if (!cd)
 		return INIT_FAIL;
 
-        cd->cdrom_handle = NULL;
-
-	chd_set_interface(&mess_cdrom_interface);
+	cd->cdrom_handle = NULL;
+	cd->chd = NULL;
 
 	return INIT_PASS;
 }
@@ -245,17 +78,18 @@ int device_init_mess_cd(mess_image *image)
 
 static int internal_load_mess_cd(mess_image *image, const char *metadata)
 {
-	int err = 0;
+	chd_error err = CHDERR_NONE;
 	struct mess_cd *cd;
-	chd_file *chd;
+	chd_file *chd = NULL;
 	int id = image_index_in_device(image);
 
+	(void)metadata;
 	cd = get_drive(image);
+	cd->chd = NULL;
 
 	/* open the CHD file */
-	chd = chdcd_open_ref(image, 0, NULL);	// CDs are never writable
-
-	if (!chd)
+	err = chd_open_core_file_callbacks(&mame_core_file_callbacks_no_close, image_fp(image), CHD_OPEN_READ, NULL, &chd);
+	if (err != CHDERR_NONE)
 		goto error;
 
 	/* open the CD-ROM file */
@@ -263,6 +97,7 @@ static int internal_load_mess_cd(mess_image *image, const char *metadata)
 	if (!cd->cdrom_handle)
 		goto error;
 
+	cd->chd = chd;
 	drive_handles[id] = cd->cdrom_handle;
 	return INIT_PASS;
 
@@ -270,9 +105,8 @@ error:
 	if (chd)
 		chd_close(chd);
 
-	err = chd_get_last_error();
-	if (err)
-		image_seterror(image, IMAGE_ERROR_UNSPECIFIED, chd_get_error_string(err));
+	if (err != CHDERR_NONE)
+		image_seterror(image, IMAGE_ERROR_UNSPECIFIED, chd_error_string(err));
 	return INIT_FAIL;
 }
 
@@ -306,6 +140,12 @@ void device_unload_mess_cd(mess_image *image)
 	assert(cd->cdrom_handle);
 	cdrom_close(cd->cdrom_handle);
 	cd->cdrom_handle = NULL;
+	if (cd->chd)
+	{
+		chd_close(cd->chd);
+		cd->chd = NULL;
+	}
+	drive_handles[image_index_in_device(image)] = NULL;
 }
 
 
@@ -334,7 +174,16 @@ cdrom_file *mess_cd_get_cdrom_file(mess_image *image)
 
 chd_file *mess_cd_get_chd_file(mess_image *image)
 {
-	return NULL;	// not supported by the src/cdrom.c core at this time
+	chd_file *result = NULL;
+	cdrom_file *cd_file;
+
+	if (image)
+	{
+		cd_file = mess_cd_get_cdrom_file(image);
+		if (cd_file)
+			result = cdrom_get_chd(cd_file);
+	}
+	return result;
 }
 
 
@@ -362,7 +211,7 @@ void cdrom_device_getinfo(const device_class *devclass, UINT32 state, union devi
 		case DEVINFO_PTR_CREATE:					info->create = device_create_mess_cd; break;
 		case DEVINFO_PTR_UNLOAD:					info->unload = device_unload_mess_cd; break;
 		case DEVINFO_PTR_CREATE_OPTGUIDE:			info->p = (void *) mess_cd_option_guide; break;
-		case DEVINFO_PTR_CREATE_OPTSPEC+0:			info->p = (void *) mess_cd_option_spec;
+		case DEVINFO_PTR_CREATE_OPTSPEC+0:			info->p = (void *) mess_cd_option_spec; break;
 
 		/* --- the following bits of info are returned as NULL-terminated strings --- */
 		case DEVINFO_STR_DEV_FILE:					strcpy(info->s = device_temp_str(), __FILE__); break;

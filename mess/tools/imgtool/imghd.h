@@ -18,6 +18,7 @@ struct mess_hard_disk_file
 	imgtool_stream *stream;
 	hard_disk_file *hard_disk;
 	chd_file *chd;
+	chd_write_file *writable;
 };
 
 
