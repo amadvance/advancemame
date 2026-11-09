@@ -89,5 +89,28 @@ void v60_get_info(UINT32 state, union cpuinfo *info);
 
 #if HAS_V70
 void v70_get_info(UINT32 state, union cpuinfo *info);
+/* idle loop fast-forward: a loop of "instructions" instructions from "start"
+   to the branch back at "branch", that only polls RAM and optionally counts
+   its iterations in a register or in memory (see v60.c) */
+enum
+{
+	V60_IDLE_COUNTER_NONE = 0,
+	V60_IDLE_COUNTER_REG,
+	V60_IDLE_COUNTER_MEM8,
+	V60_IDLE_COUNTER_MEM16,
+	V60_IDLE_COUNTER_MEM32
+};
+
+struct v60_idle_loop
+{
+	UINT32 start;
+	UINT32 branch;
+	int instructions;
+	int counter;
+	UINT32 counter_addr;	/* register number or address */
+};
+
+void v60_set_idle_loops(const struct v60_idle_loop *loops, int count);
+
 #endif
 

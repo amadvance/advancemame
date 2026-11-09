@@ -61,6 +61,7 @@ typedef struct
 	INT8   fs, srcnote, srcb;
 
 	INT64 step;
+	int step_dirty;
 	INT64 stepptr;
 
 	INT8 active;
@@ -117,7 +118,7 @@ typedef struct
 static const int fm_tab[] = { 0, 1, 2, -1, 3, 4, 5, -1, 6, 7, 8, -1, 9, 10, 11, -1 };
 static const int pcm_tab[] = { 0, 4, 8, -1, 12, 16, 20, -1, 24, 28, 32, -1, 36, 40, 44, -1 };
 
-static INT16 *wavetable[7];
+static INT16 *wavetable[8];
 static double plfo_table[4][8][LFO_LENGTH];
 static int alfo_table[4][LFO_LENGTH];
 
@@ -336,6 +337,7 @@ INLINE void calculate_step(YMF271Slot *slot)
 
 		slot->step = (UINT64)st / (UINT64)Machine->sample_rate;
 	}
+	slot->step_dirty = 0;
 }
 
 static void update_envelope(YMF271Slot *slot)
@@ -445,18 +447,23 @@ static void init_lfo(YMF271Slot *slot)
 	slot->lfo_phase = 0;
 	slot->lfo_amplitude = 0;
 	slot->lfo_phasemod = 0;
+	slot->step_dirty = 1;
 
 	slot->lfo_step = (int)((((double)LFO_LENGTH * LFO_frequency_table[slot->lfoFreq]) / 44100.0) * 256.0);
 }
 
 INLINE void update_lfo(YMF271Slot *slot)
 {
+	double previous_modulation = slot->lfo_phasemod;
 	slot->lfo_phase += slot->lfo_step;
 
 	slot->lfo_amplitude = alfo_table[slot->lfowave][(slot->lfo_phase >> LFO_SHIFT) & (LFO_LENGTH-1)];
 	slot->lfo_phasemod = plfo_table[slot->lfowave][slot->pms][(slot->lfo_phase >> LFO_SHIFT) & (LFO_LENGTH-1)];
 
-	calculate_step(slot);
+	/* The phase step changes only with the pitch registers or LFO value.
+	   Reusing it avoids floating-point arithmetic for every silent LFO tick. */
+	if (slot->step_dirty || slot->lfo_phasemod != previous_modulation)
+		calculate_step(slot);
 }
 
 INLINE int calculate_slot_volume(YMF271Slot *slot)
@@ -1046,6 +1053,7 @@ static void write_register(YMF271Chip *chip, int slotnum, int reg, int data)
 {
 	YMF271Slot *slot = &chip->slots[slotnum];
 
+	slot->step_dirty = 1;
 	switch (reg)
 	{
 		case 0:
@@ -1287,6 +1295,7 @@ static void ymf271_write_pcm(YMF271Chip *chip, int data)
 
 	slotnum = pcm_tab[chip->pcmreg&0xf];
 	slot = &chip->slots[slotnum];
+	slot->step_dirty = 1;
 
 	switch ((chip->pcmreg>>4)&0xf)
 	{
@@ -1553,7 +1562,7 @@ static void init_tables(void)
 {
 	int i,j;
 
-	for (i=0; i < 7; i++)
+	for (i=0; i < 8; i++)
 	{
 		wavetable[i] = auto_malloc(SIN_LEN * sizeof(INT16));
 	}
@@ -1583,6 +1592,10 @@ static void init_tables(void)
 
 		// Waveform 6:     1      (0 <= wt <= 2PI)
 		wavetable[6][i] = (INT16)(1 * MAXOUT);
+
+		/* PCM waveform selection can persist while a group switches to FM.
+		   Match MAME by keeping that unsupported FM waveform silent. */
+		wavetable[7][i] = 0;
 	}
 
 	for (i=0; i < LFO_LENGTH; i++)
@@ -1630,6 +1643,16 @@ static void init_tables(void)
 		tri_wave = ((i % (LFO_LENGTH/2)) * ALFO_MAX) / (LFO_LENGTH/2);
 		alfo_table[3][i] = (i < (LFO_LENGTH/2)) ? ALFO_MAX-tri_wave : tri_wave;
 	}
+}
+
+static void ymf271_postload(void *param)
+{
+	YMF271Chip *chip = param;
+	int i;
+
+	/* The cached step depends on LFO state reconstructed after a load. */
+	for (i = 0; i < 48; i++)
+		chip->slots[i].step_dirty = 1;
 }
 
 static void init_state(YMF271Chip *chip)
@@ -1712,6 +1735,7 @@ static void init_state(YMF271Chip *chip)
 
 static void ymf271_init(YMF271Chip *chip, UINT8 *rom, void (*cb)(int), read8_handler ext_read, write8_handler ext_write)
 {
+	state_save_register_func_postload_ptr(ymf271_postload, chip);
 	chip->timA = timer_alloc_ptr(ymf271_timer_a_tick, chip);
 	chip->timB = timer_alloc_ptr(ymf271_timer_b_tick, chip);
 
