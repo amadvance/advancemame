@@ -110,7 +110,7 @@ MACHINE_DRIVER_END
 
 
 
-ROM_START( tarzan )
+ROM_START( tarzanc )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )
 	ROM_LOAD( "0228-u16.bin", 0x00000, 0x040000, CRC(e6c552a5) SHA1(f156de9459833474c85a1f5b35917881b390d34c)  )
 
@@ -123,4 +123,4 @@ ROM_START( tarzan )
 ROM_END
 
 
-GAME( 199?, tarzan, 0, tarzan, tarzan, 0, ROT0, "IGS", "Tarzan",GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 199?, tarzanc, 0, tarzan, tarzan, 0, ROT0, "IGS", "Tarzan",GAME_NOT_WORKING|GAME_NO_SOUND )

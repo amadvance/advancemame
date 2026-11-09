@@ -5350,7 +5350,7 @@ GFX Chip - NAKANIHON NL-005 (208 pin, square, surface-mounted)
 
 ***************************************************************************/
 
-ROM_START( ddenlovr )
+ROM_START( ddenlovj )
 	ROM_REGION( 0x080000, REGION_CPU1, 0 )		/* 68000 Code */
 	ROM_LOAD16_BYTE( "1134h.1a", 0x000000, 0x040000, CRC(43accdff) SHA1(3023d4a071fc877f8e4325e95e586739077ccb02) )
 	ROM_LOAD16_BYTE( "1133h.1c", 0x000001, 0x040000, CRC(361bf7b6) SHA1(1727112284cd1dcc1ed17ccba214cb0f8993650a) )
@@ -5766,7 +5766,7 @@ GAME( 1994, rongrong, 0,       rongrong, rongrong, rongrong, ROT0, "Nakanihon", 
 GAME( 1994, rongrngg, rongrong,rongrong, rongrong, rongrong, ROT0, "Nakanihon",                                   "Rong Rong (Germany)",                        GAME_NO_COCKTAIL | GAME_IMPERFECT_COLORS )
 GAME( 1995, mjdchuka, 0,       mjchuuka, mjchuuka, 0,        ROT0, "Dynax",                                       "Mahjong The Dai Chuuka Ken (China, v. D111)",GAME_NO_COCKTAIL )
 GAME( 1995, nettoqc,  0,       nettoqc,  nettoqc,  0,        ROT0, "Nakanihon",                                   "Nettoh Quiz Champion (Japan)",               GAME_NO_COCKTAIL | GAME_IMPERFECT_COLORS )
-GAME( 1996, ddenlovr, 0,       ddenlovr, ddenlovr, 0,        ROT0, "Dynax",                                       "Don Den Lover Vol. 1 (Hong Kong)",           GAME_NO_COCKTAIL )
+GAME( 1996, ddenlovj, 0,       ddenlovr, ddenlovr, 0,        ROT0, "Dynax",                                       "Don Den Lover Vol. 1 (Hong Kong)",           GAME_NO_COCKTAIL )
 GAME( 1996, hanakanz, 0,       hanakanz, hanakanz, 0,        ROT0, "Dynax",                                       "Hana Kanzashi (Japan)",                      GAME_NO_COCKTAIL )
 GAME( 1997, hkagerou, 0,       hkagerou, hkagerou, 0,        ROT0, "Nakanihon + Dynax",                           "Hana Kagerou [BET] (Japan)",                 GAME_NO_COCKTAIL )
 GAME( 1998, mjchuuka, 0,       mjchuuka, mjchuuka, 0,        ROT0, "Dynax",                                       "Mahjong Chuukanejyo (China)",                GAME_NO_COCKTAIL )

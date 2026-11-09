@@ -1549,6 +1549,42 @@ ROM_START( mrokumei )
 ROM_END
 
 
+ROM_START( lastapos )
+	ROM_REGION( 0x020000, REGION_CPU1, 0 ) /* 6809 Code */
+	ROM_LOAD( "e82a01.j14", 0x000000, 0x020000, CRC(236475ae) SHA1(e14176682fda9195b2919868134ee8491f59badd) )
+
+	ROM_REGION( 0x40000, REGION_CPU2, 0) /* uPD7807 code */
+	ROM_LOAD( "x82a04.bin", 0x000000, 0x040000, CRC(52c9028a) SHA1(9d5e37b2f741d5c0e64ba3d674a72330058b96f2) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "x82a13.bin",  0x000000, 0x80000, CRC(954c8844) SHA1(94e09009d0ad40a62f2a92cd5bd500ffe2c4650a) )
+	ROM_LOAD( "x82a14.bin",  0x080000, 0x80000, CRC(a748305e) SHA1(ee01025820a0915621d2c056d65e67a84a5f724c) )
+	ROM_LOAD( "x82a15.bin",  0x100000, 0x80000, CRC(c50f7047) SHA1(13fcd1abaf88c759e747cf5f2c94a522276945c9) )
+	ROM_LOAD( "x82a16.bin",  0x180000, 0x80000, CRC(b270094a) SHA1(edd4f7e3fd082c12758d82ea6eba2a060398b9ef) )
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "x82a09.bin",  0x000000, 0x80000, CRC(c496b187) SHA1(8ec4e09469c9f425681671f5ddb2d2d8768af42b) )
+	ROM_LOAD( "x82a10.bin",  0x080000, 0x80000, CRC(4243fe28) SHA1(01260543a6f61f46ba56840c1b96ecedf637451c) )
+	ROM_LOAD16_BYTE( "e82a12.f4",  0x100000, 0x20000, CRC(0e2cdd40) SHA1(254b4f1f986ad5fd9437a5c8bbaf6683d9edf02b) )
+	ROM_LOAD16_BYTE( "e82a11.f5",  0x100001, 0x20000, CRC(141ced2e) SHA1(90b5be2e488ad2793750225ab20c1649d709b578) )
+
+	ROM_REGION( 0x080000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "x82a08.bin",  0x000000, 0x80000, CRC(51cfd790) SHA1(208f00b1ccf420fe891dd30684481bf871c1aa63) )
+
+	ROM_REGION( 0x080000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "x82a05.bin",  0x000000, 0x80000, CRC(fb65e0e0) SHA1(d560091cfad17af6539913db1279c62a680de4fc) )
+
+	ROM_REGION( 0x010000, REGION_PROMS, 0 )	/* static palette */
+	ROM_LOAD16_BYTE( "e82a18.bin", 0x00000, 0x8000, CRC(1f52a7aa) SHA1(55bbba5bfad1eee4872939d23ac643aa3074b3cf) )
+	ROM_LOAD16_BYTE( "e82a17.bin", 0x00001, 0x8000, CRC(f91d77a1) SHA1(a650a68e7e75719819fd04dda86d7fc8849dfe7d) )
+
+	ROM_REGION( 0x40000, REGION_USER1, 0 ) /* blitter data */
+	ROM_LOAD( "x82a02.bin", 0x00000, 0x040000, CRC(90fe700f) SHA1(bf7f9955a2cb1af43a272bf3366ff8c09ff6f7e6) )
+
+	ROM_REGION( 0x0100, REGION_USER2, 0 )
+	ROM_LOAD( "x82a19.bin", 0x0000, 0x0100, CRC(7ed947b4) SHA1(40c74a17976fab5d7f9da367083764934bb87281) )	// priority (not used)
+ROM_END
+
 ROM_START( reikaids )
 	ROM_REGION( 0x02c000, REGION_CPU1, 0 ) /* 6809 Code */
 	ROM_LOAD( "j82c01.bin", 0x010000, 0x01c000, CRC(50fcc451) SHA1(ad717b8300f0903ef136569cf933b8af0e67eb6b) )
@@ -1853,7 +1889,8 @@ GAME( 1988, mjhokite, 0, mrokumei, mjhokite, 0,          ROT0, "Home Data", "Mah
 GAME( 1988, mjclinic, 0, mrokumei, mjhokite, 0,          ROT0, "Home Data", "Mahjong Clinic (Japan)", 0 )
 GAME( 1988, mrokumei, 0, mrokumei, mjhokite, 0,          ROT0, "Home Data", "Mahjong Rokumeikan (Japan)", GAME_IMPERFECT_GRAPHICS )
 
-GAME( 1988, reikaids, 0, reikaids, reikaids, reikaids,   ROT0, "Home Data", "Reikai Doushi (Japan)", 0 )
+GAME( 1988, lastapos, 0,        reikaids, reikaids, reikaids, ROT0, "Home Data", "The Last Apostle Puppetshow", 0 )
+GAME( 1988, reikaids, lastapos, reikaids, reikaids, reikaids, ROT0, "Home Data", "Reikai Doushi (Japan)", 0 )
 GAME( 1991, battlcry, 0, reikaids, battlcry, battlcry,   ROT0, "Home Data", "Battlecry", GAME_IMPERFECT_GRAPHICS  )
 GAME( 1989, mjkojink, 0, pteacher, pteacher, 0,          ROT0, "Home Data", "Mahjong Kojinkyouju (Private Teacher) (Japan)", 0 )
 GAME( 1989, vitaminc, 0, pteacher, pteacher, 0,          ROT0, "Home Data", "Mahjong Vitamin C (Japan)", 0 )

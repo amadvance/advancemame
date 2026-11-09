@@ -736,4 +736,4 @@ GAME( 1982, popflama, popflame, popflame, naughtyb, 0,        ROT90, "Jaleco", "
 GAME( 1982, popflamb, popflame, popflame, naughtyb, 0,        ROT90, "Jaleco", "Pop Flamer (hack?)", 0 )
 GAME( 1985, trvmstr,  0,		naughtyb, trvmstr,  trvmstr,  ROT90, "Enerdyne Technologies Inc.", "Trivia Master (set 1)", 0 )
 GAME( 1985, trvmstra, trvmstr,  naughtyb, trvmstr,  trvmstr,  ROT90, "Enerdyne Technologies Inc.", "Trivia Master (set 2)", 0 )
-GAME( 198?, trvgns,   0,		naughtyb, trvmstr,  trvmstr,  ROT90, "Enerdyne Technologies Inc.", "Trivia Genius", GAME_WRONG_COLORS )
+GAME( 198?, trvgns,   trvmstr,  naughtyb, trvmstr,  trvmstr,  ROT90, "Enerdyne Technologies Inc.", "Trivia Genius", GAME_WRONG_COLORS )

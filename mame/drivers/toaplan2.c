@@ -5761,18 +5761,18 @@ GAME( 1991, whoopee,  pipibibs, tekipaki, whoopee,  T2_Z180,  ROT0,   "Toaplan",
 GAME( 1991, pipibibi, pipibibs, pipibibi, pipibibi, pipibibi, ROT0,   "[Toaplan] Ryouta Kikaku", "Pipi & Bibis / Whoopee!! (bootleg ?)", 0 )
 GAME( 1992, fixeight, 0,        fixeight, fixeight, fixeight, ROT270, "Toaplan", "FixEight", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, fixeighb, fixeight, fixeighb, fixeighb, fixeighb, ROT270, "bootleg", "FixEight (bootleg)", 0 )
-GAME( 1992, grindstm, vfive,    vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer", 0 )
-GAME( 1992, grindsta, vfive,    vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer (older set)", 0 )
-GAME( 1993, vfive,    0,        vfive,    vfive,    vfive,    ROT270, "Toaplan", "V-Five (Japan)", 0 )
+GAME( 1992, grindstm, 0,        vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer", 0 )
+GAME( 1992, grindsta, grindstm, vfive,    grindstm, vfive,    ROT270, "Toaplan", "Grind Stormer (older set)", 0 )
+GAME( 1993, vfive,    grindstm, vfive,    vfive,    vfive,    ROT270, "Toaplan", "V-Five (Japan)", 0 )
 GAME( 1993, batsugun, 0,        batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (set 1)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, batsugna, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, batugnsp, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, snowbro2, 0,        snowbro2, snowbro2, T2_noZ80, ROT0,   "[Toaplan] Hanafram", "Snow Bros. 2 - With New Elves / Otenki Paradise", 0 )
-GAME( 1993, mahoudai, 0,        mahoudai, mahoudai, T2_Z80,   ROT270, "Raizing (Able license)", "Mahou Daisakusen (Japan)", 0 )
-GAME( 1993, sstriker, mahoudai, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World)" , 0) // from korean board
-GAME( 1993, sstrikra, mahoudai, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World, alt)" , 0) // from korean board
-GAME( 1994, shippumd, 0,        shippumd, shippumd, T2_Z80,   ROT270, "Raizing / Eighting", "Shippu Mahou Daisakusen (Japan)", 0 )
-GAME( 1994, kingdmgp, shippumd, shippumd, kingdmgp, T2_Z80,   ROT270, "Raizing / Eighting", "Kingdom Grandprix (World)" , 0) // from korean board, missing letters on credits screen but this is correct
+GAME( 1993, sstriker, 0,        mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World)" , 0) // from korean board
+GAME( 1993, sstrikra, sstriker, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World, alt)" , 0) // from korean board
+GAME( 1993, mahoudai, sstriker, mahoudai, mahoudai, T2_Z80,   ROT270, "Raizing (Able license)", "Mahou Daisakusen (Japan)", 0 )
+GAME( 1994, kingdmgp, 0,        shippumd, kingdmgp, T2_Z80,   ROT270, "Raizing / Eighting", "Kingdom Grandprix (World)" , 0) // from korean board, missing letters on credits screen but this is correct
+GAME( 1994, shippumd, kingdmgp, shippumd, shippumd, T2_Z80,   ROT270, "Raizing / Eighting", "Shippu Mahou Daisakusen (Japan)", 0 )
 GAME( 1996, bgaregga, 0,        battleg,  battlega, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Europe / USA / Japan / Asia) (Sat Feb 3 1996)", 0 )
 GAME( 1996, bgareghk, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Austria / Hong Kong) (Sat Feb 3 1996)", 0 )
 GAME( 1996, bgaregtw, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Taiwan / Germany) (Thu Feb 1 1996)", 0 )

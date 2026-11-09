@@ -1070,8 +1070,8 @@ GAME( 1982, thepitc,  thepit,   thepit,   thepit,   0,     ROT90, "Centuri", "Th
 GAME( 1982, thepitb,  thepit,   thepit,   thepit,   0,     ROT90, "Bootleg", "The Pit (Bootleg)", 0 ) /* based off the Centuri version */
 GAME( 1982, dockman,  0,        intrepid, dockman,  0,     ROT90, "Taito Corporation", "Dock Man", 0 )
 GAME( 1982, portman,  dockman,  intrepid, dockman,  0,     ROT90, "Nova Games Ltd.", "Port Man", 0 )
-GAME( 1982, funnymou, 0,        suprmous, suprmous, 0,     ROT90, "Chuo Co. Ltd", "Funny Mouse", 0 )
-GAME( 1982, suprmous, funnymou, suprmous, suprmous, 0,     ROT90, "Taito Corporation", "Super Mouse", 0 )
+GAME( 1982, suprmous, 0,        suprmous, suprmous, 0,     ROT90, "Taito Corporation", "Super Mouse", 0 )
+GAME( 1982, funnymou, suprmous, suprmous, suprmous, 0,     ROT90, "Chuo Co. Ltd", "Funny Mouse", 0 )
 GAME( 1982, machomou, 0,        suprmous, suprmous, 0,     ROT90, "Techstar", "Macho Mouse", GAME_WRONG_COLORS )
 GAME( 1983, intrepid, 0,        intrepid, intrepid, 0,     ROT90, "Nova Games Ltd.", "Intrepid (set 1)", 0 )
 GAME( 1983, intrepi2, intrepid, intrepid, intrepid, 0,     ROT90, "Nova Games Ltd.", "Intrepid (set 2)", 0 )

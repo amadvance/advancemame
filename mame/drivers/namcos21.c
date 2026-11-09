@@ -1644,7 +1644,7 @@ static MACHINE_DRIVER_START( winrun_c140_typeB )
 	MDRV_SOUND_ROUTE(1, "right", 0.30)
 MACHINE_DRIVER_END
 
-ROM_START( aircombu )
+ROM_START( aircomb )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* Master */
 	ROM_LOAD16_BYTE( "ac2-mpr-u.3j",  0x000000, 0x80000, CRC(a7133f85) SHA1(9f1c99dd503f1fc81096170fd272e33ae8a7de2f) )
 	ROM_LOAD16_BYTE( "ac2-mpr-l.1j",  0x000001, 0x80000, CRC(520a52e6) SHA1(74306e02abfe08aa1afbf325b74dbc0840c3ad3a) )
@@ -2346,8 +2346,8 @@ INPUT_PORTS_END
 /* 1992, ShimDrive */
 /* 1989, Winning Run Suzuka Grand Prix */
 
-GAME( 1992, aircombj, 0,       poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (Japan)", GAME_NOT_WORKING ) /* mostly working */
-GAME( 1992, aircombu, aircombj,poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (US)",	  GAME_NOT_WORKING ) /* mostly working */
+GAME( 1992, aircomb,  0,       poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (US)",	  GAME_NOT_WORKING ) /* mostly working */
+GAME( 1992, aircombj, aircomb, poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (Japan)", GAME_NOT_WORKING ) /* mostly working */
 GAME( 1993, cybsled,  0,       poly_c140_typeA,   cybsled,      cybsled,  ROT0,    "Namco", "Cyber Sled",         GAME_NOT_WORKING ) /* mostly working */
 GAME( 1991, solvalou, 0,       poly_c140_typeA,   s21default,   solvalou, ROT0,    "Namco", "Solvalou (Japan)",   GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS ) /* working and playable */
 GAME( 1991, starblad, 0,       poly_c140_typeA,   s21default,   starblad, ROT0,    "Namco", "Starblade",		  GAME_IMPERFECT_GRAPHICS ) /* working and playable */

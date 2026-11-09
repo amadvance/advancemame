@@ -1262,7 +1262,7 @@ MACHINE_DRIVER_END
 
 ***************************************************************************/
 
-ROM_START( royalmah )
+ROM_START( royalmj )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "rom1",       0x0000, 0x1000, CRC(69b37a62) SHA1(7792528754b0df4e11f4ebe33380b713ac7351a3) )
 	ROM_LOAD( "rom2",       0x1000, 0x1000, CRC(0c8351b6) SHA1(9e6b48fd39dd98478d1e3557df839b09652c4349) )
@@ -1382,7 +1382,7 @@ ROM_END
 
 
 
-GAME( 1982, royalmah, 0, royalmah, royalmah, 0, ROT0, "Falcon", "Royal Mahjong (Japan)", 0 )
+GAME( 1982, royalmj,  0, royalmah, royalmah, 0, ROT0, "Falcon", "Royal Mahjong (Japan)", 0 )
 GAME( 1986, suzume,   0, suzume,   majs101b, 0, ROT0, "Dyna Electronics", "Watashiha Suzumechan (Japan)", GAME_NOT_WORKING )
 GAME( 1986, dondenmj, 0, dondenmj, majs101b, 0, ROT0, "Dyna Electronics", "Don Den Mahjong [BET] (Japan)", 0 )
 GAME( 1987, mjdiplob, 0, mjdiplob, mjdiplob, 0, ROT0, "Dynax", "Mahjong Diplomat [BET] (Japan)", 0 )

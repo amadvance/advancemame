@@ -348,7 +348,7 @@ static MACHINE_DRIVER_START( ganjaja )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.75)
 MACHINE_DRIVER_END
 
-ROM_START( homerun )
+ROM_START( nhomerun )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 )
 	ROM_LOAD( "homerun.43",        0x0000, 0x20000, CRC(e759e476) SHA1(ad4f356ff26209033320a3e6353e4d4d9beb59c1) )
 
@@ -393,6 +393,6 @@ ROM_START( ganjaja )
 ROM_END
 
 
-GAME( 1988, homerun, 0, homerun, homerun, 0, ROT0, "Jaleco", "Moero Pro Yakyuu Homerun",GAME_IMPERFECT_GRAPHICS)
+GAME( 1988, nhomerun, 0, homerun, homerun, 0, ROT0, "Jaleco", "Moero Pro Yakyuu Homerun",GAME_IMPERFECT_GRAPHICS)
 GAME( 1988, dynashot, 0, homerun, dynashot, 0, ROT0, "Jaleco", "Dynamic Shoot Kyousou", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1990, ganjaja, 0, ganjaja, ganjaja, 0, ROT0, "Jaleco", "Ganbare Jajamaru Saisho wa Goo / Ganbare Jajamaru Hop Step & Jump", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )

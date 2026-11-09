@@ -1019,7 +1019,7 @@ ROM_START( monkeyd )
 	ROM_LOAD( "ck12.bin",     0x1000, 0x1000, CRC(2eb23b60) SHA1(c9e7dc584562aceb374193655fbacb7df6c9c731) )
 ROM_END
 
-ROM_START( rpatrolb )
+ROM_START( rpatrol )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "rp1.4l",       0x0000, 0x1000, CRC(bfd7ae7a) SHA1(a06d1cc2674ed40d0bfa67dd6d724964c1e40600) )
 	ROM_LOAD( "rp2.4j",       0x1000, 0x1000, CRC(03f53340) SHA1(35336945f4b634fc4c7791ac9c9e6643c8cd8006) )
@@ -1142,7 +1142,7 @@ ROM_END
 /*This dump is a mess.  11n and 11k seem to be bad dumps, the second half should probably be sprite data
   Comparing to set 2 11l and 11h are unnecessary, and are actually from Le Bagnard(set1), as is 5m.
   5n ID'd as unknown, but it also is from bagnard with some patches.*/
-ROM_START( cannonb )
+ROM_START( cannonbp )
 	ROM_REGION( 0x11000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "canballs.5d", 0x10000, 0x1000, CRC(43ad0d16) SHA1(682f1ee15e41bb5a161287536bb97704c0d3be9c) ) /* only this one ROM is encrypted */
 	ROM_LOAD( "canballs.5f",  0x1000, 0x1000, CRC(3e0dacdd) SHA1(cdd3684a6962f2fb582b8a415383c06a5e5059dd) )
@@ -2269,14 +2269,14 @@ GAME( 1981, ckongalc, ckong,    cclimber, ckong,    0,        ROT270, "bootleg",
 GAME( 198?, bigkong,  ckong,    cclimber, ckong,    0,        ROT270, "bootleg", "Big Kong", 0 )
 GAME( 1981, monkeyd,  ckong,    cclimber, ckong,    0,        ROT270, "bootleg", "Monkey Donkey", 0 )
 
-GAME( 1981,rpatrolb, 0,        cclimber, rpatrolb, 0,         ROT0,   "bootleg", "River Patrol (bootleg)", 0 )
-GAME( 1981,rpatrolo, rpatrolb, cclimber, rpatrolb, 0,         ROT0,   "Orca",  "River Patrol (Orca)", 0 )
-GAME( 1981,silvland, rpatrolb, cclimber, rpatrolb, 0,         ROT0,   "Falcon", "Silver Land", 0 )
+GAME( 1981, rpatrol,  0,        cclimber, rpatrolb, 0,         ROT0,   "bootleg", "River Patrol (bootleg)", 0 )
+GAME( 1981, rpatrolo, rpatrol,  cclimber, rpatrolb, 0,         ROT0,   "Orca",  "River Patrol (Orca)", 0 )
+GAME( 1981, silvland, rpatrol,  cclimber, rpatrolb, 0,         ROT0,   "Falcon", "Silver Land", 0 )
 
 GAME( 1983, tangramq, 0, tangramq, tangramq, 0, ROT270, "SNK", "Tangram Q", 0 )
 
-GAME( 1985, cannonb,  0,        cannonb,  cannonb,  cannonb,  ROT90,  "Soft", "Cannon Ball (Crazy Climber hardware)" , GAME_IMPERFECT_GRAPHICS )
-GAME( 1985, cannonb2, 0,        cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
+GAME( 1985, cannonbp, 0,        cannonb,  cannonb,  cannonb,  ROT90,  "Soft", "Cannon Ball (Crazy Climber hardware)" , GAME_IMPERFECT_GRAPHICS )
+GAME( 1985, cannonb2, cannonbp, cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
 GAME( 198?, ckongb  , ckong,    cclimber, ckongb,    ckongb,   ROT270, "bootleg", "Crazy Kong (Alternative levels)", 0 )
 
 GAME( 1982, swimmer,  0,        swimmer,  swimmer,  0,        ROT0,   "Tehkan", "Swimmer (set 1)", 0 )

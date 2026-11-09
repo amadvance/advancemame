@@ -2541,16 +2541,16 @@ static DRIVER_INIT( suna8 )
 }
 
 /* Working Games */
-GAME( 1988, rranger,  0,        rranger,  rranger,  suna8,    ROT0,  "SunA (Sharp Image license)", "Rough Ranger (v2.0)", GAME_IMPERFECT_SOUND )
+GAME( 1988, rranger,  sranger,  rranger,  rranger,  suna8,    ROT0,  "SunA (Sharp Image license)", "Rough Ranger (v2.0)", GAME_IMPERFECT_SOUND )
 GAME( 1988, hardhead, 0,        hardhead, hardhead, hardhead, ROT0,  "SunA",                       "Hard Head"									, 0)
 GAME( 1988, hardhedb, hardhead, hardhead, hardhead, hardhedb, ROT0,  "bootleg",                    "Hard Head (bootleg)"						, 0)
 GAME( 1988, pop_hh,   hardhead, hardhead, hardhead, hardhedb, ROT0,  "bootleg",                    "Popper (Hard Head bootleg)"				, 0)
 GAME( 1991, hardhea2, 0,        hardhea2, hardhea2, hardhea2, ROT0,  "SunA",                       "Hard Head 2 (v2.0)"                       , 0 )
 
 /* Non Working Games */
-GAME( 1988, sranger,  rranger, rranger,  rranger,	suna8,        ROT0,  "SunA",    "Super Ranger (v2.0)",           GAME_NOT_WORKING )
-GAME( 1988, srangerb, rranger, rranger,  rranger,	suna8,        ROT0,  "bootleg", "Super Ranger (bootleg)",        GAME_NOT_WORKING )
-GAME( 1988, srangerw, rranger, rranger,  rranger,	suna8,        ROT0,  "SunA (WDK license)", "Super Ranger (WDK)", GAME_NOT_WORKING )
+GAME( 1988, sranger,  0,        rranger,  rranger,	suna8,        ROT0,  "SunA",    "Super Ranger (v2.0)",           GAME_NOT_WORKING )
+GAME( 1988, srangerb, sranger,  rranger,  rranger,	suna8,        ROT0,  "bootleg", "Super Ranger (bootleg)",        GAME_NOT_WORKING )
+GAME( 1988, srangerw, sranger,  rranger,  rranger,	suna8,        ROT0,  "SunA (WDK license)", "Super Ranger (WDK)", GAME_NOT_WORKING )
 GAME( 1989, sparkman, 0,       sparkman, sparkman, sparkman, ROT0,  "SunA",    "Spark Man (v2.0, set 1)",        0 )
 GAME( 1990, starfigh, 0,       starfigh, starfigh, starfigh, ROT90, "SunA",    "Star Fighter (v1)",             GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, brickzn,  0,       brickzn,  brickzn,  brickzn,  ROT90, "SunA",    "Brick Zone (v5.0)",             GAME_NOT_WORKING )

@@ -340,7 +340,7 @@ ROM_END
 
 
 /* You can't change the status of "Sexy Triv I" and "Sexy Triv II" */
-ROM_START( usg83 )
+ROM_START( superten )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )
 	ROM_LOAD( "grom08-3.rom", 0x08000, 0x08000, CRC(aae84186) SHA1(8385b5c1dded1ea6f90c277b045778c7110a45db) )
 	/* for the banked region */
@@ -423,7 +423,7 @@ ROM_START( usg185 ) // an upgraded 182?
 ROM_END
 
 
-ROM_START( usg252 )
+ROM_START( usgames )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )
 	ROM_LOAD( "usg252.u12",   0x08000, 0x08000, CRC(766a855a) SHA1(e67ca9944d92192de423de6aa8a60f2e28b17db1) )
 	/* for the banked region */
@@ -447,9 +447,9 @@ ROM_END
 
 
 GAME( 1987, usg32,  0,     usg,    usg32, 0, ROT0, "U.S. Games", "Super Duper Casino (California V3.2)", 0 )
-GAME( 1988, usg83,  0,     usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.3", 0 )
-GAME( 1988, usg83x, usg83, usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.3X", 0 )
-GAME( 1988, usg82,  usg83, usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.2" , 0)	// "Feb.08,1988"
-GAME( 1989, usg182, 0,     usg185, usg83, 0, ROT0, "U.S. Games", "Games V18.2", 0 )
-GAME( 1991, usg185, 0,     usg185, usg83, 0, ROT0, "U.S. Games", "Games V18.7C", 0 )
-GAME( 1992, usg252, 0,     usg185, usg83, 0, ROT0, "U.S. Games", "Games V25.4X", 0 )
+GAME( 1988, superten, 0,        usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.3", 0 )
+GAME( 1988, usg83x,   superten, usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.3X", 0 )
+GAME( 1988, usg82,    superten, usg,    usg83, 0, ROT0, "U.S. Games", "Super Ten V8.2" , 0)	// "Feb.08,1988"
+GAME( 1992, usgames,  0,        usg185, usg83, 0, ROT0, "U.S. Games", "Games V25.4X", 0 )
+GAME( 1989, usg182,   usgames,  usg185, usg83, 0, ROT0, "U.S. Games", "Games V18.2", 0 )
+GAME( 1991, usg185,   usgames,  usg185, usg83, 0, ROT0, "U.S. Games", "Games V18.7C", 0 )

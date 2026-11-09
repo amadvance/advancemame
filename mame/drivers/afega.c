@@ -2058,4 +2058,4 @@ GAME( 1998, hotbubl,  bubl2000, bubl2000, bubl2000, bubl2000, ROT0,             
 GAME( 1999, popspops, 0,        popspops, popspops, grdnstrm, ROT0,               "Afega",    "Pop's Pop's",                      0 )
 GAME( 2000, mangchi,  0,        bubl2000, mangchi,  bubl2000, ROT0,               "Afega",    "Mang-Chi",                         0 )
 GAME( 2000, spec2k,   0,        firehawk, spec2k,   spec2k,   ORIENTATION_FLIP_Y, "Yonatech", "Spectrum 2000 (Euro)",             GAME_NOT_WORKING )
-GAME( 2001, firehawk, 0,        firehawk, firehawk, 0,        ORIENTATION_FLIP_Y, "ESD",      "Fire Hawk",                        GAME_NOT_WORKING )
+GAME( 2001, firehawk, spec2k,   firehawk, firehawk, 0,        ORIENTATION_FLIP_Y, "ESD",      "Fire Hawk",                        GAME_NOT_WORKING )

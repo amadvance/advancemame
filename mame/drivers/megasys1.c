@@ -3106,7 +3106,7 @@ text in english.
 
 ***************************************************************************/
 
-ROM_START( soldamj )
+ROM_START( soldam )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 )		/* Main CPU Code */
 	ROM_LOAD16_BYTE( "soldam2.bin", 0x000000, 0x020000, CRC(c73d29e4) SHA1(2a6bffd6835506a0a1449047dec69445d2242fca) )
 	ROM_LOAD16_BYTE( "soldam1.bin", 0x000001, 0x020000, CRC(e7cb0c20) SHA1(7b1adf439cd4022ec110ec18359fb50ac137f253) )
@@ -3778,7 +3778,7 @@ GAME( 1991, edf,      0,        system_B,          edf,      edf,      ROT0,   "
 GAME( 1991, edfu,     edf,      system_B,          edf,      edf,      ROT0,   "Jaleco", "E.D.F. : Earth Defense Force (North America)", 0 )
 GAME( 1991, 64street, 0,        system_C,          64street, 64street, ROT0,   "Jaleco", "64th. Street - A Detective Story (World)", 0 )
 GAME( 1991, 64streej, 64street, system_C,          64street, 64street, ROT0,   "Jaleco", "64th. Street - A Detective Story (Japan)", 0 )
-GAME( 1992, soldamj,  0,        system_A,          soldamj,  soldam,   ROT0,   "Jaleco", "Soldam (Japan)", 0 )
+GAME( 1992, soldam,   0,        system_A,          soldamj,  soldam,   ROT0,   "Jaleco", "Soldam (Japan)", 0 )
 GAME( 1992, bigstrik, 0,        system_C,          bigstrik, bigstrik, ROT0,   "Jaleco", "Big Striker", 0 )
 GAME( 1993, chimerab, 0,        system_C,          chimerab, chimerab, ROT0,   "Jaleco", "Chimera Beast (prototype)", 0 )
 GAME( 1993, cybattlr, 0,        system_C,          cybattlr, cybattlr, ROT90,  "Jaleco", "Cybattler", 0 )

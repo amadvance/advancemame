@@ -922,7 +922,7 @@ ROM_START( countrnb )
 	ROM_LOAD( "prom3.bpr",    0x0500, 0x0100, CRC(c77d0077) SHA1(4cbbf625ad5e45d00ca6aebe9566538ff0a3348d) )
 ROM_END
 
-ROM_START( gigasm2b )
+ROM_START( gigasm2 )
 	ROM_REGION( 2*0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "8.rom", 0x10000, 0x4000, CRC(c00a4a6c) SHA1(0d1bb849c9bfe4e92ad70e4ef19da494c0bd7ba8) )
 	ROM_CONTINUE(      0x00000, 0x4000 )
@@ -950,7 +950,7 @@ ROM_START( gigasm2b )
 	ROM_LOAD( "3.pr",    0x0500, 0x0100, CRC(28b5ee4c) SHA1(e21b9c38f433dca1e8894619b1d9f0389a81b48a) )
 ROM_END
 
-ROM_START( gigasb )
+ROM_START( gigas )
 	ROM_REGION( 2*0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "g-7",   0x10000, 0x4000, CRC(daf4e88d) SHA1(391dff914ce8e9b7975fc8827c066d7db16c4171) )
 	ROM_CONTINUE(      0x00000, 0x4000 )
@@ -1025,9 +1025,9 @@ static DRIVER_INIT(gigas)
  *
  *************************************/
 
-GAME( 1986, gigasb,   0,        gigas,    gigas,    gigas, ROT270, "bootleg", "Gigas (bootleg)", GAME_NO_COCKTAIL )
-GAME( 1986, oigas,    gigasb,   oigas,    gigas,    gigas, ROT270, "bootleg", "Oigas (bootleg)", GAME_NO_COCKTAIL )
-GAME( 1986, gigasm2b, 0,        gigas,    gigasm2,  gigas, ROT270, "bootleg", "Gigas Mark II (bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, gigas,   0,        gigas,    gigas,    gigas, ROT270, "bootleg", "Gigas (bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, oigas,   gigas,    oigas,    gigas,    gigas, ROT270, "bootleg", "Oigas (bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, gigasm2, 0,        gigas,    gigasm2,  gigas, ROT270, "bootleg", "Gigas Mark II (bootleg)", GAME_NO_COCKTAIL )
 GAME( 1987, pbillrd,  0,        pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard", 0 )
 GAME( 1987, pbillrds, pbillrd,  pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard (Sega)", GAME_UNEMULATED_PROTECTION )	// encrypted
 GAME( 1987, freekick, 0,        freekckb, freekck,  0,     ROT270, "Nihon System (Sega license)", "Free Kick", 0 )

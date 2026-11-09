@@ -3166,7 +3166,7 @@ Custom chip: DYNAX TC17G032AP-0246 JAPAN 8929EAI
 
 ***************************************************************************/
 
-ROM_START( hnoridur )
+ROM_START( hjingi )
 	ROM_REGION( 0x10000 + 0x19*0x8000, REGION_CPU1, 0 )	/* Z80 Code */
 	ROM_LOAD( "2309.12",  0x00000, 0x20000, CRC(5517dd68) SHA1(3da27032a412b51b67e852b61166c2fdc138a370) )
 	ROM_RELOAD(           0x10000, 0x20000 )
@@ -4105,7 +4105,7 @@ static DRIVER_INIT( blktouch )
 
 GAME( 1988, hanamai,  0,        hanamai,  hanamai,  0,        ROT180, "Dynax",                   "Hana no Mai (Japan)"                                  , 0 )
 GAME( 1989, hnkochou, hanamai,  hanamai,  hnkochou, 0,        ROT180, "Dynax",                   "Hana Kochou [BET] (Japan)"                            , 0 )
-GAME( 1989, hnoridur, 0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Oriduru (Japan)",                                 GAME_IMPERFECT_GRAPHICS ) // 1 rom is bad
+GAME( 1989, hjingi,   0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Oriduru (Japan)",                                 GAME_IMPERFECT_GRAPHICS ) // 1 rom is bad
 GAME( 1989, drgpunch, 0,        sprtmtch, sprtmtch, 0,        ROT0,   "Dynax",                   "Dragon Punch (Japan)"                                 , 0 )
 GAME( 1989, sprtmtch, drgpunch, sprtmtch, sprtmtch, 0,        ROT0,   "Dynax (Fabtek license)",  "Sports Match"                                         , 0 )
 GAME( 1989, mjfriday, 0,        mjfriday, mjfriday, 0,        ROT180, "Dynax",                   "Mahjong Friday (Japan)"                               , 0 )

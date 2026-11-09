@@ -2289,7 +2289,7 @@ MACHINE_DRIVER_END
 /* 07 */GAME( 1990, bnzabros, 0,        system24, bnzabros, bnzabros, ROT0,   "Sega", "Bonanza Bros (US, Floppy DS3-5000-07d?)", 0 )
 /* 07 */GAME( 1990, bnzabrsj, bnzabros, system24, bnzabros, bnzabros, ROT0,   "Sega", "Bonanza Bros (Japan, Floppy DS3-5000-07b)", 0 )
 /* 08 */GAME( 1991, qsww,     0,        system24, bnzabros, qsww,     ROT0,   "Sega", "Quiz Syukudai wo Wasuremashita", GAME_IMPERFECT_GRAPHICS ) // wrong bg colour on title
-/* 09 */GAME( 1991, dcclubfd, 0,        system24, dcclub,   dcclubfd, ROT0,   "Sega", "Dynamic Country Club (Floppy DS3-5000-09d, FD1094 317-0058-09d)", 0 )
+/* 09 */GAME( 1991, dcclubfd, dcclub,   system24, dcclub,   dcclubfd, ROT0,   "Sega", "Dynamic Country Club (Floppy DS3-5000-09d, FD1094 317-0058-09d)", 0 )
 
 /* ROM Based */
 GAME( 1991, dcclub,   0,        system24, dcclub,   dcclub,   ROT0,   "Sega", "Dynamic Country Club", 0 )

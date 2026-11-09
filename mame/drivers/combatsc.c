@@ -747,7 +747,7 @@ MACHINE_DRIVER_END
 
 
 
-ROM_START( combasc )
+ROM_START( combatsc )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 ) /* 6309 code */
 	ROM_LOAD( "611g01.rom", 0x30000, 0x08000, CRC(857ffffe) SHA1(de7566d58314df4b7fdc07eb31a3f9bdd12d1a73) )
 	ROM_CONTINUE(           0x08000, 0x08000 )
@@ -926,8 +926,8 @@ static DRIVER_INIT( combascb )
 
 
 
-GAME( 1988, combasc,  0,       combasc,  combasc,  combasc,  ROT0, "Konami", "Combat School (joystick)", 0 )
-GAME( 1987, combasct, combasc, combasc,  combasct, combasct, ROT0, "Konami", "Combat School (trackball)", 0 )
-GAME( 1987, combascj, combasc, combasc,  combasct, combasct, ROT0, "Konami", "Combat School (Japan trackball)", 0 )
-GAME( 1987, bootcamp, combasc, combasc,  combasct, combasct, ROT0, "Konami", "Boot Camp", 0 )
-GAME( 1988, combascb, combasc, combascb, combascb, combascb, ROT0, "bootleg", "Combat School (bootleg)", GAME_IMPERFECT_COLORS )
+GAME( 1988, combatsc, 0,        combasc,  combasc,  combasc,  ROT0, "Konami", "Combat School (joystick)", 0 )
+GAME( 1987, combasct, combatsc, combasc,  combasct, combasct, ROT0, "Konami", "Combat School (trackball)", 0 )
+GAME( 1987, combascj, combatsc, combasc,  combasct, combasct, ROT0, "Konami", "Combat School (Japan trackball)", 0 )
+GAME( 1987, bootcamp, combatsc, combasc,  combasct, combasct, ROT0, "Konami", "Boot Camp", 0 )
+GAME( 1988, combascb, combatsc, combascb, combascb, combascb, ROT0, "bootleg", "Combat School (bootleg)", GAME_IMPERFECT_COLORS )

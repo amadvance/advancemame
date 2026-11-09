@@ -572,7 +572,7 @@ GAME( 1982, gs4002,   0,       gselect,  gselect,  0, ROT0, "G.E.I.", "Selection
 GAME( 1982, gs4002a,  gs4002,  gselect,  gselect,  0, ROT0, "G.E.I.", "Selection (Version 40.02TMB) set 2", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 
 GAME( 1984, gepoker,  0,       gepoker,  gselect,  0, ROT0, "Greyhound Electronics", "Poker (Version 50.02 ICB)",              GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gepoker1, 0,       gepoker,  gselect,  0, ROT0, "Greyhound Electronics", "Poker (Version 50.08 IAM)",              GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
+GAME( 1984, gepoker1, gepoker, gepoker,  gselect,  0, ROT0, "Greyhound Electronics", "Poker (Version 50.08 IAM)",              GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1984, gepoker2, gepoker, gepoker,  gselect,  0, ROT0, "Greyhound Electronics", "Poker (Version 50.02 ICB set 2)",        GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gepoker3, gepoker, gepoker,  gselect,  0, ROT0, "Greyhound Electronics", "Poker (Version 50.02 ICB set 3)",        GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 

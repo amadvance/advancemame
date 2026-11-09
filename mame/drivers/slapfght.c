@@ -1686,7 +1686,7 @@ ROM_START( alcon )
 	ROM_LOAD( "sf_col19.bin", 0x0200,  0x0100, CRC(5cbf9fbf) SHA1(abfa58fa4e44ebc56f2e0fac9bcc36164c845fa3) )
 ROM_END
 
-ROM_START( getstar )
+ROM_START( grdian )
 	ROM_REGION( 0x18000, REGION_CPU1, 0 )		/* Region 0 - main cpu code */
 	ROM_LOAD( "rom0",         0x00000, 0x4000, CRC(6a8bdc6c) SHA1(c923bca539bd2eb9a34cb9c7a67a199e28bc081a) )
 	ROM_LOAD( "rom1",         0x04000, 0x4000, CRC(ebe8db3c) SHA1(9046d6e63c33fc9cbd48b90dcbcc0badf1d3b9ba) )
@@ -1911,13 +1911,13 @@ GAME( 1985, tigerh2,  tigerh,   tigerh,   tigerh,   tigerh,   ROT270, "Taito Cor
 GAME( 1985, tigerhj,  tigerh,   tigerh,   tigerh,   tigerh,   ROT270, "Taito Corp.",         "Tiger Heli (Japan set 2)", GAME_NO_COCKTAIL )
 GAME( 1985, tigerhb1, tigerh,	tigerhb,  tigerh,   0,        ROT270, "bootleg",             "Tiger Heli (bootleg set 1)", 0 )
 GAME( 1985, tigerhb2, tigerh, 	tigerhb,  tigerh,   0,        ROT270, "bootleg",             "Tiger Heli (bootleg set 2)", GAME_NO_COCKTAIL )
-GAME( 1986, slapfigh, 0,        slapfight,slapfigh, slapfight,ROT270, "Taito",    "Slap Fight (set 1)", GAME_NO_COCKTAIL )
-GAME( 1986, slapfiga, slapfigh, slapfight,slapfigh, slapfight,ROT270, "Taito",    "Slap Fight (set 2)", GAME_NO_COCKTAIL )
-GAME( 1986, slapbtjp, slapfigh, slapfigh, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (Japan bootleg)", GAME_NO_COCKTAIL )
-GAME( 1986, slapbtuk, slapfigh, slapbtuk, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (English bootleg)", GAME_NO_COCKTAIL )
-GAME( 1986, slapfgtr, slapfigh, slapbtuk, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (bootleg)", GAME_NO_COCKTAIL ) // PCB labeled 'slap fighter'
-GAME( 1986, alcon,    slapfigh, slapfight,slapfigh, slapfight,ROT270, "Taito America Corp.","Alcon", GAME_NO_COCKTAIL )
-GAME( 1986, getstar,  0,        slapfight,getstar,  slapfight,ROT0,   "Taito",  "Guardian", GAME_NO_COCKTAIL )
-GAME( 1986, getstarj, getstar,  slapfight,getstarj, slapfight,ROT0,   "Taito",  "Get Star (Japan)", GAME_NO_COCKTAIL )
-GAME( 1986, getstarb, getstar,  slapfigh, getstarb, getstarb, ROT0,   "bootleg","Get Star (bootleg, set 1)", GAME_NO_COCKTAIL )
-GAME( 1986, gtstarba, getstar,  slapfigh, gtstarba, gtstarba, ROT0,   "bootleg","Get Star (bootleg, set 2)", GAME_NO_COCKTAIL )
+GAME( 1986, alcon,    0,        slapfight,slapfigh, slapfight,ROT270, "Taito America Corp.","Alcon", GAME_NO_COCKTAIL )
+GAME( 1986, slapfigh, alcon,    slapfight,slapfigh, slapfight,ROT270, "Taito",    "Slap Fight (set 1)", GAME_NO_COCKTAIL )
+GAME( 1986, slapfiga, alcon,    slapfight,slapfigh, slapfight,ROT270, "Taito",    "Slap Fight (set 2)", GAME_NO_COCKTAIL )
+GAME( 1986, slapbtjp, alcon,    slapfigh, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (Japan bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, slapbtuk, alcon,    slapbtuk, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (English bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, slapfgtr, alcon,    slapbtuk, slapfigh, 0,        ROT270, "bootleg",  "Slap Fight (bootleg)", GAME_NO_COCKTAIL ) // PCB labeled 'slap fighter'
+GAME( 1986, grdian,   0,        slapfight,getstar,  slapfight,ROT0,   "Taito",  "Guardian", GAME_NO_COCKTAIL )
+GAME( 1986, getstarj, grdian,   slapfight,getstarj, slapfight,ROT0,   "Taito",  "Get Star (Japan)", GAME_NO_COCKTAIL )
+GAME( 1986, getstarb, grdian,   slapfigh, getstarb, getstarb, ROT0,   "bootleg","Get Star (bootleg, set 1)", GAME_NO_COCKTAIL )
+GAME( 1986, gtstarba, grdian,   slapfigh, gtstarba, gtstarba, ROT0,   "bootleg","Get Star (bootleg, set 2)", GAME_NO_COCKTAIL )

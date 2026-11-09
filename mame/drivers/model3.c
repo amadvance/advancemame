@@ -2141,7 +2141,7 @@ ROM_START( vf3tb )	/* step 1.0? */
 		ROM_FILL( 0x000000, 0x800000, 0 )
 ROM_END
 
-ROM_START( bass )	/* step 1.0 */
+ROM_START( bassdx )	/* step 1.0 */
 	ROM_REGION64_BE( 0x4800000, REGION_USER1, 0 ) /* program + data ROMs */
 	// CROM
         ROM_LOAD64_WORD_SWAP( "epr-20643.17",  0x600006, 0x080000, CRC(daf02716) SHA1(b968f8ca602c78b9ca49969ff01f9440f175049a) )
@@ -4298,8 +4298,8 @@ static DRIVER_INIT( eca )
 /* Model 3 Step 1.0 */
 GAME( 1996, vf3,            0, model3_10, model3,        vf3, ROT0, "Sega", "Virtua Fighter 3", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
 GAME( 1996, vf3tb,        vf3, model3_10, model3,  model3_10, ROT0, "Sega", "Virtua Fighter 3 Team Battle", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
-GAME( 1997, bass,           0, model3_10, bass,         bass, ROT0, "Sega", "Sega Bass Fishing", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
-GAME( 1997, getbass,     bass, model3_10, bass,      getbass, ROT0, "Sega", "Get Bass", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
+GAME( 1997, bassdx,        0,      model3_10, bass,      bass,    ROT0, "Sega", "Sega Bass Fishing", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
+GAME( 1997, getbass,       bassdx, model3_10, bass,      getbass, ROT0, "Sega", "Get Bass", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
 
 /* Model 3 Step 1.5 */
 GAME( 1996, scud,           0, model3_15, scud,         scud, ROT0, "Sega", "Scud Race (Australia)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )

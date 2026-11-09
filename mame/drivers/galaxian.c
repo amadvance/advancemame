@@ -6872,7 +6872,7 @@ GAME( 19??, orbitron, 0,        galaxian, orbitron, pisces,   ROT270, "Signatron
 GAME( 1982, checkman, 0,        checkman, checkman, checkman, ROT90,  "Zilec-Zenitone", "Check Man", GAME_SUPPORTS_SAVE )
 GAME( 1982, checkmaj, checkman, checkmaj, checkmaj, checkmaj, ROT90,  "Jaleco", "Check Man (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1983, dingo,    0,        checkmaj, dingo,    dingo,    ROT90,  "Ashby Computers and Graphics LTD. (Jaleco license)", "Dingo", GAME_SUPPORTS_SAVE )
-GAME( 1983, dingoe,   0,        dingoe,   dingo,    dingoe,   ROT90,  "Ashby Computers and Graphics LTD.", "Dingo (encrypted)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+GAME( 1983, dingoe,   dingo,    dingoe,   dingo,    dingoe,   ROT90,  "Ashby Computers and Graphics LTD.", "Dingo (encrypted)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
 GAME( 1981, blkhole,  0,        galaxian, blkhole,  0,        ROT90,  "TDS", "Black Hole", GAME_SUPPORTS_SAVE )
 GAME( 1980, mooncrst, 0,        mooncrst, mooncrst, mooncrst, ROT90,  "Nichibutsu", "Moon Cresta (Nichibutsu)", GAME_SUPPORTS_SAVE )
 GAME( 1980, mooncrsu, mooncrst, mooncrst, mooncrst, mooncrsu, ROT90,  "Nichibutsu USA", "Moon Cresta (Nichibutsu, unencrypted)", GAME_SUPPORTS_SAVE )
@@ -6918,7 +6918,7 @@ GAME( 1986, racknrol, 0,        racknrol, racknrol, 0,	      ROT0,   "Status (Sh
 GAME( 1986, hexpool,  racknrol, racknrol, racknrol, 0,	      ROT90,  "Shinkai", "Hex Pool", GAME_SUPPORTS_SAVE )
 GAME( 1985, trvchlng, 0,        racknrol, trvchlng, 0,	      ROT90,  "Joyland (Senko License)", "Trivia Challenge", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
 GAME( 1980, luctoday, 0,        galaxian, luctoday, 0,        ROT270, "Sigma", "Lucky Today",GAME_WRONG_COLORS | GAME_SUPPORTS_SAVE )
-GAME( 19??, chewing,  0,        galaxian, luctoday, 0,        ROT90,  "unknown", "Chewing Gum", GAME_SUPPORTS_SAVE )
+GAME( 19??, chewing,  luctoday, galaxian, luctoday, 0,        ROT90,  "unknown", "Chewing Gum", GAME_SUPPORTS_SAVE )
 
 GAME( 1982, monsterz, 0, monsterz, monsterz, monsterz, ORIENTATION_FLIP_X, "Nihon Game", "Monster Zero (set 1)", GAME_SUPPORTS_SAVE )
 GAME( 1982, namenayo, 0, namenayo, namenayo, namenayo, ROT0, "Cat's", "Namennayo (Japan)", GAME_SUPPORTS_SAVE )
