@@ -89,6 +89,11 @@ enum
 /* ============================== PROTOTYPES ============================== */
 /* ======================================================================== */
 
+/* Skip complete, invariant polling-loop passes between scheduled interrupts. */
+void m37710_set_idle_loop(int cpunum, UINT32 pc, int count);
+/* Timer output pins are not CPU input lines (the core reserves lines 32-34). */
+void m37710_set_timer_output(int cpunum, int timer, int state);
+
 extern int m37710_ICount;				/* cycle count */
 
 /* ======================================================================== */

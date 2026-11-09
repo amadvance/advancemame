@@ -107,6 +107,9 @@ typedef struct
 
 	// on-board peripheral stuff
 	UINT8 m37710_regs[128];
+	UINT8 timer_out[5]; /* timer A event-counter direction pins */
+	UINT32 idle_pc;
+	int idle_count, idle_since, idle_clocks;
 	float reload[8];
 	void *timers[8];
 } m37710i_cpu_struct;

@@ -11,5 +11,9 @@ struct C352interface
 READ16_HANDLER( c352_0_r );
 WRITE16_HANDLER( c352_0_w );
 
+/* Optional cabinet routing, fixed-point gains (0x100 = unity). */
+void c352_set_routing(const int route[4][2]);
+void c352_set_output_gain(int output, int gain);
+
 #endif
 

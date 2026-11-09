@@ -1,23 +1,18 @@
 // license:BSD-3-Clause
 // copyright-holders:Phil Stroffolino, hap, R. Belmont
-#define USE_NAMCOS22_SPEED_HACK
+/***************************************************************************
 
-#define TIMECRIS_GUN_X_MIN 68
-#define TIMECRIS_GUN_X_MAX 694
-#define TIMECRIS_GUN_Y_MIN 43
-#define TIMECRIS_GUN_Y_MAX 284
+    Namco System 22 / Super System 22
 
-#define REGION_CGRAM           REGION_GFX1
-#define REGION_TEXTURE_TILE    REGION_GFX2
-#define REGION_TEXTURE_TILEMAP REGION_GFX3
-#define REGION_POINTROM        REGION_GFX4
-#define REGION_SPRITE          REGION_GFX5
+    Backported from current MAME (Phil Stroffolino, hap, R. Belmont and
+    others, BSD-3-Clause).
 
-#define GFX_CHAR               0
-#define GFX_TEXTURE_TILE       1
-#define GFX_SPRITE             2
+***************************************************************************/
 
-extern enum namcos22_gametype
+#ifndef NAMCOS22_H
+#define NAMCOS22_H
+
+enum
 {
 	NAMCOS22_AIR_COMBAT22,
 	NAMCOS22_ALPINE_RACER,
@@ -33,60 +28,63 @@ extern enum namcos22_gametype
 	NAMCOS22_ALPINE_RACER_2,
 	NAMCOS22_ALPINE_SURFER,
 	NAMCOS22_TOKYO_WARS,
-	NAMCOS22_AQUA_JET
-} namcos22_gametype;
+	NAMCOS22_AQUA_JET,
+	NAMCOS22_DIRT_DASH,
+	NAMCOS22_ARMADILLO_RACING
+};
 
-#define NAMCOS22_NUM_ROWS 30
-#define NAMCOS22_NUM_COLS 40
+/* big endian views of the 32-bit RAMs (stored as native UINT32) */
+#define NTHBYTE32(base, n)	(((base)[(n) >> 2] >> (8 * (~(n) & 3))) & 0xff)
+#define NTHWORD32(base, n)	(((base)[(n) >> 1] >> (16 * (~(n) & 1))) & 0xffff)
 
-#define NAMCOS22_PALETTE_SIZE 0x8000
+#define SIGNED12(v)	((INT32)((UINT32)(v) << 20) >> 20)
+#define SIGNED18(v)	((INT32)((UINT32)(v) << 14) >> 14)
+#define SIGNED24(v)	((INT32)((UINT32)(v) << 8) >> 8)
 
-/*----------- defined in drivers/namcos22.c -----------*/
-
-extern const gfx_layout namcos22_cg_layout;
-
-/*----------- defined in vidhrdw/namcos22.c -----------*/
-
-extern UINT32 *namcos22_cgram;
-extern UINT32 *namcos22_textram;
-extern UINT32 *namcos22_polygonram;
-extern UINT32 *namcos22_gamma;
+/* drivers/namcos22.c */
+extern int namcos22_gametype;
+extern int namcos22_is_ss22;
+extern UINT32 *namcos22_polygonram;		/* 0x8000 dwords, 24 bits connected */
+extern UINT32 *namcos22_spriteram;
 extern UINT32 *namcos22_vics_data;
 extern UINT32 *namcos22_vics_control;
-extern UINT32 *namcos22_czattr;
-extern UINT32 *namcos22_tilemapattr;
+extern UINT32 *namcos22_mixer;
+extern UINT32 *namcos22_paletteram;
+extern UINT32 *namcos22_cgram;			/* text layer tiles; the tilemap is at 0x1e000 */
+extern UINT32 *namcos22_czram;			/* System 22 */
+extern UINT16 *namcos22_shareram;
+extern UINT8 *namcos22_gamma_proms;		/* System 22 */
+extern int namcos22_pdp_render_done;
+extern int namcos22_render_refresh;
+extern int namcos22_slave_simulation_active;
+extern UINT32 namcos22_pdp_frame;
+extern INT32 namcos22_point_read(offs_t offs);
+extern void namcos22_pdp_handle_commands(UINT16 offs);
+extern UINT8 namcos22_syscontrol[0x20];
+extern int namcos22_irq_enabled, namcos22_irq_state;
 
-WRITE16_HANDLER( namcos22_dspram16_bank_w );
-READ16_HANDLER( namcos22_dspram16_r );
-WRITE16_HANDLER( namcos22_dspram16_w );
-
-READ32_HANDLER( namcos22_cgram_r );
-WRITE32_HANDLER( namcos22_cgram_w );
-
-READ32_HANDLER( namcos22_czram_r );
-WRITE32_HANDLER( namcos22_czram_w );
-
-WRITE32_HANDLER(namcos22_port800000_w);
-
-READ32_HANDLER( namcos22_paletteram_r );
-WRITE32_HANDLER( namcos22_paletteram_w );
-
-READ32_HANDLER( namcos22_textram_r );
-WRITE32_HANDLER( namcos22_textram_w );
-
-READ32_HANDLER( namcos22_gamma_r );
-WRITE32_HANDLER( namcos22_gamma_w );
-
-READ32_HANDLER( namcos22_dspram_r );
-WRITE32_HANDLER( namcos22_dspram_w );
-
-
-VIDEO_START( namcos22 );
-VIDEO_UPDATE( namcos22 );
-
+/* vidhrdw/namcos22_vidhrdw.c */
 VIDEO_START( namcos22s );
+VIDEO_START( namcos22 );
 VIDEO_UPDATE( namcos22s );
+VIDEO_UPDATE( namcos22 );
+void namcos22_draw_crosshairs(mame_bitmap *bitmap, const rectangle *cliprect);
+int namcos22_video_threads_available(void);
+void namcos22_video_reset(void);
+void namcos22_draw_direct_poly(const UINT16 *src);
 
-void namcos22_draw_direct_poly( const UINT16 *pSource );
-extern UINT32 namcos22_point_rom_r( offs_t offs );
-extern void namcos22_enable_slave_simulation( void );
+WRITE32_HANDLER( namcos22_paletteram_w );
+WRITE32_HANDLER( namcos22_cgram_w );
+READ32_HANDLER( namcos22_tilemapattr_r );
+WRITE32_HANDLER( namcos22_tilemapattr_w );
+READ32_HANDLER( namcos22s_czattr_r );
+WRITE32_HANDLER( namcos22s_czattr_w );
+READ32_HANDLER( namcos22s_czram_r );
+WRITE32_HANDLER( namcos22s_czram_w );
+READ32_HANDLER( namcos22s_spotram_r );
+WRITE32_HANDLER( namcos22s_spotram_w );
+READ32_HANDLER( namcos22s_vics_control_r );
+WRITE32_HANDLER( namcos22s_vics_control_w );
+WRITE32_HANDLER( namcos22s_chipselect_w );
+
+#endif

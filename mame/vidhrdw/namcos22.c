@@ -1,2845 +1,2879 @@
 // license:BSD-3-Clause
 // copyright-holders:Phil Stroffolino, hap, R. Belmont
-/**
- * video hardware for Namco System22
- *
- * todo:
- *
- * - fog bugfixes
- *
- * - SPOT
- *
- * - sprite
- *          xy offset
- *          clipping to window
- *          eliminate garbage (air combat)
- *
- *
- *******************************
-czram[0] = 1fff 1fdf 1fbf 1f9f 1f7f 1f5f 1f3f 1f1f 1eff 1edf 1ebf 1e9f 1e7f 1e5f 1e3f 1e1f 1dff 1ddf 1dbf 1d9f 1d7f 1d5f 1d3f 1d1f 1cff 1cdf 1cbf 1c9f 1c7f 1c5f 1c3f 1c1f 1bff 1bdf 1bbf 1b9f 1b7f 1b5f 1b3f 1b1f 1aff 1adf 1abf 1a9f 1a7f 1a5f 1a3f 1a1f 19ff 19df 19bf 199f 197f 195f 193f 191f 18ff 18df 18bf 189f 187f 185f 183f 181f 17ff 17df 17bf 179f 177f 175f 173f 171f 16ff 16df 16bf 169f 167f 165f 163f 161f 15ff 15df 15bf 159f 157f 155f 153f 151f 14ff 14df 14bf 149f 147f 145f 143f 141f 13ff 13df 13bf 139f 137f 135f 133f 131f 12ff 12df 12bf 129f 127f 125f 123f 121f 11ff 11df 11bf 119f 117f 115f 113f 111f 10ff 10df 10bf 109f 107f 105f 103f 101f 0fff 0fdf 0fbf 0f9f 0f7f 0f5f 0f3f 0f1f 0eff 0edf 0ebf 0e9f 0e7f 0e5f 0e3f 0e1f 0dff 0ddf 0dbf 0d9f 0d7f 0d5f 0d3f 0d1f 0cff 0cdf 0cbf 0c9f 0c7f 0c5f 0c3f 0c1f 0bff 0bdf 0bbf 0b9f 0b7f 0b5f 0b3f 0b1f 0aff 0adf 0abf 0a9f 0a7f 0a5f 0a3f 0a1f 09ff 09df 09bf 099f 097f 095f 093f 091f 08ff 08df 08bf 089f 087f 085f 083f 081f 07ff 07df 07bf 079f 077f 075f 073f 071f 06ff 06df 06bf 069f 067f 065f 063f 061f 05ff 05df 05bf 059f 057f 055f 053f 051f 04ff 04df 04bf 049f 047f 045f 043f 041f 03ff 03df 03bf 039f 037f 035f 033f 031f 02ff 02df 02bf 029f 027f 025f 023f 021f 01ff 01df 01bf 019f 017f 015f 013f 011f 00ff 00df 00bf 009f 007f 005f 003f 001f
-czram[1] = 0000 0000 0000 0001 0002 0003 0005 0007 0009 000b 000e 0011 0014 0017 001b 001f 0023 0027 002c 0031 0036 003b 0041 0047 004d 0053 005a 0061 0068 006f 0077 007f 0087 008f 0098 00a1 00aa 00b3 00bd 00c7 00d1 00db 00e6 00f1 00fc 0107 0113 011f 012b 0137 0144 0151 015e 016b 0179 0187 0195 01a3 01b2 01c1 01d0 01df 01ef 01ff 020f 021f 0230 0241 0252 0263 0275 0287 0299 02ab 02be 02d1 02e4 02f7 030b 031f 0333 0347 035c 0371 0386 039b 03b1 03c7 03dd 03f3 040a 0421 0438 044f 0467 047f 0497 04af 04c8 04e1 04fa 0513 052d 0547 0561 057b 0596 05b1 05cc 05e7 0603 061f 063b 0657 0674 0691 06ae 06cb 06e9 0707 0725 0743 0762 0781 07a0 07bf 07df 07ff 081f 083f 0860 0881 08a2 08c3 08e5 0907 0929 094b 096e 0991 09b4 09d7 09fb 0a1f 0a43 0a67 0a8c 0ab1 0ad6 0afb 0b21 0b47 0b6d 0b93 0bba 0be1 0c08 0c2f 0c57 0c7f 0ca7 0ccf 0cf8 0d21 0d4a 0d73 0d9d 0dc7 0df1 0e1b 0e46 0e71 0e9c 0ec7 0ef3 0f1f 0f4b 0f77 0fa4 0fd1 0ffe 102b 1059 1087 10b5 10e3 1112 1141 1170 119f 11cf 11ff 122f 125f 1290 12c1 12f2 1323 1355 1387 13b9 13eb 141e 1451 1484 14b7 14eb 151f 1553 1587 15bc 15f1 1626 165b 1691 16c7 16fd 1733 176a 17a1 17d8 180f 1847 187f 18b7 18ef 1928 1961 199a 19d3 1a0d 1a47 1a81 1abb 1af6 1b31 1b6c 1ba7 1be3 1c1f 1c5b 1c97 1cd4 1d11 1d4e 1d8b 1dc9 1e07 1e45 1e83 1ec2 1f01 1f40 1f7f 1fbf 1fff
-czram[2] = 003f 007f 00be 00fd 013c 017b 01b9 01f7 0235 0273 02b0 02ed 032a 0367 03a3 03df 041b 0457 0492 04cd 0508 0543 057d 05b7 05f1 062b 0664 069d 06d6 070f 0747 077f 07b7 07ef 0826 085d 0894 08cb 0901 0937 096d 09a3 09d8 0a0d 0a42 0a77 0aab 0adf 0b13 0b47 0b7a 0bad 0be0 0c13 0c45 0c77 0ca9 0cdb 0d0c 0d3d 0d6e 0d9f 0dcf 0dff 0e2f 0e5f 0e8e 0ebd 0eec 0f1b 0f49 0f77 0fa5 0fd3 1000 102d 105a 1087 10b3 10df 110b 1137 1162 118d 11b8 11e3 120d 1237 1261 128b 12b4 12dd 1306 132f 1357 137f 13a7 13cf 13f6 141d 1444 146b 1491 14b7 14dd 1503 1528 154d 1572 1597 15bb 15df 1603 1627 164a 166d 1690 16b3 16d5 16f7 1719 173b 175c 177d 179e 17bf 17df 17ff 181f 183f 185e 187d 189c 18bb 18d9 18f7 1915 1933 1950 196d 198a 19a7 19c3 19df 19fb 1a17 1a32 1a4d 1a68 1a83 1a9d 1ab7 1ad1 1aeb 1b04 1b1d 1b36 1b4f 1b67 1b7f 1b97 1baf 1bc6 1bdd 1bf4 1c0b 1c21 1c37 1c4d 1c63 1c78 1c8d 1ca2 1cb7 1ccb 1cdf 1cf3 1d07 1d1a 1d2d 1d40 1d53 1d65 1d77 1d89 1d9b 1dac 1dbd 1dce 1ddf 1def 1dff 1e0f 1e1f 1e2e 1e3d 1e4c 1e5b 1e69 1e77 1e85 1e93 1ea0 1ead 1eba 1ec7 1ed3 1edf 1eeb 1ef7 1f02 1f0d 1f18 1f23 1f2d 1f37 1f41 1f4b 1f54 1f5d 1f66 1f6f 1f77 1f7f 1f87 1f8f 1f96 1f9d 1fa4 1fab 1fb1 1fb7 1fbd 1fc3 1fc8 1fcd 1fd2 1fd7 1fdb 1fdf 1fe3 1fe7 1fea 1fed 1ff0 1ff3 1ff5 1ff7 1ff9 1ffb 1ffc 1ffd 1ffe 1fff 1fff 1fff
-czram[3] = 0000 001f 003f 005f 007f 009f 00bf 00df 00ff 011f 013f 015f 017f 019f 01bf 01df 01ff 021f 023f 025f 027f 029f 02bf 02df 02ff 031f 033f 035f 037f 039f 03bf 03df 03ff 041f 043f 045f 047f 049f 04bf 04df 04ff 051f 053f 055f 057f 059f 05bf 05df 05ff 061f 063f 065f 067f 069f 06bf 06df 06ff 071f 073f 075f 077f 079f 07bf 07df 07ff 081f 083f 085f 087f 089f 08bf 08df 08ff 091f 093f 095f 097f 099f 09bf 09df 09ff 0a1f 0a3f 0a5f 0a7f 0a9f 0abf 0adf 0aff 0b1f 0b3f 0b5f 0b7f 0b9f 0bbf 0bdf 0bff 0c1f 0c3f 0c5f 0c7f 0c9f 0cbf 0cdf 0cff 0d1f 0d3f 0d5f 0d7f 0d9f 0dbf 0ddf 0dff 0e1f 0e3f 0e5f 0e7f 0e9f 0ebf 0edf 0eff 0f1f 0f3f 0f5f 0f7f 0f9f 0fbf 0fdf 0fff 101f 103f 105f 107f 109f 10bf 10df 10ff 111f 113f 115f 117f 119f 11bf 11df 11ff 121f 123f 125f 127f 129f 12bf 12df 12ff 131f 133f 135f 137f 139f 13bf 13df 13ff 141f 143f 145f 147f 149f 14bf 14df 14ff 151f 153f 155f 157f 159f 15bf 15df 15ff 161f 163f 165f 167f 169f 16bf 16df 16ff 171f 173f 175f 177f 179f 17bf 17df 17ff 181f 183f 185f 187f 189f 18bf 18df 18ff 191f 193f 195f 197f 199f 19bf 19df 19ff 1a1f 1a3f 1a5f 1a7f 1a9f 1abf 1adf 1aff 1b1f 1b3f 1b5f 1b7f 1b9f 1bbf 1bdf 1bff 1c1f 1c3f 1c5f 1c7f 1c9f 1cbf 1cdf 1cff 1d1f 1d3f 1d5f 1d7f 1d9f 1dbf 1ddf 1dff 1e1f 1e3f 1e5f 1e7f 1e9f 1ebf 1edf 1eff 1f1f 1f3f 1f5f 1f7f 1f9f 1fbf 1fdf
+/***************************************************************************
 
-CZ (NORMAL) 00810000: 00000000 00000000 75550000 00e40000
-CZ (OFFSET) 00810000: 7fff8000 7fff8000 75550000 00e40000
-CZ (OFF)    00810000: 00000000 00000000 31110000 00e40000
+    Namco System 22 / Super System 22 video hardware
 
-SPOT TABLE test
-03F282: 13FC 0000 0082 4011        move.b  #$0, $824011.l
-03F28A: 13FC 0000 0082 4015        move.b  #$0, $824015.l
-03F292: 13FC 0080 0082 400D        move.b  #$80, $82400d.l
-03F29A: 13FC 0001 0082 400E        move.b  #$1, $82400e.l
-03F2A2: 13FC 0001 0082 4021        move.b  #$1, $824021.l
-03F2AA: 33FC 4038 0080 0000        move.w  #$4038, $800000.l
-03F2B2: 06B9 0000 0001 00E0 AB08   addi.l  #$1, $e0ab08.l
-*/
+    Backported from current MAME (Phil Stroffolino, hap, R. Belmont and
+    others, BSD-3-Clause) .
+    The polygon rasterizer follows MAME's poly.h (edges, pixel centers
+    and rounding); OpenMP workers draw independent row bands.
 
-#include "driver.h"
-#include "namcos22.h"
+***************************************************************************/
+
 #include <math.h>
+#include "driver.h"
+#include "state.h"
+#include "includes/namcos22.h"
 
-static int mbSuperSystem22; /* used to conditionally support Super System22-specific features */
-static int mbSpotlightEnable;
-static UINT16 *namcos22_czram[4];
+typedef double poly3d_t;
 
-static UINT8
-nthbyte( const UINT32 *pSource, int offs )
+#define SCREEN_W	640
+#define SCREEN_H	480
+
+/***************************************************************************
+    State
+***************************************************************************/
+
+static UINT32 *pens;					/* 0x8000 xRGB */
+static UINT8 *dirtypal;					/* 0x2000 */
+static UINT16 *mix_bitmap;				/* 640x480 text layer pens */
+static UINT8 *primap;					/* 640x480 */
+static UINT32 *frame;					/* 640x480 render target */
+
+static UINT16 *texture_tilemap;			/* 0x100000 */
+static UINT8 *texture_tileattr;			/* 0x100000 */
+static UINT32 *texture_tile32;			/* 0x100000: (tile << 12) | attr */
+static const UINT8 *texture_tiledata;
+static UINT8 texture_ayx_to_pixel[16 * 16 * 16];
+static const UINT8 *sprite_data;
+static int sprite_count;
+
+static int mixer_flags;
+static int screen_fade_factor;
+static int screen_fade_r, screen_fade_g, screen_fade_b;
+static int poly_fade_enabled;
+static int poly_fade_r, poly_fade_g, poly_fade_b;
+static int poly_alpha_color, poly_alpha_pen, poly_alpha_factor;
+static UINT32 fog_colormask;
+static int fog_r, fog_g, fog_b;
+static UINT8 *recalc_czram[4];
+static int fog_r_per_cztype[4], fog_g_per_cztype[4], fog_b_per_cztype[4];
+static UINT16 czattr[8];
+static UINT16 *banked_czram[4];
+static UINT32 cz_was_written[4];
+static UINT16 *spotram;
+static UINT32 spotram_enable;
+static UINT32 spotram_address;
+static int chipselect;
+static int spot_factor;
+static int text_palbase;
+static int bg_palbase;
+
+static UINT8 text_row_used[SCREEN_H];	/* rows with opaque text pixels */
+static UINT32 gamma_lut[3][256];		/* gamma of the frame: R << 16, G << 8, B */
+static UINT16 tilemapattr[8];
+static UINT16 rowscroll[480];
+static UINT16 lastrow;
+static UINT32 rs_frame;
+static mame_timer *posirq_timer;
+
+/* slave DSP simulation */
+static int absolute_priority;
+static int objectshift;
+static int cz_adjust;
+static int objectflags;
+static float viewmatrix[4][4];
+static UINT8 reflection;
+static int cullflip;
+#define MAX_LIT_SURFACES 0x80
+static UINT8 lit_surface_info[MAX_LIT_SURFACES];
+static unsigned lit_surface_count;
+static unsigned lit_surface_index;
+static int lit_surface_width;
+static int lit_surface_intensity;
+static int lit_surface_gouraud;
+static int lit_surface_triangles;
+static int camera_vx, camera_vy, camera_vu, camera_vd, camera_vl, camera_vr;
+static float camera_zoom;
+static float camera_lx, camera_ly, camera_lz;
+static int camera_ambient;
+static int camera_power;
+
+
+/***************************************************************************
+    Scene graph (z sorted, radix tree as MAME)
+***************************************************************************/
+
+#define RADIX_BITS		4
+#define RADIX_BUCKETS	(1 << RADIX_BITS)
+#define RADIX_MASK		(RADIX_BUCKETS - 1)
+
+enum { NODE_NONLEAF, NODE_QUAD, NODE_SPRITE };
+
+typedef struct
 {
-	pSource += offs/4;
-	return (pSource[0]<<((offs&3)*8))>>24;
-}
+	float x, y, z;
+	int u, v;	/* 0..0xfff */
+	int bri;	/* 0..0xff */
+} polyvertex;
 
-static UINT16
-nthword( const UINT32 *pSource, int offs )
+struct scenenode
 {
-	pSource += offs/2;
-	return (pSource[0]<<((offs&1)*16))>>16;
-}
-
-static struct
-{
-	int target;
-	int rFogColor;
-	int gFogColor;
-	int bFogColor;
-	int rFogColor2;
-	int gFogColor2;
-	int bFogColor2;
-	int rBackColor;
-	int gBackColor;
-	int bBackColor;
-	int rFadeColor;
-	int gFadeColor;
-	int bFadeColor;
-	int fadeFactor;
-	int spot_translucency;
-	int poly_translucency;
-	int text_translucency;
-	int palBase;
-} mixer;
-
-static void
-UpdateVideoMixer( void )
-{
-	memset( &mixer, 0, sizeof(mixer) );
-	if( mbSuperSystem22 )
+	int type;
+	struct scenenode *next;
+	union
 	{
-/*
-           0 1 2 3  4 5 6 7  8 9 a b  c d e f 10       14       18       1c
-00824000: ffffff00 00000000 0000007f 00ff0000 1000ff00 0f000000 00ff007f 00010007 // time crisis
-00824000: ffffff00 00000000 1830407f 00800000 0000007f 0f000000 0000037f 00010007 // trans sprite
-00824000: ffffff00 00000000 3040307f 00000000 0080007f 0f000000 0000037f 00010007 // trans poly
-00824000: ffffff00 00000000 1800187f 00800000 0080007f 0f000000 0000037f 00010007 // trans poly(2)
-00824000: ffffff00 00000000 1800187f 00000000 0000007f 0f800000 0000037f 00010007 // trans text
-*/
-		mixer.rFogColor         = nthbyte( namcos22_gamma, 0x05 );
-		mixer.gFogColor         = nthbyte( namcos22_gamma, 0x06 );
-		mixer.bFogColor         = nthbyte( namcos22_gamma, 0x07 );
-		mixer.rBackColor        = nthbyte( namcos22_gamma, 0x08 );
-		mixer.gBackColor        = nthbyte( namcos22_gamma, 0x09 );
-		mixer.bBackColor        = nthbyte( namcos22_gamma, 0x0a );
-		mixer.spot_translucency = nthbyte( namcos22_gamma, 0x0d );
-		mixer.poly_translucency = nthbyte( namcos22_gamma, 0x11 );
-		mixer.text_translucency = nthbyte( namcos22_gamma, 0x15 );
-		mixer.rFadeColor        = nthbyte( namcos22_gamma, 0x16 );
-		mixer.gFadeColor        = nthbyte( namcos22_gamma, 0x17 );
-		mixer.bFadeColor        = nthbyte( namcos22_gamma, 0x18 );
-		mixer.fadeFactor        = nthbyte( namcos22_gamma, 0x19 );
-		mixer.target            = nthbyte( namcos22_gamma, 0x1a );
-		mixer.palBase           = nthbyte( namcos22_gamma, 0x1b );
+		struct
+		{
+			struct scenenode *next[RADIX_BUCKETS];
+		} nonleaf;
+		struct
+		{
+			int vx, vy;
+			int vu, vd, vl, vr;
+			int texturebank;
+			int color;
+			int cmode;
+			int cz_value;
+			int cz_type;
+			int cz_adjust;
+			int objectflags;
+			int direct;
+			polyvertex v[4];
+		} quad;
+		struct
+		{
+			int tile, color;
+			int prioverchar;
+			int fade_enabled;
+			int flipx, flipy;
+			int linktype;
+			int cols, rows;
+			int xpos, ypos;
+			int cx_min, cx_max;
+			int cy_min, cy_max;
+			int sizex, sizey;
+			int alpha;
+			int cz;
+		} sprite;
+	} data;
+};
+
+#define NODE_CHUNK		4096
+#define MAX_NODE_CHUNKS	256
+static struct scenenode *node_chunks[MAX_NODE_CHUNKS];
+static int node_chunk_count;
+static int node_used;		/* nodes taken, over all the chunks */
+static struct scenenode scenenode_root;
+
+static struct scenenode *alloc_scenenode(void)
+{
+	int chunk = node_used / NODE_CHUNK;
+	struct scenenode *node;
+
+	if (chunk >= MAX_NODE_CHUNKS)
+		return NULL;
+	if (chunk >= node_chunk_count)
+	{
+		node_chunks[chunk] = malloc(NODE_CHUNK * sizeof(struct scenenode));
+		if (!node_chunks[chunk])
+			return NULL;
+		node_chunk_count = chunk + 1;
+	}
+	node = &node_chunks[chunk][node_used % NODE_CHUNK];
+	node_used++;
+	memset(node, 0, sizeof(*node));
+	return node;
+}
+
+static struct scenenode *new_scenenode(UINT32 zsort, int type)
+{
+	struct scenenode *node = &scenenode_root;
+	struct scenenode *prev = NULL;
+	struct scenenode *leaf;
+	int hash = 0;
+	int i;
+
+	for (i = 0; i < 24; i += RADIX_BITS)
+	{
+		struct scenenode *next;
+		hash = (zsort >> (24 - RADIX_BITS)) & RADIX_MASK;
+		next = node->data.nonleaf.next[hash];
+		if (!next)
+		{
+			next = alloc_scenenode();
+			if (!next)
+				return NULL;
+			next->type = NODE_NONLEAF;
+			node->data.nonleaf.next[hash] = next;
+		}
+		prev = node;
+		node = next;
+		zsort <<= RADIX_BITS;
+	}
+
+	if (node->type == NODE_NONLEAF)
+	{
+		/* first leaf on this branch */
+		node->type = type;
+		return node;
+	}
+
+	leaf = alloc_scenenode();
+	if (!leaf)
+		return NULL;
+	leaf->type = type;
+	leaf->next = node;
+	prev->data.nonleaf.next[hash] = leaf;
+	return leaf;
+}
+
+
+/***************************************************************************
+    Rasterizer (MAME poly.h, single threaded)
+***************************************************************************/
+
+typedef struct
+{
+	poly3d_t x, y;
+	poly3d_t p[4];
+} vertex_t;
+
+typedef struct
+{
+	poly3d_t start, dpdx;
+} extent_param;
+
+typedef struct
+{
+	int startx, stopx;
+	extent_param param[4];
+} extent_t;
+
+typedef struct
+{
+	/* poly / sprites */
+	int fog_r, fog_g, fog_b;
+	const UINT32 *pens;
+	int bn;
+	int prioverchar;
+	int cmode;
+	int shade_enabled;
+	int texture_enabled;
+	int fogfactor;
+	/* ss22 */
+	int polycolor_r, polycolor_g, polycolor_b;
+	int fade_r, fade_g, fade_b;
+	int fadefactor;
+	int pfade_enabled;
+	int alpha_enabled;
+	int alpha;
+	/* sprites */
+	const UINT8 *source;
+	int line_modulo;
+	int flipx;
+	int flipy;
+} object_data;
+
+typedef void (*scanline_func)(int scanline, const extent_t *extent, const object_data *extra);
+
+/* where a primitive may draw: its clip rectangle, and the band of the thread
+   drawing it (the scanlines y with (y / BAND_STRIP) % nbands == band) */
+typedef struct
+{
+	int minx, maxx, miny, maxy;
+	int band, nbands;
+} raster_clip;
+
+#define BAND_STRIP_SHIFT	4
+#define OWN_LINE(rc, y)	((rc)->nbands == 1 || (((y) >> BAND_STRIP_SHIFT) % (rc)->nbands) == (rc)->band)
+
+/* is row y in this band: strips of 16 scanlines, y / 16 modulo the bands */
+#define ROW_OWNED(y, band, nbands)	((nbands) == 1 || (((y) >> BAND_STRIP_SHIFT) % (nbands)) == (band))
+
+static INT32 round_coordinate(poly3d_t value)
+{
+	poly3d_t ipart, fpart;
+	if (value >= 2147483647.0)
+		return 2147483647;
+	ipart = floor(value);
+	if (ipart < -2147483648.0)
+		return (-2147483647 - 1);
+	fpart = value - ipart;
+	return (INT32)ipart + ((fpart > 0.5) ? 1 : 0);
+}
+
+static void render_triangle(const raster_clip *rc, scanline_func callback, const object_data *extra, int paramcount,
+	const vertex_t *v1, const vertex_t *v2, const vertex_t *v3)
+{
+	const vertex_t *t;
+	INT32 v1y, v3y, v1yclip, v3yclip, curscan;
+	poly3d_t dxdy_v1v2, dxdy_v1v3, dxdy_v2v3;
+	poly3d_t param_start[4], param_dpdx[4], param_dpdy[4];
+	int paramnum;
+
+	if (v2->y < v1->y) { t = v1; v1 = v2; v2 = t; }
+	if (v3->y < v2->y)
+	{
+		t = v2; v2 = v3; v3 = t;
+		if (v2->y < v1->y) { t = v1; v1 = v2; v2 = t; }
+	}
+
+	v1y = round_coordinate(v1->y);
+	v3y = round_coordinate(v3->y);
+	v1yclip = (v1y > rc->miny) ? v1y : rc->miny;
+	v3yclip = (v3y < rc->maxy + 1) ? v3y : rc->maxy + 1;
+	if (v3yclip - v1yclip <= 0)
+		return;
+
+	dxdy_v1v2 = (v2->y == v1->y) ? 0.0 : (v2->x - v1->x) / (v2->y - v1->y);
+	dxdy_v1v3 = (v3->y == v1->y) ? 0.0 : (v3->x - v1->x) / (v3->y - v1->y);
+	dxdy_v2v3 = (v3->y == v2->y) ? 0.0 : (v3->x - v2->x) / (v3->y - v2->y);
+
+	{
+		poly3d_t a00 = v2->y - v3->y;
+		poly3d_t a01 = v3->x - v2->x;
+		poly3d_t a02 = v2->x*v3->y - v3->x*v2->y;
+		poly3d_t a10 = v3->y - v1->y;
+		poly3d_t a11 = v1->x - v3->x;
+		poly3d_t a12 = v3->x*v1->y - v1->x*v3->y;
+		poly3d_t a20 = v1->y - v2->y;
+		poly3d_t a21 = v2->x - v1->x;
+		poly3d_t a22 = v1->x*v2->y - v2->x*v1->y;
+		poly3d_t det = a02 + a12 + a22;
+
+		if (fabs(det) < 0.00001)
+		{
+			for (paramnum = 0; paramnum < paramcount; paramnum++)
+			{
+				param_dpdx[paramnum] = 0.0;
+				param_dpdy[paramnum] = 0.0;
+				param_start[paramnum] = v1->p[paramnum];
+			}
+		}
+		else
+		{
+			poly3d_t idet = 1.0 / det;
+			for (paramnum = 0; paramnum < paramcount; paramnum++)
+			{
+				param_dpdx[paramnum]  = idet * (v1->p[paramnum]*a00 + v2->p[paramnum]*a10 + v3->p[paramnum]*a20);
+				param_dpdy[paramnum]  = idet * (v1->p[paramnum]*a01 + v2->p[paramnum]*a11 + v3->p[paramnum]*a21);
+				param_start[paramnum] = idet * (v1->p[paramnum]*a02 + v2->p[paramnum]*a12 + v3->p[paramnum]*a22);
+			}
+		}
+	}
+
+	for (curscan = v1yclip; curscan < v3yclip; curscan++)
+	{
+		extent_t extent;
+		poly3d_t fully = (poly3d_t)curscan + 0.5;
+		poly3d_t startx = v1->x + (fully - v1->y) * dxdy_v1v3;
+		poly3d_t stopx, fullstartx;
+		INT32 istartx, istopx;
+
+		if (!OWN_LINE(rc, curscan))
+			continue;
+
+		if (fully < v2->y)
+			stopx = v1->x + (fully - v1->y) * dxdy_v1v2;
+		else
+			stopx = v2->x + (fully - v2->y) * dxdy_v2v3;
+
+		istartx = round_coordinate(startx);
+		istopx = round_coordinate(stopx);
+		if (istartx > istopx) { INT32 tmp = istartx; istartx = istopx; istopx = tmp; }
+		if (istartx < rc->minx) istartx = rc->minx;
+		if (istopx > rc->maxx + 1) istopx = rc->maxx + 1;
+		if (istartx >= istopx)
+			continue;
+
+		extent.startx = istartx;
+		extent.stopx = istopx;
+		fullstartx = (poly3d_t)istartx + 0.5;
+		for (paramnum = 0; paramnum < paramcount; paramnum++)
+		{
+			extent.param[paramnum].start = param_start[paramnum] + fullstartx * param_dpdx[paramnum] + fully * param_dpdy[paramnum];
+			extent.param[paramnum].dpdx = param_dpdx[paramnum];
+		}
+		callback(curscan, &extent, extra);
+	}
+}
+
+typedef struct
+{
+	const vertex_t *v1, *v2;
+	poly3d_t dxdy;
+	poly3d_t dpdy[4];
+} poly_edge;
+
+static void render_polygon(const raster_clip *rc, scanline_func callback, const object_data *extra, int paramcount, int numverts, const vertex_t *v)
+{
+	poly3d_t minx = v[0].x, maxx = v[0].x;
+	int minv = 0, maxv = 0;
+	int vertnum, curv, paramnum;
+	INT32 miny, maxy, minyclip, maxyclip, curscan;
+	poly_edge fedgelist[8], bedgelist[8];
+	poly_edge *edgeptr;
+	const poly_edge *ledge, *redge;
+
+	for (vertnum = 1; vertnum < numverts; vertnum++)
+	{
+		if (v[vertnum].y < v[minv].y)
+			minv = vertnum;
+		else if (v[vertnum].y > v[maxv].y)
+			maxv = vertnum;
+		if (v[vertnum].x < minx) minx = v[vertnum].x;
+		if (v[vertnum].x > maxx) maxx = v[vertnum].x;
+	}
+
+	miny = round_coordinate(v[minv].y);
+	maxy = round_coordinate(v[maxv].y);
+	minyclip = (miny > rc->miny) ? miny : rc->miny;
+	maxyclip = (maxy < rc->maxy + 1) ? maxy : rc->maxy + 1;
+	if (maxyclip - minyclip <= 0)
+		return;
+
+	/* forward edges */
+	edgeptr = &fedgelist[0];
+	for (curv = minv; curv != maxv; curv = (curv == numverts - 1) ? 0 : (curv + 1))
+	{
+		poly3d_t ooy;
+		edgeptr->v1 = &v[curv];
+		edgeptr->v2 = &v[(curv == numverts - 1) ? 0 : (curv + 1)];
+		if (edgeptr->v1->y == edgeptr->v2->y)
+			continue;
+		ooy = 1.0 / (edgeptr->v2->y - edgeptr->v1->y);
+		edgeptr->dxdy = (edgeptr->v2->x - edgeptr->v1->x) * ooy;
+		for (paramnum = 0; paramnum < paramcount; paramnum++)
+			edgeptr->dpdy[paramnum] = (edgeptr->v2->p[paramnum] - edgeptr->v1->p[paramnum]) * ooy;
+		++edgeptr;
+	}
+
+	/* backward edges */
+	edgeptr = &bedgelist[0];
+	for (curv = minv; curv != maxv; curv = (curv == 0) ? (numverts - 1) : (curv - 1))
+	{
+		poly3d_t ooy;
+		edgeptr->v1 = &v[curv];
+		edgeptr->v2 = &v[(curv == 0) ? (numverts - 1) : (curv - 1)];
+		if (edgeptr->v1->y == edgeptr->v2->y)
+			continue;
+		ooy = 1.0 / (edgeptr->v2->y - edgeptr->v1->y);
+		edgeptr->dxdy = (edgeptr->v2->x - edgeptr->v1->x) * ooy;
+		for (paramnum = 0; paramnum < paramcount; paramnum++)
+			edgeptr->dpdy[paramnum] = (edgeptr->v2->p[paramnum] - edgeptr->v1->p[paramnum]) * ooy;
+		++edgeptr;
+	}
+
+	if ((fedgelist[0].v1 == bedgelist[0].v1 && fedgelist[0].dxdy < bedgelist[0].dxdy) ||
+		(fedgelist[0].v1 != bedgelist[0].v1 && fedgelist[0].v1->x < bedgelist[0].v1->x))
+	{
+		ledge = fedgelist;
+		redge = bedgelist;
 	}
 	else
 	{
-/*
-90020000: 4f030000 7f00007f 4d4d4d42 0c00c0c0
-90020010: c0010001 00010000 00000000 00000000
-90020080: 00010101 01010102 00000000 00000000
-900200c0: 00000000 00000000 00000000 03000000
-90020100: fff35000 00000000 00000000 00000000
-90020180: ff713700 00000000 00000000 00000000
-90020200: ff100000 00000000 00000000 00000000
-*/
-		mixer.palBase     = 0x7f;
-		mixer.target      = 0x7;//nthbyte( namcos22_gamma, 0x0002 )*256 + nthbyte( namcos22_gamma, 0x0003 );
-		mixer.rFadeColor  = nthbyte( namcos22_gamma, 0x0011 )*256 + nthbyte( namcos22_gamma, 0x0012 );
-		mixer.gFadeColor  = nthbyte( namcos22_gamma, 0x0013 )*256 + nthbyte( namcos22_gamma, 0x0014 );
-		mixer.bFadeColor  = nthbyte( namcos22_gamma, 0x0015 )*256 + nthbyte( namcos22_gamma, 0x0016 );
-
-		mixer.fadeFactor  = 0x100 - mixer.rFadeColor; // hack
-		mixer.rFadeColor  = 0;
-		mixer.gFadeColor  = 0;
-		mixer.bFadeColor  = 0;
-
-		mixer.rFogColor   = nthbyte( namcos22_gamma, 0x0100 );
-		mixer.rFogColor2  = nthbyte( namcos22_gamma, 0x0101 );
-		mixer.gFogColor   = nthbyte( namcos22_gamma, 0x0180 );
-		mixer.gFogColor2  = nthbyte( namcos22_gamma, 0x0181 );
-		mixer.bFogColor   = nthbyte( namcos22_gamma, 0x0200 );
-		mixer.bFogColor2  = nthbyte( namcos22_gamma, 0x0201 );
-
-/*  +0x0002.w   Fader Enable(?) (0: disabled)
- *  +0x0011.w   Display Fader (R) (0x0100 = 1.0)
- *  +0x0013.w   Display Fader (G) (0x0100 = 1.0)
- *  +0x0015.w   Display Fader (B) (0x0100 = 1.0)
- *  +0x0100.b   Fog1 Color (R) (world fogging)
- *  +0x0101.b   Fog2 Color (R) (used for heating of brake-disc on RV1)
- *  +0x0180.b   Fog1 Color (G)
- *  +0x0181.b   Fog2 Color (G)
- *  +0x0200.b   Fog1 Color (B)
- *  +0x0201.b   Fog2 Color (B)
- */
-	}
-}
-
-static UINT8
-Clamp256( int v )
-{
-   if( v<0 )
-   {
-      v = 0;
-   }
-   else if( v>255 )
-   {
-      v = 255;
-   }
-   return v;
-} /* Clamp256 */
-
-static void Dump( FILE *f, unsigned addr1, unsigned addr2, const char *name );
-
-static struct
-{
-   int cx,cy;
-   rectangle scissor;
-} mClip;
-
-static void
-poly3d_Clip( float vx, float vy, float vw, float vh )
-{
-   int cx = 320+vx;
-   int cy = 240+vy;
-   mClip.cx = cx;
-   mClip.cy = cy;
-   mClip.scissor.min_x = cx + vw;
-   mClip.scissor.min_y = cy + vh;
-   mClip.scissor.max_x = cx - vw;
-   mClip.scissor.max_y = cy - vh;
-   if( mClip.scissor.min_x<0 )   mClip.scissor.min_x = 0;
-   if( mClip.scissor.min_y<0 )   mClip.scissor.min_y = 0;
-   if( mClip.scissor.max_x>639 ) mClip.scissor.max_x = 639;
-   if( mClip.scissor.max_y>479 ) mClip.scissor.max_y = 479;
-}
-
-static void
-poly3d_NoClip( void )
-{
-   mClip.cx = 640/2;
-   mClip.cy = 480/2;
-   mClip.scissor.min_x = 0;
-   mClip.scissor.max_x = 639;
-   mClip.scissor.min_y = 0;
-   mClip.scissor.max_x = 479;
-}
-
-typedef struct
-{
-   float x,y,z;
-   int u,v; /* 0..0xfff */
-   int bri; /* 0..0xff */
-} Poly3dVertex;
-
-#define MIN_Z (10.0f)
-
-typedef struct
-{
-	float x,y;
-	float u,v,i,z;
-} vertex;
-
-typedef struct
-{
-	float x;
-	float u,v,i,z;
-} edge;
-
-#define SWAP(A,B) { const void *temp = A; A = B; B = temp; }
-
-static UINT16 *mpTextureTileMap16;
-static UINT8 *mpTextureTileMapAttr;
-static UINT8 *mpTextureTileData;
-static UINT8 mXYAttrToPixel[16][16][16];
-
-INLINE unsigned texel( unsigned x, unsigned y )
-{
-	unsigned offs = ((y&0xfff0)<<4)|((x&0xff0)>>4);
-	unsigned tile = mpTextureTileMap16[offs];
-	return mpTextureTileData[(tile<<8)|mXYAttrToPixel[mpTextureTileMapAttr[offs]][x&0xf][y&0xf]];
-} /* texel */
-
-typedef void drawscanline_t(
-	mame_bitmap *bitmap,
-	const rectangle *clip,
-	const edge *e1,
-	const edge *e2,
-	int sy );
-
-static void
-renderscanline_uvi_full( mame_bitmap *bitmap, const rectangle *clip, const edge *e1, const edge *e2, int sy, int color, int bn, UINT16 flags, int cmode )
-{
-	int fadeEnable = (mixer.target&1) && mixer.fadeFactor;
-	int fogDisable = color&0x80;
-	const pen_t *pens = &Machine->pens[(color&0x7f)<<8];
-   int fogDensity = 0;
-	int prioverchar = (cmode&7)==1;
-
-	if( e1->x > e2->x )
-	{
-		SWAP(e1,e2);
+		ledge = bedgelist;
+		redge = fedgelist;
 	}
 
+	for (curscan = minyclip; curscan < maxyclip; curscan++)
 	{
-		const UINT8 *pCharPri = (UINT8 *)priority_bitmap->line[sy];
-		UINT32 *pDest = (UINT32 *)bitmap->line[sy];
-		int x0 = (int)e1->x;
-		int x1 = (int)e2->x;
-		int w = x1-x0;
-		if( w )
+		extent_t extent;
+		poly3d_t fully = (poly3d_t)curscan + 0.5;
+		poly3d_t startx, stopx;
+		INT32 istartx, istopx;
+
+		while (fully > ledge->v2->y && fully < v[maxv].y)
+			++ledge;
+		while (fully > redge->v2->y && fully < v[maxv].y)
+			++redge;
+		if (!OWN_LINE(rc, curscan))
+			continue;
+		startx = ledge->v1->x + (fully - ledge->v1->y) * ledge->dxdy;
+		stopx = redge->v1->x + (fully - redge->v1->y) * redge->dxdy;
+
+		istartx = round_coordinate(startx);
+		istopx = round_coordinate(stopx);
+		if (istartx > istopx) { INT32 tmp = istartx; istartx = istopx; istopx = tmp; }
+		if (istartx < rc->minx) istartx = rc->minx;
+		if (istopx > rc->maxx + 1) istopx = rc->maxx + 1;
+
+		if (paramcount > 0)
 		{
-			float u = e1->u; /* u/z */
-			float v = e1->v; /* v/z */
-			float i = e1->i; /* i/z */
-			float z = e1->z; /* 1/z */
-			float oow = 1.0f / w;
-			float du = (e2->u - e1->u)*oow;
-			float dv = (e2->v - e1->v)*oow;
-			float dz = (e2->z - e1->z)*oow;
-			float di = (e2->i - e1->i)*oow;
-			int x, crop;
-			crop = clip->min_x - x0;
-			if( crop>0 )
+			poly3d_t ldy = fully - ledge->v1->y;
+			poly3d_t rdy = fully - redge->v1->y;
+			poly3d_t oox = 1.0 / (stopx - startx);
+			for (paramnum = 0; paramnum < paramcount; paramnum++)
 			{
-				u += crop*du;
-				v += crop*dv;
-				i += crop*di;
-				z += crop*dz;
-				x0 = clip->min_x;
+				poly3d_t lparam = ledge->v1->p[paramnum] + ldy * ledge->dpdy[paramnum];
+				poly3d_t rparam = redge->v1->p[paramnum] + rdy * redge->dpdy[paramnum];
+				poly3d_t dpdx = (rparam - lparam) * oox;
+				extent.param[paramnum].start = lparam + ((poly3d_t)istartx + 0.5 - startx) * dpdx;
+				extent.param[paramnum].dpdx = dpdx;
 			}
-			if( x1>clip->max_x )
+		}
+
+		if (istartx >= istopx)
+			continue;
+		extent.startx = istartx;
+		extent.stopx = istopx;
+		callback(curscan, &extent, extra);
+	}
+}
+
+static int zclip_if_less(int numverts, const vertex_t *v, vertex_t *outv, int paramcount, poly3d_t clipval)
+{
+	int prevclipped = (v[numverts - 1].p[0] < clipval);
+	vertex_t *nextout = outv;
+	int vertnum, paramnum;
+
+	for (vertnum = 0; vertnum < numverts; vertnum++)
+	{
+		int thisclipped = (v[vertnum].p[0] < clipval);
+		if (thisclipped != prevclipped)
+		{
+			const vertex_t *v1 = &v[(vertnum == 0) ? (numverts - 1) : (vertnum - 1)];
+			const vertex_t *v2 = &v[vertnum];
+			poly3d_t frac = (clipval - v1->p[0]) / (v2->p[0] - v1->p[0]);
+			nextout->x = v1->x + frac * (v2->x - v1->x);
+			nextout->y = v1->y + frac * (v2->y - v1->y);
+			for (paramnum = 0; paramnum < paramcount; paramnum++)
+				nextout->p[paramnum] = v1->p[paramnum] + frac * (v2->p[paramnum] - v1->p[paramnum]);
+			++nextout;
+		}
+		if (!thisclipped)
+			*nextout++ = v[vertnum];
+		prevclipped = thisclipped;
+	}
+	return nextout - outv;
+}
+
+
+/***************************************************************************
+    Color helpers (rgbaint_t: blend, scale, clamp)
+***************************************************************************/
+
+#define RGB_R(c)	(((c) >> 16) & 0xff)
+#define RGB_G(c)	(((c) >> 8) & 0xff)
+#define RGB_B(c)	((c) & 0xff)
+
+INLINE int clamp255(int v)
+{
+	return (v < 0) ? 0 : (v > 255) ? 255 : v;
+}
+
+/* blend(other, factor): (c * factor + other * (256 - factor)) >> 8 */
+#define BLEND(cr,cg,cb, or_,og,ob, factor) \
+	do { int s1_ = (factor), s2_ = 256 - s1_; \
+		cr = ((cr * s1_) + ((or_) * s2_)) >> 8; \
+		cg = ((cg * s1_) + ((og) * s2_)) >> 8; \
+		cb = ((cb * s1_) + ((ob) * s2_)) >> 8; } while (0)
+
+#define SCALE_IMM_CLAMP(cr,cg,cb, s) \
+	do { int s_ = (s); \
+		cr = clamp255((cr * s_) >> 8); \
+		cg = clamp255((cg * s_) >> 8); \
+		cb = clamp255((cb * s_) >> 8); } while (0)
+
+#define SCALE_CLAMP(cr,cg,cb, sr,sg,sb) \
+	do { cr = clamp255((cr * (sr)) >> 8); \
+		cg = clamp255((cg * (sg)) >> 8); \
+		cb = clamp255((cb * (sb)) >> 8); } while (0)
+
+#define TO_RGB(cr,cg,cb)	((((cr) & 0xff) << 16) | (((cg) & 0xff) << 8) | ((cb) & 0xff))
+
+
+/***************************************************************************
+    Scanline callbacks
+***************************************************************************/
+
+static void setup_cmode(const object_data *extra, const UINT32 **pens_out, int *penmask, int *penshift)
+{
+	const UINT32 *p = extra->pens;
+	*penmask = 0xff;
+	*penshift = 0;
+	if (extra->cmode & 4)
+	{
+		p += 0xec + ((extra->cmode & 8) << 1);
+		*penmask = 0x03;
+		*penshift = 2 * (~extra->cmode & 3);
+	}
+	else if (extra->cmode & 2)
+	{
+		p += 0xe0 + ((extra->cmode & 8) << 1);
+		*penmask = 0x0f;
+		*penshift = 4 * (~extra->cmode & 1);
+	}
+	*pens_out = p;
+}
+
+/* texel lookup: tile32[to] = (tile << 12) | attr */
+#define TEXEL(tu_, tv_) \
+	{ \
+		int tx_ = (int)(tu_) & 0xfff; \
+		int ty_ = ((int)(tv_) & 0xfff) | bn; \
+		UINT32 e_ = tt[((ty_ << 4) & 0xfff00) | (tx_ >> 4)]; \
+		pen = tdata[((e_ >> 4) & 0xffff00) | ayx[((e_ & 0xf) << 8) | ((ty_ << 4) & 0xf0) | (tx_ & 0xf)]]; \
+	}
+
+/* Perspective correction: MAME divides by z at every pixel. Here 1/z is exact
+   at the ends of spans of SPAN pixels and u/z, v/z, i/z are interpolated
+   linearly in between (the texel error stays well under a texel at these
+   sizes). Everything the loops use is in locals: the stores to the frame
+   could alias the object data otherwise. */
+#define SPAN 8
+static const float span_inv[SPAN + 1] = { 0.0f, 1.0f, 1.0f/2, 1.0f/3, 1.0f/4, 1.0f/5, 1.0f/6, 1.0f/7, 1.0f/8 };
+
+/* start a span at x: tu/tv/ti and their steps over the next n pixels */
+#define SPAN_SETUP() \
+	{ \
+		const float ooz0 = 1.0f / (float)z; \
+		float ooz1; \
+		poly3d_t u1, v1, i1; \
+		left = stopx - x; \
+		if (left > SPAN) left = SPAN; \
+		z += left * dz; u1 = u + left * du; v1 = v + left * dv; i1 = i + left * di; \
+		ooz1 = 1.0f / (float)z; \
+		tu = (float)(u * ooz0); tv = (float)(v * ooz0); ti = (float)(i * ooz0); \
+		dtu = ((float)(u1 * ooz1) - tu) * span_inv[left]; \
+		dtv = ((float)(v1 * ooz1) - tv) * span_inv[left]; \
+		dti = ((float)(i1 * ooz1) - ti) * span_inv[left]; \
+		u = u1; v = v1; i = i1; \
+	}
+
+static void renderscanline_poly(int scanline, const extent_t *extent, const object_data *extra)
+{
+	poly3d_t z = extent->param[0].start;
+	poly3d_t u = extent->param[1].start;
+	poly3d_t v = extent->param[2].start;
+	poly3d_t i = extent->param[3].start;
+	const poly3d_t dz = extent->param[0].dpdx;
+	const poly3d_t du = extent->param[1].dpdx;
+	const poly3d_t dv = extent->param[2].dpdx;
+	const poly3d_t di = extent->param[3].dpdx;
+	const int bn = extra->bn * 0x1000;
+	const int fogfactor = 0xff - extra->fogfactor;
+	const int fog = (fogfactor != 0xff);
+	const int fg_r = extra->fog_r, fg_g = extra->fog_g, fg_b = extra->fog_b;
+	const int tex = extra->texture_enabled, shade_en = extra->shade_enabled;
+	const int prio = extra->prioverchar;
+	const UINT32 *tt = texture_tile32;
+	const UINT8 *tdata = texture_tiledata;
+	const UINT8 *ayx = texture_ayx_to_pixel;
+	int pen = 0, penmask, penshift, x, left = 0;
+	float tu = 0, tv = 0, ti = 0, dtu = 0, dtv = 0, dti = 0;
+	const int stopx = extent->stopx;
+	const UINT32 *ppens;
+	UINT32 *dest = frame + scanline * SCREEN_W;
+	UINT8 *pri = primap + scanline * SCREEN_W;
+
+	setup_cmode(extra, &ppens, &penmask, &penshift);
+
+	for (x = extent->startx; x < stopx; x++)
+	{
+		UINT32 c;
+		int r, g, b;
+
+		if (left == 0)
+			SPAN_SETUP()
+
+		if (tex)
+			TEXEL(tu, tv)
+		c = ppens[(pen >> penshift) & penmask];
+		r = RGB_R(c); g = RGB_G(c); b = RGB_B(c);
+
+		if (fog)
+			BLEND(r, g, b, fg_r, fg_g, fg_b, fogfactor);
+
+		/* shading after fog */
+		if (shade_en)
+		{
+			int shade = (int)ti;
+			SCALE_IMM_CLAMP(r, g, b, shade << 2);
+		}
+
+		dest[x] = TO_RGB(r, g, b);
+		pri[x] = (pri[x] & ~1) | prio;
+
+		tu += dtu;
+		tv += dtv;
+		ti += dti;
+		left--;
+	}
+}
+
+static void renderscanline_poly_ss22(int scanline, const extent_t *extent, const object_data *extra)
+{
+	poly3d_t z = extent->param[0].start;
+	poly3d_t u = extent->param[1].start;
+	poly3d_t v = extent->param[2].start;
+	poly3d_t i = extent->param[3].start;
+	const poly3d_t dz = extent->param[0].dpdx;
+	const poly3d_t du = extent->param[1].dpdx;
+	const poly3d_t dv = extent->param[2].dpdx;
+	const poly3d_t di = extent->param[3].dpdx;
+	const int bn = extra->bn * 0x1000;
+	const int fogfactor = 0xff - extra->fogfactor;
+	const int fadefactor = 0xff - extra->fadefactor;
+	const int alphafactor = 0xff - extra->alpha;
+	const int fog = (fogfactor != 0xff);
+	const int fade = (fadefactor != 0xff);
+	const int alpha = (alphafactor != 0xff);
+	const int alpha_all = extra->alpha_enabled;
+	const int alpha_pen = poly_alpha_pen;
+	const int fg_r = extra->fog_r, fg_g = extra->fog_g, fg_b = extra->fog_b;
+	const int fade_r = extra->fade_r, fade_g = extra->fade_g, fade_b = extra->fade_b;
+	const int pfade = extra->pfade_enabled;
+	const int pc_r = extra->polycolor_r, pc_g = extra->polycolor_g, pc_b = extra->polycolor_b;
+	const int tex = extra->texture_enabled, shade_en = extra->shade_enabled;
+	const int prio = extra->prioverchar;
+	const UINT32 *tt = texture_tile32;
+	const UINT8 *tdata = texture_tiledata;
+	const UINT8 *ayx = texture_ayx_to_pixel;
+	int pen = 0, penmask, penshift, x, left = 0;
+	float tu = 0, tv = 0, ti = 0, dtu = 0, dtv = 0, dti = 0;
+	const int stopx = extent->stopx;
+	const UINT32 *ppens;
+	UINT32 *dest = frame + scanline * SCREEN_W;
+	UINT8 *pri = primap + scanline * SCREEN_W;
+
+	setup_cmode(extra, &ppens, &penmask, &penshift);
+
+	for (x = extent->startx; x < stopx; x++)
+	{
+		UINT32 c;
+		int r, g, b;
+
+		if (left == 0)
+			SPAN_SETUP()
+
+		if (tex)
+			TEXEL(tu, tv)
+		c = ppens[(pen >> penshift) & penmask];
+		r = RGB_R(c); g = RGB_G(c); b = RGB_B(c);
+
+		/* shading before fog */
+		if (shade_en)
+		{
+			int shade = (int)ti;
+			SCALE_IMM_CLAMP(r, g, b, shade << 2);
+		}
+
+		if (fog)
+			BLEND(r, g, b, fg_r, fg_g, fg_b, fogfactor);
+
+		if (pfade)
+			SCALE_CLAMP(r, g, b, pc_r, pc_g, pc_b);
+
+		if (fade)
+			BLEND(r, g, b, fade_r, fade_g, fade_b, fadefactor);
+
+		if (alpha && (alpha_all || pen == alpha_pen))
+		{
+			UINT32 d = dest[x];
+			BLEND(r, g, b, (int)RGB_R(d), (int)RGB_G(d), (int)RGB_B(d), alphafactor);
+		}
+
+		dest[x] = TO_RGB(r, g, b);
+		pri[x] = (pri[x] & ~1) | prio;
+
+		tu += dtu;
+		tv += dtv;
+		ti += dti;
+		left--;
+	}
+}
+
+/* the common case: textured and shaded, no poly fade, no global fade, no
+   alpha; with or without fog. Super System 22 shades before the fog, System 22
+   after it. Same results as the generic loops. */
+#define SS22_FAST_BODY(FOG, SHADE_FIRST) \
+	poly3d_t z = extent->param[0].start; \
+	poly3d_t u = extent->param[1].start; \
+	poly3d_t v = extent->param[2].start; \
+	poly3d_t i = extent->param[3].start; \
+	const poly3d_t dz = extent->param[0].dpdx; \
+	const poly3d_t du = extent->param[1].dpdx; \
+	const poly3d_t dv = extent->param[2].dpdx; \
+	const poly3d_t di = extent->param[3].dpdx; \
+	const int bn = extra->bn * 0x1000; \
+	const int fogfactor = 0xff - extra->fogfactor; \
+	const int fg_r = extra->fog_r, fg_g = extra->fog_g, fg_b = extra->fog_b; \
+	const int prio = extra->prioverchar; \
+	const UINT32 *tt = texture_tile32; \
+	const UINT8 *tdata = texture_tiledata; \
+	const UINT8 *ayx = texture_ayx_to_pixel; \
+	int pen, penmask, penshift, x, left = 0, lastkey = -1; \
+	const UINT8 *tile = tdata, *tileayx = ayx; \
+	float tu = 0, tv = 0, ti = 0, dtu = 0, dtv = 0, dti = 0; \
+	const int stopx = extent->stopx; \
+	const UINT32 *ppens; \
+	UINT32 *dest = frame + scanline * SCREEN_W; \
+	UINT8 *pri = primap + scanline * SCREEN_W; \
+ \
+	setup_cmode(extra, &ppens, &penmask, &penshift); \
+ \
+	for (x = extent->startx; x < stopx; x++) \
+	{ \
+		UINT32 c; \
+		int r, g, b, s; \
+ \
+		if (left == 0) \
+			SPAN_SETUP() \
+		{ \
+			/* the tile only changes every few pixels */ \
+			int tx_ = (int)tu & 0xfff; \
+			int ty_ = ((int)tv & 0xfff) | bn; \
+			int key_ = ((ty_ << 4) & 0xfff00) | (tx_ >> 4); \
+			if (key_ != lastkey) \
+			{ \
+				UINT32 e_ = tt[key_]; \
+				tile = tdata + ((e_ >> 4) & 0xffff00); \
+				tileayx = ayx + ((e_ & 0xf) << 8); \
+				lastkey = key_; \
+			} \
+			pen = tile[tileayx[((ty_ << 4) & 0xf0) | (tx_ & 0xf)]]; \
+		} \
+		c = ppens[(pen >> penshift) & penmask]; \
+ \
+		r = RGB_R(c); g = RGB_G(c); b = RGB_B(c); \
+		if (FOG && !SHADE_FIRST) \
+			BLEND(r, g, b, fg_r, fg_g, fg_b, fogfactor); \
+ \
+		/* shading: a negative factor gives 0, like the clamp */ \
+		s = (int)ti << 2; \
+		if (s < 0) s = 0; \
+		r = (r * s) >> 8; if (r > 255) r = 255; \
+		g = (g * s) >> 8; if (g > 255) g = 255; \
+		b = (b * s) >> 8; if (b > 255) b = 255; \
+ \
+		if (FOG && SHADE_FIRST) \
+			BLEND(r, g, b, fg_r, fg_g, fg_b, fogfactor); \
+ \
+		dest[x] = (r << 16) | (g << 8) | b; \
+		pri[x] = (pri[x] & ~1) | prio; \
+ \
+		tu += dtu; \
+		tv += dtv; \
+		ti += dti; \
+		left--; \
+	}
+
+static void renderscanline_poly_ss22_fast(int scanline, const extent_t *extent, const object_data *extra)
+{
+	SS22_FAST_BODY(0, 1)
+}
+
+static void renderscanline_poly_ss22_fast_fog(int scanline, const extent_t *extent, const object_data *extra)
+{
+	SS22_FAST_BODY(1, 1)
+}
+
+static void renderscanline_poly_fast(int scanline, const extent_t *extent, const object_data *extra)
+{
+	SS22_FAST_BODY(0, 0)
+}
+
+static void renderscanline_poly_fast_fog(int scanline, const extent_t *extent, const object_data *extra)
+{
+	SS22_FAST_BODY(1, 0)
+}
+
+static void renderscanline_sprite(int scanline, const extent_t *extent, const object_data *extra)
+{
+	int y_index = (int)(extent->param[1].start - extra->flipy);
+	float x_index = (float)(extent->param[0].start - extra->flipx);
+	float dx = (float)extent->param[0].dpdx;
+	const UINT32 *pal = extra->pens;
+	int prioverchar = extra->prioverchar;
+	int alphafactor = extra->alpha;
+	int alpha_pen = poly_alpha_pen;
+	int fogfactor = 0xff - extra->fogfactor;
+	int fadefactor = 0xff - extra->fadefactor;
+	const UINT8 *source = extra->source + y_index * extra->line_modulo;
+	UINT32 *dest = frame + scanline * SCREEN_W;
+	UINT8 *pri = primap + scanline * SCREEN_W;
+	int x;
+
+	for (x = extent->startx; x < extent->stopx; x++)
+	{
+		int pen = source[(int)x_index];
+		if (pen != 0xff)
+		{
+			UINT32 c = pal[pen];
+			int r = RGB_R(c), g = RGB_G(c), b = RGB_B(c);
+
+			if (fogfactor != 0xff)
+				BLEND(r, g, b, extra->fog_r, extra->fog_g, extra->fog_b, fogfactor);
+
+			if (fadefactor != 0xff)
+				BLEND(r, g, b, extra->fade_r, extra->fade_g, extra->fade_b, fadefactor);
+
+			if (alphafactor != 0xff && (extra->alpha_enabled || pen == alpha_pen))
+				BLEND(r, g, b, (int)RGB_R(dest[x]), (int)RGB_G(dest[x]), (int)RGB_B(dest[x]), alphafactor);
+
+			dest[x] = TO_RGB(r, g, b);
+			pri[x] = (pri[x] & ~1) | prioverchar;
+		}
+		x_index += dx;
+	}
+}
+
+static void dispatch_scanline_poly(const raster_clip *rc, scanline_func callback, const object_data *extra, int clipverts, const vertex_t *clipv)
+{
+	switch (clipverts)
+	{
+		case 3: render_triangle(rc, callback, extra, 4, &clipv[0], &clipv[1], &clipv[2]); break;
+		case 4: case 5: case 6: render_polygon(rc, callback, extra, 4, clipverts, clipv); break;
+	}
+}
+
+/* the clip rectangle of a primitive, on the screen; 0 if empty */
+static int make_clip(raster_clip *rc, const raster_clip *band, int minx, int maxx, int miny, int maxy)
+{
+	rc->minx = (minx > 0) ? minx : 0;
+	rc->maxx = (maxx < SCREEN_W - 1) ? maxx : SCREEN_W - 1;
+	rc->miny = (miny > 0) ? miny : 0;
+	rc->maxy = (maxy < SCREEN_H - 1) ? maxy : SCREEN_H - 1;
+	rc->band = band->band;
+	rc->nbands = band->nbands;
+	return rc->minx <= rc->maxx && rc->miny <= rc->maxy;
+}
+
+
+/***************************************************************************
+    Quads and sprites
+***************************************************************************/
+
+static void poly3d_drawquad(const raster_clip *band, struct scenenode *node)
+{
+	vertex_t v[4];
+	vertex_t clipv[6];
+	int clipverts, vertnum;
+	int direct = node->data.quad.direct;
+	int cx = 320 + node->data.quad.vx;
+	int cy = 240 + node->data.quad.vy;
+	int color, cz_value, cz_type, cz_adj, objflags;
+	object_data extra;
+	raster_clip rc;
+
+	/* scene clip */
+	if (!make_clip(&rc, band, cx + node->data.quad.vl, cx - node->data.quad.vr - 1, cy + node->data.quad.vu, cy - node->data.quad.vd - 1))
+		return;
+
+	if (!direct)
+	{
+		/* project and z-clip */
+		for (vertnum = 0; vertnum < 4; vertnum++)
+		{
+			v[vertnum].x = node->data.quad.v[vertnum].x;
+			v[vertnum].y = node->data.quad.v[vertnum].y;
+			v[vertnum].p[0] = node->data.quad.v[vertnum].z;
+			v[vertnum].p[1] = node->data.quad.v[vertnum].u;
+			v[vertnum].p[2] = node->data.quad.v[vertnum].v;
+			v[vertnum].p[3] = node->data.quad.v[vertnum].bri;
+		}
+
+		clipverts = zclip_if_less(4, v, clipv, 4, 0.00001);
+		if (clipverts < 3)
+			return;
+
+		for (vertnum = 0; vertnum < clipverts; vertnum++)
+		{
+			poly3d_t ooz = 1.0 / clipv[vertnum].p[0];
+			clipv[vertnum].x = cx + clipv[vertnum].x * ooz;
+			clipv[vertnum].y = cy - clipv[vertnum].y * ooz;
+			clipv[vertnum].p[0] = ooz;
+			clipv[vertnum].p[1] = (clipv[vertnum].p[1] + 0.5) * ooz;
+			clipv[vertnum].p[2] = (clipv[vertnum].p[2] + 0.5) * ooz;
+			clipv[vertnum].p[3] = (clipv[vertnum].p[3] + 0.5) * ooz;
+		}
+	}
+	else
+	{
+		/* direct: no clipping, z is 1/z */
+		clipverts = 4;
+		for (vertnum = 0; vertnum < 4; vertnum++)
+		{
+			poly3d_t ooz = node->data.quad.v[vertnum].z;
+			clipv[vertnum].x = cx + node->data.quad.v[vertnum].x;
+			clipv[vertnum].y = cy - node->data.quad.v[vertnum].y;
+			clipv[vertnum].p[0] = ooz;
+			clipv[vertnum].p[1] = (node->data.quad.v[vertnum].u + 0.5) * ooz;
+			clipv[vertnum].p[2] = (node->data.quad.v[vertnum].v + 0.5) * ooz;
+			clipv[vertnum].p[3] = (node->data.quad.v[vertnum].bri + 0.5) * ooz;
+		}
+	}
+
+	color = node->data.quad.color;
+	cz_value = node->data.quad.cz_value;
+	cz_type = node->data.quad.cz_type;
+	cz_adj = node->data.quad.cz_adjust;
+	objflags = node->data.quad.objectflags;
+
+	memset(&extra, 0, sizeof(extra));
+	extra.pfade_enabled = 0;
+	extra.alpha_enabled = 0;
+	extra.shade_enabled = 1;
+	extra.texture_enabled = 1;
+	extra.fadefactor = 0;
+	extra.fogfactor = 0;
+
+	extra.pens = &pens[(color & 0x7f) << 8];
+	extra.bn = node->data.quad.texturebank;
+	extra.cmode = node->data.quad.cmode;
+	extra.prioverchar = ((node->data.quad.cmode & 7) == 1) ? 1 : 0;
+	extra.prioverchar |= namcos22_is_ss22 ? 2 : 0;
+
+	if (namcos22_is_ss22)
+	{
+		/* global fade */
+		if (mixer_flags & 1)
+		{
+			extra.fadefactor = screen_fade_factor;
+			extra.fade_r = screen_fade_r; extra.fade_g = screen_fade_g; extra.fade_b = screen_fade_b;
+		}
+
+		/* poly fade */
+		extra.pfade_enabled = poly_fade_enabled;
+		extra.polycolor_r = poly_fade_r; extra.polycolor_g = poly_fade_g; extra.polycolor_b = poly_fade_b;
+
+		/* alpha */
+		extra.alpha = poly_alpha_factor;
+		extra.alpha_enabled = (color & 0x7f) != poly_alpha_color;
+
+		/* poly fog */
+		if (~color & 0x80)
+		{
+			int bank = (czattr[6] >> (cz_type * 2)) & 3;
+			int bank_enabled = (czattr[4] >> (bank * 4)) & 4;
+
+			if (bank_enabled)
 			{
-				x1 = clip->max_x;
-			}
-         bn *= 0x1000;
+				INT16 delta = czattr[bank];
+				int fogfactor;
 
-         if( mbSuperSystem22 )
-         {
-				if( !fogDisable )
-				{
-					int cz = flags>>8;
-					static const int cztype_remap[4] = { 3,1,2,0 };
-	            int cztype = flags&3;
-	            if( nthword(namcos22_czattr,4)&(0x4000>>(cztype*4)) )
-	            {
-	               int fogDelta = (INT16)nthword(namcos22_czattr, cztype);
-			//          if( fogDelta == 0x8000 ) fogDelta = -0x7fff;
-	               //cz = Clamp256(cz+fogDelta);
-	               fogDensity = fogDelta + namcos22_czram[cztype_remap[cztype]][cz];
-						if( fogDensity<0x0000 )
-						{
-							fogDensity = 0x0000;
-						}
-						else if( fogDensity>0x1fff )
-						{
-							fogDensity = 0x1fff;
-						}
-					}
-				}
-         }
-			else
-			{
-				fogDisable = 1;
-			}
+				/* sign-extend */
+				if (delta < 0) delta |= 0xff00;
+				else delta &= 0x00ff;
 
-         for( x=x0; x<x1; x++ )
-			{
-				if( pCharPri[x]==0 || prioverchar )
-				{
-					float ooz = 1.0f/z;
-					int pen = texel((int)(u * ooz),bn+(int)(v*ooz));
-					switch( cmode )
-					{
-					case 0x2:
-						 pen = 0xe0|(pen>>4);
-						 break;
-					case 0x3:
-						pen = 0xe0|(pen&0xf);
-						break;
-					case 0x4:
-						pen = 0xec|(pen>>6);
-						break;
-					case 0x5:
-						pen = 0xec|((pen>>4)&3);
-						break;
-					case 0x6:
-						pen = 0xec|((pen>>2)&3);
-						break;
-					case 0x7:
-						pen = 0xec|(pen&3);
-						break;
-					case 0xa:
-						pen = 0xf0|(pen>>4);
-						break;
-					case 0xb:
-						pen = 0xf0|(pen&0xf);
-						break;
-					case 0xc:
-						pen = 0xfc|(pen>>6);
-						break;
-					case 0xd:
-						pen = 0xfc|((pen>>4)&3);
-						break;
-					case 0xe:
-						pen = 0xfc|((pen>>2)&3);
-						break;
-					case 0xf:
-						pen = 0xfc|(pen&3);
-						break;
-					default:
-						break;
-					}
+				extra.fog_r = fog_r; extra.fog_g = fog_g; extra.fog_b = fog_b;
 
-					{
-						UINT32 rgb = pens[pen];
-						int shade = i*ooz;
-	   				int r = rgb>>16;
-						int g = (rgb>>8)&0xff;
-						int b = rgb&0xff;
-		            r = r*shade/0x40;
-		            if( r>0xff ) r = 0xff;
-			         g = g*shade/0x40;
-				      if( g>0xff ) g = 0xff;
-					   b = b*shade/0x40;
-		   			if( b>0xff ) b = 0xff;
-						if( !fogDisable )
-						{
-						   int fogDensity2 = 0x2000 - fogDensity;
-						   r = (r*fogDensity2 + fogDensity*mixer.rFogColor)>>13;
-						   g = (g*fogDensity2 + fogDensity*mixer.gFogColor)>>13;
-						   b = (b*fogDensity2 + fogDensity*mixer.bFogColor)>>13;
-						}
-						if( fadeEnable )
-						{
-							int fade2 = 0x100-mixer.fadeFactor;
-							r = (r*fade2+mixer.fadeFactor*mixer.rFadeColor)>>8;
-							g = (g*fade2+mixer.fadeFactor*mixer.gFadeColor)>>8;
-							b = (b*fade2+mixer.fadeFactor*mixer.bFadeColor)>>8;
-						}
-						if( prioverchar )
-						{
-							UINT32 color = pDest[x];
-							int tr = color>>16;
-							int tg = (color>>8)&0xff;
-							int tb = color&0xff;
-							int trans1 = 0x100 - mixer.poly_translucency;
-							r = (tr*mixer.poly_translucency + r*trans1)/0x100;
-							g = (tg*mixer.poly_translucency + g*trans1)/0x100;
-							b = (tb*mixer.poly_translucency + b*trans1)/0x100;
-						}
-						rgb = (r<<16)|(g<<8)|b;
-						pDest[x] = rgb;
-					}
-				}
-
-            u += du;
-				v += dv;
-				i += di;
-				z += dz;
+				fogfactor = recalc_czram[bank][cz_value] + delta;
+				extra.fogfactor = (fogfactor < 0) ? 0 : (fogfactor > 0xff) ? 0xff : fogfactor;
 			}
 		}
 	}
-} /* renderscanline_uvi_full */
-
-static void
-rendertri(
-		mame_bitmap *bitmap,
-		const rectangle *clip,
-      int color,
-      int bn,
-		const vertex *v0,
-		const vertex *v1,
-		const vertex *v2,
-      UINT16 flags,
-		int cmode )
-{
-	int dy,ystart,yend,crop;
-
-	/* first, sort so that v0->y <= v1->y <= v2->y */
-	for(;;)
+	else
 	{
-		if( v0->y > v1->y )
+		/* poly fog */
+		if (~color & 0x80)
 		{
-			SWAP(v0,v1);
+			int cz_color = cz_type & ((fog_colormask >> (8 * (3 - cz_type))) & 0xff);
+			extra.fog_r = fog_r_per_cztype[cz_color];
+			extra.fog_g = fog_g_per_cztype[cz_color];
+			extra.fog_b = fog_b_per_cztype[cz_color];
+			extra.fogfactor = NTHBYTE32(namcos22_czram, (cz_type << 13) | cz_value);
 		}
-		else if( v1->y > v2->y )
+	}
+
+	/* disable textures, shading (and maybe more) */
+	if (objflags)
+	{
+		extra.texture_enabled = 0;
+		extra.cmode = 0;
+
+		if (objflags & 6)
 		{
-			SWAP(v1,v2);
+			/* absolute pen from cz_adjust, no shading */
+			extra.pens = &pens[cz_adj & 0x7fff];
+			extra.shade_enabled = 0;
 		}
 		else
-		{
-			break;
-		}
+			extra.pens += ((cz_adj >> 16) & 0x7f) & (color | 0x1f);
 	}
 
-	ystart = v0->y;
-	yend   = v2->y;
-	dy = yend-ystart;
-	if( dy )
+	/* disable poly fog */
+	if (cz_adj & 0x800000)
+		extra.fogfactor = 0;
+
+	if (namcos22_is_ss22)
 	{
-		int y;
-		edge e1; /* short edge (top and bottom) */
-		edge e2; /* long (common) edge */
-
-		float oody = 1.0f / (float)dy;
-
-		float dx2dy = (v2->x - v0->x)*oody;
-		float du2dy = (v2->u - v0->u)*oody;
-		float dv2dy = (v2->v - v0->v)*oody;
-		float di2dy = (v2->i - v0->i)*oody;
-		float dz2dy = (v2->z - v0->z)*oody;
-
-		float dx1dy;
-		float du1dy;
-		float dv1dy;
-		float di1dy;
-		float dz1dy;
-
-		e2.x = v0->x;
-		e2.u = v0->u;
-		e2.v = v0->v;
-		e2.i = v0->i;
-		e2.z = v0->z;
-		crop = clip->min_y - ystart;
-		if( crop>0 )
-		{
-			e2.x += dx2dy*crop;
-			e2.u += du2dy*crop;
-			e2.v += dv2dy*crop;
-			e2.i += di2dy*crop;
-			e2.z += dz2dy*crop;
-		}
-
-		ystart = v0->y;
-		yend = v1->y;
-		dy = yend-ystart;
-
-		if( dy )
-		{
-			e1.x = v0->x;
-			e1.u = v0->u;
-			e1.v = v0->v;
-			e1.i = v0->i;
-			e1.z = v0->z;
-
-			oody = 1.0f / (float)dy;
-			dx1dy = (v1->x - v0->x)*oody;
-			du1dy = (v1->u - v0->u)*oody;
-			dv1dy = (v1->v - v0->v)*oody;
-			di1dy = (v1->i - v0->i)*oody;
-			dz1dy = (v1->z - v0->z)*oody;
-
-			crop = clip->min_y - ystart;
-			if( crop>0 )
-			{
-				e1.x += dx1dy*crop;
-				e1.u += du1dy*crop;
-				e1.v += dv1dy*crop;
-				e1.i += di1dy*crop;
-				e1.z += dz1dy*crop;
-				ystart = clip->min_y;
-			}
-			if( yend>clip->max_y ) yend = clip->max_y;
-
-			for( y=ystart; y<yend; y++ )
-			{
-				renderscanline_uvi_full( bitmap, clip, &e1, &e2, y, color, bn, flags, cmode );
-
-				e2.x += dx2dy;
-				e2.u += du2dy;
-				e2.v += dv2dy;
-				e2.i += di2dy;
-				e2.z += dz2dy;
-
-				e1.x += dx1dy;
-				e1.u += du1dy;
-				e1.v += dv1dy;
-				e1.i += di1dy;
-				e1.z += dz1dy;
-			}
-		}
-
-		ystart = v1->y;
-		yend = v2->y;
-		dy = yend-ystart;
-		if( dy )
-		{
-			e1.x = v1->x;
-			e1.u = v1->u;
-			e1.v = v1->v;
-			e1.i = v1->i;
-			e1.z = v1->z;
-
-			oody = 1.0f / (float)dy;
-			dx1dy = (v2->x - v1->x)*oody;
-			du1dy = (v2->u - v1->u)*oody;
-			dv1dy = (v2->v - v1->v)*oody;
-			di1dy = (v2->i - v1->i)*oody;
-			dz1dy = (v2->z - v1->z)*oody;
-
-			crop = clip->min_y - ystart;
-			if( crop>0 )
-			{
-				e1.x += dx1dy*crop;
-				e1.u += du1dy*crop;
-				e1.v += dv1dy*crop;
-				e1.i += di1dy*crop;
-				e1.z += dz1dy*crop;
-				ystart = clip->min_y;
-			}
-			if( yend>clip->max_y ) yend = clip->max_y;
-
-			for( y=ystart; y<yend; y++ )
-			{
-				renderscanline_uvi_full( bitmap, clip, &e1,&e2,y, color, bn, flags, cmode );
-
-				e2.x += dx2dy;
-				e2.u += du2dy;
-				e2.v += dv2dy;
-				e2.i += di2dy;
-				e2.z += dz2dy;
-
-				e1.x += dx1dy;
-				e1.u += du1dy;
-				e1.v += dv1dy;
-				e1.i += di1dy;
-				e1.z += dz1dy;
-			}
-		}
-	}
-} /* rendertri */
-
-static void
-ProjectPoint( const Poly3dVertex *v, vertex *pv, int bDirect )
-{
-	float ooz;
-   if( bDirect )
-   {
-      ooz = v->z;
-      pv->x = mClip.cx + v->x;
-      pv->y = mClip.cy - v->y;
-   }
-   else
-   {
-      ooz = 1.0f/v->z;
-      pv->x = mClip.cx + v->x*ooz;
-   	pv->y = mClip.cy - v->y*ooz;
-   }
-   pv->z = ooz;
-	pv->u = (v->u+0.5f)*ooz;
-	pv->v = (v->v+0.5f)*ooz;
-	pv->i = (v->bri+0.5f)*ooz;
-} /* ProjectPoint */
-
-static void
-BlitTriHelper(
-		mame_bitmap *pBitmap,
-		const Poly3dVertex *v0,
-		const Poly3dVertex *v1,
-		const Poly3dVertex *v2,
-		unsigned color,
-      int bn,
-      UINT16 flags,
-      int bDirect,
-		int cmode )
-{
-	vertex a,b,c;
-   ProjectPoint( v0,&a,bDirect );
-   ProjectPoint( v1,&b,bDirect );
-   ProjectPoint( v2,&c,bDirect );
-   rendertri( pBitmap, &mClip.scissor, color, bn, &a, &b, &c, flags, cmode );
-} /* BlitTriHelper */
-
-static float
-interp( float x0, float ns3d_y0, float x1, float ns3d_y1 )
-{
-	float m = (ns3d_y1-ns3d_y0)/(x1-x0);
-	float b = ns3d_y0 - m*x0;
-	return m*MIN_Z+b;
-}
-
-static int
-VertexEqual( const Poly3dVertex *a, const Poly3dVertex *b )
-{
-	return
-		a->x == b->x &&
-		a->y == b->y &&
-		a->z == b->z;
-}
-
-static void
-BlitTri(
-	mame_bitmap *pBitmap,
-	const Poly3dVertex *pv[3],
-	int color,
-   int bn,
-   UINT16 flags,
-   int bDirect,
-	int cmode )
-{
-	Poly3dVertex vc[3];
-	int i,j;
-	int iBad = 0, iGood = 0;
-	int bad_count = 0;
-
-   if( bDirect )
-   {
-		BlitTriHelper( pBitmap, pv[0],pv[1],pv[2], color,bn,flags,bDirect,cmode );
-      return;
-   }
-
-	/* don't bother rendering a degenerate triangle */
-	if( VertexEqual(pv[0],pv[1]) ) return;
-	if( VertexEqual(pv[0],pv[2]) ) return;
-	if( VertexEqual(pv[1],pv[2]) ) return;
-
-	for( i=0; i<3; i++ )
-	{
-		if( pv[i]->z<MIN_Z )
-		{
-			bad_count++;
-			iBad = i;
-		}
+		if (extra.texture_enabled && extra.shade_enabled && !extra.pfade_enabled && extra.fadefactor == 0 && extra.alpha == 0)
+			dispatch_scanline_poly(&rc, extra.fogfactor ? renderscanline_poly_ss22_fast_fog : renderscanline_poly_ss22_fast, &extra, clipverts, clipv);
 		else
-		{
-			iGood = i;
-		}
+			dispatch_scanline_poly(&rc, renderscanline_poly_ss22, &extra, clipverts, clipv);
 	}
-
-	switch( bad_count )
-	{
-	case 0:
-		BlitTriHelper( pBitmap, pv[0],pv[1],pv[2], color,bn,flags,bDirect,cmode );
-		break;
-
-	case 1:
-		vc[0] = *pv[0];
-      vc[1] = *pv[1];
-      vc[2] = *pv[2];
-
-		i = (iBad+1)%3;
-		vc[iBad].x   = interp( pv[i]->z,pv[i]->x,   pv[iBad]->z, pv[iBad]->x  );
-		vc[iBad].y   = interp( pv[i]->z,pv[i]->y,   pv[iBad]->z, pv[iBad]->y  );
-		vc[iBad].u   = interp( pv[i]->z,pv[i]->u,   pv[iBad]->z, pv[iBad]->u );
-		vc[iBad].v   = interp( pv[i]->z,pv[i]->v,   pv[iBad]->z, pv[iBad]->v );
-		vc[iBad].bri = interp( pv[i]->z,pv[i]->bri, pv[iBad]->z, pv[iBad]->bri );
-		vc[iBad].z = MIN_Z;
-		BlitTriHelper( pBitmap, &vc[0],&vc[1],&vc[2], color,bn,flags,bDirect,cmode );
-
-		j = (iBad+2)%3;
-		vc[i].x   = interp(pv[j]->z,pv[j]->x,   pv[iBad]->z,pv[iBad]->x  );
-		vc[i].y   = interp(pv[j]->z,pv[j]->y,   pv[iBad]->z,pv[iBad]->y  );
-		vc[i].u   = interp(pv[j]->z,pv[j]->u,   pv[iBad]->z,pv[iBad]->u );
-		vc[i].v   = interp(pv[j]->z,pv[j]->v,   pv[iBad]->z,pv[iBad]->v );
-		vc[i].bri = interp(pv[j]->z,pv[j]->bri, pv[iBad]->z,pv[iBad]->bri );
-		vc[i].z = MIN_Z;
-		BlitTriHelper( pBitmap, &vc[0],&vc[1],&vc[2], color,bn,flags,bDirect,cmode );
-		break;
-
-	case 2:
-		vc[0] = *pv[0];
-      vc[1] = *pv[1];
-      vc[2] = *pv[2];
-
-		i = (iGood+1)%3;
-		vc[i].x   = interp(pv[iGood]->z,pv[iGood]->x,   pv[i]->z,pv[i]->x  );
-		vc[i].y   = interp(pv[iGood]->z,pv[iGood]->y,   pv[i]->z,pv[i]->y  );
-		vc[i].u   = interp(pv[iGood]->z,pv[iGood]->u,   pv[i]->z,pv[i]->u );
-		vc[i].v   = interp(pv[iGood]->z,pv[iGood]->v,   pv[i]->z,pv[i]->v );
-		vc[i].bri = interp(pv[iGood]->z,pv[iGood]->bri, pv[i]->z,pv[i]->bri );
-		vc[i].z = MIN_Z;
-
-		i = (iGood+2)%3;
-		vc[i].x   = interp(pv[iGood]->z,pv[iGood]->x,   pv[i]->z,pv[i]->x  );
-		vc[i].y   = interp(pv[iGood]->z,pv[iGood]->y,   pv[i]->z,pv[i]->y  );
-		vc[i].u   = interp(pv[iGood]->z,pv[iGood]->u,   pv[i]->z,pv[i]->u );
-		vc[i].v   = interp(pv[iGood]->z,pv[iGood]->v,   pv[i]->z,pv[i]->v );
-		vc[i].bri = interp(pv[iGood]->z,pv[iGood]->bri, pv[i]->z,pv[i]->bri );
-		vc[i].z = MIN_Z;
-
-		BlitTriHelper( pBitmap, &vc[0],&vc[1],&vc[2], color,bn,flags,bDirect,cmode );
-		break;
-
-	case 3:
-		/* wholly clipped */
-		break;
-	}
-} /* BlitTri */
-
-static void
-poly3d_DrawQuad( mame_bitmap *pBitmap, int textureBank, int color, Poly3dVertex v[4], UINT16 flags, int bDirect, int cmode )
-{
-   const Poly3dVertex *pv[3];
-
-   pv[0] = &v[0];
-   pv[1] = &v[1];
-   pv[2] = &v[2];
-   BlitTri( pBitmap, pv, color, textureBank, flags, bDirect, cmode );
-
-   pv[0] = &v[2];
-   pv[1] = &v[3];
-   pv[2] = &v[0];
-   BlitTri( pBitmap, pv, color, textureBank, flags, bDirect, cmode );
+	else if (extra.texture_enabled && extra.shade_enabled)
+		dispatch_scanline_poly(&rc, extra.fogfactor ? renderscanline_poly_fast_fog : renderscanline_poly_fast, &extra, clipverts, clipv);
+	else
+		dispatch_scanline_poly(&rc, renderscanline_poly, &extra, clipverts, clipv);
 }
 
-static void
-mydrawgfxzoom(
-	mame_bitmap *dest_bmp,const gfx_element *gfx,
-	unsigned int code,unsigned int color,int flipx,int flipy,int sx,int sy,
-	const rectangle *clip,int transparency,int transparent_color,
-	int scalex, int scaley, int z, int prioverchar )
+static void poly3d_drawsprite(const raster_clip *rc, UINT32 code, UINT32 color, int flipx, int flipy, int sx, int sy,
+	int scalex, int scaley, int cz_factor, int prioverchar, int fade_enabled, int alpha)
 {
-	rectangle myclip;
-	if (!scalex || !scaley) return;
-	if(clip)
-	{
-		myclip.min_x = clip->min_x;
-		myclip.max_x = clip->max_x;
-		myclip.min_y = clip->min_y;
-		myclip.max_y = clip->max_y;
+	int sprite_screen_height = (scaley * 32 + 0x8000) >> 16;
+	int sprite_screen_width = (scalex * 32 + 0x8000) >> 16;
 
-		if (myclip.min_x < 0) myclip.min_x = 0;
-		if (myclip.max_x >= dest_bmp->width) myclip.max_x = dest_bmp->width-1;
-		if (myclip.min_y < 0) myclip.min_y = 0;
-		if (myclip.max_y >= dest_bmp->height) myclip.max_y = dest_bmp->height-1;
-
-		clip=&myclip;
-	}
-	if( gfx && gfx->colortable )
+	if (sprite_screen_width && sprite_screen_height)
 	{
-		const pen_t *pal = &gfx->colortable[gfx->color_granularity * (color % gfx->total_colors)];
-		UINT8 *source_base = gfx->gfxdata + (code % gfx->total_elements) * gfx->char_modulo;
-		int sprite_screen_height = (scaley*gfx->height+0x8000)>>16;
-		int sprite_screen_width = (scalex*gfx->width+0x8000)>>16;
-		if (sprite_screen_width && sprite_screen_height)
+		poly3d_t fsx = sx, fsy = sy;
+		poly3d_t fsw = sprite_screen_width, fsh = sprite_screen_height;
+		object_data extra;
+		vertex_t vert[4];
+
+		memset(&extra, 0, sizeof(extra));
+		extra.fadefactor = 0;
+		extra.fogfactor = 0;
+		extra.prioverchar = 2 | prioverchar;
+		extra.line_modulo = 32;
+		extra.flipx = flipx;
+		extra.flipy = flipy;
+		extra.pens = &pens[(color & 0x7f) << 8];
+		extra.source = sprite_data + (code % sprite_count) * 32 * 32;
+
+		vert[0].x = fsx;       vert[0].y = fsy;       vert[0].p[0] = 0;  vert[0].p[1] = 0;
+		vert[1].x = fsx + fsw; vert[1].y = fsy;       vert[1].p[0] = 32; vert[1].p[1] = 0;
+		vert[2].x = fsx + fsw; vert[2].y = fsy + fsh; vert[2].p[0] = 32; vert[2].p[1] = 32;
+		vert[3].x = fsx;       vert[3].y = fsy + fsh; vert[3].p[0] = 0;  vert[3].p[1] = 32;
+
+		/* global fade */
+		if ((mixer_flags & 2) || fade_enabled)
 		{
-			int dx = (gfx->width<<16)/sprite_screen_width;
-			int dy = (gfx->height<<16)/sprite_screen_height;
-			int ex = sx+sprite_screen_width;
-			int ey = sy+sprite_screen_height;
-			int x_index_base;
-			int y_index;
+			extra.fadefactor = screen_fade_factor;
+			extra.fade_r = screen_fade_r; extra.fade_g = screen_fade_g; extra.fade_b = screen_fade_b;
+		}
 
-         int bFogEnable = 0;
-         INT16 fogDelta = 0;
-			int fadeEnable = (mixer.target&2) && mixer.fadeFactor;
+		/* sprite fog */
+		if ((~color & 0x80) && cz_factor > 0)
+		{
+			extra.fogfactor = cz_factor;
+			extra.fog_r = fog_r; extra.fog_g = fog_g; extra.fog_b = fog_b;
+		}
 
-         if( mbSuperSystem22 )
-         {
-            fogDelta = nthword(namcos22_czattr, 0 );
-            bFogEnable = nthword(namcos22_czattr,4)&0x4000; /* ? */
-         }
-			else
-			{
-				bFogEnable = 0;
-			}
+		/* alpha */
+		extra.alpha = alpha;
+		extra.alpha_enabled = (color & 0x7f) != poly_alpha_color;
 
-			if( flipx )
-			{
-				x_index_base = (sprite_screen_width-1)*dx;
-				dx = -dx;
-			}
+		render_polygon(rc, renderscanline_sprite, &extra, 2, 4, vert);
+	}
+}
+
+static void render_sprite(const raster_clip *band, struct scenenode *node)
+{
+	int offset = 0, row, col;
+	raster_clip rc;
+
+	if (!make_clip(&rc, band, node->data.sprite.cx_min, node->data.sprite.cx_max, node->data.sprite.cy_min, node->data.sprite.cy_max))
+		return;
+
+	for (row = 0; row < node->data.sprite.rows; row++)
+	{
+		for (col = 0; col < node->data.sprite.cols; col++)
+		{
+			int code = node->data.sprite.tile;
+			if (node->data.sprite.linktype == 0xff)
+				code += offset;
 			else
-			{
-				x_index_base = 0;
-			}
-			if( flipy )
-			{
-				y_index = (sprite_screen_height-1)*dy;
-				dy = -dy;
-			}
-			else
-			{
-				y_index = 0;
-			}
-			if( clip )
-			{
-				if( sx < clip->min_x)
-				{ /* clip left */
-					int pixels = clip->min_x-sx;
-					sx += pixels;
-					x_index_base += pixels*dx;
-				}
-				if( sy < clip->min_y )
-				{ /* clip top */
-					int pixels = clip->min_y-sy;
-					sy += pixels;
-					y_index += pixels*dy;
-				}
-				if( ex > clip->max_x+1 )
-				{ /* clip right */
-					int pixels = ex-clip->max_x-1;
-					ex -= pixels;
-				}
-				if( ey > clip->max_y+1 )
-				{ /* clip bottom */
-					int pixels = ey-clip->max_y-1;
-					ey -= pixels;
-				}
-			}
-			if( ex>sx )
-			{ /* skip if inner loop doesn't draw anything */
-				int y;
-				for( y=sy; y<ey; y++ )
-				{
-					UINT8 *source = source_base + (y_index>>16) * gfx->line_modulo;
-					UINT32 *dest = (UINT32 *)dest_bmp->line[y];
-					const UINT8 *pCharPri = (UINT8 *)priority_bitmap->line[y];
-					int x, x_index = x_index_base;
-					for( x=sx; x<ex; x++ )
-					{
-						int pen = source[x_index>>16];
-						if( pen != transparent_color )
-						{
-							if( pCharPri[x]==0 || prioverchar )
-							{
-	                     UINT32 color = pal[pen];
-		                  int r = color>>16;
-			               int g = (color>>8)&0xff;
-				      		int b = color&0xff;
-	                     if( bFogEnable && z!=0xffff )
-		                  {
-			                  int zc = Clamp256(fogDelta + z);
-				               UINT16 fogDensity = namcos22_czram[3][zc];
-					            if( fogDensity>0 )
-						         {
-							         int fogDensity2 = 0x2000 - fogDensity;
-								      r = (r*fogDensity2 + fogDensity*mixer.rFogColor)>>13;
-									   g = (g*fogDensity2 + fogDensity*mixer.gFogColor)>>13;
-										b = (b*fogDensity2 + fogDensity*mixer.bFogColor)>>13;
-									}
-								}
-	                     if( fadeEnable )
-		                  {
-			                  int fade2 = 0x100-mixer.fadeFactor;
-				               r = (r*fade2+mixer.fadeFactor*mixer.rFadeColor)>>8;
-					            g = (g*fade2+mixer.fadeFactor*mixer.gFadeColor)>>8;
-						         b = (b*fade2+mixer.fadeFactor*mixer.bFadeColor)>>8;
-							   }
-	                     color = (r<<16)|(g<<8)|b;
-		                  color = alpha_blend32(dest[x], color);
-			               color&=0xffffff;
-				            dest[x] = color;
-							}
-						}
-						x_index += dx;
-					}
-					y_index += dy;
-				}
-			}
+				code += NTHWORD32(&namcos22_spriteram[0x800 / 4], offset + node->data.sprite.linktype * 4);
+
+			poly3d_drawsprite(
+				&rc,
+				code,
+				node->data.sprite.color,
+				node->data.sprite.flipx,
+				node->data.sprite.flipy,
+				node->data.sprite.xpos + col * node->data.sprite.sizex,
+				node->data.sprite.ypos + row * node->data.sprite.sizey,
+				(node->data.sprite.sizex << 16) / 32,
+				(node->data.sprite.sizey << 16) / 32,
+				node->data.sprite.cz,
+				node->data.sprite.prioverchar,
+				node->data.sprite.fade_enabled,
+				0xff - node->data.sprite.alpha);
+			offset++;
 		}
 	}
-} /* mydrawgfxzoom */
+}
 
-static void
-ApplyGamma( mame_bitmap *bitmap )
+static void render_scene_nodes(const raster_clip *band, const struct scenenode *node)
 {
-	int x,y;
-	if( mbSuperSystem22 )
-   { /* super system 22 */
-#ifdef LSB_FIRST
-#define XORPAT 0x3
-#else
-#define XORPAT 0x0
+	if (!node)
+		return;
+
+	if (node->type == NODE_NONLEAF)
+	{
+		int i;
+		for (i = RADIX_BUCKETS - 1; i >= 0; i--)
+			render_scene_nodes(band, node->data.nonleaf.next[i]);
+	}
+	else
+	{
+		while (node)
+		{
+			if (node->type == NODE_QUAD)
+				poly3d_drawquad(band, (struct scenenode *)node);
+			else if (node->type == NODE_SPRITE)
+				render_sprite(band, (struct scenenode *)node);
+			node = node->next;
+		}
+	}
+}
+
+/* the scene, by the scanlines of one band */
+static void render_scene_band(int bandnum, int nbands)
+{
+	raster_clip band;
+	int i;
+
+	band.minx = 0;
+	band.maxx = SCREEN_W - 1;
+	band.miny = 0;
+	band.maxy = SCREEN_H - 1;
+	band.band = bandnum;
+	band.nbands = nbands;
+	for (i = RADIX_BUCKETS - 1; i >= 0; i--)
+		render_scene_nodes(&band, scenenode_root.data.nonleaf.next[i]);
+}
+
+/* Each worker owns disjoint row bands; scene state stays read-only until all
+   bands finish, preserving the serial pixel order within each scanline. */
+#ifdef _OPENMP
+#include <omp.h>
 #endif
-		const UINT8 *rlut = (const UINT8 *)&namcos22_gamma[0x100/4];
-		const UINT8 *glut = (const UINT8 *)&namcos22_gamma[0x200/4];
-		const UINT8 *blut = (const UINT8 *)&namcos22_gamma[0x300/4];
-		for( y=0; y<bitmap->height; y++ )
-		{
-			UINT32 *dest = (UINT32 *)bitmap->line[y];
-			for( x=0; x<bitmap->width; x++ )
-			{
-				int rgb = dest[x];
-				int r = rlut[XORPAT^(rgb>>16)];
-				int g = glut[XORPAT^((rgb>>8)&0xff)];
-				int b = blut[XORPAT^(rgb&0xff)];
-				dest[x] = (r<<16)|(g<<8)|b;
-			}
-		}
-	}
-	else
-	{ /* system 22 */
-		const UINT8 *rlut = 0x000+(const UINT8 *)memory_region(REGION_USER1);
-		const UINT8 *glut = 0x100+(const UINT8 *)memory_region(REGION_USER1);
-		const UINT8 *blut = 0x200+(const UINT8 *)memory_region(REGION_USER1);
-		for( y=0; y<bitmap->height; y++ )
-		{
-			UINT32 *dest = (UINT32 *)bitmap->line[y];
-			for( x=0; x<bitmap->width; x++ )
-			{
-				int rgb = dest[x];
-				int r = rlut[rgb>>16];
-				int g = glut[(rgb>>8)&0xff];
-				int b = blut[rgb&0xff];
-				dest[x] = (r<<16)|(g<<8)|b;
-			}
-		}
-	}
-} /* ApplyGamma */
 
-static void
-poly3d_Draw3dSprite( mame_bitmap *bitmap, gfx_element *gfx, int tileNumber, int color, int sx, int sy, int width, int height, int translucency, int zc, UINT32 pri )
+static void render_frame(void (*job)(int band, int nbands))
 {
-   int flipx = 0;
-   int flipy = 0;
-   rectangle clip;
-   clip.min_x = 0;
-   clip.min_y = 0;
-   clip.max_x = 640-1;
-   clip.max_y = 480-1;
-   alpha_set_level( 0xff - translucency );
-   mydrawgfxzoom(
-      bitmap,
-      gfx,
-      tileNumber,
-      color,
-      flipx, flipy,
-      sx, sy,
-      &clip,
-      TRANSPARENCY_ALPHA, 0xff,
-      (width<<16)/32,
-      (height<<16)/32,
-      zc, pri );
+	int i;
+#ifdef _OPENMP
+	int bands = omp_get_max_threads();
+	if (bands > 4) bands = 4;
+	#pragma omp parallel num_threads(bands)
+	{
+		job(omp_get_thread_num(), omp_get_num_threads());
+	}
+#else
+	job(0, 1);
+#endif
+
+	for (i = 0; i < RADIX_BUCKETS; i++)
+		scenenode_root.data.nonleaf.next[i] = NULL;
+	node_used = 0;
 }
 
-#define DSP_FIXED_TO_FLOAT( X ) (((INT16)(X))/(float)0x7fff)
-#define SPRITERAM_SIZE (0x9b0000-0x980000)
-#define CGRAM_SIZE 0x1e000
-#define NUM_CG_CHARS ((CGRAM_SIZE*8)/(64*16)) /* 0x3c0 */
-
-/* 16 bit access to DSP RAM */
-static UINT16 namcos22_dspram_bank;
-static UINT16 mUpperWordLatch;
-
-static int mbDSPisActive;
-
-/* modal rendering properties */
-static INT32 mAbsolutePriority;
-static INT32 mObjectShiftValue22;
-
-static UINT16 mPrimitiveID; /* 3d primitive to render */
-
-static float mViewMatrix[4][4];
-
-static void
-matrix3d_Multiply( float A[4][4], float B[4][4] )
+/* for the core options: is the "Threaded Video" option of any use here */
+int namcos22_video_threads_available(void)
 {
-	float temp[4][4];
-	int row,col;
+#ifdef _OPENMP
+	return 1;
+#else
+	return 0;
+#endif
+}
 
-	for( row=0;row<4;row++ )
+
+/***************************************************************************
+    Slave DSP simulation: the display list in polygon RAM
+***************************************************************************/
+
+static float dspfixed_to_nativefloat(INT16 val)
+{
+	return val / (float)0x7fff;
+}
+
+static float dspfloat_to_nativefloat(UINT32 val)
+{
+	INT16 mantissa = (INT16)val;
+	float result = (float)mantissa;
+	int exponent = (val >> 16) & 0x3f;
+	while (exponent < 0x2e)
 	{
-		for(col=0;col<4;col++)
-		{
-			float sum = 0.0;
-			int i;
-			for( i=0; i<4; i++ )
-			{
-				sum += A[row][i]*B[i][col];
-			}
-			temp[row][col] = sum;
-		}
+		result /= 2.0f;
+		exponent++;
 	}
-	memcpy( A, temp, sizeof(temp) );
-} /* matrix3d_Multiply */
+	return result;
+}
 
-static void
-matrix3d_Identity( float M[4][4] )
+static void matrix3d_multiply(float a[4][4], float b[4][4])
 {
-	int r,c;
-
-	for( r=0; r<4; r++ )
-	{
-		for( c=0; c<4; c++ )
+	float result[4][4];
+	int row, col, i;
+	for (row = 0; row < 4; row++)
+		for (col = 0; col < 4; col++)
 		{
-			M[r][c] = (r==c)?1.0:0.0;
+			float sum = 0.0f;
+			for (i = 0; i < 4; i++)
+				sum += a[row][i] * b[i][col];
+			result[row][col] = sum;
 		}
-	}
-} /* matrix3d_Identity */
+	memcpy(a, result, sizeof(result));
+}
 
-static void
-TransformPoint( float *vx, float *vy, float *vz, float m[4][4] )
+static void matrix3d_identity(float m[4][4])
 {
-	float x = *vx;
-	float y = *vy;
-	float z = *vz;
+	int row, col;
+	for (row = 0; row < 4; row++)
+		for (col = 0; col < 4; col++)
+			m[row][col] = (row == col) ? 1.0f : 0.0f;
+}
+
+static void matrix3d_apply_reflection(float m[4][4])
+{
+	float r[4][4];
+	if (!reflection)
+		return;
+	matrix3d_identity(r);
+	if (reflection & 0x10) r[0][0] = -1.0f;
+	if (reflection & 0x20) r[1][1] = -1.0f;
+	matrix3d_multiply(m, r);
+}
+
+static void transform_point(float *vx, float *vy, float *vz, float m[4][4])
+{
+	float x = *vx, y = *vy, z = *vz;
 	*vx = m[0][0]*x + m[1][0]*y + m[2][0]*z + m[3][0];
 	*vy = m[0][1]*x + m[1][1]*y + m[2][1]*z + m[3][1];
 	*vz = m[0][2]*x + m[1][2]*y + m[2][2]*z + m[3][2];
 }
 
-static void
-TransformNormal( float *nx, float *ny, float *nz, float m[4][4] )
+static void transform_normal(float *nx, float *ny, float *nz, float m[4][4])
 {
-	float x = *nx;
-	float y = *ny;
-	float z = *nz;
+	float x = *nx, y = *ny, z = *nz;
 	*nx = m[0][0]*x + m[1][0]*y + m[2][0]*z;
 	*ny = m[0][1]*x + m[1][1]*y + m[2][1]*z;
 	*nz = m[0][2]*x + m[1][2]*y + m[2][2]*z;
 }
 
-#define MAX_LIT_SURFACES 32
-static UINT8 mLitSurfaceInfo[MAX_LIT_SURFACES];
-static INT32 mSurfaceNormalFormat;
-
-static unsigned mLitSurfaceCount;
-static unsigned mLitSurfaceIndex;
-
-static int mPtRomSize;
-static const UINT8 *mpPolyH;
-static const UINT8 *mpPolyM;
-static const UINT8 *mpPolyL;
-
-static struct
-{
-	float zoom, vx, vy, vw, vh;
-	float lx,ly,lz; /* unit vector for light direction */
-	int ambient; /* 0.0..1.0 */
-	int power;	/* 0.0..1.0 */
-} mCamera;
-
-typedef enum
-{
-   eSCENENODE_NONLEAF,
-   eSCENENODE_QUAD3D,
-   eSCENENODE_SPRITE
-} SceneNodeType;
-
-#define RADIX_BITS 4
-#define RADIX_BUCKETS (1<<RADIX_BITS)
-#define RADIX_MASK (RADIX_BUCKETS-1)
-
-struct SceneNode
-{
-   SceneNodeType type;
-   struct SceneNode *nextInBucket;
-   union
-   {
-      struct
-      {
-         struct SceneNode *next[RADIX_BUCKETS];
-      } nonleaf;
-
-      struct
-      {
-         float vx,vy,vw,vh;
-         int textureBank;
-         int color;
-         int cmode;
-         int flags;
-         int bDirect;
-         Poly3dVertex v[4];
-      } quad3d;
-
-      struct
-      {
-         int tile, color, pri;
-         int flipx, flipy;
-			int linkType;
-	      int numcols, numrows;
-	      int xpos, ypos;
-	      int sizex, sizey;
-         int translucency;
-         int cz;
-      } sprite;
-   } data;
-};
-static struct SceneNode mSceneRoot;
-static struct SceneNode *mpFreeSceneNode;
-
-static void
-FreeSceneNode( struct SceneNode *node )
-{
-   node->nextInBucket = mpFreeSceneNode;
-   mpFreeSceneNode = node;
-} /* FreeSceneNode */
-
-static struct SceneNode *
-MallocSceneNode( void )
-{
-   struct SceneNode *node = mpFreeSceneNode;
-   if( node )
-   { /* use free pool */
-      mpFreeSceneNode = node->nextInBucket;
-   }
-   else
-   {
-#define SCENE_NODE_POOL_SIZE 64
-		struct SceneNode *pSceneNodePool = auto_malloc(sizeof(struct SceneNode)*SCENE_NODE_POOL_SIZE);
-		{
-			int i;
-			for( i=0; i<SCENE_NODE_POOL_SIZE; i++ )
-			{
-				FreeSceneNode( &pSceneNodePool[i] );
-			}
-			return MallocSceneNode();
-		}
-   }
-   memset( node, 0, sizeof(*node) );
-   return node;
-} /* MallocSceneNode */
-
-static struct SceneNode *
-NewSceneNode( UINT32 zsortvalue24, SceneNodeType type )
-{
-   struct SceneNode *node = &mSceneRoot;
-   int i;
-   for( i=0; i<24; i+=RADIX_BITS )
-   {
-      int hash = (zsortvalue24>>20)&RADIX_MASK;
-      struct SceneNode *next = node->data.nonleaf.next[hash];
-      if( !next )
-      { /* lazily allocate tree node for this radix */
-         next = MallocSceneNode();
-         next->type = eSCENENODE_NONLEAF;
-         node->data.nonleaf.next[hash] = next;
-      }
-      node = next;
-      zsortvalue24 <<= RADIX_BITS;
-   }
-
-   if( node->type == eSCENENODE_NONLEAF )
-   { /* first leaf allocation on this branch */
-      node->type = type;
-      return node;
-   }
-   else
-   {
-      struct SceneNode *leaf = MallocSceneNode();
-      leaf->type = type;
-#if 0
-      leaf->nextInBucket = node->nextInBucket;
-      node->nextInBucket = leaf;
-#else
-		/* stable insertion sort */
-		leaf->nextInBucket = NULL;
-		while( node->nextInBucket )
-		{
-			node = node->nextInBucket;
-		}
-		node->nextInBucket = leaf;
-#endif
-      return leaf;
-   }
-} /* NewSceneNode */
-
-static void
-RenderSprite( mame_bitmap *bitmap, struct SceneNode *node )
-{
-   int tile = node->data.sprite.tile;
-   int col,row;
-	int i = 0;
-   for( row=0; row<node->data.sprite.numrows; row++ )
-   {
-      for( col=0; col<node->data.sprite.numcols; col++ )
-   	{
-         int code = tile;
-         if( node->data.sprite.linkType == 0xff )
-         {
-            code += i;
-         }
-         else
-         {
-            code += nthword( &spriteram32[0x800/4], i+node->data.sprite.linkType*4 );
-         }
-         poly3d_Draw3dSprite(
-               bitmap,
-               Machine->gfx[GFX_SPRITE],
-               code,
-               node->data.sprite.color,
-               node->data.sprite.xpos+col*node->data.sprite.sizex,
-               node->data.sprite.ypos+row*node->data.sprite.sizey,
-               node->data.sprite.sizex,
-               node->data.sprite.sizey,
-               node->data.sprite.translucency,
-               node->data.sprite.cz,
-               node->data.sprite.pri );
-      	i++;
-      } /* next col */
-	} /* next row */
-} /* RenderSprite */
-
-static void
-RenderSceneHelper( mame_bitmap *bitmap, struct SceneNode *node )
-{
-   if( node )
-   {
-      if( node->type == eSCENENODE_NONLEAF )
-      {
-         int i;
-         for( i=RADIX_BUCKETS-1; i>=0; i-- )
-         {
-            RenderSceneHelper( bitmap, node->data.nonleaf.next[i] );
-         }
-         FreeSceneNode( node );
-      }
-      else
-      {
-         while( node )
-         {
-            struct SceneNode *next = node->nextInBucket;
-
-            switch( node->type )
-            {
-            case eSCENENODE_QUAD3D:
-               poly3d_Clip(
-                  node->data.quad3d.vx,
-                  node->data.quad3d.vy,
-                  node->data.quad3d.vw,
-                  node->data.quad3d.vh );
-               poly3d_DrawQuad(
-                  bitmap,
-                  node->data.quad3d.textureBank,
-                  node->data.quad3d.color,
-                  node->data.quad3d.v,
-                  node->data.quad3d.flags,
-                  node->data.quad3d.bDirect,
-                  node->data.quad3d.cmode );
-               break;
-
-            case eSCENENODE_SPRITE:
-               poly3d_NoClip();
-               RenderSprite( bitmap,node );
-               break;
-
-            default:
-               fatalerror("invalid node->type");
-               break;
-            }
-            FreeSceneNode( node );
-            node = next;
-         }
-      }
-   }
-} /* RenderSceneHelper */
-
-static void
-RenderScene( mame_bitmap *bitmap )
-{
-   struct SceneNode *node = &mSceneRoot;
-   int i;
-   for( i=RADIX_BUCKETS-1; i>=0; i-- )
-   {
-      RenderSceneHelper( bitmap, node->data.nonleaf.next[i] );
-      node->data.nonleaf.next[i] = NULL;
-   }
-   poly3d_NoClip();
-} /* RenderScene */
-
-static float
-DspFloatToNativeFloat( UINT32 iVal )
-{
-   INT16 mantissa = (INT16)iVal;
-   float result = mantissa;//?((float)mantissa):((float)0x10000);
-	int exponent = (iVal>>16)&0xff;
-	while( exponent<0x2e )
-	{
-		result /= 2.0;
-		exponent++;
-	}
-	return result;
-} /* DspFloatToNativeFloat */
-
-static INT32
-GetPolyData( INT32 addr )
-{
-	INT32 result;
-	if( addr<0 || addr>=mPtRomSize )
-	{
-		return -1; /* HACK */
-	}
-	result = (mpPolyH[addr]<<16)|(mpPolyM[addr]<<8)|mpPolyL[addr];
-	if( result&0x00800000 )
-	{
-		result |= 0xff000000; /* sign extend */
-	}
-	return result;
-} /* GetPolyData */
-
-UINT32
-namcos22_point_rom_r( offs_t offs )
-{
-	return GetPolyData(offs);
-}
-
-UINT32 *namcos22_cgram;
-UINT32 *namcos22_textram;
-UINT32 *namcos22_polygonram;
-UINT32 *namcos22_gamma;
-UINT32 *namcos22_vics_data;
-UINT32 *namcos22_vics_control;
-
-/*
-                         0    2    4    6    8    a    b
-                      ^^^^ ^^^^ ^^^^ ^^^^                        cz offset
-                                          ^^^^                   target (4==poly)
-                                                    ^^^^         ????
-         //00810000:  0000 0000 0000 0000 4444 0000 0000 0000 // solitar
-         //00810000:  0000 0000 0000 0000 7555 0000 00e4 0000 // normal
-         //00810000:  7fff 8000 7fff 8000 7555 0000 00e4 0000 // offset
-         //00810000:  0000 0000 0000 0000 3111 0000 00e4 0000 // off
-         //00810000:  0004 0004 0004 0004 4444 0000 0000 0000 // out pool
-         //00810000:  00a4 00a4 00a4 00a4 4444 0000 0000 0000 // in pool
-         //00810000:  ff80 ff80 ff80 ff80 4444 0000 0000 0000 // ending
-         //00810000:  ff80 ff80 ff80 ff80 0000 0000 0000 0000 // hs entry
-         //00810000:  ff01 ff01 0000 0000 0000 0000 00e4 0000 // alpine racer
-*/
-UINT32 *namcos22_czattr;
-
-UINT32 *namcos22_tilemapattr;
-
-static int cgsomethingisdirty;
-static unsigned char *cgdirty;
-static unsigned char *dirtypal;
-
-READ32_HANDLER( namcos22_czram_r )
-{
-   int bank = nthword(namcos22_czattr,0xa/2);
-   const UINT16 *czram = namcos22_czram[bank&3];
-   return (czram[offset*2]<<16)|czram[offset*2+1];
-}
-
-WRITE32_HANDLER( namcos22_czram_w )
-{
-   int bank = nthword(namcos22_czattr,0xa/2);
-   UINT16 *czram = namcos22_czram[bank&3];
-   UINT32 dat = (czram[offset*2]<<16)|czram[offset*2+1];
-   COMBINE_DATA( &dat );
-   czram[offset*2] = dat>>16;
-   czram[offset*2+1] = dat&0xffff;
-}
-
-static void
-InitXYAttrToPixel( void )
-{
-	unsigned attr,x,y,ix,iy,temp;
-	for( attr=0; attr<16; attr++ )
-	{
-		for( y=0; y<16; y++ )
-		{
-			for( x=0; x<16; x++ )
-			{
-				ix = x; iy = y;
-				if( attr&4 ) ix = 15-ix;
-				if( attr&2 ) iy = 15-iy;
-				if( attr&8 ){ temp = ix; ix = iy; iy = temp; }
-				mXYAttrToPixel[attr][x][y] = (iy<<4)|ix;
-			}
-		}
-	}
-} /* InitXYAttrToPixel */
-
-static void
-PatchTexture( void )
+static void register_normals(int addr, float m[4][4])
 {
 	int i;
-	switch( namcos22_gametype )
+	for (i = 0; i < 4; i++)
 	{
-	case NAMCOS22_RIDGE_RACER:
-	case NAMCOS22_RIDGE_RACER2:
-	case NAMCOS22_ACE_DRIVER:
-	case NAMCOS22_CYBER_COMMANDO:
-   	for( i=0; i<0x100000; i++ )
-   	{
-   		int tile = mpTextureTileMap16[i];
-   		int attr = mpTextureTileMapAttr[i];
-   		if( (attr&0x1)==0 )
-   		{
-   			tile = (tile&0x3fff)|0x8000;
-   			mpTextureTileMap16[i] = tile;
-   		}
-   	}
-		break;
+		float nx = dspfixed_to_nativefloat(namcos22_point_read(addr + i * 3 + 0));
+		float ny = dspfixed_to_nativefloat(namcos22_point_read(addr + i * 3 + 1));
+		float nz = dspfixed_to_nativefloat(namcos22_point_read(addr + i * 3 + 2));
+		float cxl = camera_lx, cyl = camera_ly, czl = camera_lz;
+		float dotproduct;
 
-	default:
-   	break;
-   }
-} /* PatchTexture */
+		transform_normal(&nx, &ny, &nz, m);
+		transform_normal(&cxl, &cyl, &czl, viewmatrix);
 
-void
-namcos22_draw_direct_poly( const UINT16 *pSource )
-{
-   /**
-    * word#0:
-    *    x--------------- end-of-display-list marker
-    *    ----xxxxxxxxxxxx priority (lo)
-    *
-    * word#1:
-    *    ----xxxxxxxxxxxx priority (hi)
-    *
-    * word#2:
-    *    xxxxxxxx-------- PAL (high bit is fog enable)
-    *    --------xxxx---- CMODE (color mode for texture unpack)
-     *    ------------xxxx BN (texture bank)
-    *
-    * word#3:
-    *    xxxxxxxx-------- ZC
-    *    --------------xx depth cueing table select
-    *
-    * for each vertex:
-    *    xxxx xxxx // u,v
-     *
-    *    xxxx xxxx // sx,sy
-     *
-    *    xx-- ---- // BRI
-     *    --xx xxxx // zpos
-     */
-   INT32 zsortvalue24 = ((pSource[1]&0xfff)<<12)|(pSource[0]&0xfff);
-   struct SceneNode *node = NewSceneNode(zsortvalue24,eSCENENODE_QUAD3D);
-   int i;
-   node->data.quad3d.flags = ((pSource[3]&0x7f00)*2)|(pSource[3]&3);
-	node->data.quad3d.cmode = (pSource[2]&0x00f0)>>4;
-	node->data.quad3d.textureBank = pSource[2]&0xf;
-   node->data.quad3d.color = (pSource[2]&0xff00)>>8;
-   pSource += 4;
-   for( i=0; i<4; i++ )
-   {
-      Poly3dVertex *p = &node->data.quad3d.v[i];
+		dotproduct = nx*cxl + ny*cyl + nz*czl;
+		if (dotproduct < 0.0f)
+			dotproduct = 0.0f;
 
-      p->u = pSource[0];
-      p->v = pSource[1];
-      if( mbSuperSystem22 )
-      {
-         p->u >>= 4;
-         p->v >>= 4;
-      }
-      p->u &= 0xfff;
-      p->v &= 0xfff;
-
-      {
-         int mantissa = (INT16)pSource[5];
-         float zf = (float)mantissa;
-      	int exponent = (pSource[4])&0xff;
-         if( mantissa )
-         {
-   	      while( exponent<0x2e )
-      	   {
-	      	   zf /= 2.0;
-		         exponent++;
-	         }
-            if( mbSuperSystem22 )
-            {
-               p->z = zf;
-            }
-            else
-            {
-               p->z = 1.0f/zf;
-            }
-         }
-         else
-         {
-            zf = (float)0x10000;
-            exponent = 0x40-exponent;
-   	      while( exponent<0x2e )
-      	   {
-	      	   zf /= 2.0;
-		         exponent++;
-	         }
-            p->z = 1.0f/zf;
-         }
-      }
-
-      p->x = ((INT16)pSource[2]);
-      p->y = (-(INT16)pSource[3]);
-      p->bri = pSource[4]>>8;
-      pSource += 6;
-   }
-   node->data.quad3d.bDirect = 1;
-   node->data.quad3d.vx = 0;
-   node->data.quad3d.vy = 0;
-   node->data.quad3d.vw = -320;
-   node->data.quad3d.vh = -240;
-} /* namcos22_draw_direct_poly */
-
-static int
-Prepare3dTexture( void *pTilemapROM, void *pTextureROM )
-{
-    int i;
-    if( pTilemapROM && pTextureROM )
-    { /* following setup is Namco System 22 specific */
-	      const UINT8 *pPackedTileAttr = 0x200000 + (UINT8 *)pTilemapROM;
-	      UINT8 *pUnpackedTileAttr = auto_malloc(0x080000*2);
-      	{
-       	   InitXYAttrToPixel();
-   	      mpTextureTileMapAttr = pUnpackedTileAttr;
-   	      for( i=0; i<0x80000; i++ )
-   	      {
-   	         *pUnpackedTileAttr++ = (*pPackedTileAttr)>>4;
-   	         *pUnpackedTileAttr++ = (*pPackedTileAttr)&0xf;
-   	         pPackedTileAttr++;
-   	   }
-   	   mpTextureTileMap16 = pTilemapROM;
-         mpTextureTileData = pTextureROM;
-   	   PatchTexture();
- 	      return 0;
-      }
-   }
-   return -1;
-} /* Prepare3dTexture */
-
-static void
-DrawSpritesHelper(
-	mame_bitmap *bitmap,
-	const rectangle *cliprect,
-	const UINT32 *pSource,
-	const UINT32 *pPal,
-	int num_sprites,
-	int deltax,
-	int deltay )
-{
-   int i;
-	for( i=0; i<num_sprites; i++ )
-	{
-      /*
-         ----.-x--.----.----.----.----.----.---- hidden?
-         ----.--xx.----.----.----.----.----.---- ?
-         ----.----.xxxx.xxxx.xxxx.----.----.---- always 0xff0?
-         ----.----.----.----.----.--x-.----.---- right justify
-         ----.----.----.----.----.---x.----.---- bottom justify
-         ----.----.----.----.----.----.x---.---- flipx
-         ----.----.----.----.----.----.-xxx.---- numcols
-         ----.----.----.----.----.----.----.x--- flipy
-         ----.----.----.----.----.----.----.-xxx numrows
-      */
-		UINT32 attrs = pSource[2];
-      if( (attrs&0x04000000)==0 )
-		{ /* sprite is not hidden */
-			INT32 zcoord = pPal[0];
-         int color = pPal[1]>>16;
-         int cz = pPal[1]&0xffff;
-         UINT32 xypos = pSource[0];
-			UINT32 size = pSource[1];
-			UINT32 code = pSource[3];
-			int xpos = (xypos>>16)-deltax;
-			int ypos = (xypos&0xffff)-deltay;
-			int sizex = size>>16;
-			int sizey = size&0xffff;
-			int zoomx = (1<<16)*sizex/0x20;
-			int zoomy = (1<<16)*sizey/0x20;
-			int flipy = attrs&0x8;
-			int numrows = attrs&0x7; /* 0000 0001 1111 1111 0000 0000 fccc frrr */
-			int linkType = (attrs&0x00ff0000)>>16;
-			int flipx = (attrs>>4)&0x8;
-			int numcols = (attrs>>4)&0x7;
-			int tile = code>>16;
-         int translucency = (code&0xff00)>>8;
-
-         if( numrows==0 )
-         {
-            numrows = 8;
-         }
-			if( flipy )
-			{
-				ypos += sizey*(numrows-1);
-				sizey = -sizey;
-			}
-
-			if( numcols==0 )
-         {
-            numcols = 8;
-         }
-			if( flipx )
-			{
-				xpos += sizex*(numcols-1);
-				sizex = -sizex;
-			}
-
-			if( attrs & 0x0200 )
-			{ /* right justify */
-				xpos -= ((zoomx*numcols*0x20)>>16)-1;
-         }
-			if( attrs & 0x0100 )
-			{ /* bottom justify */
-         	ypos -= ((zoomy*numrows*0x20)>>16)-1;
-         }
-
-         {
-            struct SceneNode *node = NewSceneNode(zcoord,eSCENENODE_SPRITE);
-            node->data.sprite.tile = tile;
-            node->data.sprite.pri = cz&0x80;
-//              node->data.sprite.pri = (color&0x80);
-            node->data.sprite.color = color&0x7f;
-            node->data.sprite.flipx = flipx;
-            node->data.sprite.flipy = flipy;
-            node->data.sprite.numcols = numcols;
-            node->data.sprite.numrows = numrows;
-            node->data.sprite.linkType = linkType;
-            node->data.sprite.xpos = xpos;
-            node->data.sprite.ypos = ypos;
-            node->data.sprite.sizex = sizex;
-            node->data.sprite.sizey = sizey;
-            node->data.sprite.translucency = translucency;
-            node->data.sprite.cz = cz;
-         }
-  		} /* visible sprite */
-		pSource += 4;
-		pPal += 2;
-   }
-} /* DrawSpritesHelper */
-
-static void
-DrawSprites( mame_bitmap *bitmap, const rectangle *cliprect )
-{
-/*
-// time crisis:
-00980000: 00060000 000b0053 03000200 03000000
-00980010: 00200020 028004ff 032a0509 00000000
-00980200: 000007ff 000007ff 000007ff 032a0509
-00980210: 000007ff 000007ff 000007ff 000007ff
-00980220: 000007ff 000007ff 000007ff 000007ff
-00980230: 000007ff 000007ff 05000500 050a050a
-
-// prop normal
-00980000: 00060000 00040053 03000200 03000000
-00980010: 00200020 028004ff 032a0509 00000000
-00980200: 028004ff 032a0509 028004ff 032a0509
-00980210: 028004ff 032a0509 028004ff 032a0509
-00980220: 028004ff 032a0509 028004ff 032a0509
-00980230: 028004ff 032a0509 028004ff 032a0509
-
-//alpine normal / prop test (-48,-43)
-00980000: 00060000 00000000 02ff0000 000007ff
-00980010: 00200020 000002ff 000007ff 00000000
-00980200: 000007ff 000007ff 000007ff 000007ff
-00980210: 000007ff 000007ff 000007ff 000007ff
-00980220: 000007ff 000007ff 000007ff 000007ff
-00980230: 000007ff 000007ff 000007ff 000007ff
-
-
-        0x980000:   00060000 00010000 02ff0000 000007ff
-                    ^^^^                                7 = disable
-                             ^^^^                       num sprites
-
-        0x980010:   00200020 000002ff 000007ff 00000000
-                    ^^^^^^^^                            character size?
-                             ^^^^                       delta xpos?
-                                      ^^^^              delta ypos?
-
-        0x980200:   000007ff 000007ff       delta xpos, delta ypos?
-        0x980208:   000007ff 000007ff
-        0x980210:   000007ff 000007ff
-        0x980218:   000007ff 000007ff
-        0x980220:   000007ff 000007ff
-        0x980228:   000007ff 000007ff
-        0x980230:   000007ff 000007ff
-        0x980238:   000007ff 000007ff
-
-        //time crisis
-        00980200:  000007ff 000007ff 000007ff 032a0509
-        00980210:  000007ff 000007ff 000007ff 000007ff
-        00980220:  000007ff 000007ff 000007ff 000007ff
-        00980230:  000007ff 000007ff 05000500 050a050a
-
-        0x980400:   hzoom table
-        0x980600:   vzoom table
-
-        link table:
-        0x980800:   0000 0001 0002 0003 ... 03ff
-
-        eight words per sprite:
-        0x984000:   010f 007b   xpos, ypos
-        0x984004:   0020 0020   size x, size y
-        0x984008:   00ff 0311   00ff, chr x;chr y;flip x;flip y
-        0x98400c:   0001 0000   sprite code, translucency
-        ...
-
-        additional sorting/color data for sprite:
-        0x9a0000:   C381 Z (sort)
-        0x9a0004:   palette, C381 ZC (depth cueing)
-        ...
-    */
-	int base = spriteram32[0] & 0xffff;
-	int num_sprites = (spriteram32[0x04/4] >> 16) - base + 1;
-	const UINT32 *pSource = &spriteram32[0x4000/4 + base*4];
-	const UINT32 *pPal = &spriteram32[0x20000/4 + base*2];
-   int deltax = spriteram32[0x14/4]>>16;
-	int deltay = spriteram32[0x18/4]>>16;
-   int enable = spriteram32[0]>>16;
-
-   if( spriteram32[0x14/4] == 0x000002ff &&
-       spriteram32[0x18/4] == 0x000007ff )
-   { /* HACK (fixes alpine racer and self test) */
-      deltax = 48;
-		deltay = 43;
-   }
-
-   if( !(enable & 1) && num_sprites > 0 && num_sprites < 0x400 )
-   {
-      DrawSpritesHelper( bitmap, cliprect, pSource, pPal, num_sprites, deltax, deltay );
-   }
-
-	/* VICS RAM provides two additional banks */
-	/*
-        0x940000 -x------       sprite chip busy
-        0x940018 xxxx----       clr.w   $940018.l
-
-        0x940034 xxxxxxxx       0x3070b0f
-
-        0x940040 xxxxxxxx       sprite attribute size
-        0x940048 xxxxxxxx       sprite attribute list baseaddr
-        0x940050 xxxxxxxx       sprite color size
-        0x940058 xxxxxxxx       sprite color list baseaddr
-
-        0x940060..0x94007c      set#2
-*/
-
-	num_sprites = (namcos22_vics_control[0x40/4] >> 4) & 0x1ff;
-	if( !(namcos22_vics_control[0x30/4] & 0x01000000) && num_sprites >= 1 )
-	{
-		pSource = &namcos22_vics_data[(namcos22_vics_control[0x48/4]&0xffff)/4];
-		pPal    = &namcos22_vics_data[(namcos22_vics_control[0x58/4]&0xffff)/4];
-		DrawSpritesHelper( bitmap, cliprect, pSource, pPal, num_sprites, deltax, deltay );
+		if (lit_surface_count < MAX_LIT_SURFACES)
+			lit_surface_info[lit_surface_count++] = (UINT8)(int)(camera_ambient + lit_surface_intensity * dotproduct);
 	}
+}
 
-	num_sprites = (namcos22_vics_control[0x60/4] >> 4) & 0x1ff;
-	if( namcos22_gametype == NAMCOS22_AIR_COMBAT22 )
+void namcos22_draw_direct_poly(const UINT16 *src)
+{
+	/* the master DSP can write directly to the render device (port 0xc) */
+	struct scenenode *node;
+	UINT32 zsort;
+	int i;
+
+	if (namcos22_is_ss22 && !(NTHBYTE32(namcos22_mixer, 0x1f) & 1))
+		return;
+
+	zsort = ((src[1] & 0xfff) << 12) | (src[0] & 0xfff);
+	node = new_scenenode(zsort, NODE_QUAD);
+	if (!node)
+		return;
+
+	if (namcos22_is_ss22)
 	{
-		int list = (namcos22_vics_control[0x48/4] & 0xffff) / 4;
-		enable = !(namcos22_vics_data[list] & 0x00010000);
-		num_sprites = (namcos22_vics_data[list+1] >> 16) + 1;
+		node->data.quad.cmode = (src[2] & 0x00f0) >> 4;
+		node->data.quad.texturebank = (src[2] & 0x000f);
 	}
 	else
 	{
-		enable = !(namcos22_vics_control[0x30/4] & 0x01000000);
+		node->data.quad.cmode = (src[0 + 4] & 0xf000) >> 12;
+		node->data.quad.texturebank = (src[1 + 4] & 0xf000) >> 12;
 	}
-	if( enable && num_sprites >= 1 && num_sprites <= 0x400 )
-	{
-		pSource = &namcos22_vics_data[(namcos22_vics_control[0x68/4]&0xffff)/4];
-		pPal    = &namcos22_vics_data[(namcos22_vics_control[0x78/4]&0xffff)/4];
-		DrawSpritesHelper( bitmap, cliprect, pSource, pPal, num_sprites, deltax, deltay );
-	}
-} /* DrawSprites */
+	node->data.quad.color = (src[2] & 0xff00) >> 8;
+	node->data.quad.cz_value = (src[3] >> 2) & 0x1fff;
+	node->data.quad.cz_type = src[3] & 3;
+	node->data.quad.cz_adjust = 0;
+	node->data.quad.objectflags = 0;
+	src += 4;
 
-static void
-UpdatePaletteS( void ) /* for Super System22 - apply gamma correction and preliminary fader support */
-{
-	int i;
-	for( i=0; i<NAMCOS22_PALETTE_SIZE/4; i++ )
+	for (i = 0; i < 4; i++)
 	{
-		if( dirtypal[i] )
+		polyvertex *p = &node->data.quad.v[i];
+		int mantissa, exponent;
+
+		if (namcos22_is_ss22)
 		{
-         int j;
-			for( j=0; j<4; j++ )
-			{
-				int which = i*4+j;
-				int r = nthbyte(paletteram32,which+0x00000);
-				int g = nthbyte(paletteram32,which+0x08000);
-				int b = nthbyte(paletteram32,which+0x10000);
-				palette_set_color( which,r,g,b );
-			}
-			dirtypal[i] = 0;
+			p->u = src[0] >> 4;
+			p->v = src[1] >> 4;
 		}
-	}
-} /* UpdatePaletteS */
-
-static void
-UpdatePalette( void ) /* for System22 - ignore gamma/fader effects for now */
-{
-	int i,j;
-	for( i=0; i<NAMCOS22_PALETTE_SIZE/4; i++ )
-	{
-		if( dirtypal[i] )
-		{
-			for( j=0; j<4; j++ )
-			{
-				int which = i*4+j;
-				int r = nthbyte(paletteram32,which+0x00000);
-				int g = nthbyte(paletteram32,which+0x08000);
-				int b = nthbyte(paletteram32,which+0x10000);
-				palette_set_color( which,r,g,b );
-			}
-			dirtypal[i] = 0;
-		}
-	}
-} /* UpdatePalette */
-
-static tilemap *bgtilemap;
-
-static void TextTilemapGetInfo( int tile_index )
-{
-	UINT16 data = nthword( namcos22_textram,tile_index );
-	/**
-     * x---.----.----.---- blend
-    * xxxx.----.----.---- palette select
-    * ----.xx--.----.---- flip
-    * ----.--xx.xxxx.xxxx code
-    */
-	SET_TILE_INFO( GFX_CHAR,data&0x03ff,data>>12,TILE_FLIPYX((data&0x0c00)>>10) );
-	if( data&0x8000 )
-	{
-		tile_info.priority = 1;
-	}
-} /* TextTilemapGetInfo */
-
-READ32_HANDLER( namcos22_textram_r )
-{
-	return namcos22_textram[offset];
-}
-
-WRITE32_HANDLER( namcos22_textram_w )
-{
-	COMBINE_DATA( &namcos22_textram[offset] );
-	tilemap_mark_tile_dirty( bgtilemap, offset*2 );
-	tilemap_mark_tile_dirty( bgtilemap, offset*2+1 );
-}
-
-static void
-DrawTranslucentCharacters( mame_bitmap *bitmap, const rectangle *cliprect )
-{
-	alpha_set_level( 0xff-mixer.text_translucency ); /* ? */
-	tilemap_draw( bitmap, cliprect, bgtilemap, TILEMAP_ALPHA|1, 0 );
-}
-
-static void
-DrawCharacterLayer( mame_bitmap *bitmap, const rectangle *cliprect )
-{
-	unsigned i;
-   INT32 dx = namcos22_tilemapattr[0]>>16;
-   INT32 dy = namcos22_tilemapattr[0]&0xffff;
-   /**
-     * namcos22_tilemapattr[0x4/4] == 0x006e0000
-    * namcos22_tilemapattr[0x8/4] == 0x01ff0000
-     * namcos22_tilemapattr[0xe/4] == ?
-    */
-   if( cgsomethingisdirty )
-	{
-		for( i=0; i<64*64; i+=2 )
-		{
-			UINT32 data = namcos22_textram[i/2];
-			if( cgdirty[(data>>16)&0x3ff] )
-			{
-				tilemap_mark_tile_dirty( bgtilemap,i );
-			}
-			if( cgdirty[data&0x3ff] )
-			{
-				tilemap_mark_tile_dirty( bgtilemap,i+1 );
-			}
-		}
-
-		for( i=0; i<NUM_CG_CHARS; i++ )
-		{
-			if( cgdirty[i] )
-			{
-				decodechar( Machine->gfx[GFX_CHAR],i,(UINT8 *)namcos22_cgram,&namcos22_cg_layout );
-				cgdirty[i] = 0;
-			}
-		}
-		cgsomethingisdirty = 0;
-	}
-
-	fillbitmap(priority_bitmap,0,cliprect);
-	tilemap_set_scrollx( bgtilemap,0, (dx-0x35c)&0x3ff );
-	tilemap_set_scrolly( bgtilemap,0, dy&0x3ff );
-	tilemap_set_palette_offset( bgtilemap, mixer.palBase*256 );
-	tilemap_draw( bitmap, cliprect, bgtilemap, 0/*flags*/, 0x1/*priority*/ ); /* opaque */
-} /* DrawCharacterLayer */
-
-/*********************************************************************************************/
-
-static int
-Cap( int val, int minval, int maxval )
-{
-   if( val<minval )
-   {
-      val = minval;
-   }
-   else if( val>maxval )
-   {
-      val = maxval;
-   }
-   return val;
-}
-
-#define LSB21 (0x1fffff)
-#define LSB18 (0x03ffff)
-
-static INT32
-Signed18( UINT32 value )
-{
-   INT32 offset = value&LSB18;
-   if( offset&0x20000 )
-   { /* sign extend */
-		offset |= ~LSB18;
-   }
-   return offset;
-}
-
-/**
- * @brief render a single quad
- *
- * @param flags
- *     x1.----.----.---- priority over tilemap
- *     --.-xxx.----.---- representative z algorithm?
- *     --.----.-1x-.---- backface cull enable
- *     --.----.----.--1x fog enable?
- *
- *      1163 // sky
- *      1262 // score (front)
- *      1242 // score (hinge)
- *      1243 // ?
- *      1063 // n/a
- *      1243 // various (2-sided?)
- *      1263 // everything else (1-sided?)
- *      1663 // ?
- *
- * @param color
- *      -------- xxxxxxxx unused?
- *      -xxxxxxx -------- palette select
- *      x------- -------- ?
- *
- * @param polygonShiftValue22
- *    0x1fbd0 - sky+sea
- *    0x0c350 - mountins
- *    0x09c40 - boats, surf, road, buildings
- *    0x07350 - guardrail
- *    0x061a8 - red car
- */
-static void
-BlitQuadHelper(
-		mame_bitmap *pBitmap,
-		unsigned color,
-		unsigned addr,
-		float m[4][4],
-		INT32 polygonShiftValue22, /* 22 bits */
-		int flags,
-		int packetFormat )
-{
-   int absolutePriority = mAbsolutePriority;
-   UINT32 zsortvalue24;
-   float zmin = 0.0f;
-   float zmax = 0.0f;
-	Poly3dVertex v[4];
-	int i;
-   int bBackFace = 0;
-
-	for( i=0; i<4; i++ )
-	{
-		Poly3dVertex *pVerTex = &v[i];
-		pVerTex->x = GetPolyData(  8+i*3+addr );
-		pVerTex->y = GetPolyData(  9+i*3+addr );
-		pVerTex->z = GetPolyData( 10+i*3+addr );
-		TransformPoint( &pVerTex->x, &pVerTex->y, &pVerTex->z, m );
-	} /* for( i=0; i<4; i++ ) */
-
-   if( (v[2].x*((v[0].z*v[1].y)-(v[0].y*v[1].z)))+
-       (v[2].y*((v[0].x*v[1].z)-(v[0].z*v[1].x)))+
-		 (v[2].z*((v[0].y*v[1].x)-(v[0].x*v[1].y))) >= 0 &&
-
-       (v[0].x*((v[2].z*v[3].y)-(v[2].y*v[3].z)))+
-		 (v[0].y*((v[2].x*v[3].z)-(v[2].z*v[3].x)))+
-		 (v[0].z*((v[2].y*v[3].x)-(v[2].x*v[3].y))) >= 0 )
-   {
-      bBackFace = 1;
-   }
-
-   if( bBackFace && (flags&0x0020) )
-	{ /* backface cull one-sided polygons */
-		return;
-	}
-
-   for( i=0; i<4; i++ )
-	{
-		Poly3dVertex *pVerTex = &v[i];
-      int bri;
-
-		pVerTex->u = GetPolyData(  0+i*2+addr );
-		pVerTex->v = GetPolyData(  1+i*2+addr );
-
-		if( i==0 || pVerTex->z > zmax ) zmax = pVerTex->z;
-		if( i==0 || pVerTex->z < zmin ) zmin = pVerTex->z;
-
-      if( mLitSurfaceCount )
-      {
-      	bri = mLitSurfaceInfo[mLitSurfaceIndex%mLitSurfaceCount];
-         if( mSurfaceNormalFormat == 0x6666 )
-         {
-            if( i==3 )
-            {
-               mLitSurfaceIndex++;
-            }
-         }
-         else if( mSurfaceNormalFormat == 0x4000 )
-         {
-            mLitSurfaceIndex++;
-         }
-         else
-         {
-            logerror( "unknown normal format: 0x%x\n", mSurfaceNormalFormat );
-         }
-      } /* pLitSurfaceInfo */
-      else if( packetFormat & 0x40 )
-      {
-         bri = (GetPolyData(i+addr)>>16)&0xff;
-      }
 		else
 		{
-			bri = 0x40;
+			p->u = src[0] & 0x0fff;
+			p->v = src[1] & 0x0fff;
 		}
-      pVerTex->bri = bri;
-	} /* for( i=0; i<4; i++ ) */
 
-   if( zmin<0.0f ) zmin = 0.0f;
-   if( zmax<0.0f ) zmax = 0.0f;
-
-   switch( (flags&0x0f00)>>8 )
-   {
-   case 0:
-       zsortvalue24 = (INT32)zmin;
-       break;
-
-   case 1:
-       zsortvalue24 = (INT32)zmax;
-       break;
-
-   case 2:
-   default:
-       zsortvalue24 = (INT32)((zmin+zmax)/2.0f);
-       break;
-   }
-
-   /* relative: representative z + shift values
-    * 1x.xxxx.xxxxxxxx.xxxxxxxx fixed z value
-    * 0x.xx--.--------.-------- absolute priority shift
-    * 0-.--xx.xxxxxxxx.xxxxxxxx z-representative value shift
-    */
-   if( polygonShiftValue22 & 0x200000 )
-   {
-      zsortvalue24 = polygonShiftValue22 & LSB21;
-   }
-   else
-   {
-      zsortvalue24 += Signed18( polygonShiftValue22 );
-      absolutePriority += (polygonShiftValue22&0x1c0000)>>18;
-   }
-   if( mObjectShiftValue22 & 0x200000 )
-   {
-      zsortvalue24 = mObjectShiftValue22 & LSB21;
-   }
-   else
-   {
-      zsortvalue24 += Signed18( mObjectShiftValue22 );
-      absolutePriority += (mObjectShiftValue22&0x1c0000)>>18;
-   }
-   absolutePriority &= 7;
-   zsortvalue24 = Cap(zsortvalue24,0,0x1fffff);
-   zsortvalue24 |= (absolutePriority<<21);
-
-   {
-      struct SceneNode *node = NewSceneNode(zsortvalue24,eSCENENODE_QUAD3D);
-		node->data.quad3d.cmode = (v[0].u>>12)&0xf;
-      node->data.quad3d.textureBank = (v[0].v>>12)&0xf;
-      node->data.quad3d.color = (color>>8)&0xff;
-
-      {
-         INT32 cz = (INT32)((zmin+zmax)/2.0f);
-         cz = Clamp256(cz/0x2000);
-         node->data.quad3d.flags = (cz<<8)|(flags&3);
-      }
-
-      for( i=0; i<4; i++ )
-      {
-         Poly3dVertex *p = &node->data.quad3d.v[i];
-         p->x     = v[i].x*mCamera.zoom;
-         p->y     = v[i].y*mCamera.zoom;
-         p->z     = v[i].z;
-         p->u     = v[i].u&0xfff;
-         p->v     = v[i].v&0xfff;
-         p->bri   = v[i].bri;
-      }
-      node->data.quad3d.bDirect = 0;
-      node->data.quad3d.vx = mCamera.vx;
-      node->data.quad3d.vy = mCamera.vy;
-      node->data.quad3d.vw = mCamera.vw;
-      node->data.quad3d.vh = mCamera.vh;
-   }
-} /* BlitQuadHelper */
-
-static void
-RegisterNormals( INT32 addr, float m[4][4] )
-{
-   int i;
-   for( i=0; i<4; i++ )
-   {
-         float nx = DSP_FIXED_TO_FLOAT(GetPolyData(addr+i*3+0));
-		   float ny = DSP_FIXED_TO_FLOAT(GetPolyData(addr+i*3+1));
-		   float nz = DSP_FIXED_TO_FLOAT(GetPolyData(addr+i*3+2));
-			float dotproduct;
-
-			/* transform normal vector */
-			TransformNormal( &nx, &ny, &nz, m );
-			dotproduct = nx*mCamera.lx + ny*mCamera.ly + nz*mCamera.lz;
-			if( dotproduct<0.0f )
-         {
-            dotproduct = 0.0f;
-         }
-         mLitSurfaceInfo[mLitSurfaceCount++] = mCamera.ambient + mCamera.power*dotproduct;
-   }
-} /* RegisterNormals */
-
-static void
-BlitQuads( mame_bitmap *pBitmap, INT32 addr, float m[4][4], INT32 base )
-{
-   int numAdditionalNormals = 0;
-	int chunkLength = GetPolyData(addr++);
-	int finish = addr + chunkLength;
-	if( chunkLength>0x100 )
-	{
-		fatalerror( "bad packet length" );
-	}
-
-	while( addr<finish )
-	{
-		int packetLength = GetPolyData( addr++ );
-		int packetFormat = GetPolyData( addr+0 );
-		int flags, color, bias;
-
-		/**
-         * packetFormat:
-         *      800000 final packet in chunk
-         *      080000 ?
-         *      020000 color word exists?
-         *      010000 z-offset word exists?
-         *      002000 ?
-         *      001000 z-offset word exists?
-         *      000400 ?
-         *      000080 tex# or UV or CMODE?
-         *      000040 use I
-         *      000001 ?
-         *
-         * flags:
-         *      1042 (always set)
-         *      0c00 depth-cueing mode (brake-disc(2108)=001e43, model font)
-         *      0200 usually 1
-         *      0100 ?
-         *      0040 1 ... polygon palette?
-         *      0020 cull backface
-         *      0002 ?
-         *      0001 ?
-         *
-         * color:
-         *      ff0000 type?
-         *      008000 depth-cueing off
-         *      007f00 palette#
-         */
-		switch( packetLength )
+		mantissa = src[5];
+		exponent = src[4] & 0x3f;
+		if (mantissa)
 		{
-		case 0x17:
-			/**
-             * word 0: opcode (8a24c0)
-             * word 1: flags
-             * word 2: color
-             */
-			flags = GetPolyData(addr+1);
-			color = GetPolyData(addr+2);
-			bias = 0;
-			BlitQuadHelper( pBitmap,color,addr+3,m,bias,flags,packetFormat );
-			break;
-
-		case 0x18:
-			/**
-          * word 0: opcode (0b3480 for first N-1 quads or 8b3480 for final quad in primitive)
-          * word 1: flags
-          * word 2: color
-          * word 3: depth bias
-          */
-			flags = GetPolyData(addr+1);
-			color = GetPolyData(addr+2);
-			bias  = GetPolyData(addr+3);
-			BlitQuadHelper( pBitmap,color,addr+4,m,bias,flags,packetFormat );
-			break;
-
-		case 0x10: /* vertex lighting */
-			/*
-            333401 (opcode)
-                000000  [count] [type]
-                000000  000000  007fff // normal vector
-                000000  000000  007fff // normal vector
-                000000  000000  007fff // normal vector
-                000000  000000  007fff // normal vector
-            */
-         numAdditionalNormals = GetPolyData(addr+2);
-         mSurfaceNormalFormat = GetPolyData(addr+3);
-         mLitSurfaceCount = 0;
-         mLitSurfaceIndex = 0;
-         RegisterNormals( addr+4, m );
-			break;
-
-		case 0x0d: /* additional normals */
-			/*
-            300401 (opcode)
-                007b09 ffdd04 0004c2
-                007a08 ffd968 0001c1
-                ff8354 ffe401 000790
-                ff84f7 ffdd04 0004c2
-            */
-         RegisterNormals( addr+1, m );
-         break;
-
-		default:
-			break;
+			p->z = mantissa;
+			while (exponent < 0x2e)
+			{
+				p->z /= 2.00f;
+				exponent++;
+			}
 		}
-		addr += packetLength;
+		else
+			p->z = (float)0x10000;
+
+		p->x = (INT16)src[2];
+		p->y = -(INT16)src[3];
+		p->bri = src[4] >> 8;
+		src += 6;
 	}
-} /* BlitQuads */
 
-static void
-BlitPolyObject( mame_bitmap *pBitmap, int code, float M[4][4] )
-{
-	unsigned addr1 = GetPolyData(code);
-   mLitSurfaceCount = 0;
-   mLitSurfaceIndex = 0;
-	for(;;)
-	{
-		INT32 addr2 = GetPolyData(addr1++);
-		if( addr2<0 )
-		{
-			break;
-		}
-		BlitQuads( pBitmap, addr2, M, code );
-	}
-} /* BlitPolyObject */
-
-/*******************************************************************************/
-
-READ32_HANDLER( namcos22_dspram_r )
-{
-	return namcos22_polygonram[offset] | 0xff000000;
+	node->data.quad.direct = 1;
+	node->data.quad.vx = 0;
+	node->data.quad.vy = 0;
+	node->data.quad.vu = -240;
+	node->data.quad.vd = -240;
+	node->data.quad.vl = -320;
+	node->data.quad.vr = -320;
 }
 
-WRITE32_HANDLER( namcos22_dspram_w )
+static void blit_single_quad(UINT32 color, UINT32 addr, float m[4][4], int polyshift, int flags, int packetformat)
 {
-	COMBINE_DATA( &namcos22_polygonram[offset] );
-}
+	polyvertex v[4];
+	float zmin = 0.0f, zmax = 0.0f;
+	int zsort = 0, abs_priority, cz_value, i;
+	struct scenenode *node;
 
-/*******************************************************************************/
-
-/**
- * master DSP can write directly to render device via port 0xc.
- * This is used for "direct drawn" polygons, and "direct draw from point rom"
- * feature - both opcodes exist in Ridge Racer's display-list processing
- *
- * record format:
- *  header (3 words)
- *      polygonShiftValue22
- *      color
- *      flags
- *
- *  per-vertex data (4*6 words)
- *      u,v
- *      sx,sy
- *      intensity;z.exponent
- *      z.mantissa
- *
- * master DSP can specify 3d objects indirectly (along with view transforms),
- * via the "transmit" PDP opcode.  the "render device" sends quad data to the slave DSP
- * viewspace clipping and projection
- *
- * most "3d object" references are 0x45 and greater.  references less than 0x45 are "special"
- * commands, using a similar point rom format.  the point rom header may point to point ram.
- *
- * slave DSP reads records via port 4
- * its primary purpose is applying lighting calculations
- * the slave DSP forwards draw commands to a "draw device"
- */
-
-/*******************************************************************************/
-
-/**
- * 0xfffd
- * 0x0: transform
- * 0x1
- * 0x2
- * 0x5: transform
- * >=0x45: draw primitive
- */
-static void
-HandleBB0003( const INT32 *pSource )
-{
-   /*
-        bb0003 or 3b0003
-
-        14.00c8            light.ambient     light.power
-        01.0000            ?                 light.dx
-        06.5a82            window priority   light.dy
-        00.a57e            ?                 light.dz
-
-        c8.0081            vx=200,vy=129
-        29.6092            zoom = 772.5625
-        1e.95f8 1e.95f8            0.5858154296875   0.5858154296875 // 452
-        1e.b079 1e.b079            0.6893463134765   0.6893463134765 // 532
-        29.58e8                   711.25 (border? see time crisis)
-
-        7ffe 0000 0000
-        0000 7ffe 0000
-        0000 0000 7ffe
-    */
-	mCamera.ambient = pSource[0x1]>>16;
-	mCamera.power   = pSource[0x1]&0xffff;
-
-	mCamera.lx       = DSP_FIXED_TO_FLOAT(pSource[0x2]);
-	mCamera.ly       = DSP_FIXED_TO_FLOAT(pSource[0x3]);
-	mCamera.lz       = DSP_FIXED_TO_FLOAT(pSource[0x4]);
-
-   mAbsolutePriority = pSource[0x3]>>16;
-   mCamera.vx      = (INT16)(pSource[5]>>16);
-   mCamera.vy      = (INT16)pSource[5];
-   mCamera.zoom    = DspFloatToNativeFloat(pSource[6]);
-   mCamera.vw      = DspFloatToNativeFloat(pSource[7])*mCamera.zoom;
-   mCamera.vh      = DspFloatToNativeFloat(pSource[9])*mCamera.zoom;
-
-	mViewMatrix[0][0] = DSP_FIXED_TO_FLOAT(pSource[0x0c]);
-	mViewMatrix[1][0] = DSP_FIXED_TO_FLOAT(pSource[0x0d]);
-	mViewMatrix[2][0] = DSP_FIXED_TO_FLOAT(pSource[0x0e]);
-
-	mViewMatrix[0][1] = DSP_FIXED_TO_FLOAT(pSource[0x0f]);
-	mViewMatrix[1][1] = DSP_FIXED_TO_FLOAT(pSource[0x10]);
-	mViewMatrix[2][1] = DSP_FIXED_TO_FLOAT(pSource[0x11]);
-
-	mViewMatrix[0][2] = DSP_FIXED_TO_FLOAT(pSource[0x12]);
-	mViewMatrix[1][2] = DSP_FIXED_TO_FLOAT(pSource[0x13]);
-	mViewMatrix[2][2] = DSP_FIXED_TO_FLOAT(pSource[0x14]);
-
-	TransformNormal( &mCamera.lx, &mCamera.ly, &mCamera.lz, mViewMatrix );
-} /* HandleBB0003 */
-
-static void
-Handle200002( mame_bitmap *bitmap, const INT32 *pSource )
-{
-	if( mPrimitiveID>=0x45 )
+	for (i = 0; i < 4; i++)
 	{
-		float m[4][4]; /* row major */
-
-		matrix3d_Identity( m );
-
-		m[0][0] = DSP_FIXED_TO_FLOAT(pSource[0x1]);
-		m[1][0] = DSP_FIXED_TO_FLOAT(pSource[0x2]);
-		m[2][0] = DSP_FIXED_TO_FLOAT(pSource[0x3]);
-
-		m[0][1] = DSP_FIXED_TO_FLOAT(pSource[0x4]);
-		m[1][1] = DSP_FIXED_TO_FLOAT(pSource[0x5]);
-		m[2][1] = DSP_FIXED_TO_FLOAT(pSource[0x6]);
-
-		m[0][2] = DSP_FIXED_TO_FLOAT(pSource[0x7]);
-		m[1][2] = DSP_FIXED_TO_FLOAT(pSource[0x8]);
-		m[2][2] = DSP_FIXED_TO_FLOAT(pSource[0x9]);
-
-		m[3][0] = pSource[0xa]; /* xpos */
-		m[3][1] = pSource[0xb]; /* ypos */
-		m[3][2] = pSource[0xc]; /* zpos */
-
-      matrix3d_Multiply( m, mViewMatrix );
-		BlitPolyObject( bitmap, mPrimitiveID, m );
+		polyvertex *pv = &v[i];
+		pv->x = namcos22_point_read(0x8 + i * 3 + addr);
+		pv->y = namcos22_point_read(0x9 + i * 3 + addr);
+		pv->z = namcos22_point_read(0xa + i * 3 + addr);
+		transform_point(&pv->x, &pv->y, &pv->z, m);
 	}
-   else if( mPrimitiveID !=0 && mPrimitiveID !=2 )
-   {
-      logerror( "Handle200002:unk code=0x%x\n", mPrimitiveID );
-   }
-} /* Handle200002 */
 
-static void
-Handle300000( const INT32 *pSource )
-{ /* set view transform */
-	mViewMatrix[0][0] = DSP_FIXED_TO_FLOAT(pSource[1]);
-	mViewMatrix[1][0] = DSP_FIXED_TO_FLOAT(pSource[2]);
-	mViewMatrix[2][0] = DSP_FIXED_TO_FLOAT(pSource[3]);
-
-	mViewMatrix[0][1] = DSP_FIXED_TO_FLOAT(pSource[4]);
-	mViewMatrix[1][1] = DSP_FIXED_TO_FLOAT(pSource[5]);
-	mViewMatrix[2][1] = DSP_FIXED_TO_FLOAT(pSource[6]);
-
-	mViewMatrix[0][2] = DSP_FIXED_TO_FLOAT(pSource[7]);
-	mViewMatrix[1][2] = DSP_FIXED_TO_FLOAT(pSource[8]);
-	mViewMatrix[2][2] = DSP_FIXED_TO_FLOAT(pSource[9]);
-} /* Handle300000 */
-
-static void
-Handle233002( const INT32 *pSource )
-{ /* set modal rendering options */
-   /*
-    00233002
-       00000000 // zc adjust?
-       0003dd00 // z bias adjust
-       001fffff // far plane?
-       00007fff 00000000 00000000
-       00000000 00007fff 00000000
-       00000000 00000000 00007fff
-       00000000 00000000 00000000
-   */
-   mObjectShiftValue22 = pSource[2];
-} /* Handle233002 */
-
-static void
-SimulateSlaveDSP( mame_bitmap *bitmap )
-{
-	const INT32 *pSource = 0x300 + (INT32 *)namcos22_polygonram;
-	INT16 len;
-
-	matrix3d_Identity( mViewMatrix );
-
-	if( mbSuperSystem22 )
+	for (i = 0; i < 4; i++)
 	{
-		pSource += 4; /* FFFE 0400 */
+		if (i == 0 || v[i].z > zmax) zmax = v[i].z;
+		if (i == 0 || v[i].z < zmin) zmin = v[i].z;
+	}
+
+	/* fully behind camera */
+	if (zmax < 0.0f)
+		return;
+
+	/* backface cull one-sided polygons */
+	if (flags & 0x20)
+	{
+		float c1 =
+			(v[2].x*((v[0].z*v[1].y)-(v[0].y*v[1].z)))+
+			(v[2].y*((v[0].x*v[1].z)-(v[0].z*v[1].x)))+
+			(v[2].z*((v[0].y*v[1].x)-(v[0].x*v[1].y)));
+		float c2 =
+			(v[0].x*((v[2].z*v[3].y)-(v[2].y*v[3].z)))+
+			(v[0].y*((v[2].x*v[3].z)-(v[2].z*v[3].x)))+
+			(v[0].z*((v[2].y*v[3].x)-(v[2].x*v[3].y)));
+
+		if ((cullflip && c1 <= 0.0f && c2 <= 0.0f) || (!cullflip && c1 >= 0.0f && c2 >= 0.0f))
+			return;
+	}
+
+	if (zmin < 0.0f) zmin = 0.0f;
+
+	switch (flags & 0x300)
+	{
+		case 0x000: zsort = (int)(zmin + 0.5f); break;
+		case 0x100: zsort = (int)(zmax + 0.5f); break;
+		default:    zsort = (int)((zmin + zmax) / 2.0f + 0.5f); break;
+	}
+
+	if (zsort > 0x1fffff) zsort = 0x1fffff;
+	abs_priority = absolute_priority & 7;
+
+	/* relative: representative z + shift values */
+	if (polyshift & 0x200000)
+		zsort = polyshift & 0x1fffff;
+	else
+	{
+		zsort += SIGNED18(polyshift);
+		abs_priority += (polyshift & 0x1c0000) >> 18;
+	}
+
+	if (objectshift & 0x200000)
+		zsort = objectshift & 0x1fffff;
+	else
+	{
+		zsort += SIGNED18(objectshift);
+		abs_priority += (objectshift & 0x1c0000) >> 18;
+	}
+
+	if (zsort < 0) zsort = 0;
+	if (zsort > 0x1fffff) zsort = 0x1fffff;
+	abs_priority &= 7;
+	zsort |= (abs_priority << 21);
+
+	if (zmax < 0.0f) zmax = 0.0f;
+	if (zmax > (float)0x1fffff) zmax = (float)0x1fffff;
+	cz_value = (int)(zmax + 0.5f);
+
+	/* u, v */
+	for (i = 0; i < 4; i++)
+	{
+		v[i].u = namcos22_point_read(0 + i * 2 + addr);
+		v[i].v = namcos22_point_read(1 + i * 2 + addr);
+	}
+
+	/* bri */
+	if (lit_surface_count > 0)
+	{
+		if (lit_surface_gouraud)
+		{
+			int index = lit_surface_triangles ? (lit_surface_index >> 1) : lit_surface_index;
+			int normal_index[4];
+			normal_index[0] = 0;
+			normal_index[1] = lit_surface_width;
+			normal_index[2] = lit_surface_width + 1;
+			normal_index[3] = 1;
+			index = index / (lit_surface_width - 1) + index;
+
+			for (i = 0; i < 4; i++)
+				v[i].bri = lit_surface_info[(index + normal_index[i]) & (MAX_LIT_SURFACES - 1)];
+
+			if (lit_surface_triangles)
+			{
+				if (lit_surface_index & 1)
+					v[0].bri = v[1].bri;
+				else
+					v[2].bri = v[3].bri;
+			}
+		}
+		else
+		{
+			for (i = 0; i < 4; i++)
+				v[i].bri = lit_surface_info[lit_surface_index & (MAX_LIT_SURFACES - 1)];
+		}
+	}
+	else if (packetformat & 0x40)
+	{
+		for (i = 0; i < 4; i++)
+			v[i].bri = (namcos22_point_read(i + addr) >> 16) & 0xff;
 	}
 	else
 	{
-		pSource--;
+		for (i = 0; i < 4; i++)
+			v[i].bri = (color >> 16) & 0xff;
 	}
 
-	for(;;)
+	node = new_scenenode(zsort, NODE_QUAD);
+	if (!node)
+		return;
+	node->data.quad.cmode = (v[0].u >> 12) & 0xf;
+	node->data.quad.texturebank = (v[0].v >> 12) & 0xf;
+	node->data.quad.color = (color >> 8) & 0xff;
+	node->data.quad.cz_value = cz_value >> 8;
+	node->data.quad.cz_type = (flags >> 10) & 3;
+	node->data.quad.cz_adjust = cz_adjust;
+	node->data.quad.objectflags = objectflags;
+
+	for (i = 0; i < 4; i++)
 	{
-		INT16 marker, next;
-		mPrimitiveID = *pSource++;
-		len  = (INT16)*pSource++;
+		polyvertex *p = &node->data.quad.v[i];
+		p->x = v[i].x * camera_zoom;
+		p->y = v[i].y * camera_zoom;
+		p->z = v[i].z;
+		p->u = v[i].u & 0xfff;
+		p->v = v[i].v & 0xfff;
+		p->bri = v[i].bri;
+	}
 
-		switch( len )
+	node->data.quad.direct = 0;
+	node->data.quad.vx = camera_vx;
+	node->data.quad.vy = camera_vy;
+	node->data.quad.vu = camera_vu;
+	node->data.quad.vd = camera_vd;
+	node->data.quad.vl = camera_vl;
+	node->data.quad.vr = camera_vr;
+}
+
+static void blit_quads(int addr, int len, float m[4][4])
+{
+	int finish = addr + len;
+
+	while (addr < finish)
+	{
+		int packetlength = namcos22_point_read(addr++);
+		int packetformat = namcos22_point_read(addr + 0);
+		int flags, color, bias;
+
+		switch (packetlength)
 		{
-		case 0x15:
-			HandleBB0003( pSource ); /* define viewport */
-			break;
+			case 0x17:
+				flags = namcos22_point_read(addr + 1);
+				color = namcos22_point_read(addr + 2);
+				bias = 0;
+				blit_single_quad(color, addr + 3, m, bias, flags, packetformat);
+				lit_surface_index++;
+				break;
 
-		case 0x10:
-			Handle233002( pSource ); /* set modal rendering options */
-			break;
+			case 0x18:
+				flags = namcos22_point_read(addr + 1);
+				color = namcos22_point_read(addr + 2);
+				bias  = namcos22_point_read(addr + 3);
+				blit_single_quad(color, addr + 4, m, bias, flags, packetformat);
+				lit_surface_index++;
+				break;
 
-		case 0x0a:
-			Handle300000( pSource ); /* modify view transform */
-			break;
+			case 0x10:	/* vertex lighting */
+				lit_surface_count = 0;
+				lit_surface_index = 0;
+				lit_surface_gouraud = (namcos22_point_read(addr + 1) & 3) > 0;
+				lit_surface_width = ((namcos22_point_read(addr + 1) >> 16) & 0xf) + 1;
+				lit_surface_triangles = ((namcos22_point_read(addr + 1) >> 20) & 1) > 0;
+				lit_surface_intensity = ((namcos22_point_read(addr + 3) & 0xffff) * camera_power) >> 15;
+				register_normals(addr + 4, m);
+				break;
 
-		case 0x0d:
-			Handle200002( bitmap, pSource ); /* render primitive */
-			break;
+			case 0x0d:	/* additional normals */
+				register_normals(addr + 1, m);
+				break;
 
-		default:
-         logerror( "unk 3d data(%d) addr=0x%lx!", len, pSource-(INT32*)namcos22_polygonram );
-         {
-            int i;
-            for( i=0; i<len; i++ )
-            {
-               logerror( " %06x", pSource[i]&0xffffff );
-            }
-            logerror( "\n" );
-         }
+			default:
+				logerror("blit_quads unknown packet length: addr=0x%06x len=0x%x format=0x%x\n", addr - 1, packetlength, packetformat);
+				return;
+		}
+		addr += packetlength;
+
+		if ((packetformat & 0x800000) && addr != finish)
+		{
+			logerror("blit_quads unexpected end: addr=0x%06x\n", addr);
+			return;
+		}
+	}
+}
+
+static void blit_polyobject(int code, float m[4][4])
+{
+	int list_addr = namcos22_point_read(code);
+
+	lit_surface_count = 0;
+	lit_surface_index = 0;
+
+	for (;;)
+	{
+		int object_addr = namcos22_point_read(list_addr++);
+		UINT32 chunklength;
+
+		if (object_addr < 0)
+		{
+			if (object_addr == -1)
+				break;	/* end of list */
+			object_addr &= 0x00ffffff;
+		}
+
+		chunklength = namcos22_point_read(object_addr++);
+		if (chunklength > 0x100)
+		{
+			logerror("blit_polyobject bad chunk length: addr=0x%06x len=0x%x\n", object_addr - 1, chunklength);
+			break;
+		}
+
+		blit_quads(object_addr, chunklength, m);
+	}
+
+	/* the flag applies to a single object (timecris stage 1-3 car bonnet) */
+	objectflags &= ~2;
+}
+
+static void slavesim_handle_bb0003(const INT32 *src)
+{
+	camera_ambient = (src[0x1] >> 16) & 0xffff;
+	camera_power = src[0x1] & 0xffff;
+
+	camera_lx = dspfixed_to_nativefloat(src[0x2]);
+	camera_ly = dspfixed_to_nativefloat(src[0x3]);
+	camera_lz = dspfixed_to_nativefloat(src[0x4]);
+
+	absolute_priority = (src[0x3] >> 16) & 0xffff;
+	camera_vx = SIGNED12(src[0x5] >> 16);
+	camera_vy = SIGNED12(src[0x5] & 0xffff);
+	camera_zoom = dspfloat_to_nativefloat(src[0x6]);
+	camera_vr = (int)(dspfloat_to_nativefloat(src[0x7]) * camera_zoom - 0.5f);
+	camera_vl = (int)(dspfloat_to_nativefloat(src[0x8]) * camera_zoom - 0.5f);
+	camera_vu = (int)(dspfloat_to_nativefloat(src[0x9]) * camera_zoom - 0.5f);
+	camera_vd = (int)(dspfloat_to_nativefloat(src[0xa]) * camera_zoom - 0.5f);
+
+	reflection = (src[0x2] >> 16) & 0x30;
+	cullflip = (reflection == 0x10 || reflection == 0x20);
+
+	if (reflection & 0x10)
+	{
+		int vl = camera_vl;
+		camera_vl = camera_vr;
+		camera_vr = vl;
+	}
+	if (reflection & 0x20)
+	{
+		int vu = camera_vu;
+		camera_vu = camera_vd;
+		camera_vd = vu;
+	}
+
+	viewmatrix[0][0] = dspfixed_to_nativefloat(src[0x0c]);
+	viewmatrix[1][0] = dspfixed_to_nativefloat(src[0x0d]);
+	viewmatrix[2][0] = dspfixed_to_nativefloat(src[0x0e]);
+	viewmatrix[0][1] = dspfixed_to_nativefloat(src[0x0f]);
+	viewmatrix[1][1] = dspfixed_to_nativefloat(src[0x10]);
+	viewmatrix[2][1] = dspfixed_to_nativefloat(src[0x11]);
+	viewmatrix[0][2] = dspfixed_to_nativefloat(src[0x12]);
+	viewmatrix[1][2] = dspfixed_to_nativefloat(src[0x13]);
+	viewmatrix[2][2] = dspfixed_to_nativefloat(src[0x14]);
+
+	matrix3d_apply_reflection(viewmatrix);
+
+	/* clear model rendering options */
+	cz_adjust = 0;
+	objectshift = 0;
+	objectflags = 0;
+}
+
+static void slavesim_handle_200002(const INT32 *src, int code)
+{
+	if (code == 0x5 || code >= 0x45)
+	{
+		float m[4][4];	/* row major */
+
+		matrix3d_identity(m);
+
+		m[0][0] = dspfixed_to_nativefloat(src[0x1]);
+		m[1][0] = dspfixed_to_nativefloat(src[0x2]);
+		m[2][0] = dspfixed_to_nativefloat(src[0x3]);
+		m[0][1] = dspfixed_to_nativefloat(src[0x4]);
+		m[1][1] = dspfixed_to_nativefloat(src[0x5]);
+		m[2][1] = dspfixed_to_nativefloat(src[0x6]);
+		m[0][2] = dspfixed_to_nativefloat(src[0x7]);
+		m[1][2] = dspfixed_to_nativefloat(src[0x8]);
+		m[2][2] = dspfixed_to_nativefloat(src[0x9]);
+
+		m[3][0] = SIGNED24(src[0xa]);	/* xpos */
+		m[3][1] = SIGNED24(src[0xb]);	/* ypos */
+		m[3][2] = SIGNED24(src[0xc]);	/* zpos */
+
+		matrix3d_multiply(m, viewmatrix);
+		blit_polyobject(code, m);
+	}
+	else if (code != 0 && code != 2)
+		logerror("slavesim_handle_200002:unknown code=0x%x\n", code);
+}
+
+static void slavesim_handle_300000(const INT32 *src)
+{
+	viewmatrix[0][0] = dspfixed_to_nativefloat(src[1]);
+	viewmatrix[1][0] = dspfixed_to_nativefloat(src[2]);
+	viewmatrix[2][0] = dspfixed_to_nativefloat(src[3]);
+	viewmatrix[0][1] = dspfixed_to_nativefloat(src[4]);
+	viewmatrix[1][1] = dspfixed_to_nativefloat(src[5]);
+	viewmatrix[2][1] = dspfixed_to_nativefloat(src[6]);
+	viewmatrix[0][2] = dspfixed_to_nativefloat(src[7]);
+	viewmatrix[1][2] = dspfixed_to_nativefloat(src[8]);
+	viewmatrix[2][2] = dspfixed_to_nativefloat(src[9]);
+
+	matrix3d_apply_reflection(viewmatrix);
+}
+
+static void slavesim_handle_233002(const INT32 *src)
+{
+	cz_adjust = src[1] & 0xffffff;
+	objectshift = src[2] & 0xffffff;
+	objectflags = (src[3] >> 21) & 7;
+}
+
+static void simulate_slavedsp(void)
+{
+	const INT32 *base = (const INT32 *)namcos22_polygonram;
+	const INT32 *src = base + 0x300;
+
+	if (namcos22_is_ss22)
+		src += 4;	/* FFFE 0400 */
+	else
+		src--;
+
+	for (;;)
+	{
+		UINT16 code, len, next;
+		INT32 index;
+
+		code = *src++;
+		len = *src++;
+		index = src - base;
+
+		/* alpinr2b titlescreen includes commands to modify pointram on the fly */
+		if (namcos22_gametype == NAMCOS22_ALPINE_RACER_2 && code == 0xfff8)
+		{
+			namcos22_pdp_handle_commands(index - 2);
+			src += 0x56;
+			continue;
+		}
+		else if ((index + len) >= 0x7fff)
+		{
+			logerror("simulate_slavedsp buffer overflow: len=0x%x code=0x%x addr=0x%x\n", len, code, index);
 			return;
 		}
 
-		/* hackery! commands should be streamed, not parsed here */
-		pSource += len;
-		marker = (INT16)*pSource++; /* always 0xffff */
-		next   = (INT16)*pSource++; /* link to next command */
-		if( (next&0x7fff) != (pSource - (INT32 *)namcos22_polygonram) )
-		{ /* end of list */
-			break;
+		switch (len)
+		{
+			case 0x15: slavesim_handle_bb0003(src); break;		/* define viewport */
+			case 0x10: slavesim_handle_233002(src); break;		/* model rendering options */
+			case 0x0a: slavesim_handle_300000(src); break;		/* modify view transform */
+			case 0x0d: slavesim_handle_200002(src, code); break;	/* render primitive */
+			default:
+				logerror("simulate_slavedsp unknown 3d data: len=0x%x code=0x%x addr=0x%x\n", len, code, index);
+				return;
 		}
-	} /* for(;;) */
-} /* SimulateSlaveDSP */
 
-static void
-DrawPolygons( mame_bitmap *bitmap )
-{
-	if( mbDSPisActive )
-	{
-		SimulateSlaveDSP( bitmap );
+		src += len;
+		src++;	/* should be 0xffff (GOTO command) */
+		next = *src++ & 0x7fff;	/* link to next command */
+		if (next != (index + len + 1 + 1))
+		{
+			/* end of list, normally with a "goto self" */
+			if (next != (index + len))
+				logerror("simulate_slavedsp unexpected end: addr=0x%x, next=0x%x\n", index + len, next);
+			return;
+		}
+		else if (next == 0x7fff)
+		{
+			logerror("simulate_slavedsp buffer overflow: next=0x7fff\n");
+			return;
+		}
 	}
-} /* DrawPolygons */
-
-void
-namcos22_enable_slave_simulation( void )
-{
-	mbDSPisActive = 1;
 }
 
-/*********************************************************************************************/
-
-READ32_HANDLER( namcos22_cgram_r )
+static void draw_polygons(void)
 {
-	return namcos22_cgram[offset];
+	if (namcos22_pdp_render_done && namcos22_slave_simulation_active)
+		simulate_slavedsp();
 }
+
+static void render_frame_active(void)
+{
+	/* the PDP and simulate_slavedsp are the same thing: when the PDP is inactive the
+	   parser is too (propcycl attract mode expects the previous scene) */
+	if (cpu_getcurrentframe() > namcos22_pdp_frame && namcos22_render_refresh)
+		namcos22_pdp_render_done = 0;
+
+	namcos22_render_refresh = 0;
+}
+
+
+/***************************************************************************
+    Sprites (Super System 22)
+***************************************************************************/
+
+static void draw_sprite_group(const UINT32 *src, const UINT32 *attr, int num_sprites, int deltax, int deltay, int y_lowres)
+{
+	int i;
+	for (i = 0; i < num_sprites; i++)
+	{
+		int xpos = (src[0] >> 16) - deltax;
+		int ypos = (src[0] & 0xffff) - deltay;
+		int sizex = src[1] >> 16;
+		int sizey = src[1] & 0xffff;
+		int flipy = (src[2] >> 3) & 1;
+		int rows = src[2] & 0x7;
+		int linktype = (src[2] >> 16) & 0xff;
+		int flipx = (src[2] >> 7) & 1;
+		int cols = (src[2] >> 4) & 0x7;
+		UINT32 code = src[3];
+		int tile = code >> 16;
+		int alpha = (code >> 8) & 0xff;
+
+		UINT32 zcoord = attr[0] & 0x00ffffff;
+		int color = (attr[1] >> 16) & 0xff;
+		int cz = attr[1] & 0xff;
+		int fade_enabled = (attr[1] >> 15) & 1;
+		int prioverchar = (cz == 0xfe) ? 1 : 0;
+
+		/* window clipping */
+		int clip = (src[2] >> 23) & 0xe;
+		int cx_min = -deltax + (INT16)(namcos22_spriteram[0x80 | clip] >> 16);
+		int cx_max = -deltax + (INT16)(namcos22_spriteram[0x80 | clip] & 0xffff);
+		int cy_min = -deltay + (INT16)(namcos22_spriteram[0x81 | clip] >> 16);
+		int cy_max = -deltay + (INT16)(namcos22_spriteram[0x81 | clip] & 0xffff);
+
+		if (rows == 0) rows = 8;
+		if (cols == 0) cols = 8;
+
+		if (src[2] & 0x200)	/* right justify */
+			xpos -= sizex * cols - 1;
+		if (src[2] & 0x100)	/* bottom justify */
+			ypos -= sizey * rows - 1;
+
+		if (flipy)
+		{
+			ypos += sizey * rows - 1;
+			sizey = -sizey;
+		}
+		if (flipx)
+		{
+			xpos += sizex * cols - 1;
+			sizex = -sizex;
+		}
+
+		if (y_lowres)
+		{
+			sizey *= 2;
+			ypos *= 2;
+		}
+
+		if (sizex && sizey)
+		{
+			struct scenenode *node = new_scenenode(zcoord, NODE_SPRITE);
+			if (node)
+			{
+				node->data.sprite.tile = tile;
+				node->data.sprite.flipx = flipx;
+				node->data.sprite.flipy = flipy;
+				node->data.sprite.cols = cols;
+				node->data.sprite.rows = rows;
+				node->data.sprite.linktype = linktype;
+				node->data.sprite.xpos = xpos;
+				node->data.sprite.ypos = ypos;
+				node->data.sprite.cx_min = cx_min;
+				node->data.sprite.cx_max = cx_max;
+				node->data.sprite.cy_min = cy_min;
+				node->data.sprite.cy_max = cy_max;
+				node->data.sprite.sizex = sizex;
+				node->data.sprite.sizey = sizey;
+				node->data.sprite.alpha = alpha;
+				node->data.sprite.color = color;
+				node->data.sprite.cz = cz;
+				node->data.sprite.prioverchar = prioverchar;
+				node->data.sprite.fade_enabled = fade_enabled;
+			}
+		}
+
+		src += 4;
+		attr += 2;
+	}
+}
+
+static void draw_sprites(void)
+{
+	const UINT32 *spr = namcos22_spriteram;
+	const UINT32 *vc = namcos22_vics_control;
+	int sprites_on = (~spr[0] >> 16) & 1;
+	int y_lowres = (~spr[0] >> 18) & 1;
+	int deltax = (spr[1] & 0xffff) + (spr[2] & 0xffff) + 0x2d;
+	int deltay = (spr[3] >> 16) + (0x2a >> (y_lowres ? 1 : 0));
+	int base = spr[0] & 0xffff;
+	int num_sprites = ((spr[1] >> 16) - base) + 1;
+
+	if (namcos22_gametype == NAMCOS22_AIR_COMBAT22)
+		num_sprites = 0;
+
+	if (sprites_on && num_sprites > 0 && num_sprites < 0x400)
+		draw_sprite_group(&spr[0x04000 / 4 + base * 4], &spr[0x20000 / 4 + base * 2], num_sprites, deltax, deltay, y_lowres);
+
+	/* VICS RAM: two more banks */
+	sprites_on = (~vc[0x30 / 4] >> 24) & 1;
+	y_lowres = (~vc[0x30 / 4] >> 26) & 1;
+
+	num_sprites = (vc[0x40 / 4] >> 4) & 0x1ff;
+	if (namcos22_gametype == NAMCOS22_DIRT_DASH)
+		num_sprites = (namcos22_vics_data[(vc[0x48 / 4] & 0x4000) / 4] & 0xff) + 1;
+
+	if (sprites_on && num_sprites > 0)
+		draw_sprite_group(&namcos22_vics_data[(vc[0x48 / 4] & 0xffff) / 4], &namcos22_vics_data[(vc[0x58 / 4] & 0xffff) / 4], num_sprites, deltax, deltay, y_lowres);
+
+	num_sprites = (vc[0x60 / 4] >> 4) & 0x1ff;
+	if (namcos22_gametype == NAMCOS22_AIR_COMBAT22)
+	{
+		sprites_on = (~namcos22_vics_data[(vc[0x48 / 4] & 0xffff) / 4] >> 16) & 1;
+		num_sprites = (namcos22_vics_data[(vc[0x48 / 4] & 0xffff) / 4 + 1] >> 16) + 1;
+	}
+
+	if (sprites_on && num_sprites > 0)
+		draw_sprite_group(&namcos22_vics_data[(vc[0x68 / 4] & 0xffff) / 4], &namcos22_vics_data[(vc[0x78 / 4] & 0xffff) / 4], num_sprites, deltax, deltay, y_lowres);
+}
+
+READ32_HANDLER( namcos22s_vics_control_r )
+{
+	UINT32 ret = namcos22_vics_control[offset];
+	switch (offset * 4)
+	{
+		case 0x00:	/* status register? */
+			ret = 0;
+			break;
+		case 0x40: case 0x50: case 0x60: case 0x70:	/* high bit is busy/ready? */
+			ret &= 0x7fffffff;
+			break;
+	}
+	return ret;
+}
+
+WRITE32_HANDLER( namcos22s_vics_control_w )
+{
+	COMBINE_DATA(&namcos22_vics_control[offset]);
+}
+
+
+/***************************************************************************
+    Text layer
+***************************************************************************/
 
 WRITE32_HANDLER( namcos22_cgram_w )
 {
-	COMBINE_DATA( &namcos22_cgram[offset] );
-	cgdirty[offset/32] = 1;
-	cgsomethingisdirty = 1;
+	COMBINE_DATA(&namcos22_cgram[offset]);
 }
 
-READ32_HANDLER( namcos22_gamma_r )
+static void posirq_update(void)
 {
-	return namcos22_gamma[offset];
+	int scanline = 2 * tilemapattr[4];
+
+	if (scanline < 525)
+	{
+		scanline = (scanline + 480) % 525;	/* 0 = vblank start */
+		timer_adjust(posirq_timer, cpu_getscanlinetime(scanline), 0, 0);
+	}
+	else
+		timer_adjust(posirq_timer, TIME_NEVER, 0, 0);
 }
 
-WRITE32_HANDLER( namcos22_gamma_w )
+static void posirq_callback(int param)
 {
-	COMBINE_DATA( &namcos22_gamma[offset] );
+	/* hblank irq line differs between s22/ss22 (see syscon) */
+	int line = namcos22_is_ss22 ? 1 : 0;
+
+	if (namcos22_irq_enabled & (1 << line))
+	{
+		namcos22_irq_state |= (1 << line);
+		if (namcos22_syscontrol[line] & 7)
+			cpunum_set_input_line(0, namcos22_syscontrol[line] & 7, ASSERT_LINE);
+	}
+	posirq_update();
 }
 
-READ32_HANDLER( namcos22_paletteram_r )
+static void update_text_rowscroll(void)
 {
-	return paletteram32[offset];
+	UINT32 fr = cpu_getcurrentframe();
+	int scroll_x, y, i;
+
+	if (fr != rs_frame)
+	{
+		rs_frame = fr;
+		lastrow = 0;
+	}
+
+	scroll_x = (tilemapattr[0] - 0x35c) & 0x3ff;
+	y = cpu_getscanline();
+	if (y > 480) y = 480;
+
+	for (i = lastrow; i < y; i++)
+		rowscroll[i] = scroll_x;
+	lastrow = y;
+}
+
+static void tilemapattr_word_w(int offset, UINT16 data, UINT16 keep)
+{
+	/* 0: x offset, 1: y offset, 4: posirq scanline */
+	if (offset == 0)
+		update_text_rowscroll();	/* alpines changes x scroll mid-screen */
+
+	tilemapattr[offset] = (tilemapattr[offset] & keep) | (data & ~keep);
+
+	if (offset == 4)
+		posirq_update();
+}
+
+static UINT16 tilemapattr_word_r(int offset)
+{
+	switch (offset)
+	{
+		case 5: return 0x8000;	/* dirtdash slows down if clear */
+		case 7: return 0;		/* timecris reads it when the gun triggers */
+	}
+	return tilemapattr[offset];
+}
+
+READ32_HANDLER( namcos22_tilemapattr_r )
+{
+	return (tilemapattr_word_r(offset * 2) << 16) | tilemapattr_word_r(offset * 2 + 1);
+}
+
+WRITE32_HANDLER( namcos22_tilemapattr_w )
+{
+	if ((mem_mask & 0xffff0000) != 0xffff0000)
+		tilemapattr_word_w(offset * 2, data >> 16, mem_mask >> 16);
+	if ((mem_mask & 0x0000ffff) != 0x0000ffff)
+		tilemapattr_word_w(offset * 2 + 1, data & 0xffff, mem_mask & 0xffff);
+}
+
+/* the text layer scroll of this frame (main thread, before the bands) */
+static int text_scroll_y;
+static int text_rowx[1024];
+
+static void prepare_text_tilemap(void)
+{
+	int i;
+
+	update_text_rowscroll();
+	text_scroll_y = tilemapattr[1] & 0x3ff;
+	for (i = 0; i < 1024; i++)
+		text_rowx[i] = rowscroll[0];
+	for (i = 0; i < 480; i++)
+		text_rowx[(i + text_scroll_y + 4) & 0x3ff] = rowscroll[i];
+}
+
+/* render the 64x64 tilemap of 16x16x4 RAM tiles into mix_bitmap (pens) and primap, rows of a band */
+static void draw_text_tilemap(int band, int nbands, int prio, int primask)
+{
+	const int scroll_y = text_scroll_y;
+	const UINT32 *textram = &namcos22_cgram[0x1e000 / 4];
+	int y;
+
+	for (y = 0; y < SCREEN_H; y++)
+	{
+		int ty = (y + scroll_y) & 0x3ff;
+		int sx = text_rowx[ty];
+		UINT16 *dst = mix_bitmap + y * SCREEN_W;
+		UINT8 *pri = primap + y * SCREEN_W;
+		int x = 0;
+
+		if (!ROW_OWNED(y, band, nbands))
+			continue;
+		text_row_used[y] = 0;
+
+		while (x < SCREEN_W)
+		{
+			int tx = (x + sx) & 0x3ff;
+			int tile_index = (ty >> 4) * 64 + (tx >> 4);
+			UINT16 data = NTHWORD32(textram, tile_index);
+			int code = data & 0x3ff;
+			int color = data >> 12;
+			int flipx = (data >> 10) & 1;
+			int flipy = (data >> 11) & 1;
+			int row = flipy ? 15 - (ty & 15) : (ty & 15);
+			const UINT32 *rowdata = &namcos22_cgram[code * 32 + row * 2];
+			int pal = text_palbase + color * 16;
+			int px = tx & 15;
+			int n = 16 - px;
+
+			if (n > SCREEN_W - x)
+				n = SCREEN_W - x;
+			if ((rowdata[0] & rowdata[1]) == 0xffffffff)
+			{
+				x += n;		/* all pens 0xf: transparent */
+				continue;
+			}
+			text_row_used[y] = 1;
+			for (; n > 0; n--, px++, x++)
+			{
+				int cx = flipx ? 15 - px : px;
+				int pix = (rowdata[cx >> 3] >> (28 - 4 * (cx & 7))) & 0xf;
+				if (pix != 0xf)
+				{
+					dst[x] = pal + pix;
+					pri[x] = (pri[x] & primask) | prio;
+				}
+			}
+		}
+	}
+}
+
+
+/***************************************************************************
+    Spot RAM, CZ RAM, palette, mixer
+***************************************************************************/
+
+READ32_HANDLER( namcos22s_spotram_r )
+{
+	/* 0x860004: read data */
+	if (offset == 1 && !(mem_mask & 0xffff0000))
+	{
+		UINT16 ret = spotram[(spotram_address >> 1) & 0x7ff];
+		spotram_address += 2;
+		return ret << 16;
+	}
+	return 0;
+}
+
+WRITE32_HANDLER( namcos22s_spotram_w )
+{
+	int word;
+	for (word = 0; word < 2; word++)
+	{
+		UINT16 keep = (word == 0) ? (mem_mask >> 16) : (mem_mask & 0xffff);
+		UINT16 d = (word == 0) ? (data >> 16) : (data & 0xffff);
+		if (keep == 0xffff)
+			continue;
+		switch (offset * 2 + word)
+		{
+			case 0:	/* set address */
+				spotram_address = (spotram_address & keep) | (d & ~keep);
+				break;
+			case 1:	/* write */
+				spotram[(spotram_address >> 1) & 0x7ff] = (spotram[(spotram_address >> 1) & 0x7ff] & keep) | (d & ~keep);
+				spotram_address += 2;
+				break;
+			case 3:	/* enable */
+				spotram_enable = (spotram_enable & keep) | (d & ~keep);
+				break;
+		}
+	}
+}
+
+WRITE32_HANDLER( namcos22s_chipselect_w )
+{
+	if (!(mem_mask & 0x00ff0000))
+		chipselect = data >> 16;
+	else if (!(mem_mask & 0xff000000))
+		chipselect = data >> 24;
 }
 
 WRITE32_HANDLER( namcos22_paletteram_w )
 {
-	COMBINE_DATA( &paletteram32[offset] );
-	dirtypal[offset&(0x7fff/4)] = 1;
+	UINT32 prev = namcos22_paletteram[offset];
+	COMBINE_DATA(&namcos22_paletteram[offset]);
+	if (prev != namcos22_paletteram[offset])
+		dirtypal[offset & (0x7fff / 4)] = 1;
 }
 
-static int
-video_start_common( void )
+static void update_palette(void)
 {
-	bgtilemap = tilemap_create( TextTilemapGetInfo,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,64,64 );
-	if( bgtilemap )
+	int i, j;
+	for (i = 0; i < 0x8000 / 4; i++)
 	{
-		tilemap_set_transparent_pen( bgtilemap, 0xf );
-	}
-
-	mbDSPisActive = 0;
-	memset( namcos22_polygonram, 0xcc, 0x20000 );
-
-	if( Prepare3dTexture(
-		memory_region(REGION_TEXTURE_TILEMAP),
-      Machine->gfx[GFX_TEXTURE_TILE]->gfxdata ) == 0 )
-	{
-		dirtypal = auto_malloc(NAMCOS22_PALETTE_SIZE/4);
+		if (dirtypal[i])
 		{
-			cgdirty = auto_malloc( 0x400 );
+			for (j = 0; j < 4; j++)
 			{
-				mPtRomSize = memory_region_length(REGION_POINTROM)/3;
-				mpPolyL = memory_region(REGION_POINTROM);
-				mpPolyM = mpPolyL + mPtRomSize;
-				mpPolyH = mpPolyM + mPtRomSize;
-				return 0; /* no error */
+				int which = i * 4 + j;
+				int r = NTHBYTE32(namcos22_paletteram, which + 0x00000);
+				int g = NTHBYTE32(namcos22_paletteram, which + 0x08000);
+				int b = NTHBYTE32(namcos22_paletteram, which + 0x10000);
+				pens[which] = (r << 16) | (g << 8) | b;
 			}
+			dirtypal[i] = 0;
 		}
 	}
-	return -1; /* error */
 }
 
-VIDEO_START( namcos22 )
+static void czattr_word_w(int offset, UINT16 data, UINT16 keep)
 {
-   int result;
-   mbSuperSystem22 = 0;
-   result = video_start_common();
-   return result;
+	UINT16 prev = czattr[offset];
+	czattr[offset] = (czattr[offset] & keep) | (data & ~keep);
+
+	if (offset == 4)
+	{
+		/* invalidate if the compare function changed */
+		UINT16 changed = prev ^ czattr[offset];
+		int bank;
+		for (bank = 0; bank < 4; bank++)
+			cz_was_written[bank] |= (changed >> (bank * 4)) & 2;
+	}
+}
+
+READ32_HANDLER( namcos22s_czattr_r )
+{
+	return (czattr[offset * 2] << 16) | czattr[offset * 2 + 1];
+}
+
+WRITE32_HANDLER( namcos22s_czattr_w )
+{
+	if ((mem_mask & 0xffff0000) != 0xffff0000)
+		czattr_word_w(offset * 2, data >> 16, mem_mask >> 16);
+	if ((mem_mask & 0x0000ffff) != 0x0000ffff)
+		czattr_word_w(offset * 2 + 1, data & 0xffff, mem_mask & 0xffff);
+}
+
+WRITE32_HANDLER( namcos22s_czram_w )
+{
+	int bank;
+	for (bank = 0; bank < 4; bank++)
+	{
+		/* write enable bit */
+		if (~czattr[4] >> (bank * 4) & 1)
+		{
+			UINT32 prev = (banked_czram[bank][offset * 2] << 16) | banked_czram[bank][offset * 2 + 1];
+			UINT32 temp = prev;
+			COMBINE_DATA(&temp);
+			banked_czram[bank][offset * 2] = temp >> 16;
+			banked_czram[bank][offset * 2 + 1] = temp & 0xffff;
+			cz_was_written[bank] |= (prev ^ temp);
+		}
+	}
+}
+
+READ32_HANDLER( namcos22s_czram_r )
+{
+	int bank = czattr[5] & 3;
+	return (banked_czram[bank][offset * 2] << 16) | banked_czram[bank][offset * 2 + 1];
+}
+
+static void recalc_czram_tables(void)
+{
+	int bank;
+	for (bank = 0; bank < 4; bank++)
+	{
+		/* the SS22 czram is a big compare table: make it a lookup table */
+		if (cz_was_written[bank])
+		{
+			int reverse = (czattr[4] >> (bank * 4) & 2) ? 0xff : 0;
+			int small_val = 0x2000;
+			int small_offset = reverse;
+			int large_val = 0;
+			int large_offset = reverse ^ 0xff;
+			int prev = 0;
+			int i, j;
+
+			for (i = 0; i < 0x100; i++)
+			{
+				int factor = i ^ reverse;
+				int val = banked_czram[bank][factor];
+				int start = prev;
+				int end;
+				if (val > 0x2000) val = 0x2000;
+				end = val;
+
+				if (i > 0)
+				{
+					/* discard if the compare function doesn't match */
+					if (start >= end)
+						continue;
+					for (j = start; j < end; j++)
+						recalc_czram[bank][j] = factor;
+				}
+
+				if (val < small_val)
+				{
+					small_val = val;
+					small_offset = factor;
+				}
+				if (val > large_val)
+				{
+					large_val = val;
+					large_offset = factor;
+				}
+				prev = val;
+			}
+
+			for (j = 0; j < small_val; j++)
+				recalc_czram[bank][j] = small_offset;
+			for (j = large_val; j < 0x2000; j++)
+				recalc_czram[bank][j] = large_offset;
+
+			cz_was_written[bank] = 0;
+		}
+	}
+}
+
+static void update_mixer(void)
+{
+	const UINT32 *m = namcos22_mixer;
+
+	if (namcos22_is_ss22)
+	{
+		poly_fade_r        = NTHBYTE32(m, 0x00);
+		poly_fade_g        = NTHBYTE32(m, 0x01);
+		poly_fade_b        = NTHBYTE32(m, 0x02);
+		fog_r              = NTHBYTE32(m, 0x05);
+		fog_g              = NTHBYTE32(m, 0x06);
+		fog_b              = NTHBYTE32(m, 0x07);
+		spot_factor        = (NTHBYTE32(m, 0x0e) << 8) | NTHBYTE32(m, 0x0d);
+		poly_alpha_color   = NTHBYTE32(m, 0x0f);
+		poly_alpha_pen     = NTHBYTE32(m, 0x10);
+		poly_alpha_factor  = NTHBYTE32(m, 0x11);
+		screen_fade_r      = NTHBYTE32(m, 0x16);
+		screen_fade_g      = NTHBYTE32(m, 0x17);
+		screen_fade_b      = NTHBYTE32(m, 0x18);
+		screen_fade_factor = NTHBYTE32(m, 0x19);
+		mixer_flags        = NTHBYTE32(m, 0x1a);
+		text_palbase       = (NTHBYTE32(m, 0x1b) << 8) & 0x7f00;
+
+		poly_fade_enabled = (m[0] & 0xffffff00) != 0xffffff00;
+	}
+	else
+	{
+		int i;
+		mixer_flags   = (NTHBYTE32(m, 0x00) << 8) | NTHBYTE32(m, 0x01);
+		bg_palbase    = (NTHBYTE32(m, 0x04) << 8) & 0x7f00;
+		text_palbase  = (NTHBYTE32(m, 0x07) << 8) & 0x7f00;
+		screen_fade_r = (NTHBYTE32(m, 0x11) << 8) | NTHBYTE32(m, 0x12);
+		screen_fade_g = (NTHBYTE32(m, 0x13) << 8) | NTHBYTE32(m, 0x14);
+		screen_fade_b = (NTHBYTE32(m, 0x15) << 8) | NTHBYTE32(m, 0x16);
+		fog_colormask = m[0x84 / 4];
+		for (i = 0; i < 4; i++)
+		{
+			fog_r_per_cztype[i] = NTHBYTE32(m, 0x0100 + i);
+			fog_g_per_cztype[i] = NTHBYTE32(m, 0x0180 + i);
+			fog_b_per_cztype[i] = NTHBYTE32(m, 0x0200 + i);
+		}
+	}
+}
+
+static void namcos22s_mix_text_layer(int band, int nbands, int prival)
+{
+	int alpha_check12 = NTHBYTE32(namcos22_mixer, 0x12);
+	int alpha_check13 = NTHBYTE32(namcos22_mixer, 0x13);
+	int alpha_mask    = NTHBYTE32(namcos22_mixer, 0x14) & 0xf;
+	int alpha_factor  = NTHBYTE32(namcos22_mixer, 0x15);
+	int spot_enabled = (spotram_enable & 1) && (chipselect & 0xc000);
+	int spot_fac = (spot_factor < 0x100) ? 0 : spot_factor & 0xff;
+	int spot_palbase = (text_palbase >> 8) & 3;
+	int fade_enabled = (mixer_flags & 2) && screen_fade_factor;
+	int fade_factor = 0xff - screen_fade_factor;
+	int x, y;
+
+	for (y = 0; y < SCREEN_H; y++)
+	{
+		const UINT16 *src = mix_bitmap + y * SCREEN_W;
+		UINT32 *dest = frame + y * SCREEN_W;
+		const UINT8 *pri = primap + y * SCREEN_W;
+		if (!text_row_used[y] || !ROW_OWNED(y, band, nbands))
+			continue;
+		for (x = 0; x < SCREEN_W; x++)
+		{
+			int pen = 0, r, g, b;
+			UINT32 c;
+
+			if (pri[x] != prival)
+				continue;
+
+			if (spot_enabled)
+			{
+				pen = spotram[((src[x] << 2) | spot_palbase) & 0x3ff] & 0xff;
+				if (pen < 0x80)
+					c = pens[pen | text_palbase];
+				else if (prival != 6)
+					continue;
+				else
+					c = 0;
+			}
+			else
+			{
+				c = pens[src[x]];
+				pen = src[x] & 0xff;
+			}
+			r = RGB_R(c); g = RGB_G(c); b = RGB_B(c);
+
+			if (spot_enabled && pen >= 0x80)
+			{
+				/* spot pen becomes brightness factor */
+				int factor = (spot_fac * (pen & 0x7f)) >> 7;
+				r = RGB_R(dest[x]); g = RGB_G(dest[x]); b = RGB_B(dest[x]);
+				SCALE_IMM_CLAMP(r, g, b, 0x100 - factor);
+			}
+			else
+			{
+				if (fade_enabled)
+					BLEND(r, g, b, screen_fade_r, screen_fade_g, screen_fade_b, fade_factor);
+
+				if (alpha_factor && ((pen & 0xf) == alpha_mask || (pen >= alpha_check12 && pen <= alpha_check13)))
+					BLEND(r, g, b, (int)RGB_R(dest[x]), (int)RGB_G(dest[x]), (int)RGB_B(dest[x]), 0xff - alpha_factor);
+			}
+
+			dest[x] = TO_RGB(r, g, b);
+		}
+	}
+}
+
+
+/* System 22: text layer over the scene, shadow pens, global fade and the gamma PROMs */
+static void namcos22_mix_text_layer(int band, int nbands, mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	int fade_enabled = (screen_fade_r != 0x100 || screen_fade_g != 0x100 || screen_fade_b != 0x100);
+	UINT32 fade_r_add = (screen_fade_r > 0x100) ? (1 << 16) : 0;
+	UINT32 fade_g_add = (screen_fade_g > 0x100) ? (1 << 8) : 0;
+	UINT32 fade_b_add = (screen_fade_b > 0x100) ? 1 : 0;
+	int fade_white = fade_r_add || fade_g_add || fade_b_add;
+	int shadow_enabled = (mixer_flags >> 8) & 1;	/* ridgerac is the only game not using shadow */
+	int mix_r[3], mix_g[3], mix_b[3];
+	UINT32 *rl = gamma_lut[0], *gl = gamma_lut[1], *bl = gamma_lut[2];
+	int i, x, y;
+
+	for (i = 0; i < 3; i++)
+	{
+		mix_r[i] = NTHBYTE32(namcos22_mixer, 0x08 + i * 3);
+		mix_g[i] = NTHBYTE32(namcos22_mixer, 0x09 + i * 3);
+		mix_b[i] = NTHBYTE32(namcos22_mixer, 0x0a + i * 3);
+	}
+
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		const UINT16 *src = mix_bitmap + y * SCREEN_W;
+		const UINT8 *pri = primap + y * SCREEN_W;
+		const UINT32 *fr = frame + y * SCREEN_W;
+		UINT32 *dest = (UINT32 *)bitmap->line[y];
+
+		if (!ROW_OWNED(y, band, nbands))
+			continue;
+
+		if (!fade_enabled && !text_row_used[y])
+		{
+			/* no text on this row: gamma only */
+			const UINT32 *rp = rl, *gp = gl, *bp = bl;
+			const UINT32 *s_ = fr + cliprect->min_x;
+			UINT32 *d_ = dest + cliprect->min_x;
+			int n;
+			for (n = cliprect->max_x - cliprect->min_x + 1; n > 0; n--)
+			{
+				UINT32 rgb = *s_++;
+				*d_++ = rp[(rgb >> 16) & 0xff] | gp[(rgb >> 8) & 0xff] | bp[rgb & 0xff];
+			}
+			continue;
+		}
+
+		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
+		{
+			UINT32 pixel = fr[x];
+
+			/* skip if transparent or under poly */
+			if (pri[x] == 2)
+			{
+				int pen = src[x] & 0xff;
+				if (shadow_enabled && pen >= 0xfc && pen <= 0xfe)
+				{
+					int r = RGB_R(pixel), g = RGB_G(pixel), b = RGB_B(pixel);
+					SCALE_CLAMP(r, g, b, mix_r[pen - 0xfc], mix_g[pen - 0xfc], mix_b[pen - 0xfc]);
+					pixel = TO_RGB(r, g, b);
+				}
+				else
+					pixel = pens[src[x]];
+			}
+
+			/* global fade */
+			if (fade_enabled)
+			{
+				int r, g, b;
+				if (fade_white)
+				{
+					/* blacks must be able to scale up */
+					if (!(pixel & 0xff0000)) pixel += fade_r_add;
+					if (!(pixel & 0x00ff00)) pixel += fade_g_add;
+					if (!(pixel & 0x0000ff)) pixel += fade_b_add;
+				}
+				r = RGB_R(pixel); g = RGB_G(pixel); b = RGB_B(pixel);
+				SCALE_CLAMP(r, g, b, screen_fade_r, screen_fade_g, screen_fade_b);
+				pixel = TO_RGB(r, g, b);
+			}
+
+			/* gamma */
+			dest[x] = rl[(pixel >> 16) & 0xff] | gl[(pixel >> 8) & 0xff] | bl[pixel & 0xff];
+		}
+	}
+}
+
+/***************************************************************************
+    Video start / update
+***************************************************************************/
+
+void namcos22_video_reset(void)
+{
+	node_used = 0;
+	memset(&scenenode_root, 0, sizeof(scenenode_root));
+	posirq_update();
+}
+
+static void namcos22_video_stop(void);
+
+static int namcos22_common_video_start(void)
+{
+	add_exit_callback(namcos22_video_stop);
+	const UINT8 *tmap = memory_region(REGION_GFX3);
+	const UINT8 *packed;
+	int i, attr, y, x;
+
+	pens = auto_malloc(0x8000 * sizeof(UINT32));
+	dirtypal = auto_malloc(0x8000 / 4);
+	mix_bitmap = auto_malloc(SCREEN_W * SCREEN_H * sizeof(UINT16));
+	primap = auto_malloc(SCREEN_W * SCREEN_H);
+	frame = auto_malloc(SCREEN_W * SCREEN_H * sizeof(UINT32));
+	if (!pens || !dirtypal || !mix_bitmap || !primap || !frame)
+		return 1;
+
+	memset(pens, 0, 0x8000 * sizeof(UINT32));
+	memset(dirtypal, 1, 0x8000 / 4);
+	memset(mix_bitmap, 0, SCREEN_W * SCREEN_H * sizeof(UINT16));
+
+	matrix3d_identity(viewmatrix);
+
+	/* textures: the tilemap is little endian words, then packed attribute nibbles */
+	texture_tilemap = auto_malloc(0x100000 * sizeof(UINT16));
+	texture_tileattr = auto_malloc(0x100000);
+	if (!texture_tilemap || !texture_tileattr)
+		return 1;
+	for (i = 0; i < 0x100000; i++)
+		texture_tilemap[i] = tmap[i * 2] | (tmap[i * 2 + 1] << 8);
+	packed = tmap + 0x200000;
+	for (i = 0; i < 0x80000; i++)
+	{
+		texture_tileattr[i * 2] = packed[i] >> 4;
+		texture_tileattr[i * 2 + 1] = packed[i] & 0xf;
+	}
+	texture_tiledata = memory_region(REGION_GFX2);
+
+	for (attr = 0; attr < 16; attr++)
+		for (y = 0; y < 16; y++)
+			for (x = 0; x < 16; x++)
+			{
+				int ix = x, iy = y;
+				if (attr & 4) ix = 15 - ix;
+				if (attr & 2) iy = 15 - iy;
+				if (attr & 8) { int temp = ix; ix = iy; iy = temp; }
+				texture_ayx_to_pixel[(attr << 8) | (y << 4) | x] = (iy << 4) | ix;
+			}
+
+	/* System 22 specific */
+	switch (namcos22_gametype)
+	{
+		case NAMCOS22_RIDGE_RACER:
+		case NAMCOS22_RIDGE_RACER2:
+		case NAMCOS22_ACE_DRIVER:
+		case NAMCOS22_CYBER_COMMANDO:
+			for (i = 0; i < 0x100000; i++)
+			{
+				int tile = texture_tilemap[i];
+				if (~texture_tileattr[i] & 1)
+					texture_tilemap[i] = (tile & 0x3fff) | 0x8000;
+			}
+			break;
+	}
+
+	texture_tile32 = auto_malloc(0x100000 * sizeof(UINT32));
+	if (!texture_tile32)
+		return 1;
+	for (i = 0; i < 0x100000; i++)
+		texture_tile32[i] = ((UINT32)texture_tilemap[i] << 12) | texture_tileattr[i];
+
+	posirq_timer = timer_alloc(posirq_callback);
+
+	state_save_register_memory("namcos22v", 0, "dirtypal", dirtypal, sizeof(UINT8), 0x8000 / 4);
+	state_save_register_memory("namcos22v", 0, "tilemapattr", tilemapattr, sizeof(UINT16), 8);
+	state_save_register_memory("namcos22v", 0, "rowscroll", rowscroll, sizeof(UINT16), 480);
+	state_save_register_memory("namcos22v", 0, "lastrow", &lastrow, sizeof(UINT16), 1);
+	state_save_register_memory("namcos22v", 0, "rs_frame", &rs_frame, sizeof(UINT32), 1);
+	state_save_register_memory("namcos22v", 0, "absolute_priority", &absolute_priority, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "objectshift", &objectshift, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "cz_adjust", &cz_adjust, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "objectflags", &objectflags, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "viewmatrix", &viewmatrix[0][0], sizeof(float), 16);
+	state_save_register_memory("namcos22v", 0, "reflection", &reflection, sizeof(UINT8), 1);
+	state_save_register_memory("namcos22v", 0, "cullflip", &cullflip, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vx", &camera_vx, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vy", &camera_vy, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vu", &camera_vu, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vd", &camera_vd, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vl", &camera_vl, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_vr", &camera_vr, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_zoom", &camera_zoom, sizeof(float), 1);
+	state_save_register_memory("namcos22v", 0, "camera_lx", &camera_lx, sizeof(float), 1);
+	state_save_register_memory("namcos22v", 0, "camera_ly", &camera_ly, sizeof(float), 1);
+	state_save_register_memory("namcos22v", 0, "camera_lz", &camera_lz, sizeof(float), 1);
+	state_save_register_memory("namcos22v", 0, "camera_ambient", &camera_ambient, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "camera_power", &camera_power, sizeof(int), 1);
+	return 0;
 }
 
 VIDEO_START( namcos22s )
 {
-   int result;
-   mbSuperSystem22 = 1;
-   namcos22_czram[0] = auto_malloc( 0x200 );
-   namcos22_czram[1] = auto_malloc( 0x200 );
-   namcos22_czram[2] = auto_malloc( 0x200 );
-   namcos22_czram[3] = auto_malloc( 0x200 );
-   result = video_start_common();
-   return result;
+	int bank;
+
+	if (namcos22_common_video_start())
+		return 1;
+
+	sprite_data = memory_region(REGION_GFX1);
+	sprite_count = memory_region_length(REGION_GFX1) / (32 * 32);
+
+	spotram = auto_malloc(0x800 * sizeof(UINT16));
+	if (!spotram)
+		return 1;
+	memset(spotram, 0, 0x800 * sizeof(UINT16));
+
+	for (bank = 0; bank < 4; bank++)
+	{
+		banked_czram[bank] = auto_malloc(0x100 * sizeof(UINT16));
+		recalc_czram[bank] = auto_malloc(0x2000);
+		if (!banked_czram[bank] || !recalc_czram[bank])
+			return 1;
+		memset(banked_czram[bank], 0, 0x100 * sizeof(UINT16));
+		memset(recalc_czram[bank], 0, 0x2000);
+		cz_was_written[bank] = 1;
+		state_save_register_memory("namcos22v", bank, "banked_czram", banked_czram[bank], sizeof(UINT16), 0x100);
+	}
+
+	state_save_register_memory("namcos22v", 0, "spotram", spotram, sizeof(UINT16), 0x800);
+	state_save_register_memory("namcos22v", 0, "spotram_enable", &spotram_enable, sizeof(UINT32), 1);
+	state_save_register_memory("namcos22v", 0, "spotram_address", &spotram_address, sizeof(UINT32), 1);
+	state_save_register_memory("namcos22v", 0, "chipselect", &chipselect, sizeof(int), 1);
+	state_save_register_memory("namcos22v", 0, "czattr", czattr, sizeof(UINT16), 8);
+	state_save_register_memory("namcos22v", 0, "cz_was_written", cz_was_written, sizeof(UINT32), 4);
+	return 0;
+}
+
+/* the frame, row by row: the main thread prepares it, then each band (one
+   thread, or several with the "Threaded Video" option) draws its rows from
+   the background to the screen bitmap */
+static struct
+{
+	mame_bitmap *bitmap;
+	const rectangle *cliprect;
+	UINT32 bg;
+	int layer;
+	int gamma_identity;
+} fj;
+
+static void ss22_frame_rows(int band, int nbands)
+{
+	int x, y;
+
+	for (y = 0; y < SCREEN_H; y++)
+		if (ROW_OWNED(y, band, nbands))
+		{
+			UINT32 *f = frame + y * SCREEN_W;
+			for (x = 0; x < SCREEN_W; x++)
+				f[x] = fj.bg;
+			memset(primap + y * SCREEN_W, 0, SCREEN_W);
+		}
+
+	if (fj.layer & 4)
+	{
+		draw_text_tilemap(band, nbands, 4, 4);
+		namcos22s_mix_text_layer(band, nbands, 4);
+	}
+	render_scene_band(band, nbands);
+	if (fj.layer & 4)
+		namcos22s_mix_text_layer(band, nbands, 6);
+
+	/* gamma, to the screen */
+	{
+		const rectangle *cliprect = fj.cliprect;
+		const int minx = cliprect->min_x, w = cliprect->max_x - cliprect->min_x + 1;
+		const UINT32 *rp = gamma_lut[0], *gp = gamma_lut[1], *bp = gamma_lut[2];
+
+		for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+		{
+			const UINT32 *src = frame + y * SCREEN_W + minx;
+			UINT32 *dst = (UINT32 *)fj.bitmap->line[y] + minx;
+			int n;
+
+			if (!ROW_OWNED(y, band, nbands))
+				continue;
+			if (fj.gamma_identity)
+				memcpy(dst, src, w * sizeof(UINT32));
+			else
+				for (n = w; n > 0; n--)
+				{
+					UINT32 rgb = *src++;
+					*dst++ = rp[(rgb >> 16) & 0xff] | gp[(rgb >> 8) & 0xff] | bp[rgb & 0xff];
+				}
+		}
+	}
+}
+
+static void s22_frame_rows(int band, int nbands)
+{
+	int x, y;
+
+	for (y = 0; y < SCREEN_H; y++)
+		if (ROW_OWNED(y, band, nbands))
+		{
+			UINT32 *f = frame + y * SCREEN_W;
+			for (x = 0; x < SCREEN_W; x++)
+				f[x] = fj.bg;
+			memset(primap + y * SCREEN_W, 0, SCREEN_W);
+		}
+
+	/* polygons, then the text layer and the final mix */
+	render_scene_band(band, nbands);
+	draw_text_tilemap(band, nbands, 2, 3);
+	namcos22_mix_text_layer(band, nbands, fj.bitmap, fj.cliprect);
 }
 
 VIDEO_UPDATE( namcos22s )
 {
-	int beamx,beamy;
-	UINT32 bgColor;
-	UpdateVideoMixer();
-	bgColor = (mixer.rBackColor<<16)|(mixer.gBackColor<<8)|mixer.bBackColor;
-   fillbitmap( bitmap, bgColor, cliprect );
-   UpdatePaletteS();
-   DrawCharacterLayer( bitmap, cliprect );
-	DrawPolygons( bitmap );
-   DrawSprites( bitmap, cliprect );
-   RenderScene( bitmap );
-	DrawTranslucentCharacters( bitmap, cliprect );
-	ApplyGamma( bitmap );
+	int bg_r, bg_g, bg_b, x;
+	const UINT32 *m = namcos22_mixer;
 
-	if( namcos22_gametype == NAMCOS22_TIME_CRISIS )
+	render_frame_active();
+	update_mixer();
+	update_palette();
+	recalc_czram_tables();
+
+	/* background color */
+	bg_r = NTHBYTE32(m, 0x08);
+	bg_g = NTHBYTE32(m, 0x09);
+	bg_b = NTHBYTE32(m, 0x0a);
+	if ((mixer_flags & 1) && screen_fade_factor)
+		BLEND(bg_r, bg_g, bg_b, screen_fade_r, screen_fade_g, screen_fade_b, 0xff - screen_fade_factor);
+	fj.bg = TO_RGB(bg_r, bg_g, bg_b);
+
+	/* gamma */
+	fj.gamma_identity = 1;
+	for (x = 0; x < 256; x++)
 	{
-		const rectangle *visible = &Machine->visible_area;
-		/* Map the native gun ranges over the full visible screen. */
-		beamx = visible->min_x + (readinputport(1) - TIMECRIS_GUN_X_MIN) *
-			(visible->max_x - visible->min_x) / (TIMECRIS_GUN_X_MAX - TIMECRIS_GUN_X_MIN);
-		beamy = visible->min_y + (readinputport(2) - TIMECRIS_GUN_Y_MIN) *
-			(visible->max_y - visible->min_y) / (TIMECRIS_GUN_Y_MAX - TIMECRIS_GUN_Y_MIN);
-		draw_crosshair( bitmap, beamx, beamy, cliprect, 0 );
+		gamma_lut[0][x] = NTHBYTE32(m, 0x100 + x) << 16;
+		gamma_lut[1][x] = NTHBYTE32(m, 0x200 + x) << 8;
+		gamma_lut[2][x] = NTHBYTE32(m, 0x300 + x);
+		if (gamma_lut[0][x] != (UINT32)(x << 16) || gamma_lut[1][x] != (UINT32)(x << 8) || gamma_lut[2][x] != (UINT32)x)
+			fj.gamma_identity = 0;
 	}
 
-#ifdef MAME_DEBUG
-   if( code_pressed(KEYCODE_D) )
-   {
-      FILE *f = fopen( "dump.txt", "wb" );
-      if( f )
-      {
-         {
-            int i,bank;
-            for( bank=0; bank<4; bank++ )
-            {
-               fprintf( f, "czram[%d] =", bank );
-               for( i=0; i<256; i++ )
-               {
-                  fprintf( f, " %04x", namcos22_czram[bank][i] );
-               }
-               fprintf( f, "\n" );
-            }
-         }
+	/* the scene, then the rows */
+	fj.layer = NTHBYTE32(m, 0x1f);
+	fj.bitmap = bitmap;
+	fj.cliprect = cliprect;
+	if (fj.layer & 4)
+		prepare_text_tilemap();
+	if (fj.layer & 2) draw_sprites();
+	if (fj.layer & 1) draw_polygons();
+	render_frame(ss22_frame_rows);
+	namcos22_draw_crosshairs(bitmap, cliprect);
+}
 
-	      Dump(f,0x810000, 0x81000f, "cz attr" );
-			Dump(f,0x820000, 0x8202ff, "unk_ac" );
-	      Dump(f,0x824000, 0x8243ff, "gamma");
-			Dump(f,0x828000, 0x83ffff, "palette" );
-         Dump(f,0x8a0000, 0x8a000f, "tilemap_attr");
-         Dump(f,0x880000, 0x89ffff, "cgram/textram");
-         Dump(f,0x900000, 0x90ffff, "vics_data");
-         Dump(f,0x940000, 0x94007f, "vics_control");
-         Dump(f,0x980000, 0x9affff, "sprite374" );
-         Dump(f,0xc00000, 0xc1ffff, "polygonram");
-         fclose( f );
-      }
-      while( code_pressed(KEYCODE_D) ){}
-   }
-#endif
+VIDEO_START( namcos22 )
+{
+	if (namcos22_common_video_start())
+		return 1;
+	namcos22_gamma_proms = memory_region(REGION_PROMS);
+	sprite_data = NULL;
+	sprite_count = 1;
+	return 0;
 }
 
 VIDEO_UPDATE( namcos22 )
 {
-	UpdateVideoMixer();
-   fillbitmap( bitmap, get_black_pen(), cliprect );
-	UpdatePalette();
-	DrawCharacterLayer( bitmap, cliprect );
-   DrawPolygons( bitmap );
-   RenderScene(bitmap);
-	DrawTranslucentCharacters( bitmap, cliprect );
-	ApplyGamma( bitmap );
+	int i;
 
-#ifdef MAME_DEBUG
-   if( code_pressed(KEYCODE_D) )
-   {
-      FILE *f = fopen( "dump.txt", "wb" );
-      if( f )
-      {
-//        Dump(f,0x90000000, 0x90000003, "led?" );
-//         Dump(f,0x90010000, 0x90017fff, "cz_ram");
-//         Dump(f,0x900a0000, 0x900a000f, "tilemap_attr");
-         Dump(f,0x90020000, 0x90027fff, "gamma");
-			    //   0x90020000, 0x90027fff
-//         Dump(f,0x70000000, 0x7001ffff, "polygonram");
-         fclose( f );
-      }
-      while( code_pressed(KEYCODE_D) ){}
-   }
-#endif
-}
+	render_frame_active();
+	update_mixer();
+	update_palette();
 
-WRITE16_HANDLER( namcos22_dspram16_bank_w )
-{
-	COMBINE_DATA( &namcos22_dspram_bank );
-}
-
-READ16_HANDLER( namcos22_dspram16_r )
-{
-	UINT32 value = namcos22_polygonram[offset];
-	switch( namcos22_dspram_bank & 3 )
+	fj.bg = pens[bg_palbase | 0xff];
+	for (i = 0; i < 256; i++)
 	{
-	case 0:
-		value &= 0xffff;
-		break;
-
-	case 1:
-		value>>=16;
-		break;
-
-	case 2:
-		mUpperWordLatch = value>>16;
-		value &= 0xffff;
-		break;
-
-	case 3:
-		return 0;
+		gamma_lut[0][i] = namcos22_gamma_proms[0x000 + i] << 16;
+		gamma_lut[1][i] = namcos22_gamma_proms[0x100 + i] << 8;
+		gamma_lut[2][i] = namcos22_gamma_proms[0x200 + i];
 	}
-	return (UINT16)value;
-} /* namcos22_dspram16_r */
+	fj.bitmap = bitmap;
+	fj.cliprect = cliprect;
 
-WRITE16_HANDLER( namcos22_dspram16_w )
-{
-	UINT32 value = namcos22_polygonram[offset];
-	UINT16 lo = value&0xffff;
-	UINT16 hi = value>>16;
-	switch( namcos22_dspram_bank & 3 )
-	{
-	case 0:
-		COMBINE_DATA( &lo );
-		break;
-
-	case 1:
-		COMBINE_DATA( &hi );
-		break;
-
-	case 2:
-		COMBINE_DATA( &lo );
-		hi = mUpperWordLatch;
-		break;
-
-	default:
-		break;
-	}
-	namcos22_polygonram[offset] = (hi<<16)|lo;
-} /* namcos22_dspram16_w */
-
-static void
-Dump( FILE *f, unsigned addr1, unsigned addr2, const char *name )
-{
-   unsigned addr;
-   fprintf( f, "%s:\n", name );
-   for( addr=addr1; addr<=addr2; addr+=16 )
-   {
-      unsigned char data[16];
-      int bHasNonZero = 0;
-      int i;
-      for( i=0; i<16; i++ )
-      {
-         data[i] = cpunum_read_byte( 0, addr+i );
-         if( data[i] )
-         {
-            bHasNonZero = 1;
-         }
-      }
-      if( bHasNonZero )
-      {
-         fprintf( f,"%08x:", addr );
-         for( i=0; i<16; i++ )
-         {
-            if( (i&0x03)==0 )
-            {
-               fprintf( f, " " );
-            }
-            fprintf( f, "%02x", data[i] );
-         }
-         fprintf( f, "\n" );
-      }
-   }
-   fprintf( f, "\n" );
+	draw_polygons();
+	prepare_text_tilemap();
+	render_frame(s22_frame_rows);
 }
 
-/**
- * 4038 spot enable?
- * 0828 pre-initialization
- * 0838 post-initialization
- **********************************************
- * upload:
- *   #bits data
- *    0010 FEC0
- *    0010 FF10
- *    0004 0004
- *    0004 000E
- *    0003 0007
- *    0002 0002
- *    0002 0003
- *    0001 0001
- *    0001 0001
- *    0001 0000
- *    0001 0001
- *    0001 0001
- *    0001 0000
- *    0001 0000
- *    0001 0000
- *    0001 0001
- **********************************************
- *    0008 00EA // 0x0ff
- *    000A 0364 // 0x3ff
- *    000A 027F // 0x3ff
- *    0003 0005 // 0x007
- *    0001 0001 // 0x001
- *    0001 0001 // 0x001
- *    0001 0001 // 0x001
- **********************************************
- */
-WRITE32_HANDLER(namcos22_port800000_w)
+static void namcos22_video_stop(void)
 {
-   /* 00000011011111110000100011111111001001111110111110110001 */
-   UINT16 word = data>>16;
-   logerror( "%x: C304/C399: 0x%04x\n", activecpu_get_previouspc(), word );
-   if( word == 0x4038 )
-   {
-      mbSpotlightEnable = 1;
-   }
-   else
-   {
-      mbSpotlightEnable = 0;
-   }
-} /* namcos22_port800000_w */
+	{
+		int i;
+		for (i = 0; i < node_chunk_count; i++)
+		{
+			free(node_chunks[i]);
+			node_chunks[i] = NULL;
+		}
+		node_chunk_count = 0;
+		node_used = 0;
+	}
+}

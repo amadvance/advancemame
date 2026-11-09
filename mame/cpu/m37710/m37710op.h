@@ -514,174 +514,135 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REG_S + OPER_8_IMM()
 /* =========================== OPERATION MACROS =========================== */
 /* ======================================================================== */
 
-/* M37710  Push all */
+/* M37710  Push all (as in current MAME: PS pushes IPL too) */
 #undef OP_PSH
-
 #if FLAG_SET_M
 #if FLAG_SET_X
 #define OP_PSH(MODE)	\
 	SRC	= OPER_8_##MODE();	\
+	CLK(12);	\
 	if (SRC&0x1)	\
-		m37710i_push_8(REG_A);	\
+		{ m37710i_push_8(REG_A); CLK(2); }	\
 	if (SRC&0x2)	\
-		m37710i_push_8(REG_BA);	\
+		{ m37710i_push_8(REG_BA); CLK(2); }	\
 	if (SRC&0x4)	\
-		m37710i_push_8(REG_X);	\
+		{ m37710i_push_8(REG_X); CLK(2); }	\
 	if (SRC&0x8)	\
-		m37710i_push_8(REG_Y);	\
+		{ m37710i_push_8(REG_Y); CLK(2); }	\
 	if (SRC&0x10)	\
-		m37710i_push_16(REG_D);	\
+		{ m37710i_push_16(REG_D); CLK(2); }	\
 	if (SRC&0x20)	\
-		m37710i_push_8(REG_DB>>16);	\
+		{ m37710i_push_8(REG_DB>>16); CLK(1); }	\
 	if (SRC&0x40)	\
-		m37710i_push_8(REG_PB>>16);	\
+		{ m37710i_push_8(REG_PB>>16); CLK(1); }	\
 	if (SRC&0x80)	\
-		m37710i_push_8(m37710i_get_reg_p());
-#else	// FLAG_SET_X
+		{ m37710i_push_8(m37710i_cpu.ipl); m37710i_push_8(m37710i_get_reg_p()); CLK(2); }
+#else
 #define OP_PSH(MODE)	\
 	SRC	= OPER_8_##MODE();	\
+	CLK(12);	\
 	if (SRC&0x1)	\
-		m37710i_push_8(REG_A);	\
+		{ m37710i_push_8(REG_A); CLK(2); }	\
 	if (SRC&0x2)	\
-		m37710i_push_8(REG_BA);	\
+		{ m37710i_push_8(REG_BA); CLK(2); }	\
 	if (SRC&0x4)	\
-		m37710i_push_16(REG_X);	\
+		{ m37710i_push_16(REG_X); CLK(2); }	\
 	if (SRC&0x8)	\
-		m37710i_push_16(REG_Y);	\
+		{ m37710i_push_16(REG_Y); CLK(2); }	\
 	if (SRC&0x10)	\
-		m37710i_push_16(REG_D);	\
+		{ m37710i_push_16(REG_D); CLK(2); }	\
 	if (SRC&0x20)	\
-		m37710i_push_8(REG_DB>>16);	\
+		{ m37710i_push_8(REG_DB>>16); CLK(1); }	\
 	if (SRC&0x40)	\
-		m37710i_push_8(REG_PB>>16);	\
+		{ m37710i_push_8(REG_PB>>16); CLK(1); }	\
 	if (SRC&0x80)	\
-		m37710i_push_8(m37710i_get_reg_p());
-#endif	// FLAG_SET_X
-#else	// FLAG_SET_M
+		{ m37710i_push_8(m37710i_cpu.ipl); m37710i_push_8(m37710i_get_reg_p()); CLK(2); }
+#endif
+#else
 #if FLAG_SET_X
 #define OP_PSH(MODE)	\
 	SRC	= OPER_8_##MODE();	\
+	CLK(12);	\
 	if (SRC&0x1)	\
-		m37710i_push_16(REG_A);	\
+		{ m37710i_push_16(REG_A); CLK(2); }	\
 	if (SRC&0x2)	\
-		m37710i_push_16(REG_BA);	\
+		{ m37710i_push_16(REG_BA); CLK(2); }	\
 	if (SRC&0x4)	\
-		m37710i_push_8(REG_X);	\
+		{ m37710i_push_8(REG_X); CLK(2); }	\
 	if (SRC&0x8)	\
-		m37710i_push_8(REG_Y);	\
+		{ m37710i_push_8(REG_Y); CLK(2); }	\
 	if (SRC&0x10)	\
-		m37710i_push_16(REG_D);	\
+		{ m37710i_push_16(REG_D); CLK(2); }	\
 	if (SRC&0x20)	\
-		m37710i_push_8(REG_DB>>16);	\
+		{ m37710i_push_8(REG_DB>>16); CLK(1); }	\
 	if (SRC&0x40)	\
-		m37710i_push_8(REG_PB>>16);	\
+		{ m37710i_push_8(REG_PB>>16); CLK(1); }	\
 	if (SRC&0x80)	\
-		m37710i_push_8(m37710i_get_reg_p());
-#else	// FLAG_SET_X
+		{ m37710i_push_8(m37710i_cpu.ipl); m37710i_push_8(m37710i_get_reg_p()); CLK(2); }
+#else
 #define OP_PSH(MODE)	\
 	SRC	= OPER_8_##MODE();	\
+	CLK(12);	\
 	if (SRC&0x1)	\
-		m37710i_push_16(REG_A);	\
+		{ m37710i_push_16(REG_A); CLK(2); }	\
 	if (SRC&0x2)	\
-		m37710i_push_16(REG_BA);	\
+		{ m37710i_push_16(REG_BA); CLK(2); }	\
 	if (SRC&0x4)	\
-		m37710i_push_16(REG_X);	\
+		{ m37710i_push_16(REG_X); CLK(2); }	\
 	if (SRC&0x8)	\
-		m37710i_push_16(REG_Y);	\
+		{ m37710i_push_16(REG_Y); CLK(2); }	\
 	if (SRC&0x10)	\
-		m37710i_push_16(REG_D);	\
+		{ m37710i_push_16(REG_D); CLK(2); }	\
 	if (SRC&0x20)	\
-		m37710i_push_8(REG_DB>>16);	\
+		{ m37710i_push_8(REG_DB>>16); CLK(1); }	\
 	if (SRC&0x40)	\
-		m37710i_push_8(REG_PB>>16);	\
+		{ m37710i_push_8(REG_PB>>16); CLK(1); }	\
 	if (SRC&0x80)	\
-		m37710i_push_8(m37710i_get_reg_p());
-#endif	// FLAG_SET_X
-#endif	// FLAG_SET_M
+		{ m37710i_push_8(m37710i_cpu.ipl); m37710i_push_8(m37710i_get_reg_p()); CLK(2); }
+#endif
+#endif
 
-/* M37710  Pull all */
+/* M37710  Pull all (as in current MAME) */
+/* Unusual behavior: bit 6 has no effect, register sizes follow the pulled PS */
 #undef OP_PUL
-#if FLAG_SET_M
-#if FLAG_SET_X
 #define OP_PUL(MODE)	\
 	SRC	= OPER_8_##MODE();	\
+	CLK(14);	\
 	if (SRC&0x80)	\
-		m37710i_set_reg_p(m37710i_pull_8());	\
-	if (SRC&0x40)	\
-		REG_PB = m37710i_pull_8() << 16;	\
+		{ m37710i_set_reg_p(m37710i_pull_8()); m37710i_set_reg_ipl(m37710i_pull_8()); CLK(3); }	\
 	if (SRC&0x20)	\
-		REG_DB = m37710i_pull_8() << 16;	\
+		{ REG_DB = m37710i_pull_8() << 16; CLK(3); }	\
 	if (SRC&0x10)	\
-		REG_D  = m37710i_pull_16();	\
-	if (SRC&0x8)	\
-		REG_Y = m37710i_pull_8();	\
-	if (SRC&0x4)	\
-		REG_X = m37710i_pull_8();	\
-	if (SRC&0x2)	\
-		REG_BA = m37710i_pull_8();	\
-	if (SRC&0x1)	\
-		REG_A = m37710i_pull_8();
-#else
-#define OP_PUL(MODE)	\
-	SRC	= OPER_8_##MODE();	\
-	if (SRC&0x80)	\
-		m37710i_set_reg_p(m37710i_pull_8());	\
-	if (SRC&0x40)	\
-		REG_PB = m37710i_pull_8() << 16;	\
-	if (SRC&0x20)	\
-		REG_DB = m37710i_pull_8() << 16;	\
-	if (SRC&0x10)	\
-		REG_D  = m37710i_pull_16();	\
-	if (SRC&0x8)	\
-		REG_Y = m37710i_pull_16();	\
-	if (SRC&0x4)	\
-		REG_X = m37710i_pull_16();	\
-	if (SRC&0x2)	\
-		REG_BA = m37710i_pull_8();	\
-	if (SRC&0x1)	\
-		REG_A = m37710i_pull_8();
-#endif
-#else
-#if FLAG_SET_X
-#define OP_PUL(MODE)	\
-	SRC	= OPER_8_##MODE();	\
-	if (SRC&0x80)	\
-		m37710i_set_reg_p(m37710i_pull_8());	\
-	if (SRC&0x40)	\
-		REG_PB = m37710i_pull_8() << 16;	\
-	if (SRC&0x20)	\
-		REG_DB = m37710i_pull_8() << 16;	\
-	if (SRC&0x10)	\
-		REG_D  = m37710i_pull_16();	\
-	if (SRC&0x8)	\
-		REG_Y = m37710i_pull_8();	\
-	if (SRC&0x4)	\
-		REG_X = m37710i_pull_8();	\
-	if (SRC&0x2)	\
-		REG_BA = m37710i_pull_16();	\
-	if (SRC&0x1)	\
-		REG_A = m37710i_pull_16();
-#else
-#define OP_PUL(MODE)	\
-	SRC	= OPER_8_##MODE();	\
-	if (SRC&0x80)	\
-		m37710i_set_reg_p(m37710i_pull_8());	\
-	if (SRC&0x40)	\
-		REG_PB = m37710i_pull_8() << 16;	\
-	if (SRC&0x20)	\
-		REG_DB = m37710i_pull_8() << 16;	\
-	if (SRC&0x10)	\
-		REG_D  = m37710i_pull_16();	\
-	if (SRC&0x8)	\
-		REG_Y = m37710i_pull_16();	\
-	if (SRC&0x4)	\
-		REG_X = m37710i_pull_16();	\
-	if (SRC&0x2)	\
-		REG_BA = m37710i_pull_16();	\
-	if (SRC&0x1)	\
-		REG_A = m37710i_pull_16();
-#endif
-#endif
+		{ REG_D = m37710i_pull_16(); CLK(4); }	\
+	if (m37710i_get_reg_p() & XFLAG_SET)	\
+	{	\
+		if (SRC&0x8)	\
+			{ REG_Y = m37710i_pull_8(); CLK(3); }	\
+		if (SRC&0x4)	\
+			{ REG_X = m37710i_pull_8(); CLK(3); }	\
+	}	\
+	else	\
+	{	\
+		if (SRC&0x8)	\
+			{ REG_Y = m37710i_pull_16(); CLK(3); }	\
+		if (SRC&0x4)	\
+			{ REG_X = m37710i_pull_16(); CLK(3); }	\
+	}	\
+	if (m37710i_get_reg_p() & MFLAG_SET)	\
+	{	\
+		if (SRC&0x2)	\
+			{ REG_BA = m37710i_pull_8(); CLK(3); }	\
+		if (SRC&0x1)	\
+			{ REG_A = m37710i_pull_8(); CLK(3); }	\
+	}	\
+	else	\
+	{	\
+		if (SRC&0x2)	\
+			{ REG_BA = m37710i_pull_16(); CLK(3); }	\
+		if (SRC&0x1)	\
+			{ REG_A = m37710i_pull_16(); CLK(3); }	\
+	}	\
+	m37710i_update_irqs()
 
 /* M37710   Multiply */
 #undef OP_MPY
@@ -967,7 +928,8 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REG_S + OPER_8_IMM()
 #undef OP_CLI
 #define OP_CLI()															\
 			CLK(CLK_OP + CLK_IMPLIED);										\
-			m37710i_set_flag_i(IFLAG_CLEAR)
+			m37710i_set_flag_i(IFLAG_CLEAR);								\
+			m37710i_update_irqs()
 
 /* M37710   Clear oVerflow flag */
 #undef OP_CLV
@@ -1669,7 +1631,8 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REG_S + OPER_8_IMM()
 #define OP_PLP()															\
 			CLK(CLK_OP + CLK_R8 + 2);										\
 			m37710i_set_reg_p(m37710i_pull_8());									\
-			m37710i_set_reg_ipl(m37710i_pull_8())
+			m37710i_set_reg_ipl(m37710i_pull_8());									\
+			m37710i_update_irqs()
 
 /* M37710  Reset Program status word */
 #undef OP_REP
@@ -1808,7 +1771,8 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REG_S + OPER_8_IMM()
 			m37710i_set_reg_ipl(m37710i_pull_8());					\
 			m37710i_jump_16(m37710i_pull_16());					\
 			REG_PB = m37710i_pull_8() << 16;					\
-			m37710i_jumping(REG_PB | REG_PC)
+			m37710i_jumping(REG_PB | REG_PC);					\
+			m37710i_update_irqs()
 
 /* M37710  Return from Subroutine Long */
 #undef OP_RTL
@@ -2823,7 +2787,7 @@ TABLE_FUNCTION(void, set_line, (int line, int state))
 					LINE_IRQ &= ~(1 << line);
 					if (m37710_irq_levels[line])
 					{
-						m37710i_cpu.m37710_regs[m37710_irq_levels[line]] |= 8;
+						m37710i_cpu.m37710_regs[m37710_irq_levels[line]] &= ~8;
 					}
 					return;
 					break;
@@ -2833,7 +2797,7 @@ TABLE_FUNCTION(void, set_line, (int line, int state))
 					LINE_IRQ |= (1 << line);
 					if (m37710_irq_levels[line])
 					{
-						m37710i_cpu.m37710_regs[m37710_irq_levels[line]] &= ~8;
+						m37710i_cpu.m37710_regs[m37710_irq_levels[line]] |= 8;
 					}
 					break;
 			}
@@ -2905,6 +2869,25 @@ TABLE_FUNCTION(int, execute, (int clocks))
 		do
 		{
 			REG_PPC = REG_PC;
+#ifndef MAME_DEBUG
+			if (m37710i_cpu.idle_pc)
+			{
+				if ((REG_PB | REG_PC) == m37710i_cpu.idle_pc)
+				{
+					/* Only skip after observing a whole invariant pass in this
+					   timeslice; the next interrupt remains at its original time. */
+					if (m37710i_cpu.idle_since == m37710i_cpu.idle_count)
+					{
+						int pass = m37710i_cpu.idle_clocks - CLOCKS;
+						if (pass > 0 && CLOCKS > pass)
+							CLOCKS -= ((CLOCKS - 1) / pass) * pass;
+					}
+					m37710i_cpu.idle_since = 0;
+					m37710i_cpu.idle_clocks = CLOCKS;
+				}
+				if (m37710i_cpu.idle_since >= 0) ++m37710i_cpu.idle_since;
+			}
+#endif
 			M37710_CALL_DEBUGGER;
 			REG_PC++;
 			REG_IR = read_8_IMM(REG_PB | REG_PPC);

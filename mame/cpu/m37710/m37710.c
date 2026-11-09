@@ -53,6 +53,7 @@
         added save state support.
 */
 
+#include "driver.h"
 #include "debugger.h"
 #include "m37710cm.h"
 
@@ -289,8 +290,7 @@ static void m37710_timer_a0_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[0], TIME_IN_HZ(m37710i_cpu.reload[0]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[12]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERA0, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERA0, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -300,8 +300,7 @@ static void m37710_timer_a1_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[1], TIME_IN_HZ(m37710i_cpu.reload[1]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[11]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERA1, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERA1, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -311,8 +310,7 @@ static void m37710_timer_a2_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[2], TIME_IN_HZ(m37710i_cpu.reload[2]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[10]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERA2, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERA2, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -322,8 +320,7 @@ static void m37710_timer_a3_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[3], TIME_IN_HZ(m37710i_cpu.reload[3]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[9]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERA3, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERA3, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -333,8 +330,7 @@ static void m37710_timer_a4_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[4], TIME_IN_HZ(m37710i_cpu.reload[4]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[8]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERA4, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERA4, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -344,8 +340,7 @@ static void m37710_timer_b0_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[5], TIME_IN_HZ(m37710i_cpu.reload[5]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[7]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERB0, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERB0, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -355,8 +350,7 @@ static void m37710_timer_b1_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[6], TIME_IN_HZ(m37710i_cpu.reload[6]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[6]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERB1, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERB1, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -366,8 +360,7 @@ static void m37710_timer_b2_cb(int cpunum)
 	cpuintrf_push_context(cpunum);
 	timer_adjust(m37710i_cpu.timers[7], TIME_IN_HZ(m37710i_cpu.reload[7]), cpunum, 0);
 
-	m37710i_cpu.m37710_regs[m37710_irq_levels[5]] |= 0x04;
-	m37710_set_irq_line(M37710_LINE_TIMERB2, PULSE_LINE);
+	m37710_set_irq_line(M37710_LINE_TIMERB2, ASSERT_LINE);
 	cpu_triggerint(cpunum);
 	cpuintrf_pop_context();
 }
@@ -385,15 +378,20 @@ static void m37710_external_tick(int timer, int state)
 	{
 		if ((m37710i_cpu.m37710_regs[0x56+timer] & 0x3) == 1)
 		{
-			if (m37710i_cpu.m37710_regs[0x46+(timer*2)] == 0xff)
+			/* Timer B counts down; timer A follows its output pin or the
+			   up/down register, required by the pedal and trackball encoders. */
+			int upcount = 0;
+			UINT16 count = m37710i_cpu.m37710_regs[0x46+timer*2] | (m37710i_cpu.m37710_regs[0x47+timer*2] << 8);
+			if (timer <= 4)
 			{
-				m37710i_cpu.m37710_regs[0x46+(timer*2)] = 0;
-				m37710i_cpu.m37710_regs[0x46+(timer*2)+1]++;
+				if (m37710i_cpu.m37710_regs[0x56+timer] & 0x10)
+					upcount = m37710i_cpu.timer_out[timer];
+				else
+					upcount = (m37710i_cpu.m37710_regs[0x44] >> timer) & 1;
 			}
-			else
-			{
-				m37710i_cpu.m37710_regs[0x46+(timer*2)]++;
-			}
+			count = upcount ? count + 1 : count - 1;
+			m37710i_cpu.m37710_regs[0x46+timer*2] = count & 0xff;
+			m37710i_cpu.m37710_regs[0x47+timer*2] = count >> 8;
 		}
 		else
 		{
@@ -427,7 +425,7 @@ static void m37710_recalc_timer(int timer)
 			switch (m37710i_cpu.m37710_regs[0x56+timer] & 0x3)
 			{
 				case 0:	      	// timer mode
-					time = (double)16000000 / tscales[m37710i_cpu.m37710_regs[tcr[timer]]>>6];
+					time = (double)(Machine->drv->cpu[cpunum].cpu_clock * 2) / tscales[m37710i_cpu.m37710_regs[tcr[timer]]>>6];
 					time /= ((double)tval+1.0);
 
 					#if M37710_DEBUG
@@ -462,7 +460,7 @@ static void m37710_recalc_timer(int timer)
 			switch (m37710i_cpu.m37710_regs[0x56+timer] & 0x3)
 			{
 				case 0:	      	// timer mode
-					time = (double)16000000 / tscales[m37710i_cpu.m37710_regs[tcr[timer]]>>6];
+					time = (double)(Machine->drv->cpu[cpunum].cpu_clock * 2) / tscales[m37710i_cpu.m37710_regs[tcr[timer]]>>6];
 					time /= ((double)tval+1.0);
 
 					#if M37710_DEBUG
@@ -495,6 +493,14 @@ static void m37710_recalc_timer(int timer)
 	}
 }
 
+/* Output pins read the latch; input pins read the board. Respecting the
+   direction register is required by the Super System 22 I/O protocol. */
+static UINT8 m37710_port_r(int offset, int port)
+{
+	UINT8 direction = m37710i_cpu.m37710_regs[offset + 2];
+	return (io_read_byte_8(port) & ~direction) | (m37710i_cpu.m37710_regs[offset] & direction);
+}
+
 static UINT8 m37710_internal_r(int offset)
 {
 	#if M37710_DEBUG
@@ -505,31 +511,31 @@ static UINT8 m37710_internal_r(int offset)
 	switch (offset)
 	{
 		case 2: // p0
-			return io_read_byte_8(M37710_PORT0);
+			return m37710_port_r(2, M37710_PORT0);
 			break;
 		case 3: // p1
-			return io_read_byte_8(M37710_PORT1);
+			return m37710_port_r(3, M37710_PORT1);
 			break;
 		case 6: // p2
-			return io_read_byte_8(M37710_PORT2);
+			return m37710_port_r(6, M37710_PORT2);
 			break;
 		case 7: // p3
-			return io_read_byte_8(M37710_PORT3);
+			return m37710_port_r(7, M37710_PORT3);
 			break;
 		case 0xa: // p4
-			return io_read_byte_8(M37710_PORT4);
+			return m37710_port_r(10, M37710_PORT4);
 			break;
 		case 0xb: // p5
-			return io_read_byte_8(M37710_PORT5);
+			return m37710_port_r(11, M37710_PORT5);
 			break;
 		case 0xe: // p6
-			return io_read_byte_8(M37710_PORT6);
+			return m37710_port_r(14, M37710_PORT6);
 			break;
 		case 0xf: // p7
-			return io_read_byte_8(M37710_PORT7);
+			return m37710_port_r(15, M37710_PORT7);
 			break;
 		case 0x12: // p8
-			return io_read_byte_8(M37710_PORT8);
+			return m37710_port_r(18, M37710_PORT8);
 			break;
 
 		case 0x20:
@@ -584,9 +590,6 @@ static UINT8 m37710_internal_r(int offset)
 			return 0xff;	// UART control
 			break;
 
-		case 0x70:	// A/D IRQ control
-			return m37710i_cpu.m37710_regs[offset] | 8;
-			break;
 	}
 
 	return m37710i_cpu.m37710_regs[offset];
@@ -599,38 +602,47 @@ static void m37710_internal_w(int offset, UINT8 data)
 	switch(offset)
 	{
 		case 2: // p0
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT0, data);
 			return;
 			break;
 		case 3: // p1
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT1, data);
 			return;
 			break;
 		case 6: // p2
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT2, data);
 			return;
 			break;
 		case 7: // p3
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT3, data);
 			return;
 			break;
 		case 0xa: // p4
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT4, data);
 			return;
 			break;
 		case 0xb: // p5
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT5, data);
 			return;
 			break;
 		case 0xe: // p6
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT6, data);
 			return;
 			break;
 		case 0xf: // p7
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT7, data);
 			return;
 			break;
 		case 0x12: // p8
+			m37710i_cpu.m37710_regs[offset] = data;
 			io_write_byte_8(M37710_PORT8, data);
 			return;
 			break;
@@ -653,9 +665,18 @@ static void m37710_internal_w(int offset, UINT8 data)
 		case 0x60:     	// watchdog reset
 			return;
 			break;
+		case 0x1e: /* A/D conversions complete immediately, then request the IRQ. */
+			if ((data & 0x40) && !(data & 0x08))
+			{
+				m37710i_cpu.m37710_regs[offset] = data & ~0x40;
+				m37710_set_irq_line(M37710_LINE_ADC, ASSERT_LINE);
+				return;
+			}
+			break;
 	}
 
 	m37710i_cpu.m37710_regs[offset] = data;
+	if (offset >= 0x70 && offset <= 0x7f) m37710i_update_irqs();
 
 	#if M37710_DEBUG
 	if (offset >= 0x1e && offset <= 0x40)
@@ -801,43 +822,33 @@ INLINE uint m37710i_get_reg_p(void)
 
 void m37710i_update_irqs(void)
 {
+	/* interrupt selection from current MAME */
 	int curirq, pending = LINE_IRQ;
-	int wantedIRQ, curpri;
+	int wantedIRQ = -1;
+	int curpri = 0;
 
-	if (FLAG_I)
-	{
-		return;
-	}
-
-	curpri = -1;
-	wantedIRQ = -1;
-
-	for (curirq = M37710_LINE_MAX - 1; curirq >= 0; curirq--)
+	for (curirq = M37710_LINE_RESET; curirq >= 0; curirq--)
 	{
 		if ((pending & (1 << curirq)))
 		{
-			// this IRQ is set
+			/* this IRQ is set */
 			if (m37710_irq_levels[curirq])
 			{
-//              logerror("line %d set, level %x curpri %x IPL %x\n", curirq, m37710i_cpu.m37710_regs[m37710_irq_levels[curirq]] & 7, curpri, m37710i_cpu.ipl);
-				// it's maskable, check if the level works
-				if ((m37710i_cpu.m37710_regs[m37710_irq_levels[curirq]] & 7) > curpri)
+				int thispri = m37710i_cpu.m37710_regs[m37710_irq_levels[curirq]] & 7;
+				/* it's maskable, check if the level works, also make sure it's acceptable for the current CPU level */
+				if (!FLAG_I && thispri > curpri && thispri > (int)m37710i_cpu.ipl)
 				{
-					// also make sure it's acceptable for the current CPU level
-					if ((m37710i_cpu.m37710_regs[m37710_irq_levels[curirq]] & 7) > m37710i_cpu.ipl)
-					{
-						// mark us as the best candidate
-						wantedIRQ = curirq;
-						curpri = m37710i_cpu.m37710_regs[m37710_irq_levels[curirq]] & 7;
-					}
+					/* mark us as the best candidate */
+					wantedIRQ = curirq;
+					curpri = thispri;
 				}
 			}
 			else
 			{
-				// non-maskable
+				/* non-maskable */
 				wantedIRQ = curirq;
-				curirq = -1;
-				break;	// no more processing, NMIs always win
+				curpri = 7;
+				break;	/* no more processing, NMIs always win */
 			}
 		}
 	}
@@ -846,35 +857,27 @@ void m37710i_update_irqs(void)
 	{
 		if (INT_ACK) INT_ACK(wantedIRQ);
 
-		// indicate we're servicing it now
-		if (m37710_irq_levels[wantedIRQ])
-		{
-			m37710i_cpu.m37710_regs[m37710_irq_levels[wantedIRQ]] &= ~8;
-		}
+		/* make sure we're running to service the interrupt */
+		CPU_STOPPED &= ~STOP_LEVEL_WAI;
 
-		// auto-clear if it's an internal line
-		if (wantedIRQ <= 12)
-		{
-			m37710_set_irq_line(wantedIRQ, CLEAR_LINE);
-		}
+		/* auto-clear line */
+		m37710_set_irq_line(wantedIRQ, CLEAR_LINE);
 
-		// let's do it...
-		// push PB, then PC, then status
-		CLK(8);
-//      printf("taking IRQ %d: PC = %06x, SP = %04x, IPL %d\n", wantedIRQ, REG_PB | REG_PC, REG_S, m37710i_cpu.ipl);
+		/* let's do it... */
+		/* push PB, then PC, then status */
+		CLK(13);
 		m37710i_push_8(REG_PB>>16);
 		m37710i_push_16(REG_PC);
 		m37710i_push_8(m37710i_cpu.ipl);
 		m37710i_push_8(m37710i_get_reg_p());
 
-		// set I to 1, set IPL to the interrupt we're taking
+		/* set I to 1, set IPL to the interrupt we're taking */
 		FLAG_I = IFLAG_SET;
 		m37710i_cpu.ipl = curpri;
-		// then PB=0, PC=(vector)
+		/* then PB=0, PC=(vector) */
 		REG_PB = 0;
 		REG_PC = m37710_read_8(m37710_irq_vectors[wantedIRQ]) |
 			 m37710_read_8(m37710_irq_vectors[wantedIRQ]+1)<<8;
-//      logerror("IRQ @ %06x\n", REG_PB | REG_PC);
 		m37710i_jumping(REG_PB | REG_PC);
 	}
 }
@@ -883,6 +886,17 @@ void m37710i_update_irqs(void)
 
 void m37710_reset(void)
 {
+	int i;
+	/* Reset on-chip peripherals as well as execution state. Cabinet software
+	   can reset the sound MCU after it has already enabled its timers. */
+	memset(m37710i_cpu.m37710_regs, 0, sizeof(m37710i_cpu.m37710_regs));
+	for (i = 0; i < 8; i++)
+	{
+		m37710i_cpu.reload[i] = 0;
+		timer_adjust(m37710i_cpu.timers[i], TIME_NEVER, 0, 0);
+		timer_enable(m37710i_cpu.timers[i], 0);
+	}
+	m37710i_cpu.ipl = 0;
 	/* Start the CPU */
 	CPU_STOPPED = 0;
 
@@ -893,11 +907,11 @@ void m37710_reset(void)
 	REG_S = (REG_S & 0xff) | 0x100;
 	REG_X &= 0xff;
 	REG_Y &= 0xff;
-	if(!FLAG_M)
-	{
-		REG_B = REG_A & 0xff00;
-		REG_A &= 0xff;
-	}
+	/* Native 16-bit mode must not retain the separate high-byte latches from
+	   a previous 8-bit mode, or TCS can put the stack into the BIOS ROM. */
+	REG_A = (REG_A | REG_B) & 0xffff;
+	REG_BA = (REG_BA | REG_BB) & 0xffff;
+	REG_B = REG_BB = 0;
 	FLAG_M = MFLAG_CLEAR;
 	FLAG_X = XFLAG_CLEAR;
 
@@ -941,9 +955,25 @@ void m37710_yield(void)
 }
 
 /* Execute some instructions */
+void m37710_set_timer_output(int cpunum, int timer, int state)
+{
+	cpuintrf_push_context(cpunum);
+	m37710i_cpu.timer_out[timer] = state != CLEAR_LINE;
+	cpuintrf_pop_context();
+}
+
+void m37710_set_idle_loop(int cpunum, UINT32 pc, int count)
+{
+	cpuintrf_push_context(cpunum);
+	m37710i_cpu.idle_pc = pc;
+	m37710i_cpu.idle_count = count;
+	cpuintrf_pop_context();
+}
+
 int m37710_execute(int cycles)
 {
 	m37710_fullCount = cycles;
+	m37710i_cpu.idle_since = -1;
 
 	m37710i_update_irqs();
 
@@ -1049,6 +1079,8 @@ static void m37710_restore_state(void)
 void m37710_init(int index, int clock, const void *config, int (*irqcallback)(int))
 {
 	INT_ACK = irqcallback;
+	m37710i_cpu.idle_pc = 0;
+	memset(m37710i_cpu.timer_out, 0, sizeof(m37710i_cpu.timer_out));
 
 	m37710i_cpu.timers[0] = timer_alloc(m37710_timer_a0_cb);
 	m37710i_cpu.timers[1] = timer_alloc(m37710_timer_a1_cb);
@@ -1091,6 +1123,7 @@ void m37710_init(int index, int clock, const void *config, int (*irqcallback)(in
 	state_save_register_item("M377xx", index, m37710i_cpu.irq_level);
 	state_save_register_item("M377xx", index, m37710i_cpu.stopped);
 	state_save_register_item_array("M377xx", index, m37710i_cpu.m37710_regs);
+	state_save_register_item_array("M377xx", index, m37710i_cpu.timer_out);
 	state_save_register_item_array("M377xx", index, m37710i_cpu.reload);
 
 	state_save_register_func_postload(m37710_restore_state);

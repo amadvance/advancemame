@@ -816,28 +816,46 @@ const game_driver * const drivers[] =
 	DRIVER( cybsled )	/* (c) 1993 */
 
 	/* Namco System 22 games */
-	DRIVER( ridgerac )	/* (c) 1993 */
-	DRIVER( ridgeraj )	/* (c) 1993 */
-	DRIVER( acedrvrw )	/* (c) 1994 */
-	DRIVER( alpinerd )	/* (c) 1994 */
-	DRIVER( alpinerc )	/* (c) 1994 */
-	DRIVER( ridgera2 )	/* (c) 1994 */
-	DRIVER( ridger2a )	/* (c) 1994 */
-	DRIVER( ridger2b )	/* (c) 1994 */
-	DRIVER( raveracw )	/* (c) 1995 */
-	DRIVER( raveracj )	/* (c) 1995 */
-	DRIVER( raveraja )	/* (c) 1995 */
-	DRIVER( aquajet )
+	DRIVER( ridgerac )
+	DRIVER( ridgeraca )
+	DRIVER( ridgeracb )
+	DRIVER( ridgeracc )
+	DRIVER( ridgeracj )
+	DRIVER( ridgera2 )
+	DRIVER( ridgera2j )
+	DRIVER( ridgera2ja )
+	DRIVER( ridgera28 )
+	DRIVER( cybrcomm )
+	DRIVER( raverace )
+	DRIVER( raveracej )
+	DRIVER( raveraceja )
+	DRIVER( acedrive )
+	DRIVER( victlap )
+	DRIVER( victlapa )
+	DRIVER( victlapj )
+	DRIVER( alpinerd )
+	DRIVER( alpinerc )
+	DRIVER( alpinerjc )
+	DRIVER( airco22b )
+	DRIVER( cybrcycc )
+	DRIVER( cybrcyccj )
+	DRIVER( dirtdash )
+	DRIVER( dirtdasha )
+	DRIVER( dirtdashb )
+	DRIVER( dirtdashj )
+	DRIVER( timecris )
+	DRIVER( timecrisa )
+	DRIVER( timecrisj )
+	DRIVER( propcycl )
+	DRIVER( propcyclj )
+	DRIVER( alpines )
 	DRIVER( tokyowar )
-	DRIVER( airco22b )	/* (c) 1995 */
-	DRIVER( alpinr2b )	/* (c) 1995 */
-	DRIVER( cybrcomm )	/* (c) 1995 */
-	DRIVER( cybrcycc )	/* (c) 1995 */
-	DRIVER( timecris )	/* (c) 1995 */
-	DRIVER( timecrsa )	/* (c) 1995 */
-	DRIVER( victlapw )	/* (c) 1996 */
-	DRIVER( alpinesa )	/* (c) 1996 */
-	DRIVER( propcycl )	/* (c) 1996 */
+	DRIVER( tokyowarj )
+	DRIVER( aquajet )
+	DRIVER( alpinr2b )
+	DRIVER( alpinr2a )
+	DRIVER( adillor )
+	DRIVER( adillorj )
 
 	/* Namco System 23 */
 	DRIVER( timecrs2 )	/* (c) 1997 */

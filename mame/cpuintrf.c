@@ -95,6 +95,7 @@ void z8000_get_info(UINT32 state, union cpuinfo *info);
 void tms32010_get_info(UINT32 state, union cpuinfo *info);
 void tms32015_get_info(UINT32 state, union cpuinfo *info);
 void tms32025_get_info(UINT32 state, union cpuinfo *info);
+void c71_get_info(UINT32 state, union cpuinfo *info);
 void tms32026_get_info(UINT32 state, union cpuinfo *info);
 void tms32031_get_info(UINT32 state, union cpuinfo *info);
 void tms32051_get_info(UINT32 state, union cpuinfo *info);
@@ -492,6 +493,9 @@ static const struct
 #endif
 #if (HAS_TMS32025)
 	{ CPU_TMS32025, tms32025_get_info },
+#endif
+#if (HAS_NAMCOC71)
+	{ CPU_NAMCOC71, c71_get_info },
 #endif
 #if (HAS_TMS32026)
 	{ CPU_TMS32026, tms32026_get_info },

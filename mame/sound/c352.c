@@ -79,7 +79,26 @@ struct c352_info
 
 	UINT16 random;
 	UINT16 control;
+	int routed;
+	int route[4][2];
+	int gain[4];
 };
+
+/* Pending routing is consumed by sound startup so other drivers retain their
+   existing four-output behavior. Only System 22 requests this stereo mix. */
+static int c352_route_pending[4][2];
+
+void c352_set_routing(const int route[4][2])
+{
+	memcpy(c352_route_pending, route, sizeof(c352_route_pending));
+}
+
+void c352_set_output_gain(int output, int gain)
+{
+	struct c352_info *info = sndti_token(SOUND_C352, 0);
+	stream_update(info->stream, 0);
+	info->gain[output] = gain;
+}
 
 static void c352_fetch_sample(struct c352_info *info, struct c352_voice_t *v)
 {
@@ -200,10 +219,29 @@ static void c352_update(void *param, stream_sample_t **inputs, stream_sample_t *
 			out[3] += (((v->flags & C352_FLG_PHASEFR) ? -s : s) * v->curr_vol[3]) >> 8;
 		}
 
+		if (info->routed)
+		{
+			int n, left = 0, right = 0;
+			for (n = 0; n < 4; n++)
+			{
+				int sample = out[n] >> 3;
+				if (sample > 32767) sample = 32767;
+				else if (sample < -32768) sample = -32768;
+				sample = (sample * info->gain[n]) >> 8;
+				left += sample * info->route[n][0];
+				right += sample * info->route[n][1];
+			}
+			*bufferl++ = left >> 8;
+			*bufferr++ = right >> 8;
+			*bufferl2++ = *bufferr2++ = 0;
+		}
+		else
+		{
 		*bufferl++ = (stream_sample_t)(out[0] >> 3);
 		*bufferr++ = (stream_sample_t)(out[1] >> 3);
 		*bufferl2++ = (stream_sample_t)(out[2] >> 3);
 		*bufferr2++ = (stream_sample_t)(out[3] >> 3);
+		}
 	}
 }
 
@@ -297,6 +335,15 @@ static void *c352_start(int sndindex, int clock, const void *config)
 
 	info = auto_malloc(sizeof(*info));
 	memset(info, 0, sizeof(*info));
+	memcpy(info->route, c352_route_pending, sizeof(info->route));
+	memset(c352_route_pending, 0, sizeof(c352_route_pending));
+	for (i = 0; i < 4; i++)
+	{
+		info->gain[i] = 0x100;
+		if (info->route[i][0] || info->route[i][1]) info->routed = 1;
+	}
+	state_save_register_item_array("C352", sndindex, info->gain);
+
 
 	intf = config;
 

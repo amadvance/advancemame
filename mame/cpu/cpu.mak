@@ -973,6 +973,16 @@ endif
 
 
 
+
+# Namco C71 DSP (System 22 / Super System 22)
+$(1)CPUDEFS += -DHAS_NAMCOC71=$$(if $$(filter NAMCOC71,$$($(1)CPUS)),1,0)
+ifneq ($$(filter NAMCOC71,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/namcoc71
+$(1)CPUOBJS += $(2)/cpu/namcoc71/c71.o
+$(2)/cpu/namcoc71/c71.o: $$(srcdir)/mame/cpu/namcoc71/c71.c $$(srcdir)/mame/cpu/namcoc71/c71.h
+endif
+
+
 #-------------------------------------------------
 # Texas Instruments TMS3203x DSP
 #-------------------------------------------------
@@ -1231,4 +1241,5 @@ $(1)DBGOBJS += $(2)/cpu/i386/i386dasm.o
 $(2)/cpu/v30mz/v30mz.o: $$(srcdir)/mame/cpu/v30mz/v30mz.c $$(srcdir)/mame/cpu/v30mz/v30mz.h $$(srcdir)/mame/cpu/v30mz/necmodrm.h $$(srcdir)/mame/cpu/v30mz/necinstr.h $$(srcdir)/mame/cpu/v30mz/necea.h $$(srcdir)/mame/cpu/v30mz/nechost.h $$(srcdir)/mame/cpu/v30mz/necintrf.h
 endif
 endif
+
 endef
