@@ -962,6 +962,24 @@
     },
     {
       "shortnames": [
+        "sfz3mix"
+      ],
+      "title": "Street Fighter Zero 3 Mix",
+      "category": "hack",
+      "version": "0.32",
+      "original_game": "sfa3",
+      "parent_shortname": "sfa3",
+      "hack_author": "Zero800",
+      "hack_year": 2026,
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Runs on the extended CPS2Turbo platform with faster CPUs, a 416x234 widescreen display, expanded sprite and QSound ROMs, and optional external stereo music samples."
+        }
+      ]
+    },
+    {
+      "shortnames": [
         "shangnle"
       ],
       "title": "Limited Edition Hang-On",

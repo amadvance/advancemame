@@ -114,6 +114,7 @@ struct qsound_info
 	sound_stream * stream;				/* Audio stream */
 	struct QSOUND_CHANNEL channel[QSOUND_CHANNELS];
 	int data;				  /* register latch data */
+	int bank_mask; /* CPS2Turbo has 16MB of samples instead of at most 8MB. */
 	QSOUND_SRC_SAMPLE *sample_rom;	/* Q sound sample ROM */
 
 	#if QSOUND_DRIVER1
@@ -149,6 +150,7 @@ static void *qsound_start(int sndindex, int clock, const void *config)
 	chip->intf = config;
 
 	chip->sample_rom = (QSOUND_SRC_SAMPLE *)memory_region(chip->intf->region);
+	chip->bank_mask = memory_region_length(chip->intf->region) > 0x800000 ? 0xff : 0x7f;
 
 	memset(chip->channel, 0, sizeof(chip->channel));
 
@@ -285,7 +287,7 @@ void qsound_set_command(struct qsound_info *chip, int data, int value)
 	{
 		case 0: /* Bank */
 			ch=(ch+1)&0x0f;	/* strange ... */
-			chip->channel[ch].bank=(value&0x7f)<<16;
+			chip->channel[ch].bank=(value&chip->bank_mask)<<16;
 			chip->channel[ch].bank /= LENGTH_DIV;
 #ifdef MAME_DEBUG
 			if (!value & 0x8000)

@@ -2780,6 +2780,7 @@ V-V                           TP-027
 	DRIVER( sfz3jr2 )
 	DRIVER( sfz3a )
 	DRIVER( sfz3ar1 )
+	DRIVER( sfz3mix )	/* hack, Zero800 CPS2Turbo */
 	DRIVER( jyangoku )
 	DRIVER( hsf2 )
 	DRIVER( hsf2a )

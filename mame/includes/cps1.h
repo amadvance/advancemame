@@ -43,4 +43,8 @@ DRIVER_INIT( cps1 );
 DRIVER_INIT( cps2 );
 DRIVER_INIT( cps2_video );
 
+UINT8 *cps_qsound_sharedram1(void);
+UINT8 *cps_qsound_sharedram2(void);
+VIDEO_START( cps2turbo );
+
 #endif

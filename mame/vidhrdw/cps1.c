@@ -693,6 +693,7 @@ size_t cps2_output_size;
 static UINT16 *cps2_buffered_obj;
 static int pri_ctrl;				/* Sprite layer priorities */
 static int cps2_objram_bank;
+static int cps2_turbo;
 static int cps2_last_sprite_offset;     /* Offset of the last sprite */
 
 #define CPS2_OBJ_BASE	0x00	/* Unknown (not base address of objects). Could be bass address of bank used when object swap bit set? */
@@ -1245,6 +1246,15 @@ VIDEO_START( cps2 )
     {
         cps_version=2;
     }
+    cps2_turbo = 0;
+    return video_start_cps();
+}
+
+/* CPS2Turbo uses an extra sprite bank selected by bit 12 of Y. */
+VIDEO_START( cps2turbo )
+{
+    cps_version = 2;
+    cps2_turbo = 1;
     return video_start_cps();
 }
 
@@ -1631,6 +1641,10 @@ void cps2_render_sprites(mame_bitmap *bitmap,const rectangle *cliprect,int *prim
 		int code  = base[i+2]+((y & 0x6000) <<3);
 		int colour= base[i+3];
 		int col=colour&0x1f;
+
+		/* Bit 15 remains the end marker; bit 12 selects the extra 32MB. */
+		if (cps2_turbo)
+			code += (y & 0x1000) << 6;
 
 		if(colour & 0x80)
 		{

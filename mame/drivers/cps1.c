@@ -205,6 +205,17 @@ static WRITE16_HANDLER( qsound_sharedram2_w )
 		qsound_sharedram2[offset] = data;
 }
 
+/* The CPS2Turbo music protocol reads the Z80 command and volume state. */
+UINT8 *cps_qsound_sharedram1(void)
+{
+	return qsound_sharedram1;
+}
+
+UINT8 *cps_qsound_sharedram2(void)
+{
+	return qsound_sharedram2;
+}
+
 static WRITE8_HANDLER( qsound_banksw_w )
 {
 	/*
