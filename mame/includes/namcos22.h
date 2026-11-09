@@ -2,6 +2,11 @@
 // copyright-holders:Phil Stroffolino, hap, R. Belmont
 #define USE_NAMCOS22_SPEED_HACK
 
+#define TIMECRIS_GUN_X_MIN 68
+#define TIMECRIS_GUN_X_MAX 694
+#define TIMECRIS_GUN_Y_MIN 43
+#define TIMECRIS_GUN_Y_MAX 284
+
 #define REGION_CGRAM           REGION_GFX1
 #define REGION_TEXTURE_TILE    REGION_GFX2
 #define REGION_TEXTURE_TILEMAP REGION_GFX3

@@ -2631,8 +2631,12 @@ VIDEO_UPDATE( namcos22s )
 
 	if( namcos22_gametype == NAMCOS22_TIME_CRISIS )
 	{
-		beamx = ((readinputport(1))*640)/256;
-		beamy = ((readinputport(2))*480)/256;
+		const rectangle *visible = &Machine->visible_area;
+		/* Map the native gun ranges over the full visible screen. */
+		beamx = visible->min_x + (readinputport(1) - TIMECRIS_GUN_X_MIN) *
+			(visible->max_x - visible->min_x) / (TIMECRIS_GUN_X_MAX - TIMECRIS_GUN_X_MIN);
+		beamy = visible->min_y + (readinputport(2) - TIMECRIS_GUN_Y_MIN) *
+			(visible->max_y - visible->min_y) / (TIMECRIS_GUN_Y_MAX - TIMECRIS_GUN_Y_MIN);
 		draw_crosshair( bitmap, beamx, beamy, cliprect, 0 );
 	}
 

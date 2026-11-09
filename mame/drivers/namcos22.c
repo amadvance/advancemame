@@ -1394,18 +1394,22 @@ static WRITE32_HANDLER( spotram_w )
 
 static READ32_HANDLER( namcos22_gun_r )
 {
-	int xpos = readinputport(1)*640/0xff;
-	int ypos = readinputport(2)*480/0xff;
+	int xpos = readinputport(1);
+	int ypos = readinputport(2);
+
+	/* The screen edges must report an off-screen shot, as in MAME. */
+	if( xpos <= TIMECRIS_GUN_X_MIN || xpos >= TIMECRIS_GUN_X_MAX ||
+		ypos <= TIMECRIS_GUN_Y_MIN || ypos >= TIMECRIS_GUN_Y_MAX )
+		xpos = ypos = 0;
 	switch( offset )
 	{
 	case 0: /* 430000 */
 		return xpos<<16;
 
 	case 1: /* 430004 */
-		return (ypos>>1)<<16;
-
 	case 2: /* 430008 */
-		return (ypos>>1)<<16;
+		/* The game adds both registers to obtain the vertical position. */
+		return ypos<<16;
 
 	case 3:
 	default:
@@ -4150,9 +4154,9 @@ INPUT_PORTS_START( timecris )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(50) PORT_KEYDELTA(4)
+	PORT_BIT( 0xffff, TIMECRIS_GUN_X_MIN + 626/2, IPT_LIGHTGUN_X ) PORT_MINMAX(TIMECRIS_GUN_X_MIN,TIMECRIS_GUN_X_MAX) PORT_SENSITIVITY(48) PORT_KEYDELTA(10)
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,255) PORT_SENSITIVITY(50) PORT_KEYDELTA(4)
+	PORT_BIT( 0xffff, TIMECRIS_GUN_Y_MIN + 241/2, IPT_LIGHTGUN_Y ) PORT_MINMAX(TIMECRIS_GUN_Y_MIN,TIMECRIS_GUN_Y_MAX) PORT_SENSITIVITY(64) PORT_KEYDELTA(4)
 
   	PORT_START_TAG( "MCUP5A" )
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
