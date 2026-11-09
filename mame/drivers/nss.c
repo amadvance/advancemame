@@ -514,11 +514,15 @@ MACHINE_DRIVER_END
 
 ***************************************************************************/
 
+/* Keep the DSP1 table region at 0x800 bytes. After skipping the program,
+   overwrite the initial block with the identical table at firmware offset 0x2000. */
 #define NSS_BIOS \
 	ROM_REGION(0x100,           REGION_USER5, 0)		/* IPL ROM */ \
-	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) ) \
+	BIOS_LOAD("s_smp", "spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) ) \
 	ROM_REGION(0x800,           REGION_USER6, 0)		/* add-on chip ROMs (DSP, SFX, etc) */\
-	ROM_LOAD("dsp1data.bin", 0x000000, 0x000800, CRC(4b02d66d) SHA1(1534f4403d2a0f68ba6e35186fe7595d33de34b1))\
+	BIOS_LOAD("sns_dsp1bleg", "dsp1b.bin", 0x000000, 0x000800, CRC(453557e0) SHA1(3a218b0e4572a8eba6d0121b17fdac9529609220))\
+	ROM_IGNORE(0x1800)\
+	ROM_CONTINUE(0x000000, 0x000800)\
 	ROM_REGION(0x10000,         REGION_CPU3,  0)		/* Bios CPU (what is it?) */ \
 	ROM_LOAD("nss-c.dat"  , 0, 0x8000, CRC(a8e202b3) SHA1(b7afcfe4f5cf15df53452dc04be81929ced1efb2) )	/* bios */ \
 	ROM_LOAD("nss-ic14.02", 0, 0x8000, CRC(e06cb58f) SHA1(62f507e91a2797919a78d627af53f029c7d81477) )	/* bios */ \

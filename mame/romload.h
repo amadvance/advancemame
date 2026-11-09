@@ -287,11 +287,13 @@ struct _rom_load_data
 #define ROM_BIOS_DEFAULT(name)						{ ROMENTRY_BIOS_DEFAULT, 0, 0, 0, (name) },
 #define ROM_GETDEFAULTBIOS(r)						((r)->_hashdata)
 
-/* The archive prefix and file form one BIOS_LOAD declaration. The prefix
+/* The archive prefix and file form one BIOS_LOAD/BIOSX_LOAD declaration. The prefix
    never carries over to another ROM_LOAD; continuations/reloads share the file. */
 #define BIOS_LOAD(archive,name,offset,length,hash) \
+	BIOSX_LOAD(archive, name, offset, length, hash, 0)
+#define BIOSX_LOAD(archive,name,offset,length,hash,flags) \
 	{ ROMENTRY_BIOS_LOAD, 0, 0, 0, (archive) }, \
-	ROM_LOAD(name, offset, length, hash)
+	ROMX_LOAD(name, offset, length, hash, flags)
 #define ROM_GETARCHIVEBIOS(r) ((r)->_hashdata)
 
 

@@ -7699,5 +7699,10 @@ Other Sun games
 	DRIVER( namcoc71 )
 	DRIVER( namcoc74 )
 	DRIVER( s_smp )
+	DRIVER( m1comm )
+	DRIVER( v4bios )
+	DRIVER( coh3002t )
+	DRIVER( sns_dsp1bleg )
+	DRIVER( saa5050 )
 
 #endif	/* DRIVER_RECURSIVE */

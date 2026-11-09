@@ -25,7 +25,12 @@ COREOBJS += $(OBJ)/devices/sente6vb.o \
 	$(OBJ)/devices/namcoc69.o \
 	$(OBJ)/devices/namcoc71.o \
 	$(OBJ)/devices/namcoc74.o \
-	$(OBJ)/devices/s_smp.o
+	$(OBJ)/devices/s_smp.o \
+	$(OBJ)/devices/m1comm.o \
+	$(OBJ)/devices/v4bios.o \
+	$(OBJ)/devices/coh3002t.o \
+	$(OBJ)/devices/sns_dsp1bleg.o \
+	$(OBJ)/devices/saa5050.o
 
 
 

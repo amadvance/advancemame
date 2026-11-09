@@ -571,7 +571,7 @@ ROM_START( omegrace )
 
 	/* Vector generator state PROM. */
 	ROM_REGION( 0x100, REGION_PROMS, 0 )
-	ROM_LOAD( "01-34602.bin",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
+	ROM_LOAD( "dvgprom.bin",   0x0000, 0x0100, CRC(d481e958) SHA1(d8790547dc539e25984807573097b61ec3ffe614) )
 ROM_END
 
 ROM_START( deltrace )
@@ -588,7 +588,7 @@ ROM_START( deltrace )
 
 	/* Vector generator state PROM. */
 	ROM_REGION( 0x100, REGION_PROMS, 0 )
-	ROM_LOAD( "01-34602.bin",   0x0000, 0x0100, CRC(97953db8) SHA1(8cbded64d1dd35b18c4d5cece00f77e7b2cab2ad) )
+	ROM_LOAD( "dvgprom.bin",   0x0000, 0x0100, CRC(d481e958) SHA1(d8790547dc539e25984807573097b61ec3ffe614) )
 ROM_END
 
 

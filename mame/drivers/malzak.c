@@ -529,7 +529,7 @@ ROM_START( malzak )
 	ROM_LOAD( "malzak.1",     0x0000, 0x0800, CRC(74d5ff7b) SHA1(cae326370dc83b86542f9d070e2dc91b1b833356) )
 
 	ROM_REGION(0x01000, REGION_GFX2,0) // SAA5050 internal character ROM
-	ROM_LOAD("p2000.chr", 0x0140, 0x08c0, BAD_DUMP CRC(78c17e3e) SHA1(4e1c59dc484505de1dc0b1ba7e5f70a54b0d4ccc) )
+	BIOS_LOAD("saa5050", "saa5050", 0x0140, 0x03c0, CRC(201490f3) SHA1(6c8daba70374e5aa3a6402f24cdc5f8677d58a0f) )
 
 ROM_END
 
@@ -553,10 +553,29 @@ ROM_START( malzak2 )
 	ROM_LOAD( "malzak.1",     0x0000, 0x0800, CRC(74d5ff7b) SHA1(cae326370dc83b86542f9d070e2dc91b1b833356) )
 
 	ROM_REGION(0x01000, REGION_GFX2,0) // SAA5050 internal character ROM
-	ROM_LOAD("p2000.chr", 0x0140, 0x08c0, BAD_DUMP CRC(78c17e3e) SHA1(4e1c59dc484505de1dc0b1ba7e5f70a54b0d4ccc) )
+	BIOS_LOAD("saa5050", "saa5050", 0x0140, 0x03c0, CRC(201490f3) SHA1(6c8daba70374e5aa3a6402f24cdc5f8677d58a0f) )
 
 ROM_END
 
 
-GAME( 19??, malzak,   0,       malzak,  malzak,  0,        ROT0, "Kitronix", "Malzak", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 19??, malzak2, malzak,   malzak2, malzak2, 0,        ROT0, "Kitronix", "Malzak II", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
+static DRIVER_INIT( malzak )
+{
+	UINT8 *rom = memory_region(REGION_GFX2);
+	int code, row;
+
+	/* The verified ROM contains only text. Rebuild the contiguous and separated
+	   mosaics before graphics decoding, preserving the renderer's character indices. */
+	for (code = 0; code < 64; code++)
+		for (row = 0; row < 10; row++)
+		{
+			int bits = (code >> (row < 3 ? 0 : row < 7 ? 2 : 4)) & 3;
+			int pixels = ((bits & 1) ? 0x38 : 0) | ((bits & 2) ? 0x07 : 0);
+
+			rom[(128 + code) * 10 + row] = pixels;
+			rom[(192 + code) * 10 + row] = (row == 2 || row == 6 || row == 9) ? 0 : pixels & 0x1b;
+		}
+}
+
+
+GAME( 19??, malzak,   0,       malzak,  malzak,  malzak,   ROT0, "Kitronix", "Malzak", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 19??, malzak2, malzak,   malzak2, malzak2, malzak,   ROT0, "Kitronix", "Malzak II", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )

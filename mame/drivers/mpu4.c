@@ -2011,7 +2011,7 @@ MACHINE_DRIVER_END
    Some of the dumps available seem to confuse the two. */
 
 #define VID_BIOS \
-	ROM_LOAD("vid.p1",  0x0000, 0x10000,  CRC(e996bc18) SHA1(49798165640627eb31024319353da04380787b10))
+	BIOS_LOAD("v4bios", "vid.p1",  0x0000, 0x10000,  CRC(e996bc18) SHA1(49798165640627eb31024319353da04380787b10))
 
 ROM_START( bctvidbs )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for BIOS */
