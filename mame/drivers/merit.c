@@ -752,7 +752,7 @@ ROM_START( trvwhzva )
 	ROM_LOAD( "spo_001_03.bin", 0x28000, 0x8000, CRC(a6af8e41) SHA1(64f672bfa5fb2c0575103614986e53e238c5984f) )
 ROM_END
 
-ROM_START( trvwhzii )
+ROM_START( trvwz2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "u5_0e",        0x0000, 0x2000, CRC(97b8d320) SHA1(573945531113d8aae9418ba1e9a2063052227029) )
 	ROM_LOAD( "u6_0e",        0x2000, 0x2000, CRC(2e86288d) SHA1(62c7024d8dfebed9bb05ea91302efe5d18cb7d2a) )
@@ -930,7 +930,7 @@ GAME( 1985, trvwhzho, 0,       trvwhiz,  tictac,   trvwhiz,  ROT0,  "Merit", "Tr
 GAME( 1985, trvwhzha, trvwhzho,trvwhiz,  tictac,   trvwhiz,  ROT0,  "Merit", "Trivia ? Whiz (Horizontal - Question set 2)", GAME_WRONG_COLORS )
 GAME( 1985, trvwhzve, 0,       trvwhiz,  tictac,   trvwhiz,  ROT90, "Merit", "Trivia ? Whiz (Vertical - Question set 1)",   GAME_WRONG_COLORS )
 GAME( 1985, trvwhzva, trvwhzve,trvwhiz,  tictac,   trvwhiz,  ROT90, "Merit", "Trivia ? Whiz (Vertical - Question set 2)",   GAME_WRONG_COLORS )
-GAME( 1985, trvwhzii, 0,       trvwhiz,  tictac,   trvwhzii, ROT90, "Merit", "Trivia ? Whiz (Edition 2)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
+GAME( 1985, trvwz2,   0,       trvwhiz,  tictac,   trvwhzii, ROT90, "Merit", "Trivia ? Whiz (Edition 2)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, trvwhziv, 0,       trvwhziv, tictac,   trvwhziv, ROT90, "Merit", "Trivia ? Whiz (Edition 4)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, tictac,   0,       tictac,   tictac,   tictac,   ROT0,  "Merit", "Tic Tac Trivia",                              GAME_WRONG_COLORS )
 GAME( 1986, phrcraze, 0,       phrcraze, phrcraze, phrcraze, ROT0,  "Merit", "Phraze Craze",                                GAME_WRONG_COLORS )

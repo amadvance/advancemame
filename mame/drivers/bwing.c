@@ -441,7 +441,7 @@ MACHINE_DRIVER_END
 //****************************************************************************
 // ROM Maps
 
-ROM_START( bwing )
+ROM_START( bwingso )
 	// Top Board(SCU-01)
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) // main CPU
 	ROM_LOAD( "bw_bv-02.10a", 0x04000, 0x04000, CRC(5ce74ab5) SHA1(b414f0bbe1c4c5b4c810bb4b9fba16aaf86520ff) )
@@ -472,7 +472,7 @@ ROM_START( bwing )
 ROM_END
 
 
-ROM_START( bwings )
+ROM_START( bwingsa )
 	// Top Board(SCU-01)
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) // main CPU
 	ROM_LOAD( "bw_bv-02.10a", 0x04000, 0x04000, CRC(5ce74ab5) SHA1(b414f0bbe1c4c5b4c810bb4b9fba16aaf86520ff) )
@@ -504,7 +504,7 @@ ROM_START( bwings )
 ROM_END
 
 
-ROM_START( batwings )
+ROM_START( bwings )
 	// Top Board(SCU-01)
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) // main CPU
 	ROM_LOAD( "bv-02-.10a",   0x04000, 0x04000, CRC(6074a86b) SHA1(0ce1bd74450144fd3c6556787d6c5c5d4531d830) )  // different
@@ -626,9 +626,9 @@ static DRIVER_INIT( bwing )
 //****************************************************************************
 // Game Entries
 
-GAME( 1984, bwing,        0, bwing, bwing, bwing, ROT90, "Data East Corporation", "B-Wings (Japan)", 0 )
-GAME( 1984, bwings,   bwing, bwing, bwing, bwing, ROT90, "Data East Corporation", "Battle Wings", 0 )
-GAME( 1984, batwings, bwing, bwing, bwing, bwing, ROT90, "Data East Corporation", "Battle Wings (alt)", GAME_NOT_WORKING )
+GAME( 1984, bwings,        0, bwing, bwing, bwing, ROT90, "Data East Corporation", "B-Wings (Japan new Ver.)", 0 )
+GAME( 1984, bwingso,  bwings, bwing, bwing, bwing, ROT90, "Data East Corporation", "B-Wings (Japan old Ver.)", 0 )
+GAME( 1984, bwingsa,  bwings, bwing, bwing, bwing, ROT90, "Data East Corporation", "B-Wings (Alt Ver.?)", GAME_NOT_WORKING )
 
 GAME( 1984, zaviga,       0, bwing, bwing, bwing, ROT90, "Data East Corporation", "Zaviga", 0 )
 GAME( 1984, zavigaj, zaviga, bwing, bwing, bwing, ROT90, "Data East Corporation", "Zaviga (Japan)", 0 )

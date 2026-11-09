@@ -5502,7 +5502,7 @@ ROM_START( bgaregtw )
 	ROM_LOAD( "rom5.bin", 0x040000, 0x100000, CRC(f6d49863) SHA1(3a3c354852adad06e8a051511abfab7606bce382) )
 ROM_END
 
-ROM_START( batrid )
+ROM_START( batrider )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0_europe.u22", 0x000000, 0x080000, CRC(91d3e975) SHA1(682885fc17f2424d475c282f239f42faf1aae076) )
 	ROM_LOAD16_BYTE( "prg1b.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
@@ -5671,7 +5671,7 @@ ROM_START( batridta )
 	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
 ROM_END
 
-ROM_START( bkraidu )
+ROM_START( bbakraid )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0u022_usa.bin", 0x000000, 0x080000, CRC(95fb2ffd) SHA1(c7f502f3945249573b66226e8bacc6a9bc230693) )
 	ROM_LOAD16_BYTE( "prg1u023.new", 0x000001, 0x080000, CRC(4ae9aa64) SHA1(45fdf72141c4c9f24a38d4218c65874799b9c868) )
@@ -5779,13 +5779,13 @@ GAME( 1996, bgaregtw, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing /
 GAME( 1996, bgaregnv, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - New Version (Austria / Hong Kong) (Sat Mar 2 1996)" , 0) // displays New Version when set to HK
 GAME( 1996, bgaregt2, bgaregga, battleg,  battleg,  battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - Type 2 (Europe / USA / Japan / Asia) (Sat Mar 2 1996)", 0 )
 GAME( 1996, bgaregcn, bgaregga, battleg,  battleg,  battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - Type 2 (Denmark / China) (Tue Apr 2 1996)", 0 )
-GAME( 1998, batrid,   0,        batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Europe) (Fri Feb 13 1998)", 0 )
-GAME( 1998, batridu,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (U.S.A.) (Fri Feb 13 1998)", 0 )
-GAME( 1998, batridc,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (China) (Fri Feb 13 1998)", 0 )
-GAME( 1998, batridj,  batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - B Version (Japan) (Fri Feb 13 1998)", 0 )
-GAME( 1998, batridk,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Korea) (Fri Feb 13 1998)", 0 )
-GAME( 1998, batridja, batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Japan) (Mon Dec 22 1997)", 0 )
-GAME( 1998, batridta, batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Taiwan) (Mon Dec 22 1997)", 0 )
-GAME( 1999, bkraidu,  0,        bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (U.S.A.) (Tue Jun 8 1999)", 0 )
-GAME( 1999, bkraiduj, bkraidu,  bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (Japan) (Tue Jun 8 1999)", 0 )
-GAME( 1999, bkraidj,  bkraidu,  bbakraid, bbakraid, bbakraid, ROT270, "Eighting", "Battle Bakraid (Japan) (Wed Apr 7 1999)", 0 )
+GAME( 1998, batrider, 0,        batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Europe) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridu,  batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (U.S.A.) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridc,  batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (China) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridj,  batrider, batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - B Version (Japan) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridk,  batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Korea) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridja, batrider, batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Japan) (Mon Dec 22 1997)", 0 )
+GAME( 1998, batridta, batrider, batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Taiwan) (Mon Dec 22 1997)", 0 )
+GAME( 1999, bbakraid, 0,        bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (U.S.A.) (Tue Jun 8 1999)", 0 )
+GAME( 1999, bkraiduj, bbakraid, bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (Japan) (Tue Jun 8 1999)", 0 )
+GAME( 1999, bkraidj,  bbakraid, bbakraid, bbakraid, bbakraid, ROT270, "Eighting", "Battle Bakraid (Japan) (Wed Apr 7 1999)", 0 )

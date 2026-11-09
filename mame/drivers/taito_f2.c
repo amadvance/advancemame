@@ -4579,7 +4579,7 @@ ROM_START( dondokdj )
 	/* no Delta-T samples */
 ROM_END
 
-ROM_START( megab )
+ROM_START( megablst )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )     /* 256k for 68000 code */
 	ROM_LOAD16_BYTE( "c11-07.55",  0x00000, 0x20000, CRC(11d228b6) SHA1(5f658a4a0ece3ad4e02ccad6e2852e16dd338dfd) )
 	ROM_LOAD16_BYTE( "c11-08.39",  0x00001, 0x20000, CRC(a79d4dca) SHA1(72a97577981a303230374c5f5e201066f71d9cc5) )
@@ -5849,8 +5849,8 @@ GAME( 1988, finalbu,  finalb,   finalb,   finalbj,  finalb,   ROT0,   "Taito Ame
 GAME( 1989, dondokod, 0,        dondokod, dondokod, 0,        ROT0,   "Taito Corporation Japan", "Don Doko Don (World)", 0 )
 GAME( 1989, dondokdu, dondokod, dondokod, dondokdu, 0,        ROT0,   "Taito America Corporation", "Don Doko Don (US)", 0 )
 GAME( 1989, dondokdj, dondokod, dondokod, dondokdj, 0,        ROT0,   "Taito Corporation", "Don Doko Don (Japan)", 0 )
-GAME( 1989, megab,    0,        megab,    megab,    0,        ROT0,   "Taito Corporation Japan", "Mega Blast (World)", 0 )
-GAME( 1989, megabj,   megab,    megab,    megabj,   0,        ROT0,   "Taito Corporation", "Mega Blast (Japan)", 0 )
+GAME( 1989, megablst, 0,        megab,    megab,    0,        ROT0,   "Taito Corporation Japan", "Mega Blast (World)", 0 )
+GAME( 1989, megabj,   megablst, megab,    megabj,   0,        ROT0,   "Taito Corporation", "Mega Blast (Japan)", 0 )
 GAME( 1990, thundfox, 0,        thundfox, thundfox, 0,        ROT0,   "Taito Corporation Japan", "Thunder Fox (World)", 0 )
 GAME( 1990, thndfoxu, thundfox, thundfox, thndfoxu, 0,        ROT0,   "Taito America Corporation", "Thunder Fox (US)", 0 )
 GAME( 1990, thndfoxj, thundfox, thundfox, thndfoxj, 0,        ROT0,   "Taito Corporation", "Thunder Fox (Japan)", 0 )

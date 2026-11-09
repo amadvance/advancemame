@@ -912,7 +912,7 @@ static MACHINE_DRIVER_START( mhhonban )
 MACHINE_DRIVER_END
 
 
-ROM_START( niyanpai )
+ROM_START( nyanpai )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 ) /* TMP68301 main program */
 	ROM_LOAD16_BYTE( "npai_01.bin", 0x00000, 0x20000, CRC(a904e8a1) SHA1(77865d7b48cac96af1e3cac4a702f7de4b5ee82b) )
 	ROM_LOAD16_BYTE( "npai_02.bin", 0x00001, 0x20000, CRC(244f9d6f) SHA1(afde18f32c4879a66c0707671d783c21c54cffa4) )
@@ -989,7 +989,7 @@ ROM_START( mhhonban )
 ROM_END
 
 
-GAME( 1996, niyanpai, 0, niyanpai, niyanpai, niyanpai, ROT0, "Nichibutsu", "Niyanpai (Japan)", 0 )
+GAME( 1996, nyanpai,  0, niyanpai, niyanpai, niyanpai, ROT0, "Nichibutsu", "Niyanpai (Japan)", 0 )
 GAME( 1995, musobana, 0, musobana, musobana, musobana, ROT0, "Nichibutsu/Yubis", "Musoubana (Japan)", 0 )
 GAME( 1994, 4psimasy, 0, musobana, 4psimasy, 4psimasy, ROT0, "SPHINX/AV JAPAN", "Mahjong 4P Simasyo (Japan)", 0 )
 GAME( 199?, mhhonban, 0, mhhonban, mhhonban, mhhonban, ROT0, "Nichibutsu?", "Mahjong Housoukyoku Honbanchuu (Japan)", 0 )

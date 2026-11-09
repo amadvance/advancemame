@@ -265,7 +265,7 @@ Dumper notes:
 
 */
 
-ROM_START( unkmeyco )
+ROM_START( mdrawpkr )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "tms2516.k8",   0x0000, 0x0800, CRC(2e5fc31e) SHA1(5ea01298051bc51250f67305ac8a65b0b94c120f) )
 	ROM_LOAD( "tms2516.k7",   0x0800, 0x0800, CRC(baaf874e) SHA1(b7bb476ef873102979ad3252d19a26ee3a31d933) )
@@ -285,4 +285,4 @@ DRIVER_INIT( wldarrow )
 }
 
 GAME( 1982, wldarrow,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games", "Wild Arrow", GAME_NO_SOUND | GAME_NOT_WORKING)
-GAME( 198?, unkmeyco,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games", "<unknown> Meyco game", GAME_NO_SOUND | GAME_NOT_WORKING)
+GAME( 198?, mdrawpkr,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games", "<unknown> Meyco game", GAME_NO_SOUND | GAME_NOT_WORKING)

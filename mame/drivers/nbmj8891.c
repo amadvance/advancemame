@@ -4105,7 +4105,7 @@ ROM_START( hanaoji )
 	ROM_LOAD( "hnoj_11.bin", 0x100000, 0x20000, CRC(bfe38671) SHA1(6c81864caab61ea60dfe446b390221bdcfb0895e) )
 ROM_END
 
-ROM_START( mjcamerb )
+ROM_START( mjcamera )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* program */
 	ROM_LOAD( "2.3h",        0x00000, 0x10000, CRC(3a0f110b) SHA1(8923136ed25ed91c90f93c3f75f5532ff8f9d420) )
 
@@ -4135,7 +4135,7 @@ ROM_START( mjcamerb )
 	ROM_LOAD( "mcam_m1.bin", 0x00000, 0x40000, CRC(f85c5b07) SHA1(0fc55e9b60ccc630a0d77862eb5e64a3ba366947) )	// same as housemnq/3i.bin gfx data
 ROM_END
 
-ROM_START( mmcamera )
+ROM_START( mjcameram )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* program */
 	ROM_LOAD( "2.3ha",  0x00000, 0x10000, CRC(b6eed2cf) SHA1(87171ba9ba247e54244867f720738f9b88a1213e) )
 
@@ -4198,8 +4198,8 @@ GAME( 1989, abunai,    0,        gionbana, abunai,   abunai,   ROT0,   "GREEN SO
 GAME( 1989, mjfocus,   0,        mjfocus,  mjfocus,  mjfocus,  ROT0,   "Nichibutsu", "Mahjong Focus (Japan 890313)", 0 )
 GAME( 1989, mjfocusm,  mjfocus,  mjfocusm, mjfocusm, mjfocusm, ROT0,   "Nichibutsu", "Mahjong Focus [BET] (Japan 890510)", 0 )
 GAME( 1989, peepshow,  mjfocus,  mjfocus,  peepshow, mjfocus,  ROT0,   "AC", "Nozokimeguri Mahjong Peep Show (Japan 890404)", 0 )
-GAME( 1989, mjcamerb,  0,        mjcamerb, mjcamerb, mmcamera, ROT0,   "MIKI SYOUJI", "Mahjong Camera Kozou (set 2) (Japan 881109)", 0 )
-GAME( 1989, mmcamera,  mjcamerb, mmcamera, mmcamera, mmcamera, ROT0,   "MIKI SYOUJI", "Mahjong Camera Kozou [BET] (Japan 890509)", 0 )
+GAME( 1989, mjcamera,  0,        mjcamerb, mjcamerb, mmcamera, ROT0,   "MIKI SYOUJI", "Mahjong Camera Kozou (Japan 881109, newer hardware)", 0 )
+GAME( 1989, mjcameram, mjcamera, mmcamera, mmcamera, mmcamera, ROT0,   "MIKI SYOUJI", "Mahjong Camera Kozou [BET] (Japan 890509)", 0 )
 GAME( 1989, scandal,   0,        scandal,  scandal,  scandal,  ROT0,   "Nichibutsu", "Scandal Mahjong (Japan 890213)", 0 )
 GAME( 1989, scandalm,  scandal,  mjfocusm, scandalm, scandalm, ROT0,   "Nichibutsu", "Scandal Mahjong [BET] (Japan 890217)", 0 )
 GAME( 1989, mgmen89,   0,        mgmen89,  mgmen89,  mgmen89,  ROT0,   "Nichibutsu", "Mahjong G-MEN'89 (Japan 890425)", 0 )
