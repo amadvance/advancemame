@@ -122,7 +122,7 @@ adv_bool mame_game_working(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
 
-	unsigned mask = GAME_NOT_WORKING
+	unsigned mask = GAME_RESOURCE_FLAGS | GAME_NOT_WORKING
 		| GAME_UNEMULATED_PROTECTION
 		| GAME_WRONG_COLORS
 		| GAME_NO_SOUND
@@ -139,6 +139,8 @@ adv_bool mame_game_working(const mame_game* game)
 const char* mame_game_resolution(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return "";
 	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	if ((machine.video_attributes & VIDEO_TYPE_VECTOR) == 0) {
@@ -161,6 +163,8 @@ const char* mame_game_resolution(const mame_game* game)
 const char* mame_game_resolutionclock(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return "";
 	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	if ((machine.video_attributes & VIDEO_TYPE_VECTOR) == 0) {
@@ -185,6 +189,8 @@ const char* mame_game_resolutionclock(const mame_game* game)
 double mame_game_fps(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return 0;
 	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	return machine.frames_per_second;
@@ -389,6 +395,8 @@ const char* mame_game_year(const mame_game* game)
 unsigned mame_game_players(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return 0;
 	input_port_entry* input;
 	int nplayer;
 
@@ -418,6 +426,8 @@ unsigned mame_game_players(const mame_game* game)
 unsigned mame_game_buttons(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return 0;
 	input_port_entry* input;
 	int nbutton;
 
@@ -477,6 +487,8 @@ unsigned mame_game_buttons(const mame_game* game)
 const char* mame_game_control(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return "";
 	const input_port_entry* input;
 	const char* control = 0;
 
@@ -575,6 +587,13 @@ const mame_game* mame_game_at(unsigned i)
 /**
  * Print the information database in XML format.
  */
+int mame_validate(void)
+{
+	cpuintrf_init();
+	sndintrf_init();
+	return mame_validitychecks(-1);
+}
+
 void mame_print_xml(FILE* out, int bare)
 {
 	cpuintrf_init();
@@ -588,6 +607,8 @@ void mame_print_xml(FILE* out, int bare)
 adv_bool mame_is_game_vector(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	if (driver->flags & GAME_RESOURCE_FLAGS)
+		return 0;
 	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	return (machine.video_attributes & VIDEO_TYPE_VECTOR) != 0;

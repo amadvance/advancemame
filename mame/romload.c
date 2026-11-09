@@ -154,6 +154,119 @@ const rom_entry *rom_next_chunk(const rom_entry *romp)
 }
 
 
+/* Archive markers belong to the declaration, not the machine configuration.
+   The lookup is also used by XML so file ownership cannot drift from loading. */
+const char *rom_archive_bios(const rom_entry *region, const rom_entry *rom)
+{
+	return rom > region + 1 && ROMENTRY_ISBIOS_LOAD(rom - 1) ? ROM_GETARCHIVEBIOS(rom - 1) : 0;
+}
+
+static const game_driver *rom_archive_resource(const char *name)
+{
+	int i;
+	for (i = 0; drivers[i]; ++i)
+		if ((drivers[i]->flags & GAME_IS_DEVICE) && !strcmp(drivers[i]->name, name))
+			return drivers[i];
+	return 0;
+}
+
+static UINT32 rom_archive_file_length(const rom_entry *rom)
+{
+	UINT32 length = 0;
+	const rom_entry *chunk;
+	for (chunk = rom_first_chunk(rom); chunk; chunk = rom_next_chunk(chunk))
+		length += ROM_GETLENGTH(chunk);
+	return length;
+}
+
+static const rom_entry *rom_archive_inventory_file(const game_driver *resource, const rom_entry *rom)
+{
+	const rom_entry *region, *file;
+	for (region = rom_first_region(resource); region; region = rom_next_region(region))
+		for (file = rom_first_file(region); file; file = rom_next_file(file))
+			if (rom_archive_file_length(rom) == rom_archive_file_length(file) &&
+				((ROM_NOGOODDUMP(rom) && ROM_NOGOODDUMP(file) && !strcmp(ROM_GETNAME(rom), ROM_GETNAME(file))) ||
+				(!ROM_NOGOODDUMP(rom) && !ROM_NOGOODDUMP(file) && hash_data_is_equal(ROM_GETHASHDATA(rom), ROM_GETHASHDATA(file), 0))))
+				return file;
+	return 0;
+}
+
+int rom_validate_archive_bios(const game_driver *game, char *error, unsigned error_size)
+{
+	const rom_entry *entry, *region = 0;
+	const game_driver *resource = 0;
+	const char *archive = 0;
+	for (entry = game->rom; entry && !ROMENTRY_ISEND(entry); ++entry)
+	{
+		if (ROMENTRY_ISREGION(entry))
+		{
+			region = entry;
+			archive = 0;
+			resource = 0;
+		}
+		else if (ROMENTRY_ISBIOS_LOAD(entry))
+		{
+			archive = ROM_GETARCHIVEBIOS(entry);
+			if (!region || ROMREGION_ISDISKDATA(region))
+			{
+				snprintf(error, error_size, "%s: BIOS_LOAD requires a ROM region", game->name);
+				return 1;
+			}
+			if (!ROMENTRY_ISFILE(entry + 1))
+			{
+				snprintf(error, error_size, "%s: BIOS_LOAD archive prefix must precede a file", game->name);
+				return 1;
+			}
+			if (!archive || !*archive || strlen(archive) > DRIVER_NAME_MAX || strspn(archive, "abcdefghijklmnopqrstuvwxyz0123456789_") != strlen(archive))
+			{
+				snprintf(error, error_size, "%s: invalid firmware archive name", game->name);
+				return 1;
+			}
+			resource = rom_archive_resource(archive);
+			if (!resource || (game->flags & GAME_IS_DEVICE))
+			{
+				snprintf(error, error_size, "%s: unknown or nested firmware archive %s", game->name, archive);
+				return 1;
+			}
+			if (rom_validate_archive_bios(resource, error, error_size))
+				return 1;
+		}
+		else if (resource && ROMENTRY_ISFILE(entry))
+		{
+			/* XML hides archived files from the game, so every such file must
+			   exist in the exported resource inventory, including its full length. */
+			if (!rom_archive_inventory_file(resource, entry))
+			{
+				snprintf(error, error_size, "%s: ROM %s is absent from archive inventory %s", game->name, ROM_GETNAME(entry), archive);
+				return 1;
+			}
+			resource = 0;
+			archive = 0;
+		}
+	}
+	return 0;
+}
+
+mame_file *rom_open_archive_file(const game_driver *game, const char *archive, const rom_entry *rom)
+{
+	const game_driver *parent;
+	mame_file *file = 0;
+	if (archive)
+	{
+		const game_driver *resource = rom_archive_resource(archive);
+		const rom_entry *canonical = resource ? rom_archive_inventory_file(resource, rom) : 0;
+		/* A legacy filename may differ from the canonical BIOS filename. Use
+		   the inventory name here so a bad dump still produces a checksum
+		   warning rather than failing a CRC-only alias lookup as missing. */
+		file = mame_fopen_rom(archive, ROM_GETNAME(canonical ? canonical : rom), ROM_GETHASHDATA(rom));
+	}
+	for (parent = game; !file && parent; parent = driver_get_clone(parent))
+		if (!archive || strcmp(parent->name, archive))
+			file = mame_fopen_rom(parent->name, ROM_GETNAME(rom), ROM_GETHASHDATA(rom));
+	return file;
+}
+
+
 /*-------------------------------------------------
     debugload - log data to a file
 -------------------------------------------------*/
@@ -180,7 +293,7 @@ void CLIB_DECL debugload(const char *string, ...)
 /*-------------------------------------------------
     determine_bios_rom - determine system_bios
     from SystemBios structure, options.bios, and
-    optional ROM_DEFAULT_BIOS
+    optional ROM_BIOS_DEFAULT
 -------------------------------------------------*/
 
 int determine_bios_rom(const bios_entry *bios, const rom_entry *romp)
@@ -201,10 +314,10 @@ int determine_bios_rom(const bios_entry *bios, const rom_entry *romp)
 	}
 	else if (romp != NULL)
 	{
-		/* Look for ROM_DEFAULT_BIOS in the game's rom entries */
+		/* Look for ROM_BIOS_DEFAULT in the game's rom entries */
 		for (; !ROMENTRY_ISEND(romp); romp++)
 		{
-			if (ROMENTRY_ISDEFAULT_BIOS(romp))
+			if (ROMENTRY_ISBIOS_DEFAULT(romp))
 			{
 				bios_name = ROM_GETDEFAULTBIOS(romp);
 				break;
@@ -293,6 +406,9 @@ static void fill_random(UINT8 *base, UINT32 length)
 
 static void handle_missing_file(rom_load_data *romdata, const rom_entry *romp)
 {
+	if (romdata->archive_bios)
+		snprintf(romdata->errorbuf + strlen(romdata->errorbuf), sizeof(romdata->errorbuf) - strlen(romdata->errorbuf), "Archive %s, region %x: ", romdata->archive_bios, romdata->destination);
+
 	/* optional files are okay */
 	if (ROM_ISOPTIONAL(romp))
 	{
@@ -399,6 +515,8 @@ static void verify_length_and_hash(rom_load_data *romdata, const char *name, UIN
 	/* verify checksums */
 	else if (!hash_data_is_equal(hash, acthash, 0))
 	{
+		if (romdata->archive_bios)
+			snprintf(romdata->errorbuf + strlen(romdata->errorbuf), sizeof(romdata->errorbuf) - strlen(romdata->errorbuf), "Archive %s, region %x: ", romdata->archive_bios, romdata->destination);
 		/* otherwise, it's just bad */
 		sprintf(&romdata->errorbuf[strlen(romdata->errorbuf)], "%-12s WRONG CHECKSUMS:\n", name);
 
@@ -523,10 +641,7 @@ static int open_rom_file(rom_load_data *romdata, const rom_entry *romp)
 
 	/* Attempt reading up the chain through the parents. It automatically also
        attempts any kind of load by checksum supported by the archives. */
-	romdata->file = NULL;
-	for (drv = Machine->gamedrv; !romdata->file && drv; drv = driver_get_clone(drv))
-		if (drv->name && *drv->name)
-			romdata->file = mame_fopen_rom(drv->name, ROM_GETNAME(romp), ROM_GETHASHDATA(romp));
+	romdata->file = rom_open_archive_file(Machine->gamedrv, romdata->archive_bios, romp);
 
 	/* return the result */
 	return (romdata->file != NULL);
@@ -780,6 +895,12 @@ static int process_rom_entries(rom_load_data *romdata, const rom_entry *romp)
 			goto fatalerror;
 		}
 
+		if (ROMENTRY_ISBIOS_LOAD(romp))
+		{
+			romdata->archive_bios = ROM_GETARCHIVEBIOS(romp++);
+			continue;
+		}
+
 		/* handle fills */
 		if (ROMENTRY_ISFILL(romp))
 		{
@@ -859,6 +980,8 @@ static int process_rom_entries(rom_load_data *romdata, const rom_entry *romp)
 			{
 				romp++; /* skip over file */
 			}
+			/* The prefix belongs to this file, including all of its chunks. */
+			romdata->archive_bios = 0;
 		}
 		else
 		{
@@ -1192,6 +1315,10 @@ int rom_init(const rom_entry *romp)
 	const rom_entry *region;
 	static rom_load_data romdata;
 	int regnum;
+	char error[256];
+
+	if (rom_validate_archive_bios(Machine->gamedrv, error, sizeof(error)))
+		fatalerror("%s", error);
 
 	/* if no roms, bail */
 	if (romp == NULL)
@@ -1210,11 +1337,15 @@ int rom_init(const rom_entry *romp)
 
 	/* determine the correct biosset to load based on options.bios string */
 	system_bios = determine_bios_rom(Machine->gamedrv->bios, Machine->gamedrv->rom);
+	/* Partial allocation failures must also release regions and disk handles. */
+	add_exit_callback(rom_exit);
 
 	/* loop until we hit the end */
 	for (region = rom_first_region(Machine->gamedrv), regnum = 0; region; region = rom_next_region(region), regnum++)
 	{
 		int regiontype = ROMREGION_GETTYPE(region);
+		romdata.archive_bios = 0;
+		romdata.destination = regiontype;
 
 		debugload("Processing region %02X (length=%X)\n", regiontype, ROMREGION_GETLENGTH(region));
 
@@ -1281,7 +1412,6 @@ int rom_init(const rom_entry *romp)
 	/* display the results and exit */
 	total_rom_load_warnings = romdata.warnings;
 
-	add_exit_callback(rom_exit);
 	return display_rom_load_results(&romdata);
 }
 

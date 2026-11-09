@@ -28,8 +28,9 @@
 #define ROMENTRYTYPE_COPY			6					/* this entry copies data from another region/offset */
 #define ROMENTRYTYPE_CARTRIDGE		7					/* this entry specifies a cartridge (MESS) */
 #define ROMENTRYTYPE_IGNORE			8
-#define ROMENTRYTYPE_DEFAULT_BIOS	9					/* this entry specifies a default BIOS */
-#define ROMENTRYTYPE_COUNT			10
+#define ROMENTRYTYPE_BIOS_DEFAULT	9					/* this entry specifies a default BIOS */
+#define ROMENTRYTYPE_BIOS_LOAD	10				/* archive prefix for the next file load */
+#define ROMENTRYTYPE_COUNT			11
 
 
 
@@ -108,7 +109,7 @@
 #define		ROM_INHERITFLAGS		0x08000000
 
 #define ROM_BIOSFLAGSMASK			0xf0000000			/* only loaded if value matches global bios value */
-#define 	ROM_BIOS(n)				(((n) & 15) << 28)
+#define 	ROM_BIOS(n)				((UINT32)((n) + 0 * sizeof(char[((n) >= 1 && (n) <= 15) ? 1 : -1])) << 28)
 
 #define ROM_INHERITEDFLAGS			(ROM_GROUPMASK | ROM_SKIPMASK | ROM_REVERSEMASK | ROM_BITWIDTHMASK | ROM_BITSHIFTMASK | ROM_BIOSFLAGSMASK)
 
@@ -152,6 +153,9 @@ struct _rom_load_data
 	UINT8 *			regionbase;			/* base of current region */
 	UINT32			regionlength;		/* length of current region */
 
+	const char *archive_bios;		/* firmware archive for the current file */
+	int destination;				/* region identifier for diagnostics */
+
 	char			errorbuf[4096];		/* accumulated errors */
 	UINT8			tempbuf[65536];		/* temporary buffer */
 };
@@ -172,7 +176,8 @@ struct _rom_load_data
 #define ROMENTRY_CARTRIDGE			((const char *)ROMENTRYTYPE_CARTRIDGE)
 
 #define ROMENTRY_IGNORE				((const char *)ROMENTRYTYPE_IGNORE)
-#define ROMENTRY_DEFAULT_BIOS		((const char *)ROMENTRYTYPE_DEFAULT_BIOS)
+#define ROMENTRY_BIOS_DEFAULT		((const char *)ROMENTRYTYPE_BIOS_DEFAULT)
+#define ROMENTRY_BIOS_LOAD		((const char *)ROMENTRYTYPE_BIOS_LOAD)
 
 #define ROMENTRY_GETTYPE(r)			((FPTR)(r)->_name)
 #define ROMENTRY_ISSPECIAL(r)		(ROMENTRY_GETTYPE(r) < ROMENTRYTYPE_COUNT)
@@ -184,7 +189,8 @@ struct _rom_load_data
 #define ROMENTRY_ISIGNORE(r)		((r)->_name == ROMENTRY_IGNORE)
 #define ROMENTRY_ISFILL(r)			((r)->_name == ROMENTRY_FILL)
 #define ROMENTRY_ISCOPY(r)			((r)->_name == ROMENTRY_COPY)
-#define ROMENTRY_ISDEFAULT_BIOS(r)	((r)->_name == ROMENTRY_DEFAULT_BIOS)
+#define ROMENTRY_ISBIOS_DEFAULT(r)	((r)->_name == ROMENTRY_BIOS_DEFAULT)
+#define ROMENTRY_ISBIOS_LOAD(r)	((r)->_name == ROMENTRY_BIOS_LOAD)
 #define ROMENTRY_ISREGIONEND(r)		(ROMENTRY_ISREGION(r) || ROMENTRY_ISEND(r))
 
 #define BIOSENTRY_ISEND(b)			((b)->_name == NULL)
@@ -209,7 +215,7 @@ struct _rom_load_data
 
 /* ----- per-ROM macros ----- */
 #define ROM_GETNAME(r)				((r)->_name)
-#define ROM_SAFEGETNAME(r)			(ROMENTRY_ISFILL(r) ? "fill" : ROMENTRY_ISCOPY(r) ? "copy" : ROMENTRY_ISDEFAULT_BIOS(r) ? "default_bios" : ROMENTRY_ISREGION(r) ? "region" : ROMENTRY_ISEND(r) ? "end" : ROM_GETNAME(r))
+#define ROM_SAFEGETNAME(r)			(ROMENTRY_ISFILL(r) ? "fill" : ROMENTRY_ISCOPY(r) ? "copy" : ROMENTRY_ISBIOS_DEFAULT(r) ? "default_bios" : ROMENTRY_ISREGION(r) ? "region" : ROMENTRY_ISEND(r) ? "end" : ROM_GETNAME(r))
 #define ROM_GETOFFSET(r)			((r)->_offset)
 
 #define ROM_GETLENGTH(r)			((r)->_length)
@@ -278,8 +284,16 @@ struct _rom_load_data
 /* ----- system BIOS macros ----- */
 #define SYSTEM_BIOS_ADD(value,name,description)		{ (int)value, (const char*)name, (const char*)description },
 #define BIOS_DEFAULT								"default"
-#define ROM_DEFAULT_BIOS(name)						{ ROMENTRY_DEFAULT_BIOS, 0, 0, 0, (name) },
+#define ROM_BIOS_DEFAULT(name)						{ ROMENTRY_BIOS_DEFAULT, 0, 0, 0, (name) },
 #define ROM_GETDEFAULTBIOS(r)						((r)->_hashdata)
+
+/* The archive prefix and file form one BIOS_LOAD declaration. The prefix
+   never carries over to another ROM_LOAD; continuations/reloads share the file. */
+#define BIOS_LOAD(archive,name,offset,length,hash) \
+	{ ROMENTRY_BIOS_LOAD, 0, 0, 0, (archive) }, \
+	ROM_LOAD(name, offset, length, hash)
+#define ROM_GETARCHIVEBIOS(r) ((r)->_hashdata)
+
 
 
 /* ----- disk loading macros ----- */
@@ -303,6 +317,10 @@ struct _rom_load_data
 
 /* disk handling */
 chd_file *get_disk_handle(int diskindex);
+
+const char *rom_archive_bios(const rom_entry *region, const rom_entry *rom);
+int rom_validate_archive_bios(const game_driver *game, char *error, unsigned error_size);
+mame_file *rom_open_archive_file(const game_driver *game, const char *archive, const rom_entry *rom);
 
 /* ROM processing */
 int rom_init(const rom_entry *romp);

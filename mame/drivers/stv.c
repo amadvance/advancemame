@@ -3411,7 +3411,7 @@ ROM_END
 
 ROM_START( diehard )
  	STV_BIOS // must use USA
-	ROM_DEFAULT_BIOS( "us" )
+	ROM_BIOS_DEFAULT( "us" )
 	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
 
 	ROM_LOAD( "fpr19119.13",               0x0000000, 0x0100000, CRC(de5c4f7c) SHA1(35f670a15e9c86edbe2fe718470f5a75b5b096ac) ) // ic13 bad?!
@@ -3875,7 +3875,7 @@ ROM_END
 
 ROM_START( smleague )
 	STV_BIOS // must use USA
-	ROM_DEFAULT_BIOS( "us" )
+	ROM_BIOS_DEFAULT( "us" )
 	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
 
 	ROM_LOAD( "epr18777.13",               0x0000000, 0x0080000, CRC(8d180866) SHA1(d47ebabab6e06400312d39f68cd818852e496b96) ) // ic13 bad
@@ -4122,7 +4122,7 @@ On the other side of the PCB are 2 more maskROMs, MPR-18788 @ IC9 and MPR-18789 
 
 ROM_START( critcrsh )
 	STV_BIOS
-	ROM_DEFAULT_BIOS( "europe" )
+	ROM_BIOS_DEFAULT( "europe" )
 
 	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
 

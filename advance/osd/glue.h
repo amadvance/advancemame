@@ -131,6 +131,7 @@ const char* mame_game_manufacturer(const mame_game* game);
 unsigned mame_game_players(const mame_game* game);
 unsigned mame_game_buttons(const mame_game* game);
 const char* mame_game_control(const mame_game* game);
+int mame_validate(void);
 void mame_print_xml(FILE* out, int bare);
 adv_bool mame_is_game_vector(const mame_game* game);
 adv_bool mame_is_game_relative(const char* relative, const mame_game* game);

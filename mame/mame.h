@@ -267,6 +267,9 @@ extern char build_version[];
 
 /* ----- core system management ----- */
 
+/* validate a given game, or all games if the index is -1 */
+int mame_validitychecks(int game);
+
 /* execute a given game by index in the drivers[] array */
 int run_game(int game);
 

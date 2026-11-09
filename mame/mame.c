@@ -233,8 +233,6 @@ const char *memory_region_names[REGION_MAX] =
     PROTOTYPES
 ***************************************************************************/
 
-extern int mame_validitychecks(int game);
-
 static void create_machine(int game);
 static void destroy_machine(void);
 static void init_machine(void);

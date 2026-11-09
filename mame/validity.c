@@ -259,7 +259,7 @@ static int validate_driver(int drivnum, const machine_config *drv)
 
 #ifndef MESS
 	/* make sure sound-less drivers are flagged */
-	if ((driver->flags & NOT_A_DRIVER) == 0 && drv->sound[0].sound_type == 0 && (driver->flags & GAME_NO_SOUND) == 0 && strcmp(driver->name, "minivadr"))
+	if ((driver->flags & GAME_RESOURCE_FLAGS) == 0 && drv->sound[0].sound_type == 0 && (driver->flags & GAME_NO_SOUND) == 0 && strcmp(driver->name, "minivadr"))
 	{
 		printf("%s: %s missing GAME_NO_SOUND flag\n", driver->source_file, driver->name);
 		error = TRUE;
@@ -371,7 +371,7 @@ static int validate_roms(int drivnum, const machine_config *drv, UINT32 *region_
 		}
 
 		/* if this is a default bios entry, verify it exists */
-		else if (ROMENTRY_ISDEFAULT_BIOS(romp))
+		else if (ROMENTRY_ISBIOS_DEFAULT(romp))
 		{
 			const char *defbios = ROM_GETDEFAULTBIOS(romp);
 			const bios_entry *b = driver->bios;
@@ -422,7 +422,7 @@ static int validate_roms(int drivnum, const machine_config *drv, UINT32 *region_
 		}
 
 		/* for any non-region ending entries, make sure they don't extend past the end */
-		if (!ROMENTRY_ISREGIONEND(romp) && !ROMENTRY_ISDEFAULT_BIOS(romp) && cur_region != -1)
+		if (!ROMENTRY_ISREGIONEND(romp) && !ROMENTRY_ISBIOS_DEFAULT(romp) && !ROMENTRY_ISBIOS_LOAD(romp) && cur_region != -1)
 
 		{
 			items_since_region++;
@@ -1012,7 +1012,9 @@ int mame_validitychecks(int game)
 
 		/* expand the machine driver */
 		expansion -= osd_profiling_ticks();
-		expand_machine_driver(driver->drv, &drv);
+		memset(&drv, 0, sizeof(drv));
+		if (!(driver->flags & GAME_RESOURCE_FLAGS))
+			expand_machine_driver(driver->drv, &drv);
 		expansion += osd_profiling_ticks();
 
 		/* validate the driver entry */
@@ -1024,6 +1026,18 @@ int mame_validitychecks(int game)
 		rom_checks -= osd_profiling_ticks();
 		error = validate_roms(drivnum, &drv, region_length) || error;
 		rom_checks += osd_profiling_ticks();
+
+		{
+			char message[256];
+			if (rom_validate_archive_bios(driver, message, sizeof(message)))
+			{
+				printf("%s\n", message);
+				error = TRUE;
+			}
+		}
+
+		if (driver->flags & GAME_RESOURCE_FLAGS)
+			continue;
 
 		/* validate the CPU information */
 		cpu_checks -= osd_profiling_ticks();

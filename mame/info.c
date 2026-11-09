@@ -328,10 +328,10 @@ static void print_game_bios(FILE* out, const game_driver* game)
 	if(!game->bios)
 		return;
 
-	/* Look for ROM_DEFAULT_BIOS in game's rom entries */
+	/* Look for ROM_BIOS_DEFAULT in game's rom entries */
 	for (romp = game->rom; romp && !ROMENTRY_ISEND(romp); romp++)
 	{
-		if (ROMENTRY_ISDEFAULT_BIOS(romp))
+		if (ROMENTRY_ISBIOS_DEFAULT(romp))
 		{
 			default_bios = ROM_GETDEFAULTBIOS(romp);
 			break;
@@ -349,7 +349,7 @@ static void print_game_bios(FILE* out, const game_driver* game)
 			fprintf(out, " name=\"%s\"", normalize_string(thisbios->_name));
 		if (thisbios->_description)
 			fprintf(out, " description=\"%s\"", normalize_string(thisbios->_description));
-		if (default_bios ? (!strcmp(thisbios->_name, default_bios)) : (thisbios->value == 0))
+		if (default_bios ? (!strcmp(thisbios->_name, default_bios)) : (thisbios == game->bios))
 			fprintf(out, " default=\"yes\"");
 
 		fprintf(out, "/>\n");
@@ -379,6 +379,9 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 			int offset, length, in_parent, is_disk, is_bios, found_bios, i;
 			char name[100], bios_name[100];
 
+			if (rom_archive_bios(region, rom))
+				continue;
+
 			strcpy(name,ROM_GETNAME(rom));
 			offset = ROM_GETOFFSET(rom);
 			is_disk = ROMREGION_ISDISKDATA(region);
@@ -394,7 +397,7 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 				fprom=NULL;
 				for (pregion = rom_first_region(clone_of); pregion; pregion = rom_next_region(pregion))
 					for (prom = rom_first_file(pregion); prom; prom = rom_next_file(prom))
-						if (hash_data_is_equal(ROM_GETHASHDATA(rom), ROM_GETHASHDATA(prom), 0))
+						if (!rom_archive_bios(pregion, prom) && hash_data_is_equal(ROM_GETHASHDATA(rom), ROM_GETHASHDATA(prom), 0))
 						{
 							if (!fprom || !strcmp(ROM_GETNAME(prom), name))
 								fprom=prom;
@@ -442,7 +445,9 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 			if (!is_disk && found_bios)
 				fprintf(out, " bios=\"%s\"", normalize_string(bios_name));
 			if (!is_disk)
+			{
 				fprintf(out, " size=\"%d\"", length);
+			}
 
 			/* dump checksum information only if there is a known dump */
 			if (!hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
@@ -792,6 +797,27 @@ static void print_game_driver(FILE* out, const game_driver* game)
 	fprintf(out, "/>\n");
 }
 
+static void print_game_archive_refs(FILE *out, const game_driver *game)
+{
+	const rom_entry *entry, *prior;
+	char error[256];
+	if (rom_validate_archive_bios(game, error, sizeof(error)))
+		fatalerror("%s", error);
+	for (entry = game->rom; entry && !ROMENTRY_ISEND(entry); ++entry)
+		if (ROMENTRY_ISBIOS_LOAD(entry) && ROM_GETARCHIVEBIOS(entry))
+		{
+			const char *name = ROM_GETARCHIVEBIOS(entry);
+			for (prior = game->rom; prior != entry; ++prior)
+				if (ROMENTRY_ISBIOS_LOAD(prior) && ROM_GETARCHIVEBIOS(prior) && !strcmp(ROM_GETARCHIVEBIOS(prior), name))
+					break;
+			if (prior == entry)
+			{
+				fprintf(out, "\t\t<device_ref tag=\":%s\"", normalize_string(name));
+				fprintf(out, " name=\"%s\"/>\n", normalize_string(name));
+			}
+		}
+}
+
 /* Print the MAME info record for a game */
 static void print_game_info(FILE* out, int bare, const game_driver* game)
 {
@@ -838,6 +864,7 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 	if (!bare)
 		print_game_bios(out, game);
 	print_game_rom(out, bare, game);
+	print_game_archive_refs(out, game);
 	if (!bare)
 		print_game_sample(out, game);
 	if (!bare)
@@ -863,10 +890,13 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 static void print_resource_info(FILE* out, int bare, const game_driver* game)
 {
 	const char *start;
+	char error[256];
 
  	/* No action if not a resource */
 	if ((game->flags & GAME_RESOURCE_FLAGS) == 0)
  		return;
+	if (rom_validate_archive_bios(game, error, sizeof(error)))
+		fatalerror("%s", error);
 
 
 	/* The runnable entry is an hint for frontend authors */
@@ -904,8 +934,7 @@ static void print_resource_info(FILE* out, int bare, const game_driver* game)
 
 	print_game_bios(out, game);
 	print_game_rom(out, bare, game);
-	if (!(game->flags & GAME_IS_DEVICE))
-		print_game_sample(out, game);
+	/* Resources expose ROM metadata without expanding hardware constructors. */
 
 	fprintf(out, "\t</" XML_TOP ">\n");
 }
@@ -921,6 +950,27 @@ static void print_mame_data(FILE* out, int bare, const game_driver* const games[
 	/* print resources */
  	for (j=0;games[j];++j)
  		print_resource_info(out, bare, games[j]);
+
+	if (games != drivers)
+	{
+		int d;
+		for (d = 0; drivers[d]; ++d)
+			if (drivers[d]->flags & GAME_IS_DEVICE)
+			{
+				int n, present = 0, referenced = 0;
+				for (n = 0; games[n]; ++n)
+				{
+					const rom_entry *entry;
+					if (games[n] == drivers[d])
+						present = 1;
+					for (entry = games[n]->rom; entry && !ROMENTRY_ISEND(entry); ++entry)
+						if (ROMENTRY_ISBIOS_LOAD(entry) && ROM_GETARCHIVEBIOS(entry) && !strcmp(ROM_GETARCHIVEBIOS(entry), drivers[d]->name))
+							referenced = 1;
+				}
+				if (referenced && !present)
+					print_resource_info(out, bare, drivers[d]);
+			}
+	}
 }
 
 /* Print the MAME database in XML format */
@@ -932,9 +982,9 @@ void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 		"<!ELEMENT " XML_ROOT " (" XML_TOP "+)>\n"
 		"\t<!ATTLIST " XML_ROOT " build CDATA #IMPLIED>\n"
 #ifdef MESS
-		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?, device*, ramoption*)>\n"
+		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, device_ref*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?, device*, ramoption*)>\n"
 #else
-		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
+		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, device_ref*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
 #endif
 		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
 		"\t\t<!ATTLIST " XML_TOP " sourcefile CDATA #IMPLIED>\n"
@@ -948,6 +998,9 @@ void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 		"\t\t<!ELEMENT year (#PCDATA)>\n"
 		"\t\t<!ELEMENT manufacturer (#PCDATA)>\n"
 		"\t\t<!ELEMENT history (#PCDATA)>\n"
+		"\t\t<!ELEMENT device_ref EMPTY>\n"
+		"\t\t\t<!ATTLIST device_ref tag CDATA #REQUIRED>\n"
+		"\t\t\t<!ATTLIST device_ref name CDATA #REQUIRED>\n"
 		"\t\t<!ELEMENT biosset EMPTY>\n"
 		"\t\t\t<!ATTLIST biosset name CDATA #REQUIRED>\n"
 		"\t\t\t<!ATTLIST biosset description CDATA #REQUIRED>\n"

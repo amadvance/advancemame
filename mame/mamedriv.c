@@ -7684,4 +7684,16 @@ Other Sun games
 	DRIVER( altair2 )
 	DRIVER( draco )
 
+
+/* Standalone firmware providers (not runnable machines). */
+	DRIVER( sente6vb )
+	DRIVER( midssio )
+	DRIVER( t5182 )
+	DRIVER( namcoc65 )
+	DRIVER( namcoc68 )
+	DRIVER( namcoc69 )
+	DRIVER( namcoc71 )
+	DRIVER( namcoc74 )
+	DRIVER( s_smp )
+
 #endif	/* DRIVER_RECURSIVE */

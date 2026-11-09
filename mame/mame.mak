@@ -16,6 +16,17 @@
 
 COREOBJS += $(OBJ)/mamedriv.o
 
+OBJDIRS += $(OBJ)/devices
+COREOBJS += $(OBJ)/devices/sente6vb.o \
+	$(OBJ)/devices/midssio.o \
+	$(OBJ)/devices/t5182.o \
+	$(OBJ)/devices/namcoc65.o \
+	$(OBJ)/devices/namcoc68.o \
+	$(OBJ)/devices/namcoc69.o \
+	$(OBJ)/devices/namcoc71.o \
+	$(OBJ)/devices/namcoc74.o \
+	$(OBJ)/devices/s_smp.o
+
 
 
 #-------------------------------------------------
