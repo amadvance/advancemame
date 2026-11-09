@@ -200,6 +200,22 @@
     },
     {
       "shortnames": [
+        "cottonbme"
+      ],
+      "title": "Cotton Boomerang (English translation)",
+      "category": "hack",
+      "original_game": "cottonbm",
+      "parent_shortname": "cottonbm",
+      "hack_author": "Zanac",
+      "modifications": [
+        {
+          "type": "translation",
+          "description": "Translates stage results, character selection panels, and character names in attract mode into English, and adds a translation credit under the title logo. Uses the translated Japanese mode with every ST-V BIOS region."
+        }
+      ]
+    },
+    {
+      "shortnames": [
         "crmaze"
       ],
       "title": "The Crystal Maze: Team Challenge",

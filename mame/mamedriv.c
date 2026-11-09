@@ -3678,6 +3678,7 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( cotton2 )	/* (c) 1997 Success */
 	DRIVER( cotton2e )	/* bootleg, English translation */
 	DRIVER( cottonbm )	/* (c) 1998 Success */
+	DRIVER( cottonbme )	/* bootleg, English translation */
 	DRIVER( decathlt )	/* (c) 1995 */
 	DRIVER( diehard )	/* (c) 1996 */
 	DRIVER( dnmtdeka )	/* (c) 1996 */
