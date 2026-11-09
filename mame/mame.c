@@ -264,6 +264,13 @@ int run_game(int game)
 	callback_item *cb;
 	int error = 0;
 
+	/* Resources must be rejected before constructors or machine state are used. */
+	if (drivers[game]->flags & GAME_RESOURCE_FLAGS)
+	{
+		fprintf(stderr, "%s is a non-runnable ROM resource.\n", drivers[game]->name);
+		return 1;
+	}
+
 	/* start in the "pre-init phase" */
 	current_phase = MAME_PHASE_PREINIT;
 

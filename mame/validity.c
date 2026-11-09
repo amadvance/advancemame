@@ -241,10 +241,10 @@ static int validate_driver(int drivnum, const machine_config *drv)
 		error = TRUE;
 	}
 
-	/* make sure the driver name is 8 chars or less */
-	if (strlen(driver->name) > 8)
+	/* enforce the shared shortname limit */
+	if (strlen(driver->name) > DRIVER_NAME_MAX)
 	{
-		printf("%s: %s driver name must be 8 characters or less\n", driver->source_file, driver->name);
+		printf("%s: %s driver name must be %d characters or less\n", driver->source_file, driver->name, DRIVER_NAME_MAX);
 		error = TRUE;
 	}
 

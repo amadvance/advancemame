@@ -87,6 +87,10 @@ static const mame_game* select_game(const char* gamename)
 
 	for (i = 0; mame_game_at(i); ++i) {
 		if (strcmp(gamename, mame_game_name(mame_game_at(i))) == 0) {
+			if (!mame_game_runnable(mame_game_at(i))) {
+				target_err("%s is a non-runnable ROM resource.\n", gamename);
+				return 0;
+			}
 			return mame_game_at(i);
 		}
 		++game_count;

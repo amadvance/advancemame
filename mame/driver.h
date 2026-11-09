@@ -180,6 +180,10 @@
 #define GAME_NO_SOUND					0x0200	/* sound is missing */
 #define GAME_IMPERFECT_SOUND			0x0400	/* sound is known to be wrong */
 #define GAME_SUPPORTS_SAVE				0x0800	/* game supports save states */
+#define GAME_IS_BIOS                    0x1000  /* non-runnable system BIOS */
+#define GAME_IS_DEVICE                  0x2000  /* non-runnable ROM provider */
+#define GAME_RESOURCE_FLAGS             (NOT_A_DRIVER | GAME_IS_BIOS | GAME_IS_DEVICE)
+#define DRIVER_NAME_MAX                 32
 #define NOT_A_DRIVER					0x4000	/* set by the fake "root" driver_0 and by "containers" */
 
 #ifdef MESS
@@ -505,6 +509,12 @@ struct _game_driver
     Macros for building game drivers
 
 ***************************************************************************/
+
+#define BIOS(YEAR,NAME,PARENT,MACHINE,INPUT,INIT,MONITOR,COMPANY,FULLNAME,FLAGS) \
+	GAME(YEAR,NAME,PARENT,MACHINE,INPUT,INIT,MONITOR,COMPANY,FULLNAME,(FLAGS)|NOT_A_DRIVER|GAME_IS_BIOS)
+
+#define BIOSB(YEAR,NAME,PARENT,BIOS,MACHINE,INPUT,INIT,MONITOR,COMPANY,FULLNAME,FLAGS) \
+	GAMEB(YEAR,NAME,PARENT,BIOS,MACHINE,INPUT,INIT,MONITOR,COMPANY,FULLNAME,(FLAGS)|NOT_A_DRIVER|GAME_IS_BIOS)
 
 #define GAME(YEAR,NAME,PARENT,MACHINE,INPUT,INIT,MONITOR,COMPANY,FULLNAME,FLAGS)	\
 game_driver driver_##NAME =					\

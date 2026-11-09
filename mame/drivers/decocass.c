@@ -1212,7 +1212,7 @@ static DRIVER_INIT( decocrom )
 }
 
 
-GAMEB( 1981, decocass, 0,        decocass, decocass, decocass, decocass, ROT270, "Data East Corporation", "Cassette System", NOT_A_DRIVER )
+BIOSB( 1981, decocass, 0,        decocass, decocass, decocass, decocass, ROT270, "Data East Corporation", "Cassette System", 0 )
 GAMEB( 1981, ctsttape, decocass, decocass, ctsttape, decocass, decocass, ROT270, "Data East Corporation", "Test Tape (Cassette)", 0 )
 GAMEB( 1981, clocknch, decocass, decocass, clocknch, decocass, decocass, ROT270, "Data East Corporation", "Lock'n'Chase (Cassette)", 0 )
 GAMEB( 1981, ctisland, decocass, decocass, ctisland, decocass, decocrom, ROT270, "Data East Corporation", "Treasure Island (Cassette, set 1)", 0 )

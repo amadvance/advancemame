@@ -2829,7 +2829,7 @@ V-V                           TP-027
 	DRIVER( sfiii4n )	/* 2013 Street Fighter 3: Third Strike (4rd Arrange Edition) */
 
 	/* Capcom ZN1 */
-	DRIVER( cpzn1 )
+	DRIVER( coh1000c )
 	DRIVER( ts2 )		/* Battle Arena Toshinden 2 (USA 951124) */
 	DRIVER( ts2j )		/* Battle Arena Toshinden 2 (JAPAN 951124) */
 	DRIVER( starglad )	/* Star Gladiator (USA 960627) */
@@ -2842,7 +2842,7 @@ V-V                           TP-027
 	DRIVER( sfexpj )	/* Street Fighter EX Plus (JAPAN 970311) */
 
 	/* Capcom ZN2 */
-	DRIVER( cpzn2 )
+	DRIVER( coh3002c )
 	DRIVER( rvschool )	/* Rival Schools (USA 971117) */
 	DRIVER( rvschola )	/* Rival Schools (ASIA 971117) */
 	DRIVER( jgakuen )	/* Justice Gakuen (JAPAN 971117) */
@@ -2864,7 +2864,7 @@ V-V                           TP-027
 	DRIVER( shiryu2 )	/* Strider Hiryu 2 (JAPAN 991213) */
 
 	/* Tecmo ZN1 */
-	DRIVER( tps )
+	DRIVER( coh1002m )
 	DRIVER( glpracr2 )	/* Gallop Racer 2 (USA) */
 	DRIVER( glprac2j )	/* Gallop Racer 2 (JAPAN) */
 	DRIVER( glprac2l )	/* Gallop Racer 2 Link HW (JAPAN) */
@@ -2881,22 +2881,22 @@ V-V                           TP-027
 	DRIVER( mfjump )	/* Monster Farm Jump (JAPAN) */
 
 	/* Atlus ZN1 */
-	DRIVER( atluspsx )
+	DRIVER( coh1001l )
 	DRIVER( hvnsgate )	/* Heaven's Gate (JAPAN) */
 
 	/* PS Arcade 95 */
-	DRIVER( psarc95 )
+	DRIVER( coh1002e )
 	DRIVER( beastrzr )	/* Beastorizer (USA) */
 	DRIVER( beastrzrb )	/* Beastorizer (USA Bootleg) */
 	DRIVER( bldyror2 )	/* Bloody Roar 2 (JAPAN) */
 	DRIVER( brvblade )	/* Brave Blade (JAPAN) */
 
 	/* Atari PSX */
-	DRIVER( atpsx )
+	DRIVER( coh1000w )
 	DRIVER( primrag2 )	/* Primal Rage 2 */
 
 	/* Acclaim PSX */
-	DRIVER( acpsx )
+	DRIVER( coh1000a )
 	DRIVER( nbajamex )	/* NBA Jam Extreme */
 	DRIVER( jdredd )	/* Judge Dredd (Rev C) */
 	DRIVER( jdreddb )	/* Judge Dredd (Rev B) */
@@ -2908,7 +2908,7 @@ V-V                           TP-027
 	DRIVER( sncwgltd )	/* Sonic Wings Limited (Japan) */
 
 	/* Taito FX1a */
-	DRIVER( taitofx1 )
+	DRIVER( coh1000t )
 	DRIVER( sfchamp )	/* Super Football Champ (Ver 2.5J) */
 	DRIVER( sfchampj )	/* Super Football Champ (Ver 2.4J) */
 	DRIVER( psyforce )	/* Psychic Force (Ver 2.4O) */

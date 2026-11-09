@@ -8552,7 +8552,7 @@ void neogeo_register_main_savestate(void)
 /* A dummy driver, so that the bios can be debugged, and to serve as */
 /* parent for the NEOGEO_BIOS files, so that we do not have to include */
 /* them in every zip file */
-GAMEB( 1990, neogeo, 0, neogeo, neogeo, neogeo, neogeo, ROT0, "SNK", "Neo-Geo", NOT_A_DRIVER )
+BIOSB( 1990, neogeo, 0, neogeo, neogeo, neogeo, neogeo, ROT0, "SNK", "Neo-Geo", 0 )
 
 /******************************************************************************/
 

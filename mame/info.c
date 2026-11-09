@@ -364,12 +364,16 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 	const rom_entry *pregion, *prom, *fprom=NULL;
 	const game_driver *clone_of;
 	unsigned rom_bare_size = 0;
+	int pass;
 
 	if (!game->rom)
 		return;
 
 	clone_of = driver_get_clone(game);
+	/* The DTD requires all ROMs before disks, independent of region order. */
+	for (pass = 0; pass < 2; ++pass)
 	for (region = rom_first_region(game); region; region = rom_next_region(region))
+		if (!!ROMREGION_ISDISKDATA(region) == pass)
 		for (rom = rom_first_file(region); rom; rom = rom_next_file(rom))
 		{
 			int offset, length, in_parent, is_disk, is_bios, found_bios, i;
@@ -795,7 +799,7 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 	const game_driver *clone_of;
 
 	/* No action if not a game */
-	if (game->flags & NOT_A_DRIVER)
+	if (game->flags & GAME_RESOURCE_FLAGS)
 		return;
 
 	fprintf(out, "\t<" XML_TOP);
@@ -811,7 +815,7 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 		fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
 
 	clone_of = driver_get_clone(game);
-	if (clone_of && !(clone_of->flags & NOT_A_DRIVER))
+	if (clone_of && !(clone_of->flags & GAME_RESOURCE_FLAGS))
 		fprintf(out, " cloneof=\"%s\"", normalize_string(clone_of->name));
 
 	if (clone_of)
@@ -855,14 +859,13 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 	fprintf(out, "\t</" XML_TOP ">\n");
 }
 
-#if !defined(MESS)
 /* Print the resource info */
 static void print_resource_info(FILE* out, int bare, const game_driver* game)
 {
 	const char *start;
 
  	/* No action if not a resource */
- 	if ((game->flags & NOT_A_DRIVER) == 0)
+	if ((game->flags & GAME_RESOURCE_FLAGS) == 0)
  		return;
 
 
@@ -872,6 +875,10 @@ static void print_resource_info(FILE* out, int bare, const game_driver* game)
 	/* the game name as argument in the program command line, */
 	/* games marked as runnable=no cannot be started. */
 	fprintf(out, "\t<" XML_TOP " runnable=\"no\"");
+	if (game->flags & GAME_IS_BIOS)
+		fprintf(out, " isbios=\"yes\"");
+	if (game->flags & GAME_IS_DEVICE)
+		fprintf(out, " isdevice=\"yes\"");
 
 	fprintf(out, " name=\"%s\"", normalize_string(game->name) );
 
@@ -896,13 +903,12 @@ static void print_resource_info(FILE* out, int bare, const game_driver* game)
 		fprintf(out, "\t\t<manufacturer>%s</manufacturer>\n", normalize_string(game->manufacturer));
 
 	print_game_bios(out, game);
-	if (!bare)
-		print_game_rom(out, bare, game);
-	print_game_sample(out, game);
+	print_game_rom(out, bare, game);
+	if (!(game->flags & GAME_IS_DEVICE))
+		print_game_sample(out, game);
 
 	fprintf(out, "\t</" XML_TOP ">\n");
 }
-#endif
 
 static void print_mame_data(FILE* out, int bare, const game_driver* const games[])
 {
@@ -912,11 +918,9 @@ static void print_mame_data(FILE* out, int bare, const game_driver* const games[
 	for(j=0;games[j];++j)
 		print_game_info(out, bare, games[j]);
 
-#if !defined(MESS)
 	/* print resources */
  	for (j=0;games[j];++j)
  		print_resource_info(out, bare, games[j]);
-#endif
 }
 
 /* Print the MAME database in XML format */
@@ -934,6 +938,8 @@ void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 #endif
 		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
 		"\t\t<!ATTLIST " XML_TOP " sourcefile CDATA #IMPLIED>\n"
+		"\t\t<!ATTLIST " XML_TOP " isbios (yes|no) \"no\">\n"
+		"\t\t<!ATTLIST " XML_TOP " isdevice (yes|no) \"no\">\n"
 		"\t\t<!ATTLIST " XML_TOP " runnable (yes|no) \"yes\">\n"
 		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
 		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
@@ -947,7 +953,7 @@ void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 		"\t\t\t<!ATTLIST biosset description CDATA #REQUIRED>\n"
 		"\t\t\t<!ATTLIST biosset default (yes|no) \"no\">\n"
 		"\t\t<!ELEMENT rom EMPTY>\n"
-		"\t\t\t<!ATTLIST rom name CDATA #REQUIRED>\n"
+		"\t\t\t<!ATTLIST rom name CDATA %s>\n"
 		"\t\t\t<!ATTLIST rom bios CDATA #IMPLIED>\n"
 		"\t\t\t<!ATTLIST rom size CDATA #REQUIRED>\n"
 		"\t\t\t<!ATTLIST rom crc CDATA #IMPLIED>\n"
@@ -1018,6 +1024,7 @@ void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 #endif
 		"]>\n\n"
 		"<" XML_ROOT " build=\"%s\">\n",
+		bare ? "#IMPLIED" : "#REQUIRED",
 		normalize_string(build_version)
 	);
 

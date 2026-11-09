@@ -107,6 +107,15 @@ extern char* cheatfile;
 extern const char* db_filename;
 
 /**
+ * Check whether a driver can be launched before inspecting its hardware.
+ */
+adv_bool mame_game_runnable(const mame_game* game)
+{
+	const game_driver* driver = (const game_driver*)game;
+	return (driver->flags & GAME_RESOURCE_FLAGS) == 0;
+}
+
+/**
  * Check if the game is working perfectly.
  */
 adv_bool mame_game_working(const mame_game* game)
@@ -769,6 +778,12 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 {
 	int r;
 	int game_index;
+
+	/* resources have no runnable hardware configuration */
+	if (!advance->game || !mame_game_runnable(advance->game)) {
+		target_err("The selected entry is a non-runnable ROM resource.\n");
+		return -1;
+	}
 
 	/* store the game pointer */
 	context->game = advance->game;

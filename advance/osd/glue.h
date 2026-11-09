@@ -113,6 +113,7 @@ struct mame_option {
 /* MAME interface */
 
 const mame_game* mame_game_at(unsigned index);
+adv_bool mame_game_runnable(const mame_game* game);
 adv_bool mame_game_working(const mame_game* game);
 const char* mame_game_resolution(const mame_game* game);
 const char* mame_game_resolutionclock(const mame_game* game);
