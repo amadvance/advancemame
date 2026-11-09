@@ -843,7 +843,7 @@ $(MESSOBJ)/lynx.a:     \
 	$(MESSOBJ)/mess/machine/lynx.o
 
 $(MESSOBJ)/mk1.a:      \
-	$(MESSOBJ)/mess/cpu/f8/f3853.o	 \
+	$(MESSOBJ)/cpu/f8/f3853.o	 \
 	$(MESSOBJ)/mess/vidhrdw/mk1.o      \
 	$(MESSOBJ)/mess/systems/mk1.o
 

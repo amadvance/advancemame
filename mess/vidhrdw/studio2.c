@@ -15,7 +15,7 @@
 
 static struct {
 	UINT8 data[128][8];
-	void *timer;
+	int byte;
 	int line;
 	int dma_activ;
 	int state;
@@ -29,9 +29,12 @@ int studio2_get_vsync(void)
 
 #define COLUMNS 14
 #define LINES 256
-void studio2_video_dma(int cycles)
+void studio2_video_sc_w(int state)
 {
-	int i;
+	/* Each state code accounts for one eight-clock machine cycle, including
+	   DMA and the extra execute cycle of long instructions. */
+	if (state == CDP1802_STATE_CODE_S3_INTERRUPT)
+		activecpu_set_input_line(CDP1802_INPUT_LINE_INT, INTERNAL_CLEAR_LINE);
 
 	switch (studio2_video.state) {
 	case 0: // deactivated
@@ -40,11 +43,11 @@ void studio2_video_dma(int cycles)
 		studio2_video.count=29;
 		studio2_video.line=0;
 		studio2_video.state=10;
-		cpunum_set_input_line(0, CDP1802_IRQ_STATE, PULSE_LINE);
+		activecpu_set_input_line(CDP1802_INPUT_LINE_INT, INTERNAL_ASSERT_LINE);
 		studio2_video.dma_activ=1;
 		break;
 	case 2:
-		studio2_video.count-=cycles;
+		--studio2_video.count;
 		if (studio2_video.count<0) {
 			studio2_video.line=0;
 			studio2_video.state=10;
@@ -52,22 +55,18 @@ void studio2_video_dma(int cycles)
 		}
 		break;
 	case 10:
-		studio2_video.count-=cycles;
+		--studio2_video.count;
 		if (studio2_video.count<=0) {
-			for (i=0; i<8; i++) {
-				studio2_video.data[studio2_video.line][i]=cdp1802_dma_read();
-			}
-			studio2_video.count+=COLUMNS-8;
-			if (++studio2_video.line>=128) {
-				studio2_video.dma_activ=0;
-				// turn off irq line !?
-				studio2_video.count+=2*COLUMNS;
-				studio2_video.state++;
-			}
+			/* These callbacks run inside the CPU: change lines immediately,
+			   since queued changes would allow extra DMA transfers. The
+			   shared core updates R0 and accounts for the stolen cycles. */
+			studio2_video.byte=0;
+			activecpu_set_input_line(CDP1802_INPUT_LINE_DMAOUT, INTERNAL_ASSERT_LINE);
+			studio2_video.count+=COLUMNS;
 		}
 		break;
 	case 11:
-		studio2_video.count-=cycles;
+		--studio2_video.count;
 		if (studio2_video.count<=0) {
 // while dma_activ is high Register0 is corrected for doublescanning
 // after is it waiting for it going high again
@@ -78,7 +77,7 @@ void studio2_video_dma(int cycles)
 		}
 		break;
 	case 12:
-		studio2_video.count-=cycles;
+		--studio2_video.count;
 		if (studio2_video.count<=0) {
 			studio2_video.dma_activ=0; 
 			studio2_video.count+=COLUMNS;
@@ -87,6 +86,27 @@ void studio2_video_dma(int cycles)
 		}
 		break;
 	}
+}
+
+void studio2_video_dma_w(UINT8 data)
+{
+	studio2_video.data[studio2_video.line][studio2_video.byte++]=data;
+	if (studio2_video.byte==8) {
+		activecpu_set_input_line(CDP1802_INPUT_LINE_DMAOUT, INTERNAL_CLEAR_LINE);
+		if (++studio2_video.line>=128) {
+			studio2_video.dma_activ=0;
+			studio2_video.count+=2*COLUMNS;
+			studio2_video.state=11;
+		}
+	}
+}
+
+void studio2_video_reset(void)
+{
+	/* A reset must cancel pending transfers before the CPU starts at R0. */
+	memset(&studio2_video, 0, sizeof(studio2_video));
+	cpunum_set_input_line(0, CDP1802_INPUT_LINE_INT, CLEAR_LINE);
+	cpunum_set_input_line(0, CDP1802_INPUT_LINE_DMAOUT, CLEAR_LINE);
 }
 
 VIDEO_START( studio2 )

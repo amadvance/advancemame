@@ -203,7 +203,8 @@ static WRITE8_HANDLER( vismac_register_w )
 
 static WRITE8_HANDLER( vismac_data_w )
 {
-	UINT16 word = activecpu_get_reg(activecpu_get_reg(CDP1802_X) + CDP1802_R0) - 1; // TODO: why -1?
+	/* OUT presents R(X) on the address bus before the shared core increments it. */
+	UINT16 word = activecpu_get_reg(activecpu_get_reg(CDP1802_X) + CDP1802_R0);
 
 	switch (vismac_latch)
 	{
@@ -549,17 +550,18 @@ static gfx_decode gfxdecodeinfo[] =
 
 /* CDP1802 Interfaces */
 
-// Telmac 1800
-
-static void tmc1800_video_dma(int cycles)
+static UINT8 telmac_mode_r(void)
 {
+	return CDP1802_MODE_RUN;
 }
+
+// Telmac 1800
 
 static void tmc1800_out_q(int level)
 {
 }
 
-static int tmc1800_in_ef(void)
+static UINT8 tmc1800_in_ef(void)
 {
 	int flags = 0;
 
@@ -573,21 +575,21 @@ static int tmc1800_in_ef(void)
 	// keyboard
 	if (~readinputport(keylatch / 8) & (1 << (keylatch % 8))) flags |= EF3;
 
-	return flags;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return flags ^ 0x0f;
 }
 
 static CDP1802_CONFIG tmc1800_config =
 {
-	tmc1800_video_dma,
+	telmac_mode_r,
+	tmc1800_in_ef,
+	NULL,
 	tmc1800_out_q,
-	tmc1800_in_ef
+	NULL,
+	NULL
 };
 
 // Telmac 2000
-
-static void tmc2000_video_dma(int cycles)
-{
-}
 
 static void tmc2000_out_q(int level)
 {
@@ -598,7 +600,7 @@ static void tmc2000_out_q(int level)
 	set_led_status(1, level);
 }
 
-static int tmc2000_in_ef(void)
+static UINT8 tmc2000_in_ef(void)
 {
 	int flags = 0;
 
@@ -612,21 +614,21 @@ static int tmc2000_in_ef(void)
 	// keyboard
 	if (~readinputport(keylatch / 8) & (1 << (keylatch % 8))) flags |= EF3;
 
-	return flags;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return flags ^ 0x0f;
 }
 
 static CDP1802_CONFIG tmc2000_config =
 {
-	tmc2000_video_dma,
+	telmac_mode_r,
+	tmc2000_in_ef,
+	NULL,
 	tmc2000_out_q,
-	tmc2000_in_ef
+	NULL,
+	NULL
 };
 
 // Telmac 2000E
-
-static void tmc2000e_video_dma(int cycles)
-{
-}
 
 static void tmc2000e_out_q(int level)
 {
@@ -641,7 +643,7 @@ static void tmc2000e_out_q(int level)
 	// floppy control (FDC-6)
 }
 
-static int tmc2000e_in_ef(void)
+static UINT8 tmc2000e_in_ef(void)
 {
 	int flags = 0;
 
@@ -655,14 +657,18 @@ static int tmc2000e_in_ef(void)
 	// keyboard
 	if (~readinputport(keylatch / 8) & (1 << (keylatch % 8))) flags |= EF3;
 
-	return flags;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return flags ^ 0x0f;
 }
 
 static CDP1802_CONFIG tmc2000e_config =
 {
-	tmc2000e_video_dma,
+	telmac_mode_r,
+	tmc2000e_in_ef,
+	NULL,
 	tmc2000e_out_q,
-	tmc2000e_in_ef
+	NULL,
+	NULL
 };
 
 // Telmac TMC-600
@@ -672,7 +678,7 @@ static void tmc600_out_q(int level)
 	//logerror("q level: %u\n", level);
 }
 
-static int tmc600_in_ef(void)
+static UINT8 tmc600_in_ef(void)
 {
 	int flags = 0;
 
@@ -686,14 +692,18 @@ static int tmc600_in_ef(void)
 	// keyboard
 	if (~readinputport(keylatch / 8) & (1 << (keylatch % 8))) flags |= EF3;
 
-	return flags;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return flags ^ 0x0f;
 }
 
 static CDP1802_CONFIG tmc600_config =
 {
+	telmac_mode_r,
+	tmc600_in_ef,
 	NULL,
 	tmc600_out_q,
-	tmc600_in_ef
+	NULL,
+	NULL
 };
 
 /* Interrupt Generators */

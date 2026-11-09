@@ -815,7 +815,6 @@ else
 include $(srcdir)/mess/mess.mak
 endif
 $(eval $(call EMU_CPU,MESS,$(MESSOBJ),mess))
-include $(srcdir)/mess/cpu/cpu.mak
 $(eval $(call EMU_SOUND,MESS,$(MESSOBJ),mess))
 include $(srcdir)/mess/sound/sound.mak
 

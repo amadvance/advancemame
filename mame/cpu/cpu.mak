@@ -1,5 +1,5 @@
 # license:BSD-3-Clause
-# copyright-holders:Aaron Giles, Nicola Salmoria
+# copyright-holders:Aaron Giles, Nicola Salmoria, Nathan Woods
 # Shared rules: call with variable prefix, object directory and target name.
 # Escape ordinary make references so each instantiation retains its own variables.
 define EMU_CPU
@@ -1068,16 +1068,20 @@ $(2)/cpu/sh3/sh3.o: CFLAGS += -fno-strict-aliasing
 $(2)/cpu/sh3/sh3.o: sh3.c sh3.h sh3jit.c $$(srcdir)/mame/cpu/jitcache.h
 endif
 
-# MESS supplies these CPUs in mess/cpu/cpu.mak; never link both implementations.
-ifeq ($(3),mame)
 $(1)CPUDEFS += -DHAS_CDP1802=$$(if $$(filter CDP1802,$$($(1)CPUS)),1,0)
-$(1)CPUDEFS += -DHAS_COP420=$$(if $$(filter COP420,$$($(1)CPUS)),1,0)
 ifneq ($$(filter CDP1802,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/cdp1802
 $(1)CPUOBJS += $(2)/cpu/cdp1802/cdp1802.o
 $(1)DBGOBJS += $(2)/cpu/cdp1802/1802dasm.o
 $(2)/cpu/cdp1802/cdp1802.o $(2)/cpu/cdp1802/1802dasm.o: mame/cpu/cdp1802/cdp1802.h
+ifeq ($(3),mess)
+$(2)/mess/systems/studio2.o $(2)/mess/systems/telmac.o $(2)/mess/vidhrdw/studio2.o $(2)/mess/vidhrdw/cdp186x.o: $$(srcdir)/mame/cpu/cdp1802/cdp1802.h
+$(2)/mess/systems/studio2.o $(2)/mess/vidhrdw/studio2.o: $$(srcdir)/mess/includes/studio2.h
 endif
+endif
+# COP420 is currently used only by the arcade target.
+ifeq ($(3),mame)
+$(1)CPUDEFS += -DHAS_COP420=$$(if $$(filter COP420,$$($(1)CPUS)),1,0)
 ifneq ($$(filter COP420,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/cop400
 $(1)CPUOBJS += $(2)/cpu/cop400/cop420.o
@@ -1103,5 +1107,128 @@ ifneq ($$(filter XA,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/xa
 $(1)CPUOBJS += $(2)/cpu/xa/xa.o
 $(2)/cpu/xa/xa.o: xa.c xa.h
+endif
+
+# CPU cores currently registered only by MESS. Keep its selection and flags.
+ifeq ($(3),mess)
+
+$(1)CPUDEFS += -DHAS_COP411=$$(if $$(filter COP411,$$($(1)CPUS)),1,0)
+ifneq ($$(filter COP411,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/cop411
+$(1)CPUOBJS += $(2)/cpu/cop411/cop411.o
+$(1)DBGOBJS += $(2)/cpu/cop411/cop411ds.o
+$(2)/cpu/cop411/cop411.o: $$(srcdir)/mame/cpu/cop411/cop411.c $$(srcdir)/mame/cpu/cop411/cop411.h
+$(2)/cpu/cop411/cop411ds.o: $$(srcdir)/mame/cpu/cop411/cop411ds.c $$(srcdir)/mame/cpu/cop411/cop411.h
+endif
+
+$(1)CPUDEFS += -DHAS_APEXC=$$(if $$(filter APEXC,$$($(1)CPUS)),1,0)
+ifneq ($$(filter APEXC,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/apexc
+$(1)CPUOBJS += $(2)/cpu/apexc/apexc.o
+$(1)DBGOBJS += $(2)/cpu/apexc/apexcdsm.o
+$(2)/cpu/apexc/apexc.o: $$(srcdir)/mame/cpu/apexc/apexc.c $$(srcdir)/mame/cpu/apexc/apexc.h
+$(2)/cpu/apexc/apexcdsm.o: $$(srcdir)/mame/cpu/apexc/apexcdsm.c $$(srcdir)/mame/cpu/apexc/apexc.h
+endif
+
+$(1)CPUDEFS += -DHAS_CP1610=$$(if $$(filter CP1610,$$($(1)CPUS)),1,0)
+ifneq ($$(filter CP1610,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/cp1610
+$(1)CPUOBJS += $(2)/cpu/cp1610/cp1610.o
+$(1)DBGOBJS += $(2)/cpu/cp1610/1610dasm.o
+$(2)/cpu/cp1610/cp1610.o: $$(srcdir)/mame/cpu/cp1610/cp1610.c $$(srcdir)/mame/cpu/cp1610/cp1610.h
+$(2)/cpu/cp1610/1610dasm.o: $$(srcdir)/mame/cpu/cp1610/1610dasm.c $$(srcdir)/mame/cpu/cp1610/cp1610.h
+endif
+
+$(1)CPUDEFS += -DHAS_F8=$$(if $$(filter F8,$$($(1)CPUS)),1,0)
+ifneq ($$(filter F8,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/f8
+$(1)CPUOBJS += $(2)/cpu/f8/f8.o
+$(1)DBGOBJS += $(2)/cpu/f8/f8dasm.o
+$(2)/cpu/f8/f8.o: $$(srcdir)/mame/cpu/f8/f8.c $$(srcdir)/mame/cpu/f8/f8.h
+$(2)/cpu/f8/f8dasm.o: $$(srcdir)/mame/cpu/f8/f8dasm.c $$(srcdir)/mame/cpu/f8/f8.h
+$(2)/cpu/f8/f3853.o: $$(srcdir)/mame/cpu/f8/f3853.c $$(srcdir)/mame/cpu/f8/f3853.h
+endif
+
+$(1)CPUDEFS += -DHAS_LH5801=$$(if $$(filter LH5801,$$($(1)CPUS)),1,0)
+ifneq ($$(filter LH5801,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/lh5801
+$(1)CPUOBJS += $(2)/cpu/lh5801/lh5801.o
+$(1)DBGOBJS += $(2)/cpu/lh5801/5801dasm.o
+$(2)/cpu/lh5801/lh5801.o: $$(srcdir)/mame/cpu/lh5801/lh5801.c $$(srcdir)/mame/cpu/lh5801/lh5801.h $$(srcdir)/mame/cpu/lh5801/5801tbl.c
+$(2)/cpu/lh5801/5801dasm.o: $$(srcdir)/mame/cpu/lh5801/5801dasm.c $$(srcdir)/mame/cpu/lh5801/lh5801.h
+endif
+
+$(1)CPUDEFS += -DHAS_PDP1=$$(if $$(filter PDP1,$$($(1)CPUS)),1,0)
+ifneq ($$(filter PDP1,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/pdp1
+$(1)CPUOBJS += $(2)/cpu/pdp1/pdp1.o
+$(1)DBGOBJS += $(2)/cpu/pdp1/pdp1dasm.o
+$(2)/cpu/pdp1/pdp1.o: $$(srcdir)/mame/cpu/pdp1/pdp1.c $$(srcdir)/mame/cpu/pdp1/pdp1.h
+$(2)/cpu/pdp1/pdp1dasm.o: $$(srcdir)/mame/cpu/pdp1/pdp1dasm.c $$(srcdir)/mame/cpu/pdp1/pdp1.h
+endif
+
+$(1)CPUDEFS += -DHAS_SATURN=$$(if $$(filter SATURN,$$($(1)CPUS)),1,0)
+ifneq ($$(filter SATURN,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/saturn
+$(1)CPUOBJS += $(2)/cpu/saturn/saturn.o
+$(1)DBGOBJS += $(2)/cpu/saturn/saturnds.o
+$(2)/cpu/saturn/saturn.o: $$(srcdir)/mame/cpu/saturn/saturn.c $$(srcdir)/mame/cpu/saturn/saturn.h $$(srcdir)/mame/cpu/saturn/sattable.c $$(srcdir)/mame/cpu/saturn/satops.c $$(srcdir)/mame/cpu/saturn/sat.h
+$(2)/cpu/saturn/saturnds.o: $$(srcdir)/mame/cpu/saturn/saturnds.c $$(srcdir)/mame/cpu/saturn/saturn.h $$(srcdir)/mame/cpu/saturn/sat.h
+endif
+
+$(1)CPUDEFS += -DHAS_SC61860=$$(if $$(filter SC61860,$$($(1)CPUS)),1,0)
+ifneq ($$(filter SC61860,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/sc61860
+$(1)CPUOBJS += $(2)/cpu/sc61860/sc61860.o
+$(1)DBGOBJS += $(2)/cpu/sc61860/scdasm.o
+$(2)/cpu/sc61860/sc61860.o: $$(srcdir)/mame/cpu/sc61860/sc61860.c $$(srcdir)/mame/cpu/sc61860/sc61860.h $$(srcdir)/mame/cpu/sc61860/sc.h $$(srcdir)/mame/cpu/sc61860/scops.c $$(srcdir)/mame/cpu/sc61860/sctable.c
+$(2)/cpu/sc61860/scdasm.o: $$(srcdir)/mame/cpu/sc61860/scdasm.c $$(srcdir)/mame/cpu/sc61860/sc61860.h $$(srcdir)/mame/cpu/sc61860/sc.h
+endif
+
+$(1)CPUDEFS += -DHAS_Z80GB=$$(if $$(filter Z80GB,$$($(1)CPUS)),1,0)
+ifneq ($$(filter Z80GB,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/z80gb
+$(1)CPUOBJS += $(2)/cpu/z80gb/z80gb.o
+$(1)DBGOBJS += $(2)/cpu/z80gb/z80gbd.o
+$(2)/cpu/z80gb/z80gb.o: $$(srcdir)/mame/cpu/z80gb/z80gb.c $$(srcdir)/mame/cpu/z80gb/z80gb.h $$(srcdir)/mame/cpu/z80gb/daa_tab.h $$(srcdir)/mame/cpu/z80gb/opc_cb.h $$(srcdir)/mame/cpu/z80gb/opc_main.h
+$(2)/cpu/z80gb/z80gbd.o: $$(srcdir)/mame/cpu/z80gb/z80gbd.c $$(srcdir)/mame/cpu/z80gb/z80gb.h
+endif
+
+$(1)CPUDEFS += -DHAS_TMS7000=$$(if $$(filter TMS7000,$$($(1)CPUS)),1,0)
+$(1)CPUDEFS += -DHAS_TMS7000_EXL=$$(if $$(filter TMS7000_EXL,$$($(1)CPUS)),1,0)
+ifneq ($$(filter TMS7000 TMS7000_EXL,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/tms7000
+$(1)CPUOBJS += $(2)/cpu/tms7000/tms7000.o
+$(1)DBGOBJS += $(2)/cpu/tms7000/7000dasm.o
+$(2)/cpu/tms7000/tms7000.o: $$(srcdir)/mame/cpu/tms7000/tms7000.c $$(srcdir)/mame/cpu/tms7000/tms7000.h $$(srcdir)/mame/cpu/tms7000/tms70op.c $$(srcdir)/mame/cpu/tms7000/tms70tb.c
+$(2)/cpu/tms7000/7000dasm.o: $$(srcdir)/mame/cpu/tms7000/7000dasm.c $$(srcdir)/mame/cpu/tms7000/tms7000.h
+endif
+
+$(1)CPUDEFS += -DHAS_TX0_64KW=$$(if $$(filter TX0,$$($(1)CPUS)),1,0)
+$(1)CPUDEFS += -DHAS_TX0_8KW=$$(if $$(filter TX0,$$($(1)CPUS)),1,0)
+ifneq ($$(filter TX0,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/pdp1
+$(1)CPUOBJS += $(2)/cpu/pdp1/tx0.o
+$(1)DBGOBJS += $(2)/cpu/pdp1/tx0dasm.o
+$(2)/cpu/pdp1/tx0.o: $$(srcdir)/mame/cpu/pdp1/tx0.c $$(srcdir)/mame/cpu/pdp1/tx0.h
+$(2)/cpu/pdp1/tx0dasm.o: $$(srcdir)/mame/cpu/pdp1/tx0dasm.c $$(srcdir)/mame/cpu/pdp1/tx0.h
+endif
+
+$(1)CPUDEFS += -DHAS_SM8500=$$(if $$(filter SM8500,$$($(1)CPUS)),1,0)
+ifneq ($$(filter SM8500,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/sm8500
+$(1)CPUOBJS += $(2)/cpu/sm8500/sm8500.o
+$(1)DBGOBJS += $(2)/cpu/sm8500/sm8500d.o
+$(2)/cpu/sm8500/sm8500.o: $$(srcdir)/mame/cpu/sm8500/sm8500.c $$(srcdir)/mame/cpu/sm8500/sm8500.h $$(srcdir)/mame/cpu/sm8500/sm85ops.h
+$(2)/cpu/sm8500/sm8500d.o: $$(srcdir)/mame/cpu/sm8500/sm8500d.c $$(srcdir)/mame/cpu/sm8500/sm8500.h
+endif
+
+$(1)CPUDEFS += -DHAS_V30MZ=$$(if $$(filter V30MZ,$$($(1)CPUS)),1,0)
+ifneq ($$(filter V30MZ,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/v30mz
+$(1)CPUOBJS += $(2)/cpu/v30mz/v30mz.o
+$(1)DBGOBJS += $(2)/cpu/i386/i386dasm.o
+$(2)/cpu/v30mz/v30mz.o: $$(srcdir)/mame/cpu/v30mz/v30mz.c $$(srcdir)/mame/cpu/v30mz/v30mz.h $$(srcdir)/mame/cpu/v30mz/necmodrm.h $$(srcdir)/mame/cpu/v30mz/necinstr.h $$(srcdir)/mame/cpu/v30mz/necea.h $$(srcdir)/mame/cpu/v30mz/nechost.h $$(srcdir)/mame/cpu/v30mz/necintrf.h
+endif
 endif
 endef

@@ -859,6 +859,14 @@ static void cdp1802_set_dmaout_line(int state)
 
 static void cdp1802_reset(void)
 {
+	/* Drivers may enter RUN immediately after a core reset, without executing
+	   a slice in RESET mode. Initialize the reset-defined registers here too. */
+	I = 0;
+	N = 0;
+	Q = 0;
+	IE = 1;
+	if (cdp1802.config->q_w)
+		cdp1802.config->q_w(Q);
 	cdp1802.mode = CDP1802_MODE_RESET;
 }
 

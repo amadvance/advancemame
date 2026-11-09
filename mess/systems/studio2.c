@@ -183,7 +183,7 @@ static INTERRUPT_GEN( studio2_frame_int )
    f3 keyboard in
  */
 
-static int studio2_in_ef(void)
+static UINT8 studio2_in_ef(void)
 {
 	int a=0;
 	if (studio2_get_vsync()) a|=1;
@@ -191,17 +191,19 @@ static int studio2_in_ef(void)
 	if (readinputport(0)&(1<<keylatch)) a|=4;
 	if (readinputport(1)&(1<<keylatch)) a|=8;
 
-	return a;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return a ^ 0x0f;
 }
 
-static int vip_in_ef(void)
+static UINT8 vip_in_ef(void)
 {
 	int a=0;
 	if (studio2_get_vsync()) a|=1;
 
 	if (readinputport(0)&(1<<keylatch)) a|=4;
 
-	return a;
+	/* The shared core expects electrical EF levels, low when asserted. */
+	return a ^ 0x0f;
 }
 
 static void studio2_out_q(int level)
@@ -209,26 +211,39 @@ static void studio2_out_q(int level)
 	beep_set_state(0, level);
 }
 
+static UINT8 studio2_mode_r(void)
+{
+	return CDP1802_MODE_RUN;
+}
+
 static CDP1802_CONFIG studio2_config={
-	studio2_video_dma,
+	studio2_mode_r,
+	studio2_in_ef,
+	studio2_video_sc_w,
 	studio2_out_q,
-	studio2_in_ef
+	NULL,
+	studio2_video_dma_w
 };
 
 static CDP1802_CONFIG vip_config={
-	studio2_video_dma,
+	studio2_mode_r,
+	vip_in_ef,
+	studio2_video_sc_w,
 	studio2_out_q,
-	vip_in_ef
+	NULL,
+	studio2_video_dma_w
 };
 
 /* Machine Initialization */
 
 static MACHINE_RESET( studio2 )
 {
+	studio2_video_reset();
 }
 
 static MACHINE_RESET( vip )
 {
+	studio2_video_reset();
 	memory_set_bankptr(1,memory_region(REGION_CPU1)+0x8000);
 }
 
@@ -236,7 +251,7 @@ static MACHINE_RESET( vip )
 
 static MACHINE_DRIVER_START( studio2 )
 	/* basic machine hardware */
-	MDRV_CPU_ADD_TAG("main", CDP1802, 1780000/8)
+	MDRV_CPU_ADD_TAG("main", CDP1802, 1780000)
 	MDRV_CPU_PROGRAM_MAP(studio2_map, 0)
 	MDRV_CPU_IO_MAP(studio2_io_map, 0)
 	MDRV_CPU_VBLANK_INT(studio2_frame_int, 1)
