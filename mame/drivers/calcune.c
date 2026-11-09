@@ -1,0 +1,143 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
+/*
+	Calcune (Japan, prototype)
+	Two Sega 315-5660-02 VDPs, HD68HC000CP8 and YMZ280B-F.
+	The TMPZ84C00AU-6 on the board is unused by this program.
+*/
+
+#include "driver.h"
+#include "calcune.h"
+#include "sound/ymz280b.h"
+#include "sound/sn76496.h"
+
+#define MASTER_CLOCK 53693175
+
+static READ16_HANDLER(calcune_select_r)
+{
+	calcune_vdp_select(0);
+	return 0;
+}
+
+static WRITE16_HANDLER(calcune_select_w)
+{
+	calcune_vdp_select(data);
+}
+
+static READ16_HANDLER(calcune_sound_r)
+{
+	return YMZ280B_data_0_r(0) << 8;
+}
+
+static ADDRESS_MAP_START(calcune_map, ADDRESS_SPACE_PROGRAM, 16)
+	AM_RANGE(0x000000, 0x1fffff) AM_ROM
+	AM_RANGE(0x700000, 0x700001) AM_READ(calcune_select_r)
+	AM_RANGE(0x710000, 0x710001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x720000, 0x720001) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x760000, 0x760001) AM_READWRITE(calcune_sound_r, YMZ280B_register_0_msb_w)
+	AM_RANGE(0x760002, 0x760003) AM_READWRITE(YMZ280B_status_0_msb_r, YMZ280B_data_0_msb_w)
+	AM_RANGE(0x770000, 0x770001) AM_WRITE(calcune_select_w)
+	AM_RANGE(0xa14100, 0xa14101) AM_NOP
+	AM_RANGE(0xc00000, 0xc0001f) AM_READWRITE(calcune_vdp_r, calcune_vdp_w)
+	AM_RANGE(0xff0000, 0xffffff) AM_RAM AM_BASE(&generic_nvram16) AM_SIZE(&generic_nvram_size)
+ADDRESS_MAP_END
+
+static INPUT_PORTS_START( calcune )
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE( 0x0200, IP_ACTIVE_HIGH )
+	PORT_BIT( 0x0400, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0800, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x1000, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x2000, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0xffc0, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
+static void *calcune_scanline_timer;
+
+static void calcune_scanline(int line)
+{
+	if (line > 0 && line <= 224)
+		force_partial_update(line - 1);
+	calcune_vdp_interrupt(line);
+	line = (line + 1) % 262;
+	timer_adjust(calcune_scanline_timer, cpu_getscanlinetime(line), line, 0);
+}
+
+static MACHINE_START(calcune)
+{
+	calcune_scanline_timer = timer_alloc(calcune_scanline);
+	return 0;
+}
+
+static MACHINE_RESET(calcune)
+{
+	calcune_vdp_select(0);
+	/* Align both VDPs with the raster rather than the CPU interrupt scheduler. */
+	timer_adjust(calcune_scanline_timer, cpu_getscanlinetime(0), 0, 0);
+}
+
+static const struct YMZ280Binterface calcune_ymz = {
+	REGION_SOUND1
+};
+
+static MACHINE_DRIVER_START(calcune)
+	MDRV_CPU_ADD(M68000, MASTER_CLOCK / 7)
+	MDRV_CPU_PROGRAM_MAP(calcune_map, 0)
+	MDRV_MACHINE_START(calcune)
+	MDRV_MACHINE_RESET(calcune)
+	MDRV_NVRAM_HANDLER(generic_0fill)
+	MDRV_FRAMES_PER_SECOND((double)MASTER_CLOCK / 10 / 262 / 342)
+	MDRV_VBLANK_DURATION(1000000.0 * 10 * 342 * 38 / MASTER_CLOCK)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(320, 262)
+	MDRV_VISIBLE_AREA(0, 319, 0, 223)
+	MDRV_PALETTE_LENGTH(0x2000)
+	MDRV_VIDEO_START(calcune)
+	MDRV_VIDEO_UPDATE(calcune)
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SOUND_ADD(YMZ280B, 16934400)
+	MDRV_SOUND_CONFIG(calcune_ymz)
+	MDRV_SOUND_ROUTE(0, "left", 0.5)
+	MDRV_SOUND_ROUTE(1, "right", 0.5)
+	MDRV_SOUND_ADD(SN76496, MASTER_CLOCK / 15)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
+	MDRV_SOUND_ADD(SN76496, MASTER_CLOCK / 15)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
+MACHINE_DRIVER_END
+
+ROM_START( calcune )
+	ROM_REGION( 0x400000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "1.ic101.27c4001", 0x000001, 0x080000, CRC(2d25544c) SHA1(ef778cbf2aa4fcec43ce2dce9bcefb964f458c0a) )
+	ROM_LOAD16_BYTE( "2.ic102.27c4001", 0x000000, 0x080000, CRC(09330dc9) SHA1(fd888a7469a6290cd372a4b1eed577c2444f0c80) )
+	ROM_LOAD16_BYTE( "3.ic103.27c4001", 0x100001, 0x080000, CRC(736a356d) SHA1(372fa5989a67746efc439d76df1733cf70df57e7) )
+	ROM_LOAD16_BYTE( "4.ic104.27c4001", 0x100000, 0x080000, CRC(0bec031a) SHA1(69b255743f20408b2f14bddf0b85c85a13f29615) )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "sound1.1c.27c4001", 0x000000, 0x080000, CRC(5fb63e84) SHA1(6fad8e76162c81b2cfa4778effb81b78ed4fa299) )
+	ROM_LOAD( "sound2.2d.27c4001", 0x080000, 0x080000, CRC(8924c6cc) SHA1(c76e6cfcf92a2c2834de62d7136c69e6edda46cc) )
+	ROM_LOAD( "sound3.3a.27c4001", 0x100000, 0x080000, CRC(18cfa7f4) SHA1(201ea186eb3af9138db6699c9dcf527795f7c0db) )
+	ROM_LOAD( "sound4.4b.27c4001", 0x180000, 0x080000, CRC(61a8510b) SHA1(177e56c374aa5697545ede28140cb42b5a4b737b) )
+ROM_END
+
+GAME(1996, calcune, 0, calcune, calcune, 0, ROT0, "Yuvo", "Calcune (Japan, prototype)", 0)

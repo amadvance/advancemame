@@ -7725,6 +7725,8 @@ Other Sun games
 	DRIVER( sns_dsp1bleg )
 	DRIVER( saa5050 )
 
+	DRIVER( calcune )
+
 	/* Photon System */
 	DRIVER( phtetris )
 	DRIVER( phpython )

@@ -1528,6 +1528,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/lastfght.o \
 	$(OBJ)/drivers/paracaidista.o \
 	$(OBJ)/drivers/musclem.o \
+	$(OBJ)/drivers/calcune.o $(OBJ)/vidhrdw/calcune.o \
 	$(OBJ)/drivers/photon.o \
 	$(OBJ)/drivers/megaphx.o \
 	$(OBJ)/drivers/limenko.o $(OBJ)/sndhrdw/limenko.o \
