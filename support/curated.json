@@ -57,7 +57,7 @@
     },
     {
       "shortnames": [
-        "batrid",
+        "batrider",
         "batridc",
         "batridj",
         "batridja",
@@ -81,7 +81,7 @@
     },
     {
       "shortnames": [
-        "bkraidu",
+        "bbakraid",
         "bkraidj",
         "bkraiduj"
       ],
@@ -216,19 +216,12 @@
     },
     {
       "shortnames": [
-        "crmaze"
-      ],
-      "title": "The Crystal Maze: Team Challenge",
-      "category": "original"
-    },
-    {
-      "shortnames": [
         "crmazea"
       ],
       "title": "The Crystal Maze",
       "category": "clone",
-      "original_game": "crmaze",
-      "parent_shortname": "crmaze"
+      "original_game": "v4cmaze3",
+      "parent_shortname": "v4cmaze3"
     },
     {
       "shortnames": [
@@ -236,8 +229,8 @@
       ],
       "title": "The Crystal Maze - Now Featuring Ocean Zone",
       "category": "clone",
-      "original_game": "crmaze",
-      "parent_shortname": "crmaze"
+      "original_game": "v4cmaze3",
+      "parent_shortname": "v4cmaze3"
     },
     {
       "shortnames": [
@@ -1002,8 +995,8 @@
       ],
       "title": "Sichuan II",
       "category": "hack",
-      "original_game": "sichuan2",
-      "parent_shortname": "sichuan2"
+      "original_game": "matchit",
+      "parent_shortname": "matchit"
     },
     {
       "shortnames": [
@@ -1079,6 +1072,13 @@
     },
     {
       "shortnames": [
+        "v4cmaze3"
+      ],
+      "title": "The Crystal Maze: Team Challenge",
+      "category": "original"
+    },
+    {
+      "shortnames": [
         "vautour2"
       ],
       "title": "Vautour",
@@ -1102,8 +1102,8 @@
       ],
       "title": "Euro League",
       "category": "bootleg",
-      "original_game": "wc90",
-      "parent_shortname": "wc90"
+      "original_game": "twcup90",
+      "parent_shortname": "twcup90"
     },
     {
       "shortnames": [
