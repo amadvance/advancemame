@@ -261,7 +261,7 @@ static void PSXSPU_update(void *param, stream_sample_t **inputs, stream_sample_t
 				{
 					chip->m_n_loop[ n_channel ] = chip->m_p_n_blockaddress[ n_channel ];
 					chip->m_n_endx &= ~( 1 << n_channel );
-					chip->m_p_n_loopforced[ n_channel ] = 0;
+					chip->m_p_n_repeataddress[ n_channel ] = chip->m_n_loop[ n_channel ] / 4;
 				}
 				chip->m_p_n_blockaddress[ n_channel ]++;
 				chip->m_p_n_blockaddress[ n_channel ] %= ( SPU_RAM_SIZE / 2 );
@@ -441,7 +441,8 @@ static void *psxspu_start(int sndindex, int clock, const void *config)
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_adsrvolume );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_repeataddress );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_effect );
-	state_save_register_item_array( "psx", sndindex, chip->m_p_n_spuram );
+	/* The SPU RAM is allocated, not an inline array: save all 512KB. */
+	state_save_register_item_pointer( "psx", sndindex, chip->m_p_n_spuram, SPU_RAM_SIZE / 2 );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_blockaddress );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_blockoffset );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_blockstatus );
@@ -449,6 +450,11 @@ static void *psxspu_start(int sndindex, int clock, const void *config)
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_s1 );
 	state_save_register_item_array( "psx", sndindex, chip->m_p_n_s2 );
 	state_save_register_item_array( "psx", sndindex, chip->m_n_loop );
+	state_save_register_item_array( "psx", sndindex, chip->m_p_n_loopforced );
+	state_save_register_item( "psx", sndindex, chip->m_n_endx );
+	state_save_register_item_array( "psx", sndindex, chip->m_p_n_adsrstate );
+	state_save_register_item_array( "psx", sndindex, chip->m_p_n_adsrcounter );
+	state_save_register_item_array( "psx", sndindex, chip->m_p_n_adsrlevel );
 
 	chip->intf->spu_install_read_handler( 4, spu_read );
 	chip->intf->spu_install_write_handler( 4, spu_write );
@@ -599,7 +605,8 @@ WRITE32_HANDLER( psx_spu_w )
 				chip->m_p_n_repeataddress[ n_channel ] = data >> 16;
 				chip->m_n_loop[ n_channel ] = ( ( data >> 16 ) * 4 ) % ( SPU_RAM_SIZE / 2 );
 				/* like MAME: an explicit repeat address overrides loop start flags until the next key on */
-				chip->m_p_n_loopforced[ n_channel ] = 1;
+				if( chip->m_p_n_blockstatus[ n_channel ] && chip->m_p_n_adsrstate[ n_channel ] != ADSR_OFF )
+					chip->m_p_n_loopforced[ n_channel ] = 1;
 				verboselog( 1, "psx_spu_w() channel %d repeat address = %04x\n", n_channel, chip->m_p_n_repeataddress[ n_channel ] );
 			}
 			break;
@@ -650,6 +657,7 @@ WRITE32_HANDLER( psx_spu_w )
 					chip->m_p_n_s2[ n_channel ] = 0;
 					chip->m_p_n_blockstatus[ n_channel ] = 1;
 					chip->m_n_loop[ n_channel ] = chip->m_p_n_blockaddress[ n_channel ];
+					chip->m_p_n_loopforced[ n_channel ] = 0;
 					chip->m_p_n_adsrstate[ n_channel ] = ADSR_ATTACK;
 					chip->m_p_n_adsrcounter[ n_channel ] = 0;
 					chip->m_p_n_adsrlevel[ n_channel ] = 0;

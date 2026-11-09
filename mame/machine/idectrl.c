@@ -163,6 +163,8 @@ struct ide_state
 	hard_disk_file *	disk;
 	void *	last_status_timer;
 	void *	reset_timer;
+	void *	event_timer[2];
+	UINT8	event_kind[2];
 
 	UINT8	master_password_enable;
 	UINT8	user_password_enable;
@@ -189,6 +191,12 @@ static struct ide_state idestate[MAX_IDE_CONTROLLERS];
  *************************************/
 
 static void reset_callback(int param);
+
+enum { IDE_EVENT_NONE, IDE_EVENT_INTERRUPT, IDE_EVENT_INTERRUPT_BUFFER_READY,
+	IDE_EVENT_READ_SECTOR, IDE_EVENT_WRITE_SECTOR, IDE_EVENT_SECURITY_ERROR };
+static void ide_event(struct ide_state *ide, int slot, double time, int kind);
+static void ide_event_fired(int param);
+
 
 static void ide_build_features(struct ide_state *ide);
 
@@ -262,10 +270,7 @@ INLINE void signal_delayed_interrupt(struct ide_state *ide, double time, int buf
 	ide->status |= IDE_STATUS_BUSY;
 
 	/* set a timer */
-	if (buffer_ready)
-		timer_set(time, ide - idestate, delayed_interrupt_buffer_ready);
-	else
-		timer_set(time, ide - idestate, delayed_interrupt);
+	ide_event(ide, 0, time, buffer_ready ? IDE_EVENT_INTERRUPT_BUFFER_READY : IDE_EVENT_INTERRUPT);
 }
 
 
@@ -331,6 +336,11 @@ int ide_controller_init_custom(int which, struct ide_interface *intf, chd_file *
 	/* create a timer for timing status */
 	ide->last_status_timer = timer_alloc(NULL);
 	ide->reset_timer = timer_alloc(reset_callback);
+	/* Allocated timers retain their exact deadlines in native save states;
+	   anonymous timer_set events would disappear on loading a state. */
+	ide->event_timer[0] = timer_alloc(ide_event_fired);
+	ide->event_timer[1] = timer_alloc(ide_event_fired);
+	state_save_register_item_array("ide", which, ide->event_kind);
 
 	/* register ide status */
 	state_save_register_item("ide", which, ide->adapter_control);
@@ -391,6 +401,16 @@ int ide_controller_init(int which, struct ide_interface *intf)
 void ide_controller_reset(int which)
 {
 	struct ide_state *ide = &idestate[which];
+
+	int slot;
+	/* A reset cancels the previous command, including events that have not
+	   fired yet; otherwise a stale sector completion can raise an IRQ. */
+	for (slot = 0; slot < 2; slot++)
+	{
+		ide->event_kind[slot] = IDE_EVENT_NONE;
+		if (ide->event_timer[slot]) /* media initialization may have failed */
+			timer_adjust(ide->event_timer[slot], TIME_NEVER, 0, 0);
+	}
 
 	LOG(("IDE controller reset performed\n"));
 
@@ -749,7 +769,7 @@ static void security_error(struct ide_state *ide)
 	ide->status &= ~IDE_STATUS_DRIVE_READY;
 
 	/* just set a timer and mark ourselves error */
-	timer_set(TIME_SECURITY_ERROR, ide - idestate, security_error_done);
+	ide_event(ide, 1, TIME_SECURITY_ERROR, IDE_EVENT_SECURITY_ERROR);
 }
 
 
@@ -919,10 +939,10 @@ static void read_first_sector(struct ide_state *ide)
 			seek_time = TIME_SEEK_MULTISECTOR;
 
 		ide->cur_lba = new_lba;
-		timer_set(seek_time, ide - idestate, read_sector_done);
+		ide_event(ide, 1, seek_time, IDE_EVENT_READ_SECTOR);
 	}
 	else
-		timer_set(TIME_PER_SECTOR, ide - idestate, read_sector_done);
+		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_READ_SECTOR);
 }
 
 
@@ -938,11 +958,11 @@ static void read_next_sector(struct ide_state *ide)
 			read_sector_done(ide - idestate);
 		else
 			/* just set a timer */
-			timer_set(TIME_IN_USEC(1), ide - idestate, read_sector_done);
+			ide_event(ide, 1, TIME_IN_USEC(1), IDE_EVENT_READ_SECTOR);
 	}
 	else
 		/* just set a timer */
-		timer_set(TIME_PER_SECTOR, ide - idestate, read_sector_done);
+		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_READ_SECTOR);
 }
 
 
@@ -974,13 +994,13 @@ static void continue_write(struct ide_state *ide)
 		else
 		{
 			/* set a timer to do the write */
-			timer_set(TIME_PER_SECTOR, ide - idestate, write_sector_done);
+			ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_WRITE_SECTOR);
 		}
 	}
 	else
 	{
 		/* set a timer to do the write */
-		timer_set(TIME_PER_SECTOR, ide - idestate, write_sector_done);
+		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_WRITE_SECTOR);
 	}
 }
 
@@ -1776,4 +1796,28 @@ WRITE16_HANDLER( ide_controller16_0_w )
 	size = convert_to_offset_and_size16(&offset, mem_mask);
 
 	ide_controller_write(&idestate[0], offset, size, data >> ((offset & 1) * 8));
+}
+
+/* Slot zero serializes command interrupts; slot one serializes media events. */
+static void ide_event_fired(int param)
+{
+	int which = param >> 1;
+	int slot = param & 1;
+	struct ide_state *ide = &idestate[which];
+	int kind = ide->event_kind[slot];
+	ide->event_kind[slot] = IDE_EVENT_NONE;
+	switch (kind)
+	{
+		case IDE_EVENT_INTERRUPT: delayed_interrupt(which); break;
+		case IDE_EVENT_INTERRUPT_BUFFER_READY: delayed_interrupt_buffer_ready(which); break;
+		case IDE_EVENT_READ_SECTOR: read_sector_done(which); break;
+		case IDE_EVENT_WRITE_SECTOR: write_sector_done(which); break;
+		case IDE_EVENT_SECURITY_ERROR: security_error_done(which); break;
+	}
+}
+
+static void ide_event(struct ide_state *ide, int slot, double time, int kind)
+{
+	ide->event_kind[slot] = kind;
+	timer_adjust(ide->event_timer[slot], time, (ide - idestate) * 2 + slot, 0);
 }

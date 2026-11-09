@@ -116,7 +116,7 @@ static struct
 	{ "nbajamex", ac01, ac02 }, /* black screen */
 	{ "jdredd",   ac01, ac02 }, /* OK ( missing guns ) */
 	{ "jdreddb",  ac01, ac02 }, /* OK ( missing guns ) */
-	{ "primrag2", tw01, tw02 }, /* locks up when starting a game */
+	{ "primrag2", tw01, tw02 }, /* OK */
 	{ "hvnsgate", at01, at02 }, /* OK */
 	{ "ts2",      cp01, cp02 }, /* OK */
 	{ "ts2j",     cp01, cp02 }, /* OK */
@@ -342,7 +342,7 @@ static READ32_HANDLER( boardconfig_r )
 
 	if( Machine->drv->screen_height == 1024 )
 	{
-		return 64|32|8;
+		return 64|32|8 | ( g_n_psxramsize == 0x800000 ? 2 : 0 );
 	}
 	else
 	{
@@ -1785,83 +1785,176 @@ Notes:
       *2                  - Unpopulated DIP28 socket
 */
 
-static void atpsx_interrupt(int state)
+/* Atari COH-1000W: VT83C461 IDE, PSX IRQ 10 and DMA channel 5. */
+static UINT16 atari_irqctrl;
+static UINT16 atari_latch;
+static UINT8 atari_ide_irq;
+
+static void atari_ide_interrupt( int state )
 {
-	if (state)
-	{
-	 	psx_irq_set(0x400);
-	}
+	atari_ide_irq = state != CLEAR_LINE;
+	if( atari_ide_irq && ( atari_irqctrl & 1 ) )
+		psx_irq_set( 0x400 );
 }
 
-static struct ide_interface atpsx_intf =
+static struct ide_interface atari_ide_intf =
 {
-	atpsx_interrupt
+	atari_ide_interrupt
 };
 
-static void atpsx_dma_read( UINT32 n_address, INT32 n_size )
+static READ32_HANDLER( atari_irqctrl_r )
 {
-	logerror("DMA read: %d bytes (%d words) to %08x\n", n_size<<2, n_size, n_address);
+	return atari_irqctrl;
+}
 
-	if (n_address < 0xe0000)
+static WRITE32_HANDLER( atari_irqctrl_w )
+{
+	UINT32 control = atari_irqctrl;
+	COMBINE_DATA( &control );
+	atari_irqctrl = control & 0xffff;
+}
+
+/* Reading the low half consumes a complete IDE dword and latches its high
+   half; reading only the high half must not advance to another disk word. */
+static READ32_HANDLER( atari_ide32_r )
+{
+	UINT32 result = 0xffffffff;
+	if( offset == 0x1f0 / 4 )
 	{
-		// protect kernel+program space (what should we really do here?)
-		logerror( "skip read to low memory\n" );
-		return;
+		if( ( mem_mask & 0x0000ffff ) == 0 )
+		{
+			UINT32 data = ide_controller32_0_r( 0x1f0 / 4, 0 );
+			atari_latch = data >> 16;
+			result = ( result & 0xffff0000 ) | ( data & 0xffff );
+		}
+		if( ( mem_mask & 0xffff0000 ) == 0 )
+			result = ( result & 0x0000ffff ) | ( (UINT32)atari_latch << 16 );
 	}
+	return result;
+}
 
-	/* dma size is in 32-bit words, convert to bytes */
-	n_size <<= 2;
-	while( n_size > 0 )
+static void atari_dma_read( UINT32 address, INT32 size )
+{
+	UINT8 *ram = (UINT8 *)g_p_n_psxram;
+	UINT32 mask = g_n_psxramsize - 1;
+	/* PSX DMA counts dwords; the IDE data bus supplies 16-bit words. */
+	size *= 2;
+	while( size > 0 )
 	{
-		psxwritebyte( n_address, ide_controller32_0_r( 0x1f0 / 4, 0xffffff00 ) );
-		n_address++;
-		n_size--;
+		UINT16 data = ide_controller32_0_r( 0x1f0 / 4, 0xffff0000 );
+		*(UINT16 *)( ram + WORD_XOR_LE( address & mask ) ) = data;
+		address += 2;
+		--size;
 	}
 }
 
-static void atpsx_dma_write( UINT32 n_address, INT32 n_size )
+static void atari_dma_write( UINT32 address, INT32 size )
 {
-	logerror("DMA write from %08x for %d bytes\n", n_address, n_size<<2);
 }
+
+static NVRAM_HANDLER( atari_zn )
+{
+	const UINT8 *defaults = memory_region( REGION_USER6 );
+	int i;
+	nvram_handler_at28c16_0( file, read_or_write );
+	if( !read_or_write && !file && defaults )
+	{
+		/* Keep the native EEPROM's state registration and ID bytes while
+		   supplying the game's factory settings on the first boot. */
+		for( i = 0; i < 0x800; i += 4 )
+			at28c16_32le_0_w( i / 4, defaults[i] | ( defaults[i+1] << 8 ) |
+				( defaults[i+2] << 16 ) | ( (UINT32)defaults[i+3] << 24 ), 0 );
+	}
+}
+
+static READ32_HANDLER( atari_inputs_r )
+{
+	return readinputport( ( offset >> 6 ) & 3 ) | 0xffffff00;
+}
+
+static READ32_HANDLER( atari_inputs2_r )
+{
+	return readinputport( 4 + ( ( offset >> 6 ) & 1 ) ) | 0xffffff00;
+}
+
+static ADDRESS_MAP_START( atari_zn_map, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x00000000, 0x007fffff) AM_RAM	AM_SHARE(1) AM_BASE(&g_p_n_psxram) AM_SIZE(&g_n_psxramsize) /* ram */
+	AM_RANGE(0x1f800000, 0x1f8003ff) AM_RAM /* scratchpad */
+	AM_RANGE(0x1f801000, 0x1f80100f) AM_RAM /* ?? */
+	AM_RANGE(0x1f801010, 0x1f801013) AM_NOP
+	AM_RANGE(0x1f801014, 0x1f801017) AM_READWRITE(psx_spu_delay_r, psx_spu_delay_w)
+	AM_RANGE(0x1f801018, 0x1f80101f) AM_NOP
+	AM_RANGE(0x1f801020, 0x1f801023) AM_READWRITE(psx_com_delay_r, psx_com_delay_w)
+	AM_RANGE(0x1f801024, 0x1f80102f) AM_NOP
+	AM_RANGE(0x1f801040, 0x1f80105f) AM_READWRITE(psx_sio_r, psx_sio_w)
+	AM_RANGE(0x1f801060, 0x1f80106f) AM_RAM
+	AM_RANGE(0x1f801070, 0x1f801077) AM_READWRITE(psx_irq_r, psx_irq_w)
+	AM_RANGE(0x1f801080, 0x1f8010ff) AM_READWRITE(psx_dma_r, psx_dma_w)
+	AM_RANGE(0x1f801100, 0x1f80112f) AM_READWRITE(psx_counter_r, psx_counter_w)
+	AM_RANGE(0x1f801810, 0x1f801817) AM_READWRITE(psx_gpu_r, psx_gpu_w)
+	AM_RANGE(0x1f801820, 0x1f801827) AM_READWRITE(psx_mdec_r, psx_mdec_w)
+	AM_RANGE(0x1f801c00, 0x1f801dff) AM_READWRITE(psx_spu_r, psx_spu_w)
+	AM_RANGE(0x1f802020, 0x1f802033) AM_RAM /* ?? */
+	AM_RANGE(0x1f802040, 0x1f802043) AM_WRITENOP
+	AM_RANGE(0x1fa00000, 0x1fa003ff) AM_READ(atari_inputs_r)
+	AM_RANGE(0x1fa10000, 0x1fa101ff) AM_READ(atari_inputs2_r)
+	AM_RANGE(0x1fa10200, 0x1fa10203) AM_READ(boardconfig_r)
+	AM_RANGE(0x1fa10300, 0x1fa10303) AM_READWRITE(znsecsel_r, znsecsel_w)
+	AM_RANGE(0x1fa20000, 0x1fa20003) AM_WRITE(coin_w)
+	AM_RANGE(0x1fa30000, 0x1fa30003) AM_NOP /* ?? */
+	AM_RANGE(0x1fa40000, 0x1fa40003) AM_READNOP /* ?? */
+	AM_RANGE(0x1fa60000, 0x1fa60003) AM_READNOP /* ?? */
+	AM_RANGE(0x1faf0000, 0x1faf07ff) AM_READWRITE( at28c16_32le_0_r, at28c16_32le_0_w ) /* eeprom */
+	AM_RANGE(0x1fb20000, 0x1fb20007) AM_READ(unknown_r)
+	AM_RANGE(0x1fc00000, 0x1fc7ffff) AM_ROM AM_SHARE(2) AM_REGION(REGION_USER1, 0) /* bios */
+	AM_RANGE(0x80000000, 0x807fffff) AM_RAM AM_SHARE(1) /* ram mirror */
+	AM_RANGE(0x9fc00000, 0x9fc7ffff) AM_ROM AM_SHARE(2) /* bios mirror */
+	AM_RANGE(0xa0000000, 0xa07fffff) AM_RAM AM_SHARE(1) /* ram mirror */
+	AM_RANGE(0xbfc00000, 0xbfc7ffff) AM_WRITENOP AM_ROM AM_SHARE(2) /* bios mirror */
+	AM_RANGE(0xfffe0130, 0xfffe0133) AM_WRITENOP
+	AM_RANGE(0x1f000000, 0x1f1fffff) AM_READ(MRA32_BANK1)
+	AM_RANGE(0x1f000000, 0x1f000003) AM_WRITENOP /* DS1232 watchdog */
+	AM_RANGE(0x1f000004, 0x1f1fffff) AM_WRITE(MWA32_ROM)
+	AM_RANGE(0x1f7e4000, 0x1f7e4fff) AM_READWRITE(ide_controller32_0_r, ide_controller32_0_w)
+	AM_RANGE(0x1f7e8000, 0x1f7e8003) AM_READWRITE(atari_irqctrl_r, atari_irqctrl_w)
+	AM_RANGE(0x1f7f4000, 0x1f7f4fff) AM_READ(atari_ide32_r) AM_WRITENOP
+ADDRESS_MAP_END
 
 DRIVER_INIT( coh1000w )
 {
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f1fffff, 0, 0, MRA32_BANK1 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f000003, 0, 0, MWA32_NOP );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f7e4000, 0x1f7e4fff, 0, 0, ide_controller32_0_r );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f7e4000, 0x1f7e4fff, 0, 0, ide_controller32_0_w );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f7e8000, 0x1f7e8003, 0, 0, MWA32_NOP );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f7e8000, 0x1f7e8003, 0, 0, MRA32_NOP );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f7f4000, 0x1f7f4fff, 0, 0, ide_controller32_0_r );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f7f4000, 0x1f7f4fff, 0, 0, ide_controller32_0_w );
-
-	// init hard disk
-	ide_controller_init(0, &atpsx_intf);
-
 	zn_driver_init();
+	znsec_init( 0, memory_region( REGION_USER4 ) );
+	if( memory_region( REGION_USER5 ) )
+		znsec_init( 1, memory_region( REGION_USER5 ) );
+	ide_controller_init( 0, &atari_ide_intf );
+	state_save_register_global( atari_irqctrl );
+	state_save_register_global( atari_latch );
+	state_save_register_global( atari_ide_irq );
 }
 
 MACHINE_RESET( coh1000w )
 {
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* fixed game rom */
+	memory_set_bankptr( 1, memory_region( REGION_USER2 ) );
 	zn_machine_init();
-
-	ide_controller_reset(0);
-	psx_dma_install_read_handler(5, atpsx_dma_read);
-	psx_dma_install_write_handler(5, atpsx_dma_write);
+	atari_irqctrl = 0;
+	atari_latch = 0;
+	atari_ide_irq = 0;
+	ide_controller_reset( 0 );
+	psx_dma_install_read_handler( 5, atari_dma_read );
+	psx_dma_install_write_handler( 5, atari_dma_write );
 }
 
 static MACHINE_DRIVER_START( coh1000w )
 	/* basic machine hardware */
 	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
-	MDRV_CPU_PROGRAM_MAP( zn_map, 0 )
+	MDRV_CPU_PROGRAM_MAP( atari_zn_map, 0 )
 	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
 
 	MDRV_FRAMES_PER_SECOND( 60 )
 	MDRV_VBLANK_DURATION( 0 )
 
 	MDRV_MACHINE_RESET( coh1000w )
-	MDRV_NVRAM_HANDLER( at28c16_0 )
+	MDRV_NVRAM_HANDLER( atari_zn )
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
@@ -3101,6 +3194,70 @@ static MACHINE_DRIVER_START( coh1002ml )
 	MDRV_SOUND_ROUTE(0, "left", 0.35)
 	MDRV_SOUND_ROUTE(1, "right", 0.35)
 MACHINE_DRIVER_END
+
+INPUT_PORTS_START( primrag2 )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME(DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0xf8, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0xcc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* P3 unused */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START /* P4: buttons 4-6 for both players */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x01, 0x01, "Freeze" )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Service_Mode ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( zn )
 	PORT_START		/* IN0 */
@@ -4515,7 +4672,9 @@ ROM_END
 
 #define TW_BIOS \
 	ROM_REGION32_LE( 0x080000, REGION_USER1, 0 ) \
-	ROM_LOAD( "coh-1000w.353", 0x000000, 0x080000, CRC(45e8a4b4) SHA1(815488d8563c85f97fbc3384ff21f08e4c88b7b7) )
+	ROM_LOAD( "msm27c402zb.ic353", 0x000000, 0x080000, CRC(45e8a4b4) SHA1(815488d8563c85f97fbc3384ff21f08e4c88b7b7) ) \
+	ROM_REGION( 0x000008, REGION_USER4, 0 ) /* CAT702, main board */ \
+	ROM_LOAD( "tw01.ic652", 0, 8, CRC(1cac067e) SHA1(8e87941bfb374172628c8a37647e3a66b7166aa8) )
 
 ROM_START( coh1000w )
 	TW_BIOS
@@ -4530,8 +4689,14 @@ ROM_START( primrag2 )
 	ROM_LOAD16_BYTE( "pr2_036.u17",  0x100001, 0x080000, CRC(3681516c) SHA1(714f73ea4ac190c36a6eb2308616a4aecabc4e69) )
 	ROM_LOAD16_BYTE( "pr2_036.u15",  0x100000, 0x080000, CRC(4b24bd54) SHA1(7f27cd524d10e5869aab6d4dc6a4217d049c475d) )
 
+	ROM_REGION( 0x000800, REGION_USER6, 0 ) /* factory EEPROM */
+	ROM_LOAD( "at28c16", 0, 0x800, CRC(62c21283) SHA1(6013d831fb97c025682603a1bb9d62bd93e1b893) )
+
+	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
+	ROM_LOAD( "tw02", 0, 8, CRC(583e8e1c) SHA1(0af99e3feb3fa684883a5daefba2c38a442f3884) )
+
 	DISK_REGION( REGION_DISKS )
-	DISK_IMAGE( "primrag2", 0, MD5(618a56ce62a5f7a94a7781b994a201e4) SHA1(d79b2dad16fbdb174bcd34eb70025a53ebdb0e51) )
+	DISK_IMAGE( "primrag2", 0, SHA1(bc615068ddf4fd967f770ee01c02f285c052c4c5) )
 ROM_END
 
 /* Acclaim PSX */
@@ -4677,9 +4842,9 @@ GAME( 1999, shiryu2,  strider2, coh3002c, zn, coh3002c, ROT0, "Capcom", "Strider
 /* A dummy driver, so that the bios can be debugged, and to serve as */
 /* parent for the coh-1000w.353 file, so that we do not have to include */
 /* it in every zip file */
-BIOS( 1996, coh1000w,    0,        coh1000w, zn, coh1000w, ROT0, "Atari", "Atari PSX", 0 )
+BIOS( 1995, coh1000w,    0,        coh1000w, zn, coh1000w, ROT0, "Atari", "Time Warner ZN-1", 0 )
 
-GAME( 1996, primrag2, coh1000w,    coh1000w, zn, coh1000w, ROT0, "Atari", "Primal Rage 2 (Ver 0.36a)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
+GAME( 1997, primrag2, coh1000w,    coh1000w, primrag2, coh1000w, ROT0, "Atari", "Primal Rage II (Test Version 0.36a)", 0 )
 
 /* Acclaim */
 

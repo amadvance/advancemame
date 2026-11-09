@@ -142,6 +142,9 @@ static UINT32 m_p_n_dma_ticks[ 7 ];
 static UINT32 m_p_b_dma_running[ 7 ];
 static UINT32 m_n_dpcp;
 static UINT32 m_n_dicr;
+static UINT32 m_b_dma_spu_pending;
+static UINT32 m_n_dma_spu_address;
+static INT32 m_n_dma_spu_size;
 
 static void dma_start_timer( int n_channel, UINT32 n_ticks )
 {
@@ -154,18 +157,6 @@ static void dma_stop_timer( int n_channel )
 {
 	timer_adjust( m_p_timer_dma[ n_channel ], TIME_NEVER, 0, 0 );
 	m_p_b_dma_running[ n_channel ] = 0;
-}
-
-static void dma_timer_adjust( int n_channel )
-{
-	if( m_p_b_dma_running[ n_channel ] )
-	{
-		dma_start_timer( n_channel, m_p_n_dma_ticks[ n_channel ] );
-	}
-	else
-	{
-		dma_stop_timer( n_channel );
-	}
 }
 
 static void dma_interrupt_update( void )
@@ -197,6 +188,12 @@ static void dma_interrupt_update( void )
 
 void dma_finished( int n_channel )
 {
+	if( n_channel == 4 && m_b_dma_spu_pending )
+	{
+		m_b_dma_spu_pending = 0;
+		m_p_fn_dma_write[ 4 ]( m_n_dma_spu_address, m_n_dma_spu_size );
+	}
+
 	if( m_p_n_dmachannelcontrol[ n_channel ] == 0x01000401 && n_channel == 2 )
 	{
 		UINT32 n_size;
@@ -329,8 +326,20 @@ WRITE32_HANDLER( psx_dma_w )
 					m_p_fn_dma_write[ n_channel ] != NULL )
 				{
 					verboselog( 1, "dma %d write block %08x %08x\n", n_channel, n_address, n_size );
-					m_p_fn_dma_write[ n_channel ]( n_address, n_size );
-					dma_finished( n_channel );
+					if( n_channel == 4 )
+					{
+						/* The SPU transfer completes after 24000 system clocks;
+						   keep the channel busy and its payload pending until then. */
+						m_b_dma_spu_pending = 1;
+						m_n_dma_spu_address = n_address;
+						m_n_dma_spu_size = n_size;
+						dma_start_timer( n_channel, 24000 );
+					}
+					else
+					{
+						m_p_fn_dma_write[ n_channel ]( n_address, n_size );
+						dma_finished( n_channel );
+					}
 				}
 				else if( m_p_n_dmachannelcontrol[ n_channel ] == 0x01000401 &&
 					n_channel == 2 &&
@@ -1476,6 +1485,7 @@ void psx_machine_init( void )
 	m_n_irqmask = 0;
 
 	/* dma */
+	m_b_dma_spu_pending = 0;
 	m_n_dpcp = 0;
 	m_n_dicr = 0;
 
@@ -1513,25 +1523,10 @@ void psx_machine_init( void )
 
 static void psx_postload( void )
 {
-	int n;
-
 	psx_irq_update();
-
-	for( n = 0; n < 7; n++ )
-	{
-		dma_timer_adjust( n );
-	}
-
-	for( n = 0; n < 3; n++ )
-	{
-		root_timer_adjust( n );
-	}
-
-	for( n = 0; n < 2; n++ )
-	{
-		sio_timer_adjust( n );
-	}
-
+	/* Native allocated timers restore their absolute deadlines themselves.
+	   Rearming DMA, root or serial timers here would discard their remaining
+	   time; root_start already preserves the fractional counter phase. */
 	mdec_cos_precalc();
 }
 
@@ -1595,6 +1590,9 @@ void psx_driver_init( void )
 	state_save_register_global_array( m_p_b_dma_running );
 	state_save_register_global( m_n_dpcp );
 	state_save_register_global( m_n_dicr );
+	state_save_register_global( m_b_dma_spu_pending );
+	state_save_register_global( m_n_dma_spu_address );
+	state_save_register_global( m_n_dma_spu_size );
 	state_save_register_global_array( m_p_n_root_count );
 	state_save_register_global_array( m_p_n_root_mode );
 	state_save_register_global_array( m_p_n_root_target );
