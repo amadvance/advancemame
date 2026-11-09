@@ -3778,7 +3778,7 @@ GAME( 1991, edf,      0,        system_B,          edf,      edf,      ROT0,   "
 GAME( 1991, edfu,     edf,      system_B,          edf,      edf,      ROT0,   "Jaleco", "E.D.F. : Earth Defense Force (North America)", 0 )
 GAME( 1991, 64street, 0,        system_C,          64street, 64street, ROT0,   "Jaleco", "64th. Street - A Detective Story (World)", 0 )
 GAME( 1991, 64streej, 64street, system_C,          64street, 64street, ROT0,   "Jaleco", "64th. Street - A Detective Story (Japan)", 0 )
-GAME( 1992, soldam,   0,        system_A,          soldamj,  soldam,   ROT0,   "Jaleco", "Soldam (Japan)", 0 )
+GAME( 1992, soldam,   0,        system_A,          soldamj,  soldam,   ROT0,   "Jaleco", "Soldam", 0 )
 GAME( 1992, bigstrik, 0,        system_C,          bigstrik, bigstrik, ROT0,   "Jaleco", "Big Striker", 0 )
 GAME( 1993, chimerab, 0,        system_C,          chimerab, chimerab, ROT0,   "Jaleco", "Chimera Beast (prototype)", 0 )
 GAME( 1993, cybattlr, 0,        system_C,          cybattlr, cybattlr, ROT90,  "Jaleco", "Cybattler", 0 )

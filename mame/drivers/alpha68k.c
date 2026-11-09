@@ -2663,4 +2663,4 @@ GAME( 1989, sbasebal, 0,        alpha68k_V_sb, sbasebal, sbasebal, ROT0,  "Alpha
 #else
 GAME( 1989, sbasebal, 0,        alpha68k_V_sb, sbasebal, sbasebal, ROT0,  "Alpha Denshi Co. (SNK of America license)", "Super Champion Baseball (US)", 0 )
 #endif
-GAME( 1989, tnextspc, 0,        tnexspce,      tnexspce, tnexspce, ROT90, "SNK",                "The Next Space", GAME_NO_COCKTAIL )
+GAME( 1989, tnextspc, 0,        tnexspce,      tnexspce, tnexspce, ROT90, "SNK",                "The Next Space (set 1)", GAME_NO_COCKTAIL )

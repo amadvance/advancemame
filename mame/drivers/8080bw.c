@@ -5381,7 +5381,7 @@ GAME( 1980, galactic, 0, galactic, galactic, invaders, ROT270, "Taito do Brasil"
 	  GAME( 1979, cosmo,    0,        cosmo,    cosmo,    cosmo,    ROT90,  "TDS & MINTS", "Cosmo", GAME_IMPERFECT_SOUND )
 	  GAME( 19??, invrvnge, 0,        invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge",  GAME_NO_SOUND )
 	  GAME( 19??, invrvnga, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd. (Dutchford license)", "Invader's Revenge (Dutchford)", GAME_NO_SOUND )
-	  GAME( 1979, spcewarl, 0,        invaders, spcewarl, invaddlx, ROT270, "Leijac (Konami)","Space War (Leijac)", 0 )
+	  GAME( 1979, spcewarl, 0,        invaders, spcewarl, invaddlx, ROT270, "Konami (Leijac Corporation license)","Space War (Leijac Corporation)", 0 )
 	  GAME( 1980, spclaser, spcewarl, invaders, spclaser, invaddlx, ROT270, "GamePlan (Taito)", "Space Laser", 0 )
 	  GAME( 1980, laser,    spcewarl, invaders, spclaser, invaddlx, ROT270, "<unknown>", "Laser", 0 )
 	  GAME( 1979, rollingc, 0,        rollingc, rollingc, rollingc, ROT270, "Nichibutsu", "Rolling Crash / Moon Base", GAME_NO_SOUND )

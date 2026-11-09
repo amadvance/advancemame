@@ -5768,10 +5768,10 @@ GAME( 1993, batsugun, 0,        batsugun, batsugun, batsugun, ROT270, "Toaplan",
 GAME( 1993, batsugna, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, batugnsp, batsugun, batsugun, batsugun, batsugun, ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, snowbro2, 0,        snowbro2, snowbro2, T2_noZ80, ROT0,   "[Toaplan] Hanafram", "Snow Bros. 2 - With New Elves / Otenki Paradise", 0 )
-GAME( 1993, sstriker, 0,        mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World)" , 0) // from korean board
+GAME( 1993, sstriker, 0,        mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker" , 0) // from korean board
 GAME( 1993, sstrikra, sstriker, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World, alt)" , 0) // from korean board
 GAME( 1993, mahoudai, sstriker, mahoudai, mahoudai, T2_Z80,   ROT270, "Raizing (Able license)", "Mahou Daisakusen (Japan)", 0 )
-GAME( 1994, kingdmgp, 0,        shippumd, kingdmgp, T2_Z80,   ROT270, "Raizing / Eighting", "Kingdom Grandprix (World)" , 0) // from korean board, missing letters on credits screen but this is correct
+GAME( 1994, kingdmgp, 0,        shippumd, kingdmgp, T2_Z80,   ROT270, "Raizing / Eighting", "Kingdom Grandprix" , 0) // from korean board, missing letters on credits screen but this is correct
 GAME( 1994, shippumd, kingdmgp, shippumd, shippumd, T2_Z80,   ROT270, "Raizing / Eighting", "Shippu Mahou Daisakusen (Japan)", 0 )
 GAME( 1996, bgaregga, 0,        battleg,  battlega, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Europe / USA / Japan / Asia) (Sat Feb 3 1996)", 0 )
 GAME( 1996, bgareghk, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Austria / Hong Kong) (Sat Feb 3 1996)", 0 )
@@ -5786,6 +5786,6 @@ GAME( 1998, batridj,  batrider, batrider, batridrj, battleg,  ROT270, "Raizing /
 GAME( 1998, batridk,  batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Korea) (Fri Feb 13 1998)", 0 )
 GAME( 1998, batridja, batrider, batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Japan) (Mon Dec 22 1997)", 0 )
 GAME( 1998, batridta, batrider, batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Taiwan) (Mon Dec 22 1997)", 0 )
-GAME( 1999, bbakraid, 0,        bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (U.S.A.) (Tue Jun 8 1999)", 0 )
+GAME( 1999, bbakraid, 0,        bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (USA) (Tue Jun 8 1999)", 0 )
 GAME( 1999, bkraiduj, bbakraid, bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (Japan) (Tue Jun 8 1999)", 0 )
 GAME( 1999, bkraidj,  bbakraid, bbakraid, bbakraid, bbakraid, ROT270, "Eighting", "Battle Bakraid (Japan) (Wed Apr 7 1999)", 0 )

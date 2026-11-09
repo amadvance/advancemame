@@ -1746,7 +1746,7 @@ GAME( 1990, galpanib, galpanic, galpanib, galpanib, 0, ROT90, "Kaneko", "Gals Pa
 GAME( 1990, galsnew, 0, galsnew, galsnew, galsnew, ROT90, "Kaneko", "Gals Panic (Export, EXPRO-02 PCB)", GAME_NO_COCKTAIL )
 GAME( 1994, fantasia, 0,        comad,    fantasia, 0, ROT90, "Comad & New Japan System", "Fantasia", GAME_NO_COCKTAIL )
 GAME( 1994, supmodel, 0,        supmodel, fantasia, 0, ROT90, "Comad & New Japan System", "Super Model",GAME_NO_COCKTAIL ) // 'official' or hack of fantasia?
-GAME( 1995, newfant,  0,        comad,    fantasia, 0, ROT90, "Comad & New Japan System", "New Fantasia", GAME_NO_COCKTAIL )
+GAME( 1995, newfant,  0,        comad,    fantasia, 0, ROT90, "Comad & New Japan System", "New Fantasia (1995 copyright)", GAME_NO_COCKTAIL )
 GAME( 1995, fantsy95, newfant,  comad,    fantasia, 0, ROT90, "Hi-max Technology Inc.", "Fantasy '95", GAME_NO_COCKTAIL )
 GAME( 1996, missw96,  0,        comad,    missw96,  0, ROT0,  "Comad", "Miss World '96 (Nude)", GAME_NO_COCKTAIL )
 GAME( 1996, missmw96, missw96,  comad,    missw96,  0, ROT0,  "Comad", "Miss Mister World '96 (Nude)", GAME_NO_COCKTAIL )

@@ -1178,7 +1178,7 @@ static DRIVER_INIT( srdmissn )
 
 GAME( 1984, gyrodine, 0,        gyrodine, gyrodine, gyrodine, ROT90, "Taito Corporation", "Gyrodine", 0 )
 GAME( 1984, gyrodinc, gyrodine, gyrodine, gyrodine, gyrodine, ROT90, "Taito Corporation (Crux license)", "Gyrodine (Crux)", 0 )
-GAME( 1985, repulse,  0,        sonofphx, sonofphx, 0,        ROT90, "Sega", "Repulse", 0 )
+GAME( 1985, repulse,  0,        sonofphx, sonofphx, 0,        ROT90, "Crux / Sega", "Repulse", 0 )
 GAME( 1985, sonofphx, repulse,  sonofphx, sonofphx, 0,        ROT90, "Associated Overseas MFR, Inc", "Son of Phoenix", 0 )
 GAME( 1985, 99lstwar, repulse,  sonofphx, sonofphx, 0,        ROT90, "Proma", "'99: The Last War", 0 )
 GAME( 1985, 99lstwra, repulse,  sonofphx, sonofphx, 0,        ROT90, "Proma", "'99: The Last War (alternate)", 0 )

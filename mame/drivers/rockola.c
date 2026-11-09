@@ -1585,7 +1585,7 @@ GAME( 1981, zarzon,   satansat, satansat, satansat, 0, ROT90, "[SNK] (Taito Amer
 GAME( 1981, vanguard, 0,        vanguard, vanguard, 0, ROT90, "SNK", "Vanguard (SNK)", 0 )
 GAME( 1981, vangrdce, vanguard, vanguard, vanguard, 0, ROT90, "SNK (Centuri license)", "Vanguard (Centuri)", 0 )
 GAME( 1981, vanguarj,  vanguard, vanguard, vanguard, 0, ROT90, "SNK", "Vanguard (Japan)", 0 )
-GAME( 1981, fantasyu, 0,        fantasy,  fantasy,  0, ROT90, "[SNK] (Rock-Ola license)", "Fantasy (US)", 0 )
+GAME( 1981, fantasyu, 0,        fantasy,  fantasy,  0, ROT90, "SNK (Rock-Ola license)", "Fantasy (US)", 0 )
 GAME( 1981, fantasy,  fantasyu, fantasy,  fantasy,  0, ROT90, "SNK", "Fantasy (World)", 0 )
 GAME( 1981, fantasyj, fantasyu, fantasy,  fantasy,  0, ROT90, "SNK", "Fantasy (Japan)", 0 )
 GAME( 1982, pballoon, 0,        pballoon, pballoon, 0, ROT90, "SNK", "Pioneer Balloon", 0 )

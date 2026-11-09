@@ -4122,7 +4122,7 @@ static DRIVER_INIT (f1superb)
 
 GAME( 1994, hayaosi1, 0,        ms32,     hayaosi2, ss92046_01, ROT0,   "Jaleco", "Hayaoshi Quiz Ouza Ketteisen", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1994, bbbxing,  0,        ms32,     bbbxing,  ss92046_01, ROT0,   "Jaleco", "Best Bout Boxing", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1994, suchie2,  0,        ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Su-Chi-Pie 2 (v1.1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1994, suchie2,  0,        ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Suchie-Pai II (ver 1.1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1994, 47pie2o,  suchie2,  ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Su-Chi-Pie 2 (v1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1995, desertwr, 0,        ms32,     desertwr, ss91022_10, ROT270, "Jaleco", "Desert War / Wangan Sensou", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1995, gametngk, 0,        ms32,     gametngk, ss91022_10, ROT270, "Jaleco", "The Game Paradise - Master of Shooting! / Game Tengoku - The Game Paradise", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )

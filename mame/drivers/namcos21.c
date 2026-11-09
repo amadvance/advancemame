@@ -2346,7 +2346,7 @@ INPUT_PORTS_END
 /* 1992, ShimDrive */
 /* 1989, Winning Run Suzuka Grand Prix */
 
-GAME( 1992, aircomb,  0,       poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (US)",	  GAME_NOT_WORKING ) /* mostly working */
+GAME( 1992, aircomb,  0,       poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (AC2, US)",	  GAME_NOT_WORKING ) /* mostly working */
 GAME( 1992, aircombj, aircomb, poly_c140_typeB,   aircombt,     aircombt, ROT0,    "Namco", "Air Combat (Japan)", GAME_NOT_WORKING ) /* mostly working */
 GAME( 1993, cybsled,  0,       poly_c140_typeA,   cybsled,      cybsled,  ROT0,    "Namco", "Cyber Sled",         GAME_NOT_WORKING ) /* mostly working */
 GAME( 1991, solvalou, 0,       poly_c140_typeA,   s21default,   solvalou, ROT0,    "Namco", "Solvalou (Japan)",   GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS ) /* working and playable */

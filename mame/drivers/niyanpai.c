@@ -989,7 +989,7 @@ ROM_START( mhhonban )
 ROM_END
 
 
-GAME( 1996, nyanpai,  0, niyanpai, niyanpai, niyanpai, ROT0, "Nichibutsu", "Niyanpai (Japan)", 0 )
+GAME( 1996, nyanpai,  0, niyanpai, niyanpai, niyanpai, ROT0, "Nichibutsu", "Nyanpai (Japan)", 0 )
 GAME( 1995, musobana, 0, musobana, musobana, musobana, ROT0, "Nichibutsu/Yubis", "Musoubana (Japan)", 0 )
 GAME( 1994, 4psimasy, 0, musobana, 4psimasy, 4psimasy, ROT0, "SPHINX/AV JAPAN", "Mahjong 4P Simasyo (Japan)", 0 )
 GAME( 199?, mhhonban, 0, mhhonban, mhhonban, mhhonban, ROT0, "Nichibutsu?", "Mahjong Housoukyoku Honbanchuu (Japan)", 0 )

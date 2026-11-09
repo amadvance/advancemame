@@ -285,4 +285,4 @@ DRIVER_INIT( wldarrow )
 }
 
 GAME( 1982, wldarrow,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games", "Wild Arrow", GAME_NO_SOUND | GAME_NOT_WORKING)
-GAME( 198?, mdrawpkr,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games", "<unknown> Meyco game", GAME_NO_SOUND | GAME_NOT_WORKING)
+GAME( 1984, mdrawpkr,  0,		wldarrow, wldarrow, wldarrow, ROT0, "Meyco Games, Inc.", "Draw Poker - Joker's Wild (Standard)", GAME_NO_SOUND | GAME_NOT_WORKING)

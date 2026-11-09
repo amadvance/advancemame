@@ -2558,7 +2558,7 @@ GAME( 1989, bandit,   0,        bandit,   bandit,   bandit,   ROT90,  "Data East
 GAME( 1989, hippodrm, 0,        hippodrm, hippodrm, hippodrm, ROT0,   "Data East USA",         "Hippodrome (US)", 0 )
 GAME( 1989, ffantasy, hippodrm, hippodrm, hippodrm, hippodrm, ROT0,   "Data East Corporation", "Fighting Fantasy (Japan revision 2)", 0 )
 GAME( 1989, ffantasa, hippodrm, hippodrm, hippodrm, hippodrm, ROT0,   "Data East Corporation", "Fighting Fantasy (Japan)", 0 )
-GAME( 1989, secretag, 0,        slyspy,   slyspy,   slyspy,   ROT0,   "Data East Corporation", "Secret Agent (World)", 0 )
+GAME( 1989, secretag, 0,        slyspy,   slyspy,   slyspy,   ROT0,   "Data East Corporation", "Secret Agent (World, revision 3)", 0 )
 GAME( 1989, secretab, secretag, slyspy,   slyspy,   slyspy,   ROT0,   "bootleg",               "Secret Agent (bootleg)", GAME_NOT_WORKING )
 GAME( 1989, slyspy,   secretag, slyspy,   slyspy,   slyspy,   ROT0,   "Data East USA",         "Sly Spy (US revision 3)", 0 )
 GAME( 1989, slyspy2,  secretag, slyspy,   slyspy,   slyspy,   ROT0,   "Data East USA",         "Sly Spy (US revision 2)", 0 )

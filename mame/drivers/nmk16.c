@@ -5465,7 +5465,7 @@ GAME( 1993, gunnail,  0,       gunnail,  gunnail,  nmk,      ROT270, "NMK / Tecm
 GAME( 1993, macross2, 0,       macross2, macross2, 0,        ROT0,   "Banpresto",			    "Super Spacefortress Macross II / Chou-Jikuu Yousai Macross II", GAME_NO_COCKTAIL )
 GAME( 1993, tdragon2, 0,       tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Thunder Dragon 2", GAME_NO_COCKTAIL )
 GAME( 1993, bigbang,  tdragon2,tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Big Bang", GAME_NO_COCKTAIL )
-GAME( 1994, arcadian, 0,        raphero,  tdragon2, 0,        ROT270, "Media Trading Corp",                  "Arcadia", 0 )
+GAME( 1994, arcadian, 0,        raphero,  tdragon2, 0,        ROT270, "NMK",                  "Arcadia (NMK)", 0 )
 GAME( 1994, raphero,  arcadian, raphero,  tdragon2, 0,        ROT270, "Media Trading Corp",                  "Rapid Hero (Japan)", 0 ) // 23rd July 1993 in test mode, (c)1994 on title screen
 GAME( 1992, sabotenb, 0,       bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 1)", GAME_NO_COCKTAIL )
 GAME( 1992, sabotnba, sabotenb,bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 2)", GAME_NO_COCKTAIL )

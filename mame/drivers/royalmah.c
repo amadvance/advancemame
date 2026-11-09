@@ -1382,7 +1382,7 @@ ROM_END
 
 
 
-GAME( 1982, royalmj,  0, royalmah, royalmah, 0, ROT0, "Falcon", "Royal Mahjong (Japan)", 0 )
+GAME( 1981, royalmj,  0, royalmah, royalmah, 0, ROT0, "Nichibutsu", "Royal Mahjong (Japan, v1.13)", 0 )
 GAME( 1986, suzume,   0, suzume,   majs101b, 0, ROT0, "Dyna Electronics", "Watashiha Suzumechan (Japan)", GAME_NOT_WORKING )
 GAME( 1986, dondenmj, 0, dondenmj, majs101b, 0, ROT0, "Dyna Electronics", "Don Den Mahjong [BET] (Japan)", 0 )
 GAME( 1987, mjdiplob, 0, mjdiplob, mjdiplob, 0, ROT0, "Dynax", "Mahjong Diplomat [BET] (Japan)", 0 )

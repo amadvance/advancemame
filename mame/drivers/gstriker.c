@@ -659,7 +659,7 @@ GAME( 1993, gstriker, 0,        gstriker, gstriker, 0,        ROT0, "Human", "Gr
 /* Similar, but not identical hardware, appear to be protected by an MCU :-( */
 GAME( 199?, vgoalsoc, 0,        gstriker, gstriker, 0,        ROT0, "Tecmo", "V Goal Soccer", GAME_NOT_WORKING )
 GAME( 199?, vgoalsca, vgoalsoc, gstriker, gstriker, 0,        ROT0, "Tecmo", "V Goal Soccer (alt)", GAME_NOT_WORKING )
-GAME( 1994, twcup94,  0,        twrldc94, gstriker, twrldc94,        ROT0, "Tecmo", "Tecmo World Cup '94", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, twcup94,  0,        twrldc94, gstriker, twrldc94,        ROT0, "Tecmo", "Tecmo World Cup '94 (set 1)", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, twrdc94a, twcup94,  twrldc94, gstriker, twrldc94,        ROT0, "Tecmo", "Tecmo World Cup '94 (set 2)", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS )
 
 

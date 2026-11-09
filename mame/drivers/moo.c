@@ -935,7 +935,7 @@ ROM_START( moobl )
 	ROM_CONTINUE(          0x300000+0x30000, 0x010000)//bank c hi
 ROM_END
 
-GAME( 1992, moomesa, 0,       moo,     moo,     moo,      ROT0, "Konami", "Wild West C.O.W.-Boys of Moo Mesa (ver EA)", GAME_IMPERFECT_GRAPHICS)
+GAME( 1992, moomesa, 0,       moo,     moo,     moo,      ROT0, "Konami", "Wild West C.O.W.-Boys of Moo Mesa (ver EAB)", GAME_IMPERFECT_GRAPHICS)
 GAME( 1992, mooua,   moomesa, moo,     moo,     moo,      ROT0, "Konami", "Wild West C.O.W.-Boys of Moo Mesa (ver UA)", GAME_IMPERFECT_GRAPHICS)
 GAME( 1992, mooaa,   moomesa, moo,     moo,     moo,      ROT0, "Konami", "Wild West C.O.W.-Boys of Moo Mesa (ver AA)", GAME_IMPERFECT_GRAPHICS)
 GAME( 1992, moobl,   moomesa, moobl,   moo,     moo,      ROT0, "<unknown>", "Wild West C.O.W.-Boys of Moo Mesa (bootleg ver AA)", GAME_NOT_WORKING)

@@ -492,7 +492,7 @@ GAME( 1986, gt507uk,  0,      findout, findout, 0, ROT0, "Grayhound Electronics"
 GAME( 1986, gt103,    0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (Version 1.03)",                  GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gt5,      0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (Version 5)",                     GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 
-GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a)",                 GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Questions Series 8)",                 GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gt103a1,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 1)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gt103a2,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 2)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gt103a3,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 3)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )

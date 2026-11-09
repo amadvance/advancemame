@@ -531,6 +531,6 @@ static DRIVER_INIT( dodgem )
 	artwork_set_overlay(dodgem_overlay);
 }
 
-GAME( 1978, tinv2650, 0, tinvader, tinvader, tinvader, ROT270, "Zaccaria/Zelco", "The Invaders", 0 )
+GAME( 1979?, tinv2650, 0, tinvader, tinvader, tinvader, ROT270, "Zaccaria / Zelco", "The Invaders", 0 )
 GAME( 1978, sia2650, tinv2650, tinvader, sinvader, 0, ROT270, "Zaccaria/Zelco", "Super Invader Attack", 0 )
 GAME( 1979, dodgem, 0, dodgem, dodgem, dodgem, ROT0, "Zaccaria", "Dodgem", GAME_IMPERFECT_SOUND )

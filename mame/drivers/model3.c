@@ -4296,7 +4296,7 @@ static DRIVER_INIT( eca )
 /* Model 3 Step 1.0 */
 GAME( 1996, vf3,            0, model3_10, model3,        vf3, ROT0, "Sega", "Virtua Fighter 3", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
 GAME( 1996, vf3tb,        vf3, model3_10, model3,  model3_10, ROT0, "Sega", "Virtua Fighter 3 Team Battle", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
-GAME( 1997, bassdx,        0,      model3_10, bass,      bass,    ROT0, "Sega", "Sega Bass Fishing", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
+GAME( 1997, bassdx,        0,      model3_10, bass,      bass,    ROT0, "Sega", "Sega Bass Fishing Deluxe", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
 GAME( 1997, getbass,       bassdx, model3_10, bass,      getbass, ROT0, "Sega", "Get Bass", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND )
 
 /* Model 3 Step 1.5 */

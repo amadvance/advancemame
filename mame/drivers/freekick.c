@@ -1025,9 +1025,9 @@ static DRIVER_INIT(gigas)
  *
  *************************************/
 
-GAME( 1986, gigas,   0,        gigas,    gigas,    gigas, ROT270, "bootleg", "Gigas (bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, gigas,   0,        gigas,    gigas,    gigas, ROT270, "Sega", "Gigas (MC-8123, 317-5002)", GAME_NO_COCKTAIL )
 GAME( 1986, oigas,   gigas,    oigas,    gigas,    gigas, ROT270, "bootleg", "Oigas (bootleg)", GAME_NO_COCKTAIL )
-GAME( 1986, gigasm2, 0,        gigas,    gigasm2,  gigas, ROT270, "bootleg", "Gigas Mark II (bootleg)", GAME_NO_COCKTAIL )
+GAME( 1986, gigasm2, 0,        gigas,    gigasm2,  gigas, ROT270, "Sega", "Gigas Mark II (MC-8123, 317-5002)", GAME_NO_COCKTAIL )
 GAME( 1987, pbillrd,  0,        pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard", 0 )
 GAME( 1987, pbillrds, pbillrd,  pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard (Sega)", GAME_UNEMULATED_PROTECTION )	// encrypted
 GAME( 1987, freekick, 0,        freekckb, freekck,  0,     ROT270, "Nihon System (Sega license)", "Free Kick", 0 )

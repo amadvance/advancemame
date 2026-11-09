@@ -490,7 +490,7 @@ ROM_END
 
 
 
-GAME( 1996, croquis,  0,        deniam16b, logicpr2, logicpro, ROT0, "Deniam", "Croquis (Germany)", 0 )
+GAME( 1996, croquis,  0,        deniam16b, logicpr2, logicpro, ROT0, "Deniam", "Croquis (Korea)", 0 )
 GAME( 1996, logicpro, croquis,  deniam16b, logicpr2, logicpro, ROT0, "Deniam", "Logic Pro (Japan)", 0 )
 GAME( 1996, karianx,  0,        deniam16b, karianx,  karianx,  ROT0, "Deniam", "Karian Cross (Rev. 1.0)", 0 )
 GAME( 1997, logicpr2, 0,        deniam16c, logicpr2, logicpro, ROT0, "Deniam", "Logic Pro 2 (Japan)", GAME_IMPERFECT_SOUND )

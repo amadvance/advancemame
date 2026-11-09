@@ -2176,10 +2176,10 @@ ROM_END
 
 GAME( 199?, bctvidbs,0,       mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "MPU4 Video Firmware",												NOT_A_DRIVER )
 
-GAME( 1994, v4cmaze3,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Crystal Maze: Team Challenge (SWP)",							GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1994, v4cmaze3,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Crystal Maze Team Challenge (v0.9) (MPU4 Video)",							GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1994, crmazea, v4cmaze3,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Crystal Maze (AMLD version SWP)",								GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1994, crmazeb, v4cmaze3,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Crystal Maze - Now Featuring Ocean Zone (AMLD Version SWP)",	GAME_NOT_WORKING|GAME_NO_SOUND ) // unprotected?
-GAME( 1990, v4turnov,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "Turnover",														GAME_NOT_WORKING|GAME_NO_SOUND ) // unprotected?
-GAME( 1992, v4skltrk,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "Skill Trek",														GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 199?, v4turnov,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "Turnover (v2.3) (MPU4 Video)",														GAME_NOT_WORKING|GAME_NO_SOUND ) // unprotected?
+GAME( 1990, v4skltrk,bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "Skill Trek (v1.1) (MPU4 Video, set 1)",														GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 199?, mating,  bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Mating Game (Datapak)",										GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 199?, v4mate,  bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Mating Game (Standard)",										GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1996?, v4mate,  bctvidbs,mpu4_vid, mpu4_vid, 0,     ROT0,   "Barcrest", "The Mating Game (v0.4) (MPU4 Video)",										GAME_NOT_WORKING|GAME_NO_SOUND )

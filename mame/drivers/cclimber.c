@@ -2269,13 +2269,13 @@ GAME( 1981, ckongalc, ckong,    cclimber, ckong,    0,        ROT270, "bootleg",
 GAME( 198?, bigkong,  ckong,    cclimber, ckong,    0,        ROT270, "bootleg", "Big Kong", 0 )
 GAME( 1981, monkeyd,  ckong,    cclimber, ckong,    0,        ROT270, "bootleg", "Monkey Donkey", 0 )
 
-GAME( 1981, rpatrol,  0,        cclimber, rpatrolb, 0,         ROT0,   "bootleg", "River Patrol (bootleg)", 0 )
+GAME( 1981, rpatrol,  0,        cclimber, rpatrolb, 0,         ROT0,   "Orca", "River Patrol (Japan)", 0 )
 GAME( 1981, rpatrolo, rpatrol,  cclimber, rpatrolb, 0,         ROT0,   "Orca",  "River Patrol (Orca)", 0 )
 GAME( 1981, silvland, rpatrol,  cclimber, rpatrolb, 0,         ROT0,   "Falcon", "Silver Land", 0 )
 
 GAME( 1983, tangramq, 0, tangramq, tangramq, 0, ROT270, "SNK", "Tangram Q", 0 )
 
-GAME( 1985, cannonbp, 0,        cannonb,  cannonb,  cannonb,  ROT90,  "Soft", "Cannon Ball (Crazy Climber hardware)" , GAME_IMPERFECT_GRAPHICS )
+GAME( 1985, cannonbp, 0,        cannonb,  cannonb,  cannonb,  ROT90,  "Novomatic", "Cannon Ball (Pac-Man Hardware)" , GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, cannonb2, cannonbp, cannonb,  cannonb,  0,        ROT90, "TV Game Gruenberg", "Cannonball (set 2)", 0 )
 GAME( 198?, ckongb  , ckong,    cclimber, ckongb,    ckongb,   ROT270, "bootleg", "Crazy Kong (Alternative levels)", 0 )
 

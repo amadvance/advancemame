@@ -2292,7 +2292,7 @@ MACHINE_DRIVER_END
 /* 09 */GAME( 1991, dcclubfd, dcclub,   system24, dcclub,   dcclubfd, ROT0,   "Sega", "Dynamic Country Club (Floppy DS3-5000-09d, FD1094 317-0058-09d)", 0 )
 
 /* ROM Based */
-GAME( 1991, dcclub,   0,        system24, dcclub,   dcclub,   ROT0,   "Sega", "Dynamic Country Club", 0 )
+GAME( 1991, dcclub,   0,        system24, dcclub,   dcclub,   ROT0,   "Sega", "Dynamic Country Club (World, ROM Based)", 0 )
 GAME( 1992, mahmajn,  0,        system24, mahmajn,  mahmajn,  ROT0,   "Sega", "Tokoro San no MahMahjan", 0 )
 GAME( 1994, qgh,      0,        system24, qgh,      qgh,      ROT0,   "Sega", "Quiz Ghost Hunter", 0 )
 GAME( 1994, quizmeku, 0,        system24, quizmeku, quizmeku, ROT0,   "Sega", "Quiz Mekurumeku Story", 0 )

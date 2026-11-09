@@ -4457,7 +4457,7 @@ GAME( 1987, blockgal, 0,        blockgal, blockgal, 0,        ROT90,  "Sega / Vi
 GAME( 1985, hvymetal, 0,        hvymetal, hvymetal, hvymetal, ROT0,   "Sega", 			 	   "Heavy Metal", GAME_SUPPORTS_SAVE )
 GAME( 1986, gardia,   0,        brain,    brain,    gardia,   ROT270, "Sega / Coreland", 	   "Gardia", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
 GAME( 1986, brain,    0,        brain,    brain,    0,        ROT0,   "Coreland / Sega", 	   "Brain", GAME_SUPPORTS_SAVE )
-GAME( 1985, choplift, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
+GAME( 1985, choplift, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (8751 315-5151)", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
 GAME( 1985, chplftb,  choplift, chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (alternate)", GAME_SUPPORTS_SAVE )
 GAME( 1985, chplftbl, choplift, chplft,   chplft,   0,        ROT0,   "bootleg", 		 	   "Choplifter (bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1985, shtngmst, 0, shtngmst, shtngmst, 0, ROT0, "Sega", "Shooting Master (8751 315-5159a)", 0 )

@@ -5623,7 +5623,7 @@ GAME( 1981, pacgal,   mspacman, woodpek,  mspacman, 0,        ROT90,  "hack", "P
 GAME( 1981, mspacpls, mspacman, woodpek,  mspacpls, 0,        ROT90,  "hack", "Ms. Pac-Man Plus", GAME_SUPPORTS_SAVE )
 GAME( 1995, mschamp,  mspacman, mschamp,  mschamp,  0,        ROT90,  "hack", "Ms. Pacman Champion Edition / Super Zola Pac Gal", GAME_SUPPORTS_SAVE )
 /* Simultaneous 2 player hack of Ms Pac-Man */
-GAME( 1992, mspactwin, 0,      mspactwin, mspactwin, mspactwin,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
+GAME( 1992, mspactwin, 0,      mspactwin, mspactwin, mspactwin,      ROT90,  "hack (Susilu)", "Ms Pac Man Twin (Argentina, set 1)", GAME_SUPPORTS_SAVE )
 GAME( 1989, clubpacm,0,        clubpacm, clubpacm, 0,        ROT90,  "hack (Miky SRL)", "Pacman Club / Club Lambada (Argentina)", 0 )
 GAME( 1985, jumpshot, 0,        pacman,   jumpshot, jumpshot, ROT90,  "Bally Midway", "Jump Shot", GAME_SUPPORTS_SAVE )
 GAME( 1985, jumpshtp, jumpshot, pacman,   jumpshtp, jumpshot, ROT90,  "Bally Midway", "Jump Shot Engineering Sample", GAME_SUPPORTS_SAVE )

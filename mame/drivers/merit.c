@@ -930,7 +930,7 @@ GAME( 1985, trvwhzho, 0,       trvwhiz,  tictac,   trvwhiz,  ROT0,  "Merit", "Tr
 GAME( 1985, trvwhzha, trvwhzho,trvwhiz,  tictac,   trvwhiz,  ROT0,  "Merit", "Trivia ? Whiz (Horizontal - Question set 2)", GAME_WRONG_COLORS )
 GAME( 1985, trvwhzve, 0,       trvwhiz,  tictac,   trvwhiz,  ROT90, "Merit", "Trivia ? Whiz (Vertical - Question set 1)",   GAME_WRONG_COLORS )
 GAME( 1985, trvwhzva, trvwhzve,trvwhiz,  tictac,   trvwhiz,  ROT90, "Merit", "Trivia ? Whiz (Vertical - Question set 2)",   GAME_WRONG_COLORS )
-GAME( 1985, trvwz2,   0,       trvwhiz,  tictac,   trvwhzii, ROT90, "Merit", "Trivia ? Whiz (Edition 2)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
+GAME( 1985, trvwz2,   0,       trvwhiz,  tictac,   trvwhzii, ROT90, "Merit", "Trivia ? Whiz Edition 2 (6221-05)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, trvwhziv, 0,       trvwhziv, tictac,   trvwhziv, ROT90, "Merit", "Trivia ? Whiz (Edition 4)",                   GAME_WRONG_COLORS | GAME_IMPERFECT_GRAPHICS )
 GAME( 1985, tictac,   0,       tictac,   tictac,   tictac,   ROT0,  "Merit", "Tic Tac Trivia",                              GAME_WRONG_COLORS )
 GAME( 1986, phrcraze, 0,       phrcraze, phrcraze, phrcraze, ROT0,  "Merit", "Phraze Craze",                                GAME_WRONG_COLORS )

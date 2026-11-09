@@ -123,4 +123,4 @@ ROM_START( tarzanc )
 ROM_END
 
 
-GAME( 199?, tarzanc, 0, tarzan, tarzan, 0, ROT0, "IGS", "Tarzan",GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1999, tarzanc, 0, tarzan, tarzan, 0, ROT0, "IGS", "Tarzan Chuang Tian Guan (China, V109C, set 1)",GAME_NOT_WORKING|GAME_NO_SOUND )

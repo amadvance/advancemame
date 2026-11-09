@@ -4105,7 +4105,7 @@ static DRIVER_INIT( blktouch )
 
 GAME( 1988, hanamai,  0,        hanamai,  hanamai,  0,        ROT180, "Dynax",                   "Hana no Mai (Japan)"                                  , 0 )
 GAME( 1989, hnkochou, hanamai,  hanamai,  hnkochou, 0,        ROT180, "Dynax",                   "Hana Kochou [BET] (Japan)"                            , 0 )
-GAME( 1989, hjingi,   0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Oriduru (Japan)",                                 GAME_IMPERFECT_GRAPHICS ) // 1 rom is bad
+GAME( 1990, hjingi,   0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Jingi (Japan set 1)",                                 GAME_IMPERFECT_GRAPHICS ) // 1 rom is bad
 GAME( 1989, drgpunch, 0,        sprtmtch, sprtmtch, 0,        ROT0,   "Dynax",                   "Dragon Punch (Japan)"                                 , 0 )
 GAME( 1989, sprtmtch, drgpunch, sprtmtch, sprtmtch, 0,        ROT0,   "Dynax (Fabtek license)",  "Sports Match"                                         , 0 )
 GAME( 1989, mjfriday, 0,        mjfriday, mjfriday, 0,        ROT180, "Dynax",                   "Mahjong Friday (Japan)"                               , 0 )
