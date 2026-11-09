@@ -1,13 +1,8 @@
 ############################################################################
 # Common dir
 
-ifeq ($(CONF_TINY),yes)
-OBJ = obj/mame-tiny/$(BINARYDIR)
-MESSOBJ = obj/mess-tiny/$(BINARYDIR)
-else
 OBJ = obj/mame/$(BINARYDIR)
 MESSOBJ = obj/mess/$(BINARYDIR)
-endif
 MENUOBJ = obj/menu/$(BINARYDIR)
 MOBJ = obj/m/$(BINARYDIR)
 JOBJ = obj/j/$(BINARYDIR)

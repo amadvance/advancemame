@@ -51,7 +51,6 @@ CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_DEBUG=@CONF_DEBUG@
 CONF_PERF=@CONF_PERF@
 CONF_DEFS=@DEFS@
-CONF_TINY=@CONF_TINY@
 
 #############################################################################
 # Extra configuration common for ./configure and manual

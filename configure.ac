@@ -147,14 +147,6 @@ AC_ARG_ENABLE(
 )
 
 AC_ARG_ENABLE(
-	[tiny],
-	AS_HELP_STRING([--enable-tiny],[enable compilation with MAME/MESS tiny configuration. (default no)]),
-	[ac_enable_tiny=$enableval],
-	[ac_enable_tiny=no]
-)
-AC_SUBST([CONF_TINY],[$ac_enable_tiny])
-
-AC_ARG_ENABLE(
 	[32],
 	AS_HELP_STRING([--enable-32],[force compilation for x86 32 bit. (default no)]),
 	[ac_enable_32=$enableval],

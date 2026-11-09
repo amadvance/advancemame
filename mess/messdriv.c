@@ -40,22 +40,6 @@ game_driver driver_0 =
 
 #endif
 
-#ifdef TINY_COMPILE
-extern const game_driver TINY_NAME;
-
-const game_driver * const drivers[] =
-{
-  TINY_POINTER,
-  0             /* end of array */
-};
-
-const game_driver * const test_drivers[] =
-{
-	0	/* end of array */
-};
-
-#else
-
 #ifndef DRIVER_RECURSIVE
 
 #define DRIVER_RECURSIVE
@@ -829,5 +813,3 @@ TESTDRIVER( mk1 )		/* Chess Champion MK I								*/
 TESTDRIVER( ssystem3 )	/* Chess Champion Super System III / MK III			*/
 
 #endif /* DRIVER_RECURSIVE */
-
-#endif /* TINY_COMPILE */

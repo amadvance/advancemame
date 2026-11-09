@@ -799,21 +799,13 @@ include $(srcdir)/mame/core.mak
 include $(srcdir)/mame/cpu/cpu.mak
 include $(srcdir)/mame/sound/sound.mak
 $(eval $(call EMU_CORE,,$(OBJ),mame))
-ifeq ($(CONF_TINY),yes)
-include $(srcdir)/mame/tiny.mak
-else
 include $(srcdir)/mame/mame.mak
-endif
 $(eval $(call EMU_CPU,,$(OBJ),mame))
 $(eval $(call EMU_SOUND,,$(OBJ),mame))
 
 # MESS
 $(eval $(call EMU_CORE,MESS,$(MESSOBJ),mess))
-ifeq ($(CONF_TINY),yes)
-include $(srcdir)/mess/tinyms.mak
-else
 include $(srcdir)/mess/mess.mak
-endif
 $(eval $(call EMU_CPU,MESS,$(MESSOBJ),mess))
 $(eval $(call EMU_SOUND,MESS,$(MESSOBJ),mess))
 include $(srcdir)/mess/sound/sound.mak
