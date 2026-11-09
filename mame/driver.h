@@ -185,6 +185,7 @@
 #define GAME_RESOURCE_FLAGS             (NOT_A_DRIVER | GAME_IS_BIOS | GAME_IS_DEVICE)
 #define DRIVER_NAME_MAX                 32
 #define NOT_A_DRIVER					0x4000	/* set by the fake "root" driver_0 and by "containers" */
+#define GAME_STANDALONE					0x00010000	/* distinct standalone game despite sharing parent romset */
 
 #ifdef MESS
 #define GAME_COMPUTER               	0x8000  /* Driver is a computer (needs full keyboard) */

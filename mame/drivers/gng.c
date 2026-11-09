@@ -2230,7 +2230,7 @@ GAME( 1985, makaimug, gng, gng, makaimur, 0,	   ROT0, "Capcom", "Makai-Mura (Jap
  * Most enemies have been changed into monster girls.
  * Enhanced Edition introduces fluid crouching and smooth ladder climbing.
  */
-GAME( 2026, gngprincess, 0, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 1)", 0 )
+GAME( 2026, gngprincess, gng, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 1)", GAME_STANDALONE )
 GAME( 2026, gngprincessa, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 2)", 0 )
 GAME( 2026, gngprincessaenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 2)", 0 )
 GAME( 2026, gngprincessb, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (World? 3)", 0 )
@@ -2240,7 +2240,7 @@ GAME( 2026, gngprincesscenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "
 GAME( 2026, gngprincessenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (World? 1)", 0 )
 GAME( 2026, gngprincesst, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (US)", 0 )
 GAME( 2026, gngprincesstenh, gngprincess, gng, gng, 0, ROT0, "GoodLuckTrying", "Ghosts'n Goblins - Princess Prin Prin Edition (Enhanced) (US)", 0 )
-GAME( 2026, makprincess, 0, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition", 0 )
+GAME( 2026, makprincess, gng, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition", GAME_STANDALONE )
 GAME( 2026, makprincessb, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Japan revision B)", 0 )
 GAME( 2026, makprincessbenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Enhanced) (Japan revision B)", 0 )
 GAME( 2026, makprincessc, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTrying", "Makaimura - Princess Prin Prin Edition (Japan revision C)", 0 )
@@ -2256,8 +2256,8 @@ GAME( 2026, makprincessgenh, makprincess, gng, makaimur, 0, ROT0, "GoodLuckTryin
  * Sprite and gameplay hack changing Arthur into Artoria (Knight or Maiden).
  * Enhanced Edition introduces fluid crouching and smooth ladder climbing.
  */
-GAME( 2026, gngmaiden, 0, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Maiden Artoria Edition (World? 1)", 0 )
-GAME( 2026, gngknight, 0, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Knight Artoria Edition (World? 1)", 0 )
+GAME( 2026, gngmaiden, gng, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Maiden Artoria Edition (World? 1)", GAME_STANDALONE )
+GAME( 2026, gngknight, gng, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Knight Artoria Edition (World? 1)", GAME_STANDALONE )
 GAME( 2026, gngmaidena, gngmaiden, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Maiden Artoria Edition (World? 2)", 0 )
 GAME( 2026, gngknighta, gngknight, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Knight Artoria Edition (World? 2)", 0 )
 GAME( 2026, gngmaidenb, gngmaiden, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Maiden Artoria Edition (World? 3)", 0 )
@@ -2267,7 +2267,7 @@ GAME( 2026, gngknightc, gngknight, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", 
 GAME( 2026, gngmaident, gngmaiden, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Maiden Artoria Edition (US)", 0 )
 GAME( 2026, gngknightt, gngknight, gng, gng, 0, ROT0, "GoodLuckTrying / Poody", "Ghosts'n Goblins - Knight Artoria Edition (US)", 0 )
 GAME( 2026, makmaiden, gngmaiden, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Maiden Artoria Edition", 0 )
-GAME( 2026, makknight, gngknight, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Knight Artoria Edition", 0 )
+GAME( 2026, makknight, gng, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Knight Artoria Edition", GAME_STANDALONE )
 GAME( 2026, makmaidenb, gngmaiden, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Maiden Artoria Edition (Japan revision B)", 0 )
 GAME( 2026, makknightb, gngknight, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Knight Artoria Edition (Japan revision B)", 0 )
 GAME( 2026, makmaidenc, gngmaiden, gng, makaimur, 0, ROT0, "GoodLuckTrying / Poody", "Makaimura - Maiden Artoria Edition (Japan revision C)", 0 )

@@ -3648,7 +3648,7 @@ GAME( 1993, zeroteam,   0,         raiden2,   raiden2,   raiden2,   ROT0, "Seibu
 GAME( 1993, zeroteaa,   zeroteam,  raiden2,   raiden2,   raiden2,   ROT0, "Seibu Kaihatsu", "Zero Team (set 2)", GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1993, zeroteab,   zeroteam,  raiden2,   raiden2,   raiden2,   ROT0, "Seibu Kaihatsu", "Zero Team (set 3)", GAME_NOT_WORKING|GAME_NO_SOUND )
 
-GAME( 1997, nzeroteam,  zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team (V33 SYSTEM TYPE_B hardware)", 0 )
+GAME( 1997, nzeroteam,  zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team (V33 SYSTEM TYPE_B hardware)", GAME_STANDALONE )
 GAME( 1997, nzeroteama, zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu (Zhongguo Shantou Yihuang license)", "New Zero Team (V33 SYSTEM TYPE_B hardware, Zhongguo Shantou Yihuang license)", 0 )
-GAME( 1997, nzerotea,   zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team", 0 )
-GAME( 2000, zerotm2k,   zeroteam,  zerotm2k,  zerotm2k,  zerotm2k,  ROT0, "Seibu Kaihatsu", "Zero Team 2000", 0 )
+GAME( 1997, nzerotea,   zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team", GAME_STANDALONE )
+GAME( 2000, zerotm2k,   zeroteam,  zerotm2k,  zerotm2k,  zerotm2k,  ROT0, "Seibu Kaihatsu", "Zero Team 2000", GAME_STANDALONE )

@@ -5376,7 +5376,7 @@ GAME( 1980, galactic, 0, galactic, galactic, invaders, ROT270, "Taito do Brasil"
 	  GAME( 19??, superinv, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Super Invaders", 0 )
 	  GAME( 19??, invasion, invaders, invaders, invasion, invaders, ROT270, "Sidam", "Invasion", 0 )
 	  GAME( 1978, sstrangr, 0,		  sstrangr, sstrangr, 8080bw,   ROT270,	"Yachiyo Electronics, Ltd.", "Space Stranger", 0 )
-	  GAME( 1979, sstrngr2, 0,        sstrngr2, sstrngr2, sstrngr2, ROT270, "Yachiyo Electronics, Ltd.", "Space Stranger 2", 0 )
+	  GAME( 1979, sstrngr2, sstrangr, sstrngr2, sstrngr2, sstrngr2, ROT270, "Yachiyo Electronics, Ltd.", "Space Stranger 2", GAME_STANDALONE )
 	  GAME( 1979, moonbase, invadpt2, invadpt2, invadpt2, invadpt2, ROT270, "Nichibutsu", "Moon Base", 0 )
 	  GAME( 1979, cosmo,    0,        cosmo,    cosmo,    cosmo,    ROT90,  "TDS & MINTS", "Cosmo", GAME_IMPERFECT_SOUND )
 	  GAME( 19??, invrvnge, 0,        invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge",  GAME_NO_SOUND )

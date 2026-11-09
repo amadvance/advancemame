@@ -841,7 +841,8 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 		fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
 
 	clone_of = driver_get_clone(game);
-	if (clone_of && !(clone_of->flags & GAME_RESOURCE_FLAGS))
+	/* Standalone games retain only the ROM dependency on their parent. */
+	if (clone_of && !(clone_of->flags & GAME_RESOURCE_FLAGS) && !(game->flags & GAME_STANDALONE))
 		fprintf(out, " cloneof=\"%s\"", normalize_string(clone_of->name));
 
 	if (clone_of)

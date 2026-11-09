@@ -4029,7 +4029,7 @@ GAME( 1995, sftmj,    sftm,     sftm,     sftm,     sftm,     ROT0, "Capcom/Incr
 GAME( 1997, shufshot, 0,        sftm,     shufshot, shufshot, ROT0, "Strata/Incredible Technologies", "Shuffleshot (v1.40)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
 GAME( 1997, sshot139, shufshot, sftm,     shufshot, shufshot, ROT0, "Strata/Incredible Technologies", "Shuffleshot (v1.39)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
 GAME( 1997, sshot137, shufshot, sftm,     shufbowl, shufshot, ROT0, "Strata/Incredible Technologies", "Shuffleshot (v1.37)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
-GAME( 1999, wcbowldx, wcbowl,   sftm,     wcbowldx, shufshot, ROT0, "Incredible Technologies",        "World Class Bowling Deluxe (v2.00)" , 0) /* PIC 16C54 labeled as ITBWL-4 */
+GAME( 1999, wcbowldx, wcbowl,   sftm,     wcbowldx, shufshot, ROT0, "Incredible Technologies",        "World Class Bowling Deluxe (v2.00)" , GAME_STANDALONE) /* PIC 16C54 labeled as ITBWL-4 */
 
 /*
     The following naming conventions are used:
