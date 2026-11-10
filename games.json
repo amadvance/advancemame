@@ -30128,6 +30128,37 @@
     },
     {
       "shortnames": [
+        "cliffhgr"
+      ],
+      "title": "Cliff Hanger",
+      "year": 1983,
+      "developer": "Stern Electronics",
+      "publisher": "Stern Electronics",
+      "category": "original",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": null,
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/cliffhgr.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "cloak",
         "cloakfr",
         "cloakgr",

@@ -10,6 +10,8 @@ static struct
 {
 	UINT8 frame[7], text[17], control, latchdisplay, portb, display, porta, vbi1, vbi2;
 } pia;
+static int simutrek_present;
+static UINT32 field_codes[2];
 static UINT8 p1, p2, sp2, command, last_command, control;
 static int data_ready, vsync, field, control_this, control_next, external_audio, video_on;
 static UINT16 accumulator;
@@ -75,7 +77,7 @@ static void pr_port1_w(UINT8 data)
 static void pr_port2_w(UINT8 data)
 {
 	p2 = data;
-	cpunum_set_input_line(4, 0, (data & 0x40) ? CLEAR_LINE : ASSERT_LINE);
+	if (simutrek_present) cpunum_set_input_line(4, 0, (data & 0x40) ? CLEAR_LINE : ASSERT_LINE);
 }
 
 static void sim_port2_w(UINT8 data)
@@ -151,40 +153,60 @@ static void process_vbi(int param)
 	}
 }
 
-int simutrek_init(void)
+static int player_init(void)
 {
 	vsync_timer = timer_alloc(vsync_off);
-	irq_timer = timer_alloc(irq_off);
 	return ldv1000_init();
 }
-void simutrek_reset(void)
+
+int pr8210_init(void)
+{
+	simutrek_present = 0;
+	return player_init();
+}
+
+int simutrek_init(void)
+{
+	simutrek_present = 1;
+	irq_timer = timer_alloc(irq_off);
+	return player_init();
+}
+void pr8210_reset(void)
 {
 	memset(&pia, 0, sizeof(pia));
 	p1 = p2 = sp2 = command = last_command = control = 0;
 	data_ready = 1;
 	vsync = field = control_this = control_next = 0;
-	external_audio = video_on = 0;
+	external_audio = video_on = !simutrek_present;
+	field_codes[0] = field_codes[1] = 0;
 	scan_speed = scan_fraction = 0;
 	slider_time = last_bit = first_bit = last_command_time = timer_get_time();
 	laserdisc_raw_reset();
 }
+void simutrek_reset(void) { pr8210_reset(); }
+void pr8210_serial_w(int state) { serial_w(state); }
+UINT32 pr8210_field_code(int line) { return field_codes[line - 17]; }
 void simutrek_write(UINT8 data) { timer_set(TIME_NOW, data, latch_command); }
 UINT8 simutrek_status(void) { return (data_ready ? 1 : 0) | ((sp2 & 3) == 3 ? 2 : 0); }
 void simutrek_audio(int enabled) { external_audio = enabled; }
 void simutrek_video(int enabled) { video_on = enabled; }
 
-void simutrek_field(void)
+void pr8210_field(void)
 {
+	int audio_mask = simutrek_present ? (external_audio ? 3 : 0) :
+		((p1 & 0x40) ? 0 : pia.portb & 3);
 	update_slider();
 	if (field == 1) { control_this = control_next; control_next = 0; }
 	vsync = 1;
 	timer_adjust(vsync_timer, TIME_IN_USEC(4 * 63.555), 0, 0);
 	/* VBI must reach the firmware before it samples the picture-number registers. */
-	laserdisc_raw_field(field, video_on && !(p1 & 0x20), external_audio);
+	laserdisc_raw_field_stereo(field, video_on && !(p1 & 0x20), audio_mask);
+	field_codes[0] = laserdisc_raw_code(17);
+	field_codes[1] = laserdisc_raw_code(18);
 	vbi_code = laserdisc_raw_code(0);
 	vbi_line16 = laserdisc_raw_code(16);
 	timer_set(TIME_IN_USEC(19 * 63.555), 0, process_vbi);
-	if (data_ready)
+	if (simutrek_present && data_ready)
 	{
 		cpunum_set_input_line(5, 0, ASSERT_LINE);
 		timer_adjust(irq_timer, TIME_IN_USEC(63.555), 0, 0);
@@ -192,3 +214,5 @@ void simutrek_field(void)
 	if (field && spindle_on()) laserdisc_raw_advance(1);
 	field ^= 1;
 }
+
+void simutrek_field(void) { pr8210_field(); }

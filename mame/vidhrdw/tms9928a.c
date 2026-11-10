@@ -456,17 +456,23 @@ void TMS9928A_set_spriteslimit (int limit) {
 /*
 ** Updates the screen (the dMem memory area).
 */
-VIDEO_UPDATE( tms9928a )
+static void tms9928a_draw(mame_bitmap *bitmap, const rectangle *area, int overlay)
 {
     int c;
 
     if (tms.Change) {
         c = tms.Regs[7] & 15; if (!c) c=1;
+        /* Pen zero becomes a distinct RGB key only with external video enabled. */
+        if (overlay && (tms.Regs[0] & 1) && !(tms.Regs[7] & 15))
+            c = TMS9928A_PALETTE_SIZE;
         if (tms.BackColour != c) {
             tms.BackColour = c;
-            palette_set_color (0,
-                TMS9928A_palette[c * 3], TMS9928A_palette[c * 3 + 1],
-                TMS9928A_palette[c * 3 + 2]);
+            if (c == TMS9928A_PALETTE_SIZE)
+                palette_set_color(0, 1, 2, 3);
+            else
+                palette_set_color(0, TMS9928A_palette[c * 3], TMS9928A_palette[c * 3 + 1], TMS9928A_palette[c * 3 + 2]);
+            if (overlay)
+                _TMS9928A_set_dirty(1);
         }
     }
 
@@ -479,25 +485,25 @@ VIDEO_UPDATE( tms9928a )
 		tms.StatusReg = tms.oldStatusReg;
 
 	if (! (tms.Regs[1] & 0x40))
-		fillbitmap(bitmap, Machine->pens[tms.BackColour], &Machine->visible_area);
+		fillbitmap(bitmap, Machine->pens[overlay ? 0 : tms.BackColour], area);
 	else
 	{
-		copybitmap(bitmap, tms.tmpbmp, 0, 0, LEFT_BORDER, TOP_BORDER, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+		copybitmap(bitmap, tms.tmpbmp, 0, 0, LEFT_BORDER, TOP_BORDER, area, TRANSPARENCY_NONE, 0);
 		{
 			rectangle rt;
 
 			/* set borders */
 			rt.min_x = 0; rt.max_x = LEFT_BORDER+256+RIGHT_BORDER-1;
 			rt.min_y = 0; rt.max_y = TOP_BORDER-1;
-			fillbitmap (bitmap, tms.BackColour, &rt);
+			fillbitmap (bitmap, overlay ? Machine->pens[0] : tms.BackColour, &rt);
 			rt.min_y = TOP_BORDER+192; rt.max_y = TOP_BORDER+192+BOTTOM_BORDER-1;
-			fillbitmap (bitmap, tms.BackColour, &rt);
+			fillbitmap (bitmap, overlay ? Machine->pens[0] : tms.BackColour, &rt);
 
 			rt.min_y = TOP_BORDER; rt.max_y = TOP_BORDER+192-1;
 			rt.min_x = 0; rt.max_x = LEFT_BORDER-1;
-			fillbitmap (bitmap, tms.BackColour, &rt);
+			fillbitmap (bitmap, overlay ? Machine->pens[0] : tms.BackColour, &rt);
 			rt.min_x = LEFT_BORDER+256; rt.max_x = LEFT_BORDER+256+RIGHT_BORDER-1;
-			fillbitmap (bitmap, tms.BackColour, &rt);
+			fillbitmap (bitmap, overlay ? Machine->pens[0] : tms.BackColour, &rt);
 	    }
 		if (TMS_SPRITES_ENABLED)
 			_TMS9928A_sprites(bitmap);
@@ -508,6 +514,16 @@ VIDEO_UPDATE( tms9928a )
     tms.oldStatusReg = tms.StatusReg;
     tms.Change = 0;
 	return;
+}
+
+VIDEO_UPDATE( tms9928a )
+{
+    tms9928a_draw(bitmap, &Machine->visible_area, 0);
+}
+
+void TMS9928A_draw_overlay(mame_bitmap *bitmap, const rectangle *area)
+{
+    tms9928a_draw(bitmap, area, 1);
 }
 
 int TMS9928A_interrupt () {
@@ -536,7 +552,8 @@ int TMS9928A_interrupt () {
 
 static void _TMS9928A_mode1 (mame_bitmap *bmp) {
     int pattern,x,y,yy,xx,name,charcode;
-    UINT8 fg,bg,*patternptr;
+    pen_t fg,bg;
+    UINT8 *patternptr;
 	rectangle rt;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
@@ -578,7 +595,8 @@ static void _TMS9928A_mode1 (mame_bitmap *bmp) {
 
 static void _TMS9928A_mode12 (mame_bitmap *bmp) {
     int pattern,x,y,yy,xx,name,charcode;
-    UINT8 fg,bg,*patternptr;
+    pen_t fg,bg;
+    UINT8 *patternptr;
 	rectangle rt;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
@@ -620,7 +638,8 @@ static void _TMS9928A_mode12 (mame_bitmap *bmp) {
 
 static void _TMS9928A_mode0 (mame_bitmap *bmp) {
     int pattern,x,y,yy,xx,name,charcode,colour;
-    UINT8 fg,bg,*patternptr;
+    pen_t fg,bg;
+    UINT8 *patternptr;
 
     name = 0;
     for (y=0;y<24;y++) {
@@ -648,7 +667,7 @@ static void _TMS9928A_mode0 (mame_bitmap *bmp) {
 
 static void _TMS9928A_mode2 (mame_bitmap *bmp) {
     int colour,name,x,y,yy,pattern,xx,charcode;
-    UINT8 fg,bg;
+    pen_t fg,bg;
     UINT8 *colourptr,*patternptr;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
@@ -683,7 +702,8 @@ static void _TMS9928A_mode2 (mame_bitmap *bmp) {
 
 static void _TMS9928A_mode3 (mame_bitmap *bmp) {
     int x,y,yy,yyy,name,charcode;
-    UINT8 fg,bg,*patternptr;
+    pen_t fg,bg;
+    UINT8 *patternptr;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
          return;
@@ -717,7 +737,8 @@ static void _TMS9928A_mode3 (mame_bitmap *bmp) {
 
 static void _TMS9928A_mode23 (mame_bitmap *bmp) {
     int x,y,yy,yyy,name,charcode;
-    UINT8 fg,bg,*patternptr;
+    pen_t fg,bg;
+    UINT8 *patternptr;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
          return;
@@ -751,7 +772,7 @@ static void _TMS9928A_mode23 (mame_bitmap *bmp) {
 }
 
 static void _TMS9928A_modebogus (mame_bitmap *bmp) {
-    UINT8 fg,bg;
+    pen_t fg,bg;
     int x,y,n,xx;
 
     if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )

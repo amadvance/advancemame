@@ -8,5 +8,6 @@ void laserdisc_raw_advance(int delta);
 int laserdisc_raw_track(void);
 int laserdisc_raw_at_limit(void);
 UINT32 laserdisc_raw_code(int line);
+void laserdisc_raw_field_stereo(int field_number, int video_enabled, int audio_mask);
 void laserdisc_raw_field(int field_number, int video_enabled, int audio_enabled);
 #endif

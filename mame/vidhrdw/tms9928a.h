@@ -40,6 +40,7 @@ extern WRITE8_HANDLER (TMS9928A_register_w);
 ** Call this function to render the screen.
 */
 extern VIDEO_UPDATE( tms9928a );
+void TMS9928A_draw_overlay(mame_bitmap *bitmap, const rectangle *area);
 
 /*
 ** This next function must be called 50 (tms9929a) or 60 (tms99x8a) times per second,
