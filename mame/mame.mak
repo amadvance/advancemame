@@ -61,7 +61,7 @@ CPUS += H6280
 CPUS += I86
 CPUS += I88
 CPUS += I186
-#CPUS += I188
+CPUS += I188
 #CPUS += I286
 CPUS += V20
 CPUS += V30
@@ -583,6 +583,9 @@ $(OBJ)/capcom.a: \
 	$(OBJ)/drivers/cps2.o $(OBJ)/machine/cps2crpt.o \
 	$(OBJ)/machine/kabuki.o \
 
+# The CPU list controls both the registry and the 80188 entry in the i86 core.
+$(OBJ)/cpuintrf.o $(OBJ)/cpu/i86/i86.o: mame/mame.mak
+
 $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/ataxx.o \
 	$(OBJ)/drivers/cinemat.o $(OBJ)/sndhrdw/cinemat.o $(OBJ)/vidhrdw/cinemat.o \
@@ -590,6 +593,7 @@ $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/dlair.o $(OBJ)/machine/ldv1000.o \
 	$(OBJ)/drivers/cliffhgr.o $(OBJ)/vidhrdw/tms9928a.o \
 	$(OBJ)/drivers/firefox.o $(OBJ)/machine/ldvp931.o \
+	$(OBJ)/drivers/timetrv.o \
 	$(OBJ)/drivers/cubeqst.o $(OBJ)/machine/ldpr8210.o \
 	$(OBJ)/drivers/embargo.o \
 	$(OBJ)/drivers/jack.o $(OBJ)/vidhrdw/jack.o \

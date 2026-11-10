@@ -186757,6 +186757,37 @@
     },
     {
       "shortnames": [
+        "timetrv"
+      ],
+      "title": "Time Traveler",
+      "year": 1991,
+      "developer": "Virtual Image Productions",
+      "publisher": "Sega",
+      "category": "original",
+      "genre": "Arcade",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": null,
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/timetrv.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "timetunl"
       ],
       "title": "Time Tunnel",
