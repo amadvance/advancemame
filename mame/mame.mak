@@ -589,6 +589,7 @@ $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/cchasm.o $(OBJ)/machine/cchasm.o $(OBJ)/sndhrdw/cchasm.o $(OBJ)/vidhrdw/cchasm.o \
 	$(OBJ)/drivers/dlair.o $(OBJ)/machine/ldv1000.o \
 	$(OBJ)/drivers/cliffhgr.o $(OBJ)/vidhrdw/tms9928a.o \
+	$(OBJ)/drivers/firefox.o $(OBJ)/machine/ldvp931.o \
 	$(OBJ)/drivers/cubeqst.o $(OBJ)/machine/ldpr8210.o \
 	$(OBJ)/drivers/embargo.o \
 	$(OBJ)/drivers/jack.o $(OBJ)/vidhrdw/jack.o \

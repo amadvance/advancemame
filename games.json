@@ -56540,6 +56540,37 @@
     },
     {
       "shortnames": [
+        "firefox"
+      ],
+      "title": "Fire Fox",
+      "year": 1984,
+      "developer": "Atari",
+      "publisher": "Atari",
+      "category": "original",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": null,
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/firefox.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "firehawk"
       ],
       "title": "Fire Hawk",

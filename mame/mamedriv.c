@@ -7358,6 +7358,7 @@ Other Sun games
 	DRIVER( cubeqst )
 	DRIVER( dlair )
 	DRIVER( cliffhgr )
+	DRIVER( firefox )
 	DRIVER( aztarac )	/* (c) 1983 Centuri (vector game) */
 	DRIVER( mole )		/* (c) 1982 Yachiyo Electronics, Ltd. */
 	DRIVER( thehand )	/* (c) 1981 T.I.C. */
