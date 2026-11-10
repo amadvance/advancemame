@@ -586,7 +586,7 @@ $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/ataxx.o \
 	$(OBJ)/drivers/cinemat.o $(OBJ)/sndhrdw/cinemat.o $(OBJ)/vidhrdw/cinemat.o \
 	$(OBJ)/drivers/cchasm.o $(OBJ)/machine/cchasm.o $(OBJ)/sndhrdw/cchasm.o $(OBJ)/vidhrdw/cchasm.o \
-	$(OBJ)/drivers/dlair.o \
+	$(OBJ)/drivers/dlair.o $(OBJ)/machine/ldv1000.o \
 	$(OBJ)/drivers/embargo.o \
 	$(OBJ)/drivers/jack.o $(OBJ)/vidhrdw/jack.o \
 	$(OBJ)/drivers/leland.o $(OBJ)/machine/leland.o $(OBJ)/sndhrdw/leland.o $(OBJ)/vidhrdw/leland.o \
