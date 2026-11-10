@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Update category.ini and genre.ini for AdvanceMAME supported games.
+Update category.ini and genre.ini for AdvanceMAME supported games, and sort description.ini.
 
 This script:
 1. Calls "advmame -listbare" to get the list of supported games in XML format.
@@ -11,6 +11,7 @@ This script:
    nor catver.ini (ignoring bios and clones).
 5. Sorts category.ini entries alphabetically.
 6. Generates genre.ini from category.ini matching the logic of UPDATE.sh.
+7. Sorts description.ini entries alphabetically, preserving the [Description] header.
 """
 
 import argparse
@@ -96,9 +97,33 @@ def find_category(game, catver_map, renames):
     return None, None
 
 
+def sort_description_ini(file_path):
+    if not file_path.is_file():
+        return 0
+    with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+
+    entries = []
+    for line in lines:
+        line_s = line.rstrip("\r\n")
+        if not line_s or line_s.startswith("[") or line_s.startswith("#") or line_s.startswith(";"):
+            continue
+        if "=" in line_s:
+            entries.append(line_s)
+
+    entries.sort(key=lambda x: x.split("=", 1)[0])
+
+    with open(file_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("[Description]\n")
+        for entry in entries:
+            f.write(f"{entry}\n")
+
+    return len(entries)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Update category.ini and genre.ini from external/catver.ini for supported games."
+        description="Update category.ini and genre.ini from external/catver.ini for supported games, and sort description.ini."
     )
     parser.add_argument(
         "--category",
@@ -119,6 +144,12 @@ def main():
         help="Path to genre.ini output (default: genre.ini in current directory)",
     )
     parser.add_argument(
+        "--description",
+        type=Path,
+        default=Path("description.ini"),
+        help="Path to description.ini (default: description.ini in current directory)",
+    )
+    parser.add_argument(
         "--rename",
         type=Path,
         default=Path("external/renameSET.dat"),
@@ -135,12 +166,19 @@ def main():
     category_path = args.category
     catver_path = args.catver
     genre_path = args.genre
+    description_path = args.description
     rename_path = args.rename
 
     if not category_path.is_file():
         sys.exit(f"Error: '{category_path}' not found in current directory.")
     if not catver_path.is_file():
         sys.exit(f"Error: '{catver_path}' not found in current directory.")
+    if not description_path.is_file():
+        alt_path = category_path.parent / description_path.name
+        if alt_path.is_file():
+            description_path = alt_path
+        else:
+            sys.exit(f"Error: '{description_path}' not found in current directory.")
 
     advmame_cmd = find_advmame(args.advmame)
 
@@ -221,10 +259,14 @@ def main():
             genre_line = part0 + (" * Mature *" if is_mature else "")
             f.write(f"{genre_line}\r\n")
 
+    # Sort description.ini alphabetically
+    desc_count = sort_description_ini(description_path)
+
     print(
         f"Updated {category_path}: {added_count} missing games added ({len(category_map)} total entries)."
     )
     print(f"Generated {genre_path}.")
+    print(f"Sorted {description_path}: {desc_count} entries.")
     if missing_both:
         print(f"Total entries not found in category.ini or catver.ini: {len(missing_both)}")
 

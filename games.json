@@ -1446,7 +1446,7 @@
           "version": "(US, 5GP3 Ver. C)"
         }
       ],
-      "description": "GP500 is a late-1990s arcade motorcycle-racing game in the tradition of Namco-style and Sega-style 3D circuit racers. It features licensed 500cc Grand Prix motorcycles from Honda, Suzuki, and Yamaha, with appearances by professional riders and courses including Jerez, Paul Ricard, and Suzuka. Players compete around the circuit rather than simply navigating a traffic-filled highway, making corner entry and throttle timing central challenges. It is a separate arcade title from the 1999 PC racing simulation that shares the GP 500 name.",
+      "description": "Namco's 500 GP is a licensed 500cc Grand Prix motorcycle racer built for its powerful Super System 23 arcade hardware. Bearing a 1998 copyright and released in early 1999, it recreates three real circuits: Paul Ricard in France, Suzuka in Japan, and Jerez in Spain. Players choose authentic Honda NSR500, Suzuki RGV500, or Yamaha YZR500 machinery and race against computer-controlled riders or other players, with up to four cabinets linked for head-to-head competition.\n\nIts most distinctive feature is its motorcycle-shaped controller. Leaning the physical bike steers through corners, while a twist-grip throttle and brake lever control speed. The cabinet even detects the rider crouching over the fuel tank: tucking in reduces simulated wind resistance and raises potential speed on long straights. A deluxe installation pairs the bike with an imposing 50-inch projection display. This emphasis on body position and real racing technique makes 500 GP an unusually physical entry in Namco's polygonal racing catalogue.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -2437,7 +2437,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Driving",
       "platform": "Namco System 22",
       "players": 1,
       "release_status": "released",
@@ -2760,7 +2760,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Driving",
       "platform": "Namco System 22",
       "players": 1,
       "release_status": "released",
@@ -3385,7 +3385,7 @@
           "version": "(AC1, Japan)"
         }
       ],
-      "description": "Namco's Air Combat (1992) is an early polygonal jet-fighting arcade game and the ancestor of the later Ace Combat series. Players pilot a modern fighter, commonly represented as an F-16, against enemy aircraft in missions viewed from behind the cockpit. Cannons and missiles handle close- and long-range attacks, while radar and targeting cues help track opponents.\n\nA countdown timer makes every successful interception matter, with downed enemies extending the available time. Aircraft-carrier landing sequences break up the dogfights. Its dedicated cockpit-style controls and early 3D visuals made it an ambitious arcade aviation attraction and laid much of the groundwork for Namco's long-running console series.",
+      "description": "Namco's Air Combat is a pioneering polygonal jet-fighting arcade game, bearing a 1992 copyright and released in Japanese arcades in 1993. Running on the Namco System 21 hardware, it puts players in an F-16-style fighter cockpit for short, intense air-to-air engagements. Its large dedicated cabinet and filled-polygon aircraft and scenery brought an unusually convincing sense of three-dimensional flight to arcades at the time.\n\nThe objective is to shoot down six enemy aircraft before the timer expires. Players aim with an analog flight stick, fire guns and missiles, and use a separate lever to change altitude. Three difficulty settings change the opposition: Cadet mixes slower bombers with fighters, Captain introduces more fighters, and Ace pits the pilot against six fighters. Instead of a violent death scene, failure sends the pilot ejecting from the aircraft.\n\nAir Combat was commercially successful and became a key ancestor of Namco's Ace Combat franchise. It was followed in arcades by Air Combat 22, while a separate PlayStation title carried the Air Combat name in the West. Its combination of accessible dogfighting and convincing 3D presentation helped establish a formula that Namco would develop into a long-running console series.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -3560,7 +3560,7 @@
           "version": "(2 PCB Stack)"
         }
       ],
-      "description": "Cross Shooter, also released as Air Raid, is a 1987 vertically scrolling shoot-'em-up from Seibu Kaihatsu. The player pilots a small fighter through colorful enemy formations, using forward fire and a limited supply of bombs to clear the screen. Defeated enemies release power-ups whose colors change over time, rewarding players who time their collection to obtain the desired weapon upgrade.\n\nIts bright, almost cartoon-like visual style is notably different from the harder military aesthetic of Seibu's later Raiden series. Cross Shooter is an obscure but historically interesting predecessor to that company's better-known arcade shooters.",
+      "description": "Seibu Kaihatsu's Air Raid, also released as Cross Shooter, is a 1987 vertically scrolling arcade shooter that predates the company's better-known Raiden series. Its unusually bright, pastel-colored presentation is closer to the playful look of TwinBee than to the military aesthetic associated with Seibu's later shooters. Players guide a small craft with an eight-way joystick, fire forward at enemy formations, and deploy a limited supply of bombs when the screen becomes crowded.\n\nDestroyed enemies can leave color-changing power-ups, rewarding players who time their collection to obtain the desired upgrade. The combination of a rapid scrolling attack, bombs, and collectible weapon improvements makes Air Raid an interesting early step in Seibu's development of its arcade shooting style. Different Air Raid and Cross Shooter PCB versions, including protected and unprotected sets, are documented in arcade preservation records.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -4026,7 +4026,7 @@
           "version": "(A77 set, 8606M PCB)"
         }
       ],
-      "description": "Slap Fight is Toaplan's 1986 vertically scrolling shooter, also released in North America as Alcon. Piloting a small spacecraft above an enemy-controlled world, the player attacks ground installations and hostile formations while working toward powerful weapon upgrades. Its defining mechanic is a selection-based upgrade system: collecting stars moves a cursor through a sequence of improvements, but the player must decide when to activate the highlighted choice. Speed, added wing guns, wider shots and other equipment compete for limited upgrade opportunities.\n\nGrowing the ship's firepower can also make its silhouette larger and more vulnerable, turning progression into a balance between offensive power and survival. The game's cleanly arranged enemy patterns and exacting difficulty are characteristic of Toaplan's early shooter design. Slap Fight helped establish the studio's influential approach to weapon systems before later successes such as Twin Cobra and Truxton.",
+      "description": "Alcon is the North American title of Slap Fight, Toaplan's 1986 vertically scrolling shooter published by Taito. Set on a distant human colony under alien attack, it puts the player in the SW475 fighter of the Allied League of Cosmic Nations, the organization from which the American name is derived. Unlike many contemporary aerial shooters, much of the opposition consists of installations, vehicles, and other ground-based defenses spread across a continuously moving technological landscape.\n\nIts defining mechanic is a selectable upgrade bar inspired by Gradius. Collecting stars advances a highlighted choice through speed boosts, normal and side shots, expanded wings, bombs, lasers, homing missiles, and a shield. A separate button activates the currently highlighted upgrade. Strengthening the fighter can also make it physically larger and easier to hit, creating an unusually tangible trade-off between firepower and vulnerability. Different weapons are especially effective against particular targets, and hidden objects reward experimentation with the scenery.\n\nSlap Fight became an early standout in Toaplan's shooter catalogue and influenced later games from the same development tradition. Its checkpoints, demanding recovery after a lost life, and obscure scoring secrets give it a distinctive rhythm. The Alcon and Slap Fight sets preserved in AdvanceMAME include regional releases and bootleg board versions of this same underlying game.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -4525,7 +4525,7 @@
           "language": "English"
         }
       ],
-      "description": "Namco's Baraduke (1985), released in North America as Alien Sector, is a science-fiction run-and-gun game set in the alien-infested depths of Planet Paccet. Its space-suited protagonist, Kissy (or Takky for the second player), moves through interconnected, low-gravity rooms using a maneuverable jetpack-like suit and a wave gun. Every floor contains Octy enemies that must be destroyed to open the exit pipe, while capsules may yield upgraded weaponry, points or friendly one-eyed Paccets.\n\nThose rescued Paccets affect the end-of-floor shield bonus and can help stun the enormous bosses. The journey spans eight worlds of six floors each, culminating in a battle with the Octy King. A single action button and directional movement support a surprisingly flexible blend of floating exploration and shooting, with the gun's recoil adding to the game's physical feel.\n\nBaraduke stood out in Namco's mid-1980s catalogue for its eerie organic alien designs, moody atmosphere and distinctive armored heroine, whose identity is revealed more clearly at the end. It later received a sequel, Bakutotsu Kijutei, and became a recognizable cult entry in Namco's arcade history.",
+      "description": "Alien Sector is the international release of Namco's 1985 action shooter Baraduke. Instead of piloting a conventional spacecraft, players control a suited explorer, Kissy or Takky, who floats through the infested corridors of an alien world using low-gravity movement and a recoiling wave gun. The combination of horizontal and vertical scrolling, eerie biological enemies, and exploratory movement gives it a markedly different feel from the fixed-pattern shooters of its era.\n\nThe adventure spans eight worlds, each with five regular floors and a boss encounter. On ordinary floors, players must destroy the creatures known as Octy to open an exit pipe, then find their way to it. Defeated enemies sometimes leave capsules containing weapon improvements, bonuses, hazards, or small one-eyed creatures called Paccets. Rescuing Paccets improves the chances of gaining additional shields in bonus sequences, and they can sacrifice themselves to stun bosses. The bosses include giant worms, floating eyes, and the final Octy King.\n\nBaraduke is notable for its grotesque organic designs and its heroine, revealed at the ending in an era when female arcade protagonists were uncommon. Its creators deliberately pursued a more disturbing look than Namco's usual cute characters, drawing inspiration from science-fiction and animation. The game later received the Japanese arcade sequel Bakutotsu Kijūtei, and Kissy became a recurring character in Namco's wider fictional universe.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -4743,7 +4743,7 @@
           "language": "English"
         }
       ],
-      "description": "Alley Master is a 1986 arcade bowling game from Cinematronics. Designed for two players with a joystick and two buttons, it translates ten-pin bowling and the pursuit of strikes and spares into a compact video-game competition. Developed under the provisional name Up Your Alley, it reflects Cinematronics' attempts to bring familiar indoor sports into video arcades. Its dedicated upright cabinet contrasts with the real lanes and mechanical equipment found in traditional bowling alleys.",
+      "description": "Alley Master is a 1986 ten-pin bowling arcade game from Cinematronics, the American company also known for its vector titles and Dragon's Lair. Rather than featuring combat or traditional platform action, it brings the familiar contest of knocking down ten pins to a dedicated coin-operated video cabinet. Players use a joystick and two buttons to control their bowling attempts, with the action and scoring built around the structure of the sport.\n\nThe game was also associated with the title Up Your Alley, a name used during its development and appearing on a related arcade release. Its comparatively straightforward sporting premise and distinctive mid-1980s Cinematronics hardware make it an unusual entry in the company's catalogue.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -5168,7 +5168,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Sports",
       "platform": "Namco System 22",
       "players": 2,
       "release_status": "released",
@@ -8156,7 +8156,7 @@
           "version": "(NMK)"
         }
       ],
-      "description": "Rapid Hero (1994), also known in an international version as Arcadia, is a vertical-scrolling shooter from NMK. Players select between two aircraft with different firing patterns, one concentrating damage straight ahead and the other spreading shots across a wider area. Collectible upgrades provide stronger weapons, auxiliary fire and guided attacks, while large mechanical enemies dominate the screen.\n\nThe stages make dramatic use of aerial perspective, with enemy craft appearing through clouds and enormous warships filling the scrolling playfield. Created by developers associated with Thunder Dragon 2, Rapid Hero preserves NMK's interest in formidable military machinery and densely staged battles.",
+      "description": "Arcadia is an international version of Rapid Hero, a 1994 vertically scrolling shooter developed by NMK. Players choose between two fighter craft with different attack patterns, one favoring concentrated forward fire and the other a broader spread, then weave through fast enemy salvos while gathering weapon upgrades and using powerful screen-clearing attacks. The three-button controls and relentless bullet patterns demand careful positioning rather than indiscriminate firing.\n\nThe stages feature memorable visual touches, such as large enemies emerging through clouds, opponents appearing from ruined buildings, and an approach to an enormous armed enemy vessel. A small robot-like boss returns with changing attacks, giving the campaign a recurring adversary. Although less famous than NMK's Thunder Dragon shooters, Rapid Hero and Arcadia are valued by genre enthusiasts for their quick, symmetrical bullet patterns and emphasis on anticipation.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -13192,7 +13192,7 @@
           "language": "English"
         }
       ],
-      "description": "Sega Bass Fishing, known in Japan as Get Bass, is a 1997 Sega Model 3 fishing game that brought an unexpectedly tactile sporting pastime into the arcade. Players choose lures, cast into a lake and attempt to hook largemouth bass, then carefully reel them in while responding to the fish's resistance. The original dedicated cabinet features a fishing-rod controller with a working reel and a moving line that communicates tension, making the physical experience central to its appeal.\n\nA session progresses through four fishing spots or time-of-day stages. Each has a weight target to reach before the clock expires, culminating in a final stage focused on one particularly large catch. Fish are graded from small to huge, and choosing where and how to fish is as important as reeling quickly. Its distinctive cabinet and later Dreamcast port helped Sega Bass Fishing become one of the best remembered arcade simulations of an unconventional sport.",
+      "description": "Sega Bass Fishing Deluxe is the large-cabinet presentation of Sega's 1997 Model 3 arcade fishing game, known in Japan as Get Bass. Instead of steering a vehicle or controlling a fighter, players use a fishing-rod controller to cast a lure, attract black bass, hook them, and reel them in without losing the catch. The game is divided into four fishing locations or sessions set at different times of day, with a required total catch weight and time limit determining progress.\n\nChoosing and working different lures is important because fish respond to how the bait moves through the water. Successful catches are classified by size, from smaller fish to particularly impressive specimens. The Deluxe model's defining distinction is its imposing 50-inch projection screen and enhanced casting controller, turning what could have been a simple sports simulation into a conspicuously physical arcade attraction. Sega later brought the fishing concept to the Dreamcast, where it became one of the console's recognizable early titles.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -23900,7 +23900,7 @@
           "version": "(Japan old Ver.)"
         }
       ],
-      "description": "B-Wings, also known as Battle Wings, is a 1984 vertically scrolling shooter by Data East whose main attraction is an extensive selection of detachable weapon configurations. The player's aircraft can take on different wing formations that drastically change how it attacks, from focused forward fire to wider coverage or protective arrangements. Learning which setup suits an approaching obstacle or enemy formation is central to survival.\n\nThe game stretches this idea across a lengthy series of stages and demanding boss encounters. Wing choice introduces a strategic layer beyond the reflex shooting typical of its contemporaries. A later Family Computer adaptation became particularly familiar to players who encountered it through imported cartridges and unofficial multicart collections.",
+      "description": "Data East's B-Wings, also known as Battle Wings, is a 1984 vertically scrolling shooter built around a modular spacecraft rather than a single fixed weapon. Players control the FX-1 fighter over a campaign of 45 stages, collecting different wing assemblies that physically change the craft and its pattern of fire. A cannon setup concentrates shots ahead, while other wings provide wider coverage or special defensive properties. Choosing a wing suited to the approaching formations is central to play.\n\nThe second button lets players detach their current wings, and a bare craft can briefly descend to a lower altitude to evade threats in the air. That evasive maneuver comes with its own danger, since ground-level enemies remain capable of hitting the fighter. Later converted to the Famicom with additional wing types, the arcade original is an early and distinctive experiment in making the player's weapon loadout part of both the ship's appearance and its movement strategy.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -24462,6 +24462,51 @@
     },
     {
       "shortnames": [
+        "calcune"
+      ],
+      "title": "Calcune",
+      "year": 1996,
+      "developer": "Yuvo",
+      "publisher": "Yuvo",
+      "category": "prototype",
+      "genre": "Puzzle",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "prototype",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "calcune",
+          "title": "Calcune (Japan, prototype)",
+          "region": "Japan",
+          "language": "Japanese",
+          "version": "(Japan, prototype)"
+        }
+      ],
+      "description": "Calcune is an unreleased 1996 Japanese puzzle-game prototype by Yuvo, preserved from an arcade board rather than a commercial release. Its competitive presentation places two tall playfields side by side, filled with brightly colored numbered pieces and accompanied by a preview display. The head-to-head puzzle revolves around combining numbered blocks, with six as the upper value, although the full scoring and clearing rules are poorly documented. Each player has a joystick and two buttons.\n\nThe unusual hardware uses two video-display processors of the type found in the Sega Mega Drive/Genesis, alongside a Motorola 68000 and a Yamaha YMZ280B sound chip. MAME developer David Haywood, who examined the recovered game, noted its striking artwork but found the controls sluggish and the puzzle rounds slow and difficult to plan. Calcune survives as an interesting glimpse of an ambitious but unfinished arcade puzzle experiment.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=calcune&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/calcune.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "calibr50"
       ],
       "title": "Caliber 50",
@@ -24892,7 +24937,7 @@
           "version": "(bootleg on Crazy Kong hardware) (set 2, buggy)"
         }
       ],
-      "description": "Cannon Ball (1985) is a distinctive Breakout-style game originally produced by Novomatic, here represented by Soft's unauthorized conversion to Crazy Kong hardware. The goal is not simply to clear bricks: the player must break through a protective wall to destroy a bat-like enemy. This opponent retaliates by throwing monsters into the playfield, and contact with them gradually shrinks the player's paddle. Some of the creatures can be eliminated by colliding with them under the right conditions.\n\nThis bootleg adapts a game originally built for Pac-Man-derived hardware to a very different arcade board. The conversion is known for a protection-related fault after its bonus game, an important distinction from the original Novomatic version.",
+      "description": "Cannon Ball is a 1985 arcade brick-breaking game from Novomatic, preserved in a version running on Pac-Man-derived hardware. It starts with the familiar idea of rebounding a ball into a wall of blocks but gives the action a more mischievous objective: the player must break through the obstacles to reach and destroy a bat-like enemy hiding behind them.\n\nThe enemy retaliates by dropping monsters toward the player's paddle. Touching one can shrink the paddle, and losing it completely ends the game; a monster that has reached the player's side can also be eliminated by colliding with it under the right conditions. The combination of brick breaking and attacks against the paddle makes Cannon Ball distinct from a straightforward Breakout imitation. Bootleg adaptations also existed on Crazy Kong hardware, including versions with different color palettes.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -29084,7 +29129,7 @@
           "version": "(bootleg)"
         }
       ],
-      "description": "Sega's 1985 arcade Choplifter is a lavish, faster-moving reworking of Dan Gorlin's 1982 Apple II hit, a rare case of a successful computer game making the journey into arcades rather than the other way around. Players pilot a rescue helicopter into enemy territory, break open prisoner barracks, land to collect hostages, and ferry them back to safety. Merely destroying tanks and aircraft is not enough: the heart of the game is bringing people home alive.\n\nThe chopper can aim to the left, right, or toward the foreground, allowing pilots to change firing direction independently of their travel. Landing under fire is particularly tense, because escaping prisoners can be killed by enemies or by a careless pilot. Sega expanded the original concept with more varied scenery, including deserts, caves, and urban environments, and more elaborate arcade action.\n\nChoplifter stands out among 1980s shooters for combining combat with a rescue-and-transport mission. Its shifts between aggressive attack runs and careful landings create a distinctive rhythm, and the arcade adaptation became the basis for later home-console conversions.",
+      "description": "Sega's 1985 arcade Choplifter is a military helicopter rescue game based on Dan Gorlin's influential 1982 Apple II original. Its side-scrolling battlefield places the player in command of a heavily armed helicopter tasked with freeing prisoners held in hostile territory. Success is measured not simply by destroyed enemies but by how many people can be carried safely back to base.\n\nPlayers fly across a wide landscape, attack tanks and aircraft, land to pick up groups of hostages, and then return them to the friendly base. Enemy fire can threaten the helicopter during vulnerable rescue operations, forcing a constant choice between fighting and evacuating. The arcade version expands the spectacle and urgency with Sega's colorful audiovisual presentation and a structured progression through rescue missions. A typical stage contains 32 prisoners, with a sufficient number of successful rescues required to advance.\n\nChoplifter is historically unusual because it moved from home computers into arcades rather than the other way around. Its blend of shooting, precision piloting, and civilian rescue gave it a different objective from most early-1980s action games and helped establish the helicopter rescue game as a recognizable genre.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -30142,11 +30187,33 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": null,
+      "variants": [
+        {
+          "shortname": "cliffhgr",
+          "title": "Cliff Hanger (set 1)",
+          "region": "North America",
+          "language": "English",
+          "version": "(set 1)"
+        }
+      ],
+      "description": "Cliff Hanger is Stern Electronics' 1983 laserdisc adventure, an interactive animated film assembled from two Japanese Lupin III features. Most footage comes from The Castle of Cagliostro, directed by Hayao Miyazaki, with additional sequences from The Mystery of Mamo. For American audiences, master thief Lupin was renamed Cliff, his companion Jigen became Jeff, and Goemon became Samurai. The loosely adapted story follows Cliff as he tries to rescue Clarissa from Count Draco and his forced-marriage plot.\n\nRather than moving a character continuously, players watch full-screen animation and respond at precisely timed moments by moving the joystick or pressing an action button. Correct responses advance to the next film sequence; mistakes trigger failures and cost a life. Learning the timing of each chase, escape, and confrontation is the central challenge, much as in Dragon's Lair.\n\nOne of the game's most notorious scenes shows Cliff being hanged after a failure, using footage from The Mystery of Mamo. Operators could disable that unusually grim sequence. Cliff Hanger is notable both as an early laserdisc arcade release and as an unexpected Western adaptation of anime that was still relatively unfamiliar to American arcade audiences.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Cliff_Hanger_(video_game)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Cliff_Hanger_(Arcade)"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=cliffhgr&lang=en"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -30901,7 +30968,7 @@
           "language": "English"
         }
       ],
-      "description": "Cherry Master, represented here by Corsica's v8.01 program, is an electronic eight-line fruit machine. Its video display replaces physical reels with a grid of fruit and slot symbols; winning combinations are evaluated across multiple lines, including diagonals. The five-button panel suits a gambling cabinet built around placing wagers and initiating rounds rather than joystick movement.\n\nThis particular version was documented as an amusement/redemption machine capable of awarding tickets or tokens. As with many Cherry Master-style products, software revisions and similar-looking boards can represent quite different manufacturers and payout arrangements, so the v8.01 identifier is an important part of its identity.",
+      "description": "Cherry Master (ED-96, Corsica CM v8.23) is a version of Corsica's coin-operated video slot machine software from the Cherry Master family. Instead of mechanical spinning reels, the machine presents gambling-style fruit symbols and winning combinations on a color CRT display, with dedicated buttons for placing bets and operating the slot functions. It belongs to the long-running family of electronic amusement and redemption machines commonly associated with Cherry Master branding.\n\nThis particular set is identified by its ED-96 board designation and Corsica CM v8.23 software revision. Its electronics use a Z80 processor and AY-3-8910-family sound hardware, reflecting the relatively economical architecture of many video gambling machines of the period. The exact production year of this version is not firmly documented.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -32021,7 +32088,7 @@
           ]
         }
       ],
-      "description": "Combat School, known as Boot Camp in North America, is Konami's 1987 military-training sports game. Like an army-themed descendant of Track & Field, it makes players prove their fitness through a sequence of boot-camp events, including obstacle courses, shooting exercises, and other tests of speed and coordination. A stern drill instructor judges each performance, and failing to meet the qualification standard can end the recruit's career.\n\nThe original arcade game uses trackball-driven physical action, although alternate control arrangements exist. Its multi-event format requires different skills in rapid succession and supports competition between recruits. After completing the basic training program, the game culminates in a combat-themed challenge. The mix of comic drill-sergeant personality and demanding sports-game mechanics helped it stand apart from Konami's better-known conventional athletics titles.",
+      "description": "Konami's Combat School, released in 1987 and known in North America as Boot Camp, turns military basic training into a series of fast, demanding arcade sporting events. One or two recruits must qualify in seven tests, including obstacle courses, shooting ranges, an endurance race, an arm-wrestling contest, and hand-to-hand combat. The frequent changes of viewpoint and control rhythm recall Konami's earlier Track & Field games, but here the action is framed by a loud drill instructor and a deliberately comic boot-camp atmosphere.\n\nEvery test has a qualifying requirement or time limit. Players who narrowly fail certain events may be offered a last-chance punishment of rapid chin-ups, preserving their run if they succeed. After graduation, the game unexpectedly becomes a side-scrolling combat mission in which the recruit must rescue the U.S. President from terrorists, a notoriously unforgiving finale. Original cabinets existed in trackball and joystick configurations, giving different versions of the game a distinct physical feel. With its multi-event format and surprise final mission, Combat School remains one of Konami's more inventive arcade sports-action hybrids.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -32107,7 +32174,7 @@
           "version": "(Gaming Draw Poker)"
         }
       ],
-      "description": "Cal Omega Game 23.9, also identified as Gaming Draw Poker or Casino Poker, is a mid-1980s dedicated video poker machine rather than a reflex-based arcade game. The player wagers credits and receives a five-card hand, then chooses which cards to discard before drawing replacements in pursuit of a winning poker combination. Individual discard buttons, a cancel function, and separate Deal/Draw and Stand controls make the machine's operation more specialized than an ordinary joystick game. Stand keeps all five cards; pressing Draw without selecting discards instead exchanges the entire hand.\n\nThe manufacturer's surviving manual also describes an optional Double Up feature that lets a winner risk the payout for a larger return. Preserved as a 6502-based Cal Omega system, version 23.9 is chiefly of interest as a historical example of early electronic gambling-machine design, with its emphasis on credit handling, hand evaluation, and operator-configurable rules.",
+      "description": "Cal Omega Game 23.9, also identified as Gaming Draw Poker, is a 1985 electronic casino poker program produced by Cal Omega and Casino Electronics. It is a dedicated video gambling title rather than a conventional arcade action game. The player places a wager, receives a draw-poker hand, decides which cards to hold, and draws replacements in pursuit of a paying combination.\n\nThe machine's single-player, button-driven interface reflects the purpose-built controls of commercial video poker cabinets. Its 6502-family processor and AY-3-8910 sound chip also illustrate how modest contemporary microcomputer hardware could be adapted for electronic casino equipment. Game 23.9 identifies a particular software release within Cal Omega's extensive family of gambling machines.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -33698,11 +33765,15 @@
           "description": "Translates stage results, character selection panels, and character names in attract mode into English, and adds a translation credit under the title logo. Uses the translated Japanese mode with every ST-V BIOS region."
         }
       ],
-      "description": "Cotton Boomerang (English translation) is a fan-translated version of Success's 1998 Sega ST-V arcade shooter, Cotton Boomerang: Magical Night Dreams. The original is a fast-paced reworking of Cotton 2, retaining its whimsical fantasy setting and side-scrolling battles while replacing the conventional health bar with a three-character team. Players choose three characters from a roster of eight, each with distinctive shots and magic. Switching between surviving characters unleashes a screen-clearing attack, making character management part of both offense and survival.\n\nThis particular AdvanceMAME version changes the language presentation rather than the action. It translates character-selection panels, stage-result messages and character names shown during the attract sequence into English, adds a translation credit beneath the title, and makes the translated Japanese mode available regardless of the selected ST-V BIOS region. The stages, enemies and underlying game mechanics remain those of Cotton Boomerang.",
+      "description": "Cotton Boomerang (English translation) is an English localization patch by Zanac for Success's 1998 Sega ST-V cute-'em-up Cotton Boomerang: Magical Night Dreams. Translating the remaining Japanese text using the English font from the Cotton 2 localization, it translates the character dialogues on the stage result screens, the weapon and shot select panels across all eight playable characters, and full character names in the attract mode, while replacing the title logo subtitle with a translation credit. The patch also forces the game to run in its translated Japanese mode across all ST-V BIOS regions, resolving export-mode omissions and typos while preserving original arcade gameplay and mechanics.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/zanac/cottonbm"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Cotton_2:_Magical_Night_Dreams"
@@ -34913,7 +34984,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Logic Pro (1996), developed by Deniam and also released in Korea as Croquis, adapts Minesweeper-style deductive puzzles to the arcade. The player reveals cells on a concealed grid, reading numbers that indicate nearby bombs and using those clues to work out which squares can be safely opened. Progress requires careful logical inference rather than fast action.\n\nIts compact joystick-and-button control scheme and colorful presentation show how a computer puzzle could be reformulated for arcade play. The title is unrelated to the digital audio workstation of the same name.",
+      "description": "Croquis is a 1996 puzzle game by the Korean developer Deniam, closely related to its original arcade title Logic Pro. Despite the similar name, it has nothing to do with music-production software. Its puzzle format is a colorful interpretation of Picross, or nonograms: players examine numerical clues for rows and columns and mark squares on a grid to reveal a hidden picture. Solving the patterns accurately is the challenge, with the arcade format adding pressure through timed play.\n\nThe four-way joystick moves the cursor around the board, while dedicated buttons handle the marking of squares. Deniam released the game under different names in different markets, with Croquis appearing as an export title. Its bright cartoon presentation and drawing-based puzzles distinguish it from the tile-matching games more often associated with mid-1990s arcade puzzle machines.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -36671,6 +36742,59 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/decocass.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "cubeqst"
+      ],
+      "title": "Cube Quest",
+      "year": 1983,
+      "developer": "Simutrek",
+      "publisher": "Simutrek",
+      "category": "original",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "cubeqst",
+          "title": "Cube Quest (01/04/84)",
+          "region": "North America",
+          "language": "English",
+          "version": "(01/04/84)"
+        }
+      ],
+      "description": "Cube Quest is Simutrek's extraordinary 1983 space shooter, combining real-time, three-dimensional polygon graphics with elaborate computer-animated backgrounds played from a laserdisc. Players pilot a spacecraft into the Cubic World in search of the Treasure of Mytha. A radar-like overview lets them select routes through a network of 54 corridors, each leading to a combat sequence populated by hostile craft and obstacles. Clearing a corridor returns the player to the map to choose the next route.\n\nThe ship is controlled with a trackball and three buttons. Battles blend the immediacy of a tunnel shooter with a larger exploration structure, asking players to navigate the cube, destroy enemies, and survive encounters with guardian cubes. The juxtaposition of live-rendered geometric objects and prerecorded imagery gave the game a visual style unlike conventional raster shooters of its day.\n\nReleased shortly before Atari's I, Robot, Cube Quest was an exceptionally early arcade use of filled 3D polygon graphics. Its laserdisc visuals were created by Robert Abel and Associates, a pioneering computer-animation studio, while its complex custom hardware included multiple specialized processors. The combination was technologically daring but remained an obscure arcade rarity rather than a widely imitated design.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Cube_Quest"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Cube_Quest"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=cubeqst&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/cubeqst.c"
         }
       ],
       "confidence": "verified",
@@ -40202,7 +40326,7 @@
           ]
         }
       ],
-      "description": "Dynamic Country Club is a 1991 Sega arcade golf game for the System 24 platform. It presents courses using polygon-based scenery and asks players to judge the direction, strength, and placement of shots as they work through the holes. Unlike Sega's more action-oriented arcade offerings, it concentrates on the measured rhythm of golf, with the unusual 3D course presentation providing the main technical attraction.\n\nThe disk-based System 24 release is also a reminder of the period when arcade manufacturers experimented with storage media and graphical techniques beyond standard ROM-cartridge action games.",
+      "description": "Dynamic Country Club is a 1991 golf simulation developed by Sega for its System 24 arcade platform. It depicts the fairways, hazards, and greens of a golf course using a detailed perspective presentation rather than the overhead diagrams typical of earlier golf video games. Players select shots and attempt to complete the course with as few strokes as possible, making club choice, direction, and control of the shot the core of the experience.\n\nThe original arcade system was distributed in floppy-disk and later ROM-based configurations, with protected CPU hardware found on some versions. These technical variations make Dynamic Country Club an interesting example of Sega's transitional System 24 machines, which paired substantial graphics capabilities with relatively unusual game-storage arrangements.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -40604,7 +40728,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Don Den Lover Vol. 1 is Dynax's adult-oriented arcade adaptation of Othello, also known as Reversi. One or two players place black or white discs on an eight-by-eight board, turning the opponent's discs by enclosing them in straight lines. In the solo game, winning against a succession of female opponents unlocks animated adult-themed scenes. A countdown clock adds pressure, and a limited assistance feature can suggest moves or undo the last turn.\n\nThe AdvanceMAME entry represents the Hong Kong edition, which uses Korean character names and voices. Its gameplay is a board-game contest rather than mahjong or a chance-based gambling machine.",
+      "description": "Don Den Lover Vol. 1: Shiro Kuro Tsukeyo! is a 1995 Japanese arcade adaptation of Reversi, or Othello, developed by Dynax. The title refers to deciding between black and white, the two sides of the familiar board game. Players take turns placing discs to bracket and flip the opponent's pieces, aiming to finish with the greater number of discs on the board. In the single-player mode, victory against each of five female opponents unlocks a mildly risqué illustration sequence, with the characters eventually shown in swimwear.\n\nA countdown timer, initially set to 100 seconds, turns the normally deliberate board game into a test of quick decision-making. The player can ask for a suggested move or take back a turn, though the opponent has access to a similar advantage. Occasionally an opponent offers extra time in exchange for placing a disc at a specified location, introducing an entertaining strategic dilemma. Two-player competition removes the need for the game's character-focused progression and leaves the underlying Reversi contest.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -44353,7 +44477,7 @@
           "version": "(encrypted)"
         }
       ],
-      "description": "Dingo (1983) is a colorful maze game produced by Ashby Computers & Graphics, the British company also known as Ultimate Play the Game and later associated with Rare. Players guide Big Ted, a fruit-loving bear, around a single-screen orchard, gathering fruit while purple dingoes invade from the corners. Fruit can also be thrown at the marauders, giving the player a limited means of defense as the field becomes more crowded.\n\nThe game is a fascinating early arcade credit for the Stamper brothers and their collaborators. Its Z80 hardware and character fonts share visible ties with the team's contemporary British home-computer development work.",
+      "description": "Dingo is an unusual 1983 single-screen maze game created by Ashby Computers and Graphics, better known for the Ultimate Play the Game label and its later connection to Rare. Players control Big Ted, a fruit-loving bear trying to collect the produce scattered around his garden while brightly colored dingoes emerge from the corners to trample the crop. Instead of simply avoiding these enemies, Ted can fight back by throwing fruit, although he can have only one piece in flight at a time.\n\nThe game combines quick maze navigation with a simple resource-management problem: fruit is both the player's objective and a weapon. Its hardware and presentation are also curiosities of early British arcade development. The lettering shares distinctive details with Ultimate's contemporary ZX Spectrum game Atic Atac, linking the arcade release visually to the studio's better-known home-computer work.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -44543,7 +44667,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Driving",
       "platform": "Namco System 22",
       "players": 1,
       "release_status": "released",
@@ -45298,10 +45422,19 @@
       "platform": "Arcade",
       "players": 1,
       "release_status": "released",
-      "version": null,
+      "version": "Rev. F2",
       "parent_shortname": null,
       "original_game": null,
       "series": "Dragon's Lair",
+      "variants": [
+        {
+          "shortname": "dlair",
+          "title": "Dragon's Lair (US Rev. F2)",
+          "region": "USA",
+          "language": "English",
+          "version": "(US Rev. F2)"
+        }
+      ],
       "description": "Dragon's Lair (1983), developed by Advanced Microcomputer Systems and released by Cinematronics, transformed the appearance of arcade games with animated footage stored on a laserdisc. The player guides Dirk the Daring, an inept but courageous knight, through a perilous castle in search of Princess Daphne, who is held by the dragon Singe. Instead of moving Dirk continuously through computer-drawn environments, players make precisely timed directional inputs or sword attacks as full-motion animated scenes unfold. Success leads to another sequence; hesitation or a wrong action triggers one of the game's many elaborate death animations.\n\nThe spectacular artwork was created by animator Don Bluth and his team, giving the cabinet the look of an interactive animated film. The technology delivered visual detail far beyond contemporary sprite-based games, although it also meant that mastering the adventure depended heavily on memorizing correct responses to each scene.\n\nDragon's Lair became a major arcade sensation and a cultural symbol of the laserdisc-game boom. Its impressive presentation and steep learning curve remain inseparable from its reputation, and its influence can be seen in later cinematic games built around timed reactions and interactive cutscenes.",
       "trivia": [],
       "tips": [],
@@ -53905,7 +54038,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "SNK's Fantasy (1981) is a whimsical multi-scene action adventure, unusually ambitious for the early years of arcade gaming. A young man sets out to rescue his girlfriend from pirates, only for the couple to face a succession of further kidnappings and hazards. Rather than repeat one fixed playfield, the game moves through contrasting situations involving pirate ships, balloon travel, jungle dangers and village encounters. The hero is guided by joystick alone, with each scene demanding different timing and movement.\n\nIts episodic structure, animated sequences and memorable synthesized soundtrack give Fantasy an almost storybook quality. Often cited as one of the first arcade games to offer a continue feature, it was released by SNK in Japan and licensed to Rock-Ola for North American distribution in 1982.",
+      "description": "Fantasy is an inventive 1981 arcade action game from SNK, licensed to Rock-Ola for its 1982 North American release. Rather than repeating a single type of screen, it sends its hero on a series of different adventures in pursuit of his kidnapped girlfriend. One moment the player is navigating a pirate ship, another involves riding in a balloon, crossing a jungle, or surviving a dangerous village. Movement is controlled entirely by a joystick, with some sequences offering automatic actions such as sword attacks.\n\nThis constantly changing structure makes Fantasy an early example of an arcade game built around a sequence of distinct playable scenes. It also has an important place in coin-op history: it is widely credited as the first video game to display an explicit continue prompt, allowing a player to insert another coin to resume after losing the final life. That feature later became standard in arcade design, but in 1981 it was a notable departure from games that ended immediately when the last life was lost.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -54735,7 +54868,7 @@
           "version": "(Japan, 98/09/17 VER.)"
         }
       ],
-      "description": "Dangun Feveron (1998), known internationally as Fever SOS, is one of Cave's strangest and most energetic shooters. Instead of a grim military campaign, it embraces disco music, bright colors and a deliberately theatrical sense of speed. Before playing, pilots choose their craft's movement speed and weapon characteristics, then race through vertical stages filled with aggressive enemies. Destroyed foes release tiny disco-dancing figures that must be collected quickly to build the score, encouraging constant movement and dangerous close-range play.\n\nIts unusually fast pacing and scoring system set it apart from Cave's more methodical chaining shooters. The mix of pulsating soundtrack, retro science-fiction imagery and high-risk item collection has made it a cult favorite among players seeking an alternative to the studio's more familiar DonPachi games.",
+      "description": "Fever SOS is the international title of Dangun Feveron, Cave's exuberant 1998 vertical shooter. Beneath its recognizable bullet-hell action lies a deliberately absurd disco aesthetic, with dance music, flamboyant announcer calls, and tiny people tumbling from destroyed enemy ships. Players choose from several craft and weapon configurations, then attack waves of alien forces while trying to clear each screen as quickly as possible.\n\nThe game's real signature is its scoring system. Defeated enemies release small cyborgs, often called Discomen, which must be collected before they escape. Each successive rescue increases a running chain and therefore the value of further kills and pickups; letting even one escape breaks the sequence. Quickly destroying enemies produces more collectibles, so high scores demand aggressive play, memorized routes, and risky movement through crowded screens. A hidden three-minute time-attack mode reinforces that emphasis on speed.\n\nFeveron's bizarre musical presentation was developed after early location tests of a more conventional shooter received an unenthusiastic response. The result is one of Cave's most distinctive arcade releases, remembered as much for its high-speed scoring rhythm as for its infectious dance-floor personality.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -56554,11 +56687,33 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": null,
+      "variants": [
+        {
+          "shortname": "firefox",
+          "title": "Fire Fox (set 1)",
+          "region": "North America",
+          "language": "English",
+          "version": "(set 1)"
+        }
+      ],
+      "description": "Fire Fox is Atari's 1984 cockpit-style combat game based on the Clint Eastwood film Firefox. The player takes the role of pilot Mitchell Gant, escaping Soviet territory in a stolen advanced fighter aircraft. Using a flight yoke similar to the controller on Atari's Star Wars, players engage pursuing MiGs and missiles while following a first-person flight path across mountains, valleys, and other landscapes.\n\nFlight altitude is an important tactical choice: flying high conserves fuel but increases exposure to enemy radar, while staying low offers cover at the cost of greater fuel consumption. Players must also locate refueling opportunities to continue the escape. The aerial scenery comes from laserdisc footage, with conventional computer graphics superimposed for instruments, targets, and combat.\n\nFire Fox was Atari's only commercial laserdisc arcade game and was sold in both upright and elaborate sit-down cabinets. Designers Mike Hally and Moe Shore reviewed many hours of material associated with the film to assemble the sequences, drawing heavily on first-person footage shot from helicopters over Greenland and Scandinavia. It stands apart from the quick-reaction cartoon adventures of the laserdisc boom by attempting a cinematic first-person flight-combat experience.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Firefox_(video_game)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Firefox"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=firefox&lang=en"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -63698,7 +63853,7 @@
           "version": "Version 50.02"
         }
       ],
-      "description": "Greyhound Electronics' Poker, released in 1984, is more than a single video-poker program. Its cabinet houses a collection of electronic casino games, documented as Joker Poker, Blackjack, Horse Race, Rolling Bones and Casino Slots. Players use a dedicated eight-button panel to choose among card, dice, racing-bet and slot-style activities, turning one coin-operated machine into a compact electronic casino.\n\nMultiple version 50.02 ICB program sets survive, some differing in the number of installed games. This unusual multi-game structure, at a time when most arcade cabinets ran only one title, is what makes Greyhound's Poker historically interesting.",
+      "description": "Poker is a 1984 multi-game electronic gambling system from Greyhound Electronics rather than a single conventional poker simulation. Its arcade-style video terminal supports a collection of casino and amusement gambling programs, including Joker Poker, blackjack, horse racing, Rolling Bones, and Casino Slots. The player interacts through a bank of dedicated buttons to place bets, select options, and resolve each game, rather than using a joystick.\n\nThe different sets preserved under Greyhound's Poker name reflect revisions of its controller and game software, including versions marked 50.02 ICB and 50.08 IAM. This mixture of card, dice, racing, and slot-style gambling is characteristic of the multi-game coin-operated terminals produced for bars and other commercial amusement venues during the mid-1980s.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -64329,7 +64484,7 @@
           "version": "(bootleg)"
         }
       ],
-      "description": "Gigas is a 1986 arcade brick-breaker from Sega, represented here by a bootleg board set. Players use a rotary controller to move a paddle, rebound a ball, and clear formations of blocks in compact single-screen stages. The underlying game belongs to the wave of Breakout-style releases that followed Arkanoid, with straightforward ball control and collectible bonuses. This entry documents an unauthorized hardware version of Gigas rather than a distinct sequel; another known bootleg circulated under the name Oigas.",
+      "description": "Gigas is Sega's 1986 arcade take on the brick-breaking formula popularized by Breakout. The player controls a mobile paddle-like machine known as the Double Decker, keeping a ball in play while smashing through formations of glossy, crystal-like blocks. Sega's original story sets the machine against the ruler of another dimension, Gold Gigas, giving the otherwise straightforward action a playful science-fiction frame.\n\nAcross 32 stages, blocks can conceal special item eggs that produce effects such as slowing the ball or enabling laser attacks. Roaming monsters add danger because contact with them can cost a life. The reflective-looking blocks, power-ups, and enemy interference distinguish Gigas from a plain brick-breaker, while the same year's sequel, Gigas Mark II, revisited the formula with a tougher stage arrangement.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -64378,7 +64533,7 @@
           ]
         }
       ],
-      "description": "Gigas Mark II is the 1986 follow-up to Sega's Gigas, preserved here in a bootleg arcade set. It retains the rotary-paddle, ball-and-brick formula of the original and offers a campaign of 32 block-breaking stages. Keeping the ball in play while finding angles through increasingly awkward block formations is the central challenge. Its historical interest lies partly in this unauthorized version of an otherwise modest Sega paddle-game sequel.",
+      "description": "Gigas Mark II is Sega's follow-up to its 1986 brick-breaking game Gigas, released only a couple of months after the original. The player again controls the Double Decker paddle machine, bouncing a ball into formations of luminous blocks while attempting to keep it from leaving the screen. The sequel preserves the original's crystal-like graphics and basic controls but changes the block layouts and rearranges the course into a new sequence of 32 stages.\n\nSega also expanded the selection of collectible power-up items, adding more decisions to the familiar ball-and-paddle action. According to the company's own arcade history, the revised stage design and extra items made Mark II substantially more difficult than its predecessor. It is consequently better understood as an expanded, harder sequel than as a simple regional revision of Gigas.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -68040,7 +68195,7 @@
           "version": "(bootleg set 1)"
         }
       ],
-      "description": "Guardian, called Get Star in Japan, is a 1986 side-scrolling action game developed by Toaplan and published by Taito. Its hero is a powerful humanoid robot traveling across six science-fiction worlds, each culminating in a boss encounter. Movement, jumping, and crouching combine with separate punch and kick attacks, while pickups can provide stronger blows, temporary invulnerability, restored energy, or a ranged laser weapon.\n\nIts continuous left-to-right fights recall Kung-Fu Master more than Toaplan's later shooting games. Punch power can be raised through collectible red orbs, but losing a life resets that advantage. The game is also a notable early graphic-design credit for Toaplan artist Kōetsu Iwabuchi. Despite its colorful planetary settings, it was reportedly a commercial disappointment, and surviving bootleg sets differ in their protection circuitry and reliability.",
+      "description": "Guardian is the overseas title of Get Star, a 1986 side-scrolling action game developed by Toaplan and released by Taito. Players control the cyborg warrior Get Star, sent from Earth to confront the tyrant Big Demorr and his followers across a series of alien worlds. Rather than firing a spaceship's weapons, the hero advances on foot, punching and kicking enemies while leaping over hazards and taking on an imposing boss at the end of each stage.\n\nIts eight-way joystick handles movement, crouching, and jumps, with separate buttons for punches and kicks. The stages shift between distinctly themed planets, including forest, desert, and icy environments, while pick-ups can improve attacks or provide temporary advantages. Toaplan's own historical materials credit Guardian's crisp, responsive fighting controls as an influence on later action and fighting games. It stands apart from the shooting games for which the studio would become best known.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -68373,7 +68528,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "V-Five is Toaplan's intense 1993 science-fiction vertical shooter, known internationally as Grind Stormer. Players pilot a high-performance space fighter through six stages packed with enemy formations, intricate bullet patterns and large mechanical bosses. Its fast action and escalating density make it a characteristic example of Toaplan's influence on the later bullet-hell school of shooters.\n\nThe most interesting distinction is between the two main regional styles of play. Japanese V-Five uses a Gradius-like power-up bar: collecting items advances a selection cursor, allowing the pilot to activate upgrades such as stronger weapons, speed or defensive systems at a chosen moment. Grind Stormer instead awards pickups more directly and includes a conventional stock of screen-clearing bombs. The stages are largely shared, but these different upgrade systems change how the entire game is approached.\n\nThis dual identity makes V-Five particularly rewarding to revisit. Beyond quick reactions, the Japanese rules demand advance planning about which weapon or support system to build next, while the overseas arrangement favors immediate adaptation to pickups appearing during combat.",
+      "description": "Grind Stormer is a ferocious vertically scrolling shooter from Toaplan, released in Japan as V-Five (V·V). The player pilots the NA-00 fighter through six stages of densely defended futuristic environments. Its science-fiction premise imagines a virtual-reality arcade game so mysterious and addictive that a government agent must enter it to investigate the disappearance of its players. Fast enemy formations, large mechanical bosses and a deliberately small player hitbox anticipate the demanding bullet patterns that would become central to later Japanese shoot 'em ups. The game supports two players and sends survivors into a harder second loop with additional enemy fire.\n\nIts two regional identities play remarkably differently. Grind Stormer gives out weapon, speed and bomb pickups directly, while the Japanese V-Five replaces that approach with a selectable power-up bar, reminiscent of Toaplan's earlier Slap Fight and Konami's Gradius. Both emphasize three distinct attacks: a straightforward Shot weapon, seeking satellite weapons and rapid missiles. This difference makes choosing the version a substantial gameplay decision rather than merely a language preference.\n\nGrind Stormer is an important link between Toaplan's classic shooters and the later bullet-hell movement. Its team included Tsuneki Ikeda, making his professional debut before helping establish Cave, and was led by Kenichi Takano, who subsequently worked on DonPachi. The relentless pacing and elaborate attack patterns make it a significant transitional work in arcade shooting history.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -70352,7 +70507,7 @@
           "version": "Version 1.03a"
         }
       ],
-      "description": "Greyhound Electronics' Trivia (version 1.03a) is part of its mid-1980s arcade quiz family, built around English-language questions answered with dedicated buttons. The standard game presents themed factual and popular-culture challenges, while the preserved versions differ substantially in which question ROMs are installed. The broader 1.03a family includes revised collections and alternate question packs, some of them intended for adult bar audiences.\n\nThis software family became a useful case study in arcade preservation because numerous apparently separate ROM sets were eventually reorganized by question series rather than by their original revision labels. It illustrates how the same coin-operated quiz platform could remain in service through changes of content, with little need to alter the physical controls or main hardware.",
+      "description": "Greyhound Electronics' Trivia (Questions Series 8) is a mid-1980s coin-operated quiz game built around banks of multiple-choice questions rather than reflex-based action. Players read questions on a horizontal monitor and enter their answers using dedicated panel buttons. The Series 8 designation identifies one particular collection of question ROMs; other surviving sets and revisions demonstrate how operators could refresh the content while retaining the same basic quiz hardware.\n\nThe preserved question collections cover subjects such as science, general knowledge, sports and entertainment, with adult-oriented categories also documented among the available ROMs. This ability to change the subject matter was an important feature of commercial trivia machines. The 1984 Greyhound electronic game should not be confused with much earlier trivia machines that used tape cartridges: this version runs on a Z80-based video-game board with ROM-stored questions.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -72293,7 +72448,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Halley's Comet (1986) is Taito's vertically scrolling science-fiction shooter built around an unusual defensive objective. The player protects planets of the Solar System from the comet and the hostile alien forces accompanying it. Enemies that slip past the player's spacecraft threaten the planet below, so survival alone is not enough: allowing too many attackers through can end the mission even with ships remaining.\n\nEach planetary campaign combines waves of enemy craft, a confrontation with larger defenders and an attack into the comet itself. The visible planetary-damage pressure encourages aggressive interception, while the scrolling action and weapon pickups retain the familiar immediacy of a classic mid-1980s shooter. Its appearance in the year of Halley's Comet's celebrated return gave the theme a particularly timely resonance.",
+      "description": "Halley's Comet is Taito's 1986 vertically scrolling space shooter, released to coincide with renewed public interest in the famous comet's return. Its mission is more demanding than simply surviving enemy waves: players must defend the planets of the Solar System from an advancing comet and the alien craft accompanying it. Enemies that escape off the bottom of the screen damage the planet being protected, so letting opponents pass has consequences even if the player's fighter survives. A side display tracks the comet's approach and planetary damage.\n\nEach planetary mission has several distinct phases, beginning with battles against attacking ships, moving toward the comet's surface and culminating in an assault on its interior core. Destroying hazards can reveal upgrades for movement speed and weapons, as well as small escort ships. These escorts can also be expended in an emergency hyperspace escape. The continual tension between collecting power-ups, intercepting stragglers and advancing toward the comet gives Halley's Comet an unusually strong defensive objective for a mid-1980s shooter. It is played with an eight-way joystick and separate fire and escape controls.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -75708,7 +75863,7 @@
           "version": "(Japan set 1)"
         }
       ],
-      "description": "Hana Jingi is a 1990 Japanese hanafuda medal game from Dynax, built around traditional flower-card play rather than joystick action. Players use a dedicated card-game control panel, and the arcade software incorporates betting, configurable payout odds and a medal-hopper option. Its board design belongs to Dynax's specialized blitter-based gambling and table-game hardware. Hana Jingi is closely related to Hana Oriduru, but its betting-oriented implementation and surviving ROM variants give it a distinct place in the company's extensive catalog of Japanese arcade card games.",
+      "description": "Hana Jingi is a 1990 Japanese hanafuda medal game developed by Dynax. Instead of a conventional mahjong table, it uses the illustrated flower-card deck associated with Japanese hanafuda play. Players pursue valuable card combinations against the computer, with betting, credit and payout settings integrated into the arcade presentation. The board supports dedicated hanafuda-style controls rather than an ordinary action-game joystick.\n\nThe game belongs to Dynax's line of gambling-oriented, graphics-heavy tabletop titles, built around the company's blitter-based hardware. Its relationship to Hana Oriduru is especially close: preserved versions of Hana Jingi add betting functionality to substantially related hanafuda software. Operator settings include minimum and maximum wagers, payout rates and double-up options, documenting the game's role as a medal amusement machine rather than a simple home-style card-game conversion.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -78937,7 +79092,7 @@
           "version": "(set IC4-4 A-1)"
         }
       ],
-      "description": "Vs. Ice Climber Dual is the Japanese dual-system arcade configuration of Nintendo's mountain-climbing platform game. The core action remains the same: Popo and Nana smash through overhead ice with mallets, leap between ledges, collect vegetables and avoid enemies while ascending the mountain toward the condor. Its identification as a Dual version reflects the dual-cabinet Vs. System arrangement, allowing play on paired screens and more participants than a single-screen setup. It should not be confused with an entirely new sequel or a mechanically unrelated game.",
+      "description": "Vs. Ice Climber Dual is Nintendo's dual-screen arcade configuration of its mountain-climbing platform game, released for the Nintendo Vs. System in 1984. Popo and Nana use hammers to smash overhead ice blocks and carve routes upward through tiers of slippery platforms. Enemies interfere with their ascent, while falling icicles, moving footholds and the impatient polar bear add hazards. Reaching the upper bonus area offers the chance to collect vegetables and grab a passing condor for extra points.\n\nThe Dual cabinet's distinction is physical as much as it is playful. It contains two separately operating Ice Climber setups, each with its own screen, processor, coin inputs and pair of controls, allowing as many as four people to play across the two sides. Two climbers on one side can cooperate to reach the summit or race and interfere with each other. The arcade version also differs from the later familiar home release, notably through its expanded mountain selections and special bonus stages. This entry preserves the less common twin-screen arrangement rather than a single-screen Vs. Ice Climber board.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -85190,7 +85345,7 @@
           "language": "English"
         }
       ],
-      "description": "Kamikaze is Konami's 1980 fixed-screen shooter, released in Japan by Leijac and adapted overseas as Astro Invader by Stern Electronics. Rather than approaching in a single descending grid, aliens are deposited by a large mothership into narrow vertical columns above the player's laser base. Once a column fills, further arrivals force an alien out of the bottom, where it falls toward the ground and explodes. The player can move only left and right and fires one shot at a time, so managing the crowded columns and avoiding the blast zones is central to survival. Special saucers descending through the central opening create an additional urgent threat.\n\nThe Japanese Kamikaze differs meaningfully from Astro Invader: it has more narrow columns, aliens can fall directly down the outer sides, and the mothership supplies a different number of invaders per cycle. Those differences make the original more than a simple title-screen variation. Its emphasis on anticipating where enemies will drop adds an unusual spatial-management problem to the Space Invaders formula, while the game's overseas release marked an early step into video arcade publishing for Stern.",
+      "description": "Kamikaze is Konami's 1980 fixed-screen shooter, better known in export markets as Astro Invader. It takes the familiar left-and-right movement of Space Invaders and turns the enemy formation into a dangerous storage system. A large mothership crosses the top of the screen, dropping aliens into vertical columns. As the columns fill, new arrivals force the lowest creatures to plunge toward the ground, where their explosions can destroy the player's gun even without a direct collision.\n\nThe player has to decide which columns to clear before they overflow, while also destroying smaller saucers that descend through open channels. Only one shot can be in flight at a time, making every missed laser blast costly. The Japanese Kamikaze and the export Astro Invader use different column arrangements and wave counts, so their patterns demand somewhat different tactics. The mothership's visible counter measures its remaining alien supply, and the next wave resumes the pressure without clearing everything already on screen. Published outside Japan under different names, this distinctive early Konami shooter remains an inventive variation on the post-Space Invaders formula.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -87201,7 +87356,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Shippū Mahō Daisakusen, released internationally as Kingdom Grandprix, is Raizing's unusual 1994 sequel to Mahō Daisakusen. It combines vertically scrolling fantasy shooting with a race: players fight airborne enemies while also trying to pass rival competitors and reach the finish ahead of them. Different flying characters have distinct weapons, and accurate attacks help clear the path while missed opportunities can cost race positions.\n\nThe result is an arcade hybrid in which surviving bullets is only part of the challenge; maintaining speed and managing the traffic of rival racers can be equally important. Its whimsical flying craft, colorful medieval-fantasy world and unusual combination of shooter scoring with finishing order make it one of Raizing's more inventive early releases.",
+      "description": "Kingdom Grandprix, released in Japan as Shippuu Mahou Daisakusen in 1994, is Raizing's unusual combination of a fantasy-themed vertical shooter and a racing game. It follows Sorcer Striker (Mahou Daisakusen) but replaces ordinary stage progression with a competition against seven rival characters. The player chooses one of eight racers and must not only survive enemy attacks and bosses but also finish ahead of the other contestants. The craft's position on the screen influences its racing pace, and holding the fire control boosts speed at the cost of being unable to shoot. Constant decisions between attacking enemies and gaining ground are the game's defining challenge.\n\nPower-ups improve firepower, while limited bombs clear threats and impede competing racers. Rather than presenting every stage in a fixed order, the game allows route choices after races, making repeat attempts meaningfully different. A particularly demanding second loop becomes available after a successful first-place, single-credit finish and explores stages not visited on the first run. The extravagant vehicles, oddball fantasy characters and music by Hitoshi Sakimoto and Masaharu Iwata distinguish it from conventional military shooters. Kingdom Grandprix remains one of the more original experiments in the 1990s arcade shooting genre.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -90425,7 +90580,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Kozure Ookami (1987), sometimes romanized Kodure Ookami, is Nichibutsu's Japanese arcade adaptation of the manga Lone Wolf and Cub. Players control the wandering swordsman Ogami Itto as he fights through side-scrolling encounters with assassins while caring for his young son. Swordplay and close combat are joined by a wonderfully outlandish special weapon: the child's carriage can become a cannon, turning a familiar image from the source material into a powerful arcade attack.\n\nThe game also mixes shooting elements with its brawling, and destructible background objects can conceal useful bonuses. Its licensed manga setting and improbable baby-carriage weapon make it an unusual footnote in the history of Japanese action arcade games.",
+      "description": "Kozure Ookami is Nichibutsu's 1987 side-scrolling action game based on the Japanese manga Lone Wolf and Cub. Players guide the wandering swordsman Ogami Ittō through groups of hostile warriors and ninja while he carries his young son Daigorō. The combination of sword fighting, blocking and ranged attacks makes it more varied than a straightforward beat 'em up, and the game's most memorable weapon is a baby carriage equipped with concealed cannons. Finding the carriage lets the player unleash attacks that are very much in the flamboyant spirit of the source material.\n\nThe controls also have a distinctive quirk: jumping requires pressing attack and block together. Breakable stone statues hide items, rewarding players for searching the scenery rather than simply moving to the right. Released only in Japan, the arcade adaptation is an uncommon example of a licensed manga title from Nichibutsu, using the company's detailed sprite effects to distinguish regular ninja from more dangerous explosive enemies.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -91730,7 +91885,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Reikai Doushi: Chinese Exorcist (1988), also known as The Last Apostle Puppetshow, is an eccentric one-on-one fighting game by Home Data. The player controls a Chinese exorcist battling a succession of supernatural opponents, including hopping vampires known as jiangshi or kyonshi. The combat unfolds from a side view, but the fighters look like animated puppets rather than conventional hand-drawn sprites.\n\nThe game used imagery based on physical doll-like figures, giving its characters a distinctive stop-motion appearance years before prerendered fighters became fashionable. Arenas also have an unusual wraparound or teleporting edge behavior. Originally conceived with more adult-oriented content before its direction changed, Reikai Doushi remains a remarkable early experiment in unusual fighting-game presentation.",
+      "description": "The Last Apostle Puppetshow is the export title of Home Data's Reikai Doushi: Chinese Exorcist, an extraordinary 1988 one-on-one fighting game. Its hero is a Chinese exorcist who confronts hopping vampires, ghosts and other supernatural adversaries. Players fight from a side-on viewpoint using directional movement and three attack buttons, trying to defeat a succession of increasingly strange opponents. The arena even features an unusual edge-of-screen teleportation effect.\n\nWhat makes the game historically important is its visual production technique. Its fighters were based on posed and animated physical puppets, then digitized into game sprites, creating a stop-motion or clay-animation appearance years before the better-known ClayFighter. That makes The Last Apostle Puppetshow an early landmark in the use of digitized performers in fighting games, predating Pit-Fighter and Street Fighter II. Its bizarre monster designs and unmistakable doll-like movement are more memorable than its conventional combat structure.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -93722,7 +93877,7 @@
           "version": "(Hong Kong, V185H)"
         }
       ],
-      "description": "Long Hu Bang II (1996) is a Taiwanese mahjong-based gambling arcade game developed by International Games System. It uses a dedicated mahjong control panel and supports wagering and payout settings, with optional automatic declaration of a ready hand. Operators could also configure adult-oriented character illustrations. The game appeared in multiple regional forms, including the Hong Kong Lung Fu Bong II release, China's Cuo Pai Gaoshou revisions, and Japan's Mahjong Nenrikishu SP. These variations, together with a later joystick-operated edition, illustrate how IGS adapted the same mahjong hardware and game family for different amusement markets.",
+      "description": "Lung Fu Bong II, also known as Long Hu Bang II, is a 1996 mahjong gambling game from Taiwanese developer International Games System (IGS), preserved here in its Hong Kong V185H version. The player takes part in Japanese-style computer mahjong, selecting tiles to form a winning hand against an automated opponent. Instead of playing solely for a high score, the machine incorporates wagers, credit management and adjustable payout odds. Its dedicated mahjong panel provides separate tile-selection and betting inputs.\n\nThe hardware uses a Motorola 68000 with Yamaha FM and OKI sample-based audio, typical of IGS's mid-1990s arcade gambling boards. Operator settings govern minimum and maximum bets, credit conversion, auto-reach assistance and payouts; selectable bonus artwork is also documented. The same software family was adapted into related regional releases, including Mahjong Nenrikishu SP in Japan. It represents the extensive East Asian market for purpose-built mahjong amusement machines rather than the mainstream action-arcade scene.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -93966,7 +94121,7 @@
           "version": "Ver 2.1O"
         }
       ],
-      "description": "Dungeon Magic, titled Light Bringer in Japan, is Taito's 1993 fantasy beat-'em-up on F3 hardware, notable for its isometric perspective and unusually adventurous structure. Up to four players choose between Ash the knight, Gren the martial artist, Cisty the elven archer, and Vold the wizard, each with different weapons and fighting styles. The party battles monsters across towns, dungeons, and castles while attempting to rescue a princess and defeat an evil magician.\n\nUnlike most straight-line arcade brawlers, the game offers branching routes, hidden rooms, environmental puzzles, and treasure that rewards exploration. Characters can gain experience, strengthen charged attacks, collect equipment, and recover health with food, making their progression feel closer to a compact action RPG than a simple sequence of fights.\n\nDungeon Magic is one of Taito's most distinctive multiplayer arcade adventures. Its combination of cooperative combat, secret passages, detailed hand-drawn scenery, and limited role-playing mechanics makes it an intriguing companion to Capcom's contemporary Dungeons & Dragons arcade games.",
+      "description": "Light Bringer, also distributed under the name Dungeon Magic, is Taito's ambitious isometric fantasy beat 'em up for the F3 arcade system, with versions dated 1994. Up to four players choose from Ash the knight, Gren the warrior, Cisty the elven archer and Vold the wizard, then enter castles, dungeons and haunted chambers to rescue a kidnapped princess. Unlike the usual left-to-right brawler, the game offers branching routes, hidden rooms, switches and traps. Its angled view and intricate architecture make exploration almost as important as combat.\n\nCombat also incorporates light role-playing elements. Treasure contributes experience, stronger attacks can be charged, and players find elemental weapons, shields, healing supplies and limited-use projectiles. Fire, ice and lightning weapons have different effectiveness against enemies, while critical hits and special attacks add decisions beyond repeated button presses. Orcs, lizardmen, undead creatures and enormous room-guarding monsters populate the changing routes. Linger too long and ghosts appear to drive the party onward.\n\nThe result is an unusually elaborate four-player arcade adventure that rewards returning to discover new paths. It shares its English Dungeon Magic title with an unrelated earlier NES role-playing game, but this Taito production stands on its own as a distinctive meeting of beat 'em up action and dungeon exploration.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -95756,7 +95911,7 @@
           "version": "(World)"
         }
       ],
-      "description": "Ken-Go, released internationally as Lightning Swords, is a 1991 side-scrolling sword-fighting game published by Irem and developed by Nanao. Set in feudal Japan, it follows the samurai brothers Blue Dragon and Red Dragon through five stages of armed enemies. Two players can cooperate, moving and jumping through side-on scenes while cutting down attackers.\n\nIts central mechanic is a charged sword slash: holding the attack button builds power through several levels before releasing a more forceful blow. Jumping is controlled by pushing the joystick upward, making the handling rather different from a conventional two-button beat-'em-up. The emphasis on timing powerful strikes gives this relatively obscure arcade title a deliberate rhythm.",
+      "description": "Lightning Swords, known in Japan as Ken-Go, is a 1991 side-scrolling samurai action game developed by Nanao Corporation and published by Irem. Set amid the swordsmen and ninja of feudal Japan, it follows warriors fighting through five stages of armed opponents and formidable bosses. Players can advance alone or with a second swordsman, but the central challenge is not simply to attack as quickly as possible: the sword has to be used with care.\n\nA quick tap produces an immediate slash, while holding the attack control charges a much more powerful strike through as many as five levels. Jumping is performed with the joystick rather than a dedicated jump button, giving movement and attack timing an unusual rhythm. The limited health allowance makes it important to decide when to stand still for a stronger cut and when to advance with shorter swings. Long restricted to arcades, Lightning Swords later received an official emulated home release in the Evercade Irem Arcade 1 collection.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -99911,7 +100066,7 @@
           "version": "(bootleg, set 1)"
         }
       ],
-      "description": "Match It is Tamtex's 1989 arcade adaptation of Shisen-sho, a tile-matching puzzle derived from mahjong imagery rather than mahjong's competitive rules. The screen presents a crowded arrangement of face-up tiles, and the player must remove identical pairs until the board is empty or time runs out. A pair can be selected only when a clear route connects the two tiles under the game's path restrictions, so solving the puzzle depends on opening passages and avoiding stranded pieces rather than simply finding identical symbols.\n\nThe international Match It version removes the erotic interludes found in the Japanese Shisensho: Joshiryo-Hen release. The same family also includes versions labeled Sichuan II, including bootlegs and modified sets. Its straightforward controls and steadily tightening tile arrangements make it an early example of the arcade solitaire-matching format.",
+      "description": "Match It is a 1989 tile-matching puzzle game from Tamtex, released on hardware associated with Irem's arcade titles. A field of decorated rectangular tiles must be cleared by selecting pairs with matching symbols. The important constraint is that matching tiles need a valid unobstructed connecting path, so success depends on working from accessible edges and opening corridors into the crowded center. A time limit makes careful pattern recognition and efficient selections essential.\n\nThe game is closely related to the Japanese Shisensho: Joshiryo-Hen and other Sichuan-style tile-matching sets. Match It is the non-erotic presentation: the adult scenes found in the Japanese edition were removed for this release. Its appeal is the clarity of a simple rule set that grows surprisingly tactical as the board empties, with a single poor choice potentially blocking more valuable matches.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -101096,7 +101251,7 @@
           "version": "(Standard)"
         }
       ],
-      "description": "The unidentified Meyco Games program preserved as unkmeyco is an early-1980s American electronic blackjack title, later associated with the Casino Black Jack software family. Its gambling format is the familiar contest against a dealer's hand, with decisions made through dedicated cabinet controls rather than arcade movement. The surviving ROM originated on Meyco's dedicated gambling electronics, related to the hardware used by Wild Arrow.\n\nBecause the original set name was simply 'unknown Meyco game' and later catalogues reorganized these programs, its identification should be treated as a provisional archival label rather than evidence of a separate named commercial release.",
+      "description": "Draw Poker - Joker's Wild is an early-1980s video poker machine from Meyco Games, documented in its Standard configuration. It presents an electronic version of draw poker in which the player evaluates a dealt hand, chooses which cards to retain and draws replacements in search of a stronger poker combination. The joker-themed rules distinguish this version from plain five-card draw, with the game built for amusement-machine operation rather than an action-arcade audience.\n\nIts technical history is unusually well documented for such an obscure machine. Meyco's Joker's Wild software was originally developed for a Nevada platform based on an Intel 8088 processor, whereas an earlier Meyco Draw Poker design used an 8080. Surviving ROM revisions and configurable betting or coinage settings reflect the specialized world of electronic card-game cabinets in the 1980s.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -101250,7 +101405,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Mega Blast (1989) is Taito's energetic multi-directional scrolling shooter, built around a spacecraft surrounded by four gun turrets. Rather than relying solely on a forward cannon, the player can fire across different angles and upgrade individual turrets by collecting power-up orbs. The landscape generally moves horizontally but sometimes shifts into vertical scrolling, forcing players to adapt their positioning and firing patterns. Two players can fight through the invasion together.\n\nA particularly playful feature is its array of minibosses and enemies that resemble characters and machines from other Taito games. Beneath its science-fiction exterior, Mega Blast serves as a colorful tribute to the company's arcade history, with weapon management and multidirectional fire supplying the distinctive challenge.",
+      "description": "Mega Blast is Taito's 1989 horizontally scrolling science-fiction shooter for its F2 arcade hardware. One or two pilots fly armed spacecraft through eight stages to rescue people abducted from Earth by inhabitants of the distant planet Zancs. The fighters carry weapon satellites capable of firing in several directions, making it necessary to defend against opponents arriving from above, below and behind as well as from the right-hand edge of the screen. Waves of enemy machines and large bosses punctuate the voyage.\n\nThe game stands out for its deliberately extravagant firepower and its parade of enemies that reference other Taito productions. Its development also had a more ambitious control concept: according to historical staff accounts, a four-direction button system was considered before the final arcade controls were simplified. Despite its rich production and music by Taito's Zuntata team, Mega Blast was not a major commercial hit and is remembered as a relatively obscure late-1980s entry in the company's shooter catalogue.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -104754,7 +104909,7 @@
           "version": "881109"
         }
       ],
-      "description": "This 1989 Mahjong Camera Kozou set preserves another version of Miki Syouji's camera-themed adult mahjong game. As in the 1988 release, players face women in tile matches and earn revealing photographs associated with distant destinations as rewards. The separate ROM set records a later arcade configuration of the same unusual travel-and-photography concept; the available historical documentation does not establish any further rule changes.",
+      "description": "Mahjong Camera Kozou is a Japanese adult-themed mahjong game created by Miki Shoji in 1988, with a later medal or betting edition released in 1989. The player takes the role of a photographer and competes against computer-controlled women in mahjong. Winning hands advance the encounters and reveal photographic rewards, combining conventional tile-drawing and discarding with the presentation typical of Japanese strip-mahjong machines of the period.\n\nThe surviving arcade sets document both the original amusement release and the later gambling-oriented revision, as well as boards using different hardware configurations. These are historically meaningful distinctions: the medal edition was adapted for wager and payout operation, not merely given a different title screen. The photography theme, adult rewards and multiple commercially deployed board versions place Mahjong Camera Kozou within a large but often overlooked branch of late-1980s Japanese arcade culture.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -107937,7 +108092,7 @@
           "version": "ver UA"
         }
       ],
-      "description": "Konami's Wild West C.O.W.-Boys of Moo Mesa (1992) turns Ryan Brown's animated television western into a colorful side-scrolling run-and-gun game. Up to four players take the roles of Marshal Moo Montana, the Dakota Dude, the Cowlorado Kid and arcade newcomer Buffalo Bull, battling the forces of corrupt Sheriff Terrorbull. Players move across seven stages, shooting enemies, avoiding environmental hazards and confronting a boss at the end of each stage. Different pickups improve gunfire or provide special attacks, including screen-clearing thunderbolts, while sarsaparilla restores health.\n\nAlthough its cartoon artwork suggests a children's adventure, the game has the busy enemy patterns, cooperative chaos and detailed animation associated with Konami's early-1990s licensed arcade hits. Shooting chickens to reveal helpful items is one of its playful touches. The AdvanceMAME family includes regional program revisions and a bootleg board set.",
+      "description": "Wild West C.O.W.-Boys of Moo Mesa is Konami's 1992 four-player run-and-gun game based on the animated television series. In a comic-book Wild West populated by anthropomorphic cattle, Marshall Moo Montana, the Cowlorado Kid, the Dakota Dude and Buffalo Bull set out to defeat Sheriff Terrorbull and his gang. The action unfolds across scrolling frontier towns and other themed locations, with enemies to shoot, hazards to jump and a boss waiting at the end of each stage.\n\nEach character uses straightforward fire and jump controls, but pressing both buttons together performs a special maneuver or uses a carried item. Players can shoot chickens to reveal upgrades, including faster or stronger guns, protective items and other useful weapons. The characters have a short health meter rather than dying from a single hit, making the game well suited to chaotic multiplayer sessions. Stage selection after the opening round provides some variety in the order of the adventure.\n\nIts lively animation and cooperative four-player format place it alongside Konami's celebrated licensed arcade adaptations of the early 1990s, although its cowboy setting gives it a very different identity from Teenage Mutant Ninja Turtles or The Simpsons. The arcade game also adds Buffalo Bull, a character created specifically for this version.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -111668,7 +111823,7 @@
           "version": "(Argentina, set 1)"
         }
       ],
-      "description": "Ms. Pac-Man Twin (1992) is an unauthorized Argentine adaptation of Ms. Pac-Man that makes a striking change to the familiar maze-chase formula: two people can play simultaneously rather than alternating turns. Players guide their characters through pellet-filled mazes while evading ghosts and chasing power-pellet scoring opportunities. Its cooperative or competing simultaneous movement creates situations absent from the original single-character design. The set was produced without permission from Namco or General Computer Corporation and circulated principally in Argentina, making it an unusual regional modification of an arcade landmark.",
+      "description": "Ms Pac Man Twin is an unauthorized Argentine adaptation of Ms. Pac-Man made by Susilu in the early 1990s. Its major innovation is genuine simultaneous two-player maze play, rather than the alternating turns of the original. Both players guide their own character through the same labyrinth, avoiding ghosts while collecting dots. Crucially, the two competitors have separate sets of dots distinguished by red and green colors, so each has an individual collection objective even though the maze and enemies are shared.\n\nThe result is a curious blend of cooperation, competition and familiar Pac-Man strategy. The arcade board was particularly associated with Argentina and remained poorly documented for many years. The eventual recovery and preservation of a surviving PCB by arcade enthusiasts in 2021 helped make this regional hack accessible to the emulation community. Its unusual approach to two-player play makes it far more than a simple graphic or speed modification of Ms. Pac-Man.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -117877,7 +118032,7 @@
           "language": "English"
         }
       ],
-      "description": "New Fantasia is a 1995 adult-oriented territory-capture arcade game by Comad and New Japan System. Its play resembles Taito's Qix and Kaneko's Gals Panic: players move along the boundaries of a field and trace lines to claim areas, revealing portions of a concealed digitized photograph. Enemies roaming the active playfield can interrupt unfinished lines, making each excursion away from safety a calculated risk.\n\nA countdown timer adds pressure to divide and claim enough territory before the round ends. The title is part of a prolific Korean series of adult-themed Qix derivatives, distinguished mainly by its photographic reveal presentation rather than a radically new underlying puzzle system.",
+      "description": "New Fantasia is a 1995 adult-themed territory-capture puzzle game from Korean developer Comad, part of the series that followed the success of Fantasia. Inspired by Taito's Qix and Kaneko's Gals Panic, it challenges players to trace paths through the playing area and enclose sections of the screen. Capturing territory reveals pieces of a digitized picture beneath the action. Roaming enemies threaten the player while lines are being drawn, and a strict timer prevents slow, overly cautious play.\n\nIts novelty lies less in changing the basic Qix formula than in combining it with photographs, varied opponents and the adult-oriented presentation characteristic of Comad's output. The game achieved notable commercial success for the company and became one of several related releases during the 1990s. In arcade history, it is a recognizable example of the substantial market for Qix-derived picture-revealing puzzles, distinct from more traditional tile-matching games.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -118214,7 +118369,7 @@
       "parent_shortname": null,
       "original_game": null,
       "series": "Moero!!",
-      "description": "Moero!! Pro Yakyuu Homerun Kyousou is an unusual 1988 Jaleco baseball-themed medal arcade game. Its home-run competition places the emphasis on batting skill rather than managing a full professional baseball match, while the medal-machine format also incorporates an element of chance and rewards successful play through a payout hopper. The single-player cabinet uses a joystick and one action button. Its hardware draws on the Nintendo Famicom architecture, an interesting technical connection to Jaleco's better-known Moero!! Pro Yakyuu home baseball games.",
+      "description": "NEW Moero!! Pro Yakyuu Homerun Kyousou is Jaleco's 1988 Japanese baseball-themed arcade medal game, belonging to the broader Moero!! Pro Yakyuu series. Rather than presenting a complete nine-inning match, it concentrates on a batting and home-run challenge. The player uses directional controls and a single action button to time hits, turning the familiar spectacle of baseball into a short, repeatable amusement-machine contest.\n\nIts hardware has an unusual lineage: the Jaleco board borrows graphics and design ideas from Nintendo's Famicom technology, but adapts them to a dedicated coin-operated machine with a medal payout hopper. The cabinet mixes a small amount of player skill with operator-adjustable amusement and reward settings. This NEW revision is preserved alongside an earlier Moero!! Pro Yakyuu Homerun Kyousou set, although detailed public documentation of gameplay differences between their program versions remains limited.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -120769,7 +120924,7 @@
           "version": "(Fighting Course Version, set MR4-1 A)"
         }
       ],
-      "description": "Vs. Mach Rider (Endurance Course Version) brings Nintendo's 1985 futuristic motorcycle combat game to the Vs. System arcade platform. Set in the year 2112 after hostile forces have invaded Earth, the player races a high-performance motorcycle through dangerous sectors while fighting armed enemy riders. Traffic, track obstacles and enemy attacks demand quick lane changes, acceleration and accurate shooting.\n\nThe Endurance Course emphasizes surviving a sustained series of road sections, combining combat with the challenge of keeping the bike under control at high speed. The original home game also featured other modes, so the arcade edition's specific course configuration matters when comparing versions. Its mixture of post-apocalyptic motorcycle racing and vehicular gunplay is unusual among Nintendo's mid-1980s arcade releases.",
+      "description": "Vs. Mach Rider (Endurance Course Version) is Nintendo's 1985 coin-operated adaptation of its post-apocalyptic motorcycle combat game. Players race a heavily armed bike down a winding road filled with aggressive enemy vehicles and sudden bends, steering, accelerating and shooting while trying to keep control at high speed. The goal is not to win a conventional race against another rider but to reach a specified distance before the countdown expires.\n\nThis is specifically the Endurance Course arcade version, one of two different Mach Rider programs produced for the Nintendo Vs. System. Its twenty rounds use courses based on Route A from the NES game; finishing a round with time remaining adds a scoring bonus. The arcade rules alter some hazards and introduce a reserve of bonus time that can grant an extra chance after the main clock runs out. Unlike the Fighting Course edition, this set emphasizes timed survival and distance, making its pacing closer to an extended high-speed obstacle course.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -120819,7 +120974,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Vs. Mighty Bomb Jack is Tecmo's 1986 arcade adaptation of the Famicom platform game Mighty Bomb Jack, presented on Nintendo's Vs. System hardware. Players guide Jack through interconnected rooms, collecting bombs and treasure while avoiding monsters and looking for hidden passages. The large stages mix nimble jumps with route-finding and secrets, building on the earlier arcade game Bomb Jack.\n\nThe Vs. edition rearranges some secret passages, removes certain warp locations, and adds a two-player option. Those changes make it more than a straight arcade display of the console original, rewarding players who already know the home version with slightly different paths to discover.",
+      "description": "Vs. Mighty Bomb Jack is Tecmo's 1986 arcade adaptation of its Famicom platform adventure, produced for Nintendo's Vs. System. Jack explores a sprawling pyramid divided into chambers, collecting bombs and treasures while avoiding enemies and searching for passages that lead deeper into the structure. His unusually controllable jumps and the maze-like arrangement of rooms make exploration and item collection as important as enemy avoidance. Hidden coins, crystal balls and other secrets influence the route and the ending.\n\nCompared with the home version, the Vs. release changes the placement of several secret passages, removes some warp shortcuts in the palace areas and adds support for alternating two-player competition. The challenge remains built around learning the pyramid's hidden logic rather than merely reaching the right-hand edge of each screen. It is a distinctive example of an NES-era adventure adapted to a competitive, credit-based arcade environment.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -121037,7 +121192,7 @@
           "language": "Japanese"
         }
       ],
-      "description": "Niyanpai, also known as Nyanpai: Musume Pai, is a 1996 Japanese solitaire-mahjong puzzle game from Nichibutsu. Rather than playing a conventional four-player mahjong match, players work to complete a specified tile hand by identifying and matching tiles. The challenge lies in recognizing combinations and choosing moves that advance the required pattern.\n\nThe game features character-oriented Japanese presentation and simple joystick-and-button controls. Released late in Nichibutsu's long association with arcade mahjong, it offers a tile-puzzle variation on the genre rather than a standard competitive mahjong simulation.",
+      "description": "Nyanpai, subtitled Musume Pai, is a 1996 Japanese mahjong-themed puzzle game from Nichibutsu. Unlike the competitive mahjong games for which the company was well known, it uses a solitaire-style tile-matching objective: the player tries to assemble a specified mahjong hand by finding and matching tiles. The challenge is therefore one of visual selection and puzzle solving rather than winning a full traditional mahjong match against a computerized opponent.\n\nReleased in Japan in December 1996, it combines a compact arcade puzzle format with the character artwork associated with Nichibutsu's later mahjong catalogue. It uses joystick-and-button controls in place of the large dedicated mahjong keyboards found on many of the company's gambling boards. The name's subtitle, Musume Pai, can be rendered roughly as 'Daughter of the Tile'.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -131208,6 +131363,53 @@
     },
     {
       "shortnames": [
+        "phklad"
+      ],
+      "title": "Klad / Labyrinth",
+      "year": null,
+      "developer": null,
+      "publisher": null,
+      "category": "original",
+      "genre": "Maze",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "phklad",
+          "title": "Klad / Labyrinth (Photon System)",
+          "language": "Russian",
+          "version": "(Photon System)"
+        }
+      ],
+      "description": "Klad / Labyrinth is a two-game selection made for the Soviet Photon arcade cabinet, manufactured in Penza around the late 1980s and early 1990s. The cabinet was based on a modified PK8000 home computer, with an Intel 8080-compatible processor and a joystick. Players could choose between Klad (\\\"Treasure\\\") and Labyrinth, two distinct maze games packaged together rather than alternate names for one game.\n\nKlad belongs to the Soviet family of games inspired by the Japanese MSX title Rise Out, mixing maze navigation with hazards and walls that can be temporarily removed by firing sideways. Preservation accounts credit the Photon version to Andrey Malyshkin and describe a five-stage sequence that repeats. Labyrinth is a simpler Pac-Man-like maze chase with eight repeating stages. The combination is a distinctive example of local Soviet arcade software adapted from home-computer traditions and designed for short coin-operated sessions.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=phklad&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/photon.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Exact release year is not established.",
+        "Original developer and publisher are not established."
+      ]
+    },
+    {
+      "shortnames": [
         "phoenix",
         "batman2",
         "condor",
@@ -131471,6 +131673,56 @@
     },
     {
       "shortnames": [
+        "phpython"
+      ],
+      "title": "Python",
+      "year": null,
+      "developer": "Photon System",
+      "publisher": "Photon System",
+      "category": "original",
+      "genre": "Maze",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "phpython",
+          "title": "Python (Photon System)",
+          "language": "Russian",
+          "version": "(Photon System)"
+        }
+      ],
+      "description": "Python, also documented as Pithon, is a Soviet maze-action game for the Photon arcade cabinet, produced in Penza on hardware adapted from the PK8000 home computer. It takes the familiar growing-snake idea associated with Nibbler and adds a distinctive setting: the player guides a hungry python through a carrot patch, trying to eat rabbits while avoiding the carrots themselves.\n\nThe rabbits move unpredictably rather than remaining stationary targets, so the player must steer the snake toward moving prey without colliding with the dangerous vegetables. The game uses a joystick and straightforward overhead arcade graphics. Its unusual reversal of the usual food-and-obstacle roles, together with its origin in the late-Soviet computer scene, gives Python a character of its own among early snake games.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Photon_(arcade_cabinet)#Games"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=phpython&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/photon.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Exact release year is not established."
+      ]
+    },
+    {
+      "shortnames": [
         "phrcraze"
       ],
       "title": "Phraze Craze",
@@ -131540,6 +131792,61 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "phtetris"
+      ],
+      "title": "Tetris",
+      "year": null,
+      "developer": "Atari Games",
+      "publisher": "Atari Games",
+      "category": "original",
+      "genre": "Puzzle",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "series": "Tetris",
+      "variants": [
+        {
+          "shortname": "phtetris",
+          "title": "Tetris (Photon System)",
+          "language": "Russian",
+          "version": "(Photon System)"
+        }
+      ],
+      "description": "Tetris (Photon System) is a Soviet coin-operated adaptation of Alexey Pajitnov's famous falling-block puzzle, made for the Photon arcade cabinet manufactured in Penza during the late 1980s and early 1990s. Unlike Atari Games' separately developed Western arcade version, this is a local implementation running on hardware derived from the Soviet PK8000 home computer, with an Intel 8080-compatible processor and joystick controls.\n\nThe essential challenge is the recognizable Tetris formula: rotate and position falling four-square pieces to complete horizontal lines, clearing space before the accumulating stack reaches the top. Its Russian-language presentation and modest hardware distinguish it from better-known arcade editions. The surviving ROM is historically valuable as an example of Tetris returning to Soviet public amusement machines after originating in the country's computer-research community.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Tetris_(Atari)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Tetris_(Arcade,_Atari)"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=phtetris&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/photon.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Exact release year is not established."
+      ]
     },
     {
       "shortnames": [
@@ -133892,6 +134199,45 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "pokerout"
+      ],
+      "title": "Potten's Poker stealth with Breakout front game",
+      "year": null,
+      "developer": null,
+      "publisher": null,
+      "category": "original",
+      "genre": "Ball & Paddle",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Potten's Poker stealth with Breakout front game is an unusual dual-purpose arcade board of unknown manufacturer and date. It normally presents a fully playable Breakout-style game in which a movable paddle keeps a ball in play to clear blocks over three lives. Concealed behind that innocent-looking attraction is a video-poker gambling game, accessible only after a particular startup and credit-input sequence.\n\nThe hidden mode allows players to wager credits, draw and hold cards, and choose whether to collect a winning hand or gamble on a big-or-small double-up. After the poker credits are exhausted or paid out, the machine returns to its Breakout disguise. The design was intended for locations where overt gambling equipment might be prohibited, making the harmless-looking skill game a cover for the real business.\n\nPreserved in MAME from a board marked 5981-A, the set is a rare documented example of the 'stealth' gambling machines found in arcade and bar culture. Its remarkable feature is not the paddle action or the poker rules individually, but the way two functioning games coexist on one board to conceal the second.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=pokerout&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/pokerout.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Exact release year is not established.",
+        "Original developer and publisher are not established."
+      ]
     },
     {
       "shortnames": [
@@ -144813,7 +145159,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Driving",
       "platform": "Namco System 22",
       "players": 1,
       "release_status": "released",
@@ -146517,7 +146863,7 @@
           "version": "(bootleg of Repulse)"
         }
       ],
-      "description": "Repulse is a 1985 fixed-screen shooter developed by Crux and released by Sega, also distributed under the title '99: The Last War. Defending Earth against an invasion by the Aquila nation, players move a laser cannon along the bottom of the screen and shoot waves of robotic attackers and hostile spacecraft. Its six scenes progress from Encounter to The Last War, with large enemy ships serving as bosses in all but the opening scene.\n\nThe defining tactical feature is a rechargeable-by-pickup but otherwise finite force shield. Holding the second button protects the cannon from attacks, yet drains an energy meter that is not automatically restored between stages. Friendly helicopters, or a shuttle in the opening scene, deliver faster firepower and shield replenishments. Careful players can also exploit hidden extra-life opportunities, making the game more involved than a straightforward Space Invaders imitation. Repulse is historically noteworthy for its connection to the former Orca and Crux developers who went on to help establish Toaplan. Licensed versions of '99: The Last War and the bootleg Son of Phoenix preserve different branches of its arcade history.",
+      "description": "Repulse is a 1985 arcade shooter developed by Crux and published by Sega, also distributed in variants called '99: The Last War and Son of Phoenix. Players defend Earth from the invading Aquila forces, moving a laser cannon along the bottom of the screen to destroy robotic enemies, alien ships and large bosses. The six scenes progress from the initial encounter through increasingly desperate counterattacks, ending in a final confrontation. Although its layout recalls Space Invaders and Phoenix, its stages introduce a greater range of enemy behavior and large spacecraft encounters.\n\nThe central defensive mechanic is an energy-powered force shield. It can protect the player's craft from attacks, but using it consumes a limited reserve that must be replenished by collecting supplies dropped from friendly helicopters or spacecraft. Other pickups strengthen the weapon, while concealed bonus opportunities encourage careful shooting. A player who wastes shield power early may face a later boss with little protection remaining.\n\nRepulse also occupies an interesting place in Japanese development history. Several people associated with the Orca and Crux arcade teams later participated in the formation of Toaplan, whose shooters would become important to the genre. Its many licensed and unofficial names reflect the sometimes complex international distribution of arcade boards during the mid-1980s.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -150596,7 +150942,7 @@
           "version": "(Japan, v1.13)"
         }
       ],
-      "description": "Royal Mahjong is an early Japanese two-player-style mahjong machine represented in AdvanceMAME by a bootleg of Nichibutsu's original game. It implements mahjong hand-building and scoring in a gambling-oriented cabinet format, where wagers are made in credits and winning hands can pay out additional credits rather than merely increasing an arcade score.\n\nIts importance is primarily historical, as an example of the early transition from electronic mahjong to dedicated betting-style arcade machines. The preserved set should be distinguished from ordinary competitive, score-based mahjong games.",
+      "description": "Royal Mahjong is an early Japanese video mahjong game released by Nichibutsu in 1981. The player competes against a computerized opponent in a two-person form of riichi mahjong, drawing and discarding tiles while building a hand of sequences and matching sets. The fixed overhead presentation and dedicated tile-selection controls reproduce the logic of a mahjong table rather than an action game.\n\nIts historical importance lies in its betting-focused design. Building on the early electronic mahjong format associated with Janputer, Royal Mahjong made wagers and credit payouts part of the experience: players risk credits on hands, and stronger winning combinations produce larger returns. Arcade operators could adjust betting limits and payout-related settings. The design helped establish the commercial BET-mahjong style that became widespread in Japanese amusement parlors, and contemporary derivative boards such as New Double Bet Mahjong show its influence.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -150662,7 +151008,7 @@
           "version": "(hack of River Patrol)"
         }
       ],
-      "description": "River Patrol (1981) is a top-down river-navigation game by Orca, here represented by an unauthorized bootleg version. Players pilot a small boat upstream through a twisting jungle river, trying to rescue people struggling in the water. Rocks, crocodiles, and the riverbanks threaten to wreck the craft, while increasingly narrow passages demand precise steering.\n\nThe boat is continually influenced by the current: accelerating pushes it upstream, but easing off the throttle allows it to drift backward. The need to rescue swimmers while preserving forward progress gives the game an unusual balance between careful navigation and urgency. Its original design later evolved into The Bounty, which introduced altered graphics and shooting elements.",
+      "description": "River Patrol is a 1981 overhead-view action game from Orca, casting the player as the pilot of a small rescue boat on a hazardous jungle river. People are stranded in the water and must be picked up by steering the boat over them, but boulders, logs, crocodiles and the riverbanks threaten to sink the vessel. The stream is always working against the player: applying thrust propels the boat upstream, while releasing the acceleration control allows it to drift backward. Later stretches grow narrower and more tortuous, making careful navigation increasingly difficult.\n\nUnlike shooters built around destroying threats, River Patrol is principally about movement, momentum and precise rescue. Balancing speed against the risk of a collision gives it a distinctive arcade rhythm. The game inspired several conversions and alterations, including Silver Land, an unofficial variant that changes the river-rescue setting into skiing, and the later related game The Bounty, which added shooting to the basic formula.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -154040,7 +154386,7 @@
           "version": "(ver. B)"
         }
       ],
-      "description": "Space Bomber is Psikyo's offbeat 1998 fixed-screen shooter, a comic reinvention of Space Invaders built around capturing opponents rather than merely shooting them. The player's spacecraft can maneuver freely and use a grappling device to seize up to three enemies. Captured creatures can then be deployed as weapons, with different targets producing very different attacks and tactical possibilities. Ordinary shooting and power-ups remain useful, but deciding which enemies to capture adds an unusual layer of strategy.\n\nIts bizarre parade of flying animals, oversized objects and visual jokes contrasts with Psikyo's more serious military shooters. The relentless formations, boss encounters and playful weapon combinations give Space Bomber a personality of its own, especially in cooperative play.",
+      "description": "Space Bomber is Psikyo's 1998 comic science-fiction shooter, an eccentric departure from the company's more conventional scrolling shoot-'em-ups. Its vertically oriented screen and advancing alien formations recall Space Invaders, but the player's ship can move freely around the playfield. Alongside its ordinary shots, it carries a grappling device that captures enemies instead of destroying them. Up to three prisoners can be stored and then launched as weapons, with different alien types producing different attacks. Learning which creatures to capture, and when to use them, is the game's central tactical pleasure.\n\nIts bizarre cast includes flying junk and giant animals, while exaggerated visual jokes make the alien invasion more absurd than threatening. Two players can fight side by side, and hidden input sequences even allow unusual selectable ships, including one resembling a Tetris block. The original Japanese release is comparatively rare because many arcade boards were updated to the more common Version B.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -156274,7 +156620,7 @@
           "version": "revision 2"
         }
       ],
-      "description": "Sly Spy is Data East's 1989 arcade action game, also known as Secret Agent outside North America. Its tuxedo-clad secret agent confronts a terrorist organization through a rapid sequence of stages that openly evoke James Bond movies. The game shifts between running gun battles, parachuting combat, a motorcycle chase and underwater shooting, with a different rhythm and hazards in each section. When armed, the spy shoots his way past guards and machinery; without a gun, he must rely on kicks and other close-range attacks.\n\nThe changing perspectives, cinematic entrances and extravagant bosses give Sly Spy the feeling of an entire spy thriller compressed into a short arcade experience. The game borrows recognizable ideas from other action hits but builds a distinctive identity through its relentless changes of scene and gleefully over-the-top espionage imagery.",
+      "description": "Secret Agent, released by Data East in 1989 and called Sly Spy in the United States, is a cinematic side-scrolling action game built around a conspicuously unlicensed James Bond fantasy. The player infiltrates a terrorist organization threatening to launch a stolen nuclear missile. Its eight stages change the action frequently: the opening begins with a gunfight during a skydive, while later sequences include running through enemy installations, riding an armed motorcycle and swimming through underwater passages.\n\nThe agent normally fights with a pistol and limited ammunition, but can resort to kicks when disarmed, collect machine guns, or assemble the powerful temporary Golden Gun from six dropped components. Jetpacks and underwater propulsion devices add variety, while familiar spy-film archetypes appear among the bosses. Data East also scattered references to its own arcade characters, including RoboCop, Karnov and Chelnov. More than its straightforward platform shooting, the constant changes of setting and shameless Bond homages define its personality.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -159644,14 +159990,22 @@
       "modifications": [
         {
           "type": "gameplay",
-          "description": "Runs on the extended CPS2Turbo platform with faster CPUs, a 416x234 widescreen display, expanded sprite and QSound ROMs, and optional external stereo music samples."
+          "description": "Introduces 3-on-3 team battles, Just Defend parry mechanics, super-canceling from special moves, projectile clashes, mid-match character upgrades, and streamlined special move inputs."
+        },
+        {
+          "type": "technical",
+          "description": "Runs on the extended CPS2Turbo platform with double-clocked CPUs to eliminate slowdown, native 16:9 widescreen rendering (416x234), expanded sprite ROMs, and CD-quality stereo sample soundtrack support."
         }
       ],
-      "description": "Street Fighter Zero 3 Mix is a fan-made reworking of Capcom's 1998 Street Fighter Alpha 3, known as Street Fighter Zero 3 in Japan. The AdvanceMAME entry represents version 0.32 on the expanded CPS2Turbo platform, not an untouched original CPS-2 release. This edition uses a 416-by-234 widescreen playfield, faster processor configuration, additional graphics and sound-ROM space, and optional external stereo music samples. These enhancements require compatible emulation rather than ordinary CPS-2 hardware.\n\nBeyond its wider presentation, the hack substantially reshapes the fighting system. Its documented mechanics include short and long jumps, running, backsteps, rolls, last-moment 'Just Defence', air and ground recovery options, guard-break management, super cancels and custom combo variations. Existing fighters also receive revised move lists and additional attacks. It is best approached as an extensive, evolving alternative rule set built on Alpha 3's characters and animation, rather than a simple speed or difficulty patch.",
+      "description": "Street Fighter Zero 3 Mix is an extensive gameplay overhaul and technical enhancement of Capcom's 1998 CPS-2 fighting game Street Fighter Zero 3, developed by Zero800. Running on the custom CPS2Turbo architecture with overclocked 68000 and Z80 processors, the hack introduces native 16:9 widescreen rendering, high-fidelity stereo music samples, and 3-on-3 team battle modes. Combat is comprehensively rebalanced with Just Defend parry mechanics, super canceling, projectile collisions, simplified motion inputs, mid-fight character transformations, and updated movesets across the roster.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://sfz3mix.github.io/download.html"
+        },
         {
           "type": "reference",
           "url": "https://tcrf.net/Street_Fighter_Alpha_3_(Arcade)"
@@ -165307,6 +165661,53 @@
     },
     {
       "shortnames": [
+        "smotor"
+      ],
+      "title": "Super Motor",
+      "year": null,
+      "developer": "Duintronic",
+      "publisher": "Duintronic",
+      "category": "prototype",
+      "genre": "Driving",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "prototype",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "smotor",
+          "title": "Super Motor (prototype)",
+          "region": "North America",
+          "language": "English",
+          "version": "(prototype)"
+        }
+      ],
+      "description": "Super Motor is a previously undocumented racing-game prototype from Spain's Duintronic, designed for simple children's amusement machines rather than a conventional arcade racing cabinet. The recovered program can be switched between a motorcycle and a racing car using a hardware DIP switch, changing the vehicle and title presentation without replacing the board. Players steer along a road, avoiding traffic under a time limit.\n\nFour selectable difficulty levels change the traffic and available assistance. On the easiest setting, the road contains only slow-moving trucks and fuel cans that add ten seconds to the clock; normal difficulty adds cars, while harder settings remove the extra-time cans and allow vehicles to stop unexpectedly. These options suggest a design intended to accommodate different ages and cabinet types.\n\nA surviving Duintronic board was recovered by Spanish arcade-preservation enthusiasts, who documented the game's history with information from the company's founder. Its Z80-based hardware and Yamaha YM2413 sound chip were shared by a project intended to fit toy-like car, motorcycle, and other themed ride-on machines. The preserved car-and-motorcycle version is considered a prototype.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=smotor&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/smotor.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Exact release year is not established."
+      ]
+    },
+    {
+      "shortnames": [
         "snakepit"
       ],
       "title": "Snake Pit",
@@ -166144,7 +166545,7 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Jaleco's Soldam (1992) is a falling-block puzzle game that mixes color matching with rules reminiscent of Reversi. Each piece is a rotatable square of four fruit symbols, and placing matching colors across a horizontal, vertical or diagonal line can recolor the pieces between them. A row vanishes only when all of its fruits are the same color, so clearing the board depends on setting up transformations rather than merely grouping identical pieces.\n\nSpecial letter pieces can spell EXTRA and summon a fairy to clear fruit, while obstructing pieces and enemy interference complicate long stages. A rising level of pressure steadily reduces room for mistakes. Its distinctive flip-and-clear mechanic makes it an inventive alternative to the more familiar Tetris and Puyo Puyo formulas.",
+      "description": "Soldam is Jaleco's 1992 falling-block puzzle game, distinguished by a color-changing rule rather than the usual requirement to connect identical pieces. Two-by-two groups of fruit descend into a well and can be rotated in either direction. When fruits of the same color enclose other fruits along a horizontal, vertical or diagonal line, the enclosed pieces change to that color. A complete horizontal row of one color disappears, making careful positioning and chain reactions more important than simply stacking matches.\n\nThe game complicates the puzzle with blocks that span multiple cells, an ever-encroaching ceiling and enemies that can interfere with the fruit colors. Collecting the letters of EXTRA can summon a fairy to remove large sections of the playfield. With its two-player option and unusual recoloring mechanic, Soldam is an inventive alternative to the more familiar early-1990s falling-block games.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -168415,7 +168816,7 @@
           "language": "English"
         }
       ],
-      "description": "Space War is a 1979 monochrome-style fixed-screen shooter distributed by Leijac and associated with Konami, closely related to the game later known as Space Laser. From a position at the bottom of the vertical screen, players move horizontally with a two-way joystick and fire upward at a dangerous laser installation while spacecraft cross the field as targets and moving cover. In its competitive arrangement, a carefully timed shot can also hit the opposing player for a large point bonus. The stark display, single fire button and early Space Invaders-like presentation place it firmly in the first wave of Japanese fixed shooters, before elaborate scrolling backgrounds and power-up systems became commonplace.",
+      "description": "Space War is a 1979 fixed-screen shooter developed by Konami and released under the Leijac name, also encountered as Space Laser. Unlike the usual one-sided Space Invaders battle, its central contest pits laser tanks at opposite ends of the screen against each other. Horizontal formations of passing spacecraft get in the way, serving as moving obstacles and incidental targets. In cocktail-table play, each participant attacks from a different side; an upright configuration can provide a computer-controlled opponent.\n\nA weapon-energy or fuel reserve determines when a shot can reach the opposing tank, rewarding patience rather than indiscriminate firing. The simple left-right movement and single fire button conceal a surprisingly direct duel. Its black-and-white Intel 8080 hardware and spare presentation place it among the earliest attempts to adapt the Space Invaders formula to competitive play.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -171364,7 +171765,7 @@
           "version": "(older, WDK license)"
         }
       ],
-      "description": "Rough Ranger (1988), also distributed as Super Ranger, is a side-scrolling action shooter by South Korea's SunA Electronics. One or two players fight through a guarded military base to rescue a kidnapped woman, shooting armed soldiers, changing between upper and lower platforms, and navigating the doorways from which enemies emerge. Both its layout and the behavior of its masked gunmen owe an obvious debt to Namco's Rolling Thunder.\n\nUnlike its single-player inspiration, Rough Ranger supports simultaneous two-person action, letting partners cover different approaches to the same danger. It is an interesting early example of a Korean-developed arcade game adapting an established Japanese spy-shooter formula to cooperative play.",
+      "description": "Super Ranger is a 1988 run-and-gun platform game from South Korean developer SunA, also distributed as Rough Ranger under licensed versions. One or two players advance through a hostile military installation to rescue a captive woman, moving between platforms and fighting armed guards. Its running, climbing and gunplay closely imitate Namco's Rolling Thunder, down to the style of character animation and enemy encounters.\n\nAlthough the concept is strongly derivative, the game has some memorable eccentricities. Later sections introduce unusual monsters, and its soundtrack borrows recognizable classical compositions, including Ravel's Bolero and Bach's Toccata and Fugue in D minor. The surviving ROM sets document a complicated arcade distribution history, with Sharp Image and WDK licensing, alternative title graphics and unauthorized bootleg boards.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -173923,7 +174324,7 @@
           "version": "(Korea)"
         }
       ],
-      "description": "Mahou Daisakusen, released internationally as Sorcer Striker, is Raizing's 1993 debut vertically scrolling shooter. Its setting replaces conventional fighter jets with a wild mixture of sorcery, machines, knights and goblin armies. Four selectable characters, including the swordsman Gain and the young witch Chitta, attack the mechanized forces of a goblin empire through six stages packed with aerial targets, ground threats and sprawling bosses. Each pilot has a distinctive attack configuration, and weapon items build up a steadily more destructive offense.\n\nDeveloped by a team with roots in Compile's shoot-'em-up tradition, it became the first game in Raizing's Mahou Daisakusen line, followed by Kingdom Grandprix and Dimahoo. Its fantasy-industrial artwork, eccentric enemies and relentlessly escalating formations distinguish it from the military shooters of its era. The Japanese title literally evokes a grand magical military operation, a fitting description of its playful fantasy warfare.",
+      "description": "Sorcer Striker, known in Japan as Mahou Daisakusen, is Raizing's 1993 debut and the first chapter of the fantasy-shooter series later continued by Kingdom Grand Prix and Dimahoo. Four unlikely bounty hunters, the knight Gain, witch Chitta, reptilian samurai Miyamoto and necromancer Bornnam, take flight to defeat King Gobligan and collect the reward on his head. Medieval castles, goblins and magical weapons mingle with mechanical vehicles and elaborate boss encounters across six vertically scrolling stages.\n\nEach character has distinctive attack patterns. Coins strengthen the main shot, while colored magic books change or improve secondary weapons, including homing, wide-spread and concentrated fire. Bombs provide emergency protection, but dying strips away collected firepower; surviving the game's second loop is required for its full ending. Created by staff with experience on earlier Compile shooters and running on Toaplan-derived arcade hardware, Sorcer Striker established the exuberant fantasy aesthetic and demanding shooting mechanics that became associated with Raizing.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -177500,7 +177901,7 @@
           "version": "v1.0"
         }
       ],
-      "description": "Idol Janshi Su-Chi-Pie II is a 1994 Japanese mahjong game from Jaleco, presented with elaborately animated characters and a story about rescuing the kidnapped Shiho Katagiri. The player faces a succession of opponents in competitive mahjong; between matches, a tile-matching bonus game can also affect progress. Winning encounters unlocks further dialogue, characters and adult-oriented animated reward sequences.\n\nThe arcade game uses Jaleco's Mega System 32 hardware and character artwork overseen by Kenichi Sonoda. Its combination of conventional mahjong, playful supernatural heroines and extensive animation makes it one of the more distinctive releases in the Su-Chi-Pai series.",
+      "description": "Idol Janshi Suchie-Pai II is Jaleco's 1994 Japanese mahjong game, blending traditional one-on-one mahjong with anime storytelling, character transformations and adult-oriented reward sequences. The heroine Suchie-Pai must rescue the kidnapped Shiho Katagiri by defeating a succession of themed female opponents. The player can choose an opening rival, after which the remaining encounters unfold through a partly randomized progression toward the final stages.\n\nBetween mahjong hands, a tile-matching bonus puzzle provides special items that can be used to influence later hands. Filling a separate meter triggers animated scenes and recruits defeated characters to help the heroine. Opponents can be beaten by exhausting their funds or clearing the associated matching puzzle, and losing all the player's own funds ends the run. The animated presentations and elaborate characters distinguish this Mega System 32 release from conventional arcade mahjong cabinets.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -178205,7 +178606,7 @@
           "language": "English"
         }
       ],
-      "description": "Super Ten V8.3 is a 1988 U.S. Games multi-game title designed for North American countertop and upright amusement machines. It belongs to the manufacturer's button-operated line of bar games, whose appeal came from offering a selection of short diversions on one machine rather than a single arcade experience. The related U.S. Games catalog mixed electronic card games, trivia, word challenges, and simple reflex-based games, creating something closer to a compact video amusement center than a conventional action cabinet.\n\nThe V8.3 suffix identifies the preserved software revision. AdvanceMAME also recognizes V8.2 and V8.3X variants, reflecting the frequent program updates characteristic of these machines. Super Ten appeared in February 1988, between the original Super Duper Casino and the later Games V18 and V25 releases.",
+      "description": "Super Ten is a 1988 countertop arcade multi-game collection developed by U.S. Games, Inc., an American manufacturer specializing in compact coin-operated amusement machines. Rather than offering a single arcade challenge, it presents a selection of short, button-controlled games combining quiz-style entertainment with casino-inspired betting and scoring. One of its activities features a colorful horse race in which players can place point-based wagers, reflecting the gambling-themed attractions common in American countertop machines of the period.\n\nThe game runs on Motorola 6809 hardware with a 400×248-pixel display and AY-series sound generation. Released in February 1988, Super Ten belongs to U.S. Games' evolving family of countertop entertainment systems, which also included Super Duper Casino and later multi-game revisions. AdvanceMAME preserves version 8.3 alongside the earlier 8.2 and alternative 8.3X releases, documenting a relatively obscure branch of late-1980s arcade entertainment.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -178881,7 +179282,7 @@
           "version": "(Japan)"
         }
       ],
-      "description": "Super Mouse is a 1982 arcade platform-and-maze game from Taito, also distributed as Funny Mouse. Players steer a mouse around the floors and passageways of a house, collecting scattered food while evading cats and cobras. Survival is not limited to dodging: the mouse can lay explosive bombs, trigger trapdoors, release rocks from above and use moving floor sections and pools of water to dispose of pursuers. These environmental hazards can be as dangerous to the player as to the enemies, rewarding planning rather than reckless movement. Between stages, a slot-machine-style bonus game offers extra points for matching symbols. Sharing hardware with Taito's Round-Up, it is an inventive early example of an arcade collection game built around interactive traps.",
+      "description": "Super Mouse is a 1982 Taito maze-platform game, also distributed in Japan as Funny Mouse. The player guides a small mouse through a multi-level house, collecting scattered food and carrying it back to a storage box while avoiding prowling cats and cobras. An eight-way joystick and a single action button govern movement and the mouse's limited means of defense.\n\nInstead of relying on direct attacks, the mouse can use balloon-like bombs, drop heavy objects and manipulate parts of the scenery, including moving floors and trapdoors over pools of water. These environmental tricks can dispose of enemies, but bombs can also harm the player. Between stages, a small slot-machine-style bonus round awards extra points for matching symbols. The combination of item collection and hazardous, interactive scenery makes Super Mouse a distinctive early house-themed arcade platformer.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -181928,7 +182329,7 @@
           "version": "(China, V109C, set 1)"
         }
       ],
-      "description": "Tarzan is a 1999 electronic gambling/medal machine from International Games System (IGS), not an adaptation of Disney's Tarzan platform game released in the same year. The original program belongs to IGS's Asian video-slot catalogue, with a button-driven gambling interface and a horizontal display. Different preserved revisions include V107 and V109C; later dumps document additional program variants.\n\nThe cabinet's Z80-family technology and medal-machine classification place it firmly in the late-1990s amusement-gambling market. Detailed reel and bonus rules are not reliably described in the available archival records, so similarities to the unrelated Disney game should not be inferred.",
+      "description": "Tarzan Chuang Tian Guan is a 1999 Chinese-market video gambling and medal game from International Games System (IGS), not a Tarzan-themed action platformer. The game uses betting and payout controls, including a set of four stop inputs, together with options for odds, collecting winnings and choosing high or low outcomes. Its double-up feature lets players risk winnings in pursuit of a larger return; operator settings control such details as minimum bets, coin values and payouts.\n\nIt is an example of IGS's specialized coin-operated gambling hardware, built around a Z80-family processor with protected program and graphics data. The V109C Chinese release is one of several related versions whose encryption and protection circuitry have complicated preservation and emulation.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -182068,7 +182469,7 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Taxi Driver is a 1984 Japanese maze-driving arcade game released under the Graphic Techno EW name, a joint label associated with Seibu Lease and Vic Tokai. Rather than a behind-the-car racing simulation, it presents driving as a top-down, maze-oriented action challenge on a vertical screen. Players guide their vehicle with a four-way joystick and two buttons, taking turns in the two-player mode. The board is notably elaborate for such a modest-looking game, using three Z80 processors and a pair of AY-3-8910 sound chips. The title should not be confused with unrelated home-computer games or later taxi simulators.",
+      "description": "Taxi Driver is an obscure 1984 Japanese overhead driving and maze game issued under the Graphic Techno label, a collaboration associated with Seibu Lease and Vic Tokai. The objective is to maneuver a taxi through a city playfield and pick up waiting passengers, turning everyday urban driving into a compact arcade challenge rather than a conventional race. The vehicle is controlled with a four-way joystick and two buttons.\n\nIts distinctive vertical screen and unusual three-Z80 board configuration set it apart from better-known contemporary driving games. For years, preservation was hindered by an undumped color PROM, causing inaccurate colors in early emulator versions until the missing data was recovered.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -184788,7 +185189,7 @@
           "version": "(with nudity)"
         }
       ],
-      "description": "Target Ball '96 is a 1996 arcade billiards puzzle game by South Korean developer Yun Sung, built around short pool challenges and adult-themed picture rewards. Using an eight-way joystick and two buttons, the player aims and shoots balls on a virtual table, trying to meet the round's target score to advance. Successful play reveals images of women, a feature also found in related Target Ball sets, including variants with different levels of nudity. Its mixture of straightforward cue-sport mechanics, score-based progression and mildly risqué presentation illustrates a niche occupied by many smaller arcade developers in the 1990s.",
+      "description": "Target Ball '96 is a 1996 Korean billiards-themed arcade game from Yun Sung. Players work through pool-style challenges, trying to reach the required score in each round through carefully aimed shots. It uses an eight-way joystick and two buttons instead of a full-size pool cue or a trackball, giving the familiar tabletop sport a simplified arcade interface.\n\nThe game's other attraction is its adult-oriented presentation: meeting successive score targets unlocks pictures of women, with the amount of revealing content varying between related editions. The ROM family also includes the earlier Target Ball and a version specifically identified as containing nudity. It is a characteristic example of the small-scale Korean arcade releases that combined recognizable sports rules with revealing visual rewards.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -186764,18 +187165,27 @@
       "developer": "Virtual Image Productions",
       "publisher": "Sega",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Platform",
       "platform": "Arcade",
       "players": 1,
       "release_status": "released",
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": null,
+      "description": "Time Traveler is Sega's remarkable 1991 laserdisc adventure, designed by Rick Dyer, one of the creators of Dragon's Lair. It stars live-action actors rather than cartoon characters and follows Old West lawman Marshal Gram through a succession of historical and futuristic settings. His mission is to rescue Princess Kyi-La of the Galactic Federation and stop the renegade scientist Vulcor from disrupting time. Knights, cavemen, ninjas, futuristic enemies, and other hazards appear in short filmed encounters.\n\nPlay is built around split-second decisions: move the joystick in the correct direction or press the action button at the right moment to survive a scene and advance to the next. The distinctive Time Reversal Cube lets the player undo a fatal mistake and retry, and additional cubes can be purchased with credits. As with other interactive laserdisc movies, success depends more on observation, reflexes, and memorizing sequences than on free movement through a simulated world.\n\nThe game's real attraction was its celebrated 'holographic' cabinet. A television and large concave mirror made prerecorded actors appear to float above a dark stage, creating a striking illusion of three-dimensional figures without using true holography. This expensive and unusual display was later reused for Sega's fighting game Holosseum. Time Traveler remains a memorable late example of the laserdisc era's ambition to turn arcade games into cinematic spectacles.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Time_Traveler_(video_game)"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=timetrv&lang=en"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -186978,7 +187388,7 @@
           "version": "(bootleg of The Invaders)"
         }
       ],
-      "description": "The Invaders is a rare 1978 Italian-made variation on Space Invaders, associated with arcade manufacturer Zaccaria. A gun at the bottom of the screen moves sideways and fires upward at descending ranks of hostile alien craft, while the player must avoid or destroy their shots before they reach the ground.\n\nThe basic formula is closely modeled on Taito's groundbreaking original, but the board uses Signetics 2650-family hardware rather than the customary Midway or Taito design. For collectors, this set documents how quickly the invasion-shooter craze spread into European-made machines and local hardware adaptations.",
+      "description": "The Invaders is an Italian-made, late-1970s imitation of Taito's Space Invaders, manufactured by Zaccaria under its Zelco name. Players move a defensive cannon left and right along the bottom of a fixed screen, firing upward at descending ranks of extraterrestrials before they reach the player's position. Its basic rhythm of alignment, shooting and survival faithfully follows the arcade phenomenon it emulates.\n\nThe hardware is considerably less conventional than its appearance suggests. Instead of the Intel 8080 used by the original Space Invaders, the board employs a Signetics 2650 processor and separate sprite circuitry with unusual video timing. A closely related unauthorized edition circulated as Super Invader Attack. This makes The Invaders notable as an early European attempt to reproduce a major Japanese arcade hit on locally developed electronics.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -187643,7 +188053,7 @@
           "version": "(set 1)"
         }
       ],
-      "description": "The Next Space is a 1989 vertically scrolling shooter by SNK. Players steer a spacecraft through waves of alien enemies, firing a primary weapon and a separate secondary attack while dodging hostile shots. Red capsules release speed upgrades, while blue ones supply different auxiliary weapons, encouraging the pilot to adapt firepower to the dangers ahead. Its economical two-button design and straightforward power-up system place it among SNK's lesser-known late-1980s space shooters.",
+      "description": "The Next Space is a 1989 SNK vertically scrolling space shooter whose chief attraction is a broad selection of weapon upgrades. Players pilot a small spacecraft through successive formations of enemy ships, collecting power-ups to adapt their firepower as the scenery scrolls upward. Red capsules yield speed-increasing S items, while blue capsules provide interchangeable secondary weapons.\n\nThe available arsenal includes lasers, spread shots, missiles, flamethrower-like attacks and small escort craft. Two separate firing buttons let players use a primary and a secondary attack, making weapon choice an important part of handling the escalating on-screen opposition. Compared with more elaborate late-1980s shooters, The Next Space emphasizes the immediate satisfaction of collecting, testing and combining upgrades.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -192084,7 +192494,7 @@
           "version": "(set 2)"
         }
       ],
-      "description": "Trivia Master is a 1985 coin-operated quiz game developed by Enerdyne Technologies and distributed by PGD. It brings trivia competition to an arcade cabinet rather than a board game or television studio, using a color monitor and four-button answer selection. Questions held in ROM supply the challenge, while the results allow players to compare their knowledge and scores. The game belongs to the surge of bar-friendly quiz machines that offered a quieter alternative to action-oriented arcade titles.\n\nMultiple ROM sets and a related edition named Trivia Genius have survived, reflecting the revisions and question variations common to this type of machine. Its follow-up, Super Trivia Master, appeared the next year and expanded the franchise's multiplayer appeal.",
+      "description": "Trivia Master is a 1985 coin-operated general-knowledge quiz game developed by Enerdyne Technologies and published by PGD. Instead of joystick action, players answer on-screen multiple-choice questions using four dedicated buttons corresponding to the available answers. It accommodates solo play or alternating competitors, making it well suited to the trivia-game cabinets that became common in bars and amusement locations during the mid-1980s.\n\nAn unusual part of its history is its hardware: the game uses a Z80-based platform related to Jaleco's Naughty Boy rather than a bespoke modern quiz terminal. Different question-ROM sets were released, including the closely related Trivia Genius edition. The emphasis is entirely on quick recall and selecting the correct answer rather than reflexes.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -192317,7 +192727,7 @@
           "version": "(6221-05)"
         }
       ],
-      "description": "Trivia ? Whiz Edition 2 is a revised 1985 question set for Merit's popular countertop quiz machine. It retains the original's rapid sequence of multiple-choice questions and button-based responses while supplying different ROM-based trivia content. Categories span familiar bar-quiz topics, with surviving alternative question ROMs including adult-oriented material. The game shares the Merit 6221 hardware and basic scoring structure of the earlier edition; its identity comes from its revised questions and program ROMs, not from a new graphical or action-game mechanic.",
+      "description": "Trivia ? Whiz Edition 2 is a 1985 question-set update to Merit Industries' popular coin-operated Trivia Whiz, built for the company's Z80-based 6221 hardware. Players answer multiple-choice questions using labeled answer buttons, competing for a high score across short rounds. The questions cover subjects such as entertainment, general knowledge and sports, while some editions include a separate adult-oriented trivia category. A points-wagering element adds risk to uncertain answers.\n\nEdition 2 retains the established formula but replaces the question material, making it a distinct release rather than a new game engine. Merit's interchangeable question-ROM boards and numerous subsequent editions show how arcade quiz machines could remain commercially useful by refreshing their content without replacing the entire cabinet.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -193620,7 +194030,7 @@
           ]
         }
       ],
-      "description": "Tecmo World Cup '90 is Tecmo's 1989 arcade football game, a successor to the earlier Tehkan World Cup. Players select from eight national teams, including Brazil, Italy, Japan, and West Germany, then compete on a scrolling overhead pitch. Joystick movement and two action buttons support an immediate, fast-moving blend of passing, shooting, and defense, with little of the tactical menu management found in contemporary console simulations.\n\nIts World Cup theme coincided with the buildup to the 1990 tournament, although the selectable national sides are not a strictly accurate list of qualifiers. The game's popularity also inspired unauthorized conversions, notably Euro League, which replaced the national-team selection with European club sides.",
+      "description": "Tecmo World Cup '90 is Tecmo's 1989 arcade football game, arriving ahead of the 1990 World Cup in Italy. It presents matches from a side-on, slightly elevated perspective with scrolling across the pitch. Players choose from eight national teams and use an eight-way joystick with two buttons for fundamental actions such as passing, shooting, tackling and switching players. The controls aim for quick, readable attacks rather than complex simulation.\n\nCrosses into the penalty area, headers and fast changes of possession give its matches an approachable arcade rhythm. Although it shares its name with home-console football releases, the coin-op version is its own arcade production with a different team selection and control scheme. Its popularity also led to a variety of European hacks and unauthorized versions, including games marketed as Euro League.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -193679,7 +194089,7 @@
           "version": "(set 2)"
         }
       ],
-      "description": "Tecmo World Cup '94 is a 1994 soccer arcade game that builds on Tecmo World Cup '90. Up to four players can compete in a fast, accessible tournament against national teams, with scrolling and zoom effects giving the matches a lively presentation. The emphasis is on quick attacking football rather than simulation: well-placed crosses followed by headers or bicycle kicks can be especially effective ways to score.\n\nThe game features a 16-team international competition and belongs to Tecmo's series of arcade football titles, later followed by releases such as Tecmo World Soccer '96 and Tecmo World Cup '98.",
+      "description": "Tecmo World Cup '94 is the 1994 follow-up to Tecmo's earlier arcade soccer game, updated for the World Cup year with more elaborate audiovisual presentation and a revised control layout. International teams compete on a scrolling, horizontally oriented field, with sharper player graphics, camera scaling effects and a four-button, eight-way-joystick arrangement that offers more direct control than its predecessor.\n\nThe play remains firmly arcade-oriented, rewarding quick passing, crossing into the penalty area and spectacular finishing attempts such as headers or bicycle kicks. Large character sprites, energetic music and the extra controls give it a distinct feel from World Cup '90, while retaining the series' emphasis on lively, immediately understandable football matches.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -194601,7 +195011,7 @@
           "version": "rev. C"
         }
       ],
-      "description": "TX-1 is Tatsumi's 1983 three-screen Formula One-style racing game, represented here by a licensed Atari/Namco/Taito variant. Its giant panoramic display allows the driver to see traffic and approaching bends across three adjacent monitors. Steering-wheel feedback, throttle, braking and gear changes make cornering and overtaking more involved than in many contemporary racing games.\n\nRaces are checkpoint-based, but the road periodically forks and the player's chosen route determines the later stages. This branching structure anticipated the route selection made famous by Out Run. The licensed edition preserves the remarkable triple-monitor experience and arcade racing mechanics of Tatsumi's original TX-1 rather than constituting a separate game.",
+      "description": "TX-1 is Tatsumi's landmark 1983 Formula One arcade racer, licensed for distribution by Namco and later Atari in North America. Its spectacular sit-down cabinet uses three adjoining monitors to surround the player with a panoramic view of the road, dramatically widening the field of vision. A vibrating force-feedback steering wheel, accelerator, brake and gear controls reinforce the illusion of driving a racing car. Players must manage speed carefully through bends, downshifting and braking to avoid skids or collisions while racing against the clock to reach checkpoints.\n\nTX-1 was also an important pioneer of branching routes. At checkpoints the road divides, and the chosen direction determines which later courses and eventual destination the driver will encounter. This structure anticipates the route-selection system made famous by Sega's Out Run. The original game and its 1984 successor TX-1 V8 were substantial Japanese arcade earners, helping establish the multi-monitor driving cabinet as one of the era's most ambitious attractions.\n\nBeyond its novelty, TX-1 combined physical spectacle with demanding car handling and a sense of agency over the route. Its significance lies not simply in displaying more scenery, but in using cabinet technology and nonlinear progression to reshape what an arcade racing game could feel like.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -195932,7 +196342,7 @@
           "language": "English"
         }
       ],
-      "description": "Games V25.4X is a 1992 U.S. Games multi-game release, one of the later preserved revisions of the company's countertop amusement software. Players choose from a menu of short games instead of following a single campaign. The product family was known for its mixture of poker- and blackjack-style diversions, trivia, word games, and simple reflex-based challenges such as brick-breaking, aimed at the American bar and leisure market. Operation centers on a row of selection and action buttons rather than conventional arcade joystick movement.\n\nIn AdvanceMAME, V25.4X acts as the parent version for several earlier Games revisions, including V18.2 and V18.7C. Its 6809-based electronics and modest 400-by-248-pixel display illustrate a parallel branch of arcade history in which commercial success came from updating compact, reusable multi-game machines rather than producing elaborate dedicated video-game cabinets.",
+      "description": "Games V18.2 is a 1989 version of U.S. Games' coin-operated multi-game software for countertop and upright amusement machines. Instead of offering one fixed arcade challenge, the system lets patrons choose among short bar-oriented activities, a format the company had developed through Super Duper Casino and Super Ten. Its established repertoire mixed card and dice games with trivia, word challenges, and simple arcade-style skill games, all operated through a small button panel rather than a joystick.\n\nThe V18.2 designation identifies a specific software revision, not a separate action game. In AdvanceMAME it belongs to the same family as the later Games V18.7C and V25.4X sets, making it useful for tracing the evolution of U.S. Games' multi-game cabinets at the end of the 1980s.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -196090,7 +196500,7 @@
           "version": "(v0.9) (MPU4 Video)"
         }
       ],
-      "description": "The Crystal Maze: Team Challenge is a 1994 Barcrest video amusement and skill-with-prizes game based on the British television show The Crystal Maze. Players participate in a series of short challenges intended to win crystals, which in turn determine how much time is available for the concluding Crystal Dome round. The format adapts the television program's varied tests of quick thinking and dexterity into a coin-operated machine.\n\nRather than being a conventional platformer or quiz, it is a collection of themed minigames tied together by the crystal-collection objective. Its connection to the Channel 4 program and Barcrest's MPU4 Video hardware make it an unusual crossover between television game shows and British amusement-machine design.",
+      "description": "The Crystal Maze: Team Challenge is a 1994 British skill-with-prizes video game produced by Barcrest for its MPU4 Video platform. It adapts the Channel 4 television show by presenting a series of varied minigame challenges. Success earns crystals, and each crystal adds precious time to the final Crystal Dome challenge, where the player tries to gather valuable gold tokens to qualify for a prize.\n\nThe game recreates the show's distinctive progression from individual trials to a climactic timed finale rather than concentrating on a single repeated mechanic. Like other British prize machines, its difficulty and returns can be influenced by operator-controlled payout behavior, but reaching the final reward remains mechanically possible. The arcade version is an unusual example of a television game-show format adapted to the UK amusement-with-prizes market.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -196135,7 +196545,7 @@
           "version": "(v0.4) (MPU4 Video)"
         }
       ],
-      "description": "The Mating Game is a British adult-humor amusement and gambling title released by Barcrest in July 1996 for the MPU4 Video system. Rather than a conventional reel-based fruit machine, it sends players through a maze in search of a romantic partner. After selecting a male or female character, the player answers multiple-choice questions or completes challenges to collect cupids, which provide time for the bedroom finale. The objective also involves collecting three gifts and coins that increase the potential jackpot.\n\nThe game combines a trackball and four buttons with colorful cartoon characters, comic dialogue, and quiz-style interludes. Its unusual mixture of exploration, relationship-themed questions, and gambling mechanics distinguishes it from the more familiar fruit machines built on Barcrest hardware. The preserved v0.4 arcade software also has a separate Datapak variant.",
+      "description": "The Mating Game is a British coin-operated quiz and amusement game produced by Barcrest in the mid-1990s for its MPU4 Video system. Its cheeky presentation revolves around cartoon male and female characters, humorous imagery, and multiple-choice questions. Players select answers from three displayed possibilities, with colorful animations and exaggerated character reactions providing feedback. The game combines the style of a lighthearted adult-themed quiz with the prize-oriented entertainment traditionally found in British pubs and amusement arcades.\n\nThe machine uses a trackball and buttons, with a Motorola 6809 processor linked to a 68000-based video board and additional sampled-sound hardware. The surviving version 0.4 is available in standard and Datapak configurations, the latter intended for recording operational information. Its unusual combination of quiz gameplay, suggestive cartoon artwork, and specialized British amusement hardware makes it a distinctive example of Barcrest's MPU4 Video catalogue.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -196182,7 +196592,7 @@
           "version": "(v1.1) (MPU4 Video, set 1)"
         }
       ],
-      "description": "Skill Trek is an early-1990s Barcrest pub quiz/amusement-with-prizes game running on the company's MPU4 Video hardware. Unlike a pure reel-spinning slot, it is catalogued as a skill or question-based attraction, blending the British tradition of prize machines with a screen-based interface. It uses a horizontal display and the MPU4's paired processor arrangement rather than a dedicated arcade action board.\n\nThe surviving version 1.1 sets document a machine aimed at the British pub market, although their detailed question flow and prize rules are not clearly established. It is therefore best distinguished by its skill-machine format and Barcrest platform rather than by unsupported claims about particular challenges.",
+      "description": "Skill Trek is a 1990 British quiz machine developed by Barcrest for the MPU4 Video platform and released into the country's coin-operated amusement market. Players answer multiple-choice trivia questions, selecting between three alternatives labelled A, B, and C while an on-screen clock adds time pressure. The display prominently features monetary winnings and available credits, emphasizing the game's combination of general knowledge, quick decisions, and the possibility of earning cash prizes.\n\nReleased in July 1990, Skill Trek uses the MPU4 architecture with Motorola 6809 and 68000 processors, a horizontal video display, and button-based controls. Unlike conventional fruit machines built around spinning reels, it relies on question-and-answer gameplay. Its surviving version 1.1 exists in two ROM sets, preserving an example of the skill-with-prizes quiz machines that became familiar attractions in British pubs and amusement venues.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -196227,7 +196637,7 @@
           "version": "(v2.3) (MPU4 Video)"
         }
       ],
-      "description": "Turnover is a 1990 British pub gambling/prize game by Barcrest, represented by version 2.3 and other MPU4 Video software revisions. It belongs to the company's video-based amusement-with-prizes line, replacing the presentation of a purely mechanical fruit machine with a display driven by the MPU4 platform. Its betting and prize-oriented cabinet format is distinct from ordinary joystick action games.\n\nThe surviving sets include 2.33 and other numbered variations, with alternative video ROMs preserved alongside them. The exact winning combinations are not securely documented, but the game's place in Barcrest's evolving pub-machine catalogue is well established.",
+      "description": "Turnover is a British coin-operated quiz and prize game developed by Barcrest around 1990 for the MPU4 Video system. Although sometimes catalogued as a fruit machine, its video gameplay centers on multiple-choice trivia questions rather than conventional spinning reels. Players choose between three possible answers while a prominent bomb-and-burning-fuse graphic adds a distinctive element of tension. The combination of questions, time pressure, and prize-oriented play reflects the style of British skill-with-prizes amusement machines of the period.\n\nThe game uses Barcrest's dual-processor MPU4 Video architecture, combining a Motorola 6809 controller with a 68000 video subsystem and dedicated sound hardware. Version 2.3 and several alternative revisions survive in MAME. Its question-based format and unusual bomb-themed presentation distinguish Turnover from the more familiar reel-based gambling machines associated with Barcrest.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -197962,7 +198372,7 @@
       "developer": "Namco",
       "publisher": "Namco",
       "category": "original",
-      "genre": "Arcade",
+      "genre": "Driving",
       "platform": "Namco System 22",
       "players": 1,
       "release_status": "released",
@@ -204730,7 +205140,7 @@
           "version": "(set 2)"
         }
       ],
-      "description": "Woodpecker (1981) is an obscure single-screen platform game closely related to Naughty Mouse and built on Pac-Man-derived arcade hardware. The player climbs between levels of a vertically arranged playfield, attempting to reach a destination at the top while avoiding or negotiating the woodpeckers that emerge from large eggs along the sides. Its compact layout, simple four-way movement, and hazards arranged on multiple platforms place it among the experimental early-1980s platform games that preceded standardized scrolling designs. The game is also remembered by emulator historians for the unusual protected hardware needed to preserve its operation.",
+      "description": "Woodpecker is a 1981 fixed-screen platform game by Amenip, closely related to the title Naughty Mouse and running on hardware derived from Namco's Pac-Man board. Despite the title, the playable character is a mouse trying to travel from his house at the bottom of a multi-level playfield to his girlfriend's house at the top. Ladders link the platforms, while brightly colored woodpeckers emerge from eggs and patrol the routes between them.\n\nA four-way joystick handles movement and a single button lets the mouse jump over its pursuers. Some ladders become electrified after use, preventing an easy retreat and forcing players to plan their route. Reaching the upper house awards a bonus based on the time remaining. Woodpecker and Naughty Mouse differ principally in their colors and platform arrangements, reflecting the alternate editions and licensing history of this obscure early platformer.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -208766,7 +209176,7 @@
           "version": "(bootleg Dig Dug conversion on Galaxian hardware, set 2)"
         }
       ],
-      "description": "Zig Zag is an early-1980s unlicensed take on Namco's Dig Dug, surviving in versions for different arcade hardware. The player tunnels through underground soil, trying to eliminate roaming enemies while avoiding contact with them. Falling rocks can be used as weapons, but the mechanics vary between the preserved versions.\n\nThe Galaxian-related hardware conversion is especially distinctive because it changes how enemies are defeated: the familiar air pump is absent, requiring close-range contact, while a temporary pickaxe upgrade can increase digging speed. Unlike Dig Dug, the game omits the vegetable bonus items. These alterations make the conversion more than a simple graphics swap and a useful example of early arcade bootleg adaptation.",
+      "description": "Zig Zag is an unauthorized 1982 reworking of Namco's Dig Dug, notable because this particular version runs on converted Moon Cresta/Galaxian-family hardware rather than Dig Dug's original board. The familiar objective remains: dig tunnels through underground soil, eliminate the roaming creatures and make use of falling rocks to crush enemies. A joystick moves the miner and a single button activates the attack, though the inflation weapon's reach and behavior differ from the original game.\n\nThe conversion adds a temporary pickaxe power-up that lets the player excavate more rapidly, while omitting Dig Dug's familiar vegetable bonuses. Its altered graphics, sound and hardware compromises make it more than a simple title-screen substitution. Other bootlegs named Zig Zag exist on Dig Dug-derived hardware and should not be confused with this Galaxian conversion.",
       "trivia": [],
       "tips": [],
       "scoring": [],
