@@ -212,6 +212,13 @@
           "type": "translation",
           "description": "Translates stage results, character selection panels, and character names in attract mode into English, and adds a translation credit under the title logo. Uses the translated Japanese mode with every ST-V BIOS region."
         }
+      ],
+      "description": "Cotton Boomerang (English translation) is an English localization patch by Zanac for Success's 1998 Sega ST-V cute-'em-up Cotton Boomerang: Magical Night Dreams. Translating the remaining Japanese text using the English font from the Cotton 2 localization, it translates the character dialogues on the stage result screens, the weapon and shot select panels across all eight playable characters, and full character names in the attract mode, while replacing the title logo subtitle with a translation credit. The patch also forces the game to run in its translated Japanese mode across all ST-V BIOS regions, resolving export-mode omissions and typos while preserving original arcade gameplay and mechanics.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/zanac/cottonbm"
+        }
       ]
     },
     {
@@ -967,7 +974,18 @@
       "modifications": [
         {
           "type": "gameplay",
-          "description": "Runs on the extended CPS2Turbo platform with faster CPUs, a 416x234 widescreen display, expanded sprite and QSound ROMs, and optional external stereo music samples."
+          "description": "Introduces 3-on-3 team battles, Just Defend parry mechanics, super-canceling from special moves, projectile clashes, mid-match character upgrades, and streamlined special move inputs."
+        },
+        {
+          "type": "technical",
+          "description": "Runs on the extended CPS2Turbo platform with double-clocked CPUs to eliminate slowdown, native 16:9 widescreen rendering (416x234), expanded sprite ROMs, and CD-quality stereo sample soundtrack support."
+        }
+      ],
+      "description": "Street Fighter Zero 3 Mix is an extensive gameplay overhaul and technical enhancement of Capcom's 1998 CPS-2 fighting game Street Fighter Zero 3, developed by Zero800. Running on the custom CPS2Turbo architecture with overclocked 68000 and Z80 processors, the hack introduces native 16:9 widescreen rendering, high-fidelity stereo music samples, and 3-on-3 team battle modes. Combat is comprehensively rebalanced with Just Defend parry mechanics, super canceling, projectile collisions, simplified motion inputs, mid-fight character transformations, and updated movesets across the roster.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://sfz3mix.github.io/download.html"
         }
       ]
     },
