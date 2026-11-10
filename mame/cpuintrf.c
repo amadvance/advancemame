@@ -18,6 +18,10 @@
  *
  *************************************/
 
+void cquestrot_get_info(UINT32 state, union cpuinfo *info);
+void cquestlin_get_info(UINT32 state, union cpuinfo *info);
+void cquestsnd_get_info(UINT32 state, union cpuinfo *info);
+
 void dummy_get_info(UINT32 state, union cpuinfo *info);
 void z80_get_info(UINT32 state, union cpuinfo *info);
 void z180_get_info(UINT32 state, union cpuinfo *info);
@@ -268,6 +272,11 @@ static const struct
 } cpuintrf_map[] =
 {
 	{ CPU_DUMMY, dummy_get_info },
+#if HAS_CQUESTROT
+	{ CPU_CQUESTROT, cquestrot_get_info },
+	{ CPU_CQUESTLIN, cquestlin_get_info },
+	{ CPU_CQUESTSND, cquestsnd_get_info },
+#endif
 #if (HAS_Z80)
 	{ CPU_Z80, z80_get_info },
 #endif

@@ -41,6 +41,7 @@ COREOBJS += $(OBJ)/devices/sente6vb.o \
 
 CPUS += CDP1802 COP420
 CPUS += Z80
+CPUS += CQUESTROT CQUESTLIN CQUESTSND
 CPUS += Z180
 CPUS += 8080
 CPUS += 8085A
@@ -587,6 +588,7 @@ $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/cinemat.o $(OBJ)/sndhrdw/cinemat.o $(OBJ)/vidhrdw/cinemat.o \
 	$(OBJ)/drivers/cchasm.o $(OBJ)/machine/cchasm.o $(OBJ)/sndhrdw/cchasm.o $(OBJ)/vidhrdw/cchasm.o \
 	$(OBJ)/drivers/dlair.o $(OBJ)/machine/ldv1000.o \
+	$(OBJ)/drivers/cubeqst.o $(OBJ)/machine/ldpr8210.o \
 	$(OBJ)/drivers/embargo.o \
 	$(OBJ)/drivers/jack.o $(OBJ)/vidhrdw/jack.o \
 	$(OBJ)/drivers/leland.o $(OBJ)/machine/leland.o $(OBJ)/sndhrdw/leland.o $(OBJ)/vidhrdw/leland.o \

@@ -1119,6 +1119,13 @@ $(1)CPUOBJS += $(2)/cpu/xa/xa.o
 $(2)/cpu/xa/xa.o: xa.c xa.h
 endif
 
+$(1)CPUDEFS += -DHAS_CQUESTROT=$$(if $$(filter CQUESTROT,$$($(1)CPUS)),1,0)
+ifneq ($$(filter CQUESTROT,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/cubeqcpu
+$(1)CPUOBJS += $(2)/cpu/cubeqcpu/cubeqcpu.o
+$(2)/cpu/cubeqcpu/cubeqcpu.o: $$(srcdir)/mame/cpu/cubeqcpu/cubeqcpu.c $$(srcdir)/mame/cpu/cubeqcpu/cubeqcpu.h
+endif
+
 # CPU cores currently registered only by MESS. Keep its selection and flags.
 ifeq ($(3),mess)
 

@@ -6,7 +6,7 @@
 #include "streams.h"
 #include "libchdr/chd.h"
 #include "sound/custom.h"
-#include "machine/ldv1000.h"
+#include "machine/laserdsc.h"
 
 enum player_command
 {
@@ -903,4 +903,40 @@ void ldv1000_video(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 	if (player.video_enabled) copybitmap(bitmap, video, 0, 0, 0, 0, cliprect, TRANSPARENCY_NONE, 0);
 	else fillbitmap(bitmap, 0, cliprect);
+}
+
+/* The parallel HLE player and the firmware-driven player share one AV transport. */
+void laserdisc_raw_reset(void)
+{
+	ldv1000_reset();
+	timer_adjust(park_timer, TIME_NEVER, 0, 0);
+	track = -1000;
+}
+void laserdisc_raw_advance(int delta)
+{
+	int max_track = total_hunks / 2 - 1;
+	track += delta;
+	if (track < -1000) track = -1000;
+	if (track > max_track) track = max_track;
+}
+int laserdisc_raw_track(void) { return track; }
+UINT32 laserdisc_raw_code(int line)
+{
+	const UINT8 *p;
+	if (track < 0) return line == 16 ? 0 : 0x88ffff;
+	p = vbi + (track * 2 + field) * 16 + (line == 16 ? 4 : line == 17 ? 7 : line == 18 ? 10 : 13);
+	return (p[0] << 16) | (p[1] << 8) | p[2];
+}
+void laserdisc_raw_field(int field_number, int video_enabled, int audio_enabled)
+{
+	field = field_number;
+	player.video_enabled = video_enabled && track >= 0;
+	player.audio_active[0] = player.audio_active[1] = audio_enabled && track >= 0;
+	if (track >= 0) read_field();
+}
+
+int laserdisc_raw_at_limit(void)
+{
+	int max_track = total_hunks / 2 - 1;
+	return track <= -1000 || track >= max_track;
 }
