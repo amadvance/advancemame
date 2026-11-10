@@ -150,6 +150,8 @@ VBlank duration: 1/VSYNC * (16/256) = 1017.6 us
 ***************************************************************************/
 
 #include "driver.h"
+#include "machine/laserdsc.h"
+#include "sound/custom.h"
 #include "sound/ay8910.h"
 #include "sound/dac.h"
 #include "sound/samples.h"
@@ -167,6 +169,8 @@ extern WRITE8_HANDLER( gottlieb_paletteram_w );
 extern VIDEO_START( gottlieb );
 extern VIDEO_UPDATE( gottlieb );
 extern VIDEO_START( vidvince );
+extern VIDEO_START( gottlieb_laserdisc );
+extern VIDEO_UPDATE( gottlieb_laserdisc );
 
 extern WRITE8_HANDLER( gottlieb_sh_w );
 
@@ -267,6 +271,7 @@ static int discready;
 static int lastcmd;
 static int odd_field;
 static int access_time;
+static int laserdisc_command_count;
 
 
 /* The only sure thing I know about the Philips 24-bit frame number code is that the
@@ -332,14 +337,13 @@ WRITE8_HANDLER( gottlieb_laserdisc_mpx_w )
 
 WRITE8_HANDLER( gottlieb_laserdisc_command_w )
 {
-	static int loop;
 	int cmd;
 
 	/* commands are written in three steps, the first two the command is */
 	/* written (maybe one to load the latch, the other to start the send), */
 	/* the third 0 (maybe to clear the latch) */
 	if (data == 0) return;
-	if (loop++ & 1) return;
+	if (laserdisc_command_count++ & 1) return;
 
 	if ((data & 0xe0) != 0x20)
 	{
@@ -413,6 +417,31 @@ logerror("current frame : %d\n",current_frame);
 		}
 	}
 	cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
+}
+
+
+static MACHINE_START( gottlieb_laserdisc )
+{
+	return ldv1000_init();
+}
+
+static MACHINE_RESET( gottlieb_laserdisc )
+{
+	machine_reset_gottlieb();
+	current_frame = 1;
+	laserdisc_playing = lasermpx = audioptr = skipfirstbyte = 0;
+	audioready = 1;
+	discready = lastcmd = odd_field = access_time = laserdisc_command_count = 0;
+	laserdisc_raw_reset();
+	usvsthem_video_outputs_w(0, 0);
+}
+
+static INTERRUPT_GEN( gottlieb_laserdisc_interrupt )
+{
+	gottlieb_interrupt();
+	/* Keep the decoded fields on the same frame as the target-data interface. */
+	laserdisc_raw_advance(current_frame - 1 - laserdisc_raw_track());
+	laserdisc_raw_field(odd_field, discready, laserdisc_playing && discready);
 }
 
 
@@ -1682,6 +1711,23 @@ static MACHINE_DRIVER_START( gottlieb2 )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( gottlieb_laserdisc )
+	MDRV_IMPORT_FROM(gottlieb2)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_VBLANK_INT(gottlieb_laserdisc_interrupt, 1)
+	MDRV_MACHINE_START(gottlieb_laserdisc)
+	MDRV_MACHINE_RESET(gottlieb_laserdisc)
+	MDRV_FRAMES_PER_SECOND(60000.0 / 1001)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_RGB_DIRECT | VIDEO_NEEDS_6BITS_PER_GUN)
+	MDRV_VIDEO_START(gottlieb_laserdisc)
+	MDRV_VIDEO_UPDATE(gottlieb_laserdisc)
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(ldv1000_sound)
+	/* The second disc channel carries target data, not audible sound. */
+	MDRV_SOUND_ROUTE(0, "mono", 1.0)
+MACHINE_DRIVER_END
+
+
 static MACHINE_DRIVER_START( stooges )
 
 	/* basic machine hardware */
@@ -2090,6 +2136,9 @@ ROM_START( mach3 )
 
 	ROM_REGION( 1024*1024, REGION_USER1, 0)	/* about 30 min of target data from laserdisc */
 	ROM_LOAD( "m3target.bin", 0, 1024*1024, CRC(6e779a6f) SHA1(e556ad438e637a71f17ea04088de10b39b45f8df) )
+
+	DISK_REGION( REGION_DISKS )
+	DISK_IMAGE_READONLY( "mach3", 0, SHA1(d0f72bded7feff5c360f8749d6c27650a6964847) )
 ROM_END
 
 ROM_START( usvsthem )
@@ -2115,6 +2164,9 @@ ROM_START( usvsthem )
 	ROM_LOAD( "usvs.fg2",     0x4000, 0x4000, CRC(d3990707) SHA1(81d58f6bc6ec04b95036f81c4cd3516d0adf348e) )
 	ROM_LOAD( "usvs.fg1",     0x8000, 0x4000, CRC(a2057430) SHA1(e24aa35cb27fa41b75f5c01f4c083dc6eeb04c0d) )
 	ROM_LOAD( "usvs.fg0",     0xc000, 0x4000, CRC(7734e53f) SHA1(c1307596ba098c98e741f3c00686b514587e1d0a) )
+
+	DISK_REGION( REGION_DISKS )
+	DISK_IMAGE_READONLY( "usvsthem", 0, SHA1(c52530319dc70486f5ced95c121f1cab872e66d8) )
 ROM_END
 
 ROM_START( 3stooges )
@@ -2305,8 +2357,8 @@ GAME( 1983, sqbert,   0,        qbert,    qbert,    qbert,    ROT270, "Mylstar",
 GAME( 1983, qbertqub, 0,        qbert,    qbertqub, 0,        ROT270, "Mylstar", "Q*bert's Qubes", 0 )
 GAME( 1984, curvebal, 0,        gottlieb, curvebal, 0,        ROT270, "Mylstar", "Curve Ball", 0 )
 GAME( 1983, screwloo, 0,        gottlieb2,screwloo, gottlieb, ROT0,   "Mylstar", "Screw Loose (prototype)", 0 )
-GAME( 1983, mach3,    0,        gottlieb2,mach3,    laserdsc, ROT0,   "Mylstar", "M.A.C.H. 3 (set 1)", 0 )
-GAME( 1984, usvsthem, 0,        gottlieb2,usvsthem, laserdsc, ROT0,   "Mylstar", "Us vs. Them", 0 )
+GAME( 1983, mach3,    0,        gottlieb_laserdisc,mach3,    laserdsc, ROT0,   "Mylstar", "M.A.C.H. 3 (set 1)", 0 )
+GAME( 1984, usvsthem, 0,        gottlieb_laserdisc,usvsthem, laserdsc, ROT0,   "Mylstar", "Us vs. Them", 0 )
 GAME( 1984, 3stooges, 0,        stooges,  3stooges, stooges,  ROT0,   "Mylstar", "The Three Stooges In Brides Is Brides", 0 )
 GAME( 1984, vidvince, 0,        vidvince, vidvince, gottlieb, ROT0,   "Mylstar", "Video Vince and the Game Factory (prototype)", GAME_IMPERFECT_GRAPHICS ) // sprite wrapping issues
 GAME( 1984, wizwarz,  0,        gottlieb2,wizwarz,  gottlieb, ROT0,   "Mylstar", "Wiz Warz (prototype)", 0 )

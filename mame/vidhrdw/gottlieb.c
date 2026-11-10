@@ -9,6 +9,7 @@
 ***************************************************************************/
 
 #include "driver.h"
+#include "machine/laserdsc.h"
 
 UINT8 *gottlieb_charram;
 
@@ -19,6 +20,8 @@ static tilemap *bg_tilemap;
 static int swap_bg_ramrom;
 
 static UINT8 last_video_outputs;
+static UINT8 laserdisc_video_outputs;
+static mame_bitmap *laserdisc_bitmap;
 
 /***************************************************************************
 
@@ -118,6 +121,7 @@ WRITE8_HANDLER( gottlieb_video_outputs_w )
 
 WRITE8_HANDLER( usvsthem_video_outputs_w )
 {
+	laserdisc_video_outputs = data;
 	background_priority = data & 0x01;
 
 	/* in most games, bits 1 and 2 flip screen, however in the laser */
@@ -227,4 +231,44 @@ VIDEO_UPDATE( gottlieb )
 	{
 		tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
 	}
+}
+
+
+VIDEO_START( gottlieb_laserdisc )
+{
+	laserdisc_video_outputs = 0;
+	laserdisc_bitmap = auto_bitmap_alloc_depth(720, 524, 32);
+	return video_start_gottlieb();
+}
+
+VIDEO_UPDATE( gottlieb_laserdisc )
+{
+	int x, y;
+	int genlock = laserdisc_video_outputs & 8;
+
+	fillbitmap(bitmap, 0, cliprect);
+	if (!(laserdisc_video_outputs & 4))
+		return;
+
+	if (genlock)
+	{
+		ldv1000_video(laserdisc_bitmap, 0);
+		/* Strip the NTSC blanking area and scale to the native overlay raster. */
+		for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
+		{
+			UINT32 *dest = bitmap->line[y];
+			const UINT32 *source = laserdisc_bitmap->line[44 + y * 2];
+			for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+				dest[x] = source[x * 704 / 256];
+		}
+	}
+
+	if (!background_priority)
+		tilemap_draw(bitmap, cliprect, bg_tilemap, genlock ? 0 : TILEMAP_IGNORE_TRANSPARENCY, 0);
+	else if (!genlock)
+		fillbitmap(bitmap, Machine->pens[0], cliprect);
+
+	gottlieb_draw_sprites(bitmap);
+	if (background_priority)
+		tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
 }
