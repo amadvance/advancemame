@@ -7650,6 +7650,7 @@ Other Sun games
 	DRIVER( cmv823 )	/* (c) 198? Corsica */
 	DRIVER( cm2v841 )	/* (c) 198? Dyna Electronics */
 	DRIVER( cm2841a )	/* (c) 198? Dyna Electronics */
+	DRIVER( smotor )
 	DRIVER( pokerout )
 	DRIVER( ampoker2 )	/* (c) 198? Novomatic */
 	DRIVER( ampokr2a )	/* (c) 198? Novomatic */

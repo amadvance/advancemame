@@ -1473,6 +1473,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ambush.o $(OBJ)/vidhrdw/ambush.o \
 	$(OBJ)/drivers/ampoker.o \
 	$(OBJ)/drivers/pokerout.o \
+	$(OBJ)/drivers/smotor.o \
 	$(OBJ)/drivers/amspdwy.o $(OBJ)/vidhrdw/amspdwy.o \
 	$(OBJ)/drivers/skimaxx.o \
 	$(OBJ)/drivers/artmagic.o $(OBJ)/vidhrdw/artmagic.o \
