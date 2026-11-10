@@ -227,6 +227,18 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
    - *Symptom*: Running `git log` on an old path in HEAD may return fatal errors or miss older commits.
    - *Rule*: Always use `--` before the path and pass `--follow` (e.g. `git -C resource/mame log --follow -- <path>`), or search commit messages and code changes with `git -C resource/mame log -S "<symbol_or_driver>"` to find the commit where a game was promoted from NOT_WORKING.
 
+
+8. **MCS-48 Oscillator Clocks vs. Machine Cycles (`/ 15`)**:
+   - *Trap*: The legacy `mame/cpu/i8039/` core used by `I8039` and `I8048` expects machine-cycle frequencies in `MDRV_CPU_ADD`. Its `CPUINFO_INT_CLOCK_DIVIDER` value is descriptive; the scheduler does not automatically divide the configured clock. Modern MAME's MCS-48 core performs this conversion internally and expects the oscillator frequency instead.
+   - *Rule*: When using the legacy core, configure `oscillator_hz / I8039_CLOCK_DIVIDER` (the divider is 15: internal divisions by 3 and 5). For Cube Quest, the PR-8210 controller uses `4410000 / I8039_CLOCK_DIVIDER` (294,000 machine cycles/s), and the Simutrek controller uses `6000000 / I8039_CLOCK_DIVIDER` (400,000 machine cycles/s).
+   - *Symptom*: Copying a modern oscillator clock directly into the legacy driver runs the MCU 15 times too fast. Serial pulses become too short, handshakes fail, and the main CPU may wait indefinitely for the peripheral to become ready.
+   - *Migration*: Check the selected core's clock convention before changing any frequency. If replacing it with a core that divides internally, pass the oscillator clock and remove the driver-side division exactly once; audit existing drivers to avoid dividing twice. Do not apply this divisor to unrelated CPU families.
+
+9. **Signed Positions vs. Unsigned Limits**:
+   - *Trap*: Virtual laserdisc lead-in positions can be negative. Comparing a signed position directly with an unsigned track count can convert the negative position to a large unsigned value. For example, `track >= total_hunks / 2` can be true for a negative `track` when `total_hunks` is unsigned.
+   - *Symptom*: The first slider movement incorrectly clamps the head to the end of the disc, and the firmware remains in its initialization or search loop. This occurred while implementing the Simutrek player for Cube Quest.
+   - *Rule*: Keep positions and their bounds in a consistent signed domain when negative positions are valid. Derive a signed maximum after establishing that the count fits its type, then compare against that maximum. Do not cast the position to unsigned or clamp valid lead-in positions to zero merely to silence a warning.
+
 ---
 
 ## 7. Development & Agent Workflow Rules
