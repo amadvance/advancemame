@@ -7248,6 +7248,10 @@ Other Sun games
 	/* Forte II Games */
 	DRIVER( pesadelo )
 
+	/* Screen / Comet */
+	DRIVER( pengadvb )
+	DRIVER( pengadvb2 )
+
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( mortalr )

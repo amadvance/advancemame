@@ -297,6 +297,7 @@ DRVLIBS = \
 	$(OBJ)/exidy.a \
 	$(OBJ)/f32.a \
 	$(OBJ)/forte2.a \
+	$(OBJ)/pengadvb.a \
 	$(OBJ)/fuuki.a \
 	$(OBJ)/gaelco.a \
 	$(OBJ)/gameplan.a \
@@ -723,6 +724,9 @@ $(OBJ)/f32.a: \
 
 $(OBJ)/forte2.a: \
 	$(OBJ)/drivers/forte2.o $(OBJ)/vidhrdw/tms9928a.o
+
+$(OBJ)/pengadvb.a: \
+	$(OBJ)/drivers/pengadvb.o $(OBJ)/vidhrdw/tms9928a.o
 
 $(OBJ)/fuuki.a: \
 	$(OBJ)/drivers/fuukifg2.o $(OBJ)/vidhrdw/fuukifg2.o \
