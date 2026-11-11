@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:R. Belmont
+// copyright-holders:R. Belmont, Angelo Salese, hap
 /*
 C140.c
 
@@ -125,6 +125,13 @@ READ8_HANDLER( C140_r )
 {
 	struct c140_info *info = sndti_token(SOUND_C140, 0);
 	offset&=0x1ff;
+	/* Final Lap polls bit 6 to schedule samples; returning the last write
+	 * leaves the sound CPU with an incorrect playback status. */
+	if ((offset & 0x0f) == 5 && offset < 0x180)
+	{
+		stream_update(info->stream, 0);
+		return (info->voi[offset >> 4].key ? 0x40 : 0) | (info->REG[offset] & 0x3f);
+	}
 	return info->REG[offset];
 }
 
