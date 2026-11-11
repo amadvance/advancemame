@@ -2529,7 +2529,8 @@ MACHINE_DRIVER_START( seattle_common )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT)
 	MDRV_SCREEN_SIZE(640, 480)
-	MDRV_VISIBLE_AREA(0, 639, 0, 479)
+	/* Match the game resolution before the Voodoo programs its video timing. */
+	MDRV_VISIBLE_AREA(0, 510, 0, 383)
 	MDRV_PALETTE_LENGTH(65536)
 
 	MDRV_VIDEO_START(seattle)
@@ -2541,6 +2542,7 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( phoenixsa )
 	MDRV_IMPORT_FROM(seattle_common)
+	MDRV_VISIBLE_AREA(0, 510, 0, 255)
 	MDRV_CPU_REPLACE("main", R4700LE, SYSTEM_CLOCK*2)
 	MDRV_IMPORT_FROM(dcs2_audio_2115)
 MACHINE_DRIVER_END
@@ -2560,8 +2562,21 @@ MACHINE_DRIVER_START( seattle200 )
 MACHINE_DRIVER_END
 
 
+MACHINE_DRIVER_START( vaportrx )
+	MDRV_IMPORT_FROM(seattle200)
+	MDRV_VISIBLE_AREA(0, 510, 0, 255)
+MACHINE_DRIVER_END
+
+
+MACHINE_DRIVER_START( biofreak )
+	MDRV_IMPORT_FROM(seattle150)
+	MDRV_VISIBLE_AREA(0, 510, 0, 399)
+MACHINE_DRIVER_END
+
+
 MACHINE_DRIVER_START( carnevil )
 	MDRV_IMPORT_FROM(seattle150)
+	MDRV_VISIBLE_AREA(0, 398, 0, 255)
 	MDRV_VIDEO_UPDATE(carnevil)
 MACHINE_DRIVER_END
 
@@ -2969,11 +2984,11 @@ GAME( 1996, sfrush,   0,        flagstaff,  sfrush,   sfrush,   ROT0, "Atari Gam
 GAME( 1996, sfrushrk, 0,        flagstaff,  sfrushrk, sfrushrk, ROT0, "Atari Games",  "San Francisco Rush: The Rock", GAME_NOT_WORKING )
 GAME( 1998, calspeed, 0,        seattle150, calspeed, calspeed, ROT0, "Atari Games",  "California Speed (Version 2.1a, 4/17/98)", 0 )
 GAME( 1998, calspeda, calspeed, seattle150, calspeed, calspeed, ROT0, "Atari Games",  "California Speed (Version 1.0r7a 3/4/98)", 0 )
-GAME( 1998, vaportrx, 0,        seattle200, vaportrx, vaportrx, ROT0, "Atari Games",  "Vapor TRX", 0 )
-GAME( 1998, vaportrp, vaportrx, seattle200, vaportrx, vaportrx, ROT0, "Atari Games",  "Vapor TRX (prototype)", 0 )
+GAME( 1998, vaportrx, 0,        vaportrx,   vaportrx, vaportrx, ROT0, "Atari Games",  "Vapor TRX", 0 )
+GAME( 1998, vaportrp, vaportrx, vaportrx,   vaportrx, vaportrx, ROT0, "Atari Games",  "Vapor TRX (prototype)", 0 )
 
 /* Midway */
-GAME( 1997, biofreak, 0,        seattle150, biofreak, biofreak, ROT0, "Midway Games", "BioFreaks (prototype)", 0 )
+GAME( 1997, biofreak, 0,        biofreak,   biofreak, biofreak, ROT0, "Midway Games", "BioFreaks (prototype)", 0 )
 GAME( 1997, blitz,    0,        seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.2)", 0 )
 GAME( 1997, blitz11,  blitz,    seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.1)", 0 )
 GAME( 1998, blitz99,  0,        seattle150, blitz99,  blitz99,  ROT0, "Midway Games", "NFL Blitz '99", GAME_NOT_WORKING ) // game play doesn't start

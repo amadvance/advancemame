@@ -2262,7 +2262,8 @@ MACHINE_DRIVER_START( vegascore )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT)
 	MDRV_SCREEN_SIZE(640, 480)
-	MDRV_VISIBLE_AREA(0, 639, 0, 479)
+	/* Match the game resolution before the Voodoo programs its video timing. */
+	MDRV_VISIBLE_AREA(0, 510, 0, 383)
 	MDRV_PALETTE_LENGTH(65536)
 
 	MDRV_VIDEO_START(vegas_voodoo2)
@@ -2276,6 +2277,12 @@ MACHINE_DRIVER_START( vegas )
 MACHINE_DRIVER_END
 
 
+MACHINE_DRIVER_START( tenthdeg )
+	MDRV_IMPORT_FROM(vegas)
+	MDRV_VISIBLE_AREA(0, 510, 0, 255)
+MACHINE_DRIVER_END
+
+
 MACHINE_DRIVER_START( vegas250 )
 	MDRV_IMPORT_FROM(vegascore)
 	MDRV_CPU_REPLACE("main", R5000LE, SYSTEM_CLOCK*2.5)
@@ -2285,6 +2292,7 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( vegas32m )
 	MDRV_IMPORT_FROM(vegascore)
+	MDRV_VISIBLE_AREA(0, 510, 0, 255)
 	MDRV_CPU_MODIFY("main")
 	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
 	MDRV_IMPORT_FROM(dcs2_audio_dsio)
@@ -2293,6 +2301,7 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( vegasban )
 	MDRV_IMPORT_FROM(vegascore)
+	MDRV_VISIBLE_AREA(0, 639, 0, 479)
 	MDRV_CPU_MODIFY("main")
 	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
 	MDRV_IMPORT_FROM(dcs2_audio_2104)
@@ -2300,8 +2309,15 @@ MACHINE_DRIVER_START( vegasban )
 MACHINE_DRIVER_END
 
 
+MACHINE_DRIVER_START( nbagold )
+	MDRV_IMPORT_FROM(vegasban)
+	MDRV_VISIBLE_AREA(0, 511, 0, 383)
+MACHINE_DRIVER_END
+
+
 MACHINE_DRIVER_START( vegasv3 )
 	MDRV_IMPORT_FROM(vegas32m)
+	MDRV_VISIBLE_AREA(0, 639, 0, 479)
 	MDRV_CPU_REPLACE("main", RM7000LE, SYSTEM_CLOCK*2.5)
 	MDRV_VIDEO_START(vegas_voodoo3)
 MACHINE_DRIVER_END
@@ -2309,12 +2325,18 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( denver )
 	MDRV_IMPORT_FROM(vegascore)
+	MDRV_VISIBLE_AREA(0, 511, 0, 383)
 	MDRV_CPU_REPLACE("main", RM7000LE, SYSTEM_CLOCK*2.5)
 	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
 	MDRV_VIDEO_START(vegas_voodoo3)
 	MDRV_IMPORT_FROM(dcs2_audio_denver)
 MACHINE_DRIVER_END
 
+
+MACHINE_DRIVER_START( sf2049se )
+	MDRV_IMPORT_FROM(denver)
+	MDRV_VISIBLE_AREA(0, 511, 0, 255)
+MACHINE_DRIVER_END
 
 
 /*************************************
@@ -2616,7 +2638,7 @@ static DRIVER_INIT( cartfury )
 /* Vegas + Vegas SIO + Voodoo 2 */
 GAME( 1998, gauntleg, 0,        vegas,    gauntleg, gauntleg, ROT0, "Atari Games",  "Gauntlet Legends (version 1.6)", 0 )
 GAME( 1998, gauntl12, gauntleg, vegas,    gauntleg, gauntleg, ROT0, "Atari Games",  "Gauntlet Legends (version 1.2)", GAME_NO_SOUND )
-GAME( 1998, tenthdeg, 0,        vegas,    tenthdeg, tenthdeg, ROT0, "Atari Games",  "Tenth Degree", 0 )
+GAME( 1998, tenthdeg, 0,        tenthdeg, tenthdeg, tenthdeg, ROT0, "Atari Games",  "Tenth Degree", 0 )
 
 /* Durango + Vegas SIO + Voodoo 2 */
 GAME( 1999, gauntdl,  0,        vegas,    gauntdl,  gauntdl,  ROT0, "Midway Games", "Gauntlet Dark Legacy (version DL 2.52)", 0 )
@@ -2630,11 +2652,11 @@ GAME( 1999, roadburn1, roadburn, vegas32m, roadburn, roadburn, ROT0, "Atari Game
 /* Durango + DSIO? + Voodoo banshee */
 GAME( 1999, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime NBA on NBC (ver 2.0, Apr 25 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 1999, nbanfl,   0,        vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 2000, nbagold,  0,        vegasban, nbashowt, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2000, nbagold,  0,        nbagold,  nbashowt, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Denver SIO + Voodoo 3 */
 GAME( 1999, sf2049,   0,        denver,   sf2049,   sf2049,   ROT0, "Atari Games",  "San Francisco Rush 2049", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 2003, sf2049se, 0,        denver,   sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2003, sf2049se, 0,        sf2049se, sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 1998, sf2049te, sf2049,   denver,   sf2049te, sf2049te, ROT0, "Atari Games",  "San Francisco Rush 2049: Tournament Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Vegas SIO + Voodoo 3 */
