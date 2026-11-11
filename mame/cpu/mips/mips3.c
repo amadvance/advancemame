@@ -1566,7 +1566,7 @@ printf("Mask = %08X%08X  TLB = %08X%08X  MATCH = %08X%08X\n",
 					break;
 
 				case 0x10:	/* RFE */	invalid_instruction(op);							break;
-				case 0x18:	/* ERET */	logerror("ERET\n"); mips3.pc = mips3.cpr[0][COP0_EPC]; SR &= ~SR_EXL; check_irqs(); mips3.lld_value ^= 0xffffffff; mips3.ll_value ^= 0xffffffff;	break;
+				case 0x18:	/* ERET */	mips3.pc = mips3.cpr[0][COP0_EPC]; SR &= ~SR_EXL; check_irqs(); mips3.lld_value ^= 0xffffffff; mips3.ll_value ^= 0xffffffff;	break;
 				default:	invalid_instruction(op);										break;
 			}
 			break;

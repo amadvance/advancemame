@@ -3388,7 +3388,8 @@ static void voodoo_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mas
 					if ((offset & 0xff) == swapbufferCMD)
 						v->fbi.swaps_pending++;
 
-					logerror("Ignoring write to %s in CMDFIFO mode\n", v->regnames[offset & 0xff]);
+					if (LOG_CMDFIFO)
+						logerror("Ignoring write to %s in CMDFIFO mode\n", v->regnames[offset & 0xff]);
 					profiler_mark(PROFILER_END);
 					return;
 				}
