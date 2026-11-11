@@ -956,6 +956,29 @@ Configuration
 	Examples:
 		:display_frameskip 0.5
 
+    display_area
+	Remembers the last visible area selected by a raster game and uses it
+	as the initial area on the next run. This avoids starting with the
+	driver's default resolution when the game later selects another one.
+
+	:GAME/display_area MIN_X MAX_X MIN_Y MAX_Y
+
+	Coordinates are inclusive, in native screen pixels before rotation.
+	Only the current game's section is used; parent and global values
+	are not inherited. Invalid coordinates are ignored with a log warning.
+	Vector games do not use this option.
+
+	The value is updated automatically when the game changes its visible
+	area. If the game restores the area declared by its driver, the option
+	is removed. An override that already matches the driver's area is
+	also removed at startup. If the game selects several areas, the last
+	one is remembered.
+
+	Changes are saved on normal exit when `config save_at_exit` is enabled.
+	For example:
+
+		biofreak/display_area 0 510 0 399
+
   Display Aspect Configuration Options
 	This section describes the options used to customize the display
 	aspect.

@@ -71,6 +71,9 @@ static const char* DEVICES[] = {
 #endif
 
 struct advance_glue_context {
+	machine_config machine; /**< Session configuration with the learned initial area. */
+	rectangle visible_area_original; /**< Unmodified source area for removing obsolete overrides. */
+	rectangle visible_area_last; /**< Last area, excluding the synthetic startup notification. */
 	mame_bitmap* bitmap;
 	mame_bitmap* bitmap_alt;
 	struct osd_video_option option;
@@ -2554,6 +2557,95 @@ void osd2_exit(void)
 {
 }
 
+static adv_bool visible_area_equal(const rectangle* a, const rectangle* b)
+{
+	return a->min_x == b->min_x && a->max_x == b->max_x
+	       && a->min_y == b->min_y && a->max_y == b->max_y;
+}
+
+/**
+ * Load only the current game's learned area, before the display is created.
+ */
+static void visible_area_init(void)
+{
+	adv_conf* cfg = CONTEXT.cfg;
+	const char* game = Machine->gamedrv->name;
+	const char* value;
+	rectangle area;
+	long coordinate[4];
+	unsigned i;
+
+	GLUE.machine = *Machine->drv;
+	GLUE.visible_area_original = Machine->drv->default_visible_area;
+	GLUE.visible_area_last = GLUE.visible_area_original;
+	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR)
+		return;
+	if (conf_string_section_get(cfg, game, "display_area", &value) != 0)
+		return;
+
+	for (i = 0; i < 4; ++i) {
+		char* end;
+		errno = 0;
+		coordinate[i] = strtol(value, &end, 10);
+		if (end == value || errno != 0 || coordinate[i] < 0
+			|| coordinate[i] >= ((i < 2) ? GLUE.machine.screen_width : GLUE.machine.screen_height))
+			goto invalid;
+		if (i < 3 && (*end == 0 || strspn(end, " \t\r\n\v\f") == 0))
+			goto invalid;
+		value = end;
+	}
+	value += strspn(value, " \t\r\n\v\f");
+	if (*value || coordinate[0] > coordinate[1] || coordinate[2] > coordinate[3])
+		goto invalid;
+	area.min_x = coordinate[0];
+	area.max_x = coordinate[1];
+	area.min_y = coordinate[2];
+	area.max_y = coordinate[3];
+
+	if (visible_area_equal(&area, &GLUE.visible_area_original)) {
+		conf_remove(cfg, game, "display_area");
+		log_std(("emu:video: remove redundant %s/display_area\n", game));
+		return;
+	}
+
+	/* Keep the source configuration intact: learning must compare against it,
+	 * never against the override used for this session's initial display. */
+	GLUE.machine.default_visible_area = area;
+	Machine->drv = &GLUE.machine;
+	GLUE.visible_area_last = area;
+	log_std(("emu:video: load %s/display_area %d %d %d %d\n", game, area.min_x, area.max_x, area.min_y, area.max_y));
+	return;
+
+invalid:
+	log_std(("WARNING:emu:video: invalid %s/display_area, using the source area\n", game));
+}
+
+/**
+ * Remember actual game changes in native coordinates, before rotation.
+ */
+static void visible_area_update(const rectangle* area)
+{
+	adv_conf* cfg = CONTEXT.cfg;
+	const char* game = Machine->gamedrv->name;
+	char value[128];
+
+	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR)
+		return;
+	/* The first display notification repeats the initial area. It must not
+	 * replace learned state before the game actually programs its timing. */
+	if (visible_area_equal(area, &GLUE.visible_area_last))
+		return;
+	GLUE.visible_area_last = *area;
+	if (visible_area_equal(area, &GLUE.visible_area_original)) {
+		conf_remove(cfg, game, "display_area");
+		log_std(("emu:video: remove %s/display_area (source area restored)\n", game));
+	} else {
+		snprintf(value, sizeof(value), "%d %d %d %d", area->min_x, area->max_x, area->min_y, area->max_y);
+		conf_string_set(cfg, game, "display_area", value);
+		log_std(("emu:video: learn %s/display_area %s\n", game, value));
+	}
+}
+
 /**
  * Initialize the system.
  * \return
@@ -2562,6 +2654,7 @@ void osd2_exit(void)
  */
 int osd_init(void)
 {
+	visible_area_init();
 	add_pause_callback(osd2_video_pause);
 	add_pause_callback(osd2_sound_pause);
 	add_exit_callback(osd2_exit);
@@ -2813,6 +2906,7 @@ void osd_update_video_and_audio(mame_display* display)
 
 	/* update the area */
 	if ((display->changed_flags & GAME_VISIBLE_AREA_CHANGED) != 0) {
+		visible_area_update(&display->game_visible_area);
 		osd2_area(display->game_visible_area.min_x, display->game_visible_area.min_y, display->game_visible_area.max_x, display->game_visible_area.max_y);
 	}
 
@@ -3494,6 +3588,7 @@ adv_error mame_init(struct advance_context* context)
 	GLUE_PORT[j].desc = 0;
 	GLUE_PORT[j].port = 0;
 
+	conf_string_register(context->cfg, "display_area");
 	conf_string_register_default(context->cfg, "display_artwork_view", "auto");
 	conf_bool_register_default(context->cfg, "display_artwork_backdrop", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
