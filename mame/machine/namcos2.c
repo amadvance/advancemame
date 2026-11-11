@@ -111,6 +111,15 @@ NVRAM_HANDLER( namcos2 )
 		{
 			mame_fread( file, namcos2_eeprom, namcos2_eeprom_size );
 		}
+		else if (namcos2_gametype == NAMCOS2_FINAL_LAP_2)
+		{
+			int i;
+			const UINT8 *defaults = memory_region(REGION_USER4);
+			/* The physical EEPROM has one byte on each 16-bit bus word.
+			 * Preserve the calibrated steering centre supplied by MAME. */
+			for (i = 0; i < namcos2_eeprom_size / 2; ++i)
+				namcos2_eeprom[i] = defaults[i];
+		}
 		else
 		{
 			int pat = 0xff; /* default */
