@@ -1307,13 +1307,12 @@ static void lay_normalise(void)
 	{
 		lay_item *it = &v->items[i];
 		it->front = ((int)i > v->primary);
-		it->mat.c = (it->mat.c - s.x0) / w;
-		it->mat.a /= w;
-		it->mat.b /= w;
-		it->mat.f = (it->mat.f - s.y0) / h;
-		it->mat.d /= h;
-		it->mat.e /= h;
-		it->bounds = lay_mat_box(it->mat);
+		lay_matrix normalise = { 1 / w, 0, -s.x0 / w, 0, 1 / h, -s.y0 / h };
+		/* Derive both values from the local transform before publishing it. */
+		lay_matrix mat = lay_mul(normalise, it->mat);
+		lay_box bounds = lay_mat_box(mat);
+		it->mat = mat;
+		it->bounds = bounds;
 		if (!v->has_explicit_bounds)
 			v->extents = lay_box_union(v->extents, it->bounds);
 	}
