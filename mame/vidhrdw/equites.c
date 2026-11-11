@@ -338,32 +338,32 @@ static void equites_draw_scroll(mame_bitmap *bitmap)
 #undef TILE_BANKBASE
 }
 
-static void equites_draw_sprites(mame_bitmap *bitmap)
+static void equites_draw_sprites_block(mame_bitmap *bitmap, int start, int end)
 {
 #define SPRITE_BANKBASE 3
 #define SHIFTX -4
 #define SHIFTY 1
 
 	gfx_element *gfx;
-	UINT16 *sptr, *eptr;
-	int encode, bank, tile, color, fy, fx, fxy, absx, absy, sx, sy, flipadjx;
+	UINT16 *sptr;
+	int offset;
+	int encode, bank, tile, color, fy, fx, absx, absy, sx, sy, flipadjx;
 
 	flipadjx = (equites_flip) ? 8 : 0;
 
-	sptr = spriteram16;
-	eptr = sptr + 0x100;
-	for (; sptr<eptr; sptr+=2)
+	for (offset=end-2; offset>=start; offset-=2)
 	{
+		sptr = spriteram16 + offset;
 		encode = *(sptr + 1);
-		if (encode)
+		/* Disabled entries retain their tile and position in sprite RAM. */
+		if (!(encode & 0x0800))
 		{
 			bank = (encode>>8 & 0x01) + SPRITE_BANKBASE;
 			gfx = Machine->gfx[bank];
 			tile = encode & 0xff;
-			fxy = encode & 0x800;
 			encode = ~encode & 0xf600;
-			fx = (encode & 0x400) | fxy;
-			fy = (encode & 0x200) | fxy;
+			fx = encode & 0x400;
+			fy = encode & 0x200;
 			color = encode>>12 & 0x0f;
 			encode = *sptr;
 			sx = encode>>8 & 0xff;
@@ -373,18 +373,28 @@ static void equites_draw_sprites(mame_bitmap *bitmap)
 			if (absx >= 248) absx -= 256;
 			if (absy >= 248) absy -= 256;
 
+			/* Transparency is selected by the lookup PROM, not the source pen. */
 			drawgfx(bitmap,
 				gfx,
 				tile, color,
 				fx, fy,
 				absx + BMPAD, absy + BMPAD,
-				0, TRANSPARENCY_PEN, 0);
+				0, TRANSPARENCY_COLOR, 0);
 		}
 	}
 
 #undef SHIFTY
 #undef SHIFTX
 #undef SPRITE_BANKBASE
+}
+
+static void equites_draw_sprites(mame_bitmap *bitmap)
+{
+	/* Only these three RAM blocks feed the sprite hardware. Within each block,
+	   lower addresses have priority, including the car and helicopter shadows. */
+	equites_draw_sprites_block(bitmap, 0x000/2, 0x060/2);
+	equites_draw_sprites_block(bitmap, 0x0e0/2, 0x100/2);
+	equites_draw_sprites_block(bitmap, 0x1a4/2, 0x200/2);
 }
 
 VIDEO_UPDATE( equites )
