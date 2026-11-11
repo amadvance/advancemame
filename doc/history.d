@@ -2,13 +2,17 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 6.0 (WIP)
-	) Added almost all missing games up to MAME 0.287, backporting hundreds of
-		drivers and titles across classic, 90s, and modern arcade platforms.
 	) Relicensed AdvanceMAME and AdvanceMESS under the GNU General Public License
 		version 2 or later (GPL-2.0+), completing a full audit of all source files
 		to eliminate legacy non-commercial restrictions, adopting standard SPDX
 		license identifiers, and replacing non-free components with clean BSD-3-Clause
 		and GPL-compatible implementations.
+	) Added almost all missing games up to MAME 0.287, backporting hundreds of
+		drivers and titles across classic, 90s, and modern arcade platforms.
+	) Added a fallback for ROM loading using a table derived from the old MAME
+		versions, to work with all the old romsets, both SPLIT and MERGED. If a ROM
+		isn't found in the usual archives, the other archives listed for its CRC
+		and size are tried before reporting it as missing.
 	) Added Just-In-Time (JIT) dynamic recompilation support powered by the SLJIT
 		library for supported CPU and DSP architectures: SH-2 (ST-V), SH-3 (Cave CV1000),
 		MIPS III (Killer Instinct, Midway Seattle/Vegas), Sony PlayStation / PSX

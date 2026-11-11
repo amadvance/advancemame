@@ -22,6 +22,9 @@
 
 //#define LOG_LOAD
 
+/* table of candidate archives by CRC+size, sorted by CRC and then size */
+#include "fallback.dat"
+
 
 
 /***************************************************************************
@@ -247,6 +250,64 @@ int rom_validate_archive_bios(const game_driver *game, char *error, unsigned err
 	return 0;
 }
 
+/**
+ * Try the archives listed in the fallback table for the CRC and size of a ROM.
+ * The table is only a list of candidates: the archive loader still looks the
+ * file up by CRC and the normal length and hash verification runs afterward,
+ * so a wrong candidate can never load bad data silently.
+ */
+static mame_file *rom_open_fallback_file(const game_driver *game, const char *archive, const rom_entry *rom)
+{
+	unsigned char crcs[4];
+	UINT32 crc, size;
+	unsigned low, high;
+
+	/* a NO_DUMP ROM has no CRC to search for */
+	if (!ROM_GETHASHDATA(rom) || !hash_data_extract_binary_checksum(ROM_GETHASHDATA(rom), HASH_CRC, crcs))
+		return 0;
+
+	crc = ((UINT32)crcs[0] << 24) | ((UINT32)crcs[1] << 16) | ((UINT32)crcs[2] << 8) | crcs[3];
+	size = ROM_GETLENGTH(rom);
+
+	/* binary search of the first entry with the key */
+	low = 0;
+	high = ROM_FALLBACK_COUNT;
+	while (low < high)
+	{
+		unsigned mid = low + (high - low) / 2;
+		if (rom_fallback[mid].crc < crc || (rom_fallback[mid].crc == crc && rom_fallback[mid].size < size))
+			low = mid + 1;
+		else
+			high = mid;
+	}
+
+	/* the same key can list more archives */
+	for (; low < ROM_FALLBACK_COUNT && rom_fallback[low].crc == crc && rom_fallback[low].size == size; ++low)
+	{
+		const char *name = rom_fallback[low].name;
+		const game_driver *parent;
+		mame_file *file;
+
+		/* skip the archives already tried by the regular search */
+		if (archive && !strcmp(archive, name))
+			continue;
+		for (parent = game; parent; parent = driver_get_clone(parent))
+			if (!strcmp(parent->name, name))
+				break;
+		if (parent)
+			continue;
+
+		file = mame_fopen_rom(name, ROM_GETNAME(rom), ROM_GETHASHDATA(rom));
+		if (file)
+		{
+			logerror("romload: fallback %s found in %s.zip by crc %08x size %u\n", ROM_GETNAME(rom), name, (unsigned)crc, (unsigned)size);
+			return file;
+		}
+	}
+
+	return 0;
+}
+
 mame_file *rom_open_archive_file(const game_driver *game, const char *archive, const rom_entry *rom)
 {
 	const game_driver *parent;
@@ -263,6 +324,8 @@ mame_file *rom_open_archive_file(const game_driver *game, const char *archive, c
 	for (parent = game; !file && parent; parent = driver_get_clone(parent))
 		if (!archive || strcmp(parent->name, archive))
 			file = mame_fopen_rom(parent->name, ROM_GETNAME(rom), ROM_GETHASHDATA(rom));
+	if (!file)
+		file = rom_open_fallback_file(game, archive, rom);
 	return file;
 }
 
