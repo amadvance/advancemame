@@ -111,7 +111,8 @@ NVRAM_HANDLER( namcos2 )
 		{
 			mame_fread( file, namcos2_eeprom, namcos2_eeprom_size );
 		}
-		else if (namcos2_gametype == NAMCOS2_FINAL_LAP_2)
+		else if (namcos2_gametype == NAMCOS2_FINAL_LAP_2 ||
+			namcos2_gametype == NAMCOS2_FINAL_LAP_3)
 		{
 			int i;
 			const UINT8 *defaults = memory_region(REGION_USER4);
