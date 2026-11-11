@@ -207,7 +207,9 @@ static VIDEO_EOF( astrowar )
 
 static int astrowar_sound_pos, astrowar_sound_period;
 static int astrowar_stars_scroll, astrowar_star_count;
-static struct { int x, y, color; } astrowar_stars[256];
+/* Keep the complete generator field, including stars below the visible area. */
+#define ASTROWAR_MAX_STARS 0x800
+static struct { int x, y, color; } astrowar_stars[ASTROWAR_MAX_STARS];
 
 static void astrowar_sound_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
 {
@@ -340,7 +342,7 @@ static VIDEO_START( astrowar )
 		{
 			generator <<= 1;
 			generator |= ((~generator >> 17) ^ (generator >> 5)) & 1;
-			if ((generator & 0x100fe) == 0xfe && astrowar_star_count < 256)
+			if ((generator & 0x100fe) == 0xfe && astrowar_star_count < ASTROWAR_MAX_STARS)
 			{
 				astrowar_stars[astrowar_star_count].x = x;
 				astrowar_stars[astrowar_star_count].y = y;
