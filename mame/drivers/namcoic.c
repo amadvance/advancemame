@@ -433,7 +433,8 @@ namcos2_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int pri, i
 				int sprn   = (word1>>2)&0x7ff;
 				int rgn    = (word1&0x2000)?1:0;
 				int ypos   = (0x1ff-(word0&0x01ff))-0x50+0x02;
-				int xpos   = (offset4&0x03ff)-0x50+0x07;
+				/* X has 11 bits; dropping bit 10 wraps off-screen sprites into view. */
+				int xpos   = (offset4&0x07ff)-0x50+0x07;
 				int flipy  = word1&0x8000;
 				int flipx  = word1&0x4000;
 				int scalex = (sizex<<16)/((word0&0x0200)?0x20:0x10);
