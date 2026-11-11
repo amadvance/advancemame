@@ -7245,6 +7245,9 @@ Other Sun games
 	/* E.F.O. */
 	DRIVER( nightmare )
 
+	/* Forte II Games */
+	DRIVER( pesadelo )
+
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( mortalr )
