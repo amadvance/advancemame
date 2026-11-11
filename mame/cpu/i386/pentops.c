@@ -1,20 +1,18 @@
 // license:BSD-3-Clause
-// copyright-holders:Ville Linde
-// Pentium+ specific opcodes
-
-static void PENTIUMOP(rdmsr)(void)			// Opcode 0x0f 32
+// copyright-holders:Ville Linde, Barry Rodewald
+static void PENTIUMOP(rdmsr)(void)
 {
-	// TODO
+
 	CYCLES(CYCLES_RDMSR);
 }
 
-static void PENTIUMOP(wrmsr)(void)			// Opcode 0x0f 30
+static void PENTIUMOP(wrmsr)(void)
 {
-	// TODO
-	CYCLES(1);		// TODO: correct cycle count
+
+	CYCLES(1);
 }
 
-static void PENTIUMOP(rdtsc)(void)			// Opcode 0x0f 31
+static void PENTIUMOP(rdtsc)(void)
 {
 	UINT64 ts = I.tsc + (I.base_cycles - I.cycles);
 	REG32(EAX) = (UINT32)(ts);
@@ -23,16 +21,16 @@ static void PENTIUMOP(rdtsc)(void)			// Opcode 0x0f 31
 	CYCLES(CYCLES_RDTSC);
 }
 
-static void I386OP(cyrix_unknown)(void)		// Opcode 0x0f 74
+static void I386OP(cyrix_unknown)(void)
 {
 	CYCLES(1);
 }
 
-static void PENTIUMOP(cmpxchg8b_m64)(void)	// Opcode 0x0f c7
+static void PENTIUMOP(cmpxchg8b_m64)(void)
 {
 	UINT8 modm = FETCH();
 	if( modm >= 0xc0 ) {
-		fatalerror("invalid modm");
+		fatalerror("pentium: cmpxchg8b_m64 - invalid modm");
 	} else {
 		UINT32 ea = GetEA(modm);
 		UINT64 value = READ64(ea);
@@ -51,5 +49,3 @@ static void PENTIUMOP(cmpxchg8b_m64)(void)	// Opcode 0x0f c7
 		}
 	}
 }
-
-

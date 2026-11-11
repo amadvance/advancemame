@@ -1,63 +1,101 @@
 // license:BSD-3-Clause
-// copyright-holders:Ville Linde
-/*
-    Intel 386 emulator
-
-    Written by Ville Linde
-
-    Currently supports:
-        Intel 386
-        Intel 486
-        Intel Pentium
-        Cyrix MediaGX
-*/
-
+// copyright-holders:Ville Linde, Barry Rodewald
+#include "driver.h"
 #include "debugger.h"
+#include "usrintrf.h"
 #include "i386.h"
-#include "i386intf.h"
 
-#if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)
-#include "debug/debugcpu.h"
-#endif
+
+
+
+#undef i386
 
 int i386_parity_table[256];
 MODRM_TABLE i386_MODRM_table[256];
 
-/*************************************************************************/
+static void i386_trap_with_error(int irq, int irq_gate, int trap_level, UINT32 err);
+static void i286_task_switch(UINT16 selector, UINT8 nested);
+static void i386_task_switch(UINT16 selector, UINT8 nested);
+
+#define FAULT(fault,error) {i386_trap_with_error(fault,0,0,error); return;}
+#define FAULT_EXP(fault,error) {i386_trap_with_error(fault,0,trap_level+1,error); return;}
+
 
 #define INT_DEBUG	1
 
-static void i386_load_protected_mode_segment( I386_SREG *seg )
+static void i386_load_protected_mode_segment(I386_SREG *seg )
 {
 	UINT32 v1,v2;
 	UINT32 base, limit;
 	int entry;
 
-	if( seg->selector & 0x4 ) {
-			base = I.ldtr.base;
-			limit = I.ldtr.limit;
-		} else {
-			base = I.gdtr.base;
-			limit = I.gdtr.limit;
-		}
+	if ( seg->selector & 0x4 )
+	{
+		base = I.ldtr.base;
+		limit = I.ldtr.limit;
+	} else {
+		base = I.gdtr.base;
+		limit = I.gdtr.limit;
+	}
 
-		if (limit == 0)
-			return;
-	entry = (seg->selector % limit) & ~0x7;
+	if (limit == 0 || seg->selector + 7 > limit)
+		return;
+	entry = seg->selector & ~0x7;
 
-		v1 = READ32( base + entry );
-		v2 = READ32( base + entry + 4 );
+	v1 = READ32(base + entry );
+	v2 = READ32(base + entry + 4 );
 
+	seg->flags = (v2 >> 8) & 0xf0ff;
 	seg->base = (v2 & 0xff000000) | ((v2 & 0xff) << 16) | ((v1 >> 16) & 0xffff);
-	seg->limit = ((v2 << 16) & 0xf0000) | (v1 & 0xffff);
-	seg->d = ((v2 & 0x400000) && PROTECTED_MODE && !V8086_MODE) ? 1 : 0;
+	seg->limit = (v2 & 0xf0000) | (v1 & 0xffff);
+	if (seg->flags & 0x8000)
+		seg->limit = (seg->limit << 12) | 0xfff;
+	seg->d = (seg->flags & 0x4000) ? 1 : 0;
 }
 
-void i386_load_segment_descriptor( int segment )
+static void i386_load_call_gate(I386_CALL_GATE *gate)
+{
+	UINT32 v1,v2;
+	UINT32 base,limit;
+	int entry;
+
+	if ( gate->segment & 0x4 )
+	{
+		base = I.ldtr.base;
+		limit = I.ldtr.limit;
+	} else {
+		base = I.gdtr.base;
+		limit = I.gdtr.limit;
+	}
+
+	if (limit == 0 || gate->segment + 7 > limit)
+		return;
+
+	entry = gate->segment & ~0x7;
+
+	v1 = READ32(base + entry );
+	v2 = READ32(base + entry + 4 );
+
+	gate->selector = (v1 >> 16) & 0xffff;
+	gate->offset = (v1 & 0x0000ffff) | (v2 & 0xffff0000);
+	gate->ar = (v2 >> 8) & 0xff;
+	gate->dword_count = v2 & 0x001f;
+	gate->present = (gate->ar >> 7) & 0x01;
+	gate->dpl = (gate->ar >> 5) & 0x03;
+}
+
+static void i386_load_segment_descriptor(int segment )
 {
 	if (PROTECTED_MODE)
 	{
-		i386_load_protected_mode_segment( &I.sreg[segment] );
+		if (!V8086_MODE)
+			i386_load_protected_mode_segment(&I.sreg[segment] );
+		else
+		{
+			I.sreg[segment].base = I.sreg[segment].selector << 4;
+			I.sreg[segment].limit = 0xffff;
+			I.sreg[segment].flags = (segment == CS) ? 0x009a : 0x0092;
+		}
 	}
 	else
 	{
@@ -66,6 +104,38 @@ void i386_load_segment_descriptor( int segment )
 		if( segment == CS && !I.performed_intersegment_jump )
 			I.sreg[segment].base |= 0xfff00000;
 	}
+}
+
+static UINT32 i386_get_stack_segment(UINT8 privilege)
+{
+	if(privilege >= 3)
+		return 0;
+
+	return READ32((I.task.base+8) + (8*privilege));
+}
+
+static UINT16 i286_get_stack_segment(UINT8 privilege)
+{
+	if(privilege >= 3)
+		return 0;
+
+	return READ16((I.task.base+4) + (4*privilege));
+}
+
+static UINT32 i386_get_stack_ptr(UINT8 privilege)
+{
+	if(privilege >= 3)
+		return 0;
+
+	return READ32((I.task.base+4) + (8*privilege));
+}
+
+static UINT16 i286_get_stack_ptr(UINT8 privilege)
+{
+	if(privilege >= 3)
+		return 0;
+
+	return READ16((I.task.base+2) + (4*privilege));
 }
 
 static UINT32 get_flags(void)
@@ -80,10 +150,13 @@ static UINT32 get_flags(void)
 	f |= I.IF << 9;
 	f |= I.DF << 10;
 	f |= I.OF << 11;
-	return (I.eflags & 0xFFFF0000) | (f & 0xFFFF);
+	f |= I.IOP1 << 12;
+	f |= I.IOP2 << 13;
+	f |= I.NT << 14;
+	return (I.eflags & I.eflags_mask) | (f & 0xffff);
 }
 
-static void set_flags( UINT32 f )
+static void set_flags(UINT32 f )
 {
 	I.CF = (f & 0x1) ? 1 : 0;
 	I.PF = (f & 0x4) ? 1 : 0;
@@ -94,6 +167,10 @@ static void set_flags( UINT32 f )
 	I.IF = (f & 0x200) ? 1 : 0;
 	I.DF = (f & 0x400) ? 1 : 0;
 	I.OF = (f & 0x800) ? 1 : 0;
+	I.IOP1 = (f & 0x1000) ? 1 : 0;
+	I.IOP2 = (f & 0x2000) ? 1 : 0;
+	I.NT = (f & 0x4000) ? 1 : 0;
+	I.eflags = f & I.eflags_mask;
 }
 
 static void sib_byte(UINT8 mod, UINT32* out_ea, UINT8* out_segment)
@@ -164,7 +241,7 @@ static void modrm_to_EA(UINT8 mod_rm, UINT32* out_ea, UINT8* out_segment)
 			case 1: ea = REG32(ECX); segment = DS; break;
 			case 2: ea = REG32(EDX); segment = DS; break;
 			case 3: ea = REG32(EBX); segment = DS; break;
-			case 4: sib_byte( mod, &ea, &segment ); break;
+			case 4: sib_byte(mod, &ea, &segment ); break;
 			case 5:
 				if( mod == 0 ) {
 					ea = FETCH32(); segment = DS;
@@ -228,7 +305,7 @@ static UINT32 GetNonTranslatedEA(UINT8 modrm)
 {
 	UINT8 segment;
 	UINT32 ea;
-	modrm_to_EA( modrm, &ea, &segment );
+	modrm_to_EA(modrm, &ea, &segment );
 	return ea;
 }
 
@@ -236,84 +313,1902 @@ static UINT32 GetEA(UINT8 modrm)
 {
 	UINT8 segment;
 	UINT32 ea;
-	modrm_to_EA( modrm, &ea, &segment );
-	return i386_translate( segment, ea );
+	modrm_to_EA(modrm, &ea, &segment );
+	return i386_translate(segment, ea );
 }
 
-static void i386_trap(int irq, int irq_gate)
+static void i386_check_sreg_validity(int reg)
 {
-	/*  I386 Interrupts/Traps/Faults:
-     *
-     *  0x00    Divide by zero
-     *  0x01    Debug exception
-     *  0x02    NMI
-     *  0x03    Int3
-     *  0x04    Overflow
-     *  0x05    Array bounds check
-     *  0x06    Illegal Opcode
-     *  0x07    FPU not available
-     *  0x08    Double fault
-     *  0x09    Coprocessor segment overrun
-     *  0x0a    Invalid task state
-     *  0x0b    Segment not present
-     *  0x0c    Stack exception
-     *  0x0d    General Protection Fault
-     *  0x0e    Page fault
-     *  0x0f    Reserved
-     *  0x10    Coprocessor error
-     */
-	UINT32 v1, v2;
-	UINT32 offset;
-	UINT16 segment;
-	int entry = irq * (I.sreg[CS].d ? 8 : 4);
+	UINT16 selector = I.sreg[reg].selector;
+	UINT8 CPL = I.CPL;
+	UINT8 DPL,RPL;
+	I386_SREG desc;
+	int invalid = 0;
 
-	/* Check if IRQ is out of IDTR's bounds */
-	if( entry > I.idtr.limit ) {
-		fatalerror("I386 Interrupt: IRQ out of IDTR bounds (IRQ: %d, IDTR Limit: %d)", irq, I.idtr.limit);
-	}
+	memset(&desc, 0, sizeof(desc));
+	desc.selector = selector;
+	i386_load_protected_mode_segment(&desc);
+	DPL = (desc.flags >> 5) & 0x03;
+	RPL = selector & 0x03;
 
-	if( !I.sreg[CS].d )
+	if(selector & 0x04)
 	{
-		/* 16-bit */
-		PUSH16( get_flags() & 0xffff );
-		PUSH16( I.sreg[CS].selector );
-		PUSH16( I.eip );
-
-		I.sreg[CS].selector = READ16( I.idtr.base + entry + 2 );
-		I.eip = READ16( I.idtr.base + entry );
+		if((selector & ~0x07) > I.ldtr.limit)
+			invalid = 1;
 	}
 	else
 	{
-		/* 32-bit */
-		PUSH32( get_flags() & 0x00fcffff );
-		PUSH32( I.sreg[CS].selector );
-		PUSH32( I.eip );
-
-		v1 = READ32( I.idtr.base + entry );
-		v2 = READ32( I.idtr.base + entry + 4 );
-		offset = (v2 & 0xffff0000) | (v1 & 0xffff);
-		segment = (v1 >> 16) & 0xffff;
-
-		I.sreg[CS].selector = segment;
-		I.eip = offset;
+		if((selector & ~0x07) > I.gdtr.limit)
+			invalid = 1;
 	}
 
-	if (irq_gate)
+	if(((desc.flags & 0x0018) == 0x0018 && (desc.flags & 0x0002)) || (desc.flags & 0x0018) == 0x0010)
+		invalid = 0;
+	else
+		invalid = 1;
+
+	if(((desc.flags & 0x0018) == 0x0018 && (desc.flags & 0x0004) == 0) || (desc.flags & 0x0018) == 0x0010)
 	{
+		if((DPL < CPL) || (DPL < RPL))
+			invalid = 1;
+	}
+
+	if(invalid != 0)
+	{
+		I.sreg[reg].selector = 0;
+		i386_load_segment_descriptor(reg);
+	}
+}
+
+static void i386_trap(int irq, int irq_gate, int trap_level)
+{
+
+	UINT32 v1, v2;
+	UINT32 offset;
+	UINT16 segment;
+	int entry = irq * (PROTECTED_MODE ? 8 : 4);
+	int SetRPL = 0;
+
+	if( !(PROTECTED_MODE) )
+	{
+
+		PUSH16(get_flags() & 0xffff );
+		PUSH16(I.sreg[CS].selector );
+		if(irq == 3 || irq == 4 || irq == 9 || irq_gate == 1)
+			PUSH16(I.eip );
+		else
+			PUSH16(I.prev_eip );
+
+		I.sreg[CS].selector = READ16(I.idtr.base + entry + 2 );
+		I.eip = READ16(I.idtr.base + entry );
+
+		I.TF = 0;
 		I.IF = 0;
+	}
+	else
+	{
+		int type;
+		UINT16 flags;
+		I386_SREG desc;
+		UINT8 CPL = 0, DPL = 0;
+		I386_CALL_GATE gate;
+
+		v1 = READ32(I.idtr.base + entry );
+		v2 = READ32(I.idtr.base + entry + 4 );
+		offset = (v2 & 0xffff0000) | (v1 & 0xffff);
+		segment = (v1 >> 16) & 0xffff;
+		type = (v2>>8) & 0x1F;
+		flags = (v2>>8) & 0xf0ff;
+
+		if(trap_level == 2)
+		{
+			logerror("IRQ: Double fault.\n");
+			FAULT_EXP(FAULT_DF,0);
+		}
+		if(trap_level >= 3)
+		{
+			logerror("IRQ: Triple fault. CPU reset.\n");
+			cpunum_set_input_line(cpu_getactivecpu(), INPUT_LINE_RESET, PULSE_LINE);
+			return;
+		}
+
+
+		if(entry > I.idtr.limit)
+		{
+			logerror("IRQ: Vector is past IDT limit.\n");
+			FAULT_EXP(FAULT_GP,entry+2)
+		}
+
+		if(type != 0x05 && type != 0x06 && type != 0x07 && type != 0x0e && type != 0x0f)
+		{
+			logerror("IRQ: Vector segment is not an interrupt, trap or task gate.\n");
+			FAULT_EXP(FAULT_GP,entry+2)
+		}
+
+
+		if((flags & 0x0080) == 0)
+		{
+			logerror("IRQ: Vector segment is not present.\n");
+			FAULT_EXP(FAULT_NP,entry+2)
+		}
+
+		if(type == 0x05)
+		{
+
+			memset(&gate, 0, sizeof(gate));
+			gate.segment = segment;
+			i386_load_call_gate(&gate);
+			memset(&desc, 0, sizeof(desc));
+			desc.selector = gate.selector;
+			i386_load_protected_mode_segment(&desc);
+			if(segment & 0x04)
+			{
+				logerror("IRQ: Task gate: TSS is not in the GDT.\n");
+				FAULT_EXP(FAULT_TS,segment & ~0x07);
+			}
+			else
+			{
+				if(segment > I.gdtr.limit)
+				{
+					logerror("IRQ: Task gate: TSS is past GDT limit.\n");
+					FAULT_EXP(FAULT_TS,segment & ~0x07);
+				}
+			}
+			if((desc.flags & 0x000f) != 0x09 && (desc.flags & 0x000f) != 0x01)
+			{
+				logerror("IRQ: Task gate: TSS is not an available TSS.\n");
+				FAULT_EXP(FAULT_TS,segment & ~0x07);
+			}
+			if((desc.flags & 0x0080) == 0)
+			{
+				logerror("IRQ: Task gate: TSS is not present.\n");
+				FAULT_EXP(FAULT_NP,segment & ~0x07);
+			}
+			if(desc.flags & 0x08)
+				i386_task_switch(desc.selector,0);
+			else
+				i286_task_switch(desc.selector,0);
+			return;
+		}
+		else
+		{
+
+			memset(&desc, 0, sizeof(desc));
+			desc.selector = segment;
+			i386_load_protected_mode_segment(&desc);
+			CPL = I.CPL;
+			DPL = (desc.flags >> 5) & 0x03;
+
+			if((segment & ~0x07) == 0)
+			{
+				logerror("IRQ: Gate segment is null.\n");
+				FAULT_EXP(FAULT_GP,0)
+			}
+			if(segment & 0x04)
+			{
+				if((segment & ~0x07) > I.ldtr.limit)
+				{
+					logerror("IRQ: Gate segment is past LDT limit.\n");
+					FAULT_EXP(FAULT_GP,segment)
+				}
+			}
+			else
+			{
+				if((segment & ~0x07) > I.gdtr.limit)
+				{
+					logerror("IRQ: Gate segment is past GDT limit.\n");
+					FAULT_EXP(FAULT_GP,segment)
+				}
+			}
+			if((desc.flags & 0x0018) != 0x18)
+			{
+				logerror("IRQ: Gate descriptor is not a code segment.\n");
+				FAULT_EXP(FAULT_GP,segment)
+			}
+			if((desc.flags & 0x0080) == 0)
+			{
+				logerror("IRQ: Gate segment is not present.\n");
+				FAULT_EXP(FAULT_NP,segment)
+			}
+			if((desc.flags & 0x0004) == 0 && (DPL < CPL))
+			{
+
+				I386_SREG stack;
+				UINT32 newESP,oldSS,oldESP;
+
+				memset(&stack, 0, sizeof(stack));
+				if(flags & 0x0008)
+					stack.selector = i386_get_stack_segment(DPL);
+				else
+					stack.selector = i286_get_stack_segment(DPL);
+				i386_load_protected_mode_segment(&stack);
+				oldSS = I.sreg[SS].selector;
+				if(flags & 0x0008)
+					oldESP = REG32(ESP);
+				else
+					oldESP = REG16(SP);
+				if((stack.selector & ~0x07) == 0)
+				{
+					logerror("IRQ: New stack selector is null.\n");
+					FAULT_EXP(FAULT_GP,0)
+				}
+				if(stack.selector & 0x04)
+				{
+					if((stack.selector & ~0x07) > I.ldtr.base)
+					{
+						logerror("IRQ: New stack selector is past LDT limit.\n");
+						FAULT_EXP(FAULT_TS,stack.selector & ~0x07)
+					}
+				}
+				else
+				{
+					if((stack.selector & ~0x07) > I.gdtr.base)
+					{
+						logerror("IRQ: New stack selector is past GDT limit.\n");
+						FAULT_EXP(FAULT_TS,stack.selector & ~0x07)
+					}
+				}
+				if((stack.selector & 0x03) != DPL)
+				{
+					logerror("IRQ: New stack selector RPL is not equal to code segment DPL.\n");
+					FAULT_EXP(FAULT_TS,stack.selector & ~0x07)
+				}
+				if(((stack.flags >> 5) & 0x03) != DPL)
+				{
+					logerror("IRQ: New stack segment DPL is not equal to code segment DPL.\n");
+					FAULT_EXP(FAULT_TS,stack.selector & ~0x07)
+				}
+				if(((stack.flags & 0x0018) != 0x10) && (stack.flags & 0x0002) != 0)
+				{
+					logerror("IRQ: New stack segment is not a writable data segment.\n");
+					FAULT_EXP(FAULT_TS,stack.selector & ~0x07)
+				}
+				if((stack.flags & 0x0080) == 0)
+				{
+					logerror("IRQ: New stack segment is not present.\n");
+					FAULT_EXP(FAULT_SS,stack.selector & ~0x07)
+				}
+				if(type & 0x08)
+				{
+					newESP = i386_get_stack_ptr(DPL);
+					if(newESP < 20)
+					{
+						logerror("IRQ: New stack has no space for return addresses.\n");
+						FAULT_EXP(FAULT_SS,0)
+					}
+				}
+				else
+				{
+					newESP = i286_get_stack_ptr(DPL);
+					if(newESP < 10)
+					{
+						logerror("IRQ: New stack has no space for return addresses.\n");
+						FAULT_EXP(FAULT_SS,0)
+					}
+				}
+				if(offset > desc.limit)
+				{
+					logerror("IRQ: New EIP is past code segment limit.\n");
+					FAULT_EXP(FAULT_GP,0)
+				}
+
+				I.sreg[SS].selector = stack.selector;
+				i386_load_segment_descriptor(SS);
+				if(flags & 0x0008)
+					REG32(ESP) = i386_get_stack_ptr(DPL);
+				else
+					REG16(SP) = i286_get_stack_ptr(DPL);
+				if(type & 0x08)
+				{
+
+					PUSH32(oldSS);
+					PUSH32(oldESP);
+				}
+				else
+				{
+
+					PUSH16(oldSS);
+					PUSH16(oldESP);
+				}
+				I.CPL = DPL;
+				SetRPL = 1;
+			}
+			else
+			{
+				int stack_limit;
+				if((desc.flags & 0x0004) || (DPL == CPL))
+				{
+
+					if(type == 0x0e || type == 0x0f)
+						stack_limit = 10;
+					else
+						stack_limit = 6;
+
+					if(REG32(ESP) < stack_limit)
+					{
+						logerror("IRQ: Stack has no space left (needs %i bytes).\n",stack_limit);
+						FAULT_EXP(FAULT_SS,0)
+					}
+					if(offset > desc.limit)
+					{
+						logerror("IRQ: Gate segment offset is past segment limit.\n");
+						FAULT_EXP(FAULT_GP,0)
+					}
+					SetRPL = 1;
+				}
+				else
+				{
+					logerror("IRQ: Gate descriptor is non-conforming, and DPL does not equal CPL.\n");
+					FAULT_EXP(FAULT_GP,segment)
+				}
+			}
+		}
+
+		if(type != 0x0e && type != 0x0f)
+		{
+			PUSH16(get_flags() & 0xffff );
+			PUSH16(I.sreg[CS].selector );
+			if(irq == 3 || irq == 4 || irq == 9 || irq_gate == 1)
+				PUSH16(I.eip );
+			else
+				PUSH16(I.prev_eip );
+		}
+		else
+		{
+			PUSH32(get_flags() & 0x00fcffff );
+			PUSH32(I.sreg[CS].selector );
+			if(irq == 3 || irq == 4 || irq == 9 || irq_gate == 1)
+				PUSH32(I.eip );
+			else
+				PUSH32(I.prev_eip );
+		}
+		if(SetRPL != 0)
+			segment = (segment & ~0x03) | I.CPL;
+		I.sreg[CS].selector = segment;
+		I.eip = offset;
+
+		if(type == 0x0e || type == 0x06)
+			I.IF = 0;
+		I.TF = 0;
+		I.NT = 0;
 	}
 
 	i386_load_segment_descriptor(CS);
 	CHANGE_PC(I.eip);
+
+}
+
+static void i386_trap_with_error(int irq, int irq_gate, int trap_level, UINT32 error)
+{
+	i386_trap(irq,irq_gate,trap_level);
+	if(irq == 8 || irq == 10 || irq == 11 || irq == 12 || irq == 13 || irq == 14)
+	{
+
+		PUSH32(error);
+	}
+}
+
+static void i286_task_switch(UINT16 selector, UINT8 nested)
+{
+	UINT32 tss;
+	I386_SREG seg;
+	UINT16 old_task;
+	UINT8 ar_byte;
+
+
+
+	if(nested == 0)
+	{
+		if(I.task.segment & 0x0004)
+		{
+			ar_byte = READ8(I.ldtr.base + (I.task.segment & ~0x0007) + 5);
+			WRITE8(I.ldtr.base + (I.task.segment & ~0x0007) + 5,ar_byte & ~0x02);
+		}
+		else
+		{
+			ar_byte = READ8(I.gdtr.base + (I.task.segment & ~0x0007) + 5);
+			WRITE8(I.gdtr.base + (I.task.segment & ~0x0007) + 5,ar_byte & ~0x02);
+		}
+	}
+
+	tss = I.task.base;
+	WRITE16(tss+0x0e,I.eip & 0x0000ffff);
+	WRITE16(tss+0x10,get_flags() & 0x0000ffff);
+	WRITE16(tss+0x12,REG16(AX));
+	WRITE16(tss+0x14,REG16(CX));
+	WRITE16(tss+0x16,REG16(DX));
+	WRITE16(tss+0x18,REG16(BX));
+	WRITE16(tss+0x1a,REG16(SP));
+	WRITE16(tss+0x1c,REG16(BP));
+	WRITE16(tss+0x1e,REG16(SI));
+	WRITE16(tss+0x20,REG16(DI));
+	WRITE16(tss+0x22,I.sreg[ES].selector);
+	WRITE16(tss+0x24,I.sreg[CS].selector);
+	WRITE16(tss+0x26,I.sreg[SS].selector);
+	WRITE16(tss+0x28,I.sreg[DS].selector);
+
+	old_task = I.task.segment;
+
+	I.task.segment = selector;
+	memset(&seg, 0, sizeof(seg));
+	seg.selector = I.task.segment;
+	i386_load_protected_mode_segment(&seg);
+	I.task.limit = seg.limit;
+	I.task.base = seg.base;
+	I.task.flags = seg.flags;
+
+	I.cr[0] |= 0x08;
+
+	tss = I.task.base;
+	I.ldtr.segment = READ16(tss+0x2a) & 0xffff;
+	seg.selector = I.ldtr.segment;
+	i386_load_protected_mode_segment(&seg);
+	I.ldtr.limit = seg.limit;
+	I.ldtr.base = seg.base;
+	I.ldtr.flags = seg.flags;
+	I.eip = READ16(tss+0x0e);
+	set_flags(READ16(tss+0x10));
+	REG16(AX) = READ16(tss+0x12);
+	REG16(CX) = READ16(tss+0x14);
+	REG16(DX) = READ16(tss+0x16);
+	REG16(BX) = READ16(tss+0x18);
+	REG16(SP) = READ16(tss+0x1a);
+	REG16(BP) = READ16(tss+0x1c);
+	REG16(SI) = READ16(tss+0x1e);
+	REG16(DI) = READ16(tss+0x20);
+	I.sreg[ES].selector = READ16(tss+0x22) & 0xffff;
+	i386_load_segment_descriptor(ES);
+	I.sreg[CS].selector = READ16(tss+0x24) & 0xffff;
+	i386_load_segment_descriptor(CS);
+	I.sreg[SS].selector = READ16(tss+0x26) & 0xffff;
+	i386_load_segment_descriptor(SS);
+	I.sreg[DS].selector = READ16(tss+0x28) & 0xffff;
+	i386_load_segment_descriptor(DS);
+
+	if(selector & 0x0004)
+	{
+		ar_byte = READ8(I.ldtr.base + (selector & ~0x0007) + 5);
+		WRITE8(I.ldtr.base + (selector & ~0x0007) + 5,ar_byte | 0x02);
+	}
+	else
+	{
+		ar_byte = READ8(I.gdtr.base + (selector & ~0x0007) + 5);
+		WRITE8(I.gdtr.base + (selector & ~0x0007) + 5,ar_byte | 0x02);
+	}
+
+	if(nested != 0)
+	{
+		WRITE16(tss+0,old_task);
+		I.NT = 1;
+	}
+	CHANGE_PC(I.eip);
+
+	I.CPL = I.sreg[CS].selector & 0x03;
+	printf("286 Task Switch from selector %04x to %04x\n",old_task,selector);
+}
+
+static void i386_task_switch(UINT16 selector, UINT8 nested)
+{
+	UINT32 tss;
+	I386_SREG seg;
+	UINT16 old_task;
+	UINT8 ar_byte;
+
+
+
+	if(nested == 0)
+	{
+		if(I.task.segment & 0x0004)
+		{
+			ar_byte = READ8(I.ldtr.base + (I.task.segment & ~0x0007) + 5);
+			WRITE8(I.ldtr.base + (I.task.segment & ~0x0007) + 5,ar_byte & ~0x02);
+		}
+		else
+		{
+			ar_byte = READ8(I.gdtr.base + (I.task.segment & ~0x0007) + 5);
+			WRITE8(I.gdtr.base + (I.task.segment & ~0x0007) + 5,ar_byte & ~0x02);
+		}
+	}
+
+	tss = I.task.base;
+	WRITE32(tss+0x1c,I.cr[3]);
+	WRITE32(tss+0x20,I.eip);
+	WRITE32(tss+0x24,get_flags());
+	WRITE32(tss+0x28,REG32(EAX));
+	WRITE32(tss+0x2c,REG32(ECX));
+	WRITE32(tss+0x30,REG32(EDX));
+	WRITE32(tss+0x34,REG32(EBX));
+	WRITE32(tss+0x38,REG32(ESP));
+	WRITE32(tss+0x3c,REG32(EBP));
+	WRITE32(tss+0x40,REG32(ESI));
+	WRITE32(tss+0x44,REG32(EDI));
+	WRITE32(tss+0x48,I.sreg[ES].selector);
+	WRITE32(tss+0x4c,I.sreg[CS].selector);
+	WRITE32(tss+0x50,I.sreg[SS].selector);
+	WRITE32(tss+0x54,I.sreg[DS].selector);
+	WRITE32(tss+0x58,I.sreg[FS].selector);
+	WRITE32(tss+0x5c,I.sreg[GS].selector);
+
+	old_task = I.task.segment;
+
+	I.task.segment = selector;
+	memset(&seg, 0, sizeof(seg));
+	seg.selector = I.task.segment;
+	i386_load_protected_mode_segment(&seg);
+	I.task.limit = seg.limit;
+	I.task.base = seg.base;
+	I.task.flags = seg.flags;
+
+	I.cr[0] |= 0x08;
+
+	tss = I.task.base;
+	I.ldtr.segment = READ32(tss+0x60) & 0xffff;
+	seg.selector = I.ldtr.segment;
+	i386_load_protected_mode_segment(&seg);
+	I.ldtr.limit = seg.limit;
+	I.ldtr.base = seg.base;
+	I.ldtr.flags = seg.flags;
+	I.cr[3] = READ32(tss+0x1c);
+	I.eip = READ32(tss+0x20);
+	set_flags(READ32(tss+0x24));
+	REG32(EAX) = READ32(tss+0x28);
+	REG32(ECX) = READ32(tss+0x2c);
+	REG32(EDX) = READ32(tss+0x30);
+	REG32(EBX) = READ32(tss+0x34);
+	REG32(ESP) = READ32(tss+0x38);
+	REG32(EBP) = READ32(tss+0x3c);
+	REG32(ESI) = READ32(tss+0x40);
+	REG32(EDI) = READ32(tss+0x44);
+	I.sreg[ES].selector = READ32(tss+0x48) & 0xffff;
+	i386_load_segment_descriptor(ES);
+	I.sreg[CS].selector = READ32(tss+0x4c) & 0xffff;
+	i386_load_segment_descriptor(CS);
+	I.sreg[SS].selector = READ32(tss+0x50) & 0xffff;
+	i386_load_segment_descriptor(SS);
+	I.sreg[DS].selector = READ32(tss+0x54) & 0xffff;
+	i386_load_segment_descriptor(DS);
+	I.sreg[FS].selector = READ32(tss+0x58) & 0xffff;
+	i386_load_segment_descriptor(FS);
+	I.sreg[GS].selector = READ32(tss+0x5c) & 0xffff;
+	i386_load_segment_descriptor(GS);
+
+	if(selector & 0x0004)
+	{
+		ar_byte = READ8(I.ldtr.base + (selector & ~0x0007) + 5);
+		WRITE8(I.ldtr.base + (selector & ~0x0007) + 5,ar_byte | 0x02);
+	}
+	else
+	{
+		ar_byte = READ8(I.gdtr.base + (selector & ~0x0007) + 5);
+		WRITE8(I.gdtr.base + (selector & ~0x0007) + 5,ar_byte | 0x02);
+	}
+
+	if(nested != 0)
+	{
+		WRITE32(tss+0,old_task);
+		I.NT = 1;
+	}
+	CHANGE_PC(I.eip);
+
+	I.CPL = I.sreg[CS].selector & 0x03;
+	printf("386 Task Switch from selector %04x to %04x\n",old_task,selector);
 }
 
 static void i386_check_irq_line(void)
 {
-	/* Check if the interrupts are enabled */
-	if ( I.irq_line && I.IF )
+
+	if ( (I.irq_state) && I.IF )
 	{
-		i386_trap(I.irq_callback(0), 1);
+		I.cycles -= 2;
+		i386_trap(I.irq_callback(0), 1, 0);
 	}
+}
+
+static void i386_protected_mode_jump(UINT16 seg, UINT32 off, int indirect, int operand32)
+{
+	I386_SREG desc;
+	I386_CALL_GATE call_gate;
+	UINT8 CPL,DPL,RPL;
+	UINT8 SetRPL = 0;
+	UINT16 segment = seg;
+	UINT32 offset = off;
+
+	if((segment & ~0x07) == 0)
+	{
+		logerror("JMP: Segment is null.\n");
+		FAULT(FAULT_GP,0)
+	}
+
+	if((segment & 0x04) == 0)
+	{
+
+		if((segment & ~0x07) > (I.gdtr.limit))
+		{
+			logerror("JMP: Segment is past GDT limit.\n");
+			FAULT(FAULT_GP,segment & 0xfffc)
+		}
+	}
+	else
+	{
+
+		if((segment & ~0x07) > (I.ldtr.limit))
+		{
+			logerror("JMP: Segment is past LDT limit.\n");
+			FAULT(FAULT_GP,segment & 0xfffc)
+		}
+	}
+
+	memset(&desc, 0, sizeof(desc));
+	desc.selector = segment;
+	i386_load_protected_mode_segment(&desc);
+	CPL = I.CPL;
+	DPL = (desc.flags >> 5) & 0x03;
+	RPL = segment & 0x03;
+	if((desc.flags & 0x0018) == 0x0018)
+	{
+
+		if((desc.flags & 0x0004) == 0)
+		{
+
+			SetRPL = 1;
+			if(RPL > CPL)
+			{
+				logerror("JMP: RPL %i is less than CPL %i\n",RPL,CPL);
+				FAULT(FAULT_GP,segment & 0xfffc)
+			}
+			if(DPL != CPL)
+			{
+				logerror("JMP: DPL %i is not equal CPL %i\n",DPL,CPL);
+				FAULT(FAULT_GP,segment & 0xfffc)
+			}
+		}
+		else
+		{
+
+			if(DPL > CPL)
+			{
+				logerror("JMP: DPL %i is less than CPL %i\n",DPL,CPL);
+				FAULT(FAULT_GP,segment & 0xfffc)
+			}
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			logerror("JMP: Segment is not present\n");
+			FAULT(FAULT_NP,segment & 0xfffc)
+		}
+		if(offset > desc.limit)
+		{
+			logerror("JMP: Offset is past segment limit\n");
+			FAULT(FAULT_GP,0)
+		}
+	}
+	else
+	{
+		if((desc.flags & 0x0010) != 0)
+		{
+			logerror("JMP: Segment is a data segment\n");
+			FAULT(FAULT_GP,segment & 0xfffc)
+		}
+		else
+		{
+			switch(desc.flags & 0x000f)
+			{
+			case 0x01:
+			case 0x09:
+				logerror("JMP: Available 386 TSS at %08x\n",I.pc);
+				memset(&desc, 0, sizeof(desc));
+				desc.selector = segment;
+				i386_load_protected_mode_segment(&desc);
+				DPL = (desc.flags >> 5) & 0x03;
+				if(DPL < CPL)
+				{
+					logerror("JMP: TSS: DPL %i is less than CPL %i\n",DPL,CPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if(DPL < RPL)
+				{
+					logerror("JMP: TSS: DPL %i is less than TSS RPL %i\n",DPL,RPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if((desc.flags & 0x0080) == 0)
+				{
+					logerror("JMP: TSS: Segment is not present\n");
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if(desc.flags & 0x0008)
+					i386_task_switch(desc.selector,0);
+				else
+					i286_task_switch(desc.selector,0);
+				return;
+				break;
+			case 0x04:
+			case 0x0c:
+				logerror("JMP: Call gate at %08x\n",I.pc);
+				SetRPL = 1;
+				memset(&call_gate, 0, sizeof(call_gate));
+				call_gate.segment = segment;
+				i386_load_call_gate(&call_gate);
+				DPL = call_gate.dpl;
+				if(DPL < CPL)
+				{
+					logerror("JMP: Call Gate: DPL %i is less than CPL %i\n",DPL,CPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if(DPL < RPL)
+				{
+					logerror("JMP: Call Gate: DPL %i is less than RPL %i\n",DPL,RPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if((desc.flags & 0x0080) == 0)
+				{
+					logerror("JMP: Call Gate: Segment is not present\n");
+					FAULT(FAULT_NP,segment & 0xfffc)
+				}
+
+				if(call_gate.selector == 0)
+				{
+					logerror("JMP: Call Gate: Gate selector is null\n");
+					FAULT(FAULT_GP,0)
+				}
+				if(call_gate.selector & 0x04)
+				{
+
+					if((call_gate.selector & ~0x07) > I.gdtr.limit)
+					{
+						logerror("JMP: Call Gate: Gate Selector is past GDT segment limit\n");
+						FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+					}
+				}
+				else
+				{
+
+					if((call_gate.selector & ~0x07) > I.ldtr.limit)
+					{
+						logerror("JMP: Call Gate: Gate Selector is past LDT segment limit\n");
+						FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+					}
+				}
+				desc.selector = call_gate.selector;
+				i386_load_protected_mode_segment(&desc);
+				DPL = (desc.flags >> 5) & 0x03;
+				if((desc.flags & 0x0018) != 0x18)
+				{
+					logerror("JMP: Call Gate: Gate does not point to a code segment\n");
+					FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+				}
+				if((desc.flags & 0x0004) == 0)
+				{
+					if(DPL != CPL)
+					{
+						logerror("JMP: Call Gate: Gate DPL does not equal CPL\n");
+						FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+					}
+				}
+				else
+				{
+					if(DPL > CPL)
+					{
+						logerror("JMP: Call Gate: Gate DPL is greater than CPL\n");
+						FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+					}
+				}
+				if((desc.flags & 0x0080) == 0)
+				{
+					logerror("JMP: Call Gate: Gate Segment is not present\n");
+					FAULT(FAULT_NP,call_gate.selector & 0xfffc)
+				}
+				if(call_gate.offset > desc.limit)
+				{
+					logerror("JMP: Call Gate: Gate offset is past Gate segment limit\n");
+					FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+				}
+				segment = call_gate.selector;
+				offset = call_gate.offset;
+				break;
+			case 0x05:
+				logerror("JMP: Task gate at %08x\n",I.pc);
+				memset(&call_gate, 0, sizeof(call_gate));
+				call_gate.segment = segment;
+				i386_load_call_gate(&call_gate);
+				DPL = call_gate.dpl;
+				if(DPL < CPL)
+				{
+					logerror("JMP: Task Gate: Gate DPL %i is less than CPL %i\n",DPL,CPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if(DPL < RPL)
+				{
+					logerror("JMP: Task Gate: Gate DPL %i is less than CPL %i\n",DPL,CPL);
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+				if(call_gate.present == 0)
+				{
+					logerror("JMP: Task Gate: Gate is not present.\n");
+					FAULT(FAULT_GP,segment & 0xfffc)
+				}
+
+				desc.selector = call_gate.selector;
+				i386_load_protected_mode_segment(&desc);
+				DPL = (desc.flags >> 5) & 0x03;
+				RPL = call_gate.selector & 0x03;
+				if(call_gate.selector & 0x04)
+				{
+					logerror("JMP: Task Gate TSS: TSS must be global.\n");
+					FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+				}
+				else
+				{
+					if((call_gate.selector & ~0x07) > I.gdtr.limit)
+					{
+						logerror("JMP: Task Gate TSS: TSS is past GDT limit.\n");
+						FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+					}
+				}
+				if((call_gate.ar & 0x000f) == 0x0009 || (call_gate.ar & 0x000f) == 0x0001)
+				{
+					logerror("JMP: Task Gate TSS: Segment is not an available TSS.\n");
+					FAULT(FAULT_GP,call_gate.selector & 0xfffc)
+				}
+				if(call_gate.present == 0)
+				{
+					logerror("JMP: Task Gate TSS: TSS is not present.\n");
+					FAULT(FAULT_NP,call_gate.selector & 0xfffc)
+				}
+				if(call_gate.ar & 0x08)
+					i386_task_switch(call_gate.selector,0);
+				else
+					i286_task_switch(call_gate.selector,0);
+				return;
+				break;
+			default:
+				logerror("JMP: Invalid segment type (%i) to jump to.\n",desc.flags & 0x000f);
+				FAULT(FAULT_GP,segment & 0xfffc)
+			}
+		}
+	}
+
+	if(SetRPL != 0)
+		segment = (segment & ~0x03) | I.CPL;
+	if(operand32 == 0)
+		I.eip = offset & 0x0000ffff;
+	else
+		I.eip = offset;
+	I.sreg[CS].selector = segment;
+	I.performed_intersegment_jump = 1;
+	i386_load_segment_descriptor(CS);
+	CHANGE_PC(I.eip);
+}
+
+static void i386_protected_mode_call(UINT16 seg, UINT32 off, int indirect, int operand32)
+{
+	I386_SREG desc;
+	I386_CALL_GATE gate;
+	UINT8 SetRPL = 0;
+	UINT8 CPL, DPL, RPL;
+	UINT16 selector = seg;
+	UINT32 offset = off;
+	int x;
+
+	if((selector & ~0x07) == 0)
+	{
+		logerror("CALL: Selector is null.\n");
+		FAULT(FAULT_GP,0)
+	}
+	if(selector & 0x04)
+	{
+		if((selector & ~0x07) > I.ldtr.limit)
+		{
+			logerror("CALL: Selector is past LDT limit.\n");
+			FAULT(FAULT_GP,selector & ~0x07)
+		}
+	}
+	else
+	{
+		if((selector & ~0x07) > I.gdtr.limit)
+		{
+			logerror("CALL: Selector is past GDT limit.\n");
+			FAULT(FAULT_GP,selector & ~0x07)
+		}
+	}
+
+	memset(&desc, 0, sizeof(desc));
+	desc.selector = selector;
+	i386_load_protected_mode_segment(&desc);
+	CPL = I.CPL;
+	DPL = (desc.flags >> 5) & 0x03;
+	RPL = selector & 0x03;
+	if((desc.flags & 0x0018) == 0x18)
+	{
+		if(desc.flags & 0x0004)
+		{
+
+			if(DPL > CPL)
+			{
+				logerror("CALL: Code segment DPL %i is greater than CPL %i\n",DPL,CPL);
+				FAULT(FAULT_GP,selector & ~0x07)
+			}
+		}
+		else
+		{
+
+			if(RPL > CPL)
+			{
+				logerror("CALL: RPL %i is greater than CPL %i\n",RPL,CPL);
+				FAULT(FAULT_GP,selector & ~0x07)
+			}
+			if(DPL != CPL)
+			{
+				logerror("CALL: Code segment DPL %i is not equal to CPL %i\n",DPL,CPL);
+				FAULT(FAULT_GP,selector & ~0x07)
+			}
+			SetRPL = 1;
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			logerror("CALL: Code segment is not present.\n");
+			FAULT(FAULT_NP,selector & ~0x07)
+		}
+		if (operand32 != 0)
+		{
+			if(REG32(ESP) < 8)
+			{
+				logerror("CALL: Stack has no room for return address.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+		else
+		{
+			if(REG16(SP) < 4)
+			{
+				logerror("CALL: Stack has no room for return address.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+		if(offset > desc.limit)
+		{
+			logerror("CALL: EIP is past segment limit.\n");
+			FAULT(FAULT_GP,0)
+		}
+	}
+	else
+	{
+
+		if(desc.flags & 0x0010)
+		{
+			logerror("CALL: Segment is a data segment.\n");
+			FAULT(FAULT_GP,desc.selector & ~0x07)
+		}
+		else
+		{
+			switch(desc.flags & 0x000f)
+			{
+			case 0x01:
+			case 0x09:
+				logerror("CALL: Available TSS at %08x\n",I.pc);
+				if(DPL < CPL)
+				{
+					logerror("CALL: TSS: DPL is less than CPL.\n");
+					FAULT(FAULT_TS,selector & ~0x07)
+				}
+				if(DPL < RPL)
+				{
+					logerror("CALL: TSS: DPL is less than RPL.\n");
+					FAULT(FAULT_TS,selector & ~0x07)
+				}
+				if(desc.flags & 0x0002)
+				{
+					logerror("CALL: TSS: TSS is busy.\n");
+					FAULT(FAULT_TS,selector & ~0x07)
+				}
+				if(desc.flags & 0x0080)
+				{
+					logerror("CALL: TSS: Segment is not present.\n");
+					FAULT(FAULT_NP,selector & ~0x07)
+				}
+				if(desc.flags & 0x08)
+					i386_task_switch(desc.selector,1);
+				else
+					i286_task_switch(desc.selector,1);
+				return;
+				break;
+			case 0x04:
+			case 0x0c:
+				if((desc.flags & 0x000f) == 0x04)
+					operand32 = 0;
+				else
+					operand32 = 1;
+				memset(&gate, 0, sizeof(gate));
+				gate.segment = selector;
+				i386_load_call_gate(&gate);
+				DPL = gate.dpl;
+				logerror("CALL: Call gate at %08x (%i parameters)\n",I.pc,gate.dword_count);
+				if(DPL < CPL)
+				{
+					logerror("CALL: Call gate DPL %i is less than CPL %i.\n",DPL,CPL);
+					FAULT(FAULT_GP,desc.selector & ~0x07)
+				}
+				if(DPL < RPL)
+				{
+					logerror("CALL: Call gate DPL %i is less than RPL %i.\n",DPL,RPL);
+					FAULT(FAULT_GP,desc.selector & ~0x07)
+				}
+				if(gate.present == 0)
+				{
+					logerror("CALL: Call gate is not present.\n");
+					FAULT(FAULT_NP,desc.selector & ~0x07)
+				}
+				desc.selector = gate.selector;
+				if((gate.selector & ~0x07) == 0)
+				{
+					logerror("CALL: Call gate: Segment is null.\n");
+					FAULT(FAULT_GP,0)
+				}
+				if(desc.selector & 0x04)
+				{
+					if((desc.selector & ~0x07) > I.ldtr.limit)
+					{
+						logerror("CALL: Call gate: Segment is past LDT limit\n");
+						FAULT(FAULT_GP,desc.selector & ~0x07)
+					}
+				}
+				else
+				{
+					if((desc.selector & ~0x07) > I.gdtr.limit)
+					{
+						logerror("CALL: Call gate: Segment is past GDT limit\n");
+						FAULT(FAULT_GP,desc.selector & ~0x07)
+					}
+				}
+				i386_load_protected_mode_segment(&desc);
+				if((desc.flags & 0x0018) != 0x18)
+				{
+					logerror("CALL: Call gate: Segment is not a code segment.\n");
+					FAULT(FAULT_GP,desc.selector & ~0x07)
+				}
+				DPL = ((desc.flags >> 5) & 0x03);
+				if(DPL > CPL)
+				{
+					logerror("CALL: Call gate: Segment DPL %i is greater than CPL %i.\n",DPL,CPL);
+					FAULT(FAULT_GP,desc.selector & ~0x07)
+				}
+				if(DPL < CPL && (desc.flags & 0x0004) == 0)
+				{
+					I386_SREG stack;
+					I386_SREG temp;
+					UINT32 oldSS,oldESP;
+
+					memset(&stack, 0, sizeof(stack));
+					if(operand32 != 0)
+						stack.selector = i386_get_stack_segment(DPL);
+					else
+						stack.selector = i286_get_stack_segment(DPL);
+					i386_load_protected_mode_segment(&stack);
+					if((stack.selector & ~0x07) == 0)
+					{
+						logerror("CALL: Call gate: TSS selector is null\n");
+						FAULT(FAULT_TS,0)
+					}
+					if(stack.selector & 0x04)
+					{
+						if((stack.selector & ~0x07) > I.ldtr.limit)
+						{
+							logerror("CALL: Call gate: TSS selector is past LDT limit\n");
+							FAULT(FAULT_TS,stack.selector)
+						}
+					}
+					else
+					{
+						if((stack.selector & ~0x07) > I.gdtr.limit)
+						{
+							logerror("CALL: Call gate: TSS selector is past GDT limit\n");
+							FAULT(FAULT_TS,stack.selector)
+						}
+					}
+					if((stack.selector & 0x03) != DPL)
+					{
+						logerror("CALL: Call gate: Stack selector RPL does not equal code segment DPL %i\n",DPL);
+						FAULT(FAULT_TS,stack.selector)
+					}
+					if(((stack.flags >> 5) & 0x03) != DPL)
+					{
+						logerror("CALL: Call gate: Stack DPL does not equal code segment DPL %i\n",DPL);
+						FAULT(FAULT_TS,stack.selector)
+					}
+					if((stack.flags & 0x0018) != 0x10 && (stack.flags & 0x0002))
+					{
+						logerror("CALL: Call gate: Stack segment is not a writable data segment\n");
+						FAULT(FAULT_TS,stack.selector)
+					}
+					if((stack.flags & 0x0080) == 0)
+					{
+						logerror("CALL: Call gate: Stack segment is not a writable data segment\n");
+						FAULT(FAULT_SS,stack.selector)
+					}
+					if(operand32 != 0)
+					{
+						UINT32 newESP = i386_get_stack_ptr(DPL);
+						if(newESP < ((gate.dword_count & 0x1f) + 16))
+						{
+							logerror("CALL: Call gate: New stack has no room for 32-bit return address and parameters.\n");
+							FAULT(FAULT_SS,0)
+						}
+						if(gate.offset > desc.limit)
+						{
+							logerror("CALL: Call gate: EIP is past segment limit.\n");
+							FAULT(FAULT_GP,0)
+						}
+					}
+					else
+					{
+						UINT32 newESP = i286_get_stack_ptr(DPL) & 0x0000ffff;
+						if(newESP < ((gate.dword_count & 0x1f) + 8))
+						{
+							logerror("CALL: Call gate: New stack has no room for 16-bit return address and parameters.\n");
+							FAULT(FAULT_SS,0)
+						}
+						if((gate.offset & 0xffff) > desc.limit)
+						{
+							logerror("CALL: Call gate: IP is past segment limit.\n");
+							FAULT(FAULT_GP,0)
+						}
+					}
+					selector = gate.selector;
+					offset = gate.offset;
+
+					oldSS = I.sreg[SS].selector;
+					if(operand32 != 0)
+					{
+						oldESP = REG32(ESP);
+						I.sreg[SS].selector = i386_get_stack_segment(gate.selector & 0x03);
+					}
+					else
+					{
+						oldESP = REG16(SP);
+						I.sreg[SS].selector = i286_get_stack_segment(gate.selector & 0x03);
+					}
+					i386_load_segment_descriptor(SS );
+					if(operand32 != 0)
+						REG32(ESP) = i386_get_stack_ptr(gate.selector & 0x03);
+					else
+						REG16(SP) = i286_get_stack_ptr(gate.selector & 0x03) & 0x0000ffff;
+
+					if(operand32 != 0)
+					{
+						PUSH32(oldSS);
+						PUSH32(oldESP);
+					}
+					else
+					{
+						PUSH16(oldSS);
+						PUSH16(oldESP & 0xffff);
+					}
+
+					memset(&temp, 0, sizeof(temp));
+					temp.selector = oldSS;
+					i386_load_protected_mode_segment(&temp);
+
+					for(x=(gate.dword_count & 0x1f)-1;x>=0;x--)
+					{
+						UINT32 addr = temp.base + oldESP + (x*2);
+						PUSH16(READ16(addr));
+					}
+					I.CPL = (stack.flags >> 5) & 0x03;
+					SetRPL = 1;
+				}
+				else
+				{
+
+					if (operand32 != 0)
+					{
+						if(REG32(ESP) < 8)
+						{
+							logerror("CALL: Stack has no room for return address.\n");
+							FAULT(FAULT_SS,0)
+						}
+						selector = gate.selector;
+						offset = gate.offset;
+					}
+					else
+					{
+						if(REG16(SP) < 4)
+						{
+							logerror("CALL: Stack has no room for return address.\n");
+							FAULT(FAULT_SS,0)
+						}
+						selector = gate.selector;
+						offset = gate.offset & 0xffff;
+					}
+					if(offset > desc.limit)
+					{
+						logerror("CALL: EIP is past segment limit.\n");
+						FAULT(FAULT_GP,0)
+					}
+				}
+				break;
+			case 0x05:
+				logerror("CALL: Task gate at %08x\n",I.pc);
+				memset(&gate, 0, sizeof(gate));
+				gate.segment = selector;
+				i386_load_call_gate(&gate);
+				DPL = gate.dpl;
+				if(DPL < CPL)
+				{
+					logerror("CALL: Task Gate: Gate DPL is less than CPL.\n");
+					FAULT(FAULT_TS,selector & ~0x07)
+				}
+				if(DPL < RPL)
+				{
+					logerror("CALL: Task Gate: Gate DPL is less than RPL.\n");
+					FAULT(FAULT_TS,selector & ~0x07)
+				}
+				if(gate.ar & 0x0080)
+				{
+					logerror("CALL: Task Gate: Gate is not present.\n");
+					FAULT(FAULT_NP,selector & ~0x07)
+				}
+
+				desc.selector = gate.selector;
+				i386_load_protected_mode_segment(&desc);
+				if(gate.selector & 0x04)
+				{
+					logerror("CALL: Task Gate: TSS is not global.\n");
+					FAULT(FAULT_TS,gate.selector & ~0x07)
+				}
+				else
+				{
+					if((gate.selector & ~0x07) > I.gdtr.limit)
+					{
+						logerror("CALL: Task Gate: TSS is past GDT limit.\n");
+						FAULT(FAULT_TS,gate.selector & ~0x07)
+					}
+				}
+				if(desc.flags & 0x0002)
+				{
+					logerror("CALL: Task Gate: TSS is busy.\n");
+					FAULT(FAULT_TS,gate.selector & ~0x07)
+				}
+				if(desc.flags & 0x0080)
+				{
+					logerror("CALL: Task Gate: TSS is not present.\n");
+					FAULT(FAULT_NP,gate.selector & ~0x07)
+				}
+				if(desc.flags & 0x08)
+					i386_task_switch(desc.selector,1);
+				else
+					i286_task_switch(desc.selector,1);
+				return;
+				break;
+			default:
+				logerror("CALL: Invalid special segment type (%i) to jump to.\n",desc.flags & 0x000f);
+				FAULT(FAULT_GP,selector & ~0x07)
+			}
+		}
+	}
+
+	if(SetRPL != 0)
+		selector = (selector & ~0x03) | I.CPL;
+	if(operand32 == 0)
+	{
+
+		PUSH16(I.sreg[CS].selector );
+		PUSH16(I.eip & 0x0000ffff );
+		I.sreg[CS].selector = selector;
+		I.performed_intersegment_jump = 1;
+		I.eip = offset;
+		i386_load_segment_descriptor(CS);
+	}
+	else
+	{
+
+		PUSH32(I.sreg[CS].selector );
+		PUSH32(I.eip );
+		I.sreg[CS].selector = selector;
+		I.performed_intersegment_jump = 1;
+		I.eip = offset;
+		i386_load_segment_descriptor(CS );
+	}
+	CHANGE_PC(I.eip);
+}
+
+static void i386_protected_mode_retf(UINT8 count, UINT8 operand32)
+{
+	UINT32 newCS, newEIP;
+	UINT32 newSS, newESP;
+	I386_SREG desc;
+	UINT8 CPL, RPL, DPL;
+
+	if(operand32 == 0)
+	{
+		newEIP = POP16() & 0xffff;
+		newCS = POP16() & 0xffff;
+		REG16(SP) += count;
+	}
+	else
+	{
+		newEIP = POP32();
+		newCS = POP32() & 0xffff;
+		REG32(ESP) += count;
+	}
+
+	memset(&desc, 0, sizeof(desc));
+	desc.selector = newCS;
+	i386_load_protected_mode_segment(&desc);
+	CPL = I.CPL;
+	DPL = (desc.flags >> 5) & 0x03;
+	RPL = newCS & 0x03;
+
+	if(RPL < CPL)
+	{
+		logerror("RETF: Return segment RPL is less than CPL.\n");
+		FAULT(FAULT_GP,newCS & ~0x07)
+	}
+
+	if(RPL == CPL)
+	{
+
+		if((newCS & ~0x07) == 0)
+		{
+			logerror("RETF: Return segment RPL is less than CPL.\n");
+			FAULT(FAULT_GP,0)
+		}
+		if(newCS & 0x04)
+		{
+			if((newCS & ~0x07) > I.ldtr.limit)
+			{
+				logerror("RETF: Return segment is past LDT limit.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		else
+		{
+			if((newCS & ~0x07) > I.gdtr.limit)
+			{
+				logerror("RETF: Return segment is past GDT limit.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		if((desc.flags & 0x0018) != 0x0018)
+		{
+			logerror("RETF: Return segment is not a code segment.\n");
+			FAULT(FAULT_GP,newCS & ~0x07)
+		}
+		if(desc.flags & 0x0004)
+		{
+			if(DPL > CPL)
+			{
+				logerror("RETF: Conforming code segment DPL is greater than CPL.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		else
+		{
+			if(DPL != CPL)
+			{
+				logerror("RETF: Non-conforming code segment DPL does not equal CPL.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			logerror("RETF: Code segment is not present.\n");
+			FAULT(FAULT_NP,newCS & ~0x07)
+		}
+		if(newEIP > desc.limit)
+		{
+			logerror("RETF: EIP is past code segment limit.\n");
+			FAULT(FAULT_GP,0)
+		}
+		if(operand32 == 0)
+		{
+			if(REG16(SP) > (I.sreg[SS].limit & 0xffff))
+			{
+				logerror("RETF: SP is past stack segment limit.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+		else
+		{
+			if(REG32(ESP) > I.sreg[SS].limit)
+			{
+				logerror("RETF: ESP is past stack segment limit.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+	}
+	else if(RPL > CPL)
+	{
+
+		if(operand32 == 0)
+		{
+			newESP = POP16() & 0xffff;
+			newSS = POP16();
+			if(newESP+8+count > I.sreg[SS].limit)
+			{
+				logerror("RETF: SP is past stack segment limit.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+		else
+		{
+			newESP = POP32();
+			newSS = POP32();
+			if(newESP+16+count > I.sreg[SS].limit)
+			{
+				logerror("RETF: ESP is past stack segment limit.\n");
+				FAULT(FAULT_SS,0)
+			}
+		}
+
+		if((newCS & ~0x07) == 0)
+		{
+			logerror("RETF: CS segment is null.\n");
+			FAULT(FAULT_GP,0)
+		}
+		if(newCS & 0x04)
+		{
+			if((newCS & ~0x07) > I.ldtr.limit)
+			{
+				logerror("RETF: CS segment selector is past LDT limit.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		else
+		{
+			if((newCS & ~0x07) > I.gdtr.limit)
+			{
+				logerror("RETF: CS segment selector is past GDT limit.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		if((desc.flags & 0x0018) != 0x0018)
+		{
+			logerror("RETF: CS segment is not a code segment.\n");
+			FAULT(FAULT_GP,newCS & ~0x07)
+		}
+		if(desc.flags & 0x0004)
+		{
+			if(DPL > RPL)
+			{
+				logerror("RETF: Conforming CS segment DPL is greater than return selector RPL.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		else
+		{
+			if(DPL != RPL)
+			{
+				logerror("RETF: Non-conforming CS segment DPL is not equal to return selector RPL.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			logerror("RETF: CS segment is not present.\n");
+			FAULT(FAULT_NP,newCS & ~0x07)
+		}
+		if(newEIP > desc.limit)
+		{
+			logerror("RETF: EIP is past return CS segment limit.\n");
+			FAULT(FAULT_GP,0)
+		}
+
+		desc.selector = newSS;
+		i386_load_protected_mode_segment(&desc);
+		DPL = (desc.flags >> 5) & 0x03;
+		if((newSS & ~0x07) == 0)
+		{
+			logerror("RETF: SS segment is null.\n");
+			FAULT(FAULT_GP,0)
+		}
+		if(newSS & 0x04)
+		{
+			if((newSS & ~0x07) > I.ldtr.limit)
+			{
+				logerror("RETF: SS segment selector is past LDT limit.\n");
+				FAULT(FAULT_GP,newSS & ~0x07)
+			}
+		}
+		else
+		{
+			if((newSS & ~0x07) > I.gdtr.limit)
+			{
+				logerror("RETF: SS segment selector is past GDT limit.\n");
+				FAULT(FAULT_GP,newSS & ~0x07)
+			}
+		}
+		if((newSS & 0x03) != RPL)
+		{
+			logerror("RETF: SS segment RPL is not equal to CS segment RPL.\n");
+			FAULT(FAULT_GP,newSS & ~0x07)
+		}
+		if((desc.flags & 0x0018) != 0x0010 || (desc.flags & 0x0002) == 0)
+		{
+			logerror("RETF: SS segment is not a writable data segment.\n");
+			FAULT(FAULT_GP,newSS & ~0x07)
+		}
+		if(((desc.flags >> 5) & 0x03) != RPL)
+		{
+			logerror("RETF: SS DPL is not equal to CS segment RPL.\n");
+			FAULT(FAULT_GP,newSS & ~0x07)
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			logerror("RETF: SS segment is not present.\n");
+			FAULT(FAULT_GP,newSS & ~0x07)
+		}
+		I.CPL = newCS & 0x03;
+
+		if(operand32 == 0)
+			REG16(SP) = newESP & 0xffff;
+		else
+			REG32(ESP) = newESP;
+		I.sreg[SS].selector = newSS;
+		i386_load_segment_descriptor(SS );
+
+		if(operand32 == 0)
+			REG16(SP) += count;
+		else
+			REG32(ESP) += count;
+
+		i386_check_sreg_validity(DS);
+		i386_check_sreg_validity(ES);
+		i386_check_sreg_validity(FS);
+		i386_check_sreg_validity(GS);
+	}
+
+	if(operand32 == 0)
+		I.eip = newEIP & 0xffff;
+	else
+		I.eip = newEIP;
+	I.sreg[CS].selector = newCS;
+	i386_load_segment_descriptor(CS );
+	CHANGE_PC(I.eip);
+}
+
+static void i386_protected_mode_iret(int operand32)
+{
+	UINT32 newCS, newEIP;
+	UINT32 newSS, newESP;
+	I386_SREG desc;
+	UINT8 CPL, RPL, DPL;
+	UINT32 newflags;
+
+	CPL = I.CPL;
+	if(operand32 == 0)
+	{
+		newEIP = POP16();
+		newCS = POP16();
+		newflags = POP16();
+	}
+	else
+	{
+		newEIP = POP32();
+		newCS = POP32() & 0xffff;
+		newflags = POP32();
+	}
+
+	if(V8086_MODE)
+	{
+		ui_popup("IRET: Is in Virtual 8086 mode.\n");
+		FAULT(FAULT_GP,0)
+	}
+	else if(NESTED_TASK)
+	{
+		UINT32 task = READ32(I.task.base);
+
+		ui_popup("IRET: Nested task return.");
+
+		if(task & 0x04)
+		{
+			ui_popup("IRET: Task return: Back-linked TSS is not in GDT.\n");
+			FAULT(FAULT_TS,task & ~0x07)
+		}
+		if((task & ~0x07) > I.gdtr.limit)
+		{
+			ui_popup("IRET: Task return: Back-linked TSS is not in GDT.\n");
+			FAULT(FAULT_TS,task & ~0x07)
+		}
+		memset(&desc, 0, sizeof(desc));
+		desc.selector = task;
+		i386_load_protected_mode_segment(&desc);
+		if((desc.flags & 0x001f) != 0x000b)
+		{
+			ui_popup("IRET: Task return: Back-linked TSS is not a busy TSS.\n");
+			FAULT(FAULT_TS,task & ~0x07)
+		}
+		if((desc.flags & 0x0080) == 0)
+		{
+			ui_popup("IRET: Task return: Back-linked TSS is not present.\n");
+			FAULT(FAULT_NP,task & ~0x07)
+		}
+		if(desc.flags & 0x08)
+			i386_task_switch(desc.selector,0);
+		else
+			i286_task_switch(desc.selector,0);
+		return;
+	}
+	else
+	{
+		if(newflags & 0x00020000)
+		{
+
+			ui_popup("IRET: Unimplemented return to Virtual 8086 mode.");
+		}
+		else
+		{
+			if(operand32 == 0)
+			{
+				if(REG16(SP)+4 > I.sreg[SS].limit)
+				{
+					ui_popup("IRET: Data on stack is past SS limit.\n");
+					FAULT(FAULT_SS,0)
+				}
+			}
+			else
+			{
+				if(REG32(ESP)+6 > I.sreg[SS].limit)
+				{
+					ui_popup("IRET: Data on stack is past SS limit.\n");
+					FAULT(FAULT_SS,0)
+				}
+			}
+			RPL = newCS & 0x03;
+			if(RPL < CPL)
+			{
+				ui_popup("IRET: Return CS RPL is less than CPL.\n");
+				FAULT(FAULT_GP,newCS & ~0x07)
+			}
+			if(RPL == CPL)
+			{
+
+				if(operand32 == 0)
+				{
+					if(REG16(SP)+6 > I.sreg[SS].limit)
+					{
+						ui_popup("IRET: Data on stack is past SS limit.\n");
+						FAULT(FAULT_SS,0)
+					}
+				}
+				else
+				{
+					if(REG32(ESP)+12 > I.sreg[SS].limit)
+					{
+						ui_popup("IRET: Data on stack is past SS limit.\n");
+						FAULT(FAULT_SS,0)
+					}
+				}
+				if((newCS & ~0x07) == 0)
+				{
+					ui_popup("IRET: Return CS selector is null.\n");
+					FAULT(FAULT_GP,0)
+				}
+				if(newCS & 0x04)
+				{
+					if((newCS & ~0x07) > I.ldtr.limit)
+					{
+						ui_popup("IRET: Return CS selector (%04x) is past LDT limit.\n",newCS);
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				else
+				{
+					if((newCS & ~0x07) > I.gdtr.limit)
+					{
+						ui_popup("IRET: Return CS selector is past GDT limit.\n");
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				memset(&desc, 0, sizeof(desc));
+				desc.selector = newCS;
+				i386_load_protected_mode_segment(&desc);
+				DPL = (desc.flags >> 5) & 0x03;
+				RPL = newCS & 0x03;
+				if((desc.flags & 0x0018) != 0x0018)
+				{
+					ui_popup("IRET: Return CS segment is not a code segment.\n");
+					FAULT(FAULT_GP,newCS & ~0x07)
+				}
+				if(desc.flags & 0x0004)
+				{
+					if(DPL > CPL)
+					{
+						ui_popup("IRET: Conforming return CS DPL is greater than CPL.\n");
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				else
+				{
+					if(DPL != CPL)
+					{
+						ui_popup("IRET: Non-conforming return CS DPL is not equal to CPL.\n");
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				if((desc.flags & 0x0080) == 0)
+				{
+					ui_popup("IRET: Return CS segment is not present.\n");
+					FAULT(FAULT_NP,newCS & ~0x07)
+				}
+				if(newEIP > desc.limit)
+				{
+					ui_popup("IRET: Return EIP is past return CS limit.\n");
+					FAULT(FAULT_GP,0)				}
+
+				if(operand32 == 0)
+				{
+					I.eip = newEIP;
+					I.sreg[CS].selector = newCS;
+					set_flags(newflags);
+				}
+				else
+				{
+					I.eip = newEIP;
+					I.sreg[CS].selector = newCS & 0xffff;
+					set_flags(newflags);
+				}
+			}
+			else if(RPL > CPL)
+			{
+				I386_SREG stack;
+
+				if(operand32 == 0)
+				{
+					newESP = POP16();
+					newSS = POP16();
+					if(REG16(SP) > I.sreg[SS].limit)
+					{
+						ui_popup("IRET: ESP is past SS limit.\n");
+						FAULT(FAULT_SS,0)					}
+				}
+				else
+				{
+					newESP = POP32();
+					newSS = POP32() & 0xffff;
+					if(REG32(ESP) > I.sreg[SS].limit)
+					{
+						ui_popup("IRET: ESP is past SS limit.\n");
+						FAULT(FAULT_SS,0)
+					}
+				}
+				memset(&desc, 0, sizeof(desc));
+				desc.selector = newCS;
+				i386_load_protected_mode_segment(&desc);
+				DPL = (desc.flags >> 5) & 0x03;
+				RPL = newCS & 0x03;
+				memset(&stack, 0, sizeof(stack));
+				stack.selector = newSS;
+				i386_load_protected_mode_segment(&stack);
+
+				if((newCS & ~0x07) == 0)
+				{
+					ui_popup("IRET: Return CS selector is null.\n");
+					FAULT(FAULT_GP,0)
+				}
+				if(newCS & 0x04)
+				{
+					if((newCS & ~0x07) > I.ldtr.limit)
+					{
+						ui_popup("IRET: Return CS selector is past LDT limit.\n");
+						FAULT(FAULT_GP,newCS & ~0x07);
+					}
+				}
+				else
+				{
+					if((newCS & ~0x07) > I.gdtr.limit)
+					{
+						ui_popup("IRET: Return CS selector is past GDT limit.\n");
+						FAULT(FAULT_GP,newCS & ~0x07);
+					}
+				}
+				if((desc.flags & 0x0018) != 0x0018)
+				{
+					ui_popup("IRET: Return CS segment is not a code segment.\n");
+					FAULT(FAULT_GP,newCS & ~0x07)
+				}
+				if(desc.flags & 0x0004)
+				{
+					if(DPL <= CPL)
+					{
+						ui_popup("IRET: Conforming return CS DPL is not greater than CPL.\n");
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				else
+				{
+					if(DPL != RPL)
+					{
+						ui_popup("IRET: Non-conforming return CS DPL does not equal CS RPL.\n");
+						FAULT(FAULT_GP,newCS & ~0x07)
+					}
+				}
+				if((desc.flags & 0x0080) == 0)
+				{
+					ui_popup("IRET: Return CS segment is not present.\n");
+					FAULT(FAULT_NP,newCS & ~0x07)
+				}
+
+				DPL = (stack.flags >> 5) & 0x03;
+				if((newSS & ~0x07) == 0)
+				{
+					ui_popup("IRET: Return SS selector is null.\n");
+					FAULT(FAULT_GP,0)
+				}
+				if(newSS & 0x04)
+				{
+					if((newSS & ~0x07) > I.ldtr.limit)
+					{
+						ui_popup("IRET: Return SS selector is past LDT limit.\n");
+						FAULT(FAULT_GP,newSS & ~0x07);
+					}
+				}
+				else
+				{
+					if((newSS & ~0x07) > I.gdtr.limit)
+					{
+						ui_popup("IRET: Return SS selector is past GDT limit.\n");
+						FAULT(FAULT_GP,newSS & ~0x07);
+					}
+				}
+				if((newSS & 0x03) != RPL)
+				{
+					ui_popup("IRET: Return SS RPL is not equal to return CS RPL.\n");
+					FAULT(FAULT_GP,newSS & ~0x07)
+				}
+				if((stack.flags & 0x0018) != 0x0010)
+				{
+					ui_popup("IRET: Return SS segment is not a data segment.\n");
+					FAULT(FAULT_GP,newSS & ~0x07)
+				}
+				if((stack.flags & 0x0002) == 0)
+				{
+					ui_popup("IRET: Return SS segment is not writable.\n");
+					FAULT(FAULT_GP,newSS & ~0x07)
+				}
+				if(DPL != RPL)
+				{
+					ui_popup("IRET: Return SS DPL does not equal SS RPL.\n");
+					FAULT(FAULT_GP,newSS & ~0x07)
+				}
+				if((stack.flags & 0x0080) == 0)
+				{
+					ui_popup("IRET: Return SS segment is not present.\n");
+					FAULT(FAULT_NP,newSS & ~0x07)
+				}
+				if(newEIP > desc.limit)
+				{
+					ui_popup("IRET: EIP is past return CS limit.\n");
+					FAULT(FAULT_GP,0)
+				}
+
+				if(operand32 == 0)
+				{
+					I.eip = newEIP & 0xffff;
+					I.sreg[CS].selector = newCS;
+					set_flags(newflags);
+					REG16(SP) = newESP & 0xffff;
+					I.sreg[SS].selector = newSS;
+				}
+				else
+				{
+					I.eip = newEIP;
+					I.sreg[CS].selector = newCS & 0xffff;
+					set_flags(newflags);
+					REG32(ESP) = newESP;
+					I.sreg[SS].selector = newSS & 0xffff;
+				}
+				I.CPL = newCS & 0x03;
+				i386_load_segment_descriptor(SS);
+
+				i386_check_sreg_validity(DS);
+				i386_check_sreg_validity(ES);
+				i386_check_sreg_validity(FS);
+				i386_check_sreg_validity(GS);
+			}
+		}
+	}
+
+	i386_load_segment_descriptor(CS);
+	CHANGE_PC(I.eip);
 }
 
 #include "cycles.h"
@@ -366,8 +2261,8 @@ static void build_cycle_table(void)
 	int i, j;
 	for (j=0; j < X86_NUM_CPUS; j++)
 	{
-		cycle_table_rm[j] = auto_malloc(sizeof(UINT8) * CYCLES_NUM_OPCODES);
-		cycle_table_pm[j] = auto_malloc(sizeof(UINT8) * CYCLES_NUM_OPCODES);
+		cycle_table_rm[j] = auto_malloc(CYCLES_NUM_OPCODES);
+		cycle_table_pm[j] = auto_malloc(CYCLES_NUM_OPCODES);
 
 		for (i=0; i < sizeof(x86_cycle_table)/sizeof(X86_CYCLE_TABLE); i++)
 		{
@@ -378,6 +2273,8 @@ static void build_cycle_table(void)
 	}
 }
 
+static void I386OP(decode_opcode)(void);
+static void I386OP(decode_two_byte)(void);
 
 
 #include "i386ops.c"
@@ -397,7 +2294,6 @@ static void I386OP(decode_opcode)(void)
 		I.opcode_table1_16[I.opcode]();
 }
 
-/* Two-byte opcode prefix */
 static void I386OP(decode_two_byte)(void)
 {
 	I.opcode = FETCH();
@@ -407,59 +2303,10 @@ static void I386OP(decode_two_byte)(void)
 		I.opcode_table2_16[I.opcode]();
 }
 
-/*************************************************************************/
-
-#if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)
-
-static UINT64 i386_debug_segbase(UINT32 ref, UINT32 params, UINT64 *param)
-{
-	UINT32 result;
-	I386_SREG seg;
-
-	if (PROTECTED_MODE)
-	{
-		memset(&seg, 0, sizeof(seg));
-		seg.selector = (UINT16) param[0];
-		i386_load_protected_mode_segment(&seg);
-		result = seg.base;
-	}
-	else
-	{
-		result = param[0] << 4;
-	}
-	return result;
-}
-
-static UINT64 i386_debug_seglimit(UINT32 ref, UINT32 params, UINT64 *param)
-{
-	UINT32 result = 0;
-	I386_SREG seg;
-
-	if (PROTECTED_MODE)
-	{
-		memset(&seg, 0, sizeof(seg));
-		seg.selector = (UINT16) param[0];
-		i386_load_protected_mode_segment(&seg);
-		result = seg.limit;
-	}
-	return result;
-}
-
-static void i386_debug_setup(void)
-{
-	symtable_add_function(global_symtable, "segbase", 0, 1, 1, i386_debug_segbase);
-	symtable_add_function(global_symtable, "seglimit", 0, 1, 1, i386_debug_seglimit);
-}
-
-#endif /* defined(MAME_DEBUG) && defined(NEW_DEBUGGER) */
-
-/*************************************************************************/
 
 static void i386_postload(void)
 {
-	int i;
-	for (i = 0; i < 6; i++)
-		i386_load_segment_descriptor(i);
+	/* Hidden segment caches can differ from descriptors and must survive a restore. */
 	CHANGE_PC(I.eip);
 }
 
@@ -494,15 +2341,13 @@ void i386_init(int index, int clock, const void *config, int (*irqcallback)(int)
 
 	I.irq_callback = irqcallback;
 
-	state_save_register_item_array(state_type, index,	I.reg.d);
-	state_save_register_item(state_type, index, I.sreg[ES].selector);
-	state_save_register_item(state_type, index, I.sreg[CS].selector);
-	state_save_register_item(state_type, index, I.sreg[SS].selector);
-	state_save_register_item(state_type, index, I.sreg[DS].selector);
-	state_save_register_item(state_type, index, I.sreg[FS].selector);
-	state_save_register_item(state_type, index, I.sreg[GS].selector);
+	state_save_register_item_array(state_type, index, I.reg.d);
+	state_save_register_item_array(state_type, index, I.cr);
+	state_save_register_item_array(state_type, index, I.dr);
+	state_save_register_item_array(state_type, index, I.tr);
 	state_save_register_item(state_type, index, I.eip);
 	state_save_register_item(state_type, index, I.prev_eip);
+	state_save_register_item(state_type, index, I.eflags);
 	state_save_register_item(state_type, index, I.CF);
 	state_save_register_item(state_type, index, I.DF);
 	state_save_register_item(state_type, index, I.SF);
@@ -512,15 +2357,73 @@ void i386_init(int index, int clock, const void *config, int (*irqcallback)(int)
 	state_save_register_item(state_type, index, I.AF);
 	state_save_register_item(state_type, index, I.IF);
 	state_save_register_item(state_type, index, I.TF);
-	state_save_register_item_array(state_type, index,	I.cr);
-	state_save_register_item_array(state_type, index,	I.dr);
-	state_save_register_item_array(state_type, index,	I.tr);
+	state_save_register_item(state_type, index, I.IOP1);
+	state_save_register_item(state_type, index, I.IOP2);
+	state_save_register_item(state_type, index, I.NT);
+	state_save_register_item(state_type, index, I.CPL);
+	state_save_register_item(state_type, index, I.irq_state);
+	state_save_register_item(state_type, index, I.performed_intersegment_jump);
+	state_save_register_item(state_type, index, I.delayed_interrupt_enable);
+	state_save_register_item(state_type, index, I.halted);
+	state_save_register_item(state_type, index, I.a20_mask);
+	state_save_register_item(state_type, index, I.tsc);
 	state_save_register_item(state_type, index, I.idtr.base);
 	state_save_register_item(state_type, index, I.idtr.limit);
 	state_save_register_item(state_type, index, I.gdtr.base);
 	state_save_register_item(state_type, index, I.gdtr.limit);
-	state_save_register_item(state_type, index,  I.irq_line);
-	state_save_register_item(state_type, index, I.performed_intersegment_jump);
+	state_save_register_item(state_type, index, I.task.base);
+	state_save_register_item(state_type, index, I.task.segment);
+	state_save_register_item(state_type, index, I.task.limit);
+	state_save_register_item(state_type, index, I.task.flags);
+	state_save_register_item(state_type, index, I.ldtr.base);
+	state_save_register_item(state_type, index, I.ldtr.segment);
+	state_save_register_item(state_type, index, I.ldtr.limit);
+	state_save_register_item(state_type, index, I.ldtr.flags);
+	state_save_register_item(state_type, index, I.fpu_control_word);
+	state_save_register_item(state_type, index, I.fpu_status_word);
+	state_save_register_item(state_type, index, I.fpu_tag_word);
+	state_save_register_item(state_type, index, I.fpu_data_ptr);
+	state_save_register_item(state_type, index, I.fpu_inst_ptr);
+	state_save_register_item(state_type, index, I.fpu_opcode);
+	state_save_register_item(state_type, index, I.fpu_top);
+	state_save_register_item(state_type, index, I.sreg[ES].selector);
+	state_save_register_item(state_type, index, I.sreg[ES].base);
+	state_save_register_item(state_type, index, I.sreg[ES].limit);
+	state_save_register_item(state_type, index, I.sreg[ES].flags);
+	state_save_register_item(state_type, index, I.sreg[ES].d);
+	state_save_register_item(state_type, index, I.sreg[CS].selector);
+	state_save_register_item(state_type, index, I.sreg[CS].base);
+	state_save_register_item(state_type, index, I.sreg[CS].limit);
+	state_save_register_item(state_type, index, I.sreg[CS].flags);
+	state_save_register_item(state_type, index, I.sreg[CS].d);
+	state_save_register_item(state_type, index, I.sreg[SS].selector);
+	state_save_register_item(state_type, index, I.sreg[SS].base);
+	state_save_register_item(state_type, index, I.sreg[SS].limit);
+	state_save_register_item(state_type, index, I.sreg[SS].flags);
+	state_save_register_item(state_type, index, I.sreg[SS].d);
+	state_save_register_item(state_type, index, I.sreg[DS].selector);
+	state_save_register_item(state_type, index, I.sreg[DS].base);
+	state_save_register_item(state_type, index, I.sreg[DS].limit);
+	state_save_register_item(state_type, index, I.sreg[DS].flags);
+	state_save_register_item(state_type, index, I.sreg[DS].d);
+	state_save_register_item(state_type, index, I.sreg[FS].selector);
+	state_save_register_item(state_type, index, I.sreg[FS].base);
+	state_save_register_item(state_type, index, I.sreg[FS].limit);
+	state_save_register_item(state_type, index, I.sreg[FS].flags);
+	state_save_register_item(state_type, index, I.sreg[FS].d);
+	state_save_register_item(state_type, index, I.sreg[GS].selector);
+	state_save_register_item(state_type, index, I.sreg[GS].base);
+	state_save_register_item(state_type, index, I.sreg[GS].limit);
+	state_save_register_item(state_type, index, I.sreg[GS].flags);
+	state_save_register_item(state_type, index, I.sreg[GS].d);
+	state_save_register_item(state_type, index, I.fpu_reg[0].i);
+	state_save_register_item(state_type, index, I.fpu_reg[1].i);
+	state_save_register_item(state_type, index, I.fpu_reg[2].i);
+	state_save_register_item(state_type, index, I.fpu_reg[3].i);
+	state_save_register_item(state_type, index, I.fpu_reg[4].i);
+	state_save_register_item(state_type, index, I.fpu_reg[5].i);
+	state_save_register_item(state_type, index, I.fpu_reg[6].i);
+	state_save_register_item(state_type, index, I.fpu_reg[7].i);
 	state_save_register_func_postload(i386_postload);
 }
 
@@ -555,29 +2458,38 @@ static void build_opcode_table(UINT32 features)
 	}
 }
 
-void i386_reset(void)
+static void i386_reset(void)
 {
 	int (*save_irqcallback)(int);
 
 	save_irqcallback = I.irq_callback;
-	memset( &I, 0, sizeof(I386_REGS) );
+	memset(&I, 0, sizeof(I));
 	I.irq_callback = save_irqcallback;
 
 	I.sreg[CS].selector = 0xf000;
 	I.sreg[CS].base		= 0xffff0000;
 	I.sreg[CS].limit	= 0xffff;
 
+	I.sreg[DS].base = I.sreg[ES].base = I.sreg[FS].base = I.sreg[GS].base = I.sreg[SS].base = 0x00000000;
+	I.sreg[DS].limit = I.sreg[ES].limit = I.sreg[FS].limit = I.sreg[GS].limit = I.sreg[SS].limit = 0xffff;
+	I.sreg[DS].flags = I.sreg[ES].flags = I.sreg[FS].flags = I.sreg[GS].flags = I.sreg[SS].flags = 0x0092;
+
 	I.idtr.base = 0;
 	I.idtr.limit = 0x3ff;
 
 	I.a20_mask = ~0;
 
-	I.cr[0] = 0;
+	I.cr[0] = 0x7fffffe0;
 	I.eflags = 0;
+	I.eflags_mask = 0x00030000;
 	I.eip = 0xfff0;
 
-	REG32(EAX) = 0x0308;	// Intel 386, stepping D1
-	REG32(EDX) = 0;
+
+
+	REG32(EAX) = 0;
+	REG32(EDX) = (3 << 8) | (0 << 4) | (8);
+
+	I.CPL = 0;
 
 	build_opcode_table(OP_I386);
 	I.cycle_table_rm = cycle_table_rm[CPU_CYCLES_I386];
@@ -604,21 +2516,20 @@ static void i386_set_context(void *src)
 
 static void i386_set_irq_line(int irqline, int state)
 {
-	if (I.halted)
+	if (state != CLEAR_LINE && I.halted)
 	{
 		I.halted = 0;
 	}
 
 	if ( irqline == INPUT_LINE_NMI )
 	{
-		/* NMI (I do not think that this is 100% right) */
+
 		if ( state )
-			i386_trap(2, 1);
+			i386_trap(2, 1, 0);
 	}
 	else
 	{
-		I.irq_line = state;
-		i386_check_irq_line();
+		I.irq_state = state;
 	}
 }
 
@@ -636,13 +2547,16 @@ static void i386_set_a20_line(int state)
 
 int i386_execute(int num_cycles)
 {
+
+	int cycles = num_cycles;
 	I.cycles = num_cycles;
 	I.base_cycles = num_cycles;
 	CHANGE_PC(I.eip);
 
 	if (I.halted)
 	{
-		I.tsc += num_cycles;
+		I.tsc += cycles;
+		I.cycles = 0;
 		return num_cycles;
 	}
 
@@ -650,15 +2564,21 @@ int i386_execute(int num_cycles)
 	{
 		I.operand_size = I.sreg[CS].d;
 		I.address_size = I.sreg[CS].d;
+
 		I.segment_prefix = 0;
 		I.prev_eip = I.eip;
 
 		CALL_MAME_DEBUG;
 
+		i386_check_irq_line();
+		if(I.delayed_interrupt_enable != 0)
+		{
+			I.IF = 1;
+			I.delayed_interrupt_enable = 0;
+		}
 		I386OP(decode_opcode)();
 	}
-	I.tsc += (num_cycles - I.cycles);
-
+	I.tsc += (cycles - I.cycles);
 	return num_cycles - I.cycles;
 }
 
@@ -761,7 +2681,7 @@ static void i386_set_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_REGISTER + I386_ESP:			REG32(ESP) = info->i; break;
 		case CPUINFO_INT_REGISTER + I386_ESI:			REG32(ESI) = info->i; break;
 		case CPUINFO_INT_REGISTER + I386_EDI:			REG32(EDI) = info->i; break;
-		case CPUINFO_INT_REGISTER + I386_EFLAGS:		I.eflags = info->i; break;
+		case CPUINFO_INT_REGISTER + I386_EFLAGS:		set_flags(info->i); break;
 		case CPUINFO_INT_REGISTER + I386_CS:			I.sreg[CS].selector = info->i & 0xffff; break;
 		case CPUINFO_INT_REGISTER + I386_SS:			I.sreg[SS].selector = info->i & 0xffff; break;
 		case CPUINFO_INT_REGISTER + I386_DS:			I.sreg[DS].selector = info->i & 0xffff; break;
@@ -844,7 +2764,7 @@ void i386_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_REGISTER + I386_ESP:			info->i = REG32(ESP); break;
 		case CPUINFO_INT_REGISTER + I386_ESI:			info->i = REG32(ESI); break;
 		case CPUINFO_INT_REGISTER + I386_EDI:			info->i = REG32(EDI); break;
-		case CPUINFO_INT_REGISTER + I386_EFLAGS:		info->i = I.eflags; break;
+		case CPUINFO_INT_REGISTER + I386_EFLAGS:		info->i = get_flags(); break;
 		case CPUINFO_INT_REGISTER + I386_CS:			info->i = I.sreg[CS].selector; break;
 		case CPUINFO_INT_REGISTER + I386_SS:			info->i = I.sreg[SS].selector; break;
 		case CPUINFO_INT_REGISTER + I386_DS:			info->i = I.sreg[DS].selector; break;
@@ -991,23 +2911,32 @@ static void i486_reset(void)
 	int (*save_irqcallback)(int);
 
 	save_irqcallback = I.irq_callback;
-	memset( &I, 0, sizeof(I386_REGS) );
+	memset(&I, 0, sizeof(I));
 	I.irq_callback = save_irqcallback;
+
 	I.sreg[CS].selector = 0xf000;
 	I.sreg[CS].base		= 0xffff0000;
 	I.sreg[CS].limit	= 0xffff;
+	I.sreg[CS].flags    = 0x009b;
+
+	I.sreg[DS].base = I.sreg[ES].base = I.sreg[FS].base = I.sreg[GS].base = I.sreg[SS].base = 0x00000000;
+	I.sreg[DS].limit = I.sreg[ES].limit = I.sreg[FS].limit = I.sreg[GS].limit = I.sreg[SS].limit = 0xffff;
+	I.sreg[DS].flags = I.sreg[ES].flags = I.sreg[FS].flags = I.sreg[GS].flags = I.sreg[SS].flags = 0x0092;
 
 	I.idtr.base = 0;
 	I.idtr.limit = 0x3ff;
 
 	I.a20_mask = ~0;
 
-	I.cr[0] = 0;
+	I.cr[0] = 0x00000010;
 	I.eflags = 0;
+	I.eflags_mask = 0x00070000;
 	I.eip = 0xfff0;
 
-	REG32(EAX) = 0x0308;	// Intel 386, stepping D1
-	REG32(EDX) = 0;
+
+
+	REG32(EAX) = 0;
+	REG32(EDX) = (4 << 8) | (0 << 4) | (3);
 
 	build_opcode_table(OP_I386 | OP_FPU | OP_I486);
 	I.cycle_table_rm = cycle_table_rm[CPU_CYCLES_I486];
@@ -1128,47 +3057,49 @@ static void pentium_reset(void)
 	int (*save_irqcallback)(int);
 
 	save_irqcallback = I.irq_callback;
-	memset( &I, 0, sizeof(I386_REGS) );
+	memset(&I, 0, sizeof(I));
 	I.irq_callback = save_irqcallback;
+
 	I.sreg[CS].selector = 0xf000;
 	I.sreg[CS].base		= 0xffff0000;
 	I.sreg[CS].limit	= 0xffff;
+	I.sreg[CS].flags    = 0x009b;
+
+	I.sreg[DS].base = I.sreg[ES].base = I.sreg[FS].base = I.sreg[GS].base = I.sreg[SS].base = 0x00000000;
+	I.sreg[DS].limit = I.sreg[ES].limit = I.sreg[FS].limit = I.sreg[GS].limit = I.sreg[SS].limit = 0xffff;
+	I.sreg[DS].flags = I.sreg[ES].flags = I.sreg[FS].flags = I.sreg[GS].flags = I.sreg[SS].flags = 0x0092;
 
 	I.idtr.base = 0;
 	I.idtr.limit = 0x3ff;
 
 	I.a20_mask = ~0;
 
-	I.cr[0] = 0;
+	I.cr[0] = 0x00000010;
 	I.eflags = 0;
+	I.eflags_mask = 0x003b0000;
 	I.eip = 0xfff0;
 
-	REG32(EAX) = 0x0308;	// Intel 386, stepping D1
-	REG32(EDX) = 0;
+
+
+	REG32(EAX) = 0;
+	REG32(EDX) = (5 << 8) | (2 << 4) | (5);
 
 	build_opcode_table(OP_I386 | OP_FPU | OP_I486 | OP_PENTIUM);
 	I.cycle_table_rm = cycle_table_rm[CPU_CYCLES_PENTIUM];
 	I.cycle_table_pm = cycle_table_pm[CPU_CYCLES_PENTIUM];
 
-	I.cpuid_id0 = 0x756e6547;	// Genu
-	I.cpuid_id1 = 0x49656e69;	// ineI
-	I.cpuid_id2 = 0x6c65746e;	// ntel
+	I.cpuid_id0 = 0x756e6547;
+	I.cpuid_id1 = 0x49656e69;
+	I.cpuid_id2 = 0x6c65746e;
 
 	I.cpuid_max_input_value_eax = 0x01;
+	I.cpu_version = REG32(EDX);
 
-	// [11:8] Family
-	// [ 7:4] Model
-	// [ 3:0] Stepping ID
-	// Family 5 (Pentium), Model 2 (75 - 200MHz), Stepping 1
-	I.cpu_version = (5 << 8) | (2 << 4) | (1);
 
-	// [ 0:0] FPU on chip
-	// [ 2:2] I/O breakpoints
-	// [ 4:4] Time Stamp Counter
-	// [ 5:5] Pentium CPU style model specific registers
-	// [ 7:7] Machine Check Exception
-	// [ 8:8] CMPXCHG8B instruction
-	I.feature_flags = 0x00000000;
+
+
+
+	I.feature_flags = 0x000001bf;
 
 	CHANGE_PC(I.eip);
 }
@@ -1285,46 +3216,44 @@ static void mediagx_reset(void)
 	int (*save_irqcallback)(int);
 
 	save_irqcallback = I.irq_callback;
-	memset( &I, 0, sizeof(I386_REGS) );
+	memset(&I, 0, sizeof(I));
 	I.irq_callback = save_irqcallback;
+
 	I.sreg[CS].selector = 0xf000;
 	I.sreg[CS].base		= 0xffff0000;
 	I.sreg[CS].limit	= 0xffff;
+	I.sreg[CS].flags    = 0x009b;
+
+	I.sreg[DS].base = I.sreg[ES].base = I.sreg[FS].base = I.sreg[GS].base = I.sreg[SS].base = 0x00000000;
+	I.sreg[DS].limit = I.sreg[ES].limit = I.sreg[FS].limit = I.sreg[GS].limit = I.sreg[SS].limit = 0xffff;
+	I.sreg[DS].flags = I.sreg[ES].flags = I.sreg[FS].flags = I.sreg[GS].flags = I.sreg[SS].flags = 0x0092;
 
 	I.idtr.base = 0;
 	I.idtr.limit = 0x3ff;
 
 	I.a20_mask = ~0;
 
-	I.cr[0] = 0;
+	I.cr[0] = 0x00000010;
 	I.eflags = 0;
+	I.eflags_mask = 0x00270000;
 	I.eip = 0xfff0;
 
-	REG32(EAX) = 0x0308;	// Intel 386, stepping D1
-	REG32(EDX) = 0;
+
+
+	REG32(EAX) = 0;
+	REG32(EDX) = (4 << 8) | (4 << 4) | (1);
 
 	build_opcode_table(OP_I386 | OP_FPU | OP_I486 | OP_PENTIUM | OP_CYRIX);
 	I.cycle_table_rm = cycle_table_rm[CPU_CYCLES_MEDIAGX];
 	I.cycle_table_pm = cycle_table_pm[CPU_CYCLES_MEDIAGX];
 
-	I.cpuid_id0 = 0x69727943;	// Cyri
-	I.cpuid_id1 = 0x736e4978;	// xIns
-	I.cpuid_id2 = 0x6d616574;	// tead
+	I.cpuid_id0 = 0x69727943;
+	I.cpuid_id1 = 0x736e4978;
+	I.cpuid_id2 = 0x6d616574;
 
 	I.cpuid_max_input_value_eax = 0x01;
+	I.cpu_version = REG32(EDX);
 
-	// [11:8] Family
-	// [ 7:4] Model
-	// [ 3:0] Stepping ID
-	// Family 4, Model 4 (MediaGX)
-	I.cpu_version = (4 << 8) | (4 << 4) | (1);
-
-	// [ 0:0] FPU on chip
-	// [ 2:2] I/O breakpoints
-	// [ 4:4] Time Stamp Counter
-	// [ 5:5] Pentium CPU style model specific registers
-	// [ 7:7] Machine Check Exception
-	// [ 8:8] CMPXCHG8B instruction
 	I.feature_flags = 0x00000001;
 
 	CHANGE_PC(I.eip);

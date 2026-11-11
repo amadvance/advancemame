@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Ville Linde
+// copyright-holders:Ville Linde, Barry Rodewald
 typedef struct {
 	UINT8 opcode;
 	UINT32 flags;
@@ -21,7 +21,7 @@ typedef struct {
 
 static const X86_OPCODE x86_opcode_table[] =
 {
-//  Opcode      Flags                       16-bit handler                  32-bit handler
+
 	{ 0x00,		OP_I386,					I386OP(add_rm8_r8),				I386OP(add_rm8_r8),			},
 	{ 0x01,		OP_I386,					I386OP(add_rm16_r16),			I386OP(add_rm32_r32),		},
 	{ 0x02,		OP_I386,					I386OP(add_r8_rm8),				I386OP(add_r8_rm8),			},
@@ -121,7 +121,7 @@ static const X86_OPCODE x86_opcode_table[] =
 	{ 0x60,		OP_I386,					I386OP(pusha),					I386OP(pushad),				},
 	{ 0x61,		OP_I386,					I386OP(popa),					I386OP(popad),				},
 	{ 0x62,		OP_I386,					I386OP(bound_r16_m16_m16),		I386OP(bound_r32_m32_m32),	},
-	{ 0x63,		OP_I386,					I386OP(unimplemented),			I386OP(unimplemented),		},
+	{ 0x63,		OP_I386,					I386OP(arpl),					I386OP(arpl),				},
 	{ 0x64,		OP_I386,					I386OP(segment_FS),				I386OP(segment_FS),			},
 	{ 0x65,		OP_I386,					I386OP(segment_GS),				I386OP(segment_GS),			},
 	{ 0x66,		OP_I386,					I386OP(operand_size),			I386OP(operand_size),		},
@@ -222,7 +222,7 @@ static const X86_OPCODE x86_opcode_table[] =
 	{ 0xC5,		OP_I386,					I386OP(lds16),					I386OP(lds32),				},
 	{ 0xC6,		OP_I386,					I386OP(mov_rm8_i8),				I386OP(mov_rm8_i8),			},
 	{ 0xC7,		OP_I386,					I386OP(mov_rm16_i16),			I386OP(mov_rm32_i32),		},
-	{ 0xC8,		OP_I386,					I386OP(unimplemented),			I386OP(unimplemented),		},
+	{ 0xC8,		OP_I386,					I386OP(enter16),				I386OP(enter32),			},
 	{ 0xC9,		OP_I386,					I386OP(leave16),				I386OP(leave32),			},
 	{ 0xCA,		OP_I386,					I386OP(retf_i16),				I386OP(retf_i32),			},
 	{ 0xCB,		OP_I386,					I386OP(retf16),					I386OP(retf32),				},
@@ -289,9 +289,10 @@ static const X86_OPCODE x86_opcode_table[] =
 	{ 0x00,		OP_2BYTE|OP_I386,			I386OP(group0F00_16),			I386OP(group0F00_32),		},
 	{ 0x01,		OP_2BYTE|OP_I386,			I386OP(group0F01_16),			I386OP(group0F01_32),		},
 	{ 0x01,		OP_2BYTE|OP_I486,			I486OP(group0F01_16),			I486OP(group0F01_32),		},
-	{ 0x02,		OP_2BYTE|OP_I386,			I386OP(unimplemented),			I386OP(unimplemented),		},
-	{ 0x03,		OP_2BYTE|OP_I386,			I386OP(unimplemented),			I386OP(unimplemented),		},
+	{ 0x02,		OP_2BYTE|OP_I386,			I386OP(lar_r16_rm16),			I386OP(lar_r32_rm32),		},
+	{ 0x03,		OP_2BYTE|OP_I386,			I386OP(lsl_r16_rm16),			I386OP(lsl_r32_rm32),		},
 	{ 0x06,		OP_2BYTE|OP_I386,			I386OP(clts),					I386OP(clts),				},
+	{ 0x07,		OP_2BYTE|OP_I386,			I386OP(loadall),				I386OP(loadall),			},
 	{ 0x08,		OP_2BYTE|OP_I486,			I486OP(invd),					I486OP(invd),				},
 	{ 0x09,		OP_2BYTE|OP_I486,			I486OP(wbinvd),					I486OP(wbinvd),				},
 	{ 0x0B,		OP_2BYTE|OP_I386,			I386OP(unimplemented),			I386OP(unimplemented),		},
@@ -367,5 +368,13 @@ static const X86_OPCODE x86_opcode_table[] =
 	{ 0xBF,		OP_2BYTE|OP_I386,			I386OP(invalid),				I386OP(movsx_r32_rm16),		},
 	{ 0xC0,		OP_2BYTE|OP_I486,			I486OP(xadd_rm8_r8),			I486OP(xadd_rm8_r8),		},
 	{ 0xC1,		OP_2BYTE|OP_I486,			I486OP(xadd_rm16_r16),			I486OP(xadd_rm32_r32),		},
-	{ 0xC7,		OP_2BYTE|OP_PENTIUM,		PENTIUMOP(cmpxchg8b_m64),		PENTIUMOP(cmpxchg8b_m64),	}
+	{ 0xC7,		OP_2BYTE|OP_PENTIUM,		PENTIUMOP(cmpxchg8b_m64),		PENTIUMOP(cmpxchg8b_m64),	},
+	{ 0xC8,		OP_2BYTE|OP_I486,			I486OP(bswap_eax),				I486OP(bswap_eax),			},
+	{ 0xC9,		OP_2BYTE|OP_I486,			I486OP(bswap_ecx),				I486OP(bswap_ecx),			},
+	{ 0xCA,		OP_2BYTE|OP_I486,			I486OP(bswap_edx),				I486OP(bswap_edx),			},
+	{ 0xCB,		OP_2BYTE|OP_I486,			I486OP(bswap_ebx),				I486OP(bswap_ebx),			},
+	{ 0xCC,		OP_2BYTE|OP_I486,			I486OP(bswap_esp),				I486OP(bswap_esp),			},
+	{ 0xCD,		OP_2BYTE|OP_I486,			I486OP(bswap_ebp),				I486OP(bswap_ebp),			},
+	{ 0xCE,		OP_2BYTE|OP_I486,			I486OP(bswap_esi),				I486OP(bswap_esi),			},
+	{ 0xCF,		OP_2BYTE|OP_I486,			I486OP(bswap_edi),				I486OP(bswap_edi),			}
 };

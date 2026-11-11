@@ -1,6 +1,12 @@
 // license:BSD-3-Clause
-// copyright-holders:Ville Linde
-typedef enum {
+// copyright-holders:Ville Linde, Barry Rodewald
+#pragma once
+
+#ifndef __CYCLES_H__
+#define __CYCLES_H__
+
+typedef enum
+{
 	CYCLES_MOV_REG_REG,
 	CYCLES_MOV_REG_MEM,
 	CYCLES_MOV_MEM_REG,
@@ -166,23 +172,23 @@ typedef enum {
 	CYCLES_BTS_IMM_MEM,
 	CYCLES_BTS_REG_REG,
 	CYCLES_BTS_REG_MEM,
-	CYCLES_CALL,				// E8
-	CYCLES_CALL_REG,			// FF /2
-	CYCLES_CALL_MEM,			// FF /2
-	CYCLES_CALL_INTERSEG,		// 9A
-	CYCLES_CALL_REG_INTERSEG,	// FF /3
-	CYCLES_CALL_MEM_INTERSEG,	// FF /3
-	CYCLES_JMP_SHORT,			// EB
-	CYCLES_JMP,					// E9
-	CYCLES_JMP_REG,				// FF /4
-	CYCLES_JMP_MEM,				// FF /4
-	CYCLES_JMP_INTERSEG,		// EA
-	CYCLES_JMP_REG_INTERSEG,	// FF /5
-	CYCLES_JMP_MEM_INTERSEG,	// FF /5
-	CYCLES_RET,					// C3
-	CYCLES_RET_IMM,				// C2
-	CYCLES_RET_INTERSEG,		// CB
-	CYCLES_RET_IMM_INTERSEG,	// CA
+	CYCLES_CALL,
+	CYCLES_CALL_REG,
+	CYCLES_CALL_MEM,
+	CYCLES_CALL_INTERSEG,
+	CYCLES_CALL_REG_INTERSEG,
+	CYCLES_CALL_MEM_INTERSEG,
+	CYCLES_JMP_SHORT,
+	CYCLES_JMP,
+	CYCLES_JMP_REG,
+	CYCLES_JMP_MEM,
+	CYCLES_JMP_INTERSEG,
+	CYCLES_JMP_REG_INTERSEG,
+	CYCLES_JMP_MEM_INTERSEG,
+	CYCLES_RET,
+	CYCLES_RET_IMM,
+	CYCLES_RET_INTERSEG,
+	CYCLES_RET_IMM_INTERSEG,
 	CYCLES_JCC_DISP8,
 	CYCLES_JCC_FULL_DISP,
 	CYCLES_JCC_DISP8_NOBRANCH,
@@ -325,13 +331,11 @@ typedef enum {
 	CYCLES_NUM_OPCODES
 } X86_CYCLES;
 
-
 #define X86_NUM_CPUS		4
 #define CPU_CYCLES_I386			0
 #define CPU_CYCLES_I486			1
 #define CPU_CYCLES_PENTIUM		2
 #define CPU_CYCLES_MEDIAGX		3
-
 
 typedef struct
 {
@@ -339,10 +343,9 @@ typedef struct
 	UINT8 cpu_cycles[X86_NUM_CPUS][2];
 } X86_CYCLE_TABLE;
 
-static X86_CYCLE_TABLE x86_cycle_table[] =
+static const X86_CYCLE_TABLE x86_cycle_table[] =
 {
-	// opcode                     rm/pmode
-	//                            i386         i486         pentium      mediagx
+
 	{ CYCLES_MOV_REG_REG,		{ {  2,  2 },  {  1,  1 },  {  1,  1 },  {  1,  1 } }		},
 	{ CYCLES_MOV_REG_MEM,		{ {  2,  2 },  {  1,  1 },  {  1,  1 },  {  1,  1 }	}		},
 	{ CYCLES_MOV_MEM_REG,		{ {  4,  4 },  {  1,  1 },  {  1,  1 },  {  1,  1 }	}		},
@@ -355,7 +358,7 @@ static X86_CYCLE_TABLE x86_cycle_table[] =
 	{ CYCLES_MOV_SREG_REG,		{ {  2,  2 },  {  3,  3 },  {  1,  1 },  {  1,  6 } }		},
 	{ CYCLES_MOV_SREG_MEM,		{ {  2,  2 },  {  3,  3 },  {  1,  1 },  {  1,  6 } }		},
 	{ CYCLES_MOVSX_REG_REG,		{ {  3,  3 },  {  3,  3 },  {  3,  3 },  {  1,  1 } }		},
-	{ CYCLES_MOVSX_MEM_REG,		{ {  6,  6 },  {  3,  3 },  {  3,  3 },  {  1,  1 }	} 		},
+	{ CYCLES_MOVSX_MEM_REG,		{ {  6,  6 },  {  3,  3 },  {  3,  3 },  {  1,  1 }	}		},
 	{ CYCLES_MOVZX_REG_REG,		{ {  3,  3 },  {  3,  3 },  {  3,  3 },  {  1,  1 } }		},
 	{ CYCLES_MOVZX_MEM_REG,		{ {  6,  6 },  {  3,  3 },  {  3,  3 },  {  1,  1 }	}		},
 	{ CYCLES_PUSH_RM,			{ {  5,  5 },  {  4,  4 },  {  2,  2 },  {  3,  3 }	}		},
@@ -586,13 +589,11 @@ static X86_CYCLE_TABLE x86_cycle_table[] =
 	{ CYCLES_VERW_MEM,			{ {  0, 16 },  { 11, 11 },  {  7,  7 },  {  0,  8 }	}		},
 	{ CYCLES_LOCK,				{ {  0,  0 },  {  1,  1 },  {  1,  1 },  {  1,  1 }	}		},
 
-	// i486+
 	{ CYCLES_BSWAP,				{ {  0,  0 },  {  1,  1 },  {  1,  1 },  {  6,  6 }	}		},
 	{ CYCLES_CMPXCHG,			{ {  0,  0 },  {  6,  6 },  {  5,  5 },  {  6,  6 }	}		},
 	{ CYCLES_INVD,				{ {  0,  0 },  {  4,  4 },  { 15, 15 },  { 20, 20 }	}		},
 	{ CYCLES_XADD,				{ {  0,  0 },  {  4,  4 },  {  4,  4 },  {  2,  2 }	}		},
 
-	// Pentium+
 	{ CYCLES_CMPXCHG8B,			{ {  0,  0 },  {  0,  0 },  { 10, 10 },  {  6,  6 }	}		},
 	{ CYCLES_CPUID,				{ {  0,  0 },  {  0,  0 },  { 14, 14 },  { 12, 12 }	}		},
 	{ CYCLES_CPUID_EAX1,		{ {  0,  0 },  {  0,  0 },  { 14, 14 },  { 12, 12 }	}		},
@@ -600,7 +601,6 @@ static X86_CYCLE_TABLE x86_cycle_table[] =
 	{ CYCLES_RSM,				{ {  0,  0 },  {  0,  0 },  { 82, 82 },  { 57, 57 }	}		},
 	{ CYCLES_RDMSR,				{ {  0,  0 },  {  0,  0 },  { 20, 20 },  {  1,  1 }	}		},
 
-	// FPU
 	{ CYCLES_FABS,				{ {  0,  0 },  {  3,  3 },  {  1,  1 },  {  1,  1 }	}		},
 	{ CYCLES_FADD,				{ {  0,  0 },  {  8,  8 },  {  3,  3 },  {  1,  1 }	}		},
 	{ CYCLES_FBLD,				{ {  0,  0 },  { 70, 70 },  { 48, 48 },  {  1,  1 }	}		},
@@ -662,7 +662,9 @@ static X86_CYCLE_TABLE x86_cycle_table[] =
 	{ CYCLES_FYL2X,				{ {  0,  0 },  {196,196 },  {111,111 },  {  1,  1 }	}		},
 	{ CYCLES_FYL2XPI,			{ {  0,  0 },  {171,171 },  {103,103 },  {  1,  1 }	}		},
 	{ CYCLES_CMPXCHG_REG_REG_T,	{ {  0,  0 },  {  6,  6 },  {  6,  6 },  {  6,  6 } }		},
-	{ CYCLES_CMPXCHG_REG_REG_F,	{ {  0,  0 },  {  9,  9 },  {  9,  9 },  {  9,  9 } } 		},
+	{ CYCLES_CMPXCHG_REG_REG_F,	{ {  0,  0 },  {  9,  9 },  {  9,  9 },  {  9,  9 } }		},
 	{ CYCLES_CMPXCHG_REG_MEM_T,	{ {  0,  0 },  {  7,  7 },  {  7,  7 },  {  7,  7 } }		},
 	{ CYCLES_CMPXCHG_REG_MEM_F,	{ {  0,  0 },  { 10, 10 },  { 10, 10 },  { 10, 10 } }		},
 };
+
+#endif
