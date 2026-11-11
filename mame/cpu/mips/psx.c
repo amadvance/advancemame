@@ -3469,8 +3469,6 @@ static void docop2( int gteop )
 		}
 		break;
 	}
-	ui_popup_time( 1, "unknown GTE op %08x", gteop );
-	logerror( "%08x: unknown GTE op %08x\n", mipscpu.pc, gteop );
 	mips_stop();
 }
 

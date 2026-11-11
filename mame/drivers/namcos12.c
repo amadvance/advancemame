@@ -1197,7 +1197,8 @@ static WRITE32_HANDLER( dmaoffset_w )
 	}
 	if( ACCESSING_MSW32 )
 	{
-		m_n_dmaoffset = ( ( offset + 2 ) * 4 ) | ( data & 0xffff0000 );
+		/* The upper halfword is two bytes after the mapped 32-bit word. */
+		m_n_dmaoffset = ( offset * 4 + 2 ) | ( data & 0xffff0000 );
 	}
 	verboselog( 1, "dmaoffset_w( %08x, %08x, %08x ) %08x\n", offset, data, mem_mask, m_n_dmaoffset );
 }
@@ -1223,6 +1224,9 @@ static void namcos12_rom_read( UINT32 n_address, INT32 n_size )
 		if( s12_truck_bank ) offset += m_n_bankoffset * 0x200000;
 	}
 	m_n_tektagdmaoffset = 0xffffffff;
+	/* A zero count requests a full 64 KiB block from the C416.
+	   Skipping it leaves stale texture data in the destination buffer. */
+	if( n_size == 0 ) n_size = 0x4000;
 	length = memory_region_length(region);
 	if( offset >= length || n_address >= g_n_psxramsize ) return;
 	left = (length - offset) / 4;
