@@ -625,7 +625,9 @@ static int lay_emit_element(lay_document *doc, lay_view *view, xml_data_node *no
 	{
 		1, 1, 1, 1
 	};
-	int blend = lay_blend(node, env->blend);
+	/* Legacy overlays tint the screen by multiplication; alpha blending
+	 * would let an opaque colour rectangle hide the entire game. */
+	int blend = lay_blend(node, legacy == LAY_OVERLAY ? LAY_MULTIPLY : env->blend);
 	long state = 0;
 
 	lay_attr(node, legacy ? "element" : "ref", env, ref, sizeof(ref));
