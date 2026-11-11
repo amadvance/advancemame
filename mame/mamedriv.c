@@ -7739,4 +7739,6 @@ Other Sun games
 	DRIVER( phpython )
 	DRIVER( phklad )
 
+	DRIVER( stuntair )
+
 #endif	/* DRIVER_RECURSIVE */
