@@ -163,7 +163,9 @@ static void rapidfir_crosshair_xy(int player, int *x, int *y)
 static void rapidfir_trigger_gun(int which)
 {
 	cpuintrf_push_context(0);
-	rapidfir_gunx[which] = tms34010_io_register_r(28, 0) - 58;
+	/* HCOUNT includes horizontal blanking and counts pixels. The gun latch
+	   counts pairs of pixels, so divide before removing its blanking offset. */
+	rapidfir_gunx[which] = tms34010_io_register_r(28, 0) / 2 - 58;
 	cpuintrf_pop_context();
 	cpunum_set_input_line(0, which, ASSERT_LINE);
 }
