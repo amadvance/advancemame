@@ -771,7 +771,7 @@ $(OBJ)/igs.a: \
 	$(OBJ)/machine/pgmy2ks.o \
 
 $(OBJ)/irem.a: \
-	$(OBJ)/drivers/m62.o $(OBJ)/vidhrdw/m62.o \
+	$(OBJ)/drivers/m62.o $(OBJ)/vidhrdw/m62.o $(OBJ)/machine/m62_bkungfu_mcu.o \
 	$(OBJ)/drivers/m72.o $(OBJ)/sndhrdw/m72.o $(OBJ)/vidhrdw/m72.o \
 	$(OBJ)/drivers/m90.o $(OBJ)/vidhrdw/m90.o \
 	$(OBJ)/drivers/m92.o $(OBJ)/vidhrdw/m92.o \

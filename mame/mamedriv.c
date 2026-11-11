@@ -1362,6 +1362,7 @@ const game_driver * const drivers[] =
 	DRIVER( atomboy )	/* M63 (c) 1985 Irem + Memetron license */
 	DRIVER( fghtbskt )	/* (c) 1984 Paradise Co. Ltd. */
 	/* M62 */
+	DRIVER( bkungfu )
 	DRIVER( kungfum )	/* (c) 1984 */
 	DRIVER( kungfud )	/* (c) 1984 + Data East license */
 	DRIVER( spartanx )	/* (c) 1984 (Japan) */

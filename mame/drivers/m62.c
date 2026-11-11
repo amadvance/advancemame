@@ -1,5 +1,5 @@
-// license:BSD-3-Clause
-// copyright-holders:smf, David Haywood
+// license:GPL-2.0+
+// copyright-holders:smf, David Haywood, Jonas Jago, Andrea Bogazzi
 /****************************************************************************
 
 Irem "M62" system
@@ -2652,3 +2652,87 @@ GAME( 1985, spelnkrj, spelunkr, spelunkr, spelunkr, spelunkr, ROT0,   "Irem (lic
 GAME( 1986, spelunk2, 0,        spelunk2, spelunk2, spelunk2, ROT0,   "Irem (licensed from Broderbund)", "Spelunker II", 0 )
 GAME( 1986, youjyudn, 0,        youjyudn, youjyudn, youjyudn, ROT270, "Irem", "Youjyuden (Japan)", 0 )
 GAME( 1985, horizon,  0,        horizon,  horizon,  0,        ROT0,   "Irem", "Horizon", 0 )
+
+VIDEO_START( bkungfu );
+WRITE8_HANDLER( bkungfu_tileram_w );
+#include "includes/m62_bkungfu_mcu.h"
+static ADDRESS_MAP_START( bkungfu_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc1ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xc800, 0xcfff) AM_READ(bkungfu_mailbox_r)
+	AM_RANGE(0xe000, 0xefff) AM_READ(MRA8_RAM)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( bkungfu_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0xc000, 0xc0ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xc100, 0xc1ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xc800, 0xcfff) AM_WRITE(bkungfu_mailbox_w)
+	AM_RANGE(0xe000, 0xefff) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( bkungfu_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0, 0) AM_WRITE(irem_sound_cmd_w)
+	AM_RANGE(1, 1) AM_WRITE(m62_flipscreen_w)
+	AM_RANGE(0x80, 0x80) AM_WRITE(m62_hscroll_low_w)
+	AM_RANGE(0x81, 0x81) AM_WRITE(m62_hscroll_high_w)
+	AM_RANGE(0x83, 0x83) AM_WRITE(kidniki_background_bank_w)
+ADDRESS_MAP_END
+static const gfx_decode bkungfu_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &tilelayout_4096, 0, 32 },
+	{ REGION_GFX2, 0, &spritelayout, 256, 32 },
+	{ -1 }
+};
+static MACHINE_DRIVER_START( bkungfu )
+	MDRV_IMPORT_FROM(kungfum)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(bkungfu_readmem,bkungfu_writemem)
+	MDRV_CPU_IO_MAP(kungfum_readport,bkungfu_writeport)
+	MDRV_MACHINE_RESET(bkungfu)
+	MDRV_GFXDECODE(bkungfu_gfxdecodeinfo)
+	MDRV_VIDEO_START(bkungfu)
+MACHINE_DRIVER_END
+ROM_START( bkungfu )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "km-a.4e", 0x00000, 0x4000, CRC(083632aa) SHA1(0a52c6162b2fb55057735a54c59f7cb88d870593) )
+	ROM_LOAD( "km-a.4d", 0x04000, 0x4000, CRC(08b14684) SHA1(8d60abe5f06e1b3ce465ec740df3f4ee8e9398bc) )
+	ROM_LOAD( "km-z.7j", 0x08000, 0x4000, CRC(2bd2aa83) SHA1(422ef2a64f040a0974311ff692726c6f3a8f8b13) )
+
+
+	ROM_REGION( 0x10000, REGION_USER1, ROMREGION_ERASEFF )
+	ROM_LOAD( "km-z.4h", 0x0000, 0x8000, CRC(252bb4a9) SHA1(2a69ee113950ea58895b42102bbb5263865ace9d) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "km-a.3a", 0x4000, 0x4000, CRC(bb709dd6) SHA1(aa491ec2d64b096927546b4362fa41c4784659c9) )
+	ROM_LOAD( "km-a.3d", 0x8000, 0x4000, CRC(ef8551cb) SHA1(2a26feeae8ea7ddc5d899592bc4c17b40571fe8f) )
+	ROM_LOAD( "km-a.3f", 0xc000, 0x4000, CRC(bec93bdc) SHA1(e287d3e689e18b192d686f313c63b6ed4e10a83f) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, 0 )
+	ROM_LOAD( "km-z.3d", 0x00000, 0x8000, CRC(a8007429) SHA1(5e315ba41bbb2248cf49b1fd0a1601c08bf891b4) )
+	ROM_LOAD( "km-z.3c", 0x08000, 0x8000, CRC(a99be837) SHA1(48b720462b359ef3551d50b8a41d2e3a2e146a60) )
+	ROM_LOAD( "km-z.3a", 0x10000, 0x8000, CRC(0bb7fda0) SHA1(aaab12b5e5402f3bbd1a2700ecc65dc588f0e590) )
+
+	ROM_REGION( 0x30000, REGION_GFX2, 0 )
+	ROM_LOAD( "km-b.4k", 0x00000, 0x4000, CRC(7e8bec97) SHA1(6ca5939bd64df63124de997b53c9ac9975450ab5) )
+	ROM_LOAD( "km-b.4f", 0x04000, 0x4000, CRC(3a75305b) SHA1(f62e7a293647be8aabbdd0b366459f634de593c6) )
+	ROM_LOAD( "km-b.4l", 0x08000, 0x4000, CRC(fe746127) SHA1(53f446a28466e0a749c27aa2eeb7d7bad4bd8d9b) )
+	ROM_LOAD( "km-b.4h", 0x0c000, 0x4000, CRC(f322c5dd) SHA1(03cb9658f31853f1ba41d8bf7e8cbc87353cc432) )
+	ROM_LOAD( "km-b.3n", 0x10000, 0x4000, CRC(b88a4d16) SHA1(2ab45a4bf44b5827def8166b30faa08514e7a814) )
+	ROM_LOAD( "km-b.4n", 0x14000, 0x4000, CRC(f92be992) SHA1(dd3ddc1ba76ceba71435a63c43f1be24a3272011) )
+	ROM_LOAD( "km-b.4m", 0x18000, 0x4000, CRC(53623913) SHA1(efb3de824df15b95e5eb91b5907ae2232501e3e3) )
+	ROM_LOAD( "km-b.3m", 0x1c000, 0x4000, CRC(1d1ec6f2) SHA1(fcdaf34529166701aad87d013176f4709cb5d540) )
+	ROM_LOAD( "km-b.4c", 0x20000, 0x4000, CRC(31cb5b98) SHA1(54bb88d668c59ec5248098a053a99132a121df74) )
+	ROM_LOAD( "km-b.4e", 0x24000, 0x4000, CRC(942e60fc) SHA1(d14553854b8300e80d7556b3be47544c537daac3) )
+	ROM_LOAD( "km-b.4d", 0x28000, 0x4000, CRC(90a03502) SHA1(bf4efc5e170f8ae479411eef98d8c38bb32d2648) )
+	ROM_LOAD( "km-b.4a", 0x2c000, 0x4000, CRC(018509c2) SHA1(844f3d79a4f358ccce1023deb76c052914570aed) )
+
+	ROM_REGION( 0x720, REGION_PROMS, 0 )
+	ROM_LOAD( "km-z-1j", 0x0, 0x0100, CRC(1da0ad7f) SHA1(3b3ba444efa8f5481c64b3c9ef1c0ab6561c9f16) )
+	ROM_LOAD( "km-b.1m", 0x100, 0x0100, CRC(73638418) SHA1(ad3f9cf08d334e76294bd796b7f8849014f05b8e) )
+	ROM_LOAD( "km-z-1h", 0x200, 0x0100, CRC(23a217c0) SHA1(723738cd8875c5bb449be2da75ef0b04cca8dd55) )
+	ROM_LOAD( "km-b.1n", 0x300, 0x0100, CRC(7967dfdf) SHA1(95f5aac75ce902287c0d0ada6ee9e1e1bd9d87c0) )
+	ROM_LOAD( "km-z-1f", 0x400, 0x0100, CRC(ec9df4f2) SHA1(702f7d536a5f79987342521c66d703153a888010) )
+	ROM_LOAD( "km-b.1l", 0x500, 0x0100, CRC(4f44ef5c) SHA1(094e6ab24a5663208fc9d54203ed200c9e4a9fc3) )
+	ROM_LOAD("km-b.5p",0x600,0x20,CRC(33409e90) SHA1(b84f7df9c27aa18255099b0473c6088c6fd7adfa))
+	ROM_LOAD("km-b.6f",0x620,0x100,CRC(82c20d12) SHA1(268903f7d9be58a70d030b02bf31a2d6b5b6e249))
+ROM_END
+GAME(1987, bkungfu, 0, bkungfu, kungfum, 0, ROT0, "Irem", "Beyond Kung-Fu (location test)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND)

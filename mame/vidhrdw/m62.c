@@ -856,3 +856,25 @@ VIDEO_START( horizon )
 {
 	return m62_start( get_horizon_bg_tile_info, 32, 0, 8, 8, 64, 32 );
 }
+
+static void get_bkungfu_bg_tile_info(int offs)
+{
+	int code = m62_tileram[offs * 2];
+	int color = m62_tileram[offs * 2 + 1];
+	SET_TILE_INFO(0, code | ((color & 0xe0) << 3) | (kidniki_background_bank << 11), color & 0x1f, 0);
+	/* The flame must remain behind the player, as on the reference board. */
+	tile_info.priority = offs / 256 < 6 || ((color & 0x1f) >> 1) > 0x0d;
+}
+VIDEO_START( bkungfu )
+{
+	m62_tileram = auto_malloc(0x4000);
+	memset(m62_tileram, 0, 0x4000);
+	return m62_start(get_bkungfu_bg_tile_info, 32, 0, 8, 8, 256, 32);
+}
+WRITE8_HANDLER( bkungfu_tileram_w )
+{
+	if (offset < 0x4000) {
+	 m62_tileram[offset] = data;
+	 tilemap_mark_tile_dirty(m62_background, offset >> 1);
+	}
+}
