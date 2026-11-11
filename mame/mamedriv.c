@@ -7308,6 +7308,11 @@ Other Sun games
 	DRIVER( sltblgp1 )	/* 1996 */
 	DRIVER( gldncrwn )	/* 1997 */
 
+	/* Bell-Fruit RasterSpeed */
+	DRIVER( rotr )
+	DRIVER( rotra )
+	DRIVER( fbcrazy )
+
 	/* Bell-Fruit Cobra II */
 	DRIVER( brkball )
 

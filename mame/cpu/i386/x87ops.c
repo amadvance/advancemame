@@ -1,5 +1,7 @@
 // license:BSD-3-Clause
 // copyright-holders:Ville Linde, Barry Rodewald
+#include <math.h>
+
 #define ST(x)	(I.fpu_reg[(I.fpu_top + (x)) & 7])
 #define FPU_INFINITY_DOUBLE		U64(0x7ff0000000000000)
 #define FPU_INFINITY_SINGLE		(0x7f800000)
@@ -123,6 +125,10 @@ static void I386OP(fpu_group_d9)(void)
 	{
 		switch (modrm & 0x3f)
 		{
+			case 0x10:
+				CYCLES(1);
+				break;
+
 
 			case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07:
 			{
@@ -222,6 +228,15 @@ static void I386OP(fpu_group_dc)(void)
 
 		switch ((modrm >> 3) & 0x7)
 		{
+			case 1:
+			{
+				X87_REG value;
+				value.i = READ64(GetEA(modrm));
+				ST(0).f *= value.f;
+				CYCLES_NUM(16);
+				break;
+			}
+
 			default:
 				fatalerror("I386: FPU Op DC %02X at %08X", modrm, I.pc-2);
 		}
@@ -363,6 +378,40 @@ static void I386OP(fpu_group_df)(void)
 
 		switch ((modrm >> 3) & 0x7)
 		{
+			case 0:
+			{
+				X87_REG value;
+				value.f = (INT16)READ16(GetEA(modrm));
+				FPU_PUSH(value);
+				CYCLES_NUM(13);
+				break;
+			}
+
+			case 7:
+			{
+				UINT32 ea = GetEA(modrm);
+				double value = ST(0).f;
+				INT64 result;
+				switch ((I.fpu_control_word >> 10) & 3)
+				{
+					case 0: value = rint(value); break;
+					case 1: value = floor(value); break;
+					case 2: value = ceil(value); break;
+					case 3: value = trunc(value); break;
+				}
+				/* Out-of-range conversions produce integer indefinite, never a host overflow. */
+				if (!isfinite(value) || value < -9223372036854775808.0 || value >= 9223372036854775808.0)
+				{
+					I.fpu_status_word |= FPU_EXCEPTION_INVALID_OP;
+					result = (INT64)U64(0x8000000000000000);
+				}
+				else result = (INT64)value;
+				WRITE64(ea, result);
+				FPU_POP();
+				CYCLES_NUM(29);
+				break;
+			}
+
 			default:
 				fatalerror("I386: FPU Op DF %02X at %08X", modrm, I.pc-2);
 		}

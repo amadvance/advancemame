@@ -92,9 +92,10 @@ int scsihd_exec_command(SCSIHd *our_this, UINT8 *pCmdBuf)
 		case 0x25:	// READ CAPACITY
 			retdata = 8;
 			break;
+		case 0x2a:
 		case 0x28: 	// READ (10 byte)
 			our_this->lba = pCmdBuf[2]<<24 | pCmdBuf[3]<<16 | pCmdBuf[4]<<8 | pCmdBuf[5];
-			our_this->blocks = pCmdBuf[6]<<24 | pCmdBuf[7]<<16 | pCmdBuf[8]<<8 | pCmdBuf[9];
+			our_this->blocks = pCmdBuf[7]<<8 | pCmdBuf[8];
 
 			logerror("SCSIHD: READ at LBA %x for %x blocks\n", our_this->lba, our_this->blocks);
 
@@ -209,6 +210,7 @@ void scsihd_write_data(SCSIHd *our_this, int bytes, UINT8 *pData)
 {
 	switch (our_this->last_command)
 	{
+		case 0x2a:
 		case 0x0a:	// WRITE (6 byte)
 			if ((our_this->disk) && (our_this->blocks))
 			{

@@ -102,6 +102,7 @@ typedef struct
 	UINT8			irq_pending;
 	UINT8			mcu_mode;
 	UINT8			is_idling;
+	UINT16			irq_state;
 	int				interrupt_cycles;
 
 	UINT32			bootoffset;
@@ -293,11 +294,10 @@ static void check_irqs(void)
 			tms32031.is_idling = 0;
 			if (!tms32031.delayed)
 			{
+				/* A pulse remains pending until taken; active external levels retrigger. */
+				IREG(TMR_IF) &= ~(1 << (whichtrap - 1));
 				trap(whichtrap);
-
-				/* for internal sources, clear the interrupt when taken */
-				if (whichtrap > 4)
-					IREG(TMR_IF) &= ~(1 << (whichtrap - 1));
+				IREG(TMR_IF) |= tms32031.irq_state & 0x0f;
 			}
 			else
 				tms32031.irq_pending = 1;
@@ -306,19 +306,21 @@ static void check_irqs(void)
 }
 
 
+
 static void set_irq_line(int irqline, int state)
 {
 	if (irqline < 11)
 	{
-	    /* update the state */
-	    if (state == ASSERT_LINE)
-			IREG(TMR_IF) |= 1 << irqline;
+		UINT16 mask = 1 << irqline;
+		if (state == ASSERT_LINE)
+		{
+			tms32031.irq_state |= mask;
+			IREG(TMR_IF) |= mask;
+		}
 		else
-			IREG(TMR_IF) &= ~(1 << irqline);
-
-		/* check for IRQs */
-	    if (state != CLEAR_LINE)
-	    	check_irqs();
+			tms32031.irq_state &= ~mask;
+		/* Dropping a pulse must not erase an interrupt awaiting software service. */
+		IREG(TMR_IF) |= tms32031.irq_state & 0x0f;
 	}
 }
 
@@ -392,6 +394,7 @@ static void tms32031_reset(void)
 	/* reset internal stuff */
 	tms32031.delayed = tms32031.irq_pending = 0;
 	tms32031.is_idling = 0;
+	tms32031.irq_state = 0;
 }
 
 
