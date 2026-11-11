@@ -7252,6 +7252,11 @@ Other Sun games
 	DRIVER( pengadvb )
 	DRIVER( pengadvb2 )
 
+	/* Haesung */
+	DRIVER( sfkick )
+	DRIVER( sfkicka )
+	DRIVER( spinkick )
+
 	/* Sang Ho Soft */
 	DRIVER( pzlestar )
 	DRIVER( sexyboom )

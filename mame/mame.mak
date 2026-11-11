@@ -299,6 +299,7 @@ DRVLIBS = \
 	$(OBJ)/forte2.a \
 	$(OBJ)/pengadvb.a \
 	$(OBJ)/sangho.a \
+	$(OBJ)/sfkick.a \
 	$(OBJ)/fuuki.a \
 	$(OBJ)/gaelco.a \
 	$(OBJ)/gameplan.a \
@@ -731,6 +732,9 @@ $(OBJ)/pengadvb.a: \
 
 $(OBJ)/sangho.a: \
 	$(OBJ)/drivers/sangho.o $(OBJ)/vidhrdw/v9938.o
+
+$(OBJ)/sfkick.a: \
+	$(OBJ)/drivers/sfkick.o $(OBJ)/vidhrdw/v9938.o
 
 $(OBJ)/fuuki.a: \
 	$(OBJ)/drivers/fuukifg2.o $(OBJ)/vidhrdw/fuukifg2.o \
