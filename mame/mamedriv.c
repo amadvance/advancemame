@@ -7252,6 +7252,11 @@ Other Sun games
 	DRIVER( pengadvb )
 	DRIVER( pengadvb2 )
 
+	/* Sang Ho Soft */
+	DRIVER( pzlestar )
+	DRIVER( sexyboom )
+	DRIVER( sprpuzzle )
+
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( mortalr )
