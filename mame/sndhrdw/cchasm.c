@@ -173,7 +173,7 @@ static z80ctc_interface ctc_intf =
 static void tone_update(void *param,stream_sample_t **inputs, stream_sample_t **outputs, int length)
 {
 	stream_sample_t *buffer = outputs[0];
-	int num = (int)param;
+	int num = (int)(FPTR)param;
 	INT16 out = 0;
 
 	if (channel_active[num])

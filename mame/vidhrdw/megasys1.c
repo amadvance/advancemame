@@ -374,14 +374,14 @@ static UINT32 megasys1_scan_16x16(UINT32 col,UINT32 row,UINT32 num_cols,UINT32 n
 
 static void megasys1_get_scroll_tile_info_8x8(int tile_index)
 {
-	int tmap = (int)tile_info.user_data;
+	int tmap = (int)(FPTR)tile_info.user_data;
 	UINT16 code = megasys1_scrollram[tmap][tile_index];
 	SET_TILE_INFO(tmap, (code & 0xfff) * megasys1_8x8_scroll_factor[tmap], code >> (16 - megasys1_bits_per_color_code), 0);
 }
 
 static void megasys1_get_scroll_tile_info_16x16(int tile_index)
 {
-	int tmap = (int)tile_info.user_data;
+	int tmap = (int)(FPTR)tile_info.user_data;
 	UINT16 code = megasys1_scrollram[tmap][tile_index/4];
 	SET_TILE_INFO(tmap, (code & 0xfff) * megasys1_16x16_scroll_factor[tmap] + (tile_index & 3), code >> (16 - megasys1_bits_per_color_code), 0);
 }
@@ -415,7 +415,7 @@ static void create_tilemaps(void)
 		/* set user data and transparency */
 		for (i = 0; i < 8; i++)
 		{
-			tilemap_set_user_data(megasys1_tilemap[layer][i/4][i%4], (void *)layer);
+			tilemap_set_user_data(megasys1_tilemap[layer][i/4][i%4], (void *)(FPTR)layer);
 			tilemap_set_transparent_pen(megasys1_tilemap[layer][i/4][i%4], 15);
 		}
 	}

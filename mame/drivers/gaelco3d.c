@@ -378,7 +378,7 @@ static READ32_HANDLER( input_port_3_020_r ) { return readinputport(3) << 16; }
 
 static UINT32 analog_bit_r(void *param)
 {
-	int which = (int)param;
+	int which = (int)(FPTR)param;
 	return (analog_ports[which] >> 7) & 0x01;
 }
 
