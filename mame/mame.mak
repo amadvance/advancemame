@@ -776,6 +776,7 @@ $(OBJ)/gottlieb.a: \
 
 $(OBJ)/greyhnd.a: \
 	$(OBJ)/drivers/findout.o \
+	$(OBJ)/drivers/filetto.o \
 	$(OBJ)/drivers/getrivia.o \
 
 $(OBJ)/igs.a: \
