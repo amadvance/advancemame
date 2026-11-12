@@ -881,6 +881,8 @@ void K001005_draw(void)
 
 			int num_verts = 0;
 
+			memset(v, 0, sizeof(v));
+
 			for (j=0; j < 4; j++)
 			{
 				x[j] = ((K001005_3d_fifo[i+1+(j*2)] >> 0) & 0x1fff);
@@ -924,10 +926,13 @@ void K001005_draw(void)
 				color = (r << 16) | (g << 8) | (b);
 			}
 
-			draw_triangle(K001005_bitmap, v[0], v[1], v[2], color);
-			if (num_verts > 3)
+			if (num_verts >= 3)
 			{
-				draw_triangle(K001005_bitmap, v[2], v[3], v[0], color);
+				draw_triangle(K001005_bitmap, v[0], v[1], v[2], color);
+				if (num_verts > 3)
+				{
+					draw_triangle(K001005_bitmap, v[2], v[3], v[0], color);
+				}
 			}
 		}
 		else if (K001005_3d_fifo[i] == 0x80000026)
@@ -939,6 +944,8 @@ void K001005_draw(void)
 
 			int num_verts = 0;
 
+			memset(v, 0, sizeof(v));
+
 			for (j=0; j < 4; j++)
 			{
 				x[j] = ((K001005_3d_fifo[i+1+(j*2)] >> 0) & 0x1fff);
@@ -982,14 +989,18 @@ void K001005_draw(void)
 				color = (r << 16) | (g << 8) | (b);
 			}
 
-			draw_triangle(K001005_bitmap, v[0], v[1], v[2], color);
-			if (num_verts > 3)
+			if (num_verts >= 3)
 			{
-				draw_triangle(K001005_bitmap, v[2], v[3], v[0], color);
+				draw_triangle(K001005_bitmap, v[0], v[1], v[2], color);
+				if (num_verts > 3)
+				{
+					draw_triangle(K001005_bitmap, v[2], v[3], v[0], color);
+				}
 			}
 
 			if ((K001005_3d_fifo[i+2+(num_verts*2)] & 0xffffff00) != 0x80000000)
 			{
+				int num_extra = 0;
 				for (j=0; j < 2; j++)
 				{
 					x[j] = ((K001005_3d_fifo[i+2+(num_verts*2)+(j*2)] >> 0) & 0x1fff);
@@ -1010,6 +1021,7 @@ void K001005_draw(void)
 
 					v[j+4].x = x[j];
 					v[j+4].y = y[j];
+					num_extra++;
 
 					if (K001005_3d_fifo[i+2+(num_verts*2)+(j*2)] & 0x8000)
 					{
@@ -1022,8 +1034,14 @@ void K001005_draw(void)
 				b = (K001005_3d_fifo[i+2+(num_verts*2)+4] >> 16) & 0xff;
 				color = (r << 16) | (g << 8) | (b);
 
-				draw_triangle(K001005_bitmap, v[2], v[3], v[4], color);
-				draw_triangle(K001005_bitmap, v[2], v[4], v[5], color);
+				if (num_verts >= 4 && num_extra >= 1)
+				{
+					draw_triangle(K001005_bitmap, v[2], v[3], v[4], color);
+				}
+				if (num_verts >= 3 && num_extra >= 2)
+				{
+					draw_triangle(K001005_bitmap, v[2], v[4], v[5], color);
+				}
 			}
 		}
 		else if (K001005_3d_fifo[i] == 0x80000000)

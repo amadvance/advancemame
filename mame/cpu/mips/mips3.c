@@ -2619,7 +2619,7 @@ int mips3_execute(int cycles)
 	do
 	{
 		UINT32 op;
-		UINT64 temp64;
+		UINT64 temp64 = 0;
 		UINT32 temp;
 
 #if MIPS3_JIT_SUPPORTED
@@ -2892,7 +2892,7 @@ int mips3_execute(int cycles)
 			case 0x31:	/* LWC1 */		if (RLONG(SIMMVAL+RSVAL32, &temp)) set_cop1_reg32(RTREG, temp);			break;
 			case 0x32:	/* LWC2 */		if (RLONG(SIMMVAL+RSVAL32, &temp)) set_cop2_reg(RTREG, temp);			break;
 			case 0x33:	/* PREF */		/* effective no-op */													break;
-			case 0x34:	/* LLD */		if (RDOUBLE(SIMMVAL+RSVAL32, &temp64) && RTREG) RTVAL64 = temp64; mips3.lld_value = temp64;		break;
+			case 0x34:	/* LLD */		if (RDOUBLE(SIMMVAL+RSVAL32, &temp64)) { if (RTREG) RTVAL64 = temp64; mips3.lld_value = temp64; }		break;
 			case 0x35:	/* LDC1 */		if (RDOUBLE(SIMMVAL+RSVAL32, &temp64)) set_cop1_reg64(RTREG, temp64);		break;
 			case 0x36:	/* LDC2 */		if (RDOUBLE(SIMMVAL+RSVAL32, &temp64)) set_cop2_reg(RTREG, temp64);		break;
 			case 0x37:	/* LD */		if (RDOUBLE(SIMMVAL+RSVAL32, &temp64) && RTREG) RTVAL64 = temp64;		break;

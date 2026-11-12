@@ -343,8 +343,11 @@ static void inters_to_words(UINT16 inter1, UINT16 inter2, UINT16 inter3, UINT8 *
 			*word2 = ((UINT64)word2mod << 16) / 0x16553;
 		}
 		else
+		{
+			*word1 = *word2 = 0;
 			logerror("inters_to_words: unable to convert %04x %04x %04x %02x\n",
 					(UINT32)inter1, (UINT32)inter2, (UINT32)inter3, (UINT32)*beams);
+		}
 	}
 
 	/* handle the case where low bit of beams is 0 */
@@ -363,8 +366,11 @@ static void inters_to_words(UINT16 inter1, UINT16 inter2, UINT16 inter3, UINT8 *
 			*word2 = ((UINT64)word2mod << 16) / 0x16553;
 		}
 		else
+		{
+			*word1 = *word2 = 0;
 			logerror("inters_to_words: unable to convert %04x %04x %04x %02x\n",
 					(UINT32)inter1, (UINT32)inter2, (UINT32)inter3, (UINT32)*beams);
+		}
 	}
 }
 
@@ -406,9 +412,9 @@ static void words_to_sensors(UINT16 word1, UINT16 word2, UINT16 word3, UINT8 bea
 
 static void compute_sensors(void)
 {
-	UINT16 inter1, inter2, inter3;
-	UINT16 word1, word2, word3;
-	UINT8 beams;
+	UINT16 inter1 = 0, inter2 = 0, inter3 = 0;
+	UINT16 word1 = 0, word2 = 0, word3 = 0;
+	UINT8 beams = 0;
 
 	/* skip if we're not ready */
 	if (sensor0 != 0 || sensor1 != 0 || sensor2 != 0 || sensor3 != 0)
