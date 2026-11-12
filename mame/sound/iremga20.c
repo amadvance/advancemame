@@ -38,7 +38,7 @@ Revisions:
 		eax = pos[CH]; \
 		ebx = eax; \
 		eax >>= 8; \
-		eax = *(INT8 *)(esi + eax); \
+		eax = esi[eax]; \
 		eax *= vol[CH]; \
 		ebx += rate[CH]; \
 		pos[CH] = ebx; \
@@ -76,7 +76,7 @@ void IremGA20_update( void *param, stream_sample_t **inputs, stream_sample_t **b
 {
 	struct IremGA20_chip_def *chip = param;
 	UINT32 rate[4], pos[4], end[4], vol[4], play[4];
-	UINT32 esi;
+	const INT8 *esi;
 	stream_sample_t *edi, *ebp;
 	int eax, ebx, ecx, edx;
 
@@ -91,7 +91,7 @@ void IremGA20_update( void *param, stream_sample_t **inputs, stream_sample_t **b
 	}
 
 	ecx = length;
-	esi = (UINT32)chip->rom;
+	esi = (const INT8 *)chip->rom;
 	edi = buffer[0];
 	ebp = buffer[1];
 	edi += ecx;
