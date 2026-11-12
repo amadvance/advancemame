@@ -157,6 +157,8 @@ extern QUICKLOAD_LOAD( trs80_cmd )
 	if (!cmd_buff)
 		return INIT_FAIL;
 
+	mame_fread(fp, cmd_buff, quickload_size);
+
 	while( quickload_size > 3 )
 	{
 		UINT8 data = cmd_buff[offs++];

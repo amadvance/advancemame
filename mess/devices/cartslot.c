@@ -127,8 +127,8 @@ static int process_cartridge(mess_image *image, mame_file *file)
 		{
 			if (is_cart_roment(roment))
 			{
-				parse_rom_name(roment, &position, NULL);
-				if (position == image_index_in_device(image))
+				/* position is set only if the name is valid */
+				if (parse_rom_name(roment, &position, NULL) == 0 && position == image_index_in_device(image))
 				{
 					result = load_cartridge(romrgn, roment, file);
 					if (!result)
