@@ -76,7 +76,7 @@ WRITE8_HANDLER( route16_out0_w )
 
 	if (data == last_write) return;
 
-	video_disable_1 = ((data & 0x02) << 6) && route16_hardware;
+	video_disable_1 = (data & 0x02) && route16_hardware;
 	video_color_select_1 = ((data & 0x1f) << 2);
 
 	/* Bit 5 is the coin counter. */
@@ -95,7 +95,7 @@ WRITE8_HANDLER( route16_out1_w )
 
 	if (data == last_write) return;
 
-	video_disable_2 = ((data & 0x02) << 6 ) && route16_hardware;
+	video_disable_2 = (data & 0x02) && route16_hardware;
 	video_color_select_2 = ((data & 0x1f) << 2);
 
 	if (video_flip != ((data & 0x20) >> 5))
