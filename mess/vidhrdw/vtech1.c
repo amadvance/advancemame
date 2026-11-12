@@ -87,7 +87,7 @@ VIDEO_START( vtech1m )
 	int i;
 
 	/* TODO: Monochrome should be moved into M6847 code */
-	for (i = 0; i < sizeof(vtech1_palette_mono); i++)
+	for (i = 0; i < sizeof(vtech1_palette_mono) / sizeof(vtech1_palette_mono[0]); i++)
 	{
         int mono;
         mono  = (int)(vtech1_palette[i*3+0] * 0.299);  /* red */

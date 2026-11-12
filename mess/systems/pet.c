@@ -565,7 +565,7 @@ static gfx_decode superpet_gfxdecodeinfo[] =
 static PALETTE_INIT( pet )
 {
 	palette_set_colors(0, pet_palette, sizeof(pet_palette) / 3);
-    memcpy(colortable, pet_colortable, sizeof(colortable));
+    memcpy(colortable, pet_colortable, sizeof(pet_colortable));
 }
 
 /* basic 1 */

@@ -98,6 +98,8 @@ static mame_timer *timer[MAX_BOARD];
 
 
 static int data_cnt = 0;                /* data count */
+#define HDC_BUFFER_SIZE (17*4*512)
+
 static UINT8 *buffer;					/* data buffer */
 static UINT8 *ptr = 0;					/* data pointer */
 static UINT8 hdc_control;
@@ -171,7 +173,7 @@ int pc_hdc_setup(void)
 
 	hdc_control = 0;
 
-	buffer = auto_malloc(17*4*512);
+	buffer = auto_malloc(HDC_BUFFER_SIZE);
 
 	/* init for all boards */
 	for (i = 0; i < MAX_BOARD; i++)
@@ -648,7 +650,7 @@ static void pc_hdc_reset_w(int n, int data)
 	sector[n] = 0;
 	csb[n] = 0;
 	status[n] = STA_COMMAND | STA_READY;
-	memset(buffer, 0, sizeof(buffer));
+	memset(buffer, 0, HDC_BUFFER_SIZE);
 	ptr = buffer;
 	data_cnt = 0;
 }
