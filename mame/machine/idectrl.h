@@ -19,6 +19,7 @@ struct ide_interface
 int ide_controller_init(int which, struct ide_interface *intf);
 int ide_controller_init_custom(int which, struct ide_interface *intf, chd_file *diskhandle);
 void ide_controller_reset(int which);
+void ide_set_lba_offset(int which, UINT32 offset);
 UINT8 *ide_get_features(int which);
 
 void ide_set_master_password(int which, UINT8 *password);

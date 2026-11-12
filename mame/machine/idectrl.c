@@ -81,6 +81,7 @@
 #define IDE_COMMAND_READ_MULTIPLE		0x20
 #define IDE_COMMAND_READ_MULTIPLE_ONCE	0x21
 #define IDE_COMMAND_WRITE_MULTIPLE		0x30
+#define IDE_COMMAND_WRITE_MULTIPLE_ONCE	0x31
 #define IDE_COMMAND_SET_CONFIG			0x91
 #define IDE_COMMAND_READ_MULTIPLE_BLOCK	0xc4
 #define IDE_COMMAND_WRITE_MULTIPLE_BLOCK 0xc5
@@ -150,6 +151,7 @@ struct ide_state
 	UINT8	cur_head_reg;
 
 	UINT32	cur_lba;
+	UINT32	lba_offset;
 
 	UINT16	num_cylinders;
 	UINT8	num_sectors;
@@ -398,6 +400,13 @@ int ide_controller_init(int which, struct ide_interface *intf)
 }
 
 
+/* some boards address the disk with an LBA shifted by a fixed number of sectors */
+void ide_set_lba_offset(int which, UINT32 offset)
+{
+	idestate[which].lba_offset = offset;
+}
+
+
 void ide_controller_reset(int which)
 {
 	struct ide_state *ide = &idestate[which];
@@ -518,7 +527,7 @@ INLINE UINT32 lba_address(struct ide_state *ide)
 {
 	/* LBA direct? */
 	if (ide->cur_head_reg & 0x40)
-		return ide->cur_sector + ide->cur_cylinder * 256 + ide->cur_head * 16777216;
+		return ide->cur_sector + ide->cur_cylinder * 256 + ide->cur_head * 16777216 - ide->lba_offset;
 
 	/* standard CHS */
 	else
@@ -1192,6 +1201,7 @@ void handle_command(struct ide_state *ide, UINT8 command)
 			break;
 
 		case IDE_COMMAND_WRITE_MULTIPLE:
+		case IDE_COMMAND_WRITE_MULTIPLE_ONCE:
 			LOGPRINT(("IDE Write multiple: C=%d H=%d S=%d LBA=%d count=%d\n",
 				ide->cur_cylinder, ide->cur_head, ide->cur_sector, lba_address(ide), ide->sector_count));
 

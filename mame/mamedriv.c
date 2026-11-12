@@ -7245,6 +7245,9 @@ Other Sun games
 	/* E.F.O. */
 	DRIVER( nightmare )
 
+	/* Dell Electronics */
+	DRIVER( turrett )
+
 	/* Forte II Games */
 	DRIVER( pesadelo )
 

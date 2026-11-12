@@ -54,6 +54,8 @@ struct r3000_config
 	UINT8		hasfpu;			/* 1 if we have an FPU, 0 otherwise */
 	size_t		icache;			/* code cache size */
 	size_t		dcache;			/* data cache size */
+	int			(*brcond2)(void);	/* optional BrCond2 input, 0 if not connected */
+	int			(*brcond3)(void);	/* optional BrCond3 input, 0 if not connected */
 };
 
 

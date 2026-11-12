@@ -147,6 +147,7 @@ typedef struct
 	int			op;
 	int			interrupt_cycles;
 	int			hasfpu;
+	int			(*brcond[4])(void);
 	int 		(*irq_callback)(int irqline);
 
 	/* endian-dependent load/store */
@@ -357,6 +358,8 @@ static void r3000_init(int index, int clock, const void *_config, int (*irqcallb
 	r3000.icache_size = config->icache;
 	r3000.dcache_size = config->dcache;
 	r3000.hasfpu = config->hasfpu;
+	r3000.brcond[2] = config->brcond2;
+	r3000.brcond[3] = config->brcond3;
 
 	r3000.irq_callback = irqcallback;
 }
@@ -635,8 +638,8 @@ INLINE void handle_cop2(UINT32 op)
 		case 0x08:	/* BC */
 			switch (RTREG)
 			{
-				case 0x00:	/* BCzF */	if (!r3000.cf[2]) ADDPC(SIMMVAL);					break;
-				case 0x01:	/* BCzF */	if (r3000.cf[2]) ADDPC(SIMMVAL);					break;
+				case 0x00:	/* BCzF */	if (!(r3000.brcond[2] ? r3000.brcond[2]() : r3000.cf[2])) ADDPC(SIMMVAL);					break;
+				case 0x01:	/* BCzF */	if (r3000.brcond[2] ? r3000.brcond[2]() : r3000.cf[2]) ADDPC(SIMMVAL);					break;
 				case 0x02:	/* BCzFL */	invalid_instruction(op);							break;
 				case 0x03:	/* BCzTL */	invalid_instruction(op);							break;
 				default:	invalid_instruction(op);										break;
@@ -702,8 +705,8 @@ INLINE void handle_cop3(UINT32 op)
 		case 0x08:	/* BC */
 			switch (RTREG)
 			{
-				case 0x00:	/* BCzF */	if (!r3000.cf[3]) ADDPC(SIMMVAL);					break;
-				case 0x01:	/* BCzF */	if (r3000.cf[3]) ADDPC(SIMMVAL);					break;
+				case 0x00:	/* BCzF */	if (!(r3000.brcond[3] ? r3000.brcond[3]() : r3000.cf[3])) ADDPC(SIMMVAL);					break;
+				case 0x01:	/* BCzF */	if (r3000.brcond[3] ? r3000.brcond[3]() : r3000.cf[3]) ADDPC(SIMMVAL);					break;
 				case 0x02:	/* BCzFL */	invalid_instruction(op);							break;
 				case 0x03:	/* BCzTL */	invalid_instruction(op);							break;
 				default:	invalid_instruction(op);										break;
