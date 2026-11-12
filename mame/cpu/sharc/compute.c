@@ -703,7 +703,7 @@ INLINE void compute_dual_add_sub(int ra, int rs, int rx, int ry)
 		sharc.astat |= AV;
 	}
 	if (((UINT32)r_add < (UINT32)REG(rx)) ||
-		(!(UINT32)r_sub < (UINT32)REG(rx)))
+		((UINT32)r_sub <= (UINT32)REG(rx)))
 	{
 		sharc.astat |= AC;
 	}

@@ -94,7 +94,7 @@ PALETTE_INIT( arabian )
         -------------------------------------------------------------------------*/
 
 		int rhi = planea ? ar : enb ? bz : 0;
-		int rlo = planea ? ((!arhf & az) ? 0 : ar) : enb ? br : 0;
+		int rlo = planea ? (((!arhf) & az) ? 0 : ar) : enb ? br : 0;
 
 		/*-------------------------------------------------------------------------
             green derivation:
@@ -125,7 +125,7 @@ PALETTE_INIT( arabian )
         -------------------------------------------------------------------------*/
 
 		int ghi = planea ? ag : enb ? bb : 0;
-		int glo = planea ? ((!aghf & az) ? 0 : ag) : enb ? bg : 0;
+		int glo = planea ? (((!aghf) & az) ? 0 : ag) : enb ? bg : 0;
 
 		/*-------------------------------------------------------------------------
             blue derivation:
@@ -146,7 +146,7 @@ PALETTE_INIT( arabian )
         -------------------------------------------------------------------------*/
 
 		int bhi = ab;
-		int bbase = (!abhf & az) ? 0 : ab;
+		int bbase = ((!abhf) & az) ? 0 : ab;
 
 		*colortable++ = (rhi << 5) | (rlo << 4) |
 						(ghi << 3) | (glo << 2) |

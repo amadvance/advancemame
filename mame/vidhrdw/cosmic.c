@@ -376,7 +376,7 @@ static void cosmica_draw_starfield(mame_bitmap *bitmap)
 			}
 
 
-			if ((!(hc & va) & (vb ^ hb_)) &&			/* right network */
+			if (((!(hc & va)) & (vb ^ hb_)) &&			/* right network */
 			    (((x1 ^ map) & (hc | 0x1e)) == 0x1e))	/* left network */
 			{
 				/* RGB order is reversed -- bit 7=R, 6=G, 5=B */
@@ -534,10 +534,10 @@ static void nomnlnd_draw_background(mame_bitmap *bitmap)
 			int hd_ =  x >> 7;
 
 
-			if ((!vb_ & vc_ & !vd_) ^ (vb_ & !vc_ & vd_))
+			if (((!vb_) & vc_ & (!vd_)) ^ (vb_ & (!vc_) & vd_))
 			{
 				/* tree */
-				if (!hd_ & hc_ & !hb_)
+				if (!hd_ && hc_ && !hb_)
 				{
 					offs_t offs = ((x >> 3) & 0x03) | ((y & 0x1f) << 2) |
 					              (flip_screen ? 0x80 : 0);
@@ -556,7 +556,7 @@ static void nomnlnd_draw_background(mame_bitmap *bitmap)
 			else
 			{
 				/* water */
-				if (hd_ & !hc_ & hb_ & !ha_)
+				if (hd_ && !hc_ && hb_ && !ha_)
 				{
 					offs_t offs = hd | (water << 1) | 0x0200;
 
@@ -568,7 +568,7 @@ static void nomnlnd_draw_background(mame_bitmap *bitmap)
 
 					color = ( plane1 & plane2)      |	// R
 					        ( plane1 | plane2) << 1 |	// G
-					        (!plane1 & hd)     << 2; 	// B - see above
+					        ((!plane1) & hd)   << 2; 	// B - see above
 				}
 			}
 

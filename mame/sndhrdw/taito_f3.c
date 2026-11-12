@@ -211,9 +211,9 @@ WRITE16_HANDLER(es5510_dsp_w)
 			es5510_dadr_latch=(es5510_dadr_latch&0x00ffff)|((data&0xff)<<16);
 
             if(es5510_ram_sel)
-                es5510_dil_latch = es5510_dram[es5510_dadr_latch&(1<<16)-2];
+                es5510_dil_latch = es5510_dram[es5510_dadr_latch&((1<<16)-2)];
             else
-                es5510_dram[es5510_dadr_latch&(1<<16)-2] = es5510_dol_latch;
+                es5510_dram[es5510_dadr_latch&((1<<16)-2)] = es5510_dol_latch;
             break;
 
 		case 0x10: es5510_dadr_latch=(es5510_dadr_latch&0xff00ff)|((data&0xff)<< 8); break;

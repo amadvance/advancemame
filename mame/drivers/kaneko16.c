@@ -797,7 +797,7 @@ ADDRESS_MAP_END
 
 READ16_HANDLER( gtmr_wheel_r )
 {
-	if ( (readinputport(4) & 0x1800) == 0x10)	// DSW setting
+	if ( (readinputport(4) & 0x1800) == 0x1000)	// DSW setting
 		return	readinputport(5)<<8;			// 360' Wheel
 	else
 		return	readinputport(5);				// 270' Wheel

@@ -373,7 +373,7 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 	/* The DTD requires all ROMs before disks, independent of region order. */
 	for (pass = 0; pass < 2; ++pass)
 	for (region = rom_first_region(game); region; region = rom_next_region(region))
-		if (!!ROMREGION_ISDISKDATA(region) == pass)
+		if ((ROMREGION_ISDISKDATA(region) != 0) == pass)
 		for (rom = rom_first_file(region); rom; rom = rom_next_file(rom))
 		{
 			int offset, length, in_parent, is_disk, is_bios, found_bios, i;
