@@ -7680,6 +7680,7 @@ Other Sun games
 	DRIVER( jolycdat )	/* (c) 1986 Fun World */
 	DRIVER( jolycdab )	/* (c) 1990 Inter Games */
 	DRIVER( filetto )	/* (c) 1990 Novarmatic */
+	DRIVER( tetriskr )	/* (c) 1988? bootleg */
 	DRIVER( bigdeal )	/* (c) 1986 Fun World */
 	DRIVER( bigdealb )	/* (c) 1986 Fun World */
 	DRIVER( cuoreuno )	/* (c) 1997 bootleg? */
