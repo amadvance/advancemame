@@ -24,12 +24,12 @@ struct pc_turbo_info
 
 
 
-static void pc_turbo_callback(int param)
+static void pc_turbo_callback(void *param)
 {
 	struct pc_turbo_info *ti;
 	int val;
 	
-	ti = (struct pc_turbo_info *) param;
+	ti = param;
 	val = readinputport(ti->port) & ti->mask;
 
 	if (val != ti->cur_val)
@@ -52,6 +52,6 @@ int pc_turbo_setup(int cpunum, int port, int mask, double off_speed, double on_s
 	ti->cur_val = -1;
 	ti->off_speed = off_speed;
 	ti->on_speed = on_speed;
-	timer_pulse(TIME_IN_SEC(0.1), (int) ti, pc_turbo_callback);
+	timer_pulse_ptr(TIME_IN_SEC(0.1), ti, pc_turbo_callback);
 	return 0;
 }

@@ -29,7 +29,7 @@ static struct floppy_drive *get_drive(mess_image *img)
 	return image_lookuptag(img, FLOPDRVTAG);
 }
 
-static void	floppy_drive_index_callback(int image_ptr);
+static void	floppy_drive_index_callback(void *image_ptr);
 
 /* this is called on device init */
 int floppy_drive_init(mess_image *img, const floppy_interface *iface)
@@ -46,7 +46,7 @@ int floppy_drive_init(mess_image *img, const floppy_interface *iface)
 	pDrive->flags = 0;
 	pDrive->index_pulse_callback = NULL;
 	pDrive->ready_state_change_callback = NULL;
-	pDrive->index_timer = timer_alloc(floppy_drive_index_callback);
+	pDrive->index_timer = timer_alloc_ptr(floppy_drive_index_callback, img);
 
 	/* all drives are double-sided 80 track - can be overriden in driver! */
 	floppy_drive_set_geometry(img, FLOPPY_DRIVE_DS_80);
@@ -64,9 +64,9 @@ int floppy_drive_init(mess_image *img, const floppy_interface *iface)
 
 /* this callback is executed every 300 times a second to emulate the index
 pulse. What is the length of the index pulse?? */
-static void	floppy_drive_index_callback(int image_ptr)
+static void	floppy_drive_index_callback(void *image_ptr)
 {
-	mess_image *img = (mess_image *) image_ptr;
+	mess_image *img = image_ptr;
 	struct floppy_drive *pDrive = get_drive(img);
 
 	if (pDrive->index_pulse_callback)
@@ -204,7 +204,7 @@ void floppy_drive_set_motor_state(mess_image *img, int state)
 					/* on->off */
 					newpulse = 0;
 				}
-				timer_adjust(pDrive->index_timer, 0, (int) img, newpulse);
+				timer_adjust_ptr(pDrive->index_timer, 0, newpulse);
 			}
 		}
 	}

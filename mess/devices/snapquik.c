@@ -26,13 +26,13 @@ static struct snapquick_info *snapquick_infolist;
 
 
 
-static void snapquick_processsnapshot(int arg)
+static void snapquick_processsnapshot(void *arg)
 {
 	struct snapquick_info *si;
 	snapquick_loadproc loadproc;
 	const char *file_type;
 	
-	si = (struct snapquick_info *) arg;
+	si = arg;
 	loadproc = (snapquick_loadproc) device_get_info_fct(&si->dev->devclass, DEVINFO_PTR_SNAPSHOT_LOAD);
 	file_type = image_filetype(si->img);
 	loadproc(si->fp, file_type, si->file_size);
@@ -68,7 +68,7 @@ static int device_load_snapquick(mess_image *image, mame_file *file)
 
 	delay = device_get_info_double(&si->dev->devclass, DEVINFO_FLOAT_SNAPSHOT_DELAY);
 
-	timer_set(delay, (int) si, snapquick_processsnapshot);
+	timer_set_ptr(delay, si, snapquick_processsnapshot);
 	return INIT_PASS;
 }
 
