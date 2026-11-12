@@ -1102,6 +1102,7 @@ $(OBJ)/orca.a: \
 	$(OBJ)/drivers/marineb.o $(OBJ)/vidhrdw/marineb.o \
 	$(OBJ)/drivers/vastar.o $(OBJ)/vidhrdw/vastar.o \
 	$(OBJ)/drivers/zodiack.o $(OBJ)/vidhrdw/zodiack.o \
+	$(OBJ)/drivers/sub.o \
 
 $(OBJ)/pacific.a: \
 	$(OBJ)/drivers/mrflea.o $(OBJ)/vidhrdw/mrflea.o \

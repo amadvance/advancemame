@@ -6365,6 +6365,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( espial )	/* (c) 1983 Thunderbolt, Orca logo is hidden in title screen */
 	DRIVER( espialu )	/* (c) 1983 Thunderbolt, Orca logo is hidden in title screen */
 	DRIVER( netwars )	/* (c) 1983 Orca + Esco Trading Co license */
+	DRIVER( sub )	/* (c) 1985 Sigma */
 	/* Vastar was made by Orca, but when it was finished, Orca had already bankrupted. */
 	/* So they sold this game as "Made by Sesame Japan" because they couldn't use */
 	/* the name "Orca" */
