@@ -1185,7 +1185,7 @@ static void		AddCheatFromWatch(WatchInfo * watch);
 static void		SetupCheatFromWatchAsWatch(CheatEntry * entry, WatchInfo * watch);
 
 static void		ResizeSearchList(UINT32 newLength);
-static void		ResizeSearchListNoDispose(UINT32 newLength);
+static void		ResizeSearchListNoDispose(INT32 newLength);
 static void		AddSearchBefore(UINT32 idx);
 static void		DeleteSearchAt(UINT32 idx);
 static void		InitSearch(SearchInfo * info);
@@ -7753,7 +7753,7 @@ static void ResizeSearchList(UINT32 newLength)
 	}
 }
 
-static void ResizeSearchListNoDispose(UINT32 newLength)
+static void ResizeSearchListNoDispose(INT32 newLength)
 {
 	if(newLength != searchListLength)
 	{
