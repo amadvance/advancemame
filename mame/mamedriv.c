@@ -7627,6 +7627,9 @@ Other Sun games
 	DRIVER( 1945kiii )	/* (c) 2000 Oriental */
 	DRIVER( slspirit )	/* (c) 1999 Promat */
         DRIVER( flagrall )      /* (c) 1996 Promat? */
+	DRIVER( 3x3puzzl )	/* (c) 1998 Ace Enterprise */
+	DRIVER( 3x3puzzla )	/* (c) 1998 Ace Enterprise */
+	DRIVER( casanova )	/* (c) 199? Promat */
 	DRIVER( witch )		/* (c) 1992 Sega / Vic Tokai / Excellent Systems */
 	DRIVER( pbchmp95 )	/* (c) 1995 Veltmeijer Automaten */
 	DRIVER( cardline )	/* (c) 199? Veltmeijer */

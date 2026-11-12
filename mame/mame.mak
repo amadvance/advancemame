@@ -1504,6 +1504,7 @@ $(OBJ)/zaccaria.a: \
 
 $(OBJ)/misc.a: \
 	$(OBJ)/drivers/1945kiii.o \
+	$(OBJ)/drivers/3x3puzzl.o \
 	$(OBJ)/drivers/4enraya.o $(OBJ)/vidhrdw/4enraya.o \
 	$(OBJ)/drivers/afega.o $(OBJ)/vidhrdw/afega.o \
 	$(OBJ)/drivers/ambush.o $(OBJ)/vidhrdw/ambush.o \
