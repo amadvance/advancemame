@@ -738,19 +738,26 @@ WRITE16_HANDLER( system32_mixer_w )
 }
 
 
+/* the 32-bit write is split in two 16-bit writes, the low half goes to the even
+   register on both endiannesses, avoiding a type-punned UINT32 access */
+static void multi32_mixer_w(int which, offs_t offset, UINT32 data, UINT32 mem_mask)
+{
+	UINT16 *dst = &mixer_control[which][offset*2];
+
+	dst[0] = (dst[0] & mem_mask) | (data & ~mem_mask);
+	dst[1] = (dst[1] & (mem_mask >> 16)) | ((data >> 16) & ~(mem_mask >> 16));
+}
+
+
 WRITE32_HANDLER( multi32_mixer_0_w )
 {
-	data = SWAP_HALVES(data);
-	mem_mask = SWAP_HALVES(mem_mask);
-	COMBINE_DATA((UINT32 *)&mixer_control[0][offset*2]);
+	multi32_mixer_w(0, offset, data, mem_mask);
 }
 
 
 WRITE32_HANDLER( multi32_mixer_1_w )
 {
-	data = SWAP_HALVES(data);
-	mem_mask = SWAP_HALVES(mem_mask);
-	COMBINE_DATA((UINT32 *)&mixer_control[1][offset*2]);
+	multi32_mixer_w(1, offset, data, mem_mask);
 }
 
 
