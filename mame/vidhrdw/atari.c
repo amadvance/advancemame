@@ -1262,9 +1262,9 @@ INLINE void LMS(int new_cmd)
     if( new_cmd & ANTIC_LMS )
     {
 		int addr = RDANTIC();
-        antic.doffs = ++antic.doffs & DOFFS;
+        antic.doffs = (antic.doffs + 1) & DOFFS;
         addr += 256 * RDANTIC();
-        antic.doffs = ++antic.doffs & DOFFS;
+        antic.doffs = (antic.doffs + 1) & DOFFS;
         antic.vpage = addr & VPAGE;
         antic.voffs = addr & VOFFS;
 		LOG(("           LMS $%04x\n", addr));
@@ -1299,7 +1299,7 @@ static void antic_scanline_dma(int param)
 				UINT8 new_cmd;
 
 				new_cmd = RDANTIC();
-				antic.doffs = ++antic.doffs & DOFFS;
+				antic.doffs = (antic.doffs + 1) & DOFFS;
 				/* steal at one clock cycle from the CPU for fetching the command */
                 antic.steal_cycles += 1;
 				LOG(("           ANTIC CMD $%02x\n", new_cmd));
@@ -1362,7 +1362,7 @@ static void antic_scanline_dma(int param)
 					if( new_cmd & ANTIC_LMS )
 					{
 						int addr = RDANTIC();
-                        antic.doffs = ++antic.doffs & DOFFS;
+                        antic.doffs = (antic.doffs + 1) & DOFFS;
                         addr += 256 * RDANTIC();
                         antic.dpage = addr & DPAGE;
                         antic.doffs = addr & DOFFS;
@@ -1375,7 +1375,7 @@ static void antic_scanline_dma(int param)
 					else
 					{
 						int addr = RDANTIC();
-                        antic.doffs = ++antic.doffs & DOFFS;
+                        antic.doffs = (antic.doffs + 1) & DOFFS;
                         addr += 256 * RDANTIC();
                         antic.dpage = addr & DPAGE;
                         antic.doffs = addr & DOFFS;

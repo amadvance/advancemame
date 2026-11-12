@@ -293,7 +293,7 @@ static void pic8259_write(int which, offs_t offset, UINT8 data )
 							}
 							break;
 						case 0x80:
-							p->prio = ++p->prio & 7;
+							p->prio = (p->prio + 1) & 7;
 							break;
 						case 0xa0:
 							for (n = 0, mask = 1<<p->prio; n < 8; n++, mask = (mask<<1) | (mask>>7))
@@ -301,7 +301,7 @@ static void pic8259_write(int which, offs_t offset, UINT8 data )
 								if( p->in_service & mask )
 								{
 									p->in_service &= ~mask;
-									p->prio = ++p->prio & 7;
+									p->prio = (p->prio + 1) & 7;
 									break;
 								}
 							}
@@ -314,7 +314,7 @@ static void pic8259_write(int which, offs_t offset, UINT8 data )
 							{
 								p->in_service &= ~mask;
 								p->pending &= ~mask;
-								p->prio = ++p->prio & 7;
+								p->prio = (p->prio + 1) & 7;
 							}
 							break;
 					}

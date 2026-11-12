@@ -2003,7 +2003,7 @@ static void hyperstone_movd(void)
 			old_l = GET_L;
 			PPC = PC;
 
-			PC = SET_PC(SREG);
+			SET_PC(SREG);
 			change_pc(PC);
 			SR = (SREGF & 0xffe00000) | ((SREG & 0x01) << 18 ) | (SREGF & 0x3ffff);
 
