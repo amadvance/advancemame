@@ -188,7 +188,7 @@ static void build_quarks(void)
 
 		/* only track actual driver ROM entries */
 		if (driver->rom && (driver->flags & NOT_A_DRIVER) == 0)
-			add_quark(roms_table,    drivnum, (UINT32)driver->rom);
+			add_quark(roms_table,    drivnum, (UINT32)(FPTR)driver->rom);
 	}
 
 	/* allocate memory for a quark table of strings */
@@ -296,7 +296,7 @@ static int validate_driver(int drivnum, const machine_config *drv)
 #ifndef MESS
 	if (driver->rom && (driver->flags & NOT_A_DRIVER) == 0)
 	{
-		crc = (UINT32)driver->rom;
+		crc = (UINT32)(FPTR)driver->rom;
 		for (entry = first_hash_entry(roms_table, crc); entry; entry = entry->next)
 			if (entry->crc == crc && entry != &roms_table->entry[drivnum])
 			{
@@ -713,7 +713,7 @@ static int validate_inputs(int drivnum, const machine_config *drv, input_port_en
 		return FALSE;
 
 	/* skip if we already validated these ports */
-	crc = (UINT32)driver->construct_ipt;
+	crc = (UINT32)(FPTR)driver->construct_ipt;
 	for (entry = first_hash_entry(inputs_table, crc); entry; entry = entry->next)
 		if (entry->crc == crc && driver->construct_ipt == drivers[entry - inputs_table->entry]->construct_ipt)
 			return FALSE;

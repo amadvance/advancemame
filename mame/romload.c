@@ -795,7 +795,7 @@ static int read_rom_data(rom_load_data *romdata, const rom_entry *romp)
 			return 0;
 		numbytes -= bytesleft;
 
-		debugload("  Copying to %08X\n", (int)base);
+		debugload("  Copying to %p\n", (void *)base);
 
 		/* unmasked cases */
 		if (datamask == 0xff)
@@ -880,7 +880,7 @@ static int fill_rom_data(rom_load_data *romdata, const rom_entry *romp)
 	}
 
 	/* fill the data (filling value is stored in place of the hashdata) */
-	memset(base, (UINT32)ROM_GETHASHDATA(romp) & 0xff, numbytes);
+	memset(base, (UINT32)(FPTR)ROM_GETHASHDATA(romp) & 0xff, numbytes);
 	return 1;
 }
 
@@ -894,7 +894,7 @@ static int copy_rom_data(rom_load_data *romdata, const rom_entry *romp)
 	UINT8 *base = romdata->regionbase + ROM_GETOFFSET(romp);
 	int srcregion = ROM_GETFLAGS(romp) >> 24;
 	UINT32 numbytes = ROM_GETLENGTH(romp);
-	UINT32 srcoffs = (UINT32)ROM_GETHASHDATA(romp);  /* srcoffset in place of hashdata */
+	UINT32 srcoffs = (UINT32)(FPTR)ROM_GETHASHDATA(romp);  /* srcoffset in place of hashdata */
 	UINT8 *srcbase;
 
 	/* make sure we copy within the region space */
@@ -1429,7 +1429,7 @@ int rom_init(const rom_entry *romp)
 		/* remember the base and length */
 		romdata.regionlength = memory_region_length(regiontype);
 		romdata.regionbase = memory_region(regiontype);
-		debugload("Allocated %X bytes @ %08X\n", romdata.regionlength, (int)romdata.regionbase);
+		debugload("Allocated %X bytes @ %p\n", romdata.regionlength, (void *)romdata.regionbase);
 
 		/* clear the region if it's requested */
 		if (ROMREGION_ISERASE(region))
