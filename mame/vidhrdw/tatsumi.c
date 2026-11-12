@@ -956,7 +956,7 @@ offset is from last pixel of first road segment?
 	}
 }
 
-static void draw_bg(mame_bitmap *dst, const tilemap *src, const UINT16* scrollx, const UINT16* scrolly, const UINT16* tilemap_ram, int tile_bank, int xscroll_offset, int yscroll_offset, int xsize, int ysize)
+static void draw_bg(mame_bitmap *dst, tilemap *src, const UINT16* scrollx, const UINT16* scrolly, const UINT16* tilemap_ram, int tile_bank, int xscroll_offset, int yscroll_offset, int xsize, int ysize)
 {
 	/*
 		Each tile (0x4000 of them) has a lookup table in ROM to build an individual 3-bit palette
