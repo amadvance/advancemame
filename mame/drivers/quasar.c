@@ -158,7 +158,7 @@ static WRITE8_HANDLER( quasar_video_w )
 	if (page == 3)
 	{
 		effectcontrol = data;
-		memset(effectdirty,1,sizeof(effectdirty));
+		memset(effectdirty,1,0x400);
 	}
 }
 

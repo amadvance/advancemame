@@ -299,7 +299,7 @@ void kf2k2mp_decrypt( void )
 	unsigned char *src = memory_region(REGION_CPU1);
 	unsigned char *dst = (unsigned char*)malloc(0x80);
 
-	memcpy(src, src + 0x300000, 0x500000);
+	memmove(src, src + 0x300000, 0x500000);
 
 	if (dst)
 	{
@@ -906,7 +906,7 @@ void kof2k3up_px_decrypt( void )
 {
 	{
 		UINT8 *src = memory_region(REGION_CPU1);
-		memcpy(src+0x100000, src, 0x600000);
+		memmove(src+0x100000, src, 0x600000);
 		memcpy(src, src+0x700000, 0x100000);
 	}
 

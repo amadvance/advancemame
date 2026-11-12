@@ -305,7 +305,7 @@ VIDEO_UPDATE(wheelfir)
 		}
 	}
 
-	for (x=0;x<8192;x+=3)
+	for (x = 0; x + 2 < sizeof(wheelfir_palette); x += 3)
 	{
 		//int paldat = (wheelfir_palette[x]<<8) | wheelfir_palette[x+1];
 		int b,g,r;

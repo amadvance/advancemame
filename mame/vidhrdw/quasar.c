@@ -142,7 +142,7 @@ VIDEO_START( quasar )
 	effectram   = auto_malloc(0x400);
 	effectdirty = auto_malloc(0x400);
 
-	memset(effectdirty,0,sizeof(effectdirty));
+	memset(effectdirty,0,0x400);
 
 	if ((effect_bitmap = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height)) == 0)
 		return 1;

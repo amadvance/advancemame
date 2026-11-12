@@ -145,7 +145,7 @@ static void *qsound_start(int sndindex, int clock, const void *config)
 	int i;
 
 	chip = auto_malloc(sizeof(*chip));
-	memset(chip, 0, sizeof(chip));
+	memset(chip, 0, sizeof(*chip));
 
 	chip->intf = config;
 

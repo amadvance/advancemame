@@ -3513,9 +3513,11 @@ void rodland_rom_decode(int cpu)
 static void rodlandj_gfx_unmangle(int region)
 {
 	UINT8 *rom = memory_region(REGION_GFX1+region);
-	int size = memory_region_length(REGION_GFX1+region);
+	size_t size = memory_region_length(REGION_GFX1+region);
 	UINT8 *buffer;
-	int i;
+	size_t i;
+
+	if (!rom || size == 0) return;
 
 	/* data lines swap: 76543210 -> 64537210 */
 	for (i = 0;i < size;i++)
@@ -3532,7 +3534,7 @@ static void rodlandj_gfx_unmangle(int region)
 	/* address lines swap: ..dcba9876543210 -> ..acb8937654d210 */
 	for (i = 0;i < size;i++)
 	{
-		int a =    (i &~0x2508)
+		size_t a =    (i &~0x2508)
 				| ((i & 0x2000) >> 10)
 				| ((i & 0x0400) << 3)
 				| ((i & 0x0100) << 2)
@@ -3546,9 +3548,11 @@ static void rodlandj_gfx_unmangle(int region)
 static void jitsupro_gfx_unmangle(int region)
 {
 	UINT8 *rom = memory_region(REGION_GFX1+region);
-	int size = memory_region_length(REGION_GFX1+region);
+	size_t size = memory_region_length(REGION_GFX1+region);
 	UINT8 *buffer;
-	int i;
+	size_t i;
+
+	if (!rom || size == 0) return;
 
 	/* data lines swap: 76543210 -> 43576210 */
 	for (i = 0;i < size;i++)
@@ -3562,7 +3566,7 @@ static void jitsupro_gfx_unmangle(int region)
 	/* address lines swap: fedcba9876543210 -> fe8cb39d7654a210 */
 	for (i = 0;i < size;i++)
 	{
-		int a = (i & ~0xffff) |
+		size_t a = (i & ~0xffff) |
 	BITSWAP16(i,0xf,0xe,0x8,0xc,0xb,0x3,0x9,0xd,0x7,0x6,0x5,0x4,0xa,0x2,0x1,0x0);
 
 		rom[i] = buffer[a];

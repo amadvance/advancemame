@@ -92,7 +92,7 @@ static struct {
     int MRB_ptr;
 } M68681;
 
-static UINT8 ti_uart[8];
+static UINT8 ti_uart[9];
 static int ti_uart_mode_cycle=0;
 static int ti_uart_sync_cycle=0;
 
