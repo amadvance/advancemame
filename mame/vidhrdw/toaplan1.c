@@ -178,7 +178,7 @@ static int toaplan1_tile_buffers_alloc(void)
 	toaplan1_tileram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE * 4);
 	memset(toaplan1_tileram16,0,TOAPLAN1_TILEVRAM_SIZE * 4);
 
-	logerror("colorram_size: %08x\n", toaplan1_colorram1_size + toaplan1_colorram2_size);
+	logerror("colorram_size: %08zx\n", toaplan1_colorram1_size + toaplan1_colorram2_size);
 	paletteram16 = auto_malloc(toaplan1_colorram1_size + toaplan1_colorram2_size);
 	memset(paletteram16,0,toaplan1_colorram1_size + toaplan1_colorram2_size);
 
