@@ -154,7 +154,7 @@ static const int               TS_CYC = CPU_RATE / SAMP_FREQ;
 static const int *      G1 = &gauss[ 256 ];
 static const int *      G2 = &gauss[ 512 ];
 static const int *      G3 = &gauss[ 255 ];
-static const int *      G4 = &gauss[ -1  ];
+static const int *      G4 = &gauss[ 0   ];
 
 static const int        mask = 0xFF;
 
@@ -576,7 +576,7 @@ for( v = 0, m = 1, V = 0; v < 8; v++, V += 16, m <<= 1 )
            the sum of the products of each input sample point with the value
            of the bell-curve corresponding to that point. */
         vl  = vp->mixfrac >> 4;
-        vr  = ( ( G4[ -vl ] * vp->sampbuf[ vp->sampptr ] ) >> 11 ) & ~1;
+        vr  = ( ( G4[ -vl-1 ] * vp->sampbuf[ vp->sampptr ] ) >> 11 ) & ~1;
         vr += ( ( G3[ -vl ]
                 * vp->sampbuf[ ( vp->sampptr + 1 ) & 3 ] ) >> 11 ) & ~1;
         vr += ( ( G2[ vl ]
@@ -612,7 +612,7 @@ for( v = 0, m = 1, V = 0; v < 8; v++, V += 16, m <<= 1 )
                vp->sampbuf[ ( vp->sampptr + 2 ) & 3 ],
                G3[ -vl ],
                vp->sampbuf[ ( vp->sampptr + 1 ) & 3 ],
-               G4[ -vl ],
+               G4[ -vl-1 ],
                vp->sampbuf[ vp->sampptr ],
                outx
                );

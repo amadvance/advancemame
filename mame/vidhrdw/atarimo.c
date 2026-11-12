@@ -540,7 +540,7 @@ static void convert_dirty_grid_to_rects(struct atarimo_data *mo, const rectangle
 	/* initialize the rect list */
 	rectlist->numrects = 0;
 	rectlist->rect = mo->rectlist;
-	rect = &mo->rectlist[-1];
+	rect = mo->rectlist;
 
 	/* loop over all grid rows that intersect our cliprect */
 	for (y = sy; y <= ey; y++)
@@ -558,8 +558,7 @@ static void convert_dirty_grid_to_rects(struct atarimo_data *mo, const rectangle
 				if (!can_add_to_existing)
 				{
 					/* advance pointers */
-					rectlist->numrects++;
-					rect++;
+					rect = &mo->rectlist[rectlist->numrects++];
 
 					/* make a rect describing this grid square */
 					rect->min_x = x << mo->tilexshift;
