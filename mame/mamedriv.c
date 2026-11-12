@@ -7772,4 +7772,10 @@ Other Sun games
 
 	DRIVER( stuntair )
 
+	/* United Amusements PC Engine */
+	DRIVER( blazlaz )
+	DRIVER( keith )
+	DRIVER( aliencr )
+	DRIVER( paclandp )
+
 #endif	/* DRIVER_RECURSIVE */

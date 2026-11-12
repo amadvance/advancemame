@@ -1637,3 +1637,8 @@ DRVLIBS += $(OBJ)/cidelsa.a
 $(OBJ)/cidelsa.a: $(OBJ)/drivers/cidelsa.o $(OBJ)/vidhrdw/cdp1869.o
 $(OBJ)/drivers/cidelsa.o: mame/cpu/cdp1802/cdp1802.h mame/cpu/cop400/cop400.h mame/vidhrdw/cdp1869.h
 $(OBJ)/vidhrdw/cdp1869.o: mame/vidhrdw/cdp1869.h mame/sound/cdp1869.h mame/cpu/cdp1802/cdp1802.h
+
+DRVLIBS += $(OBJ)/uapce.a
+$(OBJ)/uapce.a: $(OBJ)/drivers/uapce.o $(OBJ)/vidhrdw/huc6270.o
+$(OBJ)/drivers/uapce.o: mame/vidhrdw/huc6270.h
+$(OBJ)/vidhrdw/huc6270.o: mame/vidhrdw/huc6270.h
