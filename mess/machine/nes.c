@@ -32,7 +32,7 @@ struct fds_struct nes_fds;
 int ppu_scanlines_per_frame;
 
 static UINT32 in_0[3];
-static UINT32 in_1[3];
+static UINT32 in_1[4];
 static UINT32 in_0_shift;
 static UINT32 in_1_shift;
 

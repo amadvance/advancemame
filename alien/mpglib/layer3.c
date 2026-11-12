@@ -633,7 +633,7 @@ static int III_dequantize_sample(struct mp3_decoder_state* state, mp3internal_re
 	/* 
 	 * zero part
 	 */
-	for(i=(&xr[SBLIMIT][0]-xrpnt)>>1;i>0;i--) {
+	for(i=(SBLIMIT*SSLIMIT)>>1;i>0;i--) {
 		*xrpnt++ = 0.0;
 		*xrpnt++ = 0.0;
 	}
@@ -969,7 +969,7 @@ static int III_dequantize_sample(struct mp3_decoder_state* state, mp3internal_re
 	/* 
      * zero part
      */
-    for(i=(&xr[SBLIMIT][0]-xrpnt)>>1;i;i--) {
+    for(i=((mp3internal_real *)xr+SBLIMIT*SSLIMIT-xrpnt)>>1;i;i--) {
       *xrpnt++ = 0.0;
       *xrpnt++ = 0.0;
     }
