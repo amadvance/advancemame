@@ -47,7 +47,7 @@ void pc_mouse_set_serial_port(int uart_index)
 static void	pc_mouse_queue_data(int data)
 {
 	pc_mouse.queue[pc_mouse.head] = data;
-	pc_mouse.head = ++pc_mouse.head % 256;
+	pc_mouse.head = (pc_mouse.head + 1) % 256;
 }
 
 /**************************************************************************
@@ -185,7 +185,7 @@ static void pc_mouse_scan(int n)
 
 		data = pc_mouse.queue[pc_mouse.tail];
 		uart8250_receive(n, data);
-		pc_mouse.tail = ++pc_mouse.tail & 255;
+		pc_mouse.tail = (pc_mouse.tail + 1) & 255;
 	}
 }
 
@@ -224,9 +224,9 @@ void pc_mouse_handshake_in(int n, int outputs)
 			{
 				/* Identify as Microsoft 3 Button Mouse */
 				pc_mouse.queue[pc_mouse.head] = 'M';  
-				pc_mouse.head = ++pc_mouse.head % 256;
+				pc_mouse.head = (pc_mouse.head + 1) % 256;
 				pc_mouse.queue[pc_mouse.head] = '3';  
-				pc_mouse.head = ++pc_mouse.head % 256;  
+				pc_mouse.head = (pc_mouse.head + 1) % 256;  
 			}
 
 			/* start a timer to scan the mouse input */
