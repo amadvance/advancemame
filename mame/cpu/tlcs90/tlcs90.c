@@ -125,7 +125,7 @@ typedef enum	{
 	MODE_R16D8,	MODE_R16R8
 }	e_mode;
 
-static e_op		op;
+static UINT8		op;
 
 static e_mode	mode1;
 static e_r		r1,r1b;
