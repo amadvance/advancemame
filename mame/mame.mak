@@ -1081,6 +1081,7 @@ $(OBJ)/nix.a: \
 
 $(OBJ)/nmk.a: \
 	$(OBJ)/drivers/acommand.o \
+	$(OBJ)/drivers/ddealer.o \
 	$(OBJ)/drivers/jalmah.o \
 	$(OBJ)/drivers/macrossp.o $(OBJ)/vidhrdw/macrossp.o \
 	$(OBJ)/drivers/nmk16.o $(OBJ)/machine/nmk004.o $(OBJ)/vidhrdw/nmk16.o \

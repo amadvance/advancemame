@@ -1309,7 +1309,6 @@ static void set_irq_line(int irq, int state)
 	if (state)
 	{
 		T90.irq_state |= 1 << irq;
-		check_interrupts();
 	}
 	else
 	{
@@ -2500,14 +2499,14 @@ static WRITE8_HANDLER( t90_internal_registers_w )
 			{
 				if ( (old ^ data) & (0x20 | (1 << i)) )	// if timer bit or prescaler bit changed
 				{
-					if ( data == (0x20 | (1 << i)) )	t90_start_timer(i);
+					if ( (data & (0x20 | (1 << i))) == (0x20 | (1 << i)) )	t90_start_timer(i);
 					else								t90_stop_timer(i);
 				}
 			}
 			// Timer 4
 			if ( (old ^ data) & (0x20 | 0x10) )
 			{
-				if ( data == (0x20 | 0x10) )	t90_start_timer4();
+				if ( (data & (0x20 | 0x10)) == (0x20 | 0x10) )	t90_start_timer4();
 				else							t90_stop_timer4();
 			}
 			break;
