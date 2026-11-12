@@ -189,7 +189,9 @@ struct _SCSP
 	UINT32 IrqMidi;
 
 	UINT8 MidiOutW,MidiOutR;
-	UINT8 MidiStack[16];
+	UINT8 MidiStack[32];		/* received by the SCSP, from the host */
+	UINT8 MidiOutStack[16];		/* sent by the sound CPU, to the host (Model 2) */
+	int ReadPopsMidi;			/* a register read of the MIDI data byte (not a read-modify-write) */
 	UINT8 MidiW,MidiR;
 
 	UINT32 FNS_Table[0x400];
@@ -593,7 +595,9 @@ static void SCSP_UpdateReg(struct _SCSP *SCSP, int reg)
 	{
 		case 0x6:
 		case 0x7:
-			SCSP_MidiIn(0, SCSP->udata.data[0x6/2]&0xff, 0);
+			/* MIDI out: to the host (Model 2), not back into the MIDI in queue */
+			SCSP->MidiOutStack[SCSP->MidiOutW++]=SCSP->udata.data[0x6/2]&0xff;
+			SCSP->MidiOutW&=15;
 			break;
 		case 0x12:
 		case 0x13:
@@ -663,16 +667,34 @@ static void SCSP_UpdateRegR(struct _SCSP *SCSP, int reg)
 		case 4:
 		case 5:
 			{
-				unsigned short v=SCSP->udata.data[0x5/2];
-				v&=0xff00;
-				v|=SCSP->MidiStack[SCSP->MidiR];
-				SCSP[0].Int68kCB(0);	// cancel the IRQ
-				if(SCSP->MidiR!=SCSP->MidiW)
+				/* MOFUL/MOEMP/MIOVF/MIFUL/MIEMP and MIBUF, the oldest byte in the
+				   input FIFO; only reading MIBUF takes the byte */
+				unsigned short v=SCSP->MidiStack[SCSP->MidiR];
+				if(((SCSP->MidiOutW+1)&15)==SCSP->MidiOutR)
+					v|=0x1000;
+				if(SCSP->MidiOutR==SCSP->MidiOutW)
+					v|=0x0800;
+				if(((SCSP->MidiW+1)&31)==SCSP->MidiR)
+					v|=0x0200;
+				if(SCSP->MidiR==SCSP->MidiW)
+					v|=0x0100;
+				SCSP->udata.data[0x4/2]=v;
+				if(SCSP->ReadPopsMidi)
 				{
-					++SCSP->MidiR;
-					SCSP->MidiR&=15;
+					/* reading MIBUF drops the MIDI interrupt; the next event raises
+					   it again if the FIFO still has bytes. Left raised, the sound
+					   CPU took it again on an empty FIFO and read stale bytes as
+					   MIDI data */
+					SCSP->Int68kCB(0);
+					if(SCSP->MidiR!=SCSP->MidiW)
+					{
+						++SCSP->MidiR;
+						SCSP->MidiR&=31;
+					}
+					if(SCSP->MidiR==SCSP->MidiW)
+						/* input FIFO empty: no more MIDI interrupt */
+						SCSP->udata.data[0x20/2]&=~8;
 				}
-				SCSP->udata.data[0x5/2]=v;
 			}
 			break;
 		case 8:
@@ -697,13 +719,16 @@ static void SCSP_w16(struct _SCSP *SCSP,unsigned int addr,unsigned short val)
 		*((unsigned short *) (SCSP->Slots[slot].udata.datab+(addr))) = val;
 		SCSP_UpdateSlotReg(SCSP,slot,addr&0x1f);
 	}
-	else if(addr<0x600)
+	else if(addr<0x430)
 	{
 		*((unsigned short *) (SCSP->udata.datab+((addr&0xff)))) = val;
 		SCSP_UpdateReg(SCSP, addr&0xff);
 	}
-	else if(addr<0x700)
+	else if(addr>=0x600 && addr<0x680)
 		SCSP->RINGBUF[(addr-0x600)/2]=val;
+	/* the DSP registers (0x430-0x5ff coefficients and addresses, 0x680-0x6ff
+	   temporary memory) are not emulated: writing them as common registers
+	   or ring buffer overflowed the structure (the stream pointer included) */
 }
 
 static unsigned short SCSP_r16(struct _SCSP *SCSP, unsigned int addr)
@@ -717,12 +742,12 @@ static unsigned short SCSP_r16(struct _SCSP *SCSP, unsigned int addr)
 		SCSP_UpdateSlotRegR(SCSP, slot,addr&0x1f);
 		v=*((unsigned short *) (SCSP->Slots[slot].udata.datab+(addr)));
 	}
-	else if(addr<0x600)
+	else if(addr<0x430)
 	{
 		SCSP_UpdateRegR(SCSP, addr&0xff);
 		v= *((unsigned short *) (SCSP->udata.datab+((addr&0xff))));
 	}
-	else if(addr<0x700)
+	else if(addr>=0x600 && addr<0x680)
 		v=SCSP->RINGBUF[(addr-0x600)/2];
 	return v;
 }
@@ -1110,6 +1135,7 @@ static void *scsp_start(int sndindex, int clock, const void *config)
 	state_save_register_item("scsp", sndindex, SCSP->MidiOutW);
 	state_save_register_item("scsp", sndindex, SCSP->MidiOutR);
 	state_save_register_item_array("scsp", sndindex, SCSP->MidiStack);
+	state_save_register_item_array("scsp", sndindex, SCSP->MidiOutStack);
 	state_save_register_item("scsp", sndindex, SCSP->MidiW);
 	state_save_register_item("scsp", sndindex, SCSP->MidiR);
 	state_save_register_item_array("scsp", sndindex, SCSP->TimPris);
@@ -1136,9 +1162,14 @@ READ16_HANDLER( SCSP_0_r )
 {
 	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
 
+	UINT16 v;
+
 	stream_update(SCSP->stream, 0);
 
-	return SCSP_r16(SCSP, offset*2);
+	SCSP->ReadPopsMidi = !(mem_mask & 0x00ff);
+	v = SCSP_r16(SCSP, offset*2);
+	SCSP->ReadPopsMidi = 0;
+	return v;
 }
 
 extern UINT32* stv_scu;
@@ -1227,7 +1258,22 @@ WRITE16_HANDLER( SCSP_MidiIn )
 {
 	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
 	SCSP->MidiStack[SCSP->MidiW++]=data;
-	SCSP->MidiW &= 15;
+	SCSP->MidiW &= 31;
+	CheckPendingIRQ(SCSP);
+}
+
+/* free room in the MIDI in queue */
+int SCSP_MidiInFree(void)
+{
+	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
+	return 31 - ((SCSP->MidiW - SCSP->MidiR) & 31);
+}
+
+/* bytes sent by the sound CPU waiting to be read */
+int SCSP_MidiOutAvail(void)
+{
+	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
+	return (SCSP->MidiOutW - SCSP->MidiOutR) & 15;
 }
 
 READ16_HANDLER( SCSP_MidiOutR )
@@ -1235,8 +1281,10 @@ READ16_HANDLER( SCSP_MidiOutR )
 	struct _SCSP *SCSP = sndti_token(SOUND_SCSP, 0);
 	unsigned char val;
 
-	val=SCSP->MidiStack[SCSP->MidiR++];
-	SCSP->MidiR&=7;
+	if (SCSP->MidiOutR == SCSP->MidiOutW)
+		return 0;
+	val=SCSP->MidiOutStack[SCSP->MidiOutR++];
+	SCSP->MidiOutR&=15;
 	return val;
 }
 

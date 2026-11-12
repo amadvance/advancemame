@@ -482,14 +482,59 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 		tilemap_set_scrolly(sys24_tile_layer[layer|1], 0, +(vscr & 0x1ff));
 
 		if(hscr & 0x8000) {
-			//#ifdef MAME_DEBUG
-			ui_popup("Linescroll with special mode %04x", ctrl);
-			//          return;
-			//#endif
-		} else {
-			tilemap_set_scrollx(sys24_tile_layer[layer],   0, -(hscr & 0x1ff));
-			tilemap_set_scrollx(sys24_tile_layer[layer|1], 0, -(hscr & 0x1ff));
+			// Line scroll in the window modes
+			UINT16 *hscrtb = sys24_tile_ram + 0x4000 + 0x200*layer;
+			int y;
+
+			switch((ctrl & 0x6000) >> 13) {
+			case 1: {
+				UINT16 v = (-vscr) & 0x1ff;
+				if(!((-vscr) & 0x200))
+					layer ^= 1;
+				for(y=cliprect->min_y; y<=cliprect->max_y; ++y) {
+					rectangle c = *cliprect;
+					int l1 = layer;
+					if(y >= v)
+						l1 ^= 1;
+					c.min_y = c.max_y = y;
+					tilemap_set_scrollx(sys24_tile_layer[l1], 0, -(hscrtb[y] & 0x1ff));
+					tilemap_draw(bitmap, &c, sys24_tile_layer[l1], tpri, lpri);
+				}
+				break;
+			}
+			case 2: case 3:
+				for(y=cliprect->min_y; y<=cliprect->max_y; ++y) {
+					rectangle c1 = *cliprect;
+					rectangle c2 = *cliprect;
+					int l1 = layer;
+					UINT16 h;
+
+					hscr = hscrtb[y];
+					h = hscr & 0x1ff;
+					tilemap_set_scrollx(sys24_tile_layer[layer],   0, -h);
+					tilemap_set_scrollx(sys24_tile_layer[layer|1], 0, -h);
+
+					if(c1.max_x >= h)
+						c1.max_x = h-1;
+					if(c2.min_x < h)
+						c2.min_x = h;
+					if(!(hscr & 0x200))
+						l1 ^= 1;
+					c1.min_y = c1.max_y = y;
+					c2.min_y = c2.max_y = y;
+
+					if(c1.min_x <= c1.max_x)
+						tilemap_draw(bitmap, &c1, sys24_tile_layer[l1],   tpri, lpri);
+					if(c2.min_x <= c2.max_x)
+						tilemap_draw(bitmap, &c2, sys24_tile_layer[l1^1], tpri, lpri);
+				}
+				break;
+			}
+			return;
 		}
+
+		tilemap_set_scrollx(sys24_tile_layer[layer],   0, -(hscr & 0x1ff));
+		tilemap_set_scrollx(sys24_tile_layer[layer|1], 0, -(hscr & 0x1ff));
 
 		switch((ctrl & 0x6000) >> 13) {
 		case 1: {
@@ -508,7 +553,7 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri, lpri);
 			break;
 		}
-		case 2: {
+		case 2: case 3: {
 			rectangle c1 = *cliprect;
 			rectangle c2 = *cliprect;
 			UINT16 h;
@@ -524,11 +569,6 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri, lpri);
 			break;
 		}
-		case 3:
-			//#ifdef MAME_DEBUG
-			ui_popup("Mode 3, please scream");
-			//#endif
-			break;
 		};
 
 	} else {
@@ -623,6 +663,29 @@ WRITE16_HANDLER(sys24_char_w)
 		sys24_char_dirty = 1;
 	}
 }
+
+READ32_HANDLER(sys24_tile32_r)
+{
+	return sys24_tile_r(offset*2, mem_mask&0xffff) | sys24_tile_r((offset*2)+1, mem_mask>>16)<<16;
+}
+
+READ32_HANDLER(sys24_char32_r)
+{
+	return sys24_char_r(offset*2, mem_mask&0xffff) | sys24_char_r((offset*2)+1, mem_mask>>16)<<16;
+}
+
+WRITE32_HANDLER(sys24_tile32_w)
+{
+	sys24_tile_w(offset*2, data&0xffff, mem_mask&0xffff);
+	sys24_tile_w((offset*2)+1, data>>16, mem_mask>>16);
+}
+
+WRITE32_HANDLER(sys24_char32_w)
+{
+	sys24_char_w(offset*2, data&0xffff, mem_mask&0xffff);
+	sys24_char_w((offset*2)+1, data>>16, mem_mask>>16);
+}
+
 // - System 24
 
 static UINT16 *sys24_sprite_ram;

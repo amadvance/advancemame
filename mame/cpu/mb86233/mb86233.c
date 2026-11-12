@@ -1,1500 +1,1310 @@
 // license:BSD-3-Clause
-// copyright-holders:Ernesto Corvi
-/***************************************************************************
+// copyright-holders:Olivier Galibert
+/*
+  Driver based on the initial reverse-engineering of Elsemi, extended,
+  generalized and made to look more like a cpu since then thanks in
+  part to a "manual" that barely deserves the name.
 
-    mb86233.c
-    Core implementation for the portable Fujitsu MB86233 series DSP emulator.
+  The 86232 has 512 32-bits dwords of triple-port memory (1 write, 2
+  read).  The 86233/86234 have instead two normal (1 read, 1 write,
+  non-simultaneous) independent ram banks, one of 256 dwords and one
+  of 512.
 
-    Written by ElSemi
-    MAME version by Ernesto Corvi
+  The ram banks are mapped at 0x000-0x0ff and 0x200-0x3ff (proven by
+  geometrizer code that clears the ram at startup).  Move and load
+  instructions kind of target a specific ram, but do it by adding
+  0x200 to the address on one side of the other, which can then end up
+  anywhere.  In particular model1 coprocessor has the output fifo at
+  0x400, which is sometimes hit by having x1 at 0x200 and using the
+  automatic 0x200 adder.  Theorically external accesses to 100-1ff and
+  400+ seem to be routed externally, since they're used for the fifo
+  in model 1.
 
+  The cpu can theorically work in either floating point (32-bits ieee
+  flots) or fixed point (32/36/48 bits registers) modes.  All sega
+  programs start by activating floating point and staying there, so
+  fixed point is not implemented.
 
-    TODO:
-    - Properly emulate the TGP Tables from the ROM (See GETEXTERNAL)
-    - Many unknown opcodes and addressing modes
-    - Interrupts?
+  An interrupt is used to update the rf0 (status? leds?) registers in
+  the coprocessor programs.  It's on bit 1 of the mask (irq3?) and
+  vector 0x004.  It's probably periodic, maybe on vblank.  Note that
+  the copro programs never initialize the stack pointer.  Interrupts
+  are not implemented at this point.
 
-***************************************************************************/
+  The 86233 and 86234 dies are slightly different in the die shots,
+  but there's no known programming-level difference at this point.
+  It's unclear whether some register-file linked functionality is
+  internal or external though (fifos, banking in model2/86234), so
+  there may lie the actual differences.
+
+  Note: in the event of two writes occurring at the same register in a
+  single instruction, priority appears to vary depending on the ALU
+  operation. Transfers appear to take precedence over integer ops, while
+  floating point ops take precedence over transfers. This may be a result
+  of the ALU unit taking more than one cycle to execute floating point ops
+  (86232 datasheet), hence the register is updated after the transfer.
+*/
+
+/*
+    Differences from MAME:
+
+    Written in C. Floating point mode only, as in MAME. The program, data,
+    io and register file address spaces are the callbacks of struct
+    mb86233_config (given with MDRV_CPU_CONFIG) instead of memory maps. Only
+    one TGP per machine is supported (the state is static).
+*/
 
 #include <math.h>
-
-#include "mb86233.h"
+#include <stdio.h>
+#include <string.h>
+#include "driver.h"
+#include "cpuintrf.h"
 #include "debugger.h"
+#include "state.h"
+#include "mb86233.h"
 
-/***************************************************************************
-    STRUCTURES & TYPEDEFS
-***************************************************************************/
+#define SEXT( v, bits )		( (INT32)( (UINT32)( v ) << ( 32 - ( bits ) ) ) >> ( 32 - ( bits ) ) )
 
-typedef union
-{
-	INT32	i;
-	UINT32	u;
-	float	f;
-} MB86233_REG;
+enum {
+	F_ZRC  = 0x00000001, F_ZRD  = 0x00000002, F_SGC  = 0x00000004, F_SGD  = 0x00000008,
+	F_CPC  = 0x00000010, F_CPD  = 0x00000020, F_OVC  = 0x00000040, F_OVD  = 0x00000080,
+	F_UNC  = 0x00000100, F_UND  = 0x00000200, F_DVZC = 0x00000400, F_DVZD = 0x00000800,
+	F_CA   = 0x00001000, F_CPP  = 0x00002000, F_OVM  = 0x00004000, F_UNM  = 0x00008000,
+	F_SIF0 = 0x00010000, F_SIF1 = 0x00020000, F_SOF0 = 0x00040000, F_PIF  = 0x00100000,
+	F_POF  = 0x00200000, F_PAIF = 0x00400000, F_PAOF = 0x00800000, F_F0S  = 0x01000000,
+	F_F1S  = 0x02000000, F_IT   = 0x04000000, F_ZX0  = 0x08000000, F_ZX1  = 0x10000000,
+	F_ZX2  = 0x20000000, F_ZC0  = 0x40000000
+};
+#define F_ZC1 0x80000000
 
 typedef struct
 {
-	UINT16			pc;
-	MB86233_REG		a;
-	MB86233_REG		b;
-	MB86233_REG		d;
-	MB86233_REG		p;
+	UINT32 st, a, b, d, p;
+	UINT32 alu_stmask, alu_stset, alu_r1, alu_r2;
+	UINT16 ppc, pc, sp, b0, b1, x0, x1, i0, i1, vsmr, pcs[ 4 ], mask, m;
+	UINT8 r, rpc, c0, c1, sft, vsm;
+	int gpio[ 4 ];
+	int stall;
+	struct mb86233_config *cfg;
+} mb86233_regs;
 
-	UINT16			reps;
-	UINT16			pcs[4];
-	UINT8			pcsp;
-	UINT32			eb;
-	UINT32			shift;
-	UINT16			sr;
+static mb86233_regs mb;
+int mb86233_icount;
 
-	UINT16			gpr[16];
-	UINT32			extport[0x30];
+#define m_st			mb.st
+#define m_a				mb.a
+#define m_b				mb.b
+#define m_d				mb.d
+#define m_p				mb.p
+#define m_alu_stmask	mb.alu_stmask
+#define m_alu_stset		mb.alu_stset
+#define m_alu_r1		mb.alu_r1
+#define m_alu_r2		mb.alu_r2
+#define m_ppc			mb.ppc
+#define m_pc			mb.pc
+#define m_sp			mb.sp
+#define m_b0			mb.b0
+#define m_b1			mb.b1
+#define m_x0			mb.x0
+#define m_x1			mb.x1
+#define m_i0			mb.i0
+#define m_i1			mb.i1
+#define m_vsmr			mb.vsmr
+#define m_pcs			mb.pcs
+#define m_mask			mb.mask
+#define m_m				mb.m
+#define m_r				mb.r
+#define m_rpc			mb.rpc
+#define m_c0			mb.c0
+#define m_c1			mb.c1
+#define m_sft			mb.sft
+#define m_vsm			mb.vsm
+#define m_gpio0			mb.gpio[ 0 ]
+#define m_gpio1			mb.gpio[ 1 ]
+#define m_gpio2			mb.gpio[ 2 ]
+#define m_gpio3			mb.gpio[ 3 ]
+#define m_stall			mb.stall
+#define m_icount		mb86233_icount
+#define mb_cfg			mb.cfg
 
-	/* FIFO */
-	int				fifo_wait;
-	int				(*fifo_read_cb)( UINT32 *data );
-	void			(*fifo_write_cb)( UINT32 data );
+/* roundf() in C89: half away from zero, exact for float inputs */
+static double mb86233_round( double x ) { double a = fabs( x ), f = floor( a ); if( a - f >= 0.5 ) f += 1.0; return x < 0.0 ? -f : f; }
 
-	/* internal RAM */
-	UINT32			*RAM;
-	UINT32			*ARAM, *BRAM;
-} MB86233_REGS;
+#define mb_log logerror
 
-/***************************************************************************
-    PRIVATE GLOBAL VARIABLES
-***************************************************************************/
-
-static MB86233_REGS mb86233;
-static int mb86233_icount;
-
-/***************************************************************************
-    MACROS
-***************************************************************************/
-
-#define GETPC()				mb86233.pc
-#define GETA()				mb86233.a
-#define GETB()				mb86233.b
-#define GETD()				mb86233.d
-#define GETP()				mb86233.p
-#define GETSR()				mb86233.sr
-#define GETGPR(a)			mb86233.gpr[a]
-#define GETSHIFT()			mb86233.shift
-#define GETPCS()			mb86233.pcs
-#define GETPCSP()			mb86233.pcsp
-#define GETEB()				mb86233.eb
-#define GETREPS()			mb86233.reps
-#define GETEXTPORT()		mb86233.extport
-#define GETFIFOWAIT()		mb86233.fifo_wait
-#define GETARAM()			mb86233.ARAM
-#define GETBRAM()			mb86233.BRAM
-#define ALU(a)				mb86233_alu(a)
-
-#define ROPCODE(a)			cpu_readop32(a<<2)
-#define RDMEM(a)			program_read_dword_32le((a<<2))
-#define WRMEM(a,v)			program_write_dword_32le((a<<2),v)
-
-/***************************************************************************
-    Context Switching
-***************************************************************************/
-
-static void mb86233_get_context(void *dst)
+static UINT32 set_exp(UINT32 val, UINT32 exp)
 {
-	/* copy the context */
-	*(MB86233_REGS *)dst = mb86233;
+	return (val & 0x807fffff) | ((exp & 0xff) << 23);
 }
 
-static void mb86233_set_context(void *src)
+static UINT32 set_mant(UINT32 val, UINT32 mant)
 {
-	/* copy the context */
-	if (src)
-		mb86233 = *(MB86233_REGS *)src;
-	change_pc(GETPC());
+	return (val & 0x07f800000) | ((mant & 0x00800000) << 8) | (mant & 0x007fffff);
 }
 
-
-/***************************************************************************
-    Initialization and Shutdown
-***************************************************************************/
-
-static void mb86233_init(int index, int clock, const void *config, int (*irqcallback)(int))
+static UINT32 get_exp(UINT32 val)
 {
-	struct mb86233_config * _config = (struct mb86233_config *)config;
-	(void)index;
-	(void)clock;
-	(void)irqcallback;
-
-	memset(&mb86233, 0, sizeof( MB86233_REGS ) );
-
-	if ( _config )
-	{
-		mb86233.fifo_read_cb = _config->fifo_read_cb;
-		mb86233.fifo_write_cb = _config->fifo_write_cb;
-	}
-
-	mb86233.RAM = auto_malloc(2 * 0x200 * sizeof(UINT32));		/* 2x 2KB */
-	memset( mb86233.RAM, 0, 2 * 0x200 * sizeof(UINT32) );
-	mb86233.ARAM = &mb86233.RAM[0];
-	mb86233.BRAM = &mb86233.RAM[0x200];
-
-	state_save_register_global_pointer(mb86233.RAM,2 * 0x200 * sizeof(UINT32));
+	return (val >> 23) & 0xff;
 }
 
-static void mb86233_reset(void)
+static UINT32 get_mant(UINT32 val)
 {
-	/* zero registers and flags */
-	mb86233.pc = 0;
-	mb86233.sr = 0;
-	mb86233.pcsp = 0;
-	mb86233.eb = 0;
-	mb86233.shift = 0;
-	mb86233.fifo_wait = 0;
+	return val & 0x80000000 ? val | 0x7f800000 : val & 0x807fffff;
 }
 
-
-
-/***************************************************************************
-    Status Register
-***************************************************************************/
-
-#define ZERO_FLAG	(1 << 0)
-#define SIGN_FLAG	(1 << 1)
-
-static void FLAGSF( float v )
+static void pcs_push(void)
 {
-	GETSR() = 0;
-
-	if ( v == 0 )
-		GETSR() |= ZERO_FLAG;
-
-	if ( v < 0 )
-		GETSR() |= SIGN_FLAG;
+	unsigned int i;
+	for(i=3; i; i--)
+		m_pcs[i] = m_pcs[i-1];
+	m_pcs[0] = m_pc;
 }
 
-static void FLAGSI( UINT32 v )
+static void pcs_pop(void)
 {
-	GETSR() = 0;
-
-	if ( v == 0 )
-		GETSR() |= ZERO_FLAG;
-
-	if ( v & 0x80000000 )
-		GETSR() |= SIGN_FLAG;
+	unsigned int i;
+	m_pc = m_pcs[0];
+	for(i=0; i != 3; i++)
+		m_pcs[i] = m_pcs[i+1];
 }
 
-
-
-/***************************************************************************
-    Condition Codes
-***************************************************************************/
-
-static int COND( UINT32 cond )
+static void stset_set_sz_int(UINT32 val)
 {
-	switch( cond )
-	{
-		case 0x00:	/* eq */
-			if ( (GETSR() & ZERO_FLAG) ) return 1;
-		break;
+	m_alu_stset = val ? (val & 0x80000000 ? F_SGD : 0) : F_ZRD;
+}
 
-		case 0x01:	/* ge */
-			if ( (GETSR() & ZERO_FLAG) || ((GETSR() & SIGN_FLAG)==0) ) return 1;
-		break;
+static void stset_set_sz_fp(UINT32 val)
+{
+	m_alu_stset = (val & 0x7fffffff) ? (val & 0x80000000 ? F_SGD : 0) : F_ZRD;
+}
 
-		case 0x02:	/* le */
-			if ( (GETSR() & ZERO_FLAG) || (GETSR() & SIGN_FLAG) ) return 1;
-		break;
+static void alu_pre(UINT32 alu)
+{
+	UINT32 r;
+	switch(alu) {
+	case 0x00: break; /* no alu */
 
-		case 0x06:	/* never */
-		break;
-
-		case 0x10:	/* --r12 != 0 */
-			GETGPR(12)--;
-			if ( GETGPR(12) != 0 ) return 1;
-		break;
-
-		case 0x11:	/* --r13 != 0 */
-			GETGPR(13)--;
-			if ( GETGPR(13) != 0 ) return 1;
-		break;
-
-		case 0x16:	/* always */
-			return 1;
-		break;
-
-		default:
-			logerror( "TGP: Unknown condition code (cc=%d) at PC:%x\n", cond, GETPC());
+	case 0x01: {
+		/* andd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d & m_a;
+		stset_set_sz_int(m_alu_r1);
 		break;
 	}
 
+	case 0x02: {
+		/* orad */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d | m_a;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x03: {
+		/* eord */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d ^ m_a;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x04: {
+		/* notd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = ~m_d;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x05: {
+		/* fcpd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		r = f2u(u2f(m_d) - u2f(m_a));
+		stset_set_sz_fp(r);
+		break;
+	}
+
+	case 0x06: {
+		/* fadd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) + u2f(m_a));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x07: {
+		/* fsbd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) - u2f(m_a));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x08: {
+		/* fml */
+		m_alu_stmask = 0;
+		m_alu_r1 = f2u(u2f(m_a) * u2f(m_b));
+		m_alu_stset = 0;
+		break;
+	}
+
+	case 0x09: {
+		/* fmsd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) + u2f(m_p));
+		m_alu_r2 = f2u(u2f(m_a) * u2f(m_b));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x0a: {
+		/* fmrd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) - u2f(m_p));
+		m_alu_r2 = f2u(u2f(m_a) * u2f(m_b));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x0b: {
+		/* fabd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d & 0x7fffffff;
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x0c: {
+		/* fsmd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) + u2f(m_p));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x0d: {
+		/* fspd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_p;
+		m_alu_r2 = f2u(u2f(m_a) * u2f(m_b));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x0e: {
+		/* cxfd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u((INT32)(m_d));
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x0f: {
+		/* cfxd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		switch((m_m >> 1) & 3) {
+		/* C89 double math: exact for float inputs, same results as roundf/ceilf/floorf */
+		case 0: m_alu_r1 = (INT32)(mb86233_round(u2f(m_d))); break;
+		case 1: m_alu_r1 = (INT32)(ceil(u2f(m_d))); break;
+		case 2: m_alu_r1 = (INT32)(floor(u2f(m_d))); break;
+		case 3: m_alu_r1 = (INT32)(u2f(m_d)); break;
+		}
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x10: {
+		/* fdvd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_d) / u2f(m_a));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x11: {
+		/* fned */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d ? m_d ^ 0x80000000 : 0;
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x13: {
+		/* d = b + a */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_b) + u2f(m_a));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x14: {
+		/* d = b - a */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = f2u(u2f(m_b) - u2f(m_a));
+		stset_set_sz_fp(m_alu_r1);
+		break;
+	}
+
+	case 0x16: {
+		/* lsrd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d >> m_sft;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x17: {
+		/* lsld */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d << m_sft;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x18: {
+		/* asrd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = (INT32)(m_d) >> m_sft;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x19: {
+		/* asld */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = (INT32)(m_d) << m_sft;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x1a: {
+		/* addd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d + m_a;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	case 0x1b: {
+		/* subd */
+		m_alu_stmask = F_ZRD|F_SGD|F_CPD|F_OVD|F_DVZD;
+		m_alu_r1 = m_d - m_a;
+		stset_set_sz_int(m_alu_r1);
+		break;
+	}
+
+	default:
+		mb_log("unhandled alu pre %02x\n", alu);
+		break;
+	}
+}
+
+static void alu_update_st(void)
+{
+	m_st = (m_st & ~m_alu_stmask) | m_alu_stset;
+}
+
+static void alu_post_1(UINT32 alu)
+{
+	/* integer alu post ops */
+	switch(alu) {
+	case 0x01: case 0x02: case 0x03: case 0x04:
+	case 0x0e: case 0x0f: case 0x16: case 0x17:
+	case 0x18: case 0x19: case 0x1a: case 0x1b:
+		/* d update */
+		m_d = m_alu_r1;
+		alu_update_st();
+		break;
+
+	default:
+		break;
+	}
+}
+
+static void alu_post_2(UINT32 alu)
+{
+	/* floating point alu post ops */
+	/* assume each one takes 2 cycles */
+	switch (alu) {
+	case 0x05:
+		/* flags only */
+		alu_update_st();
+		m_icount--;
+		break;
+
+	case 0x06: case 0x07: case 0x0b: case 0x0c:
+	case 0x10: case 0x11: case 0x13: case 0x14:
+		/* d update */
+		m_d = m_alu_r1;
+		alu_update_st();
+		m_icount--;
+		break;
+
+	case 0x08:
+		/* p update */
+		m_p = m_alu_r1;
+		m_icount--;
+		break;
+
+	case 0x09: case 0x0a: case 0x0d:
+		/* d, p update */
+		m_d = m_alu_r1;
+		m_p = m_alu_r2;
+		alu_update_st();
+		m_icount--;
+		break;
+
+	default:
+		break;
+	}
+}
+
+static UINT16 ea_pre_0(UINT32 r)
+{
+	switch(r & 0x180) {
+	case 0x000: return r & 0x7f;
+	case 0x080: case 0x100: return (r & 0x7f) + m_b0 + m_x0;
+	case 0x180: {
+		switch(r & 0x60) {
+		case 0x00: return m_b0 + m_x0;
+		case 0x20: return m_x0;
+		case 0x40: return m_b0 + (m_x0 & m_vsmr);
+		case 0x60: return m_x0 & m_vsmr;
+		}
+	}
+	}
 	return 0;
 }
 
-
-
-/***************************************************************************
-    ALU
-***************************************************************************/
-
-static void ALU( UINT32 alu)
+static void ea_post_0(UINT32 r)
 {
-	float	ftmp;
+	if(!(r & 0x100))
+		return;
+	if(!(r & 0x080))
+		m_x0 += m_i0;
+	else
+		m_x0 += SEXT(r, 5);
+}
 
-	switch(alu)
-	{
-		case 0x00:	/* NOP */
-		break;
+static UINT16 ea_pre_1(UINT32 r)
+{
+	switch(r & 0x180) {
+	case 0x000: return r & 0x7f;
+	case 0x080: case 0x100: return (r & 0x7f) + m_b1 + m_x1;
+	case 0x180: {
+		switch(r & 0x60) {
+		case 0x00: return m_b1 + m_x1;
+		case 0x20: return m_x1;
+		case 0x40: return m_b1 + (m_x1 & m_vsmr);
+		case 0x60: return m_x1 & m_vsmr;
+		}
+	}
+	}
+	return 0;
+}
 
-		case 0x01:	/* D = D & A */
-			GETD().u &= GETA().u;
-			FLAGSI(GETD().u);
-		break;
+static void ea_post_1(UINT32 r)
+{
+	if(!(r & 0x100))
+		return;
+	if(!(r & 0x080))
+		m_x1 += m_i1;
+	else
+		m_x1 += SEXT(r, 5);
+}
 
-		case 0x02:	/* D = D | A */
-			GETD().u |= GETA().u;
-			FLAGSI(GETD().u);
-		break;
+static UINT32 read_reg(UINT32 r)
+{
+	r &= 0x3f;
+	if(r >= 0x20 && r < 0x30)
+		return mb_cfg->rf_r(r & 0x1f);
+	switch(r) {
+	case 0x00: return m_b0;
+	case 0x01: return m_b1;
+	case 0x02: return m_x0;
+	case 0x03: return m_x1;
 
-		case 0x03:	/* D = D ^ A */
-			GETD().u ^= GETA().u;
-			FLAGSI(GETD().u);
-		break;
+	case 0x0c: return m_c0;
+	case 0x0d: return m_c1;
 
-		case 0x05:	/* CMP D,A */
-			ftmp = GETD().f - GETA().f;
-			FLAGSF(ftmp);
-			mb86233_icount--;
-		break;
+	case 0x10: return m_a;
+	case 0x11: return get_exp(m_a);
+	case 0x12: return get_mant(m_a);
+	case 0x13: return m_b;
+	case 0x14: return get_exp(m_b);
+	case 0x15: return get_mant(m_b);
+	case 0x19: return m_d;
+		/* c */
+	case 0x1a: return get_exp(m_d);
+	case 0x1b: return get_mant(m_d);
+	case 0x1c: return m_p;
+	case 0x1d: return get_exp(m_p);
+	case 0x1e: return get_mant(m_p);
+	case 0x1f: return m_sft;
 
-		case 0x06:	/* D = D + A */
-			GETD().f += GETA().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
+	case 0x34: return m_rpc;
 
-		case 0x07:	/* D = D - A */
-			GETD().f -= GETA().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x08:	/* P = A * B */
-			GETP().f = GETA().f * GETB().f;
-			mb86233_icount--;
-		break;
-
-		case 0x09:	/* D = D + P; P = A * B */
-			GETD().f += GETP().f;
-			GETP().f = GETA().f * GETB().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0A:	/* D = D - P; P = A * B */
-			GETD().f -= GETP().f;
-			GETP().f = GETA().f * GETB().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0B:	/* D = fabs(D) */
-			GETD().f = fabs( GETD().f );
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0C:	/* D = D + P */
-			GETD().f += GETP().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0D:	/* D = P; P = A * B */
-			GETD().f = GETP().f;
-			GETP().f = GETA().f * GETB().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0E:	/* D = float(D) */
-			GETD().f = (float)GETD().i;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x0F:	/* D = int(D) */
-			GETD().i = (INT32)GETD().f;
-			FLAGSI(GETD().u);
-		break;
-
-		case 0x10:	/* D = D / A */
-			if ( GETA().u != 0 )
-				GETD().f = GETD().f / GETA().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x11:	/* D = -D */
-			GETD().f = -GETD().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x13:	/* D = A + B */
-			GETD().f = GETA().f + GETB().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x14:	/* D = B - A */
-			GETD().f = GETB().f - GETA().f;
-			FLAGSF(GETD().f);
-			mb86233_icount--;
-		break;
-
-		case 0x16:	/* LSR D, SHIFT */
-			GETD().u >>= GETSHIFT();
-			FLAGSI(GETD().u);
-		break;
-
-		case 0x17:	/* LSL D, SHIFT */
-			GETD().u <<= GETSHIFT();
-			FLAGSI(GETD().u);
-		break;
-
-		case 0x18:	/* ASR D, SHIFT */
-			GETD().u = (GETD().u & 0x80000000) | (GETD().u >> GETSHIFT());
-			FLAGSI(GETD().u);
-		break;
-
-		case 0x1A:	/* D = D + A */
-			GETD().i += GETA().i;
-			FLAGSI(GETD().u);
-		break;
-
-		case 0x1B:	/* D = D - A */
-			GETD().i -= GETA().i;
-			FLAGSI(GETD().u);
-		break;
-
-		default:
-			logerror( "TGP: Unknown ALU op %x at PC:%04x\n", alu, GETPC() );
-		break;
+	default:
+		mb_log("unimplemented read_reg(%02x) (%x)\n", r, m_ppc);
+		return 0;
 	}
 }
 
-
-
-/***************************************************************************
-    Memory Access
-***************************************************************************/
-
-static UINT32 GETEXTERNAL( UINT32 EB, UINT32 offset )
+static void write_reg(UINT32 r, UINT32 v)
 {
-	UINT32		addr;
-
-	if ( EB == 0 && offset >= 0x20 && offset <= 0x2f )	/* TGP Tables in ROM - FIXME - */
-	{
-		if ( offset == 0x20 )	/* SIN from value at RAM(0x20) in 0x4000/PI steps */
-		{
-			MB86233_REG		r;
-			INT32			a;
-
-			r.u = GETEXTPORT()[0x20];
-			a = r.i;
-			r.f = (float)sin((float)a*(2.0*M_PI/65536.0));
-			return r.u;
-		}
-
-		if ( offset == 0x21 )	/* COS from value at RAM(0x20) in 0x4000/PI steps */
-		{
-			MB86233_REG		r;
-			INT32			a;
-
-			r.u = GETEXTPORT()[0x20];
-			a = r.i;
-
-			r.f = (float)cos((float)a*(2.0*M_PI/65536.0));
-			return r.u;
-		}
-
-		if ( offset == 0x22 )	/* -SIN from value at RAM(0x20) in 0x4000/PI steps */
-		{
-			MB86233_REG		r;
-			INT32			a;
-
-			r.u = GETEXTPORT()[0x20];
-			a = r.i;
-			r.f = (float)-sin((float)a*(2.0*M_PI/65536.0));
-			return r.u;
-		}
-
-		if ( offset == 0x27 )	/* atan */
-		{
-			MB86233_REG		r1, r2;
-			INT32			v;
-
-			r1.u = GETEXTPORT()[0x24]; /* A */
-			r2.u = GETEXTPORT()[0x25]; /* B */
-
-			v = (INT32)(atan2(r2.f,r1.f)*32768.0/M_PI);
-
-			r1.i = v;
-			return r1.u;
-		}
-
-		if ( offset == 0x28 )	/* 1/x - part 1 */
-			return 0;
-
-		if ( offset == 0x29 )	/* 1/x - part 2 */
-		{
-			MB86233_REG		r;
-			r.u = GETEXTPORT()[0x28];
-			r.f = 1/r.f;
-			return r.u;
-		}
-
-		if ( offset == 0x2a )	/* 1/sqrt(x) - part 1 */
-			return 0;
-
-		if ( offset == 0x2b)	/* 1/sqrt(x) - part 2 */
-		{
-			MB86233_REG		r;
-			r.u = GETEXTPORT()[0x2a];
-			r.f = 1/sqrt(r.f);
-			return r.u;
-		}
-
-		return GETEXTPORT()[offset];
-	}
-
-	addr = ( EB & 0xFFFF0000 ) | ( offset & 0xFFFF );
-
-	return RDMEM(addr);
-}
-
-static void SETEXTERNAL( UINT32 EB, UINT32 offset, UINT32 value )
-{
-	UINT32	addr;
-
-	if ( EB == 0 && offset >= 0x20 && offset <= 0x2f )	/* TGP Tables in ROM - FIXME - */
-	{
-		GETEXTPORT()[offset] = value;
+	r &= 0x3f;
+	if(r >= 0x20 && r < 0x30) {
+		mb_cfg->rf_w(r & 0x1f, v);
 		return;
 	}
+	switch(r) {
+	case 0x00: m_b0 = v; break;
+	case 0x01: m_b1 = v; break;
+	case 0x02: m_x0 = v; break;
+	case 0x03: m_x1 = v; break;
 
-	addr = ( EB & 0xFFFF0000 ) | ( offset & 0xFFFF );
+	case 0x05: m_i0 = v; break;
+	case 0x06: m_i1 = v; break;
 
-	WRMEM( addr, value );
-}
+	case 0x08: m_sp = v; break;
 
+	case 0x0a: m_vsm = v & 7; m_vsmr = (8 << m_vsm) - 1; break;
 
-
-/***************************************************************************
-    Register Access
-***************************************************************************/
-
-static UINT32 GETREGS( UINT32 reg, int source )
-{
-	UINT32	mode = ( reg >> 6 ) & 0x07;
-
-	reg &= 0x3f;
-
-	if ( mode == 0 || mode == 1 || mode == 3 )
-	{
-		if ( reg < 0x10 )
-		{
-			return GETGPR(reg);
-		}
-
-		switch( reg )
-		{
-			case 0x10:	/* A */
-				return GETA().u;
-			break;
-
-			case 0x11:	/* A.e */
-				return (GETA().u >> 23) & 0x7f;
-			break;
-
-			case 0x12:	/* A.m */
-				return (GETA().u & 0x7fffff) | ((GETA().u&0x80000000) >> 8);
-			break;
-
-			case 0x13:	/* B */
-				return GETB().u;
-			break;
-
-			case 0x14:	/* B.e */
-				return (GETB().u >> 23) & 0x7f;
-			break;
-
-			case 0x15:	/* B.m */
-				return (GETB().u & 0x7fffff) | ((GETB().u&0x80000000) >> 8);
-			break;
-
-			case 0x19:	/* D */
-				return GETD().u;
-			break;
-
-			case 0x1A:	/* D.e */
-				return (GETD().u >> 23) & 0x7f;
-			break;
-
-			case 0x1B:	/* D.m */
-				return (GETD().u & 0x7fffff) | ((GETD().u&0x80000000) >> 8);
-			break;
-
-			case 0x1C:	/* P */
-				return GETP().u;
-			break;
-
-			case 0x1D:	/* P.e */
-				return (GETP().u >> 23) & 0x7f;
-			break;
-
-			case 0x1E:	/* P.m */
-				return (GETP().u & 0x7fffff) | ((GETP().u&0x80000000) >> 8);
-			break;
-
-			case 0x1F:	/* Shift */
-				return GETSHIFT();
-			break;
-
-			case 0x20:	/* Parallel Port */
-				logerror( "TGP: Parallel port read at PC:%04x\n", GETPC() );
-				return 0;
-			break;
-
-			case 0x21:	/* FIn */
-			{
-				UINT32	fifo_data;
-
-				if ( mb86233.fifo_read_cb )
-				{
-					if ( mb86233.fifo_read_cb(&fifo_data) )
-					{
-#if 0
-						if ( GETPC() == 0x4C )
-							printf( "TGP: Function %02x\n", (fifo_data >> 23 ) & 0xff );
-#endif
-						return fifo_data;
-					}
-				}
-
-				GETFIFOWAIT() = 1;
-				return 0;
-			}
-			break;
-
-			case 0x22:	/* FOut */
-				return 0;
-			break;
-
-			case 0x23:	/* EB */
-				return GETEB();
-			break;
-
-			default:
-				logerror( "TGP: Unknown GETREG (%d) at PC=%04x\n", reg, GETPC() );
-			break;
-		}
-	}
-	else if ( mode == 2 )	/* Indexed */
-	{
-		UINT32	addr = reg & 0x1f;
-
-		if ( source )
-		{
-			if( !( reg & 0x20 ) )
-				addr += GETGPR(0);
-
-			addr += GETGPR(2);
-		}
+	case 0x0c:
+		m_c0 = v;
+		if(m_c0 == 1)
+			m_st |= F_ZC0;
 		else
-		{
-			if( !( reg & 0x20 ) )
-				addr += GETGPR(1);
+			m_st &= ~F_ZC0;
+		break;
 
-			addr += GETGPR(3);
-		}
-
-		return addr;
-	}
-	else if( mode == 6 )	/* Indexed with postop */
-	{
-		UINT32	addr = 0;
-
-		if ( source )
-		{
-			if( !( reg & 0x20 ) )
-				addr += GETGPR(0);
-
-			addr += GETGPR(2);
-		}
+	case 0x0d:
+		m_c1 = v;
+		if(m_c1 == 1)
+			m_st |= F_ZC1;
 		else
-		{
-			if( !( reg & 0x20 ) )
-				addr += GETGPR(1);
+			m_st &= ~F_ZC1;
+		break;
 
-			addr += GETGPR(3);
-		}
+	case 0x0f: break;
 
-		if ( reg & 0x10 )
-		{
-			if ( source )
-				GETGPR(2) -= 0x20 - ( reg & 0x1f );
-			else
-				GETGPR(3) -= 0x20 - ( reg & 0x1f );
-		}
-		else
-		{
-			if ( source )
-				GETGPR(2) += ( reg & 0x1f );
-			else
-				GETGPR(3) += ( reg & 0x1f );
-		}
+	case 0x10: m_a = v; break;
+	case 0x11: m_a = set_exp(m_a, v); break;
+	case 0x12: m_a = set_mant(m_a, v); break;
+	case 0x13: m_b = v; break;
+	case 0x14: m_b = set_exp(m_b, v); break;
+	case 0x15: m_b = set_mant(m_b, v); break;
+		/* c */
+	case 0x19: m_d = v; break;
+	case 0x1a: m_d = set_exp(m_d, v); break;
+	case 0x1b: m_d = set_mant(m_d, v); break;
+	case 0x1c: m_p = v; break;
+	case 0x1d: m_p = set_exp(m_p, v); break;
+	case 0x1e: m_p = set_mant(m_p, v); break;
+	case 0x1f: m_sft = v; break;
 
-		return addr;
-	}
-	else
-	{
-		fatalerror( "TGP: Unknown GETREG mode %d at PC:%04x\n", mode, GETPC() );
-	}
+	case 0x34: m_rpc = v; break;
+	case 0x3c: m_mask = v; break;
 
-	return 0;
-}
-
-static void SETREGS( UINT32 reg, UINT32 val )
-{
-	int		mode = ( reg >> 6) & 0x07;
-
-	reg &= 0x3f;
-
-	if( mode == 0 || mode == 1 || mode == 3 )
-	{
-		if ( reg < 0x10 )
-		{
-			GETGPR(reg) = val;
-			return;
-		}
-
-		switch( reg )
-		{
-			case 0x10:	/* A */
-				GETA().u = val;
-			break;
-
-			case 0x11:	/* A.e */
-				GETA().u &= ~((0x0000007f) << 23);
-				GETA().u |= (( val & 0x7f ) << 23 );
-			break;
-
-			case 0x12:	/* A.m */
-				GETA().u &= ~( 0x807fffff );
-				GETA().u |= ( val & 0x7fffff );
-				GETA().u |= ( val & 0x800000 ) << 8;
-			break;
-
-			case 0x13:	/* B */
-				GETB().u = val;
-			break;
-
-			case 0x14:	/* B.e */
-				GETB().u &= ~((0x0000007f) << 23);
-				GETB().u |= (( val & 0x7f ) << 23 );
-			break;
-
-			case 0x15:	/* B.m */
-				GETB().u &= ~( 0x807fffff );
-				GETB().u |= ( val & 0x7fffff );
-				GETB().u |= ( val & 0x800000 ) << 8;
-			break;
-
-			case 0x19:	/* D */
-				GETD().u = val;
-			break;
-
-			case 0x1A:	/* D.e */
-				GETD().u &= ~((0x0000007f) << 23);
-				GETD().u |= (( val & 0x7f ) << 23 );
-			break;
-
-			case 0x1B:	/* B.m */
-				GETD().u &= ~( 0x807fffff );
-				GETD().u |= ( val & 0x7fffff );
-				GETD().u |= ( val & 0x800000 ) << 8;
-			break;
-
-			case 0x1C:	/* P */
-				GETP().u = val;
-			break;
-
-			case 0x1D:	/* P.e */
-				GETP().u &= ~((0x0000007f) << 23);
-				GETP().u |= (( val & 0x7f ) << 23 );
-			break;
-
-			case 0x1E:	/* P.m */
-				GETP().u &= ~( 0x807fffff );
-				GETP().u |= ( val & 0x7fffff );
-				GETP().u |= ( val & 0x800000 ) << 8;
-			break;
-
-			case 0x1F:
-				GETSHIFT() = val;
-			break;
-
-			case 0x20: /* Parallel Port */
-				logerror( "TGP: Parallel port write: %08x at PC:%04x\n", val, GETPC() );
-			break;
-
-			case 0x22: /* FOut */
-				if ( mb86233.fifo_write_cb )
-				{
-					mb86233.fifo_write_cb( val );
-				}
-			break;
-
-			case 0x23:
-				GETEB() = val;
-			break;
-
-			default:
-			{
-				fatalerror( "TGP: Unknown register write (r:%d, mode:%d) at PC:%04x\n", reg, mode, GETPC());
-			}
-			break;
-		}
-	}
-	else
-	{
-		fatalerror( "TGP: Unknown register write (r:%d, mode:%d) at PC:%04x\n", reg, mode, GETPC());
+	default:
+		mb_log("unimplemented write_reg(%02x, %08x) (%x)\n", r, v, m_ppc);
+		break;
 	}
 }
 
-
-/***************************************************************************
-    Addressing Modes
-***************************************************************************/
-
-static UINT32 INDIRECT( UINT32 reg, int source )
+static void write_mem_internal_1(UINT32 r, UINT32 v, int bank)
 {
-	UINT32	mode = ( reg >> 6 ) & 0x07;
-
-	if ( mode == 0 || mode == 1 || mode == 3 )
-	{
-		return reg;
-	}
-	else if ( mode == 2 )
-	{
-		UINT32	addr = reg & 0x1f;
-
-		if ( source )
-		{
-			if( !(reg & 0x20) )
-				addr += GETGPR(0);
-
-			addr += GETGPR(2);
-		}
-		else
-		{
-			if( !(reg & 0x20) )
-				addr += GETGPR(1);
-
-			addr += GETGPR(3);
-		}
-
-		return addr;
-	}
-	else if ( mode == 6 || mode == 7 )
-	{
-		UINT32	addr = 0;
-
-		if ( source )
-		{
-			if ( !( reg & 0x20 ) )
-				addr += GETGPR(0);
-
-			addr += GETGPR(2);
-		}
-		else
-		{
-			if ( !( reg & 0x20 ) )
-				addr += GETGPR(1);
-
-			addr += GETGPR(3);
-		}
-
-		if ( reg & 0x10 )
-		{
-			if ( source )
-				GETGPR(2) -= 0x20 - ( reg & 0x1f );
-			else
-				GETGPR(3) -= 0x20 - ( reg & 0x1f );
-		}
-		else
-		{
-			if ( source )
-				GETGPR(2) += ( reg & 0x1f );
-			else
-				GETGPR(3) += ( reg & 0x1f );
-		}
-
-		return addr;
-	}
-	else
-	{
-		fatalerror( "TGP: Unknown INDIRECT mode %d at PC:%04x\n", mode, GETPC() );
-	}
-
-	return 0;
+	UINT16 ea = ea_pre_1(r);
+	if(bank)
+		ea += 0x200;
+	mb_cfg->data_w(ea, v);
+	ea_post_1(r);
 }
 
-
-
-/***************************************************************************
-    Core Execution Loop
-***************************************************************************/
-
-static int mb86233_execute(int cycles)
+static void write_mem_io_1(UINT32 r, UINT32 v)
 {
+	UINT16 ea = ea_pre_1(r);
+	mb_cfg->io_w(ea, v);
+	ea_post_1(r);
+}
 
-	mb86233_icount = cycles;
+static int mb86233_core_execute(int cycles)
+{
+	UINT32 opcode, r1, r2, alu, op, ea, ea1, ea2, v, v1, v2, sub2, cond, subtype, data;
+	int invert, cond_passed;
+	UINT8 rr;
 
-	while( mb86233_icount > 0 )
-	{
-		UINT32		val;
-		UINT32		opcode;
-
+	m_icount = cycles;
+	while(m_icount > 0) {
+		m_ppc = m_pc;
 		CALL_MAME_DEBUG;
+		opcode = mb_cfg->prog_r(m_pc++);
 
-		opcode = ROPCODE(GETPC());
+		switch((opcode >> 26) & 0x3f) {
+		case 0x00: {
+			/* lab */
+			r1 = opcode & 0x1ff;
+			r2 = (opcode >> 9) & 0x1ff;
+			alu = (opcode >> 21) & 0x1f;
+			op = (opcode >> 18) & 0x7;
 
-		GETFIFOWAIT() = 0;
+			alu_pre(alu);
 
-		switch( (opcode >> 26) & 0x3f )
-		{
-			case 0x00:	/* dual move */
-			{
-				UINT32		r1 = opcode & 0x1ff;
-				UINT32		r2 = ( opcode >> 9 ) & 0x7f;
-				UINT32		alu = ( opcode >> 21 ) & 0x1f;
-				UINT32		op = ( opcode >> 16 ) & 0x1f;
+			switch(op) {
+			case 0: case 1: {
+				/* lab mem, mem (e) */
 
-				ALU( alu );
+				ea1 = ea_pre_0(r1);
+				v1 = mb_cfg->data_r(ea1);
+				if(m_stall) goto do_stall;
 
-				switch( op )
-				{
-					case 0x0C:
-						GETA().u = GETARAM()[r1];
-						GETB().u = GETBRAM()[r2];
-					break;
+				ea2 = ea_pre_1(r2);
+				v2 = mb_cfg->io_r(ea2);
+				if(m_stall) goto do_stall;
 
-					case 0x0D:
-						GETA().u = GETARAM()[r1];
-						GETB().u = GETBRAM()[INDIRECT(r2|2<<6,0)];
-					break;
+				ea_post_0(r1);
+				ea_post_1(r2);
 
-					case 0x0F:
-						GETA().u = GETARAM()[r1];
-						GETB().u = GETBRAM()[INDIRECT(r2|6<<6,0)];
-					break;
-
-					case 0x10:
-						GETA().u = GETBRAM()[INDIRECT(r1,1)];
-						GETB().u = GETARAM()[r2];
-					break;
-
-					default:
-						logerror( "TGP: Unknown TGP double move (op=%d) at PC:%x\n", op, GETPC());
-					break;
-				}
+				m_a = v1;
+				m_b = v2;
+				break;
 			}
-			break;
 
-			case 0x7:	/* LD/MOV */
-			{
-				UINT32		r1 = opcode & 0x1ff;
-				UINT32		r2 = ( opcode >> 9 ) & 0x7f;
-				UINT32		alu = ( opcode >> 21 ) & 0x1f;
-				UINT32		op = ( opcode >> 16 ) & 0x1f;
+			case 3: {
+				/* lab mem, mem + 0x200 */
 
-				switch( op )
-				{
-					case 0x04:	/* MOV RAM->RAM */
-					{
-						GETARAM()[r2] = GETARAM()[r1];
-						ALU(alu);
-					}
-					break;
+				ea1 = ea_pre_0(r1);
+				v1 = mb_cfg->data_r(ea1);
+				if(m_stall) goto do_stall;
 
-					case 0x0c:	/* MOV RAM->BRAM */
-					{
-						GETBRAM()[r2] = GETARAM()[r1];
-						ALU(alu);
-					}
-					break;
+				ea2 = ea_pre_1(r2) + 0x200;
+				v2 = mb_cfg->data_r(ea2);
+				if(m_stall) goto do_stall;
 
-					case 0x1d:	/* MOV RAM->Reg */
-					{
-						if ( r1 & 0x180 )
-						{
-							val = GETARAM()[GETREGS(r1,0)];
-						}
-						else
-						{
-							val = GETARAM()[r1];
-						}
+				ea_post_0(r1);
+				ea_post_1(r2);
 
-						/* if we're waiting for data, don't complete the instruction */
-						if ( GETFIFOWAIT() )
-							break;
-
-						ALU(alu);
-						SETREGS(r2,val);
-					}
-					break;
-
-					case 0x1c:  /* MOV Reg->RAMInd */
-					{
-						val = GETREGS(r2,1);
-
-						/* if we're waiting for data, don't complete the instruction */
-						if ( GETFIFOWAIT() )
-							break;
-
-						ALU(alu);
-
-						if ( ( r2 >> 6 ) & 0x01)
-						{
-							SETEXTERNAL(GETEB(),INDIRECT(r1,0),val);
-						}
-						else
-						{
-							GETARAM()[INDIRECT(r1,0)] = val;
-						}
-					}
-					break;
-
-					case 0x1f:	/* MOV Reg->Reg */
-					{
-						if ( r1 == 0x10 && r2 == 0xf )
-						{
-							/* NOP */
-							ALU(alu);
-						}
-						else
-						{
-							val = GETREGS(r1,1);
-
-							/* if we're waiting for data, don't complete the instruction */
-							if ( GETFIFOWAIT() )
-								break;
-
-							ALU(alu);
-							SETREGS( r2, val );
-						}
-					}
-					break;
-
-					case 0x0f:	/* MOV RAMInd->BRAMInd */
-					{
-						val = GETARAM()[INDIRECT(r1,1)];
-						ALU(alu);
-						GETBRAM()[INDIRECT(r2|(6<<6),0)] = val;
-					}
-					break;
-
-					case 0x13:	/* MOV BRAMInd->RAMInd */
-					{
-						val = GETBRAM()[INDIRECT(r1,1)];
-						ALU(alu);
-						GETARAM()[INDIRECT(r2|(6<<6),0)] = val;
-					}
-					break;
-
-					case 0x10:	/* MOV RAMInd->RAM  */
-					{
-						val = GETBRAM()[INDIRECT(r1,1)];
-						ALU(alu);
-						GETARAM()[r2] = val;
-					}
-					break;
-
-					case 0x1e:	/* External->Reg */
-					{
-						UINT32	offset;
-
-						if ( ( r2 >> 6 ) & 1 )
-							offset = INDIRECT(r1,1);
-						else
-							offset = INDIRECT(r1,0);
-
-						val = GETEXTERNAL(GETEB(),offset);
-						ALU(alu);
-						SETREGS(r2,val);
-					}
-					break;
-
-					case 0x03:	/* RAM->External */
-					{
-						val = GETARAM()[r1];
-						ALU(alu);
-						SETEXTERNAL(GETEB(),INDIRECT(r2|(6<<6),0),val);
-					}
-					break;
-
-					case 0x07:	/* RAMInd->External */
-					{
-						val = GETARAM()[INDIRECT(r1,1)];
-						ALU(alu);
-						SETEXTERNAL(GETEB(),INDIRECT(r2|(6<<6),0),val);
-					}
-					break;
-
-					case 0x08:	/* External->RAM */
-					{
-						val = GETEXTERNAL(GETEB(),INDIRECT(r1,1));
-						ALU(alu);
-						GETARAM()[r2] = val;
-					}
-					break;
-
-					case 0x0b:	/* External->RAMInd */
-					{
-						val = GETEXTERNAL(GETEB(),INDIRECT(r1,1));
-						ALU(alu);
-						GETARAM()[INDIRECT(r2|(6<<6),0)] = val;
-					}
-					break;
-
-					default:
-						logerror( "TGP: Unknown TGP move (op=%d) at PC:%x\n", op, GETPC());
-					break;
-				}
+				m_a = v1;
+				m_b = v2;
+				break;
 			}
-			break;
 
-			case 0x0e:	/* LDIMM24 */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
+			case 4: {
+				/* lab mem + 0x200, mem */
 
-				/* sign extend 24->32 */
-				if ( imm & 0x800000 )
-					imm |= 0xFF000000;
+				ea1 = ea_pre_0(r1) + 0x200;
+				v1 = mb_cfg->data_r(ea1);
+				if(m_stall) goto do_stall;
 
-				switch( sub )
-				{
-					case 0x00: /* P */
-						GETP().u = imm;
-					break;
+				ea2 = ea_pre_1(r2);
+				v2 = mb_cfg->data_r(ea2);
+				if(m_stall) goto do_stall;
 
-					case 0x01: /* A */
-						GETA().u = imm;
-					break;
+				ea_post_0(r1);
+				ea_post_1(r2);
 
-					case 0x02: /* B */
-						GETB().u = imm;
-					break;
-
-					case 0x03: /* D */
-						GETD().u = imm;
-					break;
-				}
+				m_a = v1;
+				m_b = v2;
+				break;
 			}
-			break;
-
-			case 0x0f:	/* REP/CLEAR/FLAGS */
-			{
-				UINT32		alu = ( opcode >> 20 ) & 0x1f;
-				UINT32		sub2 = ( opcode >> 16 ) & 0x0f;
-
-				ALU( alu );
-
-				if( sub2 == 0x00 )			/* CLEAR reg */
-				{
-					UINT32	reg = opcode & 0x3f;
-
-					switch( reg )
-					{
-						case 0x10:
-							GETD().u = 0;
-						break;
-
-						case 0x04:
-							GETA().u = 0;
-						break;
-					}
-				}
-				else if ( sub2 == 0x04 )	/* REP xxx */
-				{
-					if ( (opcode & 0xff) == 0 )
-						GETREPS() = 0x100;
-					else
-						GETREPS() = opcode & 0xff;
-
-					GETPC()++;
-				}
-				else if ( sub2 == 0x02 )	/* CLRFLAGS */
-				{
-					GETSR() &= ~(opcode&0xffff);
-				}
-				else if ( sub2 == 0x06 )	/* SETFLAGS */
-				{
-					GETSR() |= (opcode&0xffff);
-				}
-			}
-			break;
-
-			case 0x10:	/* LDIMM rx */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffff;
-
-				GETGPR(sub) = imm;
-			}
-			break;
-
-			case 0x13:	/* LDIMM r1x */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 0 ) /* R12 */
-					GETGPR(12) = imm;
-				else if ( sub == 1 ) /* R13 */
-					GETGPR(13) = imm;
-				else
-					logerror( "TGP: Unknown LDIMM r12 (sub=%d) at PC:%04x\n", sub, GETPC() );
-			}
-			break;
-
-			case 0x14:	/* LDIMM m,e */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 1 ) /* A.e */
-				{
-					GETA().u = (imm & 0x7f) << 23;
-				}
-				else if ( sub == 2 ) /* A.m */
-				{
-					GETA().u |= (imm & 0x7fffff ) | ((imm & 0x800000) << 8);
-				}
-				else
-				{
-					logerror( "TGP: Unknown LDIMM m,e (sub=%d) at PC:%04x\n", sub, GETPC() );
-				}
-			}
-			break;
-
-			case 0x15:	/* LDIMM m,e */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 0 ) /* B.e */
-				{
-					GETB().u = (imm & 0x7f) << 23;
-				}
-				else if ( sub == 1 ) /* B.m */
-				{
-					GETB().u |= (imm & 0x7fffff ) | ((imm & 0x800000) << 8);
-				}
-				else
-				{
-					logerror( "TGP: Unknown LDIMM m,e (sub=%d) at PC:%04x\n", sub, GETPC() );
-				}
-			}
-			break;
-
-			case 0x16:	/* LDIMM m,e */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 2 ) /* D.e */
-				{
-					GETD().u = (imm & 0x7f) << 23;
-				}
-				else if ( sub == 3 ) /* D.m */
-				{
-					GETD().u |= (imm & 0x7fffff ) | ((imm & 0x800000) << 8);
-				}
-				else
-				{
-					logerror( "TGP: Unknown LDIMM m,e (sub=%d) at PC:%04x\n", sub, GETPC() );
-				}
-			}
-			break;
-
-			case 0x17:	/* LDIMM special reg */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 0x03 )
-				{
-					GETSHIFT() = imm;
-				}
-				else
-				{
-					logerror( "TGP: Unknown LDIMM special reg (sub=%d) at PC:%04x\n", sub, GETPC() );
-				}
-			}
-			break;
-
-			case 0x18:	/* LDIMM external reg */
-			{
-				UINT32	sub = (opcode>>24) & 0x03;
-				UINT32	imm = opcode & 0xffffff;
-
-				if ( sub == 0x03 )
-				{
-					GETEB() = imm;
-				}
-				else
-				{
-					logerror( "TGP: Unknown LDIMM external reg (sub=%d) at PC:%04x\n", sub, GETPC() );
-				}
-			}
-			break;
-
-			case 0x2f:	/* Conditional Branches */
-			{
-				UINT32	cond = ( opcode >> 20 ) & 0x1f;
-				UINT32	subtype = ( opcode >> 16 ) & 0x0f;
-				UINT32	data = opcode & 0xffff;
-
-				if( COND(cond) )
-				{
-					switch( subtype )
-					{
-						case 0x00:	/* BRIF <addr> */
-							GETPC() = data - 1;
-							change_pc( GETPC() );
-						break;
-
-						case 0x02:	/* BRIF indirect */
-							if ( data & 0x4000 )
-								data = GETREGS(data&0x3f,0) - 1;
-							else
-								data = ((GETARAM()[data&0x3ff])&0xffff)-1;
-
-							/* if we're waiting for data, don't complete the instruction */
-							if ( GETFIFOWAIT() )
-								break;
-
-							GETPC() = data;
-							change_pc( GETPC() );
-						break;
-
-						case 0x04:	/* BSIF <addr> */
-							GETPCS()[GETPCSP()] = GETPC();
-							GETPCSP()++;
-							GETPC() = data - 1;
-							change_pc( GETPC() );
-						break;
-
-						case 0x06:	/* BSIF indirect */
-							GETPCS()[GETPCSP()] = GETPC();
-							GETPCSP()++;
-							if ( data & 0x4000 )
-								data = GETREGS(data&0x3f,0) - 1;
-							else
-								data = ((GETARAM()[data&0x3ff])&0xffff)-1;
-
-							/* if we're waiting for data, don't complete the instruction */
-							if ( GETFIFOWAIT() )
-								break;
-
-							GETPC() = data;
-							change_pc( GETPC() );
-						break;
-
-						case 0x0a:	/* RTIF */
-							--GETPCSP();
-							GETPC() = GETPCS()[GETPCSP()];
-							change_pc( GETPC() );
-						break;
-
-						case 0x0c:	/* LDIF */
-							SETREGS(((data>>9)&0x3f), GETARAM()[data&0x1FF] );
-						break;
-
-						case 0x0e:	/* RIIF */
-							logerror( "TGP: RIIF unimplemented at PC:%04x\n", GETPC() );
-						break;
-
-						default:
-							logerror( "TGP: Unknown Branch opcode (subtype=%d) at PC:%04x\n", subtype, GETPC() );
-						break;
-					}
-				}
-			}
-			break;
-
-			case 0x3f:	/* Inverse Conditional Branches */
-			{
-				UINT32	cond = ( opcode >> 20 ) & 0x1f;
-				UINT32	subtype = ( opcode >> 16 ) & 0x0f;
-				UINT32	data = opcode & 0xffff;
-
-				if( !COND(cond) )
-				{
-					switch( subtype )
-					{
-						case 0x00:	/* BRUL <addr> */
-							GETPC() = data - 1;
-						break;
-
-						case 0x02:	/* BRUL indirect */
-							if ( data & 0x4000 )
-								data = GETREGS(data&0x3f,0) - 1;
-							else
-								data = ((GETARAM()[data&0x3ff])&0xffff)-1;
-
-							/* if we're waiting for data, don't complete the instruction */
-							if ( GETFIFOWAIT() )
-								break;
-
-							GETPC() = data;
-							change_pc( GETPC() );
-						break;
-
-						case 0x04:	/* BSUL <addr> */
-							GETPCS()[GETPCSP()] = GETPC();
-							GETPCSP()++;
-							GETPC() = data - 1;
-							change_pc( GETPC() );
-						break;
-
-						case 0x06:	/* BSUL indirect */
-							GETPCS()[GETPCSP()] = GETPC();
-							GETPCSP()++;
-							if ( data & 0x4000 )
-								data = GETREGS(data&0x3f,0) - 1;
-							else
-								data = ((GETARAM()[data&0x3ff])&0xffff)-1;
-
-							/* if we're waiting for data, don't complete the instruction */
-							if ( GETFIFOWAIT() )
-								break;
-
-							GETPC() = data;
-							change_pc( GETPC() );
-						break;
-
-						case 0x0a:	/* RTUL */
-							--GETPCSP();
-							GETPC() = GETPCS()[GETPCSP()];
-							change_pc( GETPC() );
-						break;
-
-						case 0x0c:	/* LDUL */
-							SETREGS(((data>>9)&0x3f), GETARAM()[data&0x1FF] );
-						break;
-
-						case 0x0e:	/* RIUL */
-							logerror( "TGP: RIIF unimplemented at PC:%04x\n", GETPC() );
-						break;
-
-						default:
-							logerror( "TGP: Unknown Branch opcode (subtype=%d) at PC:%04x\n", subtype, GETPC() );
-						break;
-					}
-				}
-			}
-			break;
 
 			default:
-				logerror( "TGP: unknown opcode %08x at PC:%04x\n", opcode, GETPC() );
+				mb_log("unhandled lab subop %x\n", op);
+				mb_log("%x\n", m_ppc);
+				break;
+
+			}
+
+			alu_post_1(alu);
+			alu_post_2(alu);
 			break;
 		}
 
-		if ( GETFIFOWAIT() == 0 )
-		{
-			if( GETREPS() == 0 )
-				GETPC()++;
-			else
-				--GETREPS();
 
-			mb86233_icount--;
+		case 0x07: {
+			/* ld / mov */
+			r1 = opcode & 0x1ff;
+			r2 = (opcode >> 9) & 0x1ff;
+			alu = (opcode >> 21) & 0x1f;
+			op = (opcode >> 18) & 0x7;
+
+			alu_pre(alu);
+
+			switch(op) {
+			case 0: {
+				/* mov mem, mem (e) */
+				ea = ea_pre_0(r1);
+				v = mb_cfg->data_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_io_1(r2, v);
+				break;
+			}
+
+			case 1: {
+				/* mov mem, mem (e) */
+				ea = ea_pre_0(r1);
+				v = mb_cfg->data_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_io_1(r2, v);
+				break;
+			}
+
+			case 2: {
+				/* mov mem (e), mem */
+				ea = ea_pre_0(r1);
+				v = mb_cfg->io_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_internal_1(r2, v, 0);
+				break;
+			}
+
+			case 3: {
+				/* mov mem, mem + 0x200 */
+				ea = ea_pre_0(r1);
+				v = mb_cfg->data_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_internal_1(r2, v, 1);
+				break;
+			}
+
+			case 4: {
+				/* mov mem + 0x200, mem */
+				ea = ea_pre_0(r1) + 0x200;
+				v = mb_cfg->data_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_internal_1(r2, v, 0);
+				break;
+			}
+
+			case 5: {
+				/* mov mem (o), mem */
+				ea = ea_pre_0(r1);
+				v = mb_cfg->prog_r(ea);
+				if(m_stall) goto do_stall;
+				ea_post_0(r1);
+				alu_post_1(alu);
+				write_mem_internal_1(r2, v, 0);
+				break;
+			}
+
+			case 7: {
+				switch(r2 >> 6) {
+				case 0: {
+					/* mov reg, mem */
+					v = read_reg(r2);
+					if(m_stall) goto do_stall;
+					alu_post_1(alu);
+					write_mem_internal_1(r1, v, 0);
+					break;
+				}
+
+				case 1: {
+					/* mov reg, mem (e) */
+					v = read_reg(r2);
+					if(m_stall) goto do_stall;
+					alu_post_1(alu);
+					write_mem_io_1(r1, v);
+					break;
+				}
+
+				case 2: {
+					/* mov mem + 0x200, reg */
+					ea = ea_pre_1(r1) + 0x200;
+					v = mb_cfg->data_r(ea);
+					if(m_stall) goto do_stall;
+					ea_post_1(r1);
+					alu_post_1(alu);
+					write_reg(r2, v);
+					break;
+				}
+
+				case 3: {
+					/* mov mem, reg */
+					ea = ea_pre_1(r1);
+					v = mb_cfg->data_r(ea);
+					if(m_stall) goto do_stall;
+					ea_post_1(r1);
+					alu_post_1(alu);
+					write_reg(r2, v);
+					break;
+				}
+
+				case 4: {
+					/* mov mem (e), reg */
+					ea = ea_pre_1(r1);
+					v = mb_cfg->io_r(ea);
+					if(m_stall) goto do_stall;
+					ea_post_1(r1);
+					alu_post_1(alu);
+					write_reg(r2, v);
+					break;
+				}
+
+				case 5: {
+					/* mov mem (o), reg */
+					ea = ea_pre_0(r1);
+					v = mb_cfg->prog_r(ea);
+					if(m_stall) goto do_stall;
+					ea_post_0(r1);
+					alu_post_1(alu);
+					write_reg(r2, v);
+					break;
+				}
+
+				case 6: {
+					/* mov reg, reg */
+					v = read_reg(r1);
+					if(m_stall) goto do_stall;
+					alu_post_1(alu);
+					write_reg(r2, v);
+					break;
+				}
+
+				default:
+					alu_post_1(alu);
+					mb_log("unhandled ld/mov subop 7/%x (%x)\n", r2 >> 6, m_ppc);
+					break;
+				}
+				break;
+			}
+
+			default:
+				alu_post_1(alu);
+				mb_log("unhandled ld/mov subop %x (%x)\n", op, m_ppc);
+				break;
+			}
+
+			/* For floating point ops, registers are updated after transfer */
+			alu_post_2(alu);
+			break;
 		}
-		else
-		{
-			mb86233_icount = 0;
+
+		case 0x0d: {
+			/* stm/clm */
+			sub2 = (opcode >> 17) & 7;
+
+			/* Theorically has restricted alu too */
+
+			switch(sub2) {
+			case 5:
+				/* stmh */
+				/* bit 0 = floating point */
+				/* bit 1-2 = rounding mode */
+				m_m = opcode;
+				break;
+
+			default:
+				mb_log("unimplemented opcode 0d/%x (%x)\n", sub2, m_ppc);
+				break;
+			}
+			break;
 		}
+
+		case 0x0e: {
+			/* lipl / lia / lib / lid */
+			switch((opcode >> 24) & 0x3) {
+			case 0:
+				m_p = (m_p & 0xff000000) | (opcode & 0xffffff);
+				break;
+			case 1:
+				m_a = SEXT(opcode, 24);
+				break;
+			case 2:
+				m_b = SEXT(opcode, 24);
+				break;
+			case 3:
+				m_d = SEXT(opcode, 24);
+				break;
+			}
+			break;
+		}
+
+		case 0x0f: {
+			/* rep/clr0/clr1/set */
+			alu = (opcode >> 20) & 0x1f;
+			sub2 = (opcode >> 17) & 7;
+
+			alu_pre(alu);
+
+			switch(sub2) {
+			case 0:
+				/* clr0 */
+				if(opcode & 0x0004) m_a = 0;
+				if(opcode & 0x0008) m_b = 0;
+				if(opcode & 0x0010) m_d = 0;
+				break;
+
+			case 1:
+				/* clr1 - flags mapping unknown */
+				break;
+
+			case 2: {
+				/* rep */
+				rr = opcode & 0x8000 ? read_reg(opcode) : opcode;
+				if(m_stall) goto do_stall;
+				m_r = rr;
+				goto rep_start;
+			}
+
+			case 3:
+				/* set - flags mapping unknown */
+				/* 0800 = enable interrupt flag */
+				break;
+
+			default:
+				mb_log("unimplemented opcode 0f/%x (%x)\n", sub2, m_ppc);
+				break;
+			}
+
+			alu_post_1(alu);
+			break;
+		}
+
+		case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17:
+		case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f: {
+			/* ldi */
+			write_reg(opcode >> 24, SEXT(opcode, 24));
+			break;
+		}
+
+		case 0x2f: case 0x3f: {
+			/* Conditional branch of every kind */
+			cond = ( opcode >> 20 ) & 0x1f;
+			subtype = ( opcode >> 17 ) & 7;
+			data = opcode & 0xffff;
+			invert = opcode & 0x40000000;
+
+			cond_passed = 0;
+
+			switch(cond) {
+			case 0x00: /* zrd - d zero */
+				cond_passed = m_st & F_ZRD;
+				break;
+
+			case 0x01: /* ged - d >= 0 */
+				cond_passed = !(m_st & F_SGD);
+				break;
+
+			case 0x02: /* led - d <= 0 */
+				cond_passed = m_st & (F_ZRD | F_SGD);
+				break;
+
+			case 0x0a: /* gpio0 */
+				cond_passed = m_gpio0;
+				break;
+
+			case 0x0b: /* gpio1 */
+				cond_passed = m_gpio1;
+				break;
+
+			case 0x0c: /* gpio2 */
+				cond_passed = m_gpio2;
+				break;
+
+			case 0x10: /* zc0 - c0 == 1 */
+				cond_passed = !(m_st & F_ZC0);
+				break;
+
+			case 0x11: /* zc1 - c1 == 1 */
+				cond_passed = !(m_st & F_ZC1);
+				break;
+
+			case 0x12: /* gpio3 */
+				cond_passed = m_gpio3;
+				break;
+
+			case 0x16: /* alw - always */
+				cond_passed = 1;
+				break;
+
+			default:
+				mb_log("unimplemented condition %x (%x)\n", cond, m_ppc);
+				break;
+			}
+			if(invert)
+				cond_passed = !cond_passed;
+
+			if(cond_passed) {
+				switch(subtype) {
+				case 0: /* brif #adr */
+					m_pc = data;
+					break;
+
+				case 1: /* brul */
+					if(opcode & 0x4000) {
+						/* brul reg */
+						v = read_reg(opcode);
+						if(m_stall) goto do_stall;
+						m_pc = v;
+					} else {
+						/* brul adr */
+						ea = ea_pre_0(opcode);
+						v = mb_cfg->data_r(ea);
+						if(m_stall) goto do_stall;
+						ea_post_0(opcode);
+						m_pc = v;
+					}
+					break;
+
+				case 2: /* bsif #adr */
+					pcs_push();
+					m_pc = data;
+					break;
+
+				case 3: /* bsul */
+					if(opcode & 0x4000) {
+						/* bsul reg */
+						v = read_reg(opcode);
+						if(m_stall) goto do_stall;
+						pcs_push();
+						m_pc = v;
+					} else {
+						/* bsul adr */
+						ea = ea_pre_0(opcode);
+						v = mb_cfg->data_r(ea);
+						if(m_stall) goto do_stall;
+						ea_post_0(opcode);
+						pcs_push();
+						m_pc = v;
+					}
+					break;
+
+				case 5: /* rtif #adr */
+					pcs_pop();
+					break;
+
+				case 6: { /* ldif adr, rn */
+					ea = ea_pre_0(opcode);
+					v = mb_cfg->data_r(ea);
+					if(m_stall) goto do_stall;
+					ea_post_0(opcode);
+					write_reg(opcode >> 9, v);
+					break;
+				}
+
+				default:
+					mb_log("unimplemented branch subtype %x (%x)\n", subtype, m_ppc);
+					break;
+				}
+			}
+
+			if(subtype < 2)
+				switch(cond) {
+				case 0x10:
+					if(m_c0 != 1) {
+						m_c0 --;
+						if(m_c0 == 1)
+							m_st |= F_ZC0;
+					}
+					break;
+
+				case 0x11:
+					if(m_c1 != 1) {
+						m_c1 --;
+						if(m_c1 == 1)
+							m_st |= F_ZC1;
+					}
+				break;
+				}
+
+			break;
+		}
+
+		default:
+			mb_log("unimplemented opcode type %02x (%x)\n", (opcode >> 26) & 0x3f, m_ppc);
+			break;
+		}
+
+		if(m_r != 1) {
+			m_pc = m_ppc;
+			m_r --;
+		}
+
+	rep_start:
+		if(0) {
+		do_stall:
+			m_pc = m_ppc;
+			m_stall = 0;
+			/* waits for its FIFO: the driver halts it, give up the timeslice */
+			m_icount = 0;
+		}
+		m_icount--;
 	}
-
-	return cycles - mb86233_icount;
+	return cycles - m_icount;
 }
 
 /***************************************************************************
-    DISASSEMBLY HOOK
+    CPU interface
 ***************************************************************************/
+
+void mb86233_stall( void )
+{
+	m_stall = 1;
+}
+
+void mb86233_gpio_w( int pin, int state )
+{
+	mb.gpio[ pin & 3 ] = state;
+}
+
+static void mb86233_core_init( void )
+{
+	int cpu = cpu_getactivecpu();
+
+	memset( &mb, 0, sizeof( mb ) );
+	state_save_register_memory("mb86233", cpu, "st", &mb.st, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "a", &mb.a, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "b", &mb.b, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "d", &mb.d, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "p", &mb.p, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "alu_stmask", &mb.alu_stmask, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "alu_stset", &mb.alu_stset, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "alu_r1", &mb.alu_r1, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "alu_r2", &mb.alu_r2, sizeof(UINT32), 1);
+	state_save_register_memory("mb86233", cpu, "ppc", &mb.ppc, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "pc", &mb.pc, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "sp", &mb.sp, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "b0", &mb.b0, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "b1", &mb.b1, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "x0", &mb.x0, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "x1", &mb.x1, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "i0", &mb.i0, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "i1", &mb.i1, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "vsmr", &mb.vsmr, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "pcs", mb.pcs, sizeof(UINT16), 4);
+	state_save_register_memory("mb86233", cpu, "mask", &mb.mask, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "m", &mb.m, sizeof(UINT16), 1);
+	state_save_register_memory("mb86233", cpu, "r", &mb.r, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "rpc", &mb.rpc, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "c0", &mb.c0, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "c1", &mb.c1, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "sft", &mb.sft, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "vsm", &mb.vsm, sizeof(UINT8), 1);
+	state_save_register_memory("mb86233", cpu, "gpio0", &mb.gpio[ 0 ], sizeof(int), 1);
+	state_save_register_memory("mb86233", cpu, "gpio1", &mb.gpio[ 1 ], sizeof(int), 1);
+	state_save_register_memory("mb86233", cpu, "gpio2", &mb.gpio[ 2 ], sizeof(int), 1);
+	state_save_register_memory("mb86233", cpu, "gpio3", &mb.gpio[ 3 ], sizeof(int), 1);
+	/* a stalled FIFO access is retried when the CPU runs again */
+	state_save_register_memory("mb86233", cpu, "stall", &mb.stall, sizeof(int), 1);
+}
+
+static void mb86233_core_reset( void *param )
+{
+	struct mb86233_config *cfg = param ? (struct mb86233_config *)param : mb.cfg;
+	int gpio[ 4 ];
+	memcpy( gpio, mb.gpio, sizeof( gpio ) );
+	memset( &mb, 0, sizeof( mb ) );
+	memcpy( mb.gpio, gpio, sizeof( gpio ) );
+	mb.cfg = cfg;
+
+	m_st = F_ZRC|F_ZRD|F_ZX0|F_ZX1|F_ZX2|F_ZC0|F_ZC1;
+	m_r = 1;
+	m_rpc = 1;
+	m_c0 = 1;
+	m_c1 = 1;
+	m_vsmr = 7;
+	m_m = 1;
+}
+
+static unsigned mb86233_core_get_context( void *dst )
+{
+	if( dst )
+		*(mb86233_regs *)dst = mb;
+	return sizeof( mb86233_regs );
+}
+
+/* single instance: the static state is always the live one (the host
+   changes it while another CPU runs, e.g. the FIFO pins). set_context never
+   copies back, so a stale context buffer cannot clobber those changes */
+static void mb86233_core_set_context( void *src )
+{
+	(void)src;
+}
+
+static unsigned mb86233_core_get_reg( int regnum )
+{
+	switch( regnum )
+	{
+	case REG_PC:			return m_pc;
+	case REG_PREVIOUSPC:	return m_ppc;
+	case REG_SP:			return m_sp;
+	}
+	return 0;
+}
+
+static void mb86233_core_set_reg( int regnum, unsigned val )
+{
+	switch( regnum )
+	{
+	case REG_PC:	m_pc = val; break;
+	case REG_SP:	m_sp = val; break;
+	}
+}
+
 
 #ifdef MAME_DEBUG
-static offs_t mb86233_dasm(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram)
+static offs_t mb86233_core_dasm_info( char *buffer, offs_t pc )
 {
-	extern UINT32 dasm_mb86233(char *, UINT32);
-
-	UINT32 op = *(UINT32 *)oprom;
-	op = LITTLE_ENDIANIZE_INT32(op);
-	return dasm_mb86233(buffer, op);
+	sprintf( buffer, "$%08x", mb.cfg ? mb.cfg->prog_r( pc ) : 0 );
+	return 1;
 }
-#endif /* MAME_DEBUG */
+#endif
 
 /***************************************************************************
-    Information Setters
+    get_info interface (the core above keeps the state in a static context,
+    only one TGP per machine is supported)
 ***************************************************************************/
 
-static void mb86233_set_info(UINT32 state, union cpuinfo *info)
+static struct mb86233_config *mb86233_config_ptr;
+
+static void mb86233_get_context( void *dst )
 {
-	switch (state)
+	mb86233_core_get_context( dst );
+}
+
+static void mb86233_set_context( void *src )
+{
+	mb86233_core_set_context( src );
+}
+
+static void mb86233_init( int index, int clock, const void *config, int (*irqcallback)(int) )
+{
+	mb86233_core_init();
+	mb86233_config_ptr = (struct mb86233_config *)config;
+	mb.cfg = mb86233_config_ptr;
+}
+
+static void mb86233_reset( void )
+{
+	mb86233_core_reset( mb86233_config_ptr );
+}
+
+static void mb86233_set_info( UINT32 state, union cpuinfo *info )
+{
+	switch( state )
 	{
 		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + MB86233_PC:			GETPC() = info->i; change_pc(GETPC());	break;
-		case CPUINFO_INT_REGISTER + MB86233_A:			GETA().u = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_B:			GETB().u = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_P:			GETP().u = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_D:			GETD().u = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_REP:		GETREPS() = info->i;					break;
+		case CPUINFO_INT_REGISTER + MB86233_PC:		mb86233_core_set_reg( REG_PC, info->i );	break;
 		case CPUINFO_INT_SP:
-		case CPUINFO_INT_REGISTER + MB86233_SP:			GETPCSP() = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_EB:			GETEB() = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_SHIFT:		GETSHIFT() = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_FLAGS:		GETSR() = info->i;						break;
-		case CPUINFO_INT_REGISTER + MB86233_R0:			GETGPR(0) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R1:			GETGPR(1) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R2:			GETGPR(2) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R3:			GETGPR(3) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R4:			GETGPR(4) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R5:			GETGPR(5) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R6:			GETGPR(6) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R7:			GETGPR(7) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R8:			GETGPR(8) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R9:			GETGPR(9) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R10:		GETGPR(10) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R11:		GETGPR(11) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R12:		GETGPR(12) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R13:		GETGPR(13) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R14:		GETGPR(14) = info->i;					break;
-		case CPUINFO_INT_REGISTER + MB86233_R15:		GETGPR(15) = info->i;					break;
+		case CPUINFO_INT_REGISTER + MB86233_SP:		mb86233_core_set_reg( REG_SP, info->i );	break;
 	}
 }
 
-/***************************************************************************
-    Information Getters
-***************************************************************************/
-
-void mb86233_get_info(UINT32 state, union cpuinfo *info)
+void mb86233_get_info( UINT32 state, union cpuinfo *info )
 {
-	switch (state)
+	switch( state )
 	{
-		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof(MB86233_REGS);			break;
+		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof( mb86233_regs );		break;
 		case CPUINFO_INT_INPUT_LINES:					info->i = 0;							break;
 		case CPUINFO_INT_DEFAULT_IRQ_VECTOR:			info->i = 0;							break;
 		case CPUINFO_INT_ENDIANNESS:					info->i = CPU_IS_LE;					break;
@@ -1504,100 +1314,42 @@ void mb86233_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_MIN_CYCLES:					info->i = 1;							break;
 		case CPUINFO_INT_MAX_CYCLES:					info->i = 2;							break;
 
+		/* the address spaces are driver callbacks, the core uses no memory map */
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM: info->i = -2;					break;
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA: 	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA: 	info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 32;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM:	info->i = -2;					break;
+		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA:	info->i = 0;					break;
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO: 		info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO:		info->i = 0;					break;
 
-		case CPUINFO_INT_PREVIOUSPC:					/* not implemented */					break;
-
+		case CPUINFO_INT_PREVIOUSPC:					info->i = mb86233_core_get_reg( REG_PREVIOUSPC );	break;
 		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + MB86233_PC: 		info->i = GETPC();						break;
-		case CPUINFO_INT_REGISTER + MB86233_A:			info->i = GETA().u;						break;
-		case CPUINFO_INT_REGISTER + MB86233_B:			info->i = GETB().u;						break;
-		case CPUINFO_INT_REGISTER + MB86233_P:			info->i = GETP().u;						break;
-		case CPUINFO_INT_REGISTER + MB86233_D:			info->i = GETD().u;						break;
-		case CPUINFO_INT_REGISTER + MB86233_REP:		info->i = GETREPS();					break;
+		case CPUINFO_INT_REGISTER + MB86233_PC:			info->i = mb86233_core_get_reg( REG_PC );	break;
 		case CPUINFO_INT_SP:
-		case CPUINFO_INT_REGISTER + MB86233_SP:			info->i = GETPCSP();					break;
-		case CPUINFO_INT_REGISTER + MB86233_EB:			info->i = GETEB();						break;
-		case CPUINFO_INT_REGISTER + MB86233_SHIFT:		info->i = GETSHIFT();					break;
-		case CPUINFO_INT_REGISTER + MB86233_FLAGS: 		info->i = GETSR();						break;
-		case CPUINFO_INT_REGISTER + MB86233_R0:			info->i = GETGPR(0);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R1:			info->i = GETGPR(1);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R2:			info->i = GETGPR(2);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R3:			info->i = GETGPR(3);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R4:			info->i = GETGPR(4);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R5:			info->i = GETGPR(5);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R6:			info->i = GETGPR(6);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R7:			info->i = GETGPR(7);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R8:			info->i = GETGPR(8);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R9:			info->i = GETGPR(9);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R10:		info->i = GETGPR(10);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R11:		info->i = GETGPR(11);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R12:		info->i = GETGPR(12);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R13:		info->i = GETGPR(13);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R14:		info->i = GETGPR(14);					break;
-		case CPUINFO_INT_REGISTER + MB86233_R15:		info->i = GETGPR(15);					break;
+		case CPUINFO_INT_REGISTER + MB86233_SP:			info->i = mb86233_core_get_reg( REG_SP );	break;
 
-		/* --- the following bits of info are returned as pointers to data or functions --- */
 		case CPUINFO_PTR_SET_INFO:						info->setinfo = mb86233_set_info;		break;
 		case CPUINFO_PTR_GET_CONTEXT:					info->getcontext = mb86233_get_context;	break;
 		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = mb86233_set_context;	break;
 		case CPUINFO_PTR_INIT:							info->init = mb86233_init;				break;
 		case CPUINFO_PTR_RESET:							info->reset = mb86233_reset;			break;
-		case CPUINFO_PTR_EXIT:							info->exit = NULL;						break;
-		case CPUINFO_PTR_EXECUTE:						info->execute = mb86233_execute;		break;
-		case CPUINFO_PTR_BURN:							info->burn = NULL;						break;
+		case CPUINFO_PTR_EXIT:							info->exit = 0;							break;
+		case CPUINFO_PTR_EXECUTE:						info->execute = mb86233_core_execute;	break;
+		case CPUINFO_PTR_BURN:							info->burn = 0;							break;
 #ifdef MAME_DEBUG
-		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = mb86233_dasm;		break;
-#endif /* MAME_DEBUG */
+		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = mb86233_core_dasm_info;	break;
+#endif
 		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &mb86233_icount;			break;
 
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "MB86233");				break;
-		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "Fujitsu MB86233");		break;
-		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "1.0");					break;
-		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__);				break;
-		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Copyright 2007 ElSemi and Ernesto Corvi"); break;
-
-		case CPUINFO_STR_FLAGS:
-    		sprintf(info->s = cpuintrf_temp_str(), "%c%c", (GETSR()&SIGN_FLAG) ? 'N' : 'n', (GETSR()&ZERO_FLAG) ? 'Z' : 'z' );
-	        break;
-
-        case CPUINFO_STR_REGISTER + MB86233_FLAGS:
-    		sprintf(info->s = cpuintrf_temp_str(), "FL:%c%c", (GETSR()&SIGN_FLAG) ? 'N' : 'n', (GETSR()&ZERO_FLAG) ? 'Z' : 'z' );
-	        break;
-
-		case CPUINFO_STR_REGISTER + MB86233_PC:			sprintf(info->s = cpuintrf_temp_str(), "PC:%04X", GETPC());					break;
-		case CPUINFO_STR_REGISTER + MB86233_A:			sprintf(info->s = cpuintrf_temp_str(), "PA:%08X (%f)", GETA().u, GETA().f);	break;
-		case CPUINFO_STR_REGISTER + MB86233_B:			sprintf(info->s = cpuintrf_temp_str(), "PB:%08X (%f)", GETB().u, GETB().f);	break;
-		case CPUINFO_STR_REGISTER + MB86233_P:			sprintf(info->s = cpuintrf_temp_str(), "PP:%08X (%f)", GETP().u, GETP().f);	break;
-		case CPUINFO_STR_REGISTER + MB86233_D:			sprintf(info->s = cpuintrf_temp_str(), "PD:%08X (%f)", GETD().u, GETD().f);	break;
-        case CPUINFO_STR_REGISTER + MB86233_REP:		sprintf(info->s = cpuintrf_temp_str(), "REPS:%08X", GETREPS());				break;
-		case CPUINFO_STR_REGISTER + MB86233_SP:			sprintf(info->s = cpuintrf_temp_str(), "PCSP:%1X", GETPCSP());				break;
-		case CPUINFO_STR_REGISTER + MB86233_EB:			sprintf(info->s = cpuintrf_temp_str(), "EB:%08X", GETEB());					break;
-		case CPUINFO_STR_REGISTER + MB86233_SHIFT:		sprintf(info->s = cpuintrf_temp_str(), "SHIFT:%08X", GETSHIFT());				break;
-		case CPUINFO_STR_REGISTER + MB86233_R0:			sprintf(info->s = cpuintrf_temp_str(), "R0:%08X", GETGPR(0));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R1:			sprintf(info->s = cpuintrf_temp_str(), "R1:%08X", GETGPR(1));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R2:			sprintf(info->s = cpuintrf_temp_str(), "R2:%08X", GETGPR(2));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R3:			sprintf(info->s = cpuintrf_temp_str(), "R3:%08X", GETGPR(3));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R4:			sprintf(info->s = cpuintrf_temp_str(), "R4:%08X", GETGPR(4));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R5:			sprintf(info->s = cpuintrf_temp_str(), "R5:%08X", GETGPR(5));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R6:			sprintf(info->s = cpuintrf_temp_str(), "R6:%08X", GETGPR(6));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R7:			sprintf(info->s = cpuintrf_temp_str(), "R7:%08X", GETGPR(7));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R8:			sprintf(info->s = cpuintrf_temp_str(), "R8:%08X", GETGPR(8));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R9:			sprintf(info->s = cpuintrf_temp_str(), "R9:%08X", GETGPR(9));					break;
-		case CPUINFO_STR_REGISTER + MB86233_R10:		sprintf(info->s = cpuintrf_temp_str(), "R10:%08X", GETGPR(10));				break;
-		case CPUINFO_STR_REGISTER + MB86233_R11:		sprintf(info->s = cpuintrf_temp_str(), "R11:%08X", GETGPR(11));				break;
-		case CPUINFO_STR_REGISTER + MB86233_R12:		sprintf(info->s = cpuintrf_temp_str(), "R12:%08X", GETGPR(12));				break;
-		case CPUINFO_STR_REGISTER + MB86233_R13:		sprintf(info->s = cpuintrf_temp_str(), "R13:%08X", GETGPR(13));				break;
-		case CPUINFO_STR_REGISTER + MB86233_R14:		sprintf(info->s = cpuintrf_temp_str(), "R14:%08X", GETGPR(14));				break;
-		case CPUINFO_STR_REGISTER + MB86233_R15:		sprintf(info->s = cpuintrf_temp_str(), "R15:%08X", GETGPR(15));				break;
+		case CPUINFO_STR_NAME:							strcpy( info->s = cpuintrf_temp_str(), "MB86233" );				break;
+		case CPUINFO_STR_CORE_FAMILY:					strcpy( info->s = cpuintrf_temp_str(), "Fujitsu TGP" );			break;
+		case CPUINFO_STR_CORE_VERSION:					strcpy( info->s = cpuintrf_temp_str(), "1.0" );					break;
+		case CPUINFO_STR_CORE_FILE:						strcpy( info->s = cpuintrf_temp_str(), __FILE__ );				break;
+		case CPUINFO_STR_CORE_CREDITS:					strcpy( info->s = cpuintrf_temp_str(), "Olivier Galibert" );		break;
+		case CPUINFO_STR_FLAGS:							sprintf( info->s = cpuintrf_temp_str(), "%08X", mb.st );		break;
+		case CPUINFO_STR_REGISTER + MB86233_PC:			sprintf( info->s = cpuintrf_temp_str(), "PC:%04X", mb.pc );		break;
 	}
 }

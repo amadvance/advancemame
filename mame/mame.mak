@@ -183,6 +183,7 @@ CPUS += ALPHA8201
 CPUS += ALPHA8301
 CPUS += TLCS90
 CPUS += MB86233
+CPUS += MB86235
 
 
 #-------------------------------------------------
@@ -1157,6 +1158,27 @@ $(OBJ)/sanritsu.a: \
 	$(OBJ)/drivers/mermaid.o $(OBJ)/vidhrdw/mermaid.o \
 	$(OBJ)/drivers/mjkjidai.o $(OBJ)/vidhrdw/mjkjidai.o \
 
+# The Sega Model 1 and Model 2 geometry (TGP, TGPx4 and SHARC cores, the
+# geometrizer and rasterizer) must match the hardware bit for bit: the TGP
+# rounds every product and every sum to single precision, one after the
+# other. The default float options of the build (CONF_CFLAGS_OPT) allow the
+# compiler to change the result in the last bit, and a wrong last bit in the
+# vertices collapses or displaces the polygons. These files are compiled with:
+#
+# -fno-unsafe-math-optimizations
+#	cancels -funsafe-math-optimizations of CONF_CFLAGS_OPT, which lets the
+#	compiler reassociate operations and use reciprocals and approximations.
+#
+# -ffp-contract=off
+#	no fused multiply-add: a*b+c is rounded twice (product, then sum), as
+#	the TGP does, and not once as the FMA instruction does. GCC fuses by
+#	default on the CPUs that have FMA (x86 with -march=native, ARM64,
+#	PowerPC), and so does clang.
+MODEL2_STRICT_FP = -fno-unsafe-math-optimizations -ffp-contract=off
+$(OBJ)/drivers/model1.o $(OBJ)/machine/model1.o $(OBJ)/vidhrdw/model1.o \
+$(OBJ)/drivers/model2.o $(OBJ)/machine/model2.o $(OBJ)/vidhrdw/model2.o \
+$(OBJ)/cpu/mb86233/mb86233.o $(OBJ)/cpu/mb86235/mb86235.o $(OBJ)/cpu/sharc/sharc.o: CFLAGS += $(MODEL2_STRICT_FP)
+
 $(OBJ)/sega.a: \
 	$(OBJ)/drivers/angelkds.o $(OBJ)/vidhrdw/angelkds.o \
 	$(OBJ)/drivers/blockade.o $(OBJ)/sndhrdw/blockade.o $(OBJ)/vidhrdw/blockade.o \
@@ -1168,7 +1190,8 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/kopunch.o $(OBJ)/vidhrdw/kopunch.o \
 	$(OBJ)/drivers/megaplay.o \
 	$(OBJ)/drivers/megatech.o \
-	$(OBJ)/drivers/model1.o $(OBJ)/machine/model1.o $(OBJ)/vidhrdw/model1.o \
+	$(OBJ)/drivers/model1.o $(OBJ)/machine/model1.o $(OBJ)/vidhrdw/model1.o $(OBJ)/sndhrdw/segadsb.o $(OBJ)/sound/mpeg_audio.o \
+	$(OBJ)/drivers/model2.o $(OBJ)/machine/model2.o $(OBJ)/vidhrdw/model2.o $(OBJ)/machine/sega315_5881.o $(OBJ)/machine/sega315_5838.o \
 	$(OBJ)/drivers/model3.o $(OBJ)/vidhrdw/model3.o $(OBJ)/machine/model3.o \
 	$(OBJ)/drivers/puckpkmn.o \
 	$(OBJ)/drivers/sega.o $(OBJ)/sndhrdw/sega.o $(OBJ)/vidhrdw/sega.o \

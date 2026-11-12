@@ -60,6 +60,8 @@ enum {
 };
 
 void i960_get_info(UINT32 state, union cpuinfo *info);
-void i960_noburst(void);
+void i960_stall(void);
+void i960_set_burst_callback(int (*is_burst)(UINT32 address));
+void i960_set_idle_read_callback(int (*read_ok)(UINT32 address));
 
 #endif

@@ -170,6 +170,12 @@ static WRITE32_HANDLER( namcofl_sysreg_w )
 			memory_set_bankptr( 2, namcofl_workram );
 		}
 	}
+	else if (offset >= 0x10 && offset <= 0x13)	// clear i960 IRQ line
+	{
+		// data value doesn't seem to matter
+		static const int irq_type[4] = { I960_IRQ0, I960_IRQ1, I960_IRQ2, I960_IRQ3 };
+		cpunum_set_input_line(0, irq_type[offset & 3], CLEAR_LINE);
+	}
 }
 
 static ADDRESS_MAP_START( sysfl_mem, ADDRESS_SPACE_PROGRAM, 32 )

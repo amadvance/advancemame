@@ -1,54 +1,41 @@
 // license:BSD-3-Clause
-// copyright-holders:Ernesto Corvi
-#ifndef _MB86233_H
-#define _MB86233_H
+// copyright-holders:Olivier Galibert
+/*
+    Differences from MAME:
+
+    Written in C. The four address spaces (program, data, io and register
+    file) are the callbacks of struct mb86233_config.
+*/
+
+#ifndef MB86233_H
+#define MB86233_H
 
 #include "cpuintrf.h"
 
-/***************************************************************************
-    REGISTER ENUMERATION
-***************************************************************************/
-
 enum
 {
-	MB86233_PC=1,
-	MB86233_A,
-	MB86233_B,
-	MB86233_D,
-	MB86233_P,
-	MB86233_REP,
-	MB86233_SP,
-	MB86233_EB,
-	MB86233_SHIFT,
-	MB86233_FLAGS,
-	MB86233_R0,
-	MB86233_R1,
-	MB86233_R2,
-	MB86233_R3,
-	MB86233_R4,
-	MB86233_R5,
-	MB86233_R6,
-	MB86233_R7,
-	MB86233_R8,
-	MB86233_R9,
-	MB86233_R10,
-	MB86233_R11,
-	MB86233_R12,
-	MB86233_R13,
-	MB86233_R14,
-	MB86233_R15
+	MB86233_PC = 1,
+	MB86233_SP
 };
-
-/***************************************************************************
-    STRUCTURES
-***************************************************************************/
 
 struct mb86233_config
 {
-	int			(*fifo_read_cb)( UINT32* data );
-	void		(*fifo_write_cb)( UINT32 data );
+	UINT32 (*prog_r)( UINT32 offset );
+	UINT32 (*data_r)( UINT32 offset );
+	void   (*data_w)( UINT32 offset, UINT32 data );
+	UINT32 (*io_r)( UINT32 offset );
+	void   (*io_w)( UINT32 offset, UINT32 data );
+	UINT32 (*rf_r)( UINT32 offset );
+	void   (*rf_w)( UINT32 offset, UINT32 data );
 };
+
+extern int mb86233_icount;
 
 void mb86233_get_info(UINT32 state, union cpuinfo *info);
 
-#endif /* _MB86233_H */
+/* a memory callback that cannot complete now (FIFO empty or full):
+   the instruction is repeated */
+extern void mb86233_stall(void);
+extern void mb86233_gpio_w(int pin, int state);
+
+#endif

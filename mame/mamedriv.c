@@ -3685,9 +3685,13 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( vf )		/* (c) 1993 */
 	DRIVER( vr )		/* (c) 1992 */
 	DRIVER( vformula )	/* (c) 1993 */
-	DRIVER( swa )		/* (c) 1993 */
+	DRIVER( swa )		/* (c) 1994 */
+	DRIVER( swaj )		/* (c) 1994 */
 	DRIVER( wingwar )	/* (c) 1994 */
-	DRIVER( wingwara )	/* (c) 1994 (US) */
+	DRIVER( wingwaru )	/* (c) 1994 */
+	DRIVER( wingwarj )	/* (c) 1994 */
+	DRIVER( wingwar360 )	/* (c) 1994 */
+	DRIVER( netmerc )	/* (c) 1993 */
 
 	/* Sega H1 games */
 	DRIVER( coolridr )	/* (c) 1995 */
@@ -3751,6 +3755,94 @@ Sep.1994 Quiz Ghost Hunter
 
 	DRIVER( sfish2 )	/* (c) 1995 */
 	DRIVER( sfish2j )	/* (c) 1995 */
+
+	/* Sega Model 2 Games */
+	DRIVER( vf2 )		/* 1994 */
+	DRIVER( vf2b )		/* 1994 */
+	DRIVER( vf2a )		/* 1994 */
+	DRIVER( vf2o )		/* 1994 */
+	DRIVER( vcop2 )		/* 1995 */
+	DRIVER( motoraid )	/* 1997 */
+	DRIVER( motoraiddx )	/* 1997 */
+	DRIVER( skytargt )	/* 1995 */
+	DRIVER( airwlkrs )	/* 1997 */
+	DRIVER( manxtt )		/* 1995 */
+	DRIVER( manxttc )		/* 1995 */
+	DRIVER( manxttdx )	/* 1995 */
+	DRIVER( hpyagu98 )	/* 1998 */
+	DRIVER( srallyc )		/* 1995 */
+	DRIVER( srallycb )	/* 1995 */
+	DRIVER( srallycc )	/* 1995 */
+	DRIVER( srallycdx )	/* 1995 */
+	DRIVER( srallycdxa )	/* 1995 */
+	DRIVER( model1io )	/* 1994 */
+	DRIVER( model1io2 )	/* 1994 */
+	DRIVER( vcop )		/* 1994 */
+	DRIVER( desert )		/* 1994 */
+	DRIVER( daytona )		/* 1994 */
+	DRIVER( vstriker )	/* 1994 */
+	DRIVER( gunblade )	/* 1995 */
+	DRIVER( rchase2 )		/* 1994 */
+	DRIVER( rchase2a )	/* 1994 */
+	DRIVER( doa )		/* 1996 */
+	DRIVER( zerogun )		/* 1997 */
+	DRIVER( pltkids )		/* 1998 */
+	DRIVER( doaa )		/* 1996 */
+	DRIVER( zeroguna )	/* 1997 */
+	DRIVER( pltkidsa )	/* 1998 */
+	DRIVER( daytonase )	/* 1994 */
+	DRIVER( daytona93 )	/* 1993 */
+	DRIVER( daytonas )	/* 1994 */
+	DRIVER( daytonat )	/* 1994 */
+	DRIVER( daytonata )	/* 1994 */
+	DRIVER( daytonam )	/* 2001 */
+	DRIVER( daytonagtx )	/* 2003 */
+	DRIVER( vcopa )		/* 1994 */
+	DRIVER( vstrikero )	/* 1994 */
+	DRIVER( doab )		/* 1996 */
+	DRIVER( doaab )		/* 1996 */
+	DRIVER( doaae )		/* 1996 */
+	DRIVER( zerogunj )	/* 1997 */
+	DRIVER( zerogunaj )	/* 1997 */
+	DRIVER( fvipers )		/* 1995 */
+	DRIVER( fvipersb )	/* 1995 */
+	DRIVER( fvipersa )	/* 1995 */
+	DRIVER( von )		/* 1995 */
+	DRIVER( vonu )		/* 1995 */
+	DRIVER( vonj )		/* 1995 */
+	DRIVER( schamp )		/* 1996 */
+	DRIVER( sfight )		/* 1996 */
+	DRIVER( lastbrnx )	/* 1996 */
+	DRIVER( lastbrnxu )	/* 1996 */
+	DRIVER( lastbrnxj )	/* 1996 */
+	DRIVER( dynamcop )	/* 1998 */
+	DRIVER( dyndeka2 )	/* 1998 */
+	DRIVER( dynamcopb )	/* 1998 */
+	DRIVER( dyndeka2b )	/* 1998 */
+	DRIVER( dynabb )		/* 1996 */
+	DRIVER( dynabb97 )	/* 1997 */
+	DRIVER( indy500 )		/* 1995 */
+	DRIVER( indy500d )	/* 1995 */
+	DRIVER( indy500to )	/* 1995 */
+	DRIVER( sgt24h )		/* 1996 */
+	DRIVER( overrev )		/* 1997 */
+	DRIVER( overrevb )	/* 1997 */
+	DRIVER( overrevba )	/* 1997 */
+	DRIVER( stcc )		/* 1996 */
+	DRIVER( stccb )		/* 1996 */
+	DRIVER( stcca )		/* 1996 */
+	DRIVER( stcco )		/* 1996 */
+	DRIVER( waverunr )	/* 1996 */
+	DRIVER( skisuprg )	/* 1996 */
+	DRIVER( bel )		/* 1997 */
+	DRIVER( hotd )		/* 1997 */
+	DRIVER( hotdo )		/* 1997 */
+	DRIVER( segawski )	/* 1997 */
+	DRIVER( topskatr )	/* 1997 */
+	DRIVER( topskatru )	/* 1997 */
+	DRIVER( topskatruo )	/* 1997 */
+	DRIVER( topskatrj )	/* 1997 */
+	DRIVER( dynamcopc )	/* 1998 */
 
 	/* Sega Model 3 Games */
 

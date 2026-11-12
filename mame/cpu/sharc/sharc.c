@@ -1,57 +1,181 @@
 // license:BSD-3-Clause
 // copyright-holders:Ville Linde
-/*
-   Analog Devices ADSP-2106x SHARC emulator
+/* Analog Devices ADSP-2106x SHARC emulator v3.0
 
    Written by Ville Linde
-
-   Portions based on ElSemi's SHARC emulator
 */
 
-#include "sharc.h"
+/*
+    Differences from MAME:
+
+    Written in C (sharc.cpp, sharcops.hxx, sharcops_table.cpp, compute.hxx,
+    sharcdma.hxx and sharcinternal.ipp), interpreter only: the recompiler is
+    not ported.
+
+    Memory: the internal memory (two blocks of 32K 32-bit words, seen as
+    48-bit program words, 32-bit data words and 16-bit short words, as the
+    pgm_2m / data_2m maps of MAME) and the IOP registers live in the core.
+    Every other data space (DM) address goes to the data_r/data_w callbacks of
+    struct sharc_config (MDRV_CPU_CONFIG), or to the data memory map of the
+    machine driver when the config has no callback. Every other program space
+    address goes to the optional pgm_r/pgm_w callbacks.
+
+    Other differences:
+    - the state of each SHARC is in its own instance, switched with the CPU
+      context, so the machines with two SHARCs work. The helpers
+      (sharc_external_dma_write, ...) act on the current instance and may be
+      called while another CPU is active.
+    - sharc_stall(), for driver callbacks that cannot complete (FIFOs): see
+      sharcops.c; the instruction is rewound (fetch stage and loop stack
+      state) and executed again on the next timeslice.
+    - MAME fatal errors (unimplemented features, stack overflows) are logged
+      with logerror and the operation is skipped.
+    - the delayed IOP write (DMA channel 6/7 start) uses a timer, as MAME uses
+      an emu timer.
+*/
+
+#include <math.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include "driver.h"
+#include "cpuintrf.h"
+#include "state.h"
 #include "debugger.h"
+#include "sharc.h"
 
-static void sharc_dma_exec(int channel);
 
-enum {
-	SHARC_PC=1,		SHARC_PCSTK,	SHARC_MODE1,	SHARC_MODE2,
-	SHARC_ASTAT,	SHARC_STKY,		SHARC_IRPTL,	SHARC_IMASK,
-	SHARC_IMASKP,	SHARC_USTAT1,	SHARC_USTAT2,	SHARC_LCNTR,
-	SHARC_R0,		SHARC_R1,		SHARC_R2,		SHARC_R3,
-	SHARC_R4,		SHARC_R5,		SHARC_R6,		SHARC_R7,
-	SHARC_R8,		SHARC_R9,		SHARC_R10,		SHARC_R11,
-	SHARC_R12,		SHARC_R13,		SHARC_R14,		SHARC_R15,
-	SHARC_SYSCON,	SHARC_SYSSTAT,	SHARC_MRF,		SHARC_MRB,
-	SHARC_STATUS_STKP,
-	SHARC_I0,		SHARC_I1,		SHARC_I2,		SHARC_I3,
-	SHARC_I4,		SHARC_I5,		SHARC_I6,		SHARC_I7,
-	SHARC_I8,		SHARC_I9,		SHARC_I10,		SHARC_I11,
-	SHARC_I12,		SHARC_I13,		SHARC_I14,		SHARC_I15,
-	SHARC_M0,		SHARC_M1,		SHARC_M2,		SHARC_M3,
-	SHARC_M4,		SHARC_M5,		SHARC_M6,		SHARC_M7,
-	SHARC_M8,		SHARC_M9,		SHARC_M10,		SHARC_M11,
-	SHARC_M12,		SHARC_M13,		SHARC_M14,		SHARC_M15,
-	SHARC_L0,		SHARC_L1,		SHARC_L2,		SHARC_L3,
-	SHARC_L4,		SHARC_L5,		SHARC_L6,		SHARC_L7,
-	SHARC_L8,		SHARC_L9,		SHARC_L10,		SHARC_L11,
-	SHARC_L12,		SHARC_L13,		SHARC_L14,		SHARC_L15,
-	SHARC_B0,		SHARC_B1,		SHARC_B2,		SHARC_B3,
-	SHARC_B4,		SHARC_B5,		SHARC_B6,		SHARC_B7,
-	SHARC_B8,		SHARC_B9,		SHARC_B10,		SHARC_B11,
-	SHARC_B12,		SHARC_B13,		SHARC_B14,		SHARC_B15,
-};
+/***************************************************************************
+    CONSTANTS
+***************************************************************************/
 
-typedef struct {
+/* ASTAT shifts */
+#define AZ_SHIFT    0
+#define AV_SHIFT    1
+#define AN_SHIFT    2
+#define AC_SHIFT    3
+#define AS_SHIFT    4
+#define AI_SHIFT    5
+#define MN_SHIFT    6
+#define MV_SHIFT    7
+#define MU_SHIFT    8
+#define MI_SHIFT    9
+#define AF_SHIFT    10
+#define SV_SHIFT    11
+#define SZ_SHIFT    12
+#define SS_SHIFT    13
+#define BTF_SHIFT   18
+#define FLG0_SHIFT  19
+#define FLG1_SHIFT  20
+#define FLG2_SHIFT  21
+#define FLG3_SHIFT  22
+
+/* ASTAT flags */
+#define AZ          0x00000001U     /* ALU result zero */
+#define AV          0x00000002U     /* ALU overflow */
+#define AN          0x00000004U     /* ALU result negative */
+#define AC          0x00000008U     /* ALU fixed-point carry */
+#define AS          0x00000010U     /* ALU X input sign */
+#define AI          0x00000020U     /* ALU floating-point invalid operation */
+#define MN          0x00000040U     /* Multiplier result negative */
+#define MV          0x00000080U     /* Multiplier overflow */
+#define MU          0x00000100U     /* Multiplier underflow */
+#define MI          0x00000200U     /* Multiplier floating-point invalid operation */
+#define AF          0x00000400U     /* Last ALU operation was a floating-point operation */
+#define SV          0x00000800U     /* Shifter overflow */
+#define SZ          0x00001000U     /* Shifter result zero */
+#define SS          0x00002000U     /* Shifter input sign */
+#define BTF         0x00040000U     /* Bit Test Flag */
+#define FLG0        0x00080000U     /* FLAG0 */
+#define FLG1        0x00100000U     /* FLAG1 */
+#define FLG2        0x00200000U     /* FLAG2 */
+#define FLG3        0x00400000U     /* FLAG3 */
+
+/* STKY flags */
+#define AUS         0x00000001U     /* ALU floating-point underflow */
+#define AVS         0x00000002U     /* ALU floating-point overflow */
+#define AOS         0x00000004U     /* ALU fixed-point overflow */
+#define AIS         0x00000020U     /* ALU floating-point invalid operation */
+#define MOS         0x00000040U     /* Multiplier fixed-point overflow */
+#define MVS         0x00000080U     /* Multiplier floating-point overflow */
+#define MUS         0x00000100U     /* Multiplier underflow */
+#define MIS         0x00000200U     /* Multiplier floating-point invalid operation */
+#define PCFL        0x00200000U     /* PC stack full */
+#define PCEM        0x00400000U     /* PC stack empty */
+#define SSOV        0x00800000U     /* Status stack overflow */
+#define SSEM        0x01000000U     /* Status stack empty */
+#define LSOV        0x02000000U     /* Loop stacks overflow */
+#define LSEM        0x04000000U     /* Loop stacks empty */
+
+/* MODE1 flags */
+#define MODE1_BR8       0x00000001U /* Bit-reverse for I8 */
+#define MODE1_BR0       0x00000002U /* Bit-reverse for I0 */
+#define MODE1_SRCU      0x00000004U /* Alternate register select for computational units */
+#define MODE1_SRD1H     0x00000008U /* DAG alternate register select (7-4) */
+#define MODE1_SRD1L     0x00000010U /* DAG alternate register select (3-0) */
+#define MODE1_SRD2H     0x00000020U /* DAG alternate register select (15-12) */
+#define MODE1_SRD2L     0x00000040U /* DAG alternate register select (11-8) */
+#define MODE1_SRRFH     0x00000080U /* Register file alternate select for R(15-8) */
+#define MODE1_SRRFL     0x00000400U /* Register file alternate select for R(7-0) */
+#define MODE1_NESTM     0x00000800U /* Interrupt nesting enable */
+#define MODE1_IRPTEN    0x00001000U /* Global interrupt enable */
+#define MODE1_ALUSAT    0x00002000U /* Enable ALU fixed-point saturation */
+#define MODE1_SSE       0x00004000U /* Enable short word sign extension */
+#define MODE1_TRUNCATE  0x00008000U /* (1) Floating-point truncation / (0) round to nearest */
+#define MODE1_RND32     0x00010000U /* (1) 32-bit floating-point rounding / (0) 40-bit rounding */
+#define MODE1_CSEL      0x00060000U /* CSelect */
+
+/* MODE2 flags */
+#define MODE2_IRQ0E     0x00000001U /* IRQ0 (1) Edge sens. / (0) Level sens. */
+#define MODE2_IRQ1E     0x00000002U /* IRQ1 (1) Edge sens. / (0) Level sens. */
+#define MODE2_IRQ2E     0x00000004U /* IRQ2 (1) Edge sens. / (0) Level sens. */
+#define MODE2_CADIS     0x00000010U /* Cache disable */
+#define MODE2_TIMEN     0x00000020U /* Timer enable */
+#define MODE2_BUSLK     0x00000040U /* External bus lock */
+#define MODE2_FLG0O     0x00008000U /* FLAG0 (1) Output / (0) Input */
+#define MODE2_FLG1O     0x00010000U /* FLAG1 (1) Output / (0) Input */
+#define MODE2_FLG2O     0x00020000U /* FLAG2 (1) Output / (0) Input */
+#define MODE2_FLG3O     0x00040000U /* FLAG3 (1) Output / (0) Input */
+#define MODE2_CAFRZ     0x00080000U /* Cache freeze */
+
+/* constants for IEEE754 single-precision float format */
+#define FLOAT_CANONICAL_NAN     0xffffffffU
+#define FLOAT_INFINITY          0x7f800000U
+#define FLOAT_SIGN_MASK         0x80000000U
+#define FLOAT_EXPONENT_MASK     0x7f800000U
+#define FLOAT_MANTISSA_MASK     0x007fffffU
+#define FLOAT_SIGN_SHIFT        31
+#define FLOAT_EXPONENT_SHIFT    23
+#define FLOAT_EXPONENT_BITS     8
+#define FLOAT_EXPONENT_BIAS     127
+
+#define SHARC_U64(hi, lo)       ((((UINT64)(hi)) << 32) | (UINT32)(lo))
+
+
+/***************************************************************************
+    STATE
+***************************************************************************/
+
+typedef union
+{
+	INT32 r;
+	float f;
+} SHARC_REG;
+
+typedef struct
+{
 	UINT32 i[8];
 	UINT32 m[8];
 	UINT32 b[8];
 	UINT32 l[8];
 } SHARC_DAG;
 
-typedef union {
-	UINT32 r;
-	float f;
-} SHARC_REG;
+typedef struct
+{
+	UINT32 addr;
+	UINT32 code;
+	UINT32 loop_type;
+} SHARC_LADDR;
 
 typedef struct
 {
@@ -64,17 +188,41 @@ typedef struct
 	UINT32 ext_index;
 	UINT32 ext_modifier;
 	UINT32 ext_count;
-} DMA_REGS;
+} SHARC_DMA_REGS;
 
-typedef struct {
-	UINT32 pc;
-	UINT32 npc;
+typedef struct
+{
+	UINT32 src;
+	UINT32 dst;
+	UINT32 chain_ptr;
+	INT32 src_modifier;
+	INT32 dst_modifier;
+	INT32 src_count;
+	INT32 dst_count;
+	INT32 pmode;
+	INT32 chained_direction;
+	INT32 active;
+	INT32 chained;
+} SHARC_DMA_OP;
+
+typedef struct
+{
+	UINT32 mode1;
+	UINT32 astat;
+} SHARC_STATUS;
+
+/* sharc_internal_state of MAME, interpreter fields; no pointers in here
+   (it is saved as a whole) */
+typedef struct
+{
 	SHARC_REG r[16];
 	SHARC_REG reg_alt[16];
+
+	UINT32 pc;
 	UINT64 mrf;
 	UINT64 mrb;
 
-	UINT32 pcstack[32];
+	UINT32 pcstack[30];
 	UINT32 lcstack[6];
 	UINT32 lastack[6];
 	UINT32 lstkp;
@@ -83,17 +231,20 @@ typedef struct {
 	UINT32 daddr;
 	UINT32 pcstk;
 	UINT32 pcstkp;
-	UINT32 laddr;
+	SHARC_LADDR laddr;
 	UINT32 curlcntr;
 	UINT32 lcntr;
+	UINT32 extdma_shift;
+	UINT32 iop_write_num;
+	UINT32 iop_data;
 
 	/* Data Address Generator (DAG) */
-	SHARC_DAG dag1;		// (DM bus)
-	SHARC_DAG dag2;		// (PM bus)
+	SHARC_DAG dag1;     /* (DM bus) */
+	SHARC_DAG dag2;     /* (PM bus) */
 	SHARC_DAG dag1_alt;
 	SHARC_DAG dag2_alt;
 
-	DMA_REGS dma[12];
+	SHARC_DMA_REGS dma[12];
 
 	/* System registers */
 	UINT32 mode1;
@@ -106,78 +257,454 @@ typedef struct {
 	UINT32 ustat1;
 	UINT32 ustat2;
 
+	UINT32 flag[4];
+
 	UINT32 syscon;
 	UINT32 sysstat;
 
-	UINT32 status_stack[8];
-	int status_stkp;
+	SHARC_STATUS status_stack[5];
+	INT32 status_stkp;
 
 	UINT64 px;
 
-	UINT16 *internal_ram;
-	UINT16 *internal_ram_block0, *internal_ram_block1;
-	int internal_ram_size;
-
-	int (*irq_callback)(int irqline);
 	UINT64 opcode;
-	void (** opcode_table)(void);
-	int idle;
-	int irq_active;
-	int irq_active_num;
 
-	SHARC_BOOT_MODE boot_mode;
-} SHARC_REGS;
+	UINT32 nfaddr;
 
-static SHARC_REGS sharc;
-static int sharc_icount;
+	INT32 idle;
+	INT32 irq_pending;
+	INT32 active_irq_num;
 
-#define ROPCODE(pc)		((UINT64)(sharc.internal_ram[((pc-0x20000) * 3) + 0]) << 32) | \
-						((UINT64)(sharc.internal_ram[((pc-0x20000) * 3) + 1]) << 16) | \
-						((UINT64)(sharc.internal_ram[((pc-0x20000) * 3) + 2]) << 0)
+	SHARC_DMA_OP dma_op[12];
+	UINT32 dma_status;
+	INT32 write_stalled;
 
-#define DECODE_AND_EXEC_OPCODE() \
-	sharc.opcode = ROPCODE(sharc.pc); \
-	sharc.opcode_table[(sharc.opcode >> 39) & 0x1ff]();
+	INT32 interrupt_active;
 
-void decode_and_exec_opcode(void);
+	UINT32 iop_delayed_reg;
+	UINT32 iop_delayed_data;
 
-/*****************************************************************************/
+	UINT32 delay_slot1, delay_slot2;
 
-static UINT32 dmaop_src;
-static UINT32 dmaop_dst;
-static UINT32 dmaop_chain_ptr;
-static int dmaop_src_modifier;
-static int dmaop_dst_modifier;
-static int dmaop_src_count;
-static int dmaop_dst_count;
-static int dmaop_pmode;
-static int dmaop_cycles = 0;
-static int dmaop_channel;
-static int dmaop_chained_direction;
+	INT32 systemreg_latency_cycles;
+	INT32 systemreg_latency_reg;
+	UINT32 systemreg_latency_data;
+	UINT32 systemreg_previous_data;
 
+	UINT32 astat_old;
+	UINT32 astat_old_old;
+	UINT32 astat_old_old_old;
 
+	/* port: MAME's m_dm_short_view (selected = sign-extended short words) */
+	INT32 dm_short_se;
 
-static int iop_latency_cycles = 0;
-static int iop_latency_reg = 0;
-static UINT32 iop_latency_data = 0;
+	/* port: stall support */
+	INT32 stalled;
+	INT32 pf_rvalid;
+	UINT32 pf_raddr;
+	UINT32 pf_rdata;
+	INT32 pf_wvalid;
+	UINT32 pf_waddr;
+} sharc_regs;
 
-static void add_iop_latency_op(int iop_reg, UINT32 data, int latency)
+/* fetch-stage state saved before each instruction, to rewind it on a stall */
+typedef struct
 {
-	iop_latency_cycles = latency;
-	iop_latency_reg = iop_reg;
-	iop_latency_data = data;
+	UINT32 pc, daddr, faddr, nfaddr;
+	UINT32 astat, astat_old, astat_old_old, astat_old_old_old;
+	int loop;                   /* loop end was processed: the fields below are valid */
+	UINT32 curlcntr, lcntr, lstkp, pcstk, pcstkp, stky;
+	SHARC_LADDR laddr;
+	UINT32 pcstack[30];
+	UINT32 lcstack[6];
+	UINT32 lastack[6];
+} sharc_fetch_snapshot;
+
+/* the state of one SHARC: the machines with two of them (Hang Pilot, the
+   two board Hornet games) switch the current instance with the CPU context */
+typedef struct
+{
+	sharc_regs regs;
+	/* internal memory: two blocks of 0x8000 32-bit words (MAME m_blocks) */
+	UINT32 block[2][0x8000];
+	struct sharc_config *cfg;
+	mame_timer *iop_timer;
+	int cpunum;
+	int (*irq_callback)(int irqline);
+	sharc_fetch_snapshot snap;
+	int flag_spin;
+} sharc_instance;
+
+#define SHARC_MAX_INSTANCES	8
+
+static sharc_instance *sharc_cur;
+static sharc_instance *sharc_instances[SHARC_MAX_INSTANCES];
+
+#define m_core			(&sharc_cur->regs)
+#define sharc_block		(sharc_cur->block)
+#define sharc_cfg		(sharc_cur->cfg)
+#define sharc_iop_timer	(sharc_cur->iop_timer)
+#define sharc_cpunum	(sharc_cur->cpunum)
+#define sharc_irq_callback	(sharc_cur->irq_callback)
+#define snap			(sharc_cur->snap)
+#define sharc_flag_spin	(sharc_cur->flag_spin)
+
+int sharc_icount;
+
+static void (*sharc_op[512])(void);
+
+
+/***************************************************************************
+    HELPERS
+***************************************************************************/
+
+#define REG(x)      (m_core->r[x].r)
+#define UIREG(x)    ((UINT32)m_core->r[x].r)
+#define FREG(x)     (m_core->r[x].f)
+
+#ifndef BIT
+#define BIT(x, n)       (((x) >> (n)) & 1)
+#endif
+#define BITS(x, n, w)   (((x) >> (n)) & ((1U << (w)) - 1))
+
+static UINT32 make_bitmask32(int n)
+{
+	return (n >= 32) ? 0xffffffffU : ((1U << n) - 1);
 }
 
-static void iop_latency_op(void)
+/* util::sext */
+static INT32 sext32(UINT32 v, int bits)
 {
-	UINT32 data = iop_latency_data;
+	if (bits >= 32)
+		return (INT32)v;
+	v &= (1U << bits) - 1;
+	if (v & (1U << (bits - 1)))
+		v |= ~((1U << bits) - 1);
+	return (INT32)v;
+}
 
-	switch (iop_latency_reg)
+/* std::rotl */
+static UINT32 rotl32(UINT32 x, int s)
+{
+	unsigned r = (unsigned)s & 31;
+	if (r == 0)
+		return x;
+	return (x << r) | (x >> (32 - r));
+}
+
+#define float_get_unbiased_exponent(f)  ((int)(((UINT32)(f) >> FLOAT_EXPONENT_SHIFT) & 0xff) - FLOAT_EXPONENT_BIAS)
+#define float_make_biased_exponent(e)   ((((UINT32)((e) + FLOAT_EXPONENT_BIAS)) & 0xff) << FLOAT_EXPONENT_SHIFT)
+
+/* opcode fields */
+#define op_get_subop(op)        ((int)(((op) >> 40) & 0x1f))
+#define op_get_compute(op)      ((UINT32)((op) & 0x7fffff))
+#define op_get_cond(op)         ((int)(((op) >> 33) & 0x1f))
+#define op_get_ureg_src(op)     ((int)(((op) >> 36) & 0xff))
+#define op_get_cond_ureg(op)    ((int)(((op) >> 31) & 0x1f))
+#define op_get_ureg_dst(op)     ((int)(((op) >> 23) & 0xff))
+#define op_get_reladdr(op)      (sext32((UINT32)((op) >> 27), 6))
+#define op_get_dmi(op)          ((int)(((op) >> 41) & 0x7))
+#define op_get_dmm(op)          ((int)(((op) >> 38) & 0x7))
+#define op_get_pmi(op)          ((int)(((op) >> 30) & 0x7))
+#define op_get_pmm(op)          ((int)(((op) >> 27) & 0x7))
+#define op_get_jump_b(op)       ((int)(((op) >> 39) & 1))
+#define op_get_jump_la(op)      ((int)(((op) >> 38) & 1))
+#define op_get_jump_j(op)       ((int)(((op) >> 26) & 1))
+#define op_get_jump_e(op)       ((int)(((op) >> 25) & 1))
+#define op_get_jump_ci(op)      ((int)(((op) >> 24) & 1))
+#define op_get_rs(op)           ((int)(((op) >> 12) & 0xf))
+#define op_get_ra(op)           ((int)(((op) >> 8) & 0xf))
+
+static UINT32 laddr_pack(const SHARC_LADDR *l)
+{
+	return (l->loop_type << 30) | (l->code << 24) | l->addr;
+}
+
+static void laddr_unpack(SHARC_LADDR *l, UINT32 in)
+{
+	l->addr = in & 0xffffff;
+	l->code = (in >> 24) & 0x1f;
+	l->loop_type = (in >> 30) & 3;
+}
+
+static void sharc_error(const char *fmt, ...)
+{
+	char buf[512];
+	va_list ap;
+	va_start(ap, fmt);
+	vsprintf(buf, fmt, ap);
+	va_end(ap);
+	logerror("%s", buf);
+}
+
+static void sharc_flag_out(int flag, int state)
+{
+	if (sharc_cfg && sharc_cfg->flag_out)
+		sharc_cfg->flag_out(flag, state);
+}
+
+static void CHANGE_PC(UINT32 newpc)
+{
+	m_core->pc = newpc;
+	m_core->daddr = newpc;
+	m_core->faddr = newpc+1;
+	m_core->nfaddr = newpc+2;
+}
+
+static void CHANGE_PC_DELAYED(UINT32 newpc)
+{
+	m_core->nfaddr = newpc;
+
+	m_core->delay_slot1 = m_core->pc;
+	m_core->delay_slot2 = m_core->daddr;
+}
+
+/* forward declarations */
+static void check_interrupts(void);
+static void systemreg_write_latency_effect(void);
+static void sharc_dma_exec(int channel);
+
+
+/***************************************************************************
+    MEMORY
+***************************************************************************/
+
+/*
+   48-bit program words in a 32-bit block (MAME pm_r / pm_w):
+   0 012 0h 0l 1h
+   1 453 2h 2l 1l
+   2 678 3h 3l 4h
+   3 ab9 5h 5l 4l
+   4 cde 6h 6l 7h
+*/
+
+/* returns the block for an internal program address and its block offset, or NULL */
+static UINT32 *pm_internal(UINT32 address, UINT32 *base, int *odd)
+{
+	UINT32 offset, slot;
+
+	/* pgm_2m: 0x20000-0x24fff block 0, mirrors (0x18000) of it block 1 */
+	if (address < 0x20000 || address >= 0x40000 || (address & 0x7fff) >= 0x5000)
+		return NULL;
+
+	offset = address & 0x7fff;
+	slot = offset >> 12;
+	*base = (offset & 0xfff) + (slot >> 1) * (3 << 12);
+	*odd = slot & 1;
+	return sharc_block[(address & 0x18000) ? 1 : 0];
+}
+
+static UINT64 pm_read48(UINT32 address)
+{
+	UINT32 base;
+	int odd;
+	UINT32 *blk;
+
+	address &= 0xffffff;
+	blk = pm_internal(address, &base, &odd);
+	if (blk)
+	{
+		if (odd)
+			return ((UINT64)blk[base + 0x2000] << 16) | (blk[base + 0x1000] & 0xffff);
+		else
+			return ((UINT64)blk[base] << 16) | (blk[base + 0x1000] >> 16);
+	}
+
+	if (sharc_cfg && sharc_cfg->pgm_r)
+		return sharc_cfg->pgm_r(address);
+	return 0;
+}
+
+static void pm_write48(UINT32 address, UINT64 data)
+{
+	UINT32 base;
+	int odd;
+	UINT32 *blk;
+
+	address &= 0xffffff;
+	blk = pm_internal(address, &base, &odd);
+	if (blk)
+	{
+		if (odd)
+		{
+			blk[base + 0x1000] = (blk[base + 0x1000] & 0xffff0000) | (UINT32)(data & 0xffff);
+			blk[base + 0x2000] = (UINT32)(data >> 16);
+		}
+		else
+		{
+			blk[base] = (UINT32)(data >> 16);
+			blk[base + 0x1000] = (blk[base + 0x1000] & 0xffff) | ((UINT32)(data & 0xffff) << 16);
+		}
+		return;
+	}
+
+	if (sharc_cfg && sharc_cfg->pgm_w)
+		sharc_cfg->pgm_w(address, data & SHARC_U64(0xffff, 0xffffffff));
+}
+
+/* When PM bus is used to transfer 32-bit data, it is aligned to the upper 32 bits of the bus */
+static UINT32 pm_read32(UINT32 address)
+{
+	return (UINT32)(pm_read48(address) >> 16);
+}
+
+static void pm_write32(UINT32 address, UINT32 data)
+{
+	UINT32 base;
+	int odd;
+	UINT32 *blk;
+
+	/* MAME writes with mem_mask 0x0000ffffffff0000: the low 16 bits are kept */
+	address &= 0xffffff;
+	blk = pm_internal(address, &base, &odd);
+	if (blk)
+	{
+		if (odd)
+			blk[base + 0x2000] = data;
+		else
+			blk[base] = data;
+		return;
+	}
+
+	if (sharc_cfg && sharc_cfg->pgm_w)
+		sharc_cfg->pgm_w(address, (UINT64)data << 16);
+}
+
+static UINT32 iop_r(UINT32 offset);
+static void iop_w(UINT32 offset, UINT32 data);
+
+/* data space addresses handled by the driver callbacks */
+static int dm_is_external(UINT32 address)
+{
+	return !(address < 0x100 || (address >= 0x20000 && address < 0x80000));
+}
+
+static UINT32 dm_read32(UINT32 address)
+{
+	if (m_core->pf_rvalid && address == m_core->pf_raddr)
+	{
+		/* already read by DM_PRE_R */
+		m_core->pf_rvalid = 0;
+		return m_core->pf_rdata;
+	}
+
+	if (address < 0x100)
+		return iop_r(address);
+
+	if (address >= 0x20000 && address < 0x40000)
+	{
+		/* data_2m: 0x20000-0x27fff block 0, mirrors (0x18000) of it block 1 */
+		return sharc_block[(address & 0x18000) ? 1 : 0][address & 0x7fff];
+	}
+
+	if (address >= 0x40000 && address < 0x80000)
+	{
+		/* short words: 0x40000-0x4ffff block 0, mirrors (0x30000) of it block 1 */
+		UINT32 half = address & 0xffff;
+		UINT32 word = sharc_block[(address & 0x30000) ? 1 : 0][half >> 1];
+		UINT32 v = (half & 1) ? (word >> 16) : (word & 0xffff);
+		if (m_core->dm_short_se)
+			v = (UINT32)(INT32)(INT16)v;
+		return v;
+	}
+
+	if (sharc_cfg && sharc_cfg->data_r)
+		return sharc_cfg->data_r(address);
+	/* no callback: the data memory map of the machine driver */
+	return data_read_dword_32le(address << 2);
+}
+
+static void dm_write32(UINT32 address, UINT32 data)
+{
+	if (m_core->pf_wvalid && address == m_core->pf_waddr)
+	{
+		/* already written by DM_PRE_W */
+		m_core->pf_wvalid = 0;
+		return;
+	}
+
+	if (address < 0x100)
+	{
+		iop_w(address, data);
+		return;
+	}
+
+	if (address >= 0x20000 && address < 0x40000)
+	{
+		sharc_block[(address & 0x18000) ? 1 : 0][address & 0x7fff] = data;
+		return;
+	}
+
+	if (address >= 0x40000 && address < 0x80000)
+	{
+		UINT32 half = address & 0xffff;
+		UINT32 *word = &sharc_block[(address & 0x30000) ? 1 : 0][half >> 1];
+		if (half & 1)
+			*word = (*word & 0x0000ffff) | ((data & 0xffff) << 16);
+		else
+			*word = (*word & 0xffff0000) | (data & 0xffff);
+		return;
+	}
+
+	if (sharc_cfg && sharc_cfg->data_w)
+		sharc_cfg->data_w(address, data);
+	else
+		data_write_dword_32le(address << 2, data);
+}
+
+/* stall support: external DM accesses are done first by the opcodes;
+   return 1 if the driver stalled the access */
+static int dm_pre_r(UINT32 address)
+{
+	UINT32 data;
+
+	if (!dm_is_external(address) || !sharc_cfg || !sharc_cfg->data_r)
+		return 0;
+
+	m_core->stalled = 0;
+	data = sharc_cfg->data_r(address);
+	if (m_core->stalled)
+		return 1;
+
+	m_core->pf_rvalid = 1;
+	m_core->pf_raddr = address;
+	m_core->pf_rdata = data;
+	return 0;
+}
+
+static int dm_pre_w(UINT32 address, UINT32 data)
+{
+	if (!dm_is_external(address) || !sharc_cfg || !sharc_cfg->data_w)
+		return 0;
+
+	m_core->stalled = 0;
+	sharc_cfg->data_w(address, data);
+	if (m_core->stalled)
+		return 1;
+
+	m_core->pf_wvalid = 1;
+	m_core->pf_waddr = address;
+	return 0;
+}
+
+
+/***************************************************************************
+    IOP REGISTERS
+***************************************************************************/
+
+static void sharc_iop_delayed_write_callback(int param)
+{
+	/* the callback runs while another CPU may be active: param is the CPU
+	   number of the instance the timer belongs to */
+	sharc_instance *saved = sharc_cur;
+	sharc_cur = sharc_instances[param];
+
+	switch (m_core->iop_delayed_reg)
 	{
 		case 0x1c:
 		{
-			sharc.dma[6].control = data;
-			if (data & 0x1) {
+			if (m_core->iop_delayed_data & 0x1)
+			{
 				sharc_dma_exec(6);
 			}
 			break;
@@ -185,949 +712,797 @@ static void iop_latency_op(void)
 
 		case 0x1d:
 		{
-			sharc.dma[7].control = data;
-			if (data & 0x1) {
+			if (m_core->iop_delayed_data & 0x1)
+			{
 				sharc_dma_exec(7);
 			}
 			break;
 		}
 
-		default:	fatalerror("SHARC: add_iop_latency_op: unknown IOP register %02X", iop_latency_reg);
-	}
-}
-
-
-/* IOP registers */
-static UINT32 sharc_iop_r(UINT32 address)
-{
-	switch (address)
-	{
-		case 0x00: return 0;	// System configuration
-
-		case 0x37:		// DMA status
-		{
-			UINT32 r = 0;
-			if (dmaop_cycles > 0)
-			{
-				r |= 1 << dmaop_channel;
-			}
-			return r;
-		}
-		default:		fatalerror("sharc_iop_r: Unimplemented IOP reg %02X", address);
-	}
-	return 0;
-}
-
-static void sharc_iop_w(UINT32 address, UINT32 data)
-{
-	switch (address)
-	{
-		case 0x00: break;		// System configuration
-		case 0x02: break;		// External Memory Wait State Configuration
-		case 0x08:
-		case 0x09:
-		case 0x0a:
-		case 0x0b:
-		case 0x0c:
-		case 0x0d:
-		case 0x0e:
-		case 0x0f:
+		default:
+			sharc_error("SHARC: sharc_iop_delayed_write: unknown IOP register %02X\n", m_core->iop_delayed_reg);
 			break;
-
-		// DMA 6
-		case 0x1c: add_iop_latency_op(0x1c, data, 1); break;
-
-		case 0x40: sharc.dma[6].int_index = data; return;
-		case 0x41: sharc.dma[6].int_modifier = data; return;
-		case 0x42: sharc.dma[6].int_count = data; return;
-		case 0x43: sharc.dma[6].chain_ptr = data; return;
-		case 0x44: sharc.dma[6].gen_purpose = data; return;
-		case 0x45: sharc.dma[6].ext_index = data; return;
-		case 0x46: sharc.dma[6].ext_modifier = data; return;
-		case 0x47: sharc.dma[6].ext_count = data; return;
-
-		// DMA 7
-		case 0x1d: add_iop_latency_op(0x1d, data, 20); break;
-
-		case 0x48: sharc.dma[7].int_index = data; return;
-		case 0x49: sharc.dma[7].int_modifier = data; return;
-		case 0x4a: sharc.dma[7].int_count = data; return;
-		case 0x4b: sharc.dma[7].chain_ptr = data; return;
-		case 0x4c: sharc.dma[7].gen_purpose = data; return;
-		case 0x4d: sharc.dma[7].ext_index = data; return;
-		case 0x4e: sharc.dma[7].ext_modifier = data; return;
-		case 0x4f: sharc.dma[7].ext_count = data; return;
-
-		default:		fatalerror("sharc_iop_w: Unimplemented IOP reg %02X, %08X", address, data);
 	}
+
+	timer_adjust(sharc_iop_timer, TIME_NEVER, sharc_cpunum, 0);
+	sharc_cur = saved;
 }
 
-
-
-
-static UINT32 pm_read32(UINT32 address)
+static void sharc_iop_delayed_w(UINT32 reg, UINT32 data, int cycles)
 {
-	if (address >= 0x20000 && address < 0x28000)
-	{
-		return (UINT32)(sharc.internal_ram_block0[((address-0x20000) * 3) + 0] << 16) |
-					   (sharc.internal_ram_block0[((address-0x20000) * 3) + 1]);
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x28000) * 3) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x28000) * 3) + 1]);
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x30000) * 3) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x30000) * 3) + 1]);
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x38000) * 3) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x38000) * 3) + 1]);
-	}
-	else {
-		fatalerror("SHARC: PM Bus Read %08X at %08X", address, sharc.pc);
-	}
+	m_core->iop_delayed_reg = reg;
+	m_core->iop_delayed_data = data;
+
+	timer_adjust(sharc_iop_timer, TIME_IN_CYCLES(cycles, sharc_cpunum), sharc_cpunum, 0);
 }
 
-static void pm_write32(UINT32 address, UINT32 data)
+static UINT32 iop_r(UINT32 offset)
 {
-	if (address >= 0x20000 && address < 0x28000)
+	switch (offset)
 	{
-		sharc.internal_ram_block0[((address-0x20000) * 3) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block0[((address-0x20000) * 3) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		sharc.internal_ram_block1[((address-0x28000) * 3) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x28000) * 3) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		sharc.internal_ram_block1[((address-0x30000) * 3) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x30000) * 3) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		sharc.internal_ram_block1[((address-0x38000) * 3) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x38000) * 3) + 1] = (UINT16)(data);
-		return;
-	}
-	else {
-		fatalerror("SHARC: PM Bus Write %08X, %08X at %08X", address, data, sharc.pc);
-	}
-}
+		case 0x00: return 0;    /* System configuration */
 
-static UINT64 pm_read48(UINT32 address)
-{
-	if (address >= 0x20000 && address < 0x28000)
-	{
-		return ((UINT64)(sharc.internal_ram_block0[((address-0x20000) * 3) + 0]) << 32) |
-			   ((UINT64)(sharc.internal_ram_block0[((address-0x20000) * 3) + 1]) << 16) |
-			   ((UINT64)(sharc.internal_ram_block0[((address-0x20000) * 3) + 2]) << 0);
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		return ((UINT64)(sharc.internal_ram_block1[((address-0x28000) * 3) + 0]) << 32) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x28000) * 3) + 1]) << 16) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x28000) * 3) + 2]) << 0);
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		return ((UINT64)(sharc.internal_ram_block1[((address-0x30000) * 3) + 0]) << 32) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x30000) * 3) + 1]) << 16) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x30000) * 3) + 2]) << 0);
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		return ((UINT64)(sharc.internal_ram_block1[((address-0x38000) * 3) + 0]) << 32) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x38000) * 3) + 1]) << 16) |
-			   ((UINT64)(sharc.internal_ram_block1[((address-0x38000) * 3) + 2]) << 0);
-	}
-	else {
-		fatalerror("SHARC: PM Bus Read %08X at %08X", address, sharc.pc);
-	}
-
-	return 0;
-}
-
-static void pm_write48(UINT32 address, UINT64 data)
-{
-	if (address >= 0x20000 && address < 0x28000)
-	{
-		sharc.internal_ram_block0[((address-0x20000) * 3) + 0] = (UINT16)(data >> 32);
-		sharc.internal_ram_block0[((address-0x20000) * 3) + 1] = (UINT16)(data >> 16);
-		sharc.internal_ram_block0[((address-0x20000) * 3) + 2] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		sharc.internal_ram_block1[((address-0x28000) * 3) + 0] = (UINT16)(data >> 32);
-		sharc.internal_ram_block1[((address-0x28000) * 3) + 1] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x28000) * 3) + 2] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		sharc.internal_ram_block1[((address-0x30000) * 3) + 0] = (UINT16)(data >> 32);
-		sharc.internal_ram_block1[((address-0x30000) * 3) + 1] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x30000) * 3) + 2] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		sharc.internal_ram_block1[((address-0x38000) * 3) + 0] = (UINT16)(data >> 32);
-		sharc.internal_ram_block1[((address-0x38000) * 3) + 1] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x38000) * 3) + 2] = (UINT16)(data);
-		return;
-	}
-	else {
-		fatalerror("SHARC: PM Bus Write %08X, %04X%08X at %08X", address, (UINT16)(data >> 32),(UINT32)data, sharc.pc);
-	}
-}
-
-static UINT32 dm_read32(UINT32 address)
-{
-	if (address < 0x100)
-	{
-		return sharc_iop_r(address);
-	}
-	else if (address >= 0x20000 && address < 0x28000)
-	{
-		return (UINT32)(sharc.internal_ram_block0[((address-0x20000) * 2) + 0] << 16) |
-					   (sharc.internal_ram_block0[((address-0x20000) * 2) + 1]);
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x28000) * 2) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x28000) * 2) + 1]);
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x30000) * 2) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x30000) * 2) + 1]);
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		return (UINT32)(sharc.internal_ram_block1[((address-0x38000) * 2) + 0] << 16) |
-					   (sharc.internal_ram_block1[((address-0x38000) * 2) + 1]);
-	}
-
-	// short word addressing
-	else if (address >= 0x40000 && address < 0x50000)
-	{
-		UINT16 r = sharc.internal_ram_block0[(address-0x40000) ^ 1];
-		if (sharc.mode1 & 0x4000)
+		case 0x37:      /* DMA status */
 		{
-			// sign-extend
-			return (INT32)(INT16)(r);
+			return m_core->dma_status;
 		}
-		else
-		{
-			return (UINT32)(r);
-		}
+		default:
+			sharc_error("SHARC: sharc_iop_r: Unimplemented IOP reg %02X at %08X\n", offset, m_core->pc);
+			return 0;
 	}
-	else if (address >= 0x50000 && address < 0x60000)
-	{
-		UINT16 r = sharc.internal_ram_block1[(address-0x50000) ^ 1];
-		if (sharc.mode1 & 0x4000)
-		{
-			// sign-extend
-			return (INT32)(INT16)(r);
-		}
-		else
-		{
-			return (UINT32)(r);
-		}
-	}
-	else if (address >= 0x60000 && address < 0x70000)
-	{
-		UINT16 r = sharc.internal_ram_block1[(address-0x60000) ^ 1];
-		if (sharc.mode1 & 0x4000)
-		{
-			// sign-extend
-			return (INT32)(INT16)(r);
-		}
-		else
-		{
-			return (UINT32)(r);
-		}
-	}
-	else if (address >= 0x70000 && address < 0x80000)
-	{
-		UINT16 r = sharc.internal_ram_block1[(address-0x70000) ^ 1];
-		if (sharc.mode1 & 0x4000)
-		{
-			// sign-extend
-			return (INT32)(INT16)(r);
-		}
-		else
-		{
-			return (UINT32)(r);
-		}
-	}
-
-	return data_read_dword_32le(address << 2);
 }
 
-static void dm_write32(UINT32 address, UINT32 data)
+static void iop_w(UINT32 offset, UINT32 data)
 {
-	if (address < 0x100)
+	switch (offset)
 	{
-		sharc_iop_w(address, data);
-		return;
-	}
-	else if (address >= 0x20000 && address < 0x28000)
-	{
-		sharc.internal_ram_block0[((address-0x20000) * 2) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block0[((address-0x20000) * 2) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x28000 && address < 0x30000)
-	{
-		sharc.internal_ram_block1[((address-0x28000) * 2) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x28000) * 2) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x30000 && address < 0x38000)
-	{
-		sharc.internal_ram_block1[((address-0x30000) * 2) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x30000) * 2) + 1] = (UINT16)(data);
-		return;
-	}
-	else if (address >= 0x38000 && address < 0x40000)
-	{
-		sharc.internal_ram_block1[((address-0x38000) * 2) + 0] = (UINT16)(data >> 16);
-		sharc.internal_ram_block1[((address-0x38000) * 2) + 1] = (UINT16)(data);
-		return;
-	}
-
-	// short word addressing
-	else if (address >= 0x40000 && address < 0x50000)
-	{
-		sharc.internal_ram_block0[(address-0x40000) ^ 1] = data;
-		return;
-	}
-	else if (address >= 0x50000 && address < 0x60000)
-	{
-		sharc.internal_ram_block1[(address-0x50000) ^ 1] = data;
-		return;
-	}
-	else if (address >= 0x60000 && address < 0x70000)
-	{
-		sharc.internal_ram_block1[(address-0x60000) ^ 1] = data;
-		return;
-	}
-	else if (address >= 0x70000 && address < 0x80000)
-	{
-		sharc.internal_ram_block1[(address-0x70000) ^ 1] = data;
-		return;
-	}
-
-	data_write_dword_32le(address << 2, data);
-}
-
-/*****************************************************************************/
-
-static void schedule_chained_dma_op(int channel, UINT32 dma_chain_ptr, int chained_direction)
-{
-	UINT32 op_ptr = 0x20000 + dma_chain_ptr;
-
-	UINT32 int_index 		= dm_read32(op_ptr - 0);
-	UINT32 int_modifier		= dm_read32(op_ptr - 1);
-	UINT32 int_count		= dm_read32(op_ptr - 2);
-	UINT32 chain_ptr 		= dm_read32(op_ptr - 3);
-	//UINT32 gen_purpose        = dm_read32(op_ptr - 4);
-	UINT32 ext_index 		= dm_read32(op_ptr - 5);
-	UINT32 ext_modifier 	= dm_read32(op_ptr - 6);
-	UINT32 ext_count 		= dm_read32(op_ptr - 7);
-
-	if (dmaop_cycles > 0)
-	{
-		fatalerror("schedule_chained_dma_op: DMA operation already scheduled at %08X!", sharc.pc);
-	}
-
-	if (chained_direction)		// Transmit to external
-	{
-		dmaop_dst 			= ext_index;
-		dmaop_dst_modifier	= ext_modifier;
-		dmaop_dst_count		= ext_count;
-		dmaop_src			= int_index;
-		dmaop_src_modifier	= int_modifier;
-		dmaop_src_count		= int_count;
-	}
-	else			// Receive from external
-	{
-		dmaop_src 			= ext_index;
-		dmaop_src_modifier	= ext_modifier;
-		dmaop_src_count		= ext_count;
-		dmaop_dst			= int_index;
-		dmaop_dst_modifier	= int_modifier;
-		dmaop_dst_count		= int_count;
-	}
-
-	dmaop_pmode = 0;
-	dmaop_channel = channel;
-	dmaop_cycles = dmaop_src_count / 4;
-	dmaop_chain_ptr = chain_ptr;
-	dmaop_chained_direction = chained_direction;
-}
-
-static void schedule_dma_op(int channel, UINT32 src, UINT32 dst, int src_modifier, int dst_modifier, int src_count, int dst_count, int pmode)
-{
-	if (dmaop_cycles > 0)
-	{
-		fatalerror("schedule_dma_op: DMA operation already scheduled at %08X!", sharc.pc);
-	}
-
-	dmaop_channel = channel;
-	dmaop_src = src;
-	dmaop_dst = dst;
-	dmaop_src_modifier = src_modifier;
-	dmaop_dst_modifier = dst_modifier;
-	dmaop_src_count = src_count;
-	dmaop_dst_count = dst_count;
-	dmaop_pmode = pmode;
-	dmaop_chain_ptr = 0;
-	dmaop_cycles = src_count / 4;
-}
-
-static void dma_op(UINT32 src, UINT32 dst, int src_modifier, int dst_modifier, int src_count, int dst_count, int pmode)
-{
-	int i;
-	switch (pmode)
-	{
-		case 0:
+		case 0x00: m_core->syscon = data; break;
+		case 0x02: break;       /* External Memory Wait State Configuration */
+		case 0x04: /* External port DMA buffer 0 */
 		{
-			if (src_count == dst_count)
+			sharc_external_dma_write(m_core->extdma_shift, data);
+			m_core->extdma_shift++;
+			if (m_core->extdma_shift == 3)
+				m_core->extdma_shift = 0;
+			break;
+		}
+
+		case 0x08: break;       /* Message Register 0 */
+		case 0x09: break;       /* Message Register 1 */
+		case 0x0a: break;       /* Message Register 2 */
+		case 0x0b: break;       /* Message Register 3 */
+		case 0x0c: break;       /* Message Register 4 */
+		case 0x0d: break;       /* Message Register 5 */
+		case 0x0e: break;       /* Message Register 6 */
+		case 0x0f: break;       /* Message Register 7 */
+
+		case 0x14: /* reserved??? written by Last Bronx */
+		case 0x17: break;
+
+		/* DMA 6 */
+		case 0x1c:
+		{
+			m_core->dma[6].control = data;
+			if (data & 0x1)
 			{
-				for (i=0; i < src_count; i++)
-				{
-					UINT32 data = dm_read32(src);
-					dm_write32(dst, data);
-					src += src_modifier;
-					dst += dst_modifier;
-				}
-			}
-			else
-			{
-				for (i=0; i < src_count; i+=6)
-				{
-					UINT64 data = (UINT64)dm_read32(src+0) << 0 | (UINT64)dm_read32(src+1) << 8 | (UINT64)dm_read32(src+2) << 16 |
-								  (UINT64)dm_read32(src+3) << 24 | (UINT64)dm_read32(src+4) << 32 | (UINT64)dm_read32(src+5) << 40;
-					pm_write48(dst, data);
-					src += src_modifier*6;
-					dst += dst_modifier;
-				}
+				sharc_iop_delayed_w(0x1c, data, 1);
 			}
 			break;
 		}
-		case 1:
+
+		case 0x20: break;
+
+		case 0x40: m_core->dma[6].int_index = data; return;
+		case 0x41: m_core->dma[6].int_modifier = data; return;
+		case 0x42: m_core->dma[6].int_count = data; return;
+		case 0x43: m_core->dma[6].chain_ptr = data; return;
+		case 0x44: m_core->dma[6].gen_purpose = data; return;
+		case 0x45: m_core->dma[6].ext_index = data; return;
+		case 0x46: m_core->dma[6].ext_modifier = data; return;
+		case 0x47: m_core->dma[6].ext_count = data; return;
+
+		/* DMA 7 */
+		case 0x1d:
 		{
-			for (i=0; i < src_count/2; i++)
+			m_core->dma[7].control = data;
+			if (data & 0x1)
 			{
-				UINT32 data1 = dm_read32(src+0) & 0xffff;
-				UINT32 data2 = dm_read32(src+1) & 0xffff;
-				dm_write32(dst, (data1 << 16) | data2);
-				src += src_modifier*2;
-				dst += dst_modifier;
+				sharc_iop_delayed_w(0x1d, data, 30);
 			}
 			break;
+		}
+
+		case 0x48: m_core->dma[7].int_index = data; return;
+		case 0x49: m_core->dma[7].int_modifier = data; return;
+		case 0x4a: m_core->dma[7].int_count = data; return;
+		case 0x4b: m_core->dma[7].chain_ptr = data; return;
+		case 0x4c: m_core->dma[7].gen_purpose = data; return;
+		case 0x4d: m_core->dma[7].ext_index = data; return;
+		case 0x4e: m_core->dma[7].ext_modifier = data; return;
+		case 0x4f: m_core->dma[7].ext_count = data; return;
+
+		default:
+			sharc_error("SHARC: sharc_iop_w: Unimplemented IOP reg %02X, %08X at %08X\n", offset, data, m_core->pc);
+			break;
+	}
+}
+
+
+#include "sharcdma.c"
+/* port: set by a jump to itself on a FLAG input condition (a wait on the
+   outside, see sharc_core_execute) */
+
+static int sharc_cond_is_flag(int cond)
+{
+	return (cond >= 0x09 && cond <= 0x0c) || (cond >= 0x19 && cond <= 0x1c);
+}
+
+#include "sharcops.c"
+
+
+/***************************************************************************
+    OPCODE TABLE
+***************************************************************************/
+
+static void build_opcode_table(void)
+{
+	int i, j;
+	int num_ops = sizeof(s_sharc_opcode_table) / sizeof(s_sharc_opcode_table[0]);
+
+	for (i = 0; i < 512; i++)
+	{
+		UINT16 op = (UINT16)(i << 7);
+
+		sharc_op[i] = sharcop_unimplemented;
+
+		j = 0;
+		while (j < num_ops)
+		{
+			const SHARC_OP *opcode = &s_sharc_opcode_table[j++];
+			if ((opcode->op_mask & op) == opcode->op_bits)
+			{
+				sharc_op[i] = opcode->handler;
+				break;
+			}
+		}
+		while (j < num_ops)
+		{
+			const SHARC_OP *opcode = &s_sharc_opcode_table[j++];
+			if ((opcode->op_mask & op) == opcode->op_bits)
+			{
+				sharc_error("SHARC: build_opcode_table: table already filled! (i=%04X, j=%d)\n", i, j);
+			}
 		}
 	}
 }
 
-static void sharc_dma_exec(int channel)
+
+/***************************************************************************
+    HOST INTERFACE
+***************************************************************************/
+
+void sharc_external_iop_write(UINT32 address, UINT32 data)
 {
-	UINT32 src, dst;
-	UINT32 src_count, dst_count;
-	UINT32 src_modifier, dst_modifier;
-	int chen, tran, dtype, pmode, mswf, master, ishake, intio, ext, flsh;
-
-	chen = (sharc.dma[channel].control >> 1) & 0x1;
-	tran = (sharc.dma[channel].control >> 2) & 0x1;
-	dtype = (sharc.dma[channel].control >> 5) & 0x1;
-	pmode = (sharc.dma[channel].control >> 6) & 0x3;
-	mswf = (sharc.dma[channel].control >> 8) & 0x1;
-	master = (sharc.dma[channel].control >> 9) & 0x1;
-	ishake = (sharc.dma[channel].control >> 10) & 0x1;
-	intio = (sharc.dma[channel].control >> 11) & 0x1;
-	ext = (sharc.dma[channel].control >> 12) & 0x1;
-	flsh = (sharc.dma[channel].control >> 13) & 0x1;
-
-	if (ishake)
-		fatalerror("SHARC: dma_exec: handshake not supported");
-	if (intio)
-		fatalerror("SHARC: dma_exec: single-word interrupt enable not supported");
-
-
-
-	if (chen)		// Chained DMA
+	/* host packing mode used to determine width of external host bus width (16/32)
+	   if writing to external port DMA buffer, just write the data directly;
+	   external_dma_write() handles packed data */
+	if (m_core->syscon & 0x10 && address != 0x04)
 	{
-		UINT32 dma_chain_ptr = sharc.dma[channel].chain_ptr & 0x1ffff;
-
-		schedule_chained_dma_op(channel, dma_chain_ptr, tran);
+		if ((m_core->iop_write_num++ & 1) == 0)
+		{
+			m_core->iop_data = data & 0xffff;
+			return;
+		}
+		else
+		{
+			m_core->iop_data |= (data & 0xffff) << 16;
+		}
 	}
 	else
 	{
-		if (tran)		// Transmit to external
-		{
-			dst 			= sharc.dma[channel].ext_index;
-			dst_modifier	= sharc.dma[channel].ext_modifier;
-			dst_count		= sharc.dma[channel].ext_count;
-			src				= sharc.dma[channel].int_index;
-			src_modifier	= sharc.dma[channel].int_modifier;
-			src_count		= sharc.dma[channel].int_count;
-		}
-		else			// Receive from external
-		{
-			src 			= sharc.dma[channel].ext_index;
-			src_modifier	= sharc.dma[channel].ext_modifier;
-			src_count		= sharc.dma[channel].ext_count;
-			dst				= sharc.dma[channel].int_index;
-			dst_modifier	= sharc.dma[channel].int_modifier;
-			dst_count		= sharc.dma[channel].int_count;
-		}
-
-		if (dst < 0x20000)
-		{
-			dst |= 0x20000;
-		}
-
-		schedule_dma_op(channel, src, dst, src_modifier, dst_modifier, src_count, dst_count, pmode);
+		m_core->iop_data = data;
 	}
 
-	sharc.irptl |= (1 << (channel+10));
-
-	/* DMA interrupt */
-	if (sharc.imask & (1 << (channel+10)))
+	if (address == 0x1c)
 	{
-		sharc.irq_active = 1;
-		sharc.irq_active_num = channel+10;
+		m_core->dma[6].control = m_core->iop_data;
+	}
+	else
+	{
+		dm_write32(address, m_core->iop_data);
 	}
 }
 
-void sharc_write_program_ram(UINT32 address, UINT64 data)
+void sharc_external_dma_write(UINT32 address, UINT64 data)
 {
-	pm_write48(address, data);
+	/*
+	All addresses in the 17-bit index registers are offset by 0x0002 0000, the
+	first internal RAM location, before they are used by the DMA controller.
+	*/
+
+	UINT32 index = (m_core->dma[6].int_index & 0x1ffff) | 0x20000;
+	unsigned mswf = BIT(m_core->dma[6].control, 8);
+	unsigned pmode = BITS(m_core->dma[6].control, 6, 2);
+	unsigned dtype = BIT(m_core->dma[6].control, 5);
+	switch (pmode)
+	{
+		case 0:         /* no packing */
+		{
+			if (dtype)
+				pm_write32(index, (UINT32)data);
+			else
+				dm_write32(index, (UINT32)data);
+
+			m_core->dma[6].int_index += m_core->dma[6].int_modifier;
+			break;
+		}
+		case 2:         /* 16/48 packing */
+		{
+			/* FIXME: honour DTYPE */
+			unsigned word = address % 3;
+			unsigned shift = (mswf ? (2 - word) : word) * 16;
+
+			UINT64 r = pm_read48(index);
+			r &= ~((UINT64)0xffff << shift);
+			r |= (data & 0xffff) << shift;
+
+			pm_write48(index, r);
+
+			if (word == 2)
+			{
+				m_core->dma[6].int_index += m_core->dma[6].int_modifier;
+			}
+			break;
+		}
+		default:
+		{
+			/* MAME: fatal error */
+			sharc_error("SHARC: sharc_external_dma_write: unimplemented packing mode %d\n", pmode);
+			break;
+		}
+	}
 }
 
-/*****************************************************************************/
+void sharc_set_flag_input(int flag_num, int state)
+{
+	if (flag_num < 0 || flag_num > 3)
+		return;
 
-#define IOP_LATENCY_OP()					\
-		if (iop_latency_cycles > 0)			\
-		{									\
-			iop_latency_cycles--;			\
-			if (iop_latency_cycles == 0)	\
-			{								\
-				iop_latency_op();			\
-			}								\
+	/* Check if flag is set to input in MODE2 (bit == 0) */
+	if (BIT(m_core->mode2, flag_num + 15))
+	{
+		/* MAME: fatal error */
+		sharc_error("SHARC: sharc_set_flag_input: flag %d is set output!\n", flag_num);
+		return;
+	}
+
+	m_core->flag[flag_num] = state ? 1 : 0;
+}
+
+void sharc_write_stall(int state)
+{
+	m_core->write_stalled = state ? 1 : 0;
+}
+
+void sharc_stall(void)
+{
+	m_core->stalled = 1;
+}
+
+
+/***************************************************************************
+    EXECUTION
+***************************************************************************/
+
+static void check_interrupts(void)
+{
+	if ((m_core->imask & m_core->irq_pending) && (m_core->mode1 & MODE1_IRPTEN) && !m_core->interrupt_active &&
+		m_core->pc != m_core->delay_slot1 && m_core->pc != m_core->delay_slot2)
+	{
+		int which = 0;
+		int i;
+		for (i = 0; i < 32; i++)
+		{
+			if (BIT((UINT32)m_core->irq_pending, i))
+				break;
+			which++;
 		}
 
-static void sharc_set_flag_input(int flag_num, int state)
+		PUSH_PC();
+		if (m_core->idle)
+			m_core->pcstk = m_core->pc + 1;
+		else
+			m_core->pcstk = m_core->daddr;
+
+		m_core->irptl |= 1U << which;
+
+		/* TODO: timer and VIRPT interrupts also push the status stack */
+		if (which >= 6 && which <= 8)
+			PUSH_STATUS_STACK();
+
+		CHANGE_PC(0x20000 + (which * 0x4));
+
+		/* TODO: alter IMASKP */
+
+		m_core->active_irq_num = which;
+		m_core->irq_pending &= ~(1 << which);
+
+		m_core->interrupt_active = 1;
+
+		/* port: acknowledge the IRQ0-2 pins (for HOLD_LINE) */
+		if (which >= 6 && which <= 8 && sharc_irq_callback)
+			(*sharc_irq_callback)(8 - which);
+	}
+}
+
+static void snapshot_loop_state(void)
 {
-	if (flag_num >= 0 && flag_num < 4)
+	snap.loop = 1;
+	snap.curlcntr = m_core->curlcntr;
+	snap.lcntr = m_core->lcntr;
+	snap.lstkp = m_core->lstkp;
+	snap.pcstk = m_core->pcstk;
+	snap.pcstkp = m_core->pcstkp;
+	snap.stky = m_core->stky;
+	snap.laddr = m_core->laddr;
+	memcpy(snap.pcstack, m_core->pcstack, sizeof(snap.pcstack));
+	memcpy(snap.lcstack, m_core->lcstack, sizeof(snap.lcstack));
+	memcpy(snap.lastack, m_core->lastack, sizeof(snap.lastack));
+}
+
+/* undo the fetch stage of a stalled instruction */
+static void rewind_instruction(void)
+{
+	m_core->pc = snap.pc;
+	m_core->daddr = snap.daddr;
+	m_core->faddr = snap.faddr;
+	m_core->nfaddr = snap.nfaddr;
+	m_core->astat = snap.astat;
+	m_core->astat_old = snap.astat_old;
+	m_core->astat_old_old = snap.astat_old_old;
+	m_core->astat_old_old_old = snap.astat_old_old_old;
+
+	if (snap.loop)
 	{
-		// Check if flag is set to input in MODE2 (bit == 0)
-		if ((sharc.mode2 & (1 << (flag_num+15))) == 0)
+		m_core->curlcntr = snap.curlcntr;
+		m_core->lcntr = snap.lcntr;
+		m_core->lstkp = snap.lstkp;
+		m_core->pcstk = snap.pcstk;
+		m_core->pcstkp = snap.pcstkp;
+		m_core->stky = snap.stky;
+		m_core->laddr = snap.laddr;
+		memcpy(m_core->pcstack, snap.pcstack, sizeof(snap.pcstack));
+		memcpy(m_core->lcstack, snap.lcstack, sizeof(snap.lcstack));
+		memcpy(m_core->lastack, snap.lastack, sizeof(snap.lastack));
+	}
+}
+
+static int sharc_core_execute(int cycles)
+{
+	sharc_icount = cycles;
+
+	if (m_core->write_stalled)
+		sharc_icount = 0;
+
+	if (m_core->idle && m_core->irq_pending == 0)
+	{
+		int dma_count = sharc_icount;
+
+		/* run active DMAs even while idling */
+		while ((dma_count > 0) && (m_core->dma_status & ((1 << 6) | (1 << 7))))
 		{
-			sharc.astat &= ~(1 << (flag_num+19));
-			sharc.astat |= (state != 0) ? (1 << (flag_num+19)) : 0;
+			if (!m_core->write_stalled)
+			{
+				int dma_stalled = dma_run_cycle(6);
+				dma_stalled |= dma_run_cycle(7);
+				if (dma_stalled)
+					break;
+			}
+			dma_count--;
+		}
+
+		sharc_icount = 0;
+	}
+	if (m_core->irq_pending != 0)
+	{
+		check_interrupts();
+		m_core->idle = 0;
+	}
+
+	while (sharc_icount > 0 && !m_core->idle && !m_core->write_stalled)
+	{
+		int dma_stalled = 0;
+		int flag_wait = 0;
+
+		snap.pc = m_core->pc;
+		snap.daddr = m_core->daddr;
+		snap.faddr = m_core->faddr;
+		snap.nfaddr = m_core->nfaddr;
+		snap.astat = m_core->astat;
+		snap.astat_old = m_core->astat_old;
+		snap.astat_old_old = m_core->astat_old_old;
+		snap.astat_old_old_old = m_core->astat_old_old_old;
+		snap.loop = 0;
+
+		m_core->pc = m_core->daddr;
+		m_core->daddr = m_core->faddr;
+		m_core->faddr = m_core->nfaddr;
+		m_core->nfaddr++;
+
+		m_core->astat_old_old_old = m_core->astat_old_old;
+		m_core->astat_old_old = m_core->astat_old;
+		m_core->astat_old = m_core->astat;
+
+		CALL_MAME_DEBUG;
+
+		m_core->opcode = pm_read48(m_core->pc);
+
+		/* handle looping */
+		if (!(m_core->stky & LSEM) && (m_core->pc == m_core->laddr.addr))
+		{
+			snapshot_loop_state();
+
+			switch (m_core->laddr.loop_type)
+			{
+			case 0:     /* arithmetic condition-based */
+			{
+				if ((m_core->pc - TOP_PC()) > 2)
+				{
+					m_core->astat = m_core->astat_old_old_old;
+				}
+
+				if (DO_CONDITION_CODE(m_core->laddr.code))
+				{
+					POP_LOOP();
+					POP_PC();
+				}
+				else
+				{
+					/* port: a one-instruction NOP loop until a FLAG input
+					   changes waits on the outside (the Model 2B FIFO flags).
+					   No other CPU runs during this timeslice, so the flag
+					   cannot change before it ends: give it up below */
+					if (m_core->opcode == 0 && TOP_PC() == m_core->pc && sharc_cond_is_flag(m_core->laddr.code))
+						flag_wait = 1;
+					CHANGE_PC(TOP_PC());
+				}
+
+				m_core->astat = m_core->astat_old;
+				break;
+			}
+			case 1:     /* counter-based, length 1 */
+			case 2:     /* counter-based, length 2 */
+			case 3:     /* counter-based, length >2 */
+			{
+				--m_core->curlcntr;
+				if (m_core->curlcntr == 0)
+				{
+					POP_LOOP();
+					POP_PC();
+				}
+				else
+				{
+					CHANGE_PC(TOP_PC());
+				}
+			}
+			}
+		}
+
+		m_core->stalled = 0;
+		sharc_flag_spin = 0;
+
+		(*sharc_op[(m_core->opcode >> 39) & 0x1ff])();
+
+		if (sharc_flag_spin)
+			flag_wait = 1;
+
+		m_core->pf_rvalid = 0;
+		m_core->pf_wvalid = 0;
+
+		if (m_core->stalled)
+		{
+			/* port: a driver callback could not complete the access;
+			   nothing was committed: rewind and give up the timeslice */
+			m_core->stalled = 0;
+			rewind_instruction();
+			sharc_icount = 0;
+			break;
+		}
+
+		/* System register latency effect */
+		if (m_core->systemreg_latency_cycles > 0)
+		{
+			--m_core->systemreg_latency_cycles;
+			if (m_core->systemreg_latency_cycles <= 0)
+			{
+				systemreg_write_latency_effect();
+			}
+		}
+
+		/* port: no call when channels 6 and 7 are idle (most instructions) */
+		if (!m_core->write_stalled && (m_core->dma_status & ((1 << 6) | (1 << 7))))
+		{
+			dma_stalled = dma_run_cycle(6);
+			dma_stalled |= dma_run_cycle(7);
+		}
+
+		--sharc_icount;
+
+		/* port: a stalled DMA transfer gives up the timeslice too */
+		if (dma_stalled)
+			sharc_icount = 0;
+
+		/* port: waiting on a FLAG input (a NOP loop, see above, or a jump to
+		   itself): the rest of the timeslice is the same wait; only the DMA
+		   keeps running */
+		if (flag_wait && sharc_icount > 0)
+		{
+			while (sharc_icount > 0 && (m_core->dma_status & ((1 << 6) | (1 << 7))) && !m_core->write_stalled)
+			{
+				dma_stalled = dma_run_cycle(6);
+				dma_stalled |= dma_run_cycle(7);
+				if (dma_stalled)
+					break;
+				--sharc_icount;
+			}
+			sharc_icount = 0;
+		}
+	}
+
+	return cycles - sharc_icount;
+}
+
+
+/***************************************************************************
+    CPU INTERFACE
+***************************************************************************/
+
+static void sharc_core_init(int cpu)
+{
+	sharc_instance *inst = auto_malloc(sizeof(sharc_instance));
+
+	memset(inst, 0, sizeof(sharc_instance));
+	sharc_instances[cpu] = inst;
+	sharc_cur = inst;
+	sharc_cpunum = cpu;
+
+	build_opcode_table();
+
+	sharc_iop_timer = timer_alloc(sharc_iop_delayed_write_callback);
+	timer_adjust(sharc_iop_timer, TIME_NEVER, cpu, 0);
+
+	/* the whole state struct (no pointers in it) and the internal memory */
+	state_save_register_memory("sharc", cpu, "core", m_core, sizeof(UINT8), sizeof(sharc_regs));
+	state_save_register_memory("sharc", cpu, "block0", sharc_block[0], sizeof(UINT32), 0x8000);
+	state_save_register_memory("sharc", cpu, "block1", sharc_block[1], sizeof(UINT32), 0x8000);
+}
+
+static void sharc_core_reset(void *param)
+{
+	int boot_mode;
+
+	if (param)
+		sharc_cfg = (struct sharc_config *)param;
+
+	boot_mode = sharc_cfg ? sharc_cfg->boot_mode : SHARC_BOOT_MODE_HOST;
+
+	memset(sharc_block, 0, sizeof(sharc_block));
+
+	switch (boot_mode)
+	{
+		case SHARC_BOOT_MODE_EPROM:
+		{
+			m_core->dma[6].int_index      = 0x20000;
+			m_core->dma[6].int_modifier   = 1;
+			m_core->dma[6].int_count      = 0x100;
+			m_core->dma[6].ext_index      = 0x400000;
+			m_core->dma[6].ext_modifier   = 1;
+			m_core->dma[6].ext_count      = 0x600;
+			m_core->dma[6].control        = 0x2a1;
+
+			sharc_dma_exec(6);
+			dma_op(6);
+			break;
+		}
+
+		case SHARC_BOOT_MODE_HOST:
+		{
+			m_core->dma[6].int_index      = 0x20000;
+			m_core->dma[6].int_modifier   = 1;
+			m_core->dma[6].int_count      = 0x100;
+			m_core->dma[6].ext_index      = 0x400000;
+			m_core->dma[6].ext_modifier   = 1;
+			m_core->dma[6].ext_count      = 0x600;
+			m_core->dma[6].control        = 0xa1;
+			break;
+		}
+
+		default:
+			/* MAME: fatal error */
+			sharc_error("SHARC: Unimplemented boot mode %d\n", boot_mode);
+			break;
+	}
+
+	m_core->pc = 0x20004;
+	m_core->extdma_shift = 0;
+	m_core->daddr = m_core->pc + 1;
+	m_core->faddr = m_core->daddr + 1;
+	m_core->nfaddr = m_core->faddr+1;
+
+	m_core->idle = 0;
+	m_core->mode1 = 0x00000000;
+	m_core->mode2 &= 0xf0000000;
+	m_core->astat &= FLG0 | FLG1 | FLG2 | FLG3;
+	m_core->stky = PCEM | SSEM | LSEM;
+	m_core->irptl = 0x0000;
+	m_core->imask = 0x0003;
+	m_core->ustat1 = 0x0000;
+	m_core->ustat2 = 0x0000;
+
+	m_core->pcstkp = 0;
+	m_core->lstkp = 0;
+	m_core->pcstk = 0x00ffffff;
+	m_core->curlcntr = 0xffffffff;
+	m_core->lcntr = m_core->lcstack[0];
+	laddr_unpack(&m_core->laddr, 0xffffffff);
+	m_core->status_stkp = 0;
+	m_core->interrupt_active = 0;
+
+	m_core->syscon = 0x00000010;
+	m_core->sysstat &= 0x00000ff0;
+	m_core->iop_write_num = 0;
+	m_core->iop_data = 0;
+
+	m_core->stalled = 0;
+	m_core->pf_rvalid = 0;
+	m_core->pf_wvalid = 0;
+}
+
+static unsigned sharc_core_get_reg(int regnum)
+{
+	switch (regnum)
+	{
+	case REG_PC:
+	case REG_PREVIOUSPC:
+	case SHARC_PC:          return m_core->pc;
+	case REG_SP:
+	case SHARC_PCSTKP:      return m_core->pcstkp;
+	case SHARC_PCSTK:       return m_core->pcstk;
+	case SHARC_LSTKP:       return m_core->lstkp;
+	case SHARC_FADDR:       return m_core->faddr;
+	case SHARC_DADDR:       return m_core->daddr;
+	case SHARC_MODE1:       return m_core->mode1;
+	case SHARC_MODE2:       return m_core->mode2;
+	case SHARC_ASTAT:       return m_core->astat;
+	case SHARC_STKY:        return m_core->stky;
+	case SHARC_IRPTL:       return m_core->irptl;
+	case SHARC_IMASK:       return m_core->imask;
+	case SHARC_USTAT1:      return m_core->ustat1;
+	case SHARC_USTAT2:      return m_core->ustat2;
+	case SHARC_LCNTR:       return m_core->lcntr;
+	case SHARC_CURLCNTR:    return m_core->curlcntr;
+	case SHARC_STSTKP:      return (unsigned)m_core->status_stkp;
+	}
+	if (regnum >= SHARC_R0 && regnum <= SHARC_R15)
+		return (unsigned)m_core->r[regnum - SHARC_R0].r;
+	if (regnum >= SHARC_I0 && regnum <= SHARC_I15)
+	{
+		int i = regnum - SHARC_I0;
+		return (i < 8) ? m_core->dag1.i[i] : m_core->dag2.i[i & 7];
+	}
+	return 0;
+}
+
+static void sharc_core_set_reg(int regnum, unsigned val)
+{
+	switch (regnum)
+	{
+	case REG_PC:
+	case SHARC_PC:          CHANGE_PC(val & 0xffffff); return;
+	case SHARC_MODE1:       m_core->mode1 = val; return;
+	case SHARC_MODE2:       m_core->mode2 = val; return;
+	case SHARC_ASTAT:       m_core->astat = val; return;
+	case SHARC_STKY:        m_core->stky = val; return;
+	case SHARC_IRPTL:       m_core->irptl = val; return;
+	case SHARC_IMASK:       m_core->imask = val; return;
+	case SHARC_USTAT1:      m_core->ustat1 = val; return;
+	case SHARC_USTAT2:      m_core->ustat2 = val; return;
+	}
+	if (regnum >= SHARC_R0 && regnum <= SHARC_R15)
+		m_core->r[regnum - SHARC_R0].r = (INT32)val;
+	else if (regnum >= SHARC_I0 && regnum <= SHARC_I15)
+	{
+		int i = regnum - SHARC_I0;
+		if (i < 8)
+			m_core->dag1.i[i] = val;
+		else
+			m_core->dag2.i[i & 7] = val;
+	}
+}
+
+static void sharc_core_set_irq_line(int irqline, int state)
+{
+	/* as MAME execute_set_input: the IRQ0-2 pins are latched while
+	   asserted (MODE2 edge/level sensitivity is not emulated by MAME) */
+	if (irqline >= 0 && irqline <= 2)
+	{
+		if (state != CLEAR_LINE)
+		{
+			m_core->irq_pending |= 1 << (8-irqline);
 		}
 		else
 		{
-			fatalerror("sharc_set_flag_input: flag %d is set output!", flag_num);
+			m_core->irq_pending &= ~(1 << (8-irqline));
 		}
 	}
 }
 
-static offs_t sharc_dasm(char *buffer, offs_t pc)
+
+
+/***************************************************************************
+    get_info interface
+***************************************************************************/
+
+typedef struct
 {
-	UINT64 op = 0;
-	if (pc >= 0x20000 && pc < 0x30000)
-	 	op = ROPCODE(pc);
-#ifdef MAME_DEBUG
-	sharc_dasm_one(buffer, pc, op);
-#else
-	sprintf(buffer, "$%04X%08X", (UINT32)((op >> 32) & 0xffff), (UINT32)op);
-#endif
-	return 1;
-}
-
-static void check_interrupts(void);
-
-#include "sharcops.c"
-#include "sharcops.h"
-
-
-static void sharc_exit(void)
-{
-	/* TODO */
-}
+	sharc_instance *instance;
+} sharc_context;
 
 static void sharc_get_context(void *dst)
 {
-	/* copy the context */
-	if (dst)
-		*(SHARC_REGS *)dst = sharc;
+	((sharc_context *)dst)->instance = sharc_cur;
 }
 
 static void sharc_set_context(void *src)
 {
-	/* copy the context */
 	if (src)
-		sharc = *(SHARC_REGS *)src;
-
-	change_pc(sharc.pc);
+		sharc_cur = ((sharc_context *)src)->instance;
 }
 
-static void sharc_set_irq_line(int irqline, int state)
+static void sharc_init(int index, int clock, const void *config, int (*irqcallback)(int))
 {
-	/* TODO */
-	if (state)
-	{
-		if (sharc.imask & (1 << (8-irqline)))
-		{
-			sharc.irq_active = 1;
-			sharc.irq_active_num = 8-irqline;
-		}
-	}
-}
-
-static void check_interrupts(void)
-{
-	if ((sharc.imask & (1 << sharc.irq_active_num)) && (sharc.mode1 & 0x1000))
-	{
-		PUSH_PC(sharc.npc);
-
-		sharc.irptl |= 1 << sharc.irq_active_num;
-
-		if (sharc.irq_active_num >= 6 && sharc.irq_active_num <= 8)
-		{
-			PUSH_STATUS_REG(sharc.astat);
-			PUSH_STATUS_REG(sharc.mode1);
-		}
-
-		sharc.npc = 0x20000 + (sharc.irq_active_num * 0x4);
-		/* TODO: alter IMASKP */
-
-		sharc.irq_active = 0;
-	}
-}
-
-static void sharc_init(int index, int clock, const void *_config, int (*irqcallback)(int))
-{
-	const sharc_config *config = _config;
-	sharc.boot_mode = config->boot_mode;
-
-	sharc.irq_callback = irqcallback;
-
-	sharc.opcode_table = sharc_op;
-
-	sharc.internal_ram = auto_malloc(2 * 0x20000);
-	sharc.internal_ram_block0 = &sharc.internal_ram[0];
-	sharc.internal_ram_block1 = &sharc.internal_ram[0x20000/2];
+	sharc_core_init(index);
+	sharc_cfg = (struct sharc_config *)config;
+	sharc_irq_callback = irqcallback;
 }
 
 static void sharc_reset(void)
 {
-	sharc.pc = 0x20004;
-	sharc.npc = sharc.pc + 1;
-	sharc.idle = 0;
-	sharc.stky = 0x5400000;
-
-	switch(sharc.boot_mode)
-	{
-		case BOOT_MODE_EPROM:
-		{
-			sharc.dma[6].int_index		= 0x20000;
-			sharc.dma[6].int_modifier	= 1;
-			sharc.dma[6].int_count		= 0x100;
-			sharc.dma[6].ext_index		= 0x400000;
-			sharc.dma[6].ext_modifier	= 1;
-			sharc.dma[6].ext_count		= 0x600;
-
-			sharc_dma_exec(6);
-			dma_op(dmaop_src, dmaop_dst, dmaop_src_modifier, dmaop_dst_modifier, dmaop_src_count, dmaop_dst_count, dmaop_pmode);
-			dmaop_cycles = 0;
-
-			break;
-		}
-
-		case BOOT_MODE_HOST:
-			break;
-
-		default:
-			fatalerror("SHARC: Unimplemented boot mode %d", sharc.boot_mode);
-	}
+	sharc_core_reset(sharc_cfg);
 }
-
-static int sharc_execute(int num_cycles)
-{
-	sharc_icount = num_cycles;
-
-	if(sharc.idle && sharc.irq_active == 0) {
-		sharc_icount = 0;
-		CALL_MAME_DEBUG;
-	}
-	if(sharc.irq_active != 0)
-	{
-		sharc.idle = 0;
-		check_interrupts();
-	}
-
-	while(sharc_icount > 0 && !sharc.idle)
-	{
-		sharc.pc = sharc.npc;
-		sharc.npc++;
-
-		CALL_MAME_DEBUG;
-
-		/* handle looping */
-		if(sharc.pc == (sharc.laddr & 0xffffff))
-		{
-			int cond = (sharc.laddr >> 24) & 0x1f;
-
-			/* loop type */
-			switch((sharc.laddr >> 30) & 0x3)
-			{
-				case 0:		/* arithmetic condition-based */
-					if(DO_CONDITION_CODE(cond))
-					{
-						DECODE_AND_EXEC_OPCODE();
-						POP_LOOP();
-						POP_PC();
-					}
-					else
-					{
-						DECODE_AND_EXEC_OPCODE();
-						sharc.npc = TOP_PC();
-					}
-					break;
-				case 1:		/* counter-based, length 1 */
-				case 2:		/* counter-based, length 2 */
-				case 3:		/* counter-based, length >2 */
-					sharc.lcstack[sharc.lstkp]--;
-					sharc.curlcntr--;
-					if(sharc.curlcntr == 0)
-					{
-						DECODE_AND_EXEC_OPCODE();
-						POP_LOOP();
-						POP_PC();
-					}
-					else
-					{
-						DECODE_AND_EXEC_OPCODE();
-						sharc.npc = TOP_PC();
-					}
-					break;
-			}
-		}
-		else
-		{
-			DECODE_AND_EXEC_OPCODE();
-		}
-
-		systemreg_latency_op();
-		IOP_LATENCY_OP();
-		if (dmaop_cycles > 0)
-		{
-			dmaop_cycles--;
-			if (dmaop_cycles <= 0)
-			{
-				dma_op(dmaop_src, dmaop_dst, dmaop_src_modifier, dmaop_dst_modifier, dmaop_src_count, dmaop_dst_count, dmaop_pmode);
-				if (dmaop_chain_ptr != 0)
-				{
-					schedule_chained_dma_op(dmaop_channel, dmaop_chain_ptr, dmaop_chained_direction);
-				}
-			}
-		}
-
-		sharc_icount--;
-	}
-
-	// handle pending DMA operation
-	if (dmaop_cycles > 0)
-	{
-		dma_op(dmaop_src, dmaop_dst, dmaop_src_modifier, dmaop_dst_modifier, dmaop_src_count, dmaop_dst_count, dmaop_pmode);
-		dmaop_cycles = 0;
-	}
-
-	return num_cycles - sharc_icount;
-}
-
-/*****************************************************************************/
-
-/* Debugger definitions */
-
-static UINT8 sharc_reg_layout[] =
-{
-	SHARC_PC,		SHARC_PCSTK,	-1,
-	SHARC_IMASK,	SHARC_ASTAT,	-1,
-	SHARC_LCNTR,	SHARC_SYSSTAT,	-1,
-	SHARC_R0,		SHARC_R8,		-1,
-	SHARC_R1,		SHARC_R9,		-1,
-	SHARC_R2,		SHARC_R10,		-1,
-	SHARC_R3,		SHARC_R11,		-1,
-	SHARC_R4,		SHARC_R12,		-1,
-	SHARC_R5,		SHARC_R13,		-1,
-	SHARC_R6,		SHARC_R14,		-1,
-	SHARC_R7,		SHARC_R15,		0
-};
-
-static UINT8 sharc_win_layout[] =
-{
-	 0,16,34,17,	/* register window (top rows) */
-	 0, 0,80,15,	/* disassembler window (left colums) */
-	35,16,45, 2,	/* memory #2 window (right, lower middle) */
-	35,19,45, 3,	/* memory #1 window (right, upper middle) */
-	 0,23,80, 1,	/* command line window (bottom rows) */
-};
-
-/**************************************************************************
- * Generic set_info
- **************************************************************************/
 
 static void sharc_set_info(UINT32 state, union cpuinfo *info)
 {
+	if (state >= CPUINFO_INT_INPUT_STATE && state <= CPUINFO_INT_INPUT_STATE_LAST)
+	{
+		int line = state - CPUINFO_INT_INPUT_STATE;
+		if (line >= SHARC_INPUT_FLAG0 && line <= SHARC_INPUT_FLAG3)
+			sharc_set_flag_input(line - SHARC_INPUT_FLAG0, info->i != CLEAR_LINE);
+		else
+			sharc_core_set_irq_line(line, info->i);
+		return;
+	}
+
 	switch (state)
 	{
 		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + SHARC_PC:			sharc.pc = info->i;						break;
-
-		case CPUINFO_INT_REGISTER + SHARC_R0:			sharc.r[0].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R1:			sharc.r[1].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R2:			sharc.r[2].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R3:			sharc.r[3].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R4:			sharc.r[4].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R5:			sharc.r[5].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R6:			sharc.r[6].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R7:			sharc.r[7].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R8:			sharc.r[8].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R9:			sharc.r[9].r = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R10:			sharc.r[10].r = info->i;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R11:			sharc.r[11].r = info->i;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R12:			sharc.r[12].r = info->i;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R13:			sharc.r[13].r = info->i;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R14:			sharc.r[14].r = info->i;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R15:			sharc.r[15].r = info->i;				break;
-
-		case CPUINFO_INT_REGISTER + SHARC_I0:			sharc.dag1.i[0] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I1:			sharc.dag1.i[1] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I2:			sharc.dag1.i[2] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I3:			sharc.dag1.i[3] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I4:			sharc.dag1.i[4] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I5:			sharc.dag1.i[5] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I6:			sharc.dag1.i[6] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I7:			sharc.dag1.i[7] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I8:			sharc.dag2.i[0] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I9:			sharc.dag2.i[1] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I10:			sharc.dag2.i[2] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I11:			sharc.dag2.i[3] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I12:			sharc.dag2.i[4] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I13:			sharc.dag2.i[5] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I14:			sharc.dag2.i[6] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_I15:			sharc.dag2.i[7] = info->i;					break;
-
-		case CPUINFO_INT_REGISTER + SHARC_M0:			sharc.dag1.m[0] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M1:			sharc.dag1.m[1] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M2:			sharc.dag1.m[2] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M3:			sharc.dag1.m[3] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M4:			sharc.dag1.m[4] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M5:			sharc.dag1.m[5] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M6:			sharc.dag1.m[6] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M7:			sharc.dag1.m[7] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M8:			sharc.dag2.m[0] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M9:			sharc.dag2.m[1] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M10:			sharc.dag2.m[2] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M11:			sharc.dag2.m[3] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M12:			sharc.dag2.m[4] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M13:			sharc.dag2.m[5] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M14:			sharc.dag2.m[6] = info->i;					break;
-		case CPUINFO_INT_REGISTER + SHARC_M15:			sharc.dag2.m[7] = info->i;					break;
+		case CPUINFO_INT_REGISTER + SHARC_PC:	sharc_core_set_reg(SHARC_PC, info->i);	break;
 	}
 }
 
-#if (HAS_ADSP21062)
-void adsp21062_set_info(UINT32 state, union cpuinfo *info)
+#ifdef MAME_DEBUG
+static offs_t sharc_dasm(char *buffer, offs_t pc)
 {
-	if (state >= CPUINFO_INT_INPUT_STATE && state <= CPUINFO_INT_INPUT_STATE + 2)
-	{
-		sharc_set_irq_line(state-CPUINFO_INT_INPUT_STATE, info->i);
-		return;
-	}
-	else if (state >= CPUINFO_INT_INPUT_STATE + SHARC_INPUT_FLAG0 && state <= CPUINFO_INT_INPUT_STATE + SHARC_INPUT_FLAG3)
-	{
-		sharc_set_flag_input(state-(CPUINFO_INT_INPUT_STATE + SHARC_INPUT_FLAG0), info->i);
-		return;
-	}
-	switch(state)
-	{
-		default:	sharc_set_info(state, info);		break;
-	}
+	sharc_dasm_one(buffer, pc, pm_read48(pc));
+	return 1;
 }
 #endif
 
-static int sharc_debug_read(int space, UINT32 offset, int size, UINT64 *value)
+void adsp21062_get_info(UINT32 state, union cpuinfo *info)
 {
-	if (space == ADDRESS_SPACE_PROGRAM)
+	switch (state)
 	{
-		if (offset >= 0x20000 && offset < 0x30000)
-		{
-			*value = pm_read48(offset);
-		}
-		else
-		{
-			*value = 0;
-		}
-	}
-	else if (space == ADDRESS_SPACE_DATA)
-	{
-		if (offset >= 0x20000)
-		{
-			*value = dm_read32(offset/4);
-		}
-		else
-		{
-			offset = 0;
-		}
-	}
-	return 1;
-}
-
-static int sharc_debug_readop(UINT32 offset, int size, UINT64 *value)
-{
-	if (offset >= 0x20000 && offset < 0x28000)
-	{
-		UINT64 op = ((UINT64)(sharc.internal_ram_block0[((offset-0x20000) * 3) + 0]) << 32) |
-					((UINT64)(sharc.internal_ram_block0[((offset-0x20000) * 3) + 1]) << 16) |
-					((UINT64)(sharc.internal_ram_block0[((offset-0x20000) * 3) + 2]) << 0);
-		*value = op;
-	}
-	else if (offset >= 0x28000 && offset < 0x30000)
-	{
-		UINT64 op = ((UINT64)(sharc.internal_ram_block1[((offset-0x28000) * 3) + 0]) << 32) |
-					((UINT64)(sharc.internal_ram_block1[((offset-0x28000) * 3) + 1]) << 16) |
-					((UINT64)(sharc.internal_ram_block1[((offset-0x28000) * 3) + 2]) << 0);
-		*value = op;
-	}
-
-	return 1;
-}
-
-
-
-void sharc_get_info(UINT32 state, union cpuinfo *info)
-{
-	switch(state)
-	{
-		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof(sharc);				break;
+		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof(sharc_context);		break;
 		case CPUINFO_INT_INPUT_LINES:					info->i = 32;							break;
 		case CPUINFO_INT_DEFAULT_IRQ_VECTOR:			info->i = 0;							break;
 		case CPUINFO_INT_ENDIANNESS:					info->i = CPU_IS_LE;					break;
@@ -1137,182 +1512,43 @@ void sharc_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_MIN_CYCLES:					info->i = 1;							break;
 		case CPUINFO_INT_MAX_CYCLES:					info->i = 40;							break;
 
+		/* the external data memory is the data space of the machine driver
+		   (or the callbacks of the config) */
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM: info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 32;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM:	info->i = 0;					break;
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA: 	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA: 	info->i = -2;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 32;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA:	info->i = -2;					break;
 		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO: 		info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 0;					break;
+		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO:		info->i = 0;					break;
 
-		case CPUINFO_INT_INPUT_STATE:			info->i = CLEAR_LINE;	break;
+		case CPUINFO_INT_INPUT_STATE:					info->i = CLEAR_LINE;					break;
 
-		case CPUINFO_INT_PREVIOUSPC:					/* not implemented */					break;
-
+		case CPUINFO_INT_PREVIOUSPC:					info->i = sharc_core_get_reg(REG_PC);	break;
 		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + SHARC_PC:			info->i = sharc.pc;						break;
-		case CPUINFO_INT_REGISTER + SHARC_PCSTK:		info->i = sharc.pcstk;					break;
-		case CPUINFO_INT_REGISTER + SHARC_MODE1:		info->i = sharc.mode1;					break;
-		case CPUINFO_INT_REGISTER + SHARC_MODE2:		info->i = sharc.mode2;					break;
-		case CPUINFO_INT_REGISTER + SHARC_ASTAT:		info->i = sharc.astat;					break;
-		case CPUINFO_INT_REGISTER + SHARC_IRPTL:		info->i = sharc.irptl;					break;
-		case CPUINFO_INT_REGISTER + SHARC_IMASK:		info->i = sharc.imask;					break;
-		case CPUINFO_INT_REGISTER + SHARC_USTAT1:		info->i = sharc.ustat1;					break;
-		case CPUINFO_INT_REGISTER + SHARC_USTAT2:		info->i = sharc.ustat2;					break;
-		case CPUINFO_INT_REGISTER + SHARC_STATUS_STKP:	info->i = sharc.status_stkp;			break;
+		case CPUINFO_INT_REGISTER + SHARC_PC:			info->i = sharc_core_get_reg(SHARC_PC);	break;
 
-		case CPUINFO_INT_REGISTER + SHARC_R0:			info->i = sharc.r[0].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R1:			info->i = sharc.r[1].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R2:			info->i = sharc.r[2].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R3:			info->i = sharc.r[3].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R4:			info->i = sharc.r[4].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R5:			info->i = sharc.r[5].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R6:			info->i = sharc.r[6].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R7:			info->i = sharc.r[7].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R8:			info->i = sharc.r[8].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R9:			info->i = sharc.r[9].r;					break;
-		case CPUINFO_INT_REGISTER + SHARC_R10:			info->i = sharc.r[10].r;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R11:			info->i = sharc.r[11].r;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R12:			info->i = sharc.r[12].r;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R13:			info->i = sharc.r[13].r;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R14:			info->i = sharc.r[14].r;				break;
-		case CPUINFO_INT_REGISTER + SHARC_R15:			info->i = sharc.r[15].r;				break;
-
-		case CPUINFO_INT_REGISTER + SHARC_I0:			info->i = sharc.dag1.i[0];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I1:			info->i = sharc.dag1.i[1];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I2:			info->i = sharc.dag1.i[2];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I3:			info->i = sharc.dag1.i[3];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I4:			info->i = sharc.dag1.i[4];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I5:			info->i = sharc.dag1.i[5];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I6:			info->i = sharc.dag1.i[6];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I7:			info->i = sharc.dag1.i[7];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I8:			info->i = sharc.dag2.i[0];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I9:			info->i = sharc.dag2.i[1];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I10:			info->i = sharc.dag2.i[2];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I11:			info->i = sharc.dag2.i[3];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I12:			info->i = sharc.dag2.i[4];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I13:			info->i = sharc.dag2.i[5];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I14:			info->i = sharc.dag2.i[6];					break;
-		case CPUINFO_INT_REGISTER + SHARC_I15:			info->i = sharc.dag2.i[7];					break;
-
-		case CPUINFO_INT_REGISTER + SHARC_M0:			info->i = sharc.dag1.m[0];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M1:			info->i = sharc.dag1.m[1];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M2:			info->i = sharc.dag1.m[2];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M3:			info->i = sharc.dag1.m[3];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M4:			info->i = sharc.dag1.m[4];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M5:			info->i = sharc.dag1.m[5];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M6:			info->i = sharc.dag1.m[6];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M7:			info->i = sharc.dag1.m[7];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M8:			info->i = sharc.dag2.m[0];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M9:			info->i = sharc.dag2.m[1];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M10:			info->i = sharc.dag2.m[2];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M11:			info->i = sharc.dag2.m[3];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M12:			info->i = sharc.dag2.m[4];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M13:			info->i = sharc.dag2.m[5];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M14:			info->i = sharc.dag2.m[6];					break;
-		case CPUINFO_INT_REGISTER + SHARC_M15:			info->i = sharc.dag2.m[7];					break;
-
-		/* --- the following bits of info are returned as pointers to data or functions --- */
+		case CPUINFO_PTR_SET_INFO:						info->setinfo = sharc_set_info;			break;
 		case CPUINFO_PTR_GET_CONTEXT:					info->getcontext = sharc_get_context;	break;
 		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = sharc_set_context;	break;
 		case CPUINFO_PTR_INIT:							info->init = sharc_init;				break;
 		case CPUINFO_PTR_RESET:							info->reset = sharc_reset;				break;
-		case CPUINFO_PTR_EXIT:							info->exit = sharc_exit;				break;
-		case CPUINFO_PTR_EXECUTE:						info->execute = sharc_execute;			break;
-		case CPUINFO_PTR_BURN:							info->burn = NULL;						break;
+		case CPUINFO_PTR_EXIT:							info->exit = 0;							break;
+		case CPUINFO_PTR_EXECUTE:						info->execute = sharc_core_execute;		break;
+		case CPUINFO_PTR_BURN:							info->burn = 0;							break;
+#ifdef MAME_DEBUG
 		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = sharc_dasm;			break;
-		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &sharc_icount;			break;
-		case CPUINFO_PTR_REGISTER_LAYOUT:				info->p = sharc_reg_layout;				break;
-		case CPUINFO_PTR_WINDOW_LAYOUT:					info->p = sharc_win_layout;				break;
-		case CPUINFO_PTR_READ:							info->read = sharc_debug_read;			break;
-		case CPUINFO_PTR_READOP:						info->readop = sharc_debug_readop;		break;
-
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "SHARC"); break;
-		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "1.0"); break;
-		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__); break;
-		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Copyright (C) 2004 Ville Linde"); break;
-
-		case CPUINFO_STR_FLAGS:							strcpy(info->s = cpuintrf_temp_str(), " "); break;
-
-		case CPUINFO_STR_REGISTER + SHARC_PC:			sprintf(info->s = cpuintrf_temp_str(), "PC: %08X", sharc.pc); break;
-		case CPUINFO_STR_REGISTER + SHARC_PCSTK:		sprintf(info->s = cpuintrf_temp_str(), "PCSTK: %08X", sharc.pcstk); break;
-		case CPUINFO_STR_REGISTER + SHARC_MODE1:		sprintf(info->s = cpuintrf_temp_str(), "MODE1: %08X", sharc.mode1); break;
-		case CPUINFO_STR_REGISTER + SHARC_MODE2:		sprintf(info->s = cpuintrf_temp_str(), "MODE2: %08X", sharc.mode2); break;
-		case CPUINFO_STR_REGISTER + SHARC_ASTAT:		sprintf(info->s = cpuintrf_temp_str(), "ASTAT: %08X", sharc.astat); break;
-		case CPUINFO_STR_REGISTER + SHARC_IRPTL:		sprintf(info->s = cpuintrf_temp_str(), "IRPTL: %08X", sharc.irptl); break;
-		case CPUINFO_STR_REGISTER + SHARC_IMASK:		sprintf(info->s = cpuintrf_temp_str(), "IMASK: %08X", sharc.imask); break;
-		case CPUINFO_STR_REGISTER + SHARC_USTAT1:		sprintf(info->s = cpuintrf_temp_str(), "USTAT1: %08X", sharc.ustat1); break;
-		case CPUINFO_STR_REGISTER + SHARC_USTAT2:		sprintf(info->s = cpuintrf_temp_str(), "USTAT2: %08X", sharc.ustat2); break;
-		case CPUINFO_STR_REGISTER + SHARC_STATUS_STKP:	sprintf(info->s = cpuintrf_temp_str(), "STATUSSTKP: %08X", sharc.status_stkp); break;
-
-		case CPUINFO_STR_REGISTER + SHARC_R0:			sprintf(info->s = cpuintrf_temp_str(), "R0: %08X", (UINT32)sharc.r[0].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R1:			sprintf(info->s = cpuintrf_temp_str(), "R1: %08X", (UINT32)sharc.r[1].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R2:			sprintf(info->s = cpuintrf_temp_str(), "R2: %08X", (UINT32)sharc.r[2].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R3:			sprintf(info->s = cpuintrf_temp_str(), "R3: %08X", (UINT32)sharc.r[3].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R4:			sprintf(info->s = cpuintrf_temp_str(), "R4: %08X", (UINT32)sharc.r[4].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R5:			sprintf(info->s = cpuintrf_temp_str(), "R5: %08X", (UINT32)sharc.r[5].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R6:			sprintf(info->s = cpuintrf_temp_str(), "R6: %08X", (UINT32)sharc.r[6].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R7:			sprintf(info->s = cpuintrf_temp_str(), "R7: %08X", (UINT32)sharc.r[7].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R8:			sprintf(info->s = cpuintrf_temp_str(), "R8: %08X", (UINT32)sharc.r[8].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R9:			sprintf(info->s = cpuintrf_temp_str(), "R9: %08X", (UINT32)sharc.r[9].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R10:			sprintf(info->s = cpuintrf_temp_str(), "R10: %08X", (UINT32)sharc.r[10].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R11:			sprintf(info->s = cpuintrf_temp_str(), "R11: %08X", (UINT32)sharc.r[11].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R12:			sprintf(info->s = cpuintrf_temp_str(), "R12: %08X", (UINT32)sharc.r[12].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R13:			sprintf(info->s = cpuintrf_temp_str(), "R13: %08X", (UINT32)sharc.r[13].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R14:			sprintf(info->s = cpuintrf_temp_str(), "R14: %08X", (UINT32)sharc.r[14].r); break;
-		case CPUINFO_STR_REGISTER + SHARC_R15:			sprintf(info->s = cpuintrf_temp_str(), "R15: %08X", (UINT32)sharc.r[15].r); break;
-
-		case CPUINFO_STR_REGISTER + SHARC_I0:			sprintf(info->s = cpuintrf_temp_str(), "I0: %08X", (UINT32)sharc.dag1.i[0]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I1:			sprintf(info->s = cpuintrf_temp_str(), "I1: %08X", (UINT32)sharc.dag1.i[1]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I2:			sprintf(info->s = cpuintrf_temp_str(), "I2: %08X", (UINT32)sharc.dag1.i[2]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I3:			sprintf(info->s = cpuintrf_temp_str(), "I3: %08X", (UINT32)sharc.dag1.i[3]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I4:			sprintf(info->s = cpuintrf_temp_str(), "I4: %08X", (UINT32)sharc.dag1.i[4]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I5:			sprintf(info->s = cpuintrf_temp_str(), "I5: %08X", (UINT32)sharc.dag1.i[5]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I6:			sprintf(info->s = cpuintrf_temp_str(), "I6: %08X", (UINT32)sharc.dag1.i[6]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I7:			sprintf(info->s = cpuintrf_temp_str(), "I7: %08X", (UINT32)sharc.dag1.i[7]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I8:			sprintf(info->s = cpuintrf_temp_str(), "I8: %08X", (UINT32)sharc.dag2.i[0]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I9:			sprintf(info->s = cpuintrf_temp_str(), "I9: %08X", (UINT32)sharc.dag2.i[1]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I10:			sprintf(info->s = cpuintrf_temp_str(), "I10: %08X", (UINT32)sharc.dag2.i[2]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I11:			sprintf(info->s = cpuintrf_temp_str(), "I11: %08X", (UINT32)sharc.dag2.i[3]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I12:			sprintf(info->s = cpuintrf_temp_str(), "I12: %08X", (UINT32)sharc.dag2.i[4]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I13:			sprintf(info->s = cpuintrf_temp_str(), "I13: %08X", (UINT32)sharc.dag2.i[5]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I14:			sprintf(info->s = cpuintrf_temp_str(), "I14: %08X", (UINT32)sharc.dag2.i[6]); break;
-		case CPUINFO_STR_REGISTER + SHARC_I15:			sprintf(info->s = cpuintrf_temp_str(), "I15: %08X", (UINT32)sharc.dag2.i[7]); break;
-
-		case CPUINFO_STR_REGISTER + SHARC_M0:			sprintf(info->s = cpuintrf_temp_str(), "M0: %08X", (UINT32)sharc.dag1.m[0]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M1:			sprintf(info->s = cpuintrf_temp_str(), "M1: %08X", (UINT32)sharc.dag1.m[1]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M2:			sprintf(info->s = cpuintrf_temp_str(), "M2: %08X", (UINT32)sharc.dag1.m[2]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M3:			sprintf(info->s = cpuintrf_temp_str(), "M3: %08X", (UINT32)sharc.dag1.m[3]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M4:			sprintf(info->s = cpuintrf_temp_str(), "M4: %08X", (UINT32)sharc.dag1.m[4]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M5:			sprintf(info->s = cpuintrf_temp_str(), "M5: %08X", (UINT32)sharc.dag1.m[5]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M6:			sprintf(info->s = cpuintrf_temp_str(), "M6: %08X", (UINT32)sharc.dag1.m[6]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M7:			sprintf(info->s = cpuintrf_temp_str(), "M7: %08X", (UINT32)sharc.dag1.m[7]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M8:			sprintf(info->s = cpuintrf_temp_str(), "M8: %08X", (UINT32)sharc.dag2.m[0]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M9:			sprintf(info->s = cpuintrf_temp_str(), "M9: %08X", (UINT32)sharc.dag2.m[1]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M10:			sprintf(info->s = cpuintrf_temp_str(), "M10: %08X", (UINT32)sharc.dag2.m[2]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M11:			sprintf(info->s = cpuintrf_temp_str(), "M11: %08X", (UINT32)sharc.dag2.m[3]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M12:			sprintf(info->s = cpuintrf_temp_str(), "M12: %08X", (UINT32)sharc.dag2.m[4]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M13:			sprintf(info->s = cpuintrf_temp_str(), "M13: %08X", (UINT32)sharc.dag2.m[5]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M14:			sprintf(info->s = cpuintrf_temp_str(), "M14: %08X", (UINT32)sharc.dag2.m[6]); break;
-		case CPUINFO_STR_REGISTER + SHARC_M15:			sprintf(info->s = cpuintrf_temp_str(), "M15: %08X", (UINT32)sharc.dag2.m[7]); break;
-	}
-}
-
-#if (HAS_ADSP21062)
-void adsp21062_get_info(UINT32 state, union cpuinfo *info)
-{
-	switch(state)
-	{
-		/* --- the following bits of info are returned as pointers to data or functions --- */
-		case CPUINFO_PTR_SET_INFO:						info->setinfo = adsp21062_set_info;		break;
-
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "ADSP21062"); break;
-
-		default:	sharc_get_info(state, info);		break;
-	}
-}
 #endif
+		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &sharc_icount;			break;
+
+		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "ADSP21062");				break;
+		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "Analog Devices SHARC");	break;
+		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "3.0");					break;
+		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__);				break;
+		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Ville Linde");			break;
+		case CPUINFO_STR_FLAGS:							sprintf(info->s = cpuintrf_temp_str(), "%08X", m_core->astat);	break;
+		case CPUINFO_STR_REGISTER + SHARC_PC:			sprintf(info->s = cpuintrf_temp_str(), "PC:%06X", m_core->pc);	break;
+	}
+}

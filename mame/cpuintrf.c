@@ -183,6 +183,7 @@ void tmp90841_get_info(UINT32 state, union cpuinfo *info);
 void tmp91640_get_info(UINT32 state, union cpuinfo *info);
 void tmp91641_get_info(UINT32 state, union cpuinfo *info);
 void mb86233_get_info(UINT32 state, union cpuinfo *info);
+void mb86235_get_info(UINT32 state, union cpuinfo *info);
 
 void cdp1802_get_info(UINT32 state, union cpuinfo *info);
 void cop420_get_info(UINT32 state, union cpuinfo *info);
@@ -732,6 +733,9 @@ static const struct
 #endif
 #if (HAS_MB86233)
 	{ CPU_MB86233, mb86233_get_info },
+#endif
+#if (HAS_MB86235)
+	{ CPU_MB86235, mb86235_get_info },
 #endif
 
 #if (HAS_CDP1802)

@@ -109,7 +109,7 @@ ifneq ($$(filter ADSP21062,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/sharc
 $(1)CPUOBJS += $(2)/cpu/sharc/sharc.o
 $(1)DBGOBJS += $(2)/cpu/sharc/sharcdsm.o
-$(2)/cpu/sharc/sharc.o: sharc.c sharc.h sharcops.c sharcops.h sharcdsm.c sharcdsm.h compute.c
+$(2)/cpu/sharc/sharc.o: sharc.c sharc.h sharcops.c sharcdma.c compute.c
 endif
 
 
@@ -460,8 +460,19 @@ $(1)CPUDEFS += -DHAS_MB86233=$$(if $$(filter MB86233,$$($(1)CPUS)),1,0)
 ifneq ($$(filter MB86233,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/mb86233
 $(1)CPUOBJS += $(2)/cpu/mb86233/mb86233.o
-$(1)DBGOBJS += $(2)/cpu/mb86233/mb86233d.o
 $(2)/cpu/mb86233/mb86233.o: mb86233.c mb86233.h
+endif
+
+#-------------------------------------------------
+# Fujitsu MB86235
+#-------------------------------------------------
+
+$(1)CPUDEFS += -DHAS_MB86235=$$(if $$(filter MB86235,$$($(1)CPUS)),1,0)
+
+ifneq ($$(filter MB86235,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/mb86235
+$(1)CPUOBJS += $(2)/cpu/mb86235/mb86235.o
+$(2)/cpu/mb86235/mb86235.o: mb86235.c mb86235.h
 endif
 
 #-------------------------------------------------
