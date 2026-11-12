@@ -18,7 +18,7 @@ INTERRUPT_GEN( gamecom_scanline ) {
 	if ( scanline == 0 ) {
 		base_address = ( internal_registers[SM8521_LCDC] & 0x40 ) ? 0x2000 : 0x0000;
 	}
-	if ( ! internal_registers[SM8521_LCDC] & 0x80 ) {
+	if ( !(internal_registers[SM8521_LCDC] & 0x80) ) {
 		rectangle rec;
 		rec.min_x = 0;
 		rec.max_x = Y_PIXELS - 1;

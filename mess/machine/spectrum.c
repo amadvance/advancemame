@@ -204,10 +204,10 @@ static int spectrum_setup_tap(offs_t address, UINT8 *snapshot_data, int snapshot
 		{
 			if (spectrum_plus3_port_1ffd_data != -1)
 			{
-				if (!spectrum_plus3_port_1ffd_data & 0x04)
+				if (!(spectrum_plus3_port_1ffd_data & 0x04))
 					return address;
 			}
-			if (!spectrum_128_port_7ffd_data & 0x10)
+			if (!(spectrum_128_port_7ffd_data & 0x10))
 				return address;
 		}
 	}
@@ -216,7 +216,7 @@ static int spectrum_setup_tap(offs_t address, UINT8 *snapshot_data, int snapshot
 		/* For TS2068 also check that EXROM is paged into bottom 8K.
 		 * Code is not relocatable so don't need to check EXROM in other pages.
 		 */
-		if ((!ts2068_port_f4_data & 0x01) || (!ts2068_port_ff_data & 0x80))
+		if (!(ts2068_port_f4_data & 0x01) || !(ts2068_port_ff_data & 0x80))
 			return address;
 		if ((address < 0x018d) || (address > 0x01aa))
 			return address;

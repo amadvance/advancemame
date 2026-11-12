@@ -312,22 +312,22 @@ INLINE void saturn_st_jump_bit_clear(void)
 {
 	int adr;
 	switch(READ_OP_ARG()) {
-	case 0: saturn.carry=!saturn.st&1;break;
-	case 1: saturn.carry=!saturn.st&2;break;
-	case 2: saturn.carry=!saturn.st&4;break;
-	case 3: saturn.carry=!saturn.st&8;break;
-	case 4: saturn.carry=!saturn.st&0x10;break;
-	case 5: saturn.carry=!saturn.st&0x20;break;
-	case 6: saturn.carry=!saturn.st&0x40;break;
-	case 7: saturn.carry=!saturn.st&0x80;break;
-	case 8: saturn.carry=!saturn.st&0x100;break;
-	case 9: saturn.carry=!saturn.st&0x200;break;
-	case 0xa: saturn.carry=!saturn.st&0x400;break;
-	case 0xb: saturn.carry=!saturn.st&0x800;break;
-	case 0xc: saturn.carry=!saturn.st&0x1000;break;
-	case 0xd: saturn.carry=!saturn.st&0x2000;break;
-	case 0xe: saturn.carry=!saturn.st&0x4000;break;
-	case 0xf: saturn.carry=!saturn.st&0x8000;break;
+	case 0: saturn.carry=!(saturn.st&1);break;
+	case 1: saturn.carry=!(saturn.st&2);break;
+	case 2: saturn.carry=!(saturn.st&4);break;
+	case 3: saturn.carry=!(saturn.st&8);break;
+	case 4: saturn.carry=!(saturn.st&0x10);break;
+	case 5: saturn.carry=!(saturn.st&0x20);break;
+	case 6: saturn.carry=!(saturn.st&0x40);break;
+	case 7: saturn.carry=!(saturn.st&0x80);break;
+	case 8: saturn.carry=!(saturn.st&0x100);break;
+	case 9: saturn.carry=!(saturn.st&0x200);break;
+	case 0xa: saturn.carry=!(saturn.st&0x400);break;
+	case 0xb: saturn.carry=!(saturn.st&0x800);break;
+	case 0xc: saturn.carry=!(saturn.st&0x1000);break;
+	case 0xd: saturn.carry=!(saturn.st&0x2000);break;
+	case 0xe: saturn.carry=!(saturn.st&0x4000);break;
+	case 0xf: saturn.carry=!(saturn.st&0x8000);break;
 	}
 	adr=READ_OP_DIS8();
 	if (saturn.carry) {
