@@ -47,7 +47,11 @@
 
 #define MINIMUM_COMMAND_TIME			(TIME_IN_USEC(10))
 
-#define TIME_PER_SECTOR					(TIME_IN_USEC(100))
+/* Consecutive reads only need the ATA turnaround delay; a write still waits
+   for the sector to be committed.  Sharing the write delay makes bulk reads
+   spend most of their emulated time waiting for the controller. */
+#define TIME_PER_SECTOR_READ				(TIME_IN_NSEC(400))
+#define TIME_PER_SECTOR_WRITE				(TIME_IN_USEC(100))
 #define TIME_PER_ROTATION				(TIME_IN_HZ(5400/60))
 #define TIME_SECURITY_ERROR				(TIME_IN_MSEC(1000))
 
@@ -951,7 +955,7 @@ static void read_first_sector(struct ide_state *ide)
 		ide_event(ide, 1, seek_time, IDE_EVENT_READ_SECTOR);
 	}
 	else
-		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_READ_SECTOR);
+		ide_event(ide, 1, TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
 }
 
 
@@ -971,7 +975,7 @@ static void read_next_sector(struct ide_state *ide)
 	}
 	else
 		/* just set a timer */
-		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_READ_SECTOR);
+		ide_event(ide, 1, TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
 }
 
 
@@ -1003,13 +1007,13 @@ static void continue_write(struct ide_state *ide)
 		else
 		{
 			/* set a timer to do the write */
-			ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_WRITE_SECTOR);
+			ide_event(ide, 1, TIME_PER_SECTOR_WRITE, IDE_EVENT_WRITE_SECTOR);
 		}
 	}
 	else
 	{
 		/* set a timer to do the write */
-		ide_event(ide, 1, TIME_PER_SECTOR, IDE_EVENT_WRITE_SECTOR);
+		ide_event(ide, 1, TIME_PER_SECTOR_WRITE, IDE_EVENT_WRITE_SECTOR);
 	}
 }
 
