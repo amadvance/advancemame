@@ -1626,7 +1626,7 @@ WRITE8_HANDLER ( gb_video_w )
 		gb_chrgen = gb_vram + ((data & 0x10) ? 0x0000 : 0x0800);
 		gb_tile_no_mod = (data & 0x10) ? 0x00 : 0x80;
 		gb_bgdtab = gb_vram + ((data & 0x08) ? 0x1C00 : 0x1800 );
-		gb_wndtab = gb_vram + ((data * 0x40) ? 0x1C00 : 0x1800 );
+		gb_wndtab = gb_vram + ((data & 0x40) ? 0x1C00 : 0x1800 );
 		/* if LCD controller is switched off, set STAT to 00 */
 		if ( ! ( data & 0x80 ) ) {
 			LCDSTAT &= ~0x03;
