@@ -512,6 +512,7 @@ $(1)CPUDEFS += -DHAS_RM7000=$$(if $$(filter RM7000,$$($(1)CPUS)),1,0)
 ifneq ($$(filter R4600 R4650 R4700 R5000 QED5271 RM7000,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/mips
 $(1)CPUOBJS += $(2)/cpu/mips/mips3.o
+$(2)/cpu/mips/mips3.o: CFLAGS += -fno-strict-aliasing
 $(2)/cpu/mips/mips3.o: mips3.c mips3.h mips3jit.c mips3jit.h $$(srcdir)/mame/cpu/jitcache.h
 $(1)DBGOBJS += $(2)/cpu/mips/mips3dsm.o
 endif
@@ -722,10 +723,7 @@ ifneq ($$(filter DSP56156,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/dsp56k
 $(1)CPUOBJS += $(2)/cpu/dsp56k/dsp56k.o
 $(1)DBGOBJS += $(2)/cpu/dsp56k/dsp56dsm.o
-# Preserve the arcade core's existing target-specific aliasing option.
-ifeq ($(3),mame)
 $(2)/cpu/dsp56k/dsp56k.o: CFLAGS += -fno-strict-aliasing
-endif
 $(2)/cpu/dsp56k/dsp56k.o: dsp56k.c dsp56ops.c dsp56k.h dsp56core.h dsp56def.h dsp56pcu.c dsp56pcu.h dsp56mem.c dsp56mem.h
 endif
 
@@ -993,6 +991,7 @@ ifneq ($$(filter TMS32031,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/tms32031
 $(1)CPUOBJS += $(2)/cpu/tms32031/tms32031.o
 $(1)DBGOBJS += $(2)/cpu/tms32031/dis32031.o
+$(2)/cpu/tms32031/tms32031.o: CFLAGS += -fno-strict-aliasing
 $(2)/cpu/tms32031/tms32031.o: tms32031.c tms32031.h
 endif
 

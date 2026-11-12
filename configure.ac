@@ -193,6 +193,7 @@ if test $ac_auto_cflags = yes; then
 
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about aliasing
 		dnl WARNING! At present disabled to maximize performance
+		dnl Some CPU cores need it and have it enabled per file in mame/cpu/cpu.mak (dsp56k, mips3, sh3, tms32031)
 		dnl AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about overflow in signed integers
 		dnl WARNING! At present disabled to maximize performance
