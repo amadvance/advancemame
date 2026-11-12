@@ -278,6 +278,7 @@ SOUNDS += RF5C400
 DRVLIBS = \
 	$(OBJ)/alba.a \
 	$(OBJ)/alliedl.a \
+	$(OBJ)/andamiro.a \
 	$(OBJ)/alpha.a \
 	$(OBJ)/amiga.a \
 	$(OBJ)/atari.a \
@@ -438,6 +439,9 @@ $(OBJ)/alba.a: \
 $(OBJ)/alliedl.a: \
 	$(OBJ)/drivers/ace.o \
 	$(OBJ)/drivers/clayshoo.o $(OBJ)/machine/clayshoo.o $(OBJ)/vidhrdw/clayshoo.o \
+
+$(OBJ)/andamiro.a: \
+	$(OBJ)/drivers/midas.o \
 
 $(OBJ)/alpha.a: \
 	$(OBJ)/drivers/alpha68k.o $(OBJ)/drivers/alpha68k_n.o $(OBJ)/vidhrdw/alpha68k.o \

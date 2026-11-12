@@ -7260,6 +7260,10 @@ Other Sun games
 	DRIVER( sfkicka )
 	DRIVER( spinkick )
 
+	/* Andamiro */
+	DRIVER( livequiz )
+	DRIVER( hammer )
+
 	/* Sang Ho Soft */
 	DRIVER( pzlestar )
 	DRIVER( sexyboom )
