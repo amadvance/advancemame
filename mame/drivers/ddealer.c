@@ -221,13 +221,19 @@ static WRITE16_HANDLER( fg_vram_w )
 		tilemap_mark_tile_dirty(fg_tilemap_left, offset & 0x17ff);
 }
 
+static WRITE16_HANDLER( ym2203_w )
+{
+	if (ACCESSING_LSB)
+		YM2203_word_0_w(offset, data & 0xff);
+}
+
 static ADDRESS_MAP_START( ddealer_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x03ffff) AM_ROM
 	AM_RANGE(0x080000, 0x080001) AM_READ(input_port_0_word_r)
 	AM_RANGE(0x080002, 0x080003) AM_READ(input_port_1_word_r)
 	AM_RANGE(0x080006, 0x080007) AM_READ(input_port_3_word_r)
 	AM_RANGE(0x080008, 0x080009) AM_READ(input_port_2_word_r)
-	AM_RANGE(0x084000, 0x084003) AM_WRITE(YM2203_word_0_w)
+	AM_RANGE(0x084000, 0x084003) AM_WRITE(ym2203_w)
 	AM_RANGE(0x088000, 0x0883ff) AM_READWRITE(MRA16_RAM, paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
 	AM_RANGE(0x08c000, 0x08c1ff) AM_RAM AM_BASE(&ddealer_vregs)
 	AM_RANGE(0x090000, 0x093fff) AM_READWRITE(MRA16_RAM, fg_vram_w) AM_BASE(&ddealer_fg_vram)
