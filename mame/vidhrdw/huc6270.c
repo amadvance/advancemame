@@ -333,7 +333,7 @@ void pce_refresh_line(int bitmap_line, int line)
     int i0, i1, i2, i3;
     int cell_pattern_index;
     int cell_palette;
-    int x, c, i;
+    int x, c, i, px;
 
 #ifdef MAME_DEBUG
 	line_buffer_size = vdc.physical_width + 8;
@@ -378,9 +378,11 @@ void pce_refresh_line(int bitmap_line, int line)
 
 #ifdef MAME_DEBUG
 //apparently some kind of bounds check?
-				assert((i<<3)+x < (line_buffer_size));
 #endif
-				line_buffer[(i<<3)+x] = Machine->pens[c];
+				/* fine horizontal scroll: the low 3 bits of BXR shift the line left */
+				px = (i<<3)+x-(scroll_x & 7);
+				if(px >= 0 && px < vdc.physical_width)
+					line_buffer[px] = Machine->pens[c];
 			}
 		}
 
