@@ -1747,7 +1747,7 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 					//printf("save to eeprom\n");
 
 					{
-						UINT32 length;//, size;
+						int length;//, size;
 						UINT8 *dat;
 
 						dat = (UINT8 *)EEPROM_get_data_pointer(&length);
@@ -2022,7 +2022,7 @@ void calc3_mcu_run(void)
 			kaneko16_mcu_ram[cakc3_checkumaddress / 2] = calc3_mcu_crc;				// MCU Rom Checksum!
 
 			{
-				UINT32 length;//, size;
+				int length;//, size;
 				UINT8 *dat;
 
 				dat = (UINT8 *)EEPROM_get_data_pointer(&length);
