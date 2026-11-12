@@ -255,6 +255,7 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
   // copyright-holders:<Author 1>, <Author 2>, ...
   ```
   Ensure these two lines are present at the very beginning of the file when creating, backporting, or updating source files.
+- **File Search Scope**: Search for files only in `/extra/advmame`, `/extra/mame` and the current directory. Never search the whole filesystem (e.g. `find /`). In the current directory, always prefer `git grep` over `grep`.
 - **Temporary files** Create temporary files and directories under `/tmp/advancemame/`.
 
 ## 7.1 Development for the advance/ directory
