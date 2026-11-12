@@ -30,7 +30,7 @@ merged Street Fighter Zero for MESS
 /* this is to keep GCC from whining about unused statics */
 int dummy_function(void)
 {
-	return ((int) construct_forgottn) | ((int) construct_sf2) | ((int) construct_qsound);
+	return ((int)(FPTR)construct_forgottn) | ((int)(FPTR)construct_sf2) | ((int)(FPTR)construct_qsound);
 }
 
 void wof_decode(void)      { }

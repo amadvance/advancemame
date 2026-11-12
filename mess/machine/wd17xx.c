@@ -290,7 +290,8 @@ void wd179x_set_density(DENSITY density)
 
 static void	wd179x_busy_callback(int dummy)
 {
-	WD179X *w = (WD179X *)dummy;
+	/* there is a single controller instance, so no pointer needs to go through the int timer parameter */
+	WD179X *w = &wd;
 
 	wd179x_set_irq(w);			
 	timer_reset(busy_timer, TIME_NEVER);
@@ -301,7 +302,7 @@ static void	wd179x_busy_callback(int dummy)
 static void wd179x_set_busy(WD179X *w, double milliseconds)
 {
 	w->status |= STA_1_BUSY;
-	timer_adjust(busy_timer, TIME_IN_MSEC(milliseconds), (int)w, 0);
+	timer_adjust(busy_timer, TIME_IN_MSEC(milliseconds), 0, 0);
 }
 
 

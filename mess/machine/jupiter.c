@@ -121,7 +121,7 @@ MACHINE_START( jupiter )
 	}
 	if (jupiter_data)
 	{
-		logerror("data: %08X. type: %d.\n", (int) jupiter_data,
+		logerror("data: %p. type: %d.\n", (void *)jupiter_data,
 											(int) jupiter_data_type);
 		memory_set_opbase_handler(0, jupiter_opbaseoverride);
 	}
@@ -202,7 +202,7 @@ DEVICE_LOAD( jupiter_ace )
 	logerror("Decoded %d bytes.\r\n", jupiter_index);
 	jupiter_data_type = JUPITER_ACE;
 
-	logerror("data: %08X\n", (int) jupiter_data);
+	logerror("data: %p\n", (void *)jupiter_data);
 	return (0);
 }
 
