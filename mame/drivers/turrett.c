@@ -4,7 +4,7 @@
 
     Turret Tower by Dell Electronics
 
-    Press F2 (Service) to start the game after the boot.
+    The startup inspection wait is bypassed in DRIVER_INIT.
 
 ****************************************************************************/
 
@@ -641,6 +641,16 @@ static VIDEO_START( turrett )
 	return 0;
 }
 
+static DRIVER_INIT( turrett )
+{
+	UINT32 *rom = (UINT32 *)memory_region(REGION_USER1);
+
+	/* Replace the inspection screen's endless branch at 0x9fc00794 with
+	   a branch to 0x9fc0a138, the same resume routine invoked by Service.
+	   Keep its initialization and the original branch delay slot intact. */
+	rom[0x794 / 4] = 0x10002668;
+}
+
 /*************************************
  *
  *  Memory maps
@@ -763,4 +773,4 @@ ROM_START( turrett )
 	DISK_IMAGE( "turrett", 0, BAD_DUMP SHA1(b0c98c5876870dd8b3e37a38fe35846c9e011df4) )
 ROM_END
 
-GAME( 2001, turrett, 0, turrett, turrett, 0, ROT0, "Dell Electronics (Namco license)", "Turret Tower - The Enemy Has Arrived", 0 )
+GAME( 2001, turrett, 0, turrett, turrett, turrett, ROT0, "Dell Electronics (Namco license)", "Turret Tower - The Enemy Has Arrived", 0 )
