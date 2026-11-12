@@ -46,24 +46,24 @@
 #define BIOS_CMD    0x70    /* bios command out */
 
 /* BIOS load address (5,5K after CCP/BDOS) contains a jump table */
-#define BIOS        (CCP + 0x1600)
+#define CPM_BIOS        (CCP + 0x1600)
 
 /* BIOS DPHs (disk parameter headers) */
-#define DPH0		(BIOS + NFUN * 3)
-#define DPH1		(BIOS + NFUN * 3 + 1 * DPHL)
-#define DPH2		(BIOS + NFUN * 3 + 2 * DPHL)
-#define DPH3		(BIOS + NFUN * 3 + 3 * DPHL)
+#define DPH0		(CPM_BIOS + NFUN * 3)
+#define DPH1		(CPM_BIOS + NFUN * 3 + 1 * DPHL)
+#define DPH2		(CPM_BIOS + NFUN * 3 + 2 * DPHL)
+#define DPH3		(CPM_BIOS + NFUN * 3 + 3 * DPHL)
 /* BIOS DPBs (disk parameter blocks) */
-#define DPB0        (BIOS + NFUN * 3 + 4 * DPHL)
-#define DPB1		(BIOS + NFUN * 3 + 4 * DPHL + 1 * DPBL)
-#define DPB2		(BIOS + NFUN * 3 + 4 * DPHL + 2 * DPBL)
-#define DPB3		(BIOS + NFUN * 3 + 4 * DPHL + 3 * DPBL)
+#define DPB0        (CPM_BIOS + NFUN * 3 + 4 * DPHL)
+#define DPB1		(CPM_BIOS + NFUN * 3 + 4 * DPHL + 1 * DPBL)
+#define DPB2		(CPM_BIOS + NFUN * 3 + 4 * DPHL + 2 * DPBL)
+#define DPB3		(CPM_BIOS + NFUN * 3 + 4 * DPHL + 3 * DPBL)
 
 /* 4 times 128 byte directory buffers */
-#define DIRBUF		(BIOS + NFUN * 3 + 4 * DPHL + 4 * DPBL)
+#define DIRBUF		(CPM_BIOS + NFUN * 3 + 4 * DPHL + 4 * DPBL)
 
 /* BIOS DATA (XLATs, CSVs, ALVs) */
-#define DATA_START	(BIOS + NFUN * 3 + 4 * DPHL + 4 * DPBL + 4 * RECL)
+#define DATA_START	(CPM_BIOS + NFUN * 3 + 4 * DPHL + 4 * DPBL + 4 * RECL)
 
 /* BIOS functions */
 #define BIOS_00 	0xffb0

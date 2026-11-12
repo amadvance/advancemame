@@ -50,8 +50,8 @@ static int dma = 0; 				/* DMA transfer address */
 static UINT8 zeropage0[8] =
 {
 	0xc3,							/* JP  BIOS+3 */
-	BIOS & 0xff,
-	BIOS >> 8,
+	CPM_BIOS & 0xff,
+	CPM_BIOS >> 8,
 	0x80,							/* io byte */
 	0x00,							/* usr drive */
 	0xc3,							/* JP  BDOS */
@@ -94,7 +94,7 @@ static void cpm_jumptable(void)
 
 	for (i = 0; i < NFUN; i++)
 	{
-		jmp_addr = BIOS + 3 * i;
+		jmp_addr = CPM_BIOS + 3 * i;
 		fun_addr = BIOS_00 + 4 * i;
 
 		RAM[jmp_addr + 0] = 0xc3;
@@ -144,8 +144,8 @@ int cpm_init(int n, const char *ids[])
 
 	/* Reset jump */
 	zeropage0[0] = 0xc3;
-	zeropage0[1] = BIOS & 0xff;
-	zeropage0[2] = BIOS >> 8;
+	zeropage0[1] = CPM_BIOS & 0xff;
+	zeropage0[2] = CPM_BIOS >> 8;
 
 	/* Copy substantial zero page data */
 	for (i = 0; i < 8; i++)
@@ -155,7 +155,7 @@ int cpm_init(int n, const char *ids[])
 	{
 		logerror("CPM CCP     %04X\n", CCP);
 		logerror("CPM BDOS    %04X\n", BDOS);
-		logerror("CPM BIOS    %04X\n", BIOS);
+		logerror("CPM BIOS    %04X\n", CPM_BIOS);
 	}
 
 	/* Start allocating CSV & ALV */
@@ -626,8 +626,8 @@ WRITE8_HANDLER ( cpm_bios_command_w )
 		}
 		/* change vector at 0000 to warm start */
 		zeropage0[0] = 0xc3;
-		zeropage0[1] = (BIOS + 3) & 0xff;
-		zeropage0[2] = (BIOS + 3) >> 8;
+		zeropage0[1] = (CPM_BIOS + 3) & 0xff;
+		zeropage0[2] = (CPM_BIOS + 3) >> 8;
 		/* fall through */
 
 	case 0x01: /* WBOOT */
