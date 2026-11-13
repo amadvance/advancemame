@@ -1843,7 +1843,7 @@ static const rom_fallback_t rom_fallback[] = {
     { 0xff3eeb8c, 524288, "psj" },
 };
 #else
-#define ROM_FALLBACK_COUNT 113453u
+#define ROM_FALLBACK_COUNT 113456u
 static const rom_fallback_t rom_fallback[] = {
     { 0x0000d1a0, 8192, "kchamptec" },
     { 0x00027be2, 1024, "spacefevo" },
@@ -86879,6 +86879,7 @@ static const rom_fallback_t rom_fallback[] = {
     { 0xbfdc741a, 8192, "ringkingw" },
     { 0xbfdc741a, 8192, "ringkin3" },
     { 0xbfdc741a, 8192, "ringkinw" },
+    { 0xbfdc8309, 131072, "moshougi" },
     { 0xbfddd550, 8192, "taxidrvr" },
     { 0xbfde44c1, 4096, "penta" },
     { 0xbfde44c1, 4096, "pengob" },
@@ -92539,6 +92540,7 @@ static const rom_fallback_t rom_fallback[] = {
     { 0xcb801e49, 2048, "madalienb" },
     { 0xcb81236e, 65536, "borntofiv" },
     { 0xcb81236e, 65536, "borntofia" },
+    { 0xcb82bc5d, 131072, "twsoc96" },
     { 0xcb82c9aa, 65536, "skullxbo1" },
     { 0xcb82c9aa, 65536, "skullxbo2" },
     { 0xcb82c9aa, 65536, "skullxbo3" },
@@ -103247,6 +103249,7 @@ static const rom_fallback_t rom_fallback[] = {
     { 0xe5caf6e6, 131072, "salamandj" },
     { 0xe5caf6e6, 131072, "salamanj" },
     { 0xe5cb82c1, 524288, "rthun2j" },
+    { 0xe5cd6306, 8192, "ridhero" },
     { 0xe5cf7b37, 65536, "skysoldrbl" },
     { 0xe5d1e3cd, 131072, "ddux1" },
     { 0xe5d1e3cd, 131072, "dduxj" },
