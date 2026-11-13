@@ -66,13 +66,13 @@ extern WRITE16_HANDLER( legionna_midground_w );
 extern WRITE16_HANDLER( legionna_text_w );
 extern WRITE16_HANDLER( legionna_control_w );
 
-extern VIDEO_START( legionna );
+extern VIDEO_START( heatbrl );
 extern VIDEO_START( legioncop );
 extern VIDEO_UPDATE( legioncop );
 extern VIDEO_UPDATE( grainbow );
 extern UINT16 legionna_layer_disable;
 extern VIDEO_START( cupsoc );
-extern VIDEO_UPDATE( legionna );
+extern VIDEO_UPDATE( heatbrl );
 extern VIDEO_UPDATE( godzilla );
 extern VIDEO_UPDATE( sdgndmrb );
 void heatbrl_setgfxbank(UINT16 data);
@@ -80,138 +80,6 @@ void godzilla_text_scroll_base_w(UINT16 data);
 
 extern UINT16 *legionna_back_data,*legionna_fore_data,*legionna_mid_data,*legionna_scrollram16,*legionna_textram;
 static UINT16 *mcu_ram;
-
-static READ16_HANDLER( cop2_mcu_r )
-{
-	switch (offset)
-	{
-		/* Protection is not understood */
-
-		case (0x580/2):	/* read PC $1a9e */
-			return (rand() &0xffff);
-
-		case (0x582/2):	/* read PC $1ab2 */
-			return (rand() &0xffff);
-
-		case (0x584/2):	/* read PC $1aa6 */
-			return (rand() &0xffff);
-
-		case (0x590/2):	/* read PC $8622 */
-			return (rand() &0xffff);
-
-		case (0x592/2):	/* read PC $85ee */
-			return (rand() &0xffff);
-
-		case (0x594/2):	/* read PC $85be */
-			return (rand() &0xffff);
-
-		case (0x5b0/2):	/* bit 15 is branched on a few times in the $1938 area */
-			return (rand() &0xffff);
-
-		case (0x5b4/2):	/* read at $1932 and stored in ram before +0x5b0 bit 15 tested */
-			return (rand() &0xffff);
-
-		/* Non-protection reads */
-
-		case (0x7c8/2):	/* seibu sound */
-			return seibu_main_word_r(2,0);
-
-		case (0x7cc/2):
-			return seibu_main_word_r(3,0);
-
-		case (0x7d4/2):
-			return seibu_main_word_r(5,0);
-
-		/* Inputs */
-
-		case (0x740/2):
-			return input_port_1_word_r(0,0);
-
-		case (0x744/2):
-			return input_port_2_word_r(0,0);
-
-		case (0x748/2):
-			return input_port_4_word_r(0,0);
-
-		case (0x74c/2):
-			return input_port_3_word_r(0,0);
-
-	}
-logerror("CPU0 PC %06x unknown MCU read offset: %04x\n",activecpu_get_previouspc(),offset);
-
-	return mcu_ram[offset];
-}
-
-static WRITE16_HANDLER( cop2_mcu_w )
-{
-	COMBINE_DATA(&mcu_ram[offset]);
-
-	switch (offset)
-	{
-		case (0x470/2):
-		{
-			heatbrl_setgfxbank( mcu_ram[offset] );
-			break;
-		}
-
-		// 65a bit 0 is flipscreen
-		// 65c probably layer disables, like Dcon? Used on screen when you press P1-4 start (values 13, 11, 0 seen)
-		// 660 - 66a scroll control;  is there a layer priority switch...?
-
-		case (0x660/2):
-		{
-			legionna_scrollram16[0] = mcu_ram[offset];
-			break;
-		}
-		case (0x662/2):
-		{
-			legionna_scrollram16[1] = mcu_ram[offset];
-			break;
-		}
-		case (0x664/2):
-		{
-			legionna_scrollram16[2] = mcu_ram[offset];
-			break;
-		}
-		case (0x666/2):
-		{
-			legionna_scrollram16[3] = mcu_ram[offset];
-			break;
-		}
-		case (0x668/2):
-		{
-			legionna_scrollram16[4] = mcu_ram[offset];
-			break;
-		}
-		case (0x66a/2):
-		{
-			legionna_scrollram16[5] = mcu_ram[offset];
-			break;
-		}
-		case (0x7c0/2):	/* seibu(0) */
-		{
-			seibu_main_word_w(0,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7c4/2):	/* seibu(1) */
-		{
-			seibu_main_word_w(1,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7d0/2):	/* seibu(4) */
-		{
-			seibu_main_word_w(4,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7d8/2):	/* seibu(6) */
-		{
-			seibu_main_word_w(6,mcu_ram[offset],0xff00);
-			break;
-		}
-		default:
-logerror("CPU0 PC %06x unknown MCU write offset: %04x data: %04x\n",activecpu_get_previouspc(),offset,data);
-	}
-}
 
 static READ16_HANDLER( sdgndmrb_cop_mcu_r )
 {
@@ -388,6 +256,42 @@ static WRITE16_HANDLER( godzilla_cop_w )
 		godzilla_text_scroll_base_w(mcu_ram[offset]);
 }
 
+/* same COP as Legionnaire, with the CRTC at 0x640 and the sound latches at 0x7c0 */
+static READ16_HANDLER( heatbrl_cop_r )
+{
+	if (offset >= 0x400/2 && offset < 0x600/2)
+		return legioncop_r(offset - 0x400/2, mem_mask);
+	if (offset >= 0x7c0/2 && offset < 0x7e0/2)
+		return seibu_main_word_r((offset - 0x7c0/2) / 2, mem_mask);
+	switch (offset * 2) {
+	case 0x740: return readinputport(1);
+	case 0x744: return readinputport(2);
+	case 0x748: return readinputport(4);
+	case 0x74c: return readinputport(3);
+	}
+	return mcu_ram[offset];
+}
+
+static WRITE16_HANDLER( heatbrl_cop_w )
+{
+	COMBINE_DATA(&mcu_ram[offset]);
+	if ((offset >= 0x400/2 && offset < 0x600/2) || offset == 0x6fc/2 || offset == 0x6fe/2)
+	{
+		if (offset == 0x470/2)
+			heatbrl_setgfxbank(mcu_ram[offset]);
+		else
+			legioncop_w(offset - 0x400/2, mcu_ram[offset], 0);
+	}
+	else if (offset >= 0x7c0/2 && offset < 0x7e0/2)
+		seibu_main_word_w((offset - 0x7c0/2) / 2, data, mem_mask);
+	else if (offset >= 0x660/2 && offset < 0x66c/2)
+		legionna_scrollram16[offset - 0x660/2] = mcu_ram[offset];
+	else if (offset == 0x65c/2)
+		legionna_layer_disable = mcu_ram[offset];
+	else if (offset == 0x65a/2)
+		flip_screen_set(mcu_ram[offset] & 1);
+}
+
 static MACHINE_RESET( legioncop )
 {
 	machine_reset_seibu_sound_1();
@@ -426,25 +330,17 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( heatbrl_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
-	AM_RANGE(0x100000, 0x1007ff) AM_READ(cop2_mcu_r)	/* COP mcu */
-	AM_RANGE(0x100800, 0x100fff) AM_READ(MRA16_RAM)	/* 32x16 bg layer, 16x16 tiles */
-	AM_RANGE(0x101000, 0x1017ff) AM_READ(MRA16_RAM)	/* 32x16 bg layer, 16x16 tiles */
-	AM_RANGE(0x101800, 0x101fff) AM_READ(MRA16_RAM)	/* 32x16 bg layer, 16x16 tiles */
-	AM_RANGE(0x102000, 0x102fff) AM_READ(MRA16_RAM)	/* 64x32 text/front layer, 8x8 tiles */
-	AM_RANGE(0x103000, 0x103fff) AM_READ(MRA16_RAM)	/* spriteram */
-	AM_RANGE(0x104000, 0x104fff) AM_READ(MRA16_RAM)	/* palette */
-	AM_RANGE(0x108000, 0x11ffff) AM_READ(MRA16_RAM)	/* main ram */
+	AM_RANGE(0x100000, 0x1007ff) AM_READ(heatbrl_cop_r)
+	AM_RANGE(0x100800, 0x104fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x108000, 0x11ffff) AM_READ(MRA16_RAM)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( heatbrl_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
-	AM_RANGE(0x100000, 0x1007ff) AM_WRITE(cop2_mcu_w) AM_BASE(&mcu_ram)	/* COP mcu */
-	AM_RANGE(0x100800, 0x100fff) AM_WRITE(legionna_background_w) AM_BASE(&legionna_back_data)
-	AM_RANGE(0x101000, 0x1017ff) AM_WRITE(legionna_foreground_w) AM_BASE(&legionna_fore_data)
-	AM_RANGE(0x101800, 0x101fff) AM_WRITE(legionna_midground_w) AM_BASE(&legionna_mid_data)
-	AM_RANGE(0x102000, 0x102fff) AM_WRITE(legionna_text_w) AM_BASE(&legionna_textram)
+	AM_RANGE(0x100000, 0x1007ff) AM_WRITE(heatbrl_cop_w) AM_BASE(&mcu_ram)
+	AM_RANGE(0x100800, 0x102fff) AM_WRITE(MWA16_RAM)
 	AM_RANGE(0x103000, 0x103fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
-	AM_RANGE(0x104000, 0x104fff) AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x104000, 0x104fff) AM_WRITE(MWA16_RAM)
 	AM_RANGE(0x108000, 0x11ffff) AM_WRITE(MWA16_RAM)
 ADDRESS_MAP_END
 
@@ -1197,6 +1093,17 @@ static const gfx_decode cop_gfxdecodeinfo[] =
 	{ -1 }
 };
 
+/* the midground has its own ROM instead of sharing the background one */
+static const gfx_decode cop_heatbrl_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &cop_charlayout, 48*16, 16 },
+	{ REGION_GFX3, 0, &cop_tilelayout, 0, 16 },
+	{ REGION_GFX5, 0, &cop_tilelayout, 32*16, 16 },
+	{ REGION_GFX2, 0, &cop_tilelayout, 64*16, 64 },
+	{ REGION_GFX6, 0, &cop_tilelayout, 16*16, 16 },
+	{ -1 }
+};
+
 /* Parameters: YM3812 frequency, Oki frequency, Oki memory region */
 SEIBU_SOUND_SYSTEM_YM3812_HARDWARE
 
@@ -1245,17 +1152,17 @@ static MACHINE_DRIVER_START( heatbrl )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(seibu_sound_1)
+	MDRV_MACHINE_RESET(legioncop)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_BUFFERS_SPRITERAM)
 	MDRV_SCREEN_SIZE(32*8, 32*8)
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 32*8-1)
-	MDRV_GFXDECODE(heatbrl_gfxdecodeinfo)
+	MDRV_GFXDECODE(cop_heatbrl_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(128*16)
 
-	MDRV_VIDEO_START(legionna)
-	MDRV_VIDEO_UPDATE(legionna)
+	MDRV_VIDEO_START(heatbrl)
+	MDRV_VIDEO_UPDATE(heatbrl)
 
 	/* sound hardware */
 	SEIBU_SOUND_SYSTEM_YM3812_INTERFACE(14318180/4,8000,1)
@@ -1437,30 +1344,29 @@ ROM_START( heatbrl )
 	ROM_LOAD32_BYTE( "3e_ver3.9f",   0x00002, 0x20000, CRC(09544a91) SHA1(5c24fbf642dd4c40ee21664bdc7b837e8a15b8bb) )
 	ROM_LOAD32_BYTE( "4e_ver3.9h",   0x00003, 0x20000, CRC(ebd34559) SHA1(9d565eb144b9239769a272990c1d1e22e72e3f0c) )
 
-	ROM_REGION( 0x20000*2, REGION_CPU2, 0 )	/* Z80 code, banked data */
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )	/* Z80 code, banked data */
 	ROM_LOAD( "barrel_7.u1110", 0x00000, 0x08000, CRC(0784dbd8) SHA1(bdf7f8a3a3eb346eb2aeaf4f9bfc49af059d04c9) )
 	ROM_CONTINUE(               0x10000, 0x08000 )	/* banked stuff */
+	ROM_COPY( REGION_CPU2, 0x000000, 0x018000, 0x08000 )
 
 	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
-	ROM_LOAD( "barrel_5.u072",  0x010000, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
+	ROM_LOAD16_BYTE( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
+	ROM_LOAD16_BYTE( "barrel_5.u072",  0x000001, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
 
 	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
-	ROM_LOAD( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
 
 	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK tiles */
-	ROM_LOAD( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
-
-	ROM_REGION( 0x020000, REGION_GFX4, ROMREGION_DISPOSE )	/* not used */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
 
 	ROM_REGION( 0x080000, REGION_GFX5, ROMREGION_DISPOSE )	/* BK3 tiles */
-	ROM_LOAD( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
 
 	ROM_REGION( 0x080000, REGION_GFX6, ROMREGION_DISPOSE )	/* LBK tiles */
-	ROM_LOAD( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
 
-	ROM_REGION( 0x020000, REGION_SOUND1, 0 )	/* ADPCM samples */
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )	/* ADPCM samples */
 	ROM_LOAD( "barrel_8.u106",  0x00000, 0x20000, CRC(489e5b1d) SHA1(ecd69d87ed354d1d08dbe6c2890af5f05d9d67d0) )
 
 	ROM_REGION( 0x200, REGION_PROMS, 0 )	/* Priority */
@@ -1477,30 +1383,29 @@ ROM_START( heatbrl2 )
 	ROM_LOAD32_BYTE( "3e_ver2.9f",   0x00002, 0x20000, CRC(a2c41715) SHA1(a15b7a35ae0792ed00c47426d2e07c445acd8b8d) )
 	ROM_LOAD32_BYTE( "4e_ver2.9h",   0x00003, 0x20000, CRC(a50f4f08) SHA1(f468e4a016a53803b8404bacdef5712311c6f0ac) )
 
-	ROM_REGION( 0x20000*2, REGION_CPU2, 0 )	/* Z80 code, banked data */
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )	/* Z80 code, banked data */
 	ROM_LOAD( "barrel_7.u1110", 0x00000, 0x08000, CRC(0784dbd8) SHA1(bdf7f8a3a3eb346eb2aeaf4f9bfc49af059d04c9) )
 	ROM_CONTINUE(               0x10000, 0x08000 )	/* banked stuff */
+	ROM_COPY( REGION_CPU2, 0x000000, 0x018000, 0x08000 )
 
 	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
-	ROM_LOAD( "barrel_5.u072",  0x010000, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
+	ROM_LOAD16_BYTE( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
+	ROM_LOAD16_BYTE( "barrel_5.u072",  0x000001, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
 
 	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
-	ROM_LOAD( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
 
 	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK tiles */
-	ROM_LOAD( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
-
-	ROM_REGION( 0x020000, REGION_GFX4, ROMREGION_DISPOSE )	/* not used */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
 
 	ROM_REGION( 0x080000, REGION_GFX5, ROMREGION_DISPOSE )	/* BK3 tiles */
-	ROM_LOAD( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
 
 	ROM_REGION( 0x080000, REGION_GFX6, ROMREGION_DISPOSE )	/* LBK tiles */
-	ROM_LOAD( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
 
-	ROM_REGION( 0x020000, REGION_SOUND1, 0 )	/* ADPCM samples */
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )	/* ADPCM samples */
 	ROM_LOAD( "barrel_8.u106",  0x00000, 0x20000, CRC(489e5b1d) SHA1(ecd69d87ed354d1d08dbe6c2890af5f05d9d67d0) )
 
 	ROM_REGION( 0x200, REGION_PROMS, 0 )	/* Priority */
@@ -1517,13 +1422,14 @@ ROM_START( heatbrlo )
 	ROM_LOAD32_BYTE( "barrel.3h",   0x00002, 0x20000, CRC(823373a0) SHA1(1bb7f811df4f85db8ca10e59fe22137a09470def) )
 	ROM_LOAD32_BYTE( "barrel.4h",   0x00003, 0x20000, CRC(19a8606b) SHA1(6e950212c532e46bb6645c3c1f8205c2a4ea2c87) )
 
-	ROM_REGION( 0x20000*2, REGION_CPU2, 0 )	/* Z80 code, banked data */
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )	/* Z80 code, banked data */
 	ROM_LOAD( "barrel_7.u1110", 0x00000, 0x08000, CRC(0784dbd8) SHA1(bdf7f8a3a3eb346eb2aeaf4f9bfc49af059d04c9) )
 	ROM_CONTINUE(               0x10000, 0x08000 )	/* banked stuff */
+	ROM_COPY( REGION_CPU2, 0x000000, 0x018000, 0x08000 )
 
 	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
-	ROM_LOAD( "barrel_5.u072",  0x010000, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
+	ROM_LOAD16_BYTE( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
+	ROM_LOAD16_BYTE( "barrel_5.u072",  0x000001, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
 
 /* Sprite + tilemap gfx roms not dumped, for now we use ones from heatbrlu
 Readme mentions as undumped:
@@ -1531,21 +1437,19 @@ barrel1,2,3,4.OBJ
 barrel1,2,3,4.BG */
 
 	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
-	ROM_LOAD( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
 
 	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK tiles */
-	ROM_LOAD( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
-
-	ROM_REGION( 0x020000, REGION_GFX4, ROMREGION_DISPOSE )	/* not used */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
 
 	ROM_REGION( 0x080000, REGION_GFX5, ROMREGION_DISPOSE )	/* BK3 tiles */
-	ROM_LOAD( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
 
 	ROM_REGION( 0x080000, REGION_GFX6, ROMREGION_DISPOSE )	/* LBK tiles */
-	ROM_LOAD( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
 
-	ROM_REGION( 0x020000, REGION_SOUND1, 0 )	/* ADPCM samples */
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )	/* ADPCM samples */
 	ROM_LOAD( "barrel_8.u106",  0x00000, 0x20000, CRC(489e5b1d) SHA1(ecd69d87ed354d1d08dbe6c2890af5f05d9d67d0) )
 
 	ROM_REGION( 0x200, REGION_PROMS, 0 )	/* Priority */
@@ -1562,30 +1466,29 @@ ROM_START( heatbrlu )
 	ROM_LOAD32_BYTE( "3e_ver2.9f",   0x00002, 0x20000, CRC(a2c41715) SHA1(a15b7a35ae0792ed00c47426d2e07c445acd8b8d) )
 	ROM_LOAD32_BYTE( "4e_ver2.9h",   0x00003, 0x20000, CRC(a50f4f08) SHA1(f468e4a016a53803b8404bacdef5712311c6f0ac) )
 
-	ROM_REGION( 0x20000*2, REGION_CPU2, 0 )	/* Z80 code, banked data */
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )	/* Z80 code, banked data */
 	ROM_LOAD( "barrel_7.u1110", 0x00000, 0x08000, CRC(0784dbd8) SHA1(bdf7f8a3a3eb346eb2aeaf4f9bfc49af059d04c9) )
 	ROM_CONTINUE(               0x10000, 0x08000 )	/* banked stuff */
+	ROM_COPY( REGION_CPU2, 0x000000, 0x018000, 0x08000 )
 
 	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
-	ROM_LOAD( "barrel_5.u072",  0x010000, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
+	ROM_LOAD16_BYTE( "barrel_6.u077",  0x000000, 0x10000, CRC(bea3c581) SHA1(7f7f0a74bf106acaf57c182d47f0c707da2011bd) )	/* chars */
+	ROM_LOAD16_BYTE( "barrel_5.u072",  0x000001, 0x10000, CRC(5604d155) SHA1(afc30347b1e1316ec25056c0c1576f78be5f1a72) )
 
 	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
-	ROM_LOAD( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj1.u085",  0x000000, 0x100000, CRC(f7a7c31c) SHA1(683e5c7a0732ff5fd56167dd82035ca050de0507) )	/* sprites */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_obj2.u0814", 0x100000, 0x100000, CRC(24236116) SHA1(b27bd771cacd1587d4927e3f489c4f54b5dec110) )
 
 	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK tiles */
-	ROM_LOAD( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
-
-	ROM_REGION( 0x020000, REGION_GFX4, ROMREGION_DISPOSE )	/* not used */
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-1.u075",  0x000000, 0x100000, CRC(2f5d8baa) SHA1(0bf687c46c603150eadb304adcd78d53a338e615) )
 
 	ROM_REGION( 0x080000, REGION_GFX5, ROMREGION_DISPOSE )	/* BK3 tiles */
-	ROM_LOAD( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-3.u076",  0x000000, 0x080000, CRC(83850e2d) SHA1(cdc2df8e3bc58319c50768ea2a05b9c7ddc2a652) )
 
 	ROM_REGION( 0x080000, REGION_GFX6, ROMREGION_DISPOSE )	/* LBK tiles */
-	ROM_LOAD( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
+	ROM_LOAD16_WORD_SWAP( "heated-barrel_bg-2.u074",  0x000000, 0x080000, CRC(77ee4c6f) SHA1(a0072331bc970ba448ac5bb1ae5caa0332c82a99) )
 
-	ROM_REGION( 0x020000, REGION_SOUND1, 0 )	/* ADPCM samples */
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )	/* ADPCM samples */
 	ROM_LOAD( "barrel_8.u106",  0x00000, 0x20000, CRC(489e5b1d) SHA1(ecd69d87ed354d1d08dbe6c2890af5f05d9d67d0) )
 
 	ROM_REGION( 0x200, REGION_PROMS, 0 )	/* Priority */
@@ -1912,10 +1815,10 @@ static DRIVER_INIT( cupsocs )
 
 GAME( 1992, legionna,  0,        legionna, legionna, legionna, ROT0, "TAD Corporation", "Legionnaire (World)", 0 )
 GAME( 1992, legionnau, legionna, legionna, legionna, legionna, ROT0, "TAD Corporation (Fabtek license)", "Legionnaire (US)", 0 )
-GAME( 1992, heatbrl,   0,        heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World version 3)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1992, heatbrl2,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World version 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1992, heatbrlo,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World old version)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1992, heatbrlu,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (US)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1992, heatbrl,   0,        heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World version 3)", 0 )
+GAME( 1992, heatbrl2,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World version 2)", 0 )
+GAME( 1992, heatbrlo,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World old version)", 0 )
+GAME( 1992, heatbrlu,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (US)", 0 )
 GAME( 1993, godzilla,  0,        godzilla, godzilla, godzilla, ROT0, "Banpresto", "Godzilla (Japan)", 0 )
 GAME( 1992, cupsoc,    0,        cupsoc,   cupsoc,   0,        ROT0, "Seibu Kaihatsu", "Seibu Cup Soccer (set 1)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1992, cupsocs2,  cupsoc,   cupsoc,   cupsoc,   cupsocs,  ROT0, "Seibu Kaihatsu", "Seibu Cup Soccer :Selection: (set 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
