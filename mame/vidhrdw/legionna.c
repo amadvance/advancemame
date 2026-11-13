@@ -108,7 +108,7 @@ static void get_mid_tile_info(int tile_index)
 
 	tile &= 0xfff;
 
-	SET_TILE_INFO(5,tile,color,0)
+	SET_TILE_INFO(4,tile,color,0)
 }
 
 static void get_mid_tile_info_cupsoc(int tile_index)
@@ -142,26 +142,6 @@ static void get_text_tile_info(int tile_index)
 	tile &= 0xfff;
 
 	SET_TILE_INFO(0,tile,color,0)
-}
-
-VIDEO_START( legionna )
-{
-	background_layer = tilemap_create(get_back_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,32,32);
-	foreground_layer = tilemap_create(get_fore_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,32,32);
-	midground_layer =  tilemap_create(get_mid_tile_info, tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,32,32);
-	text_layer =       tilemap_create(get_text_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,  8,8,64,32);
-
-	if (!background_layer || !foreground_layer || !midground_layer || !text_layer)
-		return 1;
-
-	legionna_scrollram16 = auto_malloc(0x60);
-
-	tilemap_set_transparent_pen(background_layer,15);
-	tilemap_set_transparent_pen(midground_layer,15);
-	tilemap_set_transparent_pen(foreground_layer,15);
-	tilemap_set_transparent_pen(text_layer,15);
-
-	return 0;
 }
 
 VIDEO_START( cupsoc )
@@ -263,82 +243,6 @@ static void draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect,int pri)
 }
 
 
-VIDEO_UPDATE( legionna )
-{
-#ifdef MAME_DEBUG
-	static int dislayer[5];	/* Layer toggles to help get the layers correct */
-#endif
-
-#ifdef MAME_DEBUG
-	if (code_pressed_memory (KEYCODE_Z))
-	{
-		dislayer[0] ^= 1;
-		ui_popup("bg0: %01x",dislayer[0]);
-	}
-
-	if (code_pressed_memory (KEYCODE_X))
-	{
-		dislayer[1] ^= 1;
-		ui_popup("bg1: %01x",dislayer[1]);
-	}
-
-	if (code_pressed_memory (KEYCODE_C))
-	{
-		dislayer[2] ^= 1;
-		ui_popup("bg2: %01x",dislayer[2]);
-	}
-
-	if (code_pressed_memory (KEYCODE_V))
-	{
-		dislayer[3] ^= 1;
-		ui_popup("sprites: %01x",dislayer[3]);
-	}
-
-	if (code_pressed_memory (KEYCODE_B))
-	{
-		dislayer[4] ^= 1;
-		ui_popup("text: %01x",dislayer[4]);
-	}
-#endif
-
-	/* Setup the tilemaps */
-	tilemap_set_scrollx( background_layer, 0, legionna_scrollram16[0] );
-	tilemap_set_scrolly( background_layer, 0, legionna_scrollram16[1] );
-	tilemap_set_scrollx( midground_layer,  0, legionna_scrollram16[2] );
-	tilemap_set_scrolly( midground_layer,  0, legionna_scrollram16[3] );
-	tilemap_set_scrollx( foreground_layer, 0, legionna_scrollram16[4] );
-	tilemap_set_scrolly( foreground_layer, 0, legionna_scrollram16[5] );
-
-//  if ((legionna_enable&1)!=1)
-
-	fillbitmap(bitmap,get_black_pen(),cliprect);	/* wrong color? */
-
-#ifdef MAME_DEBUG
-	if (dislayer[2]==0)
-#endif
-	tilemap_draw(bitmap,cliprect,foreground_layer,TILEMAP_IGNORE_TRANSPARENCY,0);
-
-#ifdef MAME_DEBUG
-	if (dislayer[1]==0)
-#endif
-	tilemap_draw(bitmap,cliprect,midground_layer,0,0);
-
-#ifdef MAME_DEBUG
-	if (dislayer[0]==0)
-#endif
-	tilemap_draw(bitmap,cliprect,background_layer,0,0);
-
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
-	draw_sprites(bitmap,cliprect,3);
-
-#ifdef MAME_DEBUG
-	if (dislayer[4]==0)
-#endif
-	tilemap_draw(bitmap,cliprect,text_layer,0,0);
-}
-
 VIDEO_UPDATE( sdgndmrb )
 {
 	/* Setup the tilemaps */
@@ -402,7 +306,7 @@ static void cop_get_fore_tile_info(int tile_index)
 	SET_TILE_INFO(2, val & 0xfff, (val >> 12) & 15, 0)
 }
 
-VIDEO_START( legioncop )
+static int cop_video_start(void (*mid_tile_info)(int))
 {
 	legionna_back_data = auto_malloc(0x800);
 	legionna_fore_data = auto_malloc(0x800);
@@ -418,7 +322,7 @@ VIDEO_START( legioncop )
 	gfx_bank = 0;
 	background_layer = tilemap_create(get_back_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16,16,32,32);
 	foreground_layer = tilemap_create(cop_get_fore_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16,16,32,32);
-	midground_layer = tilemap_create(cop_get_mid_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16,16,32,32);
+	midground_layer = tilemap_create(mid_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 16,16,32,32);
 	text_layer = tilemap_create(get_text_tile_info, tilemap_scan_rows, TILEMAP_TRANSPARENT, 8,8,64,32);
 	if (!background_layer || !foreground_layer || !midground_layer || !text_layer)
 		return 1;
@@ -429,15 +333,26 @@ VIDEO_START( legioncop )
 	return 0;
 }
 
+VIDEO_START( legioncop )
+{
+	return cop_video_start(cop_get_mid_tile_info);
+}
+
+VIDEO_START( heatbrl )
+{
+	return cop_video_start(get_mid_tile_info);
+}
+
 #define COP_LEGIONNA 0
 #define COP_GRAINBOW 1
 #define COP_GODZILLA 2
+#define COP_HEATBRL 3
 
 static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int variant)
 {
 	static const UINT32 legionna_mask[4] = { 0, 0xfff0, 0xfffc, 0xfffe };
 	static const UINT32 grainbow_mask[4] = { 0xfff0, 0xfffc, 0xfffe, 0 };
-	/* priority 3 is never shown */
+	/* Godzilla and Heated Barrel, priority 3 is never shown */
 	static const UINT32 godzilla_mask[4] = { 0xfff0, 0xfffc, 0xfffe, 0xffff };
 	int offs;
 	for (offs = 0; offs < spriteram_size/2; offs += 4)
@@ -466,6 +381,8 @@ static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int
 			if (spriteram16[offs+3] & 0x8000)
 				code |= 0x8000;
 			mask = godzilla_mask[pri];
+		} else if (variant == COP_HEATBRL) {
+			mask = godzilla_mask[pri];
 		} else {
 			mask = legionna_mask[pri];
 		}
@@ -488,14 +405,21 @@ static void cop_video_update(mame_bitmap *bitmap, const rectangle *cliprect, int
 	/* Godzilla backdrop matches the PCB recording of Denjin Makai */
 	fillbitmap(bitmap, variant == COP_GODZILLA ? Machine->pens[0xff] : get_black_pen(), cliprect);
 	fillbitmap(priority_bitmap, 0, cliprect);
-	if (variant != COP_LEGIONNA) {
-		if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, background_layer, 0, 0);
+	if (variant == COP_HEATBRL) {
+		/* Heated Barrel has the layer order reversed */
+		if (!(legionna_layer_disable & 4)) tilemap_draw(bitmap, cliprect, foreground_layer, 0, 0);
 		if (!(legionna_layer_disable & 2)) tilemap_draw(bitmap, cliprect, midground_layer, 0, 1);
+		if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, background_layer, 0, 2);
 	} else {
-		if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, midground_layer, 0, 0);
-		if (!(legionna_layer_disable & 2)) tilemap_draw(bitmap, cliprect, background_layer, 0, 1);
+		if (variant != COP_LEGIONNA) {
+			if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, background_layer, 0, 0);
+			if (!(legionna_layer_disable & 2)) tilemap_draw(bitmap, cliprect, midground_layer, 0, 1);
+		} else {
+			if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, midground_layer, 0, 0);
+			if (!(legionna_layer_disable & 2)) tilemap_draw(bitmap, cliprect, background_layer, 0, 1);
+		}
+		if (!(legionna_layer_disable & 4)) tilemap_draw(bitmap, cliprect, foreground_layer, 0, 2);
 	}
-	if (!(legionna_layer_disable & 4)) tilemap_draw(bitmap, cliprect, foreground_layer, 0, 2);
 	if (!(legionna_layer_disable & 8)) tilemap_draw(bitmap, cliprect, text_layer, 0, 4);
 	if (!(legionna_layer_disable & 16)) cop_draw_sprites(bitmap, cliprect, variant);
 }
@@ -513,4 +437,9 @@ VIDEO_UPDATE( grainbow )
 VIDEO_UPDATE( godzilla )
 {
 	cop_video_update(bitmap, cliprect, COP_GODZILLA);
+}
+
+VIDEO_UPDATE( heatbrl )
+{
+	cop_video_update(bitmap, cliprect, COP_HEATBRL);
 }
