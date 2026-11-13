@@ -110,7 +110,7 @@ TO DO :
   - jumpbugb : full Dip Switches and Inputs
   - levers   : full Dip Switches and Inputs
   - kingball : full Dip Switches and Inputs
-  - kingbalj : full Dip Switches and Inputs
+  - kingballj : full Dip Switches and Inputs
   - frogg    : fix read/writes at/to unmapped/wrong memory
   - scprpng  : fix read/writes at/to unmapped/wrong memory
 
@@ -6226,7 +6226,7 @@ ROM_START( kingball )
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 64k for sound code */
 	ROM_LOAD( "kbe1.ic4",     0x0000, 0x0800, CRC(5be2c80a) SHA1(f719a80357bed3d66bce40569690f419740148c5) )
 	ROM_LOAD( "kbe2.ic5",     0x0800, 0x0800, CRC(bb59e965) SHA1(830e0c415f051e932d76df604025e4e33118a799) )
-	ROM_LOAD( "kbe3.ic6",     0x1000, 0x0800, CRC(1c94dd31) SHA1(14ab59b8eee741eb1f10ae99ddb99bf7c2dab957) )
+	ROM_LOAD( "kbe3.ic6",     0x1000, 0x0800, CRC(fbc7d286) SHA1(11511028920d30f65859b80379b5aab94240a741) )
 	ROM_LOAD( "kbe2.ic7",     0x1800, 0x0800, CRC(bb59e965) SHA1(830e0c415f051e932d76df604025e4e33118a799) )
 
 	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
@@ -6239,7 +6239,7 @@ ROM_START( kingball )
 	ROM_LOAD( "kb2-1",        0x0000, 0x0020, CRC(15dd5b16) SHA1(3d2ca2b42bf508a9e5198e970abcbbedf5729164) )
 ROM_END
 
-ROM_START( kingbalj )
+ROM_START( kingballj )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "prg1.7f",      0x0000, 0x1000, CRC(6cb49046) SHA1(a0891605dff7f9ff51bc7ad85f831a749f2f61e9) )
 	ROM_LOAD( "prg2.7j",      0x1000, 0x1000, CRC(c223b416) SHA1(ca2d9f6b8ef6db4f382089161f4147d9828c3554) )
@@ -6898,7 +6898,7 @@ GAME( 1980, supergx,  moonal2,  galaxian, superg,   0,        ROT90,  "Nichibuts
 GAME( 1982, skybase,  0,        skybase,  skybase,  0,        ROT90,  "Omori Electric Co., Ltd.", "Sky Base", GAME_SUPPORTS_SAVE )
 GAME( 19??, omega,    0,        galaxian, omega,    0,        ROT270, "bootleg?", "Omega", GAME_SUPPORTS_SAVE )
 GAME( 1980, kingball, 0,        kingball, kingball, kingball, ROT90,  "Namco", "King & Balloon (US)", GAME_SUPPORTS_SAVE )
-GAME( 1980, kingbalj, kingball, kingball, kingball, kingball, ROT90,  "Namco", "King & Balloon (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1980, kingballj, kingball, kingball, kingball, kingball, ROT90,  "Namco", "King & Balloon (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 19??, scorpnmc, scorpion, scorpnmc, scorpnmc, 0,        ROT90,  "Dorneer", "Scorpion (Moon Cresta hardware)", GAME_SUPPORTS_SAVE )
 GAME( 1981, frogg,    frogger,  frogg,    frogg,    0,        ROT90,  "bootleg", "Frog (Galaxian hardware)", GAME_SUPPORTS_SAVE )
 GAME( 1981, 4in1,     0,        4in1,     4in1,     4in1,     ROT90,  "Armenia / Food and Fun", "4 Fun in 1", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )

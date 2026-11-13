@@ -212,7 +212,7 @@ const game_driver * const drivers[] =
 	DRIVER( dingoe )	/* (c) 1983 Ashby Computers and Graphics LTD. + Jaleco license */
 	DRIVER( blkhole )	/* TDS (Tokyo Denshi Sekkei) */
 	DRIVER( kingball )	/* (c) 1980 Namco */
-	DRIVER( kingbalj )	/* (c) 1980 Namco */
+	DRIVER( kingballj )	/* (c) 1980 Namco */
 	DRIVER( scorpnmc )	/* bootleg */
 	DRIVER( frogg )		/* bootleg */
 	DRIVER( 4in1 )		/* (c) 1981 Armenia / Food and Fun */
