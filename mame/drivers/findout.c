@@ -22,16 +22,35 @@ VIDEO_UPDATE( findout )
 
 
 static UINT8 drawctrl[3];
+static UINT8 pixcolor[8];
+
+static PALETTE_INIT( findout )
+{
+	int i;
+
+	/* 3 bit GBR palette, one bit per gun at full intensity */
+	for (i = 0; i < 8; i++)
+		palette_set_color(i, (i & 1) ? 0xff : 0, (i & 4) ? 0xff : 0, (i & 2) ? 0xff : 0);
+}
 
 static WRITE8_HANDLER( findout_drawctrl_w )
 {
 	drawctrl[offset] = data;
+
+	/* writing the third register latches the color of the pixels selected by the second one */
+	if (offset == 2)
+	{
+		int i;
+
+		for (i = 0; i < 8; i++)
+			if (drawctrl[1] & (1 << i))
+				pixcolor[i] = drawctrl[0] & 7;
+	}
 }
 
 static WRITE8_HANDLER( findout_bitmap_w )
 {
-	int sx,sy;
-	int fg,bg,mask,bits;
+	int sx,sy,i;
 	static int prevoffset, yadd;
 
 	videoram[offset] = data;
@@ -39,26 +58,12 @@ static WRITE8_HANDLER( findout_bitmap_w )
 	yadd = (offset==prevoffset) ? (yadd+1):0;
 	prevoffset = offset;
 
-	fg = drawctrl[0] & 7;
-	bg = 2;
-	mask = 0xff;//drawctrl[2];
-	bits = drawctrl[1];
-
 	sx = 8 * (offset % 64);
 	sy = offset / 64;
 	sy = (sy + yadd) & 0xff;
 
-//if (mask != bits)
-//  ui_popup("color %02x bits %02x mask %02x\n",fg,bits,mask);
-
-	if (mask & 0x80) plot_pixel(tmpbitmap,sx+0,sy,(bits & 0x80) ? fg : bg);
-	if (mask & 0x40) plot_pixel(tmpbitmap,sx+1,sy,(bits & 0x40) ? fg : bg);
-	if (mask & 0x20) plot_pixel(tmpbitmap,sx+2,sy,(bits & 0x20) ? fg : bg);
-	if (mask & 0x10) plot_pixel(tmpbitmap,sx+3,sy,(bits & 0x10) ? fg : bg);
-	if (mask & 0x08) plot_pixel(tmpbitmap,sx+4,sy,(bits & 0x08) ? fg : bg);
-	if (mask & 0x04) plot_pixel(tmpbitmap,sx+5,sy,(bits & 0x04) ? fg : bg);
-	if (mask & 0x02) plot_pixel(tmpbitmap,sx+6,sy,(bits & 0x02) ? fg : bg);
-	if (mask & 0x01) plot_pixel(tmpbitmap,sx+7,sy,(bits & 0x01) ? fg : bg);
+	for (i = 0; i < 8; i++)
+		plot_pixel(tmpbitmap,sx+i,sy,pixcolor[7-i]);
 }
 
 
@@ -312,7 +317,8 @@ static MACHINE_DRIVER_START( findout )
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER|VIDEO_PIXEL_ASPECT_RATIO_1_2)
 	MDRV_SCREEN_SIZE(512, 256)
 	MDRV_VISIBLE_AREA(48, 511-48, 16, 255-16)
-	MDRV_PALETTE_LENGTH(256)
+	MDRV_PALETTE_LENGTH(8)
+	MDRV_PALETTE_INIT(findout)
 
 	MDRV_VIDEO_START(generic_bitmapped)
 	MDRV_VIDEO_UPDATE(findout)
@@ -469,19 +475,19 @@ gt103a - When ERROR appears, press F2, then F3 to reset, then F2 again and the g
 
 */
 
-GAME( 1986, gt507uk,  0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (UK Version 5.07)",               GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1986, gt507uk,  0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (UK Version 5.07)",               GAME_IMPERFECT_SOUND )
 
-GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Questions Series 8)",                 GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103a1,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 1)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103a2,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 2)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103a3,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 3)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103aa,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Alt questions 1)", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103ab,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Alt questions 2)", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt103asx, gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Sex questions)",   GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Questions Series 8)",                 GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103a1,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 1)",         GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103a2,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 2)",         GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103a3,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 3)",         GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103aa,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Alt questions 1)", GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103ab,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Alt questions 2)", GAME_IMPERFECT_SOUND )
+GAME( 1984, gt103asx, gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a Sex questions)",   GAME_IMPERFECT_SOUND )
 
-GAME( 1986, quiz,     0,      findout, quiz,    0, ROT0, "Italian bootleg",       "Quiz (Revision 2)",                      GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1986, quiz,     0,      findout, quiz,    0, ROT0, "Italian bootleg",       "Quiz (Revision 2)",                      GAME_IMPERFECT_SOUND )
 
-GAME( 1987, findout,  0,      findout, findout, 0, ROT0, "Elettronolo",           "Find Out (Version 4.04)",                GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1987, findout,  0,      findout, findout, 0, ROT0, "Elettronolo",           "Find Out (Version 4.04)",                GAME_IMPERFECT_SOUND )
 
-GAME( 1991, quiz211,  0,      findout, quiz,    0, ROT0, "Elettronolo",           "Quiz (Revision 2.1)",                    GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1991, quiz211,  0,      findout, quiz,    0, ROT0, "Elettronolo",           "Quiz (Revision 2.1)",                    GAME_IMPERFECT_SOUND )
 
