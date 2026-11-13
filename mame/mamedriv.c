@@ -6394,9 +6394,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( taotaida )	/* (c) 1993 Video System Co. */
 	DRIVER( gstriker )	/* (c) [1993] Human */
 	DRIVER( vgoalsoc )
-	DRIVER( vgoalsca )
+	DRIVER( vgoalsoca )
 	DRIVER( twcup94 )       /* (c) 1994 Tecmo */
-	DRIVER( twrdc94a )      /* (c) 1994 Tecmo */
+	DRIVER( twcup94a )      /* (c) 1994 Tecmo */
 	DRIVER( suprslam )	/* (c) 1995 Banpresto */
 	DRIVER( fromanc2 )	/* (c) 1995 Video System Co. (Japan) */
 	DRIVER( fromancr )	/* (c) 1995 Video System Co. (Japan) */
