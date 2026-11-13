@@ -902,17 +902,16 @@ ROM_START( chelnovu )
 	ROM_LOAD( "ee15-.f15",    0x60000, 0x10000, CRC(81e3e68b) SHA1(1059c70b8bfe09c212a19767cfe23efa22afc196) )
 
 	ROM_REGION( 0x0800, REGION_PROMS, 0 )
-	ROM_LOAD( "ee21.k8",      0x0000, 0x0400, CRC(b1db6586) SHA1(a7ecfcb4cf0f7450900820b3dfad8813efedfbea) )	/* different from the other set; */
-															/* might be bad */
-	ROM_LOAD( "ee20.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
+	ROM_LOAD( "ee-17.k8",      0x0000, 0x0400, CRC(b1db6586) SHA1(a7ecfcb4cf0f7450900820b3dfad8813efedfbea) )
+	ROM_LOAD( "ee-16.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
 ROM_END
 
 ROM_START( chelnov )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 )	/* 6*64k for 68000 code */
 	ROM_LOAD16_BYTE( "ee08-e.j16",   0x00000, 0x10000, CRC(8275cc3a) SHA1(961166226b68744eef15fed6a306010757b83556) )
 	ROM_LOAD16_BYTE( "ee11-e.j19",   0x00001, 0x10000, CRC(889e40a0) SHA1(e927f32d9bc448a331fb7b3478b2d07154f5013b) )
-	ROM_LOAD16_BYTE( "a-j14.bin",    0x20000, 0x10000, CRC(51465486) SHA1(e165e754eb756db3abc1f8477171ab817d03a890) )
-	ROM_LOAD16_BYTE( "a-j18.bin",    0x20001, 0x10000, CRC(d09dda33) SHA1(1764215606eec61e4fe30c0fc82ea2faf17821dc) )
+	ROM_LOAD16_BYTE( "ee07.j14",    0x20000, 0x10000, CRC(51465486) SHA1(e165e754eb756db3abc1f8477171ab817d03a890) )
+	ROM_LOAD16_BYTE( "ee10.j18",    0x20001, 0x10000, CRC(d09dda33) SHA1(1764215606eec61e4fe30c0fc82ea2faf17821dc) )
 	ROM_LOAD16_BYTE( "ee06-e.j13",   0x40000, 0x10000, CRC(55acafdb) SHA1(9dc0528c888dd73617f8cab76690b9296715680a) )
 	ROM_LOAD16_BYTE( "ee09-e.j17",   0x40001, 0x10000, CRC(303e252c) SHA1(d5d2570e42aa1e1b3600d14cc694677248e12750) )
 
@@ -935,25 +934,24 @@ ROM_START( chelnov )
 	ROM_LOAD( "ee15-.f15",    0x60000, 0x10000, CRC(81e3e68b) SHA1(1059c70b8bfe09c212a19767cfe23efa22afc196) )
 
 	ROM_REGION( 0x0800, REGION_PROMS, 0 )
-	ROM_LOAD( "ee21.k8",      0x0000, 0x0400, CRC(b1db6586) SHA1(a7ecfcb4cf0f7450900820b3dfad8813efedfbea) )	/* different from the other set; */
-															/* might be bad */
-	ROM_LOAD( "ee20.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
+	ROM_LOAD( "ee-17.k8",      0x0000, 0x0400, CRC(b1db6586) SHA1(a7ecfcb4cf0f7450900820b3dfad8813efedfbea) )
+	ROM_LOAD( "ee-16.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
 ROM_END
 
 ROM_START( chelnovj )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 )	/* 6*64k for 68000 code */
-	ROM_LOAD16_BYTE( "a-j15.bin",    0x00000, 0x10000, CRC(1978cb52) SHA1(833b8e80445ec2384e0479afb7430b32d6a14441) )
-	ROM_LOAD16_BYTE( "a-j20.bin",    0x00001, 0x10000, CRC(e0ed3d99) SHA1(f47aaec5c72ecc308c32cdcf117ef4965ac5ea61) )
-	ROM_LOAD16_BYTE( "a-j14.bin",    0x20000, 0x10000, CRC(51465486) SHA1(e165e754eb756db3abc1f8477171ab817d03a890) )
-	ROM_LOAD16_BYTE( "a-j18.bin",    0x20001, 0x10000, CRC(d09dda33) SHA1(1764215606eec61e4fe30c0fc82ea2faf17821dc) )
-	ROM_LOAD16_BYTE( "a-j13.bin",    0x40000, 0x10000, CRC(cd991507) SHA1(9da858ea41bfbce78496c086e3b462ea9f3722e8) )
-	ROM_LOAD16_BYTE( "a-j17.bin",    0x40001, 0x10000, CRC(977f601c) SHA1(b40a37160b493dcb614922c2a9b4b5f140b62aca) )
+	ROM_LOAD16_BYTE( "ee08-1.j15",    0x00000, 0x10000, CRC(1978cb52) SHA1(833b8e80445ec2384e0479afb7430b32d6a14441) )
+	ROM_LOAD16_BYTE( "ee11-1.j20",    0x00001, 0x10000, CRC(e0ed3d99) SHA1(f47aaec5c72ecc308c32cdcf117ef4965ac5ea61) )
+	ROM_LOAD16_BYTE( "ee07.j14",    0x20000, 0x10000, CRC(51465486) SHA1(e165e754eb756db3abc1f8477171ab817d03a890) )
+	ROM_LOAD16_BYTE( "ee10.j18",    0x20001, 0x10000, CRC(d09dda33) SHA1(1764215606eec61e4fe30c0fc82ea2faf17821dc) )
+	ROM_LOAD16_BYTE( "ee06.j13",    0x40000, 0x10000, CRC(cd991507) SHA1(9da858ea41bfbce78496c086e3b462ea9f3722e8) )
+	ROM_LOAD16_BYTE( "ee09.j17",    0x40001, 0x10000, CRC(977f601c) SHA1(b40a37160b493dcb614922c2a9b4b5f140b62aca) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 6502 Sound CPU */
-	ROM_LOAD( "ee05-.f3",     0x8000, 0x8000, CRC(6a8936b4) SHA1(2b72cb749e6bddb67c2bd3d27b3a92511f9ef016) )
+	ROM_LOAD( "ee05.f3",     0x8000, 0x8000, CRC(6a8936b4) SHA1(2b72cb749e6bddb67c2bd3d27b3a92511f9ef016) )
 
 	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "a-c5.bin",     0x00000, 0x08000, CRC(1abf2c6d) SHA1(86d625ae94cd9ea69e4e613895410640efb175b3) )	/* Characters */
+	ROM_LOAD( "ee00.c5",     0x00000, 0x08000, CRC(1abf2c6d) SHA1(86d625ae94cd9ea69e4e613895410640efb175b3) )	/* Characters */
 
 	ROM_REGION( 0x40000, REGION_GFX2, ROMREGION_DISPOSE )
 	ROM_LOAD( "ee04-.d18",    0x00000, 0x10000, CRC(96884f95) SHA1(9d88d203028288cb26e111880d090bf40ef9385b) )	/* Backgrounds */
@@ -968,9 +966,8 @@ ROM_START( chelnovj )
 	ROM_LOAD( "ee15-.f15",    0x60000, 0x10000, CRC(81e3e68b) SHA1(1059c70b8bfe09c212a19767cfe23efa22afc196) )
 
 	ROM_REGION( 0x0800, REGION_PROMS, 0 )
-	ROM_LOAD( "a-k7.bin",     0x0000, 0x0400, CRC(309c49d8) SHA1(7220002f6ef97514b4e6f61706fc16061120dafa) )	/* different from the other set; */
-															/* might be bad */
-	ROM_LOAD( "ee20.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
+	ROM_LOAD( "ee-17.k8",     0x0000, 0x0400, CRC(b1db6586) SHA1(a7ecfcb4cf0f7450900820b3dfad8813efedfbea) )
+	ROM_LOAD( "ee-16.l6",      0x0400, 0x0400, CRC(41816132) SHA1(89a1194bd8bf39f13419df685e489440bdb05676) )
 ROM_END
 
 /******************************************************************************/
@@ -1028,6 +1025,6 @@ static DRIVER_INIT( chelnovj )
 GAME( 1987, karnov,   0,       karnov,   karnov,  karnov,   ROT0,   "Data East USA",         "Karnov (US)", 0 )
 GAME( 1987, karnovj,  karnov,  karnov,   karnov,  karnovj,  ROT0,   "Data East Corporation", "Karnov (Japan)", 0 )
 GAME( 1987, wndrplnt, 0,       wndrplnt, wndrplnt,wndrplnt, ROT270, "Data East Corporation", "Wonder Planet (Japan)", 0 )
-GAME( 1988, chelnov,  0,       karnov,   chelnov, chelnovw, ROT0,   "Data East Corporation", "Chelnov - Atomic Runner (World)", 0 )
-GAME( 1988, chelnovu, chelnov, karnov,   chelnov, chelnov,  ROT0,   "Data East USA",         "Chelnov - Atomic Runner (US)", 0 )
-GAME( 1988, chelnovj, chelnov, karnov,   chelnov, chelnovj, ROT0,   "Data East Corporation", "Chelnov - Atomic Runner (Japan)", 0 )
+GAME( 1988, chelnov,  0,       karnov,   chelnov, chelnovw, ROT0,   "Data East Corporation", "Atomic Runner Chelnov (World)", 0 )
+GAME( 1988, chelnovu, chelnov, karnov,   chelnov, chelnov,  ROT0,   "Data East USA",         "Atomic Runner Chelnov (US)", 0 )
+GAME( 1988, chelnovj, chelnov, karnov,   chelnov, chelnovj, ROT0,   "Data East Corporation", "Atomic Runner Chelnov (Japan)", 0 )
