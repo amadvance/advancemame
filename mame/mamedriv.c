@@ -7527,8 +7527,6 @@ Other Sun games
 	DRIVER( taxidriv )	/* [1984 Graphic Techno] */
 	DRIVER( xyonix )	/* [1989 Philko] */
 	DRIVER( gt507uk )	/* (c) 1986 Grayhound Electronics */
-	DRIVER( gt103 )		/* (c) 1986 Grayhound Electronics */
-	DRIVER( gt5 )		/* (c) 1984 Grayhound Electronics */
 	DRIVER( gtsers8 )	/* (c) 1984 Greyhound Electronics */
 	DRIVER( gt103a1 )	/* (c) 1984 Greyhound Electronics */
 	DRIVER( gt103a2 )	/* (c) 1984 Greyhound Electronics */

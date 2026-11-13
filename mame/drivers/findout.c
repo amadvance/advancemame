@@ -357,25 +357,6 @@ ROM_START( gt507uk )
 	ROM_LOAD( "pop_music",       0x30000, 0x8000, CRC(884fec7c) SHA1(b389216c17f516df4e15eee46246719dd4acb587) )
 ROM_END
 
-ROM_START( gt103 )
-	ROM_REGION( 0x38000, REGION_CPU1, 0 )
-	ROM_LOAD( "trvmast3.bin",    0x00000, 0x4000, CRC(9ea277bc) SHA1(f813de572a3b5e2ad601dc6559dc93c30bb7a38c) )
-	ROM_LOAD( "comics-cartoons", 0x10000, 0x8000, CRC(193c868e) SHA1(75f18eb6cc6467e927961271374bedaf7736e20b) )
-	ROM_LOAD( "general_3",       0x18000, 0x8000, CRC(b0376464) SHA1(d1812d6dd42cd7f3753fcc0d2647b56a91bfcc9d) )
-	ROM_LOAD( "science_2",       0x20000, 0x8000, CRC(3c8bc603) SHA1(5e8c1d27fc8ffb9a2a26b749328e09c548da4fca) )
-	ROM_LOAD( "soccer",          0x28000, 0x8000, CRC(f821f860) SHA1(b0437ef5d31c507c6499c1fb732d2ba3b9beb151) )
-	ROM_LOAD( "sports_alt",      0x30000, 0x8000, CRC(02712bc7) SHA1(a07a87c2c37f34a188d7c00acc0d977acc850f00) )
-ROM_END
-
-ROM_START( gt5 )
-	ROM_REGION( 0x38000, REGION_CPU1, 0 )
-	ROM_LOAD( "prog3_right",   0x00000, 0x2000, CRC(e2bd11f6) SHA1(217019bc9c2bb09279cfed4b82b1f5907aa7c1b1) )
-	ROM_LOAD( "prog3_left",    0x02000, 0x2000, BAD_DUMP CRC(218bd5c5) SHA1(1321188ca3befb5a20434759718d4935fabcc383) )
-	ROM_LOAD( "entertainment", 0x10000, 0x8000, CRC(07068c9f) SHA1(1aedc78d071281ec8b08488cd82655d41a77cf6b) )
-	ROM_LOAD( "vices",         0x18000, 0x8000, CRC(e6069955) SHA1(68f7453f21a4ce1be912141bbe947fbd81d918a3) )
-	ROM_LOAD( "war_and_peace", 0x20000, 0x8000, CRC(bc709383) SHA1(2fba4c80773abea7bbd826c39378b821cddaa255) )
-ROM_END
-
 ROM_START( gtsers8 )
 	ROM_REGION( 0x38000, REGION_CPU1, 0 )
 	ROM_LOAD( "t_3a-8_1.bin", 0x00000, 0x4000, CRC(02aef306) SHA1(1ffc10c79a55d41ea36bcaab13cb3f02cb3f9712) )
@@ -489,8 +470,6 @@ gt103a - When ERROR appears, press F2, then F3 to reset, then F2 again and the g
 */
 
 GAME( 1986, gt507uk,  0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (UK Version 5.07)",               GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1986, gt103,    0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (Version 1.03)",                  GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gt5,      0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (Version 5)",                     GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 
 GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Questions Series 8)",                 GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
 GAME( 1984, gt103a1,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 1)",         GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND )
