@@ -159,6 +159,21 @@ static WRITE16_HANDLER( esd_eeprom_w )
 //  logerror("(0x%06x) Unk EEPROM write: %04x %04x\n", activecpu_get_pc(), data, mem_mask);
 }
 
+static NVRAM_HANDLER( mchampdx )
+{
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&eeprom_interface_93C46);
+		if (file)
+			EEPROM_load(file);
+		else
+			/* factory default settings because the game doesn't init them properly otherwise */
+			EEPROM_set_data(memory_region(REGION_USER1), memory_region_length(REGION_USER1));
+	}
+}
+
 static ADDRESS_MAP_START( hedpanic_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM				)	// ROM
 	AM_RANGE(0x100000, 0x10ffff) AM_READ(MRA16_RAM)
@@ -622,6 +637,8 @@ static MACHINE_DRIVER_START( mchampdx )
 
 	MDRV_CPU_MODIFY("main")
 	MDRV_CPU_PROGRAM_MAP(mchampdx_readmem,mchampdx_writemem)
+
+	MDRV_NVRAM_HANDLER(mchampdx)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( tangtang )
@@ -820,7 +837,10 @@ ROM_START( mchampdx )
 	ROM_LOAD16_BYTE( "rom.fu34", 0x000001, 0x200000, CRC(2895cf09) SHA1(88756fcd589af1986c3881d4080f086afc11b498) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )	/* Samples */
-	ROM_LOAD( "ver0106_esd4.su10", 0x00000, 0x40000, CRC(ac8ae009) SHA1(2c1c30cc4b3e34a5f14d7dfb6f6e18ff21f526f5) )
+	ROM_LOAD( "esd4.su10", 0x00000, 0x40000, CRC(2fbe94ab) SHA1(1bc4a33ec93a80fb598722d2b50bdf3ccaaa984a) )
+
+	ROM_REGION16_BE( 0x80, REGION_USER1, ROMREGION_ERASE00 ) /* factory default settings because the game doesn't init them properly otherwise */
+	ROM_LOAD16_WORD( "eeprom", 0x0000, 0x0080, CRC(646b2f53) SHA1(f6673f68084b63a69c612a03c58f57435d5a9496) )
 ROM_END
 
 ROM_START( mchampda )
@@ -1143,8 +1163,8 @@ GAME( 1999, multchmp, 0,        multchmp, multchmp, 0, ROT0, "ESD",  "Multi Cham
 GAME( 1998, multchmk, multchmp, multchmp, multchmp, 0, ROT0, "ESD",  "Multi Champ (Korea)", 0 )
 
 /* ESD 08-26-1999 */
-GAME( 2000, mchampdx, 0,        mchampdx, hedpanic, 0, ROT0, "ESD",  "Multi Champ Deluxe (ver. 0106, 06-01-2000)", 0 ) // 06/01/2000 ?
-GAME( 1999, mchampda, mchampdx, mchampdx, hedpanic, 0, ROT0, "ESD",  "Multi Champ Deluxe (ver. 1126, 26-11-1999)", 0 ) // 26/11/1999 ?
+GAME( 2000, mchampdx, 0,        mchampdx, hedpanic, 0, ROT0, "ESD",  "Multi Champ Deluxe (ver. 0106, 06/01/2000)", 0 )
+GAME( 1999, mchampda, mchampdx, mchampdx, hedpanic, 0, ROT0, "ESD",  "Multi Champ Deluxe (ver. 1126, 26/11/1999)", 0 )
 GAME( 2000, hedpanic, 0,        hedpanic, hedpanic, 0, ROT0, "ESD / Fuuki", "Head Panic (ver. 0315, 15/03/2000)", 0 ) // 15/03/2000 ?
 
 /* ESD */
