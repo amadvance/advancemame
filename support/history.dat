@@ -91333,7 +91333,7 @@ Buttons : 2
 $end
 
 
-$info=heatbrl,heatbrlo,heatbrlu,
+$info=heatbrl,heatbrl2,heatbrlo,heatbrlu,
 $bio
 
 Heated Barrel (c) 1992 TAD.
@@ -114194,7 +114194,7 @@ Buttons : 3
 $end
 
 
-$info=legionna,legionnu,
+$info=legionna,legionnau,
 $bio
 
 Legionnaire (c) 1992 TAD.
@@ -189697,7 +189697,7 @@ Music composed by : Takeshi Yoshida
 $end
 
 
-$info=cupsoc,cupsoc2,cupsocbl,
+$info=cupsoc,cupsocs2,cupsocbl,
 $bio
 
 Seibu Cup Soccer (c) 1992 Seibu Denshi.
