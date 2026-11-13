@@ -570,6 +570,10 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	/* the frame syncronization is out of the time estimation */
 	advance_video_sync(context, sound_context, estimate_context, skip_flag);
 
+	/* clear stale video pages here because SDL rendering must stay on the video thread */
+	if (!skip_flag && !context->state.debugger_flag && !context->state.blit_pipeline_flag)
+		advance_video_invalidate_screen(context);
+
 	/* start updating */
 	video_frame_start(context);
 
