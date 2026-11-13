@@ -188434,19 +188434,19 @@
 :twotigrc:00010000:C3E9:00000000:FFFFFFFF:No Sprite Collision (2/2)
 
 ; [ Tecmo World Cup '94 (set 2) ]
-:twrdc94a:00000000:FFE064:00000009:FFFFFFFF:Infinite Credits
-:twrdc94a:00100000:FFD35A:0000095A:FFFFFFFF:Infinite Time
-:twrdc94a:00100001:FFD35A:00000001:FFFFFFFF:Finish this Game Now!
-:twrdc94a:00000000:FFD353:00000000:FFFFFFFF:Score always = 0 PL1
-:twrdc94a:00000000:FFD353:00000099:FFFFFFFF:Score always = 99 PL1
-:twrdc94a:00000001:FFD353:00000000:FFFFFFFF:Score = 0 Now! PL1
-:twrdc94a:00000001:FFD353:00000050:FFFFFFFF:Score = 50 Now! PL1
-:twrdc94a:00000901:FFD353:00000099:FFFFFFFF:Select Score PL1
-:twrdc94a:00000000:FFD355:00000000:FFFFFFFF:Score always = 0 PL2
-:twrdc94a:00000000:FFD355:00000099:FFFFFFFF:Score always = 99 PL2
-:twrdc94a:00000001:FFD355:00000000:FFFFFFFF:Score = 0 Now! PL2
-:twrdc94a:00000001:FFD355:00000050:FFFFFFFF:Score = 50 Now! PL2
-:twrdc94a:00000901:FFD355:00000099:FFFFFFFF:Select Score PL2
+:twcup94a:00000000:FFE064:00000009:FFFFFFFF:Infinite Credits
+:twcup94a:00100000:FFD35A:0000095A:FFFFFFFF:Infinite Time
+:twcup94a:00100001:FFD35A:00000001:FFFFFFFF:Finish this Game Now!
+:twcup94a:00000000:FFD353:00000000:FFFFFFFF:Score always = 0 PL1
+:twcup94a:00000000:FFD353:00000099:FFFFFFFF:Score always = 99 PL1
+:twcup94a:00000001:FFD353:00000000:FFFFFFFF:Score = 0 Now! PL1
+:twcup94a:00000001:FFD353:00000050:FFFFFFFF:Score = 50 Now! PL1
+:twcup94a:00000901:FFD353:00000099:FFFFFFFF:Select Score PL1
+:twcup94a:00000000:FFD355:00000000:FFFFFFFF:Score always = 0 PL2
+:twcup94a:00000000:FFD355:00000099:FFFFFFFF:Score always = 99 PL2
+:twcup94a:00000001:FFD355:00000000:FFFFFFFF:Score = 0 Now! PL2
+:twcup94a:00000001:FFD355:00000050:FFFFFFFF:Score = 50 Now! PL2
+:twcup94a:00000901:FFD355:00000099:FFFFFFFF:Select Score PL2
 
 ; [ Tecmo World Cup '94 ]
 :twrldc94:00000000:FFE064:00000009:FFFFFFFF:Infinite Credits
@@ -191547,14 +191547,14 @@
 :vfremix:00100001:609EA2E:00000001:FFFFFFFF:Finish this Round Now!
 
 ; [ V Goal Soccer (alt) ]
-:vgoalsca:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:vgoalsca:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:vgoalsoca:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ V Goal Soccer ]
 :vgoalsoc:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -203640,7 +203640,7 @@
 ; { Reason 01 } ; vcop2     [ Virtua Cop 2 ]
 ; { Reason 01 } ; vf3       [ Virtua Fighter 3 ]
 ; { Reason 01 } ; vf3tb     [ Virtua Fighter 3 Team Battle ]
-; { Reason 01 } ; vgoalsca  [ V Goal Soccer (alt) ]
+; { Reason 01 } ; vgoalsoca  [ V Goal Soccer (alt) ]
 ; { Reason 01 } ; vgoalsoc  [ V Goal Soccer ]
 ; { Reason 01 } ; victlapw  [ Ace Driver: Victory Lap (Rev. ADV2, World) ]
 ; { Reason 01 } ; vmahjong  [ Virtual Mahjong (J 961214 V1.000) ]
@@ -205502,7 +205502,7 @@
 ;turtshik=turtship
 ;tutankhm=tutankst
 ;twotiger=twotigrc
-;twrdc94a=twrldc94     (twrdc94a not working so untested)
+;twcup94a=twrldc94     (twcup94a not working so untested)
 ;tx1=tx1a    (unchecked relationship)
 ;uccops=uccopsj
 ;ufosensb=ufosensi
