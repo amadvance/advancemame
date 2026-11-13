@@ -264,6 +264,37 @@ INPUT_PORTS_START( arkatayt )
 	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( Cocktail ) )
 INPUT_PORTS_END
+INPUT_PORTS_START( cruisin5 )
+	ARKNOI_IN0
+	ARKNOI_IN1
+	ARKNOI_SPINNERS
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Unused ) ) /* must be on? */
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x00, "Loop" )
+	PORT_DIPSETTING(    0x04, "Auto" )
+	PORT_DIPSETTING(    0x00, "Manual" )
+	PORT_DIPNAME( 0x08, 0x08, "??? Animation" )
+	PORT_DIPSETTING(    0x08, "Squeeze Out" )
+	PORT_DIPSETTING(    0x00, "Tear Apart" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, "Sound Hardware" )
+	PORT_DIPSETTING(    0x40, "AY-3-8910" )
+	PORT_DIPSETTING(    0x00, "YM2149" )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( tetrsark )
 	PORT_START_TAG("IN0")
@@ -677,6 +708,22 @@ ROM_START( tetrsark )
 	ROM_LOAD( "14_mc68705p5_rom.bin", 0x000, 0x800, CRC(dfbc4239) SHA1(d97c44d90d09142fd00731c1e44646bcba0402ec) )
 ROM_END
 
+ROM_START( cruisin5 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "ic81-v.3f",   0x0000, 0x8000, CRC(41ed7668) SHA1(afd1600317d210b6da2c63a65f1614be1f77854b) )
+	ROM_LOAD( "ic82-w.5f",   0x8000, 0x8000, CRC(77e310cc) SHA1(e2638bf6c565df9dab98d92c857d2212b150a2d1) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "1-ic33.2c",   0x00000, 0x8000, CRC(7fb9dafc) SHA1(74a312729f10ab4753204b41de59ff41b93e80cb) )
+	ROM_LOAD( "2-ic34.3c",   0x08000, 0x8000, CRC(05229af9) SHA1(76c469506430bc23ee77bbcefbc357478437bba7) )
+	ROM_LOAD( "3-ic35.5c",   0x10000, 0x8000, CRC(a4c1a25f) SHA1(29d49572c1e7c6c8ac428ad2a3e625f0f548f66c) )
+
+	ROM_REGION( 0x0600, REGION_PROMS, 0 )
+	ROM_LOAD( "ic73.11e",    0x0000, 0x0200, CRC(0af8b289) SHA1(6bc589e8a609b4cf450aebedc8ce02d5d45c970f) )	/* red component */
+	ROM_LOAD( "ic74.12e",    0x0200, 0x0200, CRC(abb002fb) SHA1(c14f56b8ef103600862e7930709d293b0aa97a73) )	/* green component */
+	ROM_LOAD( "ic75.13e",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
+ROM_END
+
 ROM_START( brixian )
 	ROM_REGION( 0x18000, REGION_CPU1, 0 )
 	ROM_LOAD( "b1.bin",    0x00000, 0x8000, CRC(3d167d09) SHA1(1d5bd098b655b8d2f956cfcb718213915bee3e41) )
@@ -742,4 +789,5 @@ GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "
 GAME( 1986, arktayt2, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg (Tayto)", "Arkanoid (Tayto bootleg, harder)", GAME_SUPPORTS_SAVE )
 GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US, older)", GAME_SUPPORTS_SAVE )
 GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 2023, cruisin5, 0,        bootleg,  cruisin5, 0,       ROT90, "Abyss", "Cruisin 5: Cruise Back", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
 GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )
