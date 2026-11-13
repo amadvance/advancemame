@@ -7594,7 +7594,9 @@ Other Sun games
 	DRIVER( 9ballshtc )	/* (c) 1993 E-Scape EnterMedia + "marketed by Bundra Games" */
 	DRIVER( gumbo )		/* (c) 1994 Min Corp. */
 	DRIVER( mspuzzle )	/* (c) 1994 Min Corp. */
+	DRIVER( mspuzzlea )	/* (c) 1994 Min Corp. */
 	DRIVER( mspuzzleb )	/* (c) 1994 Min Corp. */
+	DRIVER( mspuzzleg )	/* (c) 1994 Min Corp. */
 	DRIVER( msbingo )	/* (C) 1994 Min Corp. */
 	DRIVER( dblpoint )	/* (c) 1995 Min Corp. */
 	DRIVER( dblpointd )	/* bootleg? (c) 1995 Dong Bang Electron */
