@@ -7780,7 +7780,7 @@ Other Sun games
 	DRIVER( elephfam )	/* (c) 1997 bootleg? */
 	DRIVER( royalcrd )	/* (c) 1991 TAB-Austria */
 	DRIVER( royalcdb )	/* (c) 1991 TAB-Austria */
-	DRIVER( magiccrd )	/* (c) 1996 Impera */
+	DRIVER( magicrd2 )	/* (c) 1996 Impera */
 	DRIVER( vroulet )	/* (c) 1989 World Game */
 	DRIVER( rcasino )	/* (c) 1984 Dyna Electronics */
 	DRIVER( cmv823 )	/* (c) 198? Corsica */
