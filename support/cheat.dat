@@ -54276,10 +54276,10 @@
 :gtg2t:00000000:3706:00000001:FFFFFFFF:Always get a Hole in One PL4
 
 ; [ Golden Tee Golf (Trackball, v1.0) ]
-:gtgt:00000000:3B6B:000000E7:FFFFFFFF:Infinite Credits
-:gtgt:00010000:3B6A:00000003:FFFFFFFF:Infinite Credits (2/2)
-:gtgt:00000000:37EC:00000001:FFFFFFFF:Always get a Hole in One
-:gtgt:00000001:37EC:00000000:FFFFFFFF:Reset Strokes to 0 Now!
+:gtgt10:00000000:3B6B:000000E7:FFFFFFFF:Infinite Credits
+:gtgt10:00010000:3B6A:00000003:FFFFFFFF:Infinite Credits (2/2)
+:gtgt10:00000000:37EC:00000001:FFFFFFFF:Always get a Hole in One
+:gtgt10:00000001:37EC:00000000:FFFFFFFF:Reset Strokes to 0 Now!
 
 ; [ GTI Club (ver AAA) ]
 :gticlub:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -59039,22 +59039,22 @@
 :hpuncher:01000020:043008:000000F0:FFFFFFFF:Sound Test Timer Stop:[PL1 Shot1]Next Code
 
 ; [ Hot Shots Tennis (V1.0) ]
-:hstenn10:00000000:2F84:00000003:FFFFFFFF:Infinite Credits
-:hstenn10:00010000:2F85:000000E7:FFFFFFFF:Infinite Credits (2/2)
-:hstenn10:60000000:0000:00000000:00000000:[ NOTE - The score won't be updated ]
-:hstenn10:60000000:0000:00000000:00000000:[ until some points are scored.     ]
-:hstenn10:00000000:2637:00000000:FFFFFFFF:"Game" Score always = 0 PL1
-:hstenn10:00000001:2637:00000000:FFFFFFFF:"Game" Score = 0 Now! PL1
-:hstenn10:00000001:2637:00000004:FFFFFFFF:"Game" Score = 40 Now! PL1
-:hstenn10:00000000:2638:00000000:FFFFFFFF:"Set" Score always = 0 PL1
-:hstenn10:00000001:2638:00000000:FFFFFFFF:"Set" Score = 0 Now! PL1
-:hstenn10:00000001:2638:00000006:FFFFFFFF:"Set" Score = 6 Now! PL1
-:hstenn10:00000000:2641:00000000:FFFFFFFF:"Game" Score always = 0 PL2
-:hstenn10:00000001:2641:00000000:FFFFFFFF:"Game" Score = 0 Now! PL2
-:hstenn10:00000001:2641:00000004:FFFFFFFF:"Game" Score = 40 Now! PL2
-:hstenn10:00000000:2642:00000000:FFFFFFFF:"Set" Score always = 0 PL2
-:hstenn10:00000001:2642:00000000:FFFFFFFF:"Set" Score = 0 Now! PL2
-:hstenn10:00000001:2642:00000006:FFFFFFFF:"Set" Score = 6 Now! PL2
+:hstennis10:00000000:2F84:00000003:FFFFFFFF:Infinite Credits
+:hstennis10:00010000:2F85:000000E7:FFFFFFFF:Infinite Credits (2/2)
+:hstennis10:60000000:0000:00000000:00000000:[ NOTE - The score won't be updated ]
+:hstennis10:60000000:0000:00000000:00000000:[ until some points are scored.     ]
+:hstennis10:00000000:2637:00000000:FFFFFFFF:"Game" Score always = 0 PL1
+:hstennis10:00000001:2637:00000000:FFFFFFFF:"Game" Score = 0 Now! PL1
+:hstennis10:00000001:2637:00000004:FFFFFFFF:"Game" Score = 40 Now! PL1
+:hstennis10:00000000:2638:00000000:FFFFFFFF:"Set" Score always = 0 PL1
+:hstennis10:00000001:2638:00000000:FFFFFFFF:"Set" Score = 0 Now! PL1
+:hstennis10:00000001:2638:00000006:FFFFFFFF:"Set" Score = 6 Now! PL1
+:hstennis10:00000000:2641:00000000:FFFFFFFF:"Game" Score always = 0 PL2
+:hstennis10:00000001:2641:00000000:FFFFFFFF:"Game" Score = 0 Now! PL2
+:hstennis10:00000001:2641:00000004:FFFFFFFF:"Game" Score = 40 Now! PL2
+:hstennis10:00000000:2642:00000000:FFFFFFFF:"Set" Score always = 0 PL2
+:hstennis10:00000001:2642:00000000:FFFFFFFF:"Set" Score = 0 Now! PL2
+:hstennis10:00000001:2642:00000006:FFFFFFFF:"Set" Score = 6 Now! PL2
 
 ; [ Hot Shots Tennis (V1.1) ]
 :hstennis:00000000:2F86:00000003:FFFFFFFF:Infinite Credits
@@ -141822,64 +141822,64 @@
 :ridleofp:00000001:E59F:0000000F:FFFFFFFF:Get Bat-T 4 Huge Now!
 
 ; [ Rim Rockin' Basketball (V1.2) ]
-:rimrck12:00000000:3BCC:00000001:FFFFFFFF:Infinite Time
-:rimrck12:00010000:3BCD:0000003B:FFFFFFFF:Infinite Time (2/4)
-:rimrck12:00010000:3BE7:00000001:FFFFFFFF:Infinite Time (3/4):Time per coin
-:rimrck12:00010000:3BE8:0000001D:FFFFFFFF:Infinite Time (4/4):Time per coin
-:rimrck12:00000000:3BD1:0000000A:FFFFFFFF:Infinite Ball in Hand Time
-:rimrck12:00000000:3BCF:00000018:FFFFFFFF:Infinite Attack Time
-:rimrck12:00000001:3BD1:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
-:rimrck12:00000001:3BCF:00000000:FFFFFFFF:Attack Time = 0 Now!
-:rimrck12:00000000:3397:00000000:FFFFFFFF:Score always 0 PL1
-:rimrck12:00000000:3397:000000FF:FFFFFFFF:Score always 255 PL1
-:rimrck12:00000001:3397:00000000:FFFFFFFF:Set score = 0 Now! PL1
-:rimrck12:00000001:3397:000000FF:FFFFFFFF:Set score = 255 Now! PL1
-:rimrck12:00000101:3397:000000FF:FFFFFFFF:Select score Now! PL1
-:rimrck12:00000000:3395:00000000:FFFFFFFF:Score always = 0 PL2
-:rimrck12:00000000:3395:000000FF:FFFFFFFF:Score always = 255 PL2
-:rimrck12:00000001:3395:00000000:FFFFFFFF:Set score = 0 Now! PL2
-:rimrck12:00000001:3395:000000FF:FFFFFFFF:Set score = 255 Now! PL2
-:rimrck12:00000101:3395:000000FF:FFFFFFFF:Select score Now! PL2
+:rimrockn12:00000000:3BCC:00000001:FFFFFFFF:Infinite Time
+:rimrockn12:00010000:3BCD:0000003B:FFFFFFFF:Infinite Time (2/4)
+:rimrockn12:00010000:3BE7:00000001:FFFFFFFF:Infinite Time (3/4):Time per coin
+:rimrockn12:00010000:3BE8:0000001D:FFFFFFFF:Infinite Time (4/4):Time per coin
+:rimrockn12:00000000:3BD1:0000000A:FFFFFFFF:Infinite Ball in Hand Time
+:rimrockn12:00000000:3BCF:00000018:FFFFFFFF:Infinite Attack Time
+:rimrockn12:00000001:3BD1:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
+:rimrockn12:00000001:3BCF:00000000:FFFFFFFF:Attack Time = 0 Now!
+:rimrockn12:00000000:3397:00000000:FFFFFFFF:Score always 0 PL1
+:rimrockn12:00000000:3397:000000FF:FFFFFFFF:Score always 255 PL1
+:rimrockn12:00000001:3397:00000000:FFFFFFFF:Set score = 0 Now! PL1
+:rimrockn12:00000001:3397:000000FF:FFFFFFFF:Set score = 255 Now! PL1
+:rimrockn12:00000101:3397:000000FF:FFFFFFFF:Select score Now! PL1
+:rimrockn12:00000000:3395:00000000:FFFFFFFF:Score always = 0 PL2
+:rimrockn12:00000000:3395:000000FF:FFFFFFFF:Score always = 255 PL2
+:rimrockn12:00000001:3395:00000000:FFFFFFFF:Set score = 0 Now! PL2
+:rimrockn12:00000001:3395:000000FF:FFFFFFFF:Set score = 255 Now! PL2
+:rimrockn12:00000101:3395:000000FF:FFFFFFFF:Select score Now! PL2
 
 ; [ Rim Rockin' Basketball (V1.6) ]
-:rimrck16:00000000:3BD4:00000009:FFFFFFFF:Infinite Game Time
-:rimrck16:00010000:3BD5:0000003B:FFFFFFFF:Infinite Game Time (2/4)
-:rimrck16:00010000:3BEF:00000001:FFFFFFFF:Infinite Game Time (3/4):Time per coin
-:rimrck16:00010000:3BF0:0000001D:FFFFFFFF:Infinite Game Time (4/4):Time per coin
-:rimrck16:00000000:3BD9:0000000A:FFFFFFFF:Infinite Ball in Hand Time
-:rimrck16:00000000:3BD7:00000018:FFFFFFFF:Infinite Attack Time
-:rimrck16:00000001:3BD9:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
-:rimrck16:00000001:3BD7:00000000:FFFFFFFF:Attack Time = 0 Now!
-:rimrck16:00000000:3397:00000000:FFFFFFFF:Score always 0 PL1
-:rimrck16:00000000:3397:000000FF:FFFFFFFF:Score always 255 PL1
-:rimrck16:00000001:3397:00000000:FFFFFFFF:Set score = 0 Now! PL1
-:rimrck16:00000001:3397:000000FF:FFFFFFFF:Set score = 255 Now! PL1
-:rimrck16:00000101:3397:000000FF:FFFFFFFF:Select score Now! PL1
-:rimrck16:00000000:3395:00000000:FFFFFFFF:Score always = 0 PL2
-:rimrck16:00000000:3395:000000FF:FFFFFFFF:Score always = 255 PL2
-:rimrck16:00000001:3395:00000000:FFFFFFFF:Set score = 0 Now! PL2
-:rimrck16:00000001:3395:000000FF:FFFFFFFF:Set score = 255 Now! PL2
-:rimrck16:00000101:3395:000000FF:FFFFFFFF:Select score Now! PL2
+:rimrockn16:00000000:3BD4:00000009:FFFFFFFF:Infinite Game Time
+:rimrockn16:00010000:3BD5:0000003B:FFFFFFFF:Infinite Game Time (2/4)
+:rimrockn16:00010000:3BEF:00000001:FFFFFFFF:Infinite Game Time (3/4):Time per coin
+:rimrockn16:00010000:3BF0:0000001D:FFFFFFFF:Infinite Game Time (4/4):Time per coin
+:rimrockn16:00000000:3BD9:0000000A:FFFFFFFF:Infinite Ball in Hand Time
+:rimrockn16:00000000:3BD7:00000018:FFFFFFFF:Infinite Attack Time
+:rimrockn16:00000001:3BD9:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
+:rimrockn16:00000001:3BD7:00000000:FFFFFFFF:Attack Time = 0 Now!
+:rimrockn16:00000000:3397:00000000:FFFFFFFF:Score always 0 PL1
+:rimrockn16:00000000:3397:000000FF:FFFFFFFF:Score always 255 PL1
+:rimrockn16:00000001:3397:00000000:FFFFFFFF:Set score = 0 Now! PL1
+:rimrockn16:00000001:3397:000000FF:FFFFFFFF:Set score = 255 Now! PL1
+:rimrockn16:00000101:3397:000000FF:FFFFFFFF:Select score Now! PL1
+:rimrockn16:00000000:3395:00000000:FFFFFFFF:Score always = 0 PL2
+:rimrockn16:00000000:3395:000000FF:FFFFFFFF:Score always = 255 PL2
+:rimrockn16:00000001:3395:00000000:FFFFFFFF:Set score = 0 Now! PL2
+:rimrockn16:00000001:3395:000000FF:FFFFFFFF:Set score = 255 Now! PL2
+:rimrockn16:00000101:3395:000000FF:FFFFFFFF:Select score Now! PL2
 
 ; [ Rim Rockin' Basketball (V2.0) ]
-:rimrck20:00000000:3BE5:00000001:FFFFFFFF:Infinite Game Time
-:rimrck20:00010000:3BE6:00000006:FFFFFFFF:Infinite Game Time (2/4)
-:rimrck20:00010000:3BFF:00000001:FFFFFFFF:Infinite Game Time (3/4):Time per coin
-:rimrck20:00010000:3C00:0000001E:FFFFFFFF:Infinite Game Time (4/4):Time per coin
-:rimrck20:00000000:3BE9:0000000A:FFFFFFFF:Infinite Ball in Hand Time
-:rimrck20:00000000:3BE7:00000018:FFFFFFFF:Infinite Attack Time
-:rimrck20:00000001:3BE9:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
-:rimrck20:00000001:3BE7:00000000:FFFFFFFF:Attack Time = 0 Now!
-:rimrck20:00000000:33A7:00000000:FFFFFFFF:Score always 0 PL1
-:rimrck20:00000000:33A7:000000FF:FFFFFFFF:Score always 255 PL1
-:rimrck20:00000001:33A7:00000000:FFFFFFFF:Set score = 0 Now! PL1
-:rimrck20:00000001:33A7:000000FF:FFFFFFFF:Set score = 255 Now! PL1
-:rimrck20:00000101:33A7:000000FF:FFFFFFFF:Select score Now! PL1
-:rimrck20:00000000:33A5:00000000:FFFFFFFF:Score always = 0 PL2
-:rimrck20:00000000:33A5:000000FF:FFFFFFFF:Score always = 255 PL2
-:rimrck20:00000001:33A5:00000000:FFFFFFFF:Set score = 0 Now! PL2
-:rimrck20:00000001:33A5:000000FF:FFFFFFFF:Set score = 255 Now! PL2
-:rimrck20:00000101:33A5:000000FF:FFFFFFFF:Select score Now! PL2
+:rimrockn20:00000000:3BE5:00000001:FFFFFFFF:Infinite Game Time
+:rimrockn20:00010000:3BE6:00000006:FFFFFFFF:Infinite Game Time (2/4)
+:rimrockn20:00010000:3BFF:00000001:FFFFFFFF:Infinite Game Time (3/4):Time per coin
+:rimrockn20:00010000:3C00:0000001E:FFFFFFFF:Infinite Game Time (4/4):Time per coin
+:rimrockn20:00000000:3BE9:0000000A:FFFFFFFF:Infinite Ball in Hand Time
+:rimrockn20:00000000:3BE7:00000018:FFFFFFFF:Infinite Attack Time
+:rimrockn20:00000001:3BE9:00000000:FFFFFFFF:Ball in Hand Time = 0 Now!
+:rimrockn20:00000001:3BE7:00000000:FFFFFFFF:Attack Time = 0 Now!
+:rimrockn20:00000000:33A7:00000000:FFFFFFFF:Score always 0 PL1
+:rimrockn20:00000000:33A7:000000FF:FFFFFFFF:Score always 255 PL1
+:rimrockn20:00000001:33A7:00000000:FFFFFFFF:Set score = 0 Now! PL1
+:rimrockn20:00000001:33A7:000000FF:FFFFFFFF:Set score = 255 Now! PL1
+:rimrockn20:00000101:33A7:000000FF:FFFFFFFF:Select score Now! PL1
+:rimrockn20:00000000:33A5:00000000:FFFFFFFF:Score always = 0 PL2
+:rimrockn20:00000000:33A5:000000FF:FFFFFFFF:Score always = 255 PL2
+:rimrockn20:00000001:33A5:00000000:FFFFFFFF:Set score = 0 Now! PL2
+:rimrockn20:00000001:33A5:000000FF:FFFFFFFF:Set score = 255 Now! PL2
+:rimrockn20:00000101:33A5:000000FF:FFFFFFFF:Select score Now! PL2
 
 ; [ Rim Rockin' Basketball (V2.2) ]
 :rimrockn:00000000:3BE5:00000001:FFFFFFFF:Infinite Game Time
@@ -167904,74 +167904,74 @@
 :slapshot:00010001:50C85E:00000000:FFFFFFFF:Lose all Power Now! PL2 (2/2)
 
 ; [ Slick Shot (V1.6) ]
-:sliksh16:00000000:2439:00000000:FFFFFFFF:Infinite Shot Time
-:sliksh16:00000000:2751:00000009:FFFFFFFF:Infinite Time PL1
-:sliksh16:00010000:2752:00000009:FFFFFFFF:Infinite Time PL1 (2/4)
-:sliksh16:00010000:2753:00000005:FFFFFFFF:Infinite Time PL1 (3/4)
-:sliksh16:00010000:2754:00000009:FFFFFFFF:Infinite Time PL1 (4/4)
-:sliksh16:00000001:2751:00000000:FFFFFFFF:Drain all Time Now! PL1
-:sliksh16:00010001:2752:00000000:FFFFFFFF:Drain all Time Now! PL1 (2/4)
-:sliksh16:00010001:2753:00000000:FFFFFFFF:Drain all Time Now! PL1 (3/4)
-:sliksh16:00010001:2754:00000000:FFFFFFFF:Drain all Time Now! PL1 (4/4)
-:sliksh16:00000000:2760:00000009:FFFFFFFF:Infinite Time PL2
-:sliksh16:00010000:2761:00000009:FFFFFFFF:Infinite Time PL2 (2/4)
-:sliksh16:00010000:2762:00000005:FFFFFFFF:Infinite Time PL2 (3/4)
-:sliksh16:00010000:2763:00000009:FFFFFFFF:Infinite Time PL2 (4/4)
-:sliksh16:00000001:2760:00000000:FFFFFFFF:Drain all Time Now! PL2
-:sliksh16:00010001:2761:00000000:FFFFFFFF:Drain all Time Now! PL2 (2/4)
-:sliksh16:00010001:2762:00000000:FFFFFFFF:Drain all Time Now! PL2 (3/4)
-:sliksh16:00010001:2763:00000000:FFFFFFFF:Drain all Time Now! PL2 (4/4)
-:sliksh16:00000000:276F:00000009:FFFFFFFF:Infinite Time PL3
-:sliksh16:00010000:2770:00000009:FFFFFFFF:Infinite Time PL3 (2/4)
-:sliksh16:00010000:2771:00000005:FFFFFFFF:Infinite Time PL3 (3/4)
-:sliksh16:00010000:2772:00000009:FFFFFFFF:Infinite Time PL3 (4/4)
-:sliksh16:00000001:276F:00000000:FFFFFFFF:Drain all Time Now! PL3
-:sliksh16:00010001:2770:00000000:FFFFFFFF:Drain all Time Now! PL3 (2/4)
-:sliksh16:00010001:2771:00000000:FFFFFFFF:Drain all Time Now! PL3 (3/4)
-:sliksh16:00010001:2772:00000000:FFFFFFFF:Drain all Time Now! PL3 (4/4)
-:sliksh16:00000000:277E:00000009:FFFFFFFF:Infinite Time PL4
-:sliksh16:00010000:277F:00000009:FFFFFFFF:Infinite Time PL4 (2/4)
-:sliksh16:00010000:2780:00000005:FFFFFFFF:Infinite Time PL4 (3/4)
-:sliksh16:00010000:2781:00000009:FFFFFFFF:Infinite Time PL4 (4/4)
-:sliksh16:00000001:277E:00000000:FFFFFFFF:Drain all Time Now! PL4
-:sliksh16:00010001:277F:00000000:FFFFFFFF:Drain all Time Now! PL4 (2/4)
-:sliksh16:00010001:2780:00000000:FFFFFFFF:Drain all Time Now! PL4 (3/4)
-:sliksh16:00010001:2781:00000000:FFFFFFFF:Drain all Time Now! PL4 (4/4)
+:slikshot16:00000000:2439:00000000:FFFFFFFF:Infinite Shot Time
+:slikshot16:00000000:2751:00000009:FFFFFFFF:Infinite Time PL1
+:slikshot16:00010000:2752:00000009:FFFFFFFF:Infinite Time PL1 (2/4)
+:slikshot16:00010000:2753:00000005:FFFFFFFF:Infinite Time PL1 (3/4)
+:slikshot16:00010000:2754:00000009:FFFFFFFF:Infinite Time PL1 (4/4)
+:slikshot16:00000001:2751:00000000:FFFFFFFF:Drain all Time Now! PL1
+:slikshot16:00010001:2752:00000000:FFFFFFFF:Drain all Time Now! PL1 (2/4)
+:slikshot16:00010001:2753:00000000:FFFFFFFF:Drain all Time Now! PL1 (3/4)
+:slikshot16:00010001:2754:00000000:FFFFFFFF:Drain all Time Now! PL1 (4/4)
+:slikshot16:00000000:2760:00000009:FFFFFFFF:Infinite Time PL2
+:slikshot16:00010000:2761:00000009:FFFFFFFF:Infinite Time PL2 (2/4)
+:slikshot16:00010000:2762:00000005:FFFFFFFF:Infinite Time PL2 (3/4)
+:slikshot16:00010000:2763:00000009:FFFFFFFF:Infinite Time PL2 (4/4)
+:slikshot16:00000001:2760:00000000:FFFFFFFF:Drain all Time Now! PL2
+:slikshot16:00010001:2761:00000000:FFFFFFFF:Drain all Time Now! PL2 (2/4)
+:slikshot16:00010001:2762:00000000:FFFFFFFF:Drain all Time Now! PL2 (3/4)
+:slikshot16:00010001:2763:00000000:FFFFFFFF:Drain all Time Now! PL2 (4/4)
+:slikshot16:00000000:276F:00000009:FFFFFFFF:Infinite Time PL3
+:slikshot16:00010000:2770:00000009:FFFFFFFF:Infinite Time PL3 (2/4)
+:slikshot16:00010000:2771:00000005:FFFFFFFF:Infinite Time PL3 (3/4)
+:slikshot16:00010000:2772:00000009:FFFFFFFF:Infinite Time PL3 (4/4)
+:slikshot16:00000001:276F:00000000:FFFFFFFF:Drain all Time Now! PL3
+:slikshot16:00010001:2770:00000000:FFFFFFFF:Drain all Time Now! PL3 (2/4)
+:slikshot16:00010001:2771:00000000:FFFFFFFF:Drain all Time Now! PL3 (3/4)
+:slikshot16:00010001:2772:00000000:FFFFFFFF:Drain all Time Now! PL3 (4/4)
+:slikshot16:00000000:277E:00000009:FFFFFFFF:Infinite Time PL4
+:slikshot16:00010000:277F:00000009:FFFFFFFF:Infinite Time PL4 (2/4)
+:slikshot16:00010000:2780:00000005:FFFFFFFF:Infinite Time PL4 (3/4)
+:slikshot16:00010000:2781:00000009:FFFFFFFF:Infinite Time PL4 (4/4)
+:slikshot16:00000001:277E:00000000:FFFFFFFF:Drain all Time Now! PL4
+:slikshot16:00010001:277F:00000000:FFFFFFFF:Drain all Time Now! PL4 (2/4)
+:slikshot16:00010001:2780:00000000:FFFFFFFF:Drain all Time Now! PL4 (3/4)
+:slikshot16:00010001:2781:00000000:FFFFFFFF:Drain all Time Now! PL4 (4/4)
 
 ; [ Slick Shot (V1.7) ]
-:sliksh17:00000000:2439:00000000:FFFFFFFF:Infinite Shot Time
-:sliksh17:00000000:2751:00000009:FFFFFFFF:Infinite Time PL1
-:sliksh17:00010000:2752:00000009:FFFFFFFF:Infinite Time PL1 (2/4)
-:sliksh17:00010000:2753:00000005:FFFFFFFF:Infinite Time PL1 (3/4)
-:sliksh17:00010000:2754:00000009:FFFFFFFF:Infinite Time PL1 (4/4)
-:sliksh17:00000001:2751:00000000:FFFFFFFF:Drain all Time Now! PL1
-:sliksh17:00010001:2752:00000000:FFFFFFFF:Drain all Time Now! PL1 (2/4)
-:sliksh17:00010001:2753:00000000:FFFFFFFF:Drain all Time Now! PL1 (3/4)
-:sliksh17:00010001:2754:00000000:FFFFFFFF:Drain all Time Now! PL1 (4/4)
-:sliksh17:00000000:2760:00000009:FFFFFFFF:Infinite Time PL2
-:sliksh17:00010000:2761:00000009:FFFFFFFF:Infinite Time PL2 (2/4)
-:sliksh17:00010000:2762:00000005:FFFFFFFF:Infinite Time PL2 (3/4)
-:sliksh17:00010000:2763:00000009:FFFFFFFF:Infinite Time PL2 (4/4)
-:sliksh17:00000001:2760:00000000:FFFFFFFF:Drain all Time Now! PL2
-:sliksh17:00010001:2761:00000000:FFFFFFFF:Drain all Time Now! PL2 (2/4)
-:sliksh17:00010001:2762:00000000:FFFFFFFF:Drain all Time Now! PL2 (3/4)
-:sliksh17:00010001:2763:00000000:FFFFFFFF:Drain all Time Now! PL2 (4/4)
-:sliksh17:00000000:276F:00000009:FFFFFFFF:Infinite Time PL3
-:sliksh17:00010000:2770:00000009:FFFFFFFF:Infinite Time PL3 (2/4)
-:sliksh17:00010000:2771:00000005:FFFFFFFF:Infinite Time PL3 (3/4)
-:sliksh17:00010000:2772:00000009:FFFFFFFF:Infinite Time PL3 (4/4)
-:sliksh17:00000001:276F:00000000:FFFFFFFF:Drain all Time Now! PL3
-:sliksh17:00010001:2770:00000000:FFFFFFFF:Drain all Time Now! PL3 (2/4)
-:sliksh17:00010001:2771:00000000:FFFFFFFF:Drain all Time Now! PL3 (3/4)
-:sliksh17:00010001:2772:00000000:FFFFFFFF:Drain all Time Now! PL3 (4/4)
-:sliksh17:00000000:277E:00000009:FFFFFFFF:Infinite Time PL4
-:sliksh17:00010000:277F:00000009:FFFFFFFF:Infinite Time PL4 (2/4)
-:sliksh17:00010000:2780:00000005:FFFFFFFF:Infinite Time PL4 (3/4)
-:sliksh17:00010000:2781:00000009:FFFFFFFF:Infinite Time PL4 (4/4)
-:sliksh17:00000001:277E:00000000:FFFFFFFF:Drain all Time Now! PL4
-:sliksh17:00010001:277F:00000000:FFFFFFFF:Drain all Time Now! PL4 (2/4)
-:sliksh17:00010001:2780:00000000:FFFFFFFF:Drain all Time Now! PL4 (3/4)
-:sliksh17:00010001:2781:00000000:FFFFFFFF:Drain all Time Now! PL4 (4/4)
+:slikshot17:00000000:2439:00000000:FFFFFFFF:Infinite Shot Time
+:slikshot17:00000000:2751:00000009:FFFFFFFF:Infinite Time PL1
+:slikshot17:00010000:2752:00000009:FFFFFFFF:Infinite Time PL1 (2/4)
+:slikshot17:00010000:2753:00000005:FFFFFFFF:Infinite Time PL1 (3/4)
+:slikshot17:00010000:2754:00000009:FFFFFFFF:Infinite Time PL1 (4/4)
+:slikshot17:00000001:2751:00000000:FFFFFFFF:Drain all Time Now! PL1
+:slikshot17:00010001:2752:00000000:FFFFFFFF:Drain all Time Now! PL1 (2/4)
+:slikshot17:00010001:2753:00000000:FFFFFFFF:Drain all Time Now! PL1 (3/4)
+:slikshot17:00010001:2754:00000000:FFFFFFFF:Drain all Time Now! PL1 (4/4)
+:slikshot17:00000000:2760:00000009:FFFFFFFF:Infinite Time PL2
+:slikshot17:00010000:2761:00000009:FFFFFFFF:Infinite Time PL2 (2/4)
+:slikshot17:00010000:2762:00000005:FFFFFFFF:Infinite Time PL2 (3/4)
+:slikshot17:00010000:2763:00000009:FFFFFFFF:Infinite Time PL2 (4/4)
+:slikshot17:00000001:2760:00000000:FFFFFFFF:Drain all Time Now! PL2
+:slikshot17:00010001:2761:00000000:FFFFFFFF:Drain all Time Now! PL2 (2/4)
+:slikshot17:00010001:2762:00000000:FFFFFFFF:Drain all Time Now! PL2 (3/4)
+:slikshot17:00010001:2763:00000000:FFFFFFFF:Drain all Time Now! PL2 (4/4)
+:slikshot17:00000000:276F:00000009:FFFFFFFF:Infinite Time PL3
+:slikshot17:00010000:2770:00000009:FFFFFFFF:Infinite Time PL3 (2/4)
+:slikshot17:00010000:2771:00000005:FFFFFFFF:Infinite Time PL3 (3/4)
+:slikshot17:00010000:2772:00000009:FFFFFFFF:Infinite Time PL3 (4/4)
+:slikshot17:00000001:276F:00000000:FFFFFFFF:Drain all Time Now! PL3
+:slikshot17:00010001:2770:00000000:FFFFFFFF:Drain all Time Now! PL3 (2/4)
+:slikshot17:00010001:2771:00000000:FFFFFFFF:Drain all Time Now! PL3 (3/4)
+:slikshot17:00010001:2772:00000000:FFFFFFFF:Drain all Time Now! PL3 (4/4)
+:slikshot17:00000000:277E:00000009:FFFFFFFF:Infinite Time PL4
+:slikshot17:00010000:277F:00000009:FFFFFFFF:Infinite Time PL4 (2/4)
+:slikshot17:00010000:2780:00000005:FFFFFFFF:Infinite Time PL4 (3/4)
+:slikshot17:00010000:2781:00000009:FFFFFFFF:Infinite Time PL4 (4/4)
+:slikshot17:00000001:277E:00000000:FFFFFFFF:Drain all Time Now! PL4
+:slikshot17:00010001:277F:00000000:FFFFFFFF:Drain all Time Now! PL4 (2/4)
+:slikshot17:00010001:2780:00000000:FFFFFFFF:Drain all Time Now! PL4 (3/4)
+:slikshot17:00010001:2781:00000000:FFFFFFFF:Drain all Time Now! PL4 (4/4)
 
 ; [ Slick Shot (V2.2) ]
 :slikshot:00000000:277D:00000009:FFFFFFFF:Infinite Time PL1
@@ -196680,11 +196680,11 @@
 :wexpress:20A10000:813D:00810F4C:FFFFFFFF:Sound Test (17/17):jmp $810F
 
 ; [ Wheel Of Fortune (alternate) ]
-:wfortuna:00000000:2101:00000063:FFFFFFFF:Infinite Credits
-:wfortuna:00000000:2A9D:00000064:FFFFFFFF:Infinite Time
-:wfortuna:00000000:2AA1:00000005:FFFFFFFF:Infinite Lives PL1
-:wfortuna:00000000:2AA2:00000005:FFFFFFFF:Infinite Lives PL2
-:wfortuna:00000000:2AA3:00000005:FFFFFFFF:Infinite Lives PL3
+:wfortunea:00000000:2101:00000063:FFFFFFFF:Infinite Credits
+:wfortunea:00000000:2A9D:00000064:FFFFFFFF:Infinite Time
+:wfortunea:00000000:2AA1:00000005:FFFFFFFF:Infinite Lives PL1
+:wfortunea:00000000:2AA2:00000005:FFFFFFFF:Infinite Lives PL2
+:wfortunea:00000000:2AA3:00000005:FFFFFFFF:Infinite Lives PL3
 
 ; [ Wheel Of Fortune ]
 :wfortune:00000000:2101:00000063:FFFFFFFF:Infinite Credits
@@ -204834,7 +204834,7 @@
 ;gsword=gsword2
 ;gt102b=gt102c=gt102c1=gt102c2=gt102c3=sextriv1=sextriv2~=(gt103a=gt103a1=gt103a2=gt103a3=gt103aa=gt103ab=gt103asx)~gt103~gt507uk
 ;gt2k=gt2ks100=gtclassc=gtclasscp=gtclasscs~gt2kt500~gt3d~(gt3dl191=gt3dl192)~gt3ds192~gt3dt211~gt3dt231~gt3dv14~gt3dv15~(gt3dv16=gt3dv17=gt3dv18)~(gt97=gt97v122=gt98=gt98s100=gt98v100)~(gt97s121=gt97v120=gt97v121)~gt97t240~gt98t303~(gt99=gt99s100)~gt99t400~gtroyal~gtsupreme
-;gtg~=(gtg2=gtg2t)~=gtg2j~=gtgt
+;gtg~=(gtg2=gtg2t)~=gtg2j~=gtgt10
 ;gticlub=gticlubj  (unchecked relationship)
 ;gtmr2=gtmr2u~gtmr2a
 ;gtmr=gtmra~(gtmre=gtmrusa)
@@ -204882,7 +204882,7 @@
 ;hourouki=mhgaiden~(mjclinic=mjhokite=mrokumei)
 ;housemn2=housemnq~livegal
 ;hpolym84=hyperspt
-;hstenn10~=hstennis
+;hstennis10~=hstennis
 ;hthero95=hthro95u=pwrgoal
 ;hunchbak~hunchbkd~hunchbkg~=hunchbks
 ;hydra=hydrap2~=hydrap
@@ -205256,7 +205256,7 @@
 ;ridger2a=ridger2b=ridgera2    (unchecked relationship)
 ;ridgerac=ridgeraj
 ;ridhero=ridheroh
-;rimrockn=rimrck20~(rimrck12~=rimrck16)
+;rimrockn=rimrockn20~(rimrockn12~=rimrockn16)
 ;ringdest=smbomb=smbombr1
 ;ringfgt=ringfgt2=vsgongf
 ;ringrage=ringragj=ringragu
@@ -205357,7 +205357,7 @@
 ;sjryuko=sjryuko1
 ;skullxb1=skullxb2=skullxb3=skullxb4=skullxbo
 ;skykid=skykidd=skykido~=skykiddo=skykiddx
-;sliksh16=sliksh17~slikshot
+;slikshot16=slikshot17~slikshot
 ;slither=slithera
 ;sltblgp1=sltblgpo    (unchecked relationship)
 ;smashtv=smashtv4=smashtv5=smashtv6
@@ -205551,7 +205551,7 @@
 ;wc90~=(wc90a=wc90b=wc90t)
 ;wcbowl=wcbowl161=wcbowl165~wcbowl12
 ;welltrij=welltris
-;wfortuna=wfortune
+;wfortunea=wfortune
 ;wgp=wgpj~=(wgpjoy=wgpjoya)~wgp2
 ;wh1=wh1h~(wh2~=wh2j~=whp)
 ;willow=willowj=willowje
