@@ -3102,30 +3102,30 @@ V-V                           TP-027
 	DRIVER( gtg2j )		/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( neckneck )	/* (c) 1992 Bundra Games/Incredible Technologies */
 	DRIVER( timekill )	/* (c) 1992 Strata/Incredible Technologies */
-	DRIVER( timek131 )	/* (c) 1992 Strata/Incredible Technologies */
+	DRIVER( timekill131 )	/* (c) 1992 Strata/Incredible Technologies */
 	DRIVER( hardyard )	/* (c) 1993 Strata/Incredible Technologies */
-	DRIVER( hardyd10 )	/* (c) 1993 Strata/Incredible Technologies */
+	DRIVER( hardyard10 )	/* (c) 1993 Strata/Incredible Technologies */
 	DRIVER( bloodstm )	/* (c) 1994 Strata/Incredible Technologies */
-	DRIVER( bloods22 )	/* (c) 1994 Strata/Incredible Technologies */
-	DRIVER( bloods21 )	/* (c) 1994 Strata/Incredible Technologies */
-	DRIVER( bloods11 )	/* (c) 1994 Strata/Incredible Technologies */
+	DRIVER( bloodstm220 )	/* (c) 1994 Strata/Incredible Technologies */
+	DRIVER( bloodstm210 )	/* (c) 1994 Strata/Incredible Technologies */
+	DRIVER( bloodstm110 )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( pairs )		/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( pairsred )
 	DRIVER( pairsa )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( hotmemry )	/* (c) 1994 Tuning/Incredible Technologies */
 	DRIVER( drivedge )	/* (c) 1994 Strata/Incredible Technologies */
 	DRIVER( wcbowl )	/* (c) 1995 Incredible Technologies */
-	DRIVER( wcbwl165 )	/* (c) 1995 Incredible Technologies */
-	DRIVER( wcbwl161 )	/* (c) 1995 Incredible Technologies */
-	DRIVER( wcbwl140 )	/* (c) 1995 Incredible Technologies */
-	DRIVER( wcbwl12 )	/* (c) 1995 Incredible Technologies */
+	DRIVER( wcbowl165 )	/* (c) 1995 Incredible Technologies */
+	DRIVER( wcbowl161 )	/* (c) 1995 Incredible Technologies */
+	DRIVER( wcbowl140 )	/* (c) 1995 Incredible Technologies */
+	DRIVER( wcbowl12 )	/* (c) 1995 Incredible Technologies */
 	DRIVER( sftm )		/* (c) 1995 Capcom/Incredible Technologies */
 	DRIVER( sftm110 )	/* (c) 1995 Capcom/Incredible Technologies */
 	DRIVER( sftm111 )	/* (c) 1995 Capcom/Incredible Technologies */
-	DRIVER( sftmj )		/* (c) 1995 Capcom/Incredible Technologies */
+	DRIVER( sftmj112 )		/* (c) 1995 Capcom/Incredible Technologies */
 	DRIVER( shufshot )	/* (c) Strata/Incredible Technologies */
-	DRIVER( sshot139 )	/* (c) Strata/Incredible Technologies */
-	DRIVER( sshot137 )	/* (c) Strata/Incredible Technologies */
+	DRIVER( shufshot139 )	/* (c) Strata/Incredible Technologies */
+	DRIVER( shufshot137 )	/* (c) Strata/Incredible Technologies */
 	DRIVER( wcbowldx )	/* (c) 1999 Incredible Technologies */
 
 	DRIVER( gt3d )		/* (c) 1995 Incredible Technologies */
@@ -3156,12 +3156,12 @@ V-V                           TP-027
 	DRIVER( gt2k )		/* (c) 2000 Incredible Technologies */
 	DRIVER( gt2ks100 )	/* (c) 2000 Incredible Technologies */
 	DRIVER( gt2kt500 )	/* (c) 2000 Incredible Technologies */
-	DRIVER( gtsuprem )	/* (c) 2000 Incredible Technologies */
+	DRIVER( gtsupreme )	/* (c) 2000 Incredible Technologies */
 	DRIVER( shoottv )
 	DRIVER( pubball )
 	DRIVER( gtclassc )	/* (c) 2001 Incredible Technologies */
-	DRIVER( gtclassp )	/* (c) 2001 Incredible Technologies */
-	DRIVER( gtcls100 )	/* (c) 2001 Incredible Technologies */
+	DRIVER( gtclasscp )	/* (c) 2001 Incredible Technologies */
+	DRIVER( gtclasscs )	/* (c) 2001 Incredible Technologies */
 
 	/* Leland games */
 	DRIVER( cerberus )	/* (c) 1985 Cinematronics */

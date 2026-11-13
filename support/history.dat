@@ -25703,7 +25703,7 @@ Sound : Yus. Aoki, Yuj. Tezuka
 $end
 
 
-$info=bloodstm,bloods11,bloods21,bloods22,
+$info=bloodstm,bloodstm110,bloodstm210,bloodstm220,
 $bio
 
 Blood Storm (c) 1994 Strata / Incredible Technologies.
@@ -81364,7 +81364,7 @@ Over the years (up until 2001 in fact), very little changed in terms of the main
 $end
 
 
-$info=gtclassc,gtclassp,gtcls100,
+$info=gtclassc,gtclasscp,gtclasscs,
 $bio
 
 Golden Tee Classic (c) 2001 Incredible Technologies.
@@ -81622,7 +81622,7 @@ Sales : John Cassiday
 $end
 
 
-$info=gtsuprem,
+$info=gtsupreme,
 $bio
 
 Golden Tee Supreme Edition Tournament (c) 2002 Incredible Technologies.
@@ -146190,7 +146190,7 @@ This game uses a CED videodisc (not a laser disc).
 $end
 
 
-$info=hardyard,hardyd10,
+$info=hardyard,hardyard10,
 $bio
 
 NFL Hard Yardage (c) 10/1993 Strata / Incredible Technologies.
@@ -194007,7 +194007,7 @@ Buttons : 1
 $end
 
 
-$info=shufshot,sshot137,
+$info=shufshot,shufshot137,
 $bio
 
 Shuffleshot (c) 1997 Strata / Incredible Technologies.
@@ -209661,7 +209661,7 @@ PC [CD-ROM] (1999, "Capcom Arcade Hits Volume 1") : also includes PDA version fo
 $end
 
 
-$info=sftm,sftm110,sftm111,sftmj,
+$info=sftm,sftm110,sftm111,sftmj112,
 $bio
 
 Street Fighter - The Movie (c) 06/1995 Incredible Technologies.
@@ -234467,7 +234467,7 @@ Sony PlayStation 2 (2001)
 $end
 
 
-$info=timekill,timek131,
+$info=timekill,timekill131,
 $bio
 
 Time Killers (c) 11/1992 Strata / Incredible Technologies.
@@ -257666,7 +257666,7 @@ Photografy : E.P.R. (Milan)
 $end
 
 
-$info=wcbowl,wcbwl165,wcbwl12,wcbwl161,
+$info=wcbowl,wcbowl165,wcbowl12,wcbowl161,
 $bio
 
 World Class Bowling (c) 1995 Incredible Technologies.
@@ -257791,7 +257791,7 @@ Buttons : 2
 $end
 
 
-$info=wcbwl140,
+$info=wcbowl140,
 $bio
 
 World Class Bowling Tournament (c) 1997 Incredible Technologies.
