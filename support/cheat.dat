@@ -104437,11 +104437,11 @@
 :mspuzzle:00000000:100841:00000009:FFFFFFFF:Infinite Bombs
 
 ; [ Miss Puzzle (Nudes) ]
-:mspuzzln:00000000:100829:00000009:FFFFFFFF:Infinite Credits
-:mspuzzln:00000001:100FB9:00000000:FFFFFFFF:Finish this Stage Now!
-:mspuzzln:00000000:10080D:0000007A:FFFFFFFF:Infinite Time
-:mspuzzln:00000000:10083B:0000000E:FFFFFFFF:Infinite Bomb Time
-:mspuzzln:00000000:100841:00000009:FFFFFFFF:Infinite Bombs
+:mspuzzleb:00000000:100829:00000009:FFFFFFFF:Infinite Credits
+:mspuzzleb:00000001:100FB9:00000000:FFFFFFFF:Finish this Stage Now!
+:mspuzzleb:00000000:10080D:0000007A:FFFFFFFF:Infinite Time
+:mspuzzleb:00000000:10083B:0000000E:FFFFFFFF:Infinite Bomb Time
+:mspuzzleb:00000000:100841:00000009:FFFFFFFF:Infinite Bombs
 
 ; [ Main Stadium (Japan) ]
 :mstadium:00000000:4120:00000000:FFFFFFFF:Infinite Strikes
@@ -205077,7 +205077,7 @@
 ;mshuttle=mshutlj2=mshuttlj
 ;mshvsf=mshvsfa=mshvsfa1=mshvsfb=mshvsfb1=mshvsfh=mshvsfj=mshvsfj1=mshvsfj2=mshvsfu=mshvsfu1
 ;mslug3=mslug3b6=mslug3n
-;mspuzzle=mspuzzln   (mspuzzln not working so untested)
+;mspuzzle=mspuzzleb   (mspuzzleb not working so untested)
 ;mstworld~=sbbros=spang=spangj (differences are panic/tour levels - mstworld has no tour selection and levels are different)
 ;msword=mswordj=mswordr1=mswordu
 ;mtlchamp=mtlchmp1=mtlchmpa=mtlchmpj=mtlchmpu

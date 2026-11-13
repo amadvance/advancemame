@@ -403,21 +403,21 @@ ROM_START( mspuzzle )
 	ROM_LOAD( "u511.bin", 0x40000, 0x40000, CRC(3d6b6c78) SHA1(3016423102b4d47c0f1296471cf1670258acc856) )
 ROM_END
 
-ROM_START( mspuzzln )
+ROM_START( mspuzzleb )
 	/* all the roms for this game could do with checking on another board, this one was in pretty bad condition
        and reads weren't always consistent */
 	ROM_REGION( 0x80000, REGION_CPU1, 0 ) /* 68000 Code */
-	ROM_LOAD16_BYTE( "u1.rom", 0x00001, 0x20000, BAD_DUMP CRC(ec940df4) SHA1(20bb6e2757868cf8fbbb11e05adf8c1d625ee172) )
-	ROM_LOAD16_BYTE( "u2.rom", 0x00000, 0x20000, BAD_DUMP CRC(7b9cac82) SHA1(c5edfb3fbdf43219ba317c18222e671ebed94469) )
+	ROM_LOAD16_BYTE( "u1.u1", 0x00001, 0x40000, CRC(5e96ea17) SHA1(9b4cfa32e386eacca4e65190d29978cf9cf08fbc) ) /* identical halves - use program ROMs from mspuzzlea for now */
+	ROM_LOAD16_BYTE( "u2.u2", 0x00000, 0x40000, CRC(8f161b0c) SHA1(783dbb34ae5fb7603558c17a39abbe0a93e3a01f) ) /* identical halves - use program ROMs from mspuzzlea for now */
 
 	ROM_REGION( 0x040000, REGION_SOUND1, 0 ) /* Samples */
 	ROM_LOAD( "u210.rom", 0x00000, 0x40000, CRC(8826b018) SHA1(075e5cef114146c6c72c0331dd3434b27fed180d) )
 
 	ROM_REGION( 0x200000, REGION_GFX1, 0 )
-	ROM_LOAD( "u421.rom", 0x000000, 0x80000, CRC(3c567c55) SHA1(100e0c9535bf07f3ca8537b3a172486b65e5f24a) )
-	ROM_LOAD( "u420.rom", 0x100000, 0x80000, CRC(f52ab7fd) SHA1(e5b8905cae3e15a8a379c4c149441d849931cbde) )
+	ROM_LOAD( "u421.rom", 0x000000, 0x80000, BAD_DUMP CRC(3c567c55) SHA1(100e0c9535bf07f3ca8537b3a172486b65e5f24a) )
+	ROM_LOAD( "u420.rom", 0x100000, 0x80000, BAD_DUMP CRC(f52ab7fd) SHA1(e5b8905cae3e15a8a379c4c149441d849931cbde) )
 	ROM_LOAD( "u425.rom", 0x080000, 0x80000, BAD_DUMP CRC(1c4c8fc1) SHA1(90e3f297db68a44cba0966b599bb7c593eced16e) )
-	ROM_LOAD( "u426.rom", 0x180000, 0x80000, CRC(c28b2743) SHA1(df4bf998ae17ddebf1b4047564eb296c69bc9071) )
+	ROM_LOAD( "u426.rom", 0x180000, 0x80000, BAD_DUMP CRC(c28b2743) SHA1(df4bf998ae17ddebf1b4047564eb296c69bc9071) )
 
 	ROM_REGION( 0x80000, REGION_GFX2, 0 ) /* BG Tiles */
 	ROM_LOAD( "u512.bin", 0x00000, 0x40000, CRC(505ee3c2) SHA1(a719958c34d9c54445ad207bca1f49df3aff938b) )
@@ -425,6 +425,24 @@ ROM_START( mspuzzln )
 ROM_END
 
 ROM_START( dblpoint )
+	ROM_REGION( 0x80000, REGION_CPU1, 0 ) /* 68000 Code */
+	ROM_LOAD16_BYTE( "u1.bin", 0x00001, 0x20000, CRC(b05c9e02) SHA1(40ae2926cc4a77e8f871e3a4845314384a15c3e0) )
+	ROM_LOAD16_BYTE( "u2.bin", 0x00000, 0x20000, CRC(cab35cbe) SHA1(63a35a880c962a9c9560bf779bf9edec18c3878d) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 ) /* Samples */
+	ROM_LOAD( "u210.rom", 0x00000, 0x40000, CRC(d35f975c) SHA1(03490c92afadbd24c5b75f0ab114a2681b65c10e) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, 0 )
+	ROM_LOAD( "u421.bin", 0x000000, 0x80000, CRC(b0e9271f) SHA1(4873e4dda177f5116164b2a47dabd82bc75e9bdf) )
+	ROM_LOAD( "u420.bin", 0x100000, 0x80000, CRC(252789e8) SHA1(7b365035a4c4f6aae0d4075db70d59973569b12b) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, 0 ) /* BG Tiles */
+	ROM_LOAD( "u512.bin", 0x00000, 0x40000, CRC(b57b8534) SHA1(1d96dc93111e56a7982c3602864a71a785a4782a) )
+	ROM_LOAD( "u511.bin", 0x40000, 0x40000, CRC(74ed13ff) SHA1(2522bd5fe40123a5b07e955252ae96b913a3ac0d) )
+ROM_END
+
+/* based on the labels this doesn't seem to be an original Min Corp. board */
+ROM_START( dblpointd )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_BYTE( "d12.bin", 0x00001, 0x20000, CRC(44bc1bd9) SHA1(8b72909c53b09b9287bf90bcd8970bdf9c1b8798) )
 	ROM_LOAD16_BYTE( "d13.bin", 0x00000, 0x20000, CRC(625a311b) SHA1(38fa0d240b253fcc8dc89438582a9c446410b636) )
@@ -444,5 +462,6 @@ ROM_END
 GAME( 1994, gumbo,    0,        gumbo,    gumbo,    0, ROT0,  "Min Corp.", "Gumbo", 0 )
 GAME( 1994, msbingo,  0,        mspuzzle, msbingo,  0, ROT0,  "Min Corp.", "Miss Bingo", 0 )
 GAME( 1994, mspuzzle, 0,        mspuzzle, mspuzzle, 0, ROT90, "Min Corp.", "Miss Puzzle", 0 )
-GAME( 1994, mspuzzln, mspuzzle, mspuzzle, mspuzzle, 0, ROT90, "Min Corp.", "Miss Puzzle (Nudes)", GAME_NOT_WORKING )
-GAME( 1995, dblpoint, 0,        dblpoint, dblpoint, 0, ROT0,  "Dong Bang Electron", "Double Point", 0 )
+GAME( 1994, mspuzzleb, mspuzzle, mspuzzle, mspuzzle, 0, ROT90, "Min Corp.", "Miss Puzzle (Nudes, more explicit)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, dblpoint, 0,        dblpoint, dblpoint, 0, ROT0,  "Min Corp.", "Double Point", 0 )
+GAME( 1995, dblpointd, dblpoint, dblpoint, dblpoint, 0, ROT0,  "bootleg? (Dong Bang Electron)", "Double Point (Dong Bang Electron, bootleg?)", 0 )
