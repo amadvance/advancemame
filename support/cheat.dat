@@ -11029,13 +11029,13 @@
 :berlwall:00000000:2029DB:00000002:FFFFFFFF:Invincibility PL2
 
 ; [ Berlin Wall, The (bootleg ?) ]
-:berlwalt:00000000:200020:00000009:FFFFFFFF:Infinite Credits
-:berlwalt:00000000:202890:00000009:FFFFFFFF:Infinite Time
-:berlwalt:00010000:202891:00000099:FFFFFFFF:Infinite Time (2/2)
-:berlwalt:00000000:202982:00000009:FFFFFFFF:Infinite Lives PL1
-:berlwalt:00000000:20299D:00000002:FFFFFFFF:Invincibility PL1
-:berlwalt:00000000:2029C6:00000009:FFFFFFFF:Infinite Lives PL2
-:berlwalt:00000000:2029E1:00000002:FFFFFFFF:Invincibility PL2
+:berlwallt:00000000:200020:00000009:FFFFFFFF:Infinite Credits
+:berlwallt:00000000:202890:00000009:FFFFFFFF:Infinite Time
+:berlwallt:00010000:202891:00000099:FFFFFFFF:Infinite Time (2/2)
+:berlwallt:00000000:202982:00000009:FFFFFFFF:Infinite Lives PL1
+:berlwallt:00000000:20299D:00000002:FFFFFFFF:Invincibility PL1
+:berlwallt:00000000:2029C6:00000009:FFFFFFFF:Infinite Lives PL2
+:berlwallt:00000000:2029E1:00000002:FFFFFFFF:Invincibility PL2
 
 ; [ Bermuda Triangle (US older version) ]
 :bermudaa:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
@@ -92739,16 +92739,16 @@
 :mgcldtex:00000100:002BB8F8:000000FF:FFFFFFFF:Select Score PL2
 
 ; [ Magical Crystals (Japan, 92/01/13) ]
-:mgcrystj:00000000:30017D:00000009:FFFFFFFF:Infinite Credits
-:mgcrystj:00000000:300292:000000A5:FFFFFFFF:Infinite Time
-:mgcrystj:00010000:300291:00000099:FFFFFFFF:Infinite Time (2/3)
-:mgcrystj:00010000:300290:00000009:FFFFFFFF:Infinite Time (3/3)
-:mgcrystj:00000000:30056B:0000000A:FFFFFFFF:Infinite Lives PL1
-:mgcrystj:00000000:301017:00000003:FFFFFFFF:Invincibility PL1:You can still die if you fall or are pushed off the platforms though!
-:mgcrystj:00000000:30110B:00000082:FFFFFFFF:Auto Penetration Shot PL1
-:mgcrystj:00000000:30056D:0000000A:FFFFFFFF:Infinite Lives PL2
-:mgcrystj:00000000:301057:00000003:FFFFFFFF:Invincibility PL2:You can still die if you fall or are pushed off the platforms though!
-:mgcrystj:00000000:3011CB:00000082:FFFFFFFF:Auto Penetration Shot PL2
+:mgcrystlj:00000000:30017D:00000009:FFFFFFFF:Infinite Credits
+:mgcrystlj:00000000:300292:000000A5:FFFFFFFF:Infinite Time
+:mgcrystlj:00010000:300291:00000099:FFFFFFFF:Infinite Time (2/3)
+:mgcrystlj:00010000:300290:00000009:FFFFFFFF:Infinite Time (3/3)
+:mgcrystlj:00000000:30056B:0000000A:FFFFFFFF:Infinite Lives PL1
+:mgcrystlj:00000000:301017:00000003:FFFFFFFF:Invincibility PL1:You can still die if you fall or are pushed off the platforms though!
+:mgcrystlj:00000000:30110B:00000082:FFFFFFFF:Auto Penetration Shot PL1
+:mgcrystlj:00000000:30056D:0000000A:FFFFFFFF:Infinite Lives PL2
+:mgcrystlj:00000000:301057:00000003:FFFFFFFF:Invincibility PL2:You can still die if you fall or are pushed off the platforms though!
+:mgcrystlj:00000000:3011CB:00000082:FFFFFFFF:Auto Penetration Shot PL2
 
 ; [ Magical Crystals (World, 92/01/10) ]
 :mgcrystl:00000000:30017D:00000009:FFFFFFFF:Infinite Credits
@@ -92763,14 +92763,14 @@
 :mgcrystl:00000000:3011CB:00000082:FFFFFFFF:Auto Penetration Shot PL2
 
 ; [ Magical Crystals (World, 91/12/10) ]
-:mgcrysto:00000000:30017D:00000009:FFFFFFFF:Infinite Credits
-:mgcrysto:00000000:30028A:000000A5:FFFFFFFF:Infinite Time
-:mgcrysto:00010000:300289:00000099:FFFFFFFF:Infinite Time (2/3)
-:mgcrysto:00010000:300288:00000009:FFFFFFFF:Infinite Time (3/3)
-:mgcrysto:00000000:30055D:0000000A:FFFFFFFF:Infinite Lives PL1
-:mgcrysto:00000000:301017:00000003:FFFFFFFF:Invincibility PL1:You can still die if you fall or are pushed off the platforms though!
-:mgcrysto:00000000:30055F:0000000A:FFFFFFFF:Infinite Lives PL2
-:mgcrysto:00000000:301057:00000003:FFFFFFFF:Invincibility PL2:You can still die if you fall or are pushed off the platforms though!
+:mgcrystlo:00000000:30017D:00000009:FFFFFFFF:Infinite Credits
+:mgcrystlo:00000000:30028A:000000A5:FFFFFFFF:Infinite Time
+:mgcrystlo:00010000:300289:00000099:FFFFFFFF:Infinite Time (2/3)
+:mgcrystlo:00010000:300288:00000009:FFFFFFFF:Infinite Time (3/3)
+:mgcrystlo:00000000:30055D:0000000A:FFFFFFFF:Infinite Lives PL1
+:mgcrystlo:00000000:301017:00000003:FFFFFFFF:Invincibility PL1:You can still die if you fall or are pushed off the platforms though!
+:mgcrystlo:00000000:30055F:0000000A:FFFFFFFF:Infinite Lives PL2
+:mgcrystlo:00000000:301057:00000003:FFFFFFFF:Invincibility PL2:You can still die if you fall or are pushed off the platforms though!
 
 ; [ Gionbana [BET] (Japan 890207) ]
 :mgion:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 3
@@ -147059,23 +147059,23 @@
 :sandor:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Sand Scorpion (set 2) ]
-:sandscra:00000000:700001:00000009:FFFFFFFF:Infinite Credits
-:sandscra:00000000:706027:00000006:FFFFFFFF:Infinite Lives PL1
-:sandscra:00000000:706026:00000005:FFFFFFFF:Infinite Bombs PL1
-:sandscra:00000000:706008:00000004:00000004:Invincibility "ON" PL1:If you get so you can't pick up anything - toggle this cheat OFF then back ON
-:sandscra:00000001:706008:00000000:00000004:Invincibility "OFF" PL1
-:sandscra:00000000:70603F:00000007:FFFFFFFF:Maximum Weapon Power PL1
-:sandscra:00000000:706020:00000000:FFFFFFFF:Infinite Shot PL1
-:sandscra:00000000:70602A:00000000:FFFFFFFF:Infinite Missile PL1
-:sandscra:00000000:700011:00000010:00000010:Rapid Fire PL1
-:sandscra:00000000:70D027:00000006:FFFFFFFF:Infinite Lives PL2
-:sandscra:00000000:70D026:00000005:FFFFFFFF:Infinite Bombs PL2
-:sandscra:00000000:70D008:00000004:00000004:Invincibility "ON" PL2:If you get so you can't pick up anything - toggle this cheat OFF then back ON
-:sandscra:00000001:70D008:00000000:00000004:Invincibility "OFF" PL2
-:sandscra:00000000:70D03F:00000007:FFFFFFFF:Maximum Weapon Power PL2
-:sandscra:00000000:70D020:00000000:FFFFFFFF:Infinite Shot PL2
-:sandscra:00000000:70D02A:00000000:FFFFFFFF:Infinite Missile PL2
-:sandscra:00000000:700013:00000010:00000010:Rapid Fire PL2
+:sandscrpb:00000000:700001:00000009:FFFFFFFF:Infinite Credits
+:sandscrpb:00000000:706027:00000006:FFFFFFFF:Infinite Lives PL1
+:sandscrpb:00000000:706026:00000005:FFFFFFFF:Infinite Bombs PL1
+:sandscrpb:00000000:706008:00000004:00000004:Invincibility "ON" PL1:If you get so you can't pick up anything - toggle this cheat OFF then back ON
+:sandscrpb:00000001:706008:00000000:00000004:Invincibility "OFF" PL1
+:sandscrpb:00000000:70603F:00000007:FFFFFFFF:Maximum Weapon Power PL1
+:sandscrpb:00000000:706020:00000000:FFFFFFFF:Infinite Shot PL1
+:sandscrpb:00000000:70602A:00000000:FFFFFFFF:Infinite Missile PL1
+:sandscrpb:00000000:700011:00000010:00000010:Rapid Fire PL1
+:sandscrpb:00000000:70D027:00000006:FFFFFFFF:Infinite Lives PL2
+:sandscrpb:00000000:70D026:00000005:FFFFFFFF:Infinite Bombs PL2
+:sandscrpb:00000000:70D008:00000004:00000004:Invincibility "ON" PL2:If you get so you can't pick up anything - toggle this cheat OFF then back ON
+:sandscrpb:00000001:70D008:00000000:00000004:Invincibility "OFF" PL2
+:sandscrpb:00000000:70D03F:00000007:FFFFFFFF:Maximum Weapon Power PL2
+:sandscrpb:00000000:70D020:00000000:FFFFFFFF:Infinite Shot PL2
+:sandscrpb:00000000:70D02A:00000000:FFFFFFFF:Infinite Missile PL2
+:sandscrpb:00000000:700013:00000010:00000010:Rapid Fire PL2
 
 ; [ Sand Scorpion (set 1) ]
 :sandscrp:00000000:700001:00000009:FFFFFFFF:Infinite Credits
@@ -204431,7 +204431,7 @@
 ;beastf~suprglob~(theglob=theglob2~theglob3)~(sprglbpg=sprglobp=theglobp)
 ;beezer~=beezer1
 ;berabohm=beraboho
-;berlwall~=berlwalt
+;berlwall~=berlwallt
 ;bermudaa=worldwar~=(bermudao=bermudat)
 ;berzerk=berzerk1
 ;bestleag=bigstrik=bigstrkb
@@ -205039,7 +205039,7 @@
 ;metmqstr=nmaster
 ;metrocra=metrocrs
 ;mgcldate=mgcldtex   (mgcldate not working so untested)
-;mgcrystj~=mgcrystl~=mgcrysto(no auto shot cheat)
+;mgcrystlj~=mgcrystl~=mgcrystlo(no auto shot cheat)
 ;mia=mia2~miaj
 ;midres=midresj=midresu
 ;mikie=mikiehs=mikiej
@@ -205300,7 +205300,7 @@
 ;salamand=salamanj
 ;samsho5=samsho5b=samsho5h~=(samsh5sh=samsh5sn=samsh5sp) {character name differences, still to be corrected though}
 ;samuraia=sngkace
-;sandscra=sandscrp
+;sandscrpb=sandscrp
 ;sarukani=vblokbrk
 ;satansat=zarzon
 ;sbasketb=sbasketo=sbasketu

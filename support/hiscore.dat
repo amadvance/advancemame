@@ -298,7 +298,7 @@ borntofi:
 0:166:8b:50:0b
 
 sandscrp:
-sandscra:  ;******Sand Scorpion (set 2)
+sandscrpb:  ;******Sand Scorpion (set 2)
 0:702014:50:00:1b
 0:700048:4:00:00
 
@@ -4317,7 +4317,7 @@ iganinju:
 mgcrystl:
 0:300478:4:00:09
 0:30047c:7c:00:00
-mgcrystj:
+mgcrystlj:
 0:300488:4:00:00
 0:30048c:7c:41:00
 
