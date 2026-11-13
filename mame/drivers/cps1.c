@@ -3341,7 +3341,7 @@ INPUT_PORTS_START( qadj )
 INPUT_PORTS_END
 
 /* Needs further checking */
-INPUT_PORTS_START( qtono2 )
+INPUT_PORTS_START( qtono2j )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
@@ -7785,7 +7785,7 @@ ROM_START( qadj )
 	ROM_LOAD( "qad19.bin",   0x20000, 0x20000, CRC(13d3236b) SHA1(785d49de484e9ac6971eaceebebfecb8e58563f6) )
 ROM_END
 
-ROM_START( qtono2 )
+ROM_START( qtono2j )
 	ROM_REGION( CODE_SIZE, REGION_CPU1, 0 )      /* 68000 code */
 	ROM_LOAD16_BYTE( "tn2j-30.11e",  0x00000, 0x20000, CRC(9226eb5e) SHA1(91649974f9652caed90eb28ec6caf4fe61f5d279) )
 	ROM_LOAD16_BYTE( "tn2j-37.11f",  0x00001, 0x20000, CRC(d1d30da1) SHA1(7ca1695ed804b5860d4c15964cdbb922db3918ee) )
@@ -8227,7 +8227,7 @@ GAME( 1992, sf2t,     sf2hf,    sf2,      sf2,      cps1,     ROT0,   "Capcom", 
 GAME( 1992, sf2tj,    sf2hf,    sf2,      sf2j,     cps1,     ROT0,   "Capcom", "Street Fighter II' Turbo - Hyper Fighting (Japan 921209)", 0 )
 GAME( 1992, qad,      0,        cps1,     qad,      cps1,     ROT0,   "Capcom", "Quiz & Dragons (US 920701)", 0 )
 GAME( 1994, qadj,     qad,      cps1,     qadj,     cps1,     ROT0,   "Capcom", "Quiz & Dragons (Japan 940921)", 0 )
-GAME( 1995, qtono2,   0,        cps1,     qtono2,   cps1,     ROT0,   "Capcom", "Quiz Tonosama no Yabou 2 Zenkoku-ban (Japan 950123)", 0 )
+GAME( 1995, qtono2j,  0,        cps1,     qtono2j,  cps1,     ROT0,   "Capcom", "Quiz Tonosama no Yabou 2 Zenkoku-ban (Japan 950123)", 0 )
 GAME( 1995, megaman,  0,        cps1,     megaman,  cps1,     ROT0,   "Capcom", "Mega Man - The Power Battle (CPS1 Asia 951006)", 0 )
 GAME( 1995, rockmanj, megaman,  cps1,     megaman,  cps1,     ROT0,   "Capcom", "Rockman - The Power Battle (CPS1 Japan 950922)", 0 )
 
