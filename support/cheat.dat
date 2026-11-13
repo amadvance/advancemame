@@ -2083,27 +2083,27 @@
 :600:20800000:25B2:00000000:FFFFFFFF:Invincibility
 
 ; [ 64th. Street - A Detective Story (Japan) ]
-:64streej:00000000:FFB6AD:00000099:FFFFFFFF:Infinite Credits
-:64streej:00000000:FF9DE4:0000005D:FFFFFFFF:Infinite Time
-:64streej:00010000:FF9DE5:000000BF:FFFFFFFF:Infinite Time (2/2)
-:64streej:00000000:FF9F09:00000009:FFFFFFFF:Infinite Lives PL1
-:64streej:00000000:FF9F8D:000000D8:FFFFFFFF:Infinite Energy PL1
-:64streej:00000000:FF9F29:000000B3:FFFFFFFF:Invincibility PL1
-:64streej:00000000:FF9F85:00000029:FFFFFFFF:Always have crowbar PL1
-:64streej:00010000:FF9FC5:00000029:FFFFFFFF:Always have crowbar PL1 (2/3)
-:64streej:00010000:FF9FC8:00000004:FFFFFFFF:Always have crowbar PL1 (3/3)
-:64streej:00000000:FF9F85:0000002A:FFFFFFFF:Always have spanner PL1
-:64streej:00010000:FF9FC5:0000002A:FFFFFFFF:Always have spanner PL1 (2/3)
-:64streej:00010000:FF9FC8:00000005:FFFFFFFF:Always have spanner PL1 (3/3)
-:64streej:00000000:FF9F33:00000009:FFFFFFFF:Infinite Lives PL2
-:64streej:00000000:FFA04D:000000D8:FFFFFFFF:Infinite Energy PL2
-:64streej:00000000:FF9F59:000000B3:FFFFFFFF:Invincibility PL2
-:64streej:00000000:FFA045:00000029:FFFFFFFF:Always have crowbar PL2
-:64streej:00010000:FFA085:00000029:FFFFFFFF:Always have crowbar PL2 (2/3)
-:64streej:00010000:FFA088:00000004:FFFFFFFF:Always have crowbar PL2 (3/3)
-:64streej:00000000:FFA045:0000002A:FFFFFFFF:Always have spanner PL2
-:64streej:00010000:FFA085:0000002A:FFFFFFFF:Always have spanner PL2 (2/3)
-:64streej:00010000:FFA088:00000005:FFFFFFFF:Always have spanner PL2 (3/3)
+:64streetj:00000000:FFB6AD:00000099:FFFFFFFF:Infinite Credits
+:64streetj:00000000:FF9DE4:0000005D:FFFFFFFF:Infinite Time
+:64streetj:00010000:FF9DE5:000000BF:FFFFFFFF:Infinite Time (2/2)
+:64streetj:00000000:FF9F09:00000009:FFFFFFFF:Infinite Lives PL1
+:64streetj:00000000:FF9F8D:000000D8:FFFFFFFF:Infinite Energy PL1
+:64streetj:00000000:FF9F29:000000B3:FFFFFFFF:Invincibility PL1
+:64streetj:00000000:FF9F85:00000029:FFFFFFFF:Always have crowbar PL1
+:64streetj:00010000:FF9FC5:00000029:FFFFFFFF:Always have crowbar PL1 (2/3)
+:64streetj:00010000:FF9FC8:00000004:FFFFFFFF:Always have crowbar PL1 (3/3)
+:64streetj:00000000:FF9F85:0000002A:FFFFFFFF:Always have spanner PL1
+:64streetj:00010000:FF9FC5:0000002A:FFFFFFFF:Always have spanner PL1 (2/3)
+:64streetj:00010000:FF9FC8:00000005:FFFFFFFF:Always have spanner PL1 (3/3)
+:64streetj:00000000:FF9F33:00000009:FFFFFFFF:Infinite Lives PL2
+:64streetj:00000000:FFA04D:000000D8:FFFFFFFF:Infinite Energy PL2
+:64streetj:00000000:FF9F59:000000B3:FFFFFFFF:Invincibility PL2
+:64streetj:00000000:FFA045:00000029:FFFFFFFF:Always have crowbar PL2
+:64streetj:00010000:FFA085:00000029:FFFFFFFF:Always have crowbar PL2 (2/3)
+:64streetj:00010000:FFA088:00000004:FFFFFFFF:Always have crowbar PL2 (3/3)
+:64streetj:00000000:FFA045:0000002A:FFFFFFFF:Always have spanner PL2
+:64streetj:00010000:FFA085:0000002A:FFFFFFFF:Always have spanner PL2 (2/3)
+:64streetj:00010000:FFA088:00000005:FFFFFFFF:Always have spanner PL2 (3/3)
 
 ; [ 64th. Street - A Detective Story (World) ]
 :64street:00000000:FFB6AD:00000099:FFFFFFFF:Infinite Credits
@@ -143427,55 +143427,55 @@
 :rodlandj:60000000:00000:00000000:00000000:[UP 3 times then press start]
 
 ; [ Rod-Land (Japan bootleg) ]
-:rodlndjb:00000001:F3045:00000002:FFFFFFFF:Enable Alternate Game:Different Title, Levels, Characters, Story, Bosses etc. You get to see Different Title and Attract.
-:rodlndjb:00010001:F3047:00000002:FFFFFFFF:Enable Alternate Game (2/2)
-:rodlndjb:00000001:F3045:00000001:FFFFFFFF:Disable Alternate Game
-:rodlndjb:00010001:F3047:00000001:FFFFFFFF:Disable Alternate Game (2/2)
-:rodlndjb:00000001:F48AF:00000001:FFFFFFFF:Turn "Extra Game" ON
-:rodlndjb:00010001:F3070:000000FF:FFFFFFFF:Turn "Extra Game" ON (2/3)
-:rodlndjb:00010001:F3071:000000FF:FFFFFFFF:Turn "Extra Game" ON (3/3)
-:rodlndjb:60000000:00000:00000000:00000000:[ The following 1 Hit to Kill codes ]
-:rodlndjb:60000000:00000:00000000:00000000:[ are only for the Alternate Game.  ]
-:rodlndjb:00000001:F52B7:00000001:FFFFFFFF:1 Hit to Kill 1st Boss Now!
-:rodlndjb:00300001:F5CD2:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now!
-:rodlndjb:00310001:F5CD6:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (2/4)
-:rodlndjb:00310001:F5CDA:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (3/4)
-:rodlndjb:00310001:F5CDE:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (4/4)
-:rodlndjb:00000001:F542D:00000014:FFFFFFFF:1 Hit to Kill 3rd Boss Now!
-:rodlndjb:00000001:F5CCD:00000014:FFFFFFFF:1 Hit to Kill 4th Boss Now!
-:rodlndjb:00000001:F5CCB:00000026:FFFFFFFF:1 Hit to Kill Final Boss Now!
-:rodlndjb:60000000:00000:00000000:00000000:[ The following 1 Hit to Kill codes ]
-:rodlndjb:60000000:00000:00000000:00000000:[ are only for the Normal Game.     ]
-:rodlndjb:00300001:F5CBC:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now!
-:rodlndjb:00310001:F5CC0:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now! (2/3)
-:rodlndjb:00310001:F5CC4:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now! (3/3)
-:rodlndjb:00000001:F5CC8:0000001C:FFFFFFFF:1 Hit to Kill 2nd Boss Now!
-:rodlndjb:00000001:F5CBD:00000010:FFFFFFFF:1 Hit to Kill 3rd Boss Now!
-:rodlndjb:00300001:F5CC2:0010000A:FFFFFFFF:1 Hit to Kill Final Boss Now!
-:rodlndjb:00310001:F5CC6:0020003C:FFFFFFFF:1 Hit to Kill Final Boss Now! (2/2)
-:rodlndjb:00000000:F4139:00000007:FFFFFFFF:Infinite Lives PL1
-:rodlndjb:00000020:F413B:000000B4:FFFFFFFF:Invincibility "ON" PL1
-:rodlndjb:00000001:F413B:00000001:FFFFFFFF:Invincibility "OFF" PL1
-:rodlndjb:00000001:F422F:0000001F:FFFFFFFF:Get EXTRA Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000001:F422F:00000001:00000001:Get letter - E Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000001:F422F:00000002:00000002:Get letter - X Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000001:F422F:00000004:00000004:Get letter - T Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000001:F422F:00000008:00000008:Get letter - R Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000001:F422F:00000010:00000010:Get letter - A Now! PL1:"Extra Game" must be ON
-:rodlndjb:00000000:F41B9:00000007:FFFFFFFF:Infinite Lives PL2
-:rodlndjb:00000020:F41BB:000000B4:FFFFFFFF:Invincibility "ON" PL2
-:rodlndjb:00000001:F41BB:00000001:FFFFFFFF:Invincibility "OFF" PL2
-:rodlndjb:00000001:F4231:0000001F:FFFFFFFF:Get EXTRA Now! PL2:"Extra Game" must be ON
-:rodlndjb:00000001:F4231:00000001:00000001:Get letter - E Now! PL2:"Extra Game" must be ON
-:rodlndjb:00000001:F4231:00000002:00000002:Get letter - X Now! PL2:"Extra Game" must be ON
-:rodlndjb:00000001:F4231:00000004:00000004:Get letter - T Now! PL2:"Extra Game" must be ON
-:rodlndjb:00000001:F4231:00000008:00000008:Get letter - R Now! PL2:"Extra Game" must be ON
-:rodlndjb:00000001:F4231:00000010:00000010:Get letter - A Now! PL2:"Extra Game" must be ON
-:rodlndjb:60000000:00000:00000000:00000000:[      EXTRA GAME INFO      ]
-:rodlndjb:60000000:00000:00000000:00000000:[To access PART 2 of the    ]
-:rodlndjb:60000000:00000:00000000:00000000:[ game, after you have      ]
-:rodlndjb:60000000:00000:00000000:00000000:[inserted a credit press    ]
-:rodlndjb:60000000:00000:00000000:00000000:[UP 3 times then press start]
+:rodlandjb:00000001:F3045:00000002:FFFFFFFF:Enable Alternate Game:Different Title, Levels, Characters, Story, Bosses etc. You get to see Different Title and Attract.
+:rodlandjb:00010001:F3047:00000002:FFFFFFFF:Enable Alternate Game (2/2)
+:rodlandjb:00000001:F3045:00000001:FFFFFFFF:Disable Alternate Game
+:rodlandjb:00010001:F3047:00000001:FFFFFFFF:Disable Alternate Game (2/2)
+:rodlandjb:00000001:F48AF:00000001:FFFFFFFF:Turn "Extra Game" ON
+:rodlandjb:00010001:F3070:000000FF:FFFFFFFF:Turn "Extra Game" ON (2/3)
+:rodlandjb:00010001:F3071:000000FF:FFFFFFFF:Turn "Extra Game" ON (3/3)
+:rodlandjb:60000000:00000:00000000:00000000:[ The following 1 Hit to Kill codes ]
+:rodlandjb:60000000:00000:00000000:00000000:[ are only for the Alternate Game.  ]
+:rodlandjb:00000001:F52B7:00000001:FFFFFFFF:1 Hit to Kill 1st Boss Now!
+:rodlandjb:00300001:F5CD2:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now!
+:rodlandjb:00310001:F5CD6:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (2/4)
+:rodlandjb:00310001:F5CDA:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (3/4)
+:rodlandjb:00310001:F5CDE:00010001:FFFFFFFF:1 Hit to Kill 2nd Bosses Now! (4/4)
+:rodlandjb:00000001:F542D:00000014:FFFFFFFF:1 Hit to Kill 3rd Boss Now!
+:rodlandjb:00000001:F5CCD:00000014:FFFFFFFF:1 Hit to Kill 4th Boss Now!
+:rodlandjb:00000001:F5CCB:00000026:FFFFFFFF:1 Hit to Kill Final Boss Now!
+:rodlandjb:60000000:00000:00000000:00000000:[ The following 1 Hit to Kill codes ]
+:rodlandjb:60000000:00000:00000000:00000000:[ are only for the Normal Game.     ]
+:rodlandjb:00300001:F5CBC:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now!
+:rodlandjb:00310001:F5CC0:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now! (2/3)
+:rodlandjb:00310001:F5CC4:00070007:FFFFFFFF:1 Hit to Kill 1st Bosses Now! (3/3)
+:rodlandjb:00000001:F5CC8:0000001C:FFFFFFFF:1 Hit to Kill 2nd Boss Now!
+:rodlandjb:00000001:F5CBD:00000010:FFFFFFFF:1 Hit to Kill 3rd Boss Now!
+:rodlandjb:00300001:F5CC2:0010000A:FFFFFFFF:1 Hit to Kill Final Boss Now!
+:rodlandjb:00310001:F5CC6:0020003C:FFFFFFFF:1 Hit to Kill Final Boss Now! (2/2)
+:rodlandjb:00000000:F4139:00000007:FFFFFFFF:Infinite Lives PL1
+:rodlandjb:00000020:F413B:000000B4:FFFFFFFF:Invincibility "ON" PL1
+:rodlandjb:00000001:F413B:00000001:FFFFFFFF:Invincibility "OFF" PL1
+:rodlandjb:00000001:F422F:0000001F:FFFFFFFF:Get EXTRA Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000001:F422F:00000001:00000001:Get letter - E Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000001:F422F:00000002:00000002:Get letter - X Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000001:F422F:00000004:00000004:Get letter - T Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000001:F422F:00000008:00000008:Get letter - R Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000001:F422F:00000010:00000010:Get letter - A Now! PL1:"Extra Game" must be ON
+:rodlandjb:00000000:F41B9:00000007:FFFFFFFF:Infinite Lives PL2
+:rodlandjb:00000020:F41BB:000000B4:FFFFFFFF:Invincibility "ON" PL2
+:rodlandjb:00000001:F41BB:00000001:FFFFFFFF:Invincibility "OFF" PL2
+:rodlandjb:00000001:F4231:0000001F:FFFFFFFF:Get EXTRA Now! PL2:"Extra Game" must be ON
+:rodlandjb:00000001:F4231:00000001:00000001:Get letter - E Now! PL2:"Extra Game" must be ON
+:rodlandjb:00000001:F4231:00000002:00000002:Get letter - X Now! PL2:"Extra Game" must be ON
+:rodlandjb:00000001:F4231:00000004:00000004:Get letter - T Now! PL2:"Extra Game" must be ON
+:rodlandjb:00000001:F4231:00000008:00000008:Get letter - R Now! PL2:"Extra Game" must be ON
+:rodlandjb:00000001:F4231:00000010:00000010:Get letter - A Now! PL2:"Extra Game" must be ON
+:rodlandjb:60000000:00000:00000000:00000000:[      EXTRA GAME INFO      ]
+:rodlandjb:60000000:00000:00000000:00000000:[To access PART 2 of the    ]
+:rodlandjb:60000000:00000:00000000:00000000:[ game, after you have      ]
+:rodlandjb:60000000:00000:00000000:00000000:[inserted a credit press    ]
+:rodlandjb:60000000:00000:00000000:00000000:[UP 3 times then press start]
 
 ; [ Rohga Armor Force (Asia/Europe v5.0) ]
 :rohga:00000000:3F0016:00000099:FFFFFFFF:Infinite Credits
@@ -187400,20 +187400,20 @@
 :tshingen:00000001:F003D:00000000:FFFFFFFF:Finish this Scene Now!
 
 ; [ Shingen Samurai-Fighter (Japan, English) ]
-:tshingna:00000000:F0081:0000000F:FFFFFFFF:Always have 'Fu,Rin,Ka,Zan,'
-:tshingna:00000000:F0E23:00000001:FFFFFFFF:Always have Koduka (Knife)
-:tshingna:00000000:F00CF:00000003:FFFFFFFF:Infinite Lives PL1
-:tshingna:00000000:F0107:00000050:FFFFFFFF:Infinite Energy PL1
-:tshingna:00000000:F0E11:00000003:FFFFFFFF:Infinite Life(Horse) PL1:Bonus stage
-:tshingna:00000000:F00DF:00000003:FFFFFFFF:Infinite Lives PL2
-:tshingna:00000000:F0187:00000050:FFFFFFFF:Infinite Energy PL2
-:tshingna:00000000:F0E15:00000003:FFFFFFFF:Infinite Life(Horse) PL2:Bonus stage
-:tshingna:60000000:00000:00000000:00000000:[Enable the select starting ]
-:tshingna:60000000:00000:00000000:00000000:[cheats on the screen with  ]
-:tshingna:60000000:00000:00000000:00000000:[the smoke signals.         ]
-:tshingna:00000301:F0039:00000004:FFFFFFFF:Select the Starting Stage
-:tshingna:00000301:F003B:00000003:FFFFFFFF:Select the Starting Scene
-:tshingna:00000001:F003D:00000000:FFFFFFFF:Finish this Scene Now!
+:tshingena:00000000:F0081:0000000F:FFFFFFFF:Always have 'Fu,Rin,Ka,Zan,'
+:tshingena:00000000:F0E23:00000001:FFFFFFFF:Always have Koduka (Knife)
+:tshingena:00000000:F00CF:00000003:FFFFFFFF:Infinite Lives PL1
+:tshingena:00000000:F0107:00000050:FFFFFFFF:Infinite Energy PL1
+:tshingena:00000000:F0E11:00000003:FFFFFFFF:Infinite Life(Horse) PL1:Bonus stage
+:tshingena:00000000:F00DF:00000003:FFFFFFFF:Infinite Lives PL2
+:tshingena:00000000:F0187:00000050:FFFFFFFF:Infinite Energy PL2
+:tshingena:00000000:F0E15:00000003:FFFFFFFF:Infinite Life(Horse) PL2:Bonus stage
+:tshingena:60000000:00000:00000000:00000000:[Enable the select starting ]
+:tshingena:60000000:00000:00000000:00000000:[cheats on the screen with  ]
+:tshingena:60000000:00000:00000000:00000000:[the smoke signals.         ]
+:tshingena:00000301:F0039:00000004:FFFFFFFF:Select the Starting Stage
+:tshingena:00000301:F003B:00000003:FFFFFFFF:Select the Starting Scene
+:tshingena:00000001:F003D:00000000:FFFFFFFF:Finish this Scene Now!
 
 ; [ Turkey Shoot ]
 :tshoot:00000000:BF00:00000003:FFFFFFFF:Infinite Lives
@@ -204328,7 +204328,7 @@
 ;47pie2=47pie2o
 ;4in1~=warofbug&scramble&ghostmun
 ;600~turpin=turtles
-;64streej=64street
+;64streetj=64street
 ;720=720g=720gr1=720r1=720r2=720r3
 ;7jigen~=neruton~(mjangels=yarunara)
 ;7toitsu=mgakuen~=mgakuen2
@@ -205290,7 +205290,7 @@
 ;rockn=rockna
 ;rockraga=rockrage=rockragj
 ;rocnrope=rocnropk
-;rodland~(rodlandj=rodlndjb)
+;rodland~(rodlandj=rodlandjb)
 ;rohga=rohga1=rohga2~=(rohgah=rohgau) (Rapid Fire and Select Mission addresses different)
 ;rollerg=rollergj
 ;rompers=romperso
@@ -205509,7 +205509,7 @@
 ;trvmstr=trvmstra
 ;trvwhzha=trvwhzho=trvwhzva=trvwhzve~=trvwhzii~trvwhziv
 ;tsamurai=tsamura2
-;tshingen=tshingna
+;tshingen=tshingena
 ;tstrike~=tstrikea (values for max shot power are different)
 ;ttchamp=ttchampa     (unchecked relationship)
 ;tturf=tturfbl=tturfu

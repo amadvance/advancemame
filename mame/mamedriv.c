@@ -6310,7 +6310,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( p47j )		/* (c) 1988 (Japan) */
 	DRIVER( kickoff )	/* (c) 1988 (Japan) */
 	DRIVER( tshingen )	/* (c) 1988 (Japan) */
-	DRIVER( tshingna )	/* (c) 1988 (Japan) */
+	DRIVER( tshingena )	/* (c) 1988 (Japan) */
 	DRIVER( kazan )		/* (c) 1988 (World) */
 	DRIVER( iganinju )	/* (c) 1988 (Japan) */
 	DRIVER( astyanax )	/* (c) 1989 */
@@ -6321,14 +6321,15 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( stdragon )	/* (c) 1989 */
 	DRIVER( rodland )	/* (c) 1990 */
 	DRIVER( rodlandj )	/* (c) 1990 (Japan) */
-	DRIVER( rodlndjb )	/* bootleg */
+	DRIVER( rodlandjb )	/* bootleg */
 	DRIVER( avspirit )	/* (c) 1991 */
 	DRIVER( phantasm )	/* (c) 1991 (Japan) */
 	DRIVER( edf )		/* (c) 1991 */
 	DRIVER( edfu )		/* (c) 1991 */
 	DRIVER( 64street )	/* (c) 1991 */
-	DRIVER( 64streej )	/* (c) 1991 (Japan) */
-	DRIVER( soldam )	/* (c) 1992 (Japan) */
+	DRIVER( 64streetj )	/* (c) 1991 (Japan) */
+	DRIVER( soldam )	/* (c) 1992 */
+	DRIVER( soldamj )	/* (c) 1992 (Japan) */
 	DRIVER( bigstrik )	/* (c) 1992 */
 	DRIVER( bigstrkb )	/* bootleg on different hardware */
 	DRIVER( bestleag )	/* bootleg, by Playmark? */

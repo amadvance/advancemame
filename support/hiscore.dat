@@ -6793,9 +6793,9 @@ devilw:
 uballoon:
 0:80048c:4f:00:45
 
-;*******megasys1.c (takeda shingen (japan))
+;*******megasys1.c (shingen samurai-fighter (japan, english))
 tshingen:
-tshingna:
+tshingena:
 0:f0f00:3a:00:4e
 
 ;*******seta.c (strike gunner s.t.g.)
@@ -8999,7 +8999,7 @@ zwackery:
 
 ;********megasys1.c
 64street:
-64streej:
+64streetj:
 0:ff8843:74:00:43
 
 avspirit:
