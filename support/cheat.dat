@@ -137191,13 +137191,13 @@
 :qtono1:00000000:E632:00000003:FFFFFFFF:Infinite Lives PL2
 
 ; [ Quiz Tonosama no Yabou 2 Zenkoku-ban (Japan 950123) ]
-:qtono2:60000000:000000:00000000:00000000:[Watch out for these values ]
-:qtono2:60000000:000000:00000000:00000000:[   10=1, 20=2, 40=3, 80=4  ]
-:qtono2:00000006:FFB653:00000000:FFFFFFFF:Watch me for good answer
-:qtono2:00000000:FFB653:00000010:FFFFFFFF:Answer 1 always correct
-:qtono2:00000001:FFB825:00000001:FFFFFFFF:Good answer ends quiz Now!
-:qtono2:00000000:FF81A5:00000005:FFFFFFFF:Infinite Lives PL1
-:qtono2:00000000:FF82A5:00000005:FFFFFFFF:Infinite Lives PL2
+:qtono2j:60000000:000000:00000000:00000000:[Watch out for these values ]
+:qtono2j:60000000:000000:00000000:00000000:[   10=1, 20=2, 40=3, 80=4  ]
+:qtono2j:00000006:FFB653:00000000:FFFFFFFF:Watch me for good answer
+:qtono2j:00000000:FFB653:00000010:FFFFFFFF:Answer 1 always correct
+:qtono2j:00000001:FFB825:00000001:FFFFFFFF:Good answer ends quiz Now!
+:qtono2j:00000000:FF81A5:00000005:FFFFFFFF:Infinite Lives PL1
+:qtono2j:00000000:FF82A5:00000005:FFFFFFFF:Infinite Lives PL2
 
 ; [ Quiz Torimonochou (Japan) ]
 :qtorimon:00000000:102DC3:00000007:FFFFFFFF:Infinite Time
