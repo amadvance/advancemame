@@ -921,7 +921,10 @@ ROM_START( valtric )
 	ROM_LOAD( "vt_11.bin",    0x30000, 0x10000, CRC(4cf800b5) SHA1(7241e284b15475d8a6d533e4caadd0acbf058231) )
 
 	ROM_REGION( 0x08000, REGION_GFX3, ROMREGION_DISPOSE )	/* Text */
-	ROM_LOAD( "vt_07.bin",    0x00000, 0x08000, CRC(d5f9bfb9) SHA1(6b3f11f9b8f76c0144a109f1506d8cbb01876237) )
+	ROM_LOAD( "vt_07.bin",    0x00000, 0x04000, CRC(4b9771ae) SHA1(6079f2d3abf836f04b83983485fdaba2fb357811) )
+
+	ROM_REGION( 0x100, REGION_PROMS, 0 ) /* currently not used by the emulation, without it you just get diagonal glitches on a real board */
+	ROM_LOAD( "82s129.1s", 0x000, 0x100, CRC(bc42f9b5) SHA1(962c812d5d1f0e539238a4ec49866ef3558db629) ) /* located on the top board */
 ROM_END
 
 ROM_START( butasan )
