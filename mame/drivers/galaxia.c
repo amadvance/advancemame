@@ -19,157 +19,12 @@ looks like it's similar to Galaxians (2 x 2114, 2 x 2101, 2 x EPROM) but
 there is no attack RAM and the graphics EPROMS are 2708. The graphics EPROMS
 do contain Galaxian-like graphics...
 
----
-
-rom mapping is still wrong, correct this before anything else
-
 */
 
 #include "driver.h"
 #include "cpu/s2650/s2650.h"
 #include "streams.h"
 #include "sound/custom.h"
-
-UINT8 *galaxia_video;
-
-VIDEO_START( galaxia )
-{
-	return 0;
-}
-
-VIDEO_UPDATE( galaxia )
-{
-	int x,y, count;
-
-	fillbitmap(bitmap,Machine->pens[0],cliprect);
-	count = 0;
-
-	for (y=0;y<256/8;y++)
-	{
-		for (x=0;x<256/8;x++)
-		{
-			int tile = galaxia_video[count];
-			drawgfx(bitmap,Machine->gfx[0],tile,0,0,0,x*8,y*8,cliprect,TRANSPARENCY_NONE,0);
-			count++;
-		}
-
-	}
-
-
-
-}
-
-static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x13ff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x1400, 0x1fff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x2000, 0x33ff) AM_READ(MRA8_ROM)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x13ff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x1400, 0x14ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1500, 0x15ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1600, 0x16ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1700, 0x17ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1800, 0x18ff) AM_WRITE(MWA8_RAM) AM_BASE(&galaxia_video)
-	AM_RANGE(0x1900, 0x19ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1a00, 0x1aff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1b00, 0x1bff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1c00, 0x1cff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1d00, 0x1dff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1e00, 0x1eff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x1f00, 0x1fff) AM_WRITE(MWA8_RAM)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( readport, ADDRESS_SPACE_IO, 8 )
-	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x02, 0x02) AM_READ(input_port_0_r)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
-	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-ADDRESS_MAP_END
-
-
-INPUT_PORTS_START( galaxia )
-	PORT_START	/*  */
-
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-INPUT_PORTS_END
-
-static const gfx_layout tiles8x8_layout =
-{
-	8,8,
-	RGN_FRAC(1,2),
-	2,
-	{ RGN_FRAC(0,2), RGN_FRAC(1,2) },
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },
-	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
-	8*8
-};
-
-static const gfx_decode gfxdecodeinfo[] =
-{
-	{ REGION_GFX1, 0, &tiles8x8_layout, 0, 16 },
-	{ -1 }
-};
-
-
-
-
-
-static MACHINE_DRIVER_START( galaxia )
-	/* basic machine hardware */
-	MDRV_CPU_ADD(S2650,2000000)		 /* ? MHz */
-	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_IO_MAP(readport,writeport)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
-//  MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
-
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-
-	/* video hardware */
-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER )
-	MDRV_SCREEN_SIZE(256, 256)
-	MDRV_VISIBLE_AREA(0, 256-1, 0, 256-1)
-	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(0x100)
-
-	MDRV_VIDEO_START(galaxia)
-	MDRV_VIDEO_UPDATE(galaxia)
-MACHINE_DRIVER_END
-
 
 static UINT8 astrowar_video[0x400], astrowar_color[0x400];
 static UINT8 astrowar_pvi[0x100];
@@ -574,6 +429,351 @@ INPUT_PORTS_START( astrowar )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
 INPUT_PORTS_END
 
+/* Galaxia: three S2636 chips on the same hardware of Astro Wars */
+
+static UINT8 galaxia_pvi[3][0x100];
+static UINT8 *galaxia_bullet;
+static UINT8 galaxia_collision, galaxia_stars_on;
+
+static WRITE8_HANDLER( galaxia_pvi0_w )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	galaxia_pvi[0][offset] = data;
+}
+
+static WRITE8_HANDLER( galaxia_pvi1_w )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	galaxia_pvi[1][offset] = data;
+}
+
+static WRITE8_HANDLER( galaxia_pvi2_w )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	galaxia_pvi[2][offset] = data;
+}
+
+static READ8_HANDLER( galaxia_pvi0_r )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	return galaxia_pvi[0][offset];
+}
+
+static READ8_HANDLER( galaxia_pvi1_r )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	return galaxia_pvi[1][offset];
+}
+
+static READ8_HANDLER( galaxia_pvi2_r )
+{
+	offset &= (offset & 0xc0) == 0xc0 ? 0xcf : 0xff;
+	return galaxia_pvi[2][offset];
+}
+
+static READ8_HANDLER( galaxia_collision_r )
+{
+	return galaxia_collision;
+}
+
+static READ8_HANDLER( galaxia_collision_clear_r )
+{
+	galaxia_collision = 0;
+	return 0;
+}
+
+static WRITE8_HANDLER( galaxia_scroll_w )
+{
+	astrowar_scroll = data;
+}
+
+static WRITE8_HANDLER( galaxia_control_w )
+{
+	/* d5: enable stars, the other bits are unknown (coin counters, sound board communication) */
+	galaxia_stars_on = data & 0x20;
+}
+
+static READ8_HANDLER( galaxia_unknown_r )
+{
+	return 0xff;
+}
+
+static INTERRUPT_GEN( galaxia_interrupt )
+{
+	astrowar_stars_scroll = (astrowar_stars_scroll + 1) % 480;
+	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0x03);
+}
+
+static MACHINE_RESET( galaxia )
+{
+	memset(astrowar_video, 0, sizeof(astrowar_video));
+	memset(astrowar_color, 0, sizeof(astrowar_color));
+	memset(galaxia_pvi, 0, sizeof(galaxia_pvi));
+	galaxia_collision = galaxia_stars_on = astrowar_scroll = 0;
+	astrowar_stars_scroll = 0;
+}
+
+static PALETTE_INIT( galaxia )
+{
+	int i;
+
+	/* background from A5-A8 */
+	for (i = 0; i < 0x10; i++)
+	{
+		int index = (((i & 1) << 3) | ((i & 2) << 1) | ((i & 4) >> 1) | ((i & 8) >> 3)) << 5;
+		int data = color_prom[index] & 7;
+
+		palette_set_color(i, (data & 1) ? 255 : 0, (data & 2) ? 255 : 0, (data & 4) ? 255 : 0);
+	}
+
+	/* sprites from A0-A3 */
+	for (i = 0; i < 8; i++)
+	{
+		int data = ~color_prom[i] & 7;
+
+		palette_set_color(i + 0x10, (data & 4) ? 255 : 0, (data & 2) ? 255 : 0, (data & 1) ? 255 : 0);
+	}
+
+	/* stars */
+	for (i = 0; i < 64; ++i)
+		palette_set_color(i + 24, ((i >> 4) & 3) * 85, ((i >> 2) & 3) * 85, (i & 3) * 85);
+
+	/* bullet */
+	palette_set_color(88, 255, 255, 255);
+}
+
+static VIDEO_UPDATE( galaxia )
+{
+	static const int offsets[4] = { 0, 0x10, 0x20, 0x40 };
+	int x, y, i, chip, obj;
+	rectangle bg_clip = *cliprect;
+	if (bg_clip.max_y > 255) bg_clip.max_y = 255;
+	fillbitmap(bitmap, 24, cliprect); /* black */
+	fillbitmap(astrowar_background, 0, cliprect);
+	fillbitmap(astrowar_sprites, 0, cliprect);
+	if (galaxia_stars_on)
+		for (i = 0; i < astrowar_star_count; ++i)
+		{
+			x = ((astrowar_stars[i].x + astrowar_stars_scroll) >> 1) % 240;
+			y = astrowar_stars[i].y;
+			if (((y >> 4) ^ (y >> 8) ^ (x >> 5)) & 1)
+				if (x >= cliprect->min_x && x <= cliprect->max_x && y >= cliprect->min_y && y <= cliprect->max_y)
+					((UINT16 *)bitmap->line[y])[x] = 24 + astrowar_stars[i].color;
+		}
+	for (i = 0; i < 0x400; ++i)
+	{
+		x = i & 31;
+		y = ((i >> 5) * 8 - ((x >= 4 && x < 24) ? astrowar_scroll : 0)) & 255;
+		drawgfx(astrowar_background, Machine->gfx[0], astrowar_video[i] & 0x7f, astrowar_color[i] & 3, 0, 0,
+			x * 8, y, &bg_clip, TRANSPARENCY_PEN, 0);
+		if (y > 248)
+			drawgfx(astrowar_background, Machine->gfx[0], astrowar_video[i] & 0x7f, astrowar_color[i] & 3, 0, 0,
+				x * 8, y - 256, &bg_clip, TRANSPARENCY_PEN, 0);
+	}
+	copybitmap(bitmap, astrowar_background, 0, 0, 0, 0, cliprect, TRANSPARENCY_PEN, 0);
+	for (chip = 0; chip < 3; ++chip)
+		for (obj = 0; obj < 4; ++obj)
+		{
+			UINT8 *pvi = galaxia_pvi[chip];
+			UINT8 *attr = pvi + offsets[obj];
+			int color = (pvi[0xc1 + (obj >> 1)] >> ((obj & 1) ? 0 : 3)) & 7;
+			int expand = (pvi[0xc0] >> (obj * 2)) & 3;
+			if (attr[0x0a] == 0xff) continue;
+			y = attr[0x0c] + 3;
+			astrowar_draw_sprite(attr, color, attr[0x0a] - 26, y, expand, chip, cliprect);
+			if (attr[0x0b] != 0xff && attr[0x0d] != 0xfe)
+				while (y < 255)
+				{
+					y += 10 + attr[0x0d];
+					astrowar_draw_sprite(attr, color, attr[0x0b] - 26, y, expand, chip, cliprect);
+				}
+		}
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
+	{
+		UINT16 *dest = (UINT16 *)bitmap->line[y];
+		UINT16 *bg = (UINT16 *)astrowar_background->line[y];
+		UINT16 *sprites = (UINT16 *)astrowar_sprites->line[y];
+		int bullet_pos = (y < 256 ? (galaxia_bullet[y] ^ 0xff) : 0xff) - 8;
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+		{
+			int bullet = bullet_pos != 0xff - 8 && x <= bullet_pos && x > bullet_pos - 4;
+			int background = (bg[x] & 3) != 0;
+			int pixel = sprites[x];
+
+			if (bullet)
+			{
+				/* background vs. bullet collision detection */
+				if (background) galaxia_collision |= 0x80;
+				dest[x] = 88;
+			}
+
+			if (pixel & 0x700)
+			{
+				int p0 = pixel & 0x100, p1 = pixel & 0x200, p2 = pixel & 0x400;
+
+				/* S2636 vs. S2636 collision detection */
+				if (p0 && p1) galaxia_collision |= 0x01;
+				if (p1 && p2) galaxia_collision |= 0x02;
+				if (p2 && p0) galaxia_collision |= 0x04;
+
+				/* S2636 vs. bullet collision detection */
+				if (bullet) galaxia_collision |= 0x08;
+
+				/* S2636 vs. background collision detection */
+				if (background)
+				{
+					if (p1) galaxia_collision |= 0x20;
+					if (p2) galaxia_collision |= 0x40;
+				}
+
+				dest[x] = (pixel & 7) + 16;
+			}
+		}
+	}
+}
+
+static VIDEO_EOF( galaxia )
+{
+	/* the collision latches must advance even when the display skips a frame */
+	if (skip_this_frame())
+		video_update_galaxia(0, astrowar_skipped_bitmap, &Machine->visible_area);
+}
+
+static ADDRESS_MAP_START( galaxia_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x13ff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x1400, 0x14ff) AM_MIRROR(0x6000) AM_READ(MRA8_RAM)
+	AM_RANGE(0x1500, 0x15ff) AM_MIRROR(0x6000) AM_READ(galaxia_pvi0_r)
+	AM_RANGE(0x1600, 0x16ff) AM_MIRROR(0x6000) AM_READ(galaxia_pvi1_r)
+	AM_RANGE(0x1700, 0x17ff) AM_MIRROR(0x6000) AM_READ(galaxia_pvi2_r)
+	AM_RANGE(0x1800, 0x1bff) AM_MIRROR(0x6000) AM_READ(astrowar_video_r)
+	AM_RANGE(0x1c00, 0x1fff) AM_MIRROR(0x6000) AM_READ(MRA8_RAM)
+	AM_RANGE(0x2000, 0x33ff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( galaxia_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x1400, 0x14ff) AM_MIRROR(0x6000) AM_WRITE(MWA8_RAM) AM_BASE(&galaxia_bullet)
+	AM_RANGE(0x1500, 0x15ff) AM_MIRROR(0x6000) AM_WRITE(galaxia_pvi0_w)
+	AM_RANGE(0x1600, 0x16ff) AM_MIRROR(0x6000) AM_WRITE(galaxia_pvi1_w)
+	AM_RANGE(0x1700, 0x17ff) AM_MIRROR(0x6000) AM_WRITE(galaxia_pvi2_w)
+	AM_RANGE(0x1800, 0x1bff) AM_MIRROR(0x6000) AM_WRITE(astrowar_video_w)
+	AM_RANGE(0x1c00, 0x1fff) AM_MIRROR(0x6000) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( galaxia_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x00, 0x00) AM_MIRROR(0xf8) AM_READ(input_port_0_r)
+	AM_RANGE(0x02, 0x02) AM_MIRROR(0xf8) AM_READ(input_port_1_r)
+	AM_RANGE(0x05, 0x05) AM_MIRROR(0xf8) AM_READ(galaxia_unknown_r)
+	AM_RANGE(0x06, 0x06) AM_MIRROR(0xf8) AM_READ(input_port_2_r)
+	AM_RANGE(0x07, 0x07) AM_MIRROR(0xf8) AM_READ(input_port_3_r)
+	AM_RANGE(S2650_CTRL_PORT, S2650_CTRL_PORT) AM_READ(galaxia_collision_r)
+	AM_RANGE(S2650_DATA_PORT, S2650_DATA_PORT) AM_READ(galaxia_collision_clear_r)
+	AM_RANGE(S2650_SENSE_PORT, S2650_SENSE_PORT) AM_READ(input_port_4_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( galaxia_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x00, 0x00) AM_MIRROR(0xf8) AM_WRITE(galaxia_scroll_w)
+	AM_RANGE(S2650_CTRL_PORT, S2650_CTRL_PORT) AM_WRITE(galaxia_control_w)
+ADDRESS_MAP_END
+
+static const gfx_layout galaxia_tiles =
+{
+	8,8,
+	RGN_FRAC(1,2),
+	2,
+	{ RGN_FRAC(1,2), RGN_FRAC(0,2) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+	8*8
+};
+
+static const gfx_decode galaxia_gfxdecode[] =
+{
+	{ REGION_GFX1, 0, &galaxia_tiles, 0, 4 },
+	{ -1 }
+};
+
+static MACHINE_DRIVER_START( galaxia )
+	MDRV_CPU_ADD(S2650, 14318181 / 8)
+	MDRV_CPU_PROGRAM_MAP(galaxia_readmem,galaxia_writemem)
+	MDRV_CPU_IO_MAP(galaxia_readport,galaxia_writeport)
+	MDRV_CPU_VBLANK_INT(galaxia_interrupt,1)
+	MDRV_FRAMES_PER_SECOND(50)
+	MDRV_VBLANK_DURATION(3500)
+	MDRV_MACHINE_RESET(galaxia)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256,312)
+	MDRV_VISIBLE_AREA(0,231,0,271)
+	MDRV_GFXDECODE(galaxia_gfxdecode)
+	MDRV_PALETTE_LENGTH(89)
+	MDRV_PALETTE_INIT(galaxia)
+	MDRV_VIDEO_START(astrowar)
+	MDRV_VIDEO_UPDATE(galaxia)
+	MDRV_VIDEO_EOF(galaxia)
+MACHINE_DRIVER_END
+
+INPUT_PORTS_START( galaxia )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x03, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_5C ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x08, "5" )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Hard ) )
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x00, "High Score" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x01, "Random" )
+	PORT_DIPNAME( 0x06, 0x00, "Random H.S." )
+	PORT_DIPSETTING(    0x00, DEF_STR( Low ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x04, "Medium-High" )
+	PORT_DIPSETTING(    0x06, DEF_STR( High ) )
+	PORT_DIPNAME( 0x18, 0x10, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x08, "2500" )
+	PORT_DIPSETTING(    0x10, "3500" )
+	PORT_DIPSETTING(    0x18, "5500" )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
+INPUT_PORTS_END
+
+
 ROM_START( galaxia )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "galaxia.8h",  0x00000, 0x0400, CRC(f3b4ffde) SHA1(15b004e7821bfc145158b1e9435f061c524f6b86) )
@@ -613,5 +813,5 @@ ROM_START( astrowar )
 	ROM_LOAD( "astro.3d",  0x00400, 0x0400, CRC(822505aa) SHA1(f9d3465e14bb850a286f8b4f42aa0a4044413b67) )
 ROM_END
 
-GAME( 1979, galaxia, 0, galaxia, galaxia, 0, ROT90, "Zaccaria / Zelco", "Galaxia (set 1)", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1979, galaxia, 0, galaxia, galaxia, 0, ROT90, "Zaccaria / Zelco", "Galaxia (set 1)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1980, astrowar, 0, astrowar, astrowar, 0, ROT90, "Zaccaria / Zelco", "Astro Wars (set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
