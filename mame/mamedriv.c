@@ -5176,37 +5176,37 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* Gauntlet Hardware */
 	/* Gauntlet */
 	DRIVER( gauntlet )	/* 136037           (c) 1985 */
-	DRIVER( gaunts )	/* 136037           (c) 1985 */
-	DRIVER( gauntj )	/* 136037           (c) 1985 */
-	DRIVER( gauntg )	/* 136037           (c) 1985 */
-	DRIVER( gauntj12 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr9 )	/* 136037           (c) 1985 */
-	DRIVER( gauntgr8 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr7 )	/* 136037           (c) 1985 */
-	DRIVER( gauntgr6 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr5 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr4 )	/* 136037           (c) 1985 */
-	DRIVER( gauntgr3 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr2 )	/* 136037           (c) 1985 */
-	DRIVER( gauntr1 )	/* 136037           (c) 1985 */
+	DRIVER( gauntlets )	/* 136037           (c) 1985 */
+	DRIVER( gauntletj )	/* 136037           (c) 1985 */
+	DRIVER( gauntletg )	/* 136037           (c) 1985 */
+	DRIVER( gauntletj12 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr9 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletgr8 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr7 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletgr6 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr5 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr4 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletgr3 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr2 )	/* 136037           (c) 1985 */
+	DRIVER( gauntletr1 )	/* 136037           (c) 1985 */
 	/* Gauntlet - 2 Player */
-	DRIVER( gaunt2p )	/* 136037           (c) 1985 */
-	DRIVER( gaunt2pj )	/* 136037           (c) 1985 */
-	DRIVER( gaunt2pg )	/* 136037           (c) 1985 */
-	DRIVER( gaun2pr3 )	/* 136037           (c) 1985 */
-	DRIVER( gaun2pj2 )	/* 136037           (c) 1985 */
-	DRIVER( gaun2pg1 )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2p )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2pj )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2pg )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2pr3 )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2pj2 )	/* 136037           (c) 1985 */
+	DRIVER( gauntlet2pg1 )	/* 136037           (c) 1985 */
 	/* Gauntlet 2 */
 	DRIVER( gaunt2 )	/* 136043           (c) 1986 */
 	DRIVER( gaunt2g )	/* 136043           (c) 1986 */
 	/* Gauntlet 2 - 2 Player */
 	DRIVER( gaunt22p )	/* 136043           (c) 1986 */
-	DRIVER( gaun22p1 )	/* 136043           (c) 1986 */
-	DRIVER( gaun22pg )	/* 136043           (c) 1986 */
+	DRIVER( gaunt22p1 )	/* 136043           (c) 1986 */
+	DRIVER( gaunt22pg )	/* 136043           (c) 1986 */
 	/* Vindicators Part II */
 	DRIVER( vindctr2 )	/* 136059           (c) 1988 */
-	DRIVER( vindc2r2 )	/* 136059           (c) 1988 */
-	DRIVER( vindc2r1 )	/* 136059           (c) 1988 */
+	DRIVER( vindctr2r2 )	/* 136059           (c) 1988 */
+	DRIVER( vindctr2r1 )	/* 136059           (c) 1988 */
 
 	/* Other Hardware */
 
