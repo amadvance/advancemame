@@ -375,7 +375,7 @@ static MACHINE_DRIVER_START( arkanoid )
 	MDRV_CPU_PROGRAM_MAP(arkanoid_map, 0)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)
 
-	MDRV_CPU_ADD_TAG("mcu", M68705, 500000)	// .5 MHz (don't know really how fast, but it doesn't need to even be this fast)
+	MDRV_CPU_ADD_TAG("mcu", M68705, 12000000/4)
 	MDRV_CPU_PROGRAM_MAP(mcu_map, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
@@ -438,7 +438,7 @@ ROM_START( arkanoid )
 	ROM_LOAD( "a75-11.rom",   0x8000, 0x8000, CRC(eafd7191) SHA1(d2f8843b716718b1de209e97a874e8ce600f3f87) )
 
 	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 8k for the microcontroller */
-	ROM_LOAD( "arkanoid.uc",  0x0000, 0x0800, CRC(515d77b6) SHA1(a302937683d11f663abd56a2fd7c174374e4d7fb) )
+	ROM_LOAD( "a75__06.ic14", 0x0000, 0x0800, CRC(0be83647) SHA1(625fd1e6061123df612f115ef14a06cd6009f5d1) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a75-03.rom",   0x00000, 0x8000, CRC(038b74ba) SHA1(ac053cc4908b4075f918748b89570e07a0ba5116) )
@@ -451,13 +451,13 @@ ROM_START( arkanoid )
 	ROM_LOAD( "a75-09.bpr",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
-ROM_START( arknoidu )
+ROM_START( arkanoidu )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "a75-19.bin",   0x0000, 0x8000, CRC(d3ad37d7) SHA1(a172a1ef5bb83ee2d8ed2842ef8968af19ad411e) )
 	ROM_LOAD( "a75-18.bin",   0x8000, 0x8000, CRC(cdc08301) SHA1(05f54353cc8333af14fa985a2764960e20e8161a) )
 
 	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 8k for the microcontroller */
-	ROM_LOAD( "arknoidu.uc",  0x0000, 0x0800, BAD_DUMP CRC(de518e47) SHA1(b8eddd1c566505fb69e3d1207c7a9720dfb9f503)  )
+	ROM_LOAD( "a75__20.ic14", 0x0000, 0x0800, CRC(3994ee92) SHA1(31f6577956f49ba0b0705b490ce3254033795552) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a75-03.rom",   0x00000, 0x8000, CRC(038b74ba) SHA1(ac053cc4908b4075f918748b89570e07a0ba5116) )
@@ -470,13 +470,13 @@ ROM_START( arknoidu )
 	ROM_LOAD( "a75-09.bpr",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
-ROM_START( arknoiuo )
+ROM_START( arkanoiduo )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "a75-01-1.rom", 0x0000, 0x8000, CRC(5bcda3b0) SHA1(52cadd38b5f8e8856f007a9c602d6b508f30be65) )
 	ROM_LOAD( "a75-10.rom",   0x8000, 0x8000, CRC(a1769e15) SHA1(fbb45731246a098b29eb08de5d63074b496aaaba) )
 
 	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 8k for the microcontroller */
-	ROM_LOAD( "arkanoid.uc",  0x0000, 0x0800, CRC(515d77b6) SHA1(a302937683d11f663abd56a2fd7c174374e4d7fb) )
+	ROM_LOAD( "a75__06.ic14", 0x0000, 0x0800, CRC(0be83647) SHA1(625fd1e6061123df612f115ef14a06cd6009f5d1) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a75-03.rom",   0x00000, 0x8000, CRC(038b74ba) SHA1(ac053cc4908b4075f918748b89570e07a0ba5116) )
@@ -495,7 +495,7 @@ ROM_START( arkatour )
 	ROM_LOAD( "t_ark2.bin",   0x8000, 0x8000, CRC(326aca4d) SHA1(5a194b7a0361236d471b24905dc6434372f81252) )
 
 	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 8k for the microcontroller */
-	ROM_LOAD( "arkatour.uc",  0x0000, 0x0800, BAD_DUMP CRC(d3249559) SHA1(b1542764450016614e9e03cedd6a2f1e59961789)  )
+	ROM_LOAD( "a75__32.ic14", 0x0000, 0x0800, CRC(8c20d15c) SHA1(912996bf08de318e19dc420261f554a09dacd443) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "t_ark3.bin",   0x00000, 0x8000, CRC(5ddea3cf) SHA1(58f16515898b7cc2697bf7663a60d9ca0db6da95) )
@@ -508,13 +508,13 @@ ROM_START( arkatour )
 	ROM_LOAD( "09.bpr",       0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
-ROM_START( arknoidj )
+ROM_START( arkanoidja )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "a75-21.rom",   0x0000, 0x8000, CRC(bf0455fc) SHA1(250522b84b9f491c3f4efc391bf6aa6124361369) )
 	ROM_LOAD( "a75-22.rom",   0x8000, 0x8000, CRC(3a2688d3) SHA1(9633a661352def3d85f95ca830f6d761b0b5450e) )
 
 	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 8k for the microcontroller */
-	ROM_LOAD( "arknoidj.uc",  0x0000, 0x0800, BAD_DUMP CRC(0a4abef6) SHA1(fdce0b7a2eab7fd4f1f4fc3b93120b1ebc16078e)  )
+	ROM_LOAD( "a75__23.ic14", 0x0000, 0x0800, CRC(35938431) SHA1(04c6a888d967af0ceba06ab3cdd2670fe3bca396) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a75-03.rom",   0x00000, 0x8000, CRC(038b74ba) SHA1(ac053cc4908b4075f918748b89570e07a0ba5116) )
@@ -527,7 +527,7 @@ ROM_START( arknoidj )
 	ROM_LOAD( "a75-09.bpr",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
-ROM_START( arkbl2 )
+ROM_START( arkanoidjbl )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "e1.6d",        0x0000, 0x8000, CRC(dd4f2b72) SHA1(399a8636030a702dafc1da926f115df6f045bef1) )
 	ROM_LOAD( "e2.6f",        0x8000, 0x8000, CRC(bbc33ceb) SHA1(e9b6fef98d0d20e77c7a1c25eff8e9a8c668a258) )
@@ -546,7 +546,7 @@ ROM_START( arkbl2 )
 	ROM_LOAD( "a75-09.bpr",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
-ROM_START( arkbl3 )
+ROM_START( arkgcbl )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "arkanunk.1",   0x0000, 0x8000, CRC(b0f73900) SHA1(2c9a36cc1d2a3f33ec81d63c1c325554b818d2d3) )
 	ROM_LOAD( "arkanunk.2",   0x8000, 0x8000, CRC(9827f297) SHA1(697874e73e045eb5a7bf333d7310934b239c0adf) )
@@ -712,17 +712,17 @@ static DRIVER_INIT( tetrsark )
 
 /* Game Drivers */
 
-GAME( 1986, arkanoid, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito Corporation Japan", "Arkanoid (World)", GAME_SUPPORTS_SAVE )
-GAME( 1986, arknoidu, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Arkanoid (US)", GAME_SUPPORTS_SAVE )
-GAME( 1986, arknoiuo, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Arkanoid (US, older)", GAME_SUPPORTS_SAVE )
-GAME( 1986, arknoidj, arkanoid, arkanoid, arknoidj, 0,       ROT90, "Taito Corporation", "Arkanoid (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1986, arkbl2,   arkanoid, arkanoid, arknoidj, 0,       ROT90, "bootleg", "Arkanoid (Japanese bootleg Set 2)", GAME_NOT_WORKING )
-GAME( 1986, arkbl3,   arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Arkanoid (Japanese bootleg Set 3)", GAME_NOT_WORKING )
+GAME( 1986, arkanoid, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito Corporation Japan", "Arkanoid (World, older)", GAME_SUPPORTS_SAVE )
+GAME( 1986, arkanoidu, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Arkanoid (US, newer)", GAME_SUPPORTS_SAVE )
+GAME( 1986, arkanoiduo, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Arkanoid (US, older)", GAME_SUPPORTS_SAVE )
+GAME( 1986, arkanoidja, arkanoid, arkanoid, arknoidj, 0,       ROT90, "Taito Corporation", "Arkanoid (Japan, newer w/level select)", GAME_SUPPORTS_SAVE )
+GAME( 1986, arkanoidjbl,   arkanoid, arkanoid, arknoidj, 0,       ROT90, "bootleg", "Arkanoid (bootleg with MCU, set 1)", GAME_NOT_WORKING )
+GAME( 1986, arkgcbl,   arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Arkanoid (bootleg on Block hardware, set 1)", GAME_NOT_WORKING )
 GAME( 1986, arkangc,  arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Arkanoid (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1986, arkblock, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Block (bootleg, Japanese)", GAME_NOT_WORKING )
 GAME( 1986, arkbloc2, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Block (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Paddle 2", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE )
 GAME( 1986, arkatayt, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg", "Arkanoid (Tayto bootleg, Japanese)", GAME_SUPPORTS_SAVE )
-GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US)", GAME_SUPPORTS_SAVE )
+GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US, older)", GAME_SUPPORTS_SAVE )
 GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )

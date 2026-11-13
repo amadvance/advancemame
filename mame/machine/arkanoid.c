@@ -10,28 +10,39 @@
 ***************************************************************************/
 
 #include "driver.h"
+#include "cpu/m6805/m6805.h"
 
 
 
 UINT8 arkanoid_paddle_select;
 
-static UINT8 z80write,fromz80,m68705write,toz80;
+#define MCU_CPU 1
 
-static UINT8 portA_in,portA_out,ddrA;
-static UINT8 portC_out,ddrC;
+/* semaphore flags and data latches between the Z80 and the 68705 */
+static UINT8 host_flag, mcu_flag;
+static UINT8 host_latch, mcu_latch;
+static UINT8 latch_driven, reset_input;
+
+/* 68705 ports. latch is the value written by the MCU, out the value seen by the glue logic */
+static UINT8 portA_latch, portA_in, portA_out, ddrA;
+static UINT8 portC_latch, portC_out, ddrC;
 
 MACHINE_START( arkanoid )
 {
 	state_save_register_global(arkanoid_paddle_select);
-	state_save_register_global(z80write);
-	state_save_register_global(fromz80);
-	state_save_register_global(m68705write);
-	state_save_register_global(toz80);
+	state_save_register_global(host_flag);
+	state_save_register_global(mcu_flag);
+	state_save_register_global(host_latch);
+	state_save_register_global(mcu_latch);
+	state_save_register_global(latch_driven);
+	state_save_register_global(reset_input);
 
+	state_save_register_global(portA_latch);
 	state_save_register_global(portA_in);
 	state_save_register_global(portA_out);
 	state_save_register_global(ddrA);
 
+	state_save_register_global(portC_latch);
 	state_save_register_global(portC_out);
 	state_save_register_global(ddrC);
 
@@ -40,92 +51,148 @@ MACHINE_START( arkanoid )
 
 MACHINE_RESET( arkanoid )
 {
-	portA_in = portA_out = z80write = m68705write = 0;
+	host_flag = mcu_flag = 0;
+	host_latch = mcu_latch = 0xff;
+	latch_driven = reset_input = 0;
+	portA_latch = portA_in = portA_out = 0xff;
+	portC_latch = portC_out = 0xff;
+	ddrA = ddrC = 0;
+}
+
+static UINT8 pa_value(void)
+{
+	return portA_out & (latch_driven ? host_latch : 0xff);
+}
+
+static void update_irq(void)
+{
+	cpunum_set_input_line(MCU_CPU, M68705_IRQ_LINE, host_flag ? ASSERT_LINE : CLEAR_LINE);
+}
+
+/* bit 7 of the Z80 register at d008 resets the MCU and the semaphore flip-flops */
+void arkanoid_mcu_reset_w(int run)
+{
+	reset_input = !run;
+	if (run)
+	{
+		host_flag = mcu_flag = 0;
+		update_irq();
+	}
+	else
+	{
+		/* the ports are inputs after a reset */
+		ddrA = ddrC = 0;
+	}
+	cpunum_set_input_line(MCU_CPU, INPUT_LINE_RESET, run ? CLEAR_LINE : ASSERT_LINE);
 }
 
 READ8_HANDLER( arkanoid_Z80_mcu_r )
 {
-	/* return the last value the 68705 wrote, and mark that we've read it */
-	m68705write = 0;
-	return toz80;
-}
-
-static void test(int param)
-{
-	z80write = 1;
-	fromz80 = param;
+	/* return the last value the 68705 wrote, and clear its semaphore */
+	mcu_flag = 0;
+	return mcu_latch;
 }
 
 WRITE8_HANDLER( arkanoid_Z80_mcu_w )
 {
-	timer_set(TIME_NOW, data, test);
+	if (!reset_input)
+		host_flag = 1;
+	host_latch = data;
+	if (latch_driven)
+		portA_in = data;
+	update_irq();
 	/* boost the interleave for a few usecs to make sure it is read successfully */
 	cpu_boost_interleave(0, TIME_IN_USEC(10));
 }
 
 READ8_HANDLER( arkanoid_68705_portA_r )
 {
-	return (portA_out & ddrA) | (portA_in & ~ddrA);
+	return (portA_latch & ddrA) | (portA_in & ~ddrA);
 }
 
 WRITE8_HANDLER( arkanoid_68705_portA_w )
 {
-	portA_out = data;
+	UINT8 diff = portA_latch ^ data;
+	portA_latch = data;
+	if (diff & ddrA)
+		portA_out = data;
 }
 
 WRITE8_HANDLER( arkanoid_68705_ddrA_w )
 {
-	ddrA = data;
+	if (data != ddrA)
+	{
+		ddrA = data;
+		portA_out = portA_latch;
+	}
 }
-
 
 READ8_HANDLER( arkanoid_68705_portC_r )
 {
-	int res=0;
+	/* bit 0 is the host semaphore flag (active high), bit 1 is the MCU semaphore flag (active low) */
+	UINT8 res = (host_flag ? 0x01 : 0x00) | (mcu_flag ? 0x00 : 0x02) | 0xfc;
 
-	/* bit 0 is high on a write strobe; clear it once we've detected it */
-	if (z80write) res |= 0x01;
-
-	/* bit 1 is high if the previous write has been read */
-	if (!m68705write) res |= 0x02;
-
-	return (portC_out & ddrC) | (res & ~ddrC);
+	return (portC_latch & ddrC) | (res & ~ddrC);
 }
 
-WRITE8_HANDLER( arkanoid_68705_portC_w )
+static void portC_update(void)
 {
-	if ((ddrC & 0x04) && (~data & 0x04) && (portC_out & 0x04))
+	UINT8 data = portC_latch;
+	UINT8 old_pa = pa_value();
+
+	/* PC2 rising edge clears the host semaphore flag, when low the latch drives port A */
+	if (data & 0x04)
 	{
-		/* return the last value the Z80 wrote */
-		z80write = 0;
-		portA_in = fromz80;
+		latch_driven = 0;
+		portA_in = 0xff;
+		if (!(portC_out & 0x04))
+		{
+			host_flag = 0;
+			update_irq();
+		}
 	}
-	if ((ddrC & 0x08) && (~data & 0x08) && (portC_out & 0x08))
+	else
 	{
-		/* a write from the 68705 to the Z80; remember its value */
-		m68705write = 1;
-		toz80 = portA_out;
+		latch_driven = 1;
+		portA_in = host_latch;
+	}
+
+	/* PC3 low sets the MCU semaphore flag, the data is latched on the falling edge */
+	if (!(data & 0x08))
+	{
+		if (!reset_input)
+			mcu_flag = 1;
+		if (portC_out & 0x08)
+			mcu_latch = old_pa;
 	}
 
 	portC_out = data;
 }
 
-WRITE8_HANDLER( arkanoid_68705_ddrC_w )
+WRITE8_HANDLER( arkanoid_68705_portC_w )
 {
-	ddrC = data;
+	UINT8 diff = portC_latch ^ data;
+	portC_latch = data;
+	if (diff & ddrC)
+		portC_update();
 }
 
-
+WRITE8_HANDLER( arkanoid_68705_ddrC_w )
+{
+	if (data != ddrC)
+	{
+		ddrC = data;
+		portC_update();
+	}
+}
 
 READ8_HANDLER( arkanoid_68705_input_0_r )
 {
 	int res = input_port_0_r(offset) & 0x3f;
 
-	/* bit 0x40 comes from the sticky bit */
-	if (!z80write) res |= 0x40;
-
-	/* bit 0x80 comes from a write latch */
-	if (!m68705write) res |= 0x80;
+	/* bit 0x40 is the host semaphore flag, bit 0x80 the MCU semaphore flag (both active low) */
+	if (!host_flag) res |= 0x40;
+	if (!mcu_flag) res |= 0x80;
 
 	return res;
 }
