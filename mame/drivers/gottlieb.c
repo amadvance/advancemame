@@ -191,11 +191,8 @@ extern WRITE8_HANDLER( gottlieb_nmi_rate_w );
 extern WRITE8_HANDLER( gottlieb_cause_dac_nmi_w );
 
 
-static UINT8 *audiobuffer_region;
-
 MACHINE_RESET( gottlieb )
 {
-	audiobuffer_region = memory_region(REGION_USER1);
 }
 
 
@@ -264,9 +261,19 @@ WRITE8_HANDLER( qbert_output_w )
 static int current_frame = 1;
 static int laserdisc_playing;
 static int lasermpx;
-static int audioptr;
-static int audioready=1;
-static int skipfirstbyte;
+
+/* State of the decoder of the target data carried by the second laserdisc audio channel */
+#define AUDIORAM_SIZE 1024
+static UINT8 ld_audio_buffer[AUDIORAM_SIZE];
+static int ld_audio_address;
+static int ld_audio_bit_count;
+static int ld_audio_bits;
+static int ld_zero_seen;
+static int audioready = 1;
+static int ld_last_samples[2];
+/* times in microseconds */
+static double ld_last_clock;
+static double ld_last_time;
 static int discready;
 static int lastcmd;
 static int odd_field;
@@ -287,6 +294,95 @@ static int laserdisc_command_count;
  * and the frame number code of the first of these 53 frames is stored at the beginning
  * This gives a total of 1+3+3+19*53=1014 bytes, the 10 last bytes are ignored
  */
+
+/* The target data is a stream of zero crossings: a crossing within 150us of the previous
+ * clock is a 1 bit, a clock arrives every 200us, and a gap longer than 400us ends the
+ * transmission. A block starts with the 0x67 pattern and fills the 1K audio buffer. */
+static void audio_end_state(void)
+{
+	/* either a break in transmission or a full buffer */
+	audioready = 1;
+	ld_audio_bit_count = 0;
+	ld_audio_address = 0;
+}
+
+static void audio_process_clock(void)
+{
+	ld_audio_bits >>= 1;
+	if (ld_zero_seen)
+		ld_audio_bits |= 0x80;
+	ld_zero_seen = 0;
+
+	if (audioready)
+	{
+		/* looking for the magic 0x67 pattern */
+		if (ld_audio_bits == 0x67)
+		{
+			audioready = 0;
+			ld_audio_address = 0;
+		}
+	}
+	else
+	{
+		++ld_audio_bit_count;
+		if (ld_audio_bit_count == 8)
+		{
+			ld_audio_bit_count = 0;
+			ld_audio_buffer[ld_audio_address++] = ld_audio_bits;
+			if (ld_audio_address >= AUDIORAM_SIZE)
+				audio_end_state();
+		}
+	}
+}
+
+static void audio_handle_zero_crossing(double zerotime)
+{
+	double deltaclock = zerotime - ld_last_clock;
+
+	if (deltaclock < 150)
+	{
+		++ld_zero_seen;
+		return;
+	}
+	else if (deltaclock < 215)
+		ld_last_clock = zerotime;
+	/* a slightly late clock is a sampling error, not a missing clock */
+	else if (deltaclock < 275)
+		ld_last_clock += 200;
+	else
+		ld_last_clock = zerotime;
+
+	audio_process_clock();
+}
+
+static void laserdisc_audio_process(int samplerate, int samples, const INT16 *ch1)
+{
+	double time_per_sample = 1000000.0 / samplerate;
+	double curtime = ld_last_time;
+	int cursamp;
+
+	for (cursamp = 0; cursamp < samples; ++cursamp)
+	{
+		int sample = ch1[cursamp];
+
+		if (curtime - ld_last_clock > 400)
+			audio_end_state();
+
+		/* the sample confirms that the previous one ended a zero crossing */
+		if ((sample >= 256 && ld_last_samples[1] >= 0 && ld_last_samples[0] < 0) ||
+			(sample <= -256 && ld_last_samples[1] <= 0 && ld_last_samples[0] > 0))
+		{
+			int fractime = (-ld_last_samples[0] * 1000) / (ld_last_samples[1] - ld_last_samples[0]);
+			audio_handle_zero_crossing(curtime + time_per_sample * fractime / 1000);
+		}
+
+		ld_last_samples[0] = ld_last_samples[1];
+		ld_last_samples[1] = sample;
+		curtime += time_per_sample;
+	}
+
+	ld_last_time = curtime;
+}
 
 READ8_HANDLER( gottlieb_laserdisc_status_r )
 {
@@ -313,15 +409,9 @@ READ8_HANDLER( gottlieb_laserdisc_status_r )
 				/* bit 7 missing audio clock */
 				return ((current_frame / 10000) & 0x7) | (audioready << 3) | 0x10 | (discready << 5);
 			} else {	/* read audio buffer */
-				if (skipfirstbyte) audioptr++;
-				skipfirstbyte = 0;
-				if (audiobuffer_region) {
-					logerror("audio bufread: %02x\n",audiobuffer_region[audioptr]);
-					return audiobuffer_region[audioptr++];
-				} else {
-					logerror("audiobuffer is null !!");
-					return 0xFF; /* don't know what to do in this case ;-) */
-				}
+				UINT8 result = ld_audio_buffer[ld_audio_address];
+				ld_audio_address = (ld_audio_address + 1) % AUDIORAM_SIZE;
+				return result;
 			}
 			break;
 	}
@@ -332,7 +422,6 @@ READ8_HANDLER( gottlieb_laserdisc_status_r )
 WRITE8_HANDLER( gottlieb_laserdisc_mpx_w )
 {
 	lasermpx = data & 1;
-	if (lasermpx==0) skipfirstbyte=1;	/* first byte of the 1K buffer (0x67) is not returned... */
 }
 
 WRITE8_HANDLER( gottlieb_laserdisc_command_w )
@@ -363,7 +452,6 @@ logerror("laserdisc command %02x -> %02x\n",data,cmd);
 		current_frame = current_frame * 10 + (cmd & 0x0f);
 		while (current_frame >= 100000)
 			current_frame -= 100000;
-		audioptr = -1;
 	}
 	else
 	{
@@ -404,16 +492,6 @@ INTERRUPT_GEN( gottlieb_interrupt )
 		{
 			current_frame++;
 logerror("current frame : %d\n",current_frame);
-
-			if (current_frame%53==0)
-			{
-				int seq = current_frame / 53;
-				if (seq >= 44) {	/* 44*53 frames without target data at the beginning of the disc */
-					audioptr = (seq - 44)*1024;
-					audioready = 1;
-				}
-			}
-			else audioready = 0;
 		}
 	}
 	cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
@@ -422,6 +500,7 @@ logerror("current frame : %d\n",current_frame);
 
 static MACHINE_START( gottlieb_laserdisc )
 {
+	laserdisc_raw_set_audio_hook(laserdisc_audio_process);
 	return ldv1000_init();
 }
 
@@ -429,8 +508,11 @@ static MACHINE_RESET( gottlieb_laserdisc )
 {
 	machine_reset_gottlieb();
 	current_frame = 1;
-	laserdisc_playing = lasermpx = audioptr = skipfirstbyte = 0;
+	laserdisc_playing = lasermpx = 0;
 	audioready = 1;
+	ld_audio_address = ld_audio_bit_count = ld_audio_bits = ld_zero_seen = 0;
+	ld_last_samples[0] = ld_last_samples[1] = 0;
+	ld_last_clock = ld_last_time = 0;
 	discready = lastcmd = odd_field = access_time = laserdisc_command_count = 0;
 	laserdisc_raw_reset();
 	usvsthem_video_outputs_w(0, 0);
@@ -441,7 +523,9 @@ static INTERRUPT_GEN( gottlieb_laserdisc_interrupt )
 	gottlieb_interrupt();
 	/* Keep the decoded fields on the same frame as the target-data interface. */
 	laserdisc_raw_advance(current_frame - 1 - laserdisc_raw_track());
-	laserdisc_raw_field(odd_field, discready, laserdisc_playing && discready);
+	/* The frame advances on the odd field, so present the first field of the new frame first:
+	   the target data on the audio channel is decoded as a continuous stream in disc order. */
+	laserdisc_raw_field(!odd_field, discready, laserdisc_playing && discready);
 }
 
 
@@ -2133,9 +2217,6 @@ ROM_START( mach3 )
 	ROM_LOAD( "mach3fg2.bin", 0x2000, 0x2000, CRC(2a59e99e) SHA1(5c1faa244fc0f53cc2a52c8d4d40fb178706c2ed) )
 	ROM_LOAD( "mach3fg1.bin", 0x4000, 0x2000, CRC(9b88767b) SHA1(8071e11906b3f0026f9a210cc5a236d95ca1f659) )
 	ROM_LOAD( "mach3fg0.bin", 0x6000, 0x2000, CRC(0bae12a5) SHA1(7bc0b82ccab0e4498a7a2a9dc85f03125f25826e) )
-
-	ROM_REGION( 1024*1024, REGION_USER1, 0)	/* about 30 min of target data from laserdisc */
-	ROM_LOAD( "m3target.bin", 0, 1024*1024, CRC(6e779a6f) SHA1(e556ad438e637a71f17ea04088de10b39b45f8df) )
 
 	DISK_REGION( REGION_DISKS )
 	DISK_IMAGE_READONLY( "mach3", 0, SHA1(d0f72bded7feff5c360f8749d6c27650a6964847) )
