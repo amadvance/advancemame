@@ -9770,7 +9770,7 @@ Staff : Tsutomu Fuzisawa, Hiropi, Mingma, Nihei, Nozawa
 $end
 
 
-$info=arkanoid,arkatayt,arkbl2,arkbl3,arkangc,arknoidj,arknoidu,arkatour,arknoiuo,
+$info=arkanoid,arktayt2,arkbl2,arkbl3,arkangc,arknoidj,arknoidu,arkatour,arknoiuo,
 $bio
 
 Arkanoid (c) 1986 Taito.
@@ -25022,7 +25022,7 @@ Sega Saturn (1995)
 $end
 
 
-$info=arkblock,arkbloc2,
+$info=arkbloc2,arkblock,
 $bio
 
 Block (c) 1986 Game Corporation.
