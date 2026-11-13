@@ -4849,7 +4849,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rallys )	/* (c) 1980 Novar (bootleg?) */
 	DRIVER( phantoma )	/* (c) 1980 Jeutel (bootleg?) */
 	DRIVER( venture )	/* (c) 1981 */
-	DRIVER( venture2 )	/* (c) 1981 */
+	DRIVER( venture5a )	/* (c) 1981 */
 	DRIVER( venture4 )	/* (c) 1981 */
 	DRIVER( mtrap )		/* (c) 1981 */
 	DRIVER( mtrap3 )	/* (c) 1981 */
