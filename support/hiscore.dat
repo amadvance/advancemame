@@ -8882,6 +8882,7 @@ lastfero:
 
 ;********m97.c
 bbmanwj: ;**** top score not working ????? 
+bbmanwja:
 bbmanw:
 atompunk:
 0:a0b36:6a:02:2e
@@ -10608,4 +10609,4 @@ zodiack:
 0:b33f:1:02:02
 0:b35f:1:08:08
 0:b37f:1:00:00
-0:b39f:1:00:00
+0:b39f:1:00:00

@@ -1436,13 +1436,14 @@ const game_driver * const drivers[] =
 	/* M90 */
 	DRIVER( hasamu )	/* (c) 1991 Irem (Japan) */
 	DRIVER( dynablst )	/* (c) 1991 Irem (World) */
-	DRIVER( dynablsb )	/* bootleg */
+	DRIVER( dynablstb )	/* bootleg */
 	DRIVER( bombrman )	/* (c) 1991 Irem (Japan) */
 	DRIVER( atompunk )	/* (c) 1991 Irem America (licensed from Hudson Soft) */
 	DRIVER( dicegame )	/* (c) 1991 Bootleg */
 	/* M97 */
 	DRIVER( bbmanw )	/* (c) 1992 Irem (World) */
 	DRIVER( bbmanwj )	/* (c) 1992 Irem (Japan) */
+	DRIVER( bbmanwja )	/* (c) 1992 Irem (Japan) */
 	DRIVER( bomblord )	/* bootleg */
 	DRIVER( newapunk )	/* (c) 1992 Irem America (US) */
 	DRIVER( quizf1 )	/* (c) 1992 Irem (Japan) */
