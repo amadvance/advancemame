@@ -643,6 +643,15 @@ static struct AY8910interface ay8910_intf =
 	funworld_lamp_b_w	// portB out
 };
 
+static NVRAM_HANDLER( magiccrd )
+{
+	if (read_or_write || file)
+		nvram_handler_generic_0fill(file, read_or_write);
+	else
+		/* default NVRAM, with the protection passed */
+		memcpy(generic_nvram, memory_region(REGION_USER1), generic_nvram_size);
+}
+
 /* Machine Drivers */
 
 static MACHINE_DRIVER_START( funworld )
@@ -695,6 +704,8 @@ MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( magiccrd )
 	MDRV_IMPORT_FROM(funworld)
+
+	MDRV_NVRAM_HANDLER(magiccrd)
 
 	MDRV_CPU_REPLACE("main", M65C02, 3000000) // ???
 	MDRV_CPU_PROGRAM_MAP(magiccrd_map, 0)
@@ -829,14 +840,23 @@ ROM_START( royalcdb )
 	ROM_LOAD( "n82s147.bin",    0x0000, 0x0200, CRC(8bc86f48) SHA1(4c677ab9314a1f571e35104b22659e6811aeb194) )
 ROM_END
 
-ROM_START( magiccrd )
+ROM_START( magicrd2 )
 	ROM_REGION( 0x18000, REGION_CPU1, 0 )
     ROM_LOAD( "magicard.004", 0x0000, 0x8000,  CRC(f6e948b8) SHA1(7d5983015a508ab135ccbf69b7f3c526c229e3ef) ) // only last 16kbyte visible?
 	ROM_LOAD( "magicard.01",  0x8000, 0x10000, CRC(c94767d4) SHA1(171ac946bdf2575f9e4a31e534a8e641597af519) ) // 1ST AND 2ND HALF IDENTICAL
 
 	ROM_REGION( 0x10000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "magicard.03",  0x0000, 0x8000, CRC(733da697) SHA1(45122c64d5a371ec91cecc67b7faf179078e714d) )
-	ROM_LOAD( "magicard.001", 0x8000, 0x8000, CRC(685f7a67) SHA1(fc65a9d26a5cbbe2fa08dc0f27212dae2d8bcbdc) ) // bad dump?, or sprite plane
+	ROM_LOAD( "mc2gr2.bin",   0x0000, 0x8000, CRC(733da697) SHA1(45122c64d5a371ec91cecc67b7faf179078e714d) )
+	ROM_LOAD( "mc2gr1.bin",   0x8000, 0x8000, CRC(2406b8d2) SHA1(e9d7a25562fd5adee351d7ef6ba02fff6aab021a) )
+
+	ROM_REGION( 0x0800, REGION_USER1, 0 ) // default NVRAM
+	ROM_LOAD( "magicrd2_nvram.bin", 0x0000, 0x0800, CRC(343b3162) SHA1(1524959dbbc0c6d7c5c3a4a6b20976382cfbe88f) )
+
+	ROM_REGION( 0x0200, REGION_PROMS, 0 )
+	ROM_LOAD( "mc2-82s147.bin", 0x0000, 0x0200, CRC(aa91cc35) SHA1(79f9a755441500e618c4183f524f969fffd44100) )
+
+	ROM_REGION( 0x0200, REGION_USER2, 0 )
+	ROM_LOAD( "gal16v8uni.bin", 0x0000, 0x0117, CRC(b81d7e0a) SHA1(7fef0b2bcea931a830d38ae0f1102434cf281d2d) )  // Universal GAL
 ROM_END
 
 /* Driver Initialization */
@@ -861,4 +881,4 @@ GAME( 1997, cuoreuno, 0,        cuoreuno, funworld, funworld, ROT0, "bootleg?", 
 GAME( 1997, elephfam, 0,        cuoreuno, funworld, funworld, ROT0, "bootleg?",    "Elephant Family (Italia)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
 GAME( 1991, royalcrd, 0,        funworld, funworld, funworld, ROT0, "TAB-Austria", "Royal Card (Austria, set 1)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
 GAME( 1991, royalcdb, royalcrd, funworld, funworld, funworld, ROT0, "TAB-Austria", "Royal Card (Austria, set 2)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
-GAME( 1996, magiccrd, 0,        magiccrd, magiccrd, funworld, ROT0, "Impera",      "Magic Card II (Bulgaria)", GAME_WRONG_COLORS )
+GAME( 1996, magicrd2, 0,        magiccrd, magiccrd, funworld, ROT0, "Impera",      "Magic Card II (Bulgarian)", GAME_WRONG_COLORS )
