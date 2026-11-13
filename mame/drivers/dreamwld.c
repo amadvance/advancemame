@@ -314,7 +314,7 @@ static READ32_HANDLER( dreamwld_protdata_r )
 	static int protindex = 0;
 	UINT8 *protdata    = memory_region(REGION_USER1);
 	size_t  protsize = memory_region_length(REGION_USER1);
-	UINT8 dat = protdata[(protindex++)%protsize];
+	UINT8 dat = protdata[(0x3c + protindex++)%protsize];
 	return dat<<24;
 }
 
@@ -829,16 +829,11 @@ ROM_START( dreamwld )
 	ROM_LOAD32_BYTE( "3.bin", 0x000000, 0x040000, CRC(e8f7ae78) SHA1(cfd393cec6dec967c82e1131547b7e7fdc5d814f) )
 	ROM_LOAD32_BYTE( "4.bin", 0x000001, 0x040000, CRC(3ef5d51b) SHA1(82a00b4ff7155f6d5553870dfd510fed9469d9b5) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 87C52 MCU Code */
-	//ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP ) /* can't be dumped. */
-
-	ROM_REGION( 0x6c9, REGION_USER1, 0 ) /* Protection data  */
-	/* The MCU supplies this data.
-      The 68k reads it through a port, taking the size and destination write address from the level 1
-      and level 2 irq positions in the 68k vector table (there is code to check that they haven't been
-      modofied!)  It then decodes the data using the rom checksum previously calculated and puts it in
-      ram.  The interrupt vectors point at the code placed in RAM. */
-	ROM_LOAD( "protdata.bin", 0x000, 0x6c9 ,  CRC(f284b2fd) SHA1(9e8096c8aa8a288683f002311b38787b120748d1) ) /* extracted */
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c. The 68k reads it through a port, taking the size and
+	destination write address from the level 1 and level 2 irq positions in the 68k vector table (there is code
+	to check that they haven't been modified!). It then decodes the data using the rom checksum previously
+	calculated and puts it in ram. The interrupt vectors point at the code placed in RAM. */
+	ROM_LOAD( "87c51rap.bin", 0x00000, 0x02000, CRC(987bbfe8) SHA1(7717ed5cf97bc11c104356f6ff1d893d1606bcf0) )
 
 	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* OKI Samples - 1st chip*/
 	ROM_LOAD( "5.bin", 0x000000, 0x80000, CRC(9689570a) SHA1(4414233da8f46214ca7e9022df70953922a63aa4) )
@@ -864,16 +859,45 @@ ROM_END
 
 ROM_START( baryon )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD32_BYTE( "2_semicom", 0x000002, 0x040000, CRC(42b14a6c) SHA1(37e772a673732ef16767c14ad77a4faaa06d675a) )
+	ROM_LOAD32_BYTE( "4_semicom", 0x000000, 0x040000, CRC(6c1cdad0) SHA1(40c437507076ce52ec2240049d6b4bef180b104a) )
+	ROM_LOAD32_BYTE( "3_semicom", 0x000003, 0x040000, CRC(0ae6d86e) SHA1(410ad161688ec8516fe5ac7160a4a228dbb01936) )
+	ROM_LOAD32_BYTE( "5_semicom", 0x000001, 0x040000, CRC(15917c9d) SHA1(6444be93e6a997070820e3c5a2e2e703e22883d9) )
+
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c */
+	ROM_LOAD( "mcu.bin", 0x00000, 0x02000, BAD_DUMP CRC(1ee7896c) SHA1(f1e8500b7b6aa4e6ae939e228ffd11462f10ba33) )
+
+	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* OKI Samples */
+	ROM_LOAD( "1_semicom", 0x000000, 0x80000, CRC(e0349074) SHA1(f3d53d96dff586a0ad1632f52e5559cdce5ed0d8) )
+	ROM_RELOAD(0x80000,0x80000) // for the banks
+
+	ROM_REGION( 0x100000, REGION_SOUND2, 0 ) /* OKI Samples */
+
+	ROM_REGION( 0x400000, REGION_GFX1, 0 ) /* Sprite Tiles - decoded */
+	ROM_LOAD16_WORD_SWAP( "10_semicom",  0x000000, 0x200000, CRC(28bf828f) SHA1(271390cc4f4015a3b69976f0d0527947f13c971b) )
+	ROM_LOAD16_WORD_SWAP( "11_semicom", 0x200000, 0x200000, CRC(d0ff1bc6) SHA1(4aeb795222eedeeba770cf725122e989f97119b2) )
+
+	ROM_REGION( 0x200000, REGION_GFX2, 0 ) /* BG Tiles - decoded */
+	ROM_LOAD16_WORD_SWAP( "8_semicom",0x000000, 0x200000, CRC(684012e6) SHA1(4cb60907184b67be130b8385e4336320c0f6e4a7) )
+
+	ROM_REGION( 0x040000, REGION_GFX3, 0 ) /* Sprite Code Lookup ... */
+	ROM_LOAD16_BYTE( "6_semicom", 0x000000, 0x020000, CRC(fdbb08b0) SHA1(4b3ac56c4c8370b1434fb6a481fce0d9c52313e0) )
+	ROM_LOAD16_BYTE( "7_semicom",0x000001, 0x020000, CRC(c9d20480) SHA1(3f6170e8e08fb7508bd13c23f243ec6888a91f5e) )
+
+	ROM_REGION( 0x10000, REGION_GFX4, 0 ) /* ???? - not decoded seems to be in blocks of 0x41 bytes.. */
+	ROM_LOAD( "9_semicom", 0x000000, 0x10000, CRC(0da8db45) SHA1(7d5bd71c5b0b28ff74c732edd7c662f46f2ab25b) )
+ROM_END
+
+
+ROM_START( baryona )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD32_BYTE( "3.bin", 0x000002, 0x040000, CRC(046d4231) SHA1(05056efe5fec7f43c400f05278de516b01be0fdf) )
 	ROM_LOAD32_BYTE( "4.bin", 0x000000, 0x040000, CRC(59e0df20) SHA1(ff12f4adcf731f6984db7d0fbdd7fcc71ce66aa4) )
 	ROM_LOAD32_BYTE( "5.bin", 0x000003, 0x040000, CRC(63d5e7cb) SHA1(269bf5ffe10f2464f823c4d377921e19cfb8bc46) )
 	ROM_LOAD32_BYTE( "6.bin", 0x000001, 0x040000, CRC(abccbb3d) SHA1(01524f094543d872d775306024f51258a11e9240) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 87C52 MCU Code */
-//	ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP ) /* can't be dumped. */
-
-	ROM_REGION( 0x6bd, REGION_USER1, 0 ) /* Protection data  */
-	ROM_LOAD( "protdata.bin", 0x000, 0x6bd, CRC(117f32a8) SHA1(837bea09d3e59ab9e13bd1103b1fc988edb361c0) ) /* extracted */
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c */
+	ROM_LOAD( "mcu.bin", 0x00000, 0x02000, BAD_DUMP CRC(1ee7896c) SHA1(f1e8500b7b6aa4e6ae939e228ffd11462f10ba33) )
 
 	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* OKI Samples */
 	ROM_LOAD( "1.bin", 0x000000, 0x80000, CRC(e0349074) SHA1(f3d53d96dff586a0ad1632f52e5559cdce5ed0d8) )
@@ -893,7 +917,7 @@ ROM_START( baryon )
 	ROM_LOAD16_BYTE( "10.bin",0x000001, 0x020000, CRC(c9d20480) SHA1(3f6170e8e08fb7508bd13c23f243ec6888a91f5e) )
 
 	ROM_REGION( 0x10000, REGION_GFX4, 0 ) /* ???? - not decoded seems to be in blocks of 0x41 bytes.. */
-	//ROM_LOAD( "7.bin", 0x000000, 0x10000, CRC(0da8db45) SHA1(7d5bd71c5b0b28ff74c732edd7c662f46f2ab25b) )
+	ROM_LOAD( "7.bin", 0x000000, 0x10000, CRC(0da8db45) SHA1(7d5bd71c5b0b28ff74c732edd7c662f46f2ab25b) )
 ROM_END
 
 ROM_START( rolcrush )
@@ -903,11 +927,8 @@ ROM_START( rolcrush )
 	ROM_LOAD32_BYTE( "mx27c2000_2.bin", 0x000002, 0x040000, CRC(5eb24adb) SHA1(0329a02e18490bfe72ff34a64722d7316814720b) )
 	ROM_LOAD32_BYTE( "mx27c2000_1.bin", 0x000003, 0x040000, CRC(a37e15b2) SHA1(f0fc945a894d6ed58daf05390a17051d0f3cda20) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 87C52 MCU Code */
-	//ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP ) /* can't be dumped. */
-
-	ROM_REGION( 0x745, REGION_USER1, ROMREGION_ERASE00 ) /* Protection data  */
-    ROM_LOAD( "protdata.bin", 0x000, 0x745, CRC(06b8a880) SHA1(b7d4bf26d34cb544825270c2c474bbd4c81a6c9e) ) /* extracted */
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c */
+	ROM_LOAD( "mcu.bin", 0x00000, 0x02000, BAD_DUMP CRC(9185e237) SHA1(866255242130503fa9a164645082640f1da0a8ff) )
 
 	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* OKI Samples - 1st chip*/
 	ROM_LOAD( "mx27c4000_5.bin", 0x000000, 0x80000, CRC(7afa6adb) SHA1(d4049e1068a5f7abf0e14d0b9fbbbc6dfb5d0170) )
@@ -935,11 +956,8 @@ ROM_START( cutefght )
     ROM_LOAD32_BYTE( "3_semicom", 0x000002, 0x080000, CRC(e7e7a866) SHA1(a31751f4164a427de59f0c76c9a8cb34370d8183) )
     ROM_LOAD32_BYTE( "4_semicom", 0x000003, 0x080000, CRC(476a3bf5) SHA1(5be1c70bbf4fcfc534b7f20bfceaa8da2e961330) )
 
-    ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 87C52 MCU Code */
-   // ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP ) /* can't be dumped. */
-
-    ROM_REGION( 0x701, REGION_USER1, ROMREGION_ERASEFF ) /* Protection data */
-    ROM_LOAD( "protdata.bin", 0x000, 0x701 , CRC(764c3c0e) SHA1(ae044d016850b730b2d97ccb7845b6b438c1e074) )
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c */
+	ROM_LOAD( "mcu.bin", 0x00000, 0x02000, BAD_DUMP CRC(7d9acd7d) SHA1(12059143ac9e10f3a21402d2879ff0b5097d6de0) )
 
     ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* OKI Samples */
     ROM_LOAD( "2_semicom", 0x000000, 0x80000, CRC(694ddaf9) SHA1(f9138e7e1d8f771c4e69c17f27fb2b70fbee076a) )
@@ -971,11 +989,8 @@ ROM_START( gaialast )
 	ROM_LOAD32_BYTE( "2", 0x000002, 0x040000, CRC(549e594a) SHA1(728c6b51cc478ad7251bcbe6d7f4f4e6a2ee4a4e) )
 	ROM_LOAD32_BYTE( "3", 0x000003, 0x040000, CRC(a8e845d8) SHA1(f8c7e702bd747a22e76c861effec4cd3cd2f3fc9) )
 	
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 87C52 MCU Code */
-	//ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP ) /* can't be dumped. */
-	
-	ROM_REGION( 0x6c9, REGION_USER1, ROMREGION_ERASEFF ) /* Protection data */
-	ROM_LOAD( "protdata.bin", 0x000, 0x6c9 , CRC(d3403b7b) SHA1(712a7f27fc41b632d584237f7641e8ae20035111) )
+	ROM_REGION( 0x2000, REGION_USER1, 0 ) /* 87C52 MCU Code, the protection data starts at 0x3c */
+	ROM_LOAD( "mcu.bin", 0x00000, 0x02000, BAD_DUMP CRC(fb3db92b) SHA1(3ae3649debf79a4345b05c2f4ae9674c13a66ed1) )
 
 	ROM_REGION( 0x80000, REGION_SOUND1, 0 ) /* OKI Samples - 1st chip*/
 	ROM_LOAD( "1", 0x000000, 0x80000, CRC(2dbad410) SHA1(bb788ea14bb605be9af9c8f8adec94ad1c17ab55))
@@ -995,12 +1010,13 @@ ROM_START( gaialast )
 	ROM_LOAD16_BYTE( "7", 0x000001, 0x020000, CRC(9d7f04ae) SHA1(55fb82626060fe0ddc03ed3ef402ccf998063d27) )
 
     ROM_REGION( 0x10000, REGION_GFX4, 0 ) /* ???? - not decoded seems to be in blocks of 0x41 bytes.. */
-    ROM_LOAD( "9_semicom", 0x000000, 0x10000, CRC(0da8db45) SHA1(7d5bd71c5b0b28ff74c732edd7c662f46f2ab25b) )
+    ROM_LOAD( "9", 0x000000, 0x10000, CRC(0da8db45) SHA1(7d5bd71c5b0b28ff74c732edd7c662f46f2ab25b) )
 ROM_END
 
 
 GAME( 2000, dreamwld, 0, dreamwld,  dreamwld, 0, ROT0,    "SemiCom",          "Dream World", 0 )
-GAME( 1997, baryon,   0, dreamwld,  baryon,   0, ROT270,  "SemiCom / Tirano", "Baryon - Future Assault", 0 )
-GAME( 1999, rolcrush, 0, dreamwld,  rolcrush, 0, ROT0,    "SemiCom / Exit",   "Rolling Crush (version 1.07.E - 1999/02/11)", GAME_IMPERFECT_GRAPHICS ) // wrong linescroll?
+GAME( 1997, baryon,   0,      dreamwld,  baryon,   0, ROT270,  "SemiCom / Tirano", "Baryon - Future Assault (set 1)", 0 )
+GAME( 1997, baryona,  baryon, dreamwld,  baryon,   0, ROT270,  "SemiCom / Tirano", "Baryon - Future Assault (set 2)", 0 )
+GAME( 1999, rolcrush, 0, dreamwld,  rolcrush, 0, ROT0,    "SemiCom / Exit (Trust license)", "Rolling Crush (version 1.07.E - 1999/02/11, Trust license)", GAME_IMPERFECT_GRAPHICS ) // wrong linescroll?
 GAME( 1998, cutefght, 0, dreamwld,  cutefght, 0, ROT0,    "SemiCom",          "Cute Fighter", GAME_IMPERFECT_GRAPHICS ) // wrong linescroll?
 GAME( 1999, gaialast, 0, dreamwld,  gaialast, 0, ROT0,    "SemiCom / XESS",   "Gaia - The Last Choice of Earth", 0 )
