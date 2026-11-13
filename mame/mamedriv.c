@@ -7698,6 +7698,7 @@ Other Sun games
 	DRIVER( puzzlovek )
 	DRIVER( crospang )	/* (c) 1998 F2 System */
 	DRIVER( funybubl )	/* (c) 1999 Comad Industries */
+	DRIVER( funybublc )	/* (c) 1999 Comad */
 	DRIVER( dcheese )	/* (c) 1993 HAR */
 	DRIVER( lottof2 )	/* (c) 1993 HAR */
 	DRIVER( cecmatch )
