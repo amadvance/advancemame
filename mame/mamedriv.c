@@ -1662,11 +1662,11 @@ const game_driver * const drivers[] =
 	DRIVER( rainbowe )	/* B39 (c) 1988 Taito Corporation */
 	DRIVER( jumping )	/* bootleg */
 	DRIVER( arkanoid )	/* A75 (c) 1986 Taito Corporation Japan (World) */
-	DRIVER( arknoidu )	/* A75 (c) 1986 Taito America Corporation + Romstar license (US) */
-	DRIVER( arknoiuo )	/* A75 (c) 1986 Taito America Corporation + Romstar license (US) */
-	DRIVER( arknoidj )	/* A75 (c) 1986 Taito Corporation (Japan) */
-	DRIVER( arkbl2 )	/* bootleg */
-	DRIVER( arkbl3 )	/* bootleg */
+	DRIVER( arkanoidu )	/* A75 (c) 1986 Taito America Corporation + Romstar license (US) */
+	DRIVER( arkanoiduo )	/* A75 (c) 1986 Taito America Corporation + Romstar license (US) */
+	DRIVER( arkanoidja )	/* A75 (c) 1986 Taito Corporation (Japan) */
+	DRIVER( arkanoidjbl )	/* bootleg */
+	DRIVER( arkgcbl )	/* bootleg */
 	DRIVER( paddle2 )	/* bootleg */
 	DRIVER( arkatayt )	/* bootleg */
 	DRIVER( arkblock )	/* bootleg */

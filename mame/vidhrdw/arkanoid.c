@@ -24,6 +24,8 @@ WRITE8_HANDLER( arkanoid_videoram_w )
 	}
 }
 
+extern void arkanoid_mcu_reset_w(int run);
+
 WRITE8_HANDLER( arkanoid_d008_w )
 {
 	int bank;
@@ -64,7 +66,9 @@ WRITE8_HANDLER( arkanoid_d008_w )
 		tilemap_mark_all_tiles_dirty(bg_tilemap);
 	}
 
-	/* bit 7 is unknown */
+	/* bit 7 resets the MCU and the semaphore flip-flops (bootlegs have no MCU) */
+	if (cpu_gettotalcpu() > 1)
+		arkanoid_mcu_reset_w(data & 0x80);
 }
 
 static void get_bg_tile_info(int tile_index)
