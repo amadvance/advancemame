@@ -59,7 +59,6 @@ VIDEO_START( xevious );
 PALETTE_INIT( xevious );
 VIDEO_UPDATE( xevious );
 
-PALETTE_INIT( battles );
 
 /*----------- defined in machine/xevious.c -----------*/
 
