@@ -7614,6 +7614,7 @@ Other Sun games
 	DRIVER( crgolfa )	/* (c) 1984 Nasco Japan */
 	DRIVER( crgolfb )	/* (c) 1984 Nasco Japan */
 	DRIVER( crgolfc )	/* (c) 1984 Nasco Japan */
+	DRIVER( crgolfbt )	/* bootleg */
 	DRIVER( crgolfhi )	/* (c) 1984 Nasco Japan */
 	DRIVER( truco )		/* (c) 198? Playtronic SRL */
 	DRIVER( thedeep )	/* (c) 1987 Woodplace */
