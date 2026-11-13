@@ -3168,6 +3168,23 @@ Custom chip: DYNAX TC17G032AP-0246 JAPAN 8929EAI
 
 ROM_START( hjingi )
 	ROM_REGION( 0x10000 + 0x19*0x8000, REGION_CPU1, 0 )	/* Z80 Code */
+	ROM_LOAD( "h10b.4a",  0x00000, 0x20000, CRC(e1152b17) SHA1(ced822eafa96c89dda82fd8ea002e86c2eb4438a) )
+	ROM_RELOAD(           0x10000, 0x20000 )
+
+	ROM_REGION( 0x200000, REGION_GFX1, 0 )	/* blitter data */
+	ROM_LOAD( "h02.21",   0x000000, 0x20000, CRC(9dde2d59) SHA1(96df4ba97ee9611d9a3c7bcaae9cd97815a7b8a5) )
+	ROM_LOAD( "h03.22",   0x020000, 0x20000, CRC(1ac59443) SHA1(e70fe6184e7090cf7229d83b87db65f7715de2a8) )
+	ROM_LOAD( "h01.20",   0x040000, 0x20000, CRC(24391ddc) SHA1(6a2e3fae4b6d0b1d8073306f37c9fdaa04b69eb8) )
+	ROM_LOAD( "h04.1",    0x060000, 0x20000, CRC(3756c745) SHA1(f275a72d6e07f21148900d24a8018d03504f249f) )
+	ROM_LOAD( "h05.2",    0x080000, 0x20000, CRC(249d360a) SHA1(688fced1298c345a18314d2c88664c757a2de35c) )
+	ROM_LOAD( "h06.3",    0x0a0000, 0x20000, CRC(014a4945) SHA1(0cd747787a81226fd4937616a6ce45af731a4049) )
+	ROM_LOAD( "h07.4",    0x0c0000, 0x20000, CRC(8b6f8a2d) SHA1(c5f3ec64a7ea3edc556182f42e6da4842d88e0ba) )
+	ROM_LOAD( "h08.5",    0x0e0000, 0x20000, CRC(6f996e6e) SHA1(c2b916afbfd257417f0383ad261f3720a027fdd9) )
+	ROM_LOAD( "h09.6",    0x100000, 0x20000, CRC(86bde64d) SHA1(d9b79184697044ae8a4d04ea22deca2e14162065) )
+ROM_END
+
+ROM_START( hnoridur )
+	ROM_REGION( 0x10000 + 0x19*0x8000, REGION_CPU1, 0 )	/* Z80 Code */
 	ROM_LOAD( "2309.12",  0x00000, 0x20000, CRC(5517dd68) SHA1(3da27032a412b51b67e852b61166c2fdc138a370) )
 	ROM_RELOAD(           0x10000, 0x20000 )
 
@@ -3175,7 +3192,7 @@ ROM_START( hjingi )
 	ROM_LOAD( "2302.21",  0x000000, 0x20000, CRC(9dde2d59) SHA1(96df4ba97ee9611d9a3c7bcaae9cd97815a7b8a5) )
 	ROM_LOAD( "2303.22",  0x020000, 0x20000, CRC(1ac59443) SHA1(e70fe6184e7090cf7229d83b87db65f7715de2a8) )
 	ROM_LOAD( "2301.20",  0x040000, 0x20000, CRC(24391ddc) SHA1(6a2e3fae4b6d0b1d8073306f37c9fdaa04b69eb8) )
-	ROM_LOAD( "2304.1",   0x060000, 0x20000, BAD_DUMP CRC(9792d9fa) SHA1(5835d3d97a5b0a6594654010c8061238cd0514f6) )
+	ROM_LOAD( "2304.1",   0x060000, 0x20000, CRC(3756c745) SHA1(f275a72d6e07f21148900d24a8018d03504f249f) )
 	ROM_LOAD( "2305.2",   0x080000, 0x20000, CRC(249d360a) SHA1(688fced1298c345a18314d2c88664c757a2de35c) )
 	ROM_LOAD( "2306.3",   0x0a0000, 0x20000, CRC(014a4945) SHA1(0cd747787a81226fd4937616a6ce45af731a4049) )
 	ROM_LOAD( "2307.4",   0x0c0000, 0x20000, CRC(8b6f8a2d) SHA1(c5f3ec64a7ea3edc556182f42e6da4842d88e0ba) )
@@ -4105,7 +4122,8 @@ static DRIVER_INIT( blktouch )
 
 GAME( 1988, hanamai,  0,        hanamai,  hanamai,  0,        ROT180, "Dynax",                   "Hana no Mai (Japan)"                                  , 0 )
 GAME( 1989, hnkochou, hanamai,  hanamai,  hnkochou, 0,        ROT180, "Dynax",                   "Hana Kochou [BET] (Japan)"                            , 0 )
-GAME( 1990, hjingi,   0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Jingi (Japan set 1)",                                 GAME_IMPERFECT_GRAPHICS ) // 1 rom is bad
+GAME( 1990, hjingi,   0,        hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Jingi (Japan set 1)",                                 GAME_NOT_WORKING ) // different hardware, only the romset is provided as parent of hnoridur
+GAME( 1989, hnoridur, hjingi,   hnoridur, hnoridur, 0,        ROT180, "Dynax",                   "Hana Oriduru (Japan)",                                     GAME_IMPERFECT_GRAPHICS )
 GAME( 1989, drgpunch, 0,        sprtmtch, sprtmtch, 0,        ROT0,   "Dynax",                   "Dragon Punch (Japan)"                                 , 0 )
 GAME( 1989, sprtmtch, drgpunch, sprtmtch, sprtmtch, 0,        ROT0,   "Dynax (Fabtek license)",  "Sports Match"                                         , 0 )
 GAME( 1989, mjfriday, 0,        mjfriday, mjfriday, 0,        ROT180, "Dynax",                   "Mahjong Friday (Japan)"                               , 0 )
