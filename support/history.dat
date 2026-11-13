@@ -81434,7 +81434,7 @@ Buttons : 2
 $end
 
 
-$info=gtg,gtgt,
+$info=gtg,gtgt10,
 $bio
 
 Golden Tee Golf (c) 1990 Strata / Incredible Technologies.
@@ -93939,7 +93939,7 @@ Engineering and designed by : Bruno De Georgio
 $end
 
 
-$info=hstennis,hstenn10,
+$info=hstennis,hstennis10,
 $bio
 
 Hot Shots Tennis (c) 12/1990 Strata / Incredible Technologies.
@@ -178721,7 +178721,7 @@ SNK Neo-Geo CD (1995)
 $end
 
 
-$info=rimrockn,rimrck20,rimrck16,rimrck12,
+$info=rimrockn,rimrockn20,rimrockn16,rimrockn12,
 $bio
 
 Rim Rockin' Basketball (c) 09/1991 Strata / Incredible Technologies.
@@ -196976,7 +196976,7 @@ Planner : A. Ue-Pi
 $end
 
 
-$info=slikshot,sliksh16,sliksh17,
+$info=slikshot,slikshot16,slikshot17,
 $bio
 
 Slick Shot (c) 04/1990 Grand Products / Incredible Technologies.
@@ -254998,7 +254998,7 @@ Direction & Game designer : Hiroyuki Sakou
 $end
 
 
-$info=wfortune,wfortuna,
+$info=wfortune,wfortunea,
 $bio
 
 Wheel of Fortune (c) 09/1989 GameTek.

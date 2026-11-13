@@ -3074,27 +3074,29 @@ V-V                           TP-027
 	DRIVER( clbowl )	/* (c) 1989 Incredible Technologies */
 	DRIVER( bowlrama )	/* (c) 1991 P & P Marketing */
 	DRIVER( wfortune )	/* (c) 1989 GameTek */
-	DRIVER( wfortuna )	/* (c) 1989 GameTek */
+	DRIVER( wfortunea )	/* (c) 1989 GameTek */
 	DRIVER( grmatch )
 	DRIVER( stratab )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( stratab1 )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( sstrike )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( gtg )		/* (c) 1990 Strata/Incredible Technologies */
-	DRIVER( gtgt )		/* (c) 1990 Strata/Incredible Technologies */
+	DRIVER( gtgj31 )	/* (c) 1990 Strata/Incredible Technologies */
+	DRIVER( gtgt10 )		/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( hstennis )	/* (c) 1990 Strata/Incredible Technologies */
-	DRIVER( hstenn10 )	/* (c) 1990 Strata/Incredible Technologies */
+	DRIVER( hstennis10 )	/* (c) 1990 Strata/Incredible Technologies */
 	DRIVER( slikshot )	/* (c) 1990 Grand Products/Incredible Technologies */
-	DRIVER( sliksh17 )	/* (c) 1990 Grand Products/Incredible Technologies */
-	DRIVER( sliksh16 )	/* (c) 1990 Grand Products/Incredible Technologies */
+	DRIVER( slikshot17 )	/* (c) 1990 Grand Products/Incredible Technologies */
+	DRIVER( slikshot16 )	/* (c) 1990 Grand Products/Incredible Technologies */
 	DRIVER( dynobop )	/* (c) 1990 Grand Products/Incredible Technologies */
 	DRIVER( arlingtn )	/* (c) 1991 Strata/Incredible Technologies */
+	DRIVER( arlingtna )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( peggle )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( pegglet )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( pokrdice )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( rimrockn )	/* (c) 1991 Strata/Incredible Technologies */
-	DRIVER( rimrck20 )	/* (c) 1991 Strata/Incredible Technologies */
-	DRIVER( rimrck16 )	/* (c) 1991 Strata/Incredible Technologies */
-	DRIVER( rimrck12 )	/* (c) 1991 Strata/Incredible Technologies */
+	DRIVER( rimrockn20 )	/* (c) 1991 Strata/Incredible Technologies */
+	DRIVER( rimrockn16 )	/* (c) 1991 Strata/Incredible Technologies */
+	DRIVER( rimrockn12 )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( ninclown )	/* (c) 1991 Strata/Incredible Technologies */
 	DRIVER( gpgolf )	/* (c) 1992 Strata/Incredible Technologies */
 	DRIVER( gtg2 )		/* (c) 1992 Strata/Incredible Technologies */
