@@ -817,6 +817,7 @@ VIDEO_UPDATE( psx )
 	int n_displaystartx;
 	int n_overscantop;
 	int n_overscanleft;
+	rectangle border;
 
 #if defined( MAME_DEBUG )
 	if( DebugMeshDisplay( bitmap, cliprect ) )
@@ -860,6 +861,7 @@ VIDEO_UPDATE( psx )
 			n_overscanleft = 0x260;
 		}
 
+		/* Blanked borders must not retain pixels from an earlier display range. */
 		n_top = (INT32)m_n_vert_disstart - n_overscantop;
 		n_lines = (INT32)m_n_vert_disend - (INT32)m_n_vert_disstart;
 		if( n_top < 0 )
@@ -869,8 +871,10 @@ VIDEO_UPDATE( psx )
 		}
 		else
 		{
-			/* todo: draw top border */
 			n_y = 0;
+			border = *cliprect;
+			border.max_y = MIN( border.max_y, n_top - 1 );
+			fillbitmap( bitmap, 0, &border );
 		}
 		if( ( m_n_gpustatus & ( 1 << 0x16 ) ) != 0 )
 		{
@@ -883,7 +887,9 @@ VIDEO_UPDATE( psx )
 		}
 		else
 		{
-			/* todo: draw bottom border */
+			border = *cliprect;
+			border.min_y = MAX( border.min_y, n_y + n_top + n_lines );
+			fillbitmap( bitmap, 0, &border );
 		}
 
 		n_left = ( ( (INT32)m_n_horiz_disstart - n_overscanleft ) * (INT32)m_n_screenwidth ) / 2560;
@@ -895,8 +901,10 @@ VIDEO_UPDATE( psx )
 		}
 		else
 		{
-			/* todo: draw left border */
 			n_x = 0;
+			border = *cliprect;
+			border.max_x = MIN( border.max_x, n_left - 1 );
+			fillbitmap( bitmap, 0, &border );
 		}
 		if( n_columns > m_n_screenwidth - ( n_x + n_left ) )
 		{
@@ -904,7 +912,9 @@ VIDEO_UPDATE( psx )
 		}
 		else
 		{
-			/* todo: draw right border */
+			border = *cliprect;
+			border.min_x = MAX( border.min_x, n_x + n_left + n_columns );
+			fillbitmap( bitmap, 0, &border );
 		}
 
 		if( ( m_n_gpustatus & ( 1 << 0x15 ) ) != 0 )
