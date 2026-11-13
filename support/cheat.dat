@@ -3380,7 +3380,7 @@
 :aircombu:00100000:10045A:00000E10:FFFFFFFF:Infinite Time
 :aircombu:00100000:10046A:0000270F:FFFFFFFF:Infinite Guns
 
-; [ Air Duel (Japan) ]
+; [ Air Duel (World, M82 hardware) ]
 :airduel:00000000:A3EFE:00000063:FFFFFFFF:Infinite Credits
 :airduel:00000000:A2391:00000009:FFFFFFFF:Infinite Lives PL1
 :airduel:00000000:A23A2:00000019:FFFFFFFF:Infinite Bombs PL1
@@ -10875,7 +10875,7 @@
 :bbusters:00000000:08730D:00000013:FFFFFFFF:Infinite Magazines PL3
 :bbusters:00000000:08730E:00000009:FFFFFFFF:Infinite Grenades PL3
 
-; [ Battle Chopper ]
+; [ Battle Chopper (World) ]
 :bchopper:00000000:A3760:0000003F:FFFFFFFF:Infinite Time
 :bchopper:00010000:A3761:00000083:FFFFFFFF:Infinite Time (2/2)
 :bchopper:00000000:A2964:0000000A:FFFFFFFF:Infinite Lives
@@ -26330,7 +26330,7 @@
 :dblpoint:00010000:81E0F:00000003:FFFFFFFF:Infinite Time PL2 (3/3)
 :dblpoint:00000000:81970:00000008:FFFFFFFF:Infinite Helps PL2
 
-; [ Dragon Breed (M81 pcb version) ]
+; [ Dragon Breed (World, M81 hardware) ]
 :dbreed:00000000:8802B:00000099:FFFFFFFF:Infinite Credits
 :dbreed:00100000:8895A:00000959:FFFFFFFF:Infinite Time:Turn it OFF when you've finished the final stage
 :dbreed:00000000:88958:00000005:FFFFFFFF:Infinite Lives
@@ -26354,29 +26354,29 @@
 :dbreed:00001501:8895D:0000000B:FFFFFFFF:Select Starting Stage PL1:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
 :dbreed:00001501:88984:0000000B:FFFFFFFF:Select Starting Stage PL2:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
 
-; [ Dragon Breed (M72 pcb version) ]
-:dbreed72:00000000:9002B:00000099:FFFFFFFF:Infinite Credits
-:dbreed72:00100000:9095A:00000959:FFFFFFFF:Infinite Time:Turn it OFF when you've finished the final stag
-:dbreed72:00000000:90958:00000005:FFFFFFFF:Infinite Lives
-:dbreed72:00000000:90CEE:00000001:FFFFFFFF:Invincibility:Incomplete - you still die when you collide with the boss in stage 2
-:dbreed72:00000000:9095E:00000006:FFFFFFFF:Always Have Maximum Shot Power
-:dbreed72:00100000:90008:00000000:00008080:Rapid Fire - Normal:Turn it OFF on the name entry screen
-:dbreed72:00100000:90008:00000000:00008080:Rapid Fire - Special:Turn it OFF on the name entry screen
-:dbreed72:00010000:90C16:00000000:FFFFFFFF:Rapid Fire - Special (2/2)
-:dbreed72:62000000:00000:00000000:00000000:Select Dragon
-:dbreed72:00010000:90960:00000000:FFFFFFFF:Green Dragon
-:dbreed72:00010000:90960:00000002:FFFFFFFF:Blue Dragon
-:dbreed72:00010000:90960:00000004:FFFFFFFF:Copper Dragon
-:dbreed72:00010000:90960:00000006:FFFFFFFF:Silver Dragon
-:dbreed72:00010000:90960:00000008:FFFFFFFF:Gold Dragon
-:dbreed72:62000000:00000:00000000:00000000:Select Dragon Roll:Roll Shot is available with the gold dragon
-:dbreed72:00110000:90D84:00008000:FFFFFFFF:Normal
-:dbreed72:00110000:90D84:0000810B:FFFFFFFF:Up
-:dbreed72:00110000:90D84:000081F5:FFFFFFFF:Down
-:dbreed72:00110000:90D84:0000830B:FFFFFFFF:Up + Roll Shot
-:dbreed72:00110000:90D84:000083F5:FFFFFFFF:Down + Roll Shot
-:dbreed72:00001501:9095D:0000000B:FFFFFFFF:Select Starting Stage PL1:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
-:dbreed72:00001501:90984:0000000B:FFFFFFFF:Select Starting Stage PL2:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
+; [ Dragon Breed (World, M72 hardware) ]
+:dbreedm72:00000000:9002B:00000099:FFFFFFFF:Infinite Credits
+:dbreedm72:00100000:9095A:00000959:FFFFFFFF:Infinite Time:Turn it OFF when you've finished the final stag
+:dbreedm72:00000000:90958:00000005:FFFFFFFF:Infinite Lives
+:dbreedm72:00000000:90CEE:00000001:FFFFFFFF:Invincibility:Incomplete - you still die when you collide with the boss in stage 2
+:dbreedm72:00000000:9095E:00000006:FFFFFFFF:Always Have Maximum Shot Power
+:dbreedm72:00100000:90008:00000000:00008080:Rapid Fire - Normal:Turn it OFF on the name entry screen
+:dbreedm72:00100000:90008:00000000:00008080:Rapid Fire - Special:Turn it OFF on the name entry screen
+:dbreedm72:00010000:90C16:00000000:FFFFFFFF:Rapid Fire - Special (2/2)
+:dbreedm72:62000000:00000:00000000:00000000:Select Dragon
+:dbreedm72:00010000:90960:00000000:FFFFFFFF:Green Dragon
+:dbreedm72:00010000:90960:00000002:FFFFFFFF:Blue Dragon
+:dbreedm72:00010000:90960:00000004:FFFFFFFF:Copper Dragon
+:dbreedm72:00010000:90960:00000006:FFFFFFFF:Silver Dragon
+:dbreedm72:00010000:90960:00000008:FFFFFFFF:Gold Dragon
+:dbreedm72:62000000:00000:00000000:00000000:Select Dragon Roll:Roll Shot is available with the gold dragon
+:dbreedm72:00110000:90D84:00008000:FFFFFFFF:Normal
+:dbreedm72:00110000:90D84:0000810B:FFFFFFFF:Up
+:dbreedm72:00110000:90D84:000081F5:FFFFFFFF:Down
+:dbreedm72:00110000:90D84:0000830B:FFFFFFFF:Up + Roll Shot
+:dbreedm72:00110000:90D84:000083F5:FFFFFFFF:Down + Roll Shot
+:dbreedm72:00001501:9095D:0000000B:FFFFFFFF:Select Starting Stage PL1:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
+:dbreedm72:00001501:90984:0000000B:FFFFFFFF:Select Starting Stage PL2:1 Loop = 6 Stages. Set on the "Push Start Button" screen after you've inserted a credit
 
 ; [ Dragonball Z ]
 :dbz:00000000:486217:00000063:FFFFFFFF:Infinite Time
@@ -38918,20 +38918,20 @@
 :djboyj:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :djboyj:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Daiku no Gensan (Japan, M72) ]
-:dkgenm72:00000000:A0A47:0000000A:FFFFFFFF:Infinite Lives PL1
-:dkgenm72:00000000:A0A57:0000000A:FFFFFFFF:Infinite Lives PL2
-:dkgenm72:00000000:A00FD:0000005A:FFFFFFFF:Infinite Time
-:dkgenm72:00010000:A00FE:00000009:FFFFFFFF:Infinite Time (2/2)
-:dkgenm72:00000000:A0C08:00000000:FFFFFFFF:Invincibility
-:dkgenm72:60000000:00000:00000000:00000000:[The Select current level   ]
-:dkgenm72:60000000:00000:00000000:00000000:[can be enabled on the intro]
-:dkgenm72:60000000:00000:00000000:00000000:[screen it doesn't work if  ]
-:dkgenm72:60000000:00000:00000000:00000000:[enabled on the title screen]
-:dkgenm72:00000301:A0A48:00000005:FFFFFFFF:Select current level
-:dkgenm72:00000303:A0A48:00000005:FFFFFFFF:Select next level
+; [ Daiku no Gensan (Japan, M72 hardware) ]
+:dkgensanm72:00000000:A0A47:0000000A:FFFFFFFF:Infinite Lives PL1
+:dkgensanm72:00000000:A0A57:0000000A:FFFFFFFF:Infinite Lives PL2
+:dkgensanm72:00000000:A00FD:0000005A:FFFFFFFF:Infinite Time
+:dkgensanm72:00010000:A00FE:00000009:FFFFFFFF:Infinite Time (2/2)
+:dkgensanm72:00000000:A0C08:00000000:FFFFFFFF:Invincibility
+:dkgensanm72:60000000:00000:00000000:00000000:[The Select current level   ]
+:dkgensanm72:60000000:00000:00000000:00000000:[can be enabled on the intro]
+:dkgensanm72:60000000:00000:00000000:00000000:[screen it doesn't work if  ]
+:dkgensanm72:60000000:00000:00000000:00000000:[enabled on the title screen]
+:dkgensanm72:00000301:A0A48:00000005:FFFFFFFF:Select current level
+:dkgensanm72:00000303:A0A48:00000005:FFFFFFFF:Select next level
 
-; [ Daiku no Gensan (Japan) ]
+; [ Daiku no Gensan (Japan, M84 hardware, set 1) ]
 :dkgensan:00000000:E0A47:0000000A:FFFFFFFF:Infinite Lives PL1
 :dkgensan:00000000:E0A57:0000000A:FFFFFFFF:Infinite Lives PL2
 :dkgensan:00000000:E00FD:0000005A:FFFFFFFF:Infinite Time
@@ -47553,16 +47553,16 @@
 :gallag:00010000:936F:00000000:FFFFFFFF:Aliens don't shoot (8/8)
 :gallag:02100000:99B6:00000000:00001515:Auto Fire:Turn it OFF on the Name Entry screen
 
-; [ Gallop - Armed police Unit (Japan) ]
-:gallop:81000000:A27F6:00000007:000A003C:Infinite Lives
-:gallop:20800000:0193F:000000EB:FFFFFFFF:Invincibility
-:gallop:20810000:022F5:000000EB:FFFFFFFF:Invincibility (2/4):1st = Object, 2nd = Scenery
-:gallop:20810000:11047:000000EB:FFFFFFFF:Invincibility (3/4):Avoid crash against scenery 1
-:gallop:20910000:11067:000011EB:FFFFFFFF:Invincibility (4/4):Avoid crash against scenery 2
-:gallop:00000000:A3D7D:00000068:FFFFFFFF:Laser never overheats
-:gallop:00100000:A27EA:00000000:00008080:Rapid Fire:Turn it OFF on the name entry screen
-:gallop:00000000:A3DAD:00000000:FFFFFFFF:Infinite Time PL1
-:gallop:00000000:A3DB4:00000000:FFFFFFFF:Infinite Time PL2
+; [ Armed Police Unit Gallop (Japan, M72 hardware) ]
+:gallopm72:81000000:A27F6:00000007:000A003C:Infinite Lives
+:gallopm72:20800000:0193F:000000EB:FFFFFFFF:Invincibility
+:gallopm72:20810000:022F5:000000EB:FFFFFFFF:Invincibility (2/4):1st = Object, 2nd = Scenery
+:gallopm72:20810000:11047:000000EB:FFFFFFFF:Invincibility (3/4):Avoid crash against scenery 1
+:gallopm72:20910000:11067:000011EB:FFFFFFFF:Invincibility (4/4):Avoid crash against scenery 2
+:gallopm72:00000000:A3D7D:00000068:FFFFFFFF:Laser never overheats
+:gallopm72:00100000:A27EA:00000000:00008080:Rapid Fire:Turn it OFF on the name entry screen
+:gallopm72:00000000:A3DAD:00000000:FFFFFFFF:Infinite Time PL1
+:gallopm72:00000000:A3DB4:00000000:FFFFFFFF:Infinite Time PL2
 
 ; [ Galmedes (Japan) ]
 :galmedes:00000000:100971:00000009:FFFFFFFF:Infinite Credits
@@ -57363,7 +57363,7 @@
 :hgkairak:60000000:00000000:00000000:00000000:[ 21h    Red   "dragon"                          ]
 :hgkairak:60000000:00000000:00000000:00000000:[ FFh    - no tile -                             ]
 
-; [ Hammerin' Harry (World) ]
+; [ Hammerin' Harry (World, M81 hardware) ]
 :hharry:00000000:A0A47:0000000A:FFFFFFFF:Infinite Lives PL1
 :hharry:00000000:A0A57:0000000A:FFFFFFFF:Infinite Lives PL2
 :hharry:00000000:A00FD:0000005A:FFFFFFFF:Infinite Time
@@ -57376,7 +57376,7 @@
 :hharry:00000301:A0A48:00000005:FFFFFFFF:Select current level
 :hharry:00000303:A0A48:00000005:FFFFFFFF:Select next level
 
-; [ Hammerin' Harry (US) ]
+; [ Hammerin' Harry (US, M84 hardware) ]
 :hharryu:00000000:E0A47:0000000A:FFFFFFFF:Infinite Lives PL1
 :hharryu:00000000:E0A57:0000000A:FFFFFFFF:Infinite Lives PL2
 :hharryu:00000000:E00FD:0000005A:FFFFFFFF:Infinite Time
@@ -60569,7 +60569,7 @@
 :imekura:00010000:F78D:00000035:FFFFFFFF:Always winning hand (13/14)
 :imekura:00010000:F78E:00000035:FFFFFFFF:Always winning hand (14/14)
 
-; [ Image Fight (Japan) ]
+; [ Image Fight (World) ]
 :imgfight:00000000:A32FA:00000009:FFFFFFFF:Infinite Lives PL1
 :imgfight:00000000:A331B:00000009:FFFFFFFF:Infinite Lives PL2
 :imgfight:00000000:A0044:00000028:FFFFFFFF:Invincibility
@@ -64853,7 +64853,7 @@
 :keithlcy:00000000:01E5:00000005:FFFFFFFF:Infinite Vitality PL1
 :keithlcy:00000000:01E7:00000005:FFFFFFFF:Infinite Vitality PL2
 
-; [ Ken-Go ]
+; [ Ken-Go (World) ]
 :kengo:00000000:E0035:00000099:FFFFFFFF:Infinite Credits
 :kengo:00000000:E00A7:00000022:FFFFFFFF:Infinite Time
 :kengo:62000000:00000:00000000:00000000:Select Starting Stage:You should enable this cheat when the "Push Start Button" message is displayed,  ie. after credits have been inserted!
@@ -88294,7 +88294,7 @@
 :logicpro:00000000:FF0329:00000003:FFFFFFFF:Infinite Helps PL1
 :logicpro:00000000:FF0339:00000003:FFFFFFFF:Infinite Helps PL2
 
-; [ Legend of Hero Tonma ]
+; [ Legend of Hero Tonma (World) ]
 :loht:00000000:A3B46:00000059:FFFFFFFF:Infinite Time
 :loht:00000000:A2311:00000040:FFFFFFFF:Invincibility
 :loht:60000000:00000:00000000:00000000:[See the Dip Switch Menu to ]
@@ -90074,7 +90074,7 @@
 :majtitl2:00000000:ED464:00000001:FFFFFFFF:Always score Hole in Ones PL4
 :majtitl2:00000001:ED464:00000000:FFFFFFFF:This shot=1st Shot Now! PL4
 
-; [ Major Title (Japan) ]
+; [ Major Title (World) ]
 :majtitle:00000000:D26BA:00000006:FFFFFFFF:Always have 6 holes PL1
 :majtitle:00000000:D26B2:00000001:FFFFFFFF:Always score Hole in Ones PL1
 :majtitle:00000001:D26B2:00000000:FFFFFFFF:This shot=1st Shot Now! PL1
@@ -100624,7 +100624,7 @@
 :mrgoemon:00000020:DB13:00000080:FFFFFFFF:Sound Test Timer Stop:[PL1 B1]Next Code
 :mrgoemon:20900000:0006:000001E2:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
 
-; [ Mr. HELI no Dai-Bouken ]
+; [ Mr. HELI no Daibouken (Japan) ]
 :mrheli:00000000:A3760:0000003F:FFFFFFFF:Infinite Time
 :mrheli:00010000:A3761:00000083:FFFFFFFF:Infinite Time (2/2)
 :mrheli:00000000:A2964:0000000A:FFFFFFFF:Infinite Lives
@@ -121149,7 +121149,7 @@
 :nslashes:00000000:100668:00000002:FFFFFFFF:Invincibility (Incomplete) PL3:Can't get an item
 :nslashes:00000000:100019:00000000:00000010:Rapid Fire PL3:Can't charge
 
-; [ Ninja Spirit ]
+; [ Ninja Spirit (World) ]
 :nspirit:00000000:A39C1:000000DE:FFFFFFFF:Infinite Time
 :nspirit:00000000:A0074:00000001:FFFFFFFF:Invincibility
 :nspirit:60000000:00000:00000000:00000000:[See the Dip Switch Menu to ]
@@ -133922,14 +133922,14 @@
 :poundfor:00000001:E04B6:00000000:FFFFFFFF:Drain all Energy Now! PL2/CP
 
 ; [ Pound for Pound (US) ]
-:poundfou:00000000:E0023:00000000:FFFFFFFF:Infinite Round Time
-:poundfou:00000001:E0023:000000B4:FFFFFFFF:Finish Round Now!
-:poundfou:00000000:E00F6:000000A0:FFFFFFFF:Infinite Energy (Title Match) PL1
-:poundfou:00000000:E00F6:00000070:FFFFFFFF:Infinite Energy (Main Event) PL1
-:poundfou:00000001:E00F6:00000000:FFFFFFFF:Drain all Energy Now! PL1
-:poundfou:00000000:E04B6:000000A0:FFFFFFFF:Infinite Energy (Title Match) PL2
-:poundfou:00000000:E04B6:00000070:FFFFFFFF:Infinite Energy (Main Event) CP
-:poundfou:00000001:E04B6:00000000:FFFFFFFF:Drain all Energy Now! PL2/CP
+:poundforu:00000000:E0023:00000000:FFFFFFFF:Infinite Round Time
+:poundforu:00000001:E0023:000000B4:FFFFFFFF:Finish Round Now!
+:poundforu:00000000:E00F6:000000A0:FFFFFFFF:Infinite Energy (Title Match) PL1
+:poundforu:00000000:E00F6:00000070:FFFFFFFF:Infinite Energy (Main Event) PL1
+:poundforu:00000001:E00F6:00000000:FFFFFFFF:Drain all Energy Now! PL1
+:poundforu:00000000:E04B6:000000A0:FFFFFFFF:Infinite Energy (Title Match) PL2
+:poundforu:00000000:E04B6:00000070:FFFFFFFF:Infinite Energy (Main Event) CP
+:poundforu:00000001:E04B6:00000000:FFFFFFFF:Drain all Energy Now! PL2/CP
 
 ; [ P.O.W. - Prisoners of War (US) ]
 :pow:00000000:04003B:00000063:FFFFFFFF:Infinite Lives PL1
@@ -144598,7 +144598,7 @@
 :rtriv:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :rtriv:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ R-Type (Japan) ]
+; [ R-Type (World) ]
 :rtype:00000000:42F2E:0000000A:FFFFFFFF:Infinite Lives PL1
 :rtype:00000000:42F36:0000000A:FFFFFFFF:Infinite Lives PL2
 :rtype:00000000:4003A:00000001:FFFFFFFF:Always have Max Beam
@@ -144625,7 +144625,7 @@
 :rtype:00000001:4003C:00000006:FFFFFFFF:Get Red Extra fire Now!
 :rtype:00100000:42F21:00000000:00008080:Rapid Fire:You will not be able to shoot the BEAM with this cheat ON. Turn it OFF on the name entry screen
 
-; [ R-Type II ]
+; [ R-Type II (World) ]
 :rtype2:00000000:E381A:0000000A:FFFFFFFF:Infinite Lives PL1
 :rtype2:00000000:E3822:0000000A:FFFFFFFF:Infinite Lives PL2
 :rtype2:00000000:E38BD:00000001:FFFFFFFF:Invincibility "ON"
@@ -144736,31 +144736,31 @@
 :rtypeleo:00010000:E2AB6:00000000:FFFFFFFF:Rapid Fire PL2 (4/4)
 
 ; [ R-Type (Japan prototype) ]
-:rtypepj:00000000:42F2E:0000000A:FFFFFFFF:Infinite Lives PL1
-:rtypepj:00000000:42F36:0000000A:FFFFFFFF:Infinite Lives PL2
-:rtypepj:00000000:4003A:00000001:FFFFFFFF:Always have Max Beam
-:rtypepj:00010000:4003D:00000080:FFFFFFFF:Always have Max Beam (2/2)
-:rtypepj:00000000:42FC1:00000001:FFFFFFFF:Invincibility "ON"
-:rtypepj:00000001:42FC1:00000000:FFFFFFFF:Invincibility "OFF"
-:rtypepj:60000000:00000:00000000:00000000:[See the Dip Switch Menu to ]
-:rtypepj:60000000:00000:00000000:00000000:[enable an alternate        ]
-:rtypepj:60000000:00000:00000000:00000000:[Invincibility cheat.       ]
-:rtypepj:00000000:40036:00000004:FFFFFFFF:Maximum Speed
-:rtypepj:00000000:40033:00000004:FFFFFFFF:Maximum Power - Pods
-:rtypepj:00000000:40035:00000004:FFFFFFFF:Maximum Power - Missiles
-:rtypepj:00000000:4003E:00000001:FFFFFFFF:Always Orb Shot
-:rtypepj:00000000:4003E:00000002:FFFFFFFF:Always Orb Shot + Laser
-:rtypepj:00000000:4003E:00000003:FFFFFFFF:Always S. Orb Shot + ZigZag
-:rtypepj:00000001:4003E:00000001:FFFFFFFF:Get Orb Shot Now!
-:rtypepj:00000001:4003E:00000002:FFFFFFFF:Get Orb Shot + Laser Now!
-:rtypepj:00000001:4003E:00000003:FFFFFFFF:Get S. Orb Shot + ZigZag Now!
-:rtypepj:00000000:4003C:00000000:FFFFFFFF:Always have Blue Extra fire
-:rtypepj:00000000:4003C:00000002:FFFFFFFF:Always have Yellow Extra fire
-:rtypepj:00000000:4003C:00000006:FFFFFFFF:Always have Red Extra fire
-:rtypepj:00000001:4003C:00000000:FFFFFFFF:Get Blue Extra fire Now!
-:rtypepj:00000001:4003C:00000002:FFFFFFFF:Get Yellow Extra fire Now!
-:rtypepj:00000001:4003C:00000006:FFFFFFFF:Get Red Extra fire Now!
-:rtypepj:00000000:42F1E:00000000:00008080:Rapid Fire:You will not be able to shoot the BEAM  with this cheat ON. Turn it OFF on the name entry screen
+:rtypejp:00000000:42F2E:0000000A:FFFFFFFF:Infinite Lives PL1
+:rtypejp:00000000:42F36:0000000A:FFFFFFFF:Infinite Lives PL2
+:rtypejp:00000000:4003A:00000001:FFFFFFFF:Always have Max Beam
+:rtypejp:00010000:4003D:00000080:FFFFFFFF:Always have Max Beam (2/2)
+:rtypejp:00000000:42FC1:00000001:FFFFFFFF:Invincibility "ON"
+:rtypejp:00000001:42FC1:00000000:FFFFFFFF:Invincibility "OFF"
+:rtypejp:60000000:00000:00000000:00000000:[See the Dip Switch Menu to ]
+:rtypejp:60000000:00000:00000000:00000000:[enable an alternate        ]
+:rtypejp:60000000:00000:00000000:00000000:[Invincibility cheat.       ]
+:rtypejp:00000000:40036:00000004:FFFFFFFF:Maximum Speed
+:rtypejp:00000000:40033:00000004:FFFFFFFF:Maximum Power - Pods
+:rtypejp:00000000:40035:00000004:FFFFFFFF:Maximum Power - Missiles
+:rtypejp:00000000:4003E:00000001:FFFFFFFF:Always Orb Shot
+:rtypejp:00000000:4003E:00000002:FFFFFFFF:Always Orb Shot + Laser
+:rtypejp:00000000:4003E:00000003:FFFFFFFF:Always S. Orb Shot + ZigZag
+:rtypejp:00000001:4003E:00000001:FFFFFFFF:Get Orb Shot Now!
+:rtypejp:00000001:4003E:00000002:FFFFFFFF:Get Orb Shot + Laser Now!
+:rtypejp:00000001:4003E:00000003:FFFFFFFF:Get S. Orb Shot + ZigZag Now!
+:rtypejp:00000000:4003C:00000000:FFFFFFFF:Always have Blue Extra fire
+:rtypejp:00000000:4003C:00000002:FFFFFFFF:Always have Yellow Extra fire
+:rtypejp:00000000:4003C:00000006:FFFFFFFF:Always have Red Extra fire
+:rtypejp:00000001:4003C:00000000:FFFFFFFF:Get Blue Extra fire Now!
+:rtypejp:00000001:4003C:00000002:FFFFFFFF:Get Yellow Extra fire Now!
+:rtypejp:00000001:4003C:00000006:FFFFFFFF:Get Red Extra fire Now!
+:rtypejp:00000000:42F1E:00000000:00008080:Rapid Fire:You will not be able to shoot the BEAM  with this cheat ON. Turn it OFF on the name entry screen
 
 ; [ R-Type (US) ]
 :rtypeu:00000000:42F32:0000000A:FFFFFFFF:Infinite Lives PL1
@@ -199579,7 +199579,7 @@
 :xmen6pu:60000000:000000:00000000:00000000:[is as good a place as any!!]
 :xmen6pu:00000301:113560:00000007:FFFFFFFF:Select the Starting Level
 
-; [ X Multiply (Japan) ]
+; [ X Multiply (World, M81 hardware) ]
 :xmultipl:20800000:01244:000000EB:FFFFFFFF:Invincibility
 :xmultipl:20810000:01619:000000EB:FFFFFFFF:Invincibility (2/9):1st = Stage 1 Boss Red Ball, 2nd = Fire
 :xmultipl:20810000:0168F:000000EB:FFFFFFFF:Invincibility (3/9):Enemy
@@ -204582,7 +204582,7 @@
 ;contcirc=contcrcu=contcrua
 ;contra=contrab=contraj=contrajb=gryzor
 ;cop01~cop01a
-;cosmccop~gallop
+;cosmccop~gallopm72
 ;cosmica=cosmica2
 ;cosmogng=cosmognj
 ;cotton=cottonj=cottonu
@@ -204633,7 +204633,7 @@
 ;dblaxle=pwheelsj
 ;dbldyn=dbldynf~(dynduke=dyndukf) (these are a LOT different!)
 ;dblplay~=strkzone~wseries
-;dbreed~dbreed72
+;dbreed~dbreedm72
 ;dday=ddayc
 ;ddayjlc=ddayjlca
 ;ddcrew~=(ddcrew1=ddcrewu)~=(ddcrew2=ddcrewj)
@@ -204668,7 +204668,7 @@
 ;dinorex=dinorexj=dinorexu
 ;disco=discof
 ;djboy=djboyj (unchecked relationship)
-;dkgenm72~=(dkgensan=hharryu~hharry)
+;dkgensanm72~=(dkgensan=hharryu~hharry)
 ;dkngjnrb=dkngjnrj=dkongjr=dkongjrb=dkongjrj=dkongjrm~(mouser=mouserc)
 ;dkong3=dkong3b=dkong3j
 ;dmnfrnta=dmnfrnt
@@ -205205,7 +205205,7 @@
 ;popflama=popflamb=popflame
 ;popnpop=popnpopj=popnpopu
 ;portrait=portrata
-;poundfor=poundfou
+;poundfor=poundforu
 ;pow=powj
 ;powerbal~powerbls
 ;powerina=powerinb=powerins=powernjb
@@ -205302,7 +205302,7 @@
 ;rthun2=rthun2j
 ;rthunder=rthundro
 ;rtype2=rtype2j
-;rtype=rtypepj~=rtypeu
+;rtype=rtypejp~=rtypeu
 ;rtypelej=rtypeleo
 ;rugrats=wiping
 ;rundeep~=thedeep
@@ -205913,7 +205913,7 @@
 ; galaxiaj (made by Pugsy) [Z80]
 ; galaxian (made by Pugsy) [Z80]
 ; gallag (made by unknown mamedev) [Z80]
-; gallop (made by Pugsy(objects)/improved by ShimaPong(scenery)) [V30]
+; gallopm72 (made by Pugsy(objects)/improved by ShimaPong(scenery)) [V30]
 ; galmidw (made by Pugsy) [Z80]
 ; galmidwo (made by Pugsy) [Z80]
 ; galturbo (made by Pugsy) [Z80]

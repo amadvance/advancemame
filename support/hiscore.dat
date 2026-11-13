@@ -5261,7 +5261,7 @@ devilfsh:
 0:40a8:3:0:0
 
 ;(hammerin' harry (world)) clones (by GeoMan)
-dkgenm72:
+dkgensanm72:
 0:a09a0:9f:40:20
 0:a0a40:03:40:02
 
@@ -8747,6 +8747,7 @@ ldrun4:
 
 ;********m72.c
 airduel:
+airdueljm72:
 0:a3d4e:82:15:20
 
 bchopper:
@@ -8763,7 +8764,7 @@ dkgensan:
 0:e09a0:9f:40:20
 0:e0a40:03:40:02
 
-gallop:
+gallopm72:
 0:a3d00:6e:10:41
 0:a3e14:03:10:06
 
@@ -8779,6 +8780,7 @@ hharryu:
 0:e0a40:03:00:00
 
 imgfight:
+imgfightj:
 0:a334f:78:09:20
 
 loht:
@@ -8786,6 +8788,7 @@ loht:
 0:a3adc:02:36:11
 
 majtitle:
+majtitlej:
 0:d2ba4:9b:4b:17
 
 nspirit:
@@ -8794,7 +8797,7 @@ nspiritj:
 0:a39ba:03:45:00
 
 poundfor:
-poundfou:
+poundforu:
 0:e2502:28:10:00
 0:e252a:28:35:00
 0:e2552:28:42:00
@@ -8807,6 +8810,7 @@ poundfou:
 0:e266a:28:41:00
 
 rtype:
+rtypej:
 rtypeu:
 0:42f4d:72:00:20
 0:42fd0:7:11:30
@@ -8818,7 +8822,7 @@ rtypeu:
 0:d018c:1:30:30
 0:d0190:1:30:30
 
-rtypepj:
+rtypejp:
 0:42f49:72:00:20
 0:42fcb:7:11:30
 0:d0178:1:11:11
@@ -8842,6 +8846,7 @@ rtype2j:
 0:d0190:1:30:30
 
 xmultipl:
+xmultiplm72:
 0:8099e:43:50:00
 0:80998:06:00:00
 

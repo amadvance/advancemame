@@ -4620,7 +4620,7 @@ Music & Sound by : Kazuhiro Nakamura, Hiroyuki Kawada, Keiichi Okabe
 $end
 
 
-$info=airduel,
+$info=airduel,airdueljm72,
 $bio
 
 Air Duel (c) 06/1990 Irem.
@@ -46920,7 +46920,7 @@ NEC PC-Engine
 $end
 
 
-$info=dkgensan,dkgenm72,
+$info=dkgensan,dkgensanm72,
 $bio
 
 Daiku no Gen-san - Beranmee Machi Soudouki (c) 1990 Irem.
@@ -74914,7 +74914,7 @@ This bootleg looks and plays exactly like the original Galaga except that it say
 $end
 
 
-$info=gallop,
+$info=gallopm72,
 $bio
 
 Gallop - Armed Police Unit (c) 09/1991 Irem.
@@ -96530,7 +96530,7 @@ The main characters was officially called 'Gonbe' and 'Tago'.
 $end
 
 
-$info=imgfight,
+$info=imgfight,imgfightj,
 $bio
 
 Image Fight (c) 11/1988 Irem.
@@ -125376,7 +125376,7 @@ Buttons : 5
 $end
 
 
-$info=majtitle,
+$info=majtitle,majtitlej,
 $bio
 
 Major Title (c) 1990 Irem.
@@ -161807,7 +161807,7 @@ Poto Poto is Japanese onomatopoiea for large raindrops hitting the ground.
 $end
 
 
-$info=poundfor,poundfou,
+$info=poundfor,poundforu,
 $bio
 
 Pound for Pound (c) 12/1990 Irem.
@@ -171007,7 +171007,7 @@ This game was released only in Korea.
 $end
 
 
-$info=rtype,rtypeu,rtypepj,
+$info=rtype,rtypeu,rtypejp,rtypej,
 $bio
 
 R-Type (c) 07/1987 Irem.
@@ -260309,7 +260309,7 @@ Sony PlayStation (1998)
 $end
 
 
-$info=xmultipl,
+$info=xmultipl,xmultiplm72,
 $bio
 
 X-Multiply (c) 09/1989 Irem.
