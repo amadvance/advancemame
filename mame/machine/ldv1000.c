@@ -819,6 +819,9 @@ static void process_vbi(void)
 
 static int clamp_color(int value) { return value < 0 ? 0 : value > 255 ? 255 : value; }
 
+static void (*audio_hook)(int sample_rate, int samples, const INT16 *ch1);
+static INT16 hook_samples[AUDIO_BUFFER_SIZE];
+
 static void read_field(void)
 {
 	int samples, x, y, channel, i;
@@ -851,6 +854,14 @@ static void read_field(void)
 			audio_buffer[channel][audio_in] = player.audio_active[channel] ? (INT16)((p[0] << 8) | p[1]) : 0;
 		}
 		audio_in = next;
+	}
+	if (audio_hook && player.audio_active[1])
+	{
+		/* Hand the raw second channel to the driver, for example to decode data carried on it. */
+		const UINT8 *p = sound + samples * 2;
+		int count = samples < AUDIO_BUFFER_SIZE ? samples : AUDIO_BUFFER_SIZE;
+		for (i = 0; i < count; ++i, p += 2) hook_samples[i] = (INT16)((p[0] << 8) | p[1]);
+		audio_hook(sample_rate, count, hook_samples);
 	}
 	for (y = 0; y < height; ++y)
 	{
@@ -906,6 +917,10 @@ void ldv1000_video(mame_bitmap *bitmap, const rectangle *cliprect)
 }
 
 /* The parallel HLE player and the firmware-driven player share one AV transport. */
+void laserdisc_raw_set_audio_hook(void (*hook)(int sample_rate, int samples, const INT16 *ch1))
+{
+	audio_hook = hook;
+}
 void laserdisc_raw_reset(void)
 {
 	ldv1000_reset();

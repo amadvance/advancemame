@@ -3,6 +3,7 @@
 #ifndef LASERDSC_H
 #define LASERDSC_H
 #include "ldv1000.h"
+void laserdisc_raw_set_audio_hook(void (*hook)(int sample_rate, int samples, const INT16 *ch1));
 void laserdisc_raw_reset(void);
 void laserdisc_raw_advance(int delta);
 int laserdisc_raw_track(void);
