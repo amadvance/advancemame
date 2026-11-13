@@ -2221,16 +2221,16 @@ V-V                           TP-027
 	/* Kyugo games */
 	/* Kyugo only made four games: Repulse, Flash Gal, SRD Mission and Air Wolf. */
 	/* Gyrodine was made by Crux. Crux was antecedent of Toa Plan, and spin-off from Orca. */
-	DRIVER( gyrodine )	/* (c) 1984 Taito Corporation */
-	DRIVER( gyrodinc )	/* (c) 1984 Taito Coropration (Crux License) */
-	DRIVER( sonofphx )	/* (c) 1985 Associated Overseas MFR */
+	DRIVER( gyrodine )	/* (c) 1984 Crux */
+	DRIVER( gyrodinet )	/* (c) 1984 Crux (Taito Corporation license) */
+	DRIVER( sonofphx )	/* bootleg (Associated Overseas MFR, Inc.) */
 	DRIVER( repulse )	/* (c) 1985 Sega */
-	DRIVER( 99lstwar )	/* (c) 1985 Proma */
-	DRIVER( 99lstwra )	/* (c) 1985 Proma */
-	DRIVER( 99lstwrk )	/* (c) 1985 Kyugo */
-	DRIVER( flashgal )	/* (c) 1985 Sega */
-	DRIVER( flashgla )	/* (c) 1985 Sega */
-	DRIVER( srdmissn )	/* (c) 1986 Taito Corporation */
+	DRIVER( 99lstwar )	/* (c) 1985 Crux / Proma */
+	DRIVER( 99lstwara )	/* (c) 1985 Crux / Proma */
+	DRIVER( 99lstwark )	/* (c) 1985 Crux / Kyugo */
+	DRIVER( flashgal )	/* (c) 1985 Kyugo / Sega */
+	DRIVER( flashgala )	/* (c) 1985 Kyugo / Sega */
+	DRIVER( srdmissn )	/* (c) 1986 Kyugo / Taito Corporation */
 	DRIVER( fx )		/* bootleg */
 	DRIVER( legend )	/* no copyright notice [1986 Sega/Coreland?] */
 	DRIVER( airwolf )	/* (c) 1987 Kyugo */

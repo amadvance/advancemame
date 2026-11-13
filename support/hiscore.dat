@@ -1603,9 +1603,9 @@ gingania:  ;******Ginga NinkyouDen (set 2)
 
 sonofphx:
 99lstwar:
-99lstwra:
+99lstwara:
 repulse:
-99lstwrk:  ;******'99: The Last War (Kyugo)
+99lstwark:  ;******'99: The Last War (Kyugo)
 0:f660:5f:00:ff
 
 ;******Space Attack (upright set 1, 2, 3)
@@ -2119,7 +2119,7 @@ highspla:
 ;** top score updates as soon as you score your first points **
 ;** hiscore table saves ok.... ***
 gyrodine:
-gyrodinc:
+gyrodinet:
 0:f300:45:00:0b
 
 ;*******griffon
@@ -5234,7 +5234,7 @@ missile2:
 
 ;(flash gal) (by GeoMan)
 flashgal:
-flashgla:
+flashgala:
 0:f690:5e:00:40
 
 ;(fire one) (by GeoMan)
