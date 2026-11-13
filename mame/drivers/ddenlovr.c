@@ -5699,8 +5699,8 @@ ROM_START( funkyfig )
 ROM_REGION( 0x500000, REGION_GFX1, ROMREGION_ERASE00 )	/* blitter data */
 	ROM_LOAD( "7404.8b",      0x000000, 0x080000, CRC(aa4ddf32) SHA1(864890795a238ab34a85ca55a387d7e5efafccee) )			// \ 7e6f +
 	ROM_LOAD( "7405.9b",      0x080000, 0x080000, CRC(fc125bd8) SHA1(150578f67d89be59eeeb811c159a789e5e9c993e) )			// / 35bb = b42a OK
-	ROM_LOAD( "7406.10b",     0x100000, 0x080000, BAD_DUMP CRC(04a214b1) SHA1(af3e652377f5652377c7dedfad7c2677695eaf46) )	// \ af08 +
-	ROM_LOAD( "7407.11b",     0x180000, 0x080000, BAD_DUMP CRC(635d4052) SHA1(7bc2f20d633c69352fc2d5634349c83055c99408) )	// / 6d64 = 1c6c ERR (should be 1c68!)
+	ROM_LOAD( "7406.10b",     0x100000, 0x080000, CRC(04a214b1) SHA1(af3e652377f5652377c7dedfad7c2677695eaf46) )	// \ af08 +
+	ROM_LOAD( "7407.11b",     0x180000, 0x080000, CRC(7c794189) SHA1(641bc5b51e53315d730a56feccaf75b75a8020dd) )	// / 6d64 = 1c6c ERR (should be 1c68!)
 	ROM_LOAD( "7409.4b",      0x200000, 0x100000, CRC(064082c3) SHA1(26b0eec56b06365740b213b34e33a4b94ebc1d25) )			// \ 15bd +
 	ROM_LOAD( "7410.3b",      0x280000, 0x100000, CRC(0ba67874) SHA1(3d984c77a843501e1075cadcc27820a35410ea3b) )			// / 2e4c = 4409 OK
 	ROM_LOAD( "7408.13b",     0x300000, 0x100000, CRC(9efe4c60) SHA1(6462dca2af38517639bd2f182e68b7b1fc98a312) )			// 0f46 + 1825 = 276b OK
@@ -5755,7 +5755,7 @@ ROM_END
 
 
 GAME( 1992, mmpanic,  0,       mmpanic,  mmpanic,  0,        ROT0, "Nakanihon + East Technology (Taito license)", "Monkey Mole Panic (USA)",                    GAME_NO_COCKTAIL )
-GAME( 1993, funkyfig, 0,       funkyfig, funkyfig, 0,        ROT0, "Nakanihon + East Technology (Taito license)", "The First Funky Fighter",                    GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )	// scrolling, priority?
+GAME( 1993, funkyfig, 0,       funkyfig, funkyfig, 0,        ROT0, "Nakanihon / East Technology (Taito license)", "The First Funky Fighter (USA, Canada, Mexico / Japan, set 1)",                    GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )	// scrolling, priority?
 GAME( 1993, quizchq,  0,       quizchq,  quizchq,  0,        ROT0, "Nakanihon",                                   "Quiz Channel Question (Ver 1.00) (Japan)",   GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1993, quizchql, quizchq, quizchq,  quizchq,  0,        ROT0, "Nakanihon (Laxan license)",                   "Quiz Channel Question (Ver 1.23) (Taiwan?)", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1993, animaljr, 0,       mmpanic,  animaljr, 0,        ROT0, "Nakanihon + East Technology (Taito license)", "Animalandia Jr.",                            GAME_NO_COCKTAIL | GAME_IMPERFECT_SOUND )
