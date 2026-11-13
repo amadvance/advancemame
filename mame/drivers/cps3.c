@@ -668,14 +668,14 @@ struct game_keys2
 static const struct game_keys2 keys_table2[] =
 {
 	// name         key1       key2
-	{ "jojo",     { 0x02203ee3, 0x01301972 },0 },
-	{ "jojoalt",  { 0x02203ee3, 0x01301972 },0 },
-	{ "jojoba",   { 0x23323ee3, 0x03021972 },0 },
-	{ "jojobaa",  { 0x23323ee3, 0x03021972 },0 },
-	{ "sfiii",    { 0xb5fe053e, 0xfc03925a },0 },
-	{ "sfiii2",   { 0x00000000, 0x00000000 },1 },
-	{ "sfiii3",   { 0xa55432b4, 0x0c129981 },0 },
-	{ "sfiii3a",  { 0xa55432b4, 0x0c129981 },0 },
+	{ "jojojr2",     { 0x02203ee3, 0x01301972 },0 },
+	{ "jojojr1",  { 0x02203ee3, 0x01301972 },0 },
+	{ "jojobanr2",   { 0x23323ee3, 0x03021972 },0 },
+	{ "jojobajr2",  { 0x23323ee3, 0x03021972 },0 },
+	{ "sfiiij",    { 0xb5fe053e, 0xfc03925a },0 },
+	{ "sfiii2j",   { 0x00000000, 0x00000000 },1 },
+	{ "sfiii3ur1",   { 0xa55432b4, 0x0c129981 },0 },
+	{ "sfiii3u",  { 0xa55432b4, 0x0c129981 },0 },
 	{ "sfiii4n",  { 0xa55432b4, 0x0c129981 },0 },
 	{ "warzard",  { 0x9e300ab1, 0xa175b82c },0 },
 	{ 0 }	// end of table
@@ -2526,9 +2526,9 @@ static MACHINE_DRIVER_START( cps3 )
 MACHINE_DRIVER_END
 
 
-ROM_START( sfiii )
+ROM_START( sfiiij )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(74205250) SHA1(c3e83ace7121d32da729162662ec6b5285a31211) )
+	ROM_LOAD( "sfiii_japan.29f400.u2", 0x000000, 0x080000, CRC(74205250) SHA1(c3e83ace7121d32da729162662ec6b5285a31211) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2550,9 +2550,9 @@ ROM_START( sfiii )
 //	DISK_IMAGE_READONLY( "sf3000", 0, MD5(cdc5c5423bd8c053de7cdd927dc60da7) SHA1(cc72c9eb2096f4d51f2cf6df18f29fd79d05067c) )
 ROM_END
 
-ROM_START( sfiii2 )
+ROM_START( sfiii2j )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(faea0a3e) SHA1(a03cd63bcf52e4d57f7a598c8bc8e243694624ec) )
+	ROM_LOAD( "sfiii2_japan.29f400.u2", 0x000000, 0x080000, CRC(faea0a3e) SHA1(a03cd63bcf52e4d57f7a598c8bc8e243694624ec) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2576,9 +2576,9 @@ ROM_START( sfiii2 )
 //	DISK_IMAGE_READONLY( "3ga000", 0, MD5(941c7e8d0838db9880ea7bf169ad310d) SHA1(76e9fdef020c4b85a10aa8828a63e67c7dca22bd) )
 ROM_END
 
-ROM_START( sfiii3 )
+ROM_START( sfiii3ur1 )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "sf33usa.bin", 0x000000, 0x080000, CRC(ecc545c1) SHA1(e39083820aae914fd8b80c9765129bedb745ceba) )
+	ROM_LOAD( "sfiii3_usa.29f400.u2", 0x000000, 0x080000, CRC(ecc545c1) SHA1(e39083820aae914fd8b80c9765129bedb745ceba) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2604,9 +2604,9 @@ ROM_START( sfiii3 )
 //	DISK_IMAGE_READONLY( "33s000", 0, MD5(f159ad85cc94ced3ddb9ef5e92173a9f) SHA1(47c7ae0f2dc47c7d28bdf66d378a3aaba4c99c75) )
 ROM_END
 
-ROM_START( sfiii3a )
+ROM_START( sfiii3u )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "sf33usa.bin", 0x000000, 0x080000, CRC(ecc545c1) SHA1(e39083820aae914fd8b80c9765129bedb745ceba) )
+	ROM_LOAD( "sfiii3_usa.29f400.u2", 0x000000, 0x080000, CRC(ecc545c1) SHA1(e39083820aae914fd8b80c9765129bedb745ceba) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2684,7 +2684,7 @@ ROM_END
 
 ROM_START( warzard )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(f8e2f0c6) SHA1(93d6a986f44c211fff014e55681eca4d2a2774d6) )
+	ROM_LOAD( "warzard_japan.29f400.u2", 0x000000, 0x080000, CRC(f8e2f0c6) SHA1(93d6a986f44c211fff014e55681eca4d2a2774d6) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2706,9 +2706,9 @@ ROM_START( warzard )
 //	DISK_IMAGE_READONLY( "wzd000", 0, MD5(028ff12a4ce34118dd0091e87c8cdd08) SHA1(6d4e6b7fff4ff3f04e349479fa5a1cbe63e673b8) )
 ROM_END
 
-ROM_START( jojo )
+ROM_START( jojojr2 )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(02778f60) SHA1(a167f9ebe030592a0cdb0c6a3c75835c6a43be4c) )
+	ROM_LOAD( "jojo_japan.29f400.u2", 0x000000, 0x080000, CRC(02778f60) SHA1(a167f9ebe030592a0cdb0c6a3c75835c6a43be4c) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2731,9 +2731,9 @@ ROM_START( jojo )
 //	DISK_IMAGE_READONLY( "jjk000", 0, MD5(05440ecf90e836207a27a99c817a3328) SHA1(d5a11315ac21e573ffe78e63602ec2cb420f361f) )
 ROM_END
 
-ROM_START( jojoalt )
+ROM_START( jojojr1 )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(02778f60) SHA1(a167f9ebe030592a0cdb0c6a3c75835c6a43be4c) )
+	ROM_LOAD( "jojo_japan.29f400.u2", 0x000000, 0x080000, CRC(02778f60) SHA1(a167f9ebe030592a0cdb0c6a3c75835c6a43be4c) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2757,10 +2757,10 @@ ROM_START( jojoalt )
 ROM_END
 
 
-ROM_START( jojoba )
+ROM_START( jojobanr2 )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
 	// this was from a version which doesn't require the cd to run
-	ROM_LOAD( "29f400.u2", 0x000000, 0x080000, CRC(4dab19f5) SHA1(ba07190e7662937fc267f07285c51e99a45c061e) )
+	ROM_LOAD( "jojoba_japan_nocd.29f400.u2", 0x000000, 0x080000, CRC(4dab19f5) SHA1(ba07190e7662937fc267f07285c51e99a45c061e) )
 
 	ROM_REGION32_BE( 0x080000, REGION_USER2, ROMREGION_ERASEFF ) /* bios region */
 
@@ -2788,9 +2788,9 @@ ROM_START( jojoba )
 //	DISK_IMAGE_READONLY( "jjm000", 0, MD5(bf6b90334bf1f6bd8dbfed737face2d6) SHA1(688520bb83ccbf4b31c3bfe26bd0cc8292a8c558) )
 ROM_END
 
-ROM_START( jojobaa )
+ROM_START( jojobajr2 )
 	ROM_REGION32_BE( 0x080000, REGION_USER1, 0 ) /* bios region */
-	ROM_LOAD( "jojobacart.bin",  0x000000, 0x080000,  CRC(3085478c) SHA1(055eab1fc42816f370a44b17fd7e87ffcb10e8b7) )
+	ROM_LOAD( "jojoba_japan.29f400.u2",  0x000000, 0x080000,  CRC(3085478c) SHA1(055eab1fc42816f370a44b17fd7e87ffcb10e8b7) )
 
 	#if LOAD_CD_CONTENT
 	/* Note: These regions contains the rom data extracted from the cd.
@@ -2828,14 +2828,14 @@ struct cps3_speedups
 static const struct cps3_speedups speedup_table[] =
 {
 	// name        mainram address  code address
-	{ "jojo",      0x223c0,         0x600065c  },
-	{ "jojoalt",   0x223d8,         0x600065c  },
-	{ "jojoba",    0x267dc,         0x600065c  },
-	{ "jojobaa",   0x267dc,         0x600065c  },
-	{ "sfiii",     0x0cc6c,         0x6000884  },
-	{ "sfiii2",    0x0dfe4,         0x6000884  },
-	{ "sfiii3",    0x0d794,         0x6000884  },
-	{ "sfiii3a",   0x0d794,         0x6000884  },
+	{ "jojojr2",      0x223c0,         0x600065c  },
+	{ "jojojr1",   0x223d8,         0x600065c  },
+	{ "jojobanr2",    0x267dc,         0x600065c  },
+	{ "jojobajr2",   0x267dc,         0x600065c  },
+	{ "sfiiij",     0x0cc6c,         0x6000884  },
+	{ "sfiii2j",    0x0dfe4,         0x6000884  },
+	{ "sfiii3ur1",    0x0d794,         0x6000884  },
+	{ "sfiii3u",   0x0d794,         0x6000884  },
 	{ "sfiii4n",   0x0d794,         0x6000884  },
 	{ "warzard",   0x2136c,         0x600194e  },
 	{ 0 }	// end of table
@@ -3014,16 +3014,16 @@ DRIVER_INIT( jojo )
 	precopy_to_flash();
 }
 
-GAME( 1997, sfiii,   0,        cps3, cps3, sfiii,    ROT0,   "Capcom", "Street Fighter III: New Generation (Japan, 970204)", 0 )
-GAME( 1997, sfiii2,  0,        cps3, cps3, sfiii2,   ROT0,   "Capcom", "Street Fighter III 2nd Impact: Giant Attack (Japan, 970930)", 0 )
-GAME( 1999, sfiii3,  0,        cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990512)", 0 )
-GAME( 1999, sfiii3a, sfiii3,   cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990608)", 0 )
-GAME( 2013, sfiii4n, sfiii3,   cps3, cps3, sfiii4n,  ROT0,   "hack",   "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013)", 0 )
+GAME( 1997, sfiiij,    0,         cps3, cps3, sfiii,   ROT0, "Capcom", "Street Fighter III: New Generation (Japan 970204)", 0 )
+GAME( 1997, sfiii2j,   0,         cps3, cps3, sfiii2,  ROT0, "Capcom", "Street Fighter III 2nd Impact: Giant Attack (Japan 970930)", 0 )
+GAME( 1999, sfiii3ur1, 0,         cps3, cps3, sfiii3,  ROT0, "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA 990512)", 0 )
+GAME( 1999, sfiii3u,   sfiii3ur1, cps3, cps3, sfiii3,  ROT0, "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA 990608)", 0 )
+GAME( 2013, sfiii4n,   sfiii3ur1, cps3, cps3, sfiii4n, ROT0, "hack",   "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013)", 0 )
 
-GAME( 1998, jojo,    0,        cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 981202)", 0 )
-GAME( 1998, jojoalt, jojo,     cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 990108)", 0 )
+GAME( 1998, jojojr2,   0,         cps3, cps3, jojo,    ROT0, "Capcom", "JoJo no Kimyou na Bouken (Japan 981202)", 0 )
+GAME( 1998, jojojr1,   jojojr2,   cps3, cps3, jojo,    ROT0, "Capcom", "JoJo no Kimyou na Bouken (Japan 990108)", 0 )
 
-GAME( 1999, jojoba,  0,        cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913, NCD)", 0 )
-GAME( 1999, jojobaa, jojoba,   cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913)", 0 )
+GAME( 1999, jojobanr2, 0,         cps3, cps3, jojoba,  ROT0, "Capcom", "JoJo no Kimyou na Bouken: Mirai e no Isan (Japan 990913, NO CD)", 0 )
+GAME( 1999, jojobajr2, jojobanr2, cps3, cps3, jojoba,  ROT0, "Capcom", "JoJo no Kimyou na Bouken: Mirai e no Isan (Japan 990913)", 0 )
 
-GAME( 1996, warzard, 0,        cps3, cps3, warzard,  ROT0,   "Capcom", "Warzard / Red Earth (Japan, 96/11/21)", 0 )
+GAME( 1996, warzard,   0,         cps3, cps3, warzard, ROT0, "Capcom", "Warzard (Japan 961121)", 0 )

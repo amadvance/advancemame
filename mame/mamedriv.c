@@ -2837,19 +2837,19 @@ V-V                           TP-027
 
 	/* Capcom CPS3 games */
 	DRIVER( warzard )	/* 10/1996 Warzard */
-	DRIVER( sfiii )		/* 02/1997 Street Fighter III - New Generation */
-	DRIVER( jojo )		/* ??/???? Jojo's Venture */
+	DRIVER( sfiiij )		/* 02/1997 Street Fighter III - New Generation */
+	DRIVER( jojojr2 )		/* ??/???? Jojo's Venture */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( jojoalt )		/* ??/???? Jojo's Venture */
+	DRIVER( jojojr1 )		/* ??/???? Jojo's Venture */
 
-	DRIVER( jojoba )	/* ??/???? Jojo's Bizarre Adventure */
-	DRIVER( jojobaa )	/* ??/???? Jojo's Bizarre Adventure */
-	DRIVER( sfiii2 )	/* ??/???? Street Fighter 3: Second Impact ~giant attack~ */
-	DRIVER( sfiii3 )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
+	DRIVER( jojobanr2 )	/* ??/???? Jojo's Bizarre Adventure */
+	DRIVER( jojobajr2 )	/* ??/???? Jojo's Bizarre Adventure */
+	DRIVER( sfiii2j )	/* ??/???? Street Fighter 3: Second Impact ~giant attack~ */
+	DRIVER( sfiii3ur1 )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( sfiii3a )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
+	DRIVER( sfiii3u )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
 	DRIVER( sfiii4n )	/* 2013 Street Fighter 3: Third Strike (4rd Arrange Edition) */
 
 	/* Capcom ZN1 */
