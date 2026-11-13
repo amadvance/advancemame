@@ -1668,7 +1668,7 @@ const game_driver * const drivers[] =
 	DRIVER( arkanoidjbl )	/* bootleg */
 	DRIVER( arkgcbl )	/* bootleg */
 	DRIVER( paddle2 )	/* bootleg */
-	DRIVER( arkatayt )	/* bootleg */
+	DRIVER( arktayt2 )	/* bootleg */
 	DRIVER( arkblock )	/* bootleg */
 	DRIVER( arkbloc2 )	/* bootleg */
 	DRIVER( arkangc )	/* bootleg */

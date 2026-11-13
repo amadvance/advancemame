@@ -1687,7 +1687,7 @@ paintlad:
 ;******************************************************************************************
 
 ;******arkanoid (tayto bootleg,japanese)
-arkatayt:
+arktayt2:
 0:ef79:23:00:42
 0:c4df:3:00:00
 0:c4c7:1:07:07
@@ -7415,8 +7415,8 @@ arkanoid:
 arknoidu:
 ;arkbl2: 	; game doesn't work yet
 ;arkbl3: 	; testdriver not included in binary
-;arkblock: 	; testdriver not included in binary
-arkbloc2:
+;arkbloc2: 	; testdriver not included in binary
+arkblock:
 arkangc:
 arknoiuo:
 0:ef79:23:00:52
@@ -7426,7 +7426,7 @@ arknoidj:
 0:ef75:23:00:52
 0:c4df:3:00:00
 
-arkatayt:
+arktayt2:
 0:ef79:23:00:42
 0:c4df:3:00:00
 

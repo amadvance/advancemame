@@ -6389,47 +6389,47 @@
 :arkarea:00000001:C00B:00000000:FFFFFFFF:Invincibility "OFF" PL2
 
 ; [ Arkanoid (Tayto bootleg, Japanese) ]
-:arkatayt:00000000:C432:00000009:FFFFFFFF:Infinite Credits
-:arkatayt:00000000:ED76:00000006:FFFFFFFF:Infinite Lives PL1
-:arkatayt:00000000:ED7B:00000006:FFFFFFFF:Infinite Lives PL2
-:arkatayt:00000000:ED72:00000020:FFFFFFFF:Go to Last Level
-:arkatayt:00000000:EF62:00000000:FFFFFFFF:Don't die when ball is out
-:arkatayt:00000010:C4A5:000000E2:000000E4:Always Keep One Ball in Play
-:arkatayt:00000000:C4CE:00000001:FFFFFFFF:Warp door always open
-:arkatayt:00000000:C4CE:00000000:FFFFFFFF:Warp door never open
-:arkatayt:00000001:C4CE:00000001:FFFFFFFF:Open Warp door Now!
-:arkatayt:00000001:C4CE:00000000:FFFFFFFF:Shut Warp door Now!
-:arkatayt:00000001:ED83:00000000:FFFFFFFF:Finish this Level Now!
-:arkatayt:00000001:EF62:00000001:FFFFFFFF:Lose a Life Now!
-:arkatayt:60000000:0000:00000000:00000000:[ L (Red)    = Laser             ]
-:arkatayt:60000000:0000:00000000:00000000:[ E (Blue)   = Enlarged Bat      ]
-:arkatayt:60000000:0000:00000000:00000000:[ C (Green)  = Catcher Bat       ]
-:arkatayt:60000000:0000:00000000:00000000:[ S (Orange) = Slower Ball       ]
-:arkatayt:60000000:0000:00000000:00000000:[ B (Pink)   = Warp Door         ]
-:arkatayt:60000000:0000:00000000:00000000:[ D (Cyan)   = Multiballs        ]
-:arkatayt:60000000:0000:00000000:00000000:[ P (Grey)   = Extra Life        ]
-:arkatayt:00000000:C658:00000080:FFFFFFFF:No pills can fall
-:arkatayt:00000001:C658:00000001:FFFFFFFF:Drop Red Pill Now!
-:arkatayt:00000001:C658:00000002:FFFFFFFF:Drop Blue Pill Now!
-:arkatayt:00000001:C658:00000003:FFFFFFFF:Drop Green Pill Now!
-:arkatayt:00000001:C658:00000004:FFFFFFFF:Drop Orange Pill Now!
-:arkatayt:00000001:C658:00000005:FFFFFFFF:Drop Purple Pill Now!
-:arkatayt:00000001:C658:00000006:FFFFFFFF:Drop Cyan Pill Now!
-:arkatayt:00000001:C658:00000007:FFFFFFFF:Drop Black Pill Now!
-:arkatayt:000000A0:C658:00000001:FFFFFFFF:Drop Red Pill every 5 s
-:arkatayt:000000A0:C658:00000002:FFFFFFFF:Drop Blue Pill every 5 s
-:arkatayt:000000A0:C658:00000003:FFFFFFFF:Drop Green Pill every 5 s
-:arkatayt:000000A0:C658:00000004:FFFFFFFF:Drop Orange Pill every 5 s
-:arkatayt:000000A0:C658:00000005:FFFFFFFF:Drop Purple Pill every 5 s
-:arkatayt:000000A0:C658:00000006:FFFFFFFF:Drop Cyan Pill every 5 s
-:arkatayt:000000A0:C658:00000007:FFFFFFFF:Drop Black Pill every 5 s
-:arkatayt:00000001:C658:00000081:FFFFFFFF:Change Pill to Red Now!
-:arkatayt:00000001:C658:00000082:FFFFFFFF:Change Pill to Blue Now!
-:arkatayt:00000001:C658:00000083:FFFFFFFF:Change Pill to Green Now!
-:arkatayt:00000001:C658:00000084:FFFFFFFF:Change Pill to Orange Now!
-:arkatayt:00000001:C658:00000085:FFFFFFFF:Change Pill to Purple Now!
-:arkatayt:00000001:C658:00000086:FFFFFFFF:Change Pill to Cyan Now!
-:arkatayt:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
+:arktayt2:00000000:C432:00000009:FFFFFFFF:Infinite Credits
+:arktayt2:00000000:ED76:00000006:FFFFFFFF:Infinite Lives PL1
+:arktayt2:00000000:ED7B:00000006:FFFFFFFF:Infinite Lives PL2
+:arktayt2:00000000:ED72:00000020:FFFFFFFF:Go to Last Level
+:arktayt2:00000000:EF62:00000000:FFFFFFFF:Don't die when ball is out
+:arktayt2:00000010:C4A5:000000E2:000000E4:Always Keep One Ball in Play
+:arktayt2:00000000:C4CE:00000001:FFFFFFFF:Warp door always open
+:arktayt2:00000000:C4CE:00000000:FFFFFFFF:Warp door never open
+:arktayt2:00000001:C4CE:00000001:FFFFFFFF:Open Warp door Now!
+:arktayt2:00000001:C4CE:00000000:FFFFFFFF:Shut Warp door Now!
+:arktayt2:00000001:ED83:00000000:FFFFFFFF:Finish this Level Now!
+:arktayt2:00000001:EF62:00000001:FFFFFFFF:Lose a Life Now!
+:arktayt2:60000000:0000:00000000:00000000:[ L (Red)    = Laser             ]
+:arktayt2:60000000:0000:00000000:00000000:[ E (Blue)   = Enlarged Bat      ]
+:arktayt2:60000000:0000:00000000:00000000:[ C (Green)  = Catcher Bat       ]
+:arktayt2:60000000:0000:00000000:00000000:[ S (Orange) = Slower Ball       ]
+:arktayt2:60000000:0000:00000000:00000000:[ B (Pink)   = Warp Door         ]
+:arktayt2:60000000:0000:00000000:00000000:[ D (Cyan)   = Multiballs        ]
+:arktayt2:60000000:0000:00000000:00000000:[ P (Grey)   = Extra Life        ]
+:arktayt2:00000000:C658:00000080:FFFFFFFF:No pills can fall
+:arktayt2:00000001:C658:00000001:FFFFFFFF:Drop Red Pill Now!
+:arktayt2:00000001:C658:00000002:FFFFFFFF:Drop Blue Pill Now!
+:arktayt2:00000001:C658:00000003:FFFFFFFF:Drop Green Pill Now!
+:arktayt2:00000001:C658:00000004:FFFFFFFF:Drop Orange Pill Now!
+:arktayt2:00000001:C658:00000005:FFFFFFFF:Drop Purple Pill Now!
+:arktayt2:00000001:C658:00000006:FFFFFFFF:Drop Cyan Pill Now!
+:arktayt2:00000001:C658:00000007:FFFFFFFF:Drop Black Pill Now!
+:arktayt2:000000A0:C658:00000001:FFFFFFFF:Drop Red Pill every 5 s
+:arktayt2:000000A0:C658:00000002:FFFFFFFF:Drop Blue Pill every 5 s
+:arktayt2:000000A0:C658:00000003:FFFFFFFF:Drop Green Pill every 5 s
+:arktayt2:000000A0:C658:00000004:FFFFFFFF:Drop Orange Pill every 5 s
+:arktayt2:000000A0:C658:00000005:FFFFFFFF:Drop Purple Pill every 5 s
+:arktayt2:000000A0:C658:00000006:FFFFFFFF:Drop Cyan Pill every 5 s
+:arktayt2:000000A0:C658:00000007:FFFFFFFF:Drop Black Pill every 5 s
+:arktayt2:00000001:C658:00000081:FFFFFFFF:Change Pill to Red Now!
+:arktayt2:00000001:C658:00000082:FFFFFFFF:Change Pill to Blue Now!
+:arktayt2:00000001:C658:00000083:FFFFFFFF:Change Pill to Green Now!
+:arktayt2:00000001:C658:00000084:FFFFFFFF:Change Pill to Orange Now!
+:arktayt2:00000001:C658:00000085:FFFFFFFF:Change Pill to Purple Now!
+:arktayt2:00000001:C658:00000086:FFFFFFFF:Change Pill to Cyan Now!
+:arktayt2:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
 
 ; [ Tournament Arkanoid (US) ]
 :arkatour:00000000:C432:00000009:FFFFFFFF:Infinite Credits
@@ -6561,49 +6561,6 @@
 :arkbl3:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
 
 ; [ Block (Game Corporation bootleg) ]
-:arkbloc2:00000000:C432:00000009:FFFFFFFF:Infinite Credits
-:arkbloc2:00000000:ED76:00000006:FFFFFFFF:Infinite Lives PL1
-:arkbloc2:00000000:ED7B:00000006:FFFFFFFF:Infinite Lives PL2
-:arkbloc2:00000000:ED72:00000020:FFFFFFFF:Go to Last Level
-:arkbloc2:00000000:EF62:00000000:FFFFFFFF:Don't die when ball is out
-:arkbloc2:00000010:C4A5:000000E2:000000E4:Always Keep One Ball in Play
-:arkbloc2:00000000:C4CE:00000001:FFFFFFFF:Warp door always open
-:arkbloc2:00000000:C4CE:00000000:FFFFFFFF:Warp door never open
-:arkbloc2:00000001:C4CE:00000001:FFFFFFFF:Open Warp door Now!
-:arkbloc2:00000001:C4CE:00000000:FFFFFFFF:Shut Warp door Now!
-:arkbloc2:00000001:ED83:00000000:FFFFFFFF:Finish this Level Now!
-:arkbloc2:00000001:EF62:00000001:FFFFFFFF:Lose a Life Now!
-:arkbloc2:60000000:0000:00000000:00000000:[ L (Red)    = Laser             ]
-:arkbloc2:60000000:0000:00000000:00000000:[ E (Blue)   = Enlarged Bat      ]
-:arkbloc2:60000000:0000:00000000:00000000:[ C (Green)  = Catcher Bat       ]
-:arkbloc2:60000000:0000:00000000:00000000:[ S (Orange) = Slower Ball       ]
-:arkbloc2:60000000:0000:00000000:00000000:[ B (Pink)   = Warp Door         ]
-:arkbloc2:60000000:0000:00000000:00000000:[ D (Cyan)   = Multiballs        ]
-:arkbloc2:60000000:0000:00000000:00000000:[ P (Grey)   = Extra Life        ]
-:arkbloc2:00000000:C658:00000080:FFFFFFFF:No pills can fall
-:arkbloc2:00000001:C658:00000001:FFFFFFFF:Drop Red Pill Now!
-:arkbloc2:00000001:C658:00000002:FFFFFFFF:Drop Blue Pill Now!
-:arkbloc2:00000001:C658:00000003:FFFFFFFF:Drop Green Pill Now!
-:arkbloc2:00000001:C658:00000004:FFFFFFFF:Drop Orange Pill Now!
-:arkbloc2:00000001:C658:00000005:FFFFFFFF:Drop Purple Pill Now!
-:arkbloc2:00000001:C658:00000006:FFFFFFFF:Drop Cyan Pill Now!
-:arkbloc2:00000001:C658:00000007:FFFFFFFF:Drop Black Pill Now!
-:arkbloc2:000000A0:C658:00000001:FFFFFFFF:Drop Red Pill every 5 s
-:arkbloc2:000000A0:C658:00000002:FFFFFFFF:Drop Blue Pill every 5 s
-:arkbloc2:000000A0:C658:00000003:FFFFFFFF:Drop Green Pill every 5 s
-:arkbloc2:000000A0:C658:00000004:FFFFFFFF:Drop Orange Pill every 5 s
-:arkbloc2:000000A0:C658:00000005:FFFFFFFF:Drop Purple Pill every 5 s
-:arkbloc2:000000A0:C658:00000006:FFFFFFFF:Drop Cyan Pill every 5 s
-:arkbloc2:000000A0:C658:00000007:FFFFFFFF:Drop Black Pill every 5 s
-:arkbloc2:00000001:C658:00000081:FFFFFFFF:Change Pill to Red Now!
-:arkbloc2:00000001:C658:00000082:FFFFFFFF:Change Pill to Blue Now!
-:arkbloc2:00000001:C658:00000083:FFFFFFFF:Change Pill to Green Now!
-:arkbloc2:00000001:C658:00000084:FFFFFFFF:Change Pill to Orange Now!
-:arkbloc2:00000001:C658:00000085:FFFFFFFF:Change Pill to Purple Now!
-:arkbloc2:00000001:C658:00000086:FFFFFFFF:Change Pill to Cyan Now!
-:arkbloc2:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
-
-; [ Block (bootleg, Japanese) ]
 :arkblock:00000000:C432:00000009:FFFFFFFF:Infinite Credits
 :arkblock:00000000:ED76:00000006:FFFFFFFF:Infinite Lives PL1
 :arkblock:00000000:ED7B:00000006:FFFFFFFF:Infinite Lives PL2
@@ -6645,6 +6602,49 @@
 :arkblock:00000001:C658:00000085:FFFFFFFF:Change Pill to Purple Now!
 :arkblock:00000001:C658:00000086:FFFFFFFF:Change Pill to Cyan Now!
 :arkblock:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
+
+; [ Block (bootleg, Japanese) ]
+:arkbloc2:00000000:C432:00000009:FFFFFFFF:Infinite Credits
+:arkbloc2:00000000:ED76:00000006:FFFFFFFF:Infinite Lives PL1
+:arkbloc2:00000000:ED7B:00000006:FFFFFFFF:Infinite Lives PL2
+:arkbloc2:00000000:ED72:00000020:FFFFFFFF:Go to Last Level
+:arkbloc2:00000000:EF62:00000000:FFFFFFFF:Don't die when ball is out
+:arkbloc2:00000010:C4A5:000000E2:000000E4:Always Keep One Ball in Play
+:arkbloc2:00000000:C4CE:00000001:FFFFFFFF:Warp door always open
+:arkbloc2:00000000:C4CE:00000000:FFFFFFFF:Warp door never open
+:arkbloc2:00000001:C4CE:00000001:FFFFFFFF:Open Warp door Now!
+:arkbloc2:00000001:C4CE:00000000:FFFFFFFF:Shut Warp door Now!
+:arkbloc2:00000001:ED83:00000000:FFFFFFFF:Finish this Level Now!
+:arkbloc2:00000001:EF62:00000001:FFFFFFFF:Lose a Life Now!
+:arkbloc2:60000000:0000:00000000:00000000:[ L (Red)    = Laser             ]
+:arkbloc2:60000000:0000:00000000:00000000:[ E (Blue)   = Enlarged Bat      ]
+:arkbloc2:60000000:0000:00000000:00000000:[ C (Green)  = Catcher Bat       ]
+:arkbloc2:60000000:0000:00000000:00000000:[ S (Orange) = Slower Ball       ]
+:arkbloc2:60000000:0000:00000000:00000000:[ B (Pink)   = Warp Door         ]
+:arkbloc2:60000000:0000:00000000:00000000:[ D (Cyan)   = Multiballs        ]
+:arkbloc2:60000000:0000:00000000:00000000:[ P (Grey)   = Extra Life        ]
+:arkbloc2:00000000:C658:00000080:FFFFFFFF:No pills can fall
+:arkbloc2:00000001:C658:00000001:FFFFFFFF:Drop Red Pill Now!
+:arkbloc2:00000001:C658:00000002:FFFFFFFF:Drop Blue Pill Now!
+:arkbloc2:00000001:C658:00000003:FFFFFFFF:Drop Green Pill Now!
+:arkbloc2:00000001:C658:00000004:FFFFFFFF:Drop Orange Pill Now!
+:arkbloc2:00000001:C658:00000005:FFFFFFFF:Drop Purple Pill Now!
+:arkbloc2:00000001:C658:00000006:FFFFFFFF:Drop Cyan Pill Now!
+:arkbloc2:00000001:C658:00000007:FFFFFFFF:Drop Black Pill Now!
+:arkbloc2:000000A0:C658:00000001:FFFFFFFF:Drop Red Pill every 5 s
+:arkbloc2:000000A0:C658:00000002:FFFFFFFF:Drop Blue Pill every 5 s
+:arkbloc2:000000A0:C658:00000003:FFFFFFFF:Drop Green Pill every 5 s
+:arkbloc2:000000A0:C658:00000004:FFFFFFFF:Drop Orange Pill every 5 s
+:arkbloc2:000000A0:C658:00000005:FFFFFFFF:Drop Purple Pill every 5 s
+:arkbloc2:000000A0:C658:00000006:FFFFFFFF:Drop Cyan Pill every 5 s
+:arkbloc2:000000A0:C658:00000007:FFFFFFFF:Drop Black Pill every 5 s
+:arkbloc2:00000001:C658:00000081:FFFFFFFF:Change Pill to Red Now!
+:arkbloc2:00000001:C658:00000082:FFFFFFFF:Change Pill to Blue Now!
+:arkbloc2:00000001:C658:00000083:FFFFFFFF:Change Pill to Green Now!
+:arkbloc2:00000001:C658:00000084:FFFFFFFF:Change Pill to Orange Now!
+:arkbloc2:00000001:C658:00000085:FFFFFFFF:Change Pill to Purple Now!
+:arkbloc2:00000001:C658:00000086:FFFFFFFF:Change Pill to Cyan Now!
+:arkbloc2:00000001:C658:00000087:FFFFFFFF:Change Pill to Black Now!
 
 ; [ Arkanoid - Revenge of DOH (Japan) ]
 :arknid2j:00000000:E00C:00000003:FFFFFFFF:Infinite Lives PL1
@@ -204372,7 +204372,7 @@
 ;archriv2=archrivl
 ;area51=area51a~(a51mxr3k~a51r3k)
 ;area88=unsquad
-;arkangc=arkanoid=arknoiuo=arkatayt=arkatour=arkbl2=arkbl3=arkbloc2=arkblock=arknoidu~=arknoidj=paddle2
+;arkangc=arkanoid=arknoiuo=arktayt2=arkatour=arkbl2=arkbl3=arkblock=arkbloc2=arknoidu~=arknoidj=paddle2
 ;arknid2j=arknid2u=arknoid2
 ;armora=armorap=armorar
 ;armorcar=armorca2
@@ -206614,12 +206614,12 @@
 ;
 ; arkangc (found by Pugsy)
 ; arkanoid (found by Pugsy)
-; arkatayt (found by Pugsy)
+; arktayt2 (found by Pugsy)
 ; arkatour (found by Pugsy)
 ; arkbl2 (found by Pugsy)
 ; arkbl3 (found by Pugsy)
-; arkbloc2 (found by Pugsy)
 ; arkblock (found by Pugsy)
+; arkbloc2 (found by Pugsy)
 ; arknoidj (found by Pugsy)
 ; arknoidu (found by Pugsy)
 ; freekick (found by Pugsy)
