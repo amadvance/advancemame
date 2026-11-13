@@ -40,10 +40,15 @@ static UINT32 bankaddress;
 extern UINT8 *m90_video_data;
 
 VIDEO_UPDATE( m90 );
-VIDEO_UPDATE( m90_bootleg );
 WRITE8_HANDLER( m90_video_control_w );
 WRITE8_HANDLER( m90_video_w );
+WRITE8_HANDLER( m90_bootleg_video_w );
 VIDEO_START( m90 );
+VIDEO_START( bomblord );
+VIDEO_START( dynablsb );
+VIDEO_UPDATE( m90 );
+VIDEO_UPDATE( bomblord );
+VIDEO_UPDATE( dynablsb );
 
 /***************************************************************************/
 
@@ -99,7 +104,7 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xffff0, 0xfffff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( bootleg_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+static ADDRESS_MAP_START( dynablsb_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x00000, 0x3ffff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x60000, 0x60fff) AM_READ(MRA8_RAM)
 	AM_RANGE(0xa0000, 0xa3fff) AM_READ(MRA8_RAM)
@@ -108,11 +113,29 @@ static ADDRESS_MAP_START( bootleg_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xffff0, 0xfffff) AM_READ(MRA8_ROM)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( bootleg_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+static ADDRESS_MAP_START( dynablsb_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x00000, 0x3ffff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x6000e, 0x60fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram)
+	AM_RANGE(0x60000, 0x60fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
 	AM_RANGE(0xa0000, 0xa3fff) AM_WRITE(MWA8_RAM)
-//  AM_RANGE(0xd0000, 0xdffff) AM_WRITE(m90_bootleg_video_w) AM_BASE(&m90_video_data)
+	AM_RANGE(0xd0000, 0xdffff) AM_WRITE(m90_bootleg_video_w) AM_BASE(&m90_video_data)
+	AM_RANGE(0xe0000, 0xe03ff) AM_WRITE(paletteram_xBBBBBGGGGGRRRRR_le_w) AM_BASE(&paletteram)
+	AM_RANGE(0xffff0, 0xfffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bomblord_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x7ffff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xa0000, 0xa3fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xc0000, 0xc0fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xd0000, 0xdffff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xe0000, 0xe03ff) AM_READ(paletteram_r)
+	AM_RANGE(0xffff0, 0xfffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bomblord_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x7ffff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xa0000, 0xa3fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xc0000, 0xc0fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xd0000, 0xdffff) AM_WRITE(m90_bootleg_video_w) AM_BASE(&m90_video_data)
 	AM_RANGE(0xe0000, 0xe03ff) AM_WRITE(paletteram_xBBBBBGGGGGRRRRR_le_w) AM_BASE(&paletteram)
 	AM_RANGE(0xffff0, 0xfffff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
@@ -138,6 +161,22 @@ ADDRESS_MAP_END
 /* to avoid a non valid bankcall message on boot */
 static ADDRESS_MAP_START( dice_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x00, 0x01) AM_WRITE(m72_sound_command_w)
+	AM_RANGE(0x02, 0x03) AM_WRITE(m90_coincounter_w)
+	AM_RANGE(0x80, 0x8f) AM_WRITE(m90_video_control_w)
+ADDRESS_MAP_END
+
+/* the bootleg sound CPU takes an NMI when a command is written */
+static WRITE8_HANDLER( dynablsb_sound_command_w )
+{
+	if (offset == 0)
+	{
+		soundlatch_w(0,data);
+		cpunum_set_input_line(1,INPUT_LINE_NMI,PULSE_LINE);
+	}
+}
+
+static ADDRESS_MAP_START( dynablsb_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x01) AM_WRITE(dynablsb_sound_command_w)
 	AM_RANGE(0x02, 0x03) AM_WRITE(m90_coincounter_w)
 	AM_RANGE(0x80, 0x8f) AM_WRITE(m90_video_control_w)
 ADDRESS_MAP_END
@@ -168,6 +207,19 @@ static ADDRESS_MAP_START( sound_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x80, 0x81) AM_WRITE(rtype2_sample_addr_w)
 	AM_RANGE(0x82, 0x82) AM_WRITE(m72_sample_w)
 	AM_RANGE(0x83, 0x83) AM_WRITE(m72_sound_irq_ack_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dynablsb_sound_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x01) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0x80, 0x80) AM_READ(soundlatch_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dynablsb_sound_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0x01, 0x01) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0x82, 0x82) AM_WRITE(DAC_0_signed_data_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( bbmanw_sound_readport, ADDRESS_SPACE_IO, 8 )
@@ -238,6 +290,54 @@ INPUT_PORTS_END
 INPUT_PORTS_START( dynablst )
 	IREM_JOYSTICK_1_2(1)
 	IREM_JOYSTICK_1_2(2)
+	IREM_COINS
+
+	PORT_START_TAG("DSWA")	/* Dip switch bank 1 */
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( Medium ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x10, 0x10, "Game Title" )	/* Manual says "NOT USE" */
+	PORT_DIPSETTING(    0x10, "Dynablaster" )
+	PORT_DIPSETTING(    0x00, "Bomber Man" )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START_TAG("DSWB")	/* Dip switch bank 2 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x04, "2 Player Upright" )
+	PORT_DIPSETTING(    0x06, "4 Player Upright A" ) /* Seperate Coin Slots */
+	PORT_DIPSETTING(    0x02, "4 Player Upright B" ) /* Shared Coin Slots */
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )  /* This setting shows screen with offset, no cocktail support :-( */
+	PORT_DIPNAME( 0x08, 0x08, "Coin Mode" )
+	PORT_DIPSETTING(    0x08, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
+	/* Coin Mode 1 */
+	IREM_COIN_MODE_1_NEW
+	/* Coin Mode 2, not supported yet */
+//  IREM_COIN_MODE_2
+
+	IREM_JOYSTICK_3_4(3)
+	IREM_JOYSTICK_3_4(4)
+INPUT_PORTS_END
+
+INPUT_PORTS_START( dynablsb )
+	IREM_JOYSTICK_1_2(2)	/* the bootleg swaps players 1 and 2 */
+	IREM_JOYSTICK_1_2(1)
 	IREM_COINS
 
 	PORT_START_TAG("DSWA")	/* Dip switch bank 1 */
@@ -743,6 +843,13 @@ static INTERRUPT_GEN( bomblord_interrupt )
 	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0x50/4);
 }
 
+static INTERRUPT_GEN( bomblord_fake_nmi )
+{
+	int sample = m72_sample_r(0);
+	if (sample != 0x80)
+		m72_sample_w(0,sample);
+}
+
 static INTERRUPT_GEN( bbmanw_fake_nmi )
 {
 	int sample = m72_sample_r(0);
@@ -848,7 +955,7 @@ static MACHINE_DRIVER_START( bbmanw )
 	MDRV_CPU_IO_MAP(readport,writeport)
 	MDRV_CPU_VBLANK_INT(m90_interrupt,1)
 
-	MDRV_CPU_ADD(Z80, 3579545)
+	MDRV_CPU_ADD_TAG("sound", Z80, 3579545)
 	/* audio CPU */	/* 3.579545 MHz */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 	MDRV_CPU_IO_MAP(bbmanw_sound_readport,bbmanw_sound_writeport)
@@ -884,7 +991,15 @@ static MACHINE_DRIVER_START( bomblord )
 
 	MDRV_IMPORT_FROM( bbmanw )
 	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(bomblord_readmem,bomblord_writemem)
+	MDRV_CPU_IO_MAP(readport,dice_writeport)
 	MDRV_CPU_VBLANK_INT(bomblord_interrupt,1)
+
+	MDRV_CPU_MODIFY("sound")
+	MDRV_CPU_VBLANK_INT(bomblord_fake_nmi,128)
+
+	MDRV_VIDEO_START(bomblord)
+	MDRV_VIDEO_UPDATE(bomblord)
 
 MACHINE_DRIVER_END
 
@@ -970,23 +1085,24 @@ static MACHINE_DRIVER_START( riskchal )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60)
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( bootleg )
+static MACHINE_DRIVER_START( dynablsb )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(V30,32000000/4)	/* 16 MHz */
-	MDRV_CPU_PROGRAM_MAP(bootleg_readmem,bootleg_writemem)
-	MDRV_CPU_IO_MAP(readport,writeport)
+	MDRV_CPU_ADD(V30,32000000/4)	/* 8 MHz */
+	MDRV_CPU_PROGRAM_MAP(dynablsb_readmem,dynablsb_writemem)
+	MDRV_CPU_IO_MAP(readport,dynablsb_writeport)
 	MDRV_CPU_VBLANK_INT(m90_interrupt,1)
 
 	MDRV_CPU_ADD(Z80, 3579545)
 	/* audio CPU */	/* 3.579545 MHz */
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
-	MDRV_CPU_IO_MAP(sound_readport,sound_writeport)
-	MDRV_CPU_VBLANK_INT(nmi_line_pulse,128)	/* clocked by V1? (Vigilante) */
-								/* IRQs are generated by main Z80 and YM2151 */
+	MDRV_CPU_IO_MAP(dynablsb_sound_readport,dynablsb_sound_writeport)
+	/* the samples are played by the IRQ routine, at half the sample rate of the original */
+	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(64*60))
+	/* NMIs are generated by the sound commands, the YM2151 IRQ is not connected */
+
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-	MDRV_MACHINE_RESET(m72_sound)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -995,14 +1111,13 @@ static MACHINE_DRIVER_START( bootleg )
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(512)
 
-	MDRV_VIDEO_START(m90)
-	MDRV_VIDEO_UPDATE(m90)
+	MDRV_VIDEO_START(dynablsb)
+	MDRV_VIDEO_UPDATE(dynablsb)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
 	MDRV_SOUND_ADD(YM2151, 3579545)
-	MDRV_SOUND_CONFIG(ym2151_interface)
 	MDRV_SOUND_ROUTE(0, "mono", 0.90)
 	MDRV_SOUND_ROUTE(1, "mono", 0.90)
 
@@ -1394,12 +1509,12 @@ GAME( 1991, dicegame, 0,        dicegame, dicegame, 0,        ROT0, "bootleg (Tu
 GAME( 1991, dynablst, 0,        bombrman, dynablst, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Dynablaster / Bomber Man", GAME_NO_COCKTAIL )
 GAME( 1991, bombrman, dynablst, bombrman, bombrman, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Bomber Man (Japan)", GAME_NO_COCKTAIL )
 GAME( 1991, atompunk, dynablst, bombrman, atompunk, bombrman, ROT0, "Irem America (licensed from Hudson Soft)", "Atomic Punk (US)", GAME_NO_COCKTAIL )
-GAME( 1992, dynablstb, dynablst, bootleg, bombrman, 0,        ROT0, "bootleg (Seitu)", "Dynablaster / Bomber Man (bootleg, set 1)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1992, dynablstb, dynablst, dynablsb, dynablsb, 0,       ROT0, "bootleg (Seitu)", "Dynablaster / Bomber Man (bootleg, set 1)", GAME_NO_COCKTAIL )
 GAME( 1992, bbmanw,   0,        bbmanw,   bbmanw,   bbmanw,   ROT0, "Irem", "Bomber Man World / New Dyna Blaster - Global Quest", GAME_NO_COCKTAIL )
 GAME( 1992, bbmanwj,  bbmanw,   bbmanw,   bbmanwj,  bbmanw,   ROT0, "Irem", "Bomber Man World (Japan)", GAME_NO_COCKTAIL )
 GAME( 1992, bbmanwja, bbmanw,   bombrman, bbmanwj,  bbmanw,   ROT0, "Irem", "Bomber Man World (Japan, revised sound hardware)", GAME_NO_COCKTAIL )
 GAME( 1992, newapunk, bbmanw,   bbmanw,   bbmanwj,  bbmanw,   ROT0, "Irem America", "New Atomic Punk - Global Quest (US)", GAME_NO_COCKTAIL )
-GAME( 1992, bomblord, bbmanw,   bomblord, bbmanw,   bomblord, ROT0, "bootleg", "Bomber Lord (bootleg)", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL | GAME_NOT_WORKING )
+GAME( 1992, bomblord, bbmanw,   bomblord, bbmanw,   bomblord, ROT0, "bootleg", "Bomber Lord (bootleg)", GAME_NO_COCKTAIL )
 GAME( 1992, quizf1,   0,        quizf1,   quizf1,   quizf1,   ROT0, "Irem", "Quiz F1 1-2 Finish (Japan)", GAME_NO_COCKTAIL )
 GAME( 1993, riskchal, 0,        riskchal, riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NO_COCKTAIL )
 GAME( 1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NO_COCKTAIL )

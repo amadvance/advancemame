@@ -49,10 +49,28 @@ static void get_tile_info(int tile_index,int layer,int page_mask)
 }
 
 
+/* the bootleg boards use fixed VRAM bases: playfield 1 at 0x0000, playfield 2 at 0x8000 */
+static void get_bootleg_tile_info(int tile_index,int base)
+{
+	int tile,color;
+	tile_index = 4*tile_index + base;
+
+	tile=m90_video_data[tile_index]+(m90_video_data[tile_index+1]<<8);
+	color=m90_video_data[tile_index+2];
+	SET_TILE_INFO(
+			0,
+			tile,
+			color&0xf,
+			TILE_FLIPYX((color & 0xc0) >> 6))
+	tile_info.priority = (color & 0x30) ? 1 : 0;
+}
+
 static void get_pf1_tile_info (int tile_index) { get_tile_info(tile_index,0,3); }
 static void get_pf1w_tile_info(int tile_index) { get_tile_info(tile_index,0,2); }
 static void get_pf2_tile_info (int tile_index) { get_tile_info(tile_index,1,3); }
 static void get_pf2w_tile_info(int tile_index) { get_tile_info(tile_index,1,2); }
+static void get_pf1_bootleg_tile_info(int tile_index) { get_bootleg_tile_info(tile_index,0x0000); }
+static void get_pf2_bootleg_tile_info(int tile_index) { get_bootleg_tile_info(tile_index,0x8000); }
 
 
 VIDEO_START( m90 )
@@ -71,6 +89,36 @@ VIDEO_START( m90 )
 	state_save_register_global_array(m90_video_control_data);
 
 	return 0;
+}
+
+static int bootleg_video_start(int pf1_type)
+{
+	pf1_layer =      tilemap_create(get_pf1_bootleg_tile_info,tilemap_scan_rows,pf1_type,8,8,64,64);
+	pf1_wide_layer = tilemap_create(get_pf1_bootleg_tile_info,tilemap_scan_rows,pf1_type,8,8,128,64);
+	pf2_layer =      tilemap_create(get_pf2_bootleg_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
+	pf2_wide_layer = tilemap_create(get_pf2_bootleg_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,128,64);
+
+	if (!pf1_layer || !pf1_wide_layer || !pf2_layer || !pf2_wide_layer)
+		return 1;
+
+	tilemap_set_transparent_pen(pf1_layer,0);
+	tilemap_set_transparent_pen(pf1_wide_layer,0);
+	tilemap_set_transparent_pen(pf2_layer,0);
+	tilemap_set_transparent_pen(pf2_wide_layer,0);
+
+	state_save_register_global_array(m90_video_control_data);
+
+	return 0;
+}
+
+VIDEO_START( bomblord )
+{
+	return bootleg_video_start(TILEMAP_TRANSPARENT);
+}
+
+VIDEO_START( dynablsb )
+{
+	return bootleg_video_start(TILEMAP_OPAQUE);
 }
 
 static void m90_drawsprites(mame_bitmap *bitmap,const rectangle *cliprect)
@@ -124,37 +172,45 @@ static void m90_drawsprites(mame_bitmap *bitmap,const rectangle *cliprect)
 	}
 }
 
-#if 0
-static void bootleg_drawsprites(mame_bitmap *bitmap,const rectangle *cliprect)
+#define BOOTLEG_SPRITE(offs) (spriteram[2*(offs)] | (spriteram[2*(offs)+1] << 8))
+
+/* the sprite list starts at word 7 and is terminated by end_mark */
+static void bootleg_drawsprites(mame_bitmap *bitmap,const rectangle *cliprect,int end_mark,int x_offset,int y_offset)
 {
-	int offs;
+	int offs = 7, last_sprite = 0;
+	int x,y,sprite,colour,fx,fy;
 
-	for (offs = 0x0;offs <0x800-8;offs+= 8) {
-		int x,y,sprite,colour,fx,fy;
+	while ((offs < spriteram_size/2 - 3) && (BOOTLEG_SPRITE(offs+0) != end_mark))
+	{
+		last_sprite = offs;
+		offs += 4;
+	}
 
-		if (/*spriteram[offs+0]==0x78 &&*/ spriteram[offs+1]==0x7f) continue;
+	for (offs = last_sprite; offs >= 7; offs -= 4)
+	{
+		sprite = BOOTLEG_SPRITE(offs+1);
+		colour = (BOOTLEG_SPRITE(offs+2) >> 9) & 0x0f;
 
-		y=(spriteram[offs+0] | (spriteram[offs+1]<<8))&0x1ff;
-		x=(spriteram[offs+6] | (spriteram[offs+7]<<8))&0x1ff;
+		y = (BOOTLEG_SPRITE(offs+0) & 0x1ff) + y_offset;
+		x = (BOOTLEG_SPRITE(offs+3) & 0x1ff) + x_offset;
 
-		x = x - /*64 -*/ 16;
-		y = 256 - /*32 -*/ y;
+		x = x - 16;
+		y = 512 - y;
 
-	    sprite=(spriteram[offs+2] | (spriteram[offs+3]<<8));
-		colour=(spriteram[offs+5]>>1)&0xf;
+		if (y < 0) y += 512;
 
-		fx=spriteram[offs+5]&1;
-		fy=0;//spriteram[offs+5]&2;
+		fx = (BOOTLEG_SPRITE(offs+3) >> 8) & 0x02;
+		fy = (BOOTLEG_SPRITE(offs+2) >> 8) & 0x80;
 
-		drawgfx(bitmap,Machine->gfx[1],
-				sprite&0x1fff,
+		pdrawgfx(bitmap,Machine->gfx[1],
+				sprite,
 				colour,
 				fx,fy,
 				x,y,
-				cliprect,TRANSPARENCY_PEN,0);
+				cliprect,TRANSPARENCY_PEN,0,
+				(colour & 0x08) ? 0x00 : 0x02);
 	}
 }
-#endif
 
 WRITE8_HANDLER( m90_video_control_w )
 {
@@ -179,6 +235,113 @@ WRITE8_HANDLER( m90_video_w )
 	markdirty(pf1_wide_layer,m90_video_control_data[0xa] & 0x2,offset);
 	markdirty(pf2_layer,     m90_video_control_data[0xc] & 0x3,offset);
 	markdirty(pf2_wide_layer,m90_video_control_data[0xc] & 0x2,offset);
+}
+
+WRITE8_HANDLER( m90_bootleg_video_w )
+{
+	int layer = offset >> 15;
+
+	m90_video_data[offset] = data;
+
+	/* the 64 tiles wide layer uses only the first half of the layer VRAM */
+	if (!(offset & 0x4000))
+		tilemap_mark_tile_dirty(layer ? pf2_layer : pf1_layer,(offset & 0x3fff) >> 2);
+	tilemap_mark_tile_dirty(layer ? pf2_wide_layer : pf1_wide_layer,(offset & 0x7fff) >> 2);
+}
+
+#define BOOTLEG_VIDEO(offs) (m90_video_data[offs] | (m90_video_data[(offs)+1] << 8))
+
+static void bootleg_draw_layer(mame_bitmap *bitmap,const rectangle *cliprect,tilemap *tmap)
+{
+	tilemap_draw(bitmap,cliprect,tmap,0,0);
+	tilemap_draw(bitmap,cliprect,tmap,1,1);
+}
+
+VIDEO_UPDATE( bomblord )
+{
+	int i;
+
+	fillbitmap(priority_bitmap,0,cliprect);
+	fillbitmap(bitmap,get_black_pen(),cliprect);
+
+	/* Setup scrolling */
+	if (m90_video_control_data[0xc]&0x20)
+	{
+		tilemap_set_scroll_rows(pf1_layer,512);
+		tilemap_set_scroll_rows(pf1_wide_layer,512);
+		for (i=0; i<512; i++)
+		{
+			tilemap_set_scrollx(pf1_layer,i, BOOTLEG_VIDEO(0xf400+2*i)-12);
+			tilemap_set_scrollx(pf1_wide_layer,i, BOOTLEG_VIDEO(0xf400+2*i)-12+256);
+		}
+	}
+	else
+	{
+		tilemap_set_scroll_rows(pf1_layer,1);
+		tilemap_set_scroll_rows(pf1_wide_layer,1);
+		tilemap_set_scrollx(pf1_layer,0, BOOTLEG_VIDEO(0xf004)-12);
+		tilemap_set_scrollx(pf1_wide_layer,0, BOOTLEG_VIDEO(0xf004)-12);
+	}
+
+	if (m90_video_control_data[0xc] & 0x02)
+	{
+		tilemap_set_scrollx(pf2_wide_layer,0, BOOTLEG_VIDEO(0xf000)-16);
+		tilemap_set_scrolly(pf2_wide_layer,0, BOOTLEG_VIDEO(0xf008)+388);
+		bootleg_draw_layer(bitmap,cliprect,pf2_wide_layer);
+	}
+	else
+	{
+		tilemap_set_scrollx(pf2_layer,0, BOOTLEG_VIDEO(0xf000)-16);
+		tilemap_set_scrolly(pf2_layer,0, BOOTLEG_VIDEO(0xf008)-120);
+		bootleg_draw_layer(bitmap,cliprect,pf2_layer);
+	}
+
+	if (m90_video_control_data[0xc] & 0x04)
+	{
+		tilemap_set_scrolly(pf1_wide_layer,0, BOOTLEG_VIDEO(0xf00c)+392);
+		bootleg_draw_layer(bitmap,cliprect,pf1_wide_layer);
+	}
+	else
+	{
+		tilemap_set_scrolly(pf1_layer,0, BOOTLEG_VIDEO(0xf00c)-116);
+		bootleg_draw_layer(bitmap,cliprect,pf1_layer);
+	}
+
+	bootleg_drawsprites(bitmap,cliprect,0x8000,16,152);
+}
+
+VIDEO_UPDATE( dynablsb )
+{
+	fillbitmap(priority_bitmap,0,cliprect);
+	fillbitmap(bitmap,get_black_pen(),cliprect);
+
+	if (!(BOOTLEG_VIDEO(0xf008) & 0x4000))
+	{
+		tilemap_set_scrollx(pf1_wide_layer,0, BOOTLEG_VIDEO(0xf004)+64);
+		tilemap_set_scrolly(pf1_wide_layer,0, BOOTLEG_VIDEO(0xf006)+512);
+		bootleg_draw_layer(bitmap,cliprect,pf1_wide_layer);
+	}
+	else
+	{
+		tilemap_set_scrollx(pf1_layer,0, BOOTLEG_VIDEO(0xf004)+64);
+		tilemap_set_scrolly(pf1_layer,0, BOOTLEG_VIDEO(0xf006)+4);
+		bootleg_draw_layer(bitmap,cliprect,pf1_layer);
+	}
+
+	if (!(BOOTLEG_VIDEO(0xf008) & 0x8000))
+	{
+		tilemap_set_scrollx(pf2_wide_layer,0, BOOTLEG_VIDEO(0xf000)+68);
+		tilemap_set_scrolly(pf2_wide_layer,0, BOOTLEG_VIDEO(0xf002)+512);
+		bootleg_draw_layer(bitmap,cliprect,pf2_wide_layer);
+	}
+	else
+	{
+		tilemap_set_scrollx(pf2_layer,0, BOOTLEG_VIDEO(0xf000)+68);
+		tilemap_set_scrolly(pf2_layer,0, BOOTLEG_VIDEO(0xf002)+4);
+		bootleg_draw_layer(bitmap,cliprect,pf2_layer);
+	}
+
+	bootleg_drawsprites(bitmap,cliprect,0xffff,-64,288);
 }
 
 VIDEO_UPDATE( m90 )
