@@ -76,6 +76,7 @@ extern VIDEO_UPDATE( legionna );
 extern VIDEO_UPDATE( godzilla );
 extern VIDEO_UPDATE( sdgndmrb );
 void heatbrl_setgfxbank(UINT16 data);
+void godzilla_text_scroll_base_w(UINT16 data);
 
 extern UINT16 *legionna_back_data,*legionna_fore_data,*legionna_mid_data,*legionna_scrollram16,*legionna_textram;
 static UINT16 *mcu_ram;
@@ -209,74 +210,6 @@ static WRITE16_HANDLER( cop2_mcu_w )
 		}
 		default:
 logerror("CPU0 PC %06x unknown MCU write offset: %04x data: %04x\n",activecpu_get_previouspc(),offset,data);
-	}
-}
-
-static READ16_HANDLER( godzilla_cop_mcu_r )
-{
-	switch (offset)
-	{
-		/* Protection is not understood */
-
-		/* Non-protection reads */
-
-		case (0x7c8/2):	/* seibu sound */
-			return seibu_main_word_r(2,0);
-
-		case (0x7cc/2):
-			return seibu_main_word_r(3,0);
-
-		case (0x7d4/2):
-			return seibu_main_word_r(5,0);
-
-		/* Inputs */
-
-		case (0x740/2):
-			return input_port_1_word_r(0,0);
-
-		case (0x744/2):
-			return input_port_2_word_r(0,0);
-
-		case (0x748/2):
-			return input_port_4_word_r(0,0);
-
-		case (0x74c/2):
-			return input_port_3_word_r(0,0);
-
-	}
-//logerror("CPU0 PC %06x unknown MCU read offset: %04x\n",activecpu_get_previouspc(),offset);
-
-	return mcu_ram[offset];
-}
-
-static WRITE16_HANDLER( godzilla_cop_mcu_w )
-{
-	COMBINE_DATA(&mcu_ram[offset]);
-
-	switch (offset)
-	{
-		case (0x7c0/2):	/* seibu(0) */
-		{
-			seibu_main_word_w(0,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7c4/2):	/* seibu(1) */
-		{
-			seibu_main_word_w(1,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7d0/2):	/* seibu(4) */
-		{
-			seibu_main_word_w(4,mcu_ram[offset],0xff00);
-			break;
-		}
-		case (0x7d8/2):	/* seibu(6) */
-		{
-			seibu_main_word_w(6,mcu_ram[offset],0xff00);
-			break;
-		}
-//      default:
-//      logerror("CPU0 PC %06x MCU write offset: %04x data: %04x\n",activecpu_get_previouspc(),offset*2,data);
 	}
 }
 
@@ -446,6 +379,15 @@ static WRITE16_HANDLER( legionna_cop_w )
 		flip_screen_set(mcu_ram[offset] & 1);
 }
 
+static WRITE16_HANDLER( godzilla_cop_w )
+{
+	legionna_cop_w(offset, data, mem_mask);
+	if (offset == 0x470/2)
+		heatbrl_setgfxbank(mcu_ram[offset]);
+	else if (offset == 0x63a/2)
+		godzilla_text_scroll_base_w(mcu_ram[offset]);
+}
+
 static MACHINE_RESET( legioncop )
 {
 	machine_reset_seibu_sound_1();
@@ -507,31 +449,28 @@ static ADDRESS_MAP_START( heatbrl_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( godzilla_readmem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
-	AM_RANGE(0x100000, 0x1007ff) AM_READ(godzilla_cop_mcu_r)	/* COP mcu */
-	AM_RANGE(0x101000, 0x1017ff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x101800, 0x101fff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x102000, 0x102fff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x103000, 0x103fff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x104000, 0x104fff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x105000, 0x107fff) AM_READ(MRA16_RAM)
-	AM_RANGE(0x108000, 0x11ffff) AM_READ(MRA16_RAM)	/* main ram */
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x100000, 0x1007ff) AM_READ(legionna_cop_r)
+	AM_RANGE(0x100800, 0x11ffff) AM_READ(MRA16_RAM)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( godzilla_writemem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM)
-	AM_RANGE(0x100000, 0x1007ff) AM_WRITE(godzilla_cop_mcu_w) AM_BASE(&mcu_ram)	/* COP mcu */
-	AM_RANGE(0x101000, 0x1017ff) AM_WRITE(legionna_background_w) AM_BASE(&legionna_back_data)
-	AM_RANGE(0x101800, 0x101fff) AM_WRITE(MWA16_RAM)
-	AM_RANGE(0x102000, 0x102fff) AM_WRITE(legionna_text_w) AM_BASE(&legionna_textram)
-	AM_RANGE(0x103000, 0x1037ff) AM_WRITE(legionna_midground_w) AM_BASE(&legionna_mid_data)
-	AM_RANGE(0x103800, 0x103fff) AM_WRITE(MWA16_RAM)
-	AM_RANGE(0x104000, 0x104fff) AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
+	AM_RANGE(0x100000, 0x1007ff) AM_WRITE(godzilla_cop_w) AM_BASE(&mcu_ram)
+	AM_RANGE(0x100800, 0x104fff) AM_WRITE(MWA16_RAM)
 	AM_RANGE(0x105000, 0x105fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
-	AM_RANGE(0x106000, 0x1067ff) AM_WRITE(legionna_foreground_w) AM_BASE(&legionna_fore_data)
-	AM_RANGE(0x106800, 0x106fff) AM_WRITE(MWA16_RAM)
-	AM_RANGE(0x107000, 0x107fff) AM_WRITE(MWA16_RAM)
-	AM_RANGE(0x108000, 0x11ffff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x106000, 0x11ffff) AM_WRITE(MWA16_RAM)
+ADDRESS_MAP_END
+
+static WRITE8_HANDLER( godzilla_oki_bank_w )
+{
+	/* only Godzilla has a 512KB OKI ROM, bit 1 is always set */
+	OKIM6295_set_bank_base(0, (data & 1) * 0x40000);
+}
+
+static ADDRESS_MAP_START( godzilla_sound_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(godzilla_oki_bank_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sdgndmrb_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -1330,20 +1269,21 @@ static MACHINE_DRIVER_START( godzilla )
 	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
 
 	SEIBU2_SOUND_SYSTEM_CPU(14318180/4)
+	MDRV_CPU_IO_MAP(0,godzilla_sound_writeport)
 
 	MDRV_FRAMES_PER_SECOND(61)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_MACHINE_RESET(seibu_sound_1)
+	MDRV_MACHINE_RESET(legioncop)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_BUFFERS_SPRITERAM)
 	MDRV_SCREEN_SIZE(40*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 40*8-1, 2*8, 30*8-1)
-	MDRV_GFXDECODE(heatbrl_gfxdecodeinfo)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 0*8, 28*8-1)
+	MDRV_GFXDECODE(cop_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(128*16)
 
-	MDRV_VIDEO_START(legionna)
+	MDRV_VIDEO_START(legioncop)
 	MDRV_VIDEO_UPDATE(godzilla)
 
 	/* sound hardware */
@@ -1712,30 +1652,26 @@ ROM_START( godzilla )
 	ROM_LOAD32_BYTE( "4.026",        0x000002, 0x020000, CRC(bb8c0132) SHA1(fa8b049f590be710b3cf82f27deade63656db730) )
 	ROM_LOAD32_BYTE( "3.023",        0x000003, 0x020000, CRC(bb16e5d0) SHA1(31d8941e6e297b1f410944f0063a4c9219d23f23) )
 
-	ROM_REGION( 0x20000*2, REGION_CPU2, 0 )	/* Z80 code, banked data */
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )	/* Z80 code, banked data */
 	ROM_LOAD( "8.016",        0x000000, 0x08000, CRC(4ab76e43) SHA1(40c34fade03161c4b50f9f6a2ae61078b8d8ea6d) )
-	ROM_CONTINUE(			  0x010000, 0x08000 )	/* banked stuff */
+	ROM_CONTINUE(             0x010000, 0x08000 )	/* banked stuff */
+	ROM_COPY( REGION_CPU2, 0x000000, 0x018000, 0x08000 )
 
-	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "11.620",       0x000000, 0x010000, CRC(58e0e41f) SHA1(563c633eb3d4df41e467c93957c74b540a0ae43c) )
-	ROM_LOAD( "10.615",       0x010000, 0x010000, CRC(9c22bc13) SHA1(a94d9ed63ee1f5e358ebcaf517e6a1c986fa5d96) )
+	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )	/* chars */
+	ROM_LOAD16_BYTE( "11.620",       0x000000, 0x010000, CRC(58e0e41f) SHA1(563c633eb3d4df41e467c93957c74b540a0ae43c) )
+	ROM_LOAD16_BYTE( "10.615",       0x000001, 0x010000, CRC(9c22bc13) SHA1(a94d9ed63ee1f5e358ebcaf517e6a1c986fa5d96) )
 
-	ROM_REGION( 0x800000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASE00 )
-	ROM_LOAD( "obj1.748",     0x000000, 0x200000, CRC(0dfaf26d) SHA1(2af3ea06369c40ae89c2f8362c273f4801db8e68) )
-	ROM_LOAD( "obj2.756",     0x200000, 0x200000, CRC(32b1516a) SHA1(4adcf4b957f6b9baf1a5b8807b381db664de632d) )
-	ROM_LOAD( "obj3.743",     0x400000, 0x100000, CRC(5af0114e) SHA1(9362de9ade6db67ab0e3a2dfea580e688bbf7729) )
-	ROM_LOAD( "obj4.757",     0x500000, 0x100000, CRC(7448b054) SHA1(5c08319329eb8c90b63e5393c0011bc39911ebbb) )
+	ROM_REGION( 0x800000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASE00 )	/* sprites */
+	ROM_LOAD16_WORD_SWAP( "obj1.748",     0x000000, 0x200000, CRC(0dfaf26d) SHA1(2af3ea06369c40ae89c2f8362c273f4801db8e68) )
+	ROM_LOAD16_WORD_SWAP( "obj2.756",     0x200000, 0x200000, CRC(32b1516a) SHA1(4adcf4b957f6b9baf1a5b8807b381db664de632d) )
+	ROM_LOAD16_WORD_SWAP( "obj3.743",     0x400000, 0x100000, CRC(5af0114e) SHA1(9362de9ade6db67ab0e3a2dfea580e688bbf7729) )
+	ROM_LOAD16_WORD_SWAP( "obj4.757",     0x500000, 0x100000, CRC(7448b054) SHA1(5c08319329eb8c90b63e5393c0011bc39911ebbb) )
 
-	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK tiles */
-	ROM_LOAD( "bg1.618",      0x000000, 0x100000, CRC(78fbbb84) SHA1(b1f5d4041bb88c5b2a561949239b11c3fd7c5fbc) )
-
-	ROM_REGION( 0x020000, REGION_GFX4, ROMREGION_DISPOSE )	/* not used */
+	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* MBK and LBK tiles */
+	ROM_LOAD16_WORD_SWAP( "bg1.618",      0x000000, 0x100000, CRC(78fbbb84) SHA1(b1f5d4041bb88c5b2a561949239b11c3fd7c5fbc) )
 
 	ROM_REGION( 0x100000, REGION_GFX5, ROMREGION_DISPOSE )	/* BK3 tiles */
-	ROM_LOAD( "bg2.619",      0x000000, 0x100000, CRC(8ac192a5) SHA1(54b557e81a704c70a651e6b8da70207a2a70530f) )
-
-	ROM_REGION( 0x100000, REGION_GFX6, ROMREGION_DISPOSE )	/* LBK tiles */
-	ROM_COPY( REGION_GFX3, 0x00000, 0x00000, 0x100000 )
+	ROM_LOAD16_WORD_SWAP( "bg2.619",      0x000000, 0x100000, CRC(8ac192a5) SHA1(54b557e81a704c70a651e6b8da70207a2a70530f) )
 
 	ROM_REGION( 0x080000, REGION_SOUND1, 0 )	/* ADPCM samples */
 	ROM_LOAD( "pcm.922",      0x000000, 0x080000, CRC(59cbef10) SHA1(6b89b7286f80f9c903dfb81dc93a03c38dff707c) )
@@ -1950,6 +1886,18 @@ static DRIVER_INIT( legionna )
 	memcpy(gfx, temp, 0x10000);
 }
 
+static DRIVER_INIT( godzilla )
+{
+	UINT16 *ROM = (UINT16 *)memory_region(REGION_CPU1);
+	/* some game elements don't collide properly with the emulated COP */
+	ROM[(0xbe0e + 0x0a)/2] = 0xb000;
+	ROM[(0xbe0e + 0x1a)/2] = 0xb800;
+	ROM[(0xbb0a + 0x0a)/2] = 0xb000;
+	ROM[(0xbb0a + 0x1a)/2] = 0xb800;
+	/* patch the ROM checksum */
+	ROM[0x3fffe/2] = 0x61ba;
+}
+
 static DRIVER_INIT( olysoc92 )
 {
 	UINT16 *ROM = (UINT16 *)memory_region(REGION_CPU1);
@@ -1968,7 +1916,7 @@ GAME( 1992, heatbrl,   0,        heatbrl,  heatbrl,  0,        ROT0, "TAD Corpor
 GAME( 1992, heatbrl2,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World version 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1992, heatbrlo,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (World old version)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1992, heatbrlu,  heatbrl,  heatbrl,  heatbrl,  0,        ROT0, "TAD Corporation", "Heated Barrel (US)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1993, godzilla,  0,        godzilla, godzilla, 0,        ROT0, "Banpresto", "Godzilla (Japan)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1993, godzilla,  0,        godzilla, godzilla, godzilla, ROT0, "Banpresto", "Godzilla (Japan)", 0 )
 GAME( 1992, cupsoc,    0,        cupsoc,   cupsoc,   0,        ROT0, "Seibu Kaihatsu", "Seibu Cup Soccer (set 1)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1992, cupsocs2,  cupsoc,   cupsoc,   cupsoc,   cupsocs,  ROT0, "Seibu Kaihatsu", "Seibu Cup Soccer :Selection: (set 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1992, olysoc92,  cupsoc,   cupsoc,   cupsoc,   olysoc92, ROT0, "Seibu Kaihatsu", "Olympic Soccer '92 (set 1)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )

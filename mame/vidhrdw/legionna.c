@@ -19,7 +19,18 @@ static UINT16 gfx_bank = 0;
 
 void heatbrl_setgfxbank(UINT16 data)
 {
-	gfx_bank = (data &0x4000) >> 2;
+	UINT16 bank = (data &0x4000) >> 2;
+	if (bank != gfx_bank)
+	{
+		gfx_bank = bank;
+		tilemap_mark_all_tiles_dirty(background_layer);
+	}
+}
+
+/* CRTC layer scroll base register 7 sets the text layer vertical offset */
+void godzilla_text_scroll_base_w(UINT16 data)
+{
+	tilemap_set_scrolldy(text_layer, 0x1ef - data, 0x1ef - data);
 }
 
 
@@ -328,23 +339,6 @@ VIDEO_UPDATE( legionna )
 	tilemap_draw(bitmap,cliprect,text_layer,0,0);
 }
 
-VIDEO_UPDATE( godzilla )
-{
-	tilemap_set_scrollx( text_layer, 0, 0 );
-	tilemap_set_scrolly( text_layer, 0, 112 );
-
-	fillbitmap(bitmap,get_black_pen(),cliprect);
-
-	tilemap_draw(bitmap,cliprect,background_layer,0,0);
-	draw_sprites(bitmap,cliprect,2);
-	tilemap_draw(bitmap,cliprect,midground_layer,0,0);
-	draw_sprites(bitmap,cliprect,1);
-	tilemap_draw(bitmap,cliprect,foreground_layer,0,0);
-	draw_sprites(bitmap,cliprect,0);
-	draw_sprites(bitmap,cliprect,3);
-	tilemap_draw(bitmap,cliprect,text_layer,0,0);
-}
-
 VIDEO_UPDATE( sdgndmrb )
 {
 	/* Setup the tilemaps */
@@ -435,10 +429,16 @@ VIDEO_START( legioncop )
 	return 0;
 }
 
-static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int gundam)
+#define COP_LEGIONNA 0
+#define COP_GRAINBOW 1
+#define COP_GODZILLA 2
+
+static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int variant)
 {
 	static const UINT32 legionna_mask[4] = { 0, 0xfff0, 0xfffc, 0xfffe };
 	static const UINT32 grainbow_mask[4] = { 0xfff0, 0xfffc, 0xfffe, 0 };
+	/* priority 3 is never shown */
+	static const UINT32 godzilla_mask[4] = { 0xfff0, 0xfffc, 0xfffe, 0xffff };
 	int offs;
 	for (offs = 0; offs < spriteram_size/2; offs += 4)
 	{
@@ -454,12 +454,21 @@ static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int
 		if (!(attr & 0x8000)) continue;
 		if (x >= 0x180) x -= 0x200;
 		if (y >= 0x180) y -= 0x200;
-		if (gundam) {
+		if (variant == COP_GRAINBOW) {
 			x += 16;
 			y += 16;
 			pri = (pri & 2) | ((attr >> 6) & 1);
+			mask = grainbow_mask[pri];
+		} else if (variant == COP_GODZILLA) {
+			/* the sprite ROMs exceed 0x4000 tiles, the extra code bits are in attribute bit 6 and Y bit 15 */
+			if (attr & 0x0040)
+				code |= 0x4000;
+			if (spriteram16[offs+3] & 0x8000)
+				code |= 0x8000;
+			mask = godzilla_mask[pri];
+		} else {
+			mask = legionna_mask[pri];
 		}
-		mask = gundam ? grainbow_mask[pri] : legionna_mask[pri];
 		for (ax = 0; ax < dx; ax++)
 			for (ay = 0; ay < dy; ay++)
 				pdrawgfx(bitmap, Machine->gfx[3], code++, attr & 63, fx, fy,
@@ -468,7 +477,7 @@ static void cop_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int
 	}
 }
 
-static void cop_video_update(mame_bitmap *bitmap, const rectangle *cliprect, int gundam)
+static void cop_video_update(mame_bitmap *bitmap, const rectangle *cliprect, int variant)
 {
 	tilemap_set_scrollx(background_layer, 0, legionna_scrollram16[0]);
 	tilemap_set_scrolly(background_layer, 0, legionna_scrollram16[1]);
@@ -476,9 +485,10 @@ static void cop_video_update(mame_bitmap *bitmap, const rectangle *cliprect, int
 	tilemap_set_scrolly(midground_layer, 0, legionna_scrollram16[3]);
 	tilemap_set_scrollx(foreground_layer, 0, legionna_scrollram16[4]);
 	tilemap_set_scrolly(foreground_layer, 0, legionna_scrollram16[5]);
-	fillbitmap(bitmap, get_black_pen(), cliprect);
+	/* Godzilla backdrop matches the PCB recording of Denjin Makai */
+	fillbitmap(bitmap, variant == COP_GODZILLA ? Machine->pens[0xff] : get_black_pen(), cliprect);
 	fillbitmap(priority_bitmap, 0, cliprect);
-	if (gundam) {
+	if (variant != COP_LEGIONNA) {
 		if (!(legionna_layer_disable & 1)) tilemap_draw(bitmap, cliprect, background_layer, 0, 0);
 		if (!(legionna_layer_disable & 2)) tilemap_draw(bitmap, cliprect, midground_layer, 0, 1);
 	} else {
@@ -487,15 +497,20 @@ static void cop_video_update(mame_bitmap *bitmap, const rectangle *cliprect, int
 	}
 	if (!(legionna_layer_disable & 4)) tilemap_draw(bitmap, cliprect, foreground_layer, 0, 2);
 	if (!(legionna_layer_disable & 8)) tilemap_draw(bitmap, cliprect, text_layer, 0, 4);
-	if (!(legionna_layer_disable & 16)) cop_draw_sprites(bitmap, cliprect, gundam);
+	if (!(legionna_layer_disable & 16)) cop_draw_sprites(bitmap, cliprect, variant);
 }
 
 VIDEO_UPDATE( legioncop )
 {
-	cop_video_update(bitmap, cliprect, 0);
+	cop_video_update(bitmap, cliprect, COP_LEGIONNA);
 }
 
 VIDEO_UPDATE( grainbow )
 {
-	cop_video_update(bitmap, cliprect, 1);
+	cop_video_update(bitmap, cliprect, COP_GRAINBOW);
+}
+
+VIDEO_UPDATE( godzilla )
+{
+	cop_video_update(bitmap, cliprect, COP_GODZILLA);
 }
