@@ -41102,29 +41102,29 @@
 :dynabb:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :dynabb:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Dynablaster (bootleg) ]
-:dynablsb:00000000:A35A2:00000059:FFFFFFFF:Infinite Time
-:dynablsb:00000001:A35A0:00000000:FFFFFFFF:Finish this level Now!:To be used "Normal Mode" only
-:dynablsb:00000000:A0BBB:00000009:FFFFFFFF:Infinite Lives PL1
-:dynablsb:00000000:A109C:000000FF:FFFFFFFF:Maximum Speed PL1
-:dynablsb:00000000:A0BBE:000000FF:FFFFFFFF:Maximum Flame Length PL1
-:dynablsb:00000000:A0BC0:000000FF:FFFFFFFF:Maximum Bombs PL1
-:dynablsb:00000000:A10A8:00000020:00000020:Invincibility "ON" PL1:To be used "Normal Mode" only
-:dynablsb:00000001:A10A8:00000000:00000020:Invincibility "OFF" PL1
-:dynablsb:00000000:A0BC1:00000000:FFFFFFFF:Always have Normal Bombs PL1
-:dynablsb:00000000:A0BC1:000000FF:FFFFFFFF:Always have Manual Bombs PL1
-:dynablsb:00000001:A0BC1:00000000:FFFFFFFF:Get Normal Bombs Now! PL1
-:dynablsb:00000001:A0BC1:000000FF:FFFFFFFF:Get Manual Bombs Now! PL1
-:dynablsb:00000000:A0BCB:00000009:FFFFFFFF:Infinite Lives PL2
-:dynablsb:00000000:A10DC:000000FF:FFFFFFFF:Maximum Speed PL2
-:dynablsb:00000000:A0BCE:000000FF:FFFFFFFF:Maximum Flame Length PL2
-:dynablsb:00000000:A0BD0:000000FF:FFFFFFFF:Maximum Bombs PL2
-:dynablsb:00000000:A10E8:00000020:00000020:Invincibility "ON" PL2:To be used "Normal Mode" only
-:dynablsb:00000001:A10E8:00000000:00000020:Invincibility "OFF" PL2
-:dynablsb:00000000:A0BD1:00000000:FFFFFFFF:Always have Normal Bombs PL2
-:dynablsb:00000000:A0BD1:000000FF:FFFFFFFF:Always have Manual Bombs PL2
-:dynablsb:00000001:A0BD1:00000000:FFFFFFFF:Get Normal Bombs Now! PL2
-:dynablsb:00000001:A0BD1:000000FF:FFFFFFFF:Get Manual Bombs Now! PL2
+; [ Dynablaster / Bomber Man (bootleg, set 1) ]
+:dynablstb:00000000:A35A2:00000059:FFFFFFFF:Infinite Time
+:dynablstb:00000001:A35A0:00000000:FFFFFFFF:Finish this level Now!:To be used "Normal Mode" only
+:dynablstb:00000000:A0BBB:00000009:FFFFFFFF:Infinite Lives PL1
+:dynablstb:00000000:A109C:000000FF:FFFFFFFF:Maximum Speed PL1
+:dynablstb:00000000:A0BBE:000000FF:FFFFFFFF:Maximum Flame Length PL1
+:dynablstb:00000000:A0BC0:000000FF:FFFFFFFF:Maximum Bombs PL1
+:dynablstb:00000000:A10A8:00000020:00000020:Invincibility "ON" PL1:To be used "Normal Mode" only
+:dynablstb:00000001:A10A8:00000000:00000020:Invincibility "OFF" PL1
+:dynablstb:00000000:A0BC1:00000000:FFFFFFFF:Always have Normal Bombs PL1
+:dynablstb:00000000:A0BC1:000000FF:FFFFFFFF:Always have Manual Bombs PL1
+:dynablstb:00000001:A0BC1:00000000:FFFFFFFF:Get Normal Bombs Now! PL1
+:dynablstb:00000001:A0BC1:000000FF:FFFFFFFF:Get Manual Bombs Now! PL1
+:dynablstb:00000000:A0BCB:00000009:FFFFFFFF:Infinite Lives PL2
+:dynablstb:00000000:A10DC:000000FF:FFFFFFFF:Maximum Speed PL2
+:dynablstb:00000000:A0BCE:000000FF:FFFFFFFF:Maximum Flame Length PL2
+:dynablstb:00000000:A0BD0:000000FF:FFFFFFFF:Maximum Bombs PL2
+:dynablstb:00000000:A10E8:00000020:00000020:Invincibility "ON" PL2:To be used "Normal Mode" only
+:dynablstb:00000001:A10E8:00000000:00000020:Invincibility "OFF" PL2
+:dynablstb:00000000:A0BD1:00000000:FFFFFFFF:Always have Normal Bombs PL2
+:dynablstb:00000000:A0BD1:000000FF:FFFFFFFF:Always have Manual Bombs PL2
+:dynablstb:00000001:A0BD1:00000000:FFFFFFFF:Get Normal Bombs Now! PL2
+:dynablstb:00000001:A0BD1:000000FF:FFFFFFFF:Get Manual Bombs Now! PL2
 
 ; [ Dynablaster / Bomber Man ]
 :dynablst:00000000:A35A2:00000059:FFFFFFFF:Infinite Time
@@ -137724,7 +137724,7 @@
 :quizdna:00000000:C224:00000007:FFFFFFFF:Infinite Vitality PL2
 :quizdna:00010000:C225:00000007:FFFFFFFF:Infinite Vitality PL2 (2/2)
 
-; [ Quiz F-1 1,2finish ]
+; [ Quiz F1 1-2 Finish (Japan) ]
 :quizf1:00000000:A00BA:00000006:FFFFFFFF:Infinite Fuel PL1
 :quizf1:00000000:A00BB:00000006:FFFFFFFF:Infinite Fuel PL2
 
@@ -204409,7 +204409,7 @@
 ;atlantis~atlants2
 ;atlantol~=(hyprolyb=hyprolym=trackfld)  {atlantol has just 2 players}
 ;atomboy=wilytowr
-;atompunk=dynablst=dynablsb)~=(bbmanw=bbmanwj=bomblord=newapunk~bombrman)  {bomblord is untested}
+;atompunk=dynablst=dynablstb)~=(bbmanw=bbmanwj=bbmanwja=bomblord=newapunk~bombrman)  {bomblord is untested}
 ;aurail=aurail1=aurailj
 ;av2mj1bb=av2mj2rg=galkoku=galkaika=hyouban=mcontest=mjlstory=ntopstar=pstadium=tokimbsj=tokyogal=triplew1=triplew2=uchuuai
 ;avalnche=cascade

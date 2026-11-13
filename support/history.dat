@@ -27359,7 +27359,7 @@ This game is known outside Japan as "Dynablaster".
 $end
 
 
-$info=bbmanw,bbmanwj,
+$info=bbmanw,bbmanwj,bbmanwja,
 $bio
 
 Bomber Man World (c) 1992 Irem.
@@ -60411,7 +60411,7 @@ Translation : David Kanda
 $end
 
 
-$info=dynablst,dynablsb,
+$info=dynablst,dynablstb,
 $bio
 
 Dynablaster (c) 1991 Hudson Soft.
