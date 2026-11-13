@@ -3015,22 +3015,32 @@ static WRITE32_HANDLER( coh1002m_bank_w )
 	memory_set_bankptr( 1, memory_region( REGION_USER2 ) + ((data>>16) * 0x800000));
 }
 
-static int cbaj_to_z80 = 0, cbaj_to_r3k = 0;
-static int latch_to_z80;
+/* The sound board has two 1K-byte FIFOs: command bursts must not overwrite
+ * earlier bytes, and polling status must not consume pending data. */
+static UINT8 cbaj_fifo[2][0x400];
+static unsigned cbaj_main_ptr[2], cbaj_z80_ptr[2];
 
 static READ32_HANDLER( cbaj_z80_r )
 {
-	int ready = cbaj_to_r3k;
+	UINT32 result = 0;
 
-	cbaj_to_r3k &= ~2;
-
-	return soundlatch2_r(0) | ready<<24;
+	if (ACCESSING_LSB32)
+	{
+		result = cbaj_fifo[1][cbaj_main_ptr[1]];
+		cbaj_main_ptr[1] = (cbaj_main_ptr[1] + 1) & 0x3ff;
+	}
+	if (!(mem_mask & 0xff000000))
+		result |= (cbaj_main_ptr[1] != cbaj_z80_ptr[1]) ? 0x02000000 : 0;
+	return result;
 }
 
 static WRITE32_HANDLER( cbaj_z80_w )
 {
-	cbaj_to_z80 |= 2;
-	latch_to_z80 = data;
+	if (ACCESSING_LSB32)
+	{
+		cbaj_fifo[0][cbaj_main_ptr[0]] = data;
+		cbaj_main_ptr[0] = (cbaj_main_ptr[0] + 1) & 0x3ff;
+	}
 }
 
 DRIVER_INIT( coh1002m )
@@ -3049,25 +3059,29 @@ MACHINE_RESET( coh1002m )
 	zn_machine_init();
 }
 
+static MACHINE_RESET( coh1002msnd )
+{
+	cbaj_main_ptr[0] = cbaj_main_ptr[1] = 0;
+	cbaj_z80_ptr[0] = cbaj_z80_ptr[1] = 0;
+	machine_reset_coh1002m();
+}
+
 static READ8_HANDLER( cbaj_z80_latch_r )
 {
-	cbaj_to_z80 &= ~2;
-	return latch_to_z80;
+	UINT8 result = cbaj_fifo[0][cbaj_z80_ptr[0]];
+	cbaj_z80_ptr[0] = (cbaj_z80_ptr[0] + 1) & 0x3ff;
+	return result;
 }
 
 static WRITE8_HANDLER( cbaj_z80_latch_w )
 {
-	cbaj_to_r3k |= 2;
-	soundlatch2_w(0, data);
+	cbaj_fifo[1][cbaj_z80_ptr[1]] = data;
+	cbaj_z80_ptr[1] = (cbaj_z80_ptr[1] + 1) & 0x3ff;
 }
 
 static READ8_HANDLER( cbaj_z80_ready_r )
 {
-	int ret = cbaj_to_z80;
-
-	cbaj_to_z80 &= ~2;
-
-	return ret;
+	return (cbaj_main_ptr[0] != cbaj_z80_ptr[0]) ? 0x02 : 0x00;
 }
 
 ADDRESS_MAP_START( cbaj_z80_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -3134,7 +3148,8 @@ static MACHINE_DRIVER_START( coh1002msnd )
 	MDRV_FRAMES_PER_SECOND( 60 )
 	MDRV_VBLANK_DURATION( 0 )
 
-	MDRV_MACHINE_RESET( coh1002m )
+	MDRV_INTERLEAVE( 100 ) /* 6000 Hz, as on the MAME sound board configuration */
+	MDRV_MACHINE_RESET( coh1002msnd )
 	MDRV_NVRAM_HANDLER( at28c16_0 )
 
 	/* video hardware */
@@ -3157,8 +3172,8 @@ static MACHINE_DRIVER_START( coh1002msnd )
 
 	MDRV_SOUND_ADD(YMZ280B, 16934400)
 	MDRV_SOUND_CONFIG(ymz280b_intf)
-	MDRV_SOUND_ROUTE(0, "left", 1.0)
-	MDRV_SOUND_ROUTE(1, "right", 1.0)
+	MDRV_SOUND_ROUTE(0, "left", 0.35)
+	MDRV_SOUND_ROUTE(1, "right", 0.35)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( coh1002ml )
@@ -4102,8 +4117,8 @@ ROM_START( cbaj )
 	ROM_LOAD( "cbaj_z80.3118",       0x0000000, 0x040000, CRC(92b02ad2) SHA1(f72317679ecbd8a0c3b081baaf9ff20a8c9ec00f) )
 
 	ROM_REGION( 0x800000, REGION_SOUND1, 0 ) /* YMZ280B Sound Samples */
-	ROM_LOAD( "cb-se.5121",   0x000000, 0x400000, CRC(f12b3db9) SHA1(d5231ad664603050bdca2081b114b07fc905ddc2) )
-	ROM_LOAD( "cb-vo.5120",   0x400000, 0x400000, CRC(afb05d6d) SHA1(0c08010579813814fbf8a978cf4376bab18697a4) )
+	ROM_LOAD( "cb-se.5121",   0x400000, 0x400000, CRC(f12b3db9) SHA1(d5231ad664603050bdca2081b114b07fc905ddc2) )
+	ROM_LOAD( "cb-vo.5120",   0x000000, 0x400000, CRC(afb05d6d) SHA1(0c08010579813814fbf8a978cf4376bab18697a4) )
 ROM_END
 
 ROM_START( shngmtkb )
