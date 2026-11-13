@@ -296,6 +296,7 @@ Any fixes for this driver should be forwarded to the AGEMAME forum at (http://ww
 #include "sound/ay8910.h"
 #include "vidhrdw/crtc6845.h"
 #include "machine/6821pia.h"
+#include "vidhrdw/res_net.h"
 
 static tilemap *bg_tilemap;
 
@@ -603,6 +604,17 @@ static const gfx_layout magiccrd_charlayout =
 	8*4*2
 };
 
+static const gfx_layout magicrd2_charlayout =
+{
+	4,8,
+	RGN_FRAC(1,2),
+	4,
+	{ RGN_FRAC(0,2), RGN_FRAC(0,2) + 4, RGN_FRAC(1,2), RGN_FRAC(1,2) + 4 },
+	{ 3, 2, 1, 0 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+	8*4*2
+};
+
 /* Graphics Decode Information */
 
 static const gfx_decode gfxdecodeinfo[] =
@@ -611,11 +623,55 @@ static const gfx_decode gfxdecodeinfo[] =
 	{ -1 }
 };
 
+static const gfx_decode magicrd2_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0x0000, &magicrd2_charlayout, 0, 16 },
+	{ -1 }
+};
+
 static const gfx_decode magiccrd_gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0x0000, &magiccrd_charlayout, 0, 16 },
 	{ -1 }
 };
+
+/* Palette */
+
+/* the colors are stored in the bipolar color PROM in the format GGBBBRRR */
+static PALETTE_INIT( magicrd2 )
+{
+	static const int resistances_rb[3] = { 1000, 470, 220 };
+	static const int resistances_g[2] = { 470, 220 };
+	double weights_r[3], weights_b[3], weights_g[2];
+	int i;
+
+	compute_resistor_weights(0, 255, -1.0,
+			3, resistances_rb, weights_r, 100, 0,
+			3, resistances_rb, weights_b, 100, 0,
+			2, resistances_g, weights_g, 100, 0);
+
+	for (i = 0; i < 0x100; i++)
+	{
+		int bit0, bit1, bit2;
+		int r, g, b;
+
+		bit0 = (color_prom[i] >> 0) & 1;
+		bit1 = (color_prom[i] >> 1) & 1;
+		bit2 = (color_prom[i] >> 2) & 1;
+		r = combine_3_weights(weights_r, bit0, bit1, bit2);
+
+		bit0 = (color_prom[i] >> 3) & 1;
+		bit1 = (color_prom[i] >> 4) & 1;
+		bit2 = (color_prom[i] >> 5) & 1;
+		b = combine_3_weights(weights_b, bit0, bit1, bit2);
+
+		bit0 = (color_prom[i] >> 6) & 1;
+		bit1 = (color_prom[i] >> 7) & 1;
+		g = combine_2_weights(weights_g, bit0, bit1);
+
+		palette_set_color(i, r, g, b);
+	}
+}
 
 /* PIA Interfaces */
 
@@ -713,7 +769,10 @@ static MACHINE_DRIVER_START( magiccrd )
 	MDRV_SCREEN_SIZE(112*4, 34*8) // 123x36
 	MDRV_VISIBLE_AREA(0*4, 112*4-1, 0*8, 34*8-1) // 112x34
 
-	MDRV_GFXDECODE(magiccrd_gfxdecodeinfo)
+	MDRV_GFXDECODE(magicrd2_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(0x100)
+	MDRV_COLORTABLE_LENGTH(0)
+	MDRV_PALETTE_INIT(magicrd2)
 	MDRV_VIDEO_START(magiccrd)
 MACHINE_DRIVER_END
 
@@ -881,4 +940,4 @@ GAME( 1997, cuoreuno, 0,        cuoreuno, funworld, funworld, ROT0, "bootleg?", 
 GAME( 1997, elephfam, 0,        cuoreuno, funworld, funworld, ROT0, "bootleg?",    "Elephant Family (Italia)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
 GAME( 1991, royalcrd, 0,        funworld, funworld, funworld, ROT0, "TAB-Austria", "Royal Card (Austria, set 1)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
 GAME( 1991, royalcdb, royalcrd, funworld, funworld, funworld, ROT0, "TAB-Austria", "Royal Card (Austria, set 2)", GAME_WRONG_COLORS | GAME_NOT_WORKING )
-GAME( 1996, magicrd2, 0,        magiccrd, magiccrd, funworld, ROT0, "Impera",      "Magic Card II (Bulgarian)", GAME_WRONG_COLORS )
+GAME( 1996, magicrd2, 0,        magiccrd, magiccrd, funworld, ROT0, "Impera",      "Magic Card II (Bulgarian)", 0 )
