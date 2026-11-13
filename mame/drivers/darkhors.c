@@ -659,9 +659,42 @@ ROM_START( darkhors )
 	ROM_REGION( 0x80000, REGION_SOUND1, 0 )	// Samples
 	ROM_LOAD( "snd", 0x00000, 0x80000, CRC(7aeb12d3) SHA1(3e81725fc206baa7559da87552a0cd73b7616155) )
 
-	ROM_REGION( 0x80000, REGION_USER1, ROMREGION_BE )	// EEPROM
-	ROM_LOAD( "eeprom", 0x00000, 0x80000, CRC(45314fdb) SHA1(c4bd5508e5b51a6e0356c049f1ccf2b5d94caee9) )
+	ROM_REGION( 0x80, REGION_USER1, 0 )	// EEPROM
+	ROM_LOAD( "eeprom", 0x000, 0x080, CRC(1f434f66) SHA1(e1bee11d83fb72aed9c312bdc794d8b9a6645534) ) // (SETA1997JC2W400 )
 ROM_END
+
+/***************************************************************************
+
+                Jockey Club II (v1.12X, older hardware)
+
+Parent of the bootleg above. The original ST-0020 + ST-0016 hardware
+is not emulated, this entry is present only to provide the parent romset.
+
+***************************************************************************/
+
+ROM_START( jclub2v112 )
+	ROM_REGION( 0x280000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "sx006b-01.u26", 0x000000, 0x200000, CRC(f730dded) SHA1(efb966dcb98440a072d4825ef2788c85acdfd103) ) // v1.01  (1995 A   101, 20 FEB. 1995)
+	ROM_LOAD16_WORD_SWAP( "jc2-112x.u27",  0x200000, 0x080000, CRC(e1ab93bd) SHA1(78b618b3f7819bd5351ebf949f328fec7795cec9) ) // v1.12X (1996 4/5 112,  3 JUN. 1996)
+
+	ROM_REGION( 0x80000, REGION_CPU2, 0 ) // z80 core (used for sound)
+	ROM_LOAD( "sx006-04.u87", 0x00000, 0x80000, CRC(a87adedd) SHA1(1cd5af2d03738fff2230b46241659179467c828c) )  // SoundDriverV1.26
+
+	ROM_REGION( 0x100, REGION_USER1, 0 ) // EEPROM
+	ROM_LOAD16_WORD_SWAP( "eeprom_jc2v112", 0x000, 0x100, CRC(be1d26f9) SHA1(1b6c6fd1c3298439206d73cb934dd1c30aee8a6c) ) // (SETA1996JC24112E)
+ROM_END
+
+static MACHINE_DRIVER_START( jclub2v112 )
+	MDRV_CPU_ADD(M68000, 12000000)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(0x190, 0x100)
+	MDRV_VISIBLE_AREA(0, 0x190-1, 8, 0x100-8-1)
+	MDRV_PALETTE_LENGTH(2)
+MACHINE_DRIVER_END
 
 /***************************************************************************
 
@@ -675,6 +708,7 @@ static DRIVER_INIT( darkhors )
 {
 	UINT32 *rom    = (UINT32 *) memory_region(REGION_CPU1);
 	UINT8  *eeprom = (UINT8 *)  memory_region(REGION_USER1);
+	UINT8  temp[1<<7];
 	int i;
 
 #if 1
@@ -686,8 +720,12 @@ static DRIVER_INIT( darkhors )
 	rom[0x04600/4]	=	0x4e714eb9;
 #endif
 
+	// the dumped eeprom bytes are in a different order (offset 0x00, 0x40, 0x01, 0x41, ...)
+	// the eeprom contains the game ID, which must be valid for it to boot
 	for (i = 0; i < (1<<7); i++)
-		eeprom[i] = eeprom[i*2];
+		temp[i] = eeprom[((i & 0x3f) << 1) | ((i >> 6) & 1)];
+	memcpy(eeprom, temp, sizeof(temp));
 }
 
-GAME( 2001, darkhors, 0, darkhors, darkhors, darkhors, ROT0, "bootleg", "Dark Horse", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // inserting coin doesn't work
+GAME( 1996, jclub2v112, 0,        jclub2v112, darkhors, 0,        ROT0, "Seta",    "Jockey Club II (v1.12X, older hardware)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2001, darkhors, jclub2v112, darkhors, darkhors, darkhors, ROT0, "bootleg", "Dark Horse (USA v4.00, bootleg of Jockey Club II)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // inserting coin doesn't work
