@@ -7448,6 +7448,7 @@ Other Sun games
 
 	/* SemiCom 68020 based hardware */
 	DRIVER( baryon )    /* (c) 1997 SemiCom / Tirano */
+	DRIVER( baryona )   /* (c) 1997 SemiCom / Tirano */
 	DRIVER( cutefght )  /* (c) 1998 SemiCom */
 	DRIVER( dreamwld )  /* (c) 2000 SemiCom */
 	DRIVER( gaialast )  /* (c) 1999 SemiCom / XESS */
