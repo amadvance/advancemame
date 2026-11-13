@@ -252,6 +252,53 @@ INPUT_PORTS_START( findout )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( gt507uk )
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x00, "If Ram Error" )
+	PORT_DIPSETTING(    0x01, "Freeze" )
+	PORT_DIPSETTING(    0x00, "Play" )
+	PORT_DIPNAME( 0x0a, 0x08, "Payout" )
+	PORT_DIPSETTING(    0x0a, "Bank" )
+	PORT_DIPSETTING(    0x08, "N/A" )
+	PORT_DIPSETTING(    0x02, "Credit" )
+	PORT_DIPSETTING(    0x00, "Direct" )
+	PORT_DIPNAME( 0x04, 0x04, "Payout Hardware" )
+	PORT_DIPSETTING(    0x04, "Hopper" )
+	PORT_DIPSETTING(    0x00, "Solenoid" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN3 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_SERVICE( 0x08, IP_ACTIVE_LOW )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(2) /* coin 3, 2, 4 order verified in test mode */
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN4 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON5 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
 INPUT_PORTS_START( quiz )
 	PORT_START
 	PORT_DIPNAME( 0x03, 0x03, "Questions" )
@@ -475,7 +522,7 @@ gt103a - When ERROR appears, press F2, then F3 to reset, then F2 again and the g
 
 */
 
-GAME( 1986, gt507uk,  0,      findout, findout, 0, ROT0, "Grayhound Electronics", "Trivia (UK Version 5.07)",               GAME_IMPERFECT_SOUND )
+GAME( 1986, gt507uk,  0,      findout, gt507uk,  0, ROT0, "Grayhound Electronics", "Trivia (UK Version 5.07)",               GAME_IMPERFECT_SOUND )
 
 GAME( 1984, gtsers8,  0,       findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Questions Series 8)",                 GAME_IMPERFECT_SOUND )
 GAME( 1984, gt103a1,  gtsers8, findout, findout, 0, ROT0, "Greyhound Electronics", "Trivia (Version 1.03a) (alt 1)",         GAME_IMPERFECT_SOUND )
