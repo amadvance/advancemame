@@ -6950,8 +6950,10 @@ Other Sun games
 	DRIVER( spcforce )	/* (c) 1980 Venture Line */
 	DRIVER( spcforc2 )	/* bootleg */
 	DRIVER( meteor )	/* (c) 1981 Venture Line */
-	DRIVER( looping )	/* (c) 1982 Venture Line + licensed from Video Games */
-	DRIVER( loopinga )	/* (c) 1982 Venture Line + licensed from Video Games */
+	DRIVER( looping )	/* (c) 1982 Video Games GmbH (Europe) */
+	DRIVER( loopingu )	/* (c) 1982 Video Games GmbH (Venture Line license) (US) */
+	DRIVER( loopingua )	/* (c) 1982 Video Games GmbH (Venture Line license) (US) */
+	DRIVER( loopingub )	/* (c) 1982 Video Games GmbH (Venture Line license) (US) */
 	DRIVER( skybump )	/* (c) 1982 Venture Line */
 	DRIVER( suprridr )	/* (c) 1983 Venture Line + Taito license */
 
