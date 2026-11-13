@@ -1893,7 +1893,7 @@ ROM_START( paddlema )
 	ROM_LOAD( "padlem.16j",      0x0700,  0x0400,  CRC(8da58e2c) SHA1(6012715a2d3ba4cf8bc5a8250e7f28cb59913092) ) /* Clut high nibble */
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 )
-	ROM_LOAD( "padlem.18n",      0x0000,  0x8000,  CRC(06506200) SHA1(d43337e5611cb0d3432942539ccf04bff2bdd345) ) /* Colour lookup */
+	ROM_LOAD( "padlem.18n",      0x0000,  0x8000,  CRC(488df971) SHA1(fe1436ddc63ffb37fcc9e57aeb923c8c96fd6ac3) ) /* Colour lookup */
 ROM_END
 
 ROM_START( timesold )
