@@ -4795,7 +4795,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* GX Type 4 */
 	DRIVER( vsnetscr )	/* GX627 (c) 1996 */
-	DRIVER( vsnetscj )	/* GX627 (c) 1996 */
+	DRIVER( vsnetscru )	/* GX627 (c) 1996 */
+	DRIVER( vsnetscrj )	/* GX627 (c) 1996 */
 	DRIVER( rungun2 )	/* GX505 (c) 1996 */
 	DRIVER( slamdnk2 )	/* GX505 (c) 1996 */
 	DRIVER( rushhero )	/* GX605 (c) 1996 */

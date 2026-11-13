@@ -194075,14 +194075,14 @@
 :vsmahjng:00010001:00EE:00000031:FFFFFFFF:Get winning hand Now! (14/14)
 
 ; [ Versus Net Soccer (ver JAB) ]
-:vsnetscj:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:vsnetscj:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:vsnetscrj:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Versus Net Soccer (ver UAB) ]
 :vsnetscr:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -203652,7 +203652,7 @@
 ; { Reason 01 } ; vs298     [ Virtua Striker 2 '98 (Step 2.0) ]
 ; { Reason 01 } ; vs299     [ Virtua Striker 2 '99 ]
 ; { Reason 01 } ; vs2v991   [ Virtua Striker 2 '99.1 ]
-; { Reason 01 } ; vsnetscj  [ Versus Net Soccer (ver JAB) ]
+; { Reason 01 } ; vsnetscrj  [ Versus Net Soccer (ver JAB) ]
 ; { Reason 01 } ; vsnetscr  [ Versus Net Soccer (ver UAB) ]
 ; { Reason 01 } ; vstriker  [ Virtua Striker ]
 ; { Reason 01 } ; vstrikra  [ Virtua Striker (Rev A) ]
@@ -205536,7 +205536,7 @@
 ;von=vonusa     (unchecked relationship)
 ;vs2~vs215~vs298~vs29815~vs299~vs2v991 (vs298, vs299 & vs2v991 not working)
 ;vsbbalja=vsbbaljb=vsbball=vsbballj
-;vsnetscj=vsnetscr    (unchecked relationship)
+;vsnetscrj=vsnetscr    (unchecked relationship)
 ;vspinbal=vspinblj
 ;vstennij=vstennis
 ;vstriker=vstrikra    (unchecked relationship)
