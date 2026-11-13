@@ -76806,7 +76806,7 @@ This game is a "Galaga" hack.
 $end
 
 
-$info=gauntlet,gauntr1,gauntr2,gauntr4,gauntr5,gauntr7,gauntr9,gaunts,gauntg,gauntgr3,gauntgr6,gauntgr8,gauntj12,gauntj,gaunt2p,gaun2pr3,gaunt2pj,gaun2pj2,gaunt2pg,gaun2pg1,
+$info=gauntlet,gauntletr1,gauntletr2,gauntletr4,gauntletr5,gauntletr7,gauntletr9,gauntlets,gauntletg,gauntletgr3,gauntletgr6,gauntletgr8,gauntletj12,gauntletj,gauntlet2p,gauntlet2pr3,gauntlet2pj,gauntlet2pj2,gauntlet2pg,gauntlet2pg1,
 $bio
 
 Gauntlet (c) 12/1985 Atari Games.
@@ -77424,7 +77424,7 @@ Nintendo Game Cube (2002)
 $end
 
 
-$info=gaunt2,gaun22pg,gaun22p1,gaunt22p,gaunt2g,
+$info=gaunt2,gaunt22pg,gaunt22p1,gaunt22p,gaunt2g,
 $bio
 
 Gauntlet II (c) 08/1986 Atari Games.
@@ -104887,7 +104887,7 @@ Buttons : 4
 $end
 
 
-$info=kingball,kingbalj,
+$info=kingball,kingballj,
 $bio
 
 King & Balloon (c) 06/1980 Namco.
@@ -248867,7 +248867,7 @@ Tiger LCD Handheld Game (1989)
 $end
 
 
-$info=vindctr2,vindc2r1,vindc2r2,
+$info=vindctr2,vindctr2r1,vindctr2r2,
 $bio
 
 Vindicators Part II (c) 05/1989 Atari Games.
