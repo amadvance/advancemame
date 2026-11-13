@@ -639,7 +639,7 @@ ROM_END
 ROM_START( hoops95 )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )
 	ROM_LOAD32_WORD( "hoops.a2", 0x000000, 0x80000, CRC(02b8c61a) SHA1(ae49f6bd8a3bffa181fa6a2740d92287e9d5dc02) )
-	ROM_LOAD32_WORD( "hoops.b2", 0x000002, 0x80000, CRC(b54c63d1) SHA1(21d9327675226a6e60d0447d461d7897212db33a) )
+	ROM_LOAD32_WORD( "hoops.b2", 0x000002, 0x80000, CRC(a1dc3519) SHA1(73a292c34f4172cf12827a21b100cc6653650a5b) )
 
 	ROM_REGION( 0x0c00000, REGION_GFX1,ROMREGION_ERASE00 )
 	ROM_LOAD16_BYTE( "mce-00.2e", 0x0000001, 0x200000, CRC(11b9bd96) SHA1(ed17fa9008b8e42951fd1f4c50939f1dd99cfeaf) )
@@ -649,7 +649,7 @@ ROM_START( hoops95 )
 	ROM_LOAD32_WORD_SWAP( "mce-04.8n", 0x0800000, 0x200000, CRC(91da9b4f) SHA1(25c3a7abbaca006ad345150b5d689faf8b13affb) ) // extra plane of gfx, needs rearranging to decode
 
 	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_ERASEFF ) /* Code Lookup */
-	ROM_LOAD( "hoops.h6", 0x020000, 0x20000, CRC(bc702733) SHA1(830d5da5eb53727ff4221c59c5676e01e444aa27) )
+	ROM_LOAD( "rl02-0.6h", 0x020000, 0x20000, CRC(9490041c) SHA1(febedd0683dbcb080d304d03e4a3b501caeb6bb8) )
 
 	ROM_REGION( 0x400000, REGION_SOUND1, 0 )
 	ROM_LOAD( "mce-05.6a",  0x000000, 0x400000,  CRC(e7a9355a) SHA1(039b23666e224c33ebb02baa80e496f8bce0514f) )
@@ -761,5 +761,5 @@ GAME( 1996, stadhr96, 0,        mlc_6bpp, mlc, mlc,      ROT0,   "Data East Corp
 GAME( 1996, stadh96a, stadhr96, mlc_6bpp, mlc, mlc,      ROT0,   "Data East Corporation", "Stadium Hero 96 (Version EAJ)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1996, skullfng, 0,        mlc_6bpp, mlc, mlc,      ROT270, "Data East Corporation", "Skull Fang (Japan)", 0 )
 GAME( 1996, hoops96,  0,        mlc_5bpp, mlc, mlc,      ROT0,   "Data East Corporation", "Hoops '96 (Europe/Asia 2.0)", 0 )
-GAME( 1995, ddream95, hoops96,  mlc_5bpp, mlc, mlc,      ROT0,   "Data East Corporation", "Dunk Dream '95 (Japan 1.4 EAM)", 0 )
+GAME( 1995, ddream95, hoops96,  mlc_5bpp, mlc, mlc,      ROT0,   "Data East Corporation", "Dunk Dream '95 (Japan 1.4, EAM)", 0 )
 GAME( 1995, hoops95,  hoops96,  mlc_5bpp, mlc, mlc,      ROT0,   "Data East Corporation", "Hoops (Europe/Asia 1.7)", 0 )
