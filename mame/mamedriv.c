@@ -7034,7 +7034,8 @@ Other Sun games
 	DRIVER( majs101b )	/* "17" (c) [1988] Dynax */
 	DRIVER( hnkochou )	/* "20" (c) 1989 Dynax */
 	DRIVER( mjderngr )	/* "22" (c) 1989 Dynax */
-	DRIVER( hjingi )	/* "23" (c) 1989 Dynax */
+	DRIVER( hjingi )	/* "23" (c) 1990 Dynax */
+	DRIVER( hnoridur )	/* "23" (c) 1989 Dynax */
 	DRIVER( drgpunch )	/* "24" (c) 1989 Dynax */
 	DRIVER( mjfriday )	/* "26" (c) [1989] Dynax */
 	DRIVER( jantouki )	/* "27" Jantouki 1989 Dynax */
