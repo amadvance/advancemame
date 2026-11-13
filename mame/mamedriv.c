@@ -6557,20 +6557,21 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* Kaneko "AX System" games */
 	DRIVER( berlwall )	/* (c) 1991 Kaneko */
-	DRIVER( berlwalt )	/* (c) 1991 Kaneko */
+	DRIVER( berlwallt )	/* (c) 1991 Kaneko */
 	DRIVER( mgcrystl )	/* (c) 1991 Kaneko (World) */
-	DRIVER( mgcrysto )	/* (c) 1991 Kaneko (World) */
-	DRIVER( mgcrystj )	/* (c) 1991 Kaneko + distributed by Atlus (Japan) */
+	DRIVER( mgcrystlo )	/* (c) 1991 Kaneko (World) */
+	DRIVER( mgcrystlj )	/* (c) 1991 Kaneko + distributed by Atlus (Japan) */
 	DRIVER( blazeon )	/* (c) 1992 Atlus */
+	DRIVER( blazeonj )	/* (c) 1992 Atlus */
 	DRIVER( sandscrp )	/* (c) 1992 Face */
-	DRIVER( sandscra )	/* (c) 1992 Face */
+	DRIVER( sandscrpb )	/* (c) 1992 Face */
 	DRIVER( explbrkr )	/* (c) 1992 Kaneko */
 	DRIVER( bakubrkr )	/* (c) 1992 Kaneko */
 	DRIVER( shogwarr )	/* (c) 1992 Kaneko */
-	DRIVER( shogwarre )	/* (c) 1992 Kaneko */
+	DRIVER( shogwarru )	/* (c) 1992 Kaneko */
 	DRIVER( fjbuster )	/* (c) 1992 Kaneko */
 	DRIVER( brapboys )	/* (c) 1992 Kaneko */
-	DRIVER( brapboysj )	/* (c) 1992 Kaneko */
+	DRIVER( brapboyspj )	/* (c) 1992 Kaneko */
 	DRIVER( wingforc  )     /* (c) 1993 Atlus (Japan, prototype) */
         DRIVER( packbang )      /* (c) 1994 Kaneko */
 	DRIVER( bloodwar )	/* (c) 1994 Kaneko */
@@ -6582,6 +6583,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( gtmr2 )		/* (c) 1995 Kaneko */
 	DRIVER( gtmr2a )	/* (c) 1995 Kaneko */
 	DRIVER( gtmr2u )	/* (c) 1995 Kaneko */
+	DRIVER( gtmr2ua )	/* (c) 1995 Kaneko */
 
 
 	/* Kaneko "Super Nova System" games */
