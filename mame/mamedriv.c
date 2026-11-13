@@ -4265,7 +4265,6 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mutantfa )	/* MAF (c) 1992 Data East Corporation (World) */
 	DRIVER( deathbrd )	/* MAF (c) 1992 Data East Corporation (Japan) */
 	DRIVER( cninja )	/* MAG (c) 1991 Data East Corporation (World) */
-	DRIVER( cninja0 )	/* MAG (c) 1991 Data East Corporation (World) */
 	DRIVER( cninjau )	/* MAG (c) 1991 Data East Corporation (US) */
 	DRIVER( joemac )	/* MAG (c) 1991 Data East Corporation (Japan) */
 	DRIVER( stoneage )	/* bootleg */
