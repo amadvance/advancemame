@@ -451,6 +451,45 @@ static struct AY8910interface brixian_ay8910_interface =
 	input_port_1_r
 };
 
+/* Cruisin 5 multiplexes the sprites during the frame, so the screen is drawn
+   scanline by scanline and the interrupt is raised at the end of the vblank */
+static mame_timer *cruisin5_timer;
+
+static void cruisin5_scanline(int scanline)
+{
+	/* the beam is leaving the vblank */
+	if (scanline == Machine->visible_area.min_y)
+		cpunum_set_input_line(0, 0, HOLD_LINE);
+
+	/* draw what the game has put on screen so far, before it changes the sprites again */
+	force_partial_update(scanline);
+
+	scanline = (scanline + 1) & 255;
+	mame_timer_adjust(cruisin5_timer, cpu_getscanlinetime_mt(scanline), scanline, time_zero);
+}
+
+static MACHINE_START( cruisin5 )
+{
+	cruisin5_timer = mame_timer_alloc(cruisin5_scanline);
+	return machine_start_arkanoid();
+}
+
+static MACHINE_RESET( cruisin5 )
+{
+	machine_reset_arkanoid();
+	mame_timer_adjust(cruisin5_timer, cpu_getscanlinetime_mt(0), 0, time_zero);
+}
+
+static MACHINE_DRIVER_START( cruisin5 )
+	MDRV_IMPORT_FROM(bootleg)
+
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_VBLANK_INT(NULL, 0)
+
+	MDRV_MACHINE_START(cruisin5)
+	MDRV_MACHINE_RESET(cruisin5)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( brixian )
 	MDRV_IMPORT_FROM(bootleg)
 	MDRV_CPU_MODIFY("main")
@@ -789,5 +828,5 @@ GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "
 GAME( 1986, arktayt2, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg (Tayto)", "Arkanoid (Tayto bootleg, harder)", GAME_SUPPORTS_SAVE )
 GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US, older)", GAME_SUPPORTS_SAVE )
 GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 2023, cruisin5, 0,        bootleg,  cruisin5, 0,       ROT90, "Abyss", "Cruisin 5: Cruise Back", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME( 2023, cruisin5, 0,        cruisin5,  cruisin5, 0,       ROT90, "Abyss", "Cruisin 5: Cruise Back", GAME_SUPPORTS_SAVE )
 GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )

@@ -94,7 +94,7 @@ VIDEO_START( arkanoid )
 	return 0;
 }
 
-static void arkanoid_draw_sprites( mame_bitmap *bitmap )
+static void arkanoid_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 {
 	int offs;
 
@@ -114,13 +114,13 @@ static void arkanoid_draw_sprites( mame_bitmap *bitmap )
 				((spriteram[offs + 2] & 0xf8) >> 3) + 32 * palettebank,
 				flip_screen_x,flip_screen_y,
 				sx,sy + (flip_screen_y ? 8 : -8),
-				&Machine->visible_area,TRANSPARENCY_PEN,0);
+				cliprect,TRANSPARENCY_PEN,0);
 		drawgfx(bitmap,Machine->gfx[0],
 				2 * code + 1,
 				((spriteram[offs + 2] & 0xf8) >> 3) + 32 * palettebank,
 				flip_screen_x,flip_screen_y,
 				sx,sy,
-				&Machine->visible_area,TRANSPARENCY_PEN,0);
+				cliprect,TRANSPARENCY_PEN,0);
 	}
 }
 
@@ -133,11 +133,11 @@ static void arkanoid_draw_sprites( mame_bitmap *bitmap )
 ***************************************************************************/
 VIDEO_UPDATE( arkanoid )
 {
-	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
-	arkanoid_draw_sprites(bitmap);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	arkanoid_draw_sprites(bitmap, cliprect);
 }
 
 VIDEO_UPDATE( brixian )
 {
-	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
 }
