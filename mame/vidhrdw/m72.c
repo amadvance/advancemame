@@ -8,7 +8,7 @@
 UINT8 *m72_videoram1,*m72_videoram2,*majtitle_rowscrollram;
 static UINT8 *m72_spriteram;
 static INT32 splitline;
-static tilemap *fg_tilemap,*bg_tilemap;
+static tilemap *fg_tilemap,*bg_tilemap,*bg_tilemap_large;
 static int xadjust;
 static int bgadjust;
 static INT32 scrollx1,scrolly1,scrollx2,scrolly2;
@@ -185,6 +185,8 @@ VIDEO_START( m72 )
 
 	memset(m72_spriteram,0,spriteram_size);
 
+	bg_tilemap_large = 0;
+
 	xadjust = 0;
 	bgadjust = 0;
 
@@ -213,6 +215,8 @@ VIDEO_START( rtype2 )
 
 	memset(m72_spriteram,0,spriteram_size);
 
+	bg_tilemap_large = 0;
+
 	xadjust = -4;
 	bgadjust = 0;
 
@@ -232,17 +236,19 @@ VIDEO_START( poundfor )
 
 
 /* Major Title has a larger background RAM, and rowscroll */
+/* the Air Duel conversion on the same PCB selects the normal size background through the tilemap control port */
 VIDEO_START( majtitle )
 {
+	bg_tilemap = tilemap_create(rtype2_get_bg_tile_info,tilemap_scan_rows,TILEMAP_SPLIT,8,8,64,64);
 // The tilemap can be 256x64, but seems to be used at 128x64 (scroll wraparound).
 // The layout ramains 256x64, the right half is just not displayed.
-//  bg_tilemap = tilemap_create(rtype2_get_bg_tile_info,tilemap_scan_rows,TILEMAP_SPLIT,8,8,256,64);
-	bg_tilemap = tilemap_create(rtype2_get_bg_tile_info,majtitle_scan_rows,TILEMAP_SPLIT,8,8,128,64);
+//  bg_tilemap_large = tilemap_create(rtype2_get_bg_tile_info,tilemap_scan_rows,TILEMAP_SPLIT,8,8,256,64);
+	bg_tilemap_large = tilemap_create(rtype2_get_bg_tile_info,majtitle_scan_rows,TILEMAP_SPLIT,8,8,128,64);
 	fg_tilemap = tilemap_create(rtype2_get_fg_tile_info,tilemap_scan_rows,TILEMAP_SPLIT,8,8,64,64);
 
 	m72_spriteram = auto_malloc(spriteram_size);
 
-	if (!fg_tilemap || !bg_tilemap || !m72_spriteram)
+	if (!fg_tilemap || !bg_tilemap || !bg_tilemap_large || !m72_spriteram)
 		return 1;
 
 	tilemap_set_transmask(fg_tilemap,0,0xffff,0x0001);
@@ -253,6 +259,10 @@ VIDEO_START( majtitle )
 	tilemap_set_transmask(bg_tilemap,1,0x00ff,0xff00);
 	tilemap_set_transmask(bg_tilemap,2,0x0001,0xfffe);
 
+	tilemap_set_transmask(bg_tilemap_large,0,0xffff,0x0000);
+	tilemap_set_transmask(bg_tilemap_large,1,0x00ff,0xff00);
+	tilemap_set_transmask(bg_tilemap_large,2,0x0001,0xfffe);
+
 	memset(m72_spriteram,0,spriteram_size);
 
 	xadjust = -4;
@@ -261,6 +271,17 @@ VIDEO_START( majtitle )
 	register_savestate();
 
 	return 0;
+}
+
+VIDEO_START( xmultipl )
+{
+	int res = video_start_m72();
+
+	/* M81 board offsets, the same of Hammerin' Harry */
+	xadjust = -4;
+	bgadjust = -2;
+
+	return res;
 }
 
 VIDEO_START( hharry )
@@ -282,6 +303,8 @@ VIDEO_START( hharry )
 	tilemap_set_transmask(bg_tilemap,2,0x0001,0xfffe);
 
 	memset(m72_spriteram,0,spriteram_size);
+
+	bg_tilemap_large = 0;
 
 	xadjust = -4;
 	bgadjust = -2;
@@ -386,6 +409,8 @@ WRITE8_HANDLER( m72_videoram2_w )
 	{
 		m72_videoram2[offset] = data;
 		tilemap_mark_tile_dirty(bg_tilemap,offset/4);
+		if (bg_tilemap_large)
+			tilemap_mark_tile_dirty(bg_tilemap_large,offset/4);
 	}
 }
 
@@ -480,6 +505,7 @@ WRITE8_HANDLER( rtype2_port02_w )
 
 
 static int majtitle_rowscroll;
+static int majtitle_tmcontrol;
 
 /* the following is mostly a kludge. This register seems to be used for something else */
 WRITE8_HANDLER( majtitle_gfx_ctrl_w )
@@ -489,6 +515,14 @@ WRITE8_HANDLER( majtitle_gfx_ctrl_w )
 		if (data) majtitle_rowscroll = 1;
 		else majtitle_rowscroll = 0;
 	}
+}
+
+
+/* bit 6 selects the large background tilemap used by Major Title */
+WRITE8_HANDLER( majtitle_tm_ctrl_w )
+{
+	if (offset == 0)
+		majtitle_tmcontrol = data;
 }
 
 
@@ -625,6 +659,8 @@ VIDEO_UPDATE( m72 )
 VIDEO_UPDATE( majtitle )
 {
 	int i;
+	tilemap *tm;
+	int dx;
 
 
 	if (video_off)
@@ -636,24 +672,36 @@ VIDEO_UPDATE( majtitle )
 	tilemap_set_scrollx(fg_tilemap,0,scrollx1 + xadjust);
 	tilemap_set_scrolly(fg_tilemap,0,scrolly1);
 
-	if (majtitle_rowscroll)
+	if (majtitle_tmcontrol & 0x40)
 	{
-		tilemap_set_scroll_rows(bg_tilemap,512);
-		for (i = 0;i < 512;i++)
-			tilemap_set_scrollx(bg_tilemap,(i+scrolly2)&0x1ff,
-					256 + majtitle_rowscrollram[2*i] + (majtitle_rowscrollram[2*i+1] << 8) + xadjust);
+		tm = bg_tilemap_large;
+		dx = 0;
 	}
 	else
 	{
-		tilemap_set_scroll_rows(bg_tilemap,1);
-		tilemap_set_scrollx(bg_tilemap,0,256 + scrollx2 + xadjust);
+		/* the normal size background has a different horizontal offset */
+		tm = bg_tilemap;
+		dx = 256 - 2;
 	}
-	tilemap_set_scrolly(bg_tilemap,0,scrolly2);
 
-	tilemap_draw(bitmap,cliprect,bg_tilemap,TILEMAP_BACK,0);
+	if (majtitle_rowscroll)
+	{
+		tilemap_set_scroll_rows(tm,512);
+		for (i = 0;i < 512;i++)
+			tilemap_set_scrollx(tm,(i+scrolly2)&0x1ff,
+					256 + majtitle_rowscrollram[2*i] + (majtitle_rowscrollram[2*i+1] << 8) + xadjust + dx);
+	}
+	else
+	{
+		tilemap_set_scroll_rows(tm,1);
+		tilemap_set_scrollx(tm,0,256 + scrollx2 + xadjust + dx);
+	}
+	tilemap_set_scrolly(tm,0,scrolly2);
+
+	tilemap_draw(bitmap,cliprect,tm,TILEMAP_BACK,0);
 	tilemap_draw(bitmap,cliprect,fg_tilemap,TILEMAP_BACK,0);
 	majtitle_draw_sprites(bitmap,cliprect);
 	draw_sprites(bitmap,cliprect);
-	tilemap_draw(bitmap,cliprect,bg_tilemap,TILEMAP_FRONT,0);
+	tilemap_draw(bitmap,cliprect,tm,TILEMAP_FRONT,0);
 	tilemap_draw(bitmap,cliprect,fg_tilemap,TILEMAP_FRONT,0);
 }

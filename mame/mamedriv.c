@@ -1397,32 +1397,37 @@ const game_driver * const drivers[] =
 	DRIVER( buccanra )	/* (c) 1989 Duintronic */
 	DRIVER( bowmen )
 	/* M72 (and derivatives) */
-	DRIVER( rtype )		/* (c) 1987 (Japan) */
-	DRIVER( rtypepj )	/* (c) 1987 (Japan) */
+	DRIVER( rtype )		/* (c) 1987 (World) */
+	DRIVER( rtypej )	/* (c) 1987 (Japan) */
+	DRIVER( rtypejp )	/* (c) 1987 (Japan prototype) */
 	DRIVER( rtypeu )	/* (c) 1987 + Nintendo USA license (US) */
-	DRIVER( bchopper )	/* (c) 1987 */
+	DRIVER( bchopper )	/* (c) 1987 (World) */
 	DRIVER( mrheli )	/* (c) 1987 (Japan) */
-	DRIVER( nspirit )	/* (c) 1988 */
+	DRIVER( nspirit )	/* (c) 1988 (World) */
 	DRIVER( nspiritj )	/* (c) 1988 (Japan) */
-	DRIVER( imgfight )	/* (c) 1988 (Japan) */
-	DRIVER( loht )		/* (c) 1989 */
-	DRIVER( xmultipl )	/* (c) 1989 (Japan) */
-	DRIVER( dbreed )	/* (c) 1989 */
-	DRIVER( dbreed72 )	/* (c) 1989 */
-	DRIVER( rtype2 )	/* (c) 1989 */
+	DRIVER( imgfight )	/* (c) 1988 (World) */
+	DRIVER( imgfightj )	/* (c) 1988 (Japan) */
+	DRIVER( loht )		/* (c) 1989 (World) */
+	DRIVER( xmultipl )	/* (c) 1989 (World, M81) */
+	DRIVER( xmultiplm72 )	/* (c) 1989 (Japan, M72) */
+	DRIVER( dbreed )	/* (c) 1989 (World, M81) */
+	DRIVER( dbreedm72 )	/* (c) 1989 (World, M72) */
+	DRIVER( rtype2 )	/* (c) 1989 (World) */
 	DRIVER( rtype2j )	/* (c) 1989 (Japan) */
-	DRIVER( majtitle )	/* (c) 1990 (Japan) */
-	DRIVER( hharry )	/* (c) 1990 (World) */
-	DRIVER( hharryu )	/* (c) 1990 Irem America (US) */
-	DRIVER( dkgensan )	/* (c) 1990 (Japan) */
-	DRIVER( dkgenm72 )	/* (c) 1990 (Japan) */
+	DRIVER( majtitle )	/* (c) 1990 (World) */
+	DRIVER( majtitlej )	/* (c) 1990 (Japan) */
+	DRIVER( hharry )	/* (c) 1990 (World, M81) */
+	DRIVER( hharryu )	/* (c) 1990 Irem America (US, M84) */
+	DRIVER( dkgensan )	/* (c) 1990 (Japan, M84) */
+	DRIVER( dkgensanm72 )	/* (c) 1990 (Japan, M72) */
 	DRIVER( poundfor )	/* (c) 1990 (World) */
-	DRIVER( poundfou )	/* (c) 1990 Irem America (US) */
-	DRIVER( airduel )	/* (c) 1990 (Japan) */
+	DRIVER( poundforu )	/* (c) 1990 Irem America (US) */
+	DRIVER( airduel )	/* (c) 1990 (World, M82) */
+	DRIVER( airdueljm72 )	/* (c) 1990 (Japan, M72) */
 	DRIVER( cosmccop )	/* (c) 1991 (World) */
-	DRIVER( gallop )	/* (c) 1991 (Japan) */
-	DRIVER( ltswords )	/* (c) 1991 */
-	DRIVER( kengo )		/* (c) 1991 */
+	DRIVER( gallopm72 )	/* (c) 1991 (Japan, M72) */
+	DRIVER( ltswords )	/* (c) 1991 (World) */
+	DRIVER( kengo )		/* (c) 1991 (World) */
 	/* not M72, but same sound hardware */
 	DRIVER( sichuan2 )	/* (c) 1989 Tamtex */
 	DRIVER( sichuana )	/* (c) 1989 Tamtex */
