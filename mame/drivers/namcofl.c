@@ -329,6 +329,20 @@ static INTERRUPT_GEN(namcofl_interrupt)
 }
 NAMCO_C7X_HARDWARE
 
+/* the NVRAM starts with the default settings of the set, calibration included
+   (the nvram region of the ROMs), or with all bits set if it has none */
+static NVRAM_HANDLER( namcofl )
+{
+	if (read_or_write)
+		mame_fwrite(file, generic_nvram, generic_nvram_size);
+	else if (file)
+		mame_fread(file, generic_nvram, generic_nvram_size);
+	else if (memory_region(REGION_USER5))
+		memcpy(generic_nvram, memory_region(REGION_USER5), generic_nvram_size);
+	else
+		memset(generic_nvram, 0xff, generic_nvram_size);
+}
+
 static MACHINE_DRIVER_START( sysfl )
 	MDRV_CPU_ADD(I960, 20000000)	// i80960KA-20 == 20 MHz part
 	MDRV_CPU_PROGRAM_MAP(sysfl_mem, 0)
@@ -339,7 +353,7 @@ static MACHINE_DRIVER_START( sysfl )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
-	MDRV_NVRAM_HANDLER(generic_1fill)
+	MDRV_NVRAM_HANDLER(namcofl)
 
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK/* | VIDEO_RGB_DIRECT*/)
 	MDRV_SCREEN_SIZE(NAMCONB1_COLS*8, NAMCONB1_ROWS*8) /* 288x224 pixels */
@@ -393,6 +407,9 @@ ROM_START( speedrcr )
 
 	ROM_REGION( 0x400000, REGION_SOUND1, 0 ) // Samples
 	ROM_LOAD("se1_voi.23s",   0x000000, 0x400000, CRC(b95e2ffb) SHA1(7669232d772caa9afa4c7593d018e8b6e534114a) )
+
+	ROM_REGION( 0x2000, REGION_USER5, 0 ) // default settings, including calibration
+	ROM_LOAD("speedrcr.nv",   0x000000, 0x2000, CRC(58b41c70) SHA1(c30ea7f4951ce208781deafef8d99bdb4902e5b8) )
 ROM_END
 
 ROM_START( finalapr )
@@ -430,6 +447,9 @@ ROM_START( finalapr )
 
 	ROM_REGION( 0x200000, REGION_SOUND1, 0 ) // Samples
 	ROM_LOAD("flr1voi.23s",   0x000000, 0x200000, CRC(ff6077cd) SHA1(73c289125ddeae3e43153e4c570549ca04501262) )
+
+	ROM_REGION( 0x2000, REGION_USER5, 0 ) // default settings, including calibration
+	ROM_LOAD("finalapr.nv",   0x000000, 0x2000, CRC(d51d65fe) SHA1(8a0a523cb6ba2880951e41ca04db23584f0a108c) )
 ROM_END
 
 ROM_START( finalapo )
@@ -467,6 +487,9 @@ ROM_START( finalapo )
 
 	ROM_REGION( 0x200000, REGION_SOUND1, 0 ) // Samples
 	ROM_LOAD("flr1voi.23s",   0x000000, 0x200000, CRC(ff6077cd) SHA1(73c289125ddeae3e43153e4c570549ca04501262) )
+
+	ROM_REGION( 0x2000, REGION_USER5, 0 ) // default settings, including calibration
+	ROM_LOAD("finalapr.nv",   0x000000, 0x2000, CRC(d51d65fe) SHA1(8a0a523cb6ba2880951e41ca04db23584f0a108c) )
 ROM_END
 
 static void namcofl_common_init(void)
