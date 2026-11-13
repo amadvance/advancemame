@@ -1106,8 +1106,7 @@ ROM_START( kakumei2 )
 	ROM_LOAD( "mj-8956.13", 0x00000, 0x20000, CRC(afe93cf4) SHA1(1973dc5821c6df68e20f8a84b5c9ae281dd3f85f) )
 
 	ROM_REGION( 0x40000, REGION_GFX3, 0 ) /* BG2 */
-	ROM_LOAD( "mj-8956.12", 0x00000, 0x20000, BAD_DUMP CRC(43f7853d) SHA1(54fb523b27e79aa295900c478f09cc080fea0adf) )
-	/*0x20000-0x40000 used maybe above rom is bad? */
+	ROM_LOAD( "mj-8956.12", 0x00000, 0x40000, CRC(4a088f69) SHA1(468c446d1f345dfd628cdd66ca71cf82e02abe6f) )
 
 	ROM_REGION( 0x80000, REGION_GFX4, 0 ) /* BG3 */
 	ROM_LOAD( "92000-02.10", 0x00000, 0x80000, CRC(338fa9b2) SHA1(05ba4b3c44249cf92be238bf53d6345dc49b0881) )
@@ -1161,7 +1160,7 @@ NEC D65012GF303 9050KX016 (80pin QFP) x4
 
 */
 
-ROM_START( suchipi )
+ROM_START( suchiesp )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_BYTE( "1.bin", 0x00001, 0x40000, CRC(e37cc745) SHA1(73b3314d27a0332068e0d2bbc08d7401e371da1b) )
 	ROM_LOAD16_BYTE( "2.bin", 0x00000, 0x40000, CRC(42ecf88a) SHA1(7bb85470bc9f94c867646afeb91c4730599ea299) )
@@ -1190,7 +1189,7 @@ ROM_START( suchipi )
 	ROM_REGION( 0x220, REGION_USER1, 0 ) /* Proms */
 	ROM_LOAD( "mj15.bpr", 0x000, 0x100, CRC(ebac41f9) SHA1(9d1629d977849663392cbf03a3ddf76665f88608) )
 	ROM_LOAD( "mj16.bpr", 0x100, 0x100, CRC(8d5dc1f6) SHA1(9f723e7cd44f8c09ec30b04725644346484ec753) )
-	ROM_LOAD( "mj17.bpr", 0x200, 0x020, CRC(a17c3e8a) SHA1(d7969fad7cec9c792c53aa457f4ad764a727e0a5) )
+	ROM_LOAD( "pr93035.17", 0x200, 0x020, CRC(ab28ae42) SHA1(e05652c4bd5db4c7d7a1bfdeb63841e8b019f24c) )
 ROM_END
 
 
@@ -1852,13 +1851,13 @@ static DRIVER_INIT( suchipi )
 
 /*First version of the MCU*/
 /*Pseudo-random stuff is not 100% working*/
-GAME( 1989, daireika, 0, jalmah, jalmah, daireika, ROT0, "Jaleco / NMK", "Mahjong Daireikai",			        GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1989, daireika, 0, jalmah, jalmah, daireika, ROT0, "Jaleco / NMK", "Mahjong Daireikai (Japan)",			        GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 /*Protection controls tilemap scrolling on this,you can't see anything unless you use fake scroll register values...*/
-GAME( 1989, urashima, 0, jalmah, jalmah, urashima, ROT0, "UPL",	      "Urashima Mahjong", 					GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1989, urashima, 0, jalmah, jalmah, urashima, ROT0, "UPL",	      "Otogizoushi Urashima Mahjong (Japan)", 					GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 
 /*No known gameplay bugs for the following games:*/
-GAME( 1990, mjzoomin, 0, jalmah, jalmah, mjzoomin, ROT0, "Jaleco",       "Mahjong Channel Zoom In",            GAME_IMPERFECT_GRAPHICS )
+GAME( 1990, mjzoomin, 0, jalmah, jalmah, mjzoomin, ROT0, "Jaleco",       "Mahjong Channel Zoom In (Japan)",            GAME_IMPERFECT_GRAPHICS )
 /*Second version of the MCU*/
-GAME( 1990, kakumei,  0, jalmah, jalmah2, kakumei,  ROT0, "Jaleco",       "Mahjong Kakumei",                      GAME_IMPERFECT_GRAPHICS )
-GAME( 1992, kakumei2, 0, jalmah, jalmah2, kakumei2, ROT0, "Jaleco",       "Mahjong Kakumei 2 - Princess League",  GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, suchipi,  0, jalmah, jalmah2, suchipi,  ROT0, "Jaleco",       "Idol Janshi Su-Chi-Pie Special",       GAME_IMPERFECT_GRAPHICS )
+GAME( 1990, kakumei,  0, jalmah, jalmah2, kakumei,  ROT0, "Jaleco",       "Mahjong Kakumei (Japan)",                      GAME_IMPERFECT_GRAPHICS )
+GAME( 1992, kakumei2, 0, jalmah, jalmah2, kakumei2, ROT0, "Jaleco",       "Mahjong Kakumei 2 - Princess League (Japan)",  GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, suchiesp,  0, jalmah, jalmah2, suchipi,  ROT0, "Jaleco",       "Idol Janshi Suchie-Pai Special (Japan)",       GAME_IMPERFECT_GRAPHICS )

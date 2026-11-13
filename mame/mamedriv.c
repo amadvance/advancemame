@@ -5920,7 +5920,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mjzoomin )
 	DRIVER( kakumei )
 	DRIVER( kakumei2 )
-	DRIVER( suchipi )
+	DRIVER( suchiesp )
 
 	/* Based on nmk16? */
 	DRIVER( quizpani )
