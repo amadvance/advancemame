@@ -55,9 +55,17 @@ static int polycount, pixelcount, lastfps, framecount, totalframes;
  *
  *************************************/
 
+static void scanline_irq_clear(int param)
+{
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
+
+
 static void scanline_timer_cb(int scanline)
 {
 	cpunum_set_input_line(0, 0, ASSERT_LINE);
+	/* The raster interrupt is a pulse, not a permanently asserted level. */
+	timer_set(TIME_IN_HZ(Machine->drv->cpu[0].cpu_clock / 2), 0, scanline_irq_clear);
 	timer_adjust(scanline_timer, cpu_getscanlinetime(scanline + 1), scanline, 0);
 }
 
