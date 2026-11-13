@@ -2333,47 +2333,47 @@
 :99lstwar:20A10000:21B6:00009EC3:FFFFFFFF:Skip RAM/ROM Check (2/2):1st = RAM Check, 2nd = ROM Check
 
 ; [ '99: The Last War (alternate) ]
-:99lstwra:00000000:F001:00000063:FFFFFFFF:Infinite Credits
-:99lstwra:00000000:F652:0000000C:FFFFFFFF:Infinite Energy
-:99lstwra:00010000:F653:0000000C:FFFFFFFF:Infinite Energy (02/10)
-:99lstwra:00010000:F654:0000000C:FFFFFFFF:Infinite Energy (03/10)
-:99lstwra:00010000:F655:0000000C:FFFFFFFF:Infinite Energy (04/10)
-:99lstwra:00010000:F656:0000000C:FFFFFFFF:Infinite Energy (05/10)
-:99lstwra:00010000:F657:0000000C:FFFFFFFF:Infinite Energy (06/10)
-:99lstwra:00010000:F658:0000000C:FFFFFFFF:Infinite Energy (07/10)
-:99lstwra:00010000:F659:0000000C:FFFFFFFF:Infinite Energy (08/10)
-:99lstwra:00010000:F65A:0000000C:FFFFFFFF:Infinite Energy (09/10)
-:99lstwra:00010000:F65B:0000000C:FFFFFFFF:Infinite Energy (10/10)
-:99lstwra:20800000:115E:00000018:FFFFFFFF:Invincibility:See the Dip Switch Menu to enable an alternate Invincibility cheat.
-:99lstwra:00000000:F422:000000FF:FFFFFFFF:Rapid Fire
-:99lstwra:00000000:F0F0:0000000F:FFFFFFFF:Enemies Don't Shoot
-:99lstwra:00000000:F8BF:0000000B:FFFFFFFF:Infinite Lives PL1
-:99lstwra:00000000:F8D3:0000000B:FFFFFFFF:Infinite Lives PL2
-:99lstwra:20800000:217A:00000000:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
-:99lstwra:20A10000:20F3:00009EC3:FFFFFFFF:Skip RAM/ROM Check (2/2):1st = RAM Check, 2nd = ROM Check
+:99lstwara:00000000:F001:00000063:FFFFFFFF:Infinite Credits
+:99lstwara:00000000:F652:0000000C:FFFFFFFF:Infinite Energy
+:99lstwara:00010000:F653:0000000C:FFFFFFFF:Infinite Energy (02/10)
+:99lstwara:00010000:F654:0000000C:FFFFFFFF:Infinite Energy (03/10)
+:99lstwara:00010000:F655:0000000C:FFFFFFFF:Infinite Energy (04/10)
+:99lstwara:00010000:F656:0000000C:FFFFFFFF:Infinite Energy (05/10)
+:99lstwara:00010000:F657:0000000C:FFFFFFFF:Infinite Energy (06/10)
+:99lstwara:00010000:F658:0000000C:FFFFFFFF:Infinite Energy (07/10)
+:99lstwara:00010000:F659:0000000C:FFFFFFFF:Infinite Energy (08/10)
+:99lstwara:00010000:F65A:0000000C:FFFFFFFF:Infinite Energy (09/10)
+:99lstwara:00010000:F65B:0000000C:FFFFFFFF:Infinite Energy (10/10)
+:99lstwara:20800000:115E:00000018:FFFFFFFF:Invincibility:See the Dip Switch Menu to enable an alternate Invincibility cheat.
+:99lstwara:00000000:F422:000000FF:FFFFFFFF:Rapid Fire
+:99lstwara:00000000:F0F0:0000000F:FFFFFFFF:Enemies Don't Shoot
+:99lstwara:00000000:F8BF:0000000B:FFFFFFFF:Infinite Lives PL1
+:99lstwara:00000000:F8D3:0000000B:FFFFFFFF:Infinite Lives PL2
+:99lstwara:20800000:217A:00000000:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
+:99lstwara:20A10000:20F3:00009EC3:FFFFFFFF:Skip RAM/ROM Check (2/2):1st = RAM Check, 2nd = ROM Check
 
 ; [ '99: The Last War (Kyugo) ]
-:99lstwrk:00000000:F001:00000063:FFFFFFFF:Infinite Credits
-:99lstwrk:00000000:F0AB:0000000B:FFFFFFFF:Infinite Lives
-:99lstwrk:00000000:F652:0000000C:FFFFFFFF:Infinite Energy
-:99lstwrk:00010000:F653:0000000C:FFFFFFFF:Infinite Energy (02/10)
-:99lstwrk:00010000:F654:0000000C:FFFFFFFF:Infinite Energy (03/10)
-:99lstwrk:00010000:F655:0000000C:FFFFFFFF:Infinite Energy (04/10)
-:99lstwrk:00010000:F656:0000000C:FFFFFFFF:Infinite Energy (05/10)
-:99lstwrk:00010000:F657:0000000C:FFFFFFFF:Infinite Energy (06/10)
-:99lstwrk:00010000:F658:0000000C:FFFFFFFF:Infinite Energy (07/10)
-:99lstwrk:00010000:F659:0000000C:FFFFFFFF:Infinite Energy (08/10)
-:99lstwrk:00010000:F65A:0000000C:FFFFFFFF:Infinite Energy (09/10)
-:99lstwrk:00010000:F65B:0000000C:FFFFFFFF:Infinite Energy (10/10)
-:99lstwrk:20800000:11F5:00000018:FFFFFFFF:Invincibility:See the Dip Switch Menu to enable an alternate Invincibility cheat.
-:99lstwrk:00000000:F422:000000FF:FFFFFFFF:Rapid Fire
-:99lstwrk:00000000:F0F0:0000000F:FFFFFFFF:Enemies Don't Shoot
-:99lstwrk:00000000:F109:00000080:FFFFFFFF:Always have Normal Shoot
-:99lstwrk:00000000:F109:00000081:FFFFFFFF:Always have Fast Shoot
-:99lstwrk:00000001:F109:00000080:FFFFFFFF:Get Normal Shoot Now!
-:99lstwrk:00000001:F109:00000081:FFFFFFFF:Get Fast Shoot Now!
-:99lstwrk:20800000:223D:00000000:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
-:99lstwrk:20A10000:21B6:00009EC3:FFFFFFFF:Skip RAM/ROM Check (2/2):1st = RAM Check, 2nd = ROM Check
+:99lstwark:00000000:F001:00000063:FFFFFFFF:Infinite Credits
+:99lstwark:00000000:F0AB:0000000B:FFFFFFFF:Infinite Lives
+:99lstwark:00000000:F652:0000000C:FFFFFFFF:Infinite Energy
+:99lstwark:00010000:F653:0000000C:FFFFFFFF:Infinite Energy (02/10)
+:99lstwark:00010000:F654:0000000C:FFFFFFFF:Infinite Energy (03/10)
+:99lstwark:00010000:F655:0000000C:FFFFFFFF:Infinite Energy (04/10)
+:99lstwark:00010000:F656:0000000C:FFFFFFFF:Infinite Energy (05/10)
+:99lstwark:00010000:F657:0000000C:FFFFFFFF:Infinite Energy (06/10)
+:99lstwark:00010000:F658:0000000C:FFFFFFFF:Infinite Energy (07/10)
+:99lstwark:00010000:F659:0000000C:FFFFFFFF:Infinite Energy (08/10)
+:99lstwark:00010000:F65A:0000000C:FFFFFFFF:Infinite Energy (09/10)
+:99lstwark:00010000:F65B:0000000C:FFFFFFFF:Infinite Energy (10/10)
+:99lstwark:20800000:11F5:00000018:FFFFFFFF:Invincibility:See the Dip Switch Menu to enable an alternate Invincibility cheat.
+:99lstwark:00000000:F422:000000FF:FFFFFFFF:Rapid Fire
+:99lstwark:00000000:F0F0:0000000F:FFFFFFFF:Enemies Don't Shoot
+:99lstwark:00000000:F109:00000080:FFFFFFFF:Always have Normal Shoot
+:99lstwark:00000000:F109:00000081:FFFFFFFF:Always have Fast Shoot
+:99lstwark:00000001:F109:00000080:FFFFFFFF:Get Normal Shoot Now!
+:99lstwark:00000001:F109:00000081:FFFFFFFF:Get Fast Shoot Now!
+:99lstwark:20800000:223D:00000000:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
+:99lstwark:20A10000:21B6:00009EC3:FFFFFFFF:Skip RAM/ROM Check (2/2):1st = RAM Check, 2nd = ROM Check
 
 ; [ 9-Ball Shootout (set 2) ]
 :9ballsh2:00000000:0003F91E:0000007F:FFFFFFFF:Infinite Credits
@@ -44940,32 +44940,32 @@
 :flashgal:00000000:F0DF:0000000B:FFFFFFFF:Infinite Lives PL2
 
 ; [ Flashgal (set 2) ]
-:flashgla:00000000:F001:00000063:FFFFFFFF:Infinite Credits
-:flashgla:00000042:F61A:0000000C:FFFFFFFF:Infinite Energy
-:flashgla:00010042:F61B:0000000C:FFFFFFFF:Infinite Energy (02/10)
-:flashgla:00010042:F61C:0000000C:FFFFFFFF:Infinite Energy (03/10)
-:flashgla:00010042:F61D:0000000C:FFFFFFFF:Infinite Energy (04/10)
-:flashgla:00010042:F61E:0000000C:FFFFFFFF:Infinite Energy (05/10)
-:flashgla:00010042:F61F:0000000C:FFFFFFFF:Infinite Energy (06/10)
-:flashgla:00010042:F620:0000000C:FFFFFFFF:Infinite Energy (07/10)
-:flashgla:00010042:F621:0000000C:FFFFFFFF:Infinite Energy (08/10)
-:flashgla:00010042:F622:0000000C:FFFFFFFF:Infinite Energy (09/10)
-:flashgla:00010042:F623:0000000C:FFFFFFFF:Infinite Energy (10/10)
-:flashgla:60000000:0000:00000000:00000000:[Invincibility doesn't work ]
-:flashgla:60000000:0000:00000000:00000000:[against dogs!!             ]
-:flashgla:01000000:A11F:00000000:FFFFFFFF:Invincibility
-:flashgla:60000000:0000:00000000:00000000:[If you use these weapon    ]
-:flashgla:60000000:0000:00000000:00000000:[cheats make sure you use   ]
-:flashgla:60000000:0000:00000000:00000000:[Lose all weapons cheat at  ]
-:flashgla:60000000:0000:00000000:00000000:[the end of the level!!     ]
-:flashgla:00000001:F0B9:00000000:FFFFFFFF:Lose all weapons Now!
-:flashgla:00000001:F0B9:00000001:FFFFFFFF:Get Sword Now!
-:flashgla:00000001:F0B9:00000002:FFFFFFFF:Get Gun Now!
-:flashgla:00000001:F0B9:00000003:FFFFFFFF:Get Motor Cycle Now!
-:flashgla:00000001:F0B9:00000004:FFFFFFFF:Get Helicopter Now!
-:flashgla:00000001:F0B9:00000005:FFFFFFFF:Get Jet Ski Now!
-:flashgla:00000000:F0C5:0000000B:FFFFFFFF:Infinite Lives PL1
-:flashgla:00000000:F0DF:0000000B:FFFFFFFF:Infinite Lives PL2
+:flashgala:00000000:F001:00000063:FFFFFFFF:Infinite Credits
+:flashgala:00000042:F61A:0000000C:FFFFFFFF:Infinite Energy
+:flashgala:00010042:F61B:0000000C:FFFFFFFF:Infinite Energy (02/10)
+:flashgala:00010042:F61C:0000000C:FFFFFFFF:Infinite Energy (03/10)
+:flashgala:00010042:F61D:0000000C:FFFFFFFF:Infinite Energy (04/10)
+:flashgala:00010042:F61E:0000000C:FFFFFFFF:Infinite Energy (05/10)
+:flashgala:00010042:F61F:0000000C:FFFFFFFF:Infinite Energy (06/10)
+:flashgala:00010042:F620:0000000C:FFFFFFFF:Infinite Energy (07/10)
+:flashgala:00010042:F621:0000000C:FFFFFFFF:Infinite Energy (08/10)
+:flashgala:00010042:F622:0000000C:FFFFFFFF:Infinite Energy (09/10)
+:flashgala:00010042:F623:0000000C:FFFFFFFF:Infinite Energy (10/10)
+:flashgala:60000000:0000:00000000:00000000:[Invincibility doesn't work ]
+:flashgala:60000000:0000:00000000:00000000:[against dogs!!             ]
+:flashgala:01000000:A11F:00000000:FFFFFFFF:Invincibility
+:flashgala:60000000:0000:00000000:00000000:[If you use these weapon    ]
+:flashgala:60000000:0000:00000000:00000000:[cheats make sure you use   ]
+:flashgala:60000000:0000:00000000:00000000:[Lose all weapons cheat at  ]
+:flashgala:60000000:0000:00000000:00000000:[the end of the level!!     ]
+:flashgala:00000001:F0B9:00000000:FFFFFFFF:Lose all weapons Now!
+:flashgala:00000001:F0B9:00000001:FFFFFFFF:Get Sword Now!
+:flashgala:00000001:F0B9:00000002:FFFFFFFF:Get Gun Now!
+:flashgala:00000001:F0B9:00000003:FFFFFFFF:Get Motor Cycle Now!
+:flashgala:00000001:F0B9:00000004:FFFFFFFF:Get Helicopter Now!
+:flashgala:00000001:F0B9:00000005:FFFFFFFF:Get Jet Ski Now!
+:flashgala:00000000:F0C5:0000000B:FFFFFFFF:Infinite Lives PL1
+:flashgala:00000000:F0DF:0000000B:FFFFFFFF:Infinite Lives PL2
 
 ; [ Flicky (128k Ver.) ]
 :flicky:00000000:C002:00000009:FFFFFFFF:Infinite Lives PL1
@@ -55348,8 +55348,8 @@
 :gypsyjug:00000000:0E3D:00000009:FFFFFFFF:Infinite Misses
 
 ; [ Gyrodine (Crux) ]
-:gyrodinc:00000000:F353:0000000F:FFFFFFFF:Infinite Lives
-:gyrodinc:00000000:F3B0:00000000:FFFFFFFF:Invincibility
+:gyrodinet:00000000:F353:0000000F:FFFFFFFF:Infinite Lives
+:gyrodinet:00000000:F3B0:00000000:FFFFFFFF:Invincibility
 
 ; [ Gyrodine ]
 :gyrodine:00000000:F353:0000000F:FFFFFFFF:Infinite Lives
@@ -204320,7 +204320,7 @@
 ;88games=hypsptsp=konami88
 ;8ball=8ball1
 ;8ballact=8ballat2~8bpm
-;99lstwar=repulse=sonofphx~=99lstwra~=99lstwrk
+;99lstwar=repulse=sonofphx~=99lstwara~=99lstwark
 ;9ballsh2~9ballsh3~9ballsht~coolpool
 ;aafb~=aafbd2p~=(aafbb=aafbc)
 ;abaseb=abaseb2
@@ -204747,7 +204747,7 @@
 ;fitter=roundup
 ;fixeighb=fixeight
 ;flameguj=flamegun
-;flashgal=flashgla
+;flashgal=flashgala
 ;flicky=flicky2
 ;flkatck=mx5000
 ;flower=flowerbl
@@ -204850,7 +204850,7 @@
 ;gunlock=rayforce=rayforcj
 ;gunsmoka=gunsmoke=gunsmokj=gunsmoku
 ;gwar=gwara=gwarb=gwarj
-;gyrodinc=gyrodine
+;gyrodinet=gyrodine
 ;gyruss=gyrussce=venus
 ;hal21=hal21j
 ;halleycj=halleys=halleysc
@@ -205605,8 +205605,8 @@
 ; 600 (made by ShimaPong) [Z80]
 ; 800fath (made by Pugsy) [Z80]
 ; 99lstwar (made by Shimapong) [Z80]
-; 99lstwra (made by Shimapong) [Z80]
-; 99lstwrk (made by Shimapong) [Z80]
+; 99lstwara (made by Shimapong) [Z80]
+; 99lstwark (made by Shimapong) [Z80]
 ; abattle (made by ShimaPong) [M6502]
 ; abattle2 (made by ShimaPong) [M6502]
 ; abscam (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]

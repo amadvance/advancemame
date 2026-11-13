@@ -121,7 +121,7 @@ On the 100m Dash event, adverts for some other Konami games can be seen in the b
 $end
 
 
-$info=99lstwar,99lstwra,99lstwrk,
+$info=99lstwar,99lstwara,99lstwark,
 $bio
 
 '99 The Last War (c) 1985 Proma.
@@ -70763,7 +70763,7 @@ This game is known outside Japan as "MX5000".
 $end
 
 
-$info=flashgal,flashgla,
+$info=flashgal,flashgala,
 $bio
 
 Flashgal (c) 1985 Sega.
@@ -88255,7 +88255,7 @@ Buttons : 1
 $end
 
 
-$info=gyrodine,gyrodinc,
+$info=gyrodine,gyrodinet,
 $bio
 
 Gyrodine (c) 1984 Crux.
