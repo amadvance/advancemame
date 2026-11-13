@@ -322,6 +322,12 @@ static void eeprom_handler(mame_file *file,int read_or_write)
 				eepdata[0x5] = 0x72;
 			}
 
+			if (mame_stricmp(Machine->gamedrv->name, "hangplt") == 0)
+			{
+				/* default content from the dumped EEPROM */
+				memcpy(eepdata, memory_region(REGION_USER4), 0x100);
+			}
+
 			EEPROM_set_data(eepdata, 0x200);
 		}
 	}
@@ -1367,10 +1373,13 @@ ROM_START( hangplt )
         ROM_LOAD16_WORD_SWAP( "685a07.13k",   0x000000, 0x080000, CRC(5b72fd80) SHA1(a150837fa0d66dc0c3832495a4c8ce4f9b92cd98) )
 
 	ROM_REGION(0x1000000, REGION_USER3, 0)	/* other roms */
-        ROM_LOAD( "685a09.9s",    0x000000, 0x200000, CRC(653821cf) SHA1(625abb7769a52c9ac61cfddaa084b9c9539f3b15) )
-        ROM_LOAD( "685a10.7s",    0x200000, 0x200000, CRC(71eb06e5) SHA1(3c5953e87df63fb7680d7a04267ff2208f49838f) )
+        ROM_LOAD( "685a09.9s",    0x000000, 0x400000, CRC(b8ae40aa) SHA1(eee27a8929e0e805f1045fd9638e661b36a1e3c7) )
+        ROM_LOAD( "685a10.7s",    0x400000, 0x400000, CRC(fef3dc36) SHA1(566c7469fc452b5965a31fa42291082ec8e48a24) )
         ROM_LOAD( "685a13.4w",    0x800000, 0x400000, CRC(06329af4) SHA1(76cad9db604751ce48bb67bfd29e57bac0ee9a16) )
         ROM_LOAD( "685a14.12w",   0xc00000, 0x400000, CRC(87437739) SHA1(0d45637af40938a54d5efd29c125b0fafd55f9a4) )
+
+	ROM_REGION(0x100, REGION_USER4, 0)	/* default EEPROM */
+	ROM_LOAD( "hangplt.nv",   0x000000, 0x000100, CRC(30285221) SHA1(a08d06a0d7966f483e4c691a9bd5a98e48294aab) )
 ROM_END
 
 static DRIVER_INIT(gticlub)
@@ -1393,4 +1402,4 @@ GAME( 1996, gticlub,	0,		 gticlub, gticlub, gticlub,	ROT0,	"Konami",	"GTI Club (
 GAME( 1996, gticlubj,	gticlub, gticlub, gticlub, gticlub,	ROT0,	"Konami",	"GTI Club (ver JAA)", GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1996, thunderh,	0,		 gticlub, gticlub, gticlub,	ROT0,	"Konami",	"Thunder Hurricane (ver UAA)", GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1997, slrasslt,	0,		 gticlub, gticlub, gticlub,	ROT0,	"Konami",	"Solar Assault DR2 (ver UAA)", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1997, hangplt,	0,		 hangplt, gticlub, hangplt, ROT0,	"Konami",	"Hang Pilot", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1997, hangplt,	0,		 hangplt, gticlub, hangplt, ROT0,	"Konami",	"Hang Pilot (ver JAB)", GAME_NOT_WORKING|GAME_NO_SOUND )
