@@ -24154,7 +24154,7 @@
 :cupfinal:20800000:07FFFF:00000002:FFFFFFFF:Region Switch = US
 :cupfinal:20800000:07FFFF:00000003:FFFFFFFF:Region Switch = World
 
-; [ Seibu Cup Soccer ]
+; [ Seibu Cup Soccer (set 1) ]
 :cupsoc:00000000:109294:00000063:FFFFFFFF:Infinite Credits
 :cupsoc:00000000:109E25:00000063:FFFFFFFF:Infinite Time
 :cupsoc:00000001:109E25:00000001:FFFFFFFF:Finish this Game Now!
@@ -24171,22 +24171,22 @@
 :cupsoc:00000001:109E5D:00000032:FFFFFFFF:Set score = 50 Now! Right Team
 :cupsoc:00000101:109E5D:00000063:FFFFFFFF:Select score Now! Right Team
 
-; [ Seibu Cup Soccer (set 2) ]
-:cupsoc2:00000000:109294:00000063:FFFFFFFF:Infinite Credits
-:cupsoc2:00000000:109E25:00000063:FFFFFFFF:Infinite Time
-:cupsoc2:00000001:109E25:00000001:FFFFFFFF:Finish this Game Now!
-:cupsoc2:60000000:000000:00000000:00000000:[ The displayed score won't be updated until a  ]
-:cupsoc2:60000000:000000:00000000:00000000:[ goal has been scored!                         ]
-:cupsoc2:00000000:109E2F:00000000:FFFFFFFF:Score always 0 Left Team
-:cupsoc2:00000000:109E2F:00000063:FFFFFFFF:Score always 99 Left Team
-:cupsoc2:00000001:109E2F:00000000:FFFFFFFF:Set score = 0 Now! Left Team
-:cupsoc2:00000001:109E2F:00000032:FFFFFFFF:Set score = 50 Now! Left Team
-:cupsoc2:00000101:109E2F:00000063:FFFFFFFF:Select score Now! Left Team
-:cupsoc2:00000000:109E5D:00000000:FFFFFFFF:Score always = 0 Right Team
-:cupsoc2:00000000:109E5D:00000063:FFFFFFFF:Score always = 99 Right Team
-:cupsoc2:00000001:109E5D:00000000:FFFFFFFF:Set score = 0 Now! Right Team
-:cupsoc2:00000001:109E5D:00000032:FFFFFFFF:Set score = 50 Now! Right Team
-:cupsoc2:00000101:109E5D:00000063:FFFFFFFF:Select score Now! Right Team
+; [ Seibu Cup Soccer :Selection: (set 2) ]
+:cupsocs2:00000000:109294:00000063:FFFFFFFF:Infinite Credits
+:cupsocs2:00000000:109E25:00000063:FFFFFFFF:Infinite Time
+:cupsocs2:00000001:109E25:00000001:FFFFFFFF:Finish this Game Now!
+:cupsocs2:60000000:000000:00000000:00000000:[ The displayed score won't be updated until a  ]
+:cupsocs2:60000000:000000:00000000:00000000:[ goal has been scored!                         ]
+:cupsocs2:00000000:109E2F:00000000:FFFFFFFF:Score always 0 Left Team
+:cupsocs2:00000000:109E2F:00000063:FFFFFFFF:Score always 99 Left Team
+:cupsocs2:00000001:109E2F:00000000:FFFFFFFF:Set score = 0 Now! Left Team
+:cupsocs2:00000001:109E2F:00000032:FFFFFFFF:Set score = 50 Now! Left Team
+:cupsocs2:00000101:109E2F:00000063:FFFFFFFF:Select score Now! Left Team
+:cupsocs2:00000000:109E5D:00000000:FFFFFFFF:Score always = 0 Right Team
+:cupsocs2:00000000:109E5D:00000063:FFFFFFFF:Score always = 99 Right Team
+:cupsocs2:00000001:109E5D:00000000:FFFFFFFF:Set score = 0 Now! Right Team
+:cupsocs2:00000001:109E5D:00000032:FFFFFFFF:Set score = 50 Now! Right Team
+:cupsocs2:00000101:109E5D:00000063:FFFFFFFF:Select score Now! Right Team
 
 ; [ Seibu Cup Soccer (bootleg) ]
 :cupsocbl:00000000:109294:00000063:FFFFFFFF:Infinite Credits
@@ -56586,7 +56586,7 @@
 :heartatk:00000000:1C65:00000005:FFFFFFFF:Infinite Lives PL1
 :heartatk:00000000:1C66:00000005:FFFFFFFF:Infinite Lives PL2
 
-; [ Heated Barrel (World) ]
+; [ Heated Barrel (World version 3) ]
 :heatbrl:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
 :heatbrl:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
 :heatbrl:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
@@ -56600,6 +56600,21 @@
 :heatbrl:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
 :heatbrl:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :heatbrl:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+
+; [ Heated Barrel (World version 2) ]
+:heatbrl2:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:heatbrl2:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Heated Barrel (World old version) ]
 :heatbrlo:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
@@ -87566,10 +87581,10 @@
 :legionna:00000000:10984E:00000038:FFFFFFFF:Infinite Energy PL2
 
 ; [ Legionnaire (US) ]
-:legionnu:00000000:108001:00000099:FFFFFFFF:Infinite Credits
-:legionnu:00000000:10921F:00000099:FFFFFFFF:Infinite Time
-:legionnu:00000000:1097DE:00000038:FFFFFFFF:Infinite Energy PL1
-:legionnu:00000000:10984E:00000038:FFFFFFFF:Infinite Energy PL2
+:legionnau:00000000:108001:00000099:FFFFFFFF:Infinite Credits
+:legionnau:00000000:10921F:00000099:FFFFFFFF:Infinite Time
+:legionnau:00000000:1097DE:00000038:FFFFFFFF:Infinite Energy PL1
+:legionnau:00000000:10984E:00000038:FFFFFFFF:Infinite Energy PL2
 
 ; [ Legion (ver 1.05) ]
 :legiono:20800000:00D81C:0000004E:FFFFFFFF:Invincibility
@@ -203797,7 +203812,8 @@
 ; { Reason 11 } ; harddrvj  [ Hard Drivin' (cockpit, Japan, rev 7) ]
 ; { Reason 11 } ; hdrivaip  [ Hard Drivin's Airborne (prototype, early rev) ]
 ; { Reason 11 } ; hdrivair  [ Hard Drivin's Airborne (prototype) ]
-; { Reason 11 } ; heatbrl   [ Heated Barrel (World) ]
+; { Reason 11 } ; heatbrl   [ Heated Barrel (World version 3) ]
+; { Reason 11 } ; heatbrl2  [ Heated Barrel (World version 2) ]
 ; { Reason 11 } ; heatbrlo  [ Heated Barrel (World old version) ]
 ; { Reason 11 } ; heatbrlu  [ Heated Barrel (US) ]
 ; { Reason 11 } ; hidctch2  [ Hidden Catch 2 (pcb ver 3.03) ]
@@ -204595,7 +204611,7 @@
 ;ctisland~(ctislnd2=ctislnd3)
 ;ctribe=ctribeb
 ;cupfinal=hthero93~=(hthero94=intcup94)~=scfinals
-;cupsoc=cupsoc2=cupsocbl=goal92=olysoc92
+;cupsoc=cupsocs2=cupsocbl=goal92=olysoc92
 ;cyberb2p=cyberb21=cyberb22=cyberb23~(cyberba2=cyberbal=cyberbap)~cyberbt=cyberbt1
 ;cybots=cybotsj=cybotsu
 ;dadandrn=mmaulers
@@ -204984,7 +205000,7 @@
 ;leaguemn=nbbatman
 ;ledstorm=madgear=madgearj
 ;legion=legiono
-;legionna=legionnu
+;legionna=legionnau
 ;leprechn=leprechp=potogold~=piratetr
 ;lethalth=thndblst
 ;lghost=lghostu
