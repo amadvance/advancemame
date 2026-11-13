@@ -88376,12 +88376,12 @@
 :looping:00000001:E4C5:00000000:FFFFFFFF:Open Gate Now!
 :looping:00000001:E4C5:00000001:FFFFFFFF:Close Gate Now!
 
-; [ Looping (set 2) ]
-:loopinga:00000000:E397:00000000:FFFFFFFF:Infinite Lives
-:loopinga:00010000:E36D:00000005:FFFFFFFF:Infinite Lives (2/2)
-:loopinga:00000000:E4C5:00000000:FFFFFFFF:Always have Gate Open
-:loopinga:00000001:E4C5:00000000:FFFFFFFF:Open Gate Now!
-:loopinga:00000001:E4C5:00000001:FFFFFFFF:Close Gate Now!
+; [ Looping (US, set 2) ]
+:loopingua:00000000:E397:00000000:FFFFFFFF:Infinite Lives
+:loopingua:00010000:E36D:00000005:FFFFFFFF:Infinite Lives (2/2)
+:loopingua:00000000:E4C5:00000000:FFFFFFFF:Always have Gate Open
+:loopingua:00000001:E4C5:00000000:FFFFFFFF:Open Gate Now!
+:loopingua:00000001:E4C5:00000001:FFFFFFFF:Close Gate Now!
 
 ; [ Lord of Gun (USA) ]
 :lordgun:00200000:209361:00630063:FFFFFFFF:Infinite Credits
@@ -205012,7 +205012,7 @@
 ;loderdfa~loderndf
 ;loffire=loffirej=loffireu
 ;lomakai=makaiden
-;looping=loopinga~=skybump
+;looping=loopingua~=skybump
 ;losttmbh=losttomb~=superbon
 ;lsasquad=storming
 ;luplup=luplup29=puzlbang=suplup     (unchecked relationship)
