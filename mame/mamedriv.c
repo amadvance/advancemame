@@ -1292,6 +1292,7 @@ const game_driver * const drivers[] =
 	DRIVER( stargrds )	/* (c) 1987 */
 	DRIVER( maxrpm )	/* (c) 1986 */
 	DRIVER( spyhunt )	/* (c) 1983 */
+	DRIVER( spyhuntp )	/* (c) 1983 Bally Midway (Playtronic license) */
 	DRIVER( turbotag )	/* (c) 1985 */
 	DRIVER( crater )	/* (c) 1984 */
 	/* MCR 68000 */
