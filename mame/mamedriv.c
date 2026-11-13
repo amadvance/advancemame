@@ -7594,9 +7594,10 @@ Other Sun games
 	DRIVER( 9ballshtc )	/* (c) 1993 E-Scape EnterMedia + "marketed by Bundra Games" */
 	DRIVER( gumbo )		/* (c) 1994 Min Corp. */
 	DRIVER( mspuzzle )	/* (c) 1994 Min Corp. */
-	DRIVER( mspuzzln )	/* (c) 1994 Min Corp. */
+	DRIVER( mspuzzleb )	/* (c) 1994 Min Corp. */
 	DRIVER( msbingo )	/* (C) 1994 Min Corp. */
-	DRIVER( dblpoint )	/* (c) 1995 Dong Bang Electron */
+	DRIVER( dblpoint )	/* (c) 1995 Min Corp. */
+	DRIVER( dblpointd )	/* bootleg? (c) 1995 Dong Bang Electron */
 	DRIVER( hangman )	/* (c) 1984 Status Games */
 	DRIVER( trivquiz )	/* (c) 1984 Status Games */
 	DRIVER( statriv2 )	/* (c) 1984 Status Games */
