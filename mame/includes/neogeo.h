@@ -43,6 +43,7 @@ WRITE16_HANDLER (neogeo_select_game_vectors);
 void kof99_neogeo_gfx_decrypt(int extra_xor);
 void kof2000_neogeo_gfx_decrypt(int extra_xor);
 void cmc50_neogeo_gfx_decrypt(int extra_xor);
+void cmc50_neogeo_m1_decrypt(void);
 void cmc42_neogeo_gfx_decrypt(int extra_xor);
 void kof99_decrypt_68k(void);
 void garou_decrypt_68k(void);

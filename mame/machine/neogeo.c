@@ -93,6 +93,10 @@ DRIVER_INIT( neogeo )
 	UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
 	int tileno,numtiles;
 
+	/* Only updated sets provide this region; legacy decrypted sets stay usable. */
+	if (memory_region(REGION_USER5))
+		cmc50_neogeo_m1_decrypt();
+
 	numtiles = memory_region_length(REGION_GFX3)/128;
 	for (tileno = 0;tileno < numtiles;tileno++)
 	{
