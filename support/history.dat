@@ -66117,7 +66117,7 @@ Sharp X68000
 $end
 
 
-$info=falcon,falcona,
+$info=falcon,falconz,
 $bio
 
 Falcon (c) 1980 BGV.
@@ -156869,7 +156869,7 @@ Music composed by : Yoshinori Kawamoto (Kawagen)
 $end
 
 
-$info=phoenix,phoenixt,phoenix3,phoenixc,phoenixa,
+$info=phoenix,phoenixt,phoenix3,phoenixc,phoenixb,
 $bio
 
 Phoenix (c) 12/1980 Amstar.
@@ -247631,7 +247631,7 @@ Staff : Toshiaki.O, Super.Kita, Nakanishi, Nakamura, Yoshida, Holstein, Kashuga,
 $end
 
 
-$info=vautour,vautour2,
+$info=vautour,vautourz,
 $bio
 
 Vautour (c) 1980 Jeutel.

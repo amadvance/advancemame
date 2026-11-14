@@ -532,16 +532,16 @@ const game_driver * const drivers[] =
 	/* "Phoenix hardware" (and variations) games */
 	DRIVER( safarir )	/* Shin Nihon Kikaku (SNK) */
 	DRIVER( phoenix )	/* (c) 1980 Amstar */
-	DRIVER( phoenixa )	/* (c) 1980 Amstar + Centuri license */
+	DRIVER( phoenixb )	/* (c) 1980 Amstar + Centuri license */
 	DRIVER( phoenixt )	/* (c) 1980 Taito */
 	DRIVER( phoenix3 )	/* bootleg */
 	DRIVER( phoenixc )	/* bootleg */
 	DRIVER( condor )	/* bootleg */
 	DRIVER( falcon )	/* bootleg */
 	DRIVER( vautour )	/* bootleg (Jeutel) */
-	DRIVER( vautour2 )	/* bootleg */
+	DRIVER( vautourz )	/* bootleg */
 	DRIVER( griffon )	/* bootleg (Videotron) */
-	DRIVER( falcona )	/* bootleg */
+	DRIVER( falconz )	/* bootleg */
 	DRIVER( pleiads )	/* (c) 1981 Tehkan */
 	DRIVER( pleiadbl )	/* bootleg */
 	DRIVER( pleiadce )	/* (c) 1981 Centuri + Tehkan */

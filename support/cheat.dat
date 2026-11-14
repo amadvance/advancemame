@@ -43256,11 +43256,11 @@
 :falcon:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ Falcon (bootleg set 2) ]
-:falcona:00000000:4390:00000009:FFFFFFFF:Infinite Lives
-:falcona:00000000:43A6:000000DD:FFFFFFFF:Never have shields
-:falcona:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
-:falcona:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
-:falcona:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
+:falconz:00000000:4390:00000009:FFFFFFFF:Infinite Lives
+:falconz:00000000:43A6:000000DD:FFFFFFFF:Never have shields
+:falconz:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
+:falconz:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
+:falconz:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ Fantasia ]
 :fantasia:00000000:C80F82:00000009:FFFFFFFF:Infinite Credits
@@ -130767,11 +130767,11 @@
 :phoenix3:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ Phoenix (Centuri) ]
-:phoenixa:00000000:4390:00000009:FFFFFFFF:Infinite Lives
-:phoenixa:00000000:43A6:000000DD:FFFFFFFF:Never have shields
-:phoenixa:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
-:phoenixa:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
-:phoenixa:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
+:phoenixb:00000000:4390:00000009:FFFFFFFF:Infinite Lives
+:phoenixb:00000000:43A6:000000DD:FFFFFFFF:Never have shields
+:phoenixb:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
+:phoenixb:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
+:phoenixb:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ Phoenix (IRECSA, G.G.I Corp) ]
 :phoenixc:00000000:4390:00000009:FFFFFFFF:Infinite Lives
@@ -191103,11 +191103,11 @@
 :vautour:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ Vautour (set 2) ]
-:vautour2:00000000:4390:00000009:FFFFFFFF:Infinite Lives
-:vautour2:00000000:43A6:000000DD:FFFFFFFF:Never have shields
-:vautour2:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
-:vautour2:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
-:vautour2:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
+:vautourz:00000000:4390:00000009:FFFFFFFF:Infinite Lives
+:vautourz:00000000:43A6:000000DD:FFFFFFFF:Never have shields
+:vautourz:00000040:43A6:00000000:FFFFFFFF:Shield Always Ready
+:vautourz:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
+:vautourz:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
 ; [ U.S. Championship V'ball (set 1) ]
 :vball:00000000:004A:00000059:FFFFFFFF:Infinite Time
@@ -204429,7 +204429,7 @@
 ;barricad=brickyrd
 ;bass=getbass (unchecked relationship)
 ;batcir=batcira=batcirj
-;batman2~=condor~=(falcon=falcona=phoenix=phoenix3=phoenixa=phoenixc=phoenixt=vautour=vautour2(pleiads~capitol=pleiadce=pleiadbl))~=griffon
+;batman2~=condor~=(falcon=falconz=phoenix=phoenix3=phoenixb=phoenixc=phoenixt=vautour=vautourz(pleiads~capitol=pleiadce=pleiadbl))~=griffon
 ;batrider=batridra=batridrk
 ;batsugna=batsugun=batugnsp
 ;battlane=battlan2=battlan3
@@ -205878,7 +205878,7 @@
 ; eyes (made by ShimaPong) [????]
 ; eyes2 (made by ShimaPong) [????]
 ; falcon (made by Pugsy) [I8085A]
-; falcona (made by Pugsy) [I8085A]
+; falconz (made by Pugsy) [I8085A]
 ; fantazia (updated/fixed by ShimaPong) [Z80]
 ; fastlane (made by ShimaPong) [????]
 ; fatfurspa (made by ShimaPong) [????]
@@ -206259,7 +206259,7 @@
 ; phantoma (made by Pugsy) [M6502]
 ; phoenix (made by Pugsy) [8085A]
 ; phoenix3 (made by Pugsy) [8085A]
-; phoenixa (made by Pugsy) [8085A]
+; phoenixb (made by Pugsy) [8085A]
 ; phoenixc (made by Pugsy) [8085A]
 ; phoenixt (made by Pugsy) [8085A]
 ; piranha (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
@@ -206552,7 +206552,7 @@
 ; upndown (made by Pugsy) [Z80]
 ; upndownu (made by Pugsy) [Z80]
 ; vautour (made by Pugsy) [I8085A]
-; vautour2 (made by Pugsy) [I8085A]
+; vautourz (made by Pugsy) [I8085A]
 ; venture (made by ShimaPong) [????]
 ; venture2 (made by ShimaPong) [????]
 ; venture4 (made by ShimaPong) [????]

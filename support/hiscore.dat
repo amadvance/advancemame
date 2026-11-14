@@ -205,7 +205,7 @@ vautour:  ;******Vautour (set 1-jeutel france)
 0:4141:1:20:20
 0:4389:3:00:00
 
-vautour2:  ;******Vautour (set 2)
+vautourz:  ;******Vautour (bootleg of Phoenix) (Z80 CPU)
 0:41e0:1:20:20
 0:41c0:1:20:20
 0:41a0:1:20:20
@@ -358,7 +358,7 @@ finalp2j:  ;******final lap 2 (japan)
 ;** for save to work (i.e make sure the new top score is displaying in top score spot) **
 phoenix:
 phoenix3:
-phoenixa:
+phoenixb:
 phoenixc:
 phoenixt:
 pleiads:
@@ -434,7 +434,7 @@ ragtime:  ;******The Great Ragtime Show (Japan v1.5, 92.12.07)
 0:200f4a:27:00:0b
 
 ;******Falcon (bootleg set 2)
-falcona:
+falconz:
 0:4389:3:00:00
 0:4140:1:20:20
 0:4160:1:20:20
