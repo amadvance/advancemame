@@ -7863,7 +7863,8 @@ Other Sun games
 	DRIVER( sliver )	/* (c) 1996 Hollow Corp */
 	DRIVER( intrscti )	/* ???? */
 
-	DRIVER( bazooka )       /* (c) 1977 Taito do Brasil */
+	DRIVER( bazooka )       /* (c) 1976 Project Support Engineering */
+	DRIVER( bazookabr )     /* (c) 1977 Taito do Brasil */
 
 	/* EFO / Cedar Magnet System */
 	DRIVER( cedmag )
