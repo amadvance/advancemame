@@ -133231,23 +133231,23 @@
 :popeye:00000000:890A:00000000:FFFFFFFF:One Heart at a Time
 
 ; [ Popeye (bootleg) ]
-:popeyebl:00000000:8FDD:00000099:FFFFFFFF:Infinite Credits
-:popeyebl:00000000:8000:00000008:0000000F:Infinite Lives
-:popeyebl:00000000:810F:0000007D:FFFFFFFF:Always Have Spinach Power
-:popeyebl:00000000:8116:00000070:FFFFFFFF:Extra Speed
-:popeyebl:00000000:8C03:00000004:FFFFFFFF:Always Red
-:popeyebl:00000000:80C8:00000010:FFFFFFFF:Change Music
-:popeyebl:00000000:810F:0000007C:FFFFFFFF:Freeze falling objects
-:popeyebl:00000000:8005:00000001:FFFFFFFF:New Spinach with Each Life
-:popeyebl:00000000:8130:0000000C:FFFFFFFF:Disco Bluto
-:popeyebl:00000000:8147:000000FF:FFFFFFFF:Bluto is Scared of Staircases:Bonus - if this is activated when Bluto has a barrel on his head, the barrel will stay on for the rest of the level.
-:popeyebl:00000000:8C65:0000007F:FFFFFFFF:Spinach Stays on Top
-:popeyebl:00000000:8C65:00000057:FFFFFFFF:Spinach Stays on Bottom
-:popeyebl:00000000:81E1:00000028:FFFFFFFF:Errant Spinach (^)
-:popeyebl:00000000:81E1:000000D8:FFFFFFFF:Errant Spinach (v)
-:popeyebl:00000000:8158:00000001:FFFFFFFF:Errant Olive (>)
-:popeyebl:00000000:8158:00000002:FFFFFFFF:Errant Olive (<)
-:popeyebl:00000000:810A:00000000:FFFFFFFF:One Heart at a Time
+:popeyeb2:00000000:8FDD:00000099:FFFFFFFF:Infinite Credits
+:popeyeb2:00000000:8000:00000008:0000000F:Infinite Lives
+:popeyeb2:00000000:810F:0000007D:FFFFFFFF:Always Have Spinach Power
+:popeyeb2:00000000:8116:00000070:FFFFFFFF:Extra Speed
+:popeyeb2:00000000:8C03:00000004:FFFFFFFF:Always Red
+:popeyeb2:00000000:80C8:00000010:FFFFFFFF:Change Music
+:popeyeb2:00000000:810F:0000007C:FFFFFFFF:Freeze falling objects
+:popeyeb2:00000000:8005:00000001:FFFFFFFF:New Spinach with Each Life
+:popeyeb2:00000000:8130:0000000C:FFFFFFFF:Disco Bluto
+:popeyeb2:00000000:8147:000000FF:FFFFFFFF:Bluto is Scared of Staircases:Bonus - if this is activated when Bluto has a barrel on his head, the barrel will stay on for the rest of the level.
+:popeyeb2:00000000:8C65:0000007F:FFFFFFFF:Spinach Stays on Top
+:popeyeb2:00000000:8C65:00000057:FFFFFFFF:Spinach Stays on Bottom
+:popeyeb2:00000000:81E1:00000028:FFFFFFFF:Errant Spinach (^)
+:popeyeb2:00000000:81E1:000000D8:FFFFFFFF:Errant Spinach (v)
+:popeyeb2:00000000:8158:00000001:FFFFFFFF:Errant Olive (>)
+:popeyeb2:00000000:8158:00000002:FFFFFFFF:Errant Olive (<)
+:popeyeb2:00000000:810A:00000000:FFFFFFFF:One Heart at a Time
 
 ; [ Popeye (revision F) ]
 :popeyef:00000000:8FDD:00000099:FFFFFFFF:Infinite Credits
@@ -205201,7 +205201,7 @@
 ;ponchin=ponchina
 ;ponpoko=ponpokov
 ;pootan=pooyan=pooyans
-;popeye=popeyef=popeyeu~popeyebl
+;popeye=popeyef=popeyeu~popeyeb2
 ;popflama=popflamb=popflame
 ;popnpop=popnpopj=popnpopu
 ;portrait=portrata

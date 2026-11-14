@@ -963,7 +963,7 @@ const game_driver * const drivers[] =
 	DRIVER( popeye )	/* (c) 1982 */
 	DRIVER( popeyeu )	/* (c) 1982 */
 	DRIVER( popeyef )	/* (c) 1982 */
-	DRIVER( popeyebl )	/* bootleg */
+	DRIVER( popeyeb2 )	/* bootleg */
 	DRIVER( punchout )	/* (c) 1984 */
 	DRIVER( spnchout )	/* (c) 1984 */
 	DRIVER( spnchotj )	/* (c) 1984 (Japan) */

@@ -643,29 +643,32 @@ ROM_START( popeyef )
 	ROM_LOAD( "prom-vid.7j",  0x0240, 0x0100, CRC(a4655e2e) SHA1(2a620932fccb763c6c667278c0914f31b9f00ddf) ) /* timing for the protection ALU */
 ROM_END
 
-ROM_START( popeyebl )
+ROM_START( popeyeb2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "po1",          0x0000, 0x2000, CRC(b14a07ca) SHA1(b8666a4c6b833f60905692774e30e73f0795df11) )
 	ROM_LOAD( "po2",          0x2000, 0x2000, CRC(995475ff) SHA1(5cd5ac23a73722e32c80cd6ffc435584750a46c9) )
 	ROM_LOAD( "po3",          0x4000, 0x2000, CRC(99d6a04a) SHA1(b683a5bb1ac4f6bec7478760c8ad0ff7c00bc652) )
 	ROM_LOAD( "po4",          0x6000, 0x2000, CRC(548a6514) SHA1(006e076781a3e5c3afa084c723247365358e3187) )
-	ROM_LOAD( "po_d1-e1.bin", 0xe000, 0x0020, CRC(8de22998) SHA1(e3a232ff85fb207afbe23049a65e828420589342) )	/* protection PROM */
 
 	ROM_REGION( 0x0800, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "v-5n",         0x0000, 0x0800, CRC(cca61ddd) SHA1(239f87947c3cc8c6693c295ebf5ea0b7638b781c) )	/* first half is empty */
+	ROM_LOAD( "po5",          0x0000, 0x0800, CRC(ce6c9f8e) SHA1(d52058c71c1769d9b9c4e713ac347096ac97bf1e) )	/* first and second half identical */
 	ROM_CONTINUE(             0x0000, 0x0800 )
 
 	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "v-1e",         0x0000, 0x2000, CRC(0f2cd853) SHA1(426c9b4f6579bfcebe72b976bfe4f05147d53f96) )
-	ROM_LOAD( "v-1f",         0x2000, 0x2000, CRC(888f3474) SHA1(ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859) )
-	ROM_LOAD( "v-1j",         0x4000, 0x2000, CRC(7e864668) SHA1(8e275dbb1c586f4ebca7548db05246ef0f56d7b1) )
-	ROM_LOAD( "v-1k",         0x6000, 0x2000, CRC(49e1d170) SHA1(bd51a4e34ce8109f26954760156e3cf05fb9db57) )
+	ROM_LOAD( "po6",          0x0000, 0x2000, CRC(0f2cd853) SHA1(426c9b4f6579bfcebe72b976bfe4f05147d53f96) )
+	ROM_LOAD( "po7",          0x2000, 0x2000, CRC(888f3474) SHA1(ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859) )
+	ROM_LOAD( "po8",          0x4000, 0x2000, CRC(7e864668) SHA1(8e275dbb1c586f4ebca7548db05246ef0f56d7b1) )
+	ROM_LOAD( "po9",          0x6000, 0x2000, CRC(49e1d170) SHA1(bd51a4e34ce8109f26954760156e3cf05fb9db57) )
 
 	ROM_REGION( 0x0240, REGION_PROMS, 0 )
 	ROM_LOAD( "popeye.pr1",   0x0000, 0x0020, CRC(d138e8a4) SHA1(eba7f870ccab72105593007f5cd7e0b863912402) ) /* background palette */
 	ROM_LOAD( "popeye.pr2",   0x0020, 0x0020, CRC(0f364007) SHA1(b77d71df391a9ac9e778e84475627e72de2b8507) ) /* char palette */
 	ROM_LOAD( "popeye.pr3",   0x0040, 0x0100, CRC(ca4d7b6a) SHA1(ec979fffea9db5a327a5270241e376c21516e343) ) /* sprite palette - low 4 bits */
 	ROM_LOAD( "popeye.pr4",   0x0140, 0x0100, CRC(cab9bc53) SHA1(e63ba8856190187996e405f6fcee254c8ca6e81f) ) /* sprite palette - high 4 bits */
+
+	ROM_REGION( 0x0100, REGION_USER1, 0 )	/* protection replacement, encrypted */
+	ROM_LOAD_NIB_LOW(  "popeye.d1", 0x0000, 0x0100, CRC(2e1b143a) SHA1(7e0fd19328ccd6f2b2148739ef64703ade585060) )
+	ROM_LOAD_NIB_HIGH( "popeye.e1", 0x0000, 0x0100, CRC(978b1c63) SHA1(ae67a4ac554e84c970c0acc82f4bc6a490f9d6ef) )
 ROM_END
 
 
@@ -685,6 +688,23 @@ DRIVER_INIT( skyskipr )
 		memcpy(rom,buffer,len);
 		free(buffer);
 	}
+}
+
+DRIVER_INIT( popeyeb2 )
+{
+	UINT8 *prot = memory_region(REGION_USER1);
+	UINT8 *rom = memory_region(REGION_CPU1);
+	int i;
+
+	/* the first 0x80 bytes are the opcodes (fetched with M1) and the next 0x80 the data, */
+	/* each with its own XOR: the CPU reads the opcodes from the decrypted region */
+	for (i = 0; i < 0x80; ++i)
+	{
+		prot[i] ^= 0x0f;
+		prot[i + 0x80] ^= 0x03;
+	}
+	memcpy(rom + 0xe000, prot + 0x80, 0x20);
+	memory_set_decrypted_region(0, 0xe000, 0xe01f, prot);
 }
 
 DRIVER_INIT( popeye )
@@ -709,4 +729,4 @@ GAME( 1981, skyskipr, 0,      skyskipr, skyskipr, skyskipr, ROT0, "Nintendo", "S
 GAME( 1982, popeye,   0,      popeye,   popeye,   popeye,   ROT0, "Nintendo", "Popeye (revision D)", 0 )
 GAME( 1982, popeyeu,  popeye, popeye,   popeye,   popeye,   ROT0, "Nintendo", "Popeye (revision D not protected)", 0 )
 GAME( 1982, popeyef,  popeye, popeye,   popeyef,  popeye,   ROT0, "Nintendo", "Popeye (revision F)", 0 )
-GAME( 1982, popeyebl, popeye, popeyebl, popeye,   0,        ROT0, "bootleg",  "Popeye (bootleg)", 0 )
+GAME( 1982, popeyeb2, popeye, popeyebl, popeye,   popeyeb2, ROT0, "bootleg",  "Popeye (bootleg set 2)", 0 )
