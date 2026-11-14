@@ -1690,7 +1690,7 @@ static const struct
 {
 #define IDLE_SET(name, table) { name, table, sizeof(table) / sizeof(table[0]) }
 	IDLE_SET("desertwr",  idle_desertwr),
-	IDLE_SET("p47aces",   idle_p47acesa),
+	IDLE_SET("p47aces",   idle_p47aces),
 	IDLE_SET("p47acesa",  idle_p47acesa),
 	IDLE_SET("gratia",    idle_gratia),
 	IDLE_SET("gratiaa",   idle_gratia),
@@ -1702,11 +1702,11 @@ static const struct
 	IDLE_SET("bbbxing",   idle_bbbxing),
 	IDLE_SET("gametngk",  idle_gametngk),
 	IDLE_SET("tetrisp",   idle_tetrisp),
-	IDLE_SET("hayaosi1",  idle_hayaosi2),
+	IDLE_SET("hayaosi2",  idle_hayaosi2),
 	IDLE_SET("hayaosi3",  idle_hayaosi3),
 	IDLE_SET("hayaosi3a", idle_hayaosi3a),
 	IDLE_SET("suchie2",   idle_suchie2),
-	IDLE_SET("47pie2o",   idle_suchie2o),
+	IDLE_SET("suchie2o",  idle_suchie2o),
 	IDLE_SET("wpksocv2",  idle_wpksocv2)
 #undef IDLE_SET
 };
@@ -3387,7 +3387,7 @@ ROM_START( suchie2 )
 	ROM_LOAD( "94019-11.23", 0x200000, 0x200000, CRC(021dc350) SHA1(c71936091f86440201fdbdc94b0d1d22c4018188) )
 ROM_END
 
-ROM_START( 47pie2o )
+ROM_START( suchie2o )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 ) /* V70 code */
 	ROM_LOAD32_BYTE( "93166-26.v10", 0x000003, 0x80000, CRC(21dc94dd) SHA1(faf2eea891cb061d5df47ef31d9538feb0c1233c) )
 	ROM_LOAD32_BYTE( "93166-27.v10", 0x000002, 0x80000, CRC(5bf18a7d) SHA1(70869dc37e6ad79ce4e85db71a03c5cccf9d732b) )
@@ -3561,7 +3561,7 @@ ROM_START( gratiaa )
 	ROM_LOAD( "94019.09", 0x200000, 0x200000, CRC(711ab08b) SHA1(185b80b965ac3aba4857b4f83637008c2c1cc6ff) )
 
 	ROM_REGION( 0x200000, REGION_GFX3, 0 ) /* bg tiles, don't dispose since we use GFX_RAW */
-	ROM_LOAD( "94019.07", 0x000000, 0x200000, BAD_DUMP CRC(acb75824) SHA1(3b43e00a2d240761565042c8feead25a83ef0eb1)  )	// FIXED BITS (xxxxxxxx11111111)
+	ROM_LOAD( "mr94019-07.10", 0x000000, 0x200000, CRC(561a786b) SHA1(23df08d50801bd6e4a2f12dd3bb50632ff77f0f2) )
 
 	ROM_REGION( 0x080000, REGION_GFX4, 0 ) /* tx tiles, don't dispose since we use GFX_RAW */
 	ROM_LOAD( "94019.030",0x000000, 0x080000, CRC(026b5379) SHA1(b9237477f1bf8ae83174e8231492fe667e6d6a13) )
@@ -3610,7 +3610,7 @@ ROM_START( gametngk )
 	ROM_LOAD( "mr94041.14", 0x200000, 0x200000, CRC(2d6308bd) SHA1(600b6ccdbb976301075e0b287124a9fd5fe7fc1b) )
 ROM_END
 
-ROM_START( hayaosi1 )
+ROM_START( hayaosi2 )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 ) /* V70 code */
  	ROM_LOAD32_BYTE( "mb93138a.25", 0x000003, 0x80000, CRC(563c6f2f) SHA1(bc2a61fd2e0adf58256feeef8491b67af6d6eacf) )
 	ROM_LOAD32_BYTE( "mb93138a.27", 0x000002, 0x80000, CRC(fe8e283a) SHA1(fc6c06ae296110b1f5794187d5208b17541614cb) )
@@ -3712,6 +3712,42 @@ ROM_START( akiss )
 ROM_END
 
 ROM_START( p47aces )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 ) /* V70 code */
+ 	ROM_LOAD32_BYTE( "p-47_aces_3-31_rom_26_ver1.1.26", 0x000003, 0x80000, CRC(99c0e211) SHA1(6fc3b1e5ddadda85934145a2e62b55ccb2011fb5) )
+	ROM_LOAD32_BYTE( "p-47_aces_3-31_rom_27_ver1.1.27", 0x000002, 0x80000, CRC(2a0c107a) SHA1(1d83bd55acaad62a5823f09b1683f846631fdeca) )
+ 	ROM_LOAD32_BYTE( "p-47_aces_3-31_rom_28_ver1.1.28", 0x000001, 0x80000, CRC(53509d28) SHA1(44e6388ade514bb747a84bfef17f852393b44a37) )
+	ROM_LOAD32_BYTE( "p-47_aces_3-31_rom_29_ver1.1.29", 0x000000, 0x80000, CRC(91e7b7da) SHA1(f3a0e193c59e285d97a7ea9bc92a7b3c5c009532) )
+
+	ROM_REGION( 0xe00000, REGION_GFX1, 0 ) /* sprites, don't dispose since we use GFX_RAW */
+	ROM_LOAD32_WORD( "p47-01.bin",  0x000002, 0x200000, CRC(28732d3c) SHA1(15b2687bcad31793fc7d6a9dc3eccb7ad9b5f659) )
+	ROM_LOAD32_WORD( "p47-13.bin",  0x000000, 0x200000, CRC(a6ccf999) SHA1(5d32fb6f6987ede6c125bec9581da4695ad64dff) )
+	ROM_LOAD32_WORD( "p47-02.bin",  0x400002, 0x200000, CRC(128db576) SHA1(f6561f54f6b95842a5f14d29682449bf0d837a85) )
+	ROM_LOAD32_WORD( "p47-14.bin",  0x400000, 0x200000, CRC(efc52b38) SHA1(589caaaba4e3ddaf41e05f0f12b8d4bc6d63fa5c) )
+	ROM_LOAD32_WORD( "p47-03.bin",  0x800002, 0x200000, CRC(324cd504) SHA1(79b3ef3ae0aa14d903113ccf5b57d459c329cf12) )
+	ROM_LOAD32_WORD( "p47-15.bin",  0x800000, 0x200000, CRC(ca164b17) SHA1(ea1cb0894632442f40d321b5843125f874768aae) )
+	ROM_LOAD32_WORD( "p47-04.bin",  0xc00002, 0x100000, CRC(4b3372be) SHA1(cdc7d7615b6b5d45ca071b2967980dc6c6294ac0) )
+	ROM_LOAD32_WORD( "p47-16.bin",  0xc00000, 0x100000, CRC(c23c5467) SHA1(5ff51ecb86ccbae2af160599890e13a7cc70072d) )
+
+	ROM_REGION( 0x400000, REGION_GFX2, 0 ) /* roz tiles, don't dispose since we use GFX_RAW */
+	ROM_LOAD( "p47-11.bin",  0x000000, 0x200000, CRC(c1fe16b3) SHA1(8b9d2483ba06ab8072676e73d949c696535b3d26) )
+	ROM_LOAD( "p47-12.bin",  0x200000, 0x200000, CRC(75871325) SHA1(9191263a52ec6ac325cf6130b35be7cdd1ec2f50) )
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 ) /* bg tiles, don't dispose since we use GFX_RAW */
+	ROM_LOAD( "p47-10.bin",  0x000000, 0x200000, CRC(a44e9e06) SHA1(ff51796e160d996e931b92049e6214982f270caa) )
+	ROM_LOAD( "p47-09.bin",  0x200000, 0x200000, CRC(226014a6) SHA1(090bdc1f6d2b9d33b431dbb49a457a4bb36cd3ad) )
+
+	ROM_REGION( 0x080000, REGION_GFX4, 0 ) /* tx tiles, don't dispose since we use GFX_RAW */
+	ROM_LOAD( "p47-30.bin",  0x000000, 0x080000, CRC(7ba90fad) SHA1(c0a3d4458816f00b8f5eb4b6d4531d1abeaccbe5) )
+
+	ROM_REGION( 0x40000, REGION_CPU2, 0 ) /* z80 program */
+	ROM_LOAD( "p47-21.bin",  0x000000, 0x040000, CRC(f2d43927) SHA1(69ac20f339a515d58cafbcd6f7d7982ca5cda681) )
+
+	ROM_REGION( 0x400000, REGION_SOUND1, 0 ) /* samples - 8-bit signed PCM */
+	ROM_LOAD( "p47-22.bin",  0x000000, 0x200000, CRC(0fa26f65) SHA1(e92b14862fbce33ea4ab4567ec48199bfcbbdd84) )
+	ROM_LOAD( "p47-23.bin",  0x200000, 0x200000, CRC(547fa4d4) SHA1(8a5ecb3300646762f63d37a27e643e1f6ce5e775) )
+ROM_END
+
+ROM_START( p47acesa )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 ) /* V70 code */
  	ROM_LOAD32_BYTE( "p47-26.bin", 0x000003, 0x80000, CRC(e017b819) SHA1(942fb48e8bb3a263534a0351a1a9979d786bc475) )
 	ROM_LOAD32_BYTE( "p47-27.bin", 0x000002, 0x80000, CRC(bd1b81e0) SHA1(b15f157fe3a30295f999a4c285da2d6f22d7fba6) )
@@ -4120,18 +4156,19 @@ static DRIVER_INIT (f1superb)
 
 /********** GAME DRIVERS **********/
 
-GAME( 1994, hayaosi1, 0,        ms32,     hayaosi2, ss92046_01, ROT0,   "Jaleco", "Hayaoshi Quiz Ouza Ketteisen", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1994, bbbxing,  0,        ms32,     bbbxing,  ss92046_01, ROT0,   "Jaleco", "Best Bout Boxing", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1994, hayaosi2, 0,        ms32,     hayaosi2, ss92046_01, ROT0,   "Jaleco", "Hayaoshi Quiz Grand Champion Taikai", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1994, bbbxing,  0,        ms32,     bbbxing,  ss92046_01, ROT0,   "Jaleco", "Best Bout Boxing (ver 1.3)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1994, suchie2,  0,        ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Suchie-Pai II (ver 1.1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1994, 47pie2o,  suchie2,  ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Su-Chi-Pie 2 (v1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1995, desertwr, 0,        ms32,     desertwr, ss91022_10, ROT270, "Jaleco", "Desert War / Wangan Sensou", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1995, gametngk, 0,        ms32,     gametngk, ss91022_10, ROT270, "Jaleco", "The Game Paradise - Master of Shooting! / Game Tengoku - The Game Paradise", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1995, tetrisp,  0,        ms32,     tetrisp,  ss92046_01, ROT0,   "Jaleco / BPS", "Tetris Plus", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1995, p47aces,  0,        ms32,     p47aces,  ss92048_01, ROT0,   "Jaleco", "P-47 Aces", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1995, akiss,    0,        ms32,     suchie2,  ss92047_01_mahjong,   ROT0,   "Jaleco", "Mahjong Angel Kiss", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1996, gratia,   0,        ms32,     gratia,   ss92047_01, ROT0,   "Jaleco", "Gratia - Second Earth (92047-01 version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1996, gratiaa,  gratia,   ms32,     gratia,   ss91022_10, ROT0,   "Jaleco", "Gratia - Second Earth (91022-10 version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1994, suchie2o, suchie2,  ms32,     suchie2,  ss92048_01_mahjong,     ROT0,   "Jaleco", "Idol Janshi Suchie-Pai II (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, desertwr, 0,        ms32,     desertwr, ss91022_10, ROT270, "Jaleco", "Desert War / Wangan Sensou (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, gametngk, 0,        ms32,     gametngk, ss91022_10, ROT270, "Jaleco", "The Game Paradise - Master of Shooting! / Game Tengoku - The Game Paradise (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, tetrisp,  0,        ms32,     tetrisp,  ss92046_01, ROT0,   "Jaleco / BPS", "Tetris Plus (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, p47aces,  0,        ms32,     p47aces,  ss92048_01, ROT0,   "Jaleco", "P-47 Aces (ver 1.1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, p47acesa, p47aces, ms32,     p47aces,  ss92048_01, ROT0,   "Jaleco", "P-47 Aces (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1995, akiss,    0,        ms32,     suchie2,  ss92047_01_mahjong,   ROT0,   "Jaleco", "Mahjong Angel Kiss (ver 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1996, gratia,   0,        ms32,     gratia,   ss92047_01, ROT0,   "Jaleco", "Gratia - Second Earth (ver 1.0, 92047-01 version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1996, gratiaa,  gratia,   ms32,     gratia,   ss91022_10, ROT0,   "Jaleco", "Gratia - Second Earth (ver 1.0, 91022-10 version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1996, kirarast, 0,        ms32,     kirarast, ss92047_01_mahjong,   ROT0,   "Jaleco", "Ryuusei Janshi Kirara Star", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1997, tp2m32,   tetrisp2, ms32,     tp2m32,   ss91022_10_invert, ROT0,   "Jaleco", "Tetris Plus 2 (MegaSystem 32 Version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1997, tp2m32,   tetrisp2, ms32,     tp2m32,   ss91022_10_invert, ROT0,   "Jaleco", "Tetris Plus 2 (ver 1.0, MegaSystem 32 Version)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1996, wpksocv2, 0,        ms32,     wpksocv2, ss92046_01_invert, ROT0,   "Jaleco", "World PK Soccer V2 (ver 1.1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1994, f1superb, 0,        f1superb, f1superb, f1superb, ROT0,   "Jaleco", "F1 Super Battle", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1994, f1superb, 0,        f1superb, f1superb, f1superb, ROT0,   "Jaleco", "F-1 Super Battle", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
