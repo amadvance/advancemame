@@ -1655,7 +1655,20 @@ INPUT_PORTS_END
 	ROM_REGION( 0x1000, REGION_CPU2, ROMREGION_ERASE00 ) /* TGP: address spaces are callbacks */ \
 	ROM_REGION32_LE( 0x40000, REGION_USER2, 0 ) /* TGP tables */ \
 	ROM_LOAD32_WORD( "opr14742.bin", 0x000000, 0x20000, CRC(446a1085) SHA1(51b3f4d3a35a36087ea0ba4e26d6e7d17b6418e2) ) \
-	ROM_LOAD32_WORD( "opr14743.bin", 0x000002, 0x20000, CRC(e8953554) SHA1(1499f8e30ac15affc66e6f04ae031bb8680d9260) )
+	ROM_LOAD32_WORD( "opr14743.bin", 0x000002, 0x20000, CRC(e8953554) SHA1(1499f8e30ac15affc66e6f04ae031bb8680d9260) ) \
+	ROM_REGION32_LE( 0x80000, REGION_USER5, 0 ) /* other data: not used by the emulation */ \
+	/* 1/x table */ \
+	ROM_LOAD32_WORD( "opr-14744.58", 0x000000, 0x20000, CRC(730ea9e0) SHA1(651f1db4089a400d073b19ada299b4b08b08f372) ) \
+	ROM_LOAD32_WORD( "opr-14745.59", 0x000002, 0x20000, CRC(4c934d96) SHA1(e3349ece0e47f684d61ad11bfea4a90602287350) ) \
+	/* 1/sqrt(x) table */ \
+	ROM_LOAD32_WORD( "opr-14746.62", 0x040000, 0x20000, CRC(2a266cbd) SHA1(34e047a93459406c22acf4c25089d1a4955f94ca) ) \
+	ROM_LOAD32_WORD( "opr-14747.63", 0x040002, 0x20000, CRC(a4ad5e19) SHA1(7d7ec300eeb9a8de1590011e37108688c092f329) ) \
+	ROM_REGION16_LE( 0x20000, REGION_USER6, 0 ) /* other data: not used by the emulation */ \
+	/* 1/(1+x) again, but bottom 16 bits only */ \
+	ROM_LOAD( "opr14748.bin", 0x000000, 0x20000, CRC(4a532cb8) SHA1(23280ebbcd6b2bc8a8e643a2d07a58d6598301b8) ) \
+	ROM_REGION32_LE( 0x4000, REGION_USER7, 0 ) /* other TGP program roms: not used by the emulation */ \
+	ROM_LOAD( "315-5571.bin", 0x0000, 0x2000, CRC(1233db2a) SHA1(06760409d40f3d9117fd3e7c7ab62dfd70aa2a4d) ) \
+	ROM_LOAD( "315-5572.bin", 0x2000, 0x2000, CRC(66785906) SHA1(d94a51eced65b0073fb39625927782bf264d271a) )
 
 ROM_START( vf )
 	MODEL1_CPU_BOARD
@@ -1750,6 +1763,9 @@ ROM_START( vr )
 	ROM_LOAD32_BYTE( "mpr-14900.41", 0x000002, 0x80000, CRC(aa7c017d) SHA1(0fa2b59a8bb5f5907b2b2567e69d11c73b398dc1) )
 	ROM_LOAD32_BYTE( "mpr-14901.42", 0x000003, 0x80000, CRC(175b7a9a) SHA1(c86602e771cd49bab425b4ba7926d2f44858bd39) )
 
+
+	ROM_REGION16_LE( 0x80, REGION_USER8, 0 ) /* IO board EEPROM: not used by the emulation */
+	ROM_LOAD( "93c45.bin", 0x00, 0x80, CRC(65aac303) SHA1(17687fedf1578e977cae4e7c3f5c00cad4aa490d) )
 ROM_END
 
 ROM_START( vformula )
@@ -1799,6 +1815,9 @@ ROM_START( vformula )
 	ROM_LOAD32_BYTE( "mpr-14900.41", 0x000002, 0x80000, CRC(aa7c017d) SHA1(0fa2b59a8bb5f5907b2b2567e69d11c73b398dc1) )
 	ROM_LOAD32_BYTE( "mpr-14901.42", 0x000003, 0x80000, CRC(175b7a9a) SHA1(c86602e771cd49bab425b4ba7926d2f44858bd39) )
 
+
+	ROM_REGION( 0x20000, REGION_USER8, 0 ) /* Comms Board: not used by the emulation */
+	ROM_LOAD( "epr-15624.17", 0x00000, 0x20000, CRC(9b3ba315) SHA1(0cd0983cc8b2f2d6b41617d0d0a24cc6c188e62a) )
 ROM_END
 
 ROM_START( swa )
@@ -1813,7 +1832,7 @@ ROM_START( swa )
 	ROM_RELOAD(              0x080000, 0x80000 )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-16470.7", 0x000000, 0x020000, CRC(7da18cf7) SHA1(bd432d882d217277faee120e2577357a32eb4a6e) )
@@ -1861,7 +1880,7 @@ ROM_START( swaj )
 	ROM_RELOAD(              0x080000, 0x80000 )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-16470.7", 0x000000, 0x020000, CRC(7da18cf7) SHA1(bd432d882d217277faee120e2577357a32eb4a6e) )
@@ -1917,7 +1936,7 @@ ROM_START( wingwar )
 	ROM_LOAD16_BYTE( "mpr-16733.11", 0x1200001, 0x80000, CRC(e105847b) SHA1(8489a6c91fd6d1e9ba81e8eaf36c514da30dccbe) )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-17126.7", 0x000000, 0x20000, CRC(50178e40) SHA1(fb01aecfbe4e90adc997de0d45a63c16ef353b37) )
@@ -1969,7 +1988,7 @@ ROM_START( wingwaru )
 	ROM_LOAD16_BYTE( "mpr-16733.11", 0x1200001, 0x80000, CRC(e105847b) SHA1(8489a6c91fd6d1e9ba81e8eaf36c514da30dccbe) )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-16751.7", 0x000000, 0x20000, CRC(23ba5ebc) SHA1(b98aab546c5e980baeedbada4e7472eb4c588260) )
@@ -2021,7 +2040,7 @@ ROM_START( wingwarj )
 	ROM_LOAD16_BYTE( "mpr-16733.11", 0x1200001, 0x80000, CRC(e105847b) SHA1(8489a6c91fd6d1e9ba81e8eaf36c514da30dccbe) )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-16751.7", 0x000000, 0x20000, CRC(23ba5ebc) SHA1(b98aab546c5e980baeedbada4e7472eb4c588260) )
@@ -2075,7 +2094,7 @@ ROM_START( wingwar360 )
 	ROM_LOAD16_BYTE( "mpr-16733.11", 0x1200001, 0x80000, CRC(e105847b) SHA1(8489a6c91fd6d1e9ba81e8eaf36c514da30dccbe) )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-17126.7", 0x000000, 0x20000, CRC(50178e40) SHA1(fb01aecfbe4e90adc997de0d45a63c16ef353b37) )
@@ -2107,6 +2126,9 @@ ROM_START( wingwar360 )
 	ROM_LOAD32_BYTE( "mpr-16740.42", 0x000003, 0x80000, CRC(44b31007) SHA1(4bb265fea25a7bbcbb8ab080fdcf09849b18f1de) )
 
 	/* Dumper's note: Video & Drive is the control board in the attendants' tower, same hardware as G-Loc R360 with the two program roms being the only difference. */
+	ROM_REGION( 0x28000, REGION_USER8, 0 ) /* control board: not used by the emulation */
+	ROM_LOAD( "epr-18851.ic22", 0x00000, 0x20000, CRC(85f75bd7) SHA1(43cc8f8c81631d71b661e55e15f3fe8803a8a7e9) )
+	ROM_LOAD( "epr-18850.ic67", 0x20000, 0x08000, CRC(45a3e9fc) SHA1(bf2d1a7acc35b72a62551bfbb55e5058d6fd6d5c) )
 ROM_END
 
 ROM_START( netmerc )
@@ -2124,7 +2146,7 @@ ROM_START( netmerc )
 	ROM_LOAD16_BYTE( "epr-18127.ic11", 0x1200001, 0x80000, CRC(d307a4ca) SHA1(5555235f740c1b09f6e1587d0fceb35b23d4a8a8) )
 
 	ROM_REGION32_LE( 0x2000, REGION_USER4, 0 )
-	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(6a21f304) SHA1(d5c61ea6e4744f10170ea556068c248bd43bb111) BAD_DUMP)
+	ROM_LOAD( "315-5711.bin", 0, 0x2000, CRC(c5ddb8fc) SHA1(9e21d3a07ffa315e0139483b664e3fa283ef4e06) BAD_DUMP )
 
 	ROM_REGION( 0xc0000, REGION_CPU3, 0 )  /* 68K code */
 	ROM_LOAD16_WORD_SWAP( "epr-18121.ic7", 0x00000, 0x80000, CRC(113285b5) SHA1(5d060cee41e8d6a4a918f890c2d169d87dbcad79) )
@@ -2147,6 +2169,10 @@ ROM_START( netmerc )
 
 	ROM_REGION32_LE( 0x200000, REGION_USER3, ROMREGION_ERASE00 ) /* IC39-IC42 unpopulated */
 
+
+	ROM_REGION( 0x8000, REGION_USER8, 0 ) /* POLHEMUS board: not used by the emulation */
+	ROM_LOAD16_BYTE( "u1", 0x0000, 0x4000, CRC(7073a312) SHA1(d2582f9520b8c8c051708dd372633112af59206e) )
+	ROM_LOAD16_BYTE( "u2", 0x0001, 0x4000, CRC(c589f428) SHA1(98dc0114a5f89636b4e237ed954e19f1cfd186ab) )
 ROM_END
 
 
@@ -2154,8 +2180,8 @@ ROM_END
 GAME( 1993, vf,         0,       model1,  vf,         vf,         ROT0,    "Sega", "Virtua Fighter", 0 )
 GAME( 1992, vr,         0,       model1,  vr,         vr,         ROT0,    "Sega", "Virtua Racing", 0 )
 GAME( 1993, vformula,   vr,      model1,  vr,         vr,         ROT0,    "Sega", "Virtua Formula", 0 )
-GAME( 1994, swa,        0,       swa,     swa,        swa,        ROT0,    "Sega", "Star Wars Arcade (US)", 0 )
-GAME( 1994, swaj,       swa,     swa,     swa,        swa,        ROT0,    "Sega", "Star Wars Arcade (Japan)", 0 )
+GAME( 1993, swa,        0,       swa,     swa,        swa,        ROT0,    "Sega", "Star Wars Arcade (US)", 0 )
+GAME( 1993, swaj,       swa,     swa,     swa,        swa,        ROT0,    "Sega", "Star Wars Arcade (Japan)", 0 )
 GAME( 1994, wingwar,    0,       model1,  wingwar,    wingwar,    ROT0,    "Sega", "Wing War (World)", 0 )
 GAME( 1994, wingwaru,   wingwar, model1,  wingwar,    wingwar,    ROT0,    "Sega", "Wing War (US)", 0 )
 GAME( 1994, wingwarj,   wingwar, model1,  wingwar,    wingwar,    ROT0,    "Sega", "Wing War (Japan)", 0 )
