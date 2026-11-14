@@ -68,5 +68,6 @@ enum
 ***************************************************************************/
 
 extern void tms32031_get_info(UINT32 state, union cpuinfo *info);
+extern void tms32032_get_info(UINT32 state, union cpuinfo *info);
 
 #endif /* _TMS32031_H */

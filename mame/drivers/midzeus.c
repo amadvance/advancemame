@@ -7,7 +7,7 @@
     driver by Aaron Giles
 
     Games supported:
-        * Invasion
+        * Invasion - The Abductors
         * Mortal Kombat 4
         * Cruis'n Exotica
         * The Grid
@@ -15,827 +15,88 @@
     Known bugs:
         * not done yet
 
+According to a Midway service bulletin
+As of 2/12/2001 the lastest software levels:
+
+Game Title       Level  Released
+----------------------------------
+Cruis'n Exotica  v2.4   08/23/2000
+Invasion         v5.0   12/14/1999
+The Grid         v1.2   10/18/2000
+
 **************************************************************************/
 
+/*
+    Differences from MAME:
+
+    Backported from the MAME C driver of 2011, with the later input ports
+    and the Invasion gun fixes of 2026 (gun triggers and position at the
+    right side of the screen),
+    with the Zeus video of 2015 in vidhrdw/midzeus.c. Written with C globals
+    and the 0.106 core API.
+
+    The screen is configured with the total size of the MAME raw parameters
+    (529x278 for Zeus, 666x438 for Zeus 2) and a VBLANK duration matching the
+    lines out of the visible area, so cpu_getscanline() and
+    cpu_gethorzbeampos() return the same beam positions of MAME.
+
+    The Zeus 2 video hardware (midzeus2.c) is not ported: Cruis'n Exotica and
+    The Grid have only a stub of the Zeus 2 registers and a black screen.
+    Their M48T35 timekeeper is a plain RAM, and the lamps and LEDs of
+    Cruis'n Exotica are not hooked up. The main and banked data ROMs of
+    Zeus 2 are in the single REGION_USER1, the banked data starting at
+    0x800000.
+
+    The decapped PIC16C57 dumps are loaded in REGION_USER2 but not hooked
+    up, as in MAME, and the dummy PIC CPU of invasn is not added.
+*/
+
 #include "driver.h"
-#include "cpu/tms34010/tms34010.h"
-#include "cpu/adsp2100/adsp2100.h"
+#include "cpu/tms32031/tms32031.h"
+#include "includes/midzeus.h"
 #include "machine/midwayic.h"
 #include "sndhrdw/dcs.h"
 
 
+#define CPU_CLOCK		60000000
+
+/* table in the code indicates an offset of 20 with a beam height of 7 */
+#define BEAM_XOFFS		40
+#define BEAM_DY			3
+#define BEAM_DX			3
+
+/* screen timings of the MAME raw parameters */
+#define ZEUS_HTOTAL		529
+#define ZEUS_VTOTAL		278
+#define ZEUS_VISIBLE_Y	256
+#define ZEUS_FPS		((double)MIDZEUS_VIDEO_CLOCK / 8.0 / (ZEUS_HTOTAL * ZEUS_VTOTAL))
+
+#define ZEUS2_HTOTAL	666
+#define ZEUS2_VTOTAL	438
+#define ZEUS2_VISIBLE_Y	400
+#define ZEUS2_FPS		((double)MIDZEUS_VIDEO_CLOCK / 4.0 / (ZEUS2_HTOTAL * ZEUS2_VTOTAL))
+
+static UINT32			gun_control;
+static UINT8			gun_irq_state;
+static mame_timer *		gun_timer[2];
+static INT32			gun_x[2], gun_y[2];
+
+static UINT8			crusnexo_leds_select;
+static UINT8			keypad_select;
+static UINT8			bitlatch[10];
+
 static UINT32 *ram_base;
 static UINT8 cmos_protected;
 
-static void *timer[2];
+static UINT32 *linkram;
+static UINT32 *timekeeper_ram;
+
+static mame_timer *timer[2];
 
 static UINT32 *tms32031_control;
-static UINT32 *graphics_ram;
 
 
-//------------------------------
-
-#define WAVERAM_WIDTH	512
-#define WAVERAM_HEIGHT	4096
-
-static UINT32 *waveram;
-
-
-VIDEO_START( midzeus )
-{
-	int i;
-
-	waveram = auto_malloc(2 * WAVERAM_WIDTH * WAVERAM_HEIGHT * sizeof(*waveram));
-	if (!waveram)
-		return 1;
-
-	for (i = 0; i < 32768; i++)
-	{
-		int r = (i >> 10) & 0x1f;
-		int g = (i >> 5) & 0x1f;
-		int b = (i >> 0) & 0x1f;
-		palette_set_color(i, (r << 3) | (r >> 2), (g << 3) | (g >> 2), (b << 3) | (b >> 2));
-	}
-	return 0;
-}
-
-VIDEO_UPDATE( midzeus )
-{
-	static int yoffs = 0;
-	int p = code_pressed(KEYCODE_0) ? 0 : 1;
-	int x, y;
-	if (code_pressed(KEYCODE_DOWN) && code_pressed(KEYCODE_LCONTROL)) yoffs += 8;
-	if (code_pressed(KEYCODE_UP) && code_pressed(KEYCODE_LCONTROL)) yoffs -= 8;
-	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
-	{
-		UINT32 *src = &waveram[(p * WAVERAM_HEIGHT + ((y + yoffs) % WAVERAM_HEIGHT)) * WAVERAM_WIDTH + 0];
-		UINT16 *dest = (UINT16 *)bitmap->base + y * bitmap->rowpixels;
-		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
-			dest[x] = src[x] & 0x7fff;
-	}
-}
-
-/*
-    offset B7 = control....
-
-        8000 = page 1 enable
-        4000 = page 0 enable
-
-        0080 = 2nd pixel enable (maybe Z buff?)
-        0040 = 1st pixel enable (maybe Z buff?)
-        0020 = 2nd pixel enable
-        0010 = 1st pixel enable
-
-
-    writes 80a2 to write an odd pixel at startup
-    writes 80f6 to write the middle pixels
-    writes 8052 to write an odd pixel at the end
-
-    writes 8050 before writing an odd pixel
-    writes 80a0 before writing an even pixel
-
-    writes 44f1 before reading from page 0 of wave ram
-    writes 84f1 before reading from page 1 of wave ram
-
-    writes 42f0 before writing to page 0 of wave ram
-    writes 82f0 before writing to page 1 of wave ram
-
-
-Initialization:
-01BFF4:graphics_w(080) = 0020F023
-01BFF1:graphics_w(081) = 00000020
-01C03E:graphics_w(080) = 00000000
-01C03E:graphics_w(081) = 00008200
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08B) = 00000000
-01C03E:graphics_w(08A) = 0000FAFA
-01C03E:graphics_w(08D) = 00000206
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(089) = 00000000
-01C03E:graphics_w(088) = 0000FAFA
-01C03E:graphics_w(080) = 00000001
-01C03E:graphics_w(0CF) = 000000C8
-01C03E:graphics_w(0CE) = 00007620
-01C03E:graphics_w(0CD) = 00000000
-01C03E:graphics_w(0CC) = 00000000
-01C03E:graphics_w(0CB) = 00000116
-01C03E:graphics_w(0CA) = 00000107
-01C03E:graphics_w(0C9) = 00000103
-01C03E:graphics_w(0C8) = 000000FF
-01C03E:graphics_w(0C7) = 00000211
-01C03E:graphics_w(0C6) = 0000007F
-01C03E:graphics_w(0C5) = 0000000C
-01C03E:graphics_w(0C4) = 00000042
-01C03E:graphics_w(0C3) = 00000015
-01C03E:graphics_w(0C2) = 0000E591
-01C03E:graphics_w(0C1) = 0000801F
-01C03E:graphics_w(0C0) = 00002500
-01C03E:graphics_w(086) = 00008003
-01C03E:graphics_w(080) = 00000C05
-01C03E:graphics_w(085) = 00000000
-01C03E:graphics_w(084) = 00000000
-01C03E:graphics_w(083) = 00001F1F
-01C03E:graphics_w(082) = 00002011
-01C03E:graphics_w(069) = 00000003
-01C03E:graphics_w(069) = 00000000
-01C03E:graphics_w(08D) = 00000227
-01C03E:graphics_w(08C) = 0000BFFF
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08D) = 00000227
-01C03E:graphics_w(08C) = 0000BFFF
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08D) = 00000227
-01C03E:graphics_w(08C) = 0000F020
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08D) = 00000227
-01C03E:graphics_w(08C) = 0000DFFF
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08D) = 00000227
-01C03E:graphics_w(08C) = 0000DFFF
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08F) = 00000207
-01C03E:graphics_w(08E) = 0000BFFF
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08F) = 00000207
-01C03E:graphics_w(08E) = 0000F020
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08F) = 00000207
-01C03E:graphics_w(08E) = 0000DFFF
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08F) = 00000207
-01C03E:graphics_w(08E) = 0000DFFF
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08F) = 00000206
-01C03E:graphics_w(08E) = 00000000
-01C03E:graphics_w(08D) = 00000226
-01C03E:graphics_w(08C) = 00000000
-01C03E:graphics_w(08B) = 00000000
-01C03E:graphics_w(08A) = 0000D254
-01C03E:graphics_w(089) = 00000000
-01C03E:graphics_w(088) = 0000D794
-
-then:
-01C2CE:graphics_w(0B7) = 00000000
-01C2D0:graphics_w(0B6) = 00000001
-01C2D1:graphics_w(0B0) = 00000000
-01C2D2:graphics_w(0B1) = 00000000
-01C2D3:graphics_w(0B2) = 00007FFF
-01C2D4:graphics_w(0B3) = 00007FFF
-01C2D8:graphics_w(0B5) = 000000FF  y
-01C2DD:graphics_w(0B4) = 00000100  x/yhi
-01C2EA:graphics_w(0B7) = FFFF80F6  page 1
-01C2EB:graphics_w(0B0) = 00000000
-01C2EC:graphics_r(0F6)
-01C2F4:graphics_w(0B0) = 00000000 x 256
-
-01C2F6:graphics_w(0B7) = FFFF8052
-01C2CE:graphics_w(0B7) = 00000000
-01C2D0:graphics_w(0B6) = 00000001
-01C2D1:graphics_w(0B0) = 00000000
-01C2D2:graphics_w(0B1) = 00000000
-01C2D3:graphics_w(0B2) = 00007FFF
-01C2D4:graphics_w(0B3) = 00007FFF
-01C2D8:graphics_w(0B5) = 000000FF  y
-01C2DD:graphics_w(0B4) = 00000000  x/yhi
-01C2EA:graphics_w(0B7) = FFFF80F6
-01C2EB:graphics_w(0B0) = 00000000
-01C2EC:graphics_r(0F6)
-01C2F4:graphics_w(0B0) = 00000000 x 256
-
-etc. to clear all scanlines on page 1
-
-then:
-01C2F6:graphics_w(0B7) = FFFF8052
-01BFF4:graphics_w(080) = 00200001
-01C1B6:graphics_w(0CF) = 000000C9
-01BFF4:graphics_w(080) = 00200C27
-01C1BC:graphics_w(0CF) = 000000C8
-01BFF4:graphics_w(080) = 0020F023
-01BFF1:graphics_w(081) = 00000020
-01BFF1:graphics_w(081) = 00000022
-01BFF4:graphics_w(080) = 0022F023
-
-01C0DB:graphics_w(200) = 00000E00
-01C0DB:graphics_w(202) = 00000025
-01C0DB:graphics_w(204) = 00000E01
-01C0DB:graphics_w(206) = 00000025
-01C0DB:graphics_w(208) = 00000E02
-01C0DB:graphics_w(20A) = 00000025
-01C0DB:graphics_w(20C) = 00000E03
-01C0DB:graphics_w(20E) = 00000025
-01C0DB:graphics_w(210) = 00000E04
-01C0DB:graphics_w(212) = 00000025
-01C0DB:graphics_w(214) = 00000E05
-01C0DB:graphics_w(216) = 00000025
-01C0DB:graphics_w(218) = 00000E06
-01C0DB:graphics_w(21A) = 00000025
-01C0DB:graphics_w(21C) = 00000E07
-01C0DB:graphics_w(21E) = 00000025
-01C0DB:graphics_w(220) = 00000E08
-01C0DB:graphics_w(222) = 00000025
-01C0DB:graphics_w(224) = 00000E09
-01C0DB:graphics_w(226) = 00000025
-01C0DB:graphics_w(228) = 00000E0A
-01C0DB:graphics_w(22A) = 00000025
-01C0DB:graphics_w(22C) = 00000E0B
-01C0DB:graphics_w(22E) = 00000025
-01C0DB:graphics_w(230) = 00000E0C
-01C0DB:graphics_w(232) = 00000025
-01C0DB:graphics_w(234) = 00000E0D
-01C0DB:graphics_w(236) = 00000025
-01C0DB:graphics_w(238) = 00000E0E
-01C0DB:graphics_w(23A) = 00000025
-01C0DB:graphics_w(23C) = 00000E0F
-01C0DB:graphics_w(23E) = 00000025
-01C0DB:graphics_w(240) = 00000E10
-01C0DB:graphics_w(242) = 00000025
-01C0DB:graphics_w(244) = 00000E11
-01C0DB:graphics_w(246) = 00000025
-01C0DB:graphics_w(248) = 00000E12
-01C0DB:graphics_w(24A) = 00000025
-01C0DB:graphics_w(24C) = 00000E13
-01C0DB:graphics_w(24E) = 00000025
-01C0DB:graphics_w(250) = 00000E14
-01C0DB:graphics_w(252) = 00000025
-01C0DB:graphics_w(254) = 00000E15
-01C0DB:graphics_w(256) = 00000025
-01C0DB:graphics_w(258) = 00000E16
-01C0DB:graphics_w(25A) = 00000025
-01C0DB:graphics_w(25C) = 00000E17
-01C0DB:graphics_w(25E) = 00000025
-01C0DB:graphics_w(260) = 00000E18
-01C0DB:graphics_w(262) = 00000025
-01C0DB:graphics_w(264) = 00000E19
-01C0DB:graphics_w(266) = 00000025
-01C0DB:graphics_w(268) = 00000E1A
-01C0DB:graphics_w(26A) = 00000025
-01C0DB:graphics_w(26C) = 00000E1B
-01C0DB:graphics_w(26E) = 00000025
-01C0DB:graphics_w(270) = 00000E1C
-01C0DB:graphics_w(272) = 00000025
-01C0DB:graphics_w(274) = 00000E1D
-01C0DB:graphics_w(276) = 00000025
-01C0DB:graphics_w(278) = 00000E1E
-01C0DB:graphics_w(27A) = 00000025
-01C0DB:graphics_w(27C) = 00000E1F
-01C0DB:graphics_w(27E) = 00000025
-01C0DB:graphics_w(280) = 00000E20
-01C0DB:graphics_w(282) = 00000025
-01C0DB:graphics_w(284) = 00000E21
-01C0DB:graphics_w(286) = 00000025
-01C0DB:graphics_w(288) = 00000E22
-01C0DB:graphics_w(28A) = 00000025
-01C0DB:graphics_w(28C) = 00000E23
-01C0DB:graphics_w(28E) = 00000025
-01C0DB:graphics_w(290) = 00000E24
-01C0DB:graphics_w(292) = 00000025
-01C0DB:graphics_w(294) = 00000E25
-01C0DB:graphics_w(296) = 00000025
-01C0DB:graphics_w(298) = 00000E26
-01C0DB:graphics_w(29A) = 00000025
-01C0DB:graphics_w(29C) = 00000E27
-01C0DB:graphics_w(29E) = 00000025
-01C0DB:graphics_w(2A0) = 00000E28
-01C0DB:graphics_w(2A2) = 00000025
-01C0DB:graphics_w(2A4) = 00000E29
-01C0DB:graphics_w(2A6) = 00000025
-01C0DB:graphics_w(2A8) = 00000E2A
-01C0DB:graphics_w(2AA) = 00000025
-01C0DB:graphics_w(2AC) = 00000E2B
-01C0DB:graphics_w(2AE) = 00000025
-01C0DB:graphics_w(2B0) = 00000E2C
-01C0DB:graphics_w(2B2) = 00000025
-01C0DB:graphics_w(2B4) = 00000E2D
-01C0DB:graphics_w(2B6) = 00000025
-01C0DB:graphics_w(2B8) = 00000E2E
-01C0DB:graphics_w(2BA) = 00000025
-01C0DB:graphics_w(2BC) = 00000E2F
-01C0DB:graphics_w(2BE) = 00000025
-01C0DB:graphics_w(2C0) = 00000E30
-01C0DB:graphics_w(2C2) = 00000025
-01C0DB:graphics_w(2C4) = 00000E31
-01C0DB:graphics_w(2C6) = 00000025
-01C0DB:graphics_w(2C8) = 00000E32
-01C0DB:graphics_w(2CA) = 00000025
-01C0DB:graphics_w(2CC) = 00000E33
-01C0DB:graphics_w(2CE) = 00000025
-01C0DB:graphics_w(2D0) = 00000E34
-01C0DB:graphics_w(2D2) = 00000025
-01C0DB:graphics_w(2D4) = 00000E35
-01C0DB:graphics_w(2D6) = 00000025
-01C0DB:graphics_w(2D8) = 00000E36
-01C0DB:graphics_w(2DA) = 00000025
-01C0DB:graphics_w(2DC) = 00000E37
-01C0DB:graphics_w(2DE) = 00000025
-01C0DB:graphics_w(2E0) = 00000E38
-01C0DB:graphics_w(2E2) = 00000025
-01C0DB:graphics_w(2E4) = 00000E39
-01C0DB:graphics_w(2E6) = 00000025
-01C0DB:graphics_w(2E8) = 00000E3A
-01C0DB:graphics_w(2EA) = 00000025
-01C0DB:graphics_w(2EC) = 00000E3B
-01C0DB:graphics_w(2EE) = 00000025
-01C0DB:graphics_w(2F0) = 00000E3C
-01C0DB:graphics_w(2F2) = 00000025
-01C0DB:graphics_w(2F4) = 00000E3D
-01C0DB:graphics_w(2F6) = 00000025
-01C0DB:graphics_w(2F8) = 00000E3E
-01C0DB:graphics_w(2FA) = 00000025
-01C0DB:graphics_w(2FC) = 00000E3F
-01C0DB:graphics_w(2FE) = 00000025
-01C0DB:graphics_w(300) = 00000E40
-01C0DB:graphics_w(302) = 00000025
-01C0DB:graphics_w(304) = 00000E41
-01C0DB:graphics_w(306) = 00000025
-01C0DB:graphics_w(308) = 00000E42
-01C0DB:graphics_w(30A) = 00000025
-01C0DB:graphics_w(30C) = 00000E43
-01C0DB:graphics_w(30E) = 00000025
-01C0DB:graphics_w(310) = 00000E44
-01C0DB:graphics_w(312) = 00000025
-01C0DB:graphics_w(314) = 00000E45
-01C0DB:graphics_w(316) = 00000025
-01C0DB:graphics_w(318) = 00000E46
-01C0DB:graphics_w(31A) = 00000025
-01C0DB:graphics_w(31C) = 00000E47
-01C0DB:graphics_w(31E) = 00000025
-01C0DB:graphics_w(320) = 00000E48
-01C0DB:graphics_w(322) = 00000025
-01C0DB:graphics_w(324) = 00000E49
-01C0DB:graphics_w(326) = 00000025
-01C0DB:graphics_w(328) = 00000E4A
-01C0DB:graphics_w(32A) = 00000025
-01C0DB:graphics_w(32C) = 00000E4B
-01C0DB:graphics_w(32E) = 00000025
-01C0DB:graphics_w(330) = 00000E4C
-01C0DB:graphics_w(332) = 00000025
-01C0DB:graphics_w(334) = 00000E4D
-01C0DB:graphics_w(336) = 00000025
-01C0DB:graphics_w(338) = 00000E4E
-01C0DB:graphics_w(33A) = 00000025
-01C0DB:graphics_w(33C) = 00000E4F
-01C0DB:graphics_w(33E) = 00000025
-01C0DB:graphics_w(340) = 00000E50
-01C0DB:graphics_w(342) = 00000025
-01C0DB:graphics_w(344) = 00000E51
-01C0DB:graphics_w(346) = 00000025
-01C0DB:graphics_w(348) = 00000E52
-01C0DB:graphics_w(34A) = 00000025
-01C0DB:graphics_w(34C) = 00000E53
-01C0DB:graphics_w(34E) = 00000025
-01C0DB:graphics_w(350) = 00000E54
-01C0DB:graphics_w(352) = 00000025
-01C0DB:graphics_w(354) = 00000E55
-01C0DB:graphics_w(356) = 00000025
-01C0DB:graphics_w(358) = 00000E56
-01C0DB:graphics_w(35A) = 00000025
-01C0DB:graphics_w(35C) = 00000E57
-01C0DB:graphics_w(35E) = 00000025
-01C0DB:graphics_w(360) = 00000E58
-01C0DB:graphics_w(362) = 00000025
-01C0DB:graphics_w(364) = 00000E59
-01C0DB:graphics_w(366) = 00000025
-01C0DB:graphics_w(368) = 00000E5A
-01C0DB:graphics_w(36A) = 00000025
-01C0DB:graphics_w(36C) = 00000E5B
-01C0DB:graphics_w(36E) = 00000025
-01C0DB:graphics_w(370) = 00000E5C
-01C0DB:graphics_w(372) = 00000025
-01C0DB:graphics_w(374) = 00000E5D
-01C0DB:graphics_w(376) = 00000025
-01C0DB:graphics_w(378) = 00000E5E
-01C0DB:graphics_w(37A) = 00000025
-01C0DB:graphics_w(37C) = 00000E5F
-01C0DB:graphics_w(37E) = 00000025
-01C0DB:graphics_w(380) = 00000E60
-01C0DB:graphics_w(382) = 00000025
-01C0DB:graphics_w(384) = 00000E61
-01C0DB:graphics_w(386) = 00000025
-01C0DB:graphics_w(388) = 00000E62
-01C0DB:graphics_w(38A) = 00000025
-01C0DB:graphics_w(38C) = 00000E63
-01C0DB:graphics_w(38E) = 00000025
-01C0DB:graphics_w(390) = 00000E64
-01C0DB:graphics_w(392) = 00000025
-01C0DB:graphics_w(394) = 00000E65
-01C0DB:graphics_w(396) = 00000025
-01C0DB:graphics_w(398) = 00000E66
-01C0DB:graphics_w(39A) = 00000025
-01C0DB:graphics_w(39C) = 00000E67
-01C0DB:graphics_w(39E) = 00000025
-01C0DB:graphics_w(3A0) = 00000E68
-01C0DB:graphics_w(3A2) = 00000025
-01C0DB:graphics_w(3A4) = 00000E69
-01C0DB:graphics_w(3A6) = 00000025
-01C0DB:graphics_w(3A8) = 00000E6A
-01C0DB:graphics_w(3AA) = 00000025
-01C0DB:graphics_w(3AC) = 00000E6B
-01C0DB:graphics_w(3AE) = 00000025
-01C0DB:graphics_w(3B0) = 00000E6C
-01C0DB:graphics_w(3B2) = 00000025
-01C0DB:graphics_w(3B4) = 00000E6D
-01C0DB:graphics_w(3B6) = 00000025
-01C0DB:graphics_w(3B8) = 00000E6E
-01C0DB:graphics_w(3BA) = 00000025
-01C0DB:graphics_w(3BC) = 00000E6F
-01C0DB:graphics_w(3BE) = 00000025
-01C0DB:graphics_w(3C0) = 00000E70
-01C0DB:graphics_w(3C2) = 00000025
-01C0DB:graphics_w(3C4) = 00000E71
-01C0DB:graphics_w(3C6) = 00000025
-01C0DB:graphics_w(3C8) = 00000E72
-01C0DB:graphics_w(3CA) = 00000025
-01C0DB:graphics_w(3CC) = 00000E73
-01C0DB:graphics_w(3CE) = 00000025
-01C0DB:graphics_w(3D0) = 00000E74
-01C0DB:graphics_w(3D2) = 00000025
-01C0DB:graphics_w(3D4) = 00000E75
-01C0DB:graphics_w(3D6) = 00000025
-01C0DB:graphics_w(3D8) = 00000E76
-01C0DB:graphics_w(3DA) = 00000025
-01C0DB:graphics_w(3DC) = 00000E77
-01C0DB:graphics_w(3DE) = 00000025
-01C0DB:graphics_w(3E0) = 00000E78
-01C0DB:graphics_w(3E2) = 00000025
-01C0DB:graphics_w(3E4) = 00000E79
-01C0DB:graphics_w(3E6) = 00000025
-01C0DB:graphics_w(3E8) = 00000E7A
-01C0DB:graphics_w(3EA) = 00000025
-01C0DB:graphics_w(3EC) = 00000E7B
-01C0DB:graphics_w(3EE) = 00000025
-01C0DB:graphics_w(3F0) = 00000E7C
-01C0DB:graphics_w(3F2) = 00000025
-01C0DB:graphics_w(3F4) = 00000E7D
-01C0DB:graphics_w(3F6) = 00000025
-01C0DB:graphics_w(3F8) = 00000E7E
-01C0DB:graphics_w(3FA) = 00000025
-01C0DB:graphics_w(3FC) = 00000E7F
-01C0DB:graphics_w(3FE) = 00000025
-
-01BFB6:graphics_w(05A) = 00000000
-01BFB8:graphics_w(058) = 3F000000
-01BFB9:graphics_r(0F6)
-01BFBE:graphics_w(0E0) = 00000000
-01BFF4:graphics_w(080) = 0022F02B
-01BFC2:graphics_w(068) = 00030000
-01BFC4:graphics_w(068) = 00000000
-01C052:graphics_w(08A) = 8FFFD254
-01C054:graphics_w(088) = 87FFD794
-01BFF4:graphics_w(080) = 0022FC2B
-
-(other stuff)
-
-loop over each scanline:
-    A2DD19:graphics_w(0B7) = 00000000
-    A2DD24:graphics_w(0B6) = 82F00001
-    A2DD30:graphics_r(0F6)
-    A2DD34:graphics_w(0B4) = 01FF0000
-    A2DD37:graphics_w(0B0) = AAAAAAAA
-    A2DD39:graphics_w(0B2) = AAAAAAAA
-    A2DD30:graphics_r(0F6)
-    A2DD34:graphics_w(0B4) = 01FF0001
-    A2DD37:graphics_w(0B0) = AAAAAAAA
-    A2DD39:graphics_w(0B2) = AAAAAAAA
-    A2DD30:graphics_r(0F6)
-    ...
-    A2DD34:graphics_w(0B4) = 01FF01FE
-    A2DD37:graphics_w(0B0) = AAAAAAAA
-    A2DD39:graphics_w(0B2) = AAAAAAAA
-    A2DD30:graphics_r(0F6)
-    A2DD34:graphics_w(0B4) = 01FF01FF
-    A2DD37:graphics_w(0B0) = AAAAAAAA
-    A2DD39:graphics_w(0B2) = AAAAAAAA
-    A2DD45:graphics_w(0B6) = 00000000
-    A2DD58:graphics_w(0B6) = 00000000
-    A2DD6E:graphics_w(0B6) = 84F10001
-    A2DD6F:graphics_w(0B4) = 01FF0000
-    A2DD71:graphics_r(0F6)
-    A2DD76:graphics_w(0B6) = 00000000
-    A2DD77:graphics_r(0B0)
-    A2DD79:graphics_r(0B2)
-    A2DD6E:graphics_w(0B6) = 84F10001
-    A2DD6F:graphics_w(0B4) = 01FF0001
-    A2DD71:graphics_r(0F6)
-    A2DD76:graphics_w(0B6) = 00000000
-    A2DD77:graphics_r(0B0)
-    A2DD79:graphics_r(0B2)
-    ...
-    A2DD6E:graphics_w(0B6) = 84F10001
-    A2DD6F:graphics_w(0B4) = 01FF01FE
-    A2DD71:graphics_r(0F6)
-    A2DD76:graphics_w(0B6) = 00000000
-    A2DD77:graphics_r(0B0)
-    A2DD79:graphics_r(0B2)
-    A2DD6E:graphics_w(0B6) = 84F10001
-    A2DD6F:graphics_w(0B4) = 01FF01FF
-    A2DD71:graphics_r(0F6)
-    A2DD76:graphics_w(0B6) = 00000000
-    A2DD77:graphics_r(0B0)
-    A2DD79:graphics_r(0B2)
-    A2DD82:graphics_w(0B6) = 00000000
-    A2DD19:graphics_w(0B7) = 00000000
-    A2DD24:graphics_w(0B6) = 82F00001
-    A2DD30:graphics_r(0F6)
-
-repeat with 55555555....
-
-repeat with ffffffff....
-
-repeat with 00000000....
-
-A2DD82:graphics_w(0B6) = 00000000
-A2DCAF:graphics_w(0B6) = 00000000
-A2DCB3:graphics_w(0B2) = 7FFF7FFF
-A2DCB7:graphics_w(0B0) = 00000000
-A2DCC2:graphics_w(0B4) = 007F0100
-A2DCCD:graphics_w(0B6) = 80F20001
-A2DD89:graphics_w(0B0) = 00000000
-A2DD8A:graphics_r(0F6)            \  ... x256
-A2DD89:graphics_w(0B0) = 00000000 /
-
-A2DCAF:graphics_w(0B6) = 00000000
-A2DCB3:graphics_w(0B2) = 7FFF7FFF
-A2DCB7:graphics_w(0B0) = 00000000
-A2DCC2:graphics_w(0B4) = 007F0000
-A2DCCD:graphics_w(0B6) = 80F20001
-A2DD89:graphics_w(0B0) = 00000000
-A2DD8A:graphics_r(0F6)            \  ... x256
-A2DD89:graphics_w(0B0) = 00000000 /
-
-drawing:
-A2DCEB:graphics_w(0B6) = 00000000
-A2DCEF:graphics_w(0B2) = 7FFF7FFF
-A2DCF3:graphics_w(0B0) = 001F001F
-A2DCFE:graphics_w(0B4) = 00040104
-A2DD02:graphics_w(0B7) = 80A00000
-A2DD89:graphics_w(0B0) = 001F001F
-A2DD8A:graphics_r(0F6)
-A2DCEB:graphics_w(0B6) = 00000000
-A2DCEF:graphics_w(0B2) = 7FFF7FFF
-A2DCF3:graphics_w(0B0) = 001F001F
-A2DCFE:graphics_w(0B4) = 00040105
-A2DD07:graphics_w(0B7) = 80500000
-A2DD89:graphics_w(0B0) = 001F001F
-A2DD8A:graphics_r(0F6)
-A2DCEB:graphics_w(0B6) = 00000000
-A2DCEF:graphics_w(0B2) = 7FFF7FFF
-A2DCF3:graphics_w(0B0) = 001F001F
-A2DCFE:graphics_w(0B4) = 00040105
-A2DD02:graphics_w(0B7) = 80A00000
-A2DD89:graphics_w(0B0) = 001F001F
-A2DD8A:graphics_r(0F6)
-A2DCEB:graphics_w(0B6) = 00000000
-A2DCEF:graphics_w(0B2) = 7FFF7FFF
-A2DCF3:graphics_w(0B0) = 001F001F
-A2DCFE:graphics_w(0B4) = 00040106
-A2DD07:graphics_w(0B7) = 80500000
-A2DD89:graphics_w(0B0) = 001F001F
-A2DD8A:graphics_r(0F6)
-
-
-Invasion:
-
-011729:graphics_w(0E0) = 1A000000
-011729:graphics_w(0E0) = 187E0000
-011729:graphics_w(0E0) = 0000FFFF
-011729:graphics_w(0E0) = 187C0000
-011729:graphics_w(0E0) = FFFFFFE0
-011729:graphics_w(0E0) = 187A0000
-011729:graphics_w(0E0) = 00800000
-011729:graphics_w(0E0) = 18780000
-011729:graphics_w(0E0) = 000000C7
-011729:graphics_w(0E0) = 18760000
-011729:graphics_w(0E0) = F8800000
-011729:graphics_w(0E0) = 176F0032
-011729:graphics_w(0E0) = 176E0031
-011729:graphics_w(0E0) = 176D003B
-011729:graphics_w(0E0) = 176C002B
-011729:graphics_w(0E0) = 184E0000
-011729:graphics_w(0E0) = 00808080
-011729:graphics_w(0E0) = 184C0000
-011729:graphics_w(0E0) = 00808080
-011729:graphics_w(0E0) = 184A0000
-011729:graphics_w(0E0) = 00FF018E
-011729:graphics_w(0E0) = 18480000
-011729:graphics_w(0E0) = 00FF018E
-011729:graphics_w(0E0) = 176940C4
-011729:graphics_w(0E0) = 17681370
-011729:graphics_w(0E0) = 1707FFFF
-011729:graphics_w(0E0) = 17060030
-011729:graphics_w(0E0) = 17010000
-011729:graphics_w(0E0) = 2D007FFF
-011729:graphics_w(0E0) = 2E000800
-011729:graphics_w(0E0) = 00000000
-011729:graphics_w(0E0) = 1757500A
-011729:graphics_w(0E0) = 175600FF
-011729:graphics_w(0E0) = 17524321
-011729:graphics_w(0E0) = 0100C0B0
-011729:graphics_w(0E0) = 3F001059
-
-011729:graphics_w(0E0) = 0100C0B0
-011729:graphics_w(0E0) = 3F001059
-
-011841:graphics_w(0E0) = 1A000000
-011841:graphics_w(0E0) = 1A000000
-
-00D09A:graphics_w(080) = FB22FC3F
-00D01E:graphics_w(076) = F8800000
-00D020:graphics_w(0CC) = 00800000
-00D034:graphics_w(084) = 00000000
-00D0A7:graphics_r(0F2) = 00000000
-00D0C9:graphics_w(068) = 00000100
-00D0CA:graphics_w(000) = 00000000
-00D0CC:graphics_w(05C) = 00000000
-00D0CE:graphics_w(006) = FFFF0030
-00D0D0:graphics_w(002) = 000C0000
-00D0D2:graphics_w(004) = 00000E01
-00D0D4:graphics_w(04C) = 00808080
-00D0D5:graphics_w(04E) = 00808080
-00D0D6:graphics_w(008) = 00000000
-00D0D7:graphics_w(00C) = 00FF018F
-00D0DD:graphics_w(00A) = 0000018F
-00D0E3:graphics_w(00E) = 00FF0000
-00D0E5:graphics_w(01E) = FFFFFFFF
-00D0E6:graphics_w(01C) = FFFFFFFF
-00D0E7:graphics_w(01A) = FFFFFFFF
-00D0E8:graphics_w(018) = FFFFFFFF
-00D0EA:graphics_w(046) = 00000000
-00D0EB:graphics_w(044) = 00000000
-00D0EC:graphics_w(042) = 00000000
-00D0ED:graphics_w(040) = 00000000
-00D0EE:graphics_w(026) = 00000000
-00D0EF:graphics_w(024) = 00000000
-00D0F0:graphics_w(022) = 00000000
-00D0F1:graphics_w(020) = 00000000
-00D09A:graphics_w(080) = FB22FCFF
-00D0F6:graphics_w(060) = 00000001
-00D09A:graphics_w(080) = FB22FC3F
-011729:graphics_w(0E0) = 1757500A
-011729:graphics_w(0E0) = 175600FF
-00D09A:graphics_w(080) = 0222FC3F
-
-*/
-
-INLINE UINT32 *graphics_pixaddr(void)
-{
-	int p = (graphics_ram[0xb7] >> 15) & 1;
-	int x = (graphics_ram[0xb4] & 0xff) << 1;
-	int y = ((graphics_ram[0xb4] >> 8) & 0x01) | ((graphics_ram[0xb5] << 1) & 0xffe);
-	return &waveram[(p * WAVERAM_HEIGHT + (y % WAVERAM_HEIGHT)) * WAVERAM_WIDTH + x];
-}
-
-
-READ32_HANDLER( graphics_r )
-{
-	UINT32 result;
-	int logit = 1;
-
-	if (offset >= 0xb0 && offset <= 0xb7)
-		logit = graphics_ram[0xb4] < 8;
-
-	result = graphics_ram[offset & ~1] | (graphics_ram[offset | 1] << 16);
-
-	switch (offset)
-	{
-		case 0x00:
-			// crusnexo wants bit 0x20 to be non-zero
-			result = 0x20;
-			break;
-		case 0x51:
-			// crusnexo expects a reflection of the data at 0x08 here (b425)
-			result = graphics_ram[0x08];
-			break;
-		case 0xf4:
-			result = 6;
-			logit = 0;
-			break;
-		case 0xf6:		// status -- they wait for this & 9 == 0
-			result = 0;
-			logit = 0;
-			break;
-	}
-
-	if (logit || code_pressed(KEYCODE_F11))
-		logerror("%06X:graphics_r(%03X) = %08X\n", activecpu_get_pc(), offset, result);
-	return result;
-}
-
-
-/*
-    Writes to even addresses: reg[offs] = data & 0xffff; reg[offs+1] = data >> 16;
-    Writes to odd addresses:  reg[offs] = data & 0xffff;
-
-    Control in $B7.
-    Enable in $B6.
-    Y/2 in $B5.
-    X | ((Y & 1) << 8) in $B4.
-    Depth data in $B2/$B3.
-    Pixel data in $B0/$B1.
-
-    Control = $80F6 when doing initial screen clear.
-       Writes 256 consecutive values to $B0, must mean autoincrement
-       Uses latched value in $B2 (maybe also in $B0)
-
-    Control = $82F0 when doing video RAM test write phase.
-       Writes 512 values across, but updates address before each one.
-
-    Control = $84F1 when doing video RAM test read phase.
-       Reads 512 values across, but updates address before each one.
-
-    Control = $80F2 when doing screen clear.
-       Writes 256 consecutive values to $B0, must mean autoincrement.
-       Uses latched value in $B2 (maybe also in $B0)
-
-    Control = $80A0/$8050 when plotting pixels.
-
-    Control = $42F0 when doing wave RAM test write phase.
-       Writes 512 values across, but updates address before each one.
-
-    Control = $44F1 when doing wave RAM test read phase.
-       Reads 512 values across, but updates address before each one.
-
-
-    Low bits = operation?
-      $0 = write single
-      $1 = read single
-      $2 = write autoinc
-*/
-
-WRITE32_HANDLER( graphics_w )
-{
-	int logit = 1;
-
-	if (offset >= 0xb0 && offset <= 0xb7)
-		logit = graphics_ram[0xb4] < 8;
-
-	if (!(offset & 1))
-		graphics_ram[offset | 0] = data & 0xffff;
-	graphics_ram[offset | 1] = data >> 16;
-
-	switch (offset)
-	{
-		case 0xb0:
-		case 0xb2:
-		{
-			UINT32 *dest = graphics_pixaddr();
-			if (code_pressed(KEYCODE_F11)) logerror("B7=%04X x=%3d y=%3d B0=%04X%04X B2=%04X%04X\n",
-					graphics_ram[0xb7],
-					(graphics_ram[0xb4] & 0xff) << 1,
-					((graphics_ram[0xb4] >> 8) & 0x01) | ((graphics_ram[0xb5] << 1) & 0xffe),
-					graphics_ram[0xb0],graphics_ram[0xb1],
-					graphics_ram[0xb2],graphics_ram[0xb3]);
-
-			if (graphics_ram[0xb7] != 0)
-			{
-				if (graphics_ram[0xb7] & 0x0050)
-					dest[0] = (graphics_ram[0xb2] << 16) | graphics_ram[0xb0];
-				if (graphics_ram[0xb7] & 0x00a0)
-					dest[1] = (graphics_ram[0xb3] << 16) | graphics_ram[0xb1];
-				switch (graphics_ram[0xb7] & 3)
-				{
-					case 0:
-					case 1:
-						break;
-					case 2:
-					case 3:
-						graphics_ram[0xb4]++;
-						break;
-				}
-{
-	static int count = 0;
-	ui_popup("WaveRAM writes = %X", ++count);
-}
-			}
-			break;
-		}
-
-		case 0xb4:
-		{
-			if (graphics_ram[0xb7] & 1)
-			{
-				UINT32 *src = graphics_pixaddr();
-				graphics_ram[0xb0] = src[0] & 0xffff;
-				graphics_ram[0xb1] = src[1] & 0xffff;
-				graphics_ram[0xb2] = src[0] >> 16;
-				graphics_ram[0xb3] = src[1] >> 16;
-			}
-			break;
-		}
-	}
-
-	if (logit || code_pressed(KEYCODE_F11))
-		logerror("%06X:graphics_w(%03X) = %08X\n", activecpu_get_pc(), offset, data);
-}
+static void invasn_gun_callback(int param);
 
 
 
@@ -845,40 +106,308 @@ WRITE32_HANDLER( graphics_w )
  *
  *************************************/
 
-static MACHINE_RESET( midzeus )
+static MACHINE_START( midzeus )
 {
-	memcpy(ram_base, memory_region(REGION_USER1), 0x20000*4);
-
-	*(UINT32 *)ram_base *= 2;
-
 	timer[0] = timer_alloc(NULL);
 	timer[1] = timer_alloc(NULL);
+
+	gun_timer[0] = timer_alloc(invasn_gun_callback);
+	gun_timer[1] = timer_alloc(invasn_gun_callback);
+
+	state_save_register_global(gun_control);
+	state_save_register_global(gun_irq_state);
+	state_save_register_global_array(gun_x);
+	state_save_register_global_array(gun_y);
+	state_save_register_global(crusnexo_leds_select);
+	state_save_register_global(keypad_select);
+	state_save_register_global_array(bitlatch);
+	return 0;
+}
+
+
+static MACHINE_RESET( midzeus )
+{
+	/* the CPU is reset after this, and boots from the copied RAM */
+	memcpy(ram_base, memory_region(REGION_USER1), 0x40000*4);
+	*ram_base <<= 1;
+
+	cmos_protected = TRUE;
 }
 
 
 
 /*************************************
  *
- *  CMOS access
+ *  Display interrupt generation
  *
  *************************************/
 
-static WRITE32_HANDLER( cmos_protect_w )
+static void display_irq_off(int param)
 {
-	cmos_protected = 0;
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
+
+static INTERRUPT_GEN( display_irq )
+{
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
+	timer_set(TIME_IN_HZ(30000000), 0, display_irq_off);
 }
 
 
+
+/*************************************
+ *
+ *  CMOS access (Zeus only)
+ *
+ *************************************/
+
 static WRITE32_HANDLER( cmos_w )
 {
-	if (!cmos_protected)
-		COMBINE_DATA(generic_nvram32 + offset);
+	if (bitlatch[2] && !cmos_protected)
+		COMBINE_DATA(&generic_nvram32[offset]);
+	else
+		logerror("%06X:timekeeper_w with bitlatch[2] = %d, cmos_protected = %d\n", activecpu_get_pc(), bitlatch[2], cmos_protected);
+	cmos_protected = TRUE;
 }
 
 
 static READ32_HANDLER( cmos_r )
 {
-	return generic_nvram32[offset];
+	return generic_nvram32[offset] | 0xffffff00;
+}
+
+
+static WRITE32_HANDLER( cmos_protect_w )
+{
+	cmos_protected = FALSE;
+}
+
+
+
+/*************************************
+ *
+ *  Timekeeper and ZPRAM access
+ *  (Zeus 2 only)
+ *
+ *************************************/
+
+static READ32_HANDLER( zeus2_timekeeper_r )
+{
+	return timekeeper_ram[offset] | 0xffffff00;
+}
+
+
+static WRITE32_HANDLER( zeus2_timekeeper_w )
+{
+	if (bitlatch[2] && !cmos_protected)
+		timekeeper_ram[offset] = data & 0xff;
+	else
+		logerror("%06X:zeus2_timekeeper_w with bitlatch[2] = %d, cmos_protected = %d\n", activecpu_get_pc(), bitlatch[2], cmos_protected);
+	cmos_protected = TRUE;
+}
+
+
+static READ32_HANDLER( zpram_r )
+{
+	return generic_nvram32[offset] | 0xffffff00;
+}
+
+
+static WRITE32_HANDLER( zpram_w )
+{
+	if (bitlatch[2])
+		COMBINE_DATA(&generic_nvram32[offset]);
+	else
+		logerror("%06X:zpram_w with bitlatch[2] = %d\n", activecpu_get_pc(), bitlatch[2]);
+}
+
+
+
+/*************************************
+ *
+ *  Miscellaneous bit latches
+ *
+ *************************************/
+
+static READ32_HANDLER( bitlatches_r )
+{
+	switch (offset)
+	{
+		/* unknown purpose; two bits are apparently used */
+		case 1:
+			return bitlatch[offset] | ~3;
+
+		/* CMOS/ZPRAM extra enable latch; only low bit is used */
+		case 2:
+			return bitlatch[offset] | ~1;
+
+		/* unknown purpose; mk4/invasn/thegrid read at startup; invasn freaks if it is 1 at startup */
+		/* only low bit is used */
+		case 3:
+			return bitlatch[offset] | ~1;
+
+		/* ROM bank selection on Zeus 2; two bits are used */
+		case 5:
+			return bitlatch[offset] | ~3;
+
+		/* unknown purpose; crusnexo reads at startup: if (val & 0xf0) == 0xa0 it affects */
+		/* how the Zeus is used (reg 0x5d is set to 0x54580006) */
+		/* thegrid does the same, writing either 0xD4580006 or 0xC4180006 depending */
+		/* this is the value reported as DISK JR ASIC version in thegrid startup test */
+		case 6:
+			return 0xa0 | ~0xff;
+
+		/* unknown purpose */
+		default:
+			logerror("%06X:bitlatches_r(%X)\n", activecpu_get_pc(), offset);
+			break;
+	}
+	return ~0;
+}
+
+
+static WRITE32_HANDLER( bitlatches_w )
+{
+	UINT32 oldval = bitlatch[offset];
+	bitlatch[offset] = data;
+
+	switch (offset)
+	{
+		/* unknown purpose */
+		default:
+			if (oldval ^ data)
+				logerror("%06X:bitlatches_w(%X) = %X\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* unknown purpose; crusnexo toggles this between 0 and 1 every 20 frames; thegrid writes 1 */
+		case 0:
+			if (data != 0 && data != 1)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* unknown purpose; mk4/invasn write 1 here at initialization; crusnexo/thegrid write 3 */
+		case 1:
+			if (data != 1 && data != 3)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* CMOS/ZPRAM extra enable latch; only low bit is used */
+		case 2:
+			break;
+
+		/* unknown purpose; invasn writes 2 here at startup */
+		case 4:
+			if (data != 2)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* ROM bank selection on Zeus 2 */
+		case 5:
+			memory_set_bank(1, bitlatch[offset] & 3);
+			break;
+
+		/* unknown purpose; crusnexo/thegrid write 1 at startup */
+		case 7:
+			if (data != 1)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* unknown purpose; crusnexo writes 4 at startup; thegrid writes 6 */
+		case 8:
+			if (data != 4 && data != 6)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+
+		/* unknown purpose; thegrid writes 1 at startup */
+		case 9:
+			if (data != 1)
+				logerror("%06X:bitlatches_w(%X) = %X (unexpected)\n", activecpu_get_pc(), offset, data);
+			break;
+	}
+}
+
+
+
+/*************************************
+ *
+ *  7-segment LED controls
+ *
+ *************************************/
+
+static READ32_HANDLER( crusnexo_leds_r )
+{
+	/* reads appear to just be for synchronization */
+	return ~0;
+}
+
+
+static WRITE32_HANDLER( crusnexo_leds_w )
+{
+	switch (offset)
+	{
+		case 0:	/* unknown purpose */
+			break;
+
+		case 1:	/* controls lamps */
+			break;
+
+		case 2:	/* sets state of selected LEDs */
+			break;
+
+		case 3:	/* selects which set of LEDs we are addressing */
+			crusnexo_leds_select = data;
+			break;
+	}
+}
+
+
+
+/*************************************
+ *
+ *  Link controller access (Zeus 2 only)
+ *
+ *************************************/
+
+/* read 8d0003, check bit 1, skip some stuff if 0 */
+/* write junk to 9e0000 */
+
+static READ32_HANDLER( linkram_r )
+{
+	logerror("%06X:unknown_8a000_r(%02X)\n", activecpu_get_pc(), offset);
+	if (offset == 0)
+		return 0x30313042;
+	else if (offset == 0x3c)
+		return 0xffffffff;
+	return linkram[offset];
+}
+
+static WRITE32_HANDLER( linkram_w )
+{
+	logerror("%06X:unknown_8a000_w(%02X) = %08X\n", activecpu_get_pc(),  offset, data);
+	COMBINE_DATA(&linkram[offset]);
+}
+
+
+
+/*************************************
+ *
+ *  Zeus 2 registers (stub)
+ *
+ *************************************/
+
+static READ32_HANDLER( zeus2_r )
+{
+	return zeusbase[offset];
+}
+
+static WRITE32_HANDLER( zeus2_w )
+{
+	COMBINE_DATA(&zeusbase[offset]);
+}
+
+static VIDEO_UPDATE( midzeus2 )
+{
+	fillbitmap(bitmap, get_black_pen(), cliprect);
 }
 
 
@@ -921,10 +450,178 @@ static WRITE32_HANDLER( tms32031_control_w )
 	{
 		int which = (offset >> 4) & 1;
 		if (data & 0x40)
-			timer_adjust(timer[which], TIME_NEVER, 0, TIME_NEVER);
+			timer_adjust(timer[which], TIME_NEVER, 0, 0);
 	}
 	else
 		logerror("%06X:tms32031_control_w(%02X) = %08X\n", activecpu_get_pc(), offset, data);
+}
+
+
+
+/*************************************
+ *
+ *  49-way joystick handling
+ *
+ *************************************/
+
+static UINT32 custom_49way_r(void *param)
+{
+	static const UINT8 translate49[7] = { 0x8, 0xc, 0xe, 0xf, 0x3, 0x1, 0x0 };
+	const char *namex = (const char *)param;
+	const char *namey = namex + strlen(namex) + 1;
+	return (translate49[readinputportbytag(namey) >> 4] << 4) | translate49[readinputportbytag(namex) >> 4];
+}
+
+
+static WRITE32_HANDLER( keypad_select_w )
+{
+	if (offset == 1)
+		keypad_select = data;
+}
+
+
+static UINT32 keypad_r(void *param)
+{
+	UINT32 bits = readinputportbytag((const char *)param);
+	UINT8 select = keypad_select;
+	while ((select & 1) != 0)
+	{
+		select >>= 1;
+		bits >>= 4;
+	}
+	return bits;
+}
+
+
+
+/*************************************
+ *
+ *  Analog input handling
+ *
+ *************************************/
+
+static READ32_HANDLER( analog_r )
+{
+	static const char * const tags[] = { "ANALOG0", "ANALOG1", "ANALOG2", "ANALOG3" };
+	if (offset < 8 || offset > 11)
+		logerror("%06X:analog_r(%X)\n", activecpu_get_pc(), offset);
+	return readinputportbytag(tags[offset & 3]);
+}
+
+
+static WRITE32_HANDLER( analog_w )
+{
+	/* 16 writes to the location before a read */
+}
+
+
+
+/*************************************
+ *
+ *  Lightgun handling
+ *
+ *************************************/
+
+/* time until the beam reaches the given position */
+static double time_until_pos(int y, int x)
+{
+	return cpu_getscanlinetime(y) + x * cpu_getscanlineperiod() / Machine->drv->screen_width;
+}
+
+
+static void update_gun_irq(void)
+{
+	/* low 2 bits of gun_control seem to enable IRQs */
+	if (gun_irq_state & gun_control & 0x03)
+		cpunum_set_input_line(0, 3, ASSERT_LINE);
+	else
+		cpunum_set_input_line(0, 3, CLEAR_LINE);
+}
+
+
+static void invasn_gun_callback(int param)
+{
+	int player = param;
+	int beamy = cpu_getscanline();
+
+	/* set the appropriate IRQ in the internal gun control and update */
+	gun_irq_state |= 0x01 << player;
+	update_gun_irq();
+
+	/* generate another interrupt on the next scanline while we are within the BEAM_DY */
+	beamy++;
+	if (beamy <= Machine->visible_area.max_y && beamy <= gun_y[player] + BEAM_DY)
+		timer_adjust(gun_timer[player], time_until_pos(beamy, MAX(0, gun_x[player] - BEAM_DX)), player, 0);
+}
+
+
+static WRITE32_HANDLER( invasn_gun_w )
+{
+	UINT32 old_control = gun_control;
+	int player;
+
+	COMBINE_DATA(&gun_control);
+
+	/* bits 0-1 enable IRQs (?) */
+	/* bits 2-3 reset IRQ states */
+	gun_irq_state &= ~((gun_control >> 2) & 3);
+	update_gun_irq();
+
+	for (player = 0; player < 2; player++)
+	{
+		UINT8 pmask = 0x04 << player;
+		if (((old_control ^ gun_control) & pmask) != 0 && (gun_control & pmask) == 0)
+		{
+			const rectangle *visarea = &Machine->visible_area;
+			static const char *const names[2][2] =
+			{
+				{ "GUNX1", "GUNY1" },
+				{ "GUNX2", "GUNY2" }
+			};
+			int width = Machine->drv->screen_width;
+
+			gun_x[player] = (readinputportbytag(names[player][0]) * (visarea->max_x + 1 - visarea->min_x) / 0xff + visarea->min_x + BEAM_XOFFS + BEAM_DX * 2) % width;
+			if (gun_x[player] < BEAM_DX)
+				gun_x[player] = BEAM_DX;
+			if (gun_x[player] > width - BEAM_DX)
+				gun_x[player] = width - BEAM_DX;
+			gun_y[player] = readinputportbytag(names[player][1]) * (visarea->max_y + 1 - visarea->min_y) / 0xff + visarea->min_y + BEAM_DY * 2;
+
+			timer_adjust(gun_timer[player], time_until_pos(MAX(0, gun_y[player] - BEAM_DY), MAX(0, gun_x[player] - BEAM_DX)), player, 0);
+		}
+	}
+}
+
+
+static READ32_HANDLER( invasn_gun_r )
+{
+	static const char *const names[2] = { "GUNX1", "GUNX2" };
+	UINT32 result = 0xffff;
+	int beamx, beamy;
+	int player;
+
+	/* bits 8,9: gun triggers */
+	result ^= readinputportbytag("TRIGGER") << 8;
+
+	beamx = cpu_gethorzbeampos();
+	beamy = cpu_getscanline();
+
+	for (player = 0; player < 2; player++)
+	{
+		/* interpret left/right screen edge as off-screen */
+		int io_gun_x = readinputportbytag(names[player]);
+		if (io_gun_x > 0 && io_gun_x < 0xff)
+		{
+			int diffx = beamx - gun_x[player];
+			int diffy = beamy - gun_y[player];
+
+			/* bits 12,13: gun position in range */
+			if (diffx >= -BEAM_DX && diffx <= BEAM_DX && diffy >= -BEAM_DY && diffy <= BEAM_DY)
+				result ^= 0x1000 << player;
+		}
+	}
+
+	return result;
 }
 
 
@@ -935,37 +632,78 @@ static WRITE32_HANDLER( tms32031_control_w )
  *
  *************************************/
 
-
-// read 8d0003, check bit 1, skip some stuff if 0
-// write junk to 9e0000
-
-static UINT32 *unknown_8d0000;
-static READ32_HANDLER( unknown_8d0000_r )
-{
-	return unknown_8d0000[offset];
-}
-static WRITE32_HANDLER( unknown_8d0000_w )
-{
-	logerror("%06X:write to %06X = %08X\n", activecpu_get_pc(), 0x8d0000 + offset, data);
-	COMBINE_DATA(&unknown_8d0000[offset]);
-}
-
-
-static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 32 )
+static ADDRESS_MAP_START( zeus_map, ADDRESS_SPACE_PROGRAM, 32 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
 	AM_RANGE(0x000000, 0x03ffff) AM_RAM AM_BASE(&ram_base)
 	AM_RANGE(0x400000, 0x41ffff) AM_RAM
 	AM_RANGE(0x808000, 0x80807f) AM_READWRITE(tms32031_control_r, tms32031_control_w) AM_BASE(&tms32031_control)
-	AM_RANGE(0x87fe00, 0x87ffff) AM_RAM
-	AM_RANGE(0x880000, 0x8803ff) AM_READWRITE(graphics_r, graphics_w) AM_BASE(&graphics_ram)
-	AM_RANGE(0x8d0000, 0x8d0003) AM_READWRITE(unknown_8d0000_r, unknown_8d0000_w) AM_BASE(&unknown_8d0000)
+	AM_RANGE(0x87fe00, 0x87ffff) AM_RAM		/* TMS32032 internal RAM */
+	AM_RANGE(0x880000, 0x8803ff) AM_READWRITE(zeus_r, zeus_w) AM_BASE(&zeusbase)
+	AM_RANGE(0x8d0000, 0x8d0004) AM_READWRITE(bitlatches_r, bitlatches_w)
 	AM_RANGE(0x990000, 0x99000f) AM_READWRITE(midway_ioasic_r, midway_ioasic_w)
-//9d0000 -- page select?
-	AM_RANGE(0x9e0000, 0x9e0000) AM_WRITENOP		// watchdog?
+	AM_RANGE(0x9e0000, 0x9e0000) AM_WRITENOP		/* watchdog? */
 	AM_RANGE(0x9f0000, 0x9f7fff) AM_READWRITE(cmos_r, cmos_w) AM_BASE(&generic_nvram32) AM_SIZE(&generic_nvram_size)
 	AM_RANGE(0x9f8000, 0x9f8000) AM_WRITE(cmos_protect_w)
 	AM_RANGE(0xa00000, 0xffffff) AM_ROM AM_REGION(REGION_USER1, 0)
 ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( zeus2_map, ADDRESS_SPACE_PROGRAM, 32 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x000000, 0x03ffff) AM_RAM AM_BASE(&ram_base)
+	AM_RANGE(0x400000, 0x43ffff) AM_RAM
+	AM_RANGE(0x808000, 0x80807f) AM_READWRITE(tms32031_control_r, tms32031_control_w) AM_BASE(&tms32031_control)
+	AM_RANGE(0x87fe00, 0x87ffff) AM_RAM		/* TMS32032 internal RAM */
+	AM_RANGE(0x880000, 0x88007f) AM_READWRITE(zeus2_r, zeus2_w) AM_BASE(&zeusbase)
+	AM_RANGE(0x8a0000, 0x8a003f) AM_READWRITE(linkram_r, linkram_w) AM_BASE(&linkram)
+	AM_RANGE(0x8d0000, 0x8d000a) AM_READWRITE(bitlatches_r, bitlatches_w)
+	AM_RANGE(0x900000, 0x91ffff) AM_MIRROR(0x020000) AM_READWRITE(zpram_r, zpram_w) AM_BASE(&generic_nvram32) AM_SIZE(&generic_nvram_size)
+	AM_RANGE(0x990000, 0x99000f) AM_READWRITE(midway_ioasic_r, midway_ioasic_w)
+	AM_RANGE(0x9c0000, 0x9c000f) AM_READWRITE(analog_r, analog_w)
+	AM_RANGE(0x9e0000, 0x9e0000) AM_WRITENOP		/* watchdog? */
+	AM_RANGE(0x9f0000, 0x9f7fff) AM_READWRITE(zeus2_timekeeper_r, zeus2_timekeeper_w) AM_BASE(&timekeeper_ram)
+	AM_RANGE(0x9f8000, 0x9f8000) AM_WRITE(cmos_protect_w)
+	AM_RANGE(0xa00000, 0xbfffff) AM_ROM AM_REGION(REGION_USER1, 0)
+	AM_RANGE(0xc00000, 0xffffff) AM_READ(MRA32_BANK1)
+ADDRESS_MAP_END
+
+/*
+
+    mk4:
+
+        writes to 9D0000: 00000009, FFFFFFFF
+        reads from 9D0000
+        writes to 9D0001: 00000000
+        writes to 9D0003: 00000374
+        writes to 9D0005: 00000000
+
+    crusnexo:
+
+        reads from 8A0000
+
+        writes to 9D0000: 00000000, 00000008, 00000009, FFFFFFFF
+        reads from 9D0000
+        writes to 9D0001: 00000000, 00000004, 00000204
+        writes to 9D0003: 00000374
+            -- hard coded to $374 at startup
+        writes to 9D0004: 0000000F
+            -- hard coded to $F at startup
+
+        writes to 9E0008: 00000000
+
+        writes to 9E8000: 00810081
+
+    thegrid:
+
+        writes to 9D0000: 00000008, 00000009, 0000008D
+        writes to 9D0001: 00000000, 00000004, 00000204
+        writes to 9D0003: 00000354
+        reads from 9D0003
+        writes to 9D0004: FFFFFFFF
+        writes to 9D0005: 00000000
+
+        writes to 9E8000: 00810081
+*/
 
 
 
@@ -975,67 +713,67 @@ ADDRESS_MAP_END
  *
  *************************************/
 
-INPUT_PORTS_START( mk4 )
-	PORT_START	    /* DS1 */
- 	PORT_DIPNAME( 0x0001, 0x0001, "Fatalities" )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0002, 0x0002, "Blood" )
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown )) /* Manual states that switches 3-7 are Unused */
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0008, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ))
- 	PORT_DIPSETTING(      0x0010, DEF_STR( Off ))
- 	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0100, 0x0100, "Coinage Source" )
-	PORT_DIPSETTING(      0x0100, "Dipswitch" )
+static INPUT_PORTS_START( mk4 )
+	PORT_START_TAG("DIPS")	/* DS1 */
+	PORT_DIPNAME( 0x0001, 0x0001, "Coinage Source" )
+	PORT_DIPSETTING(      0x0001, "Dipswitch" )
 	PORT_DIPSETTING(      0x0000, "CMOS" )
-	PORT_DIPNAME( 0x3e00, 0x3e00, DEF_STR( Coinage ))
-	PORT_DIPSETTING(      0x3e00, "USA-1" )
-	PORT_DIPSETTING(      0x3c00, "USA-2" )
-	PORT_DIPSETTING(      0x3a00, "USA-3" )
-	PORT_DIPSETTING(      0x3800, "USA-4" )
-	PORT_DIPSETTING(      0x3400, "USA-9" )
-	PORT_DIPSETTING(      0x3200, "USA-11" )
-	PORT_DIPSETTING(      0x3600, "USA-ECA" )
-	PORT_DIPSETTING(      0x2e00, "German-1" )
-	PORT_DIPSETTING(      0x2c00, "German-2" )
-	PORT_DIPSETTING(      0x2a00, "German-3" )
-	PORT_DIPSETTING(      0x2800, "German-4" )
-	PORT_DIPSETTING(      0x2600, "German-ECA" )
-	PORT_DIPSETTING(      0x1e00, "French-1" )
-	PORT_DIPSETTING(      0x1c00, "French-2" )
-	PORT_DIPSETTING(      0x1a00, "French-3" )
-	PORT_DIPSETTING(      0x1800, "French-4" )
-	PORT_DIPSETTING(      0x1600, "French-ECA" )
-	PORT_DIPSETTING(      0x3000, DEF_STR( Free_Play ))
-	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ))	/* Manual lists this dip as Unused */
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x8000, 0x8000, "Test Switch" )
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPNAME( 0x003e, 0x003e, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x003e, "USA-1" )
+	PORT_DIPSETTING(      0x003c, "USA-2" )
+	PORT_DIPSETTING(      0x003a, "USA-3" )
+	PORT_DIPSETTING(      0x0038, "USA-4" )
+	PORT_DIPSETTING(      0x0034, "USA-9" )
+	PORT_DIPSETTING(      0x0032, "USA-11" )
+	PORT_DIPSETTING(      0x0036, "USA-ECA" )
+	PORT_DIPSETTING(      0x002e, "German-1" )
+	PORT_DIPSETTING(      0x002c, "German-2" )
+	PORT_DIPSETTING(      0x002a, "German-3" )
+	PORT_DIPSETTING(      0x0028, "German-4" )
+	PORT_DIPSETTING(      0x0026, "German-ECA" )
+	PORT_DIPSETTING(      0x001e, "French-1" )
+	PORT_DIPSETTING(      0x001c, "French-2" )
+	PORT_DIPSETTING(      0x001a, "French-3" )
+	PORT_DIPSETTING(      0x0018, "French-4" )
+	PORT_DIPSETTING(      0x0016, "French-ECA" )
+	PORT_DIPSETTING(      0x0030, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )	/* Manual lists this dip as Unused */
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, "Test Switch" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0100, 0x0100, "Fatalities" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0200, 0x0200, "Blood" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) )	/* Manual states that switches 3-7 are Unused */
+	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
-	PORT_START
+	PORT_START_TAG("SYSTEM")
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT ) /* Slam Switch */
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE) PORT_NAME(DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT )	/* Slam Switch */
+	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_LOW )
 	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_COIN3 )
@@ -1044,45 +782,46 @@ INPUT_PORTS_START( mk4 )
 	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_START4 )
 	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
-	PORT_BIT( 0x6000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SPECIAL )	/* Bill */
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNUSED )	/* Coin Door */
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BILL1 )
 
-	PORT_START
+	PORT_START_TAG("IN1")
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1) PORT_8WAY
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1) PORT_8WAY
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1) PORT_8WAY
 	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1) PORT_8WAY
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1) PORT_NAME("P1 High Punch")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1) PORT_NAME("P1 Block")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) PORT_NAME("P1 High Kick")
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(2) PORT_8WAY
 	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(2) PORT_8WAY
 	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2) PORT_8WAY
 	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2) PORT_8WAY
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
-	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
-	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2) PORT_NAME("P2 High Punch")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2) PORT_NAME("P2 Block")
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) PORT_NAME("P2 High Kick")
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+	PORT_START_TAG("IN2")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1) PORT_NAME("P1 Low Punch")
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1) PORT_NAME("P1 Low Kick")
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1) PORT_NAME("P1 Run")
 	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2) PORT_NAME("P2 Low Punch")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2) PORT_NAME("P2 Low Kick")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2) PORT_NAME("P2 Run")
 	PORT_BIT( 0xff80, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
 
-INPUT_PORTS_START( invasn )
-	PORT_START	    /* DS1 */
+static INPUT_PORTS_START( invasn )
+	PORT_START_TAG("DIPS")	/* DS1 */
 	PORT_DIPNAME( 0x0001, 0x0001, "Coinage Source" )
 	PORT_DIPSETTING(      0x0001, "Dipswitch" )
 	PORT_DIPSETTING(      0x0000, "CMOS" )
-	PORT_DIPNAME( 0x003e, 0x003e, DEF_STR( Coinage ))
+	PORT_DIPNAME( 0x003e, 0x003e, DEF_STR( Coinage ) )
 	PORT_DIPSETTING(      0x003e, "USA-1" )
 	PORT_DIPSETTING(      0x003c, "USA-2" )
 	PORT_DIPSETTING(      0x003a, "USA-3" )
@@ -1103,44 +842,141 @@ INPUT_PORTS_START( invasn )
 	PORT_DIPSETTING(      0x0014, "French-11" )
 	PORT_DIPSETTING(      0x0012, "French-12" )
 	PORT_DIPSETTING(      0x0016, "French-ECA" )
-	PORT_DIPSETTING(      0x0030, DEF_STR( Free_Play ))
+	PORT_DIPSETTING(      0x0030, DEF_STR( Free_Play ) )
 	PORT_DIPNAME( 0x0040, 0x0040, "Flip Y" )
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0080, 0x0000, "Test Switch" )
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, "Test Switch" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0100, 0x0100, "Mirrored Display" )
-	PORT_DIPSETTING(      0x0100, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0200, 0x0200, "Show Blood" )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0200, DEF_STR( On ))
-	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0400, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x1000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x2000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
-	PORT_START
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT )	/* Slam Switch */
+	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_LOW )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN4 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START3 )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_START4 )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNUSED )	/* Coin Door */
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BILL1 )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0xffff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("IN2")
+	PORT_BIT( 0xffff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("TRIGGER")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
+
+	PORT_START_TAG("GUNX1")	/* fake analog X */
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(50) PORT_KEYDELTA(10)
+
+	PORT_START_TAG("GUNY1")	/* fake analog Y */
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,255) PORT_SENSITIVITY(70) PORT_KEYDELTA(10)
+
+	PORT_START_TAG("GUNX2")	/* fake analog X */
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_PLAYER(2)
+
+	PORT_START_TAG("GUNY2")	/* fake analog Y */
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,255) PORT_SENSITIVITY(70) PORT_KEYDELTA(10) PORT_PLAYER(2)
+INPUT_PORTS_END
+
+
+static INPUT_PORTS_START( crusnexo )
+	PORT_START_TAG("DIPS")		/* DS1 */
+	PORT_DIPNAME( 0x001f, 0x001f, "Country Code" )
+	PORT_DIPSETTING(      0x001f, DEF_STR( USA ) )
+	PORT_DIPSETTING(      0x001e, "Germany" )
+	PORT_DIPSETTING(      0x001d, "France" )
+	PORT_DIPSETTING(      0x001c, "Canada" )
+	PORT_DIPSETTING(      0x001b, "Switzerland" )
+	PORT_DIPSETTING(      0x001a, "Italy" )
+	PORT_DIPSETTING(      0x0019, "UK" )
+	PORT_DIPSETTING(      0x0018, "Spain" )
+	PORT_DIPSETTING(      0x0017, "Austrilia" )
+	PORT_DIPSETTING(      0x0016, DEF_STR( Japan ) )
+	PORT_DIPSETTING(      0x0015, "Taiwan" )
+	PORT_DIPSETTING(      0x0014, "Austria" )
+	PORT_DIPSETTING(      0x0013, "Belgium" )
+	PORT_DIPSETTING(      0x000f, "Sweden" )
+	PORT_DIPSETTING(      0x000e, "Findland" )
+	PORT_DIPSETTING(      0x000d, "Netherlands" )
+	PORT_DIPSETTING(      0x000c, "Norway" )
+	PORT_DIPSETTING(      0x000b, "Denmark" )
+	PORT_DIPSETTING(      0x000a, "Hungary" )
+	PORT_DIPSETTING(      0x0008, "General" )
+	PORT_DIPNAME( 0x0060, 0x0060, "Coin Mode" )
+	PORT_DIPSETTING(      0x0060, "Mode 1" ) /* USA1/GER1/FRA1/SPN1/AUSTRIA1/GEN1/CAN1/SWI1/ITL1/JPN1/TWN1/BLGN1/NTHRLND1/FNLD1/NRWY1/DNMK1/HUN1 */
+	PORT_DIPSETTING(      0x0040, "Mode 2" ) /* USA3/GER1/FRA1/SPN1/AUSTRIA1/GEN3/CAN2/SWI2/ITL2/JPN2/TWN2/BLGN2/NTHRLND2 */
+	PORT_DIPSETTING(      0x0020, "Mode 3" ) /* USA7/GER1/FRA1/SPN1/AUSTRIA1/GEN5/CAN3/SWI3/ITL3/JPN3/TWN3/BLGN3 */
+	PORT_DIPSETTING(      0x0000, "Mode 4" ) /* USA8/GER1/FRA1/SPN1/AUSTRIA1/GEN7 */
+	PORT_DIPNAME( 0x0080, 0x0080, "Test Switch" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0100, 0x0100, "Game Type" )	/* Manual states "*DIP 1, Switch 1 MUST be set */
+	PORT_DIPSETTING(      0x0100, "Dedicated" )	/*   to OFF position for proper operation" */
+	PORT_DIPSETTING(      0x0000, "Kit" )
+	PORT_DIPNAME( 0x0200, 0x0200, "Seat Motion" )	/* For dedicated Sit Down models with Motion Seat */
+	PORT_DIPSETTING(      0x0200, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(      0x0400, "Stand Up" )
+	PORT_DIPSETTING(      0x0000, "Sit Down" )
+	PORT_DIPNAME( 0x0800, 0x0800, "Wheel Invert" )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, "ROM Configuration" )	/* Manual lists this dip as Unused */
+	PORT_DIPSETTING(      0x1000, "32M ROM Normal" )
+	PORT_DIPSETTING(      0x0000, "16M ROM Split Active" )
+	PORT_DIPNAME( 0x2000, 0x2000, "Link" )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc000, 0xc000, "Linking I.D.")
+	PORT_DIPSETTING(      0xc000, "Master #1" )
+	PORT_DIPSETTING(      0x8000, "Slave #2" )
+	PORT_DIPSETTING(      0x4000, "Slave #3" )
+	PORT_DIPSETTING(      0x0000, "Slave #4" )
+
+	PORT_START_TAG("SYSTEM")
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT ) /* Slam Switch */
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE) PORT_NAME(DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_LOW )
 	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_COIN3 )
@@ -1150,170 +986,88 @@ INPUT_PORTS_START( invasn )
 	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
 	PORT_BIT( 0x6000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SPECIAL )	/* Bill */
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BILL1 )
 
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1) PORT_8WAY
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1) PORT_8WAY
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1) PORT_8WAY
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1) PORT_8WAY
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(2) PORT_8WAY
-	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(2) PORT_8WAY
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2) PORT_8WAY
-	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2) PORT_8WAY
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
-	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
-	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START_TAG("IN1")	/* Listed "names" are via the manual's "JAMMA" pinout sheet" */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_NAME("Radio")		/* Radio Switch */
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON7 ) PORT_NAME("View 1")		/* View 1 */
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON8 ) PORT_NAME("View 2")		/* View 2 */
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON9 ) PORT_NAME("View 3")		/* View 3 */
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON10 ) PORT_NAME("View 4")		/* View 4 */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("1st Gear")	/* Gear 1 */
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("2nd Gear")	/* Gear 2 */
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("3rd Gear")	/* Gear 3 */
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_NAME("4th Gear")	/* Gear 4 */
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )							/* Not Used */
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
-	PORT_BIT( 0xff80, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START_TAG("IN2")
+	PORT_BIT( 0x0007, IP_ACTIVE_HIGH, IPT_SPECIAL) PORT_CUSTOM(keypad_r, "KEYPAD")
+	PORT_BIT( 0xfff8, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("KEYPAD")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 3") PORT_CODE(KEYCODE_3_PAD)	/* keypad 3 */
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 1") PORT_CODE(KEYCODE_1_PAD)	/* keypad 1 */
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 2") PORT_CODE(KEYCODE_2_PAD)	/* keypad 2 */
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 6") PORT_CODE(KEYCODE_6_PAD)	/* keypad 6 */
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 4") PORT_CODE(KEYCODE_4_PAD)	/* keypad 4 */
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 5") PORT_CODE(KEYCODE_5_PAD)	/* keypad 5 */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 9") PORT_CODE(KEYCODE_9_PAD)	/* keypad 9 */
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 7") PORT_CODE(KEYCODE_7_PAD)	/* keypad 7 */
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 8") PORT_CODE(KEYCODE_8_PAD)	/* keypad 8 */
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad #") PORT_CODE(KEYCODE_PLUS_PAD)	/* keypad # */
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad *") PORT_CODE(KEYCODE_MINUS_PAD)	/* keypad * */
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Keypad 0") PORT_CODE(KEYCODE_0_PAD)	/* keypad 0 */
+
+	PORT_START_TAG("ANALOG3")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+
+	PORT_START_TAG("ANALOG2")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+
+	PORT_START_TAG("ANALOG1")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+
+	PORT_START_TAG("ANALOG0")
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 INPUT_PORTS_END
 
 
-INPUT_PORTS_START( crusnexo )
-	PORT_START	    /* DS1 */
- 	PORT_DIPNAME( 0x0001, 0x0001, "Game Type" )	/* Manual states "*DIP 1, Switch 1 MUST be set */
- 	PORT_DIPSETTING(      0x0001, "Dedicated" )	/*   to OFF position for proper operation" */
- 	PORT_DIPSETTING(      0x0000, "Kit" )
- 	PORT_DIPNAME( 0x0002, 0x0002, "Seat Motion" )	/* For dedicated Sit Down models with Motion Seat */
-  	PORT_DIPSETTING(      0x0002, DEF_STR( Off ))
-  	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Cabinet ))
- 	PORT_DIPSETTING(      0x0004, "Stand Up" )
- 	PORT_DIPSETTING(      0x0000, "Sit Down" )
- 	PORT_DIPNAME( 0x0008, 0x0008, "Wheel Invert" )
-  	PORT_DIPSETTING(      0x0000, DEF_STR( Off ))
-  	PORT_DIPSETTING(      0x0008, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ))	/* Manual lists this dip as Unused */
- 	PORT_DIPSETTING(      0x0010, DEF_STR( Off ))
-  	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0020, 0x0020, "Link" )
- 	PORT_DIPSETTING(      0x0020, DEF_STR( Off ))
-  	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x00c0, 0x00c0, "Linking I.D.")
- 	PORT_DIPSETTING(      0x00c0, "Master #1" )
- 	PORT_DIPSETTING(      0x0080, "Slave #2" )
- 	PORT_DIPSETTING(      0x0040, "Slave #3" )
- 	PORT_DIPSETTING(      0x0000, "Slave #4" )
- 	PORT_DIPNAME( 0x1f00, 0x1f00, "Country Code" )
- 	PORT_DIPSETTING(      0x1f00, DEF_STR( USA ) )
- 	PORT_DIPSETTING(      0x1e00, "Germany" )
- 	PORT_DIPSETTING(      0x1d00, "France" )
- 	PORT_DIPSETTING(      0x1c00, "Canada" )
- 	PORT_DIPSETTING(      0x1b00, "Switzerland" )
- 	PORT_DIPSETTING(      0x1a00, "Italy" )
- 	PORT_DIPSETTING(      0x1900, "UK" )
- 	PORT_DIPSETTING(      0x1800, "Spain" )
- 	PORT_DIPSETTING(      0x1700, "Austrilia" )
- 	PORT_DIPSETTING(      0x1600, DEF_STR( Japan ) )
- 	PORT_DIPSETTING(      0x1500, "Taiwan" )
- 	PORT_DIPSETTING(      0x1400, "Austria" )
- 	PORT_DIPSETTING(      0x1300, "Belgium" )
- 	PORT_DIPSETTING(      0x0f00, "Sweden" )
- 	PORT_DIPSETTING(      0x0e00, "Findland" )
-	PORT_DIPSETTING(      0x0d00, "Netherlands" )
- 	PORT_DIPSETTING(      0x0c00, "Norway" )
- 	PORT_DIPSETTING(      0x0b00, "Denmark" )
- 	PORT_DIPSETTING(      0x0a00, "Hungary" )
- 	PORT_DIPSETTING(      0x0800, "General" )
- 	PORT_DIPNAME( 0x6000, 0x6000, "Coin Mode" )
- 	PORT_DIPSETTING(      0x6000, "Mode 1" ) /* USA1/GER1/FRA1/SPN1/AUSTRIA1/GEN1/CAN1/SWI1/ITL1/JPN1/TWN1/BLGN1/NTHRLND1/FNLD1/NRWY1/DNMK1/HUN1 */
- 	PORT_DIPSETTING(      0x4000, "Mode 2" ) /* USA3/GER1/FRA1/SPN1/AUSTRIA1/GEN3/CAN2/SWI2/ITL2/JPN2/TWN2/BLGN2/NTHRLND2 */
- 	PORT_DIPSETTING(      0x2000, "Mode 3" ) /* USA7/GER1/FRA1/SPN1/AUSTRIA1/GEN5/CAN3/SWI3/ITL3/JPN3/TWN3/BLGN3 */
- 	PORT_DIPSETTING(      0x0000, "Mode 4" ) /* USA8/GER1/FRA1/SPN1/AUSTRIA1/GEN7 */
-	PORT_DIPNAME( 0x8000, 0x8000, "Test Switch" )
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT ) /* Slam Switch */
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE) PORT_NAME(DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_SERVICE1 )
-	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_COIN3 )
-	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN4 )
-	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START3 )
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_START4 )
-	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
-	PORT_BIT( 0x6000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SPECIAL )	/* Bill */
-
-	PORT_START /* Listed "names" are via the manual's "JAMMA" pinout sheet" */
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1) PORT_8WAY /* Radio Switch */
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1) /* View 2 */
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1) /* View 3 */
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) /* View 1 */
-	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(2) PORT_8WAY /* Gear 1 */
-	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(2) PORT_8WAY /* Gear 2 */
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2) PORT_8WAY /* Gear 3 */
-	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2) PORT_8WAY /* Gear 4 */
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2) /* Not Used */
-	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2) /* Not Used */
-	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) /* Not Used */
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
-
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
-	PORT_BIT( 0xff80, IP_ACTIVE_LOW, IPT_UNUSED )
-INPUT_PORTS_END
-
-
-INPUT_PORTS_START( thegrid )
-	PORT_START	    /* DS1 */
- 	PORT_DIPNAME( 0x0001, 0x0001, "Show Blood" )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown )) /* Manual states that switches 2-7 are Unused */
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0008, DEF_STR( On ))
- 	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ))
- 	PORT_DIPSETTING(      0x0010, DEF_STR( Off ))
- 	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+static INPUT_PORTS_START( thegrid )
+	PORT_START_TAG("DIPS")		/* DS1 */
+	PORT_DIPNAME( 0x0001, 0x0001, "Show Blood" )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) ) /* Manual states that switches 2-7 are Unused */
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0100, 0x0100, "Coinage Source" )
 	PORT_DIPSETTING(      0x0100, "Dipswitch" )
 	PORT_DIPSETTING(      0x0000, "CMOS" )
-	PORT_DIPNAME( 0x3e00, 0x3e00, DEF_STR( Coinage ))
+	PORT_DIPNAME( 0x3e00, 0x3e00, DEF_STR( Coinage ) )
 	PORT_DIPSETTING(      0x3e00, "USA-1" )
 	PORT_DIPSETTING(      0x3800, "USA-2" )
 	PORT_DIPSETTING(      0x3c00, "USA-10" )
@@ -1345,20 +1099,20 @@ INPUT_PORTS_START( thegrid )
 	PORT_DIPSETTING(      0x0a00, "UK-3 ECA" )
 	PORT_DIPSETTING(      0x0400, "UK-6 ECA" )
 	PORT_DIPSETTING(      0x0200, "UK-7 ECA" )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ))
-	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ))	/* Manual states switches 7 & 8 are Unused */
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ))
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Unknown ) )	/* Manual states switches 7 & 8 are Unused */
+	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x8000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
-	PORT_START
+	PORT_START_TAG("SYSTEM")
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_TILT ) /* Slam Switch */
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE) PORT_NAME(DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_SERVICE_NO_TOGGLE( 0x0010, IP_ACTIVE_LOW )
 	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_COIN3 )
@@ -1368,9 +1122,9 @@ INPUT_PORTS_START( thegrid )
 	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
 	PORT_BIT( 0x6000, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SPECIAL )	/* Bill */
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BILL1 )	/* Bill */
 
-	PORT_START /* Listed "names" are via the manual's "JAMMA" pinout sheet" */
+	PORT_START_TAG("IN1")	/* Listed "names" are via the manual's "JAMMA" pinout sheet" */
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
 	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
 	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1) PORT_8WAY /* Not Used */
@@ -1388,17 +1142,16 @@ INPUT_PORTS_START( thegrid )
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) /* No Connection */
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_START
-	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
-	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
-	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
-	PORT_BIT( 0xff80, IP_ACTIVE_LOW, IPT_UNUSED )
-INPUT_PORTS_END
+	PORT_START_TAG("IN2")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(custom_49way_r, "49WAYX\0" "49WAYY")
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNUSED )
 
+	PORT_START_TAG("49WAYX")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_X ) PORT_MINMAX(0x00,0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10)
+
+	PORT_START_TAG("49WAYY")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_Y ) PORT_MINMAX(0x00,0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10)
+INPUT_PORTS_END
 
 
 /*************************************
@@ -1407,27 +1160,56 @@ INPUT_PORTS_END
  *
  *************************************/
 
-MACHINE_DRIVER_START( midzeus )
+static MACHINE_DRIVER_START( midzeus )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD_TAG("main", TMS32031, 50000000)		// actually, TMS32032
-	MDRV_CPU_PROGRAM_MAP(main_map,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_assert,1)
+	MDRV_CPU_ADD_TAG("main", TMS32032, CPU_CLOCK)
+	MDRV_CPU_PROGRAM_MAP(zeus_map,0)
+	MDRV_CPU_VBLANK_INT(display_irq,1)
 
-	MDRV_FRAMES_PER_SECOND(57)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_FRAMES_PER_SECOND(ZEUS_FPS)
+	MDRV_VBLANK_DURATION((ZEUS_VTOTAL - ZEUS_VISIBLE_Y) * 1000000.0 / (ZEUS_FPS * ZEUS_VTOTAL))
 
+	MDRV_MACHINE_START(midzeus)
 	MDRV_MACHINE_RESET(midzeus)
 	MDRV_NVRAM_HANDLER(generic_1fill)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(512, 432)
-	MDRV_VISIBLE_AREA(0, 511, 0, 399)
+	MDRV_SCREEN_SIZE(ZEUS_HTOTAL, ZEUS_VTOTAL)
+	MDRV_VISIBLE_AREA(0, 399, 0, ZEUS_VISIBLE_Y - 1)
 	MDRV_PALETTE_LENGTH(32768)
 
 	MDRV_VIDEO_START(midzeus)
 	MDRV_VIDEO_UPDATE(midzeus)
+
+	/* sound hardware */
+	MDRV_IMPORT_FROM(dcs2_audio_2104)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( midzeus2 )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD_TAG("main", TMS32032, CPU_CLOCK)
+	MDRV_CPU_PROGRAM_MAP(zeus2_map,0)
+	MDRV_CPU_VBLANK_INT(display_irq,1)
+
+	MDRV_FRAMES_PER_SECOND(ZEUS2_FPS)
+	MDRV_VBLANK_DURATION((ZEUS2_VTOTAL - ZEUS2_VISIBLE_Y) * 1000000.0 / (ZEUS2_FPS * ZEUS2_VTOTAL))
+
+	MDRV_MACHINE_START(midzeus)
+	MDRV_MACHINE_RESET(midzeus)
+	MDRV_NVRAM_HANDLER(generic_1fill)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(ZEUS2_HTOTAL, ZEUS2_VTOTAL)
+	MDRV_VISIBLE_AREA(0, 511, 0, ZEUS2_VISIBLE_Y - 1)
+	MDRV_PALETTE_LENGTH(32768)
+
+	MDRV_VIDEO_START(midzeus)
+	MDRV_VIDEO_UPDATE(midzeus2)
 
 	/* sound hardware */
 	MDRV_IMPORT_FROM(dcs2_audio_2104)
@@ -1616,30 +1398,34 @@ static DRIVER_INIT( mk4 )
 }
 
 
-static READ32_HANDLER( gun_r )
-{
-	return ~0;
-}
 static DRIVER_INIT( invasn )
 {
 	dcs2_init(0, 0);
-	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 461/* unknown */, 94, NULL);
-	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x9c0000, 0x9c0000, 0, 0, gun_r);
+	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 468/* or 488 */, 94, NULL);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x9c0000, 0x9c0000, 0, 0, invasn_gun_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x9c0000, 0x9c0000, 0, 0, invasn_gun_w);
 }
 
 
 static DRIVER_INIT( crusnexo )
 {
 	dcs2_init(0, 0);
-	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 461/* unknown */, 94, NULL);
+	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 472/* or 476,477,478,110 */, 99, NULL);
+	memory_configure_bank(1, 0, 3, memory_region(REGION_USER1) + 0x800000, 0x400000*4);
+	memory_set_bank(1, 0);
+
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x9b0004, 0x9b0007, 0, 0, crusnexo_leds_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x9b0004, 0x9b0007, 0, 0, crusnexo_leds_w);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x8d0009, 0x8d000a, 0, 0, keypad_select_w);
 }
 
 
 static DRIVER_INIT( thegrid )
 {
-	cpunum_set_input_line(0, INPUT_LINE_HALT, ASSERT_LINE);
 	dcs2_init(0, 0);
-	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 461/* unknown */, 94, NULL);
+	midway_ioasic_init(MIDWAY_IOASIC_STANDARD, 474/* or 491 */, 99, NULL);
+	memory_configure_bank(1, 0, 3, memory_region(REGION_USER1) + 0x800000, 0x400000*4);
+	memory_set_bank(1, 0);
 }
 
 
@@ -1650,9 +1436,9 @@ static DRIVER_INIT( thegrid )
  *
  *************************************/
 
-GAME( 1997, mk4,       0,        midzeus, mk4,      mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 3.0)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1999, invasnab,  0,        midzeus, invasn,   invasn,   ROT0, "Midway", "Invasion: The Abductors (version 5.0)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1999, invasnab4, invasnab, midzeus, invasn,   invasn,   ROT0, "Midway", "Invasion: The Abductors (version 4.0)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1999, crusnexo,  0,        midzeus, crusnexo, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.4)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1999, crusnexob, crusnexo, midzeus, crusnexo, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.6)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2000, thegrid,   0,        midzeus, thegrid,  thegrid,  ROT0, "Midway", "The Grid (version 1.2)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1997, mk4,       0,        midzeus,  mk4,      mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 3.0)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, invasnab,  0,        midzeus,  invasn,   invasn,   ROT0, "Midway", "Invasion: The Abductors (version 5.0)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, invasnab4, invasnab, midzeus,  invasn,   invasn,   ROT0, "Midway", "Invasion: The Abductors (version 4.0)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, crusnexo,  0,        midzeus2, crusnexo, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.4)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, crusnexob, crusnexo, midzeus2, crusnexo, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.6)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
+GAME( 2000, thegrid,   0,        midzeus2, thegrid,  thegrid,  ROT0, "Midway", "The Grid (version 1.2)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
