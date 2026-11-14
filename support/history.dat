@@ -99472,7 +99472,7 @@ Players : 1
 $end
 
 
-$info=jojobanr2,jojobaa,
+$info=jojoba,jojobanr2,jojobaa,
 $bio
 
 JoJo's Bizarre Adventure - Heritage for the Future (c) 1999 Capcom.
@@ -99529,7 +99529,7 @@ Sony PlayStation (1999)
 $end
 
 
-$info=jojojr2,
+$info=jojo,jojojr2,
 $bio
 
 JoJo's Venture (c) 1998 Capcom.
@@ -212276,7 +212276,7 @@ Microsoft XBOX (2005, "Capcom Classics Collection")
 $end
 
 
-$info=sfiiij,
+$info=sfiii,sfiiij,
 $bio
 
 Street Fighter III - New Generation (c) 02/1997 Capcom.
@@ -212374,7 +212374,7 @@ Sega Dreamcast (1999, JP "Street Fighter III W Inpact" and 2000, US "Street Figh
 $end
 
 
-$info=sfiii2j,
+$info=sfiii2,sfiii2j,
 $bio
 
 Street Fighter III - Second Impact : Giant Attack (c) 1998 Capcom.
@@ -212464,7 +212464,7 @@ Sega Dreamcast (1999, JP "Street Fighter III W Impact" and 2000, US "Street Figh
 $end
 
 
-$info=sfiii3ur1,
+$info=sfiii3,sfiii3ur1,
 $bio
 
 Street Fighter III - Third Strike : Fight For The Future (c) 1999 Capcom.
@@ -254359,7 +254359,7 @@ Sound : T. Yomage, Toshi Bull, Oyabun, Inu
 $end
 
 
-$info=warzard,
+$info=redearth,warzard,
 $bio
 
 Warzard (c) 1996 Capcom.

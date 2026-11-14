@@ -2846,16 +2846,22 @@ V-V                           TP-027
 	DRIVER( progeara )
 
 	/* Capcom CPS3 games */
+	DRIVER( redearth )	/* 10/1996 Red Earth (Europe) */
 	DRIVER( warzard )	/* 10/1996 Warzard */
+	DRIVER( sfiii )		/* 02/1997 Street Fighter III - New Generation (Europe) */
 	DRIVER( sfiiij )		/* 02/1997 Street Fighter III - New Generation */
+	DRIVER( jojo )		/* 01/1999 Jojo's Venture (Europe) */
 	DRIVER( jojojr2 )		/* ??/???? Jojo's Venture */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
 	DRIVER( jojojr1 )		/* ??/???? Jojo's Venture */
 
+	DRIVER( jojoba )	/* ??/???? Jojo's Bizarre Adventure (Europe, NO CD) */
 	DRIVER( jojobanr2 )	/* ??/???? Jojo's Bizarre Adventure */
 	DRIVER( jojobajr2 )	/* ??/???? Jojo's Bizarre Adventure */
+	DRIVER( sfiii2 )	/* ??/???? Street Fighter 3: Second Impact ~giant attack~ (USA) */
 	DRIVER( sfiii2j )	/* ??/???? Street Fighter 3: Second Impact ~giant attack~ */
+	DRIVER( sfiii3 )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ (Europe) */
 	DRIVER( sfiii3ur1 )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
