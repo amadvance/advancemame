@@ -453,9 +453,25 @@ MACHINE_DRIVER_END
 
 /* 12368-xx  xx is the game number? if so there are a _lot_ of carts, mt_beast is 01, mt_sonic is 52! */
 
+SYSTEM_BIOS_START( megatech )
+	SYSTEM_BIOS_ADD( 0, "ver1",   "Ver 1" )
+	SYSTEM_BIOS_ADD( 1, "ver0a",  "Ver 0 Rev A" )
+	SYSTEM_BIOS_ADD( 2, "ver0b",  "Ver 0 Rev B" )
+	SYSTEM_BIOS_ADD( 3, "ver0aa", "Ver 0 Rev B (alt?)" )
+SYSTEM_BIOS_END
+
+#define ROM_LOAD_BIOS(bios,name,offset,length,hash) \
+		ROMX_LOAD(name, offset, length, hash, ROM_BIOS(bios+1)) /* Note '+1' */
+
+#define MEGATECH_BIOS \
+	ROM_LOAD_BIOS( 0, "epr-12664.20",  0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) ) \
+	ROM_LOAD_BIOS( 1, "epr-12263a.20", 0x000000, 0x8000, CRC(07c3f423) SHA1(50c28bbc2d4349c820d988ae3f20aae3f808545f) ) \
+	ROM_LOAD_BIOS( 2, "epr-12263b.20", 0x000000, 0x8000, CRC(ca26c87a) SHA1(987a18bede6e54cd73c4434426eb6c302a37cdc5) ) \
+	ROM_LOAD_BIOS( 3, "epr-12604a.20", 0x000000, 0x8000, CRC(884e4aa5) SHA1(c9008c431a937c084fb475273093ca0b434b5f47) )
+
 ROM_START( megatech )
-	ROM_REGION( 0x8000, REGION_USER1, 0 )
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_beast ) /* Altered Beast */
@@ -463,10 +479,10 @@ ROM_START( mt_beast ) /* Altered Beast */
 	ROM_LOAD16_WORD_SWAP( "mp12538.ic1", 0x000000, 0x080000, CRC(3bea3dce) SHA1(ec72e4fde191dedeb3f148f132603ed3c23f0f86) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-01.ic2", 0x000000, 0x08000, CRC(40cb0088) SHA1(e1711532c29f395a35a1cb34d789015881b5a1ed) )
+	ROM_LOAD( "epr-12368-01.ic2", 0x000000, 0x08000, CRC(40cb0088) SHA1(e1711532c29f395a35a1cb34d789015881b5a1ed) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_astro ) /* Astro Warrior (Sms Game!) */
@@ -475,10 +491,10 @@ ROM_START( mt_astro ) /* Astro Warrior (Sms Game!) */
 	ROM_LOAD( "ep13817.ic2", 0x000000, 0x020000, CRC(299cbb74) SHA1(901697a3535ad70190647f34ad5b30b695d54542) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-13.ic1", 0x000000, 0x08000,  CRC(4038cbd1) SHA1(696bc1efce45d9f0052b2cf0332a232687c8d6ab) )
+	ROM_LOAD( "epr-12368-13.ic1", 0x000000, 0x08000,  CRC(4038cbd1) SHA1(696bc1efce45d9f0052b2cf0332a232687c8d6ab) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 
@@ -487,23 +503,23 @@ ROM_START( mt_wcsoc ) /* World Cup Soccer */
 	ROM_LOAD16_WORD_SWAP( "mp12607b.ic1", 0x000000, 0x080000, CRC(bc591b30) SHA1(55e8577171c0933eee53af1dabd0f4c6462d5fc8) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-21.ic2", 0x000000, 0x08000, CRC(028ee46b) SHA1(cd8f81d66e5ae62107eb20e0ca5db4b66d4b2987) )
+	ROM_LOAD( "epr-12368-21.ic2", 0x000000, 0x08000, CRC(028ee46b) SHA1(cd8f81d66e5ae62107eb20e0ca5db4b66d4b2987) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_gng ) /* Ghouls and Ghosts */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp12605.ic1", 0x000000, 0x020000, CRC(1066C6AB) SHA1(C30E4442732BDB38C96D780542F8550A94D127B0) )
-	ROM_LOAD16_WORD_SWAP( "mpr12606.ic2", 0x080000, 0x020000, CRC(D0BE7777) SHA1(A44B2A3D427F6973B5C1A3DCD8D1776366ACB9F7) )
+	ROM_LOAD16_WORD_SWAP( "mp12605.ic1", 0x000000, 0x020000, CRC(1066c6ab) SHA1(c30e4442732bdb38c96d780542f8550a94d127b0) )
+	ROM_LOAD16_WORD_SWAP( "mpr12606.ic2", 0x080000, 0x020000, CRC(d0be7777) SHA1(a44b2a3d427f6973b5c1a3dcd8d1776366acb9f7) )
 	ROM_CONTINUE(0x020000,0x60000)
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-23.ic3", 0x000000, 0x08000, CRC(7ee58546) SHA1(ad5bb0934475eacdc5e354f67c96fe0d2512d33b) )
+	ROM_LOAD( "epr-12368-23.ic3", 0x000000, 0x08000, CRC(7ee58546) SHA1(ad5bb0934475eacdc5e354f67c96fe0d2512d33b) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_shang ) /* Super HangOn */
@@ -514,7 +530,7 @@ ROM_START( mt_shang ) /* Super HangOn */
 	ROM_LOAD( "epr-12368-24.ic2", 0x000000, 0x08000, CRC(6c2db7e3) SHA1(8de0a10ed9185c9e98f17784811a79d3ce8c4c03) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_gaxe ) /* Golden Axe */
@@ -522,10 +538,10 @@ ROM_START( mt_gaxe ) /* Golden Axe */
 	ROM_LOAD16_WORD_SWAP( "12806.ic1", 0x000000, 0x080000, CRC(43456820) SHA1(2f7f1fcd979969ac99426f11ab99999a5494a121) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-25.ic2", 0x000000, 0x08000, CRC(1f07ed28) SHA1(9d54192f4c6c1f8a51c38a835c1dd1e4e3e8279e) )
+	ROM_LOAD( "epr-12368-25.ic2", 0x000000, 0x08000, CRC(1f07ed28) SHA1(9d54192f4c6c1f8a51c38a835c1dd1e4e3e8279e) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_smgp ) /* Super Monaco Grand Prix */
@@ -533,10 +549,10 @@ ROM_START( mt_smgp ) /* Super Monaco Grand Prix */
 	ROM_LOAD16_WORD_SWAP( "13250.ic1", 0x000000, 0x080000, CRC(189b885f) SHA1(31c06ffcb48b1604989a94e584261457de4f1f46) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-39.ic2", 0x000000, 0x08000, CRC(64b3ce25) SHA1(83a9f2432d146a712b037f96f261742f7dc810bb) )
+	ROM_LOAD( "epr-12368-39.ic2", 0x000000, 0x08000, CRC(64b3ce25) SHA1(83a9f2432d146a712b037f96f261742f7dc810bb) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_sonic ) /* Sonic */
@@ -544,10 +560,10 @@ ROM_START( mt_sonic ) /* Sonic */
 	ROM_LOAD16_WORD_SWAP( "mp13913.ic1", 0x000000, 0x080000, CRC(480b4b5c) SHA1(ab1dc1f738e3b2d0898a314b123fa71182bf572e) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-52.ic2", 0x0000, 0x8000,  CRC(6a69d20c) SHA1(e483b39ff6eca37dc192dc296d004049e220554a) )
+	ROM_LOAD( "epr-12368-52.ic2", 0x0000, 0x8000,  CRC(6a69d20c) SHA1(e483b39ff6eca37dc192dc296d004049e220554a) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_sonia ) /* Sonic  (alt)*/
@@ -555,10 +571,10 @@ ROM_START( mt_sonia ) /* Sonic  (alt)*/
 	ROM_LOAD16_WORD_SWAP( "mp13933.ic1", 0x000000, 0x080000, CRC(13775004) SHA1(5decfd35944a2d0e7b996b9a4a12b616a309fd5e) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-52.ic2", 0x0000, 0x8000,  CRC(6a69d20c) SHA1(e483b39ff6eca37dc192dc296d004049e220554a) )
+	ROM_LOAD( "epr-12368-52.ic2", 0x0000, 0x8000,  CRC(6a69d20c) SHA1(e483b39ff6eca37dc192dc296d004049e220554a) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_gaxe2 ) /* Golden Axe 2 */
@@ -566,10 +582,10 @@ ROM_START( mt_gaxe2 ) /* Golden Axe 2 */
 	ROM_LOAD16_WORD_SWAP( "mp14272.ic1", 0x000000, 0x080000, CRC(d4784cae) SHA1(b6c286027d06fd850016a2a1ee1f1aeea080c3bb) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-57.ic2", 0x000000, 0x08000, CRC(dc9b4433) SHA1(efd3a598569010cdc4bf38ecbf9ed1b4e14ffe36) )
+	ROM_LOAD( "epr-12368-57.ic2", 0x000000, 0x08000, CRC(dc9b4433) SHA1(efd3a598569010cdc4bf38ecbf9ed1b4e14ffe36) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_stf ) /* Sports Talk Football */
@@ -577,10 +593,10 @@ ROM_START( mt_stf ) /* Sports Talk Football */
 	ROM_LOAD16_WORD_SWAP( "mp14356a-f.ic1", 0x000000, 0x100000, CRC(20cf32f6) SHA1(752314346a7a98b3808b3814609e024dc0a4108c) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "ep12368-58.ic2", 0x000000, 0x08000, CRC(dce2708e) SHA1(fcebb1899ee11468f6bda705899f074e7de9d723) )
+	ROM_LOAD( "epr-12368-58.ic2", 0x000000, 0x08000, CRC(dce2708e) SHA1(fcebb1899ee11468f6bda705899f074e7de9d723) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_fshrk ) /* Fire Shark */
@@ -591,10 +607,10 @@ ROM_START( mt_fshrk ) /* Fire Shark */
 	/* (09fa48af) ep14707.ic2             mp14341.ic1  [odd]      IDENTICAL */
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-53.ic2", 0x000000, 0x08000,  CRC(4fa61044) SHA1(7810deea221c10b0b2f5233443d81f4f1998ee58) )
+	ROM_LOAD( "epr-12368-53.ic2", 0x000000, 0x08000,  CRC(4fa61044) SHA1(7810deea221c10b0b2f5233443d81f4f1998ee58) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 
@@ -603,21 +619,22 @@ ROM_START( mt_eswat ) /* E-Swat */
 	ROM_LOAD16_WORD_SWAP( "mp13192-h.ic1", 0x000000, 0x080000, CRC(82f458ef) SHA1(58444b783312def71ecffc4ad021b72a609685cb) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-38.ic2", 0x000000, 0x08000, CRC(43c5529b) SHA1(104f85adea6da1612c0aa96d553efcaa387d7aaf) )
+	ROM_LOAD( "epr-12368-38.ic2", 0x000000, 0x08000, CRC(43c5529b) SHA1(104f85adea6da1612c0aa96d553efcaa387d7aaf) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
+/* original dump of mpr-13905a.ic1 had a size of 0x100000, which is a double dump of the correct size 0x080000 */
 ROM_START( mt_bbros ) /* Bonanza Bros */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp13905a.ic1", 0x000000, 0x100000, CRC(68a88d60) SHA1(2f56e8a2b0999de4fa0d14a1527f4e1df0f9c7a2) )
+	ROM_LOAD16_WORD_SWAP( "mpr-13905a.ic1", 0x000000, 0x080000, CRC(6d617940) SHA1(11d5ff1c2db79632f6dea2edf97f56af2149cea4) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-49.ic2", 0x000000, 0x08000, CRC(c5101da2) SHA1(636f30043e2e9291e193ef9a2ead2e97a0bf7380) )
+	ROM_LOAD( "epr-12368-49.ic2", 0x000000, 0x08000, CRC(c5101da2) SHA1(636f30043e2e9291e193ef9a2ead2e97a0bf7380) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_soni2 ) /* Sonic 2 */
@@ -625,10 +642,10 @@ ROM_START( mt_soni2 ) /* Sonic 2 */
 	ROM_LOAD16_WORD_SWAP( "mp15000a-f.ic1", 0x000000, 0x100000, CRC(679ebb49) SHA1(557482064677702454562f753460993067ef9e16) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "ep12368-62.ic2", 0x000000, 0x08000, CRC(14a8566f) SHA1(d1d14162144bf068ddd19e9736477ff98fb43f9e) )
+	ROM_LOAD( "epr-12368-62.ic2", 0x000000, 0x08000, CRC(14a8566f) SHA1(d1d14162144bf068ddd19e9736477ff98fb43f9e) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_kcham ) /* Kid Chameleon */
@@ -636,10 +653,10 @@ ROM_START( mt_kcham ) /* Kid Chameleon */
 	ROM_LOAD16_WORD_SWAP( "mp14557.ic1", 0x000000, 0x100000, CRC(e1a889a4) SHA1(a2768eacafc47d371e5276f0cce4b12b6041337a) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-60.ic2", 0x000000, 0x08000, CRC(a8e4af18) SHA1(dfa49f6ec4047718f33dba1180f6204dbaff884c) )
+	ROM_LOAD( "epr-12368-60.ic2", 0x000000, 0x08000, CRC(a8e4af18) SHA1(dfa49f6ec4047718f33dba1180f6204dbaff884c) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_lastb ) /* Last Battle */
@@ -647,10 +664,10 @@ ROM_START( mt_lastb ) /* Last Battle */
 	ROM_LOAD16_WORD_SWAP( "mp12578f.ic1", 0x000000, 0x080000, CRC(531191a0) SHA1(f6bc26e975c01a3e10ab4033e4c5f494627a1e2f) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-20.ic2", 0x000000, 0x08000, CRC(e1a71c91) SHA1(c250da18660d8aea86eb2abace41ba46130dabc8) )
+	ROM_LOAD( "epr-12368-20.ic2", 0x000000, 0x08000, CRC(e1a71c91) SHA1(c250da18660d8aea86eb2abace41ba46130dabc8) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_mwalk ) /* Moon Walker */
@@ -658,10 +675,10 @@ ROM_START( mt_mwalk ) /* Moon Walker */
 	ROM_LOAD16_WORD_SWAP( "mp13285a.ic1", 0x000000, 0x080000, CRC(189516e4) SHA1(2a79e07da2e831832b8d448cae87a833c85e67c9) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-40.ic2", 0x000000, 0x08000, CRC(0482378c) SHA1(734772f3ddb5ff82b76c3514d18a464b2bce8381) )
+	ROM_LOAD( "epr-12368-40.ic2", 0x000000, 0x08000, CRC(0482378c) SHA1(734772f3ddb5ff82b76c3514d18a464b2bce8381) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_crack ) /* Crackdown */
@@ -669,10 +686,10 @@ ROM_START( mt_crack ) /* Crackdown */
 	ROM_LOAD16_WORD_SWAP( "mp13578a-s.ic1", 0x000000, 0x080000, CRC(23f19893) SHA1(09aca793871e2246af4dc24925bc1eda8ff34446) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "ep12368-41.ic2", 0x000000, 0x08000, CRC(3014acec) SHA1(07953e9ae5c23fc7e7d08993b215f4dfa88aa5d7) )
+	ROM_LOAD( "epr-12368-41.ic2", 0x000000, 0x08000, CRC(3014acec) SHA1(07953e9ae5c23fc7e7d08993b215f4dfa88aa5d7) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_mystd ) /* Mystic Defender */
@@ -680,10 +697,10 @@ ROM_START( mt_mystd ) /* Mystic Defender */
 	ROM_LOAD16_WORD_SWAP( "mp12707.1", 0x000000, 0x080000, CRC(4f2c513d) SHA1(f9bb548b3688170fe18bb3f1b5b54182354143cf) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-27.ic2", 0x000000, 0x08000, CRC(caf46f78) SHA1(a9659e86a6a223646338cd8f29c346866e4406c7) )
+	ROM_LOAD( "epr-12368-27.ic2", 0x000000, 0x08000, CRC(caf46f78) SHA1(a9659e86a6a223646338cd8f29c346866e4406c7) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_shar2 ) /* Space Harrier 2 */
@@ -691,10 +708,10 @@ ROM_START( mt_shar2 ) /* Space Harrier 2 */
 	ROM_LOAD16_WORD_SWAP( "mp11934.ic1", 0x000000, 0x080000, CRC(932daa09) SHA1(a2d7a76f3604c6227d43229908bfbd02b0ef5fd9) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-02.ic1", 0x000000, 0x08000, CRC(c129c66c) SHA1(e7c0c97db9df9eb04e2f9ff561b64305219b8f1f) ) // ic2?
+	ROM_LOAD( "epr-12368-02.ic2", 0x000000, 0x08000, CRC(c129c66c) SHA1(e7c0c97db9df9eb04e2f9ff561b64305219b8f1f) ) // ic2?
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_stbld ) /* Super Thunder Blade */
@@ -702,10 +719,10 @@ ROM_START( mt_stbld ) /* Super Thunder Blade */
 	ROM_LOAD16_WORD_SWAP( "mp11996f.ic1", 0x000000, 0x080000,  CRC(9355c34e) SHA1(26ff91c2921408673c644b0b1c8931d98524bf63) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-03.ic2", 0x000000, 0x08000,  CRC(1ba4ac5d) SHA1(9bde57d70189d159ebdc537a9026001abfd0deae) )
+	ROM_LOAD( "epr-12368-03.ic2", 0x000000, 0x08000,  CRC(1ba4ac5d) SHA1(9bde57d70189d159ebdc537a9026001abfd0deae) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_tetri ) /* Tetris */
@@ -714,10 +731,10 @@ ROM_START( mt_tetri ) /* Tetris */
 	ROM_LOAD16_BYTE( "mpr-12357f.ic2", 0x000000, 0x020000, CRC(d52ca49c) SHA1(a9159892eee2c0cf28ebfcfa99f81f80781851c6) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-22.ic3", 0x000000, 0x08000, CRC(1c1b6468) SHA1(568a38f4186167486e39ab4aa2c1ceffd0b81156) )
+	ROM_LOAD( "epr-12368-22.ic3", 0x000000, 0x08000, CRC(1c1b6468) SHA1(568a38f4186167486e39ab4aa2c1ceffd0b81156) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_tfor2 ) /* Thunder Force 2 */
@@ -725,10 +742,10 @@ ROM_START( mt_tfor2 ) /* Thunder Force 2 */
 	ROM_LOAD16_WORD_SWAP( "mp12559.ic1", 0x000000, 0x080000, CRC(b093bee3) SHA1(0bf6194c3d228425f8cf1903ed70d8da1b027b6a) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-11.ic2", 0x000000, 0x08000, CRC(f4f27e8d) SHA1(ae1a2823deb416c53838115966f1833d5dac72d4) )
+	ROM_LOAD( "epr-12368-11.ic2", 0x000000, 0x08000, CRC(f4f27e8d) SHA1(ae1a2823deb416c53838115966f1833d5dac72d4) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_tlbba ) /* Tommy Lasorda Baseball */
@@ -736,10 +753,10 @@ ROM_START( mt_tlbba ) /* Tommy Lasorda Baseball */
 	ROM_LOAD16_WORD_SWAP( "mp12706.ic1", 0x000000, 0x080000, CRC(8901214f) SHA1(f5ec166be1cf9b86623b9d7a78ec903b899da32a) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-35.ic2", 0x000000, 0x08000, CRC(67bbe482) SHA1(6fc283b22e68befabb44b2cc61a7f82a71d6f029) )
+	ROM_LOAD( "epr-12368-35.ic2", 0x000000, 0x08000, CRC(67bbe482) SHA1(6fc283b22e68befabb44b2cc61a7f82a71d6f029) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_cols ) /* Columns */
@@ -747,21 +764,21 @@ ROM_START( mt_cols ) /* Columns */
 	ROM_LOAD16_WORD_SWAP( "mp13193-t.ic1", 0x000000, 0x080000, CRC(8c770e2f) SHA1(02a3626025c511250a3f8fb3176eebccc646cda9) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "ep12368-36.ic3", 0x000000, 0x08000,  CRC(a4b29bac) SHA1(c9be866ac96243897d09612fe17562e0481f66e3) )
+	ROM_LOAD( "epr-12368-36.ic3", 0x000000, 0x08000,  CRC(a4b29bac) SHA1(c9be866ac96243897d09612fe17562e0481f66e3) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
-ROM_START( mt_ggolf ) /* Great Golf (Bad Dump) */
+ROM_START( mt_ggolf ) /* Great Golf */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp11129f.ic1", 0x000000, 0x020000, BAD_DUMP CRC(942738ba) SHA1(e99d4e39c965fc123a39d75521a274687e917a57) ) // first 32kb is repeated 4 times, doesn't work in MEKA
+	ROM_LOAD16_WORD_SWAP( "mp11129f.ic1", 0x000000, 0x020000, CRC(c6611c84) SHA1(eab0eed872dd26b13bcf0b2dd74fcbbc078812c9) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-04.ic2", 0x000000, 0x08000, CRC(62e5579b) SHA1(e1f531be5c40a1216d4192baeda9352384444410) )
+	ROM_LOAD( "epr-12368-04.ic2", 0x000000, 0x08000, CRC(62e5579b) SHA1(e1f531be5c40a1216d4192baeda9352384444410) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_gsocr ) /* Great Soccer (SMS based) (Bad Dump) */
@@ -769,87 +786,87 @@ ROM_START( mt_gsocr ) /* Great Soccer (SMS based) (Bad Dump) */
 	ROM_LOAD16_WORD_SWAP( "mp10747f.ic1", 0x000000, 0x020000, BAD_DUMP CRC(9cf53703) SHA1(c6b4d1de56bd5bf067ec7fc80449c07686d01337) ) // first 32kb is repeated 4 times, doesn't work in MEKA
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-05.ic2", 0x000000, 0x08000, CRC(bab91fcc) SHA1(a160c9d34b253e93ac54fdcef33f95f44d8fa90c) )
+	ROM_LOAD( "epr-12368-05.ic2", 0x000000, 0x08000, CRC(bab91fcc) SHA1(a160c9d34b253e93ac54fdcef33f95f44d8fa90c) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
-ROM_START( mt_asyn ) /* Alien Syndrome (SMS based) (Bad Dump) */
+ROM_START( mt_asyn ) /* Alien Syndrome (SMS based) */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mpr-11194.ic1", 0x000000, 0x040000, NO_DUMP )
+	ROM_LOAD16_WORD_SWAP( "mpr-11194.ic1", 0x000000, 0x040000, CRC(4cc11df9) SHA1(5d786476b275de34efb95f576dd556cf4b335a83) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
 	ROM_LOAD( "epr-12368-07.ic2", 0x000000, 0x08000, CRC(14f4a17b) SHA1(0fc010ac95762534892f1ae16986dbf1c25399d3) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_parlg ) /* Parlour Games (SMS Based)  */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp11404.ic1", 0x000000, 0x020000, CRC(E030E66C) SHA1(06664DAF208F07CB00B603B12ECCFC3F01213A17) )
+	ROM_LOAD16_WORD_SWAP( "mp11404.ic1", 0x000000, 0x020000, CRC(e030e66c) SHA1(06664daf208f07cb00b603b12eccfc3f01213a17) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-29.ic2", 0x000000, 0x08000, CRC(534151e8) SHA1(219238d90c1d3ac07ff64c9a2098b490fff68f04) )
+	ROM_LOAD( "epr-12368-29.ic2", 0x000000, 0x08000, CRC(534151e8) SHA1(219238d90c1d3ac07ff64c9a2098b490fff68f04) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_shnbi ) /* Shinobi. */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp11706.ic1", 0x000000, 0x040000, CRC(0C6FAC4E) SHA1(7C0778C055DC9C2B0AAE1D166DBDB4734E55B9D1) )
+	ROM_LOAD16_WORD_SWAP( "mp11706.ic1", 0x000000, 0x040000, CRC(0c6fac4e) SHA1(7c0778c055dc9c2b0aae1d166dbdb4734e55b9d1) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-08.ic2", 0x000000, 0x08000, CRC(103A0459) SHA1(D803DDF7926B83785E8503C985B8C78E7CCB5DAC) )
+	ROM_LOAD( "epr-12368-08.ic2", 0x000000, 0x08000, CRC(103a0459) SHA1(d803ddf7926b83785e8503c985b8c78e7ccb5dac) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_revsh ) /* The Revenge Of Shinobi. */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp12675.ic1", 0x000000, 0x080000, CRC(672A1D4D) SHA1(5FD0AF14C8F2CF8CEAB1AE61A5A19276D861289A) )
+	ROM_LOAD16_WORD_SWAP( "mp12675.ic1", 0x000000, 0x080000, CRC(672a1d4d) SHA1(5fd0af14c8f2cf8ceab1ae61a5a19276d861289a) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-28.ic2", 0x000000, 0x08000, CRC(0D30BEDE) SHA1(73A090D84B78A570E02FB54A33666DCADA52849B) )
+	ROM_LOAD( "epr-12368-28.ic2", 0x000000, 0x08000, CRC(0d30bede) SHA1(73a090d84b78a570e02fb54a33666dcada52849b) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_aftrb ) /* Afterburner. */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp11271.ic1", 0x000000, 0x080000, CRC(1C951F8E) SHA1(51531DF038783C84640A0CAB93122E0B59E3B69A) )
+	ROM_LOAD16_WORD_SWAP( "mp11271.ic1", 0x000000, 0x080000, CRC(1c951f8e) SHA1(51531df038783c84640a0cab93122e0b59e3b69a) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-10.ic2", 0x000000, 0x08000, CRC(2A7CB590) SHA1(2236963BDDC89CA9045B530259CC7B5CCF889EAF) )
+	ROM_LOAD( "epr-12368-10.ic2", 0x000000, 0x08000, CRC(2a7cb590) SHA1(2236963bddc89ca9045b530259cc7b5ccf889eaf) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_tgolf ) /* Arnold Palmer Tournament Golf */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp12645f.ic1", 0x000000, 0x080000, CRC(c07ef8d2) SHA1(9d111fdc7bb92d52bfa048cd134aa488b4f475ef) )
+	ROM_LOAD16_WORD_SWAP( "mpr-12645f.ic1", 0x000000, 0x080000, CRC(c07ef8d2) SHA1(9d111fdc7bb92d52bfa048cd134aa488b4f475ef) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "12368-31.ic2", 0x000000, 0x08000, CRC(30af7e4a) SHA1(baf91d527393dc90aba9371abcb1e690bcc83c7e) )
+	ROM_LOAD( "epr-12368-31.ic2", 0x000000, 0x08000, CRC(30af7e4a) SHA1(baf91d527393dc90aba9371abcb1e690bcc83c7e) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_astrm ) /* Alien Storm. */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "mp13941.ic1", 0x000000, 0x080000, CRC(D71B3EE6) SHA1(05F272DAD243D132D517C303388248DC4C0482ED) )
+	ROM_LOAD16_WORD_SWAP( "mp13941.ic1", 0x000000, 0x080000, CRC(d71b3ee6) SHA1(05f272dad243d132d517c303388248dc4c0482ed) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "1236847.ic2", 0x000000, 0x08000, CRC(31FB683D) SHA1(E356DA020BBF817B97FB10C27F75CF5931EDF4FC) )
+	ROM_LOAD( "epr-12368-47.ic2", 0x000000, 0x08000, CRC(31fb683d) SHA1(e356da020bbf817b97fb10c27f75cf5931edf4fc) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 ROM_START( mt_arrow ) /* Arrow Flash */
@@ -857,76 +874,76 @@ ROM_START( mt_arrow ) /* Arrow Flash */
 	ROM_LOAD16_WORD_SWAP( "mpr13396h.ic1", 0x000000, 0x080000, CRC(091226e3) SHA1(cb15c6277314f3c4a86b5ae5823f72811d5d269d) )
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
-	ROM_LOAD( "epr12368-44.ic2", 0x000000, 0x08000, CRC(e653065d) SHA1(96b014fc4df8eb2188ac94ed0a778d974fe6dcad) )
+	ROM_LOAD( "epr-12368-44.ic2", 0x000000, 0x08000, CRC(e653065d) SHA1(96b014fc4df8eb2188ac94ed0a778d974fe6dcad) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Bios */
-	ROM_LOAD( "epr12664.20", 0x000000, 0x8000, CRC(f71e9526) SHA1(1c7887541d02c41426992d17f8e3db9e03975953) )
+	MEGATECH_BIOS
 ROM_END
 
 
 /* nn */ /* nn is part of the instruction rom name, should there be a game for each number? */
-/* -- */ GAME( 1989, megatech, 0,        megatech, megatech, 0, ROT0, "Sega",                  "Mega-Tech BIOS", NOT_A_DRIVER )
-/* 01 */ GAME( 1988, mt_beast, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Altered Beast (Mega-Tech)", GAME_NOT_WORKING )
-/* 02 */ GAME( 1988, mt_shar2, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Space Harrier II (Mega-Tech)", GAME_NOT_WORKING )
-/* 03 */ GAME( 1988, mt_stbld, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Super Thunder Blade (Mega-Tech)", GAME_NOT_WORKING )
-/* 04 */ GAME( 19??, mt_ggolf, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Great Golf (Mega-Tech)", GAME_NOT_WORKING ) /* sms! also bad */
-/* 05 */ GAME( 19??, mt_gsocr, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Great Soccer (Mega-Tech)", GAME_NOT_WORKING ) /* sms! also bad */
+/* -- */ GAMEB( 1989, megatech, 0,        megatech, megatech, megatech, 0, ROT0, "Sega",                 "Mega-Tech", NOT_A_DRIVER )
+/* 01 */ GAMEB( 1988, mt_beast, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Altered Beast (Mega-Tech)", GAME_NOT_WORKING )
+/* 02 */ GAMEB( 1988, mt_shar2, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Space Harrier II (Mega-Tech)", GAME_NOT_WORKING )
+/* 03 */ GAMEB( 1988, mt_stbld, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Super Thunder Blade (Mega-Tech)", GAME_NOT_WORKING )
+/* 04 */ GAMEB( 1987, mt_ggolf, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Great Golf (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms! */
+/* 05 */ GAMEB( 198?, mt_gsocr, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Great Soccer (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms! also bad */
 /* 06 */ // unknown
-/* 07 */ GAME( 19??, mt_asyn,  megatech, megatech, megatech, 0, ROT0, "Sega",                  "Alien Syndrome (Mega-Tech)", GAME_NOT_WORKING ) /* sms! also bad */
-/* 08 */ GAME( 19??, mt_shnbi, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Shinobi (Mega-Tech)", GAME_NOT_WORKING) /* sms */
+/* 07 */ GAMEB( 1987, mt_asyn,  megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Alien Syndrome (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms! */
+/* 08 */ GAMEB( 1987, mt_shnbi, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Shinobi (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms */
 /* 09 */ // unknown
-/* 10 */ GAME( 19??, mt_aftrb, megatech, megatech, megatech, 0, ROT0, "Sega",                  "After Burner (Mega-Tech)", GAME_NOT_WORKING) /* sms */
-/* 11 */ GAME( 1989, mt_tfor2, megatech, megatech, megatech, 0, ROT0, "Tecno Soft / Sega",     "Thunder Force II MD (Mega-Tech)", GAME_NOT_WORKING )
+/* 10 */ GAMEB( 1987, mt_aftrb, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "After Burner (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms */
+/* 11 */ GAMEB( 1989, mt_tfor2, megatech, megatech, megatech, megatech, 0, ROT0, "Techno Soft / Sega",   "Thunder Force II MD (Mega-Tech)", GAME_NOT_WORKING )
 /* 12 */ // unknown
-/* 13 */ GAME( 19??, mt_astro, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Astro Warrior (Mega-Tech)", GAME_NOT_WORKING ) /* sms! */
+/* 13 */ GAMEB( 1986, mt_astro, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Astro Warrior (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms! */
 /* 14 */ // unknown
 /* 15 */ // unknown
 /* 16 */ // unknown
 /* 17 */ // unknown
 /* 18 */ // unknown
 /* 19 */ // unknown
-/* 20 */ GAME( 1989, mt_lastb, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Last Battle (Mega-Tech)", GAME_NOT_WORKING )
-/* 21 */ GAME( 1989, mt_wcsoc, megatech, megatech, megatech, 0, ROT0, "Sega",                  "World Championship Soccer (Mega-Tech)", GAME_NOT_WORKING )
-/* 22 */ GAME( 19??, mt_tetri, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Tetris (Mega-Tech)", GAME_NOT_WORKING )
-/* 23 */ GAME( 1989, mt_gng,   megatech, megatech, megatech, 0, ROT0, "Capcom / Sega",         "Ghouls'n Ghosts (Mega-Tech)", GAME_NOT_WORKING )
-/* 24 */ GAME( 1989, mt_shang, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Super Hang-On (Mega-Tech)", GAME_NOT_WORKING )
-/* 25 */ GAME( 1989, mt_gaxe,  megatech, megatech, megatech, 0, ROT0, "Sega",                  "Golden Axe (Mega-Tech)", GAME_NOT_WORKING )
+/* 20 */ GAMEB( 1989, mt_lastb, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Last Battle (Mega-Tech)", GAME_NOT_WORKING )
+/* 21 */ GAMEB( 1989, mt_wcsoc, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "World Championship Soccer (Mega-Tech)", GAME_NOT_WORKING )
+/* 22 */ GAMEB( 1989, mt_tetri, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Tetris (Mega-Tech)", GAME_NOT_WORKING )
+/* 23 */ GAMEB( 1989, mt_gng,   megatech, megatech, megatech, megatech, 0, ROT0, "Capcom / Sega",        "Ghouls'n Ghosts (Mega-Tech)", GAME_NOT_WORKING )
+/* 24 */ GAMEB( 1989, mt_shang, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Super Hang-On (Mega-Tech)", GAME_NOT_WORKING )
+/* 25 */ GAMEB( 1989, mt_gaxe,  megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Golden Axe (Mega-Tech)", GAME_NOT_WORKING )
 /* 26 */ // unknown
-/* 27 */ GAME( 1989, mt_mystd, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Mystic Defender (Mega-Tech)", GAME_NOT_WORKING )
-/* 28 */ GAME( 1989, mt_revsh, megatech, megatech, megatech, 0, ROT0, "Sega",                  "The Revenge of Shinobi (Mega-Tech)", GAME_NOT_WORKING )
-/* 29 */ GAME( 19??, mt_parlg, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Parlour Games (Mega-Tech)", GAME_NOT_WORKING ) /* sms! */
+/* 27 */ GAMEB( 1989, mt_mystd, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Mystic Defender (Mega-Tech)", GAME_NOT_WORKING )
+/* 28 */ GAMEB( 1989, mt_revsh, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "The Revenge of Shinobi (Mega-Tech)", GAME_NOT_WORKING )
+/* 29 */ GAMEB( 1987, mt_parlg, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Parlour Games (Mega-Tech, SMS based)", GAME_NOT_WORKING ) /* sms! */
 /* 30 */ // unknown
-/* 31 */ GAME( 1989, mt_tgolf, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Arnold Palmer Tournament Golf (Mega-Tech)", GAME_NOT_WORKING )
+/* 31 */ GAMEB( 1989, mt_tgolf, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Arnold Palmer Tournament Golf (Mega-Tech)", GAME_NOT_WORKING )
 /* 32 */ // Super Real Basketball - Not Dumped
 /* 33 */ // unknown
 /* 34 */ // unknown
-/* 35 */ GAME( 1989, mt_tlbba, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Tommy Lasorda Baseball (Mega-Tech)", GAME_NOT_WORKING )
-/* 36 */ GAME( 1990, mt_cols,  megatech, megatech, megatech, 0, ROT0, "Sega",                  "Columns (Mega-Tech)", GAME_NOT_WORKING )
+/* 35 */ GAMEB( 1989, mt_tlbba, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Tommy Lasorda Baseball (Mega-Tech)", GAME_NOT_WORKING )
+/* 36 */ GAMEB( 1990, mt_cols,  megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Columns (Mega-Tech)", GAME_NOT_WORKING )
 /* 37 */ // unknown
-/* 38 */ GAME( 1990, mt_eswat, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Cyber Police ESWAT: Enhanced Special Weapons and Tactics (Mega-Tech)", GAME_NOT_WORKING )
-/* 39 */ GAME( 1990, mt_smgp,  megatech, megatech, megatech, 0, ROT0, "Sega",                  "Super Monaco GP (Mega-Tech)", GAME_NOT_WORKING )
-/* 40 */ GAME( 1990, mt_mwalk, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Moonwalker (Mega-Tech)", GAME_NOT_WORKING )
-/* 41 */ GAME( 1990, mt_crack, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Crack Down (Mega-Tech)", GAME_NOT_WORKING )
+/* 38 */ GAMEB( 1990, mt_eswat, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Cyber Police ESWAT: Enhanced Special Weapons and Tactics (Mega-Tech)", GAME_NOT_WORKING )
+/* 39 */ GAMEB( 1990, mt_smgp,  megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Super Monaco GP (Mega-Tech)", GAME_NOT_WORKING )
+/* 40 */ GAMEB( 1990, mt_mwalk, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Michael Jackson's Moonwalker (Mega-Tech)", GAME_NOT_WORKING )
+/* 41 */ GAMEB( 1990, mt_crack, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Crack Down (Mega-Tech)", GAME_NOT_WORKING )
 /* 42 */ // unknown
 /* 43 */ // unknown
-/* 44 */ GAME( 1990, mt_arrow, megatech, megatech, megatech, 0, ROT0, "Sega",					 "Arrow Flash (Mega-Tech)", GAME_NOT_WORKING )
+/* 44 */ GAMEB( 1990, mt_arrow, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Arrow Flash (Mega-Tech)", GAME_NOT_WORKING )
 /* 45 */ // unknown
 /* 46 */ // unknown
-/* 47 */ GAME( 1990, mt_astrm, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Alien Storm (Mega-Tech", GAME_NOT_WORKING )
+/* 47 */ GAMEB( 1990, mt_astrm, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Alien Storm (Mega-Tech)", GAME_NOT_WORKING )
 /* 48 */ // unknown
-/* 49 */ GAME( 1991, mt_bbros, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Bonanza Bros. (Mega-Tech)", GAME_NOT_WORKING )
+/* 49 */ GAMEB( 1991, mt_bbros, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Bonanza Bros. (Mega-Tech)", GAME_NOT_WORKING )
 /* 50 */ // unknown
 /* 51 */ // unknown
-/* 52 */ GAME( 1991, mt_sonic, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Sonic The Hedgehog (Mega-Tech, set 1)", GAME_NOT_WORKING )
-/*    */ GAME( 1991, mt_sonia, mt_sonic, megatech, megatech, 0, ROT0, "Sega",                  "Sonic The Hedgehog (Mega-Tech, set 2)", GAME_NOT_WORKING )
-/* 53 */ GAME( 1990, mt_fshrk, megatech, megatech, megatech, 0, ROT0, "Toaplan / Sega",        "Fire Shark (Mega-Tech)", GAME_NOT_WORKING )
+/* 52 */ GAMEB( 1991, mt_sonic, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Sonic The Hedgehog (Mega-Tech, set 1)", GAME_NOT_WORKING )
+/*    */ GAMEB( 1991, mt_sonia, mt_sonic, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Sonic The Hedgehog (Mega-Tech, set 2)", GAME_NOT_WORKING )
+/* 53 */ GAMEB( 1990, mt_fshrk, megatech, megatech, megatech, megatech, 0, ROT0, "Toaplan / Sega",       "Fire Shark (Mega-Tech)", GAME_NOT_WORKING )
 /* 54 */ // unknown
 /* 55 */ // unknown
 /* 56 */ // unknown
-/* 57 */ GAME( 1991, mt_gaxe2, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Golden Axe II (Mega-Tech)", GAME_NOT_WORKING )
-/* 58 */ GAME( 1991, mt_stf,   megatech, megatech, megatech, 0, ROT0, "Sega",                  "Joe Montana II: Sports Talk Football (Mega-Tech)", GAME_NOT_WORKING )
+/* 57 */ GAMEB( 1991, mt_gaxe2, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Golden Axe II (Mega-Tech)", GAME_NOT_WORKING )
+/* 58 */ GAMEB( 1991, mt_stf,   megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Joe Montana II: Sports Talk Football (Mega-Tech)", GAME_NOT_WORKING )
 /* 59 */ // unknown
-/* 60 */ GAME( 1992, mt_kcham, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Kid Chameleon (Mega-Tech)", GAME_NOT_WORKING )
+/* 60 */ GAMEB( 1992, mt_kcham, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Kid Chameleon (Mega-Tech)", GAME_NOT_WORKING )
 /* 61 */ // unknown
-/* 62 */ GAME( 1992, mt_soni2, megatech, megatech, megatech, 0, ROT0, "Sega",                  "Sonic The Hedgehog 2 (Mega-Tech)", GAME_NOT_WORKING )
+/* 62 */ GAMEB( 1992, mt_soni2, megatech, megatech, megatech, megatech, 0, ROT0, "Sega",                 "Sonic The Hedgehog 2 (Mega-Tech)", GAME_NOT_WORKING )
 /* more? */
