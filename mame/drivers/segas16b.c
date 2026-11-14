@@ -1646,6 +1646,7 @@ static READ16_HANDLER( sdi_custom_io_r )
  *************************************/
 
 static UINT8 aceattac_io_latch[5], aceattac_io_dir[5];
+static UINT8 aceattac_dial[2], aceattac_dial_keys[2];
 static UINT8 dfjail_nmi_enable, dfjail_dac_data;
 
 static READ16_HANDLER( aceattac_custom_io_r )
@@ -1655,8 +1656,8 @@ static READ16_HANDLER( aceattac_custom_io_r )
 		switch (offset & 3)
 		{
 			case 1: return readinputportbytag("P1");
-			case 2: return ((~readinputportbytag("DIAL1")) & 15) |
-				(((~readinputportbytag("DIAL2")) & 15) << 4);
+			case 2: return ((~aceattac_dial[0]) & 15) |
+				(((~aceattac_dial[1]) & 15) << 4);
 			case 3: return readinputportbytag("P2");
 		}
 	}
@@ -1704,9 +1705,32 @@ static WRITE16_HANDLER( aceattac_custom_io_w )
 	standard_io_w(offset, data, mem_mask);
 }
 
+/* the toss formation dial is a 10 position rotary switch: it keeps the selected
+   position and wraps around, so each key press moves it by one position */
+static void aceattac_dial_update(int param)
+{
+	static const char * const tags[2] = { "DIAL1", "DIAL2" };
+	int i;
+
+	for (i = 0; i < 2; i++)
+	{
+		int keys = readinputportbytag(tags[i]) & 3;
+		int pressed = keys & ~aceattac_dial_keys[i];
+
+		if (pressed & 1)
+			aceattac_dial[i] = (aceattac_dial[i] + 9) % 10;
+		if (pressed & 2)
+			aceattac_dial[i] = (aceattac_dial[i] + 1) % 10;
+		aceattac_dial_keys[i] = keys;
+	}
+}
+
 static MACHINE_RESET( aceattac )
 {
 	machine_reset_system16b();
+	memset(aceattac_dial, 0, sizeof(aceattac_dial));
+	memset(aceattac_dial_keys, 0, sizeof(aceattac_dial_keys));
+	timer_pulse(TIME_IN_HZ(60), 0, aceattac_dial_update);
 	memset(aceattac_io_latch, 0, sizeof(aceattac_io_latch));
 	memset(aceattac_io_dir, 255, sizeof(aceattac_io_dir));
 }
@@ -2105,7 +2129,7 @@ static INPUT_PORTS_START( aceattac )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
 
 	PORT_START_TAG("HANDX1")
-	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(2)
 
 	PORT_START_TAG("TRACKX1")
 	PORT_BIT( 0xfff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(1) PORT_REVERSE
@@ -2114,13 +2138,14 @@ static INPUT_PORTS_START( aceattac )
 	PORT_BIT( 0xfff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(1)
 
 	PORT_START_TAG("HANDY1")
-	PORT_BIT( 0x07, 0x04, IPT_PEDAL2 ) PORT_SENSITIVITY(100) PORT_KEYDELTA(1) PORT_CENTERDELTA(2) PORT_PLAYER(2)
+	PORT_BIT( 0x07, 0x04, IPT_PEDAL2 ) PORT_MINMAX(0x00,0x07) PORT_SENSITIVITY(100) PORT_KEYDELTA(1) PORT_CENTERDELTA(2) PORT_PLAYER(2)
 
 	PORT_START_TAG("DIAL1")
-	PORT_BIT( 0x0f, 0x00, IPT_AD_STICK_Z ) PORT_MINMAX(0,9) PORT_SENSITIVITY(10) PORT_KEYDELTA(1) PORT_CODE_DEC(KEYCODE_Z) PORT_CODE_INC(KEYCODE_X) PORT_PLAYER(1)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_OTHER ) PORT_NAME("P1 Toss Formation -") PORT_CODE(KEYCODE_Z)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_OTHER ) PORT_NAME("P1 Toss Formation +") PORT_CODE(KEYCODE_X)
 
 	PORT_START_TAG("HANDX2")
-	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(4)
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(4)
 
 	PORT_START_TAG("TRACKX2")
 	PORT_BIT( 0xfff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(3) PORT_REVERSE
@@ -2129,10 +2154,11 @@ static INPUT_PORTS_START( aceattac )
 	PORT_BIT( 0xfff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(3)
 
 	PORT_START_TAG("HANDY2")
-	PORT_BIT( 0x07, 0x04, IPT_PEDAL2 ) PORT_SENSITIVITY(100) PORT_KEYDELTA(1) PORT_CENTERDELTA(2) PORT_PLAYER(4)
+	PORT_BIT( 0x07, 0x04, IPT_PEDAL2 ) PORT_MINMAX(0x00,0x07) PORT_SENSITIVITY(100) PORT_KEYDELTA(1) PORT_CENTERDELTA(2) PORT_PLAYER(4)
 
 	PORT_START_TAG("DIAL2")
-	PORT_BIT( 0x0f, 0x00, IPT_AD_STICK_Z ) PORT_MINMAX(0,9) PORT_SENSITIVITY(10) PORT_KEYDELTA(1) PORT_CODE_DEC(KEYCODE_N) PORT_CODE_INC(KEYCODE_M) PORT_PLAYER(2)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_OTHER ) PORT_NAME("P2 Toss Formation -") PORT_CODE(KEYCODE_N)
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_OTHER ) PORT_NAME("P2 Toss Formation +") PORT_CODE(KEYCODE_M)
 
 INPUT_PORTS_END
 
@@ -6707,6 +6733,8 @@ static DRIVER_INIT( aceattac )
 	custom_io_w = aceattac_custom_io_w;
 	state_save_register_global_array(aceattac_io_latch);
 	state_save_register_global_array(aceattac_io_dir);
+	state_save_register_global_array(aceattac_dial);
+	state_save_register_global_array(aceattac_dial_keys);
 }
 
 static DRIVER_INIT( exctleag )
