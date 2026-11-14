@@ -2964,26 +2964,30 @@ V-V                           TP-027
 	DRIVER( taitogn )
 
 	/* Namco System 11 */
-	DRIVER( tekken )	/* Tekken (TE4/VER.C) */
-	DRIVER( tekkena )	/* Tekken (TE2/VER.C) */
-	DRIVER( tekkenb )	/* Tekken (TE2/VER.B) */
-	DRIVER( tekkenc )	/* Tekken (TE1/VER.B) */
-	DRIVER( tekken2 )	/* Tekken 2 Ver.B (TES3/VER.B) */
-	DRIVER( tekken2a )	/* Tekken 2 Ver.B (TES2/VER.B) */
-	DRIVER( tekken2b )	/* Tekken 2 (TES2/VER.A) */
-	DRIVER( souledge )	/* Soul Edge Ver. II (SO4/VER.C) */
-	DRIVER( souledga )	/* Soul Edge Ver. II (SO3/VER.C) */
-	DRIVER( souledgb )	/* Soul Edge (SO3/VER.A) */
-	DRIVER( souledgc )	/* Soul Edge (SO1/VER.A) */
-	DRIVER( dunkmnia )	/* Dunk Mania (DM1/VER.C) */
-	DRIVER( dunkmnic )	/* Dunk Mania (DM1/VER.C) */
-	DRIVER( xevi3dg )	/* Xevious 3D/G (XV31/VER.A) */
-	DRIVER( primglex )	/* Prime Goal EX (PG1/VER.A) */
-	DRIVER( danceyes )	/* Dancing Eyes (DC1/VER.A) */
+	DRIVER( tekken )	/* Tekken (World, TE2/VER.C) */
+	DRIVER( tekkenb )	/* Tekken (World, TE2/VER.B) */
+	DRIVER( tekkenac )	/* Tekken (Asia, TE4/VER.C) */
+	DRIVER( tekkenjb )	/* Tekken (Japan, TE1/VER.B) */
+	DRIVER( tekken2 )	/* Tekken 2 Ver.B (World, TES2/VER.D) */
+	DRIVER( tekken2b )	/* Tekken 2 Ver.B (World, TES2/VER.B) */
+	DRIVER( tekken2ub )	/* Tekken 2 Ver.B (US, TES3/VER.B) */
+	DRIVER( tekken2a )	/* Tekken 2 (World, TES2/VER.A) */
+	DRIVER( souledge )	/* Soul Edge Ver. II (Asia, SO4/VER.C) */
+	DRIVER( souledgeuc )	/* Soul Edge Ver. II (US, SO3/VER.C) */
+	DRIVER( souledgeua )	/* Soul Edge (US, SO3/VER.A) */
+	DRIVER( souledgeja )	/* Soul Edge (Japan, SO1/VER.A) */
+	DRIVER( dunkmnia )	/* Dunk Mania (World, DM2/VER.C) */
+	DRIVER( dunkmniajc )	/* Dunk Mania (Japan, DM1/VER.C) */
+	DRIVER( xevi3dg )	/* Xevious 3D/G (World, XV32/VER.B) */
+	DRIVER( xevi3dgj )	/* Xevious 3D/G (Japan, XV31/VER.A) */
+	DRIVER( primglex )	/* Prime Goal EX (Japan, PG1/VER.A) */
+	DRIVER( danceyes )	/* Dancing Eyes (World, DC2/VER.B) */
+	DRIVER( danceyesj )	/* Dancing Eyes (Japan, DC1/VER.A) */
 	DRIVER( pocketrc )
-	DRIVER( starswep )	/* Star Sweep (STP1/VER.A) */
-	DRIVER( myangel3 )	/* Kosodate Quiz My Angel 3 (KQT1/VER.A) */
-	DRIVER( ptblnk2a )	/* Point Blank 2 (GNB3/VER.A) */
+	DRIVER( starswep )	/* Star Sweep (World, STP2/VER.A) */
+	DRIVER( starswepj )	/* Star Sweep (Japan, STP1/VER.A) */
+	DRIVER( myangel3 )	/* Kosodate Quiz My Angel 3 (Japan, KQT1/VER.A) */
+	DRIVER( ptblank2ua )	/* Point Blank 2 (US, GNB3/VER.A) */
 
 	/* Namco System 12 */
 	DRIVER( tekken3 )	/* Tekken 3 (TET1/VER.E1) */

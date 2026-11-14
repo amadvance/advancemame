@@ -25327,7 +25327,7 @@
 :dambustr:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :dambustr:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Dancing Eyes (DC1/VER.A) ]
+; [ Dancing Eyes (World, DC2/VER.B) ]
 :danceyes:00000000:002B51DC:00000009:FFFFFFFF:Infinite Credits
 :danceyes:00000000:002B51A0:00000001:FFFFFFFF:Always See Through Mode
 :danceyes:00000500:0021F064:0000000E:FFFFFFFF:Select Stage
@@ -41009,7 +41009,7 @@
 :dungeonm:20800000:0FFFFF:00000002:FFFFFFFF:Region Switch = US:Dungeon Magic
 :dungeonm:20800000:0FFFFF:00000003:FFFFFFFF:Region Switch = World:Dungeon Magic
 
-; [ Dunk Mania (DM2/VER.C) ]
+; [ Dunk Mania (World, DM2/VER.C) ]
 :dunkmnia:00000000:001DD096:000000FF:FFFFFFFF:Infinite Time
 :dunkmnia:00010000:001DD095:000000FF:FFFFFFFF:Infinite Time (2/3)
 :dunkmnia:00010000:001DD094:000000FF:FFFFFFFF:Infinite Time (3/3)
@@ -41029,25 +41029,25 @@
 :dunkmnia:00000001:001DD4F4:00000032:FFFFFFFF:Set score = 50 Now! PL2
 :dunkmnia:00000101:001DD4F4:0000007F:FFFFFFFF:Select score Now! PL2
 
-; [ Dunk Mania (DM1/VER.C) ]
-:dunkmnic:00000000:001DD096:000000FF:FFFFFFFF:Infinite Time
-:dunkmnic:00010000:001DD095:000000FF:FFFFFFFF:Infinite Time (2/3)
-:dunkmnic:00010000:001DD094:000000FF:FFFFFFFF:Infinite Time (3/3)
-:dunkmnic:00000001:001DD096:00000000:FFFFFFFF:Finish this Period Now!
-:dunkmnic:00010001:001DD095:00000000:FFFFFFFF:Finish this Period Now! (2/3)
-:dunkmnic:00010001:001DD094:00000001:FFFFFFFF:Finish this Period Now! (3/3)
-:dunkmnic:00300060:001DD098:00012875:FFFFFFFF:Infinite Shot Time
-:dunkmnic:00300001:001DD098:00000001:FFFFFFFF:No Shot Time Left Now!:For the best effect assign this cheat an activation key and use it whenever the other side has the ball!
-:dunkmnic:00000000:001DD4E8:00000000:FFFFFFFF:Score always = 0 PL1
-:dunkmnic:00000000:001DD4E8:0000007F:FFFFFFFF:Score always = 127 PL1
-:dunkmnic:00000001:001DD4E8:00000000:FFFFFFFF:Set score = 0 Now! PL1
-:dunkmnic:00000001:001DD4E8:00000032:FFFFFFFF:Set score = 50 Now! PL1
-:dunkmnic:00000101:001DD4E8:0000007F:FFFFFFFF:Select score Now! PL1
-:dunkmnic:00000000:001DD4F4:00000000:FFFFFFFF:Score always = 0 PL2
-:dunkmnic:00000000:001DD4F4:0000007F:FFFFFFFF:Score always = 127 PL2
-:dunkmnic:00000001:001DD4F4:00000000:FFFFFFFF:Set score = 0 Now! PL2
-:dunkmnic:00000001:001DD4F4:00000032:FFFFFFFF:Set score = 50 Now! PL2
-:dunkmnic:00000101:001DD4F4:0000007F:FFFFFFFF:Select score Now! PL2
+; [ Dunk Mania (Japan, DM1/VER.C) ]
+:dunkmniajc:00000000:001DD096:000000FF:FFFFFFFF:Infinite Time
+:dunkmniajc:00010000:001DD095:000000FF:FFFFFFFF:Infinite Time (2/3)
+:dunkmniajc:00010000:001DD094:000000FF:FFFFFFFF:Infinite Time (3/3)
+:dunkmniajc:00000001:001DD096:00000000:FFFFFFFF:Finish this Period Now!
+:dunkmniajc:00010001:001DD095:00000000:FFFFFFFF:Finish this Period Now! (2/3)
+:dunkmniajc:00010001:001DD094:00000001:FFFFFFFF:Finish this Period Now! (3/3)
+:dunkmniajc:00300060:001DD098:00012875:FFFFFFFF:Infinite Shot Time
+:dunkmniajc:00300001:001DD098:00000001:FFFFFFFF:No Shot Time Left Now!:For the best effect assign this cheat an activation key and use it whenever the other side has the ball!
+:dunkmniajc:00000000:001DD4E8:00000000:FFFFFFFF:Score always = 0 PL1
+:dunkmniajc:00000000:001DD4E8:0000007F:FFFFFFFF:Score always = 127 PL1
+:dunkmniajc:00000001:001DD4E8:00000000:FFFFFFFF:Set score = 0 Now! PL1
+:dunkmniajc:00000001:001DD4E8:00000032:FFFFFFFF:Set score = 50 Now! PL1
+:dunkmniajc:00000101:001DD4E8:0000007F:FFFFFFFF:Select score Now! PL1
+:dunkmniajc:00000000:001DD4F4:00000000:FFFFFFFF:Score always = 0 PL2
+:dunkmniajc:00000000:001DD4F4:0000007F:FFFFFFFF:Score always = 127 PL2
+:dunkmniajc:00000001:001DD4F4:00000000:FFFFFFFF:Set score = 0 Now! PL2
+:dunkmniajc:00000001:001DD4F4:00000032:FFFFFFFF:Set score = 50 Now! PL2
+:dunkmniajc:00000101:001DD4F4:0000007F:FFFFFFFF:Select score Now! PL2
 
 ; [ Dunk Shot (FD1089 317-0022) ]
 :dunkshot:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -117561,7 +117561,7 @@
 :myangel2:00000000:2003A0:00000006:FFFFFFFF:Infinite Lives PL1
 :myangel2:00000000:2003A2:00000006:FFFFFFFF:Infinite Lives PL2
 
-; [ Kosodate Quiz My Angel 3 (KQT1/VER.A) ]
+; [ Kosodate Quiz My Angel 3 (Japan, KQT1/VER.A) ]
 :myangel3:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
 :myangel3:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
 :myangel3:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
@@ -135011,11 +135011,11 @@
 :ptblank2:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 :ptblank2:00100000:1A57F0:00000002:FFFFFFFF:Sound Test Timer Stop
 
-; [ Point Blank 2 (GNB3/VER.A) ]
-:ptblnk2a:00000000:29CBD4:00000009:FFFFFFFF:Infinite Credits
-:ptblnk2a:00000000:2A9A94:00000007:FFFFFFFF:Infinite Lives PL1
-:ptblnk2a:00000000:2A9A96:00000007:FFFFFFFF:Infinite Lives PL2
-:ptblnk2a:00100000:1A57F0:00000002:FFFFFFFF:Sound Test Timer Stop
+; [ Point Blank 2 (US, GNB3/VER.A) ]
+:ptblank2ua:00000000:29CBD4:00000009:FFFFFFFF:Infinite Credits
+:ptblank2ua:00000000:2A9A94:00000007:FFFFFFFF:Infinite Lives PL1
+:ptblank2ua:00000000:2A9A96:00000007:FFFFFFFF:Infinite Lives PL2
+:ptblank2ua:00100000:1A57F0:00000002:FFFFFFFF:Sound Test Timer Stop
 
 ; [ Parallel Turn ]
 :pturn:00000000:C000:00000099:FFFFFFFF:Infinite Credits
@@ -169346,43 +169346,43 @@
 :soulclbr:00310000:803D09AC:FFFFFFFF:FFFFFFFF:Unlock All Characters (2/3)
 :soulclbr:00310000:803D09B0:FFFFFFFF:FFFFFFFF:Unlock All Characters (3/3)
 
-; [ Soul Edge Ver. II (SO3/VER.C) ]
-:souledga:00000000:121F44:00000063:FFFFFFFF:Infinite Time
-:souledga:00000001:121F44:00000000:FFFFFFFF:Finish this Round Now!
-:souledga:00000000:313CB6:000000F0:FFFFFFFF:Infinite Energy PL1
-:souledga:00000001:313CB6:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:souledga:00000000:313E14:00000060:FFFFFFFF:Always have Maximum Power PL1
-:souledga:00000001:313E14:00000000:FFFFFFFF:Drain All Power Now! PL1
-:souledga:00000000:317ABE:000000F0:FFFFFFFF:Infinite Energy PL2
-:souledga:00000001:317ABE:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:souledga:00000000:317C1C:00000060:FFFFFFFF:Always have Maximum Power PL2
-:souledga:00000001:317C1C:00000000:FFFFFFFF:Drain All Power Now! PL2
+; [ Soul Edge Ver. II (US, SO3/VER.C) ]
+:souledgeuc:00000000:121F44:00000063:FFFFFFFF:Infinite Time
+:souledgeuc:00000001:121F44:00000000:FFFFFFFF:Finish this Round Now!
+:souledgeuc:00000000:313CB6:000000F0:FFFFFFFF:Infinite Energy PL1
+:souledgeuc:00000001:313CB6:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:souledgeuc:00000000:313E14:00000060:FFFFFFFF:Always have Maximum Power PL1
+:souledgeuc:00000001:313E14:00000000:FFFFFFFF:Drain All Power Now! PL1
+:souledgeuc:00000000:317ABE:000000F0:FFFFFFFF:Infinite Energy PL2
+:souledgeuc:00000001:317ABE:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:souledgeuc:00000000:317C1C:00000060:FFFFFFFF:Always have Maximum Power PL2
+:souledgeuc:00000001:317C1C:00000000:FFFFFFFF:Drain All Power Now! PL2
 
-; [ Soul Edge (SO3/VER.A) ]
-:souledgb:00000000:0EFFD4:00000063:FFFFFFFF:Infinite Time
-:souledgb:00000001:0EFFD4:00000000:FFFFFFFF:Finish this Round Now!
-:souledgb:00000000:2D602E:000000F0:FFFFFFFF:Infinite Energy PL1
-:souledgb:00000001:2D602E:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:souledgb:00000000:2D6160:00000060:FFFFFFFF:Always have Maximum Power PL1
-:souledgb:00000001:2D6160:00000000:FFFFFFFF:Drain All Power Now! PL1
-:souledgb:00000000:2D9D72:000000F0:FFFFFFFF:Infinite Energy PL2
-:souledgb:00000001:2D9D72:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:souledgb:00000000:2D9EA4:00000060:FFFFFFFF:Always have Maximum Power PL2
-:souledgb:00000001:2D9EA4:00000000:FFFFFFFF:Drain All Power Now! PL2
+; [ Soul Edge (US, SO3/VER.A) ]
+:souledgeua:00000000:0EFFD4:00000063:FFFFFFFF:Infinite Time
+:souledgeua:00000001:0EFFD4:00000000:FFFFFFFF:Finish this Round Now!
+:souledgeua:00000000:2D602E:000000F0:FFFFFFFF:Infinite Energy PL1
+:souledgeua:00000001:2D602E:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:souledgeua:00000000:2D6160:00000060:FFFFFFFF:Always have Maximum Power PL1
+:souledgeua:00000001:2D6160:00000000:FFFFFFFF:Drain All Power Now! PL1
+:souledgeua:00000000:2D9D72:000000F0:FFFFFFFF:Infinite Energy PL2
+:souledgeua:00000001:2D9D72:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:souledgeua:00000000:2D9EA4:00000060:FFFFFFFF:Always have Maximum Power PL2
+:souledgeua:00000001:2D9EA4:00000000:FFFFFFFF:Drain All Power Now! PL2
 
-; [ Soul Edge (SO1/VER.A) ]
-:souledgc:00000000:0EFFD4:00000063:FFFFFFFF:Infinite Time
-:souledgc:00000001:0EFFD4:00000000:FFFFFFFF:Finish this Round Now!
-:souledgc:00000000:2D602E:000000F0:FFFFFFFF:Infinite Energy PL1
-:souledgc:00000001:2D602E:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:souledgc:00000000:2D6160:00000060:FFFFFFFF:Always have Maximum Power PL1
-:souledgc:00000001:2D6160:00000000:FFFFFFFF:Drain All Power Now! PL1
-:souledgc:00000000:2D9D72:000000F0:FFFFFFFF:Infinite Energy PL2
-:souledgc:00000001:2D9D72:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:souledgc:00000000:2D9EA4:00000060:FFFFFFFF:Always have Maximum Power PL2
-:souledgc:00000001:2D9EA4:00000000:FFFFFFFF:Drain All Power Now! PL2
+; [ Soul Edge (Japan, SO1/VER.A) ]
+:souledgeja:00000000:0EFFD4:00000063:FFFFFFFF:Infinite Time
+:souledgeja:00000001:0EFFD4:00000000:FFFFFFFF:Finish this Round Now!
+:souledgeja:00000000:2D602E:000000F0:FFFFFFFF:Infinite Energy PL1
+:souledgeja:00000001:2D602E:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:souledgeja:00000000:2D6160:00000060:FFFFFFFF:Always have Maximum Power PL1
+:souledgeja:00000001:2D6160:00000000:FFFFFFFF:Drain All Power Now! PL1
+:souledgeja:00000000:2D9D72:000000F0:FFFFFFFF:Infinite Energy PL2
+:souledgeja:00000001:2D9D72:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:souledgeja:00000000:2D9EA4:00000060:FFFFFFFF:Always have Maximum Power PL2
+:souledgeja:00000001:2D9EA4:00000000:FFFFFFFF:Drain All Power Now! PL2
 
-; [ Soul Edge Ver. II (SO4/VER.C) ]
+; [ Soul Edge Ver. II (Asia, SO4/VER.C) ]
 :souledge:00000000:121F44:00000063:FFFFFFFF:Infinite Time
 :souledge:00000001:121F44:00000000:FFFFFFFF:Finish this Round Now!
 :souledge:00000000:313CB6:000000F0:FFFFFFFF:Infinite Energy PL1
@@ -178109,7 +178109,7 @@
 :starspnr:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :starspnr:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Star Sweep (STP1/VER.A) ]
+; [ Star Sweep (World, STP2/VER.A) ]
 :starswep:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
 :starswep:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
 :starswep:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
@@ -182234,27 +182234,27 @@
 :tekipaki:00000101:80C07:000000FF:FFFFFFFF:Select current level PL1
 :tekipaki:00000101:81C07:000000FF:FFFFFFFF:Select current level PL2
 
-; [ Tekken (TE4/VER.C) ]
-:tekken:00000000:267038:00000009:FFFFFFFF:Infinite Credits
-:tekken:00100000:2648BC:00001730:FFFFFFFF:Infinite Time
-:tekken:00100001:2648BC:00000001:FFFFFFFF:Finish this Round Now!
-:tekken:00000000:13FB10:00000001:FFFFFFFF:Always Round 1
-:tekken:00000000:264AF6:0000007D:FFFFFFFF:Infinite Energy PL1
-:tekken:00000001:264AF6:00000000:FFFFFFFF:Drain all Energy Now! PL1
-:tekken:00000000:26493A:00000000:FFFFFFFF:Always have Wins = 0 PL1
-:tekken:00000000:26493A:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken:00000001:26493A:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
-:tekken:00000001:26493A:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
-:tekken:00000001:26493A:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken:00000000:265B2E:0000007D:FFFFFFFF:Infinite Energy PL2
-:tekken:00000001:265B2E:00000000:FFFFFFFF:Drain all Energy Now! PL2
-:tekken:00000000:265972:00000000:FFFFFFFF:Always have Wins = 0 PL2
-:tekken:00000000:265972:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
-:tekken:00000001:265972:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
-:tekken:00000001:265972:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
-:tekken:00000001:265972:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
+; [ Tekken (Asia, TE4/VER.C) ]
+:tekkenac:00000000:267038:00000009:FFFFFFFF:Infinite Credits
+:tekkenac:00100000:2648BC:00001730:FFFFFFFF:Infinite Time
+:tekkenac:00100001:2648BC:00000001:FFFFFFFF:Finish this Round Now!
+:tekkenac:00000000:13FB10:00000001:FFFFFFFF:Always Round 1
+:tekkenac:00000000:264AF6:0000007D:FFFFFFFF:Infinite Energy PL1
+:tekkenac:00000001:264AF6:00000000:FFFFFFFF:Drain all Energy Now! PL1
+:tekkenac:00000000:26493A:00000000:FFFFFFFF:Always have Wins = 0 PL1
+:tekkenac:00000000:26493A:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekkenac:00000001:26493A:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
+:tekkenac:00000001:26493A:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
+:tekkenac:00000001:26493A:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekkenac:00000000:265B2E:0000007D:FFFFFFFF:Infinite Energy PL2
+:tekkenac:00000001:265B2E:00000000:FFFFFFFF:Drain all Energy Now! PL2
+:tekkenac:00000000:265972:00000000:FFFFFFFF:Always have Wins = 0 PL2
+:tekkenac:00000000:265972:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
+:tekkenac:00000001:265972:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
+:tekkenac:00000001:265972:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
+:tekkenac:00000001:265972:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
-; [ Tekken 2 Ver.B (TES3/VER.B) ]
+; [ Tekken 2 Ver.B (World, TES2/VER.D) ]
 :tekken2:00000000:301CEC:00000009:FFFFFFFF:Infinite Credits
 :tekken2:00300000:35A3F8:FFFFFFFF:FFFFFFFF:Unlock All Characters:Enable this code and then reset. The 'Unlocked' status of all characters will be saved to EEPROM, so you won't need to enable the code again.
 :tekken2:00100000:30F174:00001732:FFFFFFFF:Infinite Time
@@ -182275,47 +182275,47 @@
 :tekken2:00000001:30DD22:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
 :tekken2:00000001:30DD22:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
-; [ Tekken 2 Ver.B (TES2/VER.B) ]
-:tekken2a:00000000:301CEC:00000009:FFFFFFFF:Infinite Credits
-:tekken2a:00300000:35A3F8:FFFFFFFF:FFFFFFFF:Unlock All Characters:Enable this code and then reset. The 'Unlocked' status of all characters will be saved to EEPROM, so you won't need to enable the code again.
-:tekken2a:00100000:30F174:00001732:FFFFFFFF:Infinite Time
-:tekken2a:00100001:30F174:00000001:FFFFFFFF:Finish this Round Now!
-:tekken2a:00000000:1C9CA0:00000001:FFFFFFFF:Always at Round 1
-:tekken2a:00000000:30CA6A:0000007E:FFFFFFFF:Infinite Energy PL1
-:tekken2a:00000001:30CA6A:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:tekken2a:00000000:30C8A2:00000000:FFFFFFFF:Always have Wins = 0 PL1
-:tekken2a:00000000:30C8A2:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken2a:00000001:30C8A2:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
-:tekken2a:00000001:30C8A2:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
-:tekken2a:00000001:30C8A2:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken2a:00000000:30DEEA:0000007E:FFFFFFFF:Infinite Energy PL2
-:tekken2a:00000001:30DEEA:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:tekken2a:00000000:30DD22:00000000:FFFFFFFF:Always have Wins = 0 PL2
-:tekken2a:00000000:30DD22:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
-:tekken2a:00000001:30DD22:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
-:tekken2a:00000001:30DD22:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
-:tekken2a:00000001:30DD22:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
+; [ Tekken 2 Ver.B (World, TES2/VER.B) ]
+:tekken2b:00000000:301CEC:00000009:FFFFFFFF:Infinite Credits
+:tekken2b:00300000:35A3F8:FFFFFFFF:FFFFFFFF:Unlock All Characters:Enable this code and then reset. The 'Unlocked' status of all characters will be saved to EEPROM, so you won't need to enable the code again.
+:tekken2b:00100000:30F174:00001732:FFFFFFFF:Infinite Time
+:tekken2b:00100001:30F174:00000001:FFFFFFFF:Finish this Round Now!
+:tekken2b:00000000:1C9CA0:00000001:FFFFFFFF:Always at Round 1
+:tekken2b:00000000:30CA6A:0000007E:FFFFFFFF:Infinite Energy PL1
+:tekken2b:00000001:30CA6A:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:tekken2b:00000000:30C8A2:00000000:FFFFFFFF:Always have Wins = 0 PL1
+:tekken2b:00000000:30C8A2:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken2b:00000001:30C8A2:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
+:tekken2b:00000001:30C8A2:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
+:tekken2b:00000001:30C8A2:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken2b:00000000:30DEEA:0000007E:FFFFFFFF:Infinite Energy PL2
+:tekken2b:00000001:30DEEA:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:tekken2b:00000000:30DD22:00000000:FFFFFFFF:Always have Wins = 0 PL2
+:tekken2b:00000000:30DD22:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
+:tekken2b:00000001:30DD22:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
+:tekken2b:00000001:30DD22:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
+:tekken2b:00000001:30DD22:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
-; [ Tekken 2 (TES2/VER.A) ]
-:tekken2b:00000000:2FA4A0:00000009:FFFFFFFF:Infinite Credits
-:tekken2b:00300000:352BB8:FFFFFFFF:FFFFFFFF:Unlock All Characters:Enable this code and then reset. The 'Unlocked' status of all characters will be saved to EEPROM, so you won't need to enable the code again.
-:tekken2b:00100000:307928:00001732:FFFFFFFF:Infinite Time
-:tekken2b:00100001:307928:00000001:FFFFFFFF:Finish this Round Now!
-:tekken2b:00000000:1C24CC:00000001:FFFFFFFF:Always at Round 1
-:tekken2b:00000000:30521E:0000007E:FFFFFFFF:Infinite Energy PL1
-:tekken2b:00000001:30521E:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:tekken2b:00000000:305056:00000000:FFFFFFFF:Always have Wins = 0 PL1
-:tekken2b:00000000:305056:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken2b:00000001:305056:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
-:tekken2b:00000001:305056:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
-:tekken2b:00000001:305056:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekken2b:00000000:30669E:0000007E:FFFFFFFF:Infinite Energy PL2
-:tekken2b:00000001:30669E:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:tekken2b:00000000:3064D6:00000000:FFFFFFFF:Always have Wins = 0 PL2
-:tekken2b:00000000:3064D6:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
-:tekken2b:00000001:3064D6:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
-:tekken2b:00000001:3064D6:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
-:tekken2b:00000001:3064D6:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
+; [ Tekken 2 (World, TES2/VER.A) ]
+:tekken2a:00000000:2FA4A0:00000009:FFFFFFFF:Infinite Credits
+:tekken2a:00300000:352BB8:FFFFFFFF:FFFFFFFF:Unlock All Characters:Enable this code and then reset. The 'Unlocked' status of all characters will be saved to EEPROM, so you won't need to enable the code again.
+:tekken2a:00100000:307928:00001732:FFFFFFFF:Infinite Time
+:tekken2a:00100001:307928:00000001:FFFFFFFF:Finish this Round Now!
+:tekken2a:00000000:1C24CC:00000001:FFFFFFFF:Always at Round 1
+:tekken2a:00000000:30521E:0000007E:FFFFFFFF:Infinite Energy PL1
+:tekken2a:00000001:30521E:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:tekken2a:00000000:305056:00000000:FFFFFFFF:Always have Wins = 0 PL1
+:tekken2a:00000000:305056:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken2a:00000001:305056:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
+:tekken2a:00000001:305056:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
+:tekken2a:00000001:305056:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken2a:00000000:30669E:0000007E:FFFFFFFF:Infinite Energy PL2
+:tekken2a:00000001:30669E:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:tekken2a:00000000:3064D6:00000000:FFFFFFFF:Always have Wins = 0 PL2
+:tekken2a:00000000:3064D6:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
+:tekken2a:00000001:3064D6:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
+:tekken2a:00000001:3064D6:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
+:tekken2a:00000001:3064D6:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
 ; [ Tekken 3 (TET1/VER.E1) ]
 :tekken3:00000000:21FB8C:00000032:FFFFFFFF:Infinite Time
@@ -182351,27 +182351,27 @@
 :tekken3b:00000001:21DF68:00000001:FFFFFFFF:Finish this Round Now!
 :tekken3b:00010001:21DF69:00000000:FFFFFFFF:Finish this Round Now! (2/2)
 
-; [ Tekken (TE2/VER.C) ]
-:tekkena:00000000:267038:00000009:FFFFFFFF:Infinite Credits
-:tekkena:00100000:2648BC:00001730:FFFFFFFF:Infinite Time
-:tekkena:00100001:2648BC:00000001:FFFFFFFF:Finish this Round Now!
-:tekkena:00000000:13FB10:00000001:FFFFFFFF:Always Round 1
-:tekkena:00000000:264AF6:0000007D:FFFFFFFF:Infinite Energy PL1
-:tekkena:00000001:264AF6:00000000:FFFFFFFF:Drain all Energy Now! PL1
-:tekkena:00000000:26493A:00000000:FFFFFFFF:Always have Wins = 0 PL1
-:tekkena:00000000:26493A:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekkena:00000001:26493A:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
-:tekkena:00000001:26493A:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
-:tekkena:00000001:26493A:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekkena:00000000:265B2E:0000007D:FFFFFFFF:Infinite Energy PL2
-:tekkena:00000001:265B2E:00000000:FFFFFFFF:Drain all Energy Now! PL2
-:tekkena:00000000:265972:00000000:FFFFFFFF:Always have Wins = 0 PL2
-:tekkena:00000000:265972:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
-:tekkena:00000001:265972:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
-:tekkena:00000001:265972:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
-:tekkena:00000001:265972:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
+; [ Tekken (World, TE2/VER.C) ]
+:tekken:00000000:267038:00000009:FFFFFFFF:Infinite Credits
+:tekken:00100000:2648BC:00001730:FFFFFFFF:Infinite Time
+:tekken:00100001:2648BC:00000001:FFFFFFFF:Finish this Round Now!
+:tekken:00000000:13FB10:00000001:FFFFFFFF:Always Round 1
+:tekken:00000000:264AF6:0000007D:FFFFFFFF:Infinite Energy PL1
+:tekken:00000001:264AF6:00000000:FFFFFFFF:Drain all Energy Now! PL1
+:tekken:00000000:26493A:00000000:FFFFFFFF:Always have Wins = 0 PL1
+:tekken:00000000:26493A:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken:00000001:26493A:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
+:tekken:00000001:26493A:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
+:tekken:00000001:26493A:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekken:00000000:265B2E:0000007D:FFFFFFFF:Infinite Energy PL2
+:tekken:00000001:265B2E:00000000:FFFFFFFF:Drain all Energy Now! PL2
+:tekken:00000000:265972:00000000:FFFFFFFF:Always have Wins = 0 PL2
+:tekken:00000000:265972:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
+:tekken:00000001:265972:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
+:tekken:00000001:265972:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
+:tekken:00000001:265972:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
-; [ Tekken (TE2/VER.B) ]
+; [ Tekken (World, TE2/VER.B) ]
 :tekkenb:00000000:266CE0:00000009:FFFFFFFF:Infinite Credits
 :tekkenb:00100000:264564:00001730:FFFFFFFF:Infinite Time
 :tekkenb:00100001:264564:00000001:FFFFFFFF:Finish this Round Now!
@@ -182391,25 +182391,25 @@
 :tekkenb:00000001:26561A:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
 :tekkenb:00000001:26561A:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
-; [ Tekken (TE1/VER.B) ]
-:tekkenc:00000000:266CE0:00000009:FFFFFFFF:Infinite Credits
-:tekkenc:00100000:264564:00001730:FFFFFFFF:Infinite Time
-:tekkenc:00100001:264564:00000001:FFFFFFFF:Finish this Round Now!
-:tekkenc:00000000:13F7D0:00000001:FFFFFFFF:Always Round 1
-:tekkenc:00000000:26479E:0000007D:FFFFFFFF:Infinite Energy PL1
-:tekkenc:00000001:26479E:00000000:FFFFFFFF:Drain all Energy Now! PL1
-:tekkenc:00000000:2645E2:00000000:FFFFFFFF:Always have Wins = 0 PL1
-:tekkenc:00000000:2645E2:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekkenc:00000001:2645E2:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
-:tekkenc:00000001:2645E2:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
-:tekkenc:00000001:2645E2:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
-:tekkenc:00000000:2657D6:0000007D:FFFFFFFF:Infinite Energy PL2
-:tekkenc:00000001:2657D6:00000000:FFFFFFFF:Drain all Energy Now! PL2
-:tekkenc:00000000:26561A:00000000:FFFFFFFF:Always have Wins = 0 PL2
-:tekkenc:00000000:26561A:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
-:tekkenc:00000001:26561A:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
-:tekkenc:00000001:26561A:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
-:tekkenc:00000001:26561A:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
+; [ Tekken (Japan, TE1/VER.B) ]
+:tekkenjb:00000000:266CE0:00000009:FFFFFFFF:Infinite Credits
+:tekkenjb:00100000:264564:00001730:FFFFFFFF:Infinite Time
+:tekkenjb:00100001:264564:00000001:FFFFFFFF:Finish this Round Now!
+:tekkenjb:00000000:13F7D0:00000001:FFFFFFFF:Always Round 1
+:tekkenjb:00000000:26479E:0000007D:FFFFFFFF:Infinite Energy PL1
+:tekkenjb:00000001:26479E:00000000:FFFFFFFF:Drain all Energy Now! PL1
+:tekkenjb:00000000:2645E2:00000000:FFFFFFFF:Always have Wins = 0 PL1
+:tekkenjb:00000000:2645E2:00000002:FFFFFFFF:Always have Wins = 2 PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekkenjb:00000001:2645E2:00000000:FFFFFFFF:Set Wins = 0 Now! PL1
+:tekkenjb:00000001:2645E2:00000001:FFFFFFFF:Set Wins = 1 Now! PL1
+:tekkenjb:00000001:2645E2:00000002:FFFFFFFF:Set Wins = 2 Now! PL1:As long as PL2 wins < 2 then PL1 wins the battle automatically at the end of round
+:tekkenjb:00000000:2657D6:0000007D:FFFFFFFF:Infinite Energy PL2
+:tekkenjb:00000001:2657D6:00000000:FFFFFFFF:Drain all Energy Now! PL2
+:tekkenjb:00000000:26561A:00000000:FFFFFFFF:Always have Wins = 0 PL2
+:tekkenjb:00000000:26561A:00000002:FFFFFFFF:Always have Wins = 2 PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically on end of round
+:tekkenjb:00000001:26561A:00000000:FFFFFFFF:Set Wins = 0 Now! PL2
+:tekkenjb:00000001:26561A:00000001:FFFFFFFF:Set Wins = 1 Now! PL2
+:tekkenjb:00000001:26561A:00000002:FFFFFFFF:Set Wins = 2 Now! PL2:As long as PL1 wins < 2 then PL2 wins the battle automatically at the end of round
 
 ; [ Tekken Tag Tournament (TEG3/VER.C1) ]
 :tektagt:00100000:2434E0:00001B58:FFFFFFFF:Infinite Time
@@ -198894,7 +198894,7 @@
 :xenophob:00000000:607ED:000000FF:FFFFFFFF:Infinite Health PL2
 :xenophob:00000000:608AD:000000FF:FFFFFFFF:Infinite Health PL3
 
-; [ Xevious 3D/G (XV31/VER.A) ]
+; [ Xevious 3D/G (World, XV32/VER.B) ]
 :xevi3dg:00000000:0EE8C0:00000009:FFFFFFFF:Infinite Credits
 :xevi3dg:00000000:150DC8:00000006:FFFFFFFF:Infinite Lives PL1
 :xevi3dg:00000000:126358:00000001:FFFFFFFF:Invincibility PL1
@@ -203864,7 +203864,7 @@
 ; { Reason 11 } ; mt_stf    [ Joe Montana II: Sports Talk Football (Mega-Tech) ]
 ; { Reason 11 } ; murogem   [ Muroge Monaco ]
 ; { Reason 11 } ; mv4in1    [ Mini Vegas 4in1 ]
-; { Reason 11 } ; myangel3  [ Kosodate Quiz My Angel 3 (KQT1/VER.A) ]
+; { Reason 11 } ; myangel3  [ Kosodate Quiz My Angel 3 (Japan, KQT1/VER.A) ]
 ; { Reason 11 } ; nagano98  [ Nagano Winter Olympics '98 (GX720 EAA) ]
 ; { Reason 11 } ; nbapbp    [ NBA Play By Play ]
 ; { Reason 11 } ; nmg5      [ Multi 5 / New Multi Game 5 ]
@@ -203960,7 +203960,7 @@
 ; { Reason 11 } ; ssrj      [ Super Speed Race Junior (Japan) ]
 ; { Reason 11 } ; sstrike   [ Super Strike Bowling ]
 ; { Reason 11 } ; starfir2  [ Star Fire 2 ]
-; { Reason 11 } ; starswep  [ Star Sweep (STP1/VER.A) ]
+; { Reason 11 } ; starswep  [ Star Sweep (World, STP2/VER.A) ]
 ; { Reason 11 } ; statriv4  [ Triv Four ]
 ; { Reason 11 } ; striv     [ Super Triv ]
 ; { Reason 11 } ; strtheat  [ Street Heat - Cardinal Amusements ]
@@ -204701,7 +204701,7 @@
 ;dualaslt=liberatb=liberate
 ;duckhunt~=pc_duckh
 ;dungenmu=dungeonm=lightbr
-;dunkmnia=dunkmnic
+;dunkmnia=dunkmniajc
 ;dyger=dygera
 ;dynamcop=dyndeka2~dynmcopb
 ;dynwar=dynwarj
@@ -205385,7 +205385,7 @@
 ;sonic=sonicp
 ;sonson=sonsonj
 ;soulclba~soulclbb~soulclbc~soulclbr
-;souledga=souledge~esouledgb=souledgc
+;souledge=souledgeuc~(souledgeua=souledgeja)
 ;spacebrd=spacedem=spacefb=spacefbb=spacefbg
 ;spacecho=speakres=stratvox
 ;spacedx=spacedxj~spacedxo~spcinvdj
@@ -205458,9 +205458,9 @@
 ;tdfever=tdfever2=tdfeverj
 ;teamqb=teamqb2
 ;teddybb=teddybbo
-;tekken2=tekken2a~tekken2b
+;tekken2=tekken2b~tekken2a
 ;tekken3~tekken3a~tekken3b (tekken3a & tekken3b only have time cheats at the moment)
-;tekken=tekkena~(tekkenb=tekkenc)
+;tekken=tekkenac~(tekkenb=tekkenjb)
 ;tektagt=tektagta~(tektagtb=tektagtc)
 ;tempest=tempest1=tempest2=tempest3=temptube
 ;tenkomoj=tenkomor

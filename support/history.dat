@@ -47450,7 +47450,7 @@ The title of this game translates from Japanese as 'Hanafuda at the Apartments'.
 $end
 
 
-$info=danceyes,
+$info=danceyes,danceyesj,
 $bio
 
 Dancing Eyes (c) 08/1996 Namco.
@@ -60180,7 +60180,7 @@ This game is also known as "Hoops '96".
 $end
 
 
-$info=dunkmnia,dunkmnic,
+$info=dunkmnia,dunkmniajc,
 $bio
 
 Dunk Mania (c) 1995 Namco.
@@ -199899,7 +199899,7 @@ Sega Dreamcast (1999) : The new Weapon Master mode made it's debut in this versi
 $end
 
 
-$info=souledga,souledgb,souledgc,
+$info=souledgeuc,souledgeua,souledgeja,
 $bio
 
 Soul Edge (c) 1995 Namco.
@@ -207422,7 +207422,7 @@ Sega Saturn (1997, "Sega Memorial Selection Vol.2")
 $end
 
 
-$info=starswep,
+$info=starswep,starswepj,
 $bio
 
 Star Sweep (c) 07/1997 Axela.
@@ -229958,7 +229958,7 @@ Music composed by : Tomoaki Takanohashi
 $end
 
 
-$info=tekken,tekkena,tekkenb,tekkenc,
+$info=tekken,tekkenb,tekkenac,tekkenjb,
 $bio
 
 Tekken (c) 12/1994 Namco.
@@ -230117,7 +230117,7 @@ Sony PlayStation 2 (2005, "NamCollection") : Japan release only.
 $end
 
 
-$info=tekken2,tekken2a,tekken2b,
+$info=tekken2,tekken2b,tekken2ub,tekken2a,
 $bio
 
 Tekken 2 (c) 08/1995 Namco.
@@ -260961,7 +260961,7 @@ F.A.Q. by Kevin Butler A.K.A. War Doc
 $end
 
 
-$info=xevi3dg,
+$info=xevi3dg,xevi3dgj,
 $bio
 
 Xevious 3D/G (c) 04/1995 Namco.
