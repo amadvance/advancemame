@@ -160027,7 +160027,7 @@ Atari 2600 (1983)
 $end
 
 
-$info=polepos,polepos1,poleposa,
+$info=polepos,poleposa1,poleposa2,
 $bio
 
 Pole Position (c) 09/1982 Namco.
@@ -160246,7 +160246,7 @@ Appears on the Ms Pac-Man TV game, manufactured by Jakks Pacific (2004).
 $end
 
 
-$info=polepos2,poleps2b,poleps2a,
+$info=polepos2,polepos2b,polepos2a,
 $bio
 
 Pole Position II (c) 10/1983 Namco.
@@ -236860,7 +236860,7 @@ SNK Neo-Geo CD (1994)
 $end
 
 
-$info=topracer,topracra,topracrb,
+$info=topracer,topracern,topracera,
 $bio
 
 Top Racer (c) 1984.

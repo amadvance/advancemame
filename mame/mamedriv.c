@@ -634,14 +634,15 @@ const game_driver * const drivers[] =
 	DRIVER( toypop )	/* (c) 1986 */
 	/* Z8000 games */
 	DRIVER( polepos )	/* (c) 1982  */
-	DRIVER( poleposa )	/* 136014   (c) 1982 + Atari license */
-	DRIVER( polepos1 )	/* 136014   (c) 1982 Atari */
+	DRIVER( poleposj )	/* (c) 1982  */
+	DRIVER( poleposa1 )	/* 136014   (c) 1982 + Atari license */
+	DRIVER( poleposa2 )	/* 136014   (c) 1982 + Atari license */
 	DRIVER( topracer )	/* bootleg */
-	DRIVER( topracra )	/* bootleg */
-	DRIVER( topracrb )	/* bootleg */
+	DRIVER( topracera )	/* bootleg */
+	DRIVER( topracern )	/* bootleg */
 	DRIVER( polepos2 )	/* (c) 1983 */
-	DRIVER( poleps2a )	/* 136014   (c) 1983 + Atari license */
-	DRIVER( poleps2b )	/* bootleg */
+	DRIVER( polepos2a )	/* 136014   (c) 1983 + Atari license */
+	DRIVER( polepos2b )	/* bootleg */
 	/* no custom I/O in the following, HD63701 (or compatible) microcontroller instead */
 	DRIVER( pacland )	/* (c) 1984 */
 	DRIVER( pacland2 )	/* (c) 1984 */

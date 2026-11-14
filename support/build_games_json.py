@@ -533,7 +533,7 @@ def determine_category_and_status(primary, names, root_name):
     if "hack" in d or mfg == "hack" or "translation" in d:
         return "hack", "released"
     # Check bootleg
-    if "bootleg" in d or "bootleg" in mfg or primary in ("sboblbob", "kikcubib", "vautourz", "topracra", "wc90b", "searthia"):
+    if "bootleg" in d or "bootleg" in mfg or primary in ("sboblbob", "kikcubib", "vautourz", "topracera", "wc90b", "searthia"):
         return "bootleg", "released"
     # Check console-to-arcade port / Mega Play / Vs. / PlayChoice
     if sf in ("megaplay.c", "playch10.c"):

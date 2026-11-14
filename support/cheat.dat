@@ -132733,18 +132733,18 @@
 :polepos:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Pole Position (Atari version 1) ]
-:polepos1:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:polepos1:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:polepos1:00000000:4630:00000001:FFFFFFFF:Invincibility
-:polepos1:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:polepos1:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
-:polepos1:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
-:polepos1:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
-:polepos1:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
-:polepos1:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
-:polepos1:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
-:polepos1:60000000:0000:00000000:00000000:[ Down cheat.                         ]
-:polepos1:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:poleposa1:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:poleposa1:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:poleposa1:00000000:4630:00000001:FFFFFFFF:Invincibility
+:poleposa1:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:poleposa1:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
+:poleposa1:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
+:poleposa1:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
+:poleposa1:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
+:poleposa1:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
+:poleposa1:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
+:poleposa1:60000000:0000:00000000:00000000:[ Down cheat.                         ]
+:poleposa1:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Pole Position II ]
 :polepos2:00000000:5401:00000078:FFFFFFFF:Infinite Time
@@ -132761,46 +132761,46 @@
 :polepos2:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Pole Position (Atari version 2) ]
-:poleposa:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:poleposa:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:poleposa:00000000:4630:00000001:FFFFFFFF:Invincibility
-:poleposa:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:poleposa:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
-:poleposa:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
-:poleposa:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
-:poleposa:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
-:poleposa:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
-:poleposa:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
-:poleposa:60000000:0000:00000000:00000000:[ Down cheat.                          ]
-:poleposa:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:poleposa2:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:poleposa2:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:poleposa2:00000000:4630:00000001:FFFFFFFF:Invincibility
+:poleposa2:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:poleposa2:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
+:poleposa2:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
+:poleposa2:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
+:poleposa2:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
+:poleposa2:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
+:poleposa2:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
+:poleposa2:60000000:0000:00000000:00000000:[ Down cheat.                          ]
+:poleposa2:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Pole Position II (Atari) ]
-:poleps2a:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:poleps2a:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:poleps2a:00000000:4630:00000001:FFFFFFFF:Invincibility
-:poleps2a:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:poleps2a:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
-:poleps2a:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
-:poleps2a:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
-:poleps2a:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
-:poleps2a:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
-:poleps2a:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
-:poleps2a:60000000:0000:00000000:00000000:[ Down cheat.                          ]
-:poleps2a:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:polepos2a:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:polepos2a:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:polepos2a:00000000:4630:00000001:FFFFFFFF:Invincibility
+:polepos2a:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:polepos2a:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
+:polepos2a:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
+:polepos2a:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
+:polepos2a:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
+:polepos2a:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
+:polepos2a:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
+:polepos2a:60000000:0000:00000000:00000000:[ Down cheat.                          ]
+:polepos2a:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Pole Position II (bootleg) ]
-:poleps2b:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:poleps2b:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:poleps2b:00000000:4630:00000001:FFFFFFFF:Invincibility
-:poleps2b:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:poleps2b:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
-:poleps2b:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
-:poleps2b:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
-:poleps2b:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
-:poleps2b:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
-:poleps2b:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
-:poleps2b:60000000:0000:00000000:00000000:[ Down cheat.                          ]
-:poleps2b:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:polepos2b:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:polepos2b:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:polepos2b:00000000:4630:00000001:FFFFFFFF:Invincibility
+:polepos2b:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:polepos2b:60000000:0000:00000000:00000000:[ If you don't touch the accelerator   ]
+:polepos2b:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you     ]
+:polepos2b:60000000:0000:00000000:00000000:[ will effectively be on train tracks! ]
+:polepos2b:60000000:0000:00000000:00000000:[ So if you want to play the game      ]
+:polepos2b:60000000:0000:00000000:00000000:[ properly press the accelerator or    ]
+:polepos2b:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully    ]
+:polepos2b:60000000:0000:00000000:00000000:[ Down cheat.                          ]
+:polepos2b:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Police Trainer (Rev 1.3) ]
 :policetr:00000000:00017D17:000000FF:FFFFFFFF:Infinite Time:This is most helpful with the 4-second bomb defusing
@@ -186020,32 +186020,32 @@
 :topracer:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Top Racer (set 2) ]
-:topracra:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:topracra:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:topracra:00000000:4630:00000001:FFFFFFFF:Invincibility
-:topracra:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:topracra:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
-:topracra:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
-:topracra:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
-:topracra:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
-:topracra:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
-:topracra:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
-:topracra:60000000:0000:00000000:00000000:[ Down cheat.                         ]
-:topracra:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:topracern:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:topracern:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:topracern:00000000:4630:00000001:FFFFFFFF:Invincibility
+:topracern:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:topracern:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
+:topracern:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
+:topracern:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
+:topracern:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
+:topracern:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
+:topracern:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
+:topracern:60000000:0000:00000000:00000000:[ Down cheat.                         ]
+:topracern:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Top Racer (set 3) ]
-:topracrb:00000000:5401:00000078:FFFFFFFF:Infinite Time
-:topracrb:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
-:topracrb:00000000:4630:00000001:FFFFFFFF:Invincibility
-:topracrb:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
-:topracrb:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
-:topracrb:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
-:topracrb:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
-:topracrb:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
-:topracrb:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
-:topracrb:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
-:topracrb:60000000:0000:00000000:00000000:[ Down cheat.                         ]
-:topracrb:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
+:topracera:00000000:5401:00000078:FFFFFFFF:Infinite Time
+:topracera:01000000:A817:00000000:FFFFFFFF:Always be in Pole Position
+:topracera:00000000:4630:00000001:FFFFFFFF:Invincibility
+:topracera:00000000:4004:00000090:FFFFFFFF:Always have Accelerator Fully Down
+:topracera:60000000:0000:00000000:00000000:[ If you don't touch the accelerator  ]
+:topracera:60000000:0000:00000000:00000000:[ with the Maximum Speed cheat you    ]
+:topracera:60000000:0000:00000000:00000000:[ will effectively be on train tracks!]
+:topracera:60000000:0000:00000000:00000000:[ So if you want to play the game     ]
+:topracera:60000000:0000:00000000:00000000:[ properly press the accelerator or   ]
+:topracera:60000000:0000:00000000:00000000:[ use it with the Accelerator Fully   ]
+:topracera:60000000:0000:00000000:00000000:[ Down cheat.                         ]
+:topracera:00000000:40B8:000000FF:FFFFFFFF:Always drive at Maximum Speed:The speed display will be incorrect
 
 ; [ Top Roller ]
 :toprollr:00000000:6059:00000063:FFFFFFFF:Infinite Credits
@@ -205196,7 +205196,7 @@
 ;plsmaswd=stargld2
 ;pltkids=pltkidsa  (unchecked relationship)
 ;polaris=polarisa
-;polepos=polepos1=polepos2=poleposa=poleps2a=poleps2b=topracer=topracra=topracrb
+;polepos=poleposa1=polepos2=poleposa2=polepos2a=polepos2b=topracer=topracern=topracera
 ;pollux=polluxa=polluxa2
 ;ponchin=ponchina
 ;ponpoko=ponpokov

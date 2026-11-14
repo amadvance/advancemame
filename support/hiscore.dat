@@ -6973,15 +6973,15 @@ pbobbl2n:
 
 ;********polepos.c (pole position 2)
 polepos2:
-poleps2b:
-poleps2a:
+polepos2b:
+polepos2a:
 poleps2c:
 0:3000:7f2:d0:a2
 
 ;********polepos.c (pole position)
 polepos:
-polepos1:
-poleposa:
+poleposa1:
+poleposa2:
 0:3000:7f2:b0:95
 
 ;********shocking.c (shocking)
