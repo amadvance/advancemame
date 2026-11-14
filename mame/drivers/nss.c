@@ -633,11 +633,13 @@ ROM_END
 ROM_START( nss_smw )
 	NSS_BIOS
 	ROM_REGION( 0x100000, REGION_USER3, ROMREGION_DISPOSE )
-	ROM_LOAD( "nss-mw-0_prg.ic1", 0x000000, 0x100000, CRC(971ff812) SHA1(4e8f5f0d160ca3e14db3d88c00f2e7e2dce4dca6) )
+	ROM_LOAD( "nss-mw-0_prg.ic1", 0x000000, 0x80000, CRC(c46766f2) SHA1(06a6efc246c6fdb83efab1d402d61d2179a84494) )
+	/* the previous dump was this 512k ROM doubled, keep the mirror */
+	ROM_RELOAD( 0x080000, 0x80000 )
 
 	/* instruction / data rom for bios */
 	ROM_REGION( 0x8000, REGION_USER4, 0 )
-	ROM_LOAD( "mw.ic3", 0x0000, 0x8000, CRC(f2c5466e) SHA1(e116f01342fcf359498ed8750741c139093b1fb2) )
+	ROM_LOAD( "nss-r__ic3__mw.ic3", 0x0000, 0x8000, CRC(f2c5466e) SHA1(e116f01342fcf359498ed8750741c139093b1fb2) )
 ROM_END
 
 ROM_START( nss_fzer )
@@ -672,4 +674,4 @@ GAME( 1992, nss_skin,  nss,	  snes,	     snes,    snes,		ROT0, "Irem",						"Ski
 GAME( 1992, nss_ssoc,  nss,	  snes,	     snes,    snes,		ROT0, "Human Inc.",					"Super Soccer (Nintendo Super System)", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // some gfx issues
 GAME( 1991, nss_smw,   nss,	  snes,	     snes,    snes,		ROT0, "Nintendo",					"Super Mario World (Nintendo Super System)", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1991, nss_fzer,  nss,	  snes,	     snes,    snes,		ROT0, "Nintendo",					"F-Zero (Nintendo Super System)", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
-GAME( 199?, nss_sten,  nss,	  snes,	     snes,    snes,		ROT0, "Nintendo",					"Super Tennis (Nintendo Super System)", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
+GAME( 1991, nss_sten,  nss,	  snes,	     snes,    snes,		ROT0, "Nintendo",					"Super Tennis (Nintendo Super System)", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
