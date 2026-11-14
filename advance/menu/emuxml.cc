@@ -419,6 +419,17 @@ static struct conversion_t CONV4[] = {
 };
 
 /**
+ * Fast string equality check that short-circuits on the first character
+ * before calling strcmp().
+ */
+static inline bool streq_const(const char* s, const char* constant)
+{
+	if (s[0] != constant[0])
+		return false;
+	return strcmp(s, constant) == 0;
+}
+
+/**
  * Check if an XML tag is a relevant child element of <game> or <machine>.
  *
  * Quickly filters out unsupported or unwanted XML elements at depth 1
@@ -427,31 +438,19 @@ static struct conversion_t CONV4[] = {
  */
 static inline bool is_game_child_tag(const char* name)
 {
-	switch (name[0]) {
-	case 'd':
-		return strcmp(name, "description") == 0
-			|| strcmp(name, "driver") == 0
-			|| strcmp(name, "device") == 0;
-	case 'y':
-		return strcmp(name, "year") == 0;
-	case 'm':
-		return strcmp(name, "manufacturer") == 0;
-	case 'r':
-		return strcmp(name, "rom") == 0
-			|| strcmp(name, "romof") == 0
-			|| strcmp(name, "runnable") == 0;
-	case 'v':
-		return strcmp(name, "video") == 0;
-	case 'n':
-		return strcmp(name, "name") == 0;
-	case 'c':
-		return strcmp(name, "cloneof") == 0;
-	case 'i':
-		return strcmp(name, "isbios") == 0
-			|| strcmp(name, "isdevice") == 0;
-	default:
-		return false;
-	}
+	return streq_const(name, "description")
+		|| streq_const(name, "driver")
+		|| streq_const(name, "device")
+		|| streq_const(name, "year")
+		|| streq_const(name, "manufacturer")
+		|| streq_const(name, "rom")
+		|| streq_const(name, "romof")
+		|| streq_const(name, "runnable")
+		|| streq_const(name, "video")
+		|| streq_const(name, "name")
+		|| streq_const(name, "cloneof")
+		|| streq_const(name, "isbios")
+		|| streq_const(name, "isdevice");
 }
 
 /**
@@ -465,70 +464,72 @@ static inline void process_attributes_direct(struct state_t* state, const XML_Ch
 	if (!attributes || !attributes[0])
 		return;
 
-	if (strcmp(tag, "game") == 0 || strcmp(tag, "machine") == 0) {
+	if (streq_const(tag, "game") || streq_const(tag, "machine")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
 			const char* v = attributes[i + 1];
-			unsigned l = strlen(v);
-			if (strcmp(k, "name") == 0)
-				process_name(state, token_data, v, l, 0);
-			else if (strcmp(k, "cloneof") == 0)
-				process_cloneof(state, token_data, v, l, 0);
-			else if (strcmp(k, "romof") == 0)
-				process_romof(state, token_data, v, l, 0);
-			else if (strcmp(k, "runnable") == 0)
-				process_runnable(state, token_data, v, l, 0);
-			else if (strcmp(k, "isbios") == 0)
-				process_isbios(state, token_data, v, l, 0);
-			else if (strcmp(k, "isdevice") == 0)
-				process_isdevice(state, token_data, v, l, 0);
+			if (streq_const(k, "name"))
+				process_name(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "cloneof"))
+				process_cloneof(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "romof"))
+				process_romof(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "runnable"))
+				process_runnable(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "isbios"))
+				process_isbios(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "isdevice"))
+				process_isdevice(state, token_data, v, strlen(v), 0);
 		}
-	} else if (strcmp(tag, "rom") == 0) {
+	} else if (streq_const(tag, "rom")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
 			const char* v = attributes[i + 1];
-			unsigned l = strlen(v);
-			if (strcmp(k, "size") == 0)
-				process_romsize(state, token_data, v, l, 0);
-			else if (strcmp(k, "merge") == 0)
-				process_rommerge(state, token_data, v, l, 0);
+			if (streq_const(k, "size"))
+				process_romsize(state, token_data, v, 0, 0);
+			else if (streq_const(k, "merge"))
+				process_rommerge(state, token_data, v, 0, 0);
 		}
-	} else if (strcmp(tag, "driver") == 0) {
+	} else if (streq_const(tag, "driver")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
-			const char* v = attributes[i + 1];
-			if (strcmp(k, "status") == 0)
+			if (streq_const(k, "status")) {
+				const char* v = attributes[i + 1];
 				process_driverstatus(state, token_data, v, strlen(v), 0);
+			}
 		}
-	} else if (strcmp(tag, "video") == 0) {
+	} else if (streq_const(tag, "video")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
 			const char* v = attributes[i + 1];
-			unsigned l = strlen(v);
-			if (strcmp(k, "screen") == 0)
-				process_videoscreen(state, token_data, v, l, 0);
-			else if (strcmp(k, "orientation") == 0)
-				process_videoorientation(state, token_data, v, l, 0);
-			else if (strcmp(k, "width") == 0)
-				process_videowidth(state, token_data, v, l, 0);
-			else if (strcmp(k, "height") == 0)
-				process_videoheight(state, token_data, v, l, 0);
-			else if (strcmp(k, "aspectx") == 0)
-				process_videoaspectx(state, token_data, v, l, 0);
-			else if (strcmp(k, "aspecty") == 0)
-				process_videoaspecty(state, token_data, v, l, 0);
+			if (streq_const(k, "screen"))
+				process_videoscreen(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "orientation"))
+				process_videoorientation(state, token_data, v, strlen(v), 0);
+			else if (streq_const(k, "width"))
+				process_videowidth(state, token_data, v, 0, 0);
+			else if (streq_const(k, "height"))
+				process_videoheight(state, token_data, v, 0, 0);
+			else if (streq_const(k, "aspectx"))
+				process_videoaspectx(state, token_data, v, 0, 0);
+			else if (streq_const(k, "aspecty"))
+				process_videoaspecty(state, token_data, v, 0, 0);
 		}
-	} else if (strcmp(tag, "device") == 0) {
+	} else if (streq_const(tag, "device")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
-			if (strcmp(k, "name") == 0 || strcmp(k, "type") == 0)
-				process_devicename(state, token_data, attributes[i + 1], strlen(attributes[i + 1]), 0);
+			if (streq_const(k, "name") || streq_const(k, "type")) {
+				const char* v = attributes[i + 1];
+				process_devicename(state, token_data, v, strlen(v), 0);
+			}
 		}
-	} else if (strcmp(tag, "extension") == 0) {
+	} else if (streq_const(tag, "extension")) {
 		for (int i = 0; attributes[i]; i += 2) {
 			const char* k = attributes[i];
-			if (strcmp(k, "name") == 0)
-				process_deviceextensionname(state, token_data, attributes[i + 1], strlen(attributes[i + 1]), 0);
+			if (streq_const(k, "name")) {
+				const char* v = attributes[i + 1];
+				process_deviceextensionname(state, token_data, v, strlen(v), 0);
+			}
 		}
 	}
 }
@@ -558,13 +559,13 @@ static struct conversion_t* identify(unsigned depth, const struct level_t* level
 		// check all the item, backward
 		for (int j = depth; equal && j >= 0; --j) {
 			if (conv[i].name[j] == match_mamemessraine) {
-				if (strcmp(level[j].tag, "mame") != 0 && strcmp(level[j].tag, "mess") != 0 && strcmp(level[j].tag, "raine") != 0)
+				if (!streq_const(level[j].tag, "mame") && !streq_const(level[j].tag, "mess") && !streq_const(level[j].tag, "raine"))
 					equal = false;
 			} else if (conv[i].name[j] == match_gamemachine) {
-				if (strcmp(level[j].tag, "game") != 0 && strcmp(level[j].tag, "machine") != 0)
+				if (!streq_const(level[j].tag, "game") && !streq_const(level[j].tag, "machine"))
 					equal = false;
 			} else {
-				if (strcmp(level[j].tag, conv[i].name[j]) != 0)
+				if (!streq_const(level[j].tag, conv[i].name[j]))
 					equal = false;
 			}
 		}
@@ -694,8 +695,8 @@ static void start_handler(void* data, const XML_Char* name, const XML_Char** att
 			return;
 		}
 	} else if (state->depth == 2) {
-		if (state->level[2].tag && strcmp(state->level[2].tag, "device") == 0) {
-			if (strcmp(name, "extension") != 0 && strcmp(name, "name") != 0 && strcmp(name, "type") != 0) {
+		if (state->level[2].tag && streq_const(state->level[2].tag, "device")) {
+			if (!streq_const(name, "extension") && !streq_const(name, "name") && !streq_const(name, "type")) {
 				state->ignore_depth = 1;
 				return;
 			}
