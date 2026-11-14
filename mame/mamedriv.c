@@ -3858,14 +3858,16 @@ Sep.1994 Quiz Ghost Hunter
 
 	/* Step 1.0 */
 	DRIVER( vf3 )		/* 1996 */
+	DRIVER( vf3c )		/* 1996 */
 	DRIVER( vf3tb )		/* 1996 */
 	DRIVER( bassdx )	/* 1997 */
+	DRIVER( getbassur )	/* 1997 */
 	DRIVER( getbass )	/* 1997 */
 
 	/* Step 1.5 */
 	DRIVER( scud )		/* 1996 */
-	DRIVER( scuda )		/* 1996 */
-	DRIVER( scudp )		/* 1997 */
+	DRIVER( scudau )	/* 1996 */
+	DRIVER( scudplus )	/* 1997 */
 	DRIVER( lostwsga )	/* 1997 */
 	DRIVER( vs215 )		/* 1997 */
 	DRIVER( lemans24 )	/* 1997 */
@@ -3874,25 +3876,27 @@ Sep.1994 Quiz Ghost Hunter
 	/* Step 2.0 */
 	DRIVER( vs2 )		/* 1997 */
 	DRIVER( harley )	/* 1997 */
+	DRIVER( harleya )	/* 1997 */
 	DRIVER( srally2 )	/* 1998 */
-	DRIVER( sraly2dx )	/* 1998 */
+	DRIVER( srally2dx )	/* 1998 */
 	DRIVER( von2 )		/* 1998 */
 	DRIVER( von254g )	/* 1998 */
 	DRIVER( fvipers2 )	/* 1998 */
 	DRIVER( vs298 )		/* 1998 */
-	DRIVER( vs2v991 )	/* 1999 */
-	DRIVER( vs299 )		/* 1999 */
+	DRIVER( vs2v991 )	/* 1998 */
+	DRIVER( vs299 )		/* 1998 */
 
 	/* Step 2.1 */
 	DRIVER( daytona2 )	/* 1998 */
 	DRIVER( dayto2pe )	/* 1998 */
 	DRIVER( dirtdvls )	/* 1998 */
-	DRIVER( dirtdvla )	/* 1998 */
+	DRIVER( dirtdvlsau )	/* 1998 */
 	DRIVER( swtrilgy )	/* 1998 */
-	DRIVER( swtrilga )	/* 1998 */
+	DRIVER( swtrilgya )	/* 1998 */
 	DRIVER( spikeout )	/* 1998 */
-	DRIVER( spikeofe )	/* 1998 */
+	DRIVER( spikeofe )	/* 1999 */
 	DRIVER( eca )		/* 1999 */
+	DRIVER( ecau )		/* 1999 */
 
 
 	/* Deniam games */
