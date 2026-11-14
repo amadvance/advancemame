@@ -191,7 +191,7 @@ AdvanceMAME/MESS Version 4.0 2024/10
 		mirax - Mirax
 		msisaac - Metal Soldier Isaac II
 		mustang - US AAF Mustang (Japan)
-		ncv2 - Namco Classics Collection Vol.2
+		ncv2 - Namco Classic Collection Vol.2
 		onna34ro - Onna Sansirou - Typhoon Gal (set 1)
 		packbang - Pack'n Bang Bang
 		pettanp - Pettan Pyuu (Japan)
