@@ -61949,14 +61949,14 @@
 :invasion:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Invasion (Midway) ]
-:invasn:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:invasn:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:invasnab:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Invinco / Deep Scan ]
 :invds:00000000:E48C:00000005:FFFFFFFF:Infinite Lives PL1 Invinco
@@ -203395,7 +203395,7 @@
 ; { Reason 01 } ; indy500   [ Indianapolis 500 ]
 ; { Reason 01 } ; introdon  [ Karaoke Quiz Intro Don Don! (J 960213 V1.000) ]
 ; { Reason 01 } ; intrscti  [ Intersecti ]
-; { Reason 01 } ; invasn    [ Invasion (Midway) ]
+; { Reason 01 } ; invasnab  [ Invasion: The Abductors (version 5.0) ]
 ; { Reason 01 } ; jackpool  [ Jackpot Pool (Italy, bootleg) ]
 ; { Reason 01 } ; jdredd    [ Judge Dredd (Rev C Dec. 17 1997) ]
 ; { Reason 01 } ; jdreddb   [ Judge Dredd (Rev B Nov. 26 1997) ]

@@ -6012,9 +6012,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( offroadc )	/* (c) 1997 Midway */
 	DRIVER( wargods )	/* (c) 1996 Midway */
 	DRIVER( mk4 )		/* (c) 1997 Midway */
-	DRIVER( invasn )	/* (c) 1999 Midway */
+	DRIVER( invasnab )	/* (c) 1999 Midway */
+	DRIVER( invasnab4 )	/* (c) 1999 Midway */
 	DRIVER( crusnexo )	/* (c) 1999 Midway */
-	DRIVER( thegrid )	/* (c) 2001 Midway */
+	DRIVER( crusnexob )	/* (c) 1999 Midway */
+	DRIVER( thegrid )	/* (c) 2000 Midway */
 
 	/* Midway / Atari  Voodoo based Hardware (Seattle, Flagstaff) */
 	DRIVER( wg3dh )		/* (c) 1996 Atari Games */
