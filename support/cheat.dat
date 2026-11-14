@@ -38848,14 +38848,14 @@
 :dinou:00010000:FFB626:00000000:FFFFFFFF:Rapid Fire - Unlimited PL3 (2/2)
 
 ; [ Dirt Devils (alt) ]
-:dirtdvla:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:dirtdvla:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:dirtdvlsau:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Dirt Devils ]
 :dirtdvls:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -148004,38 +148004,38 @@
 :scud:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Scud Race (Export) ]
-:scuda:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:scuda:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:scudau:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Scud Hammer ]
 :scudhamm:00000000:FC85B:00000009:FFFFFFFF:Infinite Credits
 :scudhamm:00000000:FD369:000000B5:FFFFFFFF:Infinite Time:This ensures that you have hit the character when you win a round
 
 ; [ Scud Race Plus ]
-:scudp:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:scudp:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:scudplus:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Super Derby ]
 :sderby:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
@@ -172349,14 +172349,14 @@
 :srallyc:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Sega Rally 2 DX ]
-:sraly2dx:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:sraly2dx:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:srally2dx:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Super Ranger (v2.0) ]
 :sranger:00000000:C830:00000099:FFFFFFFF:Infinite Credits
@@ -181315,14 +181315,14 @@
 :sws99:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Star Wars Trilogy ]
-:swtrilga:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:swtrilga:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:swtrilgya:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Star Wars Trilogy (ver A) ]
 :swtrilgy:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -203316,7 +203316,7 @@
 ; { Reason 01 } ; deroon    [ Deroon DeroDero ]
 ; { Reason 01 } ; desert    [ Desert Tank ]
 ; { Reason 01 } ; diehard   [ Die Hard Arcade (UET 960515 V1.000) ]
-; { Reason 01 } ; dirtdvla  [ Dirt Devils (alt) ]
+; { Reason 01 } ; dirtdvlsau  [ Dirt Devils (alt) ]
 ; { Reason 01 } ; dirtdvls  [ Dirt Devils ]
 ; { Reason 01 } ; djboy     [ DJ Boy ]
 ; { Reason 01 } ; djboyj    [ DJ Boy (Japan) ]
@@ -203588,7 +203588,7 @@
 ; { Reason 01 } ; spikeout  [ Spikeout ]
 ; { Reason 01 } ; srally2   [ Sega Rally 2 ]
 ; { Reason 01 } ; srallyc   [ Sega Rally Championship ]
-; { Reason 01 } ; sraly2dx  [ Sega Rally 2 DX ]
+; { Reason 01 } ; srally2dx  [ Sega Rally 2 DX ]
 ; { Reason 01 } ; srmp5     [ Super Real Mahjong P5 ]
 ; { Reason 01 } ; srmp6     [ Super Real Mahjong P6 (Japan) ]
 ; { Reason 01 } ; sscope    [ Silent Scope (ver UAB) ]
@@ -203609,7 +203609,7 @@
 ; { Reason 01 } ; suprgolf  [ Super Crown Golf ]
 ; { Reason 01 } ; suprleag  [ Super League (FD1094 317-0045?) ]
 ; { Reason 01 } ; sws99     [ Super World Stadium '99 (SS91/VER.A3) ]
-; { Reason 01 } ; swtrilga  [ Star Wars Trilogy ]
+; { Reason 01 } ; swtrilgya  [ Star Wars Trilogy ]
 ; { Reason 01 } ; swtrilgy  [ Star Wars Trilogy (ver A) ]
 ; { Reason 01 } ; taitogn   [ Taito GNET ]
 ; { Reason 01 } ; targeth   [ Target Hits ]
@@ -203933,8 +203933,8 @@
 ; { Reason 11 } ; rougien   [ Rougien ]
 ; { Reason 11 } ; sbishi    [ Super Bishi Bashi Championship (ver JAA) ]
 ; { Reason 11 } ; scud      [ Scud Race (Australia) ]
-; { Reason 11 } ; scuda     [ Scud Race (Export) ]
-; { Reason 11 } ; scudp     [ Scud Race Plus ]
+; { Reason 11 } ; scudau     [ Scud Race (Export) ]
+; { Reason 11 } ; scudplus     [ Scud Race Plus ]
 ; { Reason 11 } ; sderby    [ Super Derby ]
 ; { Reason 11 } ; sdtennis  [ Super Doubles Tennis ]
 ; { Reason 11 } ; semibase  [ MuHanSeungBu (SemiCom Baseball) ]
@@ -205327,7 +205327,7 @@
 ;scontra=scontraj
 ;scorpion=scorpnmc=scrpiona
 ;sctionza=sectionz
-;scud~scuda~scudp    (unchecked relationship - make machine single/standalone to play)
+;scud~scudau~scudplus    (unchecked relationship - make machine single/standalone to play)
 ;searchar=sercharj=sercharu
 ;secretab=secretag=slyspy=slyspy2
 ;sectrzon=seicross
@@ -205407,7 +205407,7 @@
 ;sprint1~(sprint2=sprint2a)
 ;spy=spyu
 ;spyhnt2a=spyhunt2
-;srally2=sraly2dx
+;srally2=srally2dx
 ;srdarwin=srdarwnj
 ;srmp4=srmp4o
 ;sscope=sscopea      (unchecked relationship)
@@ -205446,7 +205446,7 @@
 ;swimmer=swimmera=swimmerb
 ;sws96=sws97
 ;sws~=sws92~=sws92g~=sws93
-;swtrilga=swtrilgy    (unchecked relationship)
+;swtrilgya=swtrilgy    (unchecked relationship)
 ;szaxxon~zaxxon=zaxxon2=zaxxonb
 ;tank8=tank8a=tank8b=tank8c=tank8d (tank8a tank8b & tank8d are untested)
 ;tankfrce=tankfrcj
