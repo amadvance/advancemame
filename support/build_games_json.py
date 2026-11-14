@@ -121,7 +121,7 @@ root = tree.getroot()
 adv_all = {}
 bios_names = set()
 
-for g in root.findall("game"):
+for g in (e for e in root if e.tag in ("machine", "game")):
     name = g.attrib["name"]
     runnable = g.attrib.get("runnable", "yes")
     if runnable == "no":

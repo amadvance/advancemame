@@ -202,7 +202,7 @@ def main():
 
     supported_games = []
     seen = set()
-    for game_elem in root.findall("game"):
+    for game_elem in (e for e in root if e.tag in ("machine", "game")):
         name = game_elem.get("name")
         if not name or name in seen:
             continue

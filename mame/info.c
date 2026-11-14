@@ -18,11 +18,10 @@
 /* MESS/MAME configuration */
 #ifdef MESS
 #define XML_ROOT "mess"
-#define XML_TOP "machine"
 #else
 #define XML_ROOT "mame"
-#define XML_TOP "game"
 #endif
+#define XML_TOP "machine"
 
 #ifdef MESS
 void print_game_device(FILE* out, const game_driver* game);
