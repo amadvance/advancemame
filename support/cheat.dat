@@ -44598,17 +44598,17 @@
 :finehour:00010011:10001F:00000001:00000199:Select Starting Round PL1 (2/2):Force Range on credits to ensure a coin has been inserted to make cheat work cleanly
 :finehour:00000000:10FE66:00000002:FFFFFFFF:Sound Test Timer Stop:Works for all Namco Sys 2
 
-; [ Final Furlong 2 (Japan) ]
-:finfrl2j:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:finfrl2j:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+; [ Final Furlong 2 (Japan, FFS1 Ver. A) ]
+:finfurl2j:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:finfurl2j:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Final Furlong 2 (World) ]
+; [ Final Furlong 2 (World, FFS2 Ver. A) ]
 :finfurl2:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :finfurl2:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :finfurl2:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -184562,7 +184562,7 @@
 :timecris:00000000:E00791:00000009:FFFFFFFF:Infinite Lives
 :timecris:00000000:E00793:00000006:FFFFFFFF:Infinite Ammo
 
-; [ Time Crisis 2 ]
+; [ Time Crisis II (US, TSS3 Ver. B) ]
 :timecrs2:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :timecrs2:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :timecrs2:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -203351,8 +203351,8 @@
 ; { Reason 01 } ; finalapr1  [ Final Lap R ]
 ; { Reason 01 } ; finalapr  [ Final Lap R (Rev. B) ]
 ; { Reason 01 } ; findlove  [ Find Love (J 971212 V1.000) ]
-; { Reason 01 } ; finfrl2j  [ Final Furlong 2 (Japan) ]
-; { Reason 01 } ; finfurl2  [ Final Furlong 2 (World) ]
+; { Reason 01 } ; finfurl2j  [ Final Furlong 2 (Japan, FFS1 Ver. A) ]
+; { Reason 01 } ; finfurl2  [ Final Furlong 2 (World, FFS2 Ver. A) ]
 ; { Reason 01 } ; finlarch  [ Final Arch (J 950714 V1.001) ]
 ; { Reason 01 } ; fjbuster  [ Fujiyama Buster (Japan) ]
 ; { Reason 01 } ; fortecar  [ Forte Card ]
@@ -203625,7 +203625,7 @@
 ; { Reason 01 } ; thunderh  [ Thunder Hurricane (ver UAA) ]
 ; { Reason 01 } ; thunt     [ Treasure Hunt (JUET 970901 V2.00E) ]
 ; { Reason 01 } ; timecris  [ Time Crisis (Rev. TS2 Ver.B) ]
-; { Reason 01 } ; timecrs2  [ Time Crisis 2 ]
+; { Reason 01 } ; timecrs2  [ Time Crisis II (US, TSS3 Ver. B) ]
 ; { Reason 01 } ; tkdensho  [ Touki Denshou -Angel Eyes- ]
 ; { Reason 01 } ; tmmjprd   [ Tokimeki Mahjong Paradise - Dear My Love ]
 ; { Reason 01 } ; tondemo   [ Tondemo Crisis (JAPAN) ]
