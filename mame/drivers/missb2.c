@@ -446,7 +446,8 @@ ROM_START( missb2 )
 	ROM_LOAD16_BYTE( "msbub2-u.ic4", 0x000000, 0x80000, CRC(be71c9f0) SHA1(1961e931017f644486cea0ce431d50973679c848) )
 
 	ROM_REGION( 0x20000, REGION_SOUND1, 0 ) /* samples */
-	ROM_LOAD( "msbub2-u.13", 0x00000, 0x20000, BAD_DUMP CRC(14f07386) SHA1(097897d92226f900e11dbbdd853aff3ac46ff016) )
+	/* the previous dump 14f07386 is bad: it has 0xFF where the low 8 bits of the address are 0x40-0xBF, from 0xB57E on */
+	ROM_LOAD( "msbub2-u.13", 0x00000, 0x20000, BAD_DUMP CRC(7a4f4272) SHA1(07712494f5166bcc8156a2152ae552a74f2184eb) ) /* taken from bublpong ic13, probably correct but marked as bad until redump */
 
 	ROM_REGION( 0x0100, REGION_PROMS, 0 )
 	ROM_LOAD( "a71-25.bin",  0x0000, 0x0100, CRC(2d0f8545) SHA1(089c31e2f614145ef2743164f7b52ae35bc06808) )	/* video timing - taken from bublbobl */
@@ -466,4 +467,4 @@ static DRIVER_INIT( missb2 )
 
 /* Game Drivers */
 
-GAME( 1996, missb2, 0, missb2, missb2, missb2, ROT0,  "Alpha Co", "Miss Bubble 2", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, missb2, 0, missb2, missb2, missb2, ROT0,  "Alpha Co.", "Miss Bubble II", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
