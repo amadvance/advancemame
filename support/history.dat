@@ -160386,7 +160386,7 @@ PC [MS Windows, CD-ROM] (2005, "Namco Museum 50th Anniversary")
 $end
 
 
-$info=policetr,polict11,plctr13b,
+$info=policetr,policetr13,policetr11,policetr13b,
 $bio
 
 Police Trainer (c) 11/1996 P&P Marketing.
@@ -192245,7 +192245,7 @@ Buttons : 2
 $end
 
 
-$info=sshooter,sshoot12,sshoot11,
+$info=sshooter,sshooter17,sshooter12,sshooter11,
 $bio
 
 Sharpshooter (c) 1998 P&P Marketing.

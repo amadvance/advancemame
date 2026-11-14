@@ -7559,12 +7559,15 @@ Other Sun games
 	DRIVER( vmetaln )	/* (c) 1995 Excellent System? */
 	DRIVER( aquarium )	/* (c) 1996 Excellent System */
 	DRIVER( policetr )	/* (c) 1996 P&P Marketing */
-	DRIVER( polict11 )	/* (c) 1996 P&P Marketing */
-	DRIVER( polict10 )	/* (c) 1996 P&P Marketing */
-	DRIVER( plctr13b )	/* (c) 1996 P&P Marketing */
+	DRIVER( policetr13 )	/* (c) 1996 P&P Marketing */
+	DRIVER( policetr11 )	/* (c) 1996 P&P Marketing */
+	DRIVER( policetr10 )	/* (c) 1996 P&P Marketing */
+	DRIVER( policetr13a )	/* (c) 1996 P&P Marketing */
+	DRIVER( policetr13b )	/* (c) 1996 P&P Marketing */
 	DRIVER( sshooter )	/* (c) 1998 P&P Marketing */
-	DRIVER( sshoot12 )	/* (c) 1998 P&P Marketing */
-	DRIVER( sshoot11 )	/* (c) 1998 P&P Marketing */
+	DRIVER( sshooter17 )	/* (c) 1998 P&P Marketing */
+	DRIVER( sshooter12 )	/* (c) 1998 P&P Marketing */
+	DRIVER( sshooter11 )	/* (c) 1998 P&P Marketing */
 	DRIVER( pass )		/* (c) 1992 Oksan */
 	DRIVER( news )		/* "Virus"??? ((c) 1993 Poby in ROM VIRUS.4) */
 	DRIVER( newsa )		/* "Virus"??? ((c) 1993 Poby in ROM VIRUS.4) */

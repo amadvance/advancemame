@@ -131914,14 +131914,14 @@
 :playball:00000000:BF33:00000006:FFFFFFFF:Infinite Timeouts
 
 ; [ Police Trainer (Rev 1.3B) ]
-:plctr13b:00000000:00017D17:000000FF:FFFFFFFF:Infinite Time:This is most helpful with the 4-second bomb defusing
-:plctr13b:00000001:00017D17:00000000:FFFFFFFF:No Time Left Now!
-:plctr13b:00000000:00017D4B:00000003:FFFFFFFF:Infinite Lives PL1
-:plctr13b:00100000:00018D96:0000270F:FFFFFFFF:Infinite Ammo PL1
-:plctr13b:00100000:000177C6:0000270F:FFFFFFFF:Always 9999 Score PL1
-:plctr13b:00000000:00017D57:00000003:FFFFFFFF:Infinite Lives PL2
-:plctr13b:00100000:00018DA6:0000270F:FFFFFFFF:Infinite Ammo PL2
-:plctr13b:00100000:000177E2:0000270F:FFFFFFFF:Always 9999 Score PL2
+:policetr13b:00000000:00017D17:000000FF:FFFFFFFF:Infinite Time:This is most helpful with the 4-second bomb defusing
+:policetr13b:00000001:00017D17:00000000:FFFFFFFF:No Time Left Now!
+:policetr13b:00000000:00017D4B:00000003:FFFFFFFF:Infinite Lives PL1
+:policetr13b:00100000:00018D96:0000270F:FFFFFFFF:Infinite Ammo PL1
+:policetr13b:00100000:000177C6:0000270F:FFFFFFFF:Always 9999 Score PL1
+:policetr13b:00000000:00017D57:00000003:FFFFFFFF:Infinite Lives PL2
+:policetr13b:00100000:00018DA6:0000270F:FFFFFFFF:Infinite Ammo PL2
+:policetr13b:00100000:000177E2:0000270F:FFFFFFFF:Always 9999 Score PL2
 
 ; [ Gouketsuji Ichizoku Saikyou Densetsu (Japan) ]
 :plegendj:00100000:40FE48:00009999:FFFFFFFF:Infinite Credits
@@ -132813,29 +132813,29 @@
 :policetr:00100000:000177E2:0000270F:FFFFFFFF:Always 9999 Score PL2
 
 ; [ Police Trainer (Rev 1.0) ]
-:polict10:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:polict10:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:policetr10:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Police Trainer (Rev 1.1) ]
-:polict11:00000000:00017D17:000000FF:FFFFFFFF:Infinite Time:This is most helpful with the 4-second bomb defusing
-:polict11:00000001:00017D17:00000000:FFFFFFFF:No Time Left Now!
-:polict11:00000000:00017D4B:00000003:FFFFFFFF:Infinite Lives PL1
-:polict11:00100000:00018D96:0000270F:FFFFFFFF:Infinite Ammo PL1
-:polict11:00100000:000177C6:0000270F:FFFFFFFF:Always 9999 Score PL1
-:polict11:00000000:00017D57:00000003:FFFFFFFF:Infinite Lives PL2
-:polict11:00100000:00018DA6:0000270F:FFFFFFFF:Infinite Ammo PL2
-:polict11:00100000:000177E2:0000270F:FFFFFFFF:Always 9999 Score PL2
+:policetr11:00000000:00017D17:000000FF:FFFFFFFF:Infinite Time:This is most helpful with the 4-second bomb defusing
+:policetr11:00000001:00017D17:00000000:FFFFFFFF:No Time Left Now!
+:policetr11:00000000:00017D4B:00000003:FFFFFFFF:Infinite Lives PL1
+:policetr11:00100000:00018D96:0000270F:FFFFFFFF:Infinite Ammo PL1
+:policetr11:00100000:000177C6:0000270F:FFFFFFFF:Always 9999 Score PL1
+:policetr11:00000000:00017D57:00000003:FFFFFFFF:Infinite Lives PL2
+:policetr11:00100000:00018DA6:0000270F:FFFFFFFF:Infinite Ammo PL2
+:policetr11:00100000:000177E2:0000270F:FFFFFFFF:Always 9999 Score PL2
 
 ; [ Pollux (set 1) ]
 :pollux:00000000:C036:00000063:FFFFFFFF:Infinite Credits
@@ -176481,12 +176481,12 @@
 :sshanghb:00000000:FF313B:00000003:FFFFFFFF:Infinite Helps
 
 ; [ Sharpshooter (Rev 1.1) ]
-:sshoot11:00000000:000173BD:00000000:FFFFFFFF:Infinite Lives PL1
-:sshoot11:00000000:0001740D:00000000:FFFFFFFF:Infinite Lives PL2
+:sshooter11:00000000:000173BD:00000000:FFFFFFFF:Infinite Lives PL1
+:sshooter11:00000000:0001740D:00000000:FFFFFFFF:Infinite Lives PL2
 
 ; [ Sharpshooter (Rev 1.2) ]
-:sshoot12:00000000:173BD:00000000:FFFFFFFF:Infinite Lives PL1
-:sshoot12:00000000:1740D:00000000:FFFFFFFF:Infinite Lives PL2
+:sshooter12:00000000:173BD:00000000:FFFFFFFF:Infinite Lives PL1
+:sshooter12:00000000:1740D:00000000:FFFFFFFF:Infinite Lives PL2
 
 ; [ Sharpshooter (Rev 1.7) ]
 :sshooter:00000000:173BD:00000000:FFFFFFFF:Infinite Lives PL1
@@ -203888,7 +203888,7 @@
 ; { Reason 11 } ; pnyaa     [ Pochi and Nyaa ]
 ; { Reason 11 } ; pokio     [ Pokio (Dutch, Game Card 95-750-278) ]
 ; { Reason 11 } ; pokrdice  [ Poker Dice ]
-; { Reason 11 } ; polict10  [ Police Trainer (Rev 1.0) ]
+; { Reason 11 } ; policetr10  [ Police Trainer (Rev 1.0) ]
 ; { Reason 11 } ; popbingo  [ Pop Bingo ]
 ; { Reason 11 } ; ppking    [ Ping-Pong King ]
 ; { Reason 11 } ; ppmast93  [ Ping Pong Masters '93 ]
@@ -205190,7 +205190,7 @@
 ;pkladiel=pkladies=pkladila
 ;pktgaldb=pktgaldj=pktgaldx
 ;pkunwar=pkunwarj
-;plctr13b=polict11=policetr
+;policetr13b=policetr11=policetr
 ;plegendj=plegends
 ;plottina=plottinu=plotting
 ;plsmaswd=stargld2
@@ -205413,7 +205413,7 @@
 ;sscope=sscopea      (unchecked relationship)
 ;ssf2=ssf2a=ssf2ar1=ssf2j=ssf2jr1=ssf2jr2=ssf2tb=ssf2tbj=ssf2tbr1=ssf2tur1=ssf2u~=(ssf2t=ssf2ta=ssf2tu=ssf2xj(UNTESTED ssf2xj,ssf2tb,ssf2tbj,ssf2tbr1))
 ;sshangha=sshanghb
-;sshoot11=sshoot12=sshooter
+;sshooter11=sshooter12=sshooter
 ;sslam=sslama
 ;sspacatc=sspacat2=sspacat3=sspaceat~=(alphaho~[headon])
 ;sspirtfc=sspiritj=sspirits
