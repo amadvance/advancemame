@@ -102,6 +102,7 @@ typedef struct
 	UINT8			irq_pending;
 	UINT8			mcu_mode;
 	UINT8			is_idling;
+	UINT8			is_32032;
 	UINT16			irq_state;
 	int				interrupt_cycles;
 
@@ -276,13 +277,14 @@ INLINE void invalid_instruction(UINT32 op)
 
 static void check_irqs(void)
 {
-	int validints = IREG(TMR_IF) & IREG(TMR_IE) & 0x07ff;
+	int numints = tms32031.is_32032 ? 12 : 11;
+	int validints = IREG(TMR_IF) & IREG(TMR_IE) & ((1 << numints) - 1);
 	if (validints && (IREG(TMR_ST) & GIEFLAG))
 	{
 		int whichtrap = 0;
 		int i;
 
-		for (i = 0; i < 11; i++)
+		for (i = 0; i < numints; i++)
 			if (validints & (1 << i))
 			{
 				whichtrap = i + 1;
@@ -297,7 +299,10 @@ static void check_irqs(void)
 				/* A pulse remains pending until taken; active external levels retrigger. */
 				IREG(TMR_IF) &= ~(1 << (whichtrap - 1));
 				trap(whichtrap);
-				IREG(TMR_IF) |= tms32031.irq_state & 0x0f;
+				/* the '32 external interrupts can be configured edge-triggered (ST bit 14), */
+				/* in which case a still active line must not retrigger the interrupt */
+				if (!tms32031.is_32032 || (IREG(TMR_ST) & 0x4000) == 0)
+					IREG(TMR_IF) |= tms32031.irq_state & 0x0f;
 			}
 			else
 				tms32031.irq_pending = 1;
@@ -309,7 +314,7 @@ static void check_irqs(void)
 
 static void set_irq_line(int irqline, int state)
 {
-	if (irqline < 11)
+	if (irqline < (tms32031.is_32032 ? 12 : 11))
 	{
 		UINT16 mask = 1 << irqline;
 		if (state == ASSERT_LINE)
@@ -395,6 +400,13 @@ static void tms32031_reset(void)
 	tms32031.delayed = tms32031.irq_pending = 0;
 	tms32031.is_idling = 0;
 	tms32031.irq_state = 0;
+	tms32031.is_32032 = 0;
+}
+
+static void tms32032_reset(void)
+{
+	tms32031_reset();
+	tms32031.is_32032 = 1;
 }
 
 
@@ -833,5 +845,21 @@ void tms32031_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_STR_REGISTER + TMS32031_RS:		sprintf(info->s = cpuintrf_temp_str(), " RS:%08X", tms32031.r[TMR_RS].i32[0]); break;
 		case CPUINFO_STR_REGISTER + TMS32031_RE:		sprintf(info->s = cpuintrf_temp_str(), " RE:%08X", tms32031.r[TMR_RE].i32[0]); break;
 		case CPUINFO_STR_REGISTER + TMS32031_RC:		sprintf(info->s = cpuintrf_temp_str(), " RC:%08X", tms32031.r[TMR_RC].i32[0]); break;
+	}
+}
+
+
+/**************************************************************************
+ * TMS32032 get_info
+ **************************************************************************/
+
+void tms32032_get_info(UINT32 state, union cpuinfo *info)
+{
+	switch (state)
+	{
+		case CPUINFO_INT_INPUT_LINES:					info->i = 12;							break;
+		case CPUINFO_PTR_RESET:							info->reset = tms32032_reset;			break;
+		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "TMS32032"); break;
+		default:										tms32031_get_info(state, info);			break;
 	}
 }

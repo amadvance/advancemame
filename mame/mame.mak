@@ -418,6 +418,7 @@ $(OBJ)/shared.a: \
 	$(OBJ)/vidhrdw/crtc6845.o \
 	$(OBJ)/vidhrdw/avgdvg.o \
 	$(OBJ)/vidhrdw/poly.o \
+	$(OBJ)/vidhrdw/polylgcy.o \
 	$(OBJ)/vidhrdw/res_net.o \
 	$(OBJ)/vidhrdw/tlc34076.o \
 	$(OBJ)/vidhrdw/tms34061.o \
@@ -981,7 +982,7 @@ $(OBJ)/midway.a: \
 	$(OBJ)/drivers/midwunit.o $(OBJ)/machine/midwunit.o \
 	$(OBJ)/drivers/midxunit.o \
 	$(OBJ)/drivers/midyunit.o $(OBJ)/machine/midyunit.o $(OBJ)/vidhrdw/midyunit.o \
-	$(OBJ)/drivers/midzeus.o \
+	$(OBJ)/drivers/midzeus.o $(OBJ)/vidhrdw/midzeus.o \
 	$(OBJ)/drivers/omegrace.o \
 	$(OBJ)/drivers/seattle.o \
 	$(OBJ)/drivers/vegas.o \
