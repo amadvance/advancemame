@@ -119,6 +119,7 @@ void kof2k3up_px_decrypt( void );
 void kof2k3up_install_protection(void);
 void kf2k3pl_install_protection(void);
 void samsh5bl_px_decrypt( void );
+void samsh5bl_vx_decrypt( void );
 
 /*----------- defined in vidhrdw/neogeo.c -----------*/
 

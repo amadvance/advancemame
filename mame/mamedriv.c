@@ -5456,7 +5456,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( alpham2 )	/* 0007 (c) 1991 SNK */
 				/* 0008 Sunshine (prototype) 1990 SNK */
 	DRIVER( ncombat )	/* 0009 (c) 1990 Alpha Denshi Co. */
-	DRIVER( ncombata )	/* 0009 (c) 1990 Alpha Denshi Co. */
+	DRIVER( ncombath )	/* 0009 (c) 1990 Alpha Denshi Co. */
 	DRIVER( cyberlip )	/* 0010 (c) 1990 SNK */
 	DRIVER( superspy )	/* 0011 (c) 1990 SNK */
 				/* 0012 */
@@ -5466,9 +5466,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kotm )		/* 0016 (c) 1991 SNK */
 	DRIVER( kotmh )		/* 0016 (c) 1991 SNK */
 	DRIVER( sengoku )	/* 0017 (c) 1991 SNK */
-	DRIVER( sengokh )	/* 0017 (c) 1991 SNK */
+	DRIVER( sengokuh )	/* 0017 (c) 1991 SNK */
 	DRIVER( burningf )	/* 0018 (c) 1991 SNK */
-	DRIVER( burningh )	/* 0018 (c) 1991 SNK */
+	DRIVER( burningfh )	/* 0018 (c) 1991 SNK */
 	DRIVER( lbowling )	/* 0019 (c) 1990 SNK */
 	DRIVER( gpilots )	/* 0020 (c) 1991 SNK */
 	DRIVER( joyjoy )	/* 0021 (c) 1990 SNK */
@@ -5485,7 +5485,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( 2020bbh )	/* 0030 (c) 1991 SNK / Pallas */
 	DRIVER( socbrawl )	/* 0031 (c) 1991 SNK */
 	DRIVER( roboarmy )	/* 0032 (c) 1991 SNK */
-	DRIVER( roboarma )	/* 0032 (c) 1991 SNK */
+	DRIVER( roboarmya )	/* 0032 (c) 1991 SNK */
 	DRIVER( fatfury1 )	/* 0033 (c) 1991 SNK */
 	DRIVER( fbfrenzy )	/* 0034 (c) 1992 SNK */
 				/* 0035 Mystic Wand (prototype) 1991 Alpha */
@@ -5500,7 +5500,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( aof )		/* 0044 (c) 1992 SNK */
 	DRIVER( samsho )	/* 0045 (c) 1993 SNK */
 	DRIVER( tophuntr )	/* 0046 (c) 1994 SNK */
-	DRIVER( tophunta )	/* 0046 (c) 1994 SNK */
+	DRIVER( tophuntrh )	/* 0046 (c) 1994 SNK */
 	DRIVER( fatfury2 )	/* 0047 (c) 1992 SNK */
 	DRIVER( janshin )	/* 0048 (c) 1994 Aicom */
 	DRIVER( androdun )	/* 0049 (c) 1992 Visco */
@@ -5509,16 +5509,17 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ssideki )	/* 0052 (c) 1992 SNK */
 	DRIVER( wh1 )		/* 0053 (c) 1992 Alpha Denshi Co. */
 	DRIVER( wh1h )		/* 0053 (c) 1992 Alpha Denshi Co. */
+	DRIVER( wh1ha )		/* 0053 (c) 1992 Alpha Denshi Co. */
 	DRIVER( crswd2bl )      /* 0054 Crossed Swords 2  (CD only? not confirmed, MVS might exist) */
 	DRIVER( kof94 )		/* 0055 (c) 1994 SNK */
 	DRIVER( aof2 )		/* 0056 (c) 1994 SNK */
 	DRIVER( aof2a )		/* 0056 (c) 1994 SNK */
 	DRIVER( wh2 )		/* 0057 (c) 1993 ADK */
 	DRIVER( fatfursp )	/* 0058 (c) 1993 SNK */
-	DRIVER( fatfursa )	/* 0058 (c) 1993 SNK */
+	DRIVER( fatfurspa )	/* 0058 (c) 1993 SNK */
 	DRIVER( savagere )	/* 0059 (c) 1995 SNK */
 	DRIVER( fightfev )	/* 0060 (c) 1994 Viccom */
-	DRIVER( fightfva )	/* 0060 (c) 1994 Viccom */
+	DRIVER( fightfeva )	/* 0060 (c) 1994 Viccom */
 	DRIVER( ssideki2 )	/* 0061 (c) 1994 SNK */
 	DRIVER( spinmast )	/* 0062 (c) 1993 Data East Corporation */
 	DRIVER( samsho2 )	/* 0063 (c) 1994 SNK */
@@ -5542,13 +5543,13 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ssideki3 )	/* 0081 (c) 1995 SNK */
 	DRIVER( doubledr )	/* 0082 (c) 1995 Technos */
 	DRIVER( pbobblen )	/* 0083 (c) 1994 Taito */
-	DRIVER( pbobblna )	/* 0083 (c) 1994 Taito */
+	DRIVER( pbobblenb )	/* 0083 (c) 1994 Taito */
 	DRIVER( kof95 )		/* 0084 (c) 1995 SNK */
-	DRIVER( kof95a )	/* 0084 (c) 1995 SNK */
+	DRIVER( kof95h )	/* 0084 (c) 1995 SNK */
 				/* 0085 Shinsetsu Samurai Spirits Bushidoretsuden / Samurai Shodown RPG (CD only) */
-	DRIVER( tws96 )		/* 0086 (c) 1996 Tecmo */
+	DRIVER( twsoc96 )	/* 0086 (c) 1996 Tecmo */
 	DRIVER( samsho3 )	/* 0087 (c) 1995 SNK */
-	DRIVER( samsho3a )	/* 0087 (c) 1995 SNK */
+	DRIVER( samsho3h )	/* 0087 (c) 1995 SNK */
 	DRIVER( fswords )	/* Korean hack of samsho3 */
 	DRIVER( stakwin )	/* 0088 (c) 1995 Saurus */
 	DRIVER( pulstar )	/* 0089 (c) 1995 Aicom */
@@ -5566,7 +5567,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( turfmast )	/* 0200 (c) 1996 Nazca */
 	DRIVER( mslug )		/* 0201 (c) 1996 Nazca */
 	DRIVER( puzzledp )	/* 0202 (c) 1995 Taito (Visco license) */
-	DRIVER( mosyougi )	/* 0203 (c) 1995 ADK / SNK */
+	DRIVER( moshougi )	/* 0203 (c) 1995 ADK / SNK */
 				/* 0204 QP (prototype) */
 				/* 0205 Neo-Geo CD Special (CD only) */
 	DRIVER( marukodq )	/* 0206 (c) 1995 Takara */
@@ -5598,26 +5599,26 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( breakers )	/* 0230 (c) 1996 Visco */
 	DRIVER( miexchng )	/* 0231 (c) 1997 Face */
 	DRIVER( kof97 )		/* 0232 (c) 1997 SNK */
-	DRIVER( kof97a )	/* 0232 (c) 1997 SNK */
+	DRIVER( kof97h )	/* 0232 (c) 1997 SNK */
 	DRIVER( kof97pls )	/* bootleg of kof97 */
 	DRIVER( kog )		/* bootleg of kof97 */
 	DRIVER( magdrop3 )	/* 0233 (c) 1997 Data East Corporation */
 	DRIVER( lastblad )	/* 0234 (c) 1997 SNK */
-	DRIVER( lastblda )	/* 0234 (c) 1997 SNK */
+	DRIVER( lastbladh )	/* 0234 (c) 1997 SNK */
 	DRIVER( lastsold )	/* Censored Korean release of rbff2 */
 	DRIVER( puzzldpr )	/* 0235 (c) 1997 Taito (Visco license) */
 	DRIVER( irrmaze )	/* 0236 (c) 1997 SNK / Saurus */
 	DRIVER( popbounc )	/* 0237 (c) 1997 Video System Co. */
 	DRIVER( shocktro )	/* 0238 (c) 1997 Saurus */
-	DRIVER( shocktra )	/* 0238 (c) 1997 Saurus */
+	DRIVER( shocktroa )	/* 0238 (c) 1997 Saurus */
 	DRIVER( blazstar )	/* 0239 (c) 1998 Yumekobo */
 	DRIVER( rbff2 )		/* 0240 (c) 1998 SNK */
-	DRIVER( rbff2a )	/* 0240 (c) 1998 SNK */
+	DRIVER( rbff2h )	/* 0240 (c) 1998 SNK */
 	DRIVER( rbff2k )	/* Censored Korean release of rbff2 */
 	DRIVER( mslug2 )	/* 0241 (c) 1998 SNK */
 	DRIVER( kof98 )		/* 0242 (c) 1998 SNK */
 	DRIVER( kof98k )	/* 0242 (c) 1998 SNK */
-	DRIVER( kof98n )	/* 0242 (c) 1998 SNK */
+	DRIVER( kof98h )	/* 0242 (c) 1998 SNK */
 	DRIVER( lastbld2 )	/* 0243 (c) 1998 SNK */
 	DRIVER( neocup98 )	/* 0244 (c) 1998 SNK */
 	DRIVER( breakrev )	/* 0245 (c) 1998 Visco */
@@ -5628,18 +5629,18 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ctomaday )	/* 0249 (c) 1999 Visco */
 	DRIVER( mslugx )	/* 0250 (c) 1999 SNK */
 	DRIVER( kof99 )		/* 0251 (c) 1999 SNK */
-	DRIVER( kof99a )	/* 0251 (c) 1999 SNK */
+	DRIVER( kof99h )	/* 0251 (c) 1999 SNK */
 	DRIVER( kof99e )	/* 0251 (c) 1999 SNK */
-	DRIVER( kof99n )	/* 0251 (c) 1999 SNK */
+	DRIVER( kof99ka )	/* 0251 (c) 1999 SNK */
 	DRIVER( kof99p )	/* 0251 (c) 1999 SNK */
 	DRIVER( ganryu )	/* 0252 (c) 1999 Visco */
 	DRIVER( garou )		/* 0253 (c) 1999 SNK */
-	DRIVER( garouo )	/* 0253 (c) 1999 SNK */
+	DRIVER( garouh )	/* 0253 (c) 1999 SNK */
 	DRIVER( garoup )	/* 0253 (c) 1999 SNK */
 	DRIVER( s1945p )	/* 0254 (c) 1999 Psikyo */
 	DRIVER( preisle2 )	/* 0255 (c) 1999 Yumekobo */
 	DRIVER( mslug3 )	/* 0256 (c) 2000 SNK */
-	DRIVER( mslug3n )	/* 0256 (c) 2000 SNK */
+	DRIVER( mslug3h )	/* 0256 (c) 2000 SNK */
 	DRIVER( mslug3b6 )	/* bootleg */
 	DRIVER( kof2000 )	/* 0257 (c) 2000 SNK */
 	DRIVER( kof2000n )	/* 0257 (c) 2000 SNK */
@@ -5685,8 +5686,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kf2k3pl )	/* bootleg */
 	DRIVER( kf2k3upl )	/* bootleg */
 	DRIVER( samsh5sp )	/* 0272 (c) 2003 Playmore */
-	DRIVER( samsh5sh )	/* 0272 (c) 2003 Playmore */
-	DRIVER( samsh5sn )	/* 0272 (c) 2003 Playmore */
+	DRIVER( samsh5spho )	/* 0272 (c) 2003 Playmore */
+	DRIVER( samsh5sph )	/* 0272 (c) 2003 Playmore */
 
 	DRIVER( diggerma )
 	DRIVER( lasthope )
@@ -5719,7 +5720,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* The BreezaSoft games don't have proper ID codes */
 	DRIVER( jockeygp )
 	DRIVER( vliner )
-	DRIVER( vlinero )
+	DRIVER( vliner6e )
+	DRIVER( vliner54 )
 
 	/* Alpha Denshi games */
 	DRIVER( shougi )

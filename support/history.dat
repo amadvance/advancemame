@@ -31766,7 +31766,7 @@ This game is also known as "Bump 'n' Jump".
 $end
 
 
-$info=burningf,burningh,
+$info=burningf,burningfh,
 $bio
 
 Burning Fight (c) 04/1991 SNK.
@@ -67658,7 +67658,7 @@ PC [MS Windows 9x]
 $end
 
 
-$info=fatfursp,fatfursa,
+$info=fatfursp,fatfurspa,
 $bio
 
 Fatal Fury Special (c) 09/1993 SNK.
@@ -68157,7 +68157,7 @@ Control : paddle
 $end
 
 
-$info=fightfev,fightfva,
+$info=fightfev,fightfeva,
 $bio
 
 Fight Fever (c) 06/1994 Viccom.
@@ -76335,7 +76335,7 @@ Buttons : 2
 $end
 
 
-$info=garou,garoup,garouo,
+$info=garou,garoup,garouh,
 $bio
 
 Garou - Mark of the Wolves (c) 11/1999 SNK.
@@ -105357,7 +105357,7 @@ The King of Fighters 10th Anniversary, http://www.kof10th.com
 $end
 
 
-$info=kof95,kof95a,
+$info=kof95,kof95h,
 $bio
 
 The King of Fighters '95 (c) 07/1995 SNK.
@@ -105852,7 +105852,7 @@ This hack "The King of Fighters '97" unlocks 6 new characters : Orochi Iori, Oro
 $end
 
 
-$info=kof97,kof97a,
+$info=kof97,kof97h,
 $bio
 
 The King of Fighters '97 (c) 07/1997 SNK.
@@ -106127,7 +106127,7 @@ KOF10th, http://www.kof10th.com
 $end
 
 
-$info=kof98,kof98n,kof98k,
+$info=kof98,kof98h,kof98k,
 $bio
 
 The King of Fighters '98 - The Slugfest (c) 07/1998 SNK.
@@ -106473,7 +106473,7 @@ Sony PlayStation 2 (2005, "NeoGeo Online Collection Vol.4 : King of Fighters Nes
 $end
 
 
-$info=kof99,kof99n,kof99p,kof99e,kof99a,
+$info=kof99,kof99h,kof99ka,kof99p,kof99e,
 $bio
 
 The King of Fighters '99 - Millennium Battle (c) 07/1999 SNK.
@@ -112613,7 +112613,7 @@ Sony PlayStation 2 (2005, "NeoGeo Online Collection Vol.2 : Last Blade 1 & 2")
 $end
 
 
-$info=lastblad,lastblda,
+$info=lastblad,lastbladh,
 $bio
 
 The Last Blade (c) 11/1997 SNK.
@@ -131568,7 +131568,7 @@ PC (2001)
 $end
 
 
-$info=mslug3,mslug3n,
+$info=mslug3,mslug3h,
 $bio
 
 Metal Slug 3 (c) 05/2000 SNK.
@@ -147091,7 +147091,7 @@ Proofing : Bob Fuentes, Jim Zielinski
 $end
 
 
-$info=ncombat,ncombata,
+$info=ncombat,ncombath,
 $bio
 
 Ninja Combat (c) 07/1990 Alpha Denshi.
@@ -166621,7 +166621,7 @@ The game forbids the initials 'SEX' on the high score table. If you try, it gets
 $end
 
 
-$info=pbobble,pbobblen,pbobblna,
+$info=pbobble,pbobblen,pbobblenb,
 $bio
 
 Puzzle Bobble (c) 06/1994 Taito.
@@ -176045,7 +176045,7 @@ Sony PlayStation (1996)
 $end
 
 
-$info=rbff2,rbff2a,
+$info=rbff2,rbff2h,
 $bio
 
 Real Bout Fatal Fury 2 - The Newcomers (c) 03/1998 SNK.
@@ -180268,7 +180268,7 @@ Designed and programmed by : Jay Fenton, Pat Lawlor, Dave Nutting
 $end
 
 
-$info=roboarmy,roboarma,
+$info=roboarmy,roboarmya,
 $bio
 
 Robo Army (c) 10/1991 SNK.
@@ -186284,7 +186284,7 @@ PC [MS Windows 9x] (2000)
 $end
 
 
-$info=samsho3,samsho3a,
+$info=samsho3,samsho3h,
 $bio
 
 Samurai Shodown III (c) 10/1995 SNK.
@@ -190189,7 +190189,7 @@ Sound track & Sound effects : Yukihiko Murabayashi
 $end
 
 
-$info=sengoku,sengokh,
+$info=sengoku,sengokuh,
 $bio
 
 Sengoku (c) 02/1991 SNK.
@@ -193179,7 +193179,7 @@ Buttons : 3
 $end
 
 
-$info=shocktro,shocktra,
+$info=shocktro,shocktroa,
 $bio
 
 Shock Troopers (c) 11/1997 Saurus.
@@ -193809,7 +193809,7 @@ Buttons : 4
 $end
 
 
-$info=mosyougi,
+$info=moshougi,
 $bio
 
 Shougi No Tatsujin (c) 09/1995 SNK / ADK.
@@ -228997,7 +228997,7 @@ Buttons : 6
 $end
 
 
-$info=tws96,
+$info=twsoc96,
 $bio
 
 Tecmo World Soccer '96 (c) 1996 Tecmo.
@@ -236680,7 +236680,7 @@ Buttons : 2
 $end
 
 
-$info=tophuntr,tophunta,
+$info=tophuntr,tophuntrh,
 $bio
 
 Top Hunter - Roddy & Cathy (c) 05/1994 SNK.
@@ -245820,7 +245820,7 @@ Sound director : Masahiro Yuge
 $end
 
 
-$info=vliner,vlinero,
+$info=vliner,vliner6e,vliner54,
 $bio
 
 V-Liner (c) 2001 Dyna / BreezaSoft.
@@ -258008,7 +258008,7 @@ Music & Effects : Jas C. Brooke
 $end
 
 
-$info=wh1,wh1h,
+$info=wh1,wh1h,wh1ha,
 $bio
 
 World Heroes (c) 07/1992 Alpha Denshi.

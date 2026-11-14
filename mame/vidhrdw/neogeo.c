@@ -101,7 +101,7 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"kotm") ||
 		!strcmp(Machine->gamedrv->name,"kotmh") ||
 		!strcmp(Machine->gamedrv->name,"burningf") ||
-		!strcmp(Machine->gamedrv->name,"burningh") ||
+		!strcmp(Machine->gamedrv->name,"burningfh") ||
 		!strcmp(Machine->gamedrv->name,"lbowling") ||
 		!strcmp(Machine->gamedrv->name,"gpilots") ||
 		!strcmp(Machine->gamedrv->name,"joyjoy") ||
@@ -113,7 +113,7 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"2020bbh") ||
 		!strcmp(Machine->gamedrv->name,"socbrawl") ||
 		!strcmp(Machine->gamedrv->name,"roboarmy") ||
-		!strcmp(Machine->gamedrv->name,"roboarma") ||
+		!strcmp(Machine->gamedrv->name,"roboarmya") ||
 		!strcmp(Machine->gamedrv->name,"fbfrenzy") ||
 		!strcmp(Machine->gamedrv->name,"kotm2") ||
 		!strcmp(Machine->gamedrv->name,"sengoku2") ||
@@ -124,10 +124,10 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"aof2") ||
 		!strcmp(Machine->gamedrv->name,"aof2a") ||
 		!strcmp(Machine->gamedrv->name,"savagere") ||
+		!strcmp(Machine->gamedrv->name,"kof95h") ||
 		!strcmp(Machine->gamedrv->name,"kof95") ||
-		!strcmp(Machine->gamedrv->name,"kof95a") ||
+		!strcmp(Machine->gamedrv->name,"samsho3h") ||
 		!strcmp(Machine->gamedrv->name,"samsho3") ||
-		!strcmp(Machine->gamedrv->name,"samsho3a") ||
 		!strcmp(Machine->gamedrv->name,"fswords") ||
 		!strcmp(Machine->gamedrv->name,"aof3") ||
 		!strcmp(Machine->gamedrv->name,"aof3k") ||
@@ -135,22 +135,22 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"kof96h") ||
 		!strcmp(Machine->gamedrv->name,"kizuna") ||
 		!strcmp(Machine->gamedrv->name,"kof97") ||
-		!strcmp(Machine->gamedrv->name,"kof97a") ||
+		!strcmp(Machine->gamedrv->name,"kof97h") ||
 		!strcmp(Machine->gamedrv->name,"kof97pls") ||
 		!strcmp(Machine->gamedrv->name,"kog") ||
 		!strcmp(Machine->gamedrv->name,"irrmaze") ||
 		!strcmp(Machine->gamedrv->name,"mslug2") ||
 		!strcmp(Machine->gamedrv->name,"kof98") ||
 		!strcmp(Machine->gamedrv->name,"kof98k") ||
-		!strcmp(Machine->gamedrv->name,"kof98n") ||
+		!strcmp(Machine->gamedrv->name,"kof98h") ||
 		!strcmp(Machine->gamedrv->name,"mslugx") ||
+		!strcmp(Machine->gamedrv->name,"kof99h") ||
 		!strcmp(Machine->gamedrv->name,"kof99") ||
-		!strcmp(Machine->gamedrv->name,"kof99a") ||
 		!strcmp(Machine->gamedrv->name,"kof99e") ||
-		!strcmp(Machine->gamedrv->name,"kof99n") ||
+		!strcmp(Machine->gamedrv->name,"kof99ka") ||
 		!strcmp(Machine->gamedrv->name,"kof99p") ||
 		!strcmp(Machine->gamedrv->name,"mslug3") ||
-		!strcmp(Machine->gamedrv->name,"mslug3n") ||
+		!strcmp(Machine->gamedrv->name,"mslug3h") ||
 		!strcmp(Machine->gamedrv->name,"kof2000") ||
 		!strcmp(Machine->gamedrv->name,"kof2000n") ||
 		!strcmp(Machine->gamedrv->name,"zupapa") ||
@@ -185,16 +185,16 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"kf2k3pl") ||
 		!strcmp(Machine->gamedrv->name,"kf2k3upl") ||
 		!strcmp(Machine->gamedrv->name,"samsh5sp") ||
-		!strcmp(Machine->gamedrv->name,"samsh5sh") ||
-		!strcmp(Machine->gamedrv->name,"samsh5sn") ||
+		!strcmp(Machine->gamedrv->name,"samsh5spho") ||
+		!strcmp(Machine->gamedrv->name,"samsh5sph") ||
 		!strcmp(Machine->gamedrv->name,"ncombat") ||
-		!strcmp(Machine->gamedrv->name,"ncombata") ||
+		!strcmp(Machine->gamedrv->name,"ncombath") ||
 		!strcmp(Machine->gamedrv->name,"crsword") ||
 		!strcmp(Machine->gamedrv->name,"ncommand") ||
 		!strcmp(Machine->gamedrv->name,"wh2") ||
 		!strcmp(Machine->gamedrv->name,"wh2j") ||
 		!strcmp(Machine->gamedrv->name,"aodk") ||
-		!strcmp(Machine->gamedrv->name,"mosyougi") ||
+		!strcmp(Machine->gamedrv->name,"moshougi") ||
 		!strcmp(Machine->gamedrv->name,"overtop") ||
 		!strcmp(Machine->gamedrv->name,"twinspri") ||
 		!strcmp(Machine->gamedrv->name,"zintrckb") ||
@@ -217,8 +217,8 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"viewpoin") ||
 		!strcmp(Machine->gamedrv->name,"quizkof") ||
 		!strcmp(Machine->gamedrv->name,"pgoal") ||
+		!strcmp(Machine->gamedrv->name,"shocktroa") ||
 		!strcmp(Machine->gamedrv->name,"shocktro") ||
-		!strcmp(Machine->gamedrv->name,"shocktra") ||
 		!strcmp(Machine->gamedrv->name,"shocktr2") ||
 		!strcmp(Machine->gamedrv->name,"lans2004") ||
 		!strcmp(Machine->gamedrv->name,"galaxyfg") ||
@@ -228,10 +228,10 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"marukodq") ||
 		!strcmp(Machine->gamedrv->name,"gowcaizr") ||
 		!strcmp(Machine->gamedrv->name,"sdodgeb") ||
-		!strcmp(Machine->gamedrv->name,"tws96") ||
+		!strcmp(Machine->gamedrv->name,"twsoc96") ||
 		!strcmp(Machine->gamedrv->name,"preisle2") ||
 		!strcmp(Machine->gamedrv->name,"fightfev") ||
-		!strcmp(Machine->gamedrv->name,"fightfva") ||
+		!strcmp(Machine->gamedrv->name,"fightfeva") ||
 		!strcmp(Machine->gamedrv->name,"popbounc") ||
 		!strcmp(Machine->gamedrv->name,"androdun") ||
 		!strcmp(Machine->gamedrv->name,"puzzledp") ||
@@ -247,7 +247,8 @@ void neogeo_set_lower_resolution( void )
 		!strcmp(Machine->gamedrv->name,"ms4plus") ||
 		!strcmp(Machine->gamedrv->name,"jockeygp") ||
 		!strcmp(Machine->gamedrv->name,"vliner") ||
-		!strcmp(Machine->gamedrv->name,"vlinero"))
+		!strcmp(Machine->gamedrv->name,"vliner6e") ||
+		!strcmp(Machine->gamedrv->name,"vliner54"))
 				set_visible_area(1*8,39*8-1,Machine->visible_area.min_y,Machine->visible_area.max_y);
 }
 

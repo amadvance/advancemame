@@ -958,4 +958,14 @@ void samsh5bl_px_decrypt( void )
 	free( buf );
 }
 
+void samsh5bl_vx_decrypt( void )
+{
+	int vx_size = memory_region_length( REGION_SOUND1 );
+	UINT8 *rom = memory_region( REGION_SOUND1 );
+	int i;
+
+	for( i = 0; i < vx_size; i++ )
+		rom[ i ] = BITSWAP8( rom[ i ], 0, 1, 5, 4, 3, 2, 6, 7 );
+}
+
 
