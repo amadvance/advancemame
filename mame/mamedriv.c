@@ -6776,10 +6776,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mtetrisc )
 
 	/* Atlus games */
-	DRIVER( powerins )	/* (c) 1993 Atlus (Japan) */
-	DRIVER( powerina )	/* (c) 1993 Atlus (Japan) */
-	DRIVER( powerinb )	/* (c) 1993 Atlus (Japan) */
-	DRIVER( powernjb )	/* (c) 1993 Atlus (Japan) */
+	DRIVER( powerins )	/* (c) 1993 Atlus */
+	DRIVER( powerinsj )	/* (c) 1993 Atlus (Japan) */
+	DRIVER( powerinsa )	/* bootleg */
+	DRIVER( powerinsb )	/* bootleg */
+	DRIVER( powernjb )	/* bootleg */
 	DRIVER( ohmygod )	/* (c) 1993 Atlus (Japan) */
 	DRIVER( naname )	/* (c) 1994 Atlus (Japan) */
 	DRIVER( blmbycar )	/* (c) 1994 ABM & Gecas - uses same gfx chip as powerins? */

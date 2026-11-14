@@ -133982,20 +133982,20 @@
 :powerdrv:00010000:E024:00000000:FFFFFFFF:Infinite Official Time (2/2)
 
 ; [ Power Instinct (USA, bootleg set 1) ]
-:powerina:00000000:180344:00000099:FFFFFFFF:Infinite Time
-:powerina:00000001:180344:00000000:FFFFFFFF:Finish this Round Now!
-:powerina:00000000:180699:000000FF:FFFFFFFF:Infinite Energy PL1
-:powerina:00000001:180699:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:powerina:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
-:powerina:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:powerinsa:00000000:180344:00000099:FFFFFFFF:Infinite Time
+:powerinsa:00000001:180344:00000000:FFFFFFFF:Finish this Round Now!
+:powerinsa:00000000:180699:000000FF:FFFFFFFF:Infinite Energy PL1
+:powerinsa:00000001:180699:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:powerinsa:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
+:powerinsa:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Power Instinct (USA, bootleg set 2) ]
-:powerinb:00000000:180344:00000099:FFFFFFFF:Infinite Time
-:powerinb:00000001:180344:00000000:FFFFFFFF:Finish this Round Now!
-:powerinb:00000000:180699:000000FF:FFFFFFFF:Infinite Energy PL1
-:powerinb:00000001:180699:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:powerinb:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
-:powerinb:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:powerinsb:00000000:180344:00000099:FFFFFFFF:Infinite Time
+:powerinsb:00000001:180344:00000000:FFFFFFFF:Finish this Round Now!
+:powerinsb:00000000:180699:000000FF:FFFFFFFF:Infinite Energy PL1
+:powerinsb:00000001:180699:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:powerinsb:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
+:powerinsb:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Gouketsuji Ichizoku (Japan) ]
 :powerins:00000000:180344:00000099:FFFFFFFF:Infinite Time
@@ -205208,7 +205208,7 @@
 ;poundfor=poundforu
 ;pow=powj
 ;powerbal~powerbls
-;powerina=powerinb=powerins=powernjb
+;powerinsa=powerinsb=powerins=powernjb
 ;primraga~primrage
 ;prmrsocj=prmrsocr
 ;prmtmfgo=prmtmfgt=trstar=trstarj=trstaro=trstaroj
