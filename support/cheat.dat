@@ -44346,14 +44346,14 @@
 :finalapd:00100000:104016:00000000:FFFFFFFF:Invincibility
 
 ; [ Final Lap R ]
-:finalapo:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:finalapo:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:finalapr1:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Final Lap R (Rev B) ]
 :finalapr:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -203348,8 +203348,8 @@
 ; { Reason 01 } ; fantzn2   [ Fantasy Zone 2 ]
 ; { Reason 01 } ; ffreveng  [ Final Fight Revenge (JUET 990714 V1.000) ]
 ; { Reason 01 } ; fhboxers  [ Funky Head Boxers (JUETBKAL 951218 V1.000) ]
-; { Reason 01 } ; finalapo  [ Final Lap R ]
-; { Reason 01 } ; finalapr  [ Final Lap R (Rev B) ]
+; { Reason 01 } ; finalapr1  [ Final Lap R ]
+; { Reason 01 } ; finalapr  [ Final Lap R (Rev. B) ]
 ; { Reason 01 } ; findlove  [ Find Love (J 971212 V1.000) ]
 ; { Reason 01 } ; finfrl2j  [ Final Furlong 2 (Japan) ]
 ; { Reason 01 } ; finfurl2  [ Final Furlong 2 (World) ]
@@ -204754,7 +204754,7 @@
 ;fightfev=fightfva
 ;fightrol=rollace=rollace2
 ;finalap2=finalap3=finalapc=finalapd=finallap=finalp2j=finalp3j=finlapjb=finlapjc
-;finalapr=finalapo     (unchecked relationship)
+;finalapr=finalapr1    (unchecked relationship)
 ;finalb=finalbj=finalbu
 ;finalizb=finalizr
 ;firehawk=spec2k

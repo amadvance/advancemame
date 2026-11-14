@@ -759,8 +759,10 @@ const game_driver * const drivers[] =
 
 	/* Namco FL games */
 	DRIVER( speedrcr )	/* (c) 1995 */
-	DRIVER( finalapr )	/* (c) 1995 */
-	DRIVER( finalapo )	/* (c) 1995 */
+	DRIVER( finalapr )	/* (c) 1994 */
+	DRIVER( finalapr1 )	/* (c) 1994 */
+	DRIVER( finalaprj )	/* (c) 1994 */
+	DRIVER( finalaprj1 )	/* (c) 1994 */
 
 	/* Namco NA-1 / NA-2 System games */
 	DRIVER( bkrtmaq )	/* (c) 1992 (Japan) */
