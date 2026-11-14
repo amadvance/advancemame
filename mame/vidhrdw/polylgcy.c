@@ -16,11 +16,11 @@
     from auto_malloc().
 
     The MAME OSD work queue (osd_work_queue) is not available. The work
-    units are accumulated and rendered in poly_wait() in the order they were
-    queued, on the emulation thread, so the scanline conflict resolution
-    with atomic compare/exchange of MAME is not needed. The scanline buckets
-    of the work units are kept, so the rendering of different buckets can be
-    later parallelized.
+    units are accumulated and rendered in poly_wait(), while the emulation
+    thread waits. With OpenMP the scanline buckets are rendered in parallel,
+    each bucket by a single thread in the queue order, so the scanline
+    conflict resolution with atomic compare/exchange of MAME is not needed
+    and the result is the same of the serial rendering.
 
     The POLYFLAG_NO_WORK_QUEUE flag is removed, as it is always implied.
     The pre-save callback that waits for the rendering is not registered.
@@ -28,6 +28,10 @@
 
 #include <math.h>
 #include "polylgcy.h"
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 
 /***************************************************************************
@@ -47,6 +51,9 @@
 #define CACHE_LINE_SIZE					64			/* this is a general guess */
 #define TOTAL_BUCKETS					(512 / SCANLINES_PER_BUCKET)
 #define UNITS_PER_POLY					(100 / SCANLINES_PER_BUCKET)
+
+/* minimum number of queued work units to render them in parallel */
+#define PARALLEL_MIN_UNITS				32
 
 
 
@@ -188,6 +195,7 @@ struct _poly_manager
 
 	/* buckets */
 	UINT16				unit_bucket[TOTAL_BUCKETS]; /* buckets for tracking unit usage */
+	UINT16 *			unit_order;				/* work unit indexes sorted by bucket */
 
 	/* statistics */
 	UINT32				triangles;				/* number of triangles queued */
@@ -353,6 +361,7 @@ poly_manager *poly_alloc(int max_polys, size_t extra_data_size, UINT8 flags)
 	poly->unit_count = MIN(poly->polygon_count * UNITS_PER_POLY, 65535);
 	poly->unit_next = 0;
 	poly->unit = (work_unit **)allocate_array(&poly->unit_size, poly->unit_count);
+	poly->unit_order = auto_malloc(sizeof(UINT16) * poly->unit_count);
 
 	return poly;
 }
@@ -395,12 +404,44 @@ void poly_wait(poly_manager *poly, const char *debug_reason)
 	UINT32 unitnum;
 
 	/*
-	 * Render the queued units in order. Units of different polygons can cover
-	 * the same scanlines, so the queue order must be preserved for each
-	 * scanline to keep the depth and blending results of the drawing order.
+	 * Units of different polygons can cover the same scanlines, so the queue
+	 * order must be preserved for each scanline to keep the depth and blending
+	 * results of the drawing order. Every unit covers scanlines of a single
+	 * bucket, so the buckets are independent: each one is rendered by a single
+	 * thread in the queue order, and different buckets in parallel.
+	 * The scanline callbacks must only write to the scanline they receive.
 	 */
-	for (unitnum = 0; unitnum < poly->unit_next; unitnum++)
-		poly_item_callback(poly->unit[unitnum], 0);
+#ifdef _OPENMP
+	if (poly->unit_next >= PARALLEL_MIN_UNITS)
+	{
+		UINT32 start[TOTAL_BUCKETS + 1];
+		int bucketnum;
+
+		/* counting sort of the units by bucket, stable to keep the queue order */
+		memset(start, 0, sizeof(start));
+		for (unitnum = 0; unitnum < poly->unit_next; ++unitnum)
+			++start[((UINT32)poly->unit[unitnum]->shared.scanline / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS + 1];
+		for (bucketnum = 0; bucketnum < TOTAL_BUCKETS; ++bucketnum)
+			start[bucketnum + 1] += start[bucketnum];
+		for (unitnum = 0; unitnum < poly->unit_next; ++unitnum)
+			poly->unit_order[start[((UINT32)poly->unit[unitnum]->shared.scanline / SCANLINES_PER_BUCKET) % TOTAL_BUCKETS]++] = unitnum;
+
+		/* after the sort start[] holds the bucket ends; bucket N starts at the end of N-1 */
+#pragma omp parallel for schedule(dynamic)
+		for (bucketnum = 0; bucketnum < TOTAL_BUCKETS; ++bucketnum)
+		{
+			int threadid = omp_get_thread_num();
+			UINT32 i;
+			for (i = bucketnum ? start[bucketnum - 1] : 0; i < start[bucketnum]; ++i)
+				poly_item_callback(poly->unit[poly->unit_order[i]], threadid);
+		}
+	}
+	else
+#endif
+	{
+		for (unitnum = 0; unitnum < poly->unit_next; unitnum++)
+			poly_item_callback(poly->unit[unitnum], 0);
+	}
 
 	/* reset the state */
 	poly->polygon_next = poly->unit_next = 0;
