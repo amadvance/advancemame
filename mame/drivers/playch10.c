@@ -1407,11 +1407,11 @@ ROM_START( pc_gntlt )	/* Gauntlet */
     BIOS_GFX
 
     ROM_REGION( 0x50000, REGION_CPU2, 0 )  /* 64k for code */
-	ROM_LOAD( "gl-0.prg",0x10000, 0x20000, CRC(b19c48a5) SHA1(4ba8674cec6fa8b0b4d96a7b00d4883a9e58a0a9) )	/* banked */
+	ROM_LOAD( "nes-gl-0 prg",0x10000, 0x20000, CRC(834d1924) SHA1(e1d8553a0deaf3bb17c9ea798ec52f2723db3aea) )	/* banked */
 	ROM_RELOAD(			 0x30000, 0x20000 )
 
     ROM_REGION( 0x010000, REGION_GFX2, 0 )	/* cart gfx */
-    ROM_LOAD( "gl-0.chr", 0x00000, 0x10000, CRC(22af8849) SHA1(01054943c1d069f5f535e93f969a5b6bfb958e0b) )
+    ROM_LOAD( "nes-gl-0 chr", 0x00000, 0x10000, CRC(26d819a2) SHA1(1e5eec5beb976f79373e589186382c337ed6e84a) )
 
     ROM_REGION( 0x0100,  REGION_USER1, 0 )	/* rp5h01 data */
     ROM_LOAD( "security.prm", 0x00000, 0x10, CRC(ba7f2e13) SHA1(8b9ee3b18bcb4b258a46d1c900b18a9cb2594046) )
@@ -1669,7 +1669,7 @@ GAMEB( 1983, pc_tenis, playch10, playch10, playch10, playch10, playch10, ROT0, "
 GAMEB( 1983, pc_mario, playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Mario Bros. (PlayChoice-10)", 0 )
 GAMEB( 1984, pc_bball, playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo of America",						"Baseball (PlayChoice-10)", 0 )
 GAMEB( 1984, pc_bfght, playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Balloon Fight (PlayChoice-10)", 0 )
-GAMEB( 1984, pc_ebike, playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Excite Bike (PlayChoice-10)", 0 )
+GAMEB( 1984, pc_ebike, playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Excitebike (PlayChoice-10)", 0 )
 GAMEB( 1984, pc_golf,  playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Golf (PlayChoice-10)", 0 )
 GAMEB( 1985, pc_kngfu, playch10, playch10, playch10, playch10, playch10, ROT0, "Irem (Nintendo license)",					"Kung Fu (PlayChoice-10)", 0 )
 GAMEB( 1985, pc_smb,   playch10, playch10, playch10, playch10, playch10, ROT0, "Nintendo",									"Super Mario Bros. (PlayChoice-10)", 0 )
@@ -1707,8 +1707,8 @@ GAMEB( 1987, pc_miket, playch10, playch10, playchnv, playch10, pceboard, ROT0, "
 
 /* F-Board Games */
 GAMEB( 1987, pc_rcpam, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Rare",										"R.C. Pro-Am (PlayChoice-10)", 0 )
-GAMEB( 1987, pc_rrngr, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Capcom USA (Nintendo of America license)", "Chip'n Dale: Rescue Rangers (PlayChoice-10)", 0 )
-GAMEB( 1988, pc_ddrgn, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Technos",									"Double Dragon (PlayChoice-10)", 0 )
+GAMEB( 1990, pc_rrngr, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Capcom USA (Nintendo of America license)", "Chip'n Dale: Rescue Rangers (PlayChoice-10)", 0 )
+GAMEB( 1988, pc_ddrgn, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Technos Japan",									"Double Dragon (PlayChoice-10)", 0 )
 GAMEB( 1989, pc_ngaid, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Tecmo (Nintendo of America license)",		"Ninja Gaiden (PlayChoice-10)", 0 )
 GAMEB( 1989, pc_tmnt,  playch10, playch10, playch10, playch10, pcfboard, ROT0, "Konami (Nintendo of America license)",		"Teenage Mutant Ninja Turtles (PlayChoice-10)", 0 )
 GAMEB( 1989, pc_ftqst, playch10, playch10, playch10, playch10, pcfboard, ROT0, "Sunsoft (Nintendo of America license)",	"Uncle Fester's Quest: The Addams Family (PlayChoice-10)", 0 )
@@ -1723,14 +1723,14 @@ GAMEB( 1988, pc_smb3,  playch10, playch10, playch10, playch10, pcgboard, ROT0, "
 GAMEB( 1990, pc_mman3, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Capcom USA (Nintendo of America license)",	"Mega Man III (PlayChoice-10)", 0 )
 GAMEB( 1990, pc_suprc, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Konami (Nintendo of America license)",		"Super C (PlayChoice-10)", 0 )
 GAMEB( 1990, pc_tmnt2, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Konami (Nintendo of America license)",		"Teenage Mutant Ninja Turtles II: The Arcade Game (PlayChoice-10)", 0 )
-GAMEB( 1990, pc_wcup,  playch10, playch10, playch10, playch10, pcgboard, ROT0, "Technos (Nintendo license)",				"Nintendo World Cup (PlayChoice-10)", 0 )
+GAMEB( 1990, pc_wcup,  playch10, playch10, playch10, playch10, pcgboard, ROT0, "Technos Japan (Nintendo license)",				"Nintendo World Cup (PlayChoice-10)", 0 )
 GAMEB( 1990, pc_ngai2, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Tecmo (Nintendo of America license)",		"Ninja Gaiden Episode II: The Dark Sword of Chaos (PlayChoice-10)", 0 )
 GAMEB( 1991, pc_ngai3, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Tecmo (Nintendo of America license)",		"Ninja Gaiden Episode III: The Ancient Ship of Doom (PlayChoice-10)", 0 )
 GAMEB( 1991, pc_pwbld, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Taito (Nintendo of America license)",		"Power Blade (PlayChoice-10)", 0 )
 GAMEB( 1991, pc_rkats, playch10, playch10, playch10, playch10, pcgboard, ROT0, "Atlus (Nintendo of America license)",		"Rockin' Kats (PlayChoice-10)", 0 )
 /* variant with 4 screen mirror */
 GAMEB( 1990, pc_radr2, playch10, playch10, playch10, playch10, pcgboard_type2, ROT0, "Square (Nintendo of America license)",		"Rad Racer II (PlayChoice-10)", 0 )
-GAMEB( 1985, pc_gntlt, playch10, playch10, playch10, playch10, pcgboard_type2, ROT0, "Atari/Tengen (Nintendo of America license)",	"Gauntlet (PlayChoice-10)", GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1985, pc_gntlt, playch10, playch10, playch10, playch10, pcgboard_type2, ROT0, "Atari / Tengen (Nintendo of America license)",	"Gauntlet (PlayChoice-10)", 0 )
 
 /* H-Board Games */
 GAMEB( 1988, pc_pinbt, playch10, playch10, playch10, playch10, pchboard, ROT0, "Rare (Nintendo of America license)",		"PinBot (PlayChoice-10)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )

@@ -1008,14 +1008,14 @@ const game_driver * const drivers[] =
 	DRIVER( pc_ynoid )	/* (c) 1990 Capcom USA (Nintendo of America license) */
 	DRIVER( pc_rrngr )	/* (c) Capcom USA (Nintendo of America license) */
 	DRIVER( pc_ddrgn )
-	DRIVER( pc_gntlt )	/* (c) 1985 Atari/Tengen (Nintendo of America license) */
+	DRIVER( pc_gntlt )	/* (c) 1985 Atari / Tengen (Nintendo of America license) */
 	DRIVER( pc_smb2 )	/* (c) 1988 Nintendo */
 	DRIVER( pc_smb3 )	/* (c) 1988 Nintendo */
 	DRIVER( pc_mman3 )	/* (c) 1990 Capcom USA (Nintendo of America license) */
 	DRIVER( pc_radr2 )	/* (c) 1990 Square (Nintendo of America license) */
 	DRIVER( pc_suprc )	/* (c) 1990 Konami (Nintendo of America license) */
 	DRIVER( pc_tmnt2 )	/* (c) 1990 Konami (Nintendo of America license) */
-	DRIVER( pc_wcup )	/* (c) 1990 Technos (Nintendo license) */
+	DRIVER( pc_wcup )	/* (c) 1990 Technos Japan (Nintendo license) */
 	DRIVER( pc_ngai2 )	/* (c) 1990 Tecmo (Nintendo of America license) */
 	DRIVER( pc_ngai3 )	/* (c) 1991 Tecmo (Nintendo of America license) */
 	DRIVER( pc_pwbld )	/* (c) 1991 Taito (Nintendo of America license) */
