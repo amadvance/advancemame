@@ -7724,7 +7724,10 @@ Other Sun games
 	DRIVER( cecmatch )
 	DRIVER( fredmem )	/* (c) 1993 HAR */
 	DRIVER( f15se )		/* (c) 1991 Microprose */
+	DRIVER( f15se21 )	/* (c) 1991 Microprose */
 	DRIVER( botss )		/* (c) 1992 Microprose */
+	DRIVER( botss11 )	/* (c) 1992 Microprose */
+	DRIVER( tankbatl )	/* (c) 1992 Microprose */
 	DRIVER( stankatk )	/* (c) 1992 Microprose */
 	DRIVER( dynadice )	/* ? */
 	DRIVER( ssingles )	/* Yachiyo? */
