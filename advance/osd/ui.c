@@ -1233,7 +1233,8 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 		unsigned j;
 		adv_bool pred_not = 0;
 
-		if (digital_map[i].port_state) {
+		/* the name of the analog ports is reported by the analog control drawings */
+		if (digital_map[i].port_state && !port_type_is_analog(MAME_PORT_TYPE_GET(digital_map[i].port))) {
 			struct mame_port* p;
 			p = mame_port_find(digital_map[i].port);
 			if (p) {
