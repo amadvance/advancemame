@@ -4870,7 +4870,8 @@ ROM_START( alibaba )
 
 	/* unknown, used for the mystery items ? */
 	ROM_REGION( 0x1000, REGION_USER1, 0 )
-	ROM_LOAD( "7.p6",         0x000, 0x1000, CRC(d8eb7cbd) SHA1(fe482d36d81de5c5034e18b91bfa6b43111e683e) )	/* 1ST AND 2ND HALF IDENTICAL */
+	ROM_LOAD( "ab7.bin",      0x0000, 0x0800, CRC(52294ef5) SHA1(1d76e16c95cb2873d898a4151a902113fccafe1c) )	/* 7.p6 dumped as 0x1000 - 1ST AND 2ND HALF IDENTICAL */
+	ROM_RELOAD(               0x0800, 0x0800 )
 ROM_END
 
 
