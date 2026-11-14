@@ -467,8 +467,8 @@ ROM_START( pandoras )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* 64K for the Sound CPU */
 	ROM_LOAD( "pand_6c.snd",	0x00000, 0x02000, CRC(0c1f109d) SHA1(4e6cdee99261764bd2fea5abbd49d800baba0dc5) )
 
-	ROM_REGION( 0x1000, REGION_CPU4, 0 ) /* 4K for the Sound CPU 2 */
-	ROM_LOAD( "pand_7e.snd",	0x00000, 0x01000, CRC(18b0f9d0) SHA1(2a6119423222577a4c2b99ed78f61ba387eec7f8) )
+	ROM_REGION( 0x2000, REGION_CPU4, 0 ) /* 8K for the Sound CPU 2 */
+	ROM_LOAD( "pand_7e.snd",	0x00000, 0x02000, CRC(1071c1ba) SHA1(3693be69f4b32fb3031bcdee8cac0d46ec8c2804) )
 
 	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "pand_a18.cpu",	0x00000, 0x02000, CRC(23706d4a) SHA1(cca92e6ff90e3006a79a214f1211fd659771de53) )	/* tiles */
@@ -487,4 +487,4 @@ ROM_END
 
 
 
-GAME( 1984, pandoras, 0, pandoras, pandoras, 0, ROT90, "Konami/Interlogic", "Pandora's Palace", 0 )
+GAME( 1984, pandoras, 0, pandoras, pandoras, 0, ROT90, "Konami / Interlogic", "Pandora's Palace", 0 )
