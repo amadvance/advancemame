@@ -354,6 +354,12 @@ Features
 	highlighted. If you have an Arcade cabinet you can create your
 	own personalized control panel image and select each region to highlight.
 
+	Below the image, the analog controls of the game, like sticks,
+	paddles, pedals, dials, trackballs and lightguns, are displayed
+	as stylized controls with their name. They show the current
+	position or movement of the control, and they are highlighted
+	when in use.
+
 	Press `f1` during gameplay to display it.
 
 	More details are in the description of the `ui_help*` options.

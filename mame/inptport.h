@@ -701,6 +701,16 @@ const char *input_port_name(const input_port_entry *in);
 input_seq *input_port_seq(input_port_entry *in, int seqtype);
 input_seq *input_port_default_seq(int type, int player, int seqtype);
 int input_port_condition(const input_port_entry *in);
+
+/* AdvanceMAME: State of an analog control */
+typedef struct _input_port_analog_state input_port_analog_state;
+struct _input_port_analog_state
+{
+	const input_port_entry *port; /* input port */
+	INT32 value; /* absolute: position from ANALOG_VALUE_MIN to ANALOG_VALUE_MAX, relative: position in the wrap range from 0 to 65535 */
+	INT32 delta; /* change in the last update, 512 units for each relative step */
+};
+int input_port_analog_state_get(input_port_analog_state *map, int max);
 void input_port_set_changed_callback(int port, UINT32 mask, void (*callback)(void *, UINT32, UINT32), void *param);
 
 const char *port_type_to_token(int type, int player);

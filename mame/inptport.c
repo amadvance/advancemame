@@ -2759,6 +2759,64 @@ UINT32 readinputportbytag_safe(const char *tag, UINT32 defvalue)
 
 /*************************************
  *
+ *  AdvanceMAME: Analog state reporting
+ *
+ *************************************/
+
+/* AdvanceMAME: Report the state of the analog controls for the help screen */
+/* the state is read directly from the accumulators, without reversal, to show */
+/* the movement as done by the user and not as seen by the emulated hardware */
+int input_port_analog_state_get(input_port_analog_state *map, int max)
+{
+	int portnum;
+	int mac = 0;
+
+	for (portnum = 0; portnum < MAX_INPUT_PORTS; portnum++)
+	{
+		analog_port_info *info;
+
+		for (info = port_info[portnum].analoginfo; info != NULL; info = info->next)
+		{
+			const input_port_entry *port = info->port;
+			INT32 current;
+
+			if (mac >= max)
+				return mac;
+
+			if (!input_port_condition(port) || !input_port_active(port))
+				continue;
+
+			current = apply_analog_min_max(info, info->accum);
+
+			map[mac].port = port;
+			map[mac].delta = APPLY_SENSITIVITY(info->accum - info->previous, port->analog.sensitivity);
+
+			if (info->absolute)
+			{
+				map[mac].value = APPLY_SENSITIVITY(current, port->analog.sensitivity);
+			}
+			else
+			{
+				/* relative controls wrap around, report the position as a fraction of the full range */
+				INT32 adjmin = APPLY_INVERSE_SENSITIVITY(info->minimum, port->analog.sensitivity);
+				INT32 adjmax = APPLY_INVERSE_SENSITIVITY(info->maximum, port->analog.sensitivity);
+				if (adjmax > adjmin)
+					map[mac].value = (INT32)((INT64)(current - adjmin) * 65536 / (adjmax - adjmin));
+				else
+					map[mac].value = 0;
+			}
+
+			++mac;
+		}
+	}
+
+	return mac;
+}
+
+
+
+/*************************************
+ *
  *  Input port writing
  *
  *************************************/

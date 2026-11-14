@@ -814,12 +814,363 @@ static void ui_help_update_key(adv_bitmap* dst, adv_bitmap* src, int x, int y, i
 	}
 }
 
+#define UI_HELP_GAP 10 /**< Space between the help items. */
+#define UI_HELP_ANALOG_SIZE 40 /**< Size of the analog control drawings. */
+#define UI_HELP_ANALOG_HOLD 15 /**< Frames to keep highlighted an analog control after its last use. */
+#define UI_HELP_LABEL_GAP 2 /**< Space between an analog control and its label. */
+#define UI_HELP_FONT_DX 5 /**< Width of the label characters. */
+#define UI_HELP_FONT_DY 9 /**< Height of the label characters. */
+#define UI_HELP_FONT_SPACE 1 /**< Space between the label characters. */
+
+/**
+ * Font of the analog control labels, for 0-9 and A-Z.
+ * It's the same font of the internal keyboard image.
+ */
+static const unsigned char UI_HELP_FONT[36][UI_HELP_FONT_DY] = {
+	{ 0x0e, 0x11, 0x13, 0x15, 0x19, 0x11, 0x11, 0x0e, 0x00 }, /* 0 */
+	{ 0x04, 0x0c, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x00 }, /* 1 */
+	{ 0x0e, 0x11, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1f, 0x00 }, /* 2 */
+	{ 0x0e, 0x11, 0x01, 0x06, 0x01, 0x01, 0x11, 0x0e, 0x00 }, /* 3 */
+	{ 0x02, 0x06, 0x06, 0x0a, 0x0a, 0x1f, 0x02, 0x07, 0x00 }, /* 4 */
+	{ 0x1f, 0x10, 0x10, 0x1e, 0x01, 0x01, 0x11, 0x0e, 0x00 }, /* 5 */
+	{ 0x06, 0x08, 0x10, 0x1e, 0x11, 0x11, 0x11, 0x0e, 0x00 }, /* 6 */
+	{ 0x1f, 0x11, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x00 }, /* 7 */
+	{ 0x0e, 0x11, 0x11, 0x0e, 0x11, 0x11, 0x11, 0x0e, 0x00 }, /* 8 */
+	{ 0x0e, 0x11, 0x11, 0x11, 0x0f, 0x01, 0x02, 0x0c, 0x00 }, /* 9 */
+	{ 0x00, 0x04, 0x0a, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x00 }, /* A */
+	{ 0x00, 0x1e, 0x11, 0x11, 0x1e, 0x11, 0x11, 0x1e, 0x00 }, /* B */
+	{ 0x00, 0x0e, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0e, 0x00 }, /* C */
+	{ 0x00, 0x1c, 0x12, 0x11, 0x11, 0x11, 0x12, 0x1c, 0x00 }, /* D */
+	{ 0x00, 0x1f, 0x10, 0x10, 0x1e, 0x10, 0x10, 0x1f, 0x00 }, /* E */
+	{ 0x00, 0x1f, 0x10, 0x10, 0x1e, 0x10, 0x10, 0x10, 0x00 }, /* F */
+	{ 0x00, 0x0e, 0x11, 0x10, 0x13, 0x11, 0x11, 0x0f, 0x00 }, /* G */
+	{ 0x00, 0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11, 0x00 }, /* H */
+	{ 0x00, 0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x1f, 0x00 }, /* I */
+	{ 0x00, 0x07, 0x01, 0x01, 0x01, 0x11, 0x11, 0x0e, 0x00 }, /* J */
+	{ 0x00, 0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11, 0x00 }, /* K */
+	{ 0x00, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1f, 0x00 }, /* L */
+	{ 0x00, 0x11, 0x1b, 0x15, 0x15, 0x11, 0x11, 0x11, 0x00 }, /* M */
+	{ 0x00, 0x11, 0x19, 0x19, 0x15, 0x13, 0x13, 0x11, 0x00 }, /* N */
+	{ 0x00, 0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e, 0x00 }, /* O */
+	{ 0x00, 0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10, 0x00 }, /* P */
+	{ 0x00, 0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e, 0x03 }, /* Q */
+	{ 0x00, 0x1e, 0x11, 0x11, 0x1e, 0x14, 0x12, 0x11, 0x00 }, /* R */
+	{ 0x00, 0x0e, 0x11, 0x10, 0x0e, 0x01, 0x11, 0x0e, 0x00 }, /* S */
+	{ 0x00, 0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x00 }, /* T */
+	{ 0x00, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e, 0x00 }, /* U */
+	{ 0x00, 0x11, 0x11, 0x11, 0x0a, 0x0a, 0x04, 0x04, 0x00 }, /* V */
+	{ 0x00, 0x11, 0x11, 0x11, 0x15, 0x15, 0x1b, 0x11, 0x00 }, /* W */
+	{ 0x00, 0x11, 0x11, 0x0a, 0x04, 0x0a, 0x11, 0x11, 0x00 }, /* X */
+	{ 0x00, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04, 0x04, 0x00 }, /* Y */
+	{ 0x00, 0x1f, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1f, 0x00 }, /* Z */
+};
+
+struct ui_help_item {
+	int x; /**< Position in the help panel. */
+	int y;
+	int dx; /**< Size. */
+	int dy;
+	unsigned row; /**< Row in the help panel. */
+};
+
+static void ui_help_fill(adv_bitmap* dst, int x, int y, int dx, int dy, adv_pixel c)
+{
+	int cx, cy;
+
+	for (cy = y; cy < y + dy; ++cy)
+		for (cx = x; cx < x + dx; ++cx)
+			adv_bitmap_pixel_put(dst, cx, cy, c);
+}
+
+static void ui_help_rect(adv_bitmap* dst, int x, int y, int dx, int dy, adv_pixel cf, adv_pixel cb)
+{
+	ui_help_fill(dst, x, y, dx, dy, cf);
+	ui_help_fill(dst, x + 1, y + 1, dx - 2, dy - 2, cb);
+}
+
+/**
+ * Get the width of a label.
+ */
+static int ui_help_text_size(const char* s)
+{
+	int n = strlen(s);
+
+	if (n == 0)
+		return 0;
+
+	return n * (UI_HELP_FONT_DX + UI_HELP_FONT_SPACE) - UI_HELP_FONT_SPACE;
+}
+
+/**
+ * Draw a label in uppercase. Characters not in the font are drawn as spaces.
+ */
+static void ui_help_text(adv_bitmap* dst, int x, int y, const char* s, adv_pixel c)
+{
+	for (; *s; ++s) {
+		int ch = toupper((unsigned char)*s);
+		int index = -1;
+
+		if (ch >= '0' && ch <= '9')
+			index = ch - '0';
+		else if (ch >= 'A' && ch <= 'Z')
+			index = 10 + ch - 'A';
+
+		if (index >= 0) {
+			int cx, cy;
+			for (cy = 0; cy < UI_HELP_FONT_DY; ++cy)
+				for (cx = 0; cx < UI_HELP_FONT_DX; ++cx)
+					if ((UI_HELP_FONT[index][cy] & (0x10 >> cx)) != 0)
+						adv_bitmap_pixel_put(dst, x + cx, y + cy, c);
+		}
+
+		x += UI_HELP_FONT_DX + UI_HELP_FONT_SPACE;
+	}
+}
+
+/**
+ * Draw a disk with a border.
+ */
+static void ui_help_circle(adv_bitmap* dst, int cx, int cy, int r, adv_pixel cf, adv_pixel cb)
+{
+	int x, y;
+
+	for (y = -r; y <= r; ++y) {
+		for (x = -r; x <= r; ++x) {
+			int d = x * x + y * y;
+			if (d <= (r - 1) * (r - 1))
+				adv_bitmap_pixel_put(dst, cx + x, cy + y, cb);
+			else if (d <= r * r)
+				adv_bitmap_pixel_put(dst, cx + x, cy + y, cf);
+		}
+	}
+}
+
+static void ui_help_line(adv_bitmap* dst, int x0, int y0, int x1, int y1, adv_pixel c)
+{
+	int dx = abs(x1 - x0);
+	int dy = -abs(y1 - y0);
+	int sx = x0 < x1 ? 1 : -1;
+	int sy = y0 < y1 ? 1 : -1;
+	int err = dx + dy;
+
+	while (1) {
+		int e2;
+
+		adv_bitmap_pixel_put(dst, x0, y0, c);
+		if (x0 == x1 && y0 == y1)
+			break;
+		e2 = 2 * err;
+		if (e2 >= dy) {
+			err += dy;
+			x0 += sx;
+		}
+		if (e2 <= dx) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+}
+
+/**
+ * Scale an analog position from -65536/65536 to -range/range.
+ */
+static int ui_help_scale(int v, int range)
+{
+	if (v > 65536)
+		v = 65536;
+	if (v < -65536)
+		v = -65536;
+	return v * range / 65536;
+}
+
+/**
+ * Draw an analog control.
+ * \param x, y Upper left corner of the drawing.
+ * \param cf Color of the borders.
+ * \param cb Color of the background.
+ * \param ci Color of the position indicator.
+ */
+static void ui_help_analog(adv_bitmap* dst, int x, int y, const struct mame_analog_map_entry* a, adv_pixel cf, adv_pixel cb, adv_pixel ci)
+{
+	const int s = UI_HELP_ANALOG_SIZE;
+	const int c = s / 2;
+	const int r = c - 2;
+	int px, py;
+	double fx, fy, l;
+
+	switch (a->kind) {
+	case MAME_ANALOG_STICK :
+		ui_help_circle(dst, x + c, y + c, r, cf, cb);
+		ui_help_line(dst, x + c - 2, y + c, x + c + 2, y + c, cf);
+		ui_help_line(dst, x + c, y + c - 2, x + c, y + c + 2, cf);
+		/* the stick moves in a circle, also when the two axes are at the extremes */
+		fx = a->x / 65536.0;
+		fy = a->y / 65536.0;
+		l = sqrt(fx * fx + fy * fy);
+		if (l > 1) {
+			fx /= l;
+			fy /= l;
+		}
+		px = x + c + (int)(fx * (r - 4));
+		py = y + c + (int)(fy * (r - 4));
+		ui_help_fill(dst, px - 2, py - 2, 5, 5, ci);
+		break;
+	case MAME_ANALOG_SLIDER_X :
+		ui_help_rect(dst, x + 1, y + c - 6, s - 2, 13, cf, cb);
+		ui_help_line(dst, x + c, y + c - 6, x + c, y + c - 4, cf);
+		ui_help_line(dst, x + c, y + c + 4, x + c, y + c + 6, cf);
+		px = x + c + ui_help_scale(a->x, c - 5);
+		ui_help_fill(dst, px - 2, y + c - 4, 5, 9, ci);
+		break;
+	case MAME_ANALOG_SLIDER_Y :
+		ui_help_rect(dst, x + c - 6, y + 1, 13, s - 2, cf, cb);
+		ui_help_line(dst, x + c - 6, y + c, x + c - 4, y + c, cf);
+		ui_help_line(dst, x + c + 4, y + c, x + c + 6, y + c, cf);
+		py = y + c + ui_help_scale(a->y, c - 5);
+		ui_help_fill(dst, x + c - 4, py - 2, 9, 5, ci);
+		break;
+	case MAME_ANALOG_PEDAL :
+		ui_help_rect(dst, x + c - 7, y + 1, 15, s - 2, cf, cb);
+		py = ui_help_scale(a->y, s - 6);
+		if (py > 0)
+			ui_help_fill(dst, x + c - 5, y + s - 3 - py, 11, py, ci);
+		break;
+	case MAME_ANALOG_DIAL :
+		ui_help_circle(dst, x + c, y + c, r, cf, cb);
+		/* the notch shows the position in the turn */
+		l = a->x * 2 * M_PI / 65536;
+		px = x + c + (int)(sin(l) * (r - 4));
+		py = y + c - (int)(cos(l) * (r - 4));
+		ui_help_line(dst, x + c, y + c, px, py, ci);
+		ui_help_fill(dst, px - 2, py - 2, 5, 5, ci);
+		break;
+	case MAME_ANALOG_BALL :
+		ui_help_circle(dst, x + c, y + c, r, cf, cb);
+		ui_help_fill(dst, x + c - 1, y + c - 1, 3, 3, cf);
+		/* the vector shows the direction and the speed of the movement */
+		if (a->x != 0 || a->y != 0) {
+			fx = a->x;
+			fy = a->y;
+			l = sqrt(fx * fx + fy * fy);
+			if (l * 3 > r - 4) {
+				fx = fx * (r - 4) / l;
+				fy = fy * (r - 4) / l;
+			} else {
+				fx *= 3;
+				fy *= 3;
+			}
+			px = x + c + (int)fx;
+			py = y + c + (int)fy;
+			ui_help_line(dst, x + c, y + c, px, py, ci);
+			ui_help_fill(dst, px - 2, py - 2, 5, 5, ci);
+		}
+		break;
+	case MAME_ANALOG_GUN :
+		ui_help_rect(dst, x + 1, y + 6, s - 2, s - 12, cf, cb);
+		/* the crosshair arms must stay inside the drawing area */
+		px = x + c + ui_help_scale(a->x, c - 8);
+		py = y + c + ui_help_scale(a->y, c - 12);
+		ui_help_line(dst, px - 4, py, px - 2, py, ci);
+		ui_help_line(dst, px + 2, py, px + 4, py, ci);
+		ui_help_line(dst, px, py - 4, px, py - 2, ci);
+		ui_help_line(dst, px, py + 2, px, py + 4, ci);
+		adv_bitmap_pixel_put(dst, px, py, ci);
+		break;
+	}
+}
+
+/**
+ * Place the analog controls in rows below the keyboard.
+ * \param item Items to place.
+ * \param mac Number of items.
+ * \param keyboard_x, keyboard_y Size of the keyboard image.
+ * \param max_x, max_y Max size of the help panel.
+ * \param panel_x, panel_y Size of the help panel computed.
+ * \return Number of items placed. The items not fitting in the panel are not placed.
+ */
+static unsigned ui_help_layout(struct ui_help_item* item, unsigned mac, int keyboard_x, int keyboard_y, int max_x, int max_y, int* panel_x, int* panel_y)
+{
+	int row_width[UI_ANALOG_MAX];
+	unsigned row;
+	unsigned i;
+	int x, y, h;
+
+	if (max_x < keyboard_x)
+		max_x = keyboard_x;
+
+	*panel_x = keyboard_x;
+	*panel_y = keyboard_y;
+
+	row = 0;
+	x = 0;
+	y = keyboard_y + UI_HELP_GAP;
+	h = 0;
+	for (i = 0; i < mac; ++i) {
+		if (x != 0 && x + UI_HELP_GAP + item[i].dx > max_x) {
+			/* start a new row */
+			++row;
+			x = 0;
+			y += h + UI_HELP_GAP;
+			h = 0;
+		}
+
+		if (y + item[i].dy > max_y)
+			break;
+
+		if (x != 0)
+			x += UI_HELP_GAP;
+		item[i].x = x;
+		item[i].y = y;
+		item[i].row = row;
+		x += item[i].dx;
+		if (h < item[i].dy)
+			h = item[i].dy;
+		row_width[row] = x;
+		if (*panel_x < x)
+			*panel_x = x;
+		*panel_y = y + h;
+	}
+
+	mac = i;
+
+	/* center each row */
+	for (i = 0; i < mac; ++i)
+		item[i].x += (*panel_x - row_width[item[i].row]) / 2;
+
+	return mac;
+}
+
+static adv_pixel ui_help_player_color(struct ui_color_set* color, unsigned player)
+{
+	switch (player) {
+	case 1 : return color->help_p1.b;
+	case 2 : return color->help_p2.b;
+	case 3 : return color->help_p3.b;
+	case 4 : return color->help_p4.b;
+	}
+
+	return color->help_u.b;
+}
+
+static adv_pixel ui_help_player_indicator(struct ui_color_set* color, unsigned player)
+{
+	switch (player) {
+	case 1 : return color->help_p1.f;
+	case 2 : return color->help_p2.f;
+	case 3 : return color->help_p3.f;
+	case 4 : return color->help_p4.f;
+	}
+
+	return color->help_u.f;
+}
+
 static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
 	int size_x;
 	int size_y;
 	int pos_x;
 	int pos_y;
+	int keyboard_x;
 	unsigned cx;
 	unsigned cy;
 	unsigned i;
@@ -827,17 +1178,40 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 	char msg_buffer[256];
 	adv_bitmap* flat;
 	adv_color_def def = color->def;
+	struct ui_help_item item[UI_ANALOG_MAX];
+	const char* label[UI_ANALOG_MAX];
+	unsigned item_mac;
 
 	struct mame_digital_map_entry digital_map[UI_MAP_MAX];
 	unsigned digital_mac;
+	struct mame_analog_map_entry analog_map[UI_ANALOG_MAX];
+	unsigned analog_mac;
 
 	mame_ui_input_map(&digital_mac, digital_map, UI_MAP_MAX);
+	mame_ui_analog_map(&analog_mac, analog_map, UI_ANALOG_MAX);
 
-	size_x = context->state.help_image->size_x;
-	size_y = context->state.help_image->size_y;
+	/* the analog controls are placed below the keyboard, with their label */
+	for (i = 0; i < analog_mac; ++i) {
+		unsigned j;
+
+		/* add the player only if the same control is present more times */
+		label[i] = analog_map[i].name;
+		for (j = 0; j < analog_mac; ++j)
+			if (j != i && strcmp(analog_map[j].name, analog_map[i].name) == 0)
+				label[i] = analog_map[i].desc;
+
+		item[i].dx = ui_help_text_size(label[i]);
+		if (item[i].dx < UI_HELP_ANALOG_SIZE)
+			item[i].dx = UI_HELP_ANALOG_SIZE;
+		item[i].dy = UI_HELP_ANALOG_SIZE + UI_HELP_LABEL_GAP + UI_HELP_FONT_DY;
+	}
+
+	pos_y = dst->size_y / 8;
+
+	item_mac = ui_help_layout(item, analog_mac, context->state.help_image->size_x, context->state.help_image->size_y, dst->size_x - 2 * UI_HELP_GAP, dst->size_y - pos_y, &size_x, &size_y);
 
 	pos_x = dst->size_x / 2 - size_x / 2;
-	pos_y = dst->size_y / 8;
+	keyboard_x = (size_x - context->state.help_image->size_x) / 2;
 
 	if (ui_alpha(def))
 		flat = adv_bitmap_alloc(size_x, size_y, color_def_bytes_per_pixel_get(context->state.buffer_def));
@@ -846,17 +1220,12 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 
 	pb = 0; /* black on RGB format */
 
-	for (cy = 0; cy < context->state.help_image->size_y; ++cy) {
-		for (cx = 0; cx < context->state.help_image->size_x; ++cx) {
-			adv_pixel c;
-			if ((adv_bitmap_pixel_get(context->state.help_image, cx, cy)) != pb) {
-				c = color->ui_f.f;
-			} else {
-				c = color->ui_b.b;
-			}
-			adv_bitmap_pixel_put(flat, cx, cy, c);
-		}
-	}
+	ui_help_fill(flat, 0, 0, size_x, size_y, color->ui_b.b);
+
+	for (cy = 0; cy < context->state.help_image->size_y; ++cy)
+		for (cx = 0; cx < context->state.help_image->size_x; ++cx)
+			if (adv_bitmap_pixel_get(context->state.help_image, cx, cy) != pb)
+				adv_bitmap_pixel_put(flat, keyboard_x + cx, cy, color->ui_f.f);
 
 	msg_buffer[0] = 0;
 
@@ -891,13 +1260,7 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 				unsigned ckf;
 				unsigned ckb;
 
-				switch (mame_port_player(digital_map[i].port)) {
-				case 1: ckb = color->help_p1.b; break;
-				case 2: ckb = color->help_p2.b; break;
-				case 3: ckb = color->help_p3.b; break;
-				case 4: ckb = color->help_p4.b; break;
-				default: ckb = color->help_u.b; break;
-				}
+				ckb = ui_help_player_color(color, mame_port_player(digital_map[i].port));
 				ckf = color->ui_f.f;
 
 				if (digital_map[i].port_state) {
@@ -908,13 +1271,40 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 				for (k = 0; k < context->config.help_mac; ++k) {
 					if (context->config.help_map[k].code == digital_map[i].seq[j]) {
 						struct help_entry* h = context->config.help_map + k;
-						ui_help_update_key(flat, context->state.help_image, 0, 0, h->x, h->y, h->dx, h->dy, ckf, ckb, pb);
+						ui_help_update_key(flat, context->state.help_image, keyboard_x, 0, h->x, h->y, h->dx, h->dy, ckf, ckb, pb);
 					}
 				}
 			}
 
 			pred_not = digital_map[i].seq[j] == DIGITAL_SPECIAL_NOT;
 		}
+	}
+
+	for (i = 0; i < item_mac; ++i) {
+		const struct mame_analog_map_entry* a = &analog_map[i];
+		adv_pixel cb;
+		adv_pixel ci;
+
+		/* keep the control highlighted for some frames to make visible also short movements */
+		if (a->active)
+			context->state.analog_hold[i] = UI_HELP_ANALOG_HOLD;
+		else if (context->state.analog_hold[i] > 0)
+			--context->state.analog_hold[i];
+
+		if (context->state.analog_hold[i] > 0) {
+			cb = color->ui_f.b;
+			ci = ui_help_player_indicator(color, a->player);
+
+			if (msg_buffer[0])
+				sncat(msg_buffer, sizeof(msg_buffer), ", ");
+			sncat(msg_buffer, sizeof(msg_buffer), a->desc);
+		} else {
+			cb = ui_help_player_color(color, a->player);
+			ci = color->ui_f.f;
+		}
+
+		ui_help_analog(flat, item[i].x + (item[i].dx - UI_HELP_ANALOG_SIZE) / 2, item[i].y, a, color->ui_f.f, cb, ci);
+		ui_help_text(flat, item[i].x + (item[i].dx - ui_help_text_size(label[i])) / 2, item[i].y + UI_HELP_ANALOG_SIZE + UI_HELP_LABEL_GAP, label[i], color->ui_f.f);
 	}
 
 	if (ui_alpha(def))

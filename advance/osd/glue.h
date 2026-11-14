@@ -177,6 +177,29 @@ struct mame_digital_map_entry {
 	adv_bool port_state; /**< State of the port. */
 };
 
+/** \name Analog control kind
+ * Visual representation of an analog control in the help screen.
+ */
+/*@{*/
+#define MAME_ANALOG_STICK 0 /**< Two axis stick. x, y from -65536 to 65536. */
+#define MAME_ANALOG_SLIDER_X 1 /**< Horizontal slider. x from -65536 to 65536. */
+#define MAME_ANALOG_SLIDER_Y 2 /**< Vertical slider. y from -65536 to 65536. */
+#define MAME_ANALOG_PEDAL 3 /**< Pedal. y from 0 (released) to 65536 (pressed). */
+#define MAME_ANALOG_DIAL 4 /**< Dial. x position in the turn from 0 to 65535. */
+#define MAME_ANALOG_BALL 5 /**< Trackball or mouse. x, y movement in the last frame in relative steps. */
+#define MAME_ANALOG_GUN 6 /**< Lightgun. x, y from -65536 to 65536. */
+/*@}*/
+
+struct mame_analog_map_entry {
+	unsigned kind; /**< Kind of control. One of MAME_ANALOG_*. */
+	unsigned player; /**< Player number, 1 for player1. */
+	const char* name; /**< Name of the kind of control, like "Paddle". */
+	char desc[64]; /**< Description, with the player number. */
+	int x; /**< X state, the meaning depends on the kind. */
+	int y; /**< Y state, the meaning depends on the kind. */
+	adv_bool active; /**< If the control is used now. */
+};
+
 /**
  * Mask used to store the player number.
  * The player number uses 1 for player1. 0 is used for global port.
@@ -258,6 +281,7 @@ void mame_ui_gamma_factor_set(double gamma);
 unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr);
 unsigned mame_ui_frames_per_second(void);
 void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max);
+void mame_ui_analog_map(unsigned* panalog_mac, struct mame_analog_map_entry* analog_map, unsigned analog_max);
 
 /***************************************************************************/
 /* OSD interface */

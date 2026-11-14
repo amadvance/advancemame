@@ -263,6 +263,8 @@ void advance_input_simulate_key(struct advance_input_context* context, int key0,
 #define UI_COLOR_MAX 11 /**< Max number of colors. */
 /*@}*/
 
+#define UI_ANALOG_MAX 32 /**< Max number of analog controls displayed in the help. */
+
 enum ui_menu_entry_enum {
 	ui_menu_title,
 	ui_menu_text,
@@ -354,6 +356,7 @@ struct advance_ui_state_context {
 	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
 
 	adv_bitmap* help_image; /**< Help image. */
+	unsigned analog_hold[UI_ANALOG_MAX]; /**< Frames to keep highlighted each analog control in the help. */
 	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
 	unsigned help_rgb_max; /**< Help image palette size. */
 

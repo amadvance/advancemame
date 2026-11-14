@@ -2401,6 +2401,231 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	*pdigital_mac = digital_mac;
 }
 
+/**
+ * Analog port types displayed as a single control with two axes.
+ */
+static struct {
+	unsigned type_x;
+	unsigned type_y;
+	unsigned kind;
+	const char* name;
+} ANALOG_PAIR[] = {
+	{ IPT_AD_STICK_X, IPT_AD_STICK_Y, MAME_ANALOG_STICK, "Stick" },
+	{ IPT_LIGHTGUN_X, IPT_LIGHTGUN_Y, MAME_ANALOG_GUN, "Lightgun" },
+	{ IPT_TRACKBALL_X, IPT_TRACKBALL_Y, MAME_ANALOG_BALL, "Trackball" },
+	{ IPT_MOUSE_X, IPT_MOUSE_Y, MAME_ANALOG_BALL, "Mouse" },
+	{ 0, 0, 0, 0 }
+};
+
+#define ANALOG_STATE_MAX 64
+
+/**
+ * Minimum displacement of a self centering control to consider it in use.
+ * It's about 6% of the range, enough to ignore the jitter of the analog joysticks.
+ */
+#define ANALOG_ACTIVE_LIMIT 4096
+
+/**
+ * Convert the movement of a relative control in steps.
+ * A movement smaller than a step is still reported as one step to make it visible.
+ */
+static int glue_analog_step(int delta)
+{
+	int step = delta / 512;
+
+	if (step == 0 && delta != 0)
+		step = delta > 0 ? 1 : -1;
+
+	return step;
+}
+
+/**
+ * Set the axis state of an analog control.
+ * \param e Entry to set.
+ * \param s State of the MAME analog port.
+ * \param axe_y If to set the Y axis in a control with two axes.
+ */
+static void glue_analog_axe(struct mame_analog_map_entry* e, const input_port_analog_state* s, adv_bool axe_y)
+{
+	int v;
+
+	switch (s->port->type) {
+	case IPT_PEDAL :
+	case IPT_PEDAL2 :
+	case IPT_PEDAL3 :
+		/* pedals range only in the negative values, with the negative extreme as fully pressed */
+		e->y = -s->value;
+		return;
+	case IPT_DIAL :
+	case IPT_DIAL_V :
+		e->x = s->value;
+		return;
+	case IPT_TRACKBALL_X :
+	case IPT_TRACKBALL_Y :
+	case IPT_MOUSE_X :
+	case IPT_MOUSE_Y :
+		v = glue_analog_step(s->delta);
+		break;
+	default :
+		v = s->value;
+		break;
+	}
+
+	if (axe_y)
+		e->y = v;
+	else
+		e->x = v;
+}
+
+/**
+ * Check if an analog control is in use.
+ */
+static adv_bool glue_analog_is_active(const input_port_analog_state* s)
+{
+	if (s->delta != 0)
+		return 1;
+
+	/* self centering controls are in use also when kept still out of the center */
+	switch (s->port->type) {
+	case IPT_AD_STICK_X :
+	case IPT_AD_STICK_Y :
+	case IPT_AD_STICK_Z :
+	case IPT_PEDAL :
+	case IPT_PEDAL2 :
+	case IPT_PEDAL3 :
+		return s->value > ANALOG_ACTIVE_LIMIT || s->value < -ANALOG_ACTIVE_LIMIT;
+	}
+
+	return 0;
+}
+
+static const char* glue_analog_name(unsigned type)
+{
+	switch (type) {
+	case IPT_PADDLE :
+	case IPT_PADDLE_V :
+		return "Paddle";
+	case IPT_AD_STICK_X :
+	case IPT_AD_STICK_Y :
+		return "Stick";
+	case IPT_AD_STICK_Z :
+		return "Stick Z";
+	case IPT_LIGHTGUN_X :
+	case IPT_LIGHTGUN_Y :
+		return "Lightgun";
+	case IPT_PEDAL :
+		return "Pedal";
+	case IPT_PEDAL2 :
+		return "Pedal 2";
+	case IPT_PEDAL3 :
+		return "Pedal 3";
+	case IPT_DIAL :
+	case IPT_DIAL_V :
+		return "Dial";
+	case IPT_TRACKBALL_X :
+	case IPT_TRACKBALL_Y :
+		return "Trackball";
+	case IPT_MOUSE_X :
+	case IPT_MOUSE_Y :
+		return "Mouse";
+	}
+
+	return "Analog";
+}
+
+static unsigned glue_analog_kind(unsigned type)
+{
+	switch (type) {
+	case IPT_PADDLE :
+	case IPT_AD_STICK_X :
+	case IPT_LIGHTGUN_X :
+		return MAME_ANALOG_SLIDER_X;
+	case IPT_PEDAL :
+	case IPT_PEDAL2 :
+	case IPT_PEDAL3 :
+		return MAME_ANALOG_PEDAL;
+	case IPT_DIAL :
+	case IPT_DIAL_V :
+		return MAME_ANALOG_DIAL;
+	case IPT_TRACKBALL_X :
+	case IPT_TRACKBALL_Y :
+	case IPT_MOUSE_X :
+	case IPT_MOUSE_Y :
+		return MAME_ANALOG_BALL;
+	}
+
+	return MAME_ANALOG_SLIDER_Y;
+}
+
+/**
+ * Get the list of analog controls and their state.
+ * The X and Y axes of the same player and type are merged in a single control.
+ */
+void mame_ui_analog_map(unsigned* panalog_mac, struct mame_analog_map_entry* analog_map, unsigned analog_max)
+{
+	input_port_analog_state state[ANALOG_STATE_MAX];
+	adv_bool used[ANALOG_STATE_MAX];
+	unsigned state_mac;
+	unsigned analog_mac;
+	unsigned i, j, k;
+
+	state_mac = input_port_analog_state_get(state, ANALOG_STATE_MAX);
+
+	for (i = 0; i < state_mac; ++i)
+		used[i] = 0;
+
+	analog_mac = 0;
+
+	for (i = 0; i < state_mac && analog_mac < analog_max; ++i) {
+		struct mame_analog_map_entry* e = &analog_map[analog_mac];
+		const input_port_entry* port = state[i].port;
+		unsigned type = port->type;
+		const char* name;
+
+		if (used[i])
+			continue;
+		used[i] = 1;
+
+		e->player = port->player + 1;
+		e->x = 0;
+		e->y = 0;
+		e->active = glue_analog_is_active(&state[i]);
+
+		/* search for the other axis of a two axes control */
+		for (k = 0; ANALOG_PAIR[k].name; ++k)
+			if (ANALOG_PAIR[k].type_x == type || ANALOG_PAIR[k].type_y == type)
+				break;
+
+		j = state_mac;
+		if (ANALOG_PAIR[k].name) {
+			unsigned other = ANALOG_PAIR[k].type_x == type ? ANALOG_PAIR[k].type_y : ANALOG_PAIR[k].type_x;
+			for (j = i + 1; j < state_mac; ++j)
+				if (!used[j] && state[j].port->type == other && state[j].port->player == port->player)
+					break;
+		}
+
+		if (j < state_mac) {
+			used[j] = 1;
+			e->kind = ANALOG_PAIR[k].kind;
+			name = ANALOG_PAIR[k].name;
+			glue_analog_axe(e, &state[i], type == ANALOG_PAIR[k].type_y);
+			glue_analog_axe(e, &state[j], type != ANALOG_PAIR[k].type_y);
+			e->active = e->active || glue_analog_is_active(&state[j]);
+		} else {
+			e->kind = glue_analog_kind(type);
+			name = glue_analog_name(type);
+			glue_analog_axe(e, &state[i], e->kind == MAME_ANALOG_SLIDER_Y || type == IPT_TRACKBALL_Y || type == IPT_MOUSE_Y);
+		}
+
+		e->name = name;
+		snprintf(e->desc, sizeof(e->desc), "P%d %s", e->player, name);
+
+		++analog_mac;
+	}
+
+	*panalog_mac = analog_mac;
+}
+
 void mame_name_adjust(char* dst, unsigned size, const char* s)
 {
 	unsigned i;
