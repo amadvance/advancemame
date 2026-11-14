@@ -7157,10 +7157,10 @@ Other Sun games
 	DRIVER( fearless )
 	DRIVER( pgm )
 	DRIVER( orlegend )	/* (c) 1997 */
-	DRIVER( orlegnde )	/* (c) 1997 */
-	DRIVER( orlegndc )	/* (c) 1997 */
-	DRIVER( orld111c )	/* (c) 1997 */
-	DRIVER( orld105k )	/* (c) 1997 */
+	DRIVER( orlegende )	/* (c) 1997 */
+	DRIVER( orlegendc )	/* (c) 1997 */
+	DRIVER( orlegend111c )	/* (c) 1997 */
+	DRIVER( orlegend105k )	/* (c) 1997 */
 	DRIVER( drgw2 )		/* (c) 1997 */
 	DRIVER( drgw2100c )	/* (c) 1997 */
 	DRIVER( drgw2100j )	/* (c) 1997 */
@@ -7170,7 +7170,7 @@ Other Sun games
 	DRIVER( kovplus )	/* (c) 1999 */
 	DRIVER( kovplusa )	/* (c) 1999 */
 	DRIVER( kov115 )	/* (c) 1999 */
-	DRIVER( kovj )		/* (c) 1999 */
+	DRIVER( kov111 )		/* (c) 1999 */
 	DRIVER( killbldp )
 	DRIVER( svg )
 	DRIVER( oldsplus )
@@ -7178,18 +7178,23 @@ Other Sun games
 	DRIVER( kovytzy )
 	DRIVER( kovsh )		/* (c) 1999 */
 	DRIVER( photoy2k )	/* (c) 1999 */
-	DRIVER( raf102j )	/* (c) 1999 */
+	DRIVER( photoy2k104 )	/* (c) 1999 */
+	DRIVER( photoy2k102j )	/* (c) 1999 */
 	DRIVER( killbld )	/* (c) 1998 */
 	DRIVER( killbld104 )	/* (c) 1998 */
 	DRIVER( puzlstar )	/* (c) 1999 */
+	DRIVER( puzlstara )	/* (c) 1999 */
 	DRIVER( olds )		/* (c) 1998 */
 	DRIVER( olds100 )	/* (c) 1998 */
 	DRIVER( olds100a )	/* (c) 1998 */
 	DRIVER( olds103t )	/* (c) 1998 */
   	DRIVER( kov2 )		/* (c) 2000 */
+  	DRIVER( kov2100 )		/* (c) 2000 */
  	DRIVER( kov2106 )	/* (c) 2000 */
   	DRIVER( kov2p )		/* (c) 2000 */
+  	DRIVER( kov2p204 )		/* (c) 2000 */
 	DRIVER( ddp2 )		/* (c) 2001 */
+	DRIVER( ddp2100 )		/* (c) 2001 */
 	DRIVER( puzzli2 )	/* (c) 1999 */
 	DRIVER( puzzli2s )	/* (c) 2001 */
 	DRIVER( martmast )	/* (c) 2001 */
@@ -7232,7 +7237,7 @@ Other Sun games
 	DRIVER( ddpdoj )
 	DRIVER( ddpdoja )
 	DRIVER( ddpdojb )
-	DRIVER( ddp3blk )
+	DRIVER( ddpdojblkb )
 	DRIVER( ket )
 	DRIVER( keta )
 	DRIVER( ketb )

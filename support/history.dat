@@ -108677,7 +108677,7 @@ Nintendo Super Famicom (1994)
 $end
 
 
-$info=kov,kov115,kovj,kovplus,kovplusa,
+$info=kov,kov115,kov111,kovplus,kovplusa,
 $bio
 
 Knights of Valour (c) 1999 IGS.
@@ -151275,7 +151275,7 @@ Sony PlayStation (1996, "Namco Museum Vol.4")
 $end
 
 
-$info=orlegend,orlegndc,orlegnde,orld111c,orld105k,
+$info=orlegend,orlegendc,orlegende,orlegend111c,orlegend105k,
 $bio
 
 Oriental Legend (c) 1997 IGS.
@@ -175825,7 +175825,7 @@ Atari 2600 (1982)
 $end
 
 
-$info=raf102j,
+$info=photoy2k102j,
 $bio
 
 Real and Fake (c) 1999 IGS.

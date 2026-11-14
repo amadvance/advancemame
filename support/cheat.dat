@@ -26739,7 +26739,7 @@
 :ddonpchj:00000000:101935:00000099:FFFFFFFF:Always have x99 max PL2
 :ddonpchj:00010000:101937:00000099:FFFFFFFF:Always have x99 max PL2 (2/2)
 
-; [ Bee Storm - DoDonPachi II ]
+; [ DoDonPachi II - Bee Storm (World, ver. 102) ]
 :ddp2:00000301:815525:00000006:FFFFFFFF:Select Current Stage:Use this cheat when playing the game...it crashes the game if used on the character selection screen
 :ddp2:00000000:815976:00000003:FFFFFFFF:Infinite Lives PL1
 :ddp2:00100000:8125FC:00000002:FFFFFFFF:Invincibility PL1
@@ -39160,7 +39160,7 @@
 :dmndrbya:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :dmndrbya:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Demon Front (V102) ]
+; [ Demon Front / Moyu Zhanxian (68k label V105, ROM M105XX 08/05/02) (ARM label V105, ROM 08/05/02 S105XX) ]
 :dmnfrnt:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :dmnfrnt:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :dmnfrnt:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -40244,7 +40244,7 @@
 :drgw2j:00000000:809ACB:00000003:FFFFFFFF:Infinite Helps
 :drgw2j:00000000:809ACC:00000003:FFFFFFFF:Infinite Bombs
 
-; [ Dragon World 3 ]
+; [ Dragon World 3 / Zhongguo Long 3 / Dungfong Zi Zyu 3 / Chuugokuryuu 3 Special (ver. 106) ]
 :drgw3:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :drgw3:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :drgw3:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -71908,7 +71908,7 @@
 :kikstart:00000001:85AF:000000FF:FFFFFFFF:Finish this Race Now!
 :kikstart:00000501:DA62:0000001C:FFFFFFFF:Select Current Heat
 
-; [ Killing Blade, The ]
+; [ The Killing Blade / Ao Jian Kuang Dao (ver. 109, Chinese Board) ]
 :killbld:00000000:80B3EF:00000063:FFFFFFFF:Infinite Time
 :killbld:00000001:80B3EF:00000000:FFFFFFFF:Finish this Round Now!
 :killbld:00100000:811F80:00000140:FFFFFFFF:Infinite Energy PL1
@@ -85707,7 +85707,7 @@
 :kouyakyu:00000001:40220:00000000:FFFFFFFF:Set Outs to 0 Now!
 :kouyakyu:00000001:40220:00000002:FFFFFFFF:Set Outs to 2 Now!
 
-; [ Knights of Valour / Sangoku Senki (ver. 117) ]
+; [ Knights of Valour / Sanguo Zhan Ji / Sangoku Senki (ver. 117, Hong Kong) ]
 :kov:00000000:815D70:00000064:FFFFFFFF:Infinite Time
 :kov:00000000:8166D9:0000000A:FFFFFFFF:Infinite Lives PL1
 :kov:00000000:8160C3:00000080:FFFFFFFF:Infinite Energy PL1
@@ -85734,7 +85734,7 @@
 :kov:00110000:81660E:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
 :kov:00000000:803E6F:00000001:FFFFFFFF:Rapid Fire PL4
 
-; [ Knights of Valour / Sangoku Senki (ver. 115) ]
+; [ Knights of Valour / Sanguo Zhan Ji / Sangoku Senki (ver. 115) ]
 :kov115:00000000:815D70:00000064:FFFFFFFF:Infinite Time
 :kov115:00000000:8166D9:0000000A:FFFFFFFF:Infinite Lives PL1
 :kov115:00000000:8160C3:00000080:FFFFFFFF:Infinite Energy PL1
@@ -85761,7 +85761,7 @@
 :kov115:00110000:81660E:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
 :kov115:00000000:803E6F:00000001:FFFFFFFF:Rapid Fire PL4
 
-; [ Knights of Valour 2 ]
+; [ Knights of Valour 2 / Sanguo Zhan Ji 2 / Sangoku Senki 2 (ver. 107, 102, 100HK) ]
 :kov2:00000000:81833E:00000063:FFFFFFFF:Infinite Time
 :kov2:20900000:14349A:00000002:FFFFFFFF:Unlock Secret Characters
 :kov2:20910000:1434F4:00000002:FFFFFFFF:Unlock Secret Characters (2/3)
@@ -85773,7 +85773,7 @@
 :kov2:00110000:D094F1:0000D021:FFFFFFFF:Invincibility PL2 (2/3)
 :kov2:00110000:D095E2:00000001:FFFFFFFF:Invincibility PL2 (3/3)
 
-; [ Knights of Valour 2 (106) ]
+; [ Knights of Valour 2 / Sanguo Zhan Ji 2 / Sangoku Senki 2 (ver. 106, 102, 100HK) ]
 :kov2106:00000000:818340:00000063:FFFFFFFF:Infinite Time
 :kov2106:20900000:143714:00000002:FFFFFFFF:Unlock Secret Characters
 :kov2106:20910000:14376E:00000002:FFFFFFFF:Unlock Secret Characters (2/3)
@@ -85785,7 +85785,7 @@
 :kov2106:00110000:D094F1:0000D021:FFFFFFFF:Invincibility PL2 (2/3)
 :kov2106:00110000:D095E2:00000001:FFFFFFFF:Invincibility PL2 (3/3)
 
-; [ Knights of Valour 2 Plus - Nine Dragons ]
+; [ Knights of Valour 2 Plus - Nine Dragons / Sanguo Zhan Ji 2 Qunxiong Zhengba / Sanguo Zhan Ji 2 Feilong Zai Tian / Sangoku Senki Busyou Souha (ver. M205XX, 200, 100CN) ]
 :kov2p:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :kov2p:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :kov2p:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -85795,34 +85795,34 @@
 :kov2p:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :kov2p:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Knights of Valour / Sangoku Senki (ver. 100, Japanese Board) ]
-:kovj:00000000:815D70:00000064:FFFFFFFF:Infinite Time
-:kovj:00000000:8166D9:0000000A:FFFFFFFF:Infinite Lives PL1
-:kovj:00000000:8160C3:00000080:FFFFFFFF:Infinite Energy PL1
-:kovj:00010000:816911:00000040:FFFFFFFF:Infinite Energy PL1 (2/2)
-:kovj:00000000:8161F9:00000004:00000004:Invincibility PL1
-:kovj:00110000:81613A:0000000F:FFFFFFFF:Invincibility PL1 (2/2)
-:kovj:00000000:803DDF:00000001:FFFFFFFF:Rapid Fire PL1
-:kovj:00000000:81699B:0000000A:FFFFFFFF:Infinite Lives PL2
-:kovj:00000000:81625F:00000080:FFFFFFFF:Infinite Energy PL2
-:kovj:00010000:816BD3:000000B0:FFFFFFFF:Infinite Energy PL2 (2/2)
-:kovj:00000000:816395:00000004:00000004:Invincibility PL2
-:kovj:00110000:8162D6:0000000F:FFFFFFFF:Invincibility PL2 (2/2)
-:kovj:00000000:803E0F:00000001:FFFFFFFF:Rapid Fire PL2
-:kovj:00000000:816C5D:0000000A:FFFFFFFF:Infinite Lives PL3
-:kovj:00000000:8163FB:00000080:FFFFFFFF:Infinite Energy PL3
-:kovj:00010000:816E95:00000040:FFFFFFFF:Infinite Energy PL3 (2/2)
-:kovj:00000000:816531:00000004:00000004:Invincibility PL3
-:kovj:00110000:816472:0000000F:FFFFFFFF:Invincibility PL3 (2/2)
-:kovj:00000000:803E3F:00000001:FFFFFFFF:Rapid Fire PL3
-:kovj:00000000:816F1F:0000000A:FFFFFFFF:Infinite Lives PL4
-:kovj:00000000:816597:00000080:FFFFFFFF:Infinite Energy PL4
-:kovj:00010000:817157:000000B0:FFFFFFFF:Infinite Energy PL4 (2/2)
-:kovj:00000000:8166CD:00000004:00000004:Invincibility PL4
-:kovj:00110000:81660E:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
-:kovj:00000000:803E6F:00000001:FFFFFFFF:Rapid Fire PL4
+; [ Knights of Valour / Sanguo Zhan Ji / Sangoku Senki (ver. 111, Japanese Board) ]
+:kov111:00000000:815D70:00000064:FFFFFFFF:Infinite Time
+:kov111:00000000:8166D9:0000000A:FFFFFFFF:Infinite Lives PL1
+:kov111:00000000:8160C3:00000080:FFFFFFFF:Infinite Energy PL1
+:kov111:00010000:816911:00000040:FFFFFFFF:Infinite Energy PL1 (2/2)
+:kov111:00000000:8161F9:00000004:00000004:Invincibility PL1
+:kov111:00110000:81613A:0000000F:FFFFFFFF:Invincibility PL1 (2/2)
+:kov111:00000000:803DDF:00000001:FFFFFFFF:Rapid Fire PL1
+:kov111:00000000:81699B:0000000A:FFFFFFFF:Infinite Lives PL2
+:kov111:00000000:81625F:00000080:FFFFFFFF:Infinite Energy PL2
+:kov111:00010000:816BD3:000000B0:FFFFFFFF:Infinite Energy PL2 (2/2)
+:kov111:00000000:816395:00000004:00000004:Invincibility PL2
+:kov111:00110000:8162D6:0000000F:FFFFFFFF:Invincibility PL2 (2/2)
+:kov111:00000000:803E0F:00000001:FFFFFFFF:Rapid Fire PL2
+:kov111:00000000:816C5D:0000000A:FFFFFFFF:Infinite Lives PL3
+:kov111:00000000:8163FB:00000080:FFFFFFFF:Infinite Energy PL3
+:kov111:00010000:816E95:00000040:FFFFFFFF:Infinite Energy PL3 (2/2)
+:kov111:00000000:816531:00000004:00000004:Invincibility PL3
+:kov111:00110000:816472:0000000F:FFFFFFFF:Invincibility PL3 (2/2)
+:kov111:00000000:803E3F:00000001:FFFFFFFF:Rapid Fire PL3
+:kov111:00000000:816F1F:0000000A:FFFFFFFF:Infinite Lives PL4
+:kov111:00000000:816597:00000080:FFFFFFFF:Infinite Energy PL4
+:kov111:00010000:817157:000000B0:FFFFFFFF:Infinite Energy PL4 (2/2)
+:kov111:00000000:8166CD:00000004:00000004:Invincibility PL4
+:kov111:00110000:81660E:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
+:kov111:00000000:803E6F:00000001:FFFFFFFF:Rapid Fire PL4
 
-; [ Knights of Valour Plus / Sangoku Senki Plus (ver. 119) ]
+; [ Knights of Valour Plus / Sanguo Zhan Ji Zhengzong Plus / Sangoku Senki Masamune Plus (ver. 119, set 1) ]
 :kovplus:00000000:81B136:00000064:FFFFFFFF:Infinite Time
 :kovplus:00000000:811A6F:0000000A:FFFFFFFF:Infinite Lives PL1
 :kovplus:00000000:811459:00000080:FFFFFFFF:Infinite Energy PL1
@@ -85849,7 +85849,7 @@
 :kovplus:00110000:8119A4:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
 :kovplus:00000000:80636B:00000001:FFFFFFFF:Rapid Fire PL4
 
-; [ Knights of Valour Plus / Sangoku Senki Plus (alt ver. 119) ]
+; [ Knights of Valour Plus / Sanguo Zhan Ji Zhengzong Plus / Sangoku Senki Masamune Plus (ver. 119, set 2) ]
 :kovplusa:00000000:81B136:00000064:FFFFFFFF:Infinite Time
 :kovplusa:00000000:811A6F:0000000A:FFFFFFFF:Infinite Lives PL1
 :kovplusa:00000000:811459:00000080:FFFFFFFF:Infinite Energy PL1
@@ -85876,7 +85876,7 @@
 :kovplusa:00110000:8119A4:0000000F:FFFFFFFF:Invincibility PL4 (2/2)
 :kovplusa:00000000:80636B:00000001:FFFFFFFF:Rapid Fire PL4
 
-; [ Knights of Valour Superheroes / Sangoku Senki Superheroes (ver. 322) ]
+; [ Knights of Valour Super Heroes / Sanguo Zhan Ji Fengyun Zaiqi / Sangoku Senki Super Heroes (ver. 104, CN) ]
 :kovsh:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :kovsh:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :kovsh:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -90687,7 +90687,7 @@
 :mars:60000000:0000:00000000:00000000:[during gameplay.           ]
 :mars:00000000:42A2:00000001:FFFFFFFF:Invincibility
 
-; [ Martial Masters ]
+; [ Martial Masters / Xing Yi Quan (ver. 104, 102, 102US) ]
 :martmast:00000000:80AC19:00000063:FFFFFFFF:Infinite Time
 :martmast:00100000:81C67E:000001E0:FFFFFFFF:Infinite Energy PL1
 :martmast:00100001:81C67E:00000000:FFFFFFFF:Drain All Energy Now! PL1
@@ -122353,7 +122353,7 @@
 :ojousanm:00210001:7494:00363636:FFFFFFFF:Get Winning Hand Now! (4/5)
 :ojousanm:00210001:7497:00373737:FFFFFFFF:Get Winning Hand Now! (5/5)
 
-; [ Oriental Legend Super / Special (Korea 101) ]
+; [ Oriental Legend Super / Xiyou Shi E Zhuan Super (ver. 101, Korean Board) ]
 :olds:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :olds:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :olds:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -122363,7 +122363,7 @@
 :olds:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :olds:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Oriental Legend Super / Special (100) ]
+; [ Oriental Legend Special / Xiyou Shi E Zhuan Super (ver. 100, set 1) ]
 :olds100:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :olds100:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :olds100:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -122373,7 +122373,7 @@
 :olds100:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :olds100:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Oriental Legend Super / Special (100 alt) ]
+; [ Oriental Legend Special / Xiyou Shi E Zhuan Super (ver. 100, set 2) ]
 :olds100a:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :olds100a:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :olds100a:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -122785,37 +122785,37 @@
 :ordynej:00010001:40959B:00000006:FFFFFFFF:Get Fire Bomb PL2 (2/2)
 :ordynej:00000000:10FE66:00000002:FFFFFFFF:Sound Test Timer Stop:Works for all Namco Sys 2
 
-; [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 105, Korean Board) ]
-:orld105k:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:orld105k:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+; [ Oriental Legend / Xiyou Shi E Zhuan (ver. 105, Korean Board) ]
+:orlegend105k:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:orlegend105k:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 111, Chinese Board) ]
-:orld111c:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:orld111c:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+; [ Oriental Legend / Xiyou Shi E Zhuan (ver. 111, Chinese Board) ]
+:orlegend111c:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:orlegend111c:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 126) ]
+; [ Oriental Legend / Xiyou Shi E Zhuan (ver. 126) ]
 :orlegend:00000000:80C06E:00000064:FFFFFFFF:Infinite Time
 :orlegend:00000000:81C4A2:0000000A:FFFFFFFF:Infinite Lives PL1
 :orlegend:00000000:81BE99:00000048:FFFFFFFF:Infinite Energy PL1
@@ -122838,51 +122838,51 @@
 :orlegend:00000000:81C31A:00000080:FFFFFFFF:Invincibility "ON" PL4(buggy):Some monsters can sometimes hit you !
 :orlegend:00000001:81C31A:00000000:FFFFFFFF:Invincibility "OFF" PL4
 
-; [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 112, Chinese Board) ]
-:orlegndc:00000000:80C06E:00000064:FFFFFFFF:Infinite Time
-:orlegndc:00000000:81C4A2:0000000A:FFFFFFFF:Infinite Lives PL1
-:orlegndc:00000000:81BE99:00000048:FFFFFFFF:Infinite Energy PL1
-:orlegndc:00010000:81C6A5:00000030:FFFFFFFF:Infinite Energy PL1 (2/2)
-:orlegndc:00000000:81BF60:00000080:FFFFFFFF:Invincibility "ON" PL1(buggy):Some monsters can sometimes hit you !
-:orlegndc:00000001:81BF60:00000000:FFFFFFFF:Invincibility "OFF" PL1
-:orlegndc:00000000:81C6EE:0000000A:FFFFFFFF:Infinite Lives PL2
-:orlegndc:00000000:81BFD7:00000048:FFFFFFFF:Infinite Energy PL2
-:orlegndc:00010000:81C8F1:00000068:FFFFFFFF:Infinite Energy PL2 (2/2)
-:orlegndc:00000000:81C09E:00000080:FFFFFFFF:Invincibility "ON" PL2(buggy):Some monsters can sometimes hit you !
-:orlegndc:00000001:81C09E:00000000:FFFFFFFF:Invincibility "OFF" PL2
-:orlegndc:00000000:81C93A:0000000A:FFFFFFFF:Infinite Lives PL3
-:orlegndc:00000000:81C115:00000048:FFFFFFFF:Infinite Energy PL3
-:orlegndc:00010000:81CB3D:000000A0:FFFFFFFF:Infinite Energy PL3 (2/2)
-:orlegndc:00000000:81C1DC:00000080:FFFFFFFF:Invincibility "ON" PL3(buggy):Some monsters can sometimes hit you !
-:orlegndc:00000001:81C1DC:00000000:FFFFFFFF:Invincibility "OFF" PL3
-:orlegndc:00000000:81CB86:0000000A:FFFFFFFF:Infinite Lives PL4
-:orlegndc:00000000:81C253:00000048:FFFFFFFF:Infinite Energy PL4
-:orlegndc:00010000:81CD89:000000D8:FFFFFFFF:Infinite Energy PL4 (2/2)
-:orlegndc:00000000:81C31A:00000080:FFFFFFFF:Invincibility "ON" PL4(buggy):Some monsters can sometimes hit you !
-:orlegndc:00000001:81C31A:00000000:FFFFFFFF:Invincibility "OFF" PL4
+; [ Oriental Legend / Xiyou Shi E Zhuan (ver. 112, Chinese Board) ]
+:orlegendc:00000000:80C06E:00000064:FFFFFFFF:Infinite Time
+:orlegendc:00000000:81C4A2:0000000A:FFFFFFFF:Infinite Lives PL1
+:orlegendc:00000000:81BE99:00000048:FFFFFFFF:Infinite Energy PL1
+:orlegendc:00010000:81C6A5:00000030:FFFFFFFF:Infinite Energy PL1 (2/2)
+:orlegendc:00000000:81BF60:00000080:FFFFFFFF:Invincibility "ON" PL1(buggy):Some monsters can sometimes hit you !
+:orlegendc:00000001:81BF60:00000000:FFFFFFFF:Invincibility "OFF" PL1
+:orlegendc:00000000:81C6EE:0000000A:FFFFFFFF:Infinite Lives PL2
+:orlegendc:00000000:81BFD7:00000048:FFFFFFFF:Infinite Energy PL2
+:orlegendc:00010000:81C8F1:00000068:FFFFFFFF:Infinite Energy PL2 (2/2)
+:orlegendc:00000000:81C09E:00000080:FFFFFFFF:Invincibility "ON" PL2(buggy):Some monsters can sometimes hit you !
+:orlegendc:00000001:81C09E:00000000:FFFFFFFF:Invincibility "OFF" PL2
+:orlegendc:00000000:81C93A:0000000A:FFFFFFFF:Infinite Lives PL3
+:orlegendc:00000000:81C115:00000048:FFFFFFFF:Infinite Energy PL3
+:orlegendc:00010000:81CB3D:000000A0:FFFFFFFF:Infinite Energy PL3 (2/2)
+:orlegendc:00000000:81C1DC:00000080:FFFFFFFF:Invincibility "ON" PL3(buggy):Some monsters can sometimes hit you !
+:orlegendc:00000001:81C1DC:00000000:FFFFFFFF:Invincibility "OFF" PL3
+:orlegendc:00000000:81CB86:0000000A:FFFFFFFF:Infinite Lives PL4
+:orlegendc:00000000:81C253:00000048:FFFFFFFF:Infinite Energy PL4
+:orlegendc:00010000:81CD89:000000D8:FFFFFFFF:Infinite Energy PL4 (2/2)
+:orlegendc:00000000:81C31A:00000080:FFFFFFFF:Invincibility "ON" PL4(buggy):Some monsters can sometimes hit you !
+:orlegendc:00000001:81C31A:00000000:FFFFFFFF:Invincibility "OFF" PL4
 
-; [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 112) ]
-:orlegnde:00000000:80C06E:00000064:FFFFFFFF:Infinite Time
-:orlegnde:00000000:81C4A2:0000000A:FFFFFFFF:Infinite Lives PL1
-:orlegnde:00000000:81BE99:00000048:FFFFFFFF:Infinite Energy PL1
-:orlegnde:00010000:81C6A5:00000030:FFFFFFFF:Infinite Energy PL1 (2/2)
-:orlegnde:00000000:81BF60:00000080:FFFFFFFF:Invincibility "ON" PL1(buggy):Some monsters can sometimes hit you !
-:orlegnde:00000001:81BF60:00000000:FFFFFFFF:Invincibility "OFF" PL1
-:orlegnde:00000000:81C6EE:0000000A:FFFFFFFF:Infinite Lives PL2
-:orlegnde:00000000:81BFD7:00000048:FFFFFFFF:Infinite Energy PL2
-:orlegnde:00010000:81C8F1:00000068:FFFFFFFF:Infinite Energy PL2 (2/2)
-:orlegnde:00000000:81C09E:00000080:FFFFFFFF:Invincibility "ON" PL2(buggy):Some monsters can sometimes hit you !
-:orlegnde:00000001:81C09E:00000000:FFFFFFFF:Invincibility "OFF" PL2
-:orlegnde:00000000:81C93A:0000000A:FFFFFFFF:Infinite Lives PL3
-:orlegnde:00000000:81C115:00000048:FFFFFFFF:Infinite Energy PL3
-:orlegnde:00010000:81CB3D:000000A0:FFFFFFFF:Infinite Energy PL3 (2/2)
-:orlegnde:00000000:81C1DC:00000080:FFFFFFFF:Invincibility "ON" PL3(buggy):Some monsters can sometimes hit you !
-:orlegnde:00000001:81C1DC:00000000:FFFFFFFF:Invincibility "OFF" PL3
-:orlegnde:00000000:81CB86:0000000A:FFFFFFFF:Infinite Lives PL4
-:orlegnde:00000000:81C253:00000048:FFFFFFFF:Infinite Energy PL4
-:orlegnde:00010000:81CD89:000000D8:FFFFFFFF:Infinite Energy PL4 (2/2)
-:orlegnde:00000000:81C31A:00000080:FFFFFFFF:Invincibility "ON" PL4(buggy):Some monsters can sometimes hit you !
-:orlegnde:00000001:81C31A:00000000:FFFFFFFF:Invincibility "OFF" PL4
+; [ Oriental Legend / Xiyou Shi E Zhuan (ver. 112) ]
+:orlegende:00000000:80C06E:00000064:FFFFFFFF:Infinite Time
+:orlegende:00000000:81C4A2:0000000A:FFFFFFFF:Infinite Lives PL1
+:orlegende:00000000:81BE99:00000048:FFFFFFFF:Infinite Energy PL1
+:orlegende:00010000:81C6A5:00000030:FFFFFFFF:Infinite Energy PL1 (2/2)
+:orlegende:00000000:81BF60:00000080:FFFFFFFF:Invincibility "ON" PL1(buggy):Some monsters can sometimes hit you !
+:orlegende:00000001:81BF60:00000000:FFFFFFFF:Invincibility "OFF" PL1
+:orlegende:00000000:81C6EE:0000000A:FFFFFFFF:Infinite Lives PL2
+:orlegende:00000000:81BFD7:00000048:FFFFFFFF:Infinite Energy PL2
+:orlegende:00010000:81C8F1:00000068:FFFFFFFF:Infinite Energy PL2 (2/2)
+:orlegende:00000000:81C09E:00000080:FFFFFFFF:Invincibility "ON" PL2(buggy):Some monsters can sometimes hit you !
+:orlegende:00000001:81C09E:00000000:FFFFFFFF:Invincibility "OFF" PL2
+:orlegende:00000000:81C93A:0000000A:FFFFFFFF:Infinite Lives PL3
+:orlegende:00000000:81C115:00000048:FFFFFFFF:Infinite Energy PL3
+:orlegende:00010000:81CB3D:000000A0:FFFFFFFF:Infinite Energy PL3 (2/2)
+:orlegende:00000000:81C1DC:00000080:FFFFFFFF:Invincibility "ON" PL3(buggy):Some monsters can sometimes hit you !
+:orlegende:00000001:81C1DC:00000000:FFFFFFFF:Invincibility "OFF" PL3
+:orlegende:00000000:81CB86:0000000A:FFFFFFFF:Infinite Lives PL4
+:orlegende:00000000:81C253:00000048:FFFFFFFF:Infinite Energy PL4
+:orlegende:00010000:81CD89:000000D8:FFFFFFFF:Infinite Energy PL4 (2/2)
+:orlegende:00000000:81C31A:00000080:FFFFFFFF:Invincibility "ON" PL4(buggy):Some monsters can sometimes hit you !
+:orlegende:00000001:81C31A:00000000:FFFFFFFF:Invincibility "OFF" PL4
 
 ; [ OutRunners (World) ]
 :orunners:00000000:0020E0A0:00000018:FFFFFFFF:Infinite Credits PL1
@@ -130787,7 +130787,7 @@
 :phoenixt:00000000:43C0:00000084:FFFFFFFF:Infinite Shields
 :phoenixt:20800000:0CC4:000000C9:FFFFFFFF:Invincibility
 
-; [ Photo Y2K ]
+; [ Photo Y2K / Chaoji Bi Yi Bi / Dajia Lai Zhao Cha / Real and Fake (ver. 105) ]
 :photoy2k:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :photoy2k:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :photoy2k:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -136146,7 +136146,7 @@
 :puzloopu:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :puzloopu:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Puzzle Star ]
+; [ Puzzle Star / Mohuan Xingzuo (ver. 100MG, 09/30/99 build) ]
 :puzlstar:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :puzlstar:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :puzlstar:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -136434,7 +136434,7 @@
 :puzzli:00000001:80D4F7:00000007:FFFFFFFF:Next fish is Dark Orange Now! PL2
 :puzzli:00000001:80D4F7:00000008:FFFFFFFF:Next fish is Black & White Now! PL2
 
-; [ Puzzli 2 Super ]
+; [ Puzzli 2 / Pao Pao Yu (ver. 100) ]
 :puzzli2:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :puzzli2:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :puzzli2:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -138410,15 +138410,15 @@
 :radru:00000010:20F4C3:00000001:00000001:Quick Recovery
 :radru:00010000:20F4CB:00000000:FFFFFFFF:Quick Recovery (2/2)
 
-; [ Real and Fake / Photo Y2K (ver. 102, Japan Board) ]
-:raf102j:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:raf102j:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+; [ Photo Y2K / Chaoji Bi Yi Bi / Dajia Lai Zhao Cha / Real and Fake (ver. 102, Japanese Board) ]
+:photoy2k102j:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:photoy2k102j:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Rafflesia ]
 :raflesia:00000000:0C028:00000009:FFFFFFFF:Infinite Credits
@@ -183877,7 +183877,7 @@
 :theends:20800000:1A03:00000018:FFFFFFFF:Invincibility
 :theends:00000000:427C:00000001:FFFFFFFF:Autofire Mode "ON"
 
-; [ Gladiator, The ]
+; [ The Gladiator / Shen Jian Fu Mo Lu / Shen Jian Fengyun (M68k label V101) (ARM label V107, ROM 06/06/03 SHEN JIAN V107) ]
 :theglad:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :theglad:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :theglad:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -203511,7 +203511,7 @@
 ; { Reason 01 } ; rachero   [ Racing Hero (FD1094 317-0144) ]
 ; { Reason 01 } ; racingj   [ Racing Jam ]
 ; { Reason 01 } ; racingj2  [ Racing Jam: Chapter 2 ]
-; { Reason 01 } ; raf102j   [ Real and Fake / Photo Y2K (ver. 102, Japan Board) ]
+; { Reason 01 } ; photoy2k102j   [ Real and Fake / Photo Y2K (ver. 102, Japan Board) ]
 ; { Reason 01 } ; raiden2   [ Raiden 2 (set 1, US Fabtek) ]
 ; { Reason 01 } ; raiden2a  [ Raiden 2 (set 2, Metrotainment) ]
 ; { Reason 01 } ; raiden2b  [ Raiden 2 (set 3, Japan) ]
@@ -203869,8 +203869,8 @@
 ; { Reason 11 } ; nbapbp    [ NBA Play By Play ]
 ; { Reason 11 } ; nmg5      [ Multi 5 / New Multi Game 5 ]
 ; { Reason 11 } ; noahsark  [ Noah's Ark ]
-; { Reason 11 } ; orld105k  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 105, Korean Booard) ]
-; { Reason 11 } ; orld111c  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 111, Chinese Board) ]
+; { Reason 11 } ; orlegend105k  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 105, Korean Booard) ]
+; { Reason 11 } ; orlegend111c  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 111, Chinese Board) ]
 ; { Reason 11 } ; outzonec  [ Out Zone (set 4) ]
 ; { Reason 11 } ; pacapp2   [ Paca Paca Passion 2 (PKS1/VER.A) ]
 ; { Reason 11 } ; pacappsp  [ Paca Paca Passion Special (PSP1/VER.A) ]
@@ -204969,7 +204969,7 @@
 ;konamigt~rf2
 ;kotm=kotmh
 ;kov2=kov2106=kov2p    (unchecked relationship)
-;kov=kov115=kovj~kovplus
+;kov=kov115=kov111~kovplus
 ;kram=kram2=kram3
 ;ktiger2=tcobra2=tcobra2u
 ;kuhga=vaportra=vaportru
@@ -205142,7 +205142,7 @@
 ;opwolf3=opwolf3u
 ;opwolf=opwolfb=opwolfu
 ;ordyne=ordynej
-;orld105k=orld111c~(orlegend=orlegndc=orlegnde)
+;orlegend105k=orlegend111c~(orlegend=orlegendc=orlegende)
 ;orunners=orunneru
 ;oscar=oscarj=oscarj0=oscarj1
 ;othunder=othundrj=othundu=othunduo
