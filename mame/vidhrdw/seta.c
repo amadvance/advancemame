@@ -173,7 +173,7 @@ static struct x_offset game_offsets[] =
 {
 	/* only sprites */
 	{ "tndrcade", { -1,  0 } },				// correct (wall at beginning of game)
-	{ "tndrcadj", { -1,  0 } },				// correct (wall at beginning of game)
+	{ "tndrcadej", { -1,  0 } },				// correct (wall at beginning of game)
 	{ "wits",     {  0,  0 } },				// unknown
 	{ "thunderl", {  0,  0 } },				// unknown
 	{ "wiggie",   {  0,  0 } },				// some problems but they seem y co-ordinate related?
@@ -197,13 +197,15 @@ static struct x_offset game_offsets[] =
 
 	/* 2 layers */
 	{ "rezon",    {  0,  0 }, { -2, -2 } },	// correct (test grid)
+	{ "rezono",   {  0,  0 }, { -2, -2 } },	// correct (test grid)
 	{ "blandia",  {  0,  8 }, { -2,  6 } },	// correct (test grid, startup bg)
 	{ "blandiap", {  0,  8 }, { -2,  6 } },	// correct (test grid, startup bg)
 	{ "zingzip",  {  0,  0 }, { -1, -2 } },	// sprites unknown, tilemaps correct (test grid)
 	{ "eightfrc", {  3,  4 }, {  0,  0 } },	// unknown
 	{ "daioh",    {  1,  1 }, { -1, -1 } },	// correct? (launch window and test grid are right, but planet is wrong)
+	{ "daioha",   {  1,  1 }, { -1, -1 } },	// correct? (launch window and test grid are right, but planet is wrong)
 	{ "msgundam", {  0,  0 }, { -2, -2 } },	// correct (test grid, banpresto logo)
-	{ "msgunda1", {  0,  0 }, { -2, -2 } },	// correct (test grid, banpresto logo)
+	{ "msgundam1", {  0,  0 }, { -2, -2 } },	// correct (test grid, banpresto logo)
 	{ "oisipuzl", {  0,  0 }, { -1, -1 } },	// correct (test mode) flip screen not supported?
 	{ "triplfun", {  0,  0 }, { -1, -1 } },	// correct (test mode) flip screen not supported?
 	{ "wrofaero", {  0,  0 }, {  0,  0 } },	// unknown

@@ -6712,12 +6712,12 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ponchin )	/* (c) 1991 Visco */
 	DRIVER( ponchina )	/* (c) 1991 Visco */
 	DRIVER( tndrcade )	/* UA-0 (c) 1987 Taito */
-	DRIVER( tndrcadj )	/* UA-0 (c) 1987 Taito */
+	DRIVER( tndrcadej )	/* UA-0 (c) 1987 Taito */
 	DRIVER( twineagl )	/* UA-2 (c) 1988 + Taito license */
 	DRIVER( downtown )	/* UD-2 (c) 1989 + Romstar or Taito license (DSW) */
-	DRIVER( downtow2 )	/* UD-2 (c) 1989 + Romstar or Taito license (DSW) */
-	DRIVER( downtowp )	/* UD-2 (c) 1989 + Romstar or Taito license (DSW) */
-	DRIVER( downtowj )	/* bootleg */
+	DRIVER( downtown2 )	/* UD-2 (c) 1989 + Romstar or Taito license (DSW) */
+	DRIVER( downtownp )	/* UD-2 (c) 1989 + Romstar or Taito license (DSW) */
+	DRIVER( downtownj )	/* bootleg */
 	DRIVER( usclssic )	/* UE   (c) 1989 + Romstar or Taito license (DSW) */
 	DRIVER( calibr50 )	/* UH   (c) 1989 + Romstar or Taito license (DSW) */
 	DRIVER( arbalest )	/* UK   (c) 1989 + Jordan, Romstar or Taito license (DSW) */
@@ -6726,8 +6726,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( wits )		/* (c) 1989 Athena (Visco license) */
 	DRIVER( thunderl )	/* (c) 1990 Seta + Romstar or Visco license (DSW) */
 	DRIVER( wiggie )	/* (c) 1994 Promat (not genuine seta hardware, but based on thunderl code) */
-	DRIVER( rezon )		/* (c) 1991 Allumer */
-	DRIVER( rezont )	/* (c) 1991 Allumer / Taito */
+	DRIVER( rezon )		/* (c) 1992 Allumer */
+	DRIVER( rezono )	/* (c) 1991 Allumer */
 	DRIVER( stg )		/* (c) 1991 Athena / Tecmo */
 	DRIVER( pairlove )	/* (c) 1991 Athena */
 	DRIVER( blandia )	/* (c) 1992 Allumer */
@@ -6742,8 +6742,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kamenrid )	/* (c) 1993 Toei / Banpresto */
 	DRIVER( madshark )	/* (c) 1993 Allumer */
 	DRIVER( msgundam )	/* (c) 1993 Banpresto */
-	DRIVER( msgunda1 )	/* (c) 1993 Banpresto */
+	DRIVER( msgundam1 )	/* (c) 1993 Banpresto */
 	DRIVER( daioh )		/* (C) 1993 Athena */
+	DRIVER( daioha )	/* (C) 1993 Athena */
 	DRIVER( oisipuzl )	/* (c) 1993 SunSoft / Atlus */
 	DRIVER( triplfun )	/* bootleg */
 	DRIVER( utoukond )	/* (c) 1993 Banpresto + Tsuburaya Prod. */

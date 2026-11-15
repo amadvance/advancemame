@@ -47086,7 +47086,7 @@ Sharp X68000 (1994)
 $end
 
 
-$info=daioh,
+$info=daioh,daioha,
 $bio
 
 Daioh (c) 07/1993 Athena.
@@ -57079,7 +57079,7 @@ Players : 1
 $end
 
 
-$info=downtown,downtowp,
+$info=downtown,downtownp,
 $bio
 
 DownTown (c) 08/1989 Seta.
@@ -134740,7 +134740,7 @@ Buttons : 3
 $end
 
 
-$info=msgundam,msgunda1,
+$info=msgundam,msgundam1,
 $bio
 
 Mobile Suit Gundam - Kidou Senshi Gundam (c) 09/1993 Banpresto.
@@ -178321,7 +178321,7 @@ PC [MS Windows, CD-ROM] (1995)
 $end
 
 
-$info=rezon,rezont,
+$info=rezon,rezono,
 $bio
 
 Rezon (c) 1991 Allumer.
@@ -236048,7 +236048,7 @@ Amstrad CPC (1988)
 $end
 
 
-$info=tndrcadj,
+$info=tndrcadej,
 $bio
 
 Tokusyu Butai U.A.G. (c) 1987 Seta.

@@ -39937,13 +39937,13 @@
 :dowild:20810000:96A6:000000C9:FFFFFFFF:Invincibility (8/8):Pirate Ship
 
 ; [ DownTown (Set 2) ]
-:downtow2:00000000:FFEF06:00000099:FFFFFFFF:Infinite Time
-:downtow2:00000000:FFEFA7:00000009:FFFFFFFF:Infinite Lives PL1
-:downtow2:00000000:FFEFB2:00000008:FFFFFFFF:Infinite Energy PL1
-:downtow2:00000000:FFEFAF:0000001E:FFFFFFFF:Invincibility (flickers) PL1
-:downtow2:00000000:FFEFE7:00000009:FFFFFFFF:Infinite Lives PL2
-:downtow2:00000000:FFEFF2:00000008:FFFFFFFF:Infinite Energy PL2
-:downtow2:00000000:FFEFEF:0000001E:FFFFFFFF:Invincibility (flickers) PL2
+:downtown2:00000000:FFEF06:00000099:FFFFFFFF:Infinite Time
+:downtown2:00000000:FFEFA7:00000009:FFFFFFFF:Infinite Lives PL1
+:downtown2:00000000:FFEFB2:00000008:FFFFFFFF:Infinite Energy PL1
+:downtown2:00000000:FFEFAF:0000001E:FFFFFFFF:Invincibility (flickers) PL1
+:downtown2:00000000:FFEFE7:00000009:FFFFFFFF:Infinite Lives PL2
+:downtown2:00000000:FFEFF2:00000008:FFFFFFFF:Infinite Energy PL2
+:downtown2:00000000:FFEFEF:0000001E:FFFFFFFF:Invincibility (flickers) PL2
 
 ; [ DownTown (Set 1) ]
 :downtown:00000000:FFEF06:00000099:FFFFFFFF:Infinite Time
@@ -39955,13 +39955,13 @@
 :downtown:00000000:FFEFEF:0000001E:FFFFFFFF:Invincibility (flickers) PL2
 
 ; [ DownTown (prototype) ]
-:downtowp:00000000:FFEF06:00000099:FFFFFFFF:Infinite Time
-:downtowp:00000000:FFEFA7:00000009:FFFFFFFF:Infinite Lives PL1
-:downtowp:00000000:FFEFB2:00000008:FFFFFFFF:Infinite Energy PL1
-:downtowp:00000000:FFEFAF:0000001E:FFFFFFFF:Invincibility (flickers) PL1
-:downtowp:00000000:FFEFE7:00000009:FFFFFFFF:Infinite Lives PL2
-:downtowp:00000000:FFEFF2:00000008:FFFFFFFF:Infinite Energy PL2
-:downtowp:00000000:FFEFEF:0000001E:FFFFFFFF:Invincibility (flickers) PL2
+:downtownp:00000000:FFEF06:00000099:FFFFFFFF:Infinite Time
+:downtownp:00000000:FFEFA7:00000009:FFFFFFFF:Infinite Lives PL1
+:downtownp:00000000:FFEFB2:00000008:FFFFFFFF:Infinite Energy PL1
+:downtownp:00000000:FFEFAF:0000001E:FFFFFFFF:Invincibility (flickers) PL1
+:downtownp:00000000:FFEFE7:00000009:FFFFFFFF:Infinite Lives PL2
+:downtownp:00000000:FFEFF2:00000008:FFFFFFFF:Infinite Energy PL2
+:downtownp:00000000:FFEFEF:0000001E:FFFFFFFF:Invincibility (flickers) PL2
 
 ; [ Double Play ]
 :dplay:00000000:22E5:00000000:FFFFFFFF:Infinite Strikes
@@ -101153,14 +101153,14 @@
 :mscoutm:00010000:F166:00000035:FFFFFFFF:Always winning hand (14/14)
 
 ; [ Mobile Suit Gundam (Japan) ]
-:msgunda1:00000000:201F9C:0000000D:FFFFFFFF:Infinite Time
-:msgunda1:00010000:201F9D:000000EC:FFFFFFFF:Infinite Time (2/2)
-:msgunda1:00000001:201F9C:00000000:FFFFFFFF:Finish this Round Now!
-:msgunda1:00010001:201F9D:00000001:FFFFFFFF:Finish this Round Now! (2/2)
-:msgunda1:00000000:202883:000000A0:FFFFFFFF:Infinite Energy PL1
-:msgunda1:00000001:202883:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:msgunda1:00000000:2029AF:000000A0:FFFFFFFF:Infinite Energy PL2
-:msgunda1:00000001:2029AF:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:msgundam1:00000000:201F9C:0000000D:FFFFFFFF:Infinite Time
+:msgundam1:00010000:201F9D:000000EC:FFFFFFFF:Infinite Time (2/2)
+:msgundam1:00000001:201F9C:00000000:FFFFFFFF:Finish this Round Now!
+:msgundam1:00010001:201F9D:00000001:FFFFFFFF:Finish this Round Now! (2/2)
+:msgundam1:00000000:202883:000000A0:FFFFFFFF:Infinite Energy PL1
+:msgundam1:00000001:202883:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:msgundam1:00000000:2029AF:000000A0:FFFFFFFF:Infinite Energy PL2
+:msgundam1:00000001:2029AF:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Mobile Suit Gundam ]
 :msgundam:00000000:201F9C:0000000D:FFFFFFFF:Infinite Time
@@ -141285,48 +141285,48 @@
 :rezon:00000000:20064F:00000010:00000010:Rapid Fire PL2:Turn it OFF on the name entry screen
 
 ; [ Rezon (Taito) ]
-:rezont:00000000:201C41:00000009:FFFFFFFF:Infinite Credits
-:rezont:20800000:0086CC:00000060:FFFFFFFF:Invincibility
-:rezont:20910000:0088E2:00006014:FFFFFFFF:Invincibility (2/2):1st = Scenery, 2nd = Object
-:rezont:00000000:200685:00000001:FFFFFFFF:Pannier Pod Guns "ON"
-:rezont:00000001:200685:00000000:FFFFFFFF:Pannier Pod Guns "OFF"
-:rezont:00000000:200695:00000002:FFFFFFFF:Always have Maximum Pod Shot Power
-:rezont:62000000:000000:00000000:00000000:Select Pod Weapon
-:rezont:00010000:200693:00000000:FFFFFFFF:Red (Laser)
-:rezont:00010000:200693:00000001:FFFFFFFF:Yellow (Ring)
-:rezont:00010000:200693:00000003:FFFFFFFF:Blue (Ball)
-:rezont:62000000:000000:00000000:00000000:Select Starting Stage PL1:Enable on the title screen after you've inserted a credit
-:rezont:00211001:20063F:00000000:FFFFFFFF:Stage 1-1
-:rezont:00211001:20063F:00000001:FFFFFFFF:Stage 1-2
-:rezont:00211001:20063F:00010000:FFFFFFFF:Stage 2-1
-:rezont:00211001:20063F:00010001:FFFFFFFF:Stage 2-2
-:rezont:00211001:20063F:00020000:FFFFFFFF:Stage 3-1
-:rezont:00211001:20063F:00020001:FFFFFFFF:Stage 3-2
-:rezont:00211001:20063F:00030000:FFFFFFFF:Stage 4-1
-:rezont:00211001:20063F:00030001:FFFFFFFF:Stage 4-2
-:rezont:00211001:20063F:00040000:FFFFFFFF:Stage 5-1
-:rezont:00211001:20063F:00040001:FFFFFFFF:Stage 5-2
-:rezont:00211001:20063F:00050000:FFFFFFFF:Stage 6-1
-:rezont:00211001:20063F:00050001:FFFFFFFF:Stage 6-2
-:rezont:00000000:20063D:00000008:FFFFFFFF:Infinite Lives PL1
-:rezont:00000100:200627:00000005:FFFFFFFF:Select Speed PL1
-:rezont:00000000:200629:00000010:00000010:Rapid Fire PL1:Turn it OFF on the name entry screen
-:rezont:62000000:000000:00000000:00000000:Select Starting Stage PL2:Enable on the title screen after you've inserted a credit
-:rezont:00211001:200665:00000000:FFFFFFFF:Stage 1-1
-:rezont:00211001:200665:00000001:FFFFFFFF:Stage 1-2
-:rezont:00211001:200665:00010000:FFFFFFFF:Stage 2-1
-:rezont:00211001:200665:00010001:FFFFFFFF:Stage 2-2
-:rezont:00211001:200665:00020000:FFFFFFFF:Stage 3-1
-:rezont:00211001:200665:00020001:FFFFFFFF:Stage 3-2
-:rezont:00211001:200665:00030000:FFFFFFFF:Stage 4-1
-:rezont:00211001:200665:00030001:FFFFFFFF:Stage 4-2
-:rezont:00211001:200665:00040000:FFFFFFFF:Stage 5-1
-:rezont:00211001:200665:00040001:FFFFFFFF:Stage 5-2
-:rezont:00211001:200665:00050000:FFFFFFFF:Stage 6-1
-:rezont:00211001:200665:00050001:FFFFFFFF:Stage 6-2
-:rezont:00000000:200663:00000008:FFFFFFFF:Infinite Lives PL2
-:rezont:00000100:20064D:00000005:FFFFFFFF:Select Speed PL2
-:rezont:00000000:20064F:00000010:00000010:Rapid Fire PL2:Turn it OFF on the name entry screen
+:rezono:00000000:201C41:00000009:FFFFFFFF:Infinite Credits
+:rezono:20800000:0086CC:00000060:FFFFFFFF:Invincibility
+:rezono:20910000:0088E2:00006014:FFFFFFFF:Invincibility (2/2):1st = Scenery, 2nd = Object
+:rezono:00000000:200685:00000001:FFFFFFFF:Pannier Pod Guns "ON"
+:rezono:00000001:200685:00000000:FFFFFFFF:Pannier Pod Guns "OFF"
+:rezono:00000000:200695:00000002:FFFFFFFF:Always have Maximum Pod Shot Power
+:rezono:62000000:000000:00000000:00000000:Select Pod Weapon
+:rezono:00010000:200693:00000000:FFFFFFFF:Red (Laser)
+:rezono:00010000:200693:00000001:FFFFFFFF:Yellow (Ring)
+:rezono:00010000:200693:00000003:FFFFFFFF:Blue (Ball)
+:rezono:62000000:000000:00000000:00000000:Select Starting Stage PL1:Enable on the title screen after you've inserted a credit
+:rezono:00211001:20063F:00000000:FFFFFFFF:Stage 1-1
+:rezono:00211001:20063F:00000001:FFFFFFFF:Stage 1-2
+:rezono:00211001:20063F:00010000:FFFFFFFF:Stage 2-1
+:rezono:00211001:20063F:00010001:FFFFFFFF:Stage 2-2
+:rezono:00211001:20063F:00020000:FFFFFFFF:Stage 3-1
+:rezono:00211001:20063F:00020001:FFFFFFFF:Stage 3-2
+:rezono:00211001:20063F:00030000:FFFFFFFF:Stage 4-1
+:rezono:00211001:20063F:00030001:FFFFFFFF:Stage 4-2
+:rezono:00211001:20063F:00040000:FFFFFFFF:Stage 5-1
+:rezono:00211001:20063F:00040001:FFFFFFFF:Stage 5-2
+:rezono:00211001:20063F:00050000:FFFFFFFF:Stage 6-1
+:rezono:00211001:20063F:00050001:FFFFFFFF:Stage 6-2
+:rezono:00000000:20063D:00000008:FFFFFFFF:Infinite Lives PL1
+:rezono:00000100:200627:00000005:FFFFFFFF:Select Speed PL1
+:rezono:00000000:200629:00000010:00000010:Rapid Fire PL1:Turn it OFF on the name entry screen
+:rezono:62000000:000000:00000000:00000000:Select Starting Stage PL2:Enable on the title screen after you've inserted a credit
+:rezono:00211001:200665:00000000:FFFFFFFF:Stage 1-1
+:rezono:00211001:200665:00000001:FFFFFFFF:Stage 1-2
+:rezono:00211001:200665:00010000:FFFFFFFF:Stage 2-1
+:rezono:00211001:200665:00010001:FFFFFFFF:Stage 2-2
+:rezono:00211001:200665:00020000:FFFFFFFF:Stage 3-1
+:rezono:00211001:200665:00020001:FFFFFFFF:Stage 3-2
+:rezono:00211001:200665:00030000:FFFFFFFF:Stage 4-1
+:rezono:00211001:200665:00030001:FFFFFFFF:Stage 4-2
+:rezono:00211001:200665:00040000:FFFFFFFF:Stage 5-1
+:rezono:00211001:200665:00040001:FFFFFFFF:Stage 5-2
+:rezono:00211001:200665:00050000:FFFFFFFF:Stage 6-1
+:rezono:00211001:200665:00050001:FFFFFFFF:Stage 6-2
+:rezono:00000000:200663:00000008:FFFFFFFF:Infinite Lives PL2
+:rezono:00000100:20064D:00000005:FFFFFFFF:Select Speed PL2
+:rezono:00000000:20064F:00000010:00000010:Rapid Fire PL2:Turn it OFF on the name entry screen
 
 ; [ Konami RF2 - Red Fighter ]
 :rf2:00000000:1E204:00000047:FFFFFFFF:Infinite Fuel
@@ -185216,15 +185216,15 @@
 :tndrcade:00000000:E007D1:00000002:FFFFFFFF:Invincibility PL2:Sprite Flickers
 
 ; [ Tokusyu Butai U.A.G. (Japan) ]
-:tndrcadj:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
-:tndrcadj:60000000:000000:00000000:00000000:[enable an alternate        ]
-:tndrcadj:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
-:tndrcadj:00000000:E00741:00000009:FFFFFFFF:Infinite Lives PL1
-:tndrcadj:00000000:E00743:00000009:FFFFFFFF:Infinite Bombs PL1
-:tndrcadj:00000000:E00751:00000002:FFFFFFFF:Invincibility PL1:Sprite Flickers
-:tndrcadj:00000000:E007C1:00000009:FFFFFFFF:Infinite Lives PL2
-:tndrcadj:00000000:E007C3:00000009:FFFFFFFF:Infinite Bombs PL2
-:tndrcadj:00000000:E007D1:00000002:FFFFFFFF:Invincibility PL2:Sprite Flickers
+:tndrcadej:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
+:tndrcadej:60000000:000000:00000000:00000000:[enable an alternate        ]
+:tndrcadej:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
+:tndrcadej:00000000:E00741:00000009:FFFFFFFF:Infinite Lives PL1
+:tndrcadej:00000000:E00743:00000009:FFFFFFFF:Infinite Bombs PL1
+:tndrcadej:00000000:E00751:00000002:FFFFFFFF:Invincibility PL1:Sprite Flickers
+:tndrcadej:00000000:E007C1:00000009:FFFFFFFF:Infinite Lives PL2
+:tndrcadej:00000000:E007C3:00000009:FFFFFFFF:Infinite Bombs PL2
+:tndrcadej:00000000:E007D1:00000002:FFFFFFFF:Invincibility PL2:Sprite Flickers
 
 ; [ Next Space, The ]
 :tnexspce:00000000:72171:0000009A:FFFFFFFF:Infinite Lives PL1
@@ -204683,7 +204683,7 @@
 ;dorodon=dorodon2~=(ladybgb2=ladybug=ladybugb~ladybugg)  {ladybugg still has cheats to translate from other clones}
 ;dorunru2=dorunrun=spiero~dorunrca=dorunruc
 ;dotron=dotrona=dotrone
-;downtow2=downtown=downtowp
+;downtown2=downtown=downtownp
 ;dplay=einnings
 ;dragoona=dragoonj
 ;drgnbowl=gaiden=ryukendn=shadoww=shadowwa
@@ -205088,7 +205088,7 @@
 ;mrviking=mrvikngj
 ;ms4plus=mslug4 (look at weapon cheats - they may not work?)
 ;ms5pcb=ms5plus=mslug5
-;msgunda1=msgundam
+;msgundam1=msgundam
 ;msh=msha=mshb=mshh=mshj=mshjr1=mshu
 ;mshuttle=mshutlj2=mshuttlj
 ;mshvsf=mshvsfa=mshvsfa1=mshvsfb=mshvsfb1=mshvsfh=mshvsfj=mshvsfj1=mshvsfj2=mshvsfu=mshvsfu1
@@ -205266,7 +205266,7 @@
 ;relief~relief2
 ;rescraid=rescrdsa
 ;retofin1=retofin2=retofinv
-;rezon=rezont
+;rezon=rezono
 ;rfjet=rfjeta=rfjetj=rfjetu=rfjetus
 ;ridefgtj=ridefgtu=ridingf
 ;ridger2a=ridger2b=ridgera2    (unchecked relationship)
@@ -205486,7 +205486,7 @@
 ;tmek~tmekprot
 ;tmht=tmnt=tmntj=tmntu=tmntua~=(tmht2p=tmnt2p=tmnt2pj=tmnt2po)
 ;tmnt2=tmnt2a~=tmnt22p
-;tndrcade=tndrcadj
+;tndrcade=tndrcadej
 ;tnk3=tnk3j
 ;tnzs=tnzsj~=tnzso
 ;todruaga=todruago
@@ -206323,7 +206323,7 @@
 ; reguluso (made by ShimaPong) [????]
 ; repulse (made by Shimapong) [Z80]
 ; rezon (made by ShimaPong) [????]
-; rezont (made by ShimaPong) [????]
+; rezono (made by ShimaPong) [????]
 ; ribbit (made by ShimaPong) [????]
 ; ringkin2 (made by ShimaPong) [????]
 ; ringking (made by ShimaPong) [????]

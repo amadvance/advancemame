@@ -1017,7 +1017,7 @@ spaceg:
 0:7007:3:00:00
 
 rezon:
-rezont:  ;******Rezon (Taito)
+rezono:  ;******Rezon (earlier)
 0:201c66:63:03:20
 0:2018ba:2:03:e8
 
@@ -3686,6 +3686,7 @@ nost:
 
 ;********(daioh)
 daioh:
+daioha:
 0:10748c:a3:00:05
 0:10748f:1:e8:e8
 
@@ -9593,7 +9594,7 @@ metafox:
 0:f014e6:8c:00:14
 
 tndrcade:
-tndrcadj:
+tndrcadej:
 0:e00301:96:00:2e
 
 thunderl:
