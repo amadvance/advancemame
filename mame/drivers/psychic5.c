@@ -774,22 +774,50 @@ MACHINE_DRIVER_END
 
 ROM_START( psychic5 )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 ) 				/* 2*64K for main CPU, Z80 */
-	ROM_LOAD( "p5d",          0x00000, 0x08000, CRC(90259249) SHA1(ac2d8dd95f6c04b6ad726136931e37dcd537e977) )
-	ROM_LOAD( "p5e",          0x10000, 0x10000, CRC(72298f34) SHA1(725be2fbf5f3622f646c0fb8e6677cbddf0b1fc2) )
+	ROM_LOAD( "myp5d",        0x00000, 0x08000, CRC(1d40a8c7) SHA1(79b36e690ea334c066b55b1e39ceb5fe0688cd7b) )
+	ROM_LOAD( "myp5e",        0x10000, 0x10000, CRC(2fa7e8c0) SHA1(d5096ebec58329346a3292ad2da1be3742fad093) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) 				/*64K for 2nd z80 CPU*/
-	ROM_LOAD( "p5a",          0x00000, 0x08000, CRC(50060ecd) SHA1(e6051fb4a1fa9429cfb6084e8a5dfe994a08280b) )
+	ROM_LOAD( "myp5a",        0x00000, 0x10000, CRC(6efee094) SHA1(ae2b5bf6199121520bf8428b8b160b987f5b474f) )
 
 	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "p5b",          0x00000, 0x10000, CRC(7e3f87d4) SHA1(b8e7fa3f96d2e3937e4cb530f105bb84d5743b43) )	/* sprite tiles */
 	ROM_LOAD( "p5c",          0x10000, 0x10000, CRC(8710fedb) SHA1(c7e8dc6b733e4ecce37d56fc429c00ade8736ff3) )
 
 	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "p5g",          0x00000, 0x10000, CRC(f9262f32) SHA1(bae2dc77be7024bd85f213e4da746c5903db6ea5) )	/* background tiles */
-	ROM_LOAD( "p5h",          0x10000, 0x10000, CRC(c411171a) SHA1(d5893563715ba231e42b084b88f5176bb94a4da9) )
+	ROM_LOAD( "myp5g",        0x00000, 0x10000, CRC(617b074b) SHA1(7aaac9fddf5675b6698373333db3e096471d7ad6) )	/* background tiles */
+	ROM_LOAD( "myp5h",        0x10000, 0x10000, CRC(a9dfbe67) SHA1(f31f75e88f9b37d7fe5b1a1a8e0299151b729ccf) )
 
 	ROM_REGION( 0x08000, REGION_GFX3, ROMREGION_DISPOSE )
 	ROM_LOAD( "p5f",          0x00000, 0x08000, CRC(04d7e21c) SHA1(6046c506bdedc233e3730f90c7897e847bec8758) )	/* foreground tiles */
+
+	ROM_REGION( 0x08000, REGION_PROMS, 0 )
+	ROM_LOAD( "my10.7l",      0x000, 0x200, CRC(6a7d13c0) SHA1(2a835a4ac1acb7663d0b915d0339af9800284da6) )
+	ROM_LOAD( "my09.3t",      0x200, 0x400, CRC(59e44236) SHA1(f53d99694fa5acd7cc51dd78e09f0d2ef730e7a4) )
+ROM_END
+
+ROM_START( psychic5j )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 ) 				/* 2*64K for main CPU, Z80 */
+	ROM_LOAD( "4.7a",         0x00000, 0x08000, CRC(90259249) SHA1(ac2d8dd95f6c04b6ad726136931e37dcd537e977) )
+	ROM_LOAD( "5.7c",         0x10000, 0x10000, CRC(72298f34) SHA1(725be2fbf5f3622f646c0fb8e6677cbddf0b1fc2) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) 				/*64K for 2nd z80 CPU*/
+	ROM_LOAD( "1.2b",         0x00000, 0x10000, CRC(6efee094) SHA1(ae2b5bf6199121520bf8428b8b160b987f5b474f) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "2.4p",         0x00000, 0x10000, CRC(7e3f87d4) SHA1(b8e7fa3f96d2e3937e4cb530f105bb84d5743b43) )	/* sprite tiles */
+	ROM_LOAD( "3.4r",         0x10000, 0x10000, CRC(8710fedb) SHA1(c7e8dc6b733e4ecce37d56fc429c00ade8736ff3) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "7.2k",         0x00000, 0x10000, CRC(f9262f32) SHA1(bae2dc77be7024bd85f213e4da746c5903db6ea5) )	/* background tiles */
+	ROM_LOAD( "8.2m",         0x10000, 0x10000, CRC(c411171a) SHA1(d5893563715ba231e42b084b88f5176bb94a4da9) )
+
+	ROM_REGION( 0x08000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "6.5f",         0x00000, 0x08000, CRC(04d7e21c) SHA1(6046c506bdedc233e3730f90c7897e847bec8758) )	/* foreground tiles */
+
+	ROM_REGION( 0x08000, REGION_PROMS, 0 )
+	ROM_LOAD( "my10.7l",      0x000, 0x200, CRC(6a7d13c0) SHA1(2a835a4ac1acb7663d0b915d0339af9800284da6) )
+	ROM_LOAD( "my09.3t",      0x200, 0x400, CRC(59e44236) SHA1(f53d99694fa5acd7cc51dd78e09f0d2ef730e7a4) )
 ROM_END
 
 
@@ -822,5 +850,6 @@ ROM_START( bombsa )
 	ROM_LOAD( "82s137.3t",    0x200, 0x400, CRC(59e44236) SHA1(f53d99694fa5acd7cc51dd78e09f0d2ef730e7a4) )
 ROM_END
 
-GAME( 1987, psychic5, 0, psychic5, psychic5, 0, ROT270, "Jaleco", "Psychic 5", 0 )
-GAME( 1988, bombsa, 0, bombsa, bombsa, 0, ROT270, "Jaleco", "Bombs Away (prototype)", 0 )
+GAME( 1987, psychic5,  0,        psychic5, psychic5, 0, ROT270, "Jaleco / NMK", "Psychic 5 (World)", 0 )
+GAME( 1987, psychic5j, psychic5, psychic5, psychic5, 0, ROT270, "Jaleco / NMK", "Psychic 5 (Japan)", 0 )
+GAME( 1988, bombsa,    0,        bombsa,   bombsa,   0, ROT270, "Jaleco", "Bombs Away (prototype)", 0 )
