@@ -4345,12 +4345,16 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( lemmings )	/* prototype (c) 1991 Data East USA (US) */
 				/* MAQ ?? */
 	DRIVER( dragngun )	/* MAR (c) 1992 Data East Corporation (US) */
-	DRIVER( wizdfire )	/* MAS (c) 1992 Data East Corporation (US) */
-	DRIVER( darksel2 )	/* MAS (c) 1992 Data East Corporation (Japan) */
+	DRIVER( wizdfire )	/* MAS (c) 1992 Data East Corporation (Over Sea v2.1) */
+	DRIVER( wizdfirea )	/* MAS (c) 1992 Data East Corporation (Over Sea v1.0) */
+	DRIVER( wizdfireu )	/* MAS (c) 1992 Data East Corporation (US) */
+	DRIVER( darkseal2 )	/* MAS (c) 1992 Data East Corporation (Japan) */
 	DRIVER( funkyjet )	/* MAT (c) 1992 Mitchell */
 	DRIVER( funkyjej )	/* MAT (c) 1992 Mitchell */
 				/* MAU ?? */
-	DRIVER( nitrobal )	/* MAV (c) 1992 Data East Corporation (US) */
+	DRIVER( nitrobal )	/* MAV (c) 1992 Data East Corporation (World set 1) */
+	DRIVER( nitrobala )	/* MAV (c) 1992 Data East Corporation (World set 2) */
+	DRIVER( nitrobalb )	/* MAV (c) 1992 Data East Corporation (World set 3) */
 	DRIVER( gunball )	/* MAV (c) 1992 Data East Corporation (Japan) */
 				/* MAW ?? */
 				/* MAX ?? */
