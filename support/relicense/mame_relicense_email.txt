@@ -1,0 +1,355 @@
+# MAME Relicensing Request Email (May 2015)
+#
+# This file contains the original email exchange between Miodrag Milanovic
+# (on behalf of the MAME team) and Andrea Mazzoleni during the 2015-2016
+# MAME relicensing effort.
+#
+# It documents the standard request sent to MAME and MESS contributors,
+# asking permission to place their contributed files under an open-source
+# license (BSD-3-Clause, GPL-2.0, or LGPL-2.1).
+#
+# The messages are preserved in raw mbox format, including the original
+# Google DKIM-Signature headers for cryptographic verification. Remove
+# this comment block to open the file directly with a standard mbox reader.
+
+From mmicko@gmail.com  Thu May 28 14:47:42 2015
+Return-Path: <mmicko@gmail.com>
+Received: from redstar.example.org (localhost [127.0.0.1])
+	by redstar.example.org (8.14.9/8.14.5) with ESMTP id t4SCl9ci006161
+	for <am@localhost>; Thu, 28 May 2015 14:47:42 +0200
+Delivered-To: amadvance@gmail.com
+Received: from gmail-pop.l.google.com [74.125.136.108]
+	by redstar.example.org with POP3 (fetchmail-6.3.21)
+	for <am@localhost> (single-drop); Thu, 28 May 2015 14:47:42 +0200 (CEST)
+Received: by 10.107.134.139 with SMTP id q11csp189401ioi;
+        Fri, 22 May 2015 10:55:44 -0700 (PDT)
+X-Received: by 10.180.83.40 with SMTP id n8mr9778890wiy.57.1432317344286;
+        Fri, 22 May 2015 10:55:44 -0700 (PDT)
+Received: from mail-wg0-x234.google.com (mail-wg0-x234.google.com. [2a00:1450:400c:c00::234])
+        by mx.google.com with ESMTPS id fm3si8829173wib.17.2015.05.22.10.55.43
+        for <amadvance@gmail.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 May 2015 10:55:44 -0700 (PDT)
+Received-SPF: pass (google.com: domain of mmicko@gmail.com designates 2a00:1450:400c:c00::234 as permitted sender) client-ip=2a00:1450:400c:c00::234;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of mmicko@gmail.com designates 2a00:1450:400c:c00::234 as permitted sender) smtp.mail=mmicko@gmail.com;
+       dkim=pass header.i=@gmail.com;
+       dmarc=pass (p=NONE dis=NONE) header.from=gmail.com
+Received: by mail-wg0-x234.google.com with SMTP id l8so19083543wgf.2
+        for <amadvance@gmail.com>; Fri, 22 May 2015 10:55:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=BR2clgtjgl/Rc+5mG22LQgU5XYlox+x33GU5ykTvCc4=;
+        b=AS3wDIvxw65ltcUdERCZcrlT9XASs0tx0foOKb0CD8ZjZ2zj64K7eOrzjQN5oV88lg
+         Vu/l+LNJ5Ty+rzxr/6zalTss9tHSugJnxkwT0q3Ra7YBbJ/8KE7j3v8aLms4oai+VAHo
+         kQYcsqao2P5vb16ns1oDMq/bFdeMQJU77nnXXhfGzyXa+vC1lgH8yo6EzSIa+LpwzuUQ
+         m8+xJLv9fO7263NW97OHtKiK2t2ihG+uTTi1KUgRKFWBq3z7cl9uvjK2TyLTNwsdj8SB
+         MGSolYU+GxfABmk83SoOmzP0Ovu9P5hkjOSt4lhhDKRdIzfitzw4TeMi792amhqnvaYY
+         tWuQ==
+MIME-Version: 1.0
+X-Received: by 10.194.59.46 with SMTP id w14mr1780726wjq.106.1432317343693;
+ Fri, 22 May 2015 10:55:43 -0700 (PDT)
+Received: by 10.194.92.202 with HTTP; Fri, 22 May 2015 10:55:43 -0700 (PDT)
+Date: Fri, 22 May 2015 19:55:43 +0200
+Message-ID: <CADTF6W3wpXQ=c6_413RwXWE9rVTnEZJwhi4-AySawx-CQsOtbg@mail.gmail.com>
+Subject: License
+From: Miodrag Milanovic <mmicko@gmail.com>
+To: Andrea Mazzoleni <amadvance@gmail.com>
+Content-Type: multipart/alternative; boundary=047d7ba976c87a02f20516af5efd
+Status: RO
+Content-Length: 2519
+Lines: 52
+
+--047d7ba976c87a02f20516af5efd
+Content-Type: text/plain; charset=UTF-8
+
+Hello Andrea,
+
+I am trying to contact all developers that worked in past on MAME and MESS
+drivers, in order to resolve licenses of their files. As you are probably
+aware MAME license is not an open source license, and therefore we are not
+able to use some other open source project files, we are not able to obtain
+some free licenses for commercial software for developers, and not able to
+push toward using MAME as platform on Steam or GoG for game license owners
+as DosBox did.
+
+My question for you is under which opensource license would you like to put
+your file on ?
+
+Currently options are: BSD3, GPL2, LGPL2.
+
+Please note that we try to put devices implementation under BSD3 since more
+then one driver use them, but after all it is your decision as license
+owner to decide.
+
+Please inform me as soon as possible,
+
+Micko
+
+--047d7ba976c87a02f20516af5efd
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello Andrea,<div><br></div><div><div style=3D"font-size:1=
+2.8000001907349px">I am trying to contact all developers that worked in pas=
+t on MAME and MESS drivers, in order to resolve licenses of their files. As=
+ you are probably aware MAME license is not an open source license, and the=
+refore we are not able to use some other open source project files, we are =
+not able to obtain some free licenses for commercial software for developer=
+s, and not able to push toward using MAME as platform on Steam or GoG for g=
+ame license owners as DosBox did.</div><div style=3D"font-size:12.800000190=
+7349px"><br></div><div style=3D"font-size:12.8000001907349px">My question f=
+or you is under which opensource license would you like to put your file on=
+ ?</div><div style=3D"font-size:12.8000001907349px"><br></div><div style=3D=
+"font-size:12.8000001907349px">Currently options are: BSD3, GPL2, LGPL2.</d=
+iv><div style=3D"font-size:12.8000001907349px"><br></div><div style=3D"font=
+-size:12.8000001907349px">Please note that we try to put devices implementa=
+tion under BSD3 since more then one driver use them, but after all it is yo=
+ur decision as license owner to decide.</div><div style=3D"font-size:12.800=
+0001907349px"><br></div><div style=3D"font-size:12.8000001907349px">Please =
+inform me as soon as possible,</div><div style=3D"font-size:12.800000190734=
+9px"><br></div><div style=3D"font-size:12.8000001907349px">Micko</div></div=
+></div>
+
+--047d7ba976c87a02f20516af5efd--
+
+From amadvance@gmail.com  Thu May 28 14:49:18 2015
+Return-Path: <amadvance@gmail.com>
+Received: from redstar.example.org (localhost [127.0.0.1])
+	by redstar.example.org (8.14.9/8.14.5) with ESMTP id t4SCl9e3006161
+	for <am@localhost>; Thu, 28 May 2015 14:49:18 +0200
+MIME-Version: 1.0
+Received: from gmail-pop.l.google.com [74.125.136.108]
+	by redstar.example.org with POP3 (fetchmail-6.3.21)
+	for <am@localhost> (single-drop); Thu, 28 May 2015 14:49:18 +0200 (CEST)
+Received: by 10.107.7.92 with HTTP; Sat, 23 May 2015 10:36:06 -0700 (PDT)
+In-Reply-To: <CADTF6W3wpXQ=c6_413RwXWE9rVTnEZJwhi4-AySawx-CQsOtbg@mail.gmail.com>
+References: <CADTF6W3wpXQ=c6_413RwXWE9rVTnEZJwhi4-AySawx-CQsOtbg@mail.gmail.com>
+Date: Sat, 23 May 2015 19:36:06 +0200
+Delivered-To: amadvance@gmail.com
+Message-ID: <CAGKKSfXKVPJ1zX1oG8BBoo_rO9h19Efh16=3UKr1SfLFqZjEUA@mail.gmail.com>
+Subject: Re: License
+From: Andrea Mazzoleni <amadvance@gmail.com>
+To: Miodrag Milanovic <mmicko@gmail.com>
+Content-Type: multipart/alternative; boundary=001a113ea61021a7540516c3367c
+Status: RO
+Content-Length: 3411
+Lines: 72
+
+--001a113ea61021a7540516c3367c
+Content-Type: text/plain; charset=UTF-8
+
+Hi Micko,
+
+I'm very pleased that finally MAME goes Open Source!
+
+BSD3 is OK for me. Or whatever else license you find appropriate.
+
+Ciao,
+Andrea
+
+On Fri, May 22, 2015 at 7:55 PM, Miodrag Milanovic <mmicko@gmail.com> wrote:
+
+> Hello Andrea,
+>
+> I am trying to contact all developers that worked in past on MAME and MESS
+> drivers, in order to resolve licenses of their files. As you are probably
+> aware MAME license is not an open source license, and therefore we are not
+> able to use some other open source project files, we are not able to obtain
+> some free licenses for commercial software for developers, and not able to
+> push toward using MAME as platform on Steam or GoG for game license owners
+> as DosBox did.
+>
+> My question for you is under which opensource license would you like to
+> put your file on ?
+>
+> Currently options are: BSD3, GPL2, LGPL2.
+>
+> Please note that we try to put devices implementation under BSD3 since
+> more then one driver use them, but after all it is your decision as license
+> owner to decide.
+>
+> Please inform me as soon as possible,
+>
+> Micko
+>
+
+--001a113ea61021a7540516c3367c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div><div>Hi Micko,<br><br></div><div>I&#39;m very pl=
+eased that finally MAME goes Open Source!<br></div><div><br></div>BSD3 is O=
+K for me. Or whatever else license you find appropriate.<br><br></div>Ciao,=
+<br></div>Andrea<br></div><div class=3D"gmail_extra"><br><div class=3D"gmai=
+l_quote">On Fri, May 22, 2015 at 7:55 PM, Miodrag Milanovic <span dir=3D"lt=
+r">&lt;<a href=3D"mailto:mmicko@gmail.com" target=3D"_blank">mmicko@gmail.c=
+om</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"marg=
+in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr"=
+>Hello Andrea,<div><br></div><div><div style=3D"font-size:12.8000001907349p=
+x">I am trying to contact all developers that worked in past on MAME and ME=
+SS drivers, in order to resolve licenses of their files. As you are probabl=
+y aware MAME license is not an open source license, and therefore we are no=
+t able to use some other open source project files, we are not able to obta=
+in some free licenses for commercial software for developers, and not able =
+to push toward using MAME as platform on Steam or GoG for game license owne=
+rs as DosBox did.</div><div style=3D"font-size:12.8000001907349px"><br></di=
+v><div style=3D"font-size:12.8000001907349px">My question for you is under =
+which opensource license would you like to put your file on ?</div><div sty=
+le=3D"font-size:12.8000001907349px"><br></div><div style=3D"font-size:12.80=
+00001907349px">Currently options are: BSD3, GPL2, LGPL2.</div><div style=3D=
+"font-size:12.8000001907349px"><br></div><div style=3D"font-size:12.8000001=
+907349px">Please note that we try to put devices implementation under BSD3 =
+since more then one driver use them, but after all it is your decision as l=
+icense owner to decide.</div><div style=3D"font-size:12.8000001907349px"><b=
+r></div><div style=3D"font-size:12.8000001907349px">Please inform me as soo=
+n as possible,</div><div style=3D"font-size:12.8000001907349px"><br></div><=
+div style=3D"font-size:12.8000001907349px">Micko</div></div></div>
+</blockquote></div><br></div>
+
+--001a113ea61021a7540516c3367c--
+
+From mmicko@gmail.com  Thu May 28 14:49:19 2015
+Return-Path: <mmicko@gmail.com>
+Received: from redstar.example.org (localhost [127.0.0.1])
+	by redstar.example.org (8.14.9/8.14.5) with ESMTP id t4SCl9e4006161
+	for <am@localhost>; Thu, 28 May 2015 14:49:19 +0200
+Delivered-To: amadvance@gmail.com
+Received: from gmail-pop.l.google.com [74.125.136.108]
+	by redstar.example.org with POP3 (fetchmail-6.3.21)
+	for <am@localhost> (single-drop); Thu, 28 May 2015 14:49:19 +0200 (CEST)
+Received: by 10.107.134.139 with SMTP id q11csp744110ioi;
+        Sat, 23 May 2015 10:39:46 -0700 (PDT)
+X-Received: by 10.194.176.165 with SMTP id cj5mr25748546wjc.72.1432402785686;
+        Sat, 23 May 2015 10:39:45 -0700 (PDT)
+Received: from mail-wg0-x22e.google.com (mail-wg0-x22e.google.com. [2a00:1450:400c:c00::22e])
+        by mx.google.com with ESMTPS id fr8si3441685wjc.203.2015.05.23.10.39.45
+        for <amadvance@gmail.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 23 May 2015 10:39:45 -0700 (PDT)
+Received-SPF: pass (google.com: domain of mmicko@gmail.com designates 2a00:1450:400c:c00::22e as permitted sender) client-ip=2a00:1450:400c:c00::22e;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of mmicko@gmail.com designates 2a00:1450:400c:c00::22e as permitted sender) smtp.mail=mmicko@gmail.com;
+       dkim=pass header.i=@gmail.com;
+       dmarc=pass (p=NONE dis=NONE) header.from=gmail.com
+Received: by mail-wg0-x22e.google.com with SMTP id z8so34865222wge.0
+        for <amadvance@gmail.com>; Sat, 23 May 2015 10:39:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+         :content-type;
+        bh=ZUhc09I4igtb/jx7Db0ZXoFeq0z+c82nyr1aVAtbrpQ=;
+        b=rt4sowfo3BYXeXbEjqdPcdSGlFogW8eD5/iuO4VU3ZHt5BT+lsaI/m5Bc4TPYNvd6T
+         z4YVbwDQM0RmHStTa6ct6juogxNTMU6GybrxeeJ3c1oNUwXwhimzJhiDuHxeGcGmB9jI
+         bCR7Z0Y5zZM6Ko7v1+RdebWU3i9tIDVJ23LdusrSpU7nLB2ULVSTQbd8R0s3a6hLWtr/
+         v2LhWyPbZag7sUaaCP5/ZU9hAa037IT72D5zrajYPx+HeLf3+sNiRp4mAkF76FeRJf1z
+         4yyDyyaJeKeJAnsXsN2Yu/HbSG9hO1Swqr1NrGwTlA9x0BJ3IFUbbhxHBhqWxMB+1cdr
+         Enzg==
+MIME-Version: 1.0
+X-Received: by 10.181.13.5 with SMTP id eu5mr16886616wid.37.1432402785090;
+ Sat, 23 May 2015 10:39:45 -0700 (PDT)
+Received: by 10.194.92.202 with HTTP; Sat, 23 May 2015 10:39:45 -0700 (PDT)
+In-Reply-To: <CAGKKSfXKVPJ1zX1oG8BBoo_rO9h19Efh16=3UKr1SfLFqZjEUA@mail.gmail.com>
+References: <CADTF6W3wpXQ=c6_413RwXWE9rVTnEZJwhi4-AySawx-CQsOtbg@mail.gmail.com>
+	<CAGKKSfXKVPJ1zX1oG8BBoo_rO9h19Efh16=3UKr1SfLFqZjEUA@mail.gmail.com>
+Date: Sat, 23 May 2015 19:39:45 +0200
+Message-ID: <CADTF6W2JgPcCSTrsRmynRwSWa=az1VVBKQt1H6YXWUYp2AL8JQ@mail.gmail.com>
+Subject: Re: License
+From: Miodrag Milanovic <mmicko@gmail.com>
+To: Andrea Mazzoleni <amadvance@gmail.com>
+Content-Type: multipart/alternative; boundary=f46d043be04c2e40aa0516c34351
+Status: RO
+Content-Length: 4072
+Lines: 89
+
+--f46d043be04c2e40aa0516c34351
+Content-Type: text/plain; charset=UTF-8
+
+Great, and thanks :)
+
+Micko
+
+On Sat, May 23, 2015 at 7:36 PM, Andrea Mazzoleni <amadvance@gmail.com>
+wrote:
+
+> Hi Micko,
+>
+> I'm very pleased that finally MAME goes Open Source!
+>
+> BSD3 is OK for me. Or whatever else license you find appropriate.
+>
+> Ciao,
+> Andrea
+>
+> On Fri, May 22, 2015 at 7:55 PM, Miodrag Milanovic <mmicko@gmail.com>
+> wrote:
+>
+>> Hello Andrea,
+>>
+>> I am trying to contact all developers that worked in past on MAME and
+>> MESS drivers, in order to resolve licenses of their files. As you are
+>> probably aware MAME license is not an open source license, and therefore we
+>> are not able to use some other open source project files, we are not able
+>> to obtain some free licenses for commercial software for developers, and
+>> not able to push toward using MAME as platform on Steam or GoG for game
+>> license owners as DosBox did.
+>>
+>> My question for you is under which opensource license would you like to
+>> put your file on ?
+>>
+>> Currently options are: BSD3, GPL2, LGPL2.
+>>
+>> Please note that we try to put devices implementation under BSD3 since
+>> more then one driver use them, but after all it is your decision as license
+>> owner to decide.
+>>
+>> Please inform me as soon as possible,
+>>
+>> Micko
+>>
+>
+>
+
+--f46d043be04c2e40aa0516c34351
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Great, and thanks :)<div><br></div><div>Micko</div></div><=
+div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Sat, May 23, 20=
+15 at 7:36 PM, Andrea Mazzoleni <span dir=3D"ltr">&lt;<a href=3D"mailto:ama=
+dvance@gmail.com" target=3D"_blank">amadvance@gmail.com</a>&gt;</span> wrot=
+e:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-l=
+eft:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr"><div><div><div>Hi Mic=
+ko,<br><br></div><div>I&#39;m very pleased that finally MAME goes Open Sour=
+ce!<br></div><div><br></div>BSD3 is OK for me. Or whatever else license you=
+ find appropriate.<br><br></div>Ciao,<br></div>Andrea<br></div><div class=
+=3D"HOEnZb"><div class=3D"h5"><div class=3D"gmail_extra"><br><div class=3D"=
+gmail_quote">On Fri, May 22, 2015 at 7:55 PM, Miodrag Milanovic <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:mmicko@gmail.com" target=3D"_blank">mmicko@g=
+mail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=
+=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=
+=3D"ltr">Hello Andrea,<div><br></div><div><div style=3D"font-size:12.800000=
+1907349px">I am trying to contact all developers that worked in past on MAM=
+E and MESS drivers, in order to resolve licenses of their files. As you are=
+ probably aware MAME license is not an open source license, and therefore w=
+e are not able to use some other open source project files, we are not able=
+ to obtain some free licenses for commercial software for developers, and n=
+ot able to push toward using MAME as platform on Steam or GoG for game lice=
+nse owners as DosBox did.</div><div style=3D"font-size:12.8000001907349px">=
+<br></div><div style=3D"font-size:12.8000001907349px">My question for you i=
+s under which opensource license would you like to put your file on ?</div>=
+<div style=3D"font-size:12.8000001907349px"><br></div><div style=3D"font-si=
+ze:12.8000001907349px">Currently options are: BSD3, GPL2, LGPL2.</div><div =
+style=3D"font-size:12.8000001907349px"><br></div><div style=3D"font-size:12=
+.8000001907349px">Please note that we try to put devices implementation und=
+er BSD3 since more then one driver use them, but after all it is your decis=
+ion as license owner to decide.</div><div style=3D"font-size:12.80000019073=
+49px"><br></div><div style=3D"font-size:12.8000001907349px">Please inform m=
+e as soon as possible,</div><div style=3D"font-size:12.8000001907349px"><br=
+></div><div style=3D"font-size:12.8000001907349px">Micko</div></div></div>
+</blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+
+--f46d043be04c2e40aa0516c34351--
+

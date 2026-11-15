@@ -1237,6 +1237,7 @@ EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
 dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
+	cp -R $(srcdir)/LICENSES $(EMU_DIST_DIR_SRC)/LICENSES
 	$(srcdir)/autover.sh > $(EMU_DIST_DIR_SRC)/.version
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_SRC)/RELEASE
@@ -1347,6 +1348,7 @@ endif
 
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)
+	cp -R $(srcdir)/LICENSES $(EMU_DIST_DIR_BIN)/LICENSES
 ifeq ($(CONF_SYSTEM),unix)
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_BIN)/RELEASE

@@ -23,10 +23,13 @@ Good-Faith Relicensing Statement
 Following the MAME 0.172 relicensing effort, the AdvanceMAME and AdvanceMESS
 codebases have been audited against the official MAME relicensing records.
 The complete file-by-file license audit, copyright attribution mapping, and
-replacement plans are documented in:
+replacement plans are documented in the project's repository:
 
-    support/relicense/ADVANCEMAME_RELICENSE_AUDIT.md
-    support/relicense/ADVANCEMESS_RELICENSE_AUDIT.md
+    https://github.com/amadvance/advancemame/tree/master/support/relicense
+
+The MAME relicensing effort sought authorization from individual copyright
+holders to distribute their MAME contributions under standard open-source
+licenses.
 
 All source files and drivers originally covered by the legacy non-commercial
 MAME/MESS license whose copyright holders declined or could not be reached for
@@ -54,27 +57,11 @@ Public License as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version (see `LICENSES/GPL-2.0`).
 
 
-MAME Portions
-=============
+MAME and MESS Portions
+======================
 
-Copyright (c) 1997-2026  MAMEDev and contributors
-All rights reserved.
+The MAME and MESS emulation cores and drivers located in the `mame/` and
+`mess/` directories are distributed under GPL-compatible licenses.
 
-The MAME emulation core and arcade drivers located in the `mame/` directory are
-distributed under the GNU General Public License version 2 or later
-(see `LICENSES/GPL-2.0`), with individual components licensed under the
-3-Clause BSD License (see `LICENSES/BSD-3-Clause`) or other GPL-compatible
-licenses as indicated in each file's header.
-
-
-MESS Portions
-=============
-
-Copyright (c) 1997-2026  MAMEDev, MESSdev, and contributors
-All rights reserved.
-
-The MESS emulation core and computer/console drivers located in the `mame/` (shared core)
-and `mess/` directories are distributed under the GNU General Public License
-version 2 or later (see `LICENSES/GPL-2.0`), with individual components
-licensed under the 3-Clause BSD License (see `LICENSES/BSD-3-Clause`) or other
-GPL-compatible licenses as indicated in each file's header.
+The specific license and copyright holders of each source file are
+identified in its header.
