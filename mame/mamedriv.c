@@ -3576,17 +3576,21 @@ DokiDoki Penguin Land *not confirmed
 
 	/* Outrun Hardware */
 	DRIVER( outrun )	/* (c) 1986 (bootleg)*/
-	DRIVER( outrun2 )	/* (c) 1986 (bootleg) */
-	DRIVER( outrun1 )	/* (c) 1986 Deluxe? */
+	DRIVER( outrunra )	/* (c) 1986 Sega */
+	DRIVER( outrundxa )	/* (c) 1986 Sega */
 	DRIVER( outrunb )	/* (c) 1986 (protected beta bootleg) */
+	DRIVER( outruneh )	/* hack (Chris White) */
+	DRIVER( outruneha )	/* hack (Chris White) */
+	DRIVER( outrundxeh )	/* hack (Chris White) */
+	DRIVER( outrundxeha )	/* hack (Chris White) */
 	DRIVER( toutrun )	/* (c) 1987 (FD1094, decrypted) */
-	DRIVER( toutrun2 )	/* (c) 1987 (FD1094, decrypted) */
-	DRIVER( toutrun1 )	/* (c) 1987 (protected) */
+	DRIVER( toutrun3 )	/* (c) 1987 (FD1094, decrypted) */
+	DRIVER( toutrun2 )	/* (c) 1987 (protected) */
 	DRIVER( shangon )	/* (c) 1987 (protected) */
 	DRIVER( shangon3 )	/* (c) 1987 (FD1089B, decrypted) */
 	DRIVER( shangon2 )	/* (c) 1987 (FD1089B, decrypted) */
 	DRIVER( shangon1 )	/* (c) 1987 (FD1089B, decrypted) */
-	DRIVER( shangnle )	/* (c) 1991 */
+	DRIVER( shangonle )	/* (c) 1991 */
 
 	/* X Board */
 	DRIVER( aburner )	/* (c) 1987 */

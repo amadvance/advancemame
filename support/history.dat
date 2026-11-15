@@ -115344,7 +115344,7 @@ Title designers : M. Yoshihashi, H. Matsuda
 $end
 
 
-$info=shangnle,
+$info=shangonle,
 $bio
 
 Limited Editon Hang-On (c) 1991 Sega.
@@ -151697,7 +151697,7 @@ This version has a nudity feature not present in "Gladiator". See ''Tips and Tri
 $end
 
 
-$info=outrun,outrunb,outrun1,outrun2,
+$info=outrun,outrunb,outrundxa,outrunra,
 $bio
 
 Out Run (c) 11/1986 Sega.
@@ -217923,7 +217923,7 @@ Buttons : 1
 $end
 
 
-$info=shangon,shangnle,shangon3,shangupb,shangon1,shangon2,
+$info=shangon,shangonle,shangon3,shangupb,shangon1,shangon2,
 $bio
 
 Super Hang-On (c) 04/1987 Sega.
@@ -241013,7 +241013,7 @@ The main character of the game appears as a secret character in "Aero Fighters 3
 $end
 
 
-$info=toutrun,toutrun1,toutrun2,
+$info=toutrun,toutrun2,toutrun3,
 $bio
 
 Turbo Out Run (c) 1989 Sega.

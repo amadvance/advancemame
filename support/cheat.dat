@@ -123176,24 +123176,24 @@
 :outrun:00010000:26079D:000000E6:FFFFFFFF:Speed always = 999 (2/2)
 
 ; [ Out Run (set 1, Deluxe?) ]
-:outrun1:00000000:060861:00000099:FFFFFFFF:Infinite Time
-:outrun1:60000000:000000:00000000:00000000:[The Speed always=999 cheat ]
-:outrun1:60000000:000000:00000000:00000000:[makes the game seriously   ]
-:outrun1:60000000:000000:00000000:00000000:[easy, you can drive through]
-:outrun1:60000000:000000:00000000:00000000:[obstacles too! Watch out   ]
-:outrun1:60000000:000000:00000000:00000000:[for other vehicles though. ]
-:outrun1:00000000:26079C:00000003:FFFFFFFF:Speed always = 999
-:outrun1:00010000:26079D:000000E6:FFFFFFFF:Speed always = 999 (2/2)
+:outrundxa:00000000:060861:00000099:FFFFFFFF:Infinite Time
+:outrundxa:60000000:000000:00000000:00000000:[The Speed always=999 cheat ]
+:outrundxa:60000000:000000:00000000:00000000:[makes the game seriously   ]
+:outrundxa:60000000:000000:00000000:00000000:[easy, you can drive through]
+:outrundxa:60000000:000000:00000000:00000000:[obstacles too! Watch out   ]
+:outrundxa:60000000:000000:00000000:00000000:[for other vehicles though. ]
+:outrundxa:00000000:26079C:00000003:FFFFFFFF:Speed always = 999
+:outrundxa:00010000:26079D:000000E6:FFFFFFFF:Speed always = 999 (2/2)
 
 ; [ Out Run (set 2) ]
-:outrun2:00000000:060861:00000099:FFFFFFFF:Infinite Time
-:outrun2:60000000:000000:00000000:00000000:[The Speed always=999 cheat ]
-:outrun2:60000000:000000:00000000:00000000:[makes the game seriously   ]
-:outrun2:60000000:000000:00000000:00000000:[easy, you can drive through]
-:outrun2:60000000:000000:00000000:00000000:[obstacles too! Watch out   ]
-:outrun2:60000000:000000:00000000:00000000:[for other vehicles though. ]
-:outrun2:00000000:26079C:00000003:FFFFFFFF:Speed always = 999
-:outrun2:00010000:26079D:000000E6:FFFFFFFF:Speed always = 999 (2/2)
+:outrunra:00000000:060861:00000099:FFFFFFFF:Infinite Time
+:outrunra:60000000:000000:00000000:00000000:[The Speed always=999 cheat ]
+:outrunra:60000000:000000:00000000:00000000:[makes the game seriously   ]
+:outrunra:60000000:000000:00000000:00000000:[easy, you can drive through]
+:outrunra:60000000:000000:00000000:00000000:[obstacles too! Watch out   ]
+:outrunra:60000000:000000:00000000:00000000:[for other vehicles though. ]
+:outrunra:00000000:26079C:00000003:FFFFFFFF:Speed always = 999
+:outrunra:00010000:26079D:000000E6:FFFFFFFF:Speed always = 999 (2/2)
 
 ; [ Out Run (bootleg) ]
 :outrunb:00000000:060861:00000099:FFFFFFFF:Infinite Time
@@ -164723,15 +164723,15 @@
 :shangkid:00000000:E017:00000000:00000002:Rapid Fire - Punch PL2:Turn it OFF on the name entry screen
 
 ; [ Limited Edition Hang-On ]
-:shangnle:00000000:066052:00000009:FFFFFFFF:Infinite Credits
-:shangnle:00000000:060500:00000099:FFFFFFFF:Infinite Time
-:shangnle:20800000:0070EC:00000060:FFFFFFFF:Invincibility
-:shangnle:20810000:007694:00000060:FFFFFFFF:Invincibility (2/2):1st = Obstacle, 2nd = Bike
-:shangnle:20800000:0080FE:00000060:FFFFFFFF:No Speed Down Out of Course
-:shangnle:20800000:006425:00000000:FFFFFFFF:Always Enable to Use Turbo
-:shangnle:00100000:260078:000000F3:FFFFFFFF:Always Ride at Maximum Speed
-:shangnle:00100000:260078:0000035D:FFFFFFFF:Always Ride at Crazy Speed (1000KPH)
-:shangnle:00100001:260078:0000035D:FFFFFFFF:Get Crazy Speed (1000 KPH) Boost Now!:Use this with an Activation Key for best effect
+:shangonle:00000000:066052:00000009:FFFFFFFF:Infinite Credits
+:shangonle:00000000:060500:00000099:FFFFFFFF:Infinite Time
+:shangonle:20800000:0070EC:00000060:FFFFFFFF:Invincibility
+:shangonle:20810000:007694:00000060:FFFFFFFF:Invincibility (2/2):1st = Obstacle, 2nd = Bike
+:shangonle:20800000:0080FE:00000060:FFFFFFFF:No Speed Down Out of Course
+:shangonle:20800000:006425:00000000:FFFFFFFF:Always Enable to Use Turbo
+:shangonle:00100000:260078:000000F3:FFFFFFFF:Always Ride at Maximum Speed
+:shangonle:00100000:260078:0000035D:FFFFFFFF:Always Ride at Crazy Speed (1000KPH)
+:shangonle:00100001:260078:0000035D:FFFFFFFF:Get Crazy Speed (1000 KPH) Boost Now!:Use this with an Activation Key for best effect
 
 ; [ Super Hang-On (set 4, 68000) ]
 :shangon:00000000:066052:00000009:FFFFFFFF:Infinite Credits
@@ -186353,20 +186353,6 @@
 :toutrun:00010001:260003:00000003:FFFFFFFF:Set Current Stage as Final Now! (3/3)
 
 ; [ Turbo Out Run (set 1, FD1094 317-unknown) ]
-:toutrun1:00000000:060052:00000063:FFFFFFFF:Infinite Credits
-:toutrun1:00000000:060861:00000099:FFFFFFFF:Infinite Time:Turn it OFF on Transmission or Parts select screen
-:toutrun1:00100000:2607B2:00000100:FFFFFFFF:Always Use Turbo
-:toutrun1:00100000:2607B4:00000000:FFFFFFFF:Turbo Never Overheats
-:toutrun1:00000000:0608F1:000000FF:FFFFFFFF:Always Faster Speed
-:toutrun1:00010000:260783:000000FF:FFFFFFFF:Always Faster Speed (2/2)
-:toutrun1:00000000:0608F7:00000001:00000001:Always Have Hipower Engine
-:toutrun1:00000000:0608F7:00000002:00000002:Always Have Higrip Tire
-:toutrun1:00000000:0608F7:00000004:00000004:Always Have Special Turbo
-:toutrun1:00000001:0608B3:00000003:FFFFFFFF:Set Current Stage as Final Now!
-:toutrun1:00010001:060D61:0000000F:FFFFFFFF:Set Current Stage as Final Now! (2/3)
-:toutrun1:00010001:260003:00000003:FFFFFFFF:Set Current Stage as Final Now! (3/3)
-
-; [ Turbo Out Run (set 2, upright, FD1094 317-unknown) ]
 :toutrun2:00000000:060052:00000063:FFFFFFFF:Infinite Credits
 :toutrun2:00000000:060861:00000099:FFFFFFFF:Infinite Time:Turn it OFF on Transmission or Parts select screen
 :toutrun2:00100000:2607B2:00000100:FFFFFFFF:Always Use Turbo
@@ -186379,6 +186365,20 @@
 :toutrun2:00000001:0608B3:00000003:FFFFFFFF:Set Current Stage as Final Now!
 :toutrun2:00010001:060D61:0000000F:FFFFFFFF:Set Current Stage as Final Now! (2/3)
 :toutrun2:00010001:260003:00000003:FFFFFFFF:Set Current Stage as Final Now! (3/3)
+
+; [ Turbo Out Run (set 2, upright, FD1094 317-unknown) ]
+:toutrun3:00000000:060052:00000063:FFFFFFFF:Infinite Credits
+:toutrun3:00000000:060861:00000099:FFFFFFFF:Infinite Time:Turn it OFF on Transmission or Parts select screen
+:toutrun3:00100000:2607B2:00000100:FFFFFFFF:Always Use Turbo
+:toutrun3:00100000:2607B4:00000000:FFFFFFFF:Turbo Never Overheats
+:toutrun3:00000000:0608F1:000000FF:FFFFFFFF:Always Faster Speed
+:toutrun3:00010000:260783:000000FF:FFFFFFFF:Always Faster Speed (2/2)
+:toutrun3:00000000:0608F7:00000001:00000001:Always Have Hipower Engine
+:toutrun3:00000000:0608F7:00000002:00000002:Always Have Higrip Tire
+:toutrun3:00000000:0608F7:00000004:00000004:Always Have Special Turbo
+:toutrun3:00000001:0608B3:00000003:FFFFFFFF:Set Current Stage as Final Now!
+:toutrun3:00010001:060D61:0000000F:FFFFFFFF:Set Current Stage as Final Now! (2/3)
+:toutrun3:00010001:260003:00000003:FFFFFFFF:Set Current Stage as Final Now! (3/3)
 
 ; [ Toypop ]
 :toypop:00000000:0ABD:00000063:FFFFFFFF:Infinite Credits
@@ -204871,7 +204871,7 @@
 ;hal21=hal21j
 ;halleycj=halleys=halleysc
 ;hanamai~hnkochou
-;hangon=shangnle=shangon=shangon1=shangon2=shangon3!shangupb
+;hangon=shangonle=shangon=shangon1=shangon2=shangon3!shangupb
 ;harddrb5=harddrb6~harddrc1~strtdriv
 ;harddunj=harddunk
 ;hardhead=hardhedb=pop_hh
@@ -205147,7 +205147,7 @@
 ;oscar=oscarj=oscarj0=oscarj1
 ;othunder=othundrj=othundu=othunduo
 ;outfxesj=outfxies
-;outrun=outrun1=outrun2=outrunb
+;outrun=outrundxa=outrunra=outrunb
 ;outzone~=outzonea~=outzoneb
 ;ozmawars=ozmawar2=solfight=spaceph
 ;p47=p47j
@@ -205498,7 +205498,7 @@
 ;totcarn=totcarnp
 ;touchgo=touchgoe=touchgon    (unchecked relationship)
 ;tourtab2=tourtabl
-;toutrun=toutrun1=toutrun2
+;toutrun=toutrun2=toutrun3
 ;tp84=tp84a~tp84b
 ;trckydca=trckydoc
 ;triothej=triothep
