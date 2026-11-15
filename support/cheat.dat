@@ -51116,7 +51116,7 @@
 :glfgretj:00000000:102B2C:00000001:FFFFFFFF:Always get a Hole in One PL4
 :glfgretj:00000001:102B2C:00000000:FFFFFFFF:Reset Strokes to 0 Now! PL4
 
-; [ G-LOC Air Battle (US) ]
+; [ G-LOC Air Battle (World) ]
 :gloc:00000000:CFD00:00000009:FFFFFFFF:Infinite Credits
 :gloc:00100000:CE09E:00009999:FFFFFFFF:Infinite Time
 :gloc:00000000:CE089:00000064:FFFFFFFF:Infinite Missiles
@@ -51140,7 +51140,7 @@
 :gloc:00110000:CE07E:00004FE0:FFFFFFFF:High
 :gloc:00110000:CE07E:00007FFF:FFFFFFFF:Super
 
-; [ G-LOC R360 ]
+; [ G-LOC R360 (World) ]
 :glocr360:00000000:0CFD00:00000009:FFFFFFFF:Infinite Credits
 :glocr360:00100000:0CE09E:00009999:FFFFFFFF:Infinite Time
 :glocr360:00000000:0CE121:0000000F:FFFFFFFF:Infinite Fuel
@@ -130136,7 +130136,7 @@
 :pc_ynoid:21800000:D9EC:0000000B:FFFFFFFF:Start on Stage 11
 :pc_ynoid:21800000:D9EC:0000000C:FFFFFFFF:Start on Stage 12
 
-; [ Power Drift (World Set 1) ]
+; [ Power Drift (World, Rev A) ]
 :pdrift:00000000:CE852:00000009:FFFFFFFF:Infinite Credits
 :pdrift:00100000:CEA12:0000016F:FFFFFFFF:Always drive at Maximum Speed
 :pdrift:00100000:CEA12:000005DB:FFFFFFFF:Always drive at Crazy Speed
@@ -130158,49 +130158,49 @@
 :pdrift:00010001:CEA39:00000004:FFFFFFFF:Stage 5
 :pdrift:00010001:CEA39:00000005:FFFFFFFF:Extra Stage
 
-; [ Power Drift (World Set 2) ]
-:pdrifta:00000000:CE852:00000009:FFFFFFFF:Infinite Credits
-:pdrifta:00100000:CEA12:0000016F:FFFFFFFF:Always drive at Maximum Speed
-:pdrifta:00100000:CEA12:000005DB:FFFFFFFF:Always drive at Crazy Speed
-:pdrifta:00100001:CEA12:0000016F:FFFFFFFF:Get Maximum Speed Boost Now!:Use this with an Activation Key for best effect
-:pdrifta:00100001:CEA12:000005DB:FFFFFFFF:Get Crazy Speed Boost Now!:Use this with an Activation Key for best effect
-:pdrifta:00000000:C0866:00000000:FFFFFFFF:Always Be in 1st Position
-:pdrifta:00000000:C087D:00000003:FFFFFFFF:Always on Final Lap:The game will crash if you are under 4th position when you finish
-:pdrifta:62000000:00000:00000000:00000000:Select Current Course
-:pdrifta:00010001:CEA2B:00000000:FFFFFFFF:Course A
-:pdrifta:00010001:CEA2B:00000001:FFFFFFFF:Course B
-:pdrifta:00010001:CEA2B:00000002:FFFFFFFF:Course C
-:pdrifta:00010001:CEA2B:00000003:FFFFFFFF:Course D
-:pdrifta:00010001:CEA2B:00000004:FFFFFFFF:Course E
-:pdrifta:62000000:00000:00000000:00000000:Select Starting Stage:Set on the character selection screen
-:pdrifta:00010001:CEA39:00000000:FFFFFFFF:Stage 1
-:pdrifta:00010001:CEA39:00000001:FFFFFFFF:Stage 2
-:pdrifta:00010001:CEA39:00000002:FFFFFFFF:Stage 3
-:pdrifta:00010001:CEA39:00000003:FFFFFFFF:Stage 4
-:pdrifta:00010001:CEA39:00000004:FFFFFFFF:Stage 5
-:pdrifta:00010001:CEA39:00000005:FFFFFFFF:Extra Stage
+; [ Power Drift (World, earlier) ]
+:pdrifte:00000000:CE852:00000009:FFFFFFFF:Infinite Credits
+:pdrifte:00100000:CEA12:0000016F:FFFFFFFF:Always drive at Maximum Speed
+:pdrifte:00100000:CEA12:000005DB:FFFFFFFF:Always drive at Crazy Speed
+:pdrifte:00100001:CEA12:0000016F:FFFFFFFF:Get Maximum Speed Boost Now!:Use this with an Activation Key for best effect
+:pdrifte:00100001:CEA12:000005DB:FFFFFFFF:Get Crazy Speed Boost Now!:Use this with an Activation Key for best effect
+:pdrifte:00000000:C0866:00000000:FFFFFFFF:Always Be in 1st Position
+:pdrifte:00000000:C087D:00000003:FFFFFFFF:Always on Final Lap:The game will crash if you are under 4th position when you finish
+:pdrifte:62000000:00000:00000000:00000000:Select Current Course
+:pdrifte:00010001:CEA2B:00000000:FFFFFFFF:Course A
+:pdrifte:00010001:CEA2B:00000001:FFFFFFFF:Course B
+:pdrifte:00010001:CEA2B:00000002:FFFFFFFF:Course C
+:pdrifte:00010001:CEA2B:00000003:FFFFFFFF:Course D
+:pdrifte:00010001:CEA2B:00000004:FFFFFFFF:Course E
+:pdrifte:62000000:00000:00000000:00000000:Select Starting Stage:Set on the character selection screen
+:pdrifte:00010001:CEA39:00000000:FFFFFFFF:Stage 1
+:pdrifte:00010001:CEA39:00000001:FFFFFFFF:Stage 2
+:pdrifte:00010001:CEA39:00000002:FFFFFFFF:Stage 3
+:pdrifte:00010001:CEA39:00000003:FFFFFFFF:Stage 4
+:pdrifte:00010001:CEA39:00000004:FFFFFFFF:Stage 5
+:pdrifte:00010001:CEA39:00000005:FFFFFFFF:Extra Stage
 
-; [ Power Drift (Japan) ]
-:pdriftj:00000000:CE852:00000009:FFFFFFFF:Infinite Credits
-:pdriftj:00100000:CEA12:0000016F:FFFFFFFF:Always drive at Maximum Speed
-:pdriftj:00100000:CEA12:000005DB:FFFFFFFF:Always drive at Crazy Speed
-:pdriftj:00100001:CEA12:0000016F:FFFFFFFF:Get Maximum Speed Boost Now!:Use this with an Activation Key for best effect
-:pdriftj:00100001:CEA12:000005DB:FFFFFFFF:Get Crazy Speed Boost Now!:Use this with an Activation Key for best effect
-:pdriftj:00000000:C0866:00000000:FFFFFFFF:Always Be in 1st Position
-:pdriftj:00000000:C087D:00000003:FFFFFFFF:Always on Final Lap:The game will crash if you are under 4th position when you finish
-:pdriftj:62000000:00000:00000000:00000000:Select Current Course
-:pdriftj:00010001:CEA2B:00000000:FFFFFFFF:Course A
-:pdriftj:00010001:CEA2B:00000001:FFFFFFFF:Course B
-:pdriftj:00010001:CEA2B:00000002:FFFFFFFF:Course C
-:pdriftj:00010001:CEA2B:00000003:FFFFFFFF:Course D
-:pdriftj:00010001:CEA2B:00000004:FFFFFFFF:Course E
-:pdriftj:62000000:00000:00000000:00000000:Select Starting Stage:Set on the character selection screen
-:pdriftj:00010001:CEA39:00000000:FFFFFFFF:Stage 1
-:pdriftj:00010001:CEA39:00000001:FFFFFFFF:Stage 2
-:pdriftj:00010001:CEA39:00000002:FFFFFFFF:Stage 3
-:pdriftj:00010001:CEA39:00000003:FFFFFFFF:Stage 4
-:pdriftj:00010001:CEA39:00000004:FFFFFFFF:Stage 5
-:pdriftj:00010001:CEA39:00000005:FFFFFFFF:Extra Stage
+; [ Power Drift (Japan, Rev B) ]
+:pdriftjb:00000000:CE852:00000009:FFFFFFFF:Infinite Credits
+:pdriftjb:00100000:CEA12:0000016F:FFFFFFFF:Always drive at Maximum Speed
+:pdriftjb:00100000:CEA12:000005DB:FFFFFFFF:Always drive at Crazy Speed
+:pdriftjb:00100001:CEA12:0000016F:FFFFFFFF:Get Maximum Speed Boost Now!:Use this with an Activation Key for best effect
+:pdriftjb:00100001:CEA12:000005DB:FFFFFFFF:Get Crazy Speed Boost Now!:Use this with an Activation Key for best effect
+:pdriftjb:00000000:C0866:00000000:FFFFFFFF:Always Be in 1st Position
+:pdriftjb:00000000:C087D:00000003:FFFFFFFF:Always on Final Lap:The game will crash if you are under 4th position when you finish
+:pdriftjb:62000000:00000:00000000:00000000:Select Current Course
+:pdriftjb:00010001:CEA2B:00000000:FFFFFFFF:Course A
+:pdriftjb:00010001:CEA2B:00000001:FFFFFFFF:Course B
+:pdriftjb:00010001:CEA2B:00000002:FFFFFFFF:Course C
+:pdriftjb:00010001:CEA2B:00000003:FFFFFFFF:Course D
+:pdriftjb:00010001:CEA2B:00000004:FFFFFFFF:Course E
+:pdriftjb:62000000:00000:00000000:00000000:Select Starting Stage:Set on the character selection screen
+:pdriftjb:00010001:CEA39:00000000:FFFFFFFF:Stage 1
+:pdriftjb:00010001:CEA39:00000001:FFFFFFFF:Stage 2
+:pdriftjb:00010001:CEA39:00000002:FFFFFFFF:Stage 3
+:pdriftjb:00010001:CEA39:00000003:FFFFFFFF:Stage 4
+:pdriftjb:00010001:CEA39:00000004:FFFFFFFF:Stage 5
+:pdriftjb:00010001:CEA39:00000005:FFFFFFFF:Extra Stage
 
 ; [ Peek-a-Boo! ]
 :peekaboo:00000000:1F02E7:00000009:FFFFFFFF:Infinite Lives PL1
@@ -140111,7 +140111,7 @@
 :rcasino:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :rcasino:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Rail Chase (Japan) ]
+; [ Rail Chase (World) ]
 :rchase:02000000:1FC81B:0000009C:FFFFFFFF:Infinite Energy
 :rchase:02000000:1FC81A:00000002:FFFFFFFF:Invincibility
 :rchase:01000100:0C10C6:000000FF:FFFFFFFF:Select Speed
@@ -179195,7 +179195,7 @@
 :striv:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :striv:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Strike Fighter (Japan) ]
+; [ Strike Fighter (World) ]
 :strkfgtr:00000000:CF400:00000009:FFFFFFFF:Infinite Credits
 :strkfgtr:00000000:CE093:00000009:FFFFFFFF:Infinite Lives
 :strkfgtr:00000000:CEA13:00000000:FFFFFFFF:Infinite Damage
@@ -205174,7 +205174,7 @@
 ;pc_smb~=suprmrio
 ;pcktgal=pckgal2=pcktgalb
 ;pclubys=pclubysa
-;pdrift=pdrifta=pdriftj
+;pdrift=pdrifte=pdriftjb
 ;peggle~=pegglet
 ;pengo=pengo2=pengo2u==pengo3u=pengo4u=pengob=penta
 ;perestrf=perestro=sqix=sqixa=sqixbl

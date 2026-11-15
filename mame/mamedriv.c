@@ -3631,15 +3631,26 @@ DokiDoki Penguin Land *not confirmed
 
 	/* Y-Board */
 	DRIVER( gforce2 )	/* (c) 1988 */
+	DRIVER( gforce2sd )	/* (c) 1988 */
+	DRIVER( gforce2ja )	/* (c) 1988 */
 	DRIVER( gforce2j )	/* (c) 1988 */
 	DRIVER( gloc )		/* (c) 1990 */
+	DRIVER( glocj )		/* (c) 1990 */
+	DRIVER( glocu )		/* (c) 1990 */
 	DRIVER( glocr360 )	/* (c) 1990 */
+	DRIVER( glocr360j )	/* (c) 1990 */
 	DRIVER( strkfgtr )	/* (c) 1991 */
+	DRIVER( strkfgtrj )	/* (c) 1991 */
 	DRIVER( pdrift )	/* (c) 1988 */
 	DRIVER( pdrifta )	/* (c) 1988 */
-	DRIVER( pdriftl )
+	DRIVER( pdrifte )	/* (c) 1988 */
 	DRIVER( pdriftj )	/* (c) 1988 */
+	DRIVER( pdriftjb )	/* (c) 1988 */
+	DRIVER( pdriftja )	/* (c) 1988 */
+	DRIVER( pdriftl )
 	DRIVER( rchase )	/* (c) 1991 */
+	DRIVER( rchasej )	/* (c) 1991 */
+	DRIVER( rchasejb )	/* (c) 1991 */
 
 /*
 Sega System 24 game list

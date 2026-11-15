@@ -650,7 +650,7 @@ ambushv:  ;******ambush (Volt Elec co-ltd)
 0:8050:3:00:00
 0:800f:24:00:3a
 
-;******g-loc air battle (us)
+;******g-loc air battle (world)
 ;** you need to press f3 as soon as this game starts before it will save **
 ;** for some reason the hiscore data will not display untill game is reset with f3 **
 ;** driver problem ??????  **
@@ -897,7 +897,7 @@ gforce2j:  ;******galaxy force 2 (japan)
 
 ;******power drift
 pdrift:
-pdriftj:  ;******power drift (japan)
+pdriftjb:  ;******power drift (japan, rev b)
 2:1ffa16:18f:02:08
 
 ;******Viper Phase 1 (japan,new version)
