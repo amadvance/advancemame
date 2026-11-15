@@ -4904,34 +4904,34 @@
 :anteater:00000000:8278:00000001:FFFFFFFF:2nd Level Attempt always easy
 
 ; [ Ameisenbaer (German) ]
-:anteatg:00000000:04EE:00000099:FFFFFFFF:Infinite Credits
-:anteatg:00000000:0A85:000000C8:FFFFFFFF:Infinite Time
-:anteatg:00000000:0A65:00000009:FFFFFFFF:Infinite Lives
-:anteatg:00000001:0AB2:00000001:FFFFFFFF:One Dot to Finish Level Now!
-:anteatg:00010001:0A69:00000000:FFFFFFFF:One Dot to Finish Level Now! (2/2)
-:anteatg:00000301:0A66:00000062:FFFFFFFF:Select current level
-:anteatg:00000303:0A66:00000062:FFFFFFFF:Select next level
-:anteatg:60000000:0000:00000000:00000000:[This cheat makes it easy to     ]
-:anteatg:60000000:0000:00000000:00000000:[complete each level on the 2nd  ]
-:anteatg:60000000:0000:00000000:00000000:[attempt. There will only be the ]
-:anteatg:60000000:0000:00000000:00000000:[spider to worry about! Use this ]
-:anteatg:60000000:0000:00000000:00000000:[cheat with Infinite Lives.      ]
-:anteatg:00000000:0678:00000001:FFFFFFFF:2nd Level Attempt always easy
+:anteaterg:00000000:04EE:00000099:FFFFFFFF:Infinite Credits
+:anteaterg:00000000:0A85:000000C8:FFFFFFFF:Infinite Time
+:anteaterg:00000000:0A65:00000009:FFFFFFFF:Infinite Lives
+:anteaterg:00000001:0AB2:00000001:FFFFFFFF:One Dot to Finish Level Now!
+:anteaterg:00010001:0A69:00000000:FFFFFFFF:One Dot to Finish Level Now! (2/2)
+:anteaterg:00000301:0A66:00000062:FFFFFFFF:Select current level
+:anteaterg:00000303:0A66:00000062:FFFFFFFF:Select next level
+:anteaterg:60000000:0000:00000000:00000000:[This cheat makes it easy to     ]
+:anteaterg:60000000:0000:00000000:00000000:[complete each level on the 2nd  ]
+:anteaterg:60000000:0000:00000000:00000000:[attempt. There will only be the ]
+:anteaterg:60000000:0000:00000000:00000000:[spider to worry about! Use this ]
+:anteaterg:60000000:0000:00000000:00000000:[cheat with Infinite Lives.      ]
+:anteaterg:00000000:0678:00000001:FFFFFFFF:2nd Level Attempt always easy
 
 ; [ Anteater, The (UK) ]
-:anteatgb:00000000:04EE:00000099:FFFFFFFF:Infinite Credits
-:anteatgb:00000000:0A85:000000C8:FFFFFFFF:Infinite Time
-:anteatgb:00000000:0A65:00000009:FFFFFFFF:Infinite Lives
-:anteatgb:00000001:0AB2:00000001:FFFFFFFF:One Dot to Finish Level Now!
-:anteatgb:00010001:0A69:00000000:FFFFFFFF:One Dot to Finish Level Now! (2/2)
-:anteatgb:00000301:0A66:00000062:FFFFFFFF:Select current level
-:anteatgb:00000303:0A66:00000062:FFFFFFFF:Select next level
-:anteatgb:60000000:0000:00000000:00000000:[This cheat makes it easy to     ]
-:anteatgb:60000000:0000:00000000:00000000:[complete each level on the 2nd  ]
-:anteatgb:60000000:0000:00000000:00000000:[attempt. There will only be the ]
-:anteatgb:60000000:0000:00000000:00000000:[spider to worry about! Use this ]
-:anteatgb:60000000:0000:00000000:00000000:[cheat with Infinite Lives.      ]
-:anteatgb:00000000:0678:00000001:FFFFFFFF:2nd Level Attempt always easy
+:anteateruk:00000000:04EE:00000099:FFFFFFFF:Infinite Credits
+:anteateruk:00000000:0A85:000000C8:FFFFFFFF:Infinite Time
+:anteateruk:00000000:0A65:00000009:FFFFFFFF:Infinite Lives
+:anteateruk:00000001:0AB2:00000001:FFFFFFFF:One Dot to Finish Level Now!
+:anteateruk:00010001:0A69:00000000:FFFFFFFF:One Dot to Finish Level Now! (2/2)
+:anteateruk:00000301:0A66:00000062:FFFFFFFF:Select current level
+:anteateruk:00000303:0A66:00000062:FFFFFFFF:Select next level
+:anteateruk:60000000:0000:00000000:00000000:[This cheat makes it easy to     ]
+:anteateruk:60000000:0000:00000000:00000000:[complete each level on the 2nd  ]
+:anteateruk:60000000:0000:00000000:00000000:[attempt. There will only be the ]
+:anteateruk:60000000:0000:00000000:00000000:[spider to worry about! Use this ]
+:anteateruk:60000000:0000:00000000:00000000:[cheat with Infinite Lives.      ]
+:anteateruk:00000000:0678:00000001:FFFFFFFF:2nd Level Attempt always easy
 
 ; [ Aggressors of Dark Kombat / Tsuukai GANGAN Koushinkyoku (ADM-008 ~ ADH-008) ]
 :aodk:00000000:10B649:000000FA:FFFFFFFF:Infinite Time
@@ -7155,15 +7155,15 @@
 ;armorar:0:00AB:09:000:Infinite Lives
 
 ; [ Armored Car (set 2) ]
-:armorca2:00000000:8112:00000099:FFFFFFFF:Infinite Credits
-:armorca2:00000000:8628:000000FF:FFFFFFFF:Infinite Lives
-:armorca2:00000000:8630:000000FF:FFFFFFFF:Infinite Sawhorses
-:armorca2:00000000:885F:000000FF:FFFFFFFF:Infinite Fuel
-:armorca2:00010000:868F:0000005F:FFFFFFFF:Infinite Fuel (2/3)
-:armorca2:00010000:8690:00000088:FFFFFFFF:Infinite Fuel (3/3)
-:armorca2:20800000:0E3B:00000018:FFFFFFFF:Invincibility
-:armorca2:00000000:869B:000000FF:FFFFFFFF:Always have the key
-:armorca2:00000001:869B:000000FF:FFFFFFFF:Get the key Now!
+:armorcar2:00000000:8112:00000099:FFFFFFFF:Infinite Credits
+:armorcar2:00000000:8628:000000FF:FFFFFFFF:Infinite Lives
+:armorcar2:00000000:8630:000000FF:FFFFFFFF:Infinite Sawhorses
+:armorcar2:00000000:885F:000000FF:FFFFFFFF:Infinite Fuel
+:armorcar2:00010000:868F:0000005F:FFFFFFFF:Infinite Fuel (2/3)
+:armorcar2:00010000:8690:00000088:FFFFFFFF:Infinite Fuel (3/3)
+:armorcar2:20800000:0E3B:00000018:FFFFFFFF:Invincibility
+:armorcar2:00000000:869B:000000FF:FFFFFFFF:Always have the key
+:armorcar2:00000001:869B:000000FF:FFFFFFFF:Get the key Now!
 
 ; [ Armored Car (set 1) ]
 :armorcar:00000000:8112:00000099:FFFFFFFF:Infinite Credits
@@ -88425,15 +88425,15 @@
 :lordofk:00000001:FF81BF:00000001:FFFFFFFF:Get Shield Now! PL2
 
 ; [ Lost Tomb (hard) ]
-:losttmbh:00000000:868D:00000050:FFFFFFFF:Infinite Time
-:losttmbh:00010000:84C6:000000E0:FFFFFFFF:Infinite Time (2/2)
-:losttmbh:00000000:8617:00000006:FFFFFFFF:Infinite Lives
-:losttmbh:00000000:8618:00000008:FFFFFFFF:Infinite Ammo
-:losttmbh:00000000:861B:00000002:FFFFFFFF:Infinite Zapper
-:losttmbh:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:losttmbh:60000000:0000:00000000:00000000:[enable Invincibility.      ]
-:losttmbh:00000701:861C:0000000C:FFFFFFFF:Select next Level:Use before stair room
-:losttmbh:00000701:861D:0000005B:FFFFFFFF:Select next Room:Use before stair room
+:losttombh:00000000:868D:00000050:FFFFFFFF:Infinite Time
+:losttombh:00010000:84C6:000000E0:FFFFFFFF:Infinite Time (2/2)
+:losttombh:00000000:8617:00000006:FFFFFFFF:Infinite Lives
+:losttombh:00000000:8618:00000008:FFFFFFFF:Infinite Ammo
+:losttombh:00000000:861B:00000002:FFFFFFFF:Infinite Zapper
+:losttombh:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:losttombh:60000000:0000:00000000:00000000:[enable Invincibility.      ]
+:losttombh:00000701:861C:0000000C:FFFFFFFF:Select next Level:Use before stair room
+:losttombh:00000701:861D:0000005B:FFFFFFFF:Select next Room:Use before stair room
 
 ; [ Lost Tomb (easy) ]
 :losttomb:00000000:868D:00000050:FFFFFFFF:Infinite Time
@@ -204373,7 +204373,7 @@
 ;amidar=amidarb=amidaro=amidaru=amigo~=amidars
 ;ampoker2=ampokr2a=ampokr2b=ampokr2c (unchecked relationship)
 ;amspdwy=amspdwya
-;anteater~(anteatg=anteatgb)
+;anteater~(anteaterg=anteateruk)
 ;aof2=aof2a
 ;aof3=aof3k
 ;apb=apb1=apb2=apb3=apb4=apb5=apb6=apbf=apbg
@@ -204391,7 +204391,7 @@
 ;arkangc=arkanoid=arknoiuo=arktayt2=arkatour=arkbl2=arkbl3=arkblock=arkbloc2=arknoidu~=arknoidj=paddle2
 ;arknid2j=arknid2u=arknoid2
 ;armora=armorap=armorar
-;armorcar=armorca2
+;armorcar=armorcar2
 ;armwar=armwara=armwarr1=armwaru=pgear=pgearr1
 ;ashura~ashurau
 ;assault~=assaultj~=assaultp (values differ)
@@ -205013,7 +205013,7 @@
 ;loffire=loffirej=loffireu
 ;lomakai=makaiden
 ;looping=loopingua~=skybump
-;losttmbh=losttomb~=superbon
+;losttombh=losttomb~=superbon
 ;lsasquad=storming
 ;luplup=luplup29=puzlbang=suplup     (unchecked relationship)
 ;lvgirl94=zerozone
@@ -205652,7 +205652,7 @@
 ; arcadia (made by Pugsy) [M6809]
 ; argus (made by ShimaPong) [????]
 ; armedf (made by ShimaPong) [????]
-; armorca2 (made by ShimaPong) [????]
+; armorcar2 (made by ShimaPong) [????]
 ; armorcar (made by ShimaPong) [????]
 ; aso (made by ShimaPong) [????]
 ; assault (made by ShimaPong) [????]

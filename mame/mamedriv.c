@@ -279,7 +279,7 @@ const game_driver * const drivers[] =
 	DRIVER( stratgyx )	/* GX306 (c) 1981 Konami */
 	DRIVER( stratgys )	/* GX306 (c) 1981 Stern */
 	DRIVER( armorcar )	/* (c) 1981 Stern */
-	DRIVER( armorca2 )	/* (c) 1981 Stern */
+	DRIVER( armorcar2 )	/* (c) 1981 Stern */
 	DRIVER( moonwar )	/* (c) 1981 Stern */
 	DRIVER( moonwara )	/* (c) 1981 Stern */
 	DRIVER( spdcoin )	/* (c) 1984 Stern */
@@ -288,13 +288,13 @@ const game_driver * const drivers[] =
 	DRIVER( tazmani2 )	/* (c) 1982 Stern */
 	DRIVER( calipso )	/* (c) 1982 Tago */
 	DRIVER( anteater )	/* (c) 1982 Tago */
-	DRIVER( anteatg )	/* (c) ? */
-	DRIVER( anteatgb )	/* (c) ? */
+	DRIVER( anteaterg )	/* (c) ? */
+	DRIVER( anteateruk )	/* (c) ? */
 	DRIVER( rescue )	/* (c) 1982 Stern */
 	DRIVER( aponow )	/* bootleg */
 	DRIVER( minefld )	/* (c) 1983 Stern */
 	DRIVER( losttomb )	/* (c) 1982 Stern */
-	DRIVER( losttmbh )	/* (c) 1982 Stern */
+	DRIVER( losttombh )	/* (c) 1982 Stern */
 	DRIVER( superbon )	/* bootleg */
 	DRIVER( hustler )	/* GX343 (c) 1981 Konami */
 	DRIVER( billiard )	/* bootleg */

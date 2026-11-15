@@ -1172,7 +1172,7 @@ gtmr2u:
 0:103b34:b62:59:01
 
 ;******The Anteater (UK)
-anteatgb:
+anteateruk:
 0:4ef:3c:00:59
 
 ;********popeye.c (popeye bootleg fixed)
@@ -4803,7 +4803,7 @@ lizwiz:
 
 ;(lost tomb (easy)) and clones (by GeoMan) 
 losttomb: 
-losttmbh: 
+losttombh: 
 0:8110:50:03:00
 
 ;(mach rider) (by GeoMan)
@@ -9433,7 +9433,7 @@ anteater:
 0:80ef:3c:01:4c
 
 armorcar:
-armorca2:
+armorcar2:
 0:8113:3c:02:50
 
 rescue:
