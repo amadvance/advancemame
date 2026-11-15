@@ -11881,16 +11881,16 @@
 :blazstar:00010000:10FD82:00000000:FFFFFFFF:Home (NEOGEO)
 
 ; [ Block Gal (bootleg) ]
-:blckgalb:00000000:0C040:00000009:FFFFFFFF:Infinite Credits
-:blckgalb:00000001:0C00C:00000001:FFFFFFFF:Finish this level Now!
-:blckgalb:20800000:10DC7:000000CD:FFFFFFFF:Always Keep a Ball
-:blckgalb:20910000:00DC8:0000184E:FFFFFFFF:Always Keep a Ball (2/4):1st & 2nd = call $184E
-:blckgalb:20810000:10DCA:000000C3:FFFFFFFF:Always Keep a Ball (3/4):3rd & 4th = jp $0E2C
-:blckgalb:20910000:00DCB:00000E2C:FFFFFFFF:Always Keep a Ball (4/4)
-:blckgalb:00000000:0C019:00000003:FFFFFFFF:Infinite Lives PL1
-:blckgalb:00000703:0C018:00000014:FFFFFFFF:Select next level PL1
-:blckgalb:00000000:0C021:00000003:FFFFFFFF:Infinite Lives PL2
-:blckgalb:00000703:0C020:00000014:FFFFFFFF:Select next level PL2
+:blockgalb:00000000:0C040:00000009:FFFFFFFF:Infinite Credits
+:blockgalb:00000001:0C00C:00000001:FFFFFFFF:Finish this level Now!
+:blockgalb:20800000:10DC7:000000CD:FFFFFFFF:Always Keep a Ball
+:blockgalb:20910000:00DC8:0000184E:FFFFFFFF:Always Keep a Ball (2/4):1st & 2nd = call $184E
+:blockgalb:20810000:10DCA:000000C3:FFFFFFFF:Always Keep a Ball (3/4):3rd & 4th = jp $0E2C
+:blockgalb:20910000:00DCB:00000E2C:FFFFFFFF:Always Keep a Ball (4/4)
+:blockgalb:00000000:0C019:00000003:FFFFFFFF:Infinite Lives PL1
+:blockgalb:00000703:0C018:00000014:FFFFFFFF:Select next level PL1
+:blockgalb:00000000:0C021:00000003:FFFFFFFF:Infinite Lives PL2
+:blockgalb:00000703:0C020:00000014:FFFFFFFF:Select next level PL2
 
 ; [ Block Out (set 2) ]
 :blckout2:00000000:1D5F23:00000099:FFFFFFFF:Infinite Credits
@@ -19176,24 +19176,24 @@
 :chplft:00000001:C084:00000020:FFFFFFFF:Max. load hostages = 20
 
 ; [ Choplifter (alternate) ]
-:chplftb:00000000:C02D:00000095:FFFFFFFF:Infinite Lives
-:chplftb:00000000:E118:000000C8:FFFFFFFF:Infinite Fuel
-:chplftb:00000000:C303:00000041:FFFFFFFF:Invincibility
-:chplftb:00000000:C084:00000001:FFFFFFFF:Always Have Prisoners
-:chplftb:00000001:C085:00000020:FFFFFFFF:Finish Level Level Now!
-:chplftb:00000001:C083:00000000:FFFFFFFF:No dead hostages
-:chplftb:00000001:C084:00000008:FFFFFFFF:Max. load hostages = 08
-:chplftb:00000001:C084:00000020:FFFFFFFF:Max. load hostages = 20
+:chopliftu:00000000:C02D:00000095:FFFFFFFF:Infinite Lives
+:chopliftu:00000000:E118:000000C8:FFFFFFFF:Infinite Fuel
+:chopliftu:00000000:C303:00000041:FFFFFFFF:Invincibility
+:chopliftu:00000000:C084:00000001:FFFFFFFF:Always Have Prisoners
+:chopliftu:00000001:C085:00000020:FFFFFFFF:Finish Level Level Now!
+:chopliftu:00000001:C083:00000000:FFFFFFFF:No dead hostages
+:chopliftu:00000001:C084:00000008:FFFFFFFF:Max. load hostages = 08
+:chopliftu:00000001:C084:00000020:FFFFFFFF:Max. load hostages = 20
 
 ; [ Choplifter (bootleg) ]
-:chplftbl:00000000:C02D:00000095:FFFFFFFF:Infinite Lives PL1
-:chplftbl:00000000:E118:000000C8:FFFFFFFF:Infinite Fuel
-:chplftbl:00000000:C303:00000041:FFFFFFFF:Invincibility
-:chplftbl:00000000:C084:00000001:FFFFFFFF:Always Have Prisoners
-:chplftbl:00000001:C085:00000020:FFFFFFFF:Finish Level Level Now!
-:chplftbl:00000001:C083:00000000:FFFFFFFF:No dead hostages
-:chplftbl:00000001:C084:00000008:FFFFFFFF:Max. load hostages = 08
-:chplftbl:00000001:C084:00000020:FFFFFFFF:Max. load hostages = 20
+:chopliftbl:00000000:C02D:00000095:FFFFFFFF:Infinite Lives PL1
+:chopliftbl:00000000:E118:000000C8:FFFFFFFF:Infinite Fuel
+:chopliftbl:00000000:C303:00000041:FFFFFFFF:Invincibility
+:chopliftbl:00000000:C084:00000001:FFFFFFFF:Always Have Prisoners
+:chopliftbl:00000001:C085:00000020:FFFFFFFF:Finish Level Level Now!
+:chopliftbl:00000001:C083:00000000:FFFFFFFF:No dead hostages
+:chopliftbl:00000001:C084:00000008:FFFFFFFF:Max. load hostages = 08
+:chopliftbl:00000001:C084:00000020:FFFFFFFF:Max. load hostages = 20
 
 ; [ Chequered Flag ]
 :chqflag:00000000:05C6:00000063:FFFFFFFF:Infinite Credits
@@ -100737,11 +100737,11 @@
 :mrviking:00000000:0C162:00000008:FFFFFFFF:Infinite Lives PL2
 
 ; [ Mister Viking (Japan) ]
-:mrvikngj:20800000:11664:00000018:FFFFFFFF:Invincibility
-:mrvikngj:20810000:14E21:000000C9:FFFFFFFF:Invincibility (2/2):1st code = against an enemy on ground, 2nd code = against an enemy in riding in a flying ship
-:mrvikngj:00000000:0C504:00000000:00000020:Rapid Fire
-:mrvikngj:00000000:0C161:00000008:FFFFFFFF:Infinite Lives PL1
-:mrvikngj:00000000:0C162:00000008:FFFFFFFF:Infinite Lives PL2
+:mrvikingj:20800000:11664:00000018:FFFFFFFF:Invincibility
+:mrvikingj:20810000:14E21:000000C9:FFFFFFFF:Invincibility (2/2):1st code = against an enemy on ground, 2nd code = against an enemy in riding in a flying ship
+:mrvikingj:00000000:0C504:00000000:00000020:Rapid Fire
+:mrvikingj:00000000:0C161:00000008:FFFFFFFF:Infinite Lives PL1
+:mrvikingj:00000000:0C162:00000008:FFFFFFFF:Infinite Lives PL2
 
 ; [ Metal Slug 4 Plus (bootleg) ]
 :ms4plus:00000000:10ED5C:00000099:FFFFFFFF:Infinite Time
@@ -120903,13 +120903,13 @@
 :noahsark:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Noboranka (Japan) ]
-:noboranb:00000000:F00E:00000099:FFFFFFFF:Infinite Credits
-:noboranb:00000000:F929:0000003B:FFFFFFFF:Infinite Time
-:noboranb:00010000:F92A:00000009:FFFFFFFF:Infinite Time (2/2)
-:noboranb:00000000:F200:00000001:FFFFFFFF:Invincibility "ON":Hatchlings (chicks in eggs with tongues) can still kill you though
-:noboranb:00000001:F200:00000000:FFFFFFFF:Invincibility "OFF"
-:noboranb:00000000:F034:00000006:FFFFFFFF:Infinite Lives PL1
-:noboranb:00000000:F035:00000006:FFFFFFFF:Infinite Lives PL2
+:nob:00000000:F00E:00000099:FFFFFFFF:Infinite Credits
+:nob:00000000:F929:0000003B:FFFFFFFF:Infinite Time
+:nob:00010000:F92A:00000009:FFFFFFFF:Infinite Time (2/2)
+:nob:00000000:F200:00000001:FFFFFFFF:Invincibility "ON":Hatchlings (chicks in eggs with tongues) can still kill you though
+:nob:00000001:F200:00000000:FFFFFFFF:Invincibility "OFF"
+:nob:00000000:F034:00000006:FFFFFFFF:Infinite Lives PL1
+:nob:00000000:F035:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ No Man's Land ]
 :nomnlnd:00000000:6012:00000007:FFFFFFFF:Infinite Lives PL1
@@ -121030,34 +121030,34 @@
 :nprinces:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Ninja Princess (128k Ver. bootleg?) ]
-:nprincsb:00000000:C039:00000000:FFFFFFFF:Infinite Time
-:nprincsb:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
-:nprincsb:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
-:nprincsb:20800000:108AB:00000018:FFFFFFFF:Invincibility
-:nprincsb:20810000:14067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
-:nprincsb:20810000:15135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
-:nprincsb:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
-:nprincsb:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
+:nprincesb:00000000:C039:00000000:FFFFFFFF:Infinite Time
+:nprincesb:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
+:nprincesb:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
+:nprincesb:20800000:108AB:00000018:FFFFFFFF:Invincibility
+:nprincesb:20810000:14067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
+:nprincesb:20810000:15135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
+:nprincesb:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
+:nprincesb:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Ninja Princess (128k Ver.) ]
-:nprincso:00000000:0C039:00000000:FFFFFFFF:Infinite Time
-:nprincso:00010000:0EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
-:nprincso:00010000:0C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
-:nprincso:20800000:108AB:00000018:FFFFFFFF:Invincibility
-:nprincso:20810000:14067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
-:nprincso:20810000:15135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
-:nprincso:00000000:0C02C:00000009:FFFFFFFF:Infinite Lives PL1
-:nprincso:00000000:0C02D:00000009:FFFFFFFF:Infinite Lives PL2
+:nprinceso:00000000:0C039:00000000:FFFFFFFF:Infinite Time
+:nprinceso:00010000:0EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
+:nprinceso:00010000:0C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
+:nprinceso:20800000:108AB:00000018:FFFFFFFF:Invincibility
+:nprinceso:20810000:14067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
+:nprinceso:20810000:15135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
+:nprinceso:00000000:0C02C:00000009:FFFFFFFF:Infinite Lives PL1
+:nprinceso:00000000:0C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Ninja Princess (64k Ver. not encrypted) ]
-:nprincsu:00000000:C039:00000000:FFFFFFFF:Infinite Time
-:nprincsu:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
-:nprincsu:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
-:nprincsu:20800000:3AA1:00000018:FFFFFFFF:Invincibility
-:nprincsu:20810000:4B6F:00000018:FFFFFFFF:Invincibility (2/3):1st = Pink Ninja, 2nd = Enemy
-:nprincsu:20810000:5119:00000018:FFFFFFFF:Invincibility (3/3):Fire
-:nprincsu:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
-:nprincsu:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
+:nprincesu:00000000:C039:00000000:FFFFFFFF:Infinite Time
+:nprincesu:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
+:nprincesu:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
+:nprincesu:20800000:3AA1:00000018:FFFFFFFF:Invincibility
+:nprincesu:20810000:4B6F:00000018:FFFFFFFF:Invincibility (2/3):1st = Pink Ninja, 2nd = Enemy
+:nprincesu:20810000:5119:00000018:FFFFFFFF:Invincibility (3/3):Fire
+:nprincesu:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
+:nprincesu:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ New Rally X ]
 :nrallyx:00000000:800F:00000004:FFFFFFFF:Infinite Lives PL1
@@ -131476,10 +131476,10 @@
 :pitfall2:00000000:C122:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Pitfall II (not encrypted) ]
-:pitfallu:00000024:C461:0000003B:FFFFFFFF:Infinite Time
-:pitfallu:20A00000:2C9B:00000000:FFFFFFFF:Invincibility:Watch out whilst riding the wagons (squeezed or crashing in it) and falling on spikes though that's still deadly
-:pitfallu:00000000:C121:00000009:FFFFFFFF:Infinite Lives PL1
-:pitfallu:00000000:C122:00000009:FFFFFFFF:Infinite Lives PL2
+:pitfall2u:00000024:C461:0000003B:FFFFFFFF:Infinite Time
+:pitfall2u:20A00000:2C9B:00000000:FFFFFFFF:Invincibility:Watch out whilst riding the wagons (squeezed or crashing in it) and falling on spikes though that's still deadly
+:pitfall2u:00000000:C121:00000009:FFFFFFFF:Infinite Lives PL1
+:pitfall2u:00000000:C122:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Pit Fighter (rev 3) ]
 :pitfigh3:00000000:FFC49A:00000000:FFFFFFFF:Infinite Time
@@ -148713,14 +148713,14 @@
 :seganinj:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Sega Ninja (not encrypted) ]
-:seganinu:00000000:C039:00000000:FFFFFFFF:Infinite Time
-:seganinu:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
-:seganinu:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
-:seganinu:20800000:08AB:00000018:FFFFFFFF:Invincibility
-:seganinu:20810000:4067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
-:seganinu:20810000:5135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
-:seganinu:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
-:seganinu:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
+:seganinju:00000000:C039:00000000:FFFFFFFF:Infinite Time
+:seganinju:00010000:EEF8:00000014:FFFFFFFF:Infinite Time (2/3)
+:seganinju:00010000:C08C:000000F8:FFFFFFFF:Infinite Time (3/3)
+:seganinju:20800000:08AB:00000018:FFFFFFFF:Invincibility
+:seganinju:20810000:4067:00000018:FFFFFFFF:Invincibility (2/3):1st = Fire, 2nd = Pink Ninja
+:seganinju:20810000:5135:00000018:FFFFFFFF:Invincibility (3/3):Enemy
+:seganinju:00000000:C02C:00000009:FFFFFFFF:Infinite Lives PL1
+:seganinju:00000000:C02D:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Seicross ]
 :seicross:00000000:78A1:00000099:FFFFFFFF:Infinite Lives
@@ -178032,11 +178032,11 @@
 :starjack:00000000:C1C4:00000000:FFFFFFFF:Rapid Fire - Antisurface
 
 ; [ Star Jacker (Stern) ]
-:starjacs:00000000:C09B:00000006:FFFFFFFF:Infinite Lives
-:starjacs:20A00000:2BE4:002CDAC3:FFFFFFFF:Invincibility
-:starjacs:20810000:2E7D:000000C9:FFFFFFFF:Invincibility (2/2):1st = Enemy & Fire, 2nd = Tower
-:starjacs:00000000:C1E8:00000000:FFFFFFFF:Rapid Fire - Antiair
-:starjacs:00000000:C1ED:00000000:FFFFFFFF:Rapid Fire - Antisurface
+:starjacks:00000000:C09B:00000006:FFFFFFFF:Infinite Lives
+:starjacks:20A00000:2BE4:002CDAC3:FFFFFFFF:Invincibility
+:starjacks:20810000:2E7D:000000C9:FFFFFFFF:Invincibility (2/2):1st = Enemy & Fire, 2nd = Tower
+:starjacks:00000000:C1E8:00000000:FFFFFFFF:Rapid Fire - Antiair
+:starjacks:00000000:C1ED:00000000:FFFFFFFF:Rapid Fire - Antisurface
 
 ; [ Vs. Star Luster ]
 :starlstr:00000000:0001:00000099:FFFFFFFF:Infinite Credits
@@ -188734,48 +188734,48 @@
 :uecology:00010000:FF03E9:00000004:FFFFFFFF:Asia
 
 ; [ Ufo Senshi Yohko Chan (not encrypted) ]
-:ufosensb:00000000:C018:00000009:FFFFFFFF:Infinite Credits
-:ufosensb:00200000:C10D:00090909:FFFFFFFF:Infinite Time
-:ufosensb:00000000:C1F8:00000006:FFFFFFFF:Infinite Energy
-:ufosensb:00000000:C120:00000002:FFFFFFFF:Invincibility
-:ufosensb:00000000:C111:00000004:FFFFFFFF:Rapid Fire
-:ufosensb:62000000:0000:00000000:00000000:Select Starting Stage:Set on title screen after you've inserted a credit
-:ufosensb:00011001:C031:00000011:FFFFFFFF:Stage 1
-:ufosensb:00011001:C031:00000021:FFFFFFFF:Stage 2
-:ufosensb:00011001:C031:00000031:FFFFFFFF:Stage 3
-:ufosensb:00011001:C031:00000041:FFFFFFFF:Stage 4
-:ufosensb:00000000:C046:00000005:FFFFFFFF:Infinite Lives PL1
-:ufosensb:00200000:C03E:00090909:FFFFFFFF:Infinite Money PL1
-:ufosensb:00000000:C033:00000099:FFFFFFFF:Always Have 3-way PL1
-:ufosensb:00000000:C034:00000099:FFFFFFFF:Always Have Boomerang PL1
-:ufosensb:00000000:C035:00000099:FFFFFFFF:Always Have Hadou Gun PL1
-:ufosensb:00000000:C036:00000099:FFFFFFFF:Always Have UFO PL1:Set after get the UFO
-:ufosensb:00000000:C037:00000099:FFFFFFFF:Always Have Sword PL1
-:ufosensb:62000000:0000:00000000:00000000:Select Starting Stage PL2:Set on title screen after you've inserted a credit
-:ufosensb:00011001:C049:00000011:FFFFFFFF:Stage 1
-:ufosensb:00011001:C049:00000021:FFFFFFFF:Stage 2
-:ufosensb:00011001:C049:00000031:FFFFFFFF:Stage 3
-:ufosensb:00011001:C049:00000041:FFFFFFFF:Stage 4
-:ufosensb:00000000:C05E:00000005:FFFFFFFF:Infinite Lives PL2
-:ufosensb:00200000:C056:00090909:FFFFFFFF:Infinite Money PL2
-:ufosensb:00000000:C04B:00000099:FFFFFFFF:Always Have 3-way PL2
-:ufosensb:00000000:C04C:00000099:FFFFFFFF:Always Have Boomerang PL2
-:ufosensb:00000000:C04D:00000099:FFFFFFFF:Always Have Hadou Gun PL2
-:ufosensb:00000000:C04E:00000099:FFFFFFFF:Always Have UFO PL2:Set after get the UFO
-:ufosensb:00000000:C04F:00000099:FFFFFFFF:Always Have Sword PL2
-:ufosensb:60000000:0000:00000000:00000000:[ Set UFO cheat in Side View Stage ]
-:ufosensb:60000000:0000:00000000:00000000:[ It will cause bug in Top View    ]
-:ufosensb:60000000:0000:00000000:00000000:[ and not work in Boss Stage       ]
-:ufosensb:00000000:CC28:00000006:FFFFFFFF:Always Have UFO
-:ufosensb:00010010:CC2C:00000000:00000020:Always Have UFO (2/3)
-:ufosensb:00010000:CC2F:00000004:FFFFFFFF:Always Have UFO (3/3)
-:ufosensb:00000001:CC28:00000006:FFFFFFFF:Get UFO Now!
-:ufosensb:00010001:CC2C:00000000:FFFFFFFF:Get UFO Now! (2/3)
-:ufosensb:00010001:CC2F:00000004:FFFFFFFF:Get UFO Now! (3/3)
-:ufosensb:00000001:CC28:00000004:FFFFFFFF:Lose UFO Now!
-:ufosensb:00010001:CC2C:000000FF:FFFFFFFF:Lose UFO Now! (2/3)
-:ufosensb:00010001:CC2F:00000000:FFFFFFFF:Lose UFO Now! (3/3)
-:ufosensb:20800000:0124:00000000:FFFFFFFF:Unlock Test Mode:You need to reset the game to enter Test Mode
+:ufosensib:00000000:C018:00000009:FFFFFFFF:Infinite Credits
+:ufosensib:00200000:C10D:00090909:FFFFFFFF:Infinite Time
+:ufosensib:00000000:C1F8:00000006:FFFFFFFF:Infinite Energy
+:ufosensib:00000000:C120:00000002:FFFFFFFF:Invincibility
+:ufosensib:00000000:C111:00000004:FFFFFFFF:Rapid Fire
+:ufosensib:62000000:0000:00000000:00000000:Select Starting Stage:Set on title screen after you've inserted a credit
+:ufosensib:00011001:C031:00000011:FFFFFFFF:Stage 1
+:ufosensib:00011001:C031:00000021:FFFFFFFF:Stage 2
+:ufosensib:00011001:C031:00000031:FFFFFFFF:Stage 3
+:ufosensib:00011001:C031:00000041:FFFFFFFF:Stage 4
+:ufosensib:00000000:C046:00000005:FFFFFFFF:Infinite Lives PL1
+:ufosensib:00200000:C03E:00090909:FFFFFFFF:Infinite Money PL1
+:ufosensib:00000000:C033:00000099:FFFFFFFF:Always Have 3-way PL1
+:ufosensib:00000000:C034:00000099:FFFFFFFF:Always Have Boomerang PL1
+:ufosensib:00000000:C035:00000099:FFFFFFFF:Always Have Hadou Gun PL1
+:ufosensib:00000000:C036:00000099:FFFFFFFF:Always Have UFO PL1:Set after get the UFO
+:ufosensib:00000000:C037:00000099:FFFFFFFF:Always Have Sword PL1
+:ufosensib:62000000:0000:00000000:00000000:Select Starting Stage PL2:Set on title screen after you've inserted a credit
+:ufosensib:00011001:C049:00000011:FFFFFFFF:Stage 1
+:ufosensib:00011001:C049:00000021:FFFFFFFF:Stage 2
+:ufosensib:00011001:C049:00000031:FFFFFFFF:Stage 3
+:ufosensib:00011001:C049:00000041:FFFFFFFF:Stage 4
+:ufosensib:00000000:C05E:00000005:FFFFFFFF:Infinite Lives PL2
+:ufosensib:00200000:C056:00090909:FFFFFFFF:Infinite Money PL2
+:ufosensib:00000000:C04B:00000099:FFFFFFFF:Always Have 3-way PL2
+:ufosensib:00000000:C04C:00000099:FFFFFFFF:Always Have Boomerang PL2
+:ufosensib:00000000:C04D:00000099:FFFFFFFF:Always Have Hadou Gun PL2
+:ufosensib:00000000:C04E:00000099:FFFFFFFF:Always Have UFO PL2:Set after get the UFO
+:ufosensib:00000000:C04F:00000099:FFFFFFFF:Always Have Sword PL2
+:ufosensib:60000000:0000:00000000:00000000:[ Set UFO cheat in Side View Stage ]
+:ufosensib:60000000:0000:00000000:00000000:[ It will cause bug in Top View    ]
+:ufosensib:60000000:0000:00000000:00000000:[ and not work in Boss Stage       ]
+:ufosensib:00000000:CC28:00000006:FFFFFFFF:Always Have UFO
+:ufosensib:00010010:CC2C:00000000:00000020:Always Have UFO (2/3)
+:ufosensib:00010000:CC2F:00000004:FFFFFFFF:Always Have UFO (3/3)
+:ufosensib:00000001:CC28:00000006:FFFFFFFF:Get UFO Now!
+:ufosensib:00010001:CC2C:00000000:FFFFFFFF:Get UFO Now! (2/3)
+:ufosensib:00010001:CC2F:00000004:FFFFFFFF:Get UFO Now! (3/3)
+:ufosensib:00000001:CC28:00000004:FFFFFFFF:Lose UFO Now!
+:ufosensib:00010001:CC2C:000000FF:FFFFFFFF:Lose UFO Now! (2/3)
+:ufosensib:00010001:CC2F:00000000:FFFFFFFF:Lose UFO Now! (3/3)
+:ufosensib:20800000:0124:00000000:FFFFFFFF:Unlock Test Mode:You need to reset the game to enter Test Mode
 
 ; [ Ufo Senshi Yohko Chan ]
 :ufosensi:00000000:C018:00000009:FFFFFFFF:Infinite Credits
@@ -204453,7 +204453,7 @@
 ;bladestl=bladstle
 ;blandia~blandiap
 ;blast30=blaster=blastkit
-;blckgalb=blockgal
+;blockgalb=blockgal
 ;blckout2=blckoutj~=blockout
 ;blitz~=blitz11~=blitz2k~=blitz99 (unchecked relationship)
 ;blkbustr=crazyblk=mrjong
@@ -204546,7 +204546,7 @@
 ;chinher2=chinhero
 ;chinmoku=iemoto=mjnanpaa=mjnanpas=mjnanpau=mladyhtr=seiha=seiham~=(orangec~=orangeci~=mmsikaku)~=vipclub~(iemotom=ryuuha~=ojousan~=ojousanm)~(club90s=club90sa)~ [lovehous also relationship unknown]
 ;chopper=choppera=chopperb=legofair
-;chplft=chplftb=chplftbl
+;chplft=chopliftu=chopliftbl
 ;chqflag=chqflagj
 ;chukatai=chukataj=chukatau
 ;circusc=circusc2=circuscc=circusce~=circusc3
@@ -205074,7 +205074,7 @@
 ;mplanuk~mplanets
 ;mrdo=mrdofix=mrdot=mrlo=mrdu=yankeedo~mrdoy
 ;mrkougar=mrkougb=mrkougb2=mrkougar2
-;mrviking=mrvikngj
+;mrviking=mrvikingj
 ;ms4plus=mslug4 (look at weapon cheats - they may not work?)
 ;ms5pcb=ms5plus=mslug5
 ;msgundam1=msgundam
@@ -205108,7 +205108,7 @@
 ;neocup98=ssideki3
 ;news=newsa
 ;nibbler=nibblera=nibblerb=nibblero
-;ninja=nprinces=nprincsb=nprincso=nprincsu=seganinj=seganinu
+;ninja=nprinces=nprincesb=nprinceso=nprincesu=seganinj=seganinju
 ;ninjak2a=rdaction~(ninjak2b=ninjakd2)~(ninjakun [THIS GAME MISSING CHEATS!])
 ;ninjak=ninjakj=ninjaku
 ;ninjaw=ninjawj
@@ -205173,7 +205173,7 @@
 ;pinbo==pinboa=pinbos
 ;pipedrm~=pipedrmj (minor differences mainly 'Stop water from flowing' doesn't work for us version)
 ;pipibibs=pipibibi~whoopee
-;pitfall2=pitfallu
+;pitfall2=pitfall2u
 ;pitfigh3=pitfigh4=pitfighb=pitfight~=pitfighj
 ;pitnrun=pitnruna
 ;pkladiel=pkladies=pkladila
@@ -205408,7 +205408,7 @@
 ;sspirtfc=sspiritj=sspirits
 ;ssrdrabd=ssrdrebc=ssrdrebd=ssrdrjbd=ssrdrubc~=(ssrdradd=ssrdreaa=ssrdruac=ssrdruda=ssriders=sunsetbl)
 ;starfira~=starfire
-;starjack=starjacs
+;starjack=starjacks
 ;starwar1=starwars
 ;steelta1=steeltap~(steeltag=steeltal) (steeltap cheats not checked though!)
 ;stinger=stinger2
@@ -205510,7 +205510,7 @@
 ;twcup94a=twrldc94     (twcup94a not working so untested)
 ;tx1=tx1a    (unchecked relationship)
 ;uccops=uccopsj
-;ufosensb=ufosensi
+;ufosensib=ufosensi
 ;undrfire=undrfirj=undrfiru
 ;upndown~=upndownu
 ;usg183~=usg252~(usg32=usg82=usg83=usg83x) [different max values though and games differ - basic locations all the same]
@@ -205692,7 +205692,7 @@
 ; bionicc (made by ShimaPong) [????]
 ; bionicc2 (made by ShimaPong) [????]
 ; blastoff (made by ShimaPong) [????]
-; blckgalb (made by ShimaPong) [????]
+; blockgalb (made by ShimaPong) [????]
 ; blkbustr (made by ShimaPong) [????]
 ; blkhole (made by ugetab) [Z80]
 ; blockgal (made by ShimaPong) [????]
@@ -206156,7 +206156,7 @@
 ; mrkougar2 (made by ShimaPong) [????]
 ; mrlo (made by Pugsy) [Z80]
 ; mrviking (made by ShimaPong) [Z80]
-; mrvikngj (made by ShimaPong) [Z80]
+; mrvikingj (made by ShimaPong) [Z80]
 ; mschamp (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; mspacmab (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; mspacman (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
@@ -206194,9 +206194,9 @@
 ; nmouse (made by ShimaPong) [????]
 ; nmousea (made by ShimaPong) [????]
 ; nprinces (made by ShimaPong) [Z80]
-; nprincsb (made by ShimaPong) [Z80]
-; nprincso (made by ShimaPong) [Z80]
-; nprincsu (made by ShimaPong) [Z80]
+; nprincesb (made by ShimaPong) [Z80]
+; nprinceso (made by ShimaPong) [Z80]
+; nprincesu (made by ShimaPong) [Z80]
 ; nratechu (made by Pugsy) [Z80]
 ; nss_actr (made by ShimaPong) [????]
 ; nss_fzer (made by ShimaPong) [????]
@@ -206255,7 +206255,7 @@
 ; piranhah (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; piranhao (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; pitfall2 (made by Pugsy) [Z80]
-; pitfallu (made by Pugsy) [Z80]
+; pitfall2u (made by Pugsy) [Z80]
 ; pkunwar (made by ShimaPong) [Z80]
 ; pkunwarj (made by ShimaPong) [Z80]
 ; plegendj (made by ShimaPong) [????]
@@ -206360,7 +206360,7 @@
 ; searthia (made by Pugsy) [8080]
 ; searthin (made by Pugsy) [8080]
 ; seganinj (made by ShimaPong) [Z80]
-; seganinu (made by ShimaPong) [Z80]
+; seganinju (made by ShimaPong) [Z80]
 ; sengoku2 (made by ShimaPong) [????]
 ; senjyo (made by ShimaPong) [Z80]
 ; sf (made by ShimaPong) [????]
@@ -206451,7 +206451,7 @@
 ; starforc (made by ShimaPong) [Z80]
 ; starforce (made by ShimaPong) [Z80]
 ; starjack (made by ShimaPong) [Z80]
-; starjacs (made by ShimaPong) [Z80]
+; starjacks (made by ShimaPong) [Z80]
 ; starlstr (made by ShimaPong) [N2A03]
 ; startrkd (made by Pugsy) [M6809]
 ; stinger (made by ShimaPong) [Z80]
@@ -206532,7 +206532,7 @@
 ; turpin (made by ShimaPong) [????]
 ; turtles (made by ShimaPong) [????]
 ; typhoon (made by ShimaPong) [????]
-; ufosensb (made by ShimaPong) [????]
+; ufosensib (made by ShimaPong) [????]
 ; ufosensi (made by ShimaPong) [????]
 ; umk3 (made by Steph/ugetab) [TMS34010]
 ; umk3r10 (made by Steph/ugetab) [TMS34010]
@@ -206844,7 +206844,7 @@
 ; Body Slam - room for lots more cheats, see other wrestling games for possible cheats
 ; Check out the cheats for these clones, I haven't had chance to check them:-
 ;  aliensu   darkseaj   devstor3   grdius3a   marvlanj
-;  pinbos     skykiddo  youma      mrvikngj    blswhstl   pacnchmp
+;  pinbos     skykiddo  youma      mrvikingj    blswhstl   pacnchmp
 ; More cheats for Big Pro Wrestling! needed
 ; Check out Shinobi (set 3) cheats
 ; Check out sdioj cheats when the game is fixed

@@ -937,7 +937,7 @@ sprcrs2a:  ;******Super Cross 2 (Japan set 2)
 
 ;******ufo senshi yohko chan
 ufosensi:
-ufosensb: ;******Ufo Senshi Yohko Chan (not encrypted)
+ufosensib: ;******Ufo Senshi Yohko Chan (not encrypted)
 0:c800:62:11:41
 
 ;(sdi - strategic defence initiative)
@@ -2017,10 +2017,10 @@ skykidd:
 0:5001:1:03:03
 
 seganinj:
-seganinu:
+seganinju:
 nprinces:
-nprincsu:
-nprincsb:
+nprincesu:
+nprincesb:
 ninja:
 0:EF00:31:00:43
 
@@ -4399,7 +4399,7 @@ darkplnt:
 0:80f4:1e:00:51
 
 ;********system1.c (block gal (bootleg)
-blckgalb:
+blockgalb:
 0:c062:3:00:01
 
 ;********cinemat.c (barrier)
@@ -4692,7 +4692,7 @@ onna34ra:
 0:e188:3:00:01
  
 ;(noboranka (japan)) (by GeoMan)
-noboranb:
+nob:
 0:d300:3c:00:2e
 0:f000:3:00:00
 
@@ -4841,7 +4841,7 @@ buckyua:
  
 ;(mister viking) and clones (by GeoMan)
 mrviking:
-mrvikngj: 
+mrvikingj: 
 0:d42c:15:59:47
 0:d300:15:00:01 
 0:c086:3:00:02
@@ -4915,7 +4915,7 @@ starjack:
 0:c0e1:1e:00:52 
 0:c0db:3:00:03
 
-starjacs:
+starjacks:
 0:c102:23:00:52
 0:c0fb:4:00:00
 
@@ -9804,8 +9804,8 @@ surpratk:
 0:d300:96:00:4e
 0:c017:3:00:02
 
-chplftb:
-chplftbl:
+chopliftu:
+chopliftbl:
 0:ef00:31:00:4b
 0:ef71:4:00:00
 
@@ -9829,7 +9829,7 @@ sscandal:
 0:c017:3:00:00
 
 pitfall2:
-pitfallu:
+pitfall2u:
 0:D300:38:00:41
 0:C000:04:00:00
 

@@ -854,7 +854,7 @@
 { "cottonbm", 20 }, /* 4.0 */
 { "coolmini", 4 }, /* 4.0 */
 { "cltchitr", 2 }, /* 4.0 */
-{ "chplftb", 43 }, /* 4.0 */
+{ "chopliftu", 43 }, /* 4.0 */
 { "csprint", 2 }, /* 4.0 */
 { "captaven", 3 }, /* 4.0 */
 { "cbasebal", 6 }, /* 4.0 */
@@ -1223,7 +1223,7 @@
 { "blasted", 5 }, /* 0.81 */
 { "blastoff", 7 }, /* 0.81 */
 { "blazeon", 6 }, /* 0.81 */
-{ "blckgalb", 4 }, /* 0.81 */
+{ "blockgalb", 4 }, /* 0.81 */
 { "blktiger", 3 }, /* 0.81 */
 { "blmbycar", 12 }, /* 0.81 */
 { "block", 13 }, /* 0.81 */

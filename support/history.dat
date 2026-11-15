@@ -25180,7 +25180,7 @@ This game is also known as "Thunder & Lightning 2".
 $end
 
 
-$info=blockgal,blckgalb,
+$info=blockgal,blockgalb,
 $bio
 
 Block Gal (c) 1987 Sega / Vic Tokai.
@@ -37937,7 +37937,7 @@ Graphic : Kim Eun Ae, Hong Young Joo, Whang O-Sik, Hong Dae Hyun
 $end
 
 
-$info=chplft,chplftb,chplftbl,
+$info=chplft,chopliftu,chopliftbl,
 $bio
 
 Choplifter (c) 1985 Sega.
@@ -134514,7 +134514,7 @@ Mattel Intellivision
 $end
 
 
-$info=mrviking,mrvikngj,
+$info=mrviking,mrvikingj,
 $bio
 
 Mister Viking (c) 06/1984 Sega.
@@ -147902,7 +147902,7 @@ Amstrad CPC (1987, "Ninja From Entertainment Usa")
 $end
 
 
-$info=nprinces,nprincsu,nprincso,nprincsb,
+$info=nprinces,nprincesu,nprinceso,nprincesb,
 $bio
 
 Ninja Princess (c) 1985 Sega.
@@ -149023,7 +149023,7 @@ Wait in a lower corner of the screen for the moving tanks to come towards you, t
 $end
 
 
-$info=noboranb,
+$info=nob,nobb,
 $bio
 
 Noboranka (c) 1986 Game Electronics.
@@ -158416,7 +158416,7 @@ PC [MS-DOS, 5.25''] (1991) : This port of Pit-Fighter inexplicably uses a sprite
 $end
 
 
-$info=pitfall2,pitfallu,
+$info=pitfall2,pitfall2u,
 $bio
 
 Pitfall II - The Lost Caverns (c) 1984 Activision.
@@ -189306,7 +189306,7 @@ Buttons : 1
 $end
 
 
-$info=seganinj,seganinu,
+$info=seganinj,seganinju,
 $bio
 
 Sega Ninja (c) 1985 Sega.
@@ -207346,7 +207346,7 @@ GCE Vectrex (1982)
 $end
 
 
-$info=starjack,starjacs,
+$info=starjack,starjacks,
 $bio
 
 Star Jacker (c) 04/1983 Sega.
@@ -243503,7 +243503,7 @@ Yashichi  - Destroy the red turret located at the top of the engines.
 $end
 
 
-$info=ufosensi,ufosensb,
+$info=ufosensi,ufosensib,
 $bio
 
 Ufo Senshi Youko-Chan (c) 1988 Sega.

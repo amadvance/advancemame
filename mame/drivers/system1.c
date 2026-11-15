@@ -13,7 +13,7 @@ to run on IDENTICAL hardware (they were sold by Bally-Midway as ROM swaps).
 TODO: - background is misplaced in wbmlju
       - sprites stick in Pitfall II
       - sprite priorities are probably wrong
-      - remove patch in noboranb if possible and fully understand the
+      - remove patch in nobb if possible and fully understand the
         ports involved in the protection
 
 ******************************************************************************/
@@ -87,6 +87,80 @@ static WRITE8_HANDLER( outport24_w )
 {
 //  logerror("OUT $24 : pc = %04x - data = %02x\n",activecpu_get_pc(),data);
 	inport23_step = data;
+}
+
+/* Noboranka (original): the main CPU talks to an 8751 MCU through a latch */
+
+static UINT8 nob_mcu_latch, nob_maincpu_latch, nob_mcu_status, nob_mcu_control;
+
+static READ8_HANDLER( nob_mcu_latch_r )
+{
+	return nob_mcu_latch;
+}
+
+static WRITE8_HANDLER( nob_mcu_latch_w )
+{
+	nob_mcu_latch = data;
+}
+
+static WRITE8_HANDLER( nob_mcu_status_w )
+{
+	nob_mcu_status = data;
+}
+
+static WRITE8_HANDLER( nob_mcu_control_w )
+{
+	/* bit 0 triggers a read from MCU port 0 */
+	if (((nob_mcu_control ^ data) & 0x01) && !(data & 0x01))
+		nob_mcu_latch = nob_maincpu_latch;
+
+	/* bit 1 triggers a write from MCU port 0 */
+	if (((nob_mcu_control ^ data) & 0x02) && !(data & 0x02))
+		nob_maincpu_latch = nob_mcu_latch;
+
+	/* bit 2 is toggled once near the end of an IRQ */
+	if (((nob_mcu_control ^ data) & 0x04) && !(data & 0x04))
+		cpunum_set_input_line(2, I8051_INT0_LINE, CLEAR_LINE);
+
+	nob_mcu_control = data;
+}
+
+static READ8_HANDLER( nob_maincpu_latch_r )
+{
+	return nob_maincpu_latch;
+}
+
+static WRITE8_HANDLER( nob_maincpu_latch_w )
+{
+	nob_maincpu_latch = data;
+	cpunum_set_input_line(2, I8051_INT0_LINE, ASSERT_LINE);
+	/* the MCU must answer before the main CPU polls the status */
+	cpu_boost_interleave(TIME_IN_USEC(1), TIME_IN_USEC(100));
+}
+
+static READ8_HANDLER( nob_mcu_status_r )
+{
+	return nob_mcu_status;
+}
+
+/* The ROM has a wrong low byte in the JP at the start, it should jump to $0080 and not to $00B6. */
+/* The Z80 fetches the operands directly from the ROM, so a read handler cannot be used: patch */
+/* the byte only for the first instruction and restore it right after, because the self-test */
+/* checksums the ROM. */
+static void nob_unpatch_start(int param)
+{
+	memory_region(REGION_CPU1)[1] = 0xb6;
+}
+
+static MACHINE_RESET( nob )
+{
+	machine_reset_system1();
+	memory_configure_bank(1, 0, 4, memory_region(REGION_CPU1) + 0x10000, 0x4000);
+	nob_mcu_latch = nob_maincpu_latch = nob_mcu_status = 0;
+	nob_mcu_control = 0xff;
+
+	memory_region(REGION_CPU1)[1] = 0x80;
+	timer_set(TIME_IN_USEC(10), 0, nob_unpatch_start);
 }
 
 WRITE8_HANDLER( hvymetal_videomode_w )
@@ -250,7 +324,7 @@ static ADDRESS_MAP_START( readport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x04, 0x04) AM_READ(input_port_1_r) /* joy2 */
 	AM_RANGE(0x08, 0x08) AM_READ(input_port_2_r) /* coin,start */
 	AM_RANGE(0x0c, 0x0c) AM_READ(input_port_3_r) /* DIP2 */
-	AM_RANGE(0x0e, 0x0e) AM_READ(input_port_3_r) /* DIP2 blckgalb reads it from here */
+	AM_RANGE(0x0e, 0x0e) AM_READ(input_port_3_r) /* DIP2 blockgalb reads it from here */
 	AM_RANGE(0x0d, 0x0d) AM_READ(input_port_4_r) /* DIP1 some games read it from here... */
 	AM_RANGE(0x10, 0x10) AM_READ(input_port_4_r) /* DIP1 ... and some others from here */
 									/* but there are games which check BOTH! */
@@ -264,6 +338,17 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x15, 0x15) AM_WRITE(system1_videomode_w)    /* video control and (in some games) bank switching */
 	AM_RANGE(0x18, 0x18) AM_WRITE(system1_soundport_w)    /* mirror address */
 	AM_RANGE(0x19, 0x19) AM_WRITE(system1_videomode_w)    /* mirror address */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( blockgal_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(input_port_0_r) /* joy1 */
+	AM_RANGE(0x04, 0x04) AM_READ(input_port_1_r) /* joy2 */
+	AM_RANGE(0x08, 0x08) AM_READ(input_port_2_r) /* coin,start */
+	AM_RANGE(0x0d, 0x0d) AM_MIRROR(2) AM_READ(input_port_4_r) /* DIP1 */
+	AM_RANGE(0x10, 0x10) AM_MIRROR(3) AM_READ(input_port_3_r) /* DIP2 */
+	AM_RANGE(0x15, 0x15) AM_READ(system1_videomode_r)
+	AM_RANGE(0x19, 0x19) AM_READ(system1_videomode_r)  /* mirror address */
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( wbml_readport, ADDRESS_SPACE_IO, 8 )
@@ -301,6 +386,51 @@ static ADDRESS_MAP_START( wbml_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x16, 0x16) AM_WRITE(wbml_videoram_bank_latch_w)
 ADDRESS_MAP_END
 
+/* DakkoChan House: the mahjong keys are multiplexed, the mux is clocked by bit 1 of the video mode */
+
+static int dakkochn_mux_count, dakkochn_mux_clock;
+
+static READ8_HANDLER( dakkochn_mux_data_r )
+{
+	return readinputport(5 + dakkochn_mux_count);
+}
+
+static READ8_HANDLER( dakkochn_mux_status_r )
+{
+	/* tells which mux port is selected */
+	return (~(1 << dakkochn_mux_count)) & 0xff;
+}
+
+static WRITE8_HANDLER( dakkochn_videomode_w )
+{
+	/* bit 1 toggling on clocks the mux */
+	if ((data & 2) && !dakkochn_mux_clock)
+		dakkochn_mux_count = (dakkochn_mux_count + 1) % 7;
+	dakkochn_mux_clock = (data >> 1) & 1;
+
+	chplft_videomode_w(offset, data & ~0x02);
+}
+
+static ADDRESS_MAP_START( dakkochn_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(dakkochn_mux_data_r)
+	AM_RANGE(0x04, 0x04) AM_READ(dakkochn_mux_status_r)
+	AM_RANGE(0x08, 0x08) AM_READ(input_port_2_r) /* coin,start */
+	AM_RANGE(0x0c, 0x0c) AM_READ(input_port_3_r) /* DIP2 */
+	AM_RANGE(0x0d, 0x0d) AM_READ(input_port_4_r) /* DIP1 some games read it from here... */
+	AM_RANGE(0x10, 0x10) AM_READ(input_port_4_r) /* DIP1 ... and some others from here */
+	AM_RANGE(0x15, 0x15) AM_READ(system1_videomode_r)
+	AM_RANGE(0x16, 0x16) AM_READ(wbml_videoram_bank_latch_r)
+	AM_RANGE(0x19, 0x19) AM_READ(system1_videomode_r)  /* mirror address */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dakkochn_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x14, 0x14) AM_WRITE(system1_soundport_w)    /* sound commands */
+	AM_RANGE(0x15, 0x15) AM_WRITE(dakkochn_videomode_w)
+	AM_RANGE(0x16, 0x16) AM_WRITE(wbml_videoram_bank_latch_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( hvymetal_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x18, 0x18) AM_WRITE(system1_soundport_w)    /* sound commands */
@@ -319,6 +449,12 @@ static ADDRESS_MAP_START( chplft_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x15, 0x15) AM_WRITE(chplft_videomode_w)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( gardiab_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x14, 0x14) AM_WRITE(system1_soundport_w)    /* sound commands */
+	AM_RANGE(0x15, 0x15) AM_WRITE(brain_videomode_w)      /* video control + bank switching */
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( nobo_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x14, 0x14) AM_WRITE(system1_soundport_w)	/* sound commands ? */
@@ -328,6 +464,35 @@ static ADDRESS_MAP_START( nobo_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x24, 0x24) AM_WRITE(outport24_w)			/* Used - check code at 0xb24e and 0xb307 */
 ADDRESS_MAP_END
 
+
+static ADDRESS_MAP_START( nob_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(input_port_0_r)	/* Player 1 inputs */
+	AM_RANGE(0x04, 0x04) AM_READ(input_port_1_r)	/* Player 2 inputs */
+	AM_RANGE(0x08, 0x08) AM_READ(input_port_2_r)	/* System inputs */
+	AM_RANGE(0x0c, 0x0c) AM_READ(input_port_3_r)	/* DSW1 */
+	AM_RANGE(0x0d, 0x0d) AM_READ(input_port_4_r)	/* DSW0 */
+	AM_RANGE(0x15, 0x15) AM_READ(system1_videomode_r)
+	AM_RANGE(0x18, 0x18) AM_READ(nob_maincpu_latch_r)
+	AM_RANGE(0x1c, 0x1c) AM_READ(nob_mcu_status_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nob_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x14, 0x14) AM_WRITE(system1_soundport_w)	/* sound commands */
+	AM_RANGE(0x15, 0x15) AM_WRITE(brain_videomode_w)	/* video control + bank switching */
+	AM_RANGE(0x18, 0x18) AM_WRITE(nob_maincpu_latch_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nob_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nob_mcu_ports, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0, 0) AM_READWRITE(nob_mcu_latch_r, nob_mcu_latch_w)
+	AM_RANGE(1, 1) AM_WRITE(nob_mcu_status_w)
+	AM_RANGE(2, 2) AM_WRITE(nob_mcu_control_w)
+ADDRESS_MAP_END
 
 static READ8_HANDLER( shtngmst_sound_r );
 
@@ -449,7 +614,7 @@ INPUT_PORTS_START( starjack )
 	PORT_DIPSETTING(	0x00, DEF_STR( Hardest ) )
 INPUT_PORTS_END
 
-INPUT_PORTS_START( starjacs )
+INPUT_PORTS_START( starjacks )
 	PORT_START  /* IN1 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )
@@ -711,7 +876,7 @@ INPUT_PORTS_END
 
 /* Same as 'mrviking', but no "Maximum Credits" Dip Switch and "Difficulty" Dip Switch is
    handled by bit 7 instead of bit 6 (so bit 6 is unused) */
-INPUT_PORTS_START( mrvikngj )
+INPUT_PORTS_START( mrvikingj )
 	PORT_START  /* IN1 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 )
@@ -1077,7 +1242,7 @@ INPUT_PORTS_START( pitfall2 )
 	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
 INPUT_PORTS_END
 
-INPUT_PORTS_START( pitfallu )
+INPUT_PORTS_START( pitfall2u )
 	PORT_START  /* IN1 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )
@@ -1479,6 +1644,119 @@ INPUT_PORTS_START( chplft )
 
 	PORT_START	  /* DSW0 */
 	DSW1_PORT
+INPUT_PORTS_END
+
+INPUT_PORTS_START( dakkochn )
+	PORT_START  /* IN1: mux data, see dakkochn_mux_data_r */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* IN2: mux status, see dakkochn_mux_status_r */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* IN0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME( DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED ) /* start 1 & 2 not connected */
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START  /* DSW1 (TODO: dip switches) */
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(	0x03, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(	0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(	0x01, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+
+	PORT_START  /* DSW0 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(	0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+
+	PORT_START  /* KEY0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_A )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_B )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_MAHJONG_C )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_MAHJONG_D )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_MAHJONG_LAST_CHANCE )
+	PORT_BIT( 0xe0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_E )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_F )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_MAHJONG_G )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_MAHJONG_H )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY2 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_I )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_J )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_MAHJONG_K )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_MAHJONG_L )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY3 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_M )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_N )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_MAHJONG_CHI )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_MAHJONG_PON )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_MAHJONG_FLIP_FLOP )
+	PORT_BIT( 0xe0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY4 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_BET )
+	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY5 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_KAN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_MAHJONG_REACH )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_MAHJONG_RON )
+	PORT_BIT( 0xf8, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START  /* KEY6 */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( 4dwarrio )
@@ -2014,7 +2292,7 @@ INPUT_PORTS_START( wbml )
 	DSW1_PORT
 INPUT_PORTS_END
 
-INPUT_PORTS_START( noboranb )
+INPUT_PORTS_START( nobb )
 	PORT_START  /* IN1 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 )				// shot
@@ -2294,6 +2572,16 @@ static MACHINE_DRIVER_START( chplft )
 MACHINE_DRIVER_END
 
 
+/* the bootleg is a System 2 board */
+static MACHINE_DRIVER_START( gardiab )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( chplft )
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(readport,gardiab_writeport)
+
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( brain )
 
 	/* basic machine hardware */
@@ -2508,7 +2796,26 @@ static MACHINE_DRIVER_START( shtngmst )
 	MDRV_VIDEO_UPDATE(shtngmst)
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( noboranb )
+static MACHINE_DRIVER_START( nob )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( system1 )
+	MDRV_CPU_REPLACE( "main", Z80, 8000000)    /* ? guess ? */
+	MDRV_CPU_PROGRAM_MAP(brain_readmem,nobo_writemem)
+	MDRV_CPU_IO_MAP(nob_readport,nob_writeport)
+
+	MDRV_CPU_ADD(I8751, 8000000)
+	MDRV_CPU_PROGRAM_MAP(nob_mcu_program, 0)
+	MDRV_CPU_IO_MAP(nob_mcu_ports, 0)
+
+	MDRV_MACHINE_RESET(nob)
+
+	/* video hardware */
+	MDRV_VISIBLE_AREA(1*8, 31*8-1, 0*8, 28*8-1)
+
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( nobb )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM( system1 )
@@ -2528,10 +2835,38 @@ static MACHINE_DRIVER_START( blockgal )
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM( system1 )
 	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(blockgal_readport,writeport)
+
+MACHINE_DRIVER_END
+
+/* the bootleg is a System 2 board */
+static MACHINE_DRIVER_START( blockgalb )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( system1 )
+	MDRV_CPU_MODIFY("main")
 	MDRV_CPU_PROGRAM_MAP(readmem,blockgal_writemem)
 
 	/* video hardware */
 	MDRV_VIDEO_UPDATE(blockgal)
+
+MACHINE_DRIVER_END
+
+static MACHINE_RESET( dakkochn )
+{
+	machine_reset_wbml();
+	dakkochn_mux_count = 0;
+	dakkochn_mux_clock = 0;
+}
+
+static MACHINE_DRIVER_START( dakkochn )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( wbml )
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(dakkochn_readport,dakkochn_writeport)
+
+	MDRV_MACHINE_RESET(dakkochn)
 
 MACHINE_DRIVER_END
 
@@ -2583,7 +2918,7 @@ ROM_START( starjack )
 	ROM_LOAD( "pr-5317.106",	0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( starjacs )
+ROM_START( starjacks )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "a1_ic29.129",	0x0000, 0x2000, CRC(59a22a1f) SHA1(4827b537f8df04429ed53c2119c67a32efcf04a2) )
 	ROM_LOAD( "a1_ic30.130",	0x2000, 0x2000, CRC(7f4597dc) SHA1(7574853fc2e38880f8493cf628100a890f7aa7dc) )
@@ -2779,7 +3114,7 @@ ROM_START( mrviking )
 	ROM_LOAD( "pr-5317.106",	0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( mrvikngj )
+ROM_START( mrvikingj )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "epr-5751.129",	0x0000, 0x2000, CRC(ae97a4c5) SHA1(12edd757bd5b00d42ada1e10c43817f71cfe77dc) ) /* encrypted */
 	ROM_LOAD( "epr-5752.130",	0x2000, 0x2000, CRC(d48e6726) SHA1(934b5e7568c85005c5ec40d75e49727a18562d50) ) /* encrypted */
@@ -2992,7 +3327,7 @@ ROM_START( pitfall2 )
 	ROM_LOAD( "pr-5317.76",		0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( pitfallu )
+ROM_START( pitfall2u )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "epr-6623.116",	0x0000, 0x4000, CRC(bcb47ed6) SHA1(d33421999f899c0a4dc0d4553614c1f5c7027257) )
 	ROM_LOAD( "epr6624a.109",	0x4000, 0x4000, CRC(6e8b09c1) SHA1(4869ca4d3f0b08cd3df4c82be9cfc774ddeb3010) )
@@ -3038,13 +3373,13 @@ ROM_START( seganinj )
 	ROM_LOAD( "epr-6546.117",	0x0000, 0x4000, CRC(a4785692) SHA1(95ce23076dc86c5d6d3a65274873d4c48e91cc06) )
 	ROM_LOAD( "epr-6548.04",	0x4000, 0x4000, CRC(bdf278c1) SHA1(7ebe505f4f0434edb2cee17a6cbce6b900b29cc4) )
 	ROM_LOAD( "epr-6547.110",	0x8000, 0x4000, CRC(34451b08) SHA1(ee8708f6c886b63f138bcc10dc2a053bfad96c37) )
-	ROM_LOAD( "epr-6549.05",	0xc000, 0x4000, CRC(d2057668) SHA1(ded2a04f7555eb3b1e4da57901ca00635de2c043) )
+	ROM_LOAD( "epr-6549a.05",	0xc000, 0x4000, CRC(7c51488c) SHA1(adc835d86e8b51ac47b8619655b3cc2c01aa8c7a) ) /* note 'a' revision */
 
 	ROM_REGION( 0x0100, REGION_USER1, 0 ) /* misc PROMs, but no color so don't use REGION_PROMS! */
 	ROM_LOAD( "pr-5317.76",		0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( seganinu )
+ROM_START( seganinju )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "epr-7149.116",	0x0000, 0x4000, CRC(cd9fade7) SHA1(958ef5c449df6ef5346b8634cb34a646950f706e) )
 	ROM_LOAD( "epr-7150.109",	0x4000, 0x4000, CRC(c36351e2) SHA1(17734d3f410feb4cad617d1931b3356192b69ac0) )
@@ -3102,7 +3437,7 @@ ROM_START( nprinces )
 															 /* pr-5317.106 */
 ROM_END
 
-ROM_START( nprincso )
+ROM_START( nprinceso )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "epr-6550.116",	0x0000, 0x4000, CRC(5f6d59f1) SHA1(e151bf22799c6507a167f83262e48fe2ba74dbd9) ) /* encrypted */
 	ROM_LOAD( "epr-6551.109",	0x4000, 0x4000, CRC(1af133b2) SHA1(d3ff924782223ea0566d52ab8b45f17af433966e) ) /* encrypted */
@@ -3129,7 +3464,7 @@ ROM_START( nprincso )
 	ROM_LOAD( "pr-5317.76",		0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( nprincsu )
+ROM_START( nprincesu )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "epr-6573.129",	0x0000, 0x2000, CRC(d2919c7d) SHA1(993fdde7dd8d4dbad42f8072829cfea794693a37) )
 	ROM_LOAD( "epr-6574.130",	0x2000, 0x2000, CRC(5a132833) SHA1(c21cdca6062a6ea2ca306a8dd26b572b3be86321) )
@@ -3159,7 +3494,7 @@ ROM_START( nprincsu )
 	ROM_LOAD( "pr-5317.76",		0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( nprincsb )
+ROM_START( nprincesb )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "nprinces.001",	0x0000, 0x4000, CRC(e0de073c) SHA1(26aec99ddb080124225e0abf17aac4cc4aed1834) )  /* encrypted */
 	ROM_LOAD( "nprinces.002",	0x4000, 0x4000, CRC(27219c7f) SHA1(3f4b0ea9b49907231d10a38d89e2f1803dc168c9) )  /* encrypted */
@@ -3466,6 +3801,11 @@ ROM_START( shtngmst )
 	ROM_LOAD( "pr5317.ic37", 0x00300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) )
 
 
+
+	ROM_REGION( 0x04e7, REGION_USER3, 0 ) /* PLDs (not used) */
+	ROM_LOAD( "315-5137.ic10", 0x0000, 0x0104, CRC(6ffd9e6f) SHA1(a60a3a2ec5bc256b18bfff0fec0172ee2e4fd955) ) /* PAL16R4A-2CN */
+	ROM_LOAD( "315-5138.ic11", 0x0200, 0x0104, CRC(dd223015) SHA1(8d70f91b118e8653dda1efee3eaea287ae63809f) ) /* PAL16R4ACN */
+	ROM_LOAD( "315-5139.ic50", 0x0400, 0x00e7, CRC(943d91b0) SHA1(37c98085d580808aaeb01726a9f59705590378c4) ) /* CK2605 */
 ROM_END
 
 ROM_START( choplift )
@@ -3493,9 +3833,17 @@ ROM_START( choplift )
 	ROM_LOAD( "pr7118.14",		0x0100, 0x0100, CRC(693e20c7) SHA1(9ebf4bd2c30ddd9648bc4b41c7739cfdf80100da) ) /* palette green component */
 	ROM_LOAD( "pr7117.8",		0x0200, 0x0100, CRC(4124307e) SHA1(cee28d891e6ce732c43a61acb5beeafd2200cf37) ) /* palette blue component */
 	ROM_LOAD( "pr5317.28",		0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x1000, REGION_USER2, 0 ) /* 8751 MCU (not emulated) */
+	ROM_LOAD( "315-5151.ic74", 0x0000, 0x1000, CRC(1377a6ef) SHA1(b85acd7292e5480c98af1a0492b6b5d3f9b1716c) )
+
+	ROM_REGION( 0x04e7, REGION_USER3, 0 ) /* PLDs (not used) */
+	ROM_LOAD( "315-5152.ic10", 0x0000, 0x0104, CRC(2c9229b4) SHA1(9755013afcf89f99d7a399c7e223e027761cf89a) ) /* PAL16R4A */
+	ROM_LOAD( "315-5138.ic11", 0x0200, 0x0104, CRC(dd223015) SHA1(8d70f91b118e8653dda1efee3eaea287ae63809f) ) /* PAL16R4NC */
+	ROM_LOAD( "315-5139.ic50", 0x0400, 0x00e7, CRC(943d91b0) SHA1(37c98085d580808aaeb01726a9f59705590378c4) ) /* CK2605 */
 ROM_END
 
-ROM_START( chplftb )
+ROM_START( chopliftu )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 ) /* 128k for code */
 	ROM_LOAD( "epr-7152.90",	0x00000, 0x8000, CRC(fe49d83e) SHA1(307be38dd73ed37b275c1b464d266a752cb06132) )
 	ROM_LOAD( "epr-7153.91",	0x10000, 0x8000, CRC(48697666) SHA1(0f4c6db9558272f5ceb347e742b284474f18b707) )
@@ -3520,9 +3868,14 @@ ROM_START( chplftb )
 	ROM_LOAD( "pr7118.14",		0x0100, 0x0100, CRC(693e20c7) SHA1(9ebf4bd2c30ddd9648bc4b41c7739cfdf80100da) ) /* palette green component */
 	ROM_LOAD( "pr7117.8",		0x0200, 0x0100, CRC(4124307e) SHA1(cee28d891e6ce732c43a61acb5beeafd2200cf37) ) /* palette blue component */
 	ROM_LOAD( "pr5317.28",		0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x04e7, REGION_USER3, 0 ) /* PLDs (not used) */
+	ROM_LOAD( "315-5152.ic10", 0x0000, 0x0104, CRC(2c9229b4) SHA1(9755013afcf89f99d7a399c7e223e027761cf89a) ) /* PAL16R4A */
+	ROM_LOAD( "315-5138.ic11", 0x0200, 0x0104, CRC(dd223015) SHA1(8d70f91b118e8653dda1efee3eaea287ae63809f) ) /* PAL16R4NC */
+	ROM_LOAD( "315-5139.ic50", 0x0400, 0x00e7, CRC(943d91b0) SHA1(37c98085d580808aaeb01726a9f59705590378c4) ) /* CK2605 */
 ROM_END
 
-ROM_START( chplftbl )
+ROM_START( chopliftbl )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 ) /* 128k for code */
 	ROM_LOAD( "ep7124bl.90",	0x00000, 0x8000, CRC(71a37932) SHA1(72b6f8949d356b3adc5248fdaa13c2a1b9c0fa70) )
 	ROM_LOAD( "epr-7125.91",	0x10000, 0x8000, CRC(f5283498) SHA1(1ad40f6d7b4cd18212ee56917240c0796f1a4ec2) )
@@ -3547,6 +3900,12 @@ ROM_START( chplftbl )
 	ROM_LOAD( "pr7118.14",		0x0100, 0x0100, CRC(693e20c7) SHA1(9ebf4bd2c30ddd9648bc4b41c7739cfdf80100da) ) /* palette green component */
 	ROM_LOAD( "pr7117.8",		0x0200, 0x0100, CRC(4124307e) SHA1(cee28d891e6ce732c43a61acb5beeafd2200cf37) ) /* palette blue component */
 	ROM_LOAD( "pr5317.28",		0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x0410, REGION_USER3, 0 ) /* PLDs (not used) */
+	ROM_LOAD( "pal16r4a.ic9",         0x0000, 0x0104, CRC(dd223015) SHA1(8d70f91b118e8653dda1efee3eaea287ae63809f) )
+	ROM_LOAD( "pal16r4a.ic10",        0x0104, 0x0104, CRC(2c9229b4) SHA1(9755013afcf89f99d7a399c7e223e027761cf89a) )
+	ROM_LOAD( "pal16r4a-chopbl1.bin", 0x0208, 0x0104, CRC(e1628a8e) SHA1(6b6df079cfadec71b38a53f107475f0dda428b00) )
+	ROM_LOAD( "pal16l8a-chopbl2.bin", 0x030c, 0x0104, CRC(afa7425d) SHA1(09d8607b69ecfc0b12c8610751d489500b63c7d6) )
 ROM_END
 
 ROM_START( 4dwarrio )
@@ -3994,9 +4353,12 @@ ROM_START( blockgal )
 
 	ROM_REGION( 0x0100, REGION_USER1, 0 ) /* misc PROMs, but no color so don't use REGION_PROMS! */
 	ROM_LOAD( "pr5317.76",    0x0000, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-0029.key", 0x0000, 0x2000, CRC(350d7f93) SHA1(7ef12d63b2c7150f8e74f65ec8340471d72b1c03) )
 ROM_END
 
-ROM_START( blckgalb )
+ROM_START( blockgalb )
 	ROM_REGION( 0x18000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "ic62",         0x10000, 0x8000, CRC(65c47676) SHA1(bc283761e6f9ebf65fb405b1c8922c3c98c8d00e) ) /* decrypted opcodes */
 	ROM_CONTINUE(             0x00000, 0x8000 )             /* decrypted data */
@@ -4023,6 +4385,36 @@ ROM_START( blckgalb )
 ROM_END
 
 ROM_START( tokisens )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 ) /* 128k for code */
+	ROM_LOAD( "epr-10961.ic90",  0x00000, 0x8000, CRC(5c71c203) SHA1(65c3730d2255be5e09fda2f8eae1c7f3d245ce9b) ) /* encrypted */
+	ROM_LOAD( "epr-10962.ic91",  0x10000, 0x8000, CRC(db9080e3) SHA1(591b1bd4ab694f45d472bb50483dadb980cd2f86) ) /* encrypted */
+	ROM_LOAD( "epr-10963.ic92",  0x18000, 0x8000, CRC(d17ad93f) SHA1(870dbd3558a4c3a47f36d3d3c0c71c647baacf10) ) /* encrypted */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-0040.key",    0x0000, 0x2000, CRC(e2b67fd6) SHA1(4fcf457279dac317ccf700591cfaa9a4cff81b4a) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 64k for sound cpu */
+	ROM_LOAD( "epr-10967.ic126", 0x0000, 0x8000, CRC(97966bf2) SHA1(b5a3d36afbb3d6e2e2e2c121609a30dc080ccf13) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "epr-10964.ic4",   0x00000, 0x8000, CRC(25af5c93) SHA1(da6e6244b14c9ad51cee012bf46d591928d13050) )
+	ROM_LOAD( "epr-10965.ic5",   0x08000, 0x8000, CRC(cc8eb99a) SHA1(b66c2a786a3401021a05740f36103cf8e6129a85) )
+	ROM_LOAD( "epr-10966.ic6",   0x10000, 0x8000, CRC(7ecf2459) SHA1(2dc6c4295d0e6f18efd26f8e15e0f31cf0a6820e) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, 0 ) /* 128k for sprites data */
+	ROM_LOAD( "epr-10958.ic87",  0x00000, 0x8000, CRC(bb62dbc8) SHA1(f48aa1b38077d801521afe6cd43f1463a22b9431) )
+	ROM_LOAD( "epr-10957.ic86",  0x08000, 0x8000, CRC(4ec56860) SHA1(9fd6ba8a68b4cb98183e8ac8643656c251f1c72d) )
+	ROM_LOAD( "epr-10960.ic89",  0x10000, 0x8000, CRC(880e0d44) SHA1(2b2dc144807d1d048ffe81bfd33a77ccf618dd3e) )
+	ROM_LOAD( "epr-10959.ic88",  0x18000, 0x8000, CRC(4deda48f) SHA1(12db2a69286f22cd8243be6faa9a075fafec1dfd) )
+
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )
+	ROM_LOAD( "pr10956.ic20",    0x0000, 0x0100, CRC(fd1bba8a) SHA1(4a38239d89f70291df71976b18be49fb24f071ca) ) /* palette red component */
+	ROM_LOAD( "pr10955.ic14",    0x0100, 0x0100, CRC(72b35df7) SHA1(ef782fb7012c359ed7ca8f4ab42734c4994e473a) ) /* palette green component */
+	ROM_LOAD( "pr10954.ic8",     0x0200, 0x0100, CRC(b7984867) SHA1(8a03cc98c33e4defe880d10a02a5d0108fa0c9da) ) /* palette blue component */
+	ROM_LOAD( "pr-5317.ic28",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+ROM_END
+
+ROM_START( tokisensa )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 ) /* 128k for code */
 	ROM_LOAD( "epr10961.90",  0x00000, 0x8000, CRC(1466b61d) SHA1(99f93813834d3a7c9f6228076d400f74d9b6dea9) )
 	ROM_LOAD( "epr10962.91",  0x10000, 0x8000, CRC(a8479f91) SHA1(0700746fb481fd2bd22ae82c9881aa61222a6379) )
@@ -4074,6 +4466,9 @@ ROM_START( wbml )
 	ROM_LOAD( "pr11025.14",   0x0100, 0x0100, CRC(41e4d86b) SHA1(a86e8bb0a465d01b04410edfbb82eb96f12b909f) )
 	ROM_LOAD( "pr11024.8",    0x0200, 0x0100, CRC(08d71954) SHA1(df045dbfb3d669e4d42fbdba1e7191cd046f7b47) )
 	ROM_LOAD( "pr5317.37",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-0043.key", 0x0000, 0x2000, CRC(e354abfc) SHA1(07b0d3c51301ebb25909234b6220a3ed20dbcc7d) )
 ROM_END
 
 ROM_START( wbmljo )
@@ -4101,6 +4496,9 @@ ROM_START( wbmljo )
 	ROM_LOAD( "pr11025.14",   0x0100, 0x0100, CRC(41e4d86b) SHA1(a86e8bb0a465d01b04410edfbb82eb96f12b909f) )
 	ROM_LOAD( "pr11024.8",    0x0200, 0x0100, CRC(08d71954) SHA1(df045dbfb3d669e4d42fbdba1e7191cd046f7b47) )
 	ROM_LOAD( "pr5317.37",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-0043.key", 0x0000, 0x2000, CRC(e354abfc) SHA1(07b0d3c51301ebb25909234b6220a3ed20dbcc7d) )
 ROM_END
 
 ROM_START( wbmljb )
@@ -4209,7 +4607,7 @@ ROM_START( dakkochn )
 
 	ROM_REGION( 0x20000, REGION_GFX2, 0 ) /* 128k for sprites data */
 	ROM_LOAD( "epr11221.87",  0x00000, 0x8000, CRC(f9a44916) SHA1(9d9ba96146cff4c1ed18b7134ab19919e144d326) )
-	ROM_LOAD( "epr11220.86",  0x08000, 0x8000, CRC(fdd25d8a) SHA1(53636e2a9102a2d86277cff812639d1d92587fc4) )
+	ROM_LOAD( "epr-11220.ic86",0x08000, 0x8000, CRC(84c8f6b2) SHA1(82b4c64b5b79dab9e3894e3e0bd12a05909af989) )
 	ROM_LOAD( "epr11223.89",  0x10000, 0x8000, CRC(538adc55) SHA1(542af53a56f580e5ab455aa6bed955ee5fd4a252) )
 	ROM_LOAD( "epr11222.88",  0x18000, 0x8000, CRC(33fab0b2) SHA1(eb3c08009315e46590c2c0df17fc3fa391034c66) )
 
@@ -4218,6 +4616,12 @@ ROM_START( dakkochn )
 	ROM_LOAD( "pr11218.14",   0x0100, 0x0100, CRC(3eda3a1b) SHA1(cc98c792521845259088eb163a150cd5bb603d5d) ) /* palette green component */
 	ROM_LOAD( "pr11217.8",    0x0200, 0x0100, CRC(49dbde88) SHA1(7057da5617de7e4775adf092cce1709135066129) ) /* palette blue component */
 	ROM_LOAD( "pr5317.37",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-5014.key", 0x0000, 0x2000, CRC(bb9df5ad) SHA1(7e7b7255149ae01d19883ecf4a88989f8a9bf4c6) )
+
+	ROM_REGION( 0x00e7, REGION_USER3, 0 ) /* PLD (not used) */
+	ROM_LOAD( "315-5139.ic50", 0x0000, 0x00e7, CRC(943d91b0) SHA1(37c98085d580808aaeb01726a9f59705590378c4) )
 ROM_END
 
 ROM_START( ufosensi )
@@ -4245,9 +4649,12 @@ ROM_START( ufosensi )
 	ROM_LOAD( "pr11655.14",   0x0100, 0x0100, CRC(a0c3fa77) SHA1(cdffa1de06d30ec421323145dfc3271803fc25d4) ) /* palette green component */
 	ROM_LOAD( "pr11654.8",    0x0200, 0x0100, CRC(ba624305) SHA1(eb1d0dde60f81ff510ac8c1212e0ed5703febaf3) ) /* palette blue component */
 	ROM_LOAD( "pr5317.28",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC-8123 key */
+	ROM_LOAD( "317-0064.key", 0x0000, 0x2000, CRC(da326f36) SHA1(0871b351379a094ac578e0eca5cb17797f9085aa) )
 ROM_END
 
-ROM_START( ufosensb )
+ROM_START( ufosensib )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 ) /* 256k for code */
 	ROM_LOAD( "k108.bin",     0x20000, 0x8000, CRC(6b1d0955) SHA1(dbda145d40eaecd30c1d55a9675c58a2967c20c4) )
 	ROM_CONTINUE(             0x00000, 0x8000 )             /* Now load the operands in RAM */
@@ -4277,7 +4684,39 @@ ROM_START( ufosensb )
 	ROM_LOAD( "pr5317.28",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
 ROM_END
 
-ROM_START( noboranb )
+ROM_START( nob )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "dm08.1f", 0x00000, 0x8000, CRC(98d602d6) SHA1(a0f1e6d243f2e07703bb641434dce46d0ddc15ae) )
+	ROM_LOAD( "dm10.1k", 0x10000, 0x8000, CRC(e7c06663) SHA1(8ae42b0875afe60ef672f2285aeb72da1c7e167b) )
+	ROM_LOAD( "dm09.1h", 0x18000, 0x8000, CRC(dc4c872f) SHA1(aab85203cfd2463ffddfd48e87733fb8d6d8bcf6) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 64k for sound cpu */
+	ROM_LOAD( "dm03.9h", 0x0000, 0x4000, CRC(415adf76) SHA1(fbd6f8921aa3246702983ba81fa9ae53fa10c19d) )
+	ROM_RELOAD(          0x4000, 0x4000 )
+
+	ROM_REGION( 0x1000, REGION_CPU3, 0 ) /* 8751 MCU */
+	ROM_LOAD( "dm.bin", 0x0000, 0x1000, CRC(6fde9dcb) SHA1(e1340644471a149b49a616c59445c85785e44fa4) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "dm02.13b", 0x08000, 0x8000, CRC(f12df039) SHA1(159de205f77fd74da30717054e6ddda2c0bb63d0) )
+	ROM_LOAD( "dm01.12b", 0x00000, 0x8000, CRC(446fbcdd) SHA1(e3c8364eccfa6c8af7a57b599238b0e4ebe8cc59) )
+	ROM_LOAD( "dm00.10b", 0x10000, 0x8000, CRC(35f396df) SHA1(ebf0a252513ae2b31ef012ac71d64fb20b8725cc) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, 0 ) /* 128k for sprites data */
+	ROM_LOAD( "dm04.5f", 0x00000, 0x8000, CRC(2442b86d) SHA1(2eed80e1ff9cd782990142d0d73ca4fa13db4731) )
+	ROM_LOAD( "dm06.5k", 0x08000, 0x8000, CRC(e33743a6) SHA1(56dce565523f19e673c9272992030386ca648e41) )
+	ROM_LOAD( "dm05.5h", 0x10000, 0x8000, CRC(7fbba01d) SHA1(ded22806ae0d6642b45cd33c0ceab67390a6e319) )
+	ROM_LOAD( "dm07.5l", 0x18000, 0x8000, CRC(85e7a29f) SHA1(0ca77c66599650f157450d703682ec114f0453cf) )
+
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )
+	/* the first 2 proms were missing from the dump, but are clearly needed... */
+	ROM_LOAD( "nobo_pr.16d", 0x0000, 0x0100, CRC(95010ac2) SHA1(deaf84b408cd1f3396eb851ef04cc1654d5e9a46) ) /* palette red component */
+	ROM_LOAD( "nobo_pr.15d", 0x0100, 0x0100, CRC(c55aac0c) SHA1(0f7f2d383a90e9f7f319626b4d5565805f44a1f9) ) /* palette green component */
+	ROM_LOAD( "dm-12.ic3",   0x0200, 0x0100, CRC(de394cee) SHA1(511c53f22459e5e238b48685f85b10f5e15f2ac1) ) /* palette blue component */
+	ROM_LOAD( "dc-11.6a",    0x0300, 0x0100, CRC(648350b8) SHA1(c7986aa9127ef5b50b845434cb4e81dff9861cd2) ) /* timing? (not used) */
+ROM_END
+
+ROM_START( nobb )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 )
 	ROM_LOAD( "nobo-t.bin", 0x00000, 0x8000, CRC(176fd168) SHA1(f262521f07e5340f175019e2a06a54120a4aa3b7) )
 	ROM_LOAD( "nobo-r.bin", 0x10000, 0x8000, CRC(d61cf3c9) SHA1(0f80011d713c51e67853810813ebba579ade0303) )
@@ -4324,11 +4763,11 @@ static DRIVER_INIT( wboy2 )		{ wboy2_decode(); }
 static DRIVER_INIT( gardia )	{ gardia_decode(); }
 static DRIVER_INIT( gardiab )	{ gardiab_decode(); }
 
-void mc8123_decrypt_0043(void);
-static DRIVER_INIT( wbml )		{ mc8123_decrypt_0043(); }
-
-void mc8123_decrypt_0064(void);
-static DRIVER_INIT( ufosensi )  { mc8123_decrypt_0064(); }
+void mc8123_decrypt_system1(void);
+void mc8123_decrypt_blockgal(void);
+static DRIVER_INIT( blockgal )	{ mc8123_decrypt_blockgal(); }
+static DRIVER_INIT( wbml )		{ mc8123_decrypt_system1(); }
+static DRIVER_INIT( ufosensi )	{ mc8123_decrypt_system1(); }
 
 
 static DRIVER_INIT( myherok )
@@ -4375,7 +4814,7 @@ static DRIVER_INIT( myherok )
 	myheroj_decode();
 }
 
-static DRIVER_INIT( noboranb )
+static DRIVER_INIT( nobb )
 {
 	/* Patch to get PRG ROMS ('T', 'R' and 'S) status as "GOOD" in the "test mode" */
 	/* not really needed */
@@ -4410,66 +4849,68 @@ static DRIVER_INIT( bootlegb )
 	memory_configure_bank_decrypted(1, 0, 4, memory_region(REGION_CPU1) + 0x30000, 0x4000);
 }
 
-GAME( 1983, starjack, 0,        small,    starjack, 0,        ROT270, "Sega", 			 	   "Star Jacker (Sega)", GAME_SUPPORTS_SAVE )
-GAME( 1983, starjacs, starjack, small,    starjacs, 0,        ROT270, "Stern",			  	   "Star Jacker (Stern)", GAME_SUPPORTS_SAVE )
-GAME( 1983, upndown,  0,        system1,  upndown,  nprinces, ROT270, "Sega", 			 	   "Up'n Down", GAME_SUPPORTS_SAVE )
-GAME( 1983, upndownu, upndown,  system1,  upndown,  0,        ROT270, "Sega", 			 	   "Up'n Down (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1983, regulus,  0,        small,	  regulus,  regulus,  ROT270, "Sega", 			 	   "Regulus (New Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1983, reguluso, regulus,  small,	  reguluso, regulus,  ROT270, "Sega", 			 	   "Regulus (Old Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1983, regulusu, regulus,  small,	  regulus,  0,        ROT270, "Sega", 			 	   "Regulus (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1984, mrviking, 0,        small,    mrviking, mrviking, ROT270, "Sega", 			 	   "Mister Viking", GAME_SUPPORTS_SAVE )
-GAME( 1984, mrvikngj, mrviking, small,    mrvikngj, mrviking, ROT270, "Sega", 			 	   "Mister Viking (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1984, swat,     0,        system1,  swat,     swat,     ROT270, "Coreland / Sega", 	   "SWAT", GAME_SUPPORTS_SAVE )
-GAME( 1984, flickyo,  flicky,   system1,  flicky,   flicky,   ROT0,   "Sega", 			 	   "Flicky (64k Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1984, wmatch,   0,        small, 	  wmatch,   wmatch,   ROT270, "Sega", 			 	   "Water Match", GAME_SUPPORTS_SAVE )
-GAME( 1984, bullfgt,  0,        system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", 	   "Bullfight", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprinces, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", 		 	   "Ninja Princess (64k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprincsu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", 			 	   "Ninja Princess (64k Ver. not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy2,    wboy,     system1,  wboy,     wboy2,    ROT0,   "Sega (Escape license)", "Wonder Boy (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy2u,   wboy,     system1,  wboy,     0,        ROT0,   "Sega (Escape license)", "Wonder Boy (set 2 not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wbdeluxe, wboy,     system1,  wbdeluxe, 0,        ROT0,   "Sega (Escape license)", "Wonder Boy Deluxe", GAME_SUPPORTS_SAVE )
-GAME( 1986, noboranb, 0,        noboranb, noboranb, noboranb, ROT270, "bootleg", 		 	   "Noboranka (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1984, flicky,   0,        system1,  flicky,   flicky,   ROT0,   "Sega", 			 	   "Flicky (128k Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1984, thetogyu, bullfgt,  system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", 	   "The Togyu (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1984, spatter,  0,        small,    spatter,  spatter,  ROT0,   "Sega", 			 	   "Spatter", GAME_SUPPORTS_SAVE )
-GAME( 1984, ssanchan, spatter,  small,    spatter,  spatter,  ROT0,   "Sega", 			 	   "Sanrin San Chan (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1985, pitfall2, 0,        pitfall2, pitfall2, pitfall2, ROT0,   "Sega", 			 	   "Pitfall II", GAME_SUPPORTS_SAVE )
-GAME( 1985, pitfallu, pitfall2, pitfall2, pitfallu, 0,        ROT0,   "Sega", 			 	   "Pitfall II (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1985, seganinj, 0,        system1,  seganinj, seganinj, ROT0,   "Sega", 			 	   "Sega Ninja", GAME_SUPPORTS_SAVE )
-GAME( 1985, seganinu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", 			 	   "Sega Ninja (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1985, ninja,    seganinj, system1,  seganinj, seganinj, ROT0,   "Sega", 				   "Ninja", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprincso, seganinj, system1,  seganinj, nprinces, ROT0,   "Sega", 			 	   "Ninja Princess (128k Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1985, nprincsb, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", 		 	   "Ninja Princess (128k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
-GAME( 1985, imsorry,  0,        system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", 	   "I'm Sorry (US)", GAME_SUPPORTS_SAVE )
-GAME( 1985, imsorryj, imsorry,  system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", 	   "Gonbee no I'm Sorry (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1985, teddybb,  0,        system1,  teddybb,  teddybb,  ROT0,   "Sega", 			 	   "TeddyBoy Blues (New Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1985, teddybbo, teddybb,  system1,  teddybb,  teddybb,  ROT0,   "Sega", 			 	   "TeddyBoy Blues (Old Ver.)", GAME_SUPPORTS_SAVE )
-GAME( 1985, myhero,   0,        system1,  myhero,   0,        ROT0,   "Sega", 			 	   "My Hero (US)", GAME_SUPPORTS_SAVE )
-GAME( 1985, sscandal, myhero,   system1,  myhero,   myheroj,  ROT0,   "Coreland / Sega", 	   "Seishun Scandal (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1985, myherok,  myhero,   system1,  myhero,   myherok,  ROT0,   "Coreland / Sega", 	   "My Hero (Korea)", GAME_SUPPORTS_SAVE )
-GAME( 1985, 4dwarrio, 0,        system1,  4dwarrio, 4dwarrio, ROT0,   "Coreland / Sega", 	   "4-D Warriors", GAME_SUPPORTS_SAVE )
-GAME( 1986, raflesia, 0,        system1,  raflesia, 4dwarrio, ROT270, "Coreland / Sega", 	   "Rafflesia", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy,     0,        system1,  wboy,     wboy,     ROT0,   "Sega (Escape license)", "Wonder Boy (set 1, new encryption)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboyo,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Sega (Escape license)", "Wonder Boy (set 1, old encryption)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboy3,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Sega (Escape license)", "Wonder Boy (set 3)", GAME_SUPPORTS_SAVE )
-GAME( 1986, wboyu,    wboy,     system1,  wboyu,    0,        ROT0,   "Sega (Escape license)", "Wonder Boy (not encrypted)", GAME_SUPPORTS_SAVE )
-GAME( 1987, blockgal, 0,        blockgal, blockgal, 0,        ROT90,  "Sega / Vic Tokai",	   "Block Gal", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1985, hvymetal, 0,        hvymetal, hvymetal, hvymetal, ROT0,   "Sega", 			 	   "Heavy Metal", GAME_SUPPORTS_SAVE )
-GAME( 1986, gardia,   0,        brain,    brain,    gardia,   ROT270, "Sega / Coreland", 	   "Gardia", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
-GAME( 1986, brain,    0,        brain,    brain,    0,        ROT0,   "Coreland / Sega", 	   "Brain", GAME_SUPPORTS_SAVE )
-GAME( 1985, choplift, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (8751 315-5151)", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
-GAME( 1985, chplftb,  choplift, chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "Choplifter (alternate)", GAME_SUPPORTS_SAVE )
-GAME( 1985, chplftbl, choplift, chplft,   chplft,   0,        ROT0,   "bootleg", 		 	   "Choplifter (bootleg)", GAME_SUPPORTS_SAVE )
-GAME( 1985, shtngmst, 0, shtngmst, shtngmst, 0, ROT0, "Sega", "Shooting Master (8751 315-5159a)", 0 )
-GAME( 1986, gardiab,  gardia,   brain,    brain,    gardiab,  ROT270, "bootleg", 		 	   "Gardia (bootleg)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1986, wboysys2, wboy,     wbml,     wboy,     wboy,     ROT0,   "Sega (Escape license)", "Wonder Boy (system 2)", GAME_SUPPORTS_SAVE )
-GAME( 1987, tokisens, 0,        wbml,     tokisens, 0,        ROT90,  "Sega", 			 	   "Toki no Senshi - Chrono Soldier", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1987, wbml,     0,        wbml,     wbml,     wbml,     ROT0,   "Sega / Westone",  	   "Wonder Boy in Monster Land (Japan New Ver.)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1987, wbmljo,   wbml,     wbml,     wbml,     wbml,     ROT0,   "Sega / Westone",  	   "Wonder Boy in Monster Land (Japan Old Ver.)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1987, wbmljb,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg", 		 	   "Wonder Boy in Monster Land (Japan not encrypted)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1987, wbmlb,    wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg", 		 	   "Wonder Boy in Monster Land", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
-GAME( 2009, wbmlvc,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "Sega / Westone",        "Wonder Boy in Monster Land (English, Virtual Console)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1987, dakkochn, 0,        chplft,   chplft,   0,        ROT0,   "Sega", 			 	   "DakkoChan Jansoh", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1987, blckgalb, blockgal, blockgal, blockgal, bootleg,  ROT90,  "bootleg", 		 	   "Block Gal (bootleg)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1988, ufosensi, 0,        ufosensi, ufosensi, ufosensi, ROT0,   "Sega", 			 	   "Ufo Senshi Yohko Chan", GAME_SUPPORTS_SAVE )
-GAME( 1988, ufosensb, ufosensi, ufosensi, ufosensi, bootlegb, ROT0,   "bootleg", 			   "Ufo Senshi Yohko Chan (not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1983, starjack, 0,        small,    starjack, 0,        ROT270, "Sega", "Star Jacker (Sega)", GAME_SUPPORTS_SAVE )
+GAME( 1983, starjacks, starjack, small,    starjacks, 0,        ROT270, "Sega (Stern Electronics license)", "Star Jacker (Stern Electronics)", GAME_SUPPORTS_SAVE )
+GAME( 1983, upndown,  0,        system1,  upndown,  nprinces, ROT270, "Sega", "Up'n Down (315-5030)", GAME_SUPPORTS_SAVE )
+GAME( 1983, upndownu, upndown,  system1,  upndown,  0,        ROT270, "Sega", "Up'n Down (not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1983, regulus,  0,        small,    regulus,  regulus,  ROT270, "Sega", "Regulus (315-5033, Rev A.)", GAME_SUPPORTS_SAVE )
+GAME( 1983, reguluso, regulus,  small,    reguluso, regulus,  ROT270, "Sega", "Regulus (315-5033)", GAME_SUPPORTS_SAVE )
+GAME( 1983, regulusu, regulus,  small,    regulus,  0,        ROT270, "Sega", "Regulus (not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1984, mrviking, 0,        small,    mrviking, mrviking, ROT270, "Sega", "Mister Viking (315-5041)", GAME_SUPPORTS_SAVE )
+GAME( 1984, mrvikingj, mrviking, small,    mrvikingj, mrviking, ROT270, "Sega", "Mister Viking (315-5041, Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1984, swat,     0,        system1,  swat,     swat,     ROT270, "Coreland / Sega", "SWAT (315-5048)", GAME_SUPPORTS_SAVE )
+GAME( 1984, flickyo,  flicky,   system1,  flicky,   flicky,   ROT0,   "Sega", "Flicky (64k Version, 315-5051, set 1)", GAME_SUPPORTS_SAVE )
+GAME( 1984, wmatch,   0,        small,    wmatch,   wmatch,   ROT270, "Sega", "Water Match (315-5064)", GAME_SUPPORTS_SAVE )
+GAME( 1984, bullfgt,  0,        system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", "Bullfight (315-5065)", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprinces, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", "Ninja Princess (Japan, 315-5051, 64k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprincesu, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", "Ninja Princess (Japan, 64k Ver. not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy2,    wboy,     system1,  wboy,     wboy2,    ROT0,   "Escape (Sega license)", "Wonder Boy (set 2, 315-5178)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy2u,   wboy,     system1,  wboy,     0,        ROT0,   "Escape (Sega license)", "Wonder Boy (set 2, not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wbdeluxe, wboy,     system1,  wbdeluxe, 0,        ROT0,   "hack (Vision Electronics)", "Wonder Boy Deluxe", GAME_SUPPORTS_SAVE )
+GAME( 1986, nob,      0,        nob,      nobb,     0,        ROT270, "Coreland / Data East Corporation", "Noboranka (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1986, nobb,     nob,      nobb,     nobb,     nobb,     ROT270, "bootleg (Game Electronics)", "Noboranka (Japan, bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1984, flicky,   0,        system1,  flicky,   flicky,   ROT0,   "Sega", "Flicky (128k Version, 315-5051)", GAME_SUPPORTS_SAVE )
+GAME( 1984, thetogyu, bullfgt,  system1,  bullfgt,  bullfgtj, ROT0,   "Coreland / Sega", "The Togyu (315-5065, Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1984, spatter,  0,        small,    spatter,  spatter,  ROT0,   "Sega", "Spatter (315-5096)", GAME_SUPPORTS_SAVE )
+GAME( 1984, ssanchan, spatter,  small,    spatter,  spatter,  ROT0,   "Sega", "Sanrin San Chan (Japan, 315-5096)", GAME_SUPPORTS_SAVE )
+GAME( 1985, pitfall2, 0,        pitfall2, pitfall2, pitfall2, ROT0,   "Sega", "Pitfall II (315-5093)", GAME_SUPPORTS_SAVE )
+GAME( 1985, pitfall2u, pitfall2, pitfall2, pitfall2u, 0,        ROT0,   "Sega", "Pitfall II (not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1985, seganinj, 0,        system1,  seganinj, seganinj, ROT0,   "Sega", "Sega Ninja (315-5102)", GAME_SUPPORTS_SAVE )
+GAME( 1985, seganinju, seganinj, system1,  seganinj, 0,        ROT0,   "Sega", "Sega Ninja (not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1985, ninja,    seganinj, system1,  seganinj, seganinj, ROT0,   "Sega", "Ninja (315-5102)", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprinceso, seganinj, system1,  seganinj, nprinces, ROT0,   "Sega", "Ninja Princess (Japan, 315-5098, 128k Ver.)", GAME_SUPPORTS_SAVE )
+GAME( 1985, nprincesb, seganinj, system1,  seganinj, flicky,   ROT0,   "bootleg?", "Ninja Princess (Japan, 315-5051?, 128k Ver. bootleg?)", GAME_SUPPORTS_SAVE )
+GAME( 1985, imsorry,  0,        system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", "I'm Sorry (315-5110, US)", GAME_SUPPORTS_SAVE )
+GAME( 1985, imsorryj, imsorry,  system1,  imsorry,  imsorry,  ROT0,   "Coreland / Sega", "Gonbee no I'm Sorry (315-5110, Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1985, teddybb,  0,        system1,  teddybb,  teddybb,  ROT0,   "Sega", "TeddyBoy Blues (315-5115, New Ver.)", GAME_SUPPORTS_SAVE )
+GAME( 1985, teddybbo, teddybb,  system1,  teddybb,  teddybb,  ROT0,   "Sega", "TeddyBoy Blues (315-5115, Old Ver.)", GAME_SUPPORTS_SAVE )
+GAME( 1985, myhero,   0,        system1,  myhero,   0,        ROT0,   "Coreland / Sega", "My Hero (US, not encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1985, sscandal, myhero,   system1,  myhero,   myheroj,  ROT0,   "Coreland / Sega", "Seishun Scandal (315-5132, Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1985, myherok,  myhero,   system1,  myhero,   myherok,  ROT0,   "Coreland / Sega", "Cheongchun Ilbeonji (Korea)", GAME_SUPPORTS_SAVE )
+GAME( 1985, 4dwarrio, 0,        system1,  4dwarrio, 4dwarrio, ROT0,   "Coreland / Sega", "4-D Warriors (315-5162)", GAME_SUPPORTS_SAVE )
+GAME( 1986, raflesia, 0,        system1,  raflesia, 4dwarrio, ROT270, "Coreland / Sega", "Rafflesia (315-5162)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy,     0,        system1,  wboy,     wboy,     ROT0,   "Escape (Sega license)", "Wonder Boy (set 1, 315-5177)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboyo,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Escape (Sega license)", "Wonder Boy (set 2, 315-5135)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboy3,    wboy,     system1,  wboy,     hvymetal, ROT0,   "Escape (Sega license)", "Wonder Boy (set 3, 315-5135)", GAME_SUPPORTS_SAVE )
+GAME( 1986, wboyu,    wboy,     system1,  wboyu,    0,        ROT0,   "Escape (Sega license)", "Wonder Boy (prototype?)", GAME_SUPPORTS_SAVE )
+GAME( 1987, blockgal, 0,        blockgal, blockgal, blockgal, ROT90,  "Sega / Vic Tokai", "Block Gal (MC-8123B, 317-0029)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1985, hvymetal, 0,        hvymetal, hvymetal, hvymetal, ROT0,   "Sega", "Heavy Metal (315-5135)", GAME_SUPPORTS_SAVE )
+GAME( 1986, gardia,   0,        brain,    brain,    gardia,   ROT270, "Coreland / Sega", "Gardia (317-0006)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
+GAME( 1986, brain,    0,        brain,    brain,    0,        ROT0,   "Coreland / Sega", "Brain", GAME_SUPPORTS_SAVE )
+GAME( 1985, choplift, 0,        chplft,   chplft,   0,        ROT0,   "Sega", "Choplifter (8751 315-5151)", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE)	/* 8751 protection */
+GAME( 1985, chopliftu, choplift, chplft,   chplft,   0,        ROT0,   "Sega", "Choplifter (unprotected)", GAME_SUPPORTS_SAVE )
+GAME( 1985, chopliftbl, choplift, chplft,   chplft,   0,        ROT0,   "bootleg", "Choplifter (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1985, shtngmst, 0,        shtngmst, shtngmst, 0,        ROT0,   "Sega", "Shooting Master (8751 315-5159a)", 0 )
+GAME( 1986, gardiab,  gardia,   gardiab,  brain,    gardiab,  ROT270, "bootleg", "Gardia (317-0007?, bootleg)", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1986, wboysys2, wboy,     wbml,     wboy,     wboy,     ROT0,   "Escape (Sega license)", "Wonder Boy (system 2, set 1, 315-5177)", GAME_SUPPORTS_SAVE )
+GAME( 1987, tokisens,  0,        wbml,     tokisens, wbml,     ROT90,  "Sega", "Toki no Senshi - Chrono Soldier (MC-8123, 317-0040)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, tokisensa, tokisens, wbml,     tokisens, 0,        ROT90,  "Sega", "Toki no Senshi - Chrono Soldier (prototype?)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, wbml,     0,        wbml,     wbml,     wbml,     ROT0,   "Sega / Westone", "Wonder Boy: Monster Land (Japan New Ver., MC-8123, 317-0043)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, wbmljo,   wbml,     wbml,     wbml,     wbml,     ROT0,   "Sega / Westone", "Wonder Boy: Monster Land (Japan Old Ver., MC-8123, 317-0043)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, wbmljb,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg", "Wonder Boy: Monster Land (Japan bootleg)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, wbmlb,    wbml,     wbml,     wbml,     bootlegb, ROT0,   "bootleg", "Wonder Boy: Monster Land (English bootleg set 1)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE)
+GAME( 2009, wbmlvc,   wbml,     wbml,     wbml,     bootlegb, ROT0,   "Sega", "Wonder Boy: Monster Land (English, Virtual Console)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, dakkochn, 0,        dakkochn, dakkochn, wbml,     ROT0,   "White Board", "DakkoChan House (MC-8123B, 317-5014)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1987, blockgalb, blockgal, blockgalb, blockgal, bootleg,  ROT90,  "bootleg", "Block Gal (bootleg)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1988, ufosensi, 0,        ufosensi, ufosensi, ufosensi, ROT0,   "Sega", "Ufo Senshi Yohko Chan (MC-8123, 317-0064)", GAME_SUPPORTS_SAVE )
+GAME( 1988, ufosensib, ufosensi, ufosensi, ufosensi, bootlegb, ROT0,   "bootleg", "Ufo Senshi Yohko Chan (bootleg, not encrypted)", GAME_SUPPORTS_SAVE )
