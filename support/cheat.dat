@@ -59667,16 +59667,16 @@
 :hyperpac:00000000:104989:00000003:FFFFFFFF:Invincibility PL2
 
 ; [ Hyper Pacman (bootleg) ]
-:hyperpcb:00000000:1055D4:00000000:FFFFFFFF:Infinite Time:Press F6 to give up in bonus stages
-:hyperpcb:00010000:1055D5:00000002:FFFFFFFF:Infinite Time (2/2)
-:hyperpcb:00000001:1055CE:00000000:FFFFFFFF:One pill to finish this level Now!
-:hyperpcb:00010001:1055CF:00000001:FFFFFFFF:One pill to finish this level Now! (2/2)
-:hyperpcb:00000000:104959:00000009:FFFFFFFF:Infinite Lives PL1
-:hyperpcb:00000000:10494D:000000C8:FFFFFFFF:Infinite Red Pill Time PL1
-:hyperpcb:00000000:10494F:00000003:FFFFFFFF:Invincibility PL1
-:hyperpcb:00000000:104993:00000009:FFFFFFFF:Infinite Lives PL2
-:hyperpcb:00000000:104987:000000C8:FFFFFFFF:Infinite Red Pill Time PL2
-:hyperpcb:00000000:104989:00000003:FFFFFFFF:Invincibility PL2
+:hyperpacb:00000000:1055D4:00000000:FFFFFFFF:Infinite Time:Press F6 to give up in bonus stages
+:hyperpacb:00010000:1055D5:00000002:FFFFFFFF:Infinite Time (2/2)
+:hyperpacb:00000001:1055CE:00000000:FFFFFFFF:One pill to finish this level Now!
+:hyperpacb:00010001:1055CF:00000001:FFFFFFFF:One pill to finish this level Now! (2/2)
+:hyperpacb:00000000:104959:00000009:FFFFFFFF:Infinite Lives PL1
+:hyperpacb:00000000:10494D:000000C8:FFFFFFFF:Infinite Red Pill Time PL1
+:hyperpacb:00000000:10494F:00000003:FFFFFFFF:Invincibility PL1
+:hyperpacb:00000000:104993:00000009:FFFFFFFF:Infinite Lives PL2
+:hyperpacb:00000000:104987:000000C8:FFFFFFFF:Infinite Red Pill Time PL2
+:hyperpacb:00000000:104989:00000003:FFFFFFFF:Invincibility PL2
 
 ; [ Hyper Sports ]
 :hyperspt:60000000:0000:00000000:00000000:[Turn the 'Start on' cheats ]
@@ -168637,224 +168637,224 @@
 :snowbro3:00000001:101573:00000030:FFFFFFFF:Goto Round 50
 
 ; [ Snow Bros. - Nick & Tom (set 2) ]
-:snowbroa:00000000:100195:00000009:FFFFFFFF:Infinite Credits
-:snowbroa:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
-:snowbroa:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
-:snowbroa:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
-:snowbroa:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
-:snowbroa:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
-:snowbroa:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
-:snowbroa:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
-:snowbroa:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
-:snowbroa:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
-:snowbroa:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
-:snowbroa:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
-:snowbroa:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
-:snowbroa:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
-:snowbroa:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
-:snowbroa:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
-:snowbroa:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
-:snowbroa:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
-:snowbroa:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
-:snowbroa:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
-:snowbroa:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
-:snowbroa:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
-:snowbroa:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
-:snowbroa:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
-:snowbroa:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
-:snowbroa:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
-:snowbroa:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
-:snowbroa:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
-:snowbroa:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
-:snowbroa:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
-:snowbroa:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
-:snowbroa:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
-:snowbroa:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
-:snowbroa:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
-:snowbroa:00000001:1015A9:00000040:00000040:Get pow-up speed  Now!PL2
-:snowbroa:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
-:snowbroa:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
-:snowbroa:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
-:snowbroa:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
-:snowbroa:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
-:snowbroa:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
-:snowbroa:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
-:snowbroa:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
-:snowbroa:00000000:101573:00000004:FFFFFFFF:Goto Floor 5
-:snowbroa:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
-:snowbroa:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
-:snowbroa:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
-:snowbroa:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
-:snowbroa:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
-:snowbroa:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
-:snowbroa:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
-:snowbroa:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
-:snowbroa:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
+:snowbrosa:00000000:100195:00000009:FFFFFFFF:Infinite Credits
+:snowbrosa:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
+:snowbrosa:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
+:snowbrosa:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
+:snowbrosa:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
+:snowbrosa:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
+:snowbrosa:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
+:snowbrosa:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
+:snowbrosa:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
+:snowbrosa:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
+:snowbrosa:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
+:snowbrosa:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
+:snowbrosa:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
+:snowbrosa:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
+:snowbrosa:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
+:snowbrosa:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
+:snowbrosa:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
+:snowbrosa:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
+:snowbrosa:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
+:snowbrosa:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
+:snowbrosa:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
+:snowbrosa:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
+:snowbrosa:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
+:snowbrosa:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
+:snowbrosa:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
+:snowbrosa:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
+:snowbrosa:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
+:snowbrosa:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
+:snowbrosa:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
+:snowbrosa:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
+:snowbrosa:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
+:snowbrosa:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
+:snowbrosa:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
+:snowbrosa:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
+:snowbrosa:00000001:1015A9:00000040:00000040:Get pow-up speed  Now!PL2
+:snowbrosa:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
+:snowbrosa:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
+:snowbrosa:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
+:snowbrosa:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
+:snowbrosa:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
+:snowbrosa:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
+:snowbrosa:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
+:snowbrosa:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
+:snowbrosa:00000000:101573:00000004:FFFFFFFF:Goto Floor 5
+:snowbrosa:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
+:snowbrosa:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
+:snowbrosa:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
+:snowbrosa:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
+:snowbrosa:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
+:snowbrosa:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
+:snowbrosa:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
+:snowbrosa:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
+:snowbrosa:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
 
 ; [ Snow Bros. - Nick & Tom (set 3) ]
-:snowbrob:00000000:100195:00000009:FFFFFFFF:Infinite Credits
-:snowbrob:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
-:snowbrob:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
-:snowbrob:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
-:snowbrob:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
-:snowbrob:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
-:snowbrob:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
-:snowbrob:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
-:snowbrob:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
-:snowbrob:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
-:snowbrob:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
-:snowbrob:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
-:snowbrob:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
-:snowbrob:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
-:snowbrob:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
-:snowbrob:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
-:snowbrob:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
-:snowbrob:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
-:snowbrob:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
-:snowbrob:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
-:snowbrob:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
-:snowbrob:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
-:snowbrob:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
-:snowbrob:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
-:snowbrob:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
-:snowbrob:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
-:snowbrob:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
-:snowbrob:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
-:snowbrob:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
-:snowbrob:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
-:snowbrob:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
-:snowbrob:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
-:snowbrob:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
-:snowbrob:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
-:snowbrob:00000001:1015A9:00000040:00000040:Get pow-up speed Now! PL2
-:snowbrob:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
-:snowbrob:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
-:snowbrob:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
-:snowbrob:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
-:snowbrob:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
-:snowbrob:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
-:snowbrob:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
-:snowbrob:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
-:snowbrob:00000001:101573:00000004:FFFFFFFF:Goto Floor 5
-:snowbrob:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
-:snowbrob:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
-:snowbrob:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
-:snowbrob:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
-:snowbrob:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
-:snowbrob:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
-:snowbrob:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
-:snowbrob:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
-:snowbrob:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
+:snowbrosb:00000000:100195:00000009:FFFFFFFF:Infinite Credits
+:snowbrosb:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
+:snowbrosb:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
+:snowbrosb:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
+:snowbrosb:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
+:snowbrosb:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
+:snowbrosb:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
+:snowbrosb:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
+:snowbrosb:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
+:snowbrosb:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
+:snowbrosb:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
+:snowbrosb:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
+:snowbrosb:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
+:snowbrosb:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
+:snowbrosb:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
+:snowbrosb:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
+:snowbrosb:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
+:snowbrosb:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
+:snowbrosb:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
+:snowbrosb:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
+:snowbrosb:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
+:snowbrosb:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
+:snowbrosb:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
+:snowbrosb:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
+:snowbrosb:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
+:snowbrosb:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
+:snowbrosb:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
+:snowbrosb:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
+:snowbrosb:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
+:snowbrosb:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
+:snowbrosb:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
+:snowbrosb:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
+:snowbrosb:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
+:snowbrosb:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
+:snowbrosb:00000001:1015A9:00000040:00000040:Get pow-up speed Now! PL2
+:snowbrosb:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
+:snowbrosb:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
+:snowbrosb:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
+:snowbrosb:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
+:snowbrosb:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
+:snowbrosb:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
+:snowbrosb:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
+:snowbrosb:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
+:snowbrosb:00000001:101573:00000004:FFFFFFFF:Goto Floor 5
+:snowbrosb:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
+:snowbrosb:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
+:snowbrosb:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
+:snowbrosb:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
+:snowbrosb:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
+:snowbrosb:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
+:snowbrosb:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
+:snowbrosb:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
+:snowbrosb:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
 
 ; [ Snow Bros. - Nick & Tom (set 4) ]
-:snowbroc:00000000:100195:00000009:FFFFFFFF:Infinite Credits
-:snowbroc:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
-:snowbroc:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
-:snowbroc:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
-:snowbroc:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
-:snowbroc:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
-:snowbroc:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
-:snowbroc:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
-:snowbroc:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
-:snowbroc:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
-:snowbroc:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
-:snowbroc:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
-:snowbroc:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
-:snowbroc:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
-:snowbroc:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
-:snowbroc:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
-:snowbroc:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
-:snowbroc:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
-:snowbroc:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
-:snowbroc:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
-:snowbroc:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
-:snowbroc:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
-:snowbroc:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
-:snowbroc:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
-:snowbroc:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
-:snowbroc:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
-:snowbroc:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
-:snowbroc:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
-:snowbroc:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
-:snowbroc:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
-:snowbroc:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
-:snowbroc:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
-:snowbroc:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
-:snowbroc:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
-:snowbroc:00000001:1015A9:00000040:00000040:Get pow-up speed Now! PL2
-:snowbroc:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
-:snowbroc:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
-:snowbroc:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
-:snowbroc:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
-:snowbroc:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
-:snowbroc:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
-:snowbroc:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
-:snowbroc:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
-:snowbroc:00000001:101573:00000004:FFFFFFFF:Goto Floor 5
-:snowbroc:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
-:snowbroc:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
-:snowbroc:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
-:snowbroc:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
-:snowbroc:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
-:snowbroc:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
-:snowbroc:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
-:snowbroc:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
-:snowbroc:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
+:snowbrosc:00000000:100195:00000009:FFFFFFFF:Infinite Credits
+:snowbrosc:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
+:snowbrosc:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
+:snowbrosc:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
+:snowbrosc:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
+:snowbrosc:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
+:snowbrosc:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
+:snowbrosc:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
+:snowbrosc:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
+:snowbrosc:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
+:snowbrosc:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
+:snowbrosc:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
+:snowbrosc:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
+:snowbrosc:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
+:snowbrosc:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
+:snowbrosc:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
+:snowbrosc:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
+:snowbrosc:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
+:snowbrosc:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
+:snowbrosc:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
+:snowbrosc:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
+:snowbrosc:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
+:snowbrosc:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
+:snowbrosc:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
+:snowbrosc:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
+:snowbrosc:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
+:snowbrosc:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
+:snowbrosc:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
+:snowbrosc:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
+:snowbrosc:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
+:snowbrosc:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
+:snowbrosc:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
+:snowbrosc:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
+:snowbrosc:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
+:snowbrosc:00000001:1015A9:00000040:00000040:Get pow-up speed Now! PL2
+:snowbrosc:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
+:snowbrosc:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
+:snowbrosc:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
+:snowbrosc:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
+:snowbrosc:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
+:snowbrosc:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
+:snowbrosc:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
+:snowbrosc:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
+:snowbrosc:00000001:101573:00000004:FFFFFFFF:Goto Floor 5
+:snowbrosc:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
+:snowbrosc:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
+:snowbrosc:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
+:snowbrosc:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
+:snowbrosc:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
+:snowbrosc:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
+:snowbrosc:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
+:snowbrosc:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
+:snowbrosc:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
 
 ; [ Snow Bros. - Nick & Tom (Japan) ]
-:snowbroj:00000000:100195:00000009:FFFFFFFF:Infinite Credits
-:snowbroj:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
-:snowbroj:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
-:snowbroj:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
-:snowbroj:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
-:snowbroj:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
-:snowbroj:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
-:snowbroj:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
-:snowbroj:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
-:snowbroj:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
-:snowbroj:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
-:snowbroj:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
-:snowbroj:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
-:snowbroj:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
-:snowbroj:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
-:snowbroj:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
-:snowbroj:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
-:snowbroj:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
-:snowbroj:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
-:snowbroj:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
-:snowbroj:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
-:snowbroj:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
-:snowbroj:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
-:snowbroj:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
-:snowbroj:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
-:snowbroj:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
-:snowbroj:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
-:snowbroj:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
-:snowbroj:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
-:snowbroj:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
-:snowbroj:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
-:snowbroj:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
-:snowbroj:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
-:snowbroj:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
-:snowbroj:00000001:1015A9:00000040:00000040:Get pow-up speed  Now!PL2
-:snowbroj:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
-:snowbroj:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
-:snowbroj:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
-:snowbroj:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
-:snowbroj:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
-:snowbroj:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
-:snowbroj:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
-:snowbroj:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
-:snowbroj:00000000:101573:00000004:FFFFFFFF:Goto Floor 5
-:snowbroj:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
-:snowbroj:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
-:snowbroj:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
-:snowbroj:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
-:snowbroj:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
-:snowbroj:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
-:snowbroj:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
-:snowbroj:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
-:snowbroj:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
+:snowbrosj:00000000:100195:00000009:FFFFFFFF:Infinite Credits
+:snowbrosj:00000000:1000BB:00000020:FFFFFFFF:Infinite Time
+:snowbrosj:00000010:10165D:00000001:00000001:Enable to Get Secret Bonus
+:snowbrosj:60000000:000000:00000000:00000000:[ See the Dip Switch Menu to enable   ]
+:snowbrosj:60000000:000000:00000000:00000000:[ alternate Invincibility cheats.     ]
+:snowbrosj:00000000:101591:0000000A:FFFFFFFF:Infinite Lives PL1
+:snowbrosj:00000010:1015EB:00000000:00000027:Invincibility PL1:Turn it OFF temporarily when you get the green potion
+:snowbrosj:00000001:1015EB:00000024:FFFFFFFF:Get Invincibility Item Now! PL1
+:snowbrosj:00000000:1015D7:00000000:FFFFFFFF:Rapid Fire PL1
+:snowbrosj:00000000:1015A8:00000070:FFFFFFFF:All Bonus PL1
+:snowbrosj:00000000:1015A8:00000070:FFFFFFFF:Always have all powers PL1
+:snowbrosj:00000000:1015A8:00000010:00000010:Always have pow-up shot PL1
+:snowbrosj:00000000:1015A8:00000020:00000020:Always have pow-up range PL1
+:snowbrosj:00000000:1015A8:00000040:00000040:Always have pow-up speed PL1
+:snowbrosj:00000001:1015A8:00000070:FFFFFFFF:Get all powers Now! PL1
+:snowbrosj:00000001:1015A8:00000010:00000010:Get pow-up shot Now! PL1
+:snowbrosj:00000001:1015A8:00000020:00000020:Get pow-up range Now! PL1
+:snowbrosj:00000001:1015A8:00000040:00000040:Get pow-up speed Now! PL1
+:snowbrosj:00000001:1015AA:00000001:00000001:Get Letter "S" Now! PL1
+:snowbrosj:00000001:1015AA:00000002:00000002:Get Letter "N" Now! PL1
+:snowbrosj:00000001:1015AA:00000004:00000004:Get Letter "O" Now! PL1
+:snowbrosj:00000001:1015AA:00000008:00000008:Get Letter "W" Now! PL1
+:snowbrosj:00000000:1015A7:0000000A:FFFFFFFF:Infinite Lives PL2
+:snowbrosj:00000010:10162B:00000000:00000027:Invincibility PL2:Turn it OFF temporarily when you get the green potion
+:snowbrosj:00000001:10162B:00000024:FFFFFFFF:Get Invincibility Item Now! PL2
+:snowbrosj:00000000:101617:00000000:FFFFFFFF:Rapid Fire PL2
+:snowbrosj:00000000:1015A9:00000070:FFFFFFFF:All Bonus PL2
+:snowbrosj:00000000:1015A9:00000070:FFFFFFFF:Always have all powers PL2
+:snowbrosj:00000000:1015A9:00000010:00000010:Always have pow-up shot PL2
+:snowbrosj:00000000:1015A9:00000020:00000020:Always have pow-up range PL2
+:snowbrosj:00000000:1015A9:00000040:00000040:Always have pow-up speed PL2
+:snowbrosj:00000001:1015A9:00000070:FFFFFFFF:Get all powers Now! PL2
+:snowbrosj:00000001:1015A9:00000010:00000010:Get pow-up shot Now! PL2
+:snowbrosj:00000001:1015A9:00000020:00000020:Get pow-up range Now! PL2
+:snowbrosj:00000001:1015A9:00000040:00000040:Get pow-up speed  Now!PL2
+:snowbrosj:00000001:1015AB:00000001:00000001:Get Letter "S" Now! PL2
+:snowbrosj:00000001:1015AB:00000002:00000002:Get Letter "N" Now! PL2
+:snowbrosj:00000001:1015AB:00000004:00000004:Get Letter "O" Now! PL2
+:snowbrosj:00000001:1015AB:00000008:00000008:Get Letter "W" Now! PL2
+:snowbrosj:00000001:1018CA:00000000:FFFFFFFF:One hit for boss Now!
+:snowbrosj:00010001:1018CB:00000001:FFFFFFFF:One hit for boss Now! (2/4)
+:snowbrosj:00010001:10190A:00000000:FFFFFFFF:One hit for boss Now! (3/4)
+:snowbrosj:00010001:10190B:00000001:FFFFFFFF:One hit for boss Now! (4/4)
+:snowbrosj:00000000:101573:00000004:FFFFFFFF:Goto Floor 5
+:snowbrosj:00000001:101573:00000009:FFFFFFFF:Goto Floor 10
+:snowbrosj:00000001:101573:0000000D:FFFFFFFF:Goto Floor 15
+:snowbrosj:00000001:101573:00000012:FFFFFFFF:Goto Floor 20
+:snowbrosj:00000001:101573:00000017:FFFFFFFF:Goto Floor 25
+:snowbrosj:00000001:101573:0000001C:FFFFFFFF:Goto Floor 30
+:snowbrosj:00000001:101573:00000021:FFFFFFFF:Goto Floor 35
+:snowbrosj:00000001:101573:00000026:FFFFFFFF:Goto Floor 40
+:snowbrosj:00000001:101573:0000002B:FFFFFFFF:Goto Floor 45
+:snowbrosj:00000001:101573:00000030:FFFFFFFF:Goto Floor 50
 
 ; [ Snow Bros. - Nick & Tom (set 1) ]
 :snowbros:00000000:100195:00000009:FFFFFFFF:Infinite Credits
@@ -204902,8 +204902,8 @@
 ;hthero95=hthro95u=pwrgoal
 ;hunchbak~hunchbkd~hunchbkg~=hunchbks
 ;hydra=hydrap2~=hydrap
-;hyperpac=hyperpcb
-;hyperpac~hyperpcb
+;hyperpac=hyperpacb
+;hyperpac~hyperpacb
 ;hyprdelj=hyprduel
 ;iceclimb=iceclmbj~=iceclmrj
 ;ichir=ichirj=ichirjbl=ichirk~=(tantr=tantrbl=tantrbl2=tantrkor)
@@ -205379,7 +205379,7 @@
 ;smashtv=smashtv4=smashtv5=smashtv6
 ;smgp=smgp5=smgp6=smgpj=smgpu=smgpu1=smgpu2=smgpu3
 ;snowbalt~snowboar
-;snowbro3~=(snowbroa=snowbrob=snowbroc=snowbroj=snowbros=wintbob) differences due to graphics ie. SNOW or BALL
+;snowbro3~=(snowbrosa=snowbrosb=snowbrosc=snowbrosj=snowbros=wintbob) differences due to graphics ie. SNOW or BALL
 ;soccersa=soccersj=soccerss    (unchecked relationship)
 ;solarwar=xsleena=xsleenab
 ;sonic=sonicp
@@ -206652,9 +206652,9 @@
 ; goindolu (found by Pugsy)
 ; homo (found by Pugsy)
 ; snowbro3 (found by Pugsy)
-; snowbroa (found by Pugsy)
-; snowbrob (found by Pugsy)
-; snowbroj (found by Pugsy)
+; snowbrosa (found by Pugsy)
+; snowbrosb (found by Pugsy)
+; snowbrosj (found by Pugsy)
 ; snowbros (found by Pugsy)
 ; wintbob (found by Pugsy)
 ; gigasb (found by Pugsy)

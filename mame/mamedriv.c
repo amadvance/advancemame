@@ -2088,15 +2088,15 @@ const game_driver * const drivers[] =
 	DRIVER( vimana1 )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan)  */
 	DRIVER( vimanan )	/* TP-019 (c) 1991 Toaplan (+ Nova Apparate GMBH & Co license) */
 	DRIVER( snowbros )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
-	DRIVER( snowbroa )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
-	DRIVER( snowbrob )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
-	DRIVER( snowbroc )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
-	DRIVER( snowbroj )	/* MIN16-02 (c) 1990 Toaplan */
+	DRIVER( snowbrosa )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
+	DRIVER( snowbrosb )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
+	DRIVER( snowbrosc )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
+	DRIVER( snowbrosj )	/* MIN16-02 (c) 1990 Toaplan */
 	DRIVER( wintbob )	/* bootleg */
 	DRIVER( honeydol )	/* (c) 1995 Barko Corp */
 		/* SemiCom games on snowbros like hardware */
 	DRIVER( hyperpac )	/* (c) 1995 SemiCom */
-	DRIVER( hyperpcb )	/* bootleg */
+	DRIVER( hyperpacb )	/* bootleg */
 	DRIVER( twinkle )	/* (c) 1997 SemiCom */
 	DRIVER( toppyrap )	/* (c) 1996 SemiCom */
 	DRIVER( cookbib2 )	/* (c) 1996 SemiCom */

@@ -95152,7 +95152,7 @@ This game is a resounding success, especially amongst real-life athletes who liv
 $end
 
 
-$info=hyperpac,hyperpcb,
+$info=hyperpac,hyperpacb,
 $bio
 
 Hyper Pacman (c) 09/1995 SemiCom.
@@ -197592,7 +197592,7 @@ Buttons : 3
 $end
 
 
-$info=snowbros,snowbroj,snowbroa,snowbrob,snowbroc,
+$info=snowbros,snowbrosj,snowbrosa,snowbrosb,snowbrosc,
 $bio
 
 Snow Bros. - Nick & Tom (c) 04/1990 Toaplan.

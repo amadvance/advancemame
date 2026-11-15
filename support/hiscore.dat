@@ -2065,10 +2065,10 @@ drivfrcb:
 ;********snow bros - nick and tom (and clones)
 ;** top score updates as soon as a game is started **
 snowbros:
-snowbroj:
-snowbroa:
-snowbrob:
-snowbroc:
+snowbrosj:
+snowbrosa:
+snowbrosb:
+snowbrosc:
 0:1001ca:40:00:4f
 
 ;******************************************************************************************
@@ -4269,7 +4269,7 @@ manybloc:
 0:f03b2:6:0:0
 
 ;********(hyper pacman (bootleg))
-hyperpcb:
+hyperpacb:
 0:10535c:28:50:00
 0:10537e:1:43:43
 
