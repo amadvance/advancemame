@@ -965,8 +965,9 @@ const game_driver * const drivers[] =
 	DRIVER( popeyef )	/* (c) 1982 */
 	DRIVER( popeyeb2 )	/* bootleg */
 	DRIVER( punchout )	/* (c) 1984 */
+	DRIVER( punchouta )	/* (c) 1984 */
 	DRIVER( spnchout )	/* (c) 1984 */
-	DRIVER( spnchotj )	/* (c) 1984 (Japan) */
+	DRIVER( spnchoutj )	/* (c) 1984 (Japan) */
 	DRIVER( armwrest )	/* (c) 1985 */
 	DRIVER( dkongx )	/* (c) 2015 Braze Tech Upgrade Kit */
 

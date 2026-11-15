@@ -125,7 +125,7 @@ VIDEO_UPDATE( armwrest );
 
 DRIVER_INIT( punchout );
 DRIVER_INIT( spnchout );
-DRIVER_INIT( spnchotj );
+DRIVER_INIT( spnchoutj );
 DRIVER_INIT( armwrest );
 
 
@@ -849,6 +849,95 @@ ROM_START( punchout )
 	ROM_LOAD( "chp1-c.4k",    0xe000, 0x2000, CRC(cb6ef376) SHA1(503dbcc1b18a497311bf129689d5650860bf96c7) )
 
 	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "chp1-b.4c",    0x00000, 0x0800, CRC(49b763bc) SHA1(064739bf4f5eb18567fd4df9c37280dc84101715) )	/* chars #1 */
+	ROM_CONTINUE(             0x01000, 0x0800 )
+	ROM_CONTINUE(             0x00800, 0x0800 )
+	ROM_CONTINUE(             0x01800, 0x0800 )
+	ROM_LOAD( "chp1-b.4d",    0x02000, 0x0800, CRC(08bc6d67) SHA1(d229a7c9152bb43fe12c313c8d3b681226b847e0) )
+	ROM_CONTINUE(             0x03000, 0x0800 )
+	ROM_CONTINUE(             0x02800, 0x0800 )
+	ROM_CONTINUE(             0x03800, 0x0800 )
+
+	ROM_REGION( 0x04000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "chp1-b.4a",    0x00000, 0x0800, CRC(c075f831) SHA1(f22d9e415637599420c443ce08e7e70d1eb1c6f5) )	/* chars #2 */
+	ROM_CONTINUE(             0x01000, 0x0800 )
+	ROM_CONTINUE(             0x00800, 0x0800 )
+	ROM_CONTINUE(             0x01800, 0x0800 )
+	ROM_LOAD( "chp1-b.4b",    0x02000, 0x0800, CRC(c4cc2b5a) SHA1(7b9d4dcecc67271980c3c44561fc25a6f6c93ee3) )
+	ROM_CONTINUE(             0x03000, 0x0800 )
+	ROM_CONTINUE(             0x02800, 0x0800 )
+	ROM_CONTINUE(             0x03800, 0x0800 )
+
+	ROM_REGION( 0x30000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "chp1-v.2r",    0x00000, 0x4000, CRC(bd1d4b2e) SHA1(492ae301a9890c2603d564c9048b1b67895052dd) )	/* chars #3 */
+	ROM_LOAD( "chp1-v.2t",    0x04000, 0x4000, CRC(dd9a688a) SHA1(fbb98eebfbaab445928da939846a2d07a8046afb) )
+	ROM_LOAD( "chp1-v.2u",    0x08000, 0x2000, CRC(da6a3c4b) SHA1(e03469fb6f552f41a9b7f4b3e51c15a52b61cf84) )
+	/* 0a000-0bfff empty (space for 16k ROM) */
+	ROM_LOAD( "chp1-v.2v",    0x0c000, 0x2000, CRC(8c734a67) SHA1(d59b5a2517e4890e7ca7da52ca2813a6abc484a3) )
+	/* 0e000-0ffff empty (space for 16k ROM) */
+	ROM_LOAD( "chp1-v.3r",    0x10000, 0x4000, CRC(2e74ad1d) SHA1(538b3f9273699106a50887c927f0251537bf0f42) )
+	ROM_LOAD( "chp1-v.3t",    0x14000, 0x4000, CRC(630ba9fb) SHA1(36cec8658597239385cada3bc947b940ab66954b) )
+	ROM_LOAD( "chp1-v.3u",    0x18000, 0x2000, CRC(6440321d) SHA1(c8c084ad408cb6bf65959ed4db03c4b4cf9b1c1a) )
+	/* 1a000-1bfff empty (space for 16k ROM) */
+	ROM_LOAD( "chp1-v.3v",    0x1c000, 0x2000, CRC(bb7b7198) SHA1(64572668d30e008daf4ccaa5689518ecc41f1091) )
+	/* 1e000-1ffff empty (space for 16k ROM) */
+	ROM_LOAD( "chp1-v.4r",    0x20000, 0x4000, CRC(4e5b0fe9) SHA1(c5c4fb735cc232b43c49442e62af0ebe99eaab0c) )
+	ROM_LOAD( "chp1-v.4t",    0x24000, 0x4000, CRC(37ffc940) SHA1(d555807a6a1025c81637c5db0184b48306aa01ac) )
+	ROM_LOAD( "chp1-v.4u",    0x28000, 0x2000, CRC(1a7521d4) SHA1(4e8a8298f2ff8257d2058e5133ad295f92c7deb8) )
+	/* 2a000-2bfff empty (space for 16k ROM) */
+	/* 2c000-2ffff empty (4v doesn't exist, it is seen as a 0xff fill) */
+
+	ROM_REGION( 0x10000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "chp1-v.6p",    0x00000, 0x0800, CRC(75be7aae) SHA1(396bc1d301b99e064de4dad699882618b1b9c958) )	/* chars #4 */
+	ROM_CONTINUE(             0x01000, 0x0800 )
+	ROM_CONTINUE(             0x00800, 0x0800 )
+	ROM_CONTINUE(             0x01800, 0x0800 )
+	ROM_LOAD( "chp1-v.6n",    0x02000, 0x0800, CRC(daf74de0) SHA1(9373d4527b675b3128a5a830f42e1dc5dcb85307) )
+	ROM_CONTINUE(             0x03000, 0x0800 )
+	ROM_CONTINUE(             0x02800, 0x0800 )
+	ROM_CONTINUE(             0x03800, 0x0800 )
+	/* 04000-07fff empty (space for 6l and 6k) */
+	ROM_LOAD( "chp1-v.8p",    0x08000, 0x0800, CRC(4cb7ea82) SHA1(213b7c1431f4c92e5519a8771035bda28b3bab8a) )
+	ROM_CONTINUE(             0x09000, 0x0800 )
+	ROM_CONTINUE(             0x08800, 0x0800 )
+	ROM_CONTINUE(             0x09800, 0x0800 )
+	ROM_LOAD( "chp1-v.8n",    0x0a000, 0x0800, CRC(1c0d09aa) SHA1(3276bae7400453f3612f53d7b47fb199cbe53e6d) )
+	ROM_CONTINUE(             0x0b000, 0x0800 )
+	ROM_CONTINUE(             0x0a800, 0x0800 )
+	ROM_CONTINUE(             0x0b800, 0x0800 )
+	/* 0c000-0ffff empty (space for 8l and 8k) */
+
+	ROM_REGION( 0x1c00, REGION_PROMS, 0 )
+	ROM_LOAD( "chp1-b-6e_pink.6e", 0x0000, 0x0200, CRC(e9ca3ac6) SHA1(68d9739d8a0dadc6fe3b3767437526096ca5db98) )	/* red component */
+	ROM_LOAD( "chp1-b-7e_white.7e", 0x0200, 0x0200, CRC(47adf7a2) SHA1(1d37d5207cd37a9c122251c60cc8f43dd680f484) )	/* red component */
+	ROM_LOAD( "chp1-b-6f_pink.6f", 0x0400, 0x0200, CRC(02be56ab) SHA1(a88f332cb26928350ed20ab5f4c04d5324bb516a) )	/* green component */
+	ROM_LOAD( "chp1-b-8e_white.8e", 0x0600, 0x0200, CRC(b0fc15a8) SHA1(a1af09cfea81231240bd94f3b98de1be8235ebe7) )	/* green component */
+	ROM_LOAD( "chp1-b-7f_pink.7f", 0x0800, 0x0200, CRC(11de55f1) SHA1(269b82f4bc73fac197e0bb6d9a90a220e77ce478) )	/* blue component */
+	ROM_LOAD( "chp1-b-8f_white.8f", 0x0a00, 0x0200, CRC(1ffd894a) SHA1(9e8c1c28b4c12acf42f814bc109d353729a25652) )	/* blue component */
+	ROM_LOAD( "chp1-v-2d.2d", 0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_LOAD( "chp1-b-6e_white.6e", 0x1000, 0x0200, CRC(ddac5f0e) SHA1(25dabe415757ccea057609a3f3f79a56b613032a) )	/* not used */
+	ROM_LOAD( "chp1-b-6f_white.6f", 0x1200, 0x0200, CRC(846c6261) SHA1(f012a02bbdf0166b9bfd3dc9749db18759a22421) )	/* not used */
+	ROM_LOAD( "chp1-b-7e_pink.7e", 0x1400, 0x0200, CRC(fddaa777) SHA1(ee6bff5ffeefc82374868a268f885d0bc3a76da2) )	/* not used */
+	ROM_LOAD( "chp1-b-7f_white.7f", 0x1600, 0x0200, CRC(1682dd30) SHA1(84b92d1b292210bda0c25537c8ee3e274aaac75c) )	/* not used */
+	ROM_LOAD( "chp1-b-8e_pink.8e", 0x1800, 0x0200, CRC(c3d5d71f) SHA1(2b02479614a801f539fead17860b84e9a180e761) )	/* not used */
+	ROM_LOAD( "chp1-b-8f_pink.8f", 0x1a00, 0x0200, CRC(a3037155) SHA1(8b6c0c80278ca859a08a1a2429190d51be4f9401) )	/* not used */
+
+	ROM_REGION( 0x4000, REGION_SOUND1, 0 )	/* 16k for the VLM5030 data */
+	ROM_LOAD( "chp1-c.6p",    0x0000, 0x4000, CRC(ea0bbb31) SHA1(b1da024cb688341d39791a78d1144fe09acb00cf) )
+ROM_END
+
+ROM_START( punchouta )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "chp1-c.8l",    0x0000, 0x2000, CRC(a4003adc) SHA1(a8026eb39aa883993a0c9cb4400bf1a7e5898a2b) )
+	ROM_LOAD( "chp1-c.8k",    0x2000, 0x2000, CRC(745ecf40) SHA1(430f80b688a515953fab177a3ec2eb31c886df22) )
+	ROM_LOAD( "chp1-c.8j",    0x4000, 0x2000, CRC(7a7f870e) SHA1(76bb9f3ef0a2fd514db63fb77f35bde12c15c29c) )
+	ROM_LOAD( "chp1-c.8h",    0x6000, 0x2000, CRC(5d8123d7) SHA1(04ddfcde969db93ff31e9c8a2af4dde285b82e2e) )
+	ROM_LOAD( "chp1-c.8f",    0x8000, 0x4000, CRC(c8a55ddb) SHA1(f91fb368542c50969a086f01a2e70ecce7f2697b) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 64k for the sound CPU */
+	ROM_LOAD( "chp1-c.4k",    0xe000, 0x2000, CRC(cb6ef376) SHA1(503dbcc1b18a497311bf129689d5650860bf96c7) )
+
+	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "chp1-b.4c",    0x00000, 0x2000, CRC(e26dc8b3) SHA1(a704d39ef6f5cbad64a478e5c109b18aae427cbc) )	/* chars #1 */
 	ROM_LOAD( "chp1-b.4d",    0x02000, 0x2000, CRC(dd1310ca) SHA1(918d2eda000244b692f1da7ac57d7a0edaef95fb) )
 
@@ -883,14 +972,20 @@ ROM_START( punchout )
 	ROM_LOAD( "chp1-v.8n",    0x0a000, 0x2000, CRC(e6af390e) SHA1(73984cbdc8fbf667126ada63ab9500609eb25c61) )
 	/* 0c000-0ffff empty (space for 8l and 8k) */
 
-	ROM_REGION( 0x0d00, REGION_PROMS, 0 )
-	ROM_LOAD( "chp1-b.6e",    0x0000, 0x0200, CRC(e9ca3ac6) SHA1(68d9739d8a0dadc6fe3b3767437526096ca5db98) )	/* red component */
-	ROM_LOAD( "chp1-b.7e",    0x0200, 0x0200, CRC(47adf7a2) SHA1(1d37d5207cd37a9c122251c60cc8f43dd680f484) )	/* red component */
-	ROM_LOAD( "chp1-b.6f",    0x0400, 0x0200, CRC(02be56ab) SHA1(a88f332cb26928350ed20ab5f4c04d5324bb516a) )	/* green component */
-	ROM_LOAD( "chp1-b.8e",    0x0600, 0x0200, CRC(b0fc15a8) SHA1(a1af09cfea81231240bd94f3b98de1be8235ebe7) )	/* green component */
-	ROM_LOAD( "chp1-b.7f",    0x0800, 0x0200, CRC(11de55f1) SHA1(269b82f4bc73fac197e0bb6d9a90a220e77ce478) )	/* blue component */
-	ROM_LOAD( "chp1-b.8f",    0x0a00, 0x0200, CRC(1ffd894a) SHA1(9e8c1c28b4c12acf42f814bc109d353729a25652) )	/* blue component */
-	ROM_LOAD( "chp1-v.2d",    0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_REGION( 0x1c00, REGION_PROMS, 0 )
+	ROM_LOAD( "chp1-b-6e_pink.6e", 0x0000, 0x0200, CRC(e9ca3ac6) SHA1(68d9739d8a0dadc6fe3b3767437526096ca5db98) )	/* red component */
+	ROM_LOAD( "chp1-b-7e_white.7e", 0x0200, 0x0200, CRC(47adf7a2) SHA1(1d37d5207cd37a9c122251c60cc8f43dd680f484) )	/* red component */
+	ROM_LOAD( "chp1-b-6f_pink.6f", 0x0400, 0x0200, CRC(02be56ab) SHA1(a88f332cb26928350ed20ab5f4c04d5324bb516a) )	/* green component */
+	ROM_LOAD( "chp1-b-8e_white.8e", 0x0600, 0x0200, CRC(b0fc15a8) SHA1(a1af09cfea81231240bd94f3b98de1be8235ebe7) )	/* green component */
+	ROM_LOAD( "chp1-b-7f_pink.7f", 0x0800, 0x0200, CRC(11de55f1) SHA1(269b82f4bc73fac197e0bb6d9a90a220e77ce478) )	/* blue component */
+	ROM_LOAD( "chp1-b-8f_white.8f", 0x0a00, 0x0200, CRC(1ffd894a) SHA1(9e8c1c28b4c12acf42f814bc109d353729a25652) )	/* blue component */
+	ROM_LOAD( "chp1-v-2d.2d", 0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_LOAD( "chp1-b-6e_white.6e", 0x1000, 0x0200, CRC(ddac5f0e) SHA1(25dabe415757ccea057609a3f3f79a56b613032a) )	/* not used */
+	ROM_LOAD( "chp1-b-6f_white.6f", 0x1200, 0x0200, CRC(846c6261) SHA1(f012a02bbdf0166b9bfd3dc9749db18759a22421) )	/* not used */
+	ROM_LOAD( "chp1-b-7e_pink.7e", 0x1400, 0x0200, CRC(fddaa777) SHA1(ee6bff5ffeefc82374868a268f885d0bc3a76da2) )	/* not used */
+	ROM_LOAD( "chp1-b-7f_white.7f", 0x1600, 0x0200, CRC(1682dd30) SHA1(84b92d1b292210bda0c25537c8ee3e274aaac75c) )	/* not used */
+	ROM_LOAD( "chp1-b-8e_pink.8e", 0x1800, 0x0200, CRC(c3d5d71f) SHA1(2b02479614a801f539fead17860b84e9a180e761) )	/* not used */
+	ROM_LOAD( "chp1-b-8f_pink.8f", 0x1a00, 0x0200, CRC(a3037155) SHA1(8b6c0c80278ca859a08a1a2429190d51be4f9401) )	/* not used */
 
 	ROM_REGION( 0x4000, REGION_SOUND1, 0 )	/* 16k for the VLM5030 data */
 	ROM_LOAD( "chp1-c.6p",    0x0000, 0x4000, CRC(ea0bbb31) SHA1(b1da024cb688341d39791a78d1144fe09acb00cf) )
@@ -963,20 +1058,26 @@ ROM_START( spnchout )
 	ROM_CONTINUE(             0x0b800, 0x0800 )
 	/* 0c000-0ffff empty (space for 8l and 8k) */
 
-	ROM_REGION( 0x0d00, REGION_PROMS, 0 )
-	ROM_LOAD( "chs1-b.6e",    0x0000, 0x0200, CRC(0ad4d727) SHA1(5fa4247d58d10b4644f0a7492efb22b7a9ce7b62) )	/* red component */
-	ROM_LOAD( "chs1-b.7e",    0x0200, 0x0200, CRC(9e170f64) SHA1(9548bfec2f5b7d222e91562b5459aef8c107b3ec) )	/* red component */
-	ROM_LOAD( "chs1-b.6f",    0x0400, 0x0200, CRC(86f5cfdb) SHA1(a2a3a4e9ca15826fe8c86650d50c8ce203d57eae) )	/* green component */
-	ROM_LOAD( "chs1-b.8e",    0x0600, 0x0200, CRC(3a2e333b) SHA1(5cf0324cc07ac4af63598c5c6acc61d24215b233) )	/* green component */
-	ROM_LOAD( "chs1-b.7f",    0x0800, 0x0200, CRC(8bd406f8) SHA1(eaf0b62eccf1f47452bf983b3ffc6cacc25d4585) )	/* blue component */
-	ROM_LOAD( "chs1-b.8f",    0x0a00, 0x0200, CRC(1663eed7) SHA1(90ff876a6b885f8a80c17531cde8b91864f1a6a5) )	/* blue component */
-	ROM_LOAD( "chs1-v.2d",    0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_REGION( 0x1c00, REGION_PROMS, 0 )
+	ROM_LOAD( "chs1-b-6e_pink.6e", 0x0000, 0x0200, CRC(0ad4d727) SHA1(5fa4247d58d10b4644f0a7492efb22b7a9ce7b62) )	/* red component */
+	ROM_LOAD( "chs1-b-7e_white.7e", 0x0200, 0x0200, CRC(9e170f64) SHA1(9548bfec2f5b7d222e91562b5459aef8c107b3ec) )	/* red component */
+	ROM_LOAD( "chs1-b-6f_pink.6f", 0x0400, 0x0200, CRC(86f5cfdb) SHA1(a2a3a4e9ca15826fe8c86650d50c8ce203d57eae) )	/* green component */
+	ROM_LOAD( "chs1-b-8e_white.8e", 0x0600, 0x0200, CRC(3a2e333b) SHA1(5cf0324cc07ac4af63598c5c6acc61d24215b233) )	/* green component */
+	ROM_LOAD( "chs1-b-7f_pink.7f", 0x0800, 0x0200, CRC(8bd406f8) SHA1(eaf0b62eccf1f47452bf983b3ffc6cacc25d4585) )	/* blue component */
+	ROM_LOAD( "chs1-b-8f_white.8f", 0x0a00, 0x0200, CRC(1663eed7) SHA1(90ff876a6b885f8a80c17531cde8b91864f1a6a5) )	/* blue component */
+	ROM_LOAD( "chs1-v.2d", 0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_LOAD( "chs1-b-6e_white.6e", 0x1000, 0x0200, CRC(8efd867f) SHA1(d5f2bfe750bb5d472922bdb7e915ee28a3eec9bd) )	/* not used */
+	ROM_LOAD( "chs1-b-6f_white.6f", 0x1200, 0x0200, CRC(279d6cbc) SHA1(aea56970801908b4d51be0c15043c7b315d2637f) )	/* not used */
+	ROM_LOAD( "chs1-b-7e_pink.7e", 0x1400, 0x0200, CRC(4c7e3a67) SHA1(a6b3436673ba31e04a7614b71bc4039ad4ce56f1) )	/* not used */
+	ROM_LOAD( "chs1-b-7f_white.7f", 0x1600, 0x0200, CRC(cad6b7ad) SHA1(62b61d5fa47ca6e2dd15295674dff62e4e69471a) )	/* not used */
+	ROM_LOAD( "chs1-b-8e_pink.8e", 0x1800, 0x0200, CRC(ec659313) SHA1(a1209650187fce92ef63d77b3ef190e49fdb2e2b) )	/* not used */
+	ROM_LOAD( "chs1-b-8f_pink.8f", 0x1a00, 0x0200, CRC(8b493c09) SHA1(607d4237ebf41009db567009949d685bceee1f23) )	/* not used */
 
 	ROM_REGION( 0x10000, REGION_SOUND1, 0 )	/* 64k for the VLM5030 data */
 	ROM_LOAD( "chs1-c.6p",    0x0000, 0x4000, CRC(ad8b64b8) SHA1(0f1232a10faf71b782f9f6653cca8570243c17e0) )
 ROM_END
 
-ROM_START( spnchotj )
+ROM_START( spnchoutj )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "chs1c8la.bin", 0x0000, 0x2000, CRC(dc2a592b) SHA1(a8a7fc5c836e2723ba6abcb1137f4c4f79e21c87) )
 	ROM_LOAD( "chs1c8ka.bin", 0x2000, 0x2000, CRC(ce687182) SHA1(f07d930d90eda199b089f9023b51fd4456c87bdf) )
@@ -1037,14 +1138,20 @@ ROM_START( spnchotj )
 	ROM_CONTINUE(             0x0b800, 0x0800 )
 	/* 0c000-0ffff empty (space for 8l and 8k) */
 
-	ROM_REGION( 0x0d00, REGION_PROMS, 0 )
-	ROM_LOAD( "chs1b_6e.bpr", 0x0000, 0x0200, CRC(8efd867f) SHA1(d5f2bfe750bb5d472922bdb7e915ee28a3eec9bd) )	/* red component */
-	ROM_LOAD( "chs1-b.7e",    0x0200, 0x0200, CRC(9e170f64) SHA1(9548bfec2f5b7d222e91562b5459aef8c107b3ec) )	/* red component */
-	ROM_LOAD( "chs1b_6f.bpr", 0x0400, 0x0200, CRC(279d6cbc) SHA1(aea56970801908b4d51be0c15043c7b315d2637f) )	/* green component */
-	ROM_LOAD( "chs1-b.8e",    0x0600, 0x0200, CRC(3a2e333b) SHA1(5cf0324cc07ac4af63598c5c6acc61d24215b233) )	/* green component */
-	ROM_LOAD( "chs1b_7f.bpr", 0x0800, 0x0200, CRC(cad6b7ad) SHA1(62b61d5fa47ca6e2dd15295674dff62e4e69471a) )	/* blue component */
-	ROM_LOAD( "chs1-b.8f",    0x0a00, 0x0200, CRC(1663eed7) SHA1(90ff876a6b885f8a80c17531cde8b91864f1a6a5) )	/* blue component */
-	ROM_LOAD( "chs1-v.2d",    0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_REGION( 0x1c00, REGION_PROMS, 0 )
+	ROM_LOAD( "chs1-b-6e_white.6e", 0x0000, 0x0200, CRC(8efd867f) SHA1(d5f2bfe750bb5d472922bdb7e915ee28a3eec9bd) )	/* red component */
+	ROM_LOAD( "chs1-b-7e_white.7e", 0x0200, 0x0200, CRC(9e170f64) SHA1(9548bfec2f5b7d222e91562b5459aef8c107b3ec) )	/* red component */
+	ROM_LOAD( "chs1-b-6f_white.6f", 0x0400, 0x0200, CRC(279d6cbc) SHA1(aea56970801908b4d51be0c15043c7b315d2637f) )	/* green component */
+	ROM_LOAD( "chs1-b-8e_white.8e", 0x0600, 0x0200, CRC(3a2e333b) SHA1(5cf0324cc07ac4af63598c5c6acc61d24215b233) )	/* green component */
+	ROM_LOAD( "chs1-b-7f_white.7f", 0x0800, 0x0200, CRC(cad6b7ad) SHA1(62b61d5fa47ca6e2dd15295674dff62e4e69471a) )	/* blue component */
+	ROM_LOAD( "chs1-b-8f_white.8f", 0x0a00, 0x0200, CRC(1663eed7) SHA1(90ff876a6b885f8a80c17531cde8b91864f1a6a5) )	/* blue component */
+	ROM_LOAD( "chs1-v.2d", 0x0c00, 0x0100, CRC(71dc0d48) SHA1(dd6609f547d74887f520d7e71a1a00317ff181d0) )	/* timing - not used */
+	ROM_LOAD( "chs1-b-6e_pink.6e", 0x1000, 0x0200, CRC(0ad4d727) SHA1(5fa4247d58d10b4644f0a7492efb22b7a9ce7b62) )	/* not used */
+	ROM_LOAD( "chs1-b-6f_pink.6f", 0x1200, 0x0200, CRC(86f5cfdb) SHA1(a2a3a4e9ca15826fe8c86650d50c8ce203d57eae) )	/* not used */
+	ROM_LOAD( "chs1-b-7e_pink.7e", 0x1400, 0x0200, CRC(4c7e3a67) SHA1(a6b3436673ba31e04a7614b71bc4039ad4ce56f1) )	/* not used */
+	ROM_LOAD( "chs1-b-7f_pink.7f", 0x1600, 0x0200, CRC(8bd406f8) SHA1(eaf0b62eccf1f47452bf983b3ffc6cacc25d4585) )	/* not used */
+	ROM_LOAD( "chs1-b-8e_pink.8e", 0x1800, 0x0200, CRC(ec659313) SHA1(a1209650187fce92ef63d77b3ef190e49fdb2e2b) )	/* not used */
+	ROM_LOAD( "chs1-b-8f_pink.8f", 0x1a00, 0x0200, CRC(8b493c09) SHA1(607d4237ebf41009db567009949d685bceee1f23) )	/* not used */
 
 	ROM_REGION( 0x10000, REGION_SOUND1, 0 )	/* 64k for the VLM5030 data */
 	ROM_LOAD( "chs1c6pa.bin", 0x0000, 0x4000, CRC(d05fb730) SHA1(9f4c4c7e5113739312558eff4d3d3e42d513aa31) )
@@ -1065,10 +1172,10 @@ ROM_START( armwrest )
 	ROM_LOAD( "chpv-b.2e",    0x00000, 0x4000, CRC(8b45f365) SHA1(15fadccc9afe26672fbbb8eaeaa7d3ee70bcb056) )	/* chars #1 */
 	ROM_LOAD( "chpv-b.2d",    0x04000, 0x4000, CRC(b1a2850c) SHA1(e3aec428bb52443921fb7ceb5eb21b5f9ee9edcb) )
 
-	ROM_REGION( 0x0c000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_REGION( 0x0c000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
 	ROM_LOAD( "chpv-b.2m",    0x00000, 0x4000, CRC(19245b37) SHA1(711e263d487661afca09f731e9333a84eb8d1541) )	/* chars #2 */
 	ROM_LOAD( "chpv-b.2l",    0x04000, 0x4000, CRC(46797941) SHA1(e21fcec8e19702f9765205a4dc89105b4e98dcdd) )
-	ROM_LOAD( "chpv-b.2k",    0x08000, 0x4000, CRC(24c4c26d) SHA1(2ed4a8fbb7858aff8a724ca34a0fac915cfc3a3a) )
+	ROM_LOAD( "chpv-b.2k",    0x0a000, 0x2000, CRC(de189b00) SHA1(62b38d5f95bb4f0a0d04947c7c2031e07f95cbe4) )
 
 	ROM_REGION( 0x30000, REGION_GFX3, ROMREGION_DISPOSE )
 	ROM_LOAD( "chv1-v.2r",    0x00000, 0x4000, CRC(d86056d9) SHA1(decedf6b54e5990ff14d8049791b2d06c33ae71b) )	/* chars #3 */
@@ -1108,7 +1215,8 @@ ROM_END
 
 
 
-GAME( 1984, punchout, 0,        punchout, punchout, punchout, ROT0, "Nintendo", "Punch-Out!!", 0 )
-GAME( 1984, spnchout, 0,        punchout, spnchout, spnchout, ROT0, "Nintendo", "Super Punch-Out!!", 0 )
-GAME( 1984, spnchotj, spnchout, punchout, spnchout, spnchotj, ROT0, "Nintendo", "Super Punch-Out!! (Japan)", 0 )
+GAME( 1984, punchout, 0,        punchout, punchout, spnchout, ROT0, "Nintendo", "Punch-Out!! (Rev B)", 0 ) /* CHP1-02 boards */
+GAME( 1984, punchouta,punchout, punchout, punchout, punchout, ROT0, "Nintendo", "Punch-Out!! (Rev A)", 0 ) /* CHP1-01 boards */
+GAME( 1984, spnchout, 0,        punchout, spnchout, spnchout, ROT0, "Nintendo", "Super Punch-Out!! (Rev B)", 0 ) /* CHP1-02 boards */
+GAME( 1984, spnchoutj,spnchout, punchout, spnchout, spnchoutj,ROT0, "Nintendo", "Super Punch-Out!! (Japan)", 0 )
 GAME( 1985, armwrest, 0,        armwrest, armwrest, armwrest, ROT0, "Nintendo", "Arm Wrestling", 0 )

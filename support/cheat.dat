@@ -171948,13 +171948,13 @@
 :splndrbt:00000000:0400B6:00000001:FFFFFFFF:Always be first
 
 ; [ Super Punch-Out!! (Japan) ]
-:spnchotj:00000000:D022:00000070:FFFFFFFF:Invincibility
-:spnchotj:00000000:D048:0000001A:FFFFFFFF:KO Power
-:spnchotj:00000000:D7F2:00000003:FFFFFFFF:Infinite Time
-:spnchotj:00000001:D024:00000000:FFFFFFFF:Drain Other Fighter Now!
-:spnchotj:00000000:D024:00000000:FFFFFFFF:Quick KDs/KOs
-:spnchotj:00000000:D02E:00000000:FFFFFFFF:Player TKO Count always = 0
-:spnchotj:00000000:D02F:00000003:FFFFFFFF:CPU TKO Count always = 3:Effectively get a TKO on the first knockout
+:spnchoutj:00000000:D022:00000070:FFFFFFFF:Invincibility
+:spnchoutj:00000000:D048:0000001A:FFFFFFFF:KO Power
+:spnchoutj:00000000:D7F2:00000003:FFFFFFFF:Infinite Time
+:spnchoutj:00000001:D024:00000000:FFFFFFFF:Drain Other Fighter Now!
+:spnchoutj:00000000:D024:00000000:FFFFFFFF:Quick KDs/KOs
+:spnchoutj:00000000:D02E:00000000:FFFFFFFF:Player TKO Count always = 0
+:spnchoutj:00000000:D02F:00000003:FFFFFFFF:CPU TKO Count always = 3:Effectively get a TKO on the first knockout
 
 ; [ Super Punch-Out!! ]
 :spnchout:00000000:D022:00000070:FFFFFFFF:Invincibility
@@ -205221,7 +205221,7 @@
 ;psyforce=psyforcj~psyfrcex
 ;puchicar=puchicrj
 ;pulirula=pulirulj
-;punchout=spnchout=spnchotj
+;punchout=spnchout=spnchoutj
 ;punisher=punishrj=punishru
 ;punkshot=punksht2~=punkshtj
 ;pushman=pushmana=pushmans

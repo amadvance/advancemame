@@ -200,7 +200,7 @@ DRIVER_INIT( spnchout )
 	gfx3inv = 0xff;
 }
 
-DRIVER_INIT( spnchotj )
+DRIVER_INIT( spnchoutj )
 {
 	gfx_fix();
 
