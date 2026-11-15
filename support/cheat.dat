@@ -180180,11 +180180,11 @@
 :survarts:00000001:8F4E:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Survival Arts (USA) ]
-:survartu:00000000:BB38:00000099:FFFFFFFF:Infinite Time
-:survartu:00000000:839E:00000090:FFFFFFFF:Infinite Energy PL1
-:survartu:00000001:839E:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:survartu:00000000:8F4E:00000090:FFFFFFFF:Infinite Energy PL2
-:survartu:00000001:8F4E:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:survartsu:00000000:BB38:00000099:FFFFFFFF:Infinite Time
+:survartsu:00000000:839E:00000090:FFFFFFFF:Infinite Energy PL1
+:survartsu:00000001:839E:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:survartsu:00000000:8F4E:00000090:FFFFFFFF:Infinite Energy PL2
+:survartsu:00000001:8F4E:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Survival ]
 :survival:00000000:439B:00000099:FFFFFFFF:Infinite Zaps
@@ -205438,7 +205438,7 @@
 ;superx=superxm
 ;suprridr~=timelimt
 ;suratk=suratka=suratkj
-;survarts=survartu
+;survarts=survartsu
 ;suzuk8h2=suzuk8hj=suzuka8h
 ;svc=svcboot=svcpcb=svcpcba~=(svcplus=svcplusa=svcsplus)   [relationship untested]
 ;svolley=svolleyk=svolleyu

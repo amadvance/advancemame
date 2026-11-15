@@ -6783,8 +6783,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( srmp7 )		/* (c) 1997 Seta */
 	DRIVER( dynagear )	/* (c) 1993 Sammy */
 	DRIVER( survarts )	/* (c) 1993 Sammy */
-	DRIVER( survartu )	/* (c) 1993 Sammy (American) */
+	DRIVER( survartsu )	/* (c) 1993 Sammy (American) */
+	DRIVER( survartsj )	/* (c) 1993 Sammy (Japan) */
 	DRIVER( eaglshot )	/* (c) 1994 Sammy */
+	DRIVER( eaglshotj )	/* (c) 1994 Sammy */
 	DRIVER( hypreact )	/* (c) 1995 Sammy */
 	DRIVER( meosism )	/* (c) 1996?Sammy */
 	DRIVER( hypreac2 )	/* (c) 1997 Sammy */
@@ -6796,6 +6798,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( drifto94 )	/* (c) 1994 Visco */
 	DRIVER( janjans1 )	/* (c) 1996 Visco */
 	DRIVER( stmblade )	/* (c) 1996 Visco */
+	DRIVER( stmbladej )	/* (c) 1996 Visco */
 	DRIVER( jsk )		/* (c) 1997 Visco */
 	DRIVER( koikois2 ) 	/* (c) 1997 Visco */
 	DRIVER( mslider )	/* (c) 1997 Visco / Datt Japan */
@@ -6806,6 +6809,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( vasara2a )	/* (c) 2001 Visco */
 
 	DRIVER( ultrax )	/* (c) 1995 Banpresto */
+	DRIVER( ultraxg )	/* (c) 1995 Banpresto */
 	DRIVER( gdfs )		/* (c) 1995 Banpresto */
 
 	DRIVER( jclub2v112 )	/* (c) 1996 Seta */

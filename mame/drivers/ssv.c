@@ -877,6 +877,97 @@ ADDRESS_MAP_END
 
 
 /***************************************************************************
+                        Joryuu Syougi Kyoushitsu
+***************************************************************************/
+
+INPUT_PORTS_START( jsk )
+	PORT_START	// IN0 - $210002
+	PORT_DIPNAME( 0x0007, 0x0007, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0007, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0006, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0005, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( 1C_4C ) )
+	PORT_SERVICE( 0x0008, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Minutes" )
+	PORT_DIPSETTING(      0x0080, "3" )
+	PORT_DIPSETTING(      0x00c0, "4" )
+	PORT_DIPSETTING(      0x0040, "5" )
+	PORT_DIPSETTING(      0x0000, "6" )
+
+	PORT_START	// IN1 - $210004
+	PORT_DIPNAME( 0x0007, 0x0007, "Difficulty A" )
+	PORT_DIPSETTING(      0x0000, "1 (Novice)" )
+	PORT_DIPSETTING(      0x0001, "2" )
+	PORT_DIPSETTING(      0x0002, "3" )
+	PORT_DIPSETTING(      0x0003, "4" )
+	PORT_DIPSETTING(      0x0007, "5 (Medium)" )
+	PORT_DIPSETTING(      0x0006, "6" )
+	PORT_DIPSETTING(      0x0005, "7" )
+	PORT_DIPSETTING(      0x0004, "8 (expert)" )
+	PORT_DIPNAME( 0x0008, 0x0008, "Difficulty Switch" )
+	PORT_DIPSETTING(      0x0008, "A (8 Levels)" )
+	PORT_DIPSETTING(      0x0000, "B (4 Levels)" )
+	PORT_DIPNAME( 0x0030, 0x0030, "Difficulty B" )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0030, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0040, 0x0040, "Campaign" )
+	PORT_DIPSETTING(      0x0040, "Available" )
+	PORT_DIPSETTING(      0x0000, "Finished" )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_START	// IN2 - $210008
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+
+	PORT_START	// IN3 - $21000a
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+
+	PORT_START	// IN4 - $21000c
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(10)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(10)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW,  IPT_SERVICE1 )
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW,  IPT_TILT     )
+	PORT_BIT(  0x00f0, IP_ACTIVE_LOW,  IPT_UNKNOWN  )
+
+	PORT_START	// IN5 - $500008
+	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+	PORT_BIT(  0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x0010, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0020, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
+	PORT_BIT(  0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
+/***************************************************************************
                             Pachinko Sexy Reaction
 ***************************************************************************/
 
@@ -970,11 +1061,59 @@ ADDRESS_MAP_END
             Joryuu Syougi Kyoushitsu
 ***************************************************************************/
 
-static ADDRESS_MAP_START( jsk_mem,ADDRESS_SPACE_PROGRAM, 32 )
+/* communication latches between the V60 and the V810 sub CPU */
+static UINT32 jsk_latches[4];
+
+static READ32_HANDLER( jsk_latch32_r )
+{
+	if (!offset)
+		jsk_latches[2] &= ~2;
+	return jsk_latches[offset];
+}
+
+static WRITE32_HANDLER( jsk_latch32_w )
+{
+	if (!offset)
+		jsk_latches[2] |= 1;
+	COMBINE_DATA(&jsk_latches[offset]);
+	/* run both CPUs up to now, to have the other side see the new value */
+	timer_set(TIME_NOW, 0, NULL);
+}
+
+static READ16_HANDLER( jsk_latch16_r )
+{
+	if (!offset)
+		jsk_latches[2] &= ~1;
+	return jsk_latches[offset];
+}
+
+static WRITE16_HANDLER( jsk_latch16_w )
+{
+	if (!offset)
+		jsk_latches[2] |= 2;
+	jsk_latches[offset] = data;
+	timer_set(TIME_NOW, 0, NULL);
+}
+
+static ADDRESS_MAP_START( jsk_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x050000, 0x05ffff) AM_READ(ssv_mainram_r		)	// RAM Mirror?
+	AM_RANGE(0x400000, 0x47ffff) AM_READ(MRA16_RAM			)	// RAM?
+	AM_RANGE(0x900000, 0x900007) AM_READ(jsk_latch16_r		)	// Latches
+	SSV_READMEM( 0xf00000 )
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( jsk_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x050000, 0x05ffff) AM_WRITE(ssv_mainram_w		)	// RAM Mirror?
+	AM_RANGE(0x210000, 0x210001) AM_WRITE(watchdog_reset16_w)	// Watchdog
+	AM_RANGE(0x400000, 0x47ffff) AM_WRITE(MWA16_RAM			)	// RAM?
+	AM_RANGE(0x900000, 0x900007) AM_WRITE(jsk_latch16_w		)	// Latches
+	SSV_WRITEMEM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( jsk_mem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x0001ffff) AM_RAM
 	AM_RANGE(0x80000000, 0x8001ffff) AM_RAM
 	AM_RANGE(0xc0000000, 0xc001ffff) AM_RAM
-	AM_RANGE(0x40000000, 0x4000000f) AM_NOP // I/O
+	AM_RANGE(0x40000000, 0x4000000f) AM_READWRITE(jsk_latch32_r, jsk_latch32_w)
 	AM_RANGE(0xfff80000, 0xffffffff) AM_READ(MRA32_BANK2)
 ADDRESS_MAP_END
 
@@ -3734,12 +3873,22 @@ static MACHINE_DRIVER_START( ultrax )
 	MDRV_VISIBLE_AREA(0, 0x150-1, 0, 0xf0-1)
 MACHINE_DRIVER_END
 
+static MACHINE_RESET( jsk )
+{
+	machine_reset_ssv();
+	/* the V810 program ROM is mapped at the top of its address space */
+	memory_set_bankptr(2, memory_region(REGION_USER2));
+	memset(jsk_latches, 0, sizeof(jsk_latches));
+}
+
 static MACHINE_DRIVER_START( jsk )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(ssv)
 	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(janjans1_readmem, janjans1_writemem)
+	MDRV_CPU_PROGRAM_MAP(jsk_readmem, jsk_writemem)
+
+	MDRV_MACHINE_RESET(jsk)
 
 	MDRV_CPU_ADD(V810,25000000)
 	MDRV_CPU_PROGRAM_MAP(jsk_mem, 0)
@@ -3877,9 +4026,9 @@ Lithium battery + MB3790 + LH5168D-10L
 ROM_START( drifto94 )
 	ROM_REGION16_LE( 0x400000, REGION_USER1, 0 )		/* V60 Code */
 	ROM_LOAD16_WORD( "vg003-19.u26", 0x000000, 0x200000, CRC(238e5e2b) SHA1(fe58f571857804263642d7d089df962327a007b6) )	// "SoundDriverV1.1a"
-	ROM_LOAD16_BYTE( "visco-37.bin", 0x200000, 0x080000, CRC(78fa3ccb) SHA1(0c79ff1aa31e7ca1eeb14fbef7774278fa83ba44) )
+	ROM_LOAD16_BYTE( "visco-37.u37", 0x200000, 0x080000, CRC(78fa3ccb) SHA1(0c79ff1aa31e7ca1eeb14fbef7774278fa83ba44) )
 	ROM_RELOAD(                      0x300000, 0x080000             )
-	ROM_LOAD16_BYTE( "visco-33.bin", 0x200001, 0x080000, CRC(88351146) SHA1(1decce44b5d244b57676177f417e4937d7088124) )
+	ROM_LOAD16_BYTE( "visco-33.u33", 0x200001, 0x080000, CRC(88351146) SHA1(1decce44b5d244b57676177f417e4937d7088124) )
 	ROM_RELOAD(                      0x300001, 0x080000             )
 
 	ROM_REGION( 0x2000000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
@@ -3908,6 +4057,9 @@ ROM_START( drifto94 )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND2, ROMREGION_ERASE | 0 )	/* Samples */
 	ROM_LOAD16_BYTE( "vg003-18.u15", 0x000000, 0x200000, CRC(511b3e93) SHA1(09eda175c8f1b21c18645519cc6e89c6ca1fc5de) )
+
+	ROM_REGION( 0x11000, REGION_USER3, ROMREGION_DISPOSE )	/* ST010 DSP, not emulated */
+	ROM_LOAD( "st010.bin", 0x00000, 0x11000, CRC(aa11ee2d) SHA1(cc1984e989cb94e3dcbb5f99e085b5414e18a017) ) // BPMicro-compatible dump
 ROM_END
 
 
@@ -3994,6 +4146,33 @@ ROM_START( eaglshot )
 	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )		/* V60 Code */
 	ROM_LOAD16_BYTE( "si003-09.u18",  0x000000, 0x080000, CRC(219c71ce) SHA1(4f8996b4c5b267a90073d67857358147732f8c0d) )
 	ROM_LOAD16_BYTE( "si003-10.u20",  0x000001, 0x080000, CRC(c8872e48) SHA1(c8e1e712d5fa380f8fc1447502f21d2ae592811a) )
+
+	ROM_REGION( 0x0c00000, REGION_GFX1, /*ROMREGION_DISPOSE*/0 )	/* Sprites - Read by the CPU */
+	ROM_LOAD( "si003-01.u13", 0x0000000, 0x200000, CRC(d7df0d52) SHA1(d7b79a186f4272334c2297666c52f32c05787c29) )
+	ROM_LOAD( "si003-02.u12", 0x0200000, 0x200000, CRC(92b4d50d) SHA1(9dc2f2961b088824d8370ac83dff796345fe4158) )
+	ROM_LOAD( "si003-03.u11", 0x0400000, 0x200000, CRC(6ede4012) SHA1(6663990c6ee8e500cb8c51ad2102761ee0b3351d) )
+	ROM_LOAD( "si003-04.u10", 0x0600000, 0x200000, CRC(4c65d1a1) SHA1(165f16d08813d2c989ddce4bb23b3a3652003bd5) )
+	ROM_LOAD( "si003-05.u30", 0x0800000, 0x200000, CRC(daf52d56) SHA1(108419ef7d3716a3890b0d8bcbfddc1585daaae8) )
+	ROM_LOAD( "si003-06.u31", 0x0a00000, 0x200000, CRC(449f9ae5) SHA1(b3e664eb88d14d1e25a0cfc8dcccc8270ca778c9) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, 0 )	/* Samples */
+	ROM_LOAD16_WORD_SWAP( "si003-07.u23", 0x000000, 0x200000, CRC(81679fd6) SHA1(ca3b07a87781278b5c7c85951728bbe5dfcbe042) )
+	ROM_LOAD16_WORD_SWAP( "si003-08.u24", 0x200000, 0x200000, CRC(d0122ba2) SHA1(96230fb690cf144cd873f7d51c0304736a698316) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND2, 0 )	/* Samples */
+	ROM_COPY( REGION_SOUND1, 0x000000, 0x000000, 0x400000 )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND3, 0 ) /* Samples */
+	ROM_COPY( REGION_SOUND1, 0x000000, 0x000000, 0x400000 )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND4, 0 ) /* Samples */
+	ROM_COPY( REGION_SOUND1, 0x000000, 0x000000, 0x400000 )
+ROM_END
+
+ROM_START( eaglshotj )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )		/* V60 Code */
+	ROM_LOAD16_BYTE( "sammygolf.u18",  0x000000, 0x080000, CRC(b6d6869c) SHA1(7528751fad783e9b0fd217d2fac2ab408814a583) )
+	ROM_LOAD16_BYTE( "sammygolf.u20",  0x000001, 0x080000, CRC(c8872e48) SHA1(c8e1e712d5fa380f8fc1447502f21d2ae592811a) )
 
 	ROM_REGION( 0x0c00000, REGION_GFX1, /*ROMREGION_DISPOSE*/0 )	/* Sprites - Read by the CPU */
 	ROM_LOAD( "si003-01.u13", 0x0000000, 0x200000, CRC(d7df0d52) SHA1(d7b79a186f4272334c2297666c52f32c05787c29) )
@@ -4215,17 +4394,15 @@ U70.BIN     [--------] /
 ***************************************************************************/
 
 ROM_START( jsk )
-	ROM_REGION16_LE( 0x400000, REGION_USER1, 0 )
-	ROM_LOAD16_WORD( "jsk-main.bin", 0x000000, 0x100000, NO_DUMP ) // missing ?
-
-	ROM_LOAD16_BYTE( "jsk-u72.bin", 0x80000, 0x20000, CRC(41ed8a9f) SHA1(a81efc91fbf1abc70ed64f4fa9b828a8b6f554ec) )
-	ROM_LOAD16_BYTE( "jsk-u71.bin", 0x80001, 0x20000, CRC(b529f331) SHA1(be6259f5c3a6106280a4b519f83ee008d761be4e) )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )		/* V60 Code */
+	ROM_LOAD16_BYTE( "jsk-u72.bin", 0x00000, 0x80000, CRC(db6b2554) SHA1(c4c6617461e1d3f8660a2b97fd2c38ef245f0d4a) )
+	ROM_LOAD16_BYTE( "jsk-u71.bin", 0x00001, 0x80000, CRC(f6774fba) SHA1(3a74e5091d9d72e4f92c7c637cfe5c0dcc60bbe1) )
 
 	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
-	ROM_LOAD( "jsk-a0.bin", 0x0000000, 0x200000, CRC(4bac3196) SHA1(e9530278f60e789074411c6b2f20695c3af87b87) )
-	ROM_LOAD( "jsk-b0.bin", 0x0400000, 0x200000, CRC(40664e5a) SHA1(ba0c24f727d502688a37ed67dad0e3aaad33afc4) )
-	ROM_LOAD( "jsk-c0.bin", 0x0800000, 0x200000, CRC(2a230e64) SHA1(2af8144b84703f896971a2819d7b7a1f662cec92) )
-	ROM_LOAD( "jsk-d0.bin", 0x0c00000, 0x200000, CRC(911e53a6) SHA1(9657180b4371172babcb21ad93c6253ac5d58f86) )
+	ROM_LOAD( "jsk-a0.bin", 0x0000000, 0x400000, CRC(18981a19) SHA1(b4bf93f38099963350b9e5e64890ce7adc1bc983) )
+	ROM_LOAD( "jsk-b0.bin", 0x0400000, 0x400000, CRC(f6df0ff9) SHA1(d7736e4ae6e099aef320a59668d7f17590c346b9) )
+	ROM_LOAD( "jsk-c0.bin", 0x0800000, 0x400000, CRC(b8282939) SHA1(d041fb013e5011bf6b9d9bc2c816b2f3969723b7) )
+	ROM_LOAD( "jsk-d0.bin", 0x0c00000, 0x400000, CRC(fc733e0c) SHA1(951060f6600b8b677ad2f41f59071c375ea9d4cf) )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 )	/* Samples */
 	ROM_LOAD16_BYTE( "jsk-s0.u65", 0x000000, 0x200000, CRC(8d1a9aeb) SHA1(37316bd3e8cbe2a84239e1a11a56d4fe4723ae1a) )
@@ -4243,7 +4420,7 @@ ROM_START( jsk )
 	ROM_LOAD32_BYTE( "jsk-u4.bin",  0x00003, 0x20000, CRC(ec22fb41) SHA1(c0d6b0a92075214a91da78be52d273771cb9f646) )
 	ROM_LOAD32_BYTE( "jsk-u24.bin", 0x00002, 0x20000, CRC(1fa6e156) SHA1(4daedf660d89c185c945d4a526312f6528fe7b17) )
 	ROM_LOAD32_BYTE( "jsk-u38.bin", 0x00001, 0x20000, CRC(8e5c0de3) SHA1(54c5dfd858086b0eb7ffa82c19fb1dfd7752d50e) )
-	ROM_LOAD32_BYTE( "jsk-u52.bin", 0x00000, 0x20000, CRC(19cc585f) SHA1(b53138e93d40c0cf03aee838d7653f5665d9cf35) )
+	ROM_LOAD32_BYTE( "jsk-u52.bin", 0x00000, 0x20000, CRC(b11aef0c) SHA1(37c0fedd6454a05b647513600f1b0998c572c7a5) )
 ROM_END
 
 
@@ -4482,6 +4659,10 @@ ROM_START( ryorioh )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 )	/* Samples */
 	ROM_LOAD16_BYTE( "ryorioh.snd", 0x000000, 0x200000, CRC(7bd38b76) SHA1(d8490b4af839ef0802b8b2a47277fcd4091e4d37) )
+
+	ROM_REGION( 0x400, REGION_PLDS, ROMREGION_DISPOSE )
+	ROM_LOAD( "gal16v8b.u25", 0x000, 0x117, CRC(9f9066be) SHA1(5640418e0235b409262aa5f20407e2d44722073d) )
+	ROM_LOAD( "gal16v8b.u36", 0x200, 0x117, CRC(971d6f4d) SHA1(35d9adf8cb2ea6097b670b189077d9850d33baf0) )
 ROM_END
 
 
@@ -4755,12 +4936,44 @@ ROM_START( survarts )
 	ROM_LOAD16_WORD_SWAP( "si001-11.u8", 0x100000, 0x100000, CRC(a81e6ea6) SHA1(499f070500895ed7b6785b42fb6bbf973fc6dc04) ) /* S1 */
 	ROM_LOAD16_WORD_SWAP( "si001-12.u7", 0x200000, 0x100000, CRC(e9b2b45b) SHA1(17fd27cdb8a0b9932cb1e71e0547c0d9d6fc7d06) ) /* S2 */
 	ROM_LOAD16_WORD_SWAP( "si001-13.u6", 0x300000, 0x100000, CRC(d66a7e26) SHA1(57b659daef00421b6742963f792bd5e020f625c9) ) /* S3 */
+
+	ROM_REGION( 0x200, REGION_PLDS, ROMREGION_DISPOSE )
+	ROM_LOAD( "gal16v8b.u5", 0x000, 0x117, CRC(378ce368) SHA1(cc068c9b63e6f91165f9caec581645ad45b2d3d0) )
 ROM_END
 
-ROM_START( survartu )
+ROM_START( survartsu )
 	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )		/* V60 Code */
 	ROM_LOAD16_BYTE( "usa-pr-l.u4", 0x000000, 0x080000, CRC(fa328673) SHA1(f7217eaa2a8d3fb7f706fa1aecaaa5b1b8d5e32c) )
 	ROM_LOAD16_BYTE( "usa-pr-h.u3", 0x000001, 0x080000, CRC(6bee2635) SHA1(a2d0517bf599331ef47beb8a902589039e4502e0) )
+
+	ROM_REGION( 0x1800000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
+	ROM_LOAD( "si001-01.u27", 0x0000000, 0x200000, CRC(8b38fbab) SHA1(c4a67b24b33d4eef7b0f885bd69cae6c67bd3981) ) /* A0 */
+	ROM_LOAD( "si001-04.u26", 0x0200000, 0x200000, CRC(34248b54) SHA1(077198f8de1622b71c580e34d5ad1b6bf3229fe9) ) /* A1 */
+	ROM_LOAD( "si001-07.u25", 0x0400000, 0x200000, CRC(497d6151) SHA1(a9860c75943c0fd2991660ce2a9505edc6c2fa46) ) /* A2 */
+
+	ROM_LOAD( "si001-02.u23", 0x0600000, 0x200000, CRC(cb4a2dbd) SHA1(26cdd1b54a3fa1dc3c3a8945d1a3562e9c62ace6) ) /* B0 */
+	ROM_LOAD( "si001-05.u22", 0x0800000, 0x200000, CRC(8f092381) SHA1(6c49f1f5b3c31bd7c6a93ba0450d9f64fd512633) ) /* B1 */
+	ROM_LOAD( "si001-08.u21", 0x0a00000, 0x200000, CRC(182b88c4) SHA1(a5b6a3e1fd67f036b1255385e81b6a3eb69f9f3f) ) /* B2 */
+
+	ROM_LOAD( "si001-03.u17", 0x0c00000, 0x200000, CRC(92fdf652) SHA1(cf7aeb3a1e8ffe34cf24cb919a0ab3cc90202fa9) ) /* C0 */
+	ROM_LOAD( "si001-06.u16", 0x0e00000, 0x200000, CRC(9a62f532) SHA1(7e7ba1224e52b33a9bd14058230efc871178c4f8) ) /* C1 */
+	ROM_LOAD( "si001-09.u15", 0x1000000, 0x200000, CRC(0955e393) SHA1(0be9134190706eaee49177034b0536b05c4bc7ac) ) /* C2 */
+
+	ROM_FILL(                0x1200000, 0x600000, 0          )
+
+//  The chip seems to use REGION1 too, but produces no sound from there.
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND3, 0 )	/* Samples */
+	ROM_LOAD16_WORD_SWAP( "si001-10.u9", 0x000000, 0x100000, CRC(5642b333) SHA1(84936af8b3882e116b279e422075f35aabdd232f) ) /* S0 */
+	ROM_LOAD16_WORD_SWAP( "si001-11.u8", 0x100000, 0x100000, CRC(a81e6ea6) SHA1(499f070500895ed7b6785b42fb6bbf973fc6dc04) ) /* S1 */
+	ROM_LOAD16_WORD_SWAP( "si001-12.u7", 0x200000, 0x100000, CRC(e9b2b45b) SHA1(17fd27cdb8a0b9932cb1e71e0547c0d9d6fc7d06) ) /* S2 */
+	ROM_LOAD16_WORD_SWAP( "si001-13.u6", 0x300000, 0x100000, CRC(d66a7e26) SHA1(57b659daef00421b6742963f792bd5e020f625c9) ) /* S3 */
+ROM_END
+
+ROM_START( survartsj )
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )		/* V60 Code */
+	ROM_LOAD16_BYTE( "jpn-pr-l.u4", 0x000000, 0x080000, CRC(e5a52e8c) SHA1(0a51c16d23d99c3e6a12f8a96c62fe8c72179a22) )
+	ROM_LOAD16_BYTE( "jan-pr-h.u3", 0x000001, 0x080000, CRC(051c9bca) SHA1(b8a7c5e4cb12cb0f05b5ba15394bd1fcf0476bf0) )	// jan typo on sticker
 
 	ROM_REGION( 0x1800000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
 	ROM_LOAD( "si001-01.u27", 0x0000000, 0x200000, CRC(8b38fbab) SHA1(c4a67b24b33d4eef7b0f885bd69cae6c67bd3981) ) /* A0 */
@@ -4984,6 +5197,9 @@ ROM_START( sxyreac2 )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND3, 0 )	/* Samples */
 	ROM_COPY( REGION_SOUND2, 0x000000,    0x200000, 0x200000 )
+
+	ROM_REGION( 0x200, REGION_PLDS, ROMREGION_DISPOSE )
+	ROM_LOAD( "gal16v8d.ac1709g00.u34", 0x000, 0x117, CRC(65c4db12) SHA1(4931775ab5bcb9716db5a8e71e50b202d09c468b) )
 ROM_END
 
 
@@ -5028,6 +5244,36 @@ ROM_START( stmblade )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 )	/* Samples */
 	ROM_LOAD16_BYTE( "sb-snd0.u22", 0x000000, 0x200000, CRC(4efd605b) SHA1(9c97be105c923c7db847d9b9aea37025edb685a0) )
+
+	ROM_REGION( 0x11000, REGION_USER3, ROMREGION_DISPOSE )	/* ST010 DSP, not emulated */
+	ROM_LOAD( "st010.bin", 0x00000, 0x11000, CRC(aa11ee2d) SHA1(cc1984e989cb94e3dcbb5f99e085b5414e18a017) ) // BPMicro-compatible dump
+ROM_END
+
+ROM_START( stmbladej )
+	ROM_REGION16_LE( 0x400000, REGION_USER1, 0 )		/* V60 Code */
+	ROM_LOAD16_WORD( "sb-pd0.u26",  0x000000, 0x100000, CRC(91c4fbf7) SHA1(68e57ea2a9756a95a81c6688905352d631e9f2de) )
+	ROM_LOAD16_BYTE( "u37j.u37", 0x200000, 0x080000, CRC(dce20df8) SHA1(d589bf7bebbf6b3c76ddb4b1f8d0c7d6bee34561) )
+	ROM_RELOAD(                     0x300000, 0x080000             )
+	ROM_LOAD16_BYTE( "u33j.u33", 0x200001, 0x080000, CRC(12f68940) SHA1(c50caee87cdcbb3a4af3a139234ed12942cfab72) )
+	ROM_RELOAD(                     0x300001, 0x080000             )
+
+	ROM_REGION( 0x1800000, REGION_GFX1, ROMREGION_DISPOSE ) /* Sprites */
+	ROM_LOAD( "sb-a0.u41", 0x0000000, 0x200000, CRC(2a327b51) SHA1(fb1e92b7f740a80cb0c977e106d0c4bfee092dad) )
+	ROM_LOAD( "sb-a1.u35", 0x0200000, 0x200000, CRC(246f6f28) SHA1(09171f04452fbcf9e3333c135288fd6e5b8244f7) )
+	ROM_LOAD( "sb-a2.u32", 0x0400000, 0x080000, CRC(2049acf3) SHA1(3982b4650921da0563336060887767627f8679ab) )
+	ROM_LOAD( "sb-b0.u25", 0x0600000, 0x200000, CRC(b3aa3e68) SHA1(990be5925b6c8c0d0e83ca9064425d93853fe206) )
+	ROM_LOAD( "sb-b1.u21", 0x0800000, 0x200000, CRC(e95b38e7) SHA1(9256f027e4c496e3bf96ecb65c0f3e69791e2755) )
+	ROM_LOAD( "sb-b2.u18", 0x0a00000, 0x080000, CRC(d080e620) SHA1(a262b42214c09fccb8f4878d8566e2acd87dbd23) )
+	ROM_LOAD( "sb-c0.u11", 0x0c00000, 0x200000, CRC(825dd8f1) SHA1(39d32f54c97e21f92598442f05fd91ae2403a0d2) )
+	ROM_LOAD( "sb-c1.u7",  0x0e00000, 0x200000, CRC(744afcd7) SHA1(db716a1a2ad5864ebdb4865430cb637fb94ed34f) )
+	ROM_LOAD( "sb-c2.u4",  0x1000000, 0x080000, CRC(fd1d2a92) SHA1(957a8a52b79e252c7f1a4b6383107ae609dce5ef) )
+	ROM_FILL(              0x1200000, 0x600000, 0          )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 )	/* Samples */
+	ROM_LOAD16_BYTE( "sb-snd0.u22", 0x000000, 0x200000, CRC(4efd605b) SHA1(9c97be105c923c7db847d9b9aea37025edb685a0) )
+
+	ROM_REGION( 0x11000, REGION_USER3, ROMREGION_DISPOSE )	/* ST010 DSP, not emulated */
+	ROM_LOAD( "st010.bin", 0x00000, 0x11000, CRC(aa11ee2d) SHA1(cc1984e989cb94e3dcbb5f99e085b5414e18a017) ) // BPMicro-compatible dump
 ROM_END
 
 
@@ -5039,34 +5285,37 @@ ROM_END
 
 ROM_START( twineag2 )
 	ROM_REGION16_LE( 0x200000, REGION_USER1, 0 )		/* V60 Code */
-	ROM_LOAD16_WORD( "sx002_12", 0x000000, 0x200000, CRC(846044dc) SHA1(c1c85de1c466fb7c3580824baa1571cd0fed6ec6) )
+	ROM_LOAD16_WORD( "sx002-12.u22", 0x000000, 0x200000, CRC(846044dc) SHA1(c1c85de1c466fb7c3580824baa1571cd0fed6ec6) )
 
 	ROM_REGION( 0x1800000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
-	ROM_LOAD( "sx002_01", 0x0000000, 0x200000, CRC(6d6896b5) SHA1(e8efd29b9f951bff6664e47cb5fd67f1d8f40608) )
-	ROM_LOAD( "sx002_02", 0x0200000, 0x200000, CRC(3f47e97a) SHA1(5b0fdc762cf704c8bd92c4a4a42dba4a127b3d49) )
-	ROM_LOAD( "sx002_03", 0x0400000, 0x200000, CRC(544f18bf) SHA1(539e6df1ded4e9ac8974c697215cc1e5c5a40cda) )
+	ROM_LOAD( "sx002-01.u32", 0x0000000, 0x200000, CRC(6d6896b5) SHA1(e8efd29b9f951bff6664e47cb5fd67f1d8f40608) )
+	ROM_LOAD( "sx002-02.u28", 0x0200000, 0x200000, CRC(3f47e97a) SHA1(5b0fdc762cf704c8bd92c4a4a42dba4a127b3d49) )
+	ROM_LOAD( "sx002-03.u25", 0x0400000, 0x200000, CRC(544f18bf) SHA1(539e6df1ded4e9ac8974c697215cc1e5c5a40cda) )
 
-	ROM_LOAD( "sx002_04", 0x0600000, 0x200000, CRC(58c270e2) SHA1(7629ba978b18252f375bdc16ed62388d64a35ca1) )
-	ROM_LOAD( "sx002_05", 0x0800000, 0x200000, CRC(3c310229) SHA1(9a8b81d5f17ce3078627a697aaf07f1b3ba6e08c) )
-	ROM_LOAD( "sx002_06", 0x0a00000, 0x200000, CRC(46d5b1f3) SHA1(3ec03eddb159eb391ccdce5a0a867a54b3350150) )
+	ROM_LOAD( "sx002-04.u19", 0x0600000, 0x200000, CRC(58c270e2) SHA1(7629ba978b18252f375bdc16ed62388d64a35ca1) )
+	ROM_LOAD( "sx002-05.u16", 0x0800000, 0x200000, CRC(3c310229) SHA1(9a8b81d5f17ce3078627a697aaf07f1b3ba6e08c) )
+	ROM_LOAD( "sx002-06.u13", 0x0a00000, 0x200000, CRC(46d5b1f3) SHA1(3ec03eddb159eb391ccdce5a0a867a54b3350150) )
 
-	ROM_LOAD( "sx002_07", 0x0c00000, 0x200000, CRC(c30fa397) SHA1(d4575868c1b63f9e94bf24539a3fd8a85df93d0b) )
-	ROM_LOAD( "sx002_08", 0x0e00000, 0x200000, CRC(64edcefa) SHA1(55a71afe87da93e35c5ba291e970bdcd91b52a7a) )
-	ROM_LOAD( "sx002_09", 0x1000000, 0x200000, CRC(51527c56) SHA1(378155a585e5b847bd8ae1f17cb651138d844e33) )
+	ROM_LOAD( "sx002-07.u6", 0x0c00000, 0x200000, CRC(c30fa397) SHA1(d4575868c1b63f9e94bf24539a3fd8a85df93d0b) )
+	ROM_LOAD( "sx002-08.u3", 0x0e00000, 0x200000, CRC(64edcefa) SHA1(55a71afe87da93e35c5ba291e970bdcd91b52a7a) )
+	ROM_LOAD( "sx002-09.u2", 0x1000000, 0x200000, CRC(51527c56) SHA1(378155a585e5b847bd8ae1f17cb651138d844e33) )
 
 	ROM_FILL(             0x1200000, 0x600000, 0          )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 ) /* Samples */
-	ROM_LOAD16_BYTE( "sx002_10", 0x000000, 0x200000, CRC(b0669dfa) SHA1(ff805f59864ac4ccee3e249c06804d844d3df59c) )
+	ROM_LOAD16_BYTE( "sx002-10.u14", 0x000000, 0x200000, CRC(b0669dfa) SHA1(ff805f59864ac4ccee3e249c06804d844d3df59c) )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND2, ROMREGION_ERASE | 0 ) /* Samples */
-	ROM_LOAD16_BYTE( "sx002_11", 0x000000, 0x200000, CRC(b8dd621a) SHA1(f9b43e018f2bb121e4f4e9554419cd32b870556b) )
+	ROM_LOAD16_BYTE( "sx002-11.u7", 0x000000, 0x200000, CRC(b8dd621a) SHA1(f9b43e018f2bb121e4f4e9554419cd32b870556b) )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND3, 0 ) /* Samples */
 	ROM_COPY( REGION_SOUND1, 0x000000, 0x000000, 0x400000 )
 
 	ROM_REGION16_BE( 0x400000, REGION_SOUND4, 0 ) /* Samples */
 	ROM_COPY( REGION_SOUND2, 0x000000, 0x000000, 0x400000 )
+
+	ROM_REGION( 0x11000, REGION_USER3, ROMREGION_DISPOSE )	/* ST010 DSP, not emulated */
+	ROM_LOAD( "st010.bin", 0x00000, 0x11000, CRC(aa11ee2d) SHA1(cc1984e989cb94e3dcbb5f99e085b5414e18a017) ) // BPMicro-compatible dump
 ROM_END
 
 
@@ -5085,6 +5334,35 @@ ROM_START( ultrax )
 	ROM_LOAD16_BYTE( "71047-09.u65", 0x000001, 0x080000, CRC(08ea8d91) SHA1(5d2672f6c96fbbe9d80bd6539c1400b62745892a) )
 	ROM_LOAD16_BYTE( "71047-12.u62", 0x100000, 0x080000, CRC(76a77ab2) SHA1(0cf2f293defc23c807556ff92ea99f963fafed40) )
 	ROM_LOAD16_BYTE( "71047-10.u63", 0x100001, 0x080000, CRC(7c79faf9) SHA1(40c1420eeae355efa628bbcfd69e0dd18d343fd9) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* Sprites */
+	ROM_LOAD( "71047-01.u73", 0x0000000, 0x200000, CRC(66662b08) SHA1(0cb683e5f85ffe21bd3367af4d3e48a484dbd4c3) )
+	ROM_LOAD( "71047-02.u74", 0x0200000, 0x100000, CRC(6b00dc0c) SHA1(6af8ceed72d13f9979175c0d907a4a8c127ca1ad) )
+	ROM_LOAD( "71047-03.u76", 0x0300000, 0x200000, CRC(00fcd6c2) SHA1(61d13cbafbc0fd6ff62cd08aa88591ed0fd0b182) )
+	ROM_LOAD( "71047-04.u77", 0x0500000, 0x100000, CRC(d9e710d1) SHA1(063459a247f9ff81cb558802e9943b3ea8a2ea3a) )
+	ROM_LOAD( "71047-05.u75", 0x0600000, 0x200000, CRC(10848193) SHA1(40b7ebb6011dc703bbf620cd22cd678c10ec67a4) )
+	ROM_LOAD( "71047-06.u88", 0x0800000, 0x100000, CRC(b8ac2942) SHA1(3e85e8f5669d469dd3114455248546d32a642315) )
+	ROM_FILL(                 0x0900000, 0x300000, 0 )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND1, ROMREGION_ERASE | 0 ) /* Samples */
+	ROM_LOAD16_BYTE( "71047-07.u59", 0x000000, 0x200000, CRC(d9828b62) SHA1(f66a388d7a00b3a45d386671c061f5b840453451) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND2, ROMREGION_ERASE | 0 ) /* Samples */
+	ROM_LOAD16_BYTE( "71047-08.u60", 0x000000, 0x200000, CRC(30ebff6d) SHA1(53824c1fc37e22b545fd68b59722f7968f0ca1e2) )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND3, 0 ) /* Samples */
+	ROM_COPY( REGION_SOUND1, 0x000000, 0x000000, 0x400000 )
+
+	ROM_REGION16_BE( 0x400000, REGION_SOUND4, 0 ) /* Samples */
+	ROM_COPY( REGION_SOUND2, 0x000000, 0x000000, 0x400000 )
+ROM_END
+
+ROM_START( ultraxg )
+	ROM_REGION16_LE( 0x200000, REGION_USER1, 0 )  /* V60 Code */
+	ROM_LOAD16_BYTE( "sx010-11.5h", 0x000000, 0x080000, CRC(58554bdd) SHA1(4b35fbaca0cb458e3b21c43e4b4dfd708a7b9397) )
+	ROM_LOAD16_BYTE( "sx010-09.5c", 0x000001, 0x080000, CRC(153e79b2) SHA1(e0278267e345ebd81f66fbb9d262cbd78df2d01b) )
+	ROM_LOAD16_BYTE( "sx010-12.5k", 0x100000, 0x080000, CRC(14ad58c9) SHA1(d6be82044a22eb21cac8f7e961a198e369743962) )
+	ROM_LOAD16_BYTE( "sx010-10.5d", 0x100001, 0x080000, CRC(7e64473e) SHA1(2444ac4d95563b18c8aec077e742b0f84fd38f43) )
 
 	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* Sprites */
 	ROM_LOAD( "71047-01.u73", 0x0000000, 0x200000, CRC(66662b08) SHA1(0cb683e5f85ffe21bd3367af4d3e48a484dbd4c3) )
@@ -5370,16 +5648,20 @@ GAME( 1993,  pastelis, 0,        pastelis, pastelis, pastelis, ROT0,   "Visco", 
 GAME( 1993,  srmp4,    0,        srmp4,    srmp4,    srmp4,    ROT0,   "Seta",               "Super Real Mahjong PIV (Japan)",                   GAME_NO_COCKTAIL )
 GAME( 1993,  srmp4o,   srmp4,    srmp4,    srmp4,    srmp4,    ROT0,   "Seta",               "Super Real Mahjong PIV (Japan, older set)",        GAME_NO_COCKTAIL ) // by the numbering of the program roms this should be older
 GAME( 1993,  survarts, 0,        survarts, survarts, survarts, ROT0,   "Sammy",              "Survival Arts (World)",                            GAME_NO_COCKTAIL )
-GAME( 1993,  survartu, survarts, survarts, survarts, survarts, ROT0,   "American Sammy",     "Survival Arts (USA)",                              GAME_NO_COCKTAIL )
+GAME( 1993,  survartsu,survarts, survarts, survarts, survarts, ROT0,   "American Sammy",     "Survival Arts (USA)",                              GAME_NO_COCKTAIL )
+GAME( 1993,  survartsj,survarts, survarts, survarts, survarts, ROT0,   "Sammy",              "Survival Arts (Japan)",                            GAME_NO_COCKTAIL )
 GAME( 1994,  drifto94, 0,        drifto94, drifto94, drifto94, ROT0,   "Visco",              "Drift Out '94 - The Hard Order (Japan)",           GAME_NO_COCKTAIL )
-GAME( 1994,  eaglshot, 0,        eaglshot, eaglshot, eaglshot, ROT0,   "Sammy",              "Eagle Shot Golf",                                  GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1994,  eaglshot, 0,        eaglshot, eaglshot, eaglshot, ROT0,   "Sammy",              "Eagle Shot Golf (US)",                               GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1994,  eaglshotj,eaglshot, eaglshot, eaglshot, eaglshot, ROT0,   "Sammy",              "Eagle Shot Golf (Japan, bootleg?)",                GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS ) // from a bootleg ROM board with no proper Seta / Sammy markings, possibly original ROM tho?
 GAME( 1995,  hypreact, 0,        hypreact, hypreact, hypreact, ROT0,   "Sammy",              "Mahjong Hyper Reaction (Japan)",                   GAME_NO_COCKTAIL )
 GAME( 1994,  twineag2, 0,        twineag2, twineag2, twineag2, ROT270, "Seta",               "Twin Eagle II - The Rescue Mission",               GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
-GAME( 1995,  gdfs,     0,        gdfs,     gdfs,     gdfs,     ROT0,   "Banpresto",          "Mobil Suit Gundam Final Shooting (Japan)",         GAME_NO_COCKTAIL )
-GAME( 1995,  ultrax,   0,        ultrax,   ultrax,   ultrax,   ROT270, "Banpresto + Tsuburaya Prod.", "Ultra X Weapons / Ultra Keibitai",        GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1995,  gdfs,     0,        gdfs,     gdfs,     gdfs,     ROT0,   "Banpresto",          "Mobile Suit Gundam Final Shooting (Japan)",        GAME_NO_COCKTAIL ) // title screen spells the title "Mobil" but standardized spelling is "Mobile"; it also lists the company name as "Banprest" instead of "Banpresto"
+GAME( 1995,  ultrax,   0,        ultrax,   ultrax,   ultrax,   ROT270, "Banpresto / Tsuburaya Productions / Seta", "Ultra X Weapons / Ultra Keibitai",        GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1995,  ultraxg,  ultrax,   ultrax,   ultrax,   ultrax,   ROT270, "Banpresto / Tsuburaya Productions / Seta", "Ultra X Weapons / Ultra Keibitai (Gamest review build)", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS ) // 95-02-16 15:30:24 on startup (newer, but could have pause functionality due to being a review build so left as clone)
 GAME( 1996,  janjans1, 0,        janjans1, janjans1, janjans1, ROT0,   "Visco",              "Lovely Pop Mahjong JangJang Shimasho (Japan)",     GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996?, meosism,  0,        meosism,  meosism,  meosism,  ROT0,   "Sammy",              "Meosis Magic (Japan)",                             GAME_NO_COCKTAIL )
 GAME( 1996,  stmblade, 0,        stmblade, stmblade, stmblade, ROT270, "Visco",              "Storm Blade (US)",                                 GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996,  stmbladej,stmblade, stmblade, stmblade, stmblade, ROT270, "Visco",              "Storm Blade (Japan)",                              GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997,  hypreac2, 0,        hypreac2, hypreac2, hypreac2, ROT0,   "Sammy",              "Mahjong Hyper Reaction 2 (Japan)",                 GAME_NO_COCKTAIL )
 GAME( 1997,  koikois2, 0,        janjans1, koikois2, janjans1, ROT0,   "Visco",              "Koi Koi Shimasho 2 - Super Real Hanafuda (Japan)", GAME_NO_COCKTAIL )
 GAME( 1997,  mslider,  0,        mslider,  mslider,  mslider,  ROT0,   "Visco / Datt Japan", "Monster Slider (Japan)",                           GAME_NO_COCKTAIL )
@@ -5399,4 +5681,4 @@ GAME( 2001,  vasara2a, vasara2,  ryorioh,  vasara2,  vasara,   ROT270, "Visco", 
 
 //  Games not working at all:
 
-GAME( 1997,  jsk,      0,        jsk,      janjans1, janjans1,      ROT0,   "Visco",              "Joryuu Syougi Kyoushitsu (Japan)",                 GAME_NO_COCKTAIL | GAME_NOT_WORKING )
+GAME( 1997,  jsk,      0,        jsk,      jsk,      janjans1,      ROT0,   "Visco",              "Joryuu Syougi Kyoushitsu (Japan)",                 GAME_NO_COCKTAIL )
