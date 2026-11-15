@@ -91806,18 +91806,18 @@
 :megadon:00000000:79CF:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ Mega Force ]
-:megaforc:20800000:1840:000000C9:FFFFFFFF:Invincibility
-:megaforc:00000001:8412:00000008:FFFFFFFF:1 Hit to Kill Boss Now!
-:megaforc:00000000:8547:00000080:FFFFFFFF:Always Fast Shooting
-:megaforc:00000000:800A:00000000:FFFFFFFF:Rapid Fire
-:megaforc:00000703:8179:00000077:FFFFFFFF:Select next level
-:megaforc:00000701:8179:00000077:FFFFFFFF:Select current level
-:megaforc:00000100:83F5:000000F0:FFFFFFFF:Select Horizontal Speed
-:megaforc:00000100:83F6:000000F0:FFFFFFFF:Select Vertical Speed
-:megaforc:00000000:8166:00000009:FFFFFFFF:Infinite Lives PL1
-:megaforc:00000001:817E:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL1
-:megaforc:00000000:8198:00000009:FFFFFFFF:Infinite Lives PL2
-:megaforc:00000000:81B0:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL2
+:megaforcu:20800000:1840:000000C9:FFFFFFFF:Invincibility
+:megaforcu:00000001:8412:00000008:FFFFFFFF:1 Hit to Kill Boss Now!
+:megaforcu:00000000:8547:00000080:FFFFFFFF:Always Fast Shooting
+:megaforcu:00000000:800A:00000000:FFFFFFFF:Rapid Fire
+:megaforcu:00000703:8179:00000077:FFFFFFFF:Select next level
+:megaforcu:00000701:8179:00000077:FFFFFFFF:Select current level
+:megaforcu:00000100:83F5:000000F0:FFFFFFFF:Select Horizontal Speed
+:megaforcu:00000100:83F6:000000F0:FFFFFFFF:Select Vertical Speed
+:megaforcu:00000000:8166:00000009:FFFFFFFF:Infinite Lives PL1
+:megaforcu:00000001:817E:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL1
+:megaforcu:00000000:8198:00000009:FFFFFFFF:Infinite Lives PL2
+:megaforcu:00000000:81B0:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL2
 
 ; [ Mega Man - The Power Battle (CPS1 Asia 951006) ]
 :megaman:00000000:FF8119:00000045:FFFFFFFF:Infinite Time
@@ -177864,18 +177864,18 @@
 :starforc:00000000:81B0:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL2
 
 ; [ Star Force (encrypted) ]
-:starfore:20800000:11894:000000C9:FFFFFFFF:Invincibility
-:starfore:00000001:8412:00000008:FFFFFFFF:1 Hit to Kill Boss Now!
-:starfore:00000000:8547:00000080:FFFFFFFF:Always Fast Shooting
-:starfore:00000000:800A:00000000:FFFFFFFF:Rapid Fire
-:starfore:00000703:8179:00000077:FFFFFFFF:Select next level
-:starfore:00000701:8179:00000077:FFFFFFFF:Select current level
-:starfore:00000100:83F5:000000F0:FFFFFFFF:Select Horizontal Speed
-:starfore:00000100:83F6:000000F0:FFFFFFFF:Select Vertical Speed
-:starfore:00000000:8166:00000009:FFFFFFFF:Infinite Lives PL1
-:starfore:00000001:817E:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL1
-:starfore:00000000:8198:00000009:FFFFFFFF:Infinite Lives PL2
-:starfore:00000000:81B0:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL2
+:starforce:20800000:11894:000000C9:FFFFFFFF:Invincibility
+:starforce:00000001:8412:00000008:FFFFFFFF:1 Hit to Kill Boss Now!
+:starforce:00000000:8547:00000080:FFFFFFFF:Always Fast Shooting
+:starforce:00000000:800A:00000000:FFFFFFFF:Rapid Fire
+:starforce:00000703:8179:00000077:FFFFFFFF:Select next level
+:starforce:00000701:8179:00000077:FFFFFFFF:Select current level
+:starforce:00000100:83F5:000000F0:FFFFFFFF:Select Horizontal Speed
+:starforce:00000100:83F6:000000F0:FFFFFFFF:Select Vertical Speed
+:starforce:00000000:8166:00000009:FFFFFFFF:Infinite Lives PL1
+:starforce:00000001:817E:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL1
+:starforce:00000000:8198:00000009:FFFFFFFF:Infinite Lives PL2
+:starforce:00000000:81B0:000000F9:FFFFFFFF:1 Hit to goto Boss Now! PL2
 
 ; [ Stargate ]
 :stargate:00000000:BDDE:00000011:FFFFFFFF:Infinite Lives PL1
@@ -205043,7 +205043,7 @@
 ;mchampda~=mchampdx
 ;mechatt=mechattu
 ;megab=megabj
-;megaforc=starforc=starfore
+;megaforc=megaforcu=starforc=starforce
 ;megaman=rockmanj~=(megaman2=megamn2a=rckman2j)
 ;megaznik=megazona=megazonb=megazonc=megazone
 ;mercs=mercsj=mercsu=mercsua
@@ -206460,7 +206460,7 @@
 ; sstrngr2 (made by Pugsy) [8080]
 ; stactics (made by ShimaPong) [????]
 ; starforc (made by ShimaPong) [Z80]
-; starfore (made by ShimaPong) [Z80]
+; starforce (made by ShimaPong) [Z80]
 ; starjack (made by ShimaPong) [Z80]
 ; starjacs (made by ShimaPong) [Z80]
 ; starlstr (made by ShimaPong) [N2A03]

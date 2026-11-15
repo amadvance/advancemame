@@ -4479,8 +4479,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* Tehkan / Tecmo games (Tehkan became Tecmo in 1986) */
 	DRIVER( senjyo )	/* (c) 1983 Tehkan */
 	DRIVER( starforc )	/* (c) 1984 Tehkan */
-	DRIVER( starfore )	/* (c) 1984 Tehkan */
-	DRIVER( megaforc )	/* (c) 1985 Tehkan + Video Ware license */
+	DRIVER( starforce )	/* (c) 1984 Tehkan */
+	DRIVER( megaforc )	/* (c) 1984 Tehkan */
+	DRIVER( megaforcu )	/* (c) 1985 Tehkan + Video Ware license */
 	DRIVER( baluba )	/* (c) 1986 Able Corp. */
 	DRIVER( bombjack )	/* (c) 1984 Tehkan */
 	DRIVER( bombjac2 )	/* (c) 1984 Tehkan */

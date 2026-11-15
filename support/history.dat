@@ -130347,7 +130347,7 @@ Licensed to Photar Industries.
 $end
 
 
-$info=megaforc,
+$info=megaforc,megaforcu,
 $bio
 
 Megaforce (c) 1985 Tehkan.
@@ -206942,7 +206942,7 @@ Commodore C64 (1983)
 $end
 
 
-$info=starforc,starfore,
+$info=starforc,starforce,
 $bio
 
 Star Force (c) 09/1984 Tehkan.

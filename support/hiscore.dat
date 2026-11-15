@@ -7035,8 +7035,9 @@ astrob2:
 ;** you must wait until highscore table has been displayed **
 ;** before playing first game or saved data will NOT work   **
 starforc:
-starfore:
+starforce:
 megaforc:
+megaforcu:
 0:803a:6b:00:44
 0:8348:4:00:00
 0:9261:1:23:23
