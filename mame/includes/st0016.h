@@ -21,6 +21,7 @@
 #define ST0016_PAL_BANK_MASK  (ST0016_MAX_PAL_BANK-1)
 
 extern UINT8 *st0016_charram,*st0016_spriteram,*st0016_paletteram;
+extern UINT8 *st0016_shared_ram;
 
 extern UINT8 *macs_ram1,*macs_ram2;
 
@@ -42,6 +43,7 @@ WRITE8_HANDLER	(st0016_rom_bank_w);
 
 VIDEO_START(st0016);
 VIDEO_UPDATE(st0016);
+void st0016_draw_screen(mame_bitmap *bitmap, const rectangle *cliprect);
 
 extern UINT32 st0016_game;
 extern UINT8 macs_mux_data;

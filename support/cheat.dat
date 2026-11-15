@@ -170894,17 +170894,7 @@
 :speedup:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :speedup:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Super Eagle Shot (set 2) ]
-:speglsha:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:speglsha:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
-; [ Super Eagle Shot (set 1) ]
+; [ Super Eagle Shot ]
 :speglsht:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :speglsht:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :speglsht:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -203582,8 +203572,7 @@
 ; { Reason 01 } ; sparkman  [ Spark Man (v 2.0) ]
 ; { Reason 01 } ; speedrcr  [ Speed Racer ]
 ; { Reason 01 } ; speedup   [ Speed Up ]
-; { Reason 01 } ; speglsha  [ Super Eagle Shot (set 2) ]
-; { Reason 01 } ; speglsht  [ Super Eagle Shot (set 1) ]
+; { Reason 01 } ; speglsht  [ Super Eagle Shot ]
 ; { Reason 01 } ; spikeofe  [ Spikeout Final Edition ]
 ; { Reason 01 } ; spikeout  [ Spikeout ]
 ; { Reason 01 } ; srally2   [ Sega Rally 2 ]

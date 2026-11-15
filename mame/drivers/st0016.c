@@ -11,9 +11,10 @@ Todo:
 
 Not working games :
 - Super Real Mahjong P5
-- Super Eagle Shot
-   RAM 0x0a000000 - 0x0a003fff (8bit) is shared with ST-0016 ($f000-$ffff)
+
+Super Eagle Shot: RAM 0x0a000000 - 0x0a003fff (8bit) is shared with ST-0016 ($f000-$ffff)
    after boot, r3000 writes there "KCUFUOY" , and  ST-0016 "YOU!" ;)
+   Transparent color is wrong at title screen animation and around the sprites
 */
 
 #include "driver.h"
@@ -26,6 +27,7 @@ Not working games :
 
 static int mux_port;
 UINT32 st0016_rom_bank;
+UINT8 *st0016_shared_ram;
 
 /*************************************
  *
@@ -43,7 +45,7 @@ static ADDRESS_MAP_START( st0016_mem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe900, 0xe9ff) AM_RAM AM_WRITE(st0016_snd_w) AM_BASE(&st0016_sound_regs) /* sound regs 8 x $20 bytes, see notes */
 	AM_RANGE(0xea00, 0xebff) AM_READ(st0016_palette_ram_r) AM_WRITE(st0016_palette_ram_w)
 	AM_RANGE(0xec00, 0xec1f) AM_READ(st0016_character_ram_r) AM_WRITE(st0016_character_ram_w)
-	AM_RANGE(0xf000, 0xffff) AM_RAM /* work ram */
+	AM_RANGE(0xf000, 0xffff) AM_RAM AM_BASE(&st0016_shared_ram) /* work ram, shared with the R3000 in speglsht */
 ADDRESS_MAP_END
 
 static READ8_HANDLER(mux_r)
@@ -132,15 +134,81 @@ static ADDRESS_MAP_START( srmp5_mem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x1fc00000, 0x1fdfffff) AM_READ(MRA32_ROM) AM_WRITE(MWA32_ROM) AM_REGION(REGION_USER1, 0)
 ADDRESS_MAP_END
 
+static UINT32 *speglsht_framebuffer;
+static UINT32 speglsht_videoreg;
+static UINT32 speglsht_cop_ram[0x14];
+
+static READ32_HANDLER(speglsht_shared_r)
+{
+	return st0016_shared_ram[offset];
+}
+
+static WRITE32_HANDLER(speglsht_shared_w)
+{
+	st0016_shared_ram[offset] = data & 0xff;
+}
+
+static WRITE32_HANDLER(speglsht_videoreg_w)
+{
+	COMBINE_DATA(&speglsht_videoreg);
+}
+
+static WRITE32_HANDLER(speglsht_cop_w)
+{
+	if (ACCESSING_LSB16)
+	{
+		/* 16 bit signed values stored as 32 bit */
+		UINT32 v = speglsht_cop_ram[offset];
+		COMBINE_DATA(&v);
+		v &= 0xffff;
+		if (v & 0x8000)
+			v |= 0xffff0000;
+		speglsht_cop_ram[offset] = v;
+	}
+}
+
+/* matrix * vector */
+static READ32_HANDLER(speglsht_cop_r)
+{
+	INT32 res = 0;
+
+	switch (offset)
+	{
+		case 0x10:
+		case 0x11:
+		case 0x12:
+		{
+			const INT32 *cop = (const INT32 *)speglsht_cop_ram;
+			int displacement = (offset & 3) * 3;
+			res = ((cop[0x3 + displacement] * cop[0x0] + cop[0x4 + displacement] * cop[0x1] + cop[0x5 + displacement] * cop[0x2]) >> 14) + cop[0xc + (offset & 3)];
+			break;
+		}
+	}
+
+	return res;
+}
+
+static READ32_HANDLER(speglsht_irq_ack_r)
+{
+	cpunum_set_input_line(1, R3000_IRQ4, CLEAR_LINE);
+	return 0;
+}
+
 static ADDRESS_MAP_START( speglsht_mem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x000fffff) AM_RAM
-	AM_RANGE(0x01800200, 0x01800203) AM_WRITE(MWA32_RAM)
-	AM_RANGE(0x01a00000, 0x01afffff) AM_RAM
-	AM_RANGE(0x01c00000, 0x01c00003) AM_READ(MRA32_RAM)
-	AM_RANGE(0x01ca5000, 0x01ca6fff) AM_RAM /* i/o ?? */
-	AM_RANGE(0x0a000000, 0x0a003fff) AM_RAM /* shared with st-0016 ! */
-	AM_RANGE(0x1eff0000, 0x1eff001f) AM_WRITE(MWA32_RAM)
-	AM_RANGE(0x1fc00000, 0x1fdfffff) AM_READ(MRA32_ROM) AM_WRITE(MWA32_ROM) AM_REGION(REGION_USER1, 0)
+	AM_RANGE(0x01000000, 0x01007fff) AM_RAM
+	AM_RANGE(0x01600000, 0x0160004f) AM_READ(speglsht_cop_r) AM_WRITE(speglsht_cop_w)
+	AM_RANGE(0x01800200, 0x01800203) AM_WRITE(speglsht_videoreg_w)
+	AM_RANGE(0x01800300, 0x01800303) AM_READ(input_port_0_dword_r)
+	AM_RANGE(0x01800400, 0x01800403) AM_READ(input_port_1_dword_r)
+	AM_RANGE(0x01a00000, 0x01afffff) AM_RAM AM_BASE(&speglsht_framebuffer)
+	AM_RANGE(0x01b00000, 0x01b07fff) AM_RAM
+	AM_RANGE(0x01c00000, 0x01dfffff) AM_READ(MRA32_ROM) AM_REGION(REGION_USER2, 0)
+	AM_RANGE(0x0a000000, 0x0a003fff) AM_READ(speglsht_shared_r) AM_WRITE(speglsht_shared_w)
+	AM_RANGE(0x1eff0000, 0x1eff001f) AM_RAM
+	AM_RANGE(0x1eff003c, 0x1eff003f) AM_READ(speglsht_irq_ack_r)
+	AM_RANGE(0x0fc00000, 0x0fdfffff) AM_READ(MRA32_ROM) AM_REGION(REGION_USER1, 0)
+	AM_RANGE(0x1fc00000, 0x1fdfffff) AM_READ(MRA32_ROM) AM_REGION(REGION_USER1, 0)
 ADDRESS_MAP_END
 
 /*************************************
@@ -409,57 +477,77 @@ INPUT_PORTS_START( mayjisn2 )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( speglsht )
-	PORT_INCLUDE( st0016 )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x000000ff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x00000100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x00000200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x00000400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x00000800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x00001000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x00002000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x00004000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x00008000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0xffff0000, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_MODIFY("DSW1")	/* Dip switch A  */
-	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coin_A ) )
-	PORT_DIPSETTING(    0x03, DEF_STR( 3C_1C ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( 2C_1C ) )
-	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
-	PORT_DIPSETTING(    0x01, "1C/1C or 2C/3C" ) /* 1 coin/1 credit or 2 coins/3 credits */
-	PORT_DIPSETTING(    0x02, DEF_STR( 2C_3C ) )
-	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
-	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
-	PORT_DIPSETTING(    0x00, "2C Start/1C Continue" )
-	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Coin_B ) )
-	PORT_DIPSETTING(    0x18, DEF_STR( 3C_1C ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( 2C_1C ) )
-	PORT_DIPSETTING(    0x38, DEF_STR( 1C_1C ) )
-	PORT_DIPSETTING(    0x08, "1C/1C or 2C/3C" ) /* 1 coin/1 credit or 2 coins/3 credits */
-	PORT_DIPSETTING(    0x10, DEF_STR( 2C_3C ) )
-	PORT_DIPSETTING(    0x30, DEF_STR( 1C_2C ) )
-	PORT_DIPSETTING(    0x28, DEF_STR( 1C_3C ) )
-	PORT_DIPSETTING(    0x00, "2C Start/1C Continue" )
-	PORT_DIPNAME( 0x40, 0x40, "Unkown / Unused" )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, "Bonus for PAR Play" )
-	PORT_DIPSETTING(    0x80, DEF_STR( None ) )
-	PORT_DIPSETTING(    0x00, "Extra Hole" )
-
-	PORT_MODIFY("DSW2")	/* Dip switch B */
-	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
-	PORT_DIPSETTING(    0x03, DEF_STR( Normal ) )
-	PORT_DIPSETTING(    0x02, DEF_STR( Easy ) )
-	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Very_Hard ) )
-	PORT_DIPNAME( 0x0c, 0x0c, "Number of Players" )
-	PORT_DIPSETTING(    0x0c, "3" )
-	PORT_DIPSETTING(    0x08, "4" )
-	PORT_DIPSETTING(    0x04, "2" )
-	PORT_DIPSETTING(    0x00, "1" )
-	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, "Control Panel" )
-	PORT_DIPSETTING(    0x00, "2P Pair" )
-	PORT_DIPSETTING(    0x40, DEF_STR( Single ) )
-	PORT_DIPNAME( 0x40, 0x40, "Country" )
-	PORT_DIPSETTING(    0x40, DEF_STR( Japan ) )
-	PORT_DIPSETTING(    0x00, "North America" )
-	PORT_DIPNAME( 0x80, 0x80, "Test Mode" )
-	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_START_TAG("IN1")
+	PORT_DIPNAME( 0x00000007, 0x00000007, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(          0x00000003, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(          0x00000004, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(          0x00000007, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(          0x00000001, "1C/1C or 2C/3C" ) /* 1 coin/1 credit or 2 coins/3 credits */
+	PORT_DIPSETTING(          0x00000002, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(          0x00000006, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(          0x00000005, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(          0x00000000, "2C Start/1C Continue" )
+	PORT_DIPNAME( 0x00000038, 0x00000038, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(          0x00000018, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(          0x00000020, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(          0x00000038, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(          0x00000008, "1C/1C or 2C/3C" ) /* 1 coin/1 credit or 2 coins/3 credits */
+	PORT_DIPSETTING(          0x00000010, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(          0x00000030, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(          0x00000028, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(          0x00000000, "2C Start/1C Continue" )
+	PORT_DIPNAME( 0x00000040, 0x00000040, "Unknown / Unused" )
+	PORT_DIPSETTING(          0x00000040, DEF_STR( Off ) )
+	PORT_DIPSETTING(          0x00000000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00000080, 0x00000080, "Bonus for PAR Play" )
+	PORT_DIPSETTING(          0x00000080, DEF_STR( None ) )
+	PORT_DIPSETTING(          0x00000000, "Extra Hole" )
+	PORT_DIPNAME( 0x00000300, 0x00000300, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(          0x00000300, DEF_STR( Normal ) )
+	PORT_DIPSETTING(          0x00000200, DEF_STR( Easy ) )
+	PORT_DIPSETTING(          0x00000100, DEF_STR( Hard ) )
+	PORT_DIPSETTING(          0x00000000, DEF_STR( Very_Hard ) )
+	PORT_DIPNAME( 0x00000c00, 0x00000c00, "Number of Players" )
+	PORT_DIPSETTING(          0x00000c00, "3" )
+	PORT_DIPSETTING(          0x00000800, "4" )
+	PORT_DIPSETTING(          0x00000400, "2" )
+	PORT_DIPSETTING(          0x00000000, "1" )
+	PORT_DIPNAME( 0x00001000, 0x00000000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(          0x00001000, DEF_STR( Off ) )
+	PORT_DIPSETTING(          0x00000000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x00002000, 0x00000000, "Control Panel" )
+	PORT_DIPSETTING(          0x00002000, "Double" )
+	PORT_DIPSETTING(          0x00000000, DEF_STR( Single ) )
+	PORT_DIPNAME( 0x00004000, 0x00000000, "Country" )
+	PORT_DIPSETTING(          0x00004000, DEF_STR( Japan ) )
+	PORT_DIPSETTING(          0x00000000, "North America" )
+	PORT_BIT( 0x00008000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_SERVICE_NO_TOGGLE( 0x00010000, IP_ACTIVE_HIGH )
+	PORT_BIT( 0x00020000, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x00040000, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x00080000, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x00100000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x80a00000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x00400000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x01000000, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x02000000, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x04000000, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x08000000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x10000000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20000000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40000000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( srmp5 )
@@ -557,11 +645,86 @@ static MACHINE_DRIVER_START( srmp5 )
 	MDRV_CPU_PROGRAM_MAP(srmp5_mem,0)
 MACHINE_DRIVER_END
 
+static INTERRUPT_GEN(speglsht_vblank)
+{
+	cpunum_set_input_line(1, R3000_IRQ4, ASSERT_LINE);
+}
+
+static MACHINE_RESET(speglsht)
+{
+	memset(st0016_shared_ram, 0, 0x1000);
+}
+
+static UINT32 *speglsht_pens;
+static mame_bitmap *speglsht_bitmap;
+
+static VIDEO_START(speglsht)
+{
+	int i;
+
+	if (video_start_st0016())
+		return 1;
+
+	/* the ST-0016 layer is drawn in a private bitmap using the palette indexes, not the direct colors */
+	speglsht_bitmap = auto_bitmap_alloc_depth(512, 512, 16);
+	speglsht_pens = auto_malloc(UNUSED_PEN * sizeof(speglsht_pens[0]) + sizeof(speglsht_pens[0]));
+	if (!speglsht_bitmap || !speglsht_pens)
+		return 1;
+	for (i = 0; i <= UNUSED_PEN; ++i)
+		speglsht_pens[i] = i;
+
+	return 0;
+}
+
+static VIDEO_UPDATE(speglsht)
+{
+	int x, y;
+	int src = (cliprect->min_y + 5 + ((speglsht_videoreg & 0x20) ? 256 : 0)) * 512;
+	const pen_t *pens = Machine->pens;
+	gfx_element *gfx = Machine->gfx[0];
+	pen_t *colortable = gfx->colortable;
+
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y, src += 512)
+	{
+		UINT32 *dst = (UINT32 *)bitmap->line[y];
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+		{
+			UINT32 pix = speglsht_framebuffer[src + x + 67];
+			dst[x] = MAKE_RGB(pix & 0xff, (pix >> 8) & 0xff, (pix >> 16) & 0xff);
+		}
+	}
+
+	/* draw the ST-0016 layer with an identity colortable to get the palette indexes */
+	gfx->colortable = speglsht_pens;
+	fillbitmap(speglsht_bitmap, UNUSED_PEN, cliprect);
+	st0016_draw_screen(speglsht_bitmap, cliprect);
+	gfx->colortable = colortable;
+
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
+	{
+		const UINT16 *s = (const UINT16 *)speglsht_bitmap->line[y];
+		UINT32 *dst = (UINT32 *)bitmap->line[y];
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+			if (s[x] != UNUSED_PEN)
+				dst[x] = pens[s[x]];
+	}
+}
+
 static MACHINE_DRIVER_START( speglsht )
 	MDRV_IMPORT_FROM(st0016)
-	MDRV_CPU_ADD(R3000BE, 16000000)
+	MDRV_CPU_ADD(R3000LE, 25000000)
 	MDRV_CPU_CONFIG(config)
 	MDRV_CPU_PROGRAM_MAP(speglsht_mem,0)
+	MDRV_CPU_VBLANK_INT(speglsht_vblank,1)
+	MDRV_INTERLEAVE(100)
+
+	MDRV_MACHINE_RESET(speglsht)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_RGB_DIRECT | VIDEO_NEEDS_6BITS_PER_GUN)
+	MDRV_SCREEN_SIZE(512, 512)
+	MDRV_VISIBLE_AREA(0, 319, 8, 239-8)
+	MDRV_VIDEO_START(speglsht)
+	MDRV_VIDEO_UPDATE(speglsht)
 MACHINE_DRIVER_END
 
 /*************************************
@@ -701,34 +864,18 @@ SETA ST-0016 TC6187AF JAPAN 9348YAA (U68, 208pin PQFP, sound & object)
 
 ROM_START( speglsht )
 	ROM_REGION( 0x210000, REGION_CPU1, 0 )
-	ROM_LOAD( "sx004-07",   0x10000, 0x200000,   CRC(2d759cc4) SHA1(9fedd829190b2aab850b2f1088caaec91e8715dd) )
+	ROM_LOAD( "sx004-07.u70",   0x10000, 0x200000,   CRC(2d759cc4) SHA1(9fedd829190b2aab850b2f1088caaec91e8715dd) )
 	ROM_COPY( REGION_CPU1,  0x10000, 0x00000, 0x08000 )
 
-	ROM_REGION32_BE( 0x200000, REGION_USER1, ROMREGION_DISPOSE )
-	ROM_LOAD32_BYTE( "sx004-04.u33",   0x00000, 0x80000,   CRC(e46d2e57) SHA1(b1fb836ab2ce547dc2e8d1046d7ef835b87bb04e) )
-	ROM_LOAD32_BYTE( "sx004-03.u32",   0x00001, 0x80000,   CRC(c6ffb00e) SHA1(f57ef45bb5c690c3e63101a36835d2687abfcdbd) )
-	ROM_LOAD32_BYTE( "sx004-02.u31",   0x00002, 0x80000,   CRC(21eb46e4) SHA1(0ab21ed012c9a76e01c83b60c6f4670836dfa718) )
-	ROM_LOAD32_BYTE( "sx004-01.u30",   0x00003, 0x80000,   CRC(65646949) SHA1(74931c230f4e4b1008fbc5fba169292e216aa23b) )
+	ROM_REGION32_LE( 0x200000, REGION_USER1, 0 )
+	ROM_LOAD32_BYTE( "sx004-04.u33",   0x00003, 0x80000,   CRC(e46d2e57) SHA1(b1fb836ab2ce547dc2e8d1046d7ef835b87bb04e) )
+	ROM_LOAD32_BYTE( "sx004-03.u32",   0x00002, 0x80000,   CRC(c6ffb00e) SHA1(f57ef45bb5c690c3e63101a36835d2687abfcdbd) )
+	ROM_LOAD32_BYTE( "sx004-02.u31",   0x00001, 0x80000,   CRC(21eb46e4) SHA1(0ab21ed012c9a76e01c83b60c6f4670836dfa718) )
+	ROM_LOAD32_BYTE( "sx004-01.u30",   0x00000, 0x80000,   CRC(65646949) SHA1(74931c230f4e4b1008fbc5fba169292e216aa23b) )
 
-	ROM_REGION( 0x200000, REGION_USER2,0)
-	ROM_LOAD( "sx004-05",   0x000000, 0x100000,   CRC(4b8ae72b) SHA1(261495edf41d7797d2ea8d442ac6a8362bafadf2) )
-	ROM_LOAD( "sx004-06",   0x100000, 0x100000,   CRC(5af78e44) SHA1(0131d50348fef80c2b100d74b7c967c6a710d548) )
-ROM_END
-
-ROM_START( speglsha )
-	ROM_REGION( 0x210000, REGION_CPU1, 0 )
-	ROM_LOAD( "sx004-07",   0x10000, 0x200000,   CRC(2d759cc4) SHA1(9fedd829190b2aab850b2f1088caaec91e8715dd) )
-	ROM_COPY( REGION_CPU1,  0x10000, 0x00000, 0x08000 )
-
-	ROM_REGION32_BE( 0x200000, REGION_USER1, 0 )
-	ROM_LOAD32_BYTE( "sx004-04.u33",   0x00000, 0x80000,   CRC(e46d2e57) SHA1(b1fb836ab2ce547dc2e8d1046d7ef835b87bb04e) )
-	ROM_LOAD32_BYTE( "sx004-03.u32",   0x00001, 0x80000,   CRC(c6ffb00e) SHA1(f57ef45bb5c690c3e63101a36835d2687abfcdbd) )
-	ROM_LOAD32_BYTE( "sx004-02.u31",   0x00002, 0x80000,   CRC(21eb46e4) SHA1(0ab21ed012c9a76e01c83b60c6f4670836dfa718) )
-	ROM_LOAD32_BYTE( "sx004-01.u30",   0x00003, 0x80000,   CRC(65646949) SHA1(74931c230f4e4b1008fbc5fba169292e216aa23b) )
-
-	ROM_REGION( 0x200000, REGION_USER2,0)
-	ROM_LOAD( "sx004-05.rd0",   0x000000, 0x100000,   CRC(f3c69468) SHA1(81daef6d0596cb67bb6f87b39874aae1b1ffe6a6) )
-	ROM_LOAD( "sx004-06",       0x100000, 0x100000,   CRC(5af78e44) SHA1(0131d50348fef80c2b100d74b7c967c6a710d548) )
+	ROM_REGION32_LE( 0x200000, REGION_USER2, 0 )
+	ROM_LOAD32_WORD( "sx004-05.u34",   0x000000, 0x100000,   CRC(f3c69468) SHA1(81daef6d0596cb67bb6f87b39874aae1b1ffe6a6) )
+	ROM_LOAD32_WORD( "sx004-06.u35",   0x000002, 0x100000,   CRC(5af78e44) SHA1(0131d50348fef80c2b100d74b7c967c6a710d548) )
 ROM_END
 
 /*
@@ -859,6 +1006,5 @@ GAME(  1996, nratechu,	0,	  st0016,   nratechu, nratechu, ROT0, "Seta",  "Neratt
 GAME(  1994, mayjisn2,	0,	  mayjinsn, mayjisn2, mayjisn2, ROT0, "Seta",  "Mayjinsen 2", 0)
 /* Not working */
 GAME( 199?, srmp5,	0,	  srmp5,    srmp5,    srmp5,    ROT0, "Seta",  "Super Real Mahjong P5",GAME_NOT_WORKING)
-GAME( 1994, speglsht,	0,	  speglsht, speglsht, speglsht, ROT0, "Seta",  "Super Eagle Shot (set 1)",GAME_NOT_WORKING)
-GAME( 1994, speglsha,	speglsht, speglsht, speglsht, speglsht, ROT0, "Seta",  "Super Eagle Shot (set 2)",GAME_NOT_WORKING)
+GAME( 1994, speglsht,	0,	  speglsht, speglsht, speglsht, ROT0, "Seta",  "Super Eagle Shot",GAME_IMPERFECT_GRAPHICS)
 GAME( 1994, mayjinsn,	0,	  mayjinsn, st0016,   mayjinsn, ROT0, "Seta",  "Mayjinsen",GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING)

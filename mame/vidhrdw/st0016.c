@@ -641,6 +641,11 @@ VIDEO_UPDATE( st0016 )
 	}
 
 	fillbitmap(bitmap,Machine->pens[UNUSED_PEN],&Machine->visible_area);
+	st0016_draw_screen(bitmap,cliprect);
+}
+
+void st0016_draw_screen(mame_bitmap *bitmap, const rectangle *cliprect)
+{
 	drawbgmap(bitmap,cliprect,0);
  	drawsprites(bitmap,cliprect);
 	drawbgmap(bitmap,cliprect,1);
