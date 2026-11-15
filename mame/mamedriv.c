@@ -3289,8 +3289,9 @@ V-V                           TP-027
 	DRIVER( astrob1 )	/* (c) 1981 */
 	DRIVER( 005 )		/* (c) 1981 */
 	DRIVER( monsterb )	/* (c) 1982 */
-	DRIVER( monster2 )	/* (c) 1982 */
+	DRIVER( monsterb2 )	/* (c) 1982 */
 	DRIVER( spaceod )	/* (c) 1981 */
+	DRIVER( spaceod2 )	/* (c) 1981 */
 	DRIVER( pignewt )	/* (c) 1983 */
 	DRIVER( pignewta )	/* (c) 1983 */
 	DRIVER( sindbadm )	/* 834-5244 (c) 1983 Sega */

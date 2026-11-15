@@ -97100,14 +97100,14 @@
 :monkeyd:00000703:6229:000000FF:FFFFFFFF:Select next round
 
 ; [ Monster Bash (2 board version) ]
-:monster2:00000000:0C80B:00000009:FFFFFFFF:Infinite Credits
-:monster2:20800000:11FC0:000000C9:FFFFFFFF:Invincibility (Buggy):Sometimes causes the game to crash when you touch Dracula
-:monster2:00000001:0CA61:00000083:FFFFFFFF:Get Dracula SuperZap Now!:Only use this on the Dracula Stage! It WILL crash the game on other stages.
-:monster2:00010001:0E38B:00000081:FFFFFFFF:Get Dracula SuperZap Now! (2/2)
-:monster2:00000001:0CA6D:00000083:FFFFFFFF:Get Non-Dracula SuperZap Now!:This won't crash the Dracula Stage.
-:monster2:00010001:0E38B:00000081:FFFFFFFF:Get Non-Dracula SuperZap Now! (2/2)
-:monster2:00000000:0E382:00000006:FFFFFFFF:Infinite Lives PL1
-:monster2:00000000:0E383:00000006:FFFFFFFF:Infinite Lives PL2
+:monsterb2:00000000:0C80B:00000009:FFFFFFFF:Infinite Credits
+:monsterb2:20800000:11FC0:000000C9:FFFFFFFF:Invincibility (Buggy):Sometimes causes the game to crash when you touch Dracula
+:monsterb2:00000001:0CA61:00000083:FFFFFFFF:Get Dracula SuperZap Now!:Only use this on the Dracula Stage! It WILL crash the game on other stages.
+:monsterb2:00010001:0E38B:00000081:FFFFFFFF:Get Dracula SuperZap Now! (2/2)
+:monsterb2:00000001:0CA6D:00000083:FFFFFFFF:Get Non-Dracula SuperZap Now!:This won't crash the Dracula Stage.
+:monsterb2:00010001:0E38B:00000081:FFFFFFFF:Get Non-Dracula SuperZap Now! (2/2)
+:monsterb2:00000000:0E382:00000006:FFFFFFFF:Infinite Lives PL1
+:monsterb2:00000000:0E383:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ Monster Bash ]
 :monsterb:00000000:C80B:00000009:FFFFFFFF:Infinite Credits
@@ -204317,7 +204317,7 @@
 ;*   switches vary too frequently betweeen games.                             *
 ;******************************************************************************
 ;
-;005~=(monster2=monsterb)~=spaceod
+;005~=(monsterb2=monsterb)~=spaceod
 ;1941=1941j
 ;1942=1942a=1942b
 ;1943~(1943j=1943kai)
@@ -206133,7 +206133,7 @@
 ; moleatck (made by ShimaPong) [????]
 ; momoko (made by ShimaPong) [????]
 ; monkeyd (made by Pugsy) [Z80]
-; monster2 (made by ShimaPong) [????]
+; monsterb2 (made by ShimaPong) [????]
 ; moonal2 (made by Pugsy) [Z80]
 ; moonal2b (made by Pugsy) [Z80]
 ; moonaln (made by Pugsy) [Z80]
