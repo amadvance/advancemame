@@ -2162,7 +2162,8 @@ changesa:
 
 ;(violence fight (world)) (by GeoMan)
 viofight: 
-viofighu:
+viofightu:
+viofightj:
 0:a02800:28:02:20
 
 ;Teenage Mutant Ninja Turtles (US & clones)
@@ -5994,7 +5995,8 @@ cloak:
 ;***************************************************************
 
 ;*********taito_b.c (rambo 3 us)
-rambo3a:
+rambo3:
+rambo3u:
 0:802600:50:01:4e
 
 ;********taito_z.c (aqua jack (world))
@@ -6895,7 +6897,7 @@ rshark:
 0:340382:4e:4e:41
 
 ;*********taito_b.c (rambo 3 europe)
-rambo3:
+rambo3p:
 0:802600:50:01:2e
 
 ;*******prehisle.c (prehistoric isle in 1930 (world))

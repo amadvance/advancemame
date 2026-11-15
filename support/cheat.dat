@@ -7354,7 +7354,7 @@
 :ashnojoe:00000000:4C053:000000A8:FFFFFFFF:Infinite Energy PL2
 :ashnojoe:00000001:4C053:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
-; [ Ashura Blaster (Japan) ]
+; [ Ashura Blaster (World) ]
 :ashura:00000000:6019EB:00000009:FFFFFFFF:Infinite Lives PL1
 :ashura:00000000:6019EF:0000000A:FFFFFFFF:Infinite Bombs PL1
 :ashura:00000020:6008C3:00000081:FFFFFFFF:Invincibility PL1
@@ -139160,53 +139160,53 @@
 :rallyxm:00010000:8028:0000000A:FFFFFFFF:Car always Ultra Fast (2/2)
 :rallyxm:20900000:384E:00000003:FFFFFFFF:Skip RAM/ROM Check
 
-; [ Rambo III (Europe set 1) ]
+; [ Rambo III (Europe, Proto?) ]
+:rambo3p:00000000:801407:000000E0:FFFFFFFF:Infinite Energy PL1
+:rambo3p:00000000:801405:00000008:FFFFFFFF:Infinite Normal Bombs PL1
+:rambo3p:00000000:801421:00000002:FFFFFFFF:Infinite Super Bombs PL1
+:rambo3p:00000000:801497:00000002:FFFFFFFF:Invincibility PL1
+:rambo3p:00000000:801425:000000FF:FFFFFFFF:Infinite Big Weapon Time PL1:Get the item first
+:rambo3p:00000000:801429:000000FF:FFFFFFFF:Infinite Big Sights Time PL1:Get the item first
+:rambo3p:00000000:801427:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL1:Get the item first
+:rambo3p:00000000:801507:000000E0:FFFFFFFF:Infinite Energy PL2
+:rambo3p:00000000:801505:00000008:FFFFFFFF:Infinite Normal Bombs PL2
+:rambo3p:00000000:801521:00000002:FFFFFFFF:Infinite Super Bombs PL2
+:rambo3p:00000000:801597:00000002:FFFFFFFF:Invincibility PL2
+:rambo3p:00000000:801525:000000FF:FFFFFFFF:Infinite Big Weapon Time PL2:Get the item first
+:rambo3p:00000000:801529:000000FF:FFFFFFFF:Infinite Big Sights Time PL2:Get the item first
+:rambo3p:00000000:801527:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL2:Get the item first
+
+; [ Rambo III (US) ]
+:rambo3u:00000000:801407:000000E0:FFFFFFFF:Infinite Energy PL1
+:rambo3u:00000000:801405:00000008:FFFFFFFF:Infinite Normal Bombs PL1
+:rambo3u:00000000:801421:00000002:FFFFFFFF:Infinite Super Bombs PL1
+:rambo3u:00000000:801495:00000002:FFFFFFFF:Invincibility PL1
+:rambo3u:00000000:801425:000000FF:FFFFFFFF:Infinite Big Weapon Time PL1:Get the item first
+:rambo3u:00000000:801429:000000FF:FFFFFFFF:Infinite Big Sights Time PL1:Get the item first
+:rambo3u:00000000:801427:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL1:Get the item first
+:rambo3u:00000000:801507:000000E0:FFFFFFFF:Infinite Energy PL2
+:rambo3u:00000000:801505:00000008:FFFFFFFF:Infinite Normal Bombs PL2
+:rambo3u:00000000:801521:00000002:FFFFFFFF:Infinite Super Bombs PL2
+:rambo3u:00000000:801595:00000002:FFFFFFFF:Invincibility PL2
+:rambo3u:00000000:801525:000000FF:FFFFFFFF:Infinite Big Weapon Time PL2:Get the item first
+:rambo3u:00000000:801529:000000FF:FFFFFFFF:Infinite Big Sights Time PL2:Get the item first
+:rambo3u:00000000:801527:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL2:Get the item first
+
+; [ Rambo III (Europe) ]
 :rambo3:00000000:801407:000000E0:FFFFFFFF:Infinite Energy PL1
 :rambo3:00000000:801405:00000008:FFFFFFFF:Infinite Normal Bombs PL1
 :rambo3:00000000:801421:00000002:FFFFFFFF:Infinite Super Bombs PL1
-:rambo3:00000000:801497:00000002:FFFFFFFF:Invincibility PL1
+:rambo3:00000000:801495:00000002:FFFFFFFF:Invincibility PL1
 :rambo3:00000000:801425:000000FF:FFFFFFFF:Infinite Big Weapon Time PL1:Get the item first
 :rambo3:00000000:801429:000000FF:FFFFFFFF:Infinite Big Sights Time PL1:Get the item first
 :rambo3:00000000:801427:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL1:Get the item first
 :rambo3:00000000:801507:000000E0:FFFFFFFF:Infinite Energy PL2
 :rambo3:00000000:801505:00000008:FFFFFFFF:Infinite Normal Bombs PL2
 :rambo3:00000000:801521:00000002:FFFFFFFF:Infinite Super Bombs PL2
-:rambo3:00000000:801597:00000002:FFFFFFFF:Invincibility PL2
+:rambo3:00000000:801595:00000002:FFFFFFFF:Invincibility PL2
 :rambo3:00000000:801525:000000FF:FFFFFFFF:Infinite Big Weapon Time PL2:Get the item first
 :rambo3:00000000:801529:000000FF:FFFFFFFF:Infinite Big Sights Time PL2:Get the item first
 :rambo3:00000000:801527:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL2:Get the item first
-
-; [ Rambo III (US) ]
-:rambo3a:00000000:801407:000000E0:FFFFFFFF:Infinite Energy PL1
-:rambo3a:00000000:801405:00000008:FFFFFFFF:Infinite Normal Bombs PL1
-:rambo3a:00000000:801421:00000002:FFFFFFFF:Infinite Super Bombs PL1
-:rambo3a:00000000:801495:00000002:FFFFFFFF:Invincibility PL1
-:rambo3a:00000000:801425:000000FF:FFFFFFFF:Infinite Big Weapon Time PL1:Get the item first
-:rambo3a:00000000:801429:000000FF:FFFFFFFF:Infinite Big Sights Time PL1:Get the item first
-:rambo3a:00000000:801427:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL1:Get the item first
-:rambo3a:00000000:801507:000000E0:FFFFFFFF:Infinite Energy PL2
-:rambo3a:00000000:801505:00000008:FFFFFFFF:Infinite Normal Bombs PL2
-:rambo3a:00000000:801521:00000002:FFFFFFFF:Infinite Super Bombs PL2
-:rambo3a:00000000:801595:00000002:FFFFFFFF:Invincibility PL2
-:rambo3a:00000000:801525:000000FF:FFFFFFFF:Infinite Big Weapon Time PL2:Get the item first
-:rambo3a:00000000:801529:000000FF:FFFFFFFF:Infinite Big Sights Time PL2:Get the item first
-:rambo3a:00000000:801527:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL2:Get the item first
-
-; [ Rambo III (Europe set 2) ]
-:rambo3ae:00000000:801407:000000E0:FFFFFFFF:Infinite Energy PL1
-:rambo3ae:00000000:801405:00000008:FFFFFFFF:Infinite Normal Bombs PL1
-:rambo3ae:00000000:801421:00000002:FFFFFFFF:Infinite Super Bombs PL1
-:rambo3ae:00000000:801495:00000002:FFFFFFFF:Invincibility PL1
-:rambo3ae:00000000:801425:000000FF:FFFFFFFF:Infinite Big Weapon Time PL1:Get the item first
-:rambo3ae:00000000:801429:000000FF:FFFFFFFF:Infinite Big Sights Time PL1:Get the item first
-:rambo3ae:00000000:801427:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL1:Get the item first
-:rambo3ae:00000000:801507:000000E0:FFFFFFFF:Infinite Energy PL2
-:rambo3ae:00000000:801505:00000008:FFFFFFFF:Infinite Normal Bombs PL2
-:rambo3ae:00000000:801521:00000002:FFFFFFFF:Infinite Super Bombs PL2
-:rambo3ae:00000000:801595:00000002:FFFFFFFF:Invincibility PL2
-:rambo3ae:00000000:801525:000000FF:FFFFFFFF:Infinite Big Weapon Time PL2:Get the item first
-:rambo3ae:00000000:801529:000000FF:FFFFFFFF:Infinite Big Sights Time PL2:Get the item first
-:rambo3ae:00000000:801527:000000FF:FFFFFFFF:Infinite Fast Shoot Time PL2:Get the item first
 
 ; [ Rampage (revision 3) ]
 :rampage:00000000:E49E:000000C7:FFFFFFFF:Infinite Damage PL1
@@ -145393,7 +145393,7 @@
 :ryouran:60000000:0000000:00000000:00000000:[   03h    07h     Red   "dragon"                ]
 :ryouran:60000000:0000000:00000000:00000000:[   FFh    FFh     - no tile -                   ]
 
-; [ Ryu Jin (Japan) ]
+; [ Ryu Jin (Japan, ET910000B PCB) ]
 :ryujin:00000000:100114:00000009:FFFFFFFF:Infinite Credits
 :ryujin:00000301:101603:00000005:FFFFFFFF:Select starting level:Use on character select screen to select start level. It only changes the current level if you lose all your lives and then continue the game.
 :ryujin:00000303:101603:00000005:FFFFFFFF:Select next level
@@ -147378,7 +147378,7 @@
 :sbishi:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :sbishi:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
-; [ Sonic Blast Man (Japan) ]
+; [ Sonic Blast Man (US) ]
 :sbm:00000000:104F2F:00000009:FFFFFFFF:Infinite Credits
 :sbm:00000000:105031:0000000B:FFFFFFFF:Infinite Time
 :sbm:00000000:105037:000000E7:FFFFFFFF:Hit Power always = 999
@@ -192841,23 +192841,23 @@
 :viofight:00000000:A002B7:00000000:FFFFFFFF:Always have No Power PL2
 
 ; [ Violence Fight (US) ]
-:viofighu:00000000:A0013D:00000009:FFFFFFFF:Infinite Credits
-:viofighu:00000000:A00140:00000009:FFFFFFFF:Infinite Time
-:viofighu:00010000:A00141:00000099:FFFFFFFF:Infinite Time (2/2)
-:viofighu:00000001:A00140:00000000:FFFFFFFF:Finish this Bout Now!
-:viofighu:00010001:A00141:00000000:FFFFFFFF:Finish this Bout Now! (2/2)
-:viofighu:00000000:A0021C:00000009:FFFFFFFF:Infinite Energy PL1
-:viofighu:00010000:A0021D:00000099:FFFFFFFF:Infinite Energy PL1 (2/2)
-:viofighu:00000001:A0021C:00000000:FFFFFFFF:Drain all Energy Now! PL1
-:viofighu:00010001:A0021D:00000000:FFFFFFFF:Drain all Energy Now! PL1 (2/2)
-:viofighu:00000000:A00237:00000016:FFFFFFFF:Always have Maximum Power PL1
-:viofighu:00000000:A00237:00000000:FFFFFFFF:Always have No Power PL1
-:viofighu:00000000:A0029C:00000009:FFFFFFFF:Infinite Energy PL2
-:viofighu:00010000:A0029D:00000099:FFFFFFFF:Infinite Energy PL2 (2/2)
-:viofighu:00000001:A0029C:00000000:FFFFFFFF:Drain all Energy Now! PL2
-:viofighu:00010001:A0029D:00000000:FFFFFFFF:Drain all Energy Now! PL2 (2/2)
-:viofighu:00000000:A002B7:00000016:FFFFFFFF:Always have Maximum Power PL2
-:viofighu:00000000:A002B7:00000000:FFFFFFFF:Always have No Power PL2
+:viofightu:00000000:A0013D:00000009:FFFFFFFF:Infinite Credits
+:viofightu:00000000:A00140:00000009:FFFFFFFF:Infinite Time
+:viofightu:00010000:A00141:00000099:FFFFFFFF:Infinite Time (2/2)
+:viofightu:00000001:A00140:00000000:FFFFFFFF:Finish this Bout Now!
+:viofightu:00010001:A00141:00000000:FFFFFFFF:Finish this Bout Now! (2/2)
+:viofightu:00000000:A0021C:00000009:FFFFFFFF:Infinite Energy PL1
+:viofightu:00010000:A0021D:00000099:FFFFFFFF:Infinite Energy PL1 (2/2)
+:viofightu:00000001:A0021C:00000000:FFFFFFFF:Drain all Energy Now! PL1
+:viofightu:00010001:A0021D:00000000:FFFFFFFF:Drain all Energy Now! PL1 (2/2)
+:viofightu:00000000:A00237:00000016:FFFFFFFF:Always have Maximum Power PL1
+:viofightu:00000000:A00237:00000000:FFFFFFFF:Always have No Power PL1
+:viofightu:00000000:A0029C:00000009:FFFFFFFF:Infinite Energy PL2
+:viofightu:00010000:A0029D:00000099:FFFFFFFF:Infinite Energy PL2 (2/2)
+:viofightu:00000001:A0029C:00000000:FFFFFFFF:Drain all Energy Now! PL2
+:viofightu:00010001:A0029D:00000000:FFFFFFFF:Drain all Energy Now! PL2 (2/2)
+:viofightu:00000000:A002B7:00000016:FFFFFFFF:Always have Maximum Power PL2
+:viofightu:00000000:A002B7:00000000:FFFFFFFF:Always have No Power PL2
 
 ; [ Violent Storm (ver EAB) ]
 :viostorm:00000000:20080C:0000000A:FFFFFFFF:Infinite Lives PL1
@@ -205238,7 +205238,7 @@
 ;raidndx=raidndxa=raidndxb=raidndxj=raidndxm      (unchecked relationship)
 ;raiga=stratof
 ;raimais=raimaisj
-;rambo3~=(rambo3a=rambo3ae)
+;rambo3p~=(rambo3=rambo3u)
 ;rampage=rampage2
 ;rampart~rampartj~ramprt2p
 ;rastan=rastanu=rastanu2=rastsaga
@@ -205531,7 +205531,7 @@
 ;vigilant=vigilntj=vigilntu
 ;vimana=vimana1=vimanan
 ;vindctr2r1=vindctr2r2=vindctr2~(vindice3=vindice4=vindict1=vindict2=vindict4=vindicte=vindictg=vindictr)
-;viofight=viofighu
+;viofight=viofightu
 ;viostorm=viostrma=viostrmj=viostrmu
 ;viprp1=viprp1s~=(viprp1o=viprp1ot)
 ;vliner=vliner54  (unchecked relationship)

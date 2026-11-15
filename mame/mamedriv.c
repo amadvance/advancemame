@@ -1809,29 +1809,39 @@ const game_driver * const drivers[] =
 	/* Taito B-System games */
 	DRIVER( masterw )	/* B72 (c) 1989 Taito Corporation Japan (World) */
 	DRIVER( masterwu )	/* B72 (c) 1989 America Corporation (US) */
+	DRIVER( masterwj )	/* B72 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( yukiwo )	/* B72 (c) 1989 Taito Corporation Japan (World, prototype) */
 	DRIVER( nastar )	/* B81 (c) 1988 Taito Corporation Japan (World) */
 	DRIVER( nastarw )	/* B81 (c) 1988 Taito America Corporation (US) */
 	DRIVER( rastsag2 )	/* B81 (c) 1988 Taito Corporation (Japan) */
 	DRIVER( rambo3 )	/* B93 (c) 1989 Taito Europe Corporation (Europe) */
-	DRIVER( rambo3ae )	/* B93 (c) 1989 Taito Europe Corporation (Europe) */
-	DRIVER( rambo3a )	/* B93 (c) 1989 Taito America Corporation (US) */
+	DRIVER( rambo3u )	/* B93 (c) 1989 Taito America Corporation (US) */
+	DRIVER( rambo3p )	/* B93 (c) 1989 Taito Europe Corporation (Europe, Proto?) */
 	DRIVER( crimec )	/* B99 (c) 1989 Taito Corporation Japan (World) */
 	DRIVER( crimecu )	/* B99 (c) 1989 Taito America Corporation (US) */
 	DRIVER( crimecj )	/* B99 (c) 1989 Taito Corporation (Japan) */
-	DRIVER( tetrist )	/* C12 (c) 1989 Sega Enterprises,Ltd. (Japan) */
-	DRIVER( tetrista )	/* C35 (c) 1989 Sega Enterprises,Ltd. (Japan) */
+	DRIVER( tetrist )	/* C12 (c) 1988 Sega Enterprises,Ltd. (Japan) */
+	DRIVER( tetrista )	/* C35 (c) 1988 Sega Enterprises,Ltd. (Japan) */
 	DRIVER( viofight )	/* C16 (c) 1989 Taito Corporation Japan (World) */
-	DRIVER( viofighu )	/* C16 (c) 1989 Taito America Corporation (US) */
-	DRIVER( ashura )	/* C43 (c) 1990 Taito Corporation (Japan) */
+	DRIVER( viofightu )	/* C16 (c) 1989 Taito America Corporation (US) */
+	DRIVER( viofightj )	/* C16 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( ashura )	/* C43 (c) 1990 Taito Corporation Japan (World) */
+	DRIVER( ashuraj )	/* C43 (c) 1990 Taito Corporation (Japan) */
 	DRIVER( ashurau )	/* C43 (c) 1990 Taito America Corporation (US) */
 	DRIVER( hitice )	/* C59 (c) 1990 Williams (US) */
-	DRIVER( sbm )		/* C69 (c) 1990 Taito Corporation (Japan) */
+	DRIVER( hiticerb )	/* C59 (c) 1990 Williams (US, with riser board) */
+	DRIVER( hiticej )	/* C59 (c) 1990 Taito Corporation (Japan) */
+	DRIVER( sbm )		/* C69 (c) 1990 Taito Corporation (US) */
+	DRIVER( sbmj )		/* C69 (c) 1990 Taito Corporation (Japan) */
 	DRIVER( selfeena )	/* ??? (c) 1991 East Technology */
 	DRIVER( silentd )	/* ??? (c) 1992 Taito Corporation Japan (World) */
 	DRIVER( silentdj )	/* ??? (c) 1992 Taito Corporation (Japan) */
-	DRIVER( ryujin )	/* ??? (c) 1993 Taito Corporation (Japan) */
+	DRIVER( silentdu )	/* ??? (c) 1992 Taito America Corporation (US) */
+	DRIVER( ryujin )	/* ??? (c) 1993 Taito Corporation (Japan, ET910000B PCB) */
+	DRIVER( ryujina )	/* ??? (c) 1993 Taito Corporation (Japan, ET910000A PCB) */
 	DRIVER( qzshowby )	/* D72 (c) 1993 Taito Corporation (Japan) */
 	DRIVER( pbobble )	/* ??? (c) 1994 Taito Corporation (Japan) */
+	DRIVER( bublbust )	/* ??? (c) 1994 Taito America Corporation (USA) */
 	DRIVER( spacedx )	/* D89 (c) 1994 Taito Corporation (US) */
 	DRIVER( spacedxj )	/* D89 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( spacedxo )	/* D89 (c) 1994 Taito Corporation (Japan) */

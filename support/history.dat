@@ -11413,7 +11413,7 @@ When one of Joe's old rivals, Rikishi, died in the ring in 1970, Kodansha publis
 $end
 
 
-$info=ashura,ashurau,
+$info=ashura,ashuraj,ashurau,
 $bio
 
 Ashura Blaster (c) 1990 Taito.
@@ -93092,7 +93092,7 @@ Buttons : 3
 $end
 
 
-$info=hitice,
+$info=hitice,hiticerb,hiticej,
 $bio
 
 Hit the Ice - The Video Hockey League (c) 12/1990 Williams.
@@ -128483,7 +128483,7 @@ Written by : Kyle Hodgetts
 $end
 
 
-$info=masterw,masterwu,
+$info=masterw,masterwu,masterwj,yukiwo,
 $bio
 
 Master of Weapon (c) 1989 Taito.
@@ -166621,7 +166621,7 @@ The game forbids the initials 'SEX' on the high score table. If you try, it gets
 $end
 
 
-$info=pbobble,pbobblen,pbobblenb,
+$info=pbobble,bublbust,pbobblen,pbobblenb,
 $bio
 
 Puzzle Bobble (c) 06/1994 Taito.
@@ -174448,7 +174448,7 @@ This game is a bootleg of "Spectar".
 $end
 
 
-$info=rambo3,rambo3a,rambo3ae,
+$info=rambo3,rambo3u,rambo3p,
 $bio
 
 Rambo III (c) 1989 Taito.
@@ -183959,7 +183959,7 @@ Commodore C64
 $end
 
 
-$info=ryujin,
+$info=ryujin,ryujina,
 $bio
 
 Ryu Jin (c) 1993 Taito.
@@ -194631,7 +194631,7 @@ Additional work by : Michael Ormsby, Robert C. Clardy
 $end
 
 
-$info=silentd,silentdj,
+$info=silentd,silentdj,silentdu,
 $bio
 
 Silent Dragon (c) 04/1992 Taito.
@@ -198841,7 +198841,7 @@ Microsoft XBOX (2005, "Capcom Classics Collection")
 $end
 
 
-$info=sbm,
+$info=sbm,sbmj,
 $bio
 
 Sonic Blast Man (c) 1990 Taito.
@@ -248944,7 +248944,7 @@ Audio by : Brad Fuller, Hal Canon
 $end
 
 
-$info=viofight,viofighu,
+$info=viofight,viofightu,viofightj,
 $bio
 
 Violence Fight (c) 1989 Taito.
