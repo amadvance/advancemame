@@ -958,17 +958,17 @@ ROM_START( rallyx )
 	ROM_LOAD( "8e",           0x0000, 0x1000, CRC(277c1de5) SHA1(30bc57263e8dad870c501c76bce6f42d69ab9e00) )
 
 	ROM_REGION( 0x0100, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "im5623.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
+	ROM_LOAD( "rx1-6.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
 
 	ROM_REGION( 0x0160, REGION_PROMS, 0 )
-	ROM_LOAD( "m3-7603.11n",  0x0000, 0x0020, CRC(c7865434) SHA1(70c1c9610ba6f1ead77f347e7132958958bccb31) )  /* palette */
-	ROM_LOAD( "im5623.8p",    0x0020, 0x0100, CRC(834d4fda) SHA1(617864d3df0917a513e8255ad8d96ae7a04da5a1) )  /* lookup table */
-	ROM_LOAD( "r-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
-	ROM_LOAD( "r-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
+	ROM_LOAD( "rx1-1.11n",  0x0000, 0x0020, CRC(c7865434) SHA1(70c1c9610ba6f1ead77f347e7132958958bccb31) )  /* palette */
+	ROM_LOAD( "rx1-7.8p",    0x0020, 0x0100, CRC(834d4fda) SHA1(617864d3df0917a513e8255ad8d96ae7a04da5a1) )  /* lookup table */
+	ROM_LOAD( "rx1-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
+	ROM_LOAD( "rx1-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
 
 	ROM_REGION( 0x0200, REGION_SOUND1, 0 ) /* sound proms */
-	ROM_LOAD( "im5623.3p",    0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
-	ROM_LOAD( "im5623.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
+	ROM_LOAD( "rx1-5.3p",    0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
+	ROM_LOAD( "rx1-4.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
 ROM_END
 
 ROM_START( rallyxm )
@@ -982,20 +982,49 @@ ROM_START( rallyxm )
 	ROM_LOAD( "8e",           0x0000, 0x1000, CRC(277c1de5) SHA1(30bc57263e8dad870c501c76bce6f42d69ab9e00) )
 
 	ROM_REGION( 0x0100, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "im5623.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
+	ROM_LOAD( "rx1-6.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
 
 	ROM_REGION( 0x0160, REGION_PROMS, 0 )
-	ROM_LOAD( "m3-7603.11n",  0x0000, 0x0020, CRC(c7865434) SHA1(70c1c9610ba6f1ead77f347e7132958958bccb31) )  /* palette */
-	ROM_LOAD( "im5623.8p",    0x0020, 0x0100, CRC(834d4fda) SHA1(617864d3df0917a513e8255ad8d96ae7a04da5a1) )  /* lookup table */
-	ROM_LOAD( "r-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
-	ROM_LOAD( "r-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
+	ROM_LOAD( "rx1-1.11n",  0x0000, 0x0020, CRC(c7865434) SHA1(70c1c9610ba6f1ead77f347e7132958958bccb31) )  /* palette */
+	ROM_LOAD( "rx1-7.8p",    0x0020, 0x0100, CRC(834d4fda) SHA1(617864d3df0917a513e8255ad8d96ae7a04da5a1) )  /* lookup table */
+	ROM_LOAD( "rx1-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
+	ROM_LOAD( "rx1-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
 
 	ROM_REGION( 0x0200, REGION_SOUND1, 0 ) /* sound proms */
-	ROM_LOAD( "im5623.3p",    0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
-	ROM_LOAD( "im5623.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
+	ROM_LOAD( "rx1-5.3p",    0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
+	ROM_LOAD( "rx1-4.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
 ROM_END
 
 ROM_START( nrallyx )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "nrx_prg1.1d",  0x0000, 0x0800, CRC(ba7de9fc) SHA1(2133ca327589600bcbd796c213f034daa0457f72) )
+	ROM_CONTINUE(             0x1000, 0x0800 )
+	ROM_LOAD( "nrx_prg2.1e",  0x0800, 0x0800, CRC(eedfccae) SHA1(9fca8500f724864a2b73e38bd40cbaeef41617d7) )
+	ROM_CONTINUE(             0x1800, 0x0800 )
+	ROM_LOAD( "nrx_prg3.1k",  0x2000, 0x0800, CRC(b4d5d34a) SHA1(c533470aac040b3471d79fd6d35beb4fd4b5bb19) )
+	ROM_CONTINUE(             0x3000, 0x0800 )
+	ROM_LOAD( "nrx_prg4.1l",  0x2800, 0x0800, CRC(7da5496d) SHA1(ffac2c07dda57285673073266712fa2987e3b34f) )
+	ROM_CONTINUE(             0x3800, 0x0800 )
+
+	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "nrx_chg1.8e",  0x0000, 0x0800, CRC(1fff38a4) SHA1(5f6ccce2e0daad5915d017e8d067f187eb2ed41d) )
+	ROM_LOAD( "nrx_chg2.8d",  0x0800, 0x0800, CRC(85d9fffd) SHA1(12dff66d98a808b9dc952b2d87a56308b46a973e) )
+
+	ROM_REGION( 0x0100, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "rx1-6.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
+
+	ROM_REGION( 0x0160, REGION_PROMS, 0 )
+	ROM_LOAD( "nrx1-1.11n",  0x0000, 0x0020, CRC(a0a49017) SHA1(494c920a157e9f876d533c1b0146275a366c4989) )  /* palette */
+	ROM_LOAD( "nrx1-7.8p",    0x0020, 0x0100, CRC(4e46f485) SHA1(3f013aafba96a76d410f2db16d1d24d2fb257aaf) )  /* lookup table */
+	ROM_LOAD( "rx1-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
+	ROM_LOAD( "rx1-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 ) /* sound proms */
+	ROM_LOAD( "rx1-5.3p",     0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
+	ROM_LOAD( "rx1-4.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
+ROM_END
+
+ROM_START( nrallyxb )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "nrallyx.1b",   0x0000, 0x1000, CRC(9404c8d6) SHA1(ee7e45c22a2fbf72d3ac5ac26ab1111a22623fc5) )
 	ROM_LOAD( "nrallyx.1e",   0x1000, 0x1000, CRC(ac01bf3f) SHA1(8e1a7cce92ef709d18727db6ee7f89936f4b8df8) )
@@ -1006,17 +1035,17 @@ ROM_START( nrallyx )
 	ROM_LOAD( "nrallyx.8e",   0x0000, 0x1000, CRC(ca7a174a) SHA1(dc553df18c45ba399661122be75b71d6cb54d6a2) )
 
 	ROM_REGION( 0x0100, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "im5623.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
+	ROM_LOAD( "rx1-6.8m",    0x0000, 0x0100, CRC(3c16f62c) SHA1(7a3800be410e306cf85753b9953ffc5575afbcd6) )  /* dots */
 
 	ROM_REGION( 0x0160, REGION_PROMS, 0 )
-	ROM_LOAD( "nrallyx.pr1",  0x0000, 0x0020, CRC(a0a49017) SHA1(494c920a157e9f876d533c1b0146275a366c4989) )  /* palette */
-	ROM_LOAD( "nrallyx.pr2",  0x0020, 0x0100, CRC(b2b7ca15) SHA1(e604d58f2f20ebf042f28b01e74eddeacf5baba9) )  /* lookup table */
-	ROM_LOAD( "r-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
-	ROM_LOAD( "r-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
+	ROM_LOAD( "nrx1-1.11n",  0x0000, 0x0020, CRC(a0a49017) SHA1(494c920a157e9f876d533c1b0146275a366c4989) )  /* palette */
+	ROM_LOAD( "nrx1-7.8p",    0x0020, 0x0100, CRC(4e46f485) SHA1(3f013aafba96a76d410f2db16d1d24d2fb257aaf) )  /* lookup table */
+	ROM_LOAD( "rx1-2.4n",       0x0120, 0x0020, CRC(8f574815) SHA1(4f84162db9d58b64742c67dc689eb665b9862fb3) )  /* video layout (not used) */
+	ROM_LOAD( "rx1-3.7k",       0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) )  /* video timing (not used) */
 
 	ROM_REGION( 0x0200, REGION_SOUND1, 0 ) /* sound proms */
-	ROM_LOAD( "nrallyx.spr",  0x0000, 0x0100, CRC(b75c4e87) SHA1(450f79a5ae09e34f7624d37769815baf93c0028e) )
-	ROM_LOAD( "im5623.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
+	ROM_LOAD( "rx1-5.3p",     0x0000, 0x0100, CRC(4bad7017) SHA1(3e6da9d798f5e07fa18d6ce7d0b148be98c766d5) )
+	ROM_LOAD( "rx1-4.2m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )  /* timing - not used */
 ROM_END
 
 
@@ -1095,7 +1124,7 @@ ROM_START( tactcian )
 //  ROM_LOAD( "10a.bpr",      0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) ) /* video timing (not used) */
 ROM_END
 
-ROM_START( tactcan2 )
+ROM_START( tactcian2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "tan1",         0x0000, 0x1000, CRC(ddf38b75) SHA1(bad66fd6ae0ab3b91989fca14a8696ed855dc852) )
 	ROM_LOAD( "tan2",         0x1000, 0x1000, CRC(f065ee2e) SHA1(f2362c471981af3348465f3c8a5ffb38058432a5) )
@@ -1149,6 +1178,31 @@ ROM_START( locomotn )
 ROM_END
 
 ROM_START( gutangtn )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* 64k for code */
+	ROM_LOAD( "bimm_001.r1", 0x0000, 0x1000, CRC(dfa2089c) SHA1(ef2280578c33589d2831b21e22b0786f23eea881) )
+	ROM_LOAD( "bimm_002.r2", 0x1000, 0x1000, CRC(1de5e6a0) SHA1(8bb3408a510662ff3b9b7201d2d06fe70685bf7f) )
+	ROM_LOAD( "bimm_003.r3", 0x2000, 0x1000, CRC(01f909fe) SHA1(c80295e9f91ce25bfd28e72823b20ee6f6524a5c) )
+	ROM_LOAD( "bimm_004.r4", 0x3000, 0x1000, CRC(a89eb3e3) SHA1(058928ade909faba06f177750f914cf1dabaefc3) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* 64k for the audio CPU */
+	ROM_LOAD( "bimm_007.b1", 0x0000, 0x1000, CRC(3d83f6d3) SHA1(e10ed6b6ce7280697c1bc9dbe6c6e6018e1d8be4) )
+	ROM_LOAD( "bimm_008.c1", 0x1000, 0x1000, CRC(323e1937) SHA1(75499d6c8a9032fac090a13cd4f36bd350f52dab) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "bimm_005.r9", 0x0000, 0x1000, CRC(992d079c) SHA1(b5acd30f2e8700cc4cd852b190bd1f4163b137e8) )
+	ROM_LOAD( "bimm_006.r10", 0x1000, 0x1000, CRC(f0414f1d) SHA1(c7795184e2c1701eddb914d7134bf2830c4a3781) )
+
+	ROM_REGION( 0x0100, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "5.bpr",        0x0000, 0x0100, CRC(21fb583f) SHA1(b8c65fbdd5d8b70bf51341cd60fc2efeaab8bb82) ) /* dots */
+
+	ROM_REGION( 0x0160, REGION_PROMS, 0 )
+	ROM_LOAD( "2.bpr",        0x0000, 0x0020, CRC(26f42e6f) SHA1(f51578216a5d588c4d0143ce7a23d695a15a3914) ) /* palette */
+	ROM_LOAD( "3.bpr",        0x0020, 0x0100, CRC(4aecc0c8) SHA1(3c1086a598d84b4bcb277556b716fd18c76c4364) ) /* loookup table */
+	ROM_LOAD( "7a.bpr",       0x0120, 0x0020, CRC(48c8f094) SHA1(61592209720fddc8991751edf08b6950388af42e) ) /* video layout (not used) */
+	ROM_LOAD( "10a.bpr",      0x0140, 0x0020, CRC(b8861096) SHA1(26fad384ed7a1a1e0ba719b5578e2dbb09334a25) ) /* video timing (not used) */
+ROM_END
+
+ROM_START( gutangtns )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "3d_1.bin",     0x0000, 0x1000, CRC(e9757395) SHA1(78e2f8988ed39d2ecfe1f874be370f603d5eecc1) )
 	ROM_LOAD( "3e_2.bin",     0x1000, 0x1000, CRC(11d21d2e) SHA1(fd17dd481bb7bb39234fa7e9946b1cb4fa18109e) )
@@ -1225,15 +1279,17 @@ ROM_END
 
 
 
-GAME( 1980, rallyx,   0,        rallyx,   rallyx,   rallyx,   ROT0, "Namco", "Rally X", 0 )
-GAME( 1980, rallyxm,  rallyx,   rallyx,   rallyx,   rallyx,   ROT0, "[Namco] (Midway license)", "Rally X (Midway)", 0 )
+GAME( 1980, rallyx,   0,        rallyx,   rallyx,   rallyx,   ROT0, "Namco", "Rally X (32k Ver.?)", 0 )
+GAME( 1980, rallyxm,  rallyx,   rallyx,   rallyx,   rallyx,   ROT0, "Namco (Midway license)", "Rally X (Midway)", 0 )
 GAME( 1981, nrallyx,  0,        rallyx,   nrallyx,  rallyx,   ROT0, "Namco", "New Rally X", 0 )
+GAME( 1981, nrallyxb, nrallyx,  rallyx,   nrallyx,  rallyx,   ROT0, "Namco", "New Rally X (bootleg?)", 0 )
 
 GAME( 1981, jungler,  0,        tactcian, jungler,  jungler,  ROT90, "Konami", "Jungler", 0 )
-GAME( 1981, junglers, jungler,  tactcian, jungler,  jungler,  ROT90, "[Konami] (Stern license)", "Jungler (Stern)", 0 )
-GAME( 1982, tactcian, 0,        tactcian, tactcian, tactcian, ROT90, "[Konami] (Sega license)", "Tactician (set 1)", 0 )
-GAME( 1981, tactcan2, tactcian, tactcian, tactcian, tactcian, ROT90, "[Konami] (Sega license)", "Tactician (set 2)", 0 )
+GAME( 1981, junglers, jungler,  tactcian, jungler,  jungler,  ROT90, "Konami (Stern Electronics license)", "Jungler (Stern Electronics)", 0 )
+GAME( 1982, tactcian, 0,        tactcian, tactcian, tactcian, ROT90, "Konami (Sega license)", "Tactician (set 1)", 0 )
+GAME( 1981, tactcian2, tactcian, tactcian, tactcian, tactcian, ROT90, "Konami (Sega license)", "Tactician (set 2)", 0 )
 GAME( 1982, locomotn, 0,        locomotn, locomotn, locomotn, ROT90, "Konami (Centuri license)", "Loco-Motion", 0 )
-GAME( 1982, gutangtn, locomotn, locomotn, locomotn, locomotn, ROT90, "Konami (Sega license)", "Guttang Gottong", 0 )
+GAME( 1982, gutangtn, locomotn, locomotn, locomotn, locomotn, ROT90, "Konami", "Guttang Gottong", 0 )
+GAME( 1982, gutangtns, locomotn, locomotn, locomotn, locomotn, ROT90, "Konami (Sega license)", "Guttang Gottong (Sega license)", 0 )
 GAME( 1982, cottong,  locomotn, locomotn, locomotn, locomotn, ROT90, "bootleg", "Cotocoto Cottong", 0 )
 GAME( 1983, commsega, 0,        locomotn, commsega, commsega, ROT90, "Sega", "Commando (Sega)", GAME_IMPERFECT_SOUND )

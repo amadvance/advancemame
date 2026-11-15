@@ -181410,12 +181410,12 @@
 :tacscan:00000000:E118:00000001:FFFFFFFF:Always have ship 7
 
 ; [ Tactician (set 2) ]
-:tactcan2:00000000:9908:00000006:FFFFFFFF:Infinite Lives
-:tactcan2:20800000:21A4:000000C9:FFFFFFFF:Invincibility
-:tactcan2:20810000:215B:000000C9:FFFFFFFF:Invincibility (2/5):Part 1 is for sprites, Part 2 for bullets, Part 3 for bouncing bombs, Part 4 for Big Meteors, Part 5 for Small Meteors
-:tactcan2:20810000:20C4:000000C9:FFFFFFFF:Invincibility (3/5)
-:tactcan2:20810000:48C3:000000C9:FFFFFFFF:Invincibility (4/5)
-:tactcan2:20810000:48F3:000000C9:FFFFFFFF:Invincibility (5/5)
+:tactcian2:00000000:9908:00000006:FFFFFFFF:Infinite Lives
+:tactcian2:20800000:21A4:000000C9:FFFFFFFF:Invincibility
+:tactcian2:20810000:215B:000000C9:FFFFFFFF:Invincibility (2/5):Part 1 is for sprites, Part 2 for bullets, Part 3 for bouncing bombs, Part 4 for Big Meteors, Part 5 for Small Meteors
+:tactcian2:20810000:20C4:000000C9:FFFFFFFF:Invincibility (3/5)
+:tactcian2:20810000:48C3:000000C9:FFFFFFFF:Invincibility (4/5)
+:tactcian2:20810000:48F3:000000C9:FFFFFFFF:Invincibility (5/5)
 
 ; [ Tactician (set 1) ]
 :tactcian:00000000:9908:00000006:FFFFFFFF:Infinite Lives
@@ -206482,7 +206482,7 @@
 ; swimmera (made by ShimaPong) [????]
 ; swimmerb (made by ShimaPong) [????]
 ; sxevious (made by ShimaPong) [????]
-; tactcan2 (made by Pugsy) [Z80]
+; tactcian2 (made by Pugsy) [Z80]
 ; tactcian (made by Pugsy) [Z80]
 ; talbot (made by ShimaPong) [Z80]
 ; tankbatt (made by ShimaPong) [????]

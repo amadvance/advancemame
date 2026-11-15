@@ -575,12 +575,14 @@ const game_driver * const drivers[] =
 	DRIVER( rallyx )	/* (c) 1980 Namco */
 	DRIVER( rallyxm )	/* (c) 1980 Midway */
 	DRIVER( nrallyx )	/* (c) 1981 Namco */
+	DRIVER( nrallyxb )	/* (c) 1981 Namco */
 	DRIVER( jungler )	/* GX327 (c) 1981 Konami */
 	DRIVER( junglers )	/* GX327 (c) 1981 Stern */
 	DRIVER( tactcian )	/* GX335 (c) 1982 Sega */
-	DRIVER( tactcan2 )	/* GX335 (c) 1981 Sega */
+	DRIVER( tactcian2 )	/* GX335 (c) 1981 Sega */
 	DRIVER( locomotn )	/* GX359 (c) 1982 Konami + Centuri license */
-	DRIVER( gutangtn )	/* GX359 (c) 1982 Konami + Sega license */
+	DRIVER( gutangtn )	/* GX359 (c) 1982 Konami */
+	DRIVER( gutangtns )	/* GX359 (c) 1982 Konami + Sega license */
 	DRIVER( cottong )	/* bootleg */
 	DRIVER( commsega )	/* (c) 1983 Sega */
 	/* the following ones all have a custom I/O chip */
