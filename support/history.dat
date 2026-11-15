@@ -4792,7 +4792,7 @@ Air Raid is the predecessor to "Raiden".
 $end
 
 
-$info=arescue,
+$info=arescue,arescueu,arescuej,
 $bio
 
 Air Rescue (c) 1992 Sega.
@@ -5498,7 +5498,7 @@ MSX (1984)
 $end
 
 
-$info=alien3,
+$info=alien3,alien3j,
 $bio
 
 Alien 3 - The Gun (c) 1993 Sega.
@@ -48415,7 +48415,7 @@ Assistant designers : Takashi Jinbo, Hiroyuki Ashida, Michiko Iwamoto
 $end
 
 
-$info=darkedge,darkedgj,
+$info=darkedge,darkedgej,
 $bio
 
 Dark Edge (c) 1992 Sega.
@@ -65778,7 +65778,7 @@ F/A is an abbreviation for 'Fighter/Attacker', which is a class of military airc
 $end
 
 
-$info=f1en,
+$info=f1en,f1enu,f1enj,
 $bio
 
 F1 Exhaust Note (c) 11/1991 Sega.
@@ -65952,7 +65952,7 @@ Buttons : 5
 $end
 
 
-$info=f1lap,
+$info=f1lap,f1lapj,f1lapt,
 $bio
 
 F1 Super Lap (c) 1992 Sega.
@@ -89781,7 +89781,7 @@ Music and sound effects : John Paul
 $end
 
 
-$info=harddunk,harddunj,
+$info=harddunk,harddunkj,
 $bio
 
 Hard Dunk (c) 1994 Sega.
@@ -98311,7 +98311,7 @@ Buttons : 2
 $end
 
 
-$info=jleague,
+$info=jleague,jleagueo,
 $bio
 
 The J.League 1994 (c) 1994 Sega.
@@ -101346,7 +101346,7 @@ Commodore C64 (1984)
 $end
 
 
-$info=jpark,
+$info=jpark,jparkj,jparkja,jparkjc,
 $bio
 
 Jurassic Park (c) 1994 Sega.
@@ -151898,7 +151898,7 @@ The SEGA Out Run FAQ by Chris White & Andrew W. Sharples.
 $end
 
 
-$info=orunners,
+$info=orunners,orunnersj,
 $bio
 
 Out Runners (c) 1992 Sega.
@@ -172452,7 +172452,7 @@ Licensed to Nintendo.
 $end
 
 
-$info=radr,radru,
+$info=radr,radru,radrj,
 $bio
 
 Rad Rally (c) 1991 Sega.
@@ -197060,7 +197060,7 @@ Sound and music : David Thiel
 $end
 
 
-$info=slipstrm,
+$info=slipstrm,slipstrmh,
 $bio
 
 Slipstream (c) 1995 Capcom.
@@ -204724,7 +204724,7 @@ Designed and programmed by : Tim Martin
 $end
 
 
-$info=spidman,spidmanu,
+$info=spidman,spidmanu,spidmanj,
 $bio
 
 Spider-man - The Video Game (c) 1991 Sega.
@@ -206326,7 +206326,7 @@ Sega Saturn (1997, "Columns Arcade Collection")
 $end
 
 
-$info=scross,
+$info=scross,scrossa,scrossu,
 $bio
 
 Stadium Cross (c) 1992 Sega.
@@ -223161,7 +223161,7 @@ ETI means 'Enerdyne Technologie Inc.'.
 $end
 
 
-$info=svf,
+$info=svf,svfo,
 $bio
 
 Super Visual Football - European Sega Cup (c) 1994 Sega.
@@ -235241,7 +235241,7 @@ This game is known in Europe as "Congo Bongo".
 $end
 
 
-$info=titlef,titlefu,
+$info=titlef,titlefu,titlefj,
 $bio
 
 Title Fight (c) 1992 Sega.

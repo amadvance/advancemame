@@ -327,6 +327,7 @@ tenkomor:
 
 ;******slipstream
 slipstrm:
+slipstrmh:
 0:2095e1:4e3:60:4d
 0:2037cf:5c:01:4d
 
@@ -2734,6 +2735,8 @@ cairblad:
 
 ;*******stadium cross
 scross:
+scrossa:
+scrossu:
 0:701fb0:3f:53:03
 
 ;*******r2d tank
@@ -3378,10 +3381,13 @@ birdtry:
 ;*******(f1 exhaust note)
 ;** needs testing - can anyone verify this game saves hiscores ?? **
 f1en:
+f1enu:
+f1enj:
 0:20f20e:38:42:02
 
 ;*******(alien 3)
 alien3:
+alien3j:
 0:20f2bc:78:80:00
 
 ;mars matrix (usa/japan)(by tamphax)

@@ -25908,27 +25908,27 @@
 :darkedge:00000000:208800:00000000:00000010:Rapid Fire - Strong Kick PL2
 
 ; [ Dark Edge (Japan) ]
-:darkedgj:00000000:20F1E0:00000009:FFFFFFFF:Infinite Credits
-:darkedgj:00000001:20A043:00000006:FFFFFFFF:Start on VS. Ram-X:Enable on the character selection screen
-:darkedgj:00000001:20A043:00000007:FFFFFFFF:Start on VS. Ruler:Enable on the character selection screen
-:darkedgj:00000000:20A112:00000063:FFFFFFFF:Infinite Time
-:darkedgj:00000001:20A112:00000001:FFFFFFFF:Finish this Round Now!
-:darkedgj:00200000:208040:00700070:FFFFFFFF:Infinite Energy PL1
-:darkedgj:00200001:208040:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:darkedgj:00000000:20800F:00000006:FFFFFFFF:Play with Ram-X PL1:Enable on the character selection screen
-:darkedgj:00000000:20800F:00000007:FFFFFFFF:Play with Ruler PL1:Enable on the character selection screen
-:darkedgj:00000000:208000:00000000:00000002:Rapid Fire - Weak Punch PL1
-:darkedgj:00000000:208000:00000000:00000004:Rapid Fire - Strong Punch PL1
-:darkedgj:00000000:208000:00000000:00000008:Rapid Fire - Weak Kick PL1
-:darkedgj:00000000:208000:00000000:00000010:Rapid Fire - Strong Kick PL1
-:darkedgj:00200000:208840:00700070:FFFFFFFF:Infinite Energy PL2
-:darkedgj:00200001:208840:00000000:FFFFFFFF:Drain All Energy Now! PL2
-:darkedgj:00000000:20880F:00000006:FFFFFFFF:Play with Ram-X PL2:Enable on the character selection screen
-:darkedgj:00000000:20880F:00000007:FFFFFFFF:Play with Ruler PL2:Enable on the character selection screen
-:darkedgj:00000000:208800:00000000:00000002:Rapid Fire - Weak Punch PL2
-:darkedgj:00000000:208800:00000000:00000004:Rapid Fire - Strong Punch PL2
-:darkedgj:00000000:208800:00000000:00000008:Rapid Fire - Weak Kick PL2
-:darkedgj:00000000:208800:00000000:00000010:Rapid Fire - Strong Kick PL2
+:darkedgej:00000000:20F1E0:00000009:FFFFFFFF:Infinite Credits
+:darkedgej:00000001:20A043:00000006:FFFFFFFF:Start on VS. Ram-X:Enable on the character selection screen
+:darkedgej:00000001:20A043:00000007:FFFFFFFF:Start on VS. Ruler:Enable on the character selection screen
+:darkedgej:00000000:20A112:00000063:FFFFFFFF:Infinite Time
+:darkedgej:00000001:20A112:00000001:FFFFFFFF:Finish this Round Now!
+:darkedgej:00200000:208040:00700070:FFFFFFFF:Infinite Energy PL1
+:darkedgej:00200001:208040:00000000:FFFFFFFF:Drain All Energy Now! PL1
+:darkedgej:00000000:20800F:00000006:FFFFFFFF:Play with Ram-X PL1:Enable on the character selection screen
+:darkedgej:00000000:20800F:00000007:FFFFFFFF:Play with Ruler PL1:Enable on the character selection screen
+:darkedgej:00000000:208000:00000000:00000002:Rapid Fire - Weak Punch PL1
+:darkedgej:00000000:208000:00000000:00000004:Rapid Fire - Strong Punch PL1
+:darkedgej:00000000:208000:00000000:00000008:Rapid Fire - Weak Kick PL1
+:darkedgej:00000000:208000:00000000:00000010:Rapid Fire - Strong Kick PL1
+:darkedgej:00200000:208840:00700070:FFFFFFFF:Infinite Energy PL2
+:darkedgej:00200001:208840:00000000:FFFFFFFF:Drain All Energy Now! PL2
+:darkedgej:00000000:20880F:00000006:FFFFFFFF:Play with Ram-X PL2:Enable on the character selection screen
+:darkedgej:00000000:20880F:00000007:FFFFFFFF:Play with Ruler PL2:Enable on the character selection screen
+:darkedgej:00000000:208800:00000000:00000002:Rapid Fire - Weak Punch PL2
+:darkedgej:00000000:208800:00000000:00000004:Rapid Fire - Strong Punch PL2
+:darkedgej:00000000:208800:00000000:00000008:Rapid Fire - Weak Kick PL2
+:darkedgej:00000000:208800:00000000:00000010:Rapid Fire - Strong Kick PL2
 
 ; [ Dark Horse ]
 :darkhors:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
@@ -56076,10 +56076,10 @@
 :harddrvj:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Hard Dunk (Japan) ]
-:harddunj:00000000:20FC44:00000009:FFFFFFFF:Infinite Credits
-:harddunj:00000101:20C050:0000000C:FFFFFFFF:Select Score
-:harddunj:00000101:20C052:0000000C:FFFFFFFF:Select CPU Score
-:harddunj:00000000:20C052:00000000:FFFFFFFF:CPU Score always = 0
+:harddunkj:00000000:20FC44:00000009:FFFFFFFF:Infinite Credits
+:harddunkj:00000101:20C050:0000000C:FFFFFFFF:Select Score
+:harddunkj:00000101:20C052:0000000C:FFFFFFFF:Select CPU Score
+:harddunkj:00000000:20C052:00000000:FFFFFFFF:CPU Score always = 0
 
 ; [ Hard Dunk (World) ]
 :harddunk:00000000:20FC44:00000009:FFFFFFFF:Infinite Credits
@@ -122895,14 +122895,14 @@
 :orunners:00100001:00219074:0000FFFF:FFFFFFFF:Get Turbo Boost Now! PL2:Assign this to an activation key for best effect
 
 ; [ OutRunners (US) ]
-:orunneru:00000000:0020E0A0:00000018:FFFFFFFF:Infinite Credits PL1
-:orunneru:00100000:0020FB6A:00007515:FFFFFFFF:Infinite Time PL1
-:orunneru:00100000:00209074:0000FFFF:FFFFFFFF:Always drive at Maximum Speed PL1
-:orunneru:00100001:00209074:0000FFFF:FFFFFFFF:Get Turbo Boost Now! PL1:Assign this to an activation key for best effect
-:orunneru:00000000:0020E0A8:00000018:FFFFFFFF:Infinite Credits PL2
-:orunneru:00100000:0020FBEA:00007515:FFFFFFFF:Infinite Time PL2
-:orunneru:00100000:00219074:0000FFFF:FFFFFFFF:Always drive at Maximum Speed PL2
-:orunneru:00100001:00219074:0000FFFF:FFFFFFFF:Get Turbo Boost Now! PL2:Assign this to an activation key for best effect
+:orunnersu:00000000:0020E0A0:00000018:FFFFFFFF:Infinite Credits PL1
+:orunnersu:00100000:0020FB6A:00007515:FFFFFFFF:Infinite Time PL1
+:orunnersu:00100000:00209074:0000FFFF:FFFFFFFF:Always drive at Maximum Speed PL1
+:orunnersu:00100001:00209074:0000FFFF:FFFFFFFF:Get Turbo Boost Now! PL1:Assign this to an activation key for best effect
+:orunnersu:00000000:0020E0A8:00000018:FFFFFFFF:Infinite Credits PL2
+:orunnersu:00100000:0020FBEA:00007515:FFFFFFFF:Infinite Time PL2
+:orunnersu:00100000:00219074:0000FFFF:FFFFFFFF:Always drive at Maximum Speed PL2
+:orunnersu:00100001:00219074:0000FFFF:FFFFFFFF:Get Turbo Boost Now! PL2:Assign this to an activation key for best effect
 
 ; [ Psycho-Nics Oscar (US) ]
 :oscar:000000A0:003E:00000099:FFFFFFFF:Infinite Time
@@ -204625,7 +204625,7 @@
 ;dariusg=dariusgj=dariusgu~=dariusgx
 ;darius~dariuse~(dariusj=dariuso)
 ;darkadv~=devilw=majuu (the weapon cheats for darkadv are completely different!)
-;darkedge=darkedgj
+;darkedge=darkedgej
 ;darksea1=darkseaj=darkseal=gatedom1=gatedoom
 ;darksel2=wizdfire
 ;dassaul4=dassault=thndzone
@@ -204873,7 +204873,7 @@
 ;hanamai~hnkochou
 ;hangon=shangonle=shangon=shangon1=shangon2=shangon3!shangupb
 ;harddrb5=harddrb6~harddrc1~strtdriv
-;harddunj=harddunk
+;harddunkj=harddunk
 ;hardhead=hardhedb=pop_hh
 ;hardyard=hardyard10
 ;hbarrel=hbarrelw
@@ -205143,7 +205143,7 @@
 ;opwolf=opwolfb=opwolfu
 ;ordyne=ordynej
 ;orlegend105k=orlegend111c~(orlegend=orlegendc=orlegende)
-;orunners=orunneru
+;orunners=orunnersu
 ;oscar=oscarj=oscarj0=oscarj1
 ;othunder=othundrj=othundu=othunduo
 ;outfxesj=outfxies

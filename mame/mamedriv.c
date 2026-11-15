@@ -3683,42 +3683,61 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( holo )		/* (c) 1992 (US) */
 	DRIVER( svf )		/* (c) 1994 */
 	DRIVER( svs )		/* (c) 1994 */
+	DRIVER( svfo )	/* (c) 1994 */
 	DRIVER( jleague )	/* (c) 1994 (Japan) */
+	DRIVER( jleagueo )	/* (c) 1994 (Japan) */
 	DRIVER( brival )	/* (c) 1992 (World) */
 	DRIVER( brivalj )	/* (c) 1992 (Japan) */
 	DRIVER( radm )		/* (c) 1991 (World) */
 	DRIVER( radmu )		/* (c) 1991 (US) */
 	DRIVER( radr )		/* (c) 1991 (World) */
 	DRIVER( radru )		/* (c) 1991 (US) */
+	DRIVER( radrj )	/* (c) 1991 (Japan) */
 	DRIVER( f1en )		/* (c) 1991 */
+	DRIVER( f1enu )	/* (c) 1991 (US) */
+	DRIVER( f1enj )	/* (c) 1991 (Japan) */
 	DRIVER( alien3 )	/* (c) 1993 */
 	DRIVER( alien3u )	/* (c) 1993 */
+	DRIVER( alien3j )	/* (c) 1993 (Japan) */
 	DRIVER( sonic )		/* (c) 1992 (Japan) */
 	DRIVER( sonicp )	/* (c) 1992 (Japan) */
 	DRIVER( jpark )		/* (c) 1994 */
+	DRIVER( jparkj )	/* (c) 1993 (Japan, Rev A, Deluxe) */
+	DRIVER( jparkja )	/* (c) 1993 (Japan, Deluxe) */
+	DRIVER( jparkjc )	/* (c) 1993 (Japan, Rev A, Conversion) */
 	DRIVER( ga2 )		/* (c) 1992 (World) */
 	DRIVER( ga2u )		/* (c) 1992 (US) */
 	DRIVER( ga2j )		/* (c) 1992 (Japan) */
 	DRIVER( spidman )	/* (c) 1991 (World) */
 	DRIVER( spidmanu )	/* (c) 1991 (US) */
+	DRIVER( spidmanj )	/* (c) 1991 (Japan) */
 	DRIVER( arabfgt )	/* (c) 1991 */
 	DRIVER( arabfgtu )	/* (c) 1991 (US) */
 	DRIVER( arabfgtj )	/* (c) 1991 (Japan) */
 	DRIVER( arescue )	/* (c) 1992 */
+	DRIVER( arescueu )	/* (c) 1992 (US) */
+	DRIVER( arescuej )	/* (c) 1992 (Japan) */
 	DRIVER( f1lap )		/* (c) 1993 */
+	DRIVER( f1lapj )	/* (c) 1993 (Japan) */
+	DRIVER( f1lapt )	/* (c) 1993 (World, unprotected) */
 	DRIVER( dbzvrvs )	/* (c) 1994 Sega/Banpresto */
 	DRIVER( darkedge )	/* (c) 1992 */
-	DRIVER( darkedgj )	/* (c) 1992 (Japan) */
+	DRIVER( darkedgej )	/* (c) 1992 (Japan) */
 	DRIVER( slipstrm )	/* (c) 1995 Capcom */
+	DRIVER( slipstrmh )	/* (c) 1995 Capcom (Hispanic) */
 
 	/* Sega Multi System 32 games */
 	DRIVER( orunners )	/* (c) 1992 (World) */
-	DRIVER( orunneru )	/* (c) 1992 (US) */
+	DRIVER( orunnersu )	/* (c) 1992 (US) */
+	DRIVER( orunnersj )	/* (c) 1992 (Japan) */
 	DRIVER( harddunk )	/* (c) 1994 (World) */
-	DRIVER( harddunj )	/* (c) 1994 (Japan) */
+	DRIVER( harddunkj )	/* (c) 1994 (Japan) */
 	DRIVER( titlef )	/* (c) 1992 (World) */
 	DRIVER( titlefu )	/* (c) 1992 (US) */
+	DRIVER( titlefj )	/* (c) 1992 (Japan) */
 	DRIVER( scross )	/* (c) 1992 (World) */
+	DRIVER( scrossa )	/* (c) 1992 (World, linkable) */
+	DRIVER( scrossu )	/* (c) 1992 (US) */
 
 	/* Model 1 Games */
 	DRIVER( vf )		/* (c) 1993 */
