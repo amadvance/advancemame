@@ -2579,7 +2579,7 @@
 :abattle2:00000000:0095:00000009:FFFFFFFF:Infinite Lives PL1
 :abattle2:00000000:0096:00000009:FFFFFFFF:Infinite Lives PL2
 
-; [ A.B. Cop (FD1094 317-0169b) ]
+; [ A.B. Cop (World) (FD1094 317-0169b) ]
 :abcop:00200000:080CA7:00030999:00FFFFFF:Infinite Time:Turn this off when you beat a level, once you have all the bonus points you want
 :abcop:00000000:080CAD:00000008:FFFFFFFF:Infinite Jumps
 :abcop:00000001:3FAA85:00000000:FFFFFFFF:1 Hit to Kill Boss Now!
@@ -2610,7 +2610,7 @@
 :abunai:00000000:F9A5:00000001:FFFFFFFF:Always Have Ultra Play
 :abunai:00000000:F9A6:00000001:FFFFFFFF:Always Have Gokou Tsumikomi
 
-; [ After Burner (Japan) ]
+; [ After Burner ]
 :aburner:00000000:FF88E0:00000001:FFFFFFFF:Infinite Lives
 :aburner:00010000:FF88E1:00000029:FFFFFFFF:Infinite Lives (2/2)
 :aburner:00000000:FF8D67:00000032:FFFFFFFF:Infinite Missiles
@@ -52223,7 +52223,7 @@
 :gpilots:00010000:10FD82:00000080:FFFFFFFF:Arcade (MVS)
 :gpilots:00010000:10FD82:00000000:FFFFFFFF:Home (NEOGEO)
 
-; [ GP Rider (set 2, FD1094 317-0163) ]
+; [ GP Rider (World, FD1094 317-0163) (Twin setup) ]
 :gprider:00000000:08014A:00000063:FFFFFFFF:Infinite Credits
 :gprider:00000000:08006F:00000099:FFFFFFFF:Infinite Time
 :gprider:00100000:2803F0:00000000:FFFFFFFF:Minimum Lap Time
@@ -52231,13 +52231,13 @@
 :gprider:00100000:2802D0:000003E8:FFFFFFFF:Always ride at Crazy Speed (1000 KPH):Faster (max 65535) is possible but makes game unplayable
 :gprider:00100001:2802D0:000003E8:FFFFFFFF:Get Crazy Speed (1000 KPH) Boost Now!:Use this with an Activation Key for best effect, hold down till the display shows the speed
 
-; [ GP Rider (set 1, US, FD1094 317-0162) ]
-:gprider1:00000000:08014A:00000063:FFFFFFFF:Infinite Credits
-:gprider1:00000000:08006F:00000099:FFFFFFFF:Infinite Time
-:gprider1:00100000:2803F0:00000000:FFFFFFFF:Minimum Lap Time
-:gprider1:00100000:2802D0:0000012C:FFFFFFFF:Always ride at Maximum Speed
-:gprider1:00100000:2802D0:000003E8:FFFFFFFF:Always ride at Crazy Speed (1000 KPH):Faster (max 65535) is possible but makes game unplayable
-:gprider1:00100001:2802D0:000003E8:FFFFFFFF:Get Crazy Speed (1000 KPH) Boost Now!:Use this with an Activation Key for best effect, hold down till the display shows the speed
+; [ GP Rider (US, FD1094 317-0162) ]
+:gpriderus:00000000:08014A:00000063:FFFFFFFF:Infinite Credits
+:gpriderus:00000000:08006F:00000099:FFFFFFFF:Infinite Time
+:gpriderus:00100000:2803F0:00000000:FFFFFFFF:Minimum Lap Time
+:gpriderus:00100000:2802D0:0000012C:FFFFFFFF:Always ride at Maximum Speed
+:gpriderus:00100000:2802D0:000003E8:FFFFFFFF:Always ride at Crazy Speed (1000 KPH):Faster (max 65535) is possible but makes game unplayable
+:gpriderus:00100001:2802D0:000003E8:FFFFFFFF:Get Crazy Speed (1000 KPH) Boost Now!:Use this with an Activation Key for best effect, hold down till the display shows the speed
 
 ; [ Gradius ]
 :gradius:00000000:0702A0:00000005:FFFFFFFF:Infinite Lives
@@ -88181,7 +88181,7 @@
 :loderndf:00010000:60347DE:00000002:FFFFFFFF:Infinite Time (3/4)
 :loderndf:00010000:60347DF:00000000:FFFFFFFF:Infinite Time (4/4)
 
-; [ Line of Fire / Bakudan Yarou (World, FD1094 317-0136) ]
+; [ Line of Fire / Bakudan Yarou (World) (FD1094 317-0136) ]
 :loffire:62000000:000000:00000000:00000000:Select Starting Mission:Enable when the "PULL TRIGER TO START" message is displayed. IE after you've inserted at least one credit
 :loffire:01211001:80081:00000001:FFFFFFFF:Mission 1
 :loffire:01211001:80081:00010002:FFFFFFFF:Mission 2
@@ -88202,7 +88202,7 @@
 :loffire:00000000:804FE:00000000:FFFFFFFF:Invincibility PL2
 :loffire:00000000:804E2:00000000:FFFFFFFF:Rapid Fire PL2
 
-; [ Line of Fire / Bakudan Yarou (Japan, FD1094 317-0134) ]
+; [ Line of Fire / Bakudan Yarou (Japan) (FD1094 317-0134) ]
 :loffirej:62000000:00000:00000000:00000000:Select Starting Mission:Enable when the "PULL TRIGER TO START" message is displayed. IE after you've inserted at least one credit
 :loffirej:01211001:80081:00000001:FFFFFFFF:Mission 1
 :loffirej:01211001:80081:00010002:FFFFFFFF:Mission 2
@@ -88223,7 +88223,7 @@
 :loffirej:00000000:804FE:00000000:FFFFFFFF:Invincibility PL2
 :loffirej:00000000:804E2:00000000:FFFFFFFF:Rapid Fire PL2
 
-; [ Line of Fire / Bakudan Yarou (US, FD1094 317-0135) ]
+; [ Line of Fire / Bakudan Yarou (US) (FD1094 317-0135) ]
 :loffireu:62000000:00000:00000000:00000000:Select Starting Mission:Enable when the "PULL TRIGER TO START" message is displayed. IE after you've inserted at least one credit
 :loffireu:01211001:80081:00000001:FFFFFFFF:Mission 1
 :loffireu:01211001:80081:00010002:FFFFFFFF:Mission 2
@@ -168422,25 +168422,25 @@
 :smgolfj:00000000:002D:00000000:FFFFFFFF:Infinite Strokes PL2
 :smgolfj:00000001:002D:00000000:FFFFFFFF:Reset Strokes Now! PL2
 
-; [ Super Monaco GP (set 8, World, Rev B, 'Twin', FD1094 317-0126a) ]
+; [ Super Monaco GP (World, Rev B) (FD1094 317-0126a) ]
 :smgp:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 6, World, 'Air Drive Cabinet', FD1094 317-0126) ]
+; [ Super Monaco GP (World) (FD1094 317-0126) ]
 :smgp5:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 7, World, Rev A, FD1094 317-0126a) ]
+; [ Super Monaco GP (World, Rev A) (FD1094 317-0126a) ]
 :smgp6:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 1, Japan, Rev B, FD1094 317-0124a) ]
+; [ Super Monaco GP (Japan, Rev B) (FD1094 317-0124a) ]
 :smgpj:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 5, US, Rev C, FD1094 317-0125a) ]
+; [ Super Monaco GP (US, Rev C) (FD1094 317-0125a) ]
 :smgpu:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 4, US, Rev B, FD1094 317-0125a) ]
+; [ Super Monaco GP (US, Rev B) (FD1094 317-0125a) ]
 :smgpu1:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
-; [ Super Monaco GP (set 3, US, Rev A, FD1094 317-0125a) ]
+; [ Super Monaco GP (US, Rev A) (FD1094 317-0125a) ]
 :smgpu2:00200000:A3C19:00000000:FFFFFFFF:Infinite Time
 
 ; [ Super Monaco GP (set 2, US, FD1094 317-0125a) ]
@@ -184227,20 +184227,20 @@
 :thndfoxu:00000000:303C80:00000003:FFFFFFFF:Start with Grenades PL2
 :thndfoxu:00000000:303C80:00000001:FFFFFFFF:Start with Rocket Launcher PL2
 
-; [ Thunder Blade (Japan) ]
-:thndrbdj:00000000:FF80F0:00000009:FFFFFFFF:Infinite Credits
-:thndrbdj:00000301:29C081:00000003:FFFFFFFF:Select Starting Stage:Set on displayed "STAGE x" screen
-:thndrbdj:00000501:29C083:00000003:FFFFFFFF:Select Starting Stage (Only Display):Set on displayed "STAGE x" screen
-:thndrbdj:00000000:29C0A5:00000002:FFFFFFFF:Infinite Training Time:Just turn the cheat OFF when you've had enough training (To turn training ON and OFF see the DIP SWITCH menu)
-:thndrbdj:00000000:29C09B:00000007:FFFFFFFF:Infinite Lives
-:thndrbdj:00000000:29E100:00000008:00000008:Invincibility
-:thndrbdj:00010020:29E178:0000000F:FFFFFFFF:Invincibility (2/2)
-:thndrbdj:00100000:29C0A8:00000999:FFFFFFFF:Always Maximum Hits
-:thndrbdj:00000000:282120:0000000B:FFFFFFFF:Always Fastest Speed
-:thndrbdj:00000000:282120:0000002B:FFFFFFFF:Always Turbo Speed
-:thndrbdj:00000000:282161:00000000:FFFFFFFF:Rapid Fire - Cannon
+; [ Thunder Blade (deluxe/standing) (unprotected) ]
+:thndrbld1:00000000:FF80F0:00000009:FFFFFFFF:Infinite Credits
+:thndrbld1:00000301:29C081:00000003:FFFFFFFF:Select Starting Stage:Set on displayed "STAGE x" screen
+:thndrbld1:00000501:29C083:00000003:FFFFFFFF:Select Starting Stage (Only Display):Set on displayed "STAGE x" screen
+:thndrbld1:00000000:29C0A5:00000002:FFFFFFFF:Infinite Training Time:Just turn the cheat OFF when you've had enough training (To turn training ON and OFF see the DIP SWITCH menu)
+:thndrbld1:00000000:29C09B:00000007:FFFFFFFF:Infinite Lives
+:thndrbld1:00000000:29E100:00000008:00000008:Invincibility
+:thndrbld1:00010020:29E178:0000000F:FFFFFFFF:Invincibility (2/2)
+:thndrbld1:00100000:29C0A8:00000999:FFFFFFFF:Always Maximum Hits
+:thndrbld1:00000000:282120:0000000B:FFFFFFFF:Always Fastest Speed
+:thndrbld1:00000000:282120:0000002B:FFFFFFFF:Always Turbo Speed
+:thndrbld1:00000000:282161:00000000:FFFFFFFF:Rapid Fire - Cannon
 
-; [ Thunder Blade (FD1094 317-0056) ]
+; [ Thunder Blade (upright) (FD1094 317-0056) ]
 :thndrbld:00000000:FF80F0:00000009:FFFFFFFF:Infinite Credits
 :thndrbld:00000301:29C081:00000003:FFFFFFFF:Select Starting Stage:Set on displayed "STAGE x" screen
 :thndrbld:00000501:29C083:00000003:FFFFFFFF:Select Starting Stage (Only Display):Set on displayed "STAGE x" screen
@@ -204834,7 +204834,7 @@
 ;gorf~=gorfpgm1
 ;gorkans=mrtnt
 ;gotcha=ppchamp
-;gprider1=gprider1  (unchecked relationship)
+;gpriderus=gpriderus  (unchecked relationship)
 ;gradius2=grdius2a=grdius2b=vulcan
 ;gradius3=grdius3a=grdius3e
 ;gradius~nemesis=nemesuk
@@ -205474,7 +205474,7 @@
 ;thehustj=thehustl
 ;thnderxa~=(thnderxb=thnderxj=thunderx)
 ;thndfoxj=thndfoxu=thundfox
-;thndrbdj=thndrbld
+;thndrbld1=thndrbld
 ;thndrx2=thndrx2a
 ;tigerh=tigerh2=tigerhb1=tigerhb2=tigerhj
 ;tigeroad=tigerodb=toramich

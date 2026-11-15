@@ -3603,25 +3603,31 @@ DokiDoki Penguin Land *not confirmed
 	/* X Board */
 	DRIVER( aburner )	/* (c) 1987 */
 	DRIVER( aburner2 )	/* (c) 1987 */
+	DRIVER( aburner2g )	/* (c) 1987 */
 	DRIVER( lastsurv )
 	DRIVER( thndrbld )	/* (c) 1987 (FD1094, decrypted) */
-	DRIVER( thndrbdj )	/* (c) 1987 */
+	DRIVER( thndrbld1 )	/* (c) 1987 */
 	DRIVER( loffire )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( loffireu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( loffirej )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( rachero )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( abcop )		/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( abcopj )	/* (c) 1990 (FD1094, decrypted) */
 
-	DRIVER( gprider )	/* (c) 1990 (protected) */
-	DRIVER( gprider1 )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gprider )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gpriders )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gprideru )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gpriderus )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gpriderj )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( gpriderjs )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( smgp )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgp6 )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgp5 )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgpu )		/* (c) 1989 (FD1094, decrypted) */
-	DRIVER( smgpu3 )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgpu2 )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgpu1 )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( smgpj )		/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( smgpja )	/* (c) 1989 (FD1094, decrypted) */
 
 	/* Y-Board */
 	DRIVER( gforce2 )	/* (c) 1988 */

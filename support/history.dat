@@ -82750,7 +82750,7 @@ This setting and concept of this game borrows heavily from Fuji Television's coo
 $end
 
 
-$info=gprider,gprider1,
+$info=gprider,gpriderus,
 $bio
 
 GP Rider (c) 1990 Sega.
@@ -219097,7 +219097,7 @@ Buttons : 3
 $end
 
 
-$info=smgp,smgpu3,smgpj,smgpu,smgp5,smgp6,smgpu2,
+$info=smgp,smgpj,smgpu,smgp5,smgp6,smgpu2,
 $bio
 
 Super Monaco GP (c) 1989 Sega.
@@ -232872,7 +232872,7 @@ Nintendo Famicom (1990)
 $end
 
 
-$info=thndrbld,thndrbdj,
+$info=thndrbld,thndrbld1,
 $bio
 
 Thunder Blade (c) 1987 Sega.

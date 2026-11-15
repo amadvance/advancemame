@@ -1303,7 +1303,7 @@ shinobic:  ;******Shinobi (set 4, System 16B, unprotected)
 
 ;******thunder blade (fd1094 317-0056)
 thndrbld:
-thndrbdj:  ;******thunder blade (japan)
+thndrbld1:  ;******thunder blade (deluxe/standing) (unprotected)
 0:a3b00:64:01:01
 
 ;********segac2.c (bloxeed (c system))
@@ -9877,6 +9877,7 @@ aburner:
 0:ff857f:1:4f:4f
 
 aburner2:
+aburner2g:
 0:ff846e:117:00:00
 0:ff846f:1:70:70
 
