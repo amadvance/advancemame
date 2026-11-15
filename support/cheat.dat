@@ -13223,18 +13223,18 @@
 :bnzabros:00000000:FF840D:00000000:00000002:Rapid Fire PL2:Turn it OFF on the name entry screen
 
 ; [ Bonanza Bros (Japan, Floppy DS3-5000-07b) ]
-:bnzabrsj:00000000:FF8428:00000018:FFFFFFFF:Infinite Credits
-:bnzabrsj:00100000:FF849A:00000959:FFFFFFFF:Infinite Time
-:bnzabrsj:00000000:FF849B:00000099:FFFFFFFF:Infinite Bonus Stage Time
-:bnzabrsj:00000000:FF8409:00000000:00000002:Rapid Fire PL1:Turn it OFF on the name entry screen
-:bnzabrsj:00000000:F01880:00000020:00000020:Invincibility PL1
-:bnzabrsj:00010000:F018DB:00000002:FFFFFFFF:Invincibility PL1 (2/2)
-:bnzabrsj:00000000:F0059A:00000009:FFFFFFFF:1P Infinite Lives
-:bnzabrsj:00000000:FF840D:00000000:00000002:Rapid Fire PL2:Turn it OFF on the name entry screen
-:bnzabrsj:00000000:F01900:00000020:00000020:Invincibility PL2
-:bnzabrsj:00010000:F0195B:00000002:FFFFFFFF:Invincibility PL2 (2/2)
-:bnzabrsj:00000000:F0061A:00000009:FFFFFFFF:Infinite Lives PL2
-:bnzabrsj:00001101:FF8481:0000000C:FFFFFFFF:Select Starting Stage:Set on playing the training stage selection screen
+:bnzabrosj:00000000:FF8428:00000018:FFFFFFFF:Infinite Credits
+:bnzabrosj:00100000:FF849A:00000959:FFFFFFFF:Infinite Time
+:bnzabrosj:00000000:FF849B:00000099:FFFFFFFF:Infinite Bonus Stage Time
+:bnzabrosj:00000000:FF8409:00000000:00000002:Rapid Fire PL1:Turn it OFF on the name entry screen
+:bnzabrosj:00000000:F01880:00000020:00000020:Invincibility PL1
+:bnzabrosj:00010000:F018DB:00000002:FFFFFFFF:Invincibility PL1 (2/2)
+:bnzabrosj:00000000:F0059A:00000009:FFFFFFFF:1P Infinite Lives
+:bnzabrosj:00000000:FF840D:00000000:00000002:Rapid Fire PL2:Turn it OFF on the name entry screen
+:bnzabrosj:00000000:F01900:00000020:00000020:Invincibility PL2
+:bnzabrosj:00010000:F0195B:00000002:FFFFFFFF:Invincibility PL2 (2/2)
+:bnzabrosj:00000000:F0061A:00000009:FFFFFFFF:Infinite Lives PL2
+:bnzabrosj:00001101:FF8481:0000000C:FFFFFFFF:Select Starting Stage:Set on playing the training stage selection screen
 
 ; [ Bobble Bobble ]
 :boblbobl:60000000:0000:00000000:00000000:[ This game has got a LOT of cheats.  ]
@@ -204470,7 +204470,7 @@
 ;bluehawk=bluehawn
 ;blueprnj=blueprnt
 ;bnj=brubber=caractn
-;bnzabros=bnzabrsj
+;bnzabros=bnzabrosj
 ;boblbobl=bubbobr1=bublbob1=bublbobl=missb2~=bublbobr~=sboblbob
 ;bodyslam=dumpmtmt
 ;boggy84~=(fastfred=flyboy=flyboyb)~=(jumpcoas=jumpcoat)

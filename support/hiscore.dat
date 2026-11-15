@@ -30,6 +30,7 @@
 ;** top 3 scores saved by nvram, this saves other scoretable data **
 ;** delete crkdown.nv file before 1st time you play game, ok after that **
 crkdown:
+crkdownu:
 crkdownj:  ;******Crack Down (Japan, FD1094 317-0058-04b)
 0:fb246:25:00:18
 

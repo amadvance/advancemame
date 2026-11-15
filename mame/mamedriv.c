@@ -3679,27 +3679,30 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( hotrod )	/* (c) 1988 */
 	DRIVER( hotroda )	/* (c) 1988 */
 	DRIVER( hotrodj )	/* (c) 1988 */
+	DRIVER( hotrodja )	/* (c) 1988 */
 	DRIVER( sspirits ) 	/* (c) 1988 */
 	DRIVER( sspiritj ) 	/* (c) 1988 */
 	DRIVER( sspirtfc )	/* (c) 1988 (protected) */
 	DRIVER( gground )	/* (c) 1988 (FD1094, decrypted) */
+	DRIVER( ggroundj )	/* (c) 1988 (FD1094, decrypted) */
 	DRIVER( crkdown )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( crkdownu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( crkdownj )	/* (c) 1989 (FD1094, decrypted) */
-	DRIVER( sgmast )	/* (c) 1989 (protected) */
+	DRIVER( sgmast )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( sgmastc )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( sgmastj )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( roughrac )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( bnzabros )	/* (c) 1990 */
-	DRIVER( bnzabrsj )	/* (c) 1990 */
+	DRIVER( bnzabrosj )	/* (c) 1990 */
 	DRIVER( qsww )		/* (c) 1991 */
 	DRIVER( dcclubfd )	/* (c) 1991 */
 
 	/* ROM based */
 	DRIVER( dcclub )	/* (c) 1991 */
+	DRIVER( qrouka )	/* (c) 1991 */
+	DRIVER( quizmeku )	/* (c) 1992 */
 	DRIVER( mahmajn )	/* (c) 1992 */
 	DRIVER( qgh )		/* (c) 1994 */
-	DRIVER( quizmeku )	/* (c) 1994 */
-	DRIVER( qrouka )	/* (c) 1994 */
 	DRIVER( mahmajn2 )	/* (c) 1994 */
 
 	/* Sega System 32 games */

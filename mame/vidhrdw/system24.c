@@ -49,6 +49,12 @@ VIDEO_UPDATE(system24)
 		order[i] = i;
 	qsort(order, 12, sizeof(int), layer_cmp);
 
+	/* zero value pixels from the bottommost layer show color 0 of the specified
+	   palette: draw the tilemap layers in reverse order as opaque */
+	for(i=11; i>=0; i--)
+		if(order[i] < 8 && (order[i] & 1) == 0)
+			sys24_tile_draw(bitmap, cliprect, order[i], 0, TILEMAP_IGNORE_TRANSPARENCY);
+
 	level = 0;
 	for(i=0; i<12; i++)
 		if(order[i] < 8)

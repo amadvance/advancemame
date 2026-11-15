@@ -27446,7 +27446,7 @@ Sound composer : Miyako Omori
 $end
 
 
-$info=bnzabros,bnzabrsj,
+$info=bnzabros,bnzabrosj,
 $bio
 
 Bonanza Bros. (c) 1990 Sega.
@@ -42694,7 +42694,7 @@ Buttons : 4
 $end
 
 
-$info=crkdown,crkdownj,
+$info=crkdown,crkdownu,crkdownj,
 $bio
 
 Crack Down (c) 1989 Sega.
@@ -73554,7 +73554,7 @@ Nintendo Famicom (1994) : Unofficial port by Sachen.
 $end
 
 
-$info=gground,
+$info=gground,ggroundj,
 $bio
 
 Gain Ground (c) 1988 Sega.
@@ -94045,7 +94045,7 @@ Control : paddle
 $end
 
 
-$info=hotrod,hotroda,hotrodj,
+$info=hotrod,hotroda,hotrodj,hotrodja,
 $bio
 
 Hot-Rod (c) 1988 Sega.

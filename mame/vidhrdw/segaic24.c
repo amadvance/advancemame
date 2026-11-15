@@ -213,7 +213,7 @@ void sys24_tile_update(void)
 }
 
 static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *dm, const UINT16 *mask,
-								 UINT16 tpri, UINT8 lpri, int win, int sx, int sy, int xx1, int yy1, int xx2, int yy2)
+								 UINT16 tpri, UINT8 lpri, int flags, int win, int sx, int sy, int xx1, int yy1, int xx2, int yy2)
 {
 	int y;
 	const UINT16 *source  = ((UINT16 *)bm->base) + sx + sy*bm->rowpixels;
@@ -256,7 +256,7 @@ static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *
 					// 1- 128 pixels from this layer
 					int x;
 					for(x=0; x<128; x++) {
-						if(*srct++ == tpri) {
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY))) {
 							*dst = *src;
 							*pr |= lpri;
 						}
@@ -279,7 +279,7 @@ static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *
 						if(!(m & 0x8000)) {
 							int xx;
 							for(xx=0; xx<8; xx++)
-								if(srct[xx] == tpri) {
+								if((srct[xx] == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY))) {
 								   dst[xx] = src[xx];
 								   pr[xx] |= lpri;
 								}
@@ -299,7 +299,7 @@ static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *
 					// 1- 128 pixels from this layer
 					int x;
 					for(x = cur_x; x<llx1; x++) {
-						if(*srct++ == tpri) {
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY))) {
 						   *dst = *src;
 						   *pr |= lpri;
 						}
@@ -319,7 +319,7 @@ static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *
 					// 3- 128 pixels from both layers
 					int x;
 					for(x=cur_x; x<llx1; x++) {
-						if(*srct++ == tpri && !(m & (0x8000 >> (x >> 3)))) {
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY)) && !(m & (0x8000 >> (x >> 3)))) {
 						   *dst = *src;
 						   *pr |= lpri;
 						}
@@ -347,7 +347,7 @@ static void sys24_tile_draw_rect(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *
 // priority_bitmap
 
 static void sys24_tile_draw_rect_rgb(mame_bitmap *bm, mame_bitmap *tm, mame_bitmap *dm, const UINT16 *mask,
-									 UINT16 tpri, UINT8 lpri, int win, int sx, int sy, int xx1, int yy1, int xx2, int yy2)
+									 UINT16 tpri, UINT8 lpri, int flags, int win, int sx, int sy, int xx1, int yy1, int xx2, int yy2)
 {
 	int y;
 	const UINT16 *source  = ((UINT16 *)bm->base) + sx + sy*bm->rowpixels;
@@ -388,7 +388,7 @@ static void sys24_tile_draw_rect_rgb(mame_bitmap *bm, mame_bitmap *tm, mame_bitm
 					// 1- 128 pixels from this layer
 					int x;
 					for(x=0; x<128; x++) {
-						if(*srct++ == tpri)
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY)))
 							*dst = pens[*src];
 						src++;
 						dst++;
@@ -407,7 +407,7 @@ static void sys24_tile_draw_rect_rgb(mame_bitmap *bm, mame_bitmap *tm, mame_bitm
 						if(!(m & 0x8000)) {
 							int xx;
 							for(xx=0; xx<8; xx++)
-								if(srct[xx] == tpri)
+								if((srct[xx] == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY)))
 								   dst[xx] = pens[src[xx]];
 						}
 						src += 8;
@@ -424,7 +424,7 @@ static void sys24_tile_draw_rect_rgb(mame_bitmap *bm, mame_bitmap *tm, mame_bitm
 					// 1- 128 pixels from this layer
 					int x;
 					for(x = cur_x; x<llx1; x++) {
-						if(*srct++ == tpri)
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY)))
 						   *dst = pens[*src];
 						src++;
 						dst++;
@@ -440,7 +440,7 @@ static void sys24_tile_draw_rect_rgb(mame_bitmap *bm, mame_bitmap *tm, mame_bitm
 					// 3- 128 pixels from both layers
 					int x;
 					for(x=cur_x; x<llx1; x++) {
-						if(*srct++ == tpri && !(m & (0x8000 >> (x >> 3))))
+						if((*srct++ == tpri || (flags & TILEMAP_IGNORE_TRANSPARENCY)) && !(m & (0x8000 >> (x >> 3))))
 						   *dst = pens[*src];
 
 						src++;
@@ -498,7 +498,7 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 						l1 ^= 1;
 					c.min_y = c.max_y = y;
 					tilemap_set_scrollx(sys24_tile_layer[l1], 0, -(hscrtb[y] & 0x1ff));
-					tilemap_draw(bitmap, &c, sys24_tile_layer[l1], tpri, lpri);
+					tilemap_draw(bitmap, &c, sys24_tile_layer[l1], tpri | flags, lpri);
 				}
 				break;
 			}
@@ -524,9 +524,9 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 					c2.min_y = c2.max_y = y;
 
 					if(c1.min_x <= c1.max_x)
-						tilemap_draw(bitmap, &c1, sys24_tile_layer[l1],   tpri, lpri);
+						tilemap_draw(bitmap, &c1, sys24_tile_layer[l1],   tpri | flags, lpri);
 					if(c2.min_x <= c2.max_x)
-						tilemap_draw(bitmap, &c2, sys24_tile_layer[l1^1], tpri, lpri);
+						tilemap_draw(bitmap, &c2, sys24_tile_layer[l1^1], tpri | flags, lpri);
 				}
 				break;
 			}
@@ -549,8 +549,8 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 			if(!((-vscr) & 0x200))
 				layer ^= 1;
 
-			tilemap_draw(bitmap, &c1, sys24_tile_layer[layer],   tpri, lpri);
-			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri, lpri);
+			tilemap_draw(bitmap, &c1, sys24_tile_layer[layer],   tpri | flags, lpri);
+			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri | flags, lpri);
 			break;
 		}
 		case 2: case 3: {
@@ -565,8 +565,8 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 			if(!((+hscr) & 0x200))
 				layer ^= 1;
 
-			tilemap_draw(bitmap, &c1, sys24_tile_layer[layer],   tpri, lpri);
-			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri, lpri);
+			tilemap_draw(bitmap, &c1, sys24_tile_layer[layer],   tpri | flags, lpri);
+			tilemap_draw(bitmap, &c2, sys24_tile_layer[layer^1], tpri | flags, lpri);
 			break;
 		}
 		};
@@ -574,7 +574,7 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 	} else {
 		mame_bitmap *bm, *tm;
 		void (*draw)(mame_bitmap *, mame_bitmap *, mame_bitmap *, const UINT16 *,
-					 UINT16, UINT8, int, int, int, int, int, int, int);
+					 UINT16, UINT8, int, int, int, int, int, int, int, int);
 		int win = layer & 1;
 
 		if(Machine->drv->video_attributes & VIDEO_RGB_DIRECT)
@@ -595,11 +595,11 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 				hscr = (-hscrtb[vscr]) & 0x1ff;
 				if(hscr + 496 <= 512) {
 					// Horizontal split unnecessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        y,      496,      y+1);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        y,      496,      y+1);
 				} else {
 					// Horizontal split necessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        y, 512-hscr,      y+1);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win,    0, vscr, 512-hscr,        y,      496,      y+1);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        y, 512-hscr,      y+1);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win,    0, vscr, 512-hscr,        y,      496,      y+1);
 				}
 				vscr = (vscr + 1) & 0x1ff;
 			}
@@ -611,25 +611,25 @@ void sys24_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect, int layer, 
 				// Horizontal split unnecessary
 				if(vscr + 384 <= 512) {
 					// Vertical split unnecessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        0,      496,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        0,      496,      384);
 				} else {
 					// Vertical split necessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        0,      496, 512-vscr);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr,    0,        0, 512-vscr,      496,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        0,      496, 512-vscr);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr,    0,        0, 512-vscr,      496,      384);
 
 				}
 			} else {
 				// Horizontal split necessary
 				if(vscr + 384 <= 512) {
 					// Vertical split unnecessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        0, 512-hscr,      384);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win,    0, vscr, 512-hscr,        0,      496,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        0, 512-hscr,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win,    0, vscr, 512-hscr,        0,      496,      384);
 				} else {
 					// Vertical split necessary
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr, vscr,        0,        0, 512-hscr, 512-vscr);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win,    0, vscr, 512-hscr,        0,      496, 512-vscr);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win, hscr,    0,        0, 512-vscr, 512-hscr,      384);
-					draw(bm, tm, bitmap, mask, tpri, lpri, win,    0,    0, 512-hscr, 512-vscr,      496,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr, vscr,        0,        0, 512-hscr, 512-vscr);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win,    0, vscr, 512-hscr,        0,      496, 512-vscr);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win, hscr,    0,        0, 512-vscr, 512-hscr,      384);
+					draw(bm, tm, bitmap, mask, tpri, lpri, flags, win,    0,    0, 512-hscr, 512-vscr,      496,      384);
 				}
 			}
 		}
