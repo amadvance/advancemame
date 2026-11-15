@@ -14,24 +14,74 @@ is not present in the earlier games. It also has two 8910, while the earlier
 games have one 8910 + a sample player.
 
 Notes:
-- The 8751 ROM, sq07.108, was bad: bit 3 was stuck high. I have recovered it
-  by carefully checking the disassembly. There are probably some mistakes.
-  Note that that ROM probably came from a bootleg in the first place.
+- All versions of the hardware have four 64kx4 DRAMs near the video roms;
+  the gfx hardware draws to this as a backing framebuffer for sprites and
+  background layer during display. This ram is not tested, or even testable
+  by the z80. See http://www.jammarcade.net/tag/super-qix/
+  Super Qix: 6S and 6R are the BG framebuffer
+             5P and 5M are the Sprite framebuffer
+
+Super Qix:
+- The sq07.ic108 ROM came from a bootleg where the 8751 MCU was replaced by an
+  8031 MCU plus an external ROM (i.e. the sqixb1 romset). The 8031 ROM was bad
+  (bit 3 was stuck high). It was originally recovered by carefully checking
+  the disassembly, and this repair was later verified from another dump of an
+  intact chip to be correct. The majority of the bootleg 8031 MCU code matches
+  the deprotected sqix b03__03.l2 MCU code, implying the sq07.ic108 8031 MCU
+  code ROM was derived from code dumped from an original Taito b03__03.l2 8751
+  MCU somehow.
+  The bootleg MCU code is different from the original b03__03.l2 MCU since
+  an 8031 when running in external ROM mode cannot use ports 0 or 2, hence
+  the code was extensively patched by the bootleggers to avoid use of those
+  ports, by adding an additional multiplexer to port 1, and moving various
+  read and write pins around.
+  An important note about the sqixb1 bootleg pcb: the SOCKET on the pcb for
+  sq07.ic108 is populated backwards compared to the way the ROM will fit into
+  it! This is probably the cause of the bad bit 3 in the original dump in MAME
+  (due to someone inserting and powering the chip backwards) and is definitely
+  the cause of at least one other ROM failure during a repair. Be aware of
+  this, if you find or own one of these PCBs!
+  On certain pcbs the rom may be labeled just '7' rather than 'sq07'.
+  The 8031 may have a capacitor or diode (unclear?) between vcc and p1.2 for an
+  unknown reason. Some pcbs have it, some do not.
 
 - The MCU sends some ID to the Z80 on startup, but the Z80 happily ignores it.
   This happens in all sets. There appears to be code that would check part of
   the MCU init sequence ($5973 onwards), but it doesn't seem to be called.
 
-- sqixa might be an earlier version because there is a bug with coin lockout:
-  it is activated after inesrting 10 coins instead of 9. sqix doesn't have
-  that bug and also inverts the coin lockout output.
+- sqixr0 (World/Japan V1.0) (and sqixb1 which is the exact same ROMs but the
+  8751 MCU replaced with an 8031) has a bug with coin lockout: it is activated
+  after inserting 10 coins instead of 9.
+  This is fixed in World/Japan V1.1, V1.2 and the US set.
+  In addition, the polarity of the coin lockout on V1.0 (and sqixb1) is
+  flat-out reversed, so the pcb will not work in a standard JAMMA harness with
+  coin lockouts without inverting JAMMA pins K and/or 9. The hack below on V1.0
+  pcbs with the two wires connecting to IC 7H may have been a workaround which
+  involved a customized JAMMA connector/harness. How exactly is unclear.
 
-- Note that the sqixa ROMs probably came from a bootleg board, where the 8751
-  MCU was replaced by a model using external ROM (which was bad, and manually
-  repaired). Even if it was a bootleg, at this point there is no reason to
-  believe the ROMs had been tampered with.
+- All Taito Super Qix PCBS are part M6100237A, and have a wiring hack on top of
+  component 7H (a 74LS86 Quad XOR gate):
+  (reference: 74LS86 pins 4, 5 and 12 are 2A, 2B and 4A respectively, none are
+  outputs)
+  The V1.0 PCBs have two greenwires running on the back of the pcb, connected
+  from 7H pins 4 and 5, to JAMMA pins e (GND) and d (unused) respectively.
+  This implies there was a hack done on the JAMMA harness connector itself
+  (possibly to invert the coin lockout value using one of the XOR gates
+  at 7H (or perhaps 7H controls the coin lockouts themselves?)) but what
+  exactly the hack does is unclear without further tracing.
 
-- sqixbl is a bootleg of sqixa, with the MCU removed.
+  The V1.1, V1.2 and US PCBS have two resistors from VCC to GND forming a
+  voltage divider on top of 7H, the resistor from VCC/Pin 14 to Common is
+  22KOhms, the other resistor is also 22KOhms and seems to connect to
+  GND/Pin 7. The center of the two resistors connects to one end of a 0.1uf
+  capacitor and also to 7H pin 4, the other end of the capacitor connects to
+  7H pin 12.
+  This implies some sort of brief/reset pulse generation or filter on pin 12,
+  or more likely some abuse of the TTL input hysteresis of the 74LS86 IC itself
+  such that transitions of pin 12 cause transitions on pin 4 as well, or similar.
+  Again, what exactly this accomplishes is unclear without further tracing.
+
+- sqixb2 is a bootleg of sqixb1, with the MCU removed.
 
 - Prebillian controls: (from the Japanese flyer):
   - pullout plunger for shot power (there's no on-screen power indicator in the game)
@@ -189,103 +239,147 @@ The MCU acts this way:
 
 **************************************************************************/
 
-static UINT8 port1, port3, port3_latch, from_mcu, from_z80, portb;
+static UINT8 port2, bl_port1, bl_fake_port2, bl_port3_out, from_mcu, from_z80;
 static int from_mcu_pending, from_z80_pending, invert_coin_lockout;
+
+static MACHINE_RESET( sqix )
+{
+	port2 = 0;
+	bl_port1 = 0;
+	bl_fake_port2 = 0;
+	bl_port3_out = 0;
+	from_mcu = 0;
+	from_z80 = 0;
+	from_mcu_pending = 0;
+	from_z80_pending = 0;
+}
 
 static READ8_HANDLER( in4_mcu_r )
 {
-//  logerror("%04x: in4_mcu_r\n",activecpu_get_pc());
 	return readinputport(4) | (from_mcu_pending << 6) | (from_z80_pending << 7);
 }
 
 static READ8_HANDLER( sqix_from_mcu_r )
 {
-//  logerror("%04x: read mcu answer (%02x)\n",activecpu_get_pc(),from_mcu);
 	return from_mcu;
 }
 
-void mcu_acknowledge_callback(int data)
+static void z80_semaphore_callback(int data)
 {
 	from_z80_pending = 1;
-	from_z80 = portb;
-//  logerror("Z80->MCU %02x\n",from_z80);
 }
 
 static READ8_HANDLER( mcu_acknowledge_r )
 {
-	timer_set(TIME_NOW, 0, mcu_acknowledge_callback);
+	timer_set(TIME_NOW, 0, z80_semaphore_callback);
 	return 0;
+}
+
+static void z80_mcu_w_callback(int data)
+{
+	from_z80 = data;
 }
 
 static WRITE8_HANDLER( sqix_z80_mcu_w )
 {
-//  logerror("%04x: sqix_z80_mcu_w %02x\n",activecpu_get_pc(),data);
-	portb = data;
+	timer_set(TIME_NOW, data, z80_mcu_w_callback);
 }
 
-static WRITE8_HANDLER( mcu_p1_w )
+static void mcu_port2_callback(int data)
 {
-	switch ((data & 0x0e) >> 1)
-	{
-		case 0:
-			// ???
-			break;
-		case 1:
-			coin_counter_w(0,data & 1);
-			break;
-		case 2:
-			coin_counter_w(1,data & 1);
-			break;
-		case 3:
-			coin_lockout_global_w((data & 1) ^ invert_coin_lockout);
-			break;
-		case 4:
-			flip_screen_set(data & 1);
-			break;
-		case 5:
-			port1 = data;
-			if ((port1 & 0x80) == 0)
-			{
-				port3_latch = port3;
-			}
-			break;
-		case 6:
-			from_mcu_pending = 0;	// ????
-			break;
-		case 7:
-			if ((data & 1) == 0)
-			{
-//              logerror("%04x: MCU -> Z80 %02x\n",activecpu_get_pc(),port3);
-				from_mcu = port3_latch;
-				from_mcu_pending = 1;
-				from_z80_pending = 0;	// ????
-			}
-			break;
-	}
-}
+	int changed = port2 ^ data;
 
-static READ8_HANDLER( mcu_p3_r )
-{
-	if ((port1 & 0x10) == 0)
+	port2 = data;
+
+	/* bit 0 is the inverted clock of the 74LS174 latch: it loads on the falling edge */
+	if ((changed & 0x01) && !(port2 & 0x01))
 	{
-		return readinputport(0);
+		coin_counter_w(0, (port2 >> 1) & 1);
+		coin_counter_w(1, (port2 >> 2) & 1);
+		coin_lockout_global_w(((port2 >> 3) & 1) ^ invert_coin_lockout);
+		flip_screen_set((port2 >> 4) & 1);
+		cpunum_set_input_line(0, INPUT_LINE_RESET, (port2 & 0x20) ? CLEAR_LINE : ASSERT_LINE);
+		from_mcu_pending = (port2 >> 6) & 1;
 	}
-	else if ((port1 & 0x20) == 0)
-	{
-		return readinputport(2) | (from_mcu_pending << 6) | (from_z80_pending << 7);
-	}
-	else if ((port1 & 0x40) == 0)
-	{
-//      logerror("%04x: read Z80 command %02x\n",activecpu_get_pc(),from_z80);
+
+	/* the falling edge of bit 7 clears the z80->mcu semaphore */
+	if ((changed & 0x80) && !(port2 & 0x80))
 		from_z80_pending = 0;
-		return from_z80;
-	}
-	return 0;
 }
 
-static WRITE8_HANDLER( mcu_p3_w )
+static WRITE8_HANDLER( mcu_port2_w )
 {
-	port3 = data;
+	timer_set(TIME_NOW, data, mcu_port2_callback);
+}
+
+static void mcu_port3_callback(int data)
+{
+	from_mcu = data;
+}
+
+static WRITE8_HANDLER( mcu_port3_w )
+{
+	timer_set(TIME_NOW, data, mcu_port3_callback);
+}
+
+static READ8_HANDLER( mcu_port0_r )
+{
+	return readinputport(2) | (from_z80_pending << 7);
+}
+
+static READ8_HANDLER( mcu_port1_r )
+{
+	return readinputport(0);
+}
+
+static READ8_HANDLER( mcu_port3_r )
+{
+	return from_z80;
+}
+
+/*
+ * The 8031 bootleg cannot use the ports 0 and 2 with an external ROM: the
+ * low 4 bits of port 1 emulate the port 2 latch, the high 4 bits drive a
+ * multiplexer for the port 3 input and a latch for the port 3 output.
+ */
+
+static void bootleg_mcu_port1_callback(int data)
+{
+	int changed = bl_port1 ^ data;
+	int bit = (data & 0x0e) >> 1;
+
+	bl_port1 = data;
+
+	bl_fake_port2 &= ~(1 << bit);
+	bl_fake_port2 |= (data & 1) << bit;
+
+	/* port 3 output is latched on the rising edge of the bit 7 */
+	if ((changed & 0x80) && (data & 0x80))
+		from_mcu = bl_port3_out;
+
+	mcu_port2_callback(bl_fake_port2);
+}
+
+static WRITE8_HANDLER( bootleg_mcu_port1_w )
+{
+	timer_set(TIME_NOW, data, bootleg_mcu_port1_callback);
+}
+
+static READ8_HANDLER( bootleg_mcu_port3_r )
+{
+	if ((bl_port1 & 0x10) == 0)
+		return readinputport(0);
+	else if ((bl_port1 & 0x20) == 0)
+		return readinputport(2) | (from_z80_pending << 7);
+	else if ((bl_port1 & 0x40) == 0)
+		return from_z80;
+	/* pulled high when no input is selected */
+	return 0xff;
+}
+
+static WRITE8_HANDLER( bootleg_mcu_port3_w )
+{
+	bl_port3_out = data;
 }
 
 
@@ -514,6 +608,22 @@ static ADDRESS_MAP_START( pbillian_port_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x041b, 0x041b) AM_READ(MRA8_NOP)  // input related? but probably not used
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( pbillianb_port_map, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x0000, 0x01ff) AM_READWRITE(paletteram_r, paletteram_BBGGRRII_w) AM_BASE(&paletteram)
+	AM_RANGE(0x0401, 0x0401) AM_READ(AY8910_read_port_0_r)
+	AM_RANGE(0x0402, 0x0402) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0x0403, 0x0403) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0x0410, 0x0410) AM_WRITE(pbillian_0410_w)
+	AM_RANGE(0x0418, 0x0418) AM_READ(MRA8_NOP)
+	AM_RANGE(0x0419, 0x0419) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x041a, 0x041a) AM_WRITE(pbillian_sample_trigger_w)
+	AM_RANGE(0x041b, 0x041b) AM_READ(MRA8_NOP)
+	AM_RANGE(0x0c00, 0x0c00) AM_READ(input_port_0_r)
+	AM_RANGE(0x0c01, 0x0c01) AM_READ(input_port_1_r)
+	AM_RANGE(0x0c06, 0x0c06) AM_READ(input_port_3_r)
+	AM_RANGE(0x0c07, 0x0c07) AM_READ(input_port_4_r)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( hotsmash_port_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x0000, 0x01ff) AM_READWRITE(paletteram_r, paletteram_BBGGRRII_w) AM_BASE(&paletteram)
 	AM_RANGE(0x0401, 0x0401) AM_READ(AY8910_read_port_0_r)
@@ -575,8 +685,15 @@ static ADDRESS_MAP_START( mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( mcu_io_map, ADDRESS_SPACE_IO, 8 )
-	AM_RANGE(0x01, 0x01) AM_WRITE(mcu_p1_w)
-	AM_RANGE(0x03, 0x03) AM_READWRITE(mcu_p3_r, mcu_p3_w)
+	AM_RANGE(0x00, 0x00) AM_READ(mcu_port0_r)
+	AM_RANGE(0x01, 0x01) AM_READ(mcu_port1_r)
+	AM_RANGE(0x02, 0x02) AM_WRITE(mcu_port2_w)
+	AM_RANGE(0x03, 0x03) AM_READWRITE(mcu_port3_r, mcu_port3_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( bootleg_mcu_io_map, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x01, 0x01) AM_WRITE(bootleg_mcu_port1_w)
+	AM_RANGE(0x03, 0x03) AM_READWRITE(bootleg_mcu_port3_r, bootleg_mcu_port3_w)
 ADDRESS_MAP_END
 
 
@@ -665,6 +782,98 @@ INPUT_PORTS_START( pbillian )
 	PORT_START
 	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(20) PORT_KEYDELTA(10) PORT_COCKTAIL
 INPUT_PORTS_END
+
+INPUT_PORTS_START( pbillianb )
+	PORT_START
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_3C ) )
+	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x28, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x38, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_3C ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Allow_Continue ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x80, 0x80, "Freeze" )
+	PORT_DIPSETTING(    0x80, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x03, "2" )
+	PORT_DIPSETTING(    0x02, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x0c, "10/20/300K Points" )
+	PORT_DIPSETTING(    0x00, "10/30/500K Points" )
+	PORT_DIPSETTING(    0x08, "20/30/400K Points" )
+	PORT_DIPSETTING(    0x04, "30/40/500K Points" )
+	PORT_DIPNAME( 0x30, 0x10, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( Very_Hard ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START // ay port B (register F)
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN ) // hblank?
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
+
+	PORT_START // 0xc06: both players in upright, player 1 in cocktail
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START // 0xc07: player 2 in cocktail
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START // ay port A (register E)
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )     // N/C
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )    // P1 fire (M powerup) + high score initials
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )     // N/C
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL  // P2 fire (M powerup) + high score initials
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN ) // z80 and mcu semaphores of the parent, it needs to be high in this MCU-less bootleg
+INPUT_PORTS_END
+
 
 INPUT_PORTS_START( hotsmash )
 	PORT_START
@@ -880,6 +1089,12 @@ static struct AY8910interface pbillian_ay8910_interface =
 	input_port_2_r					/* port Bread */
 };
 
+static struct AY8910interface pbillianb_ay8910_interface =
+{
+	input_port_5_r,					/* port Aread */
+	input_port_2_r					/* port Bread */
+};
+
 static struct AY8910interface hotsmash_ay8910_interface =
 {
 	hotsmash_ay_port_a_r,			/* port Aread */
@@ -931,7 +1146,7 @@ INTERRUPT_GEN( bootleg_interrupt )
 
 
 static MACHINE_DRIVER_START( pbillian )
-	MDRV_CPU_ADD(Z80,12000000/2)		 /* 6 MHz */
+	MDRV_CPU_ADD_TAG("main", Z80,12000000/2)		 /* 6 MHz */
 	MDRV_CPU_PROGRAM_MAP(main_map,0)
 	MDRV_CPU_IO_MAP(pbillian_port_map,0)
 	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
@@ -951,13 +1166,24 @@ static MACHINE_DRIVER_START( pbillian )
 
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 12000000/8)
+	MDRV_SOUND_ADD_TAG("ay", AY8910, 12000000/8)
 	MDRV_SOUND_CONFIG(pbillian_ay8910_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
 
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(custom_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( pbillianb )
+	MDRV_IMPORT_FROM(pbillian)
+
+	/* no MCU on the PCB */
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(pbillianb_port_map,0)
+
+	MDRV_SOUND_MODIFY("ay")
+	MDRV_SOUND_CONFIG(pbillianb_ay8910_interface)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( hotsmash )
@@ -1001,13 +1227,15 @@ static MACHINE_DRIVER_START( sqix )
 	MDRV_CPU_IO_MAP(sqix_port_map,0)
 	MDRV_CPU_VBLANK_INT(sqix_interrupt,6)	/* ??? */
 
-	MDRV_CPU_ADD(I8751, 12000000/3)	/* ??? */
+	MDRV_CPU_ADD_TAG("mcu", I8751, 12000000/3)	/* ??? */
 	MDRV_CPU_PROGRAM_MAP(mcu_map,0)
 	MDRV_CPU_IO_MAP(mcu_io_map,0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(500)
+
+	MDRV_MACHINE_RESET(sqix)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -1031,6 +1259,14 @@ static MACHINE_DRIVER_START( sqix )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
 
+
+static MACHINE_DRIVER_START( sqixb1 )
+	MDRV_IMPORT_FROM(sqix)
+
+	/* the bootleg replaces the 8751 with an 8031 and an external ROM */
+	MDRV_CPU_MODIFY("mcu")
+	MDRV_CPU_IO_MAP(bootleg_mcu_io_map,0)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( sqixbl )
 
@@ -1075,93 +1311,159 @@ MACHINE_DRIVER_END
 
 ROM_START( pbillian )
 	ROM_REGION( 0x018000, REGION_CPU1, 0 )
-	ROM_LOAD( "1.6c",  0x00000, 0x08000, CRC(d379fe23) SHA1(e147a9151b1cdeacb126d9713687bd0aa92980ac) )
-	ROM_LOAD( "2.6d",  0x14000, 0x04000, CRC(1af522bc) SHA1(83e002dc831bfcedbd7096b350c9b34418b79674) )
+	ROM_LOAD( "mitsubishi__electric__1.m5l27256k.6bc", 0x00000, 0x08000, CRC(d379fe23) SHA1(e147a9151b1cdeacb126d9713687bd0aa92980ac) )
+	ROM_LOAD( "mitsubishi__electric__2.m5l27128k.6d",  0x14000, 0x04000, CRC(1af522bc) SHA1(83e002dc831bfcedbd7096b350c9b34418b79674) )
 
-	ROM_REGION( 0x0800, REGION_CPU2, 0 )
-	ROM_LOAD( "pbillian.mcu", 0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x0800, REGION_CPU2, 0 ) // internal 68705P5 MCU code
+	ROM_LOAD( "mitsubishi__electric__7.mc68705p5s.7k", 0x0000, 0x0800, CRC(03de0c74) SHA1(ee2bc8be9bab9557c6776b996b85ed6f32300b47) ) // dumped from actual decapped MCU
 
 	ROM_REGION( 0x8000, REGION_SOUND1, 0 )
-	ROM_LOAD( "3.7j",  0x0000, 0x08000, CRC(3f9bc7f1) SHA1(0b0c2ec3bea6a7f3fc6c0c8b750318f3f9ec3d1f) )
+	ROM_LOAD( "mitsubishi__electric__3.m5l27256k.7h", 0x0000, 0x08000, CRC(3f9bc7f1) SHA1(0b0c2ec3bea6a7f3fc6c0c8b750318f3f9ec3d1f) )
 
 	ROM_REGION( 0x018000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "4.1n",  0x00000, 0x08000, CRC(9c08a072) SHA1(25f31fcf72216cf42528b07ad8c09113aa69861a) )
-	ROM_LOAD( "5.1r",  0x08000, 0x08000, CRC(2dd5b83f) SHA1(b05e3a008050359d0207757b9cbd8cee87abc697) )
-	ROM_LOAD( "6.1t",  0x10000, 0x08000, CRC(33b855b0) SHA1(5a1df4f82fc0d6f78883b759fd61f395942645eb) )
+	ROM_LOAD( "mitsubishi__electric__4.m5l27256k.1n", 0x00000, 0x08000, CRC(9c08a072) SHA1(25f31fcf72216cf42528b07ad8c09113aa69861a) )
+	ROM_LOAD( "mitsubishi__electric__5.m5l27256k.1r", 0x08000, 0x08000, CRC(2dd5b83f) SHA1(b05e3a008050359d0207757b9cbd8cee87abc697) )
+	ROM_LOAD( "mitsubishi__electric__6.m5l27256k.1t", 0x10000, 0x08000, CRC(33b855b0) SHA1(5a1df4f82fc0d6f78883b759fd61f395942645eb) )
+ROM_END
+
+ROM_START( pbillianb )
+	ROM_REGION( 0x018000, REGION_CPU1, 0 )
+	ROM_LOAD( "1", 0x00000, 0x08000, CRC(cd8e34f0) SHA1(6598a594b4e305a6139d03e6d1d564c093da713a) ) // different
+	ROM_LOAD( "2", 0x10000, 0x08000, CRC(e60a2cb0) SHA1(949bb7ff5df36ee10d910a33f595e6a90350304e) ) // 2nd half identical to the corresponding ROM of the parent
+
+	ROM_REGION( 0x8000, REGION_SOUND1, 0 ) // identical to the parent
+	ROM_LOAD( "3", 0x0000, 0x08000, CRC(3f9bc7f1) SHA1(0b0c2ec3bea6a7f3fc6c0c8b750318f3f9ec3d1f) ) // == mitsubishi__electric__3.m5l27256k.7h
+
+	ROM_REGION( 0x018000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "4", 0x00000, 0x08000, CRC(9c08a072) SHA1(25f31fcf72216cf42528b07ad8c09113aa69861a) ) // == mitsubishi__electric__4.m5l27256k.1n
+	ROM_LOAD( "5", 0x08000, 0x08000, CRC(63f3437b) SHA1(a2234019bac27256692d4b059d39caaddfb9fb08) ) // 5 bytes different compared to mitsubishi__electric__5.m5l27256k.1r
+	ROM_LOAD( "6", 0x10000, 0x08000, CRC(33b855b0) SHA1(5a1df4f82fc0d6f78883b759fd61f395942645eb) ) // == mitsubishi__electric__6.m5l27256k.1t
 ROM_END
 
 ROM_START( hotsmash )
 	ROM_REGION( 0x018000, REGION_CPU1, 0 )
-	ROM_LOAD( "b18-04",  0x00000, 0x08000, CRC(981bde2c) SHA1(ebcc901a036cde16b33d534d423500d74523b781) )
+	ROM_LOAD( "b18-04.6bc", 0x00000, 0x08000, CRC(981bde2c) SHA1(ebcc901a036cde16b33d534d423500d74523b781) )
 
-	ROM_REGION( 0x0800, REGION_CPU2, 0 )
-	ROM_LOAD( "b18-06.mcu", 0x0000, 0x0800, CRC(67c0920a) SHA1(23a294892823d1d9216ea8ddfa9df1c8af149477) )
+	ROM_REGION( 0x0800, REGION_CPU2, 0 ) // internal 68705P5 MCU code
+	ROM_LOAD( "b18-06.7k", 0x0000, 0x0800, CRC(67c0920a) SHA1(23a294892823d1d9216ea8ddfa9df1c8af149477) ) // dumped from actual decapped MCU, contains valid RESET & INT vectors, SWI & TIMER vectors are NOPs
 
 	ROM_REGION( 0x8000, REGION_SOUND1, 0 )
-	ROM_LOAD( "b18-05",  0x0000, 0x08000, CRC(dab5e718) SHA1(6cf6486f283f5177dfdc657b1627fbfa3f0743e8) )
+	ROM_LOAD( "b18-05.7h", 0x0000, 0x08000, CRC(dab5e718) SHA1(6cf6486f283f5177dfdc657b1627fbfa3f0743e8) )
 
 	ROM_REGION( 0x018000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "b18-01",  0x00000, 0x08000, CRC(870a4c04) SHA1(a029108bcda40755c8320d2ee297f42d816aa7c0) )
-	ROM_LOAD( "b18-02",  0x08000, 0x08000, CRC(4e625cac) SHA1(2c21b32240eaada9a5f909a2ec5b335372c8c994) )
-	ROM_LOAD( "b18-03",  0x14000, 0x04000, CRC(1c82717d) SHA1(6942c8877e24ac51ed71036e771a1655d82f3491) )
+	ROM_LOAD( "b18-01.1n", 0x00000, 0x08000, CRC(870a4c04) SHA1(a029108bcda40755c8320d2ee297f42d816aa7c0) )
+	ROM_LOAD( "b18-02.1r", 0x08000, 0x08000, CRC(4e625cac) SHA1(2c21b32240eaada9a5f909a2ec5b335372c8c994) )
+	ROM_LOAD( "b18-03.1t", 0x14000, 0x04000, CRC(1c82717d) SHA1(6942c8877e24ac51ed71036e771a1655d82f3491) )
 ROM_END
 
 ROM_START( sqix )
-	ROM_REGION( 0x20000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "b03-01-1",     0x00000, 0x08000, CRC(ad614117) SHA1(c461f00a2aecde1bc3860c15a3c31091b14665a2) )
-	ROM_LOAD( "b03-02",       0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "b03__01-2.ef3", 0x00000, 0x08000, CRC(5ded636b) SHA1(827954001b4617b3bd439be75094d8dca06ea32b) )
+	ROM_LOAD( "b03__02.h3",    0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
 
-	ROM_REGION( 0x1000, REGION_CPU2, 0 )	/* I8751 code */
-	ROM_LOAD( "sq07.108",     0x00000, 0x1000, BAD_DUMP CRC(8be4d2a8) SHA1(a0c72cd87b2cddc67070b0a533fca111dbb9a984) )	// from sqixa
-
-	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-04",       0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
-
-	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-03",       0x00000, 0x10000, CRC(6e8b6a67) SHA1(c71117cc880a124c46397c446d1edc1cbf681200) )
-	ROM_LOAD( "b03-06",       0x10000, 0x10000, CRC(38154517) SHA1(703ad4cfe54a4786c67aedcca5998b57f39fd857) )
-
-	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-05",       0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
-ROM_END
-
-/* this was probably a bootleg */
-ROM_START( sqixa )
-	ROM_REGION( 0x20000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "sq01.97",      0x00000, 0x08000, CRC(0888b7de) SHA1(de3e4637436de185f43d2ad4186d4cfdcd4d33d9) )
-	ROM_LOAD( "b03-02",       0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* I8751 code */
-	ROM_LOAD( "sq07.108",     0x00000, 0x1000, BAD_DUMP CRC(8be4d2a8) SHA1(a0c72cd87b2cddc67070b0a533fca111dbb9a984) )
+	ROM_REGION( 0x1000, REGION_CPU2, 0 ) // internal I8751 MCU code
+	ROM_LOAD( "b03__03.l2", 0x00000, 0x1000, CRC(f0c3af2b) SHA1(6dce2175011b5c8d0f1bce433c53979841d5d1a4) ) // B03  03 C8751-88 MCU, dumped from actual decapped MCU
 
 	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-04",       0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
 
 	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-03",       0x00000, 0x10000, CRC(6e8b6a67) SHA1(c71117cc880a124c46397c446d1edc1cbf681200) )
-	ROM_LOAD( "b03-06",       0x10000, 0x10000, CRC(38154517) SHA1(703ad4cfe54a4786c67aedcca5998b57f39fd857) )
+	ROM_LOAD( "taito_sq-iu3__lh231041__sharp_japan__8709_d.p8", 0x00000, 0x20000, CRC(b8d0c493) SHA1(ef5d62ef3835c7ae088a7aa98945f747130fe0ec) ) // Sharp LH231041 28 pin 128K x 8bit mask ROM
 
 	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-05",       0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
+	ROM_LOAD( "b03__05.t8", 0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
 ROM_END
 
-ROM_START( sqixbl )
-	ROM_REGION( 0x20000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "cpu.2",        0x00000, 0x08000, CRC(682e28e3) SHA1(fe9221d26d7397be5a0fc8fdc51672b5924f3cf2) )
-	ROM_LOAD( "b03-02",       0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
+ROM_START( sqixr1 )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "b03__01-1.ef3", 0x00000, 0x08000, CRC(ad614117) SHA1(c461f00a2aecde1bc3860c15a3c31091b14665a2) )
+	ROM_LOAD( "b03__02.h3",    0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
+
+	ROM_REGION( 0x1000, REGION_CPU2, 0 ) // internal I8751 MCU code
+	ROM_LOAD( "b03__03.l2", 0x00000, 0x1000, CRC(f0c3af2b) SHA1(6dce2175011b5c8d0f1bce433c53979841d5d1a4) ) // B03  03 C8751-88 MCU, dumped from actual decapped MCU
 
 	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-04",       0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
 
 	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-03",       0x00000, 0x10000, CRC(6e8b6a67) SHA1(c71117cc880a124c46397c446d1edc1cbf681200) )
-	ROM_LOAD( "b03-06",       0x10000, 0x10000, CRC(38154517) SHA1(703ad4cfe54a4786c67aedcca5998b57f39fd857) )
+	ROM_LOAD( "taito_sq-iu3__lh231041__sharp_japan__8709_d.p8", 0x00000, 0x20000, CRC(b8d0c493) SHA1(ef5d62ef3835c7ae088a7aa98945f747130fe0ec) ) // Sharp LH231041 28 pin 128K x 8bit mask ROM
 
 	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
-	ROM_LOAD( "b03-05",       0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
+	ROM_LOAD( "b03__05.t8", 0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
 ROM_END
 
-ROM_START( perestrf )
+ROM_START( sqixr0 )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "b03__01.ef3", 0x00000, 0x08000, CRC(0888b7de) SHA1(de3e4637436de185f43d2ad4186d4cfdcd4d33d9) )
+	ROM_LOAD( "b03__02.h3",  0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) )
+
+	ROM_REGION( 0x1000, REGION_CPU2, 0 ) // internal I8751 MCU code
+	ROM_LOAD( "b03__03.l2", 0x00000, 0x1000, CRC(f0c3af2b) SHA1(6dce2175011b5c8d0f1bce433c53979841d5d1a4) ) // B03 03 C8751-88 MCU, dumped from actual decapped MCU
+
+	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "taito_sq-iu3__lh231041__sharp_japan__8709_d.p8", 0x00000, 0x20000, CRC(b8d0c493) SHA1(ef5d62ef3835c7ae088a7aa98945f747130fe0ec) ) // Sharp LH231041 28 pin 128K x 8bit mask ROM
+
+	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__05.t8", 0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) )
+ROM_END
+
+ROM_START( sqixu )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "b03__06.ef3", 0x00000, 0x08000, CRC(4f59f7af) SHA1(6ea627ea8505cf8d1a5a1350258180c61fbd1ed9) )
+	ROM_LOAD( "b03__07.h3",  0x10000, 0x10000, CRC(4c417d4a) SHA1(de46551da1b27312dca40240a210e77595cf9dbd) )
+
+	ROM_REGION( 0x1000, REGION_CPU2, 0 ) // internal I8751 MCU code
+	ROM_LOAD( "b03__08.l2", 0x00000, 0x01000, CRC(7c338c0f) SHA1(b91468c881641f807067835b2dd490cd3e3c577e) ) // B03 08 C8751-88 MCU, dumped from actual decapped MCU, 3 bytes different from B03 03
+
+	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "taito_sq-iu3__lh231041__sharp_japan__8709_d.p8", 0x00000, 0x20000, CRC(b8d0c493) SHA1(ef5d62ef3835c7ae088a7aa98945f747130fe0ec) ) // Sharp LH231041 28 pin 128K x 8bit mask ROM
+
+	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__09.t8", 0x00000, 0x10000, CRC(69d2a84a) SHA1(b461d8a01f73c6aaa4aac85602c688c111bdca5d) )
+ROM_END
+
+ROM_START( sqixb1 )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "sq01.97",    0x00000, 0x08000, CRC(0888b7de) SHA1(de3e4637436de185f43d2ad4186d4cfdcd4d33d9) ) // == b03__01.ef3
+	ROM_LOAD( "b03__02.h3", 0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) ) // actual label is something different on the bootleg
+
+	ROM_REGION( 0x01000, REGION_CPU2, 0 ) // external I8031 MCU code
+	ROM_LOAD( "sq07.ic108", 0x00000, 0x1000, CRC(d11411fb) SHA1(31183f433596c4d2503c01f6dc8d91024f2cf5de) ) // actual label is something different on the bootleg
+
+	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) ) // actual label is something different on the bootleg
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03-03", 0x00000, 0x10000, CRC(6e8b6a67) SHA1(c71117cc880a124c46397c446d1edc1cbf681200) ) // == 1st half of taito_sq-iu3__lh231041__sharp_japan__8709_d.p8, fake label
+	ROM_LOAD( "b03-06", 0x10000, 0x10000, CRC(38154517) SHA1(703ad4cfe54a4786c67aedcca5998b57f39fd857) ) // == 2nd half of taito_sq-iu3__lh231041__sharp_japan__8709_d.p8, fake label
+
+	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__05.t8",    0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) ) // actual label is something different on the bootleg
+ROM_END
+
+ROM_START( sqixb2 )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "cpu.2",      0x00000, 0x08000, CRC(682e28e3) SHA1(fe9221d26d7397be5a0fc8fdc51672b5924f3cf2) )
+	ROM_LOAD( "b03__02.h3", 0x10000, 0x10000, CRC(9c23cb64) SHA1(7e04cb18cabdc0031621162cbc228cd95875a022) ) // actual label is something different on the bootleg
+
+	ROM_REGION( 0x08000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__04.s8", 0x00000, 0x08000, CRC(f815ef45) SHA1(4189d455b6ccf3ae922d410fb624c4665203febf) ) // actual label is something different on the bootleg
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03-03", 0x00000, 0x10000, CRC(6e8b6a67) SHA1(c71117cc880a124c46397c446d1edc1cbf681200) ) // == 1st half of taito_sq-iu3__lh231041__sharp_japan__8709_d.p8, fake label
+	ROM_LOAD( "b03-06", 0x10000, 0x10000, CRC(38154517) SHA1(703ad4cfe54a4786c67aedcca5998b57f39fd857) ) // == 2nd half of taito_sq-iu3__lh231041__sharp_japan__8709_d.p8, fake label
+
+	ROM_REGION( 0x10000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "b03__05.t8", 0x00000, 0x10000, CRC(df326540) SHA1(1fe025edcd38202e24c4e1005f478b6a88533453) ) // actual label is something different on the bootleg
+ROM_END
+
+ROM_START( perestrof )
 	ROM_REGION( 0x20000, REGION_CPU1, 0 )	/* 64k for code */
 	/* 0x8000 - 0x10000 in the rom is empty anyway */
 	ROM_LOAD( "rom1.bin",        0x00000, 0x20000, CRC(0cbf96c1) SHA1(cf2b1367887d1b8812a56aa55593e742578f220c) )
@@ -1208,7 +1510,7 @@ static DRIVER_INIT( sqix )
 	invert_coin_lockout = 1;
 }
 
-static DRIVER_INIT( sqixa )
+static DRIVER_INIT( sqixr0 )
 {
 	invert_coin_lockout = 0;
 }
@@ -1277,10 +1579,14 @@ static DRIVER_INIT( perestro )
 
 
 
-GAME( 1986, pbillian, 0,        pbillian, pbillian, pbillian, ROT0,  "Taito", "Prebillian", 0 )
-GAME( 1987, hotsmash, 0,        hotsmash, hotsmash, hotsmash, ROT90, "Taito", "Vs. Hot Smash", 0 )
-GAME( 1987, sqix,     0,        sqix,     superqix, sqix,     ROT90, "Taito", "Super Qix (set 1)", 0 )
-GAME( 1987, sqixa,    sqix,     sqix,     superqix, sqixa,    ROT90, "Taito", "Super Qix (set 2)", 0 )
-GAME( 1987, sqixbl,   sqix,     sqixbl,   superqix, 0,        ROT90, "bootleg", "Super Qix (bootleg)", 0 )
-GAME( 1994, perestro, 0,        sqixbl,   superqix, perestro, ROT90, "Promat", "Perestroika Girls", 0 )
-GAME( 1993, perestrf, perestro, sqixbl,   superqix, perestro, ROT90, "Promat (Fuuki license)", "Perestroika Girls (Fuuki license)", 0 )
+GAME( 1986, pbillian,  0,        pbillian, pbillian,  pbillian, ROT0,  "Kaneko / Taito", "Prebillian", 0 )
+GAME( 1987, pbillianb, pbillian, pbillianb, pbillianb, pbillian, ROT0,  "bootleg (Game Corp.)", "Prebillian (bootleg)", 0 )
+GAME( 1987, hotsmash,  0,        hotsmash,  hotsmash,  hotsmash, ROT90, "Kaneko / Taito", "Vs. Hot Smash", 0 )
+GAME( 1987, sqix,      0,        sqix,      superqix,  sqix,     ROT90, "Kaneko / Taito", "Super Qix (World/Japan, V1.2)", 0 )
+GAME( 1987, sqixr1,    sqix,     sqix,      superqix,  sqix,     ROT90, "Kaneko / Taito", "Super Qix (World/Japan, V1.1)", 0 )
+GAME( 1987, sqixr0,    sqix,     sqix,      superqix,  sqixr0,   ROT90, "Kaneko / Taito", "Super Qix (World/Japan, V1.0)", 0 )
+GAME( 1987, sqixu,     sqix,     sqix,      superqix,  sqix,     ROT90, "Kaneko / Taito (Romstar License)", "Super Qix (US)", 0 )
+GAME( 1987, sqixb1,    sqix,     sqixb1,    superqix,  sqixr0,   ROT90, "bootleg", "Super Qix (bootleg of V1.0, 8031 MCU)", 0 )
+GAME( 1987, sqixb2,    sqix,     sqixbl,    superqix,  sqix,     ROT90, "bootleg", "Super Qix (bootleg, No MCU)", 0 )
+GAME( 1994, perestro,  0,        sqixbl,    superqix,  perestro, ROT90, "Promat", "Perestroika Girls", 0 )
+GAME( 1993, perestrof, perestro, sqixbl,    superqix,  perestro, ROT90, "Promat (Fuuki license)", "Perestroika Girls (Fuuki license)", 0 )

@@ -156260,7 +156260,7 @@ Buttons : 2
 $end
 
 
-$info=perestro,perestrf,
+$info=perestro,perestrof,
 $bio
 
 Perestroika Girls (c) 1993 Promat.
@@ -220313,7 +220313,7 @@ Nintendo Game Boy Advance (2002)
 $end
 
 
-$info=sqix,sqixa,sqixbl,
+$info=sqix,sqixr1,sqixr0,sqixu,sqixb1,sqixb2,
 $bio
 
 Super Qix (c) 1987 Taito.

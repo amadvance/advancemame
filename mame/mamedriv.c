@@ -1691,11 +1691,15 @@ const game_driver * const drivers[] =
 	DRIVER( brixian )
 	DRIVER( tetrsark )	/* ??? (c) D.R.Korea */
 	DRIVER( sqix )		/* B03 1987 */
-	DRIVER( sqixa )		/* B03 1987 */
-	DRIVER( sqixbl )	/* bootleg? but (c) 1987 */
+	DRIVER( sqixr1 )	/* B03 1987 */
+	DRIVER( sqixr0 )	/* B03 1987 */
+	DRIVER( sqixu )		/* B03 1987 */
+	DRIVER( sqixb1 )	/* bootleg? but (c) 1987 */
+	DRIVER( sqixb2 )	/* bootleg? but (c) 1987 */
 	DRIVER( perestro )	/* (c) 1994 Promat */
-	DRIVER( perestrf )	/* (c) 1993 Promat / Fuuki */
+	DRIVER( perestrof )	/* (c) 1993 Promat / Fuuki */
 	DRIVER( pbillian )	/* (c) 1986 Taito */
+	DRIVER( pbillianb )	/* bootleg */
 	DRIVER( hotsmash )	/* B18 (c) 1987 Taito */
 	DRIVER( exzisus )	/* B23 (c) 1987 Taito Corporation (Japan) */
 	DRIVER( minivadr )	/* D26 cabinet test board */
