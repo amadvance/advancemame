@@ -6449,8 +6449,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( s1945 )		/* (c) 1995 */
 	DRIVER( s1945a )	/* (c) 1995 */
 	DRIVER( s1945j )	/* (c) 1995 */
-	DRIVER( s1945jn )	/* (c) 1995 */
+	DRIVER( s1945nj )	/* (c) 1995 */
 	DRIVER( tengai )	/* (c) 1996 */
+	DRIVER( tengaij )	/* (c) 1996 */
 	DRIVER( s1945ii )	/* (c) 1997 */
 	DRIVER( soldivid )	/* (c) 1997 */
 	DRIVER( sbomber )	/* (c) 1998 */

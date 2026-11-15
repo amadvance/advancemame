@@ -459,7 +459,7 @@ VIDEO_UPDATE( psikyo )
             6- 7: tilemap size
             8   : per-line rowscroll
             9   : per-tile rowscroll
-           10   : tilebank (btlkroad/gunbird/s1945jn only)
+           10   : tilebank (btlkroad/gunbird/s1945nj only)
            11-15: ? */
 
 /*
@@ -479,7 +479,7 @@ VIDEO_UPDATE( psikyo )
         L:0178-0588,                 2 needs size 3 More Intro
 */
 
-	/* For gfx banking for s1945jn/gunbird/btlkroad */
+	/* For gfx banking for s1945nj/gunbird/btlkroad */
 	if(psikyo_ka302c_banking)
 	{
 		psikyo_switch_banks(0, (layer0_ctrl&0x400)>>10);
