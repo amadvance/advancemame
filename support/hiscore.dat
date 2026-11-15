@@ -957,12 +957,12 @@ aliensj2:  ;******Aliens (Japan set 2)
 0:1e30:38:00:48
 
 altbeast:
-altbeas2:
-altbeaj3:  ;******altered beast (japan, fd1094 317-0068)
-altbeas4:  ;******altered beast (set 4, mc-8123b 317-0066)
-altbeas5:  ;******altered beast (set 5, 8751 317-0076)
-altbeasj:  ;******altered beast (set 6, japan, 8751 317-0077)
-altbeaj1:  ;******altered beast (set 1, japan, fd1094 317-0065)
+altbeast2:
+altbeastj3:  ;******altered beast (japan, fd1094 317-0068)
+altbeast4:  ;******altered beast (set 4, mc-8123b 317-0066)
+altbeast6:  ;******altered beast (set 5, 8751 317-0076)
+altbeastj:  ;******altered beast (set 6, japan, 8751 317-0077)
+altbeastj1:  ;******altered beast (set 1, japan, fd1094 317-0065)
 0:fffc00:74:00:33
 0:fff010:4:00:00
 
@@ -1422,7 +1422,7 @@ dumpmtmt:  ;******dump matsumoto (japan 8751 317-unknown)
 ;Golden Axe (by GeoMan)
 goldnaxe:
 goldnaxa:  ;****** golden axe (version 2)
-;goldnaxj:  ;****** golden axe (version 1,japan,fd1094 317-0121)(driver issues not working yet)
+;goldnaxej:  ;****** golden axe (version 1,japan,fd1094 317-0121)(driver issues not working yet)
 ;goldnxj2:  ;****** golden axe (version 1,world,fd1094 317-0120)(driver issues not working yet)
 0:fffc00:38:02:00
 
@@ -1435,7 +1435,7 @@ ddux:  ;******dynamite dux (fd1094 317-0096)
 ;******cotton (fd1094 317-0181a)
 ;** not working yet (driver issue ????) **
 ;cotton:
-;cottonj:
+;cottonja:
 ;0:200077:30:00:55
 ;0:2000b6:4:00:a0
 

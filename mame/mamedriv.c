@@ -3455,27 +3455,28 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( dfjail )
 	DRIVER( aceattac )	/* (c) 1988 (protected) */
 	DRIVER( aliensyn )	/* (c) 1987 */
-	DRIVER( aliensy3 )	/* (c) 1987 (FD1089A, decrypted) */
+	DRIVER( aliensyn3 )	/* (c) 1987 (FD1089A, decrypted) */
 	DRIVER( altbeast )	/* (c) 1988 (8751) */
-	DRIVER( altbeasj )	/* (c) 1988 (8751) */
-	DRIVER( altbeas5 )	/* (c) 1988 (8751) */
-	DRIVER( altbeas4 )	/* (c) 1988 (MC-8123B) */
-	DRIVER( altbeaj3 )	/* (c) 1988 (FD1094, decrypted) */
-	DRIVER( altbeas2 )	/* (c) 1988 (MC-8123B) */
-	DRIVER( altbeaj1 )	/* (c) 1988 (protected) */
+	DRIVER( altbeastj )	/* (c) 1988 (8751) */
+	DRIVER( altbeast6 )	/* (c) 1988 (8751) */
+	DRIVER( altbeast4 )	/* (c) 1988 (MC-8123B) */
+	DRIVER( altbeastj3 )	/* (c) 1988 (FD1094, decrypted) */
+	DRIVER( altbeast2 )	/* (c) 1988 (MC-8123B) */
+	DRIVER( altbeastj1 )	/* (c) 1988 (protected) */
 	DRIVER( aurail )	/* (c) 1990 Sega / Westone */
 	DRIVER( aurail1 )	/* (c) 1990 Sega / Westone (FD1089B, decrypted) */
 	DRIVER( aurailj )	/* (C) 1990 Sega / Westone (FD1089A, decrypted) */
 	DRIVER( bayroute )	/* (c) 1989 Sunsoft / Sega (FD1094, decrypted) */
-	DRIVER( bayroutj )	/* (c) 1989 Sunsoft / Sega (FD1094, decrypted) */
-	DRIVER( bayrout1 )	/* (c) 1989 Sunsoft / Sega */
+	DRIVER( bayroutej )	/* (c) 1989 Sunsoft / Sega (FD1094, decrypted) */
+	DRIVER( bayroute1 )	/* (c) 1989 Sunsoft / Sega */
 	DRIVER( bullet )	/* (c) 1987 (protected) */
 	DRIVER( cotton )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( cottonu )	/* (c) 1990 (FD1094, decrypted) */
-	DRIVER( cottonj )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( cottonja )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( ddux )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( ddux1 )		/* (c) 1989 (8751) */
-	DRIVER( dunkshot )	/* (c) 1986 (FD1094, decrypted) */
+	DRIVER( dunkshot )	/* (c) 1987 (FD1089A, decrypted) */
+	DRIVER( dunkshoto )	/* (c) 1986 (FD1089A, decrypted) */
 	DRIVER( eswat )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( eswatu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( eswatj )	/* (c) 1989 (FD1094, decrypted) */
@@ -3485,11 +3486,11 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( fpoint )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( fpoint1 )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( goldnaxe )	/* (c) 1989 (8751) */
-	DRIVER( goldnaxu )	/* (c) 1989 (protected) */
-	DRIVER( goldnaxj )	/* (c) 1989 (FD1094, decrypted) */
-	DRIVER( goldnax3 )	/* (c) 1989 (FD1094, decrypted) */
-	DRIVER( goldnax2 )	/* (c) 1989 (8751) */
-	DRIVER( goldnax1 )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( goldnaxeu )	/* (c) 1989 (protected) */
+	DRIVER( goldnaxej )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( goldnaxe3 )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( goldnaxe2 )	/* (c) 1989 (8751) */
+	DRIVER( goldnaxe1 )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( hwchamp )	/* (c) 1987 */
 	DRIVER( mvp )		/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( mvpj )		/* (c) 1989 (FD1094, decrypted) */
@@ -3498,6 +3499,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( passshtj )	/* (c) 1988 (FD1094, decrypted) */
 	DRIVER( riotcity )	/* (c) 1991 Sega / Westone */
 	DRIVER( ryukyu )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( ryukyua )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( sdib )		/* (c) 1987 (FD1089A, decrypted) */
 	DRIVER( sdibl )		/* (c) 1987 bootleg */
 	DRIVER( defense )	/* (c) 1987 (FD1094, decrypted) */
@@ -3518,8 +3520,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( wb33 )		/* (c) 1988 Sega / Westone (FD1094, decrypted) */
 	DRIVER( wb32 )		/* (c) 1988 Sega / Westone (FD1094, decrypted) */
 	DRIVER( wrestwar )	/* (c) 1989 (8751) */
-	DRIVER( wrestwa2 )	/* (c) 1989 (FD1094, decrypted) */
-	DRIVER( wrestwa1 )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( wrestwar2 )	/* (c) 1989 (FD1094, decrypted) */
+	DRIVER( wrestwar1 )	/* (c) 1989 (FD1094, decrypted) */
 
 	/* Philko Boards */
 	DRIVER( atomicp )	/* (c) 1990 Philko - korean clone board */
