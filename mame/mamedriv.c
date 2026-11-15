@@ -3424,29 +3424,29 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( shangupb )	/* (c) 1992 (but bootleg, hangon hw?) */
 
 	/* Pre-16 */
-	DRIVER( aliensy1 )	/* (c) 1987 (FD1094, decrypted) */
-	DRIVER( aliensy2 )	/* (c) 1987 (FD1094, decrypted) */
+	DRIVER( aliensynjo )	/* (c) 1987 (FD1094, decrypted) */
+	DRIVER( aliensyn2 )	/* (c) 1987 (FD1094, decrypted) */
 	DRIVER( bodyslam )	/* (c) 1986 (8751) */
 	DRIVER( dumpmtmt )	/* (c) 1986 (Japan) */
 	DRIVER( mjleague )	/* (c) 1985 */
 	DRIVER( quartet )	/* (c) 1986 (8751) */
-	DRIVER( quartetj )	/* (c) 1986 (8751) */
+	DRIVER( quarteta )	/* (c) 1986 (8751) */
 	DRIVER( quartet2 )	/* (c) 1986 (8751) */
-	DRIVER( quartt2j )	/* (c) 1986 (8751) */
+	DRIVER( quartet2a )	/* (c) 1986 (8751) */
 
 	/* System16A */
 	DRIVER( afighter )	/* (c) 1986 (FD1089A, decrypted) */
 	DRIVER( alexkidd )	/* (c) 1986 (FD1089A, decrypted) */
-	DRIVER( alexkid1 )	/* (c) 1986 */
+	DRIVER( alexkidd1 )	/* (c) 1986 */
 	DRIVER( fantzone )	/* (c) 1986 */
-	DRIVER( fantzon1 )	/* (c) 1986 */
+	DRIVER( fantzone1 )	/* (c) 1986 */
 	DRIVER( sdi )		/* (c) 1987 (FD1089B, decrypted) */
 	DRIVER( shinobi )	/* (c) 1987 */
 	DRIVER( shinobi1 )	/* (c) 1987 (FD1094, decrypted) */
 	DRIVER( sjryuko1 )	/* (c) 1988 White Board (FD1089B, decrypted) */
 	DRIVER( tetris )	/* (c) 1988 (FD1094, decrypted) S16A */
 	DRIVER( tetris3 )	/* (c) 1988 (FD1094, decrypted) S16A */
-	DRIVER( timesca1 )	/* (c) 1987 (FD1089B, decrypted) */
+	DRIVER( timescan1 )	/* (c) 1987 (FD1089B, decrypted) */
 	DRIVER( wb31 )		/* (c) 1988 Sega / Westone (FD1094, decrypted) */
 
 	/* System 16B */

@@ -5323,7 +5323,7 @@ Sound composer : Masahiro Yuge
 $end
 
 
-$info=alexkidd,alexkid1,
+$info=alexkidd,alexkidd1,
 $bio
 
 Alex Kidd With Stella - The Lost Stars (c) 1986 Sega.
@@ -5778,7 +5778,7 @@ Buttons : 3
 $end
 
 
-$info=aliensyn,aliensy1,aliensy2,aliensy3,
+$info=aliensyn,aliensynjo,aliensyn2,aliensy3,
 $bio
 
 Alien Syndrome (c) 01/1987 Sega.
@@ -66615,7 +66615,7 @@ Buttons : 2
 $end
 
 
-$info=fantzone,fantzon1,
+$info=fantzone,fantzone1,
 $bio
 
 Fantasy Zone (c) 03/1986 Sega.
@@ -168883,7 +168883,7 @@ Technical advisor : Patrick Curran
 $end
 
 
-$info=quartet,quartetj,quartet2,quartt2j,
+$info=quartet,quarteta,quartet2,quartet2a,
 $bio
 
 Quartet (c) 04/1986 Sega.
@@ -234834,7 +234834,7 @@ Commodore C64 (1985, "Time Pilot II")
 $end
 
 
-$info=timescan,timesca1,
+$info=timescan,timescan1,
 $bio
 
 Time Scanner (c) 1987 Sega.

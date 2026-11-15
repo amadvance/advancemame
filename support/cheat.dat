@@ -3640,47 +3640,47 @@
 :alcon:00000000:C1DA:00000028:FFFFFFFF:Rapid Fire - Side Shot
 
 ; [ Alex Kidd: The Lost Stars (set 1, FD1089A 317-unknown) ]
-:alexkid1:00000000:FFF000:00000009:FFFFFFFF:Infinite Credits
-:alexkid1:00000000:FFEF57:0000005A:FFFFFFFF:Infinite Time PL1
-:alexkid1:00000000:FFEF50:00000006:FFFFFFFF:Infinite Lives PL1
-:alexkid1:00000000:FFD840:00000003:FFFFFFFF:Single Shot PL1
-:alexkid1:00000000:FFD84C:0000005D:FFFFFFFF:Invincibility PL1
-:alexkid1:00000000:FFEF61:00000058:FFFFFFFF:Infinite 'Shot 1' Time PL1
-:alexkid1:00000000:FFEF63:00000058:FFFFFFFF:Infinite 'Shot 2' Time PL1
-:alexkid1:00000000:FFEF65:00000058:FFFFFFFF:Infinite 'Jump' Time PL1
-:alexkid1:00000000:FFEF67:00000058:FFFFFFFF:Infinite 'Speed' Time PL1
-:alexkid1:60000000:000000:00000000:00000000:[Don't use the 'Shot 1' and ]
-:alexkid1:60000000:000000:00000000:00000000:[the 'Shot 2' simultaneously]
-:alexkid1:60000000:000000:00000000:00000000:[The items will not be      ]
-:alexkid1:60000000:000000:00000000:00000000:[displayed correctly!!      ]
-:alexkid1:00000000:FFD840:00000002:00000002:Always have 'Shot 1' PL1
-:alexkid1:00000001:FFD840:00000000:00000002:Lose 'Shot 1' Now! PL1
-:alexkid1:00000000:FFD840:00000004:00000004:Always have 'Shot 2' PL1
-:alexkid1:00000001:FFD840:00000000:00000004:Lose 'Shot 2' Now! PL1
-:alexkid1:00000000:FFD840:00000008:00000008:Always have 'Jump' PL1
-:alexkid1:00000001:FFD840:00000000:00000008:Lose 'Jump' Now! PL1
-:alexkid1:00000000:FFD840:00000010:00000010:Always have 'Speed' PL1
-:alexkid1:00000001:FFD840:00000000:00000010:Lose 'Speed' Now! PL1
-:alexkid1:00000000:FFEFB7:0000005A:FFFFFFFF:Infinite Time PL2
-:alexkid1:00000000:FFEFB0:00000006:FFFFFFFF:Infinite Lives PL2
-:alexkid1:00000000:FFDA20:00000003:FFFFFFFF:Single Shot PL2
-:alexkid1:00000000:FFDA2C:0000005D:FFFFFFFF:Invincibility PL2
-:alexkid1:00000000:FFEFC1:00000058:FFFFFFFF:Infinite 'Shot 1' Time PL2
-:alexkid1:00000000:FFEFC3:00000058:FFFFFFFF:Infinite 'Shot 2' Time PL2
-:alexkid1:00000000:FFEFC5:00000058:FFFFFFFF:Infinite 'Jump' Time PL2
-:alexkid1:00000000:FFEFC7:00000058:FFFFFFFF:Infinite 'Speed' Time PL2
-:alexkid1:60000000:000000:00000000:00000000:[Don't use the 'Shot 1' and ]
-:alexkid1:60000000:000000:00000000:00000000:[the 'Shot 2' simultaneously]
-:alexkid1:60000000:000000:00000000:00000000:[The items will not be      ]
-:alexkid1:60000000:000000:00000000:00000000:[displayed correctly!!      ]
-:alexkid1:00000000:FFDA20:00000002:00000002:Always have 'Shot 1' PL2
-:alexkid1:00000001:FFDA20:00000000:00000002:Lose 'Shot 1' Now! PL2
-:alexkid1:00000000:FFDA20:00000004:00000004:Always have 'Shot 2' PL2
-:alexkid1:00000001:FFDA20:00000000:00000004:Lose 'Shot 2' Now! PL2
-:alexkid1:00000000:FFDA20:00000008:00000008:Always have 'Jump' PL2
-:alexkid1:00000001:FFDA20:00000000:00000008:Lose 'Jump' Now! PL2
-:alexkid1:00000000:FFDA20:00000010:00000010:Always have 'Speed' PL2
-:alexkid1:00000001:FFDA20:00000000:00000010:Lose 'Speed' Now! PL2
+:alexkidd1:00000000:FFF000:00000009:FFFFFFFF:Infinite Credits
+:alexkidd1:00000000:FFEF57:0000005A:FFFFFFFF:Infinite Time PL1
+:alexkidd1:00000000:FFEF50:00000006:FFFFFFFF:Infinite Lives PL1
+:alexkidd1:00000000:FFD840:00000003:FFFFFFFF:Single Shot PL1
+:alexkidd1:00000000:FFD84C:0000005D:FFFFFFFF:Invincibility PL1
+:alexkidd1:00000000:FFEF61:00000058:FFFFFFFF:Infinite 'Shot 1' Time PL1
+:alexkidd1:00000000:FFEF63:00000058:FFFFFFFF:Infinite 'Shot 2' Time PL1
+:alexkidd1:00000000:FFEF65:00000058:FFFFFFFF:Infinite 'Jump' Time PL1
+:alexkidd1:00000000:FFEF67:00000058:FFFFFFFF:Infinite 'Speed' Time PL1
+:alexkidd1:60000000:000000:00000000:00000000:[Don't use the 'Shot 1' and ]
+:alexkidd1:60000000:000000:00000000:00000000:[the 'Shot 2' simultaneously]
+:alexkidd1:60000000:000000:00000000:00000000:[The items will not be      ]
+:alexkidd1:60000000:000000:00000000:00000000:[displayed correctly!!      ]
+:alexkidd1:00000000:FFD840:00000002:00000002:Always have 'Shot 1' PL1
+:alexkidd1:00000001:FFD840:00000000:00000002:Lose 'Shot 1' Now! PL1
+:alexkidd1:00000000:FFD840:00000004:00000004:Always have 'Shot 2' PL1
+:alexkidd1:00000001:FFD840:00000000:00000004:Lose 'Shot 2' Now! PL1
+:alexkidd1:00000000:FFD840:00000008:00000008:Always have 'Jump' PL1
+:alexkidd1:00000001:FFD840:00000000:00000008:Lose 'Jump' Now! PL1
+:alexkidd1:00000000:FFD840:00000010:00000010:Always have 'Speed' PL1
+:alexkidd1:00000001:FFD840:00000000:00000010:Lose 'Speed' Now! PL1
+:alexkidd1:00000000:FFEFB7:0000005A:FFFFFFFF:Infinite Time PL2
+:alexkidd1:00000000:FFEFB0:00000006:FFFFFFFF:Infinite Lives PL2
+:alexkidd1:00000000:FFDA20:00000003:FFFFFFFF:Single Shot PL2
+:alexkidd1:00000000:FFDA2C:0000005D:FFFFFFFF:Invincibility PL2
+:alexkidd1:00000000:FFEFC1:00000058:FFFFFFFF:Infinite 'Shot 1' Time PL2
+:alexkidd1:00000000:FFEFC3:00000058:FFFFFFFF:Infinite 'Shot 2' Time PL2
+:alexkidd1:00000000:FFEFC5:00000058:FFFFFFFF:Infinite 'Jump' Time PL2
+:alexkidd1:00000000:FFEFC7:00000058:FFFFFFFF:Infinite 'Speed' Time PL2
+:alexkidd1:60000000:000000:00000000:00000000:[Don't use the 'Shot 1' and ]
+:alexkidd1:60000000:000000:00000000:00000000:[the 'Shot 2' simultaneously]
+:alexkidd1:60000000:000000:00000000:00000000:[The items will not be      ]
+:alexkidd1:60000000:000000:00000000:00000000:[displayed correctly!!      ]
+:alexkidd1:00000000:FFDA20:00000002:00000002:Always have 'Shot 1' PL2
+:alexkidd1:00000001:FFDA20:00000000:00000002:Lose 'Shot 1' Now! PL2
+:alexkidd1:00000000:FFDA20:00000004:00000004:Always have 'Shot 2' PL2
+:alexkidd1:00000001:FFDA20:00000000:00000004:Lose 'Shot 2' Now! PL2
+:alexkidd1:00000000:FFDA20:00000008:00000008:Always have 'Jump' PL2
+:alexkidd1:00000001:FFDA20:00000000:00000008:Lose 'Jump' Now! PL2
+:alexkidd1:00000000:FFDA20:00000010:00000010:Always have 'Speed' PL2
+:alexkidd1:00000001:FFDA20:00000000:00000010:Lose 'Speed' Now! PL2
 
 ; [ Alex Kidd: The Lost Stars (set 2, unprotected) ]
 :alexkidd:00000000:FFF000:00000009:FFFFFFFF:Infinite Credits
@@ -4187,28 +4187,28 @@
 :aliensu:00000020:0812:000000FF:FFFFFFFF:Sound Test Code Stop:[PL2 Start]Next Code
 
 ; [ Alien Syndrome (set 1, System 16A, FD1089A 317-0033) ]
-:aliensy1:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
-:aliensy1:00000000:FFC113:0000009A:FFFFFFFF:Infinite Time
-:aliensy1:00000000:FFCBB0:00000001:FFFFFFFF:Infinite Map Time
-:aliensy1:00000000:FFC131:00000000:FFFFFFFF:One Comrade Opens The Exit
-:aliensy1:00000000:FFC234:00000005:FFFFFFFF:Infinite Lives PL1
-:aliensy1:00000000:FFC235:00000001:FFFFFFFF:Invincibility PL1
-:aliensy1:00000000:FFC243:00000000:FFFFFFFF:Rapid Fire PL1
-:aliensy1:00000000:FFC2B4:00000005:FFFFFFFF:Infinite Lives PL2
-:aliensy1:00000000:FFC2B5:00000001:FFFFFFFF:Invincibility PL2
-:aliensy1:00000000:FFC2C3:00000000:FFFFFFFF:Rapid Fire PL2
+:aliensynjo:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
+:aliensynjo:00000000:FFC113:0000009A:FFFFFFFF:Infinite Time
+:aliensynjo:00000000:FFCBB0:00000001:FFFFFFFF:Infinite Map Time
+:aliensynjo:00000000:FFC131:00000000:FFFFFFFF:One Comrade Opens The Exit
+:aliensynjo:00000000:FFC234:00000005:FFFFFFFF:Infinite Lives PL1
+:aliensynjo:00000000:FFC235:00000001:FFFFFFFF:Invincibility PL1
+:aliensynjo:00000000:FFC243:00000000:FFFFFFFF:Rapid Fire PL1
+:aliensynjo:00000000:FFC2B4:00000005:FFFFFFFF:Infinite Lives PL2
+:aliensynjo:00000000:FFC2B5:00000001:FFFFFFFF:Invincibility PL2
+:aliensynjo:00000000:FFC2C3:00000000:FFFFFFFF:Rapid Fire PL2
 
 ; [ Alien Syndrome (set 2, System 16A, FD1089A 317-0033) ]
-:aliensy2:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
-:aliensy2:00000000:FFC113:0000009A:FFFFFFFF:Infinite Time
-:aliensy2:00000000:FFCBB0:00000001:FFFFFFFF:Infinite Map Time
-:aliensy2:00000000:FFC131:00000000:FFFFFFFF:One Comrade Opens The Exit
-:aliensy2:00000000:FFC234:00000005:FFFFFFFF:Infinite Lives PL1
-:aliensy2:00000000:FFC235:00000001:FFFFFFFF:Invincibility PL1
-:aliensy2:00000000:FFC243:00000000:FFFFFFFF:Rapid Fire PL1
-:aliensy2:00000000:FFC2B4:00000005:FFFFFFFF:Infinite Lives PL2
-:aliensy2:00000000:FFC2B5:00000001:FFFFFFFF:Invincibility PL2
-:aliensy2:00000000:FFC2C3:00000000:FFFFFFFF:Rapid Fire PL2
+:aliensyn2:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
+:aliensyn2:00000000:FFC113:0000009A:FFFFFFFF:Infinite Time
+:aliensyn2:00000000:FFCBB0:00000001:FFFFFFFF:Infinite Map Time
+:aliensyn2:00000000:FFC131:00000000:FFFFFFFF:One Comrade Opens The Exit
+:aliensyn2:00000000:FFC234:00000005:FFFFFFFF:Infinite Lives PL1
+:aliensyn2:00000000:FFC235:00000001:FFFFFFFF:Invincibility PL1
+:aliensyn2:00000000:FFC243:00000000:FFFFFFFF:Rapid Fire PL1
+:aliensyn2:00000000:FFC2B4:00000005:FFFFFFFF:Infinite Lives PL2
+:aliensyn2:00000000:FFC2B5:00000001:FFFFFFFF:Invincibility PL2
+:aliensyn2:00000000:FFC2C3:00000000:FFFFFFFF:Rapid Fire PL2
 
 ; [ Alien Syndrome (set 3, System 16B, FD1089A 317-0033) ]
 :aliensy3:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
@@ -43348,70 +43348,70 @@
 :fantzn2:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Fantasy Zone (set 1, unprotected) ]
-:fantzon1:00000000:FFC40C:00000099:FFFFFFFF:Infinite Gold PL1
-:fantzon1:00010000:FFC40D:00000099:FFFFFFFF:Infinite Gold PL1 (2/4)
-:fantzon1:00010000:FFC40E:00000099:FFFFFFFF:Infinite Gold PL1 (3/4)
-:fantzon1:00010000:FFC40F:00000099:FFFFFFFF:Infinite Gold PL1 (4/4)
-:fantzon1:00000000:FFC41C:00000099:FFFFFFFF:Infinite Gold PL2
-:fantzon1:00010000:FFC41D:00000099:FFFFFFFF:Infinite Gold PL2 (2/4)
-:fantzon1:00010000:FFC41E:00000099:FFFFFFFF:Infinite Gold PL2 (3/4)
-:fantzon1:00010000:FFC41F:00000099:FFFFFFFF:Infinite Gold PL2 (4/4)
-:fantzon1:00000000:FFC003:00000006:FFFFFFFF:Infinite Lives
-:fantzon1:20900000:007CD4:00004E71:FFFFFFFF:Invincibility
-:fantzon1:20910000:00A878:00004E75:FFFFFFFF:Invincibility (2/2):1st = Fire, 2nd = Enemy
-:fantzon1:00000000:FF03BB:00000001:FFFFFFFF:Rapid Fire - Shot
-:fantzon1:00000000:FF03DB:00000001:FFFFFFFF:Rapid Fire - Bomb
-:fantzon1:00000001:FFC23B:00000010:00000010:Stage clear in 7 seconds Now!
-:fantzon1:00000001:FFC23B:00000080:00000080:Go to Parts Shop or Menu Now!
-:fantzon1:00000001:FFC23B:00000004:00000004:Switch to PL2 Now!
-:fantzon1:00000001:FFC23B:00000000:00000004:Switch to PL1 Now!
-:fantzon1:00000001:FFC23B:00000001:00000001:Switch DEMO Mode "ON" Now!
-:fantzon1:00000001:FFC23B:00000000:00000001:Switch DEMO Mode "OFF" Now!
-:fantzon1:00000000:FFC3FE:00000099:FFFFFFFF:Infinite Shop Time
-:fantzon1:00000000:FFC00B:00000030:FFFFFFFF:Infinite Menu Time
-:fantzon1:00000000:FFC4AD:000000FF:FFFFFFFF:Infinite Weapon Time
-:fantzon1:00000000:FFC065:0000000A:FFFFFFFF:Infinite Fire Bomb
-:fantzon1:00000000:FFC067:0000000A:FFFFFFFF:Infinite Smart Bomb
-:fantzon1:00000000:FFC069:0000000A:FFFFFFFF:Infinite Heavy Bomb
-:fantzon1:00000000:FFC2FB:00000000:FFFFFFFF:Always have Small Wing
-:fantzon1:00000000:FFC2FB:00000001:FFFFFFFF:Always have Big Wing
-:fantzon1:00000000:FFC2FB:00000002:FFFFFFFF:Always have Jet Engine
-:fantzon1:00000000:FFC2FB:00000003:FFFFFFFF:Always have Turbo Engine
-:fantzon1:00000000:FFC2FB:00000004:FFFFFFFF:Always have Rocket Engine
-:fantzon1:00000000:FFC2EB:00000000:FFFFFFFF:Always have Single Bomb
-:fantzon1:00000000:FFC2EB:00000001:FFFFFFFF:Always have Twin Bomb
-:fantzon1:00000000:FFC2EB:00000002:FFFFFFFF:Always have Fire Bomb
-:fantzon1:00000000:FFC2EB:00000003:FFFFFFFF:Always have Smart Bomb
-:fantzon1:00000000:FFC2EB:00000004:FFFFFFFF:Always have Heavy Bomb
-:fantzon1:00000000:FFC2DB:00000000:FFFFFFFF:Always have Twin Shot
-:fantzon1:00000000:FFC2DB:00000001:FFFFFFFF:Always have Laser Beam Shot
-:fantzon1:00000000:FFC2DB:00000002:FFFFFFFF:Always have Wide Beam Shot
-:fantzon1:00000000:FFC2DB:00000003:FFFFFFFF:Always have 7-way Shot
-:fantzon1:00000001:FFC2FB:00000000:FFFFFFFF:Get Small Wing Now!
-:fantzon1:00000001:FFC2FB:00000001:FFFFFFFF:Get Big Wing Now!
-:fantzon1:00000001:FFC2FB:00000002:FFFFFFFF:Get Jet Engine Now!
-:fantzon1:00000001:FFC2FB:00000003:FFFFFFFF:Get Turbo Engine Now!
-:fantzon1:00000001:FFC2FB:00000004:FFFFFFFF:Get Rocket Engine Now!
-:fantzon1:00000001:FFC2EB:00000000:FFFFFFFF:Get Single Bomb Now!
-:fantzon1:00000001:FFC2EB:00000001:FFFFFFFF:Get Twin Bomb Now!
-:fantzon1:00000001:FFC2EB:00000002:FFFFFFFF:Get Fire Bomb Now!
-:fantzon1:00000001:FFC2EB:00000003:FFFFFFFF:Get Smart Bomb Now!
-:fantzon1:00000001:FFC2EB:00000004:FFFFFFFF:Get Heavy Bomb Now!
-:fantzon1:00000001:FFC2DB:00000000:FFFFFFFF:Get Twin Shot Now!
-:fantzon1:00000001:FFC2DB:00000001:FFFFFFFF:Get Laser Beam Shot Now!
-:fantzon1:00000001:FFC2DB:00000002:FFFFFFFF:Get Wide Beam Shot Now!
-:fantzon1:00000001:FFC2DB:00000003:FFFFFFFF:Get 7-way Shot Now!
-:fantzon1:00000001:FFC023:000000FF:FFFFFFFF:Get All Parts Now!
-:fantzon1:00010001:FFC025:000000FF:FFFFFFFF:Get All Parts Now! (02/11)
-:fantzon1:00010001:FFC027:000000FF:FFFFFFFF:Get All Parts Now! (03/11)
-:fantzon1:00010001:FFC029:000000FF:FFFFFFFF:Get All Parts Now! (04/11)
-:fantzon1:00010001:FFC043:000000FF:FFFFFFFF:Get All Parts Now! (05/11)
-:fantzon1:00010001:FFC045:000000FF:FFFFFFFF:Get All Parts Now! (06/11)
-:fantzon1:00010001:FFC047:000000FF:FFFFFFFF:Get All Parts Now! (07/11)
-:fantzon1:00010001:FFC063:000000FF:FFFFFFFF:Get All Parts Now! (08/11)
-:fantzon1:00010001:FFC065:0000000A:FFFFFFFF:Get All Parts Now! (09/11)
-:fantzon1:00010001:FFC067:0000000A:FFFFFFFF:Get All Parts Now! (10/11)
-:fantzon1:00010001:FFC069:0000000A:FFFFFFFF:Get All Parts Now! (11/11)
+:fantzone1:00000000:FFC40C:00000099:FFFFFFFF:Infinite Gold PL1
+:fantzone1:00010000:FFC40D:00000099:FFFFFFFF:Infinite Gold PL1 (2/4)
+:fantzone1:00010000:FFC40E:00000099:FFFFFFFF:Infinite Gold PL1 (3/4)
+:fantzone1:00010000:FFC40F:00000099:FFFFFFFF:Infinite Gold PL1 (4/4)
+:fantzone1:00000000:FFC41C:00000099:FFFFFFFF:Infinite Gold PL2
+:fantzone1:00010000:FFC41D:00000099:FFFFFFFF:Infinite Gold PL2 (2/4)
+:fantzone1:00010000:FFC41E:00000099:FFFFFFFF:Infinite Gold PL2 (3/4)
+:fantzone1:00010000:FFC41F:00000099:FFFFFFFF:Infinite Gold PL2 (4/4)
+:fantzone1:00000000:FFC003:00000006:FFFFFFFF:Infinite Lives
+:fantzone1:20900000:007CD4:00004E71:FFFFFFFF:Invincibility
+:fantzone1:20910000:00A878:00004E75:FFFFFFFF:Invincibility (2/2):1st = Fire, 2nd = Enemy
+:fantzone1:00000000:FF03BB:00000001:FFFFFFFF:Rapid Fire - Shot
+:fantzone1:00000000:FF03DB:00000001:FFFFFFFF:Rapid Fire - Bomb
+:fantzone1:00000001:FFC23B:00000010:00000010:Stage clear in 7 seconds Now!
+:fantzone1:00000001:FFC23B:00000080:00000080:Go to Parts Shop or Menu Now!
+:fantzone1:00000001:FFC23B:00000004:00000004:Switch to PL2 Now!
+:fantzone1:00000001:FFC23B:00000000:00000004:Switch to PL1 Now!
+:fantzone1:00000001:FFC23B:00000001:00000001:Switch DEMO Mode "ON" Now!
+:fantzone1:00000001:FFC23B:00000000:00000001:Switch DEMO Mode "OFF" Now!
+:fantzone1:00000000:FFC3FE:00000099:FFFFFFFF:Infinite Shop Time
+:fantzone1:00000000:FFC00B:00000030:FFFFFFFF:Infinite Menu Time
+:fantzone1:00000000:FFC4AD:000000FF:FFFFFFFF:Infinite Weapon Time
+:fantzone1:00000000:FFC065:0000000A:FFFFFFFF:Infinite Fire Bomb
+:fantzone1:00000000:FFC067:0000000A:FFFFFFFF:Infinite Smart Bomb
+:fantzone1:00000000:FFC069:0000000A:FFFFFFFF:Infinite Heavy Bomb
+:fantzone1:00000000:FFC2FB:00000000:FFFFFFFF:Always have Small Wing
+:fantzone1:00000000:FFC2FB:00000001:FFFFFFFF:Always have Big Wing
+:fantzone1:00000000:FFC2FB:00000002:FFFFFFFF:Always have Jet Engine
+:fantzone1:00000000:FFC2FB:00000003:FFFFFFFF:Always have Turbo Engine
+:fantzone1:00000000:FFC2FB:00000004:FFFFFFFF:Always have Rocket Engine
+:fantzone1:00000000:FFC2EB:00000000:FFFFFFFF:Always have Single Bomb
+:fantzone1:00000000:FFC2EB:00000001:FFFFFFFF:Always have Twin Bomb
+:fantzone1:00000000:FFC2EB:00000002:FFFFFFFF:Always have Fire Bomb
+:fantzone1:00000000:FFC2EB:00000003:FFFFFFFF:Always have Smart Bomb
+:fantzone1:00000000:FFC2EB:00000004:FFFFFFFF:Always have Heavy Bomb
+:fantzone1:00000000:FFC2DB:00000000:FFFFFFFF:Always have Twin Shot
+:fantzone1:00000000:FFC2DB:00000001:FFFFFFFF:Always have Laser Beam Shot
+:fantzone1:00000000:FFC2DB:00000002:FFFFFFFF:Always have Wide Beam Shot
+:fantzone1:00000000:FFC2DB:00000003:FFFFFFFF:Always have 7-way Shot
+:fantzone1:00000001:FFC2FB:00000000:FFFFFFFF:Get Small Wing Now!
+:fantzone1:00000001:FFC2FB:00000001:FFFFFFFF:Get Big Wing Now!
+:fantzone1:00000001:FFC2FB:00000002:FFFFFFFF:Get Jet Engine Now!
+:fantzone1:00000001:FFC2FB:00000003:FFFFFFFF:Get Turbo Engine Now!
+:fantzone1:00000001:FFC2FB:00000004:FFFFFFFF:Get Rocket Engine Now!
+:fantzone1:00000001:FFC2EB:00000000:FFFFFFFF:Get Single Bomb Now!
+:fantzone1:00000001:FFC2EB:00000001:FFFFFFFF:Get Twin Bomb Now!
+:fantzone1:00000001:FFC2EB:00000002:FFFFFFFF:Get Fire Bomb Now!
+:fantzone1:00000001:FFC2EB:00000003:FFFFFFFF:Get Smart Bomb Now!
+:fantzone1:00000001:FFC2EB:00000004:FFFFFFFF:Get Heavy Bomb Now!
+:fantzone1:00000001:FFC2DB:00000000:FFFFFFFF:Get Twin Shot Now!
+:fantzone1:00000001:FFC2DB:00000001:FFFFFFFF:Get Laser Beam Shot Now!
+:fantzone1:00000001:FFC2DB:00000002:FFFFFFFF:Get Wide Beam Shot Now!
+:fantzone1:00000001:FFC2DB:00000003:FFFFFFFF:Get 7-way Shot Now!
+:fantzone1:00000001:FFC023:000000FF:FFFFFFFF:Get All Parts Now!
+:fantzone1:00010001:FFC025:000000FF:FFFFFFFF:Get All Parts Now! (02/11)
+:fantzone1:00010001:FFC027:000000FF:FFFFFFFF:Get All Parts Now! (03/11)
+:fantzone1:00010001:FFC029:000000FF:FFFFFFFF:Get All Parts Now! (04/11)
+:fantzone1:00010001:FFC043:000000FF:FFFFFFFF:Get All Parts Now! (05/11)
+:fantzone1:00010001:FFC045:000000FF:FFFFFFFF:Get All Parts Now! (06/11)
+:fantzone1:00010001:FFC047:000000FF:FFFFFFFF:Get All Parts Now! (07/11)
+:fantzone1:00010001:FFC063:000000FF:FFFFFFFF:Get All Parts Now! (08/11)
+:fantzone1:00010001:FFC065:0000000A:FFFFFFFF:Get All Parts Now! (09/11)
+:fantzone1:00010001:FFC067:0000000A:FFFFFFFF:Get All Parts Now! (10/11)
+:fantzone1:00010001:FFC069:0000000A:FFFFFFFF:Get All Parts Now! (11/11)
 
 ; [ Fantasy Zone (set 2, unprotected) ]
 :fantzone:00000000:FFC40C:00000099:FFFFFFFF:Infinite Gold PL1
@@ -137377,72 +137377,72 @@
 :quartet2:00800000:FFCB8B:00000063:FFFFFFFF:Always Maximum Bonus PL4:Take effect in the Presentation Ceremony screen after finished stage
 
 ; [ Quartet (Japan, 8751 317-unknown) ]
-:quartetj:60000000:000000:00000000:00000000:[     PL1 is Blue (Lee)     ]
-:quartetj:60000000:000000:00000000:00000000:[     PL2 is Yellow (Joe)   ]
-:quartetj:60000000:000000:00000000:00000000:[     PL3 is Red (Mary)     ]
-:quartetj:60000000:000000:00000000:00000000:[     PL4 is Green (Edgar)  ]
-:quartetj:00100000:FFCC64:00001000:FFFFFFFF:Infinite Time
-:quartetj:00100001:FFCC64:00000000:FFFFFFFF:Time Up Now!:Death approaches soon
-:quartetj:00800000:FFCC25:0000000F:FFFFFFFF:No Stop type Enemies
-:quartetj:00800000:FFCC27:000000FF:FFFFFFFF:No Destroy type Enemies
-:quartetj:00000301:FFC831:0000001F:FFFFFFFF:Select Stage
-:quartetj:00000301:FFC833:0000001F:FFFFFFFF:Select Stage (Display)
-:quartetj:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits PL1
-:quartetj:00000000:FFC810:00000009:FFFFFFFF:Infinite Energy PL1
-:quartetj:00010000:FFC811:00000000:FFFFFFFF:Infinite Energy PL1 (2/2)
-:quartetj:00000000:FFD02B:00000077:FFFFFFFF:Invincibility PL1
-:quartetj:00010000:FFD028:00000008:00000008:Invincibility PL1 (2/2)
-:quartetj:00800000:FFD027:0000000C:FFFFFFFF:Always Maximum Shot Power PL1
-:quartetj:00800000:FFD028:00000008:00000008:Always Have Shield PL1
-:quartetj:00800000:FFD028:00000080:00000080:Always Have Speed Up PL1
-:quartetj:00800000:FFD028:00000040:00000040:Always Have Jump High PL1
-:quartetj:00800000:FFD028:00000004:00000004:Always Have Scores Double PL1
-:quartetj:00800000:FFD021:00000020:00000020:Always Have Jet Engine PL1
-:quartetj:00800000:FFD001:00000080:FFFFFFFF:Always Have Key PL1
-:quartetj:00800000:FFCA0B:00000063:FFFFFFFF:Always Maximum Bonus PL1:Take effect in the Presentation Ceremony screen after finished stage
-:quartetj:00000000:FFCC11:00000000:00000010:Rapid Fire PL1:Hold shot button
-:quartetj:00000000:FFC010:00000009:FFFFFFFF:Infinite Credits PL2
-:quartetj:00000000:FFC812:00000009:FFFFFFFF:Infinite Energy PL2
-:quartetj:00010000:FFC813:00000000:FFFFFFFF:Infinite Energy PL2 (2/2)
-:quartetj:00000000:FFD07B:00000077:FFFFFFFF:Invincibility PL2
-:quartetj:00010000:FFD078:00000008:00000008:Invincibility PL2 (2/2)
-:quartetj:00800000:FFD077:0000000D:FFFFFFFF:Always Maximum Shot Power PL2
-:quartetj:00800000:FFD078:00000008:00000008:Always Have Shield PL2
-:quartetj:00800000:FFD078:00000080:00000080:Always Have Speed Up PL2
-:quartetj:00800000:FFD078:00000040:00000040:Always Have Jump High PL2
-:quartetj:00800000:FFD078:00000004:00000004:Always Have Scores Double PL2
-:quartetj:00800000:FFD071:00000020:00000020:Always Have Jet Engine PL2
-:quartetj:00800000:FFD051:00000080:FFFFFFFF:Always Have Key PL2
-:quartetj:00800000:FFCA8B:00000063:FFFFFFFF:Always Maximum Bonus PL2:Take effect in the Presentation Ceremony screen after finished stage
-:quartetj:00000000:FFCC13:00000000:00000010:Rapid Fire PL2:Hold shot button
-:quartetj:00000000:FFC020:00000009:FFFFFFFF:Infinite Credits PL3
-:quartetj:00000000:FFC814:00000009:FFFFFFFF:Infinite Energy PL3
-:quartetj:00010000:FFC815:00000000:FFFFFFFF:Infinite Energy PL3 (2/2)
-:quartetj:00000000:FFD0CB:00000077:FFFFFFFF:Invincibility PL3
-:quartetj:00010000:FFD0C8:00000008:00000008:Invincibility PL3 (2/2)
-:quartetj:00800000:FFD0C7:0000000E:FFFFFFFF:Always Maximum Shot Power PL3
-:quartetj:00800000:FFD0C8:00000008:00000008:Always Have Shield PL3
-:quartetj:00800000:FFD0C8:00000080:00000080:Always Have Speed Up PL3
-:quartetj:00800000:FFD0C8:00000040:00000040:Always Have Jump High PL3
-:quartetj:00800000:FFD0C8:00000004:00000004:Always Have Scores Double PL3
-:quartetj:00800000:FFD0C1:00000020:00000020:Always Have Jet Engine PL3
-:quartetj:00800000:FFD0A1:00000080:FFFFFFFF:Always Have Key PL3
-:quartetj:00800000:FFCB0B:00000063:FFFFFFFF:Always Maximum Bonus PL3:Take effect in the Presentation Ceremony screen after finished stage
-:quartetj:00000000:FFCC15:00000000:00000010:Rapid Fire PL3:Hold shot button
-:quartetj:00000000:FFC030:00000009:FFFFFFFF:Infinite Credits PL4
-:quartetj:00000000:FFC816:00000009:FFFFFFFF:Infinite Energy PL4
-:quartetj:00010000:FFC817:00000000:FFFFFFFF:Infinite Energy PL4 (2/2)
-:quartetj:00000000:FFD11B:00000077:FFFFFFFF:Invincibility PL4
-:quartetj:00010000:FFD118:00000008:00000008:Invincibility PL4 (2/2)
-:quartetj:00800000:FFD117:0000000F:FFFFFFFF:Always Maximum Shot Power PL4
-:quartetj:00800000:FFD118:00000008:00000008:Always Have Shield PL4
-:quartetj:00800000:FFD118:00000080:00000080:Always Have Speed Up PL4
-:quartetj:00800000:FFD118:00000040:00000040:Always Have Jump High PL4
-:quartetj:00800000:FFD118:00000004:00000004:Always Have Scores Double PL4
-:quartetj:00800000:FFD111:00000020:00000020:Always Have Jet Engine PL4
-:quartetj:00800000:FFD0F1:00000080:FFFFFFFF:Always Have Key PL4
-:quartetj:00800000:FFCB8B:00000063:FFFFFFFF:Always Maximum Bonus PL4:Take effect in the Presentation Ceremony screen after finished stage
-:quartetj:00000000:FFCC17:00000000:00000010:Rapid Fire PL4:Hold shot button
+:quarteta:60000000:000000:00000000:00000000:[     PL1 is Blue (Lee)     ]
+:quarteta:60000000:000000:00000000:00000000:[     PL2 is Yellow (Joe)   ]
+:quarteta:60000000:000000:00000000:00000000:[     PL3 is Red (Mary)     ]
+:quarteta:60000000:000000:00000000:00000000:[     PL4 is Green (Edgar)  ]
+:quarteta:00100000:FFCC64:00001000:FFFFFFFF:Infinite Time
+:quarteta:00100001:FFCC64:00000000:FFFFFFFF:Time Up Now!:Death approaches soon
+:quarteta:00800000:FFCC25:0000000F:FFFFFFFF:No Stop type Enemies
+:quarteta:00800000:FFCC27:000000FF:FFFFFFFF:No Destroy type Enemies
+:quarteta:00000301:FFC831:0000001F:FFFFFFFF:Select Stage
+:quarteta:00000301:FFC833:0000001F:FFFFFFFF:Select Stage (Display)
+:quarteta:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits PL1
+:quarteta:00000000:FFC810:00000009:FFFFFFFF:Infinite Energy PL1
+:quarteta:00010000:FFC811:00000000:FFFFFFFF:Infinite Energy PL1 (2/2)
+:quarteta:00000000:FFD02B:00000077:FFFFFFFF:Invincibility PL1
+:quarteta:00010000:FFD028:00000008:00000008:Invincibility PL1 (2/2)
+:quarteta:00800000:FFD027:0000000C:FFFFFFFF:Always Maximum Shot Power PL1
+:quarteta:00800000:FFD028:00000008:00000008:Always Have Shield PL1
+:quarteta:00800000:FFD028:00000080:00000080:Always Have Speed Up PL1
+:quarteta:00800000:FFD028:00000040:00000040:Always Have Jump High PL1
+:quarteta:00800000:FFD028:00000004:00000004:Always Have Scores Double PL1
+:quarteta:00800000:FFD021:00000020:00000020:Always Have Jet Engine PL1
+:quarteta:00800000:FFD001:00000080:FFFFFFFF:Always Have Key PL1
+:quarteta:00800000:FFCA0B:00000063:FFFFFFFF:Always Maximum Bonus PL1:Take effect in the Presentation Ceremony screen after finished stage
+:quarteta:00000000:FFCC11:00000000:00000010:Rapid Fire PL1:Hold shot button
+:quarteta:00000000:FFC010:00000009:FFFFFFFF:Infinite Credits PL2
+:quarteta:00000000:FFC812:00000009:FFFFFFFF:Infinite Energy PL2
+:quarteta:00010000:FFC813:00000000:FFFFFFFF:Infinite Energy PL2 (2/2)
+:quarteta:00000000:FFD07B:00000077:FFFFFFFF:Invincibility PL2
+:quarteta:00010000:FFD078:00000008:00000008:Invincibility PL2 (2/2)
+:quarteta:00800000:FFD077:0000000D:FFFFFFFF:Always Maximum Shot Power PL2
+:quarteta:00800000:FFD078:00000008:00000008:Always Have Shield PL2
+:quarteta:00800000:FFD078:00000080:00000080:Always Have Speed Up PL2
+:quarteta:00800000:FFD078:00000040:00000040:Always Have Jump High PL2
+:quarteta:00800000:FFD078:00000004:00000004:Always Have Scores Double PL2
+:quarteta:00800000:FFD071:00000020:00000020:Always Have Jet Engine PL2
+:quarteta:00800000:FFD051:00000080:FFFFFFFF:Always Have Key PL2
+:quarteta:00800000:FFCA8B:00000063:FFFFFFFF:Always Maximum Bonus PL2:Take effect in the Presentation Ceremony screen after finished stage
+:quarteta:00000000:FFCC13:00000000:00000010:Rapid Fire PL2:Hold shot button
+:quarteta:00000000:FFC020:00000009:FFFFFFFF:Infinite Credits PL3
+:quarteta:00000000:FFC814:00000009:FFFFFFFF:Infinite Energy PL3
+:quarteta:00010000:FFC815:00000000:FFFFFFFF:Infinite Energy PL3 (2/2)
+:quarteta:00000000:FFD0CB:00000077:FFFFFFFF:Invincibility PL3
+:quarteta:00010000:FFD0C8:00000008:00000008:Invincibility PL3 (2/2)
+:quarteta:00800000:FFD0C7:0000000E:FFFFFFFF:Always Maximum Shot Power PL3
+:quarteta:00800000:FFD0C8:00000008:00000008:Always Have Shield PL3
+:quarteta:00800000:FFD0C8:00000080:00000080:Always Have Speed Up PL3
+:quarteta:00800000:FFD0C8:00000040:00000040:Always Have Jump High PL3
+:quarteta:00800000:FFD0C8:00000004:00000004:Always Have Scores Double PL3
+:quarteta:00800000:FFD0C1:00000020:00000020:Always Have Jet Engine PL3
+:quarteta:00800000:FFD0A1:00000080:FFFFFFFF:Always Have Key PL3
+:quarteta:00800000:FFCB0B:00000063:FFFFFFFF:Always Maximum Bonus PL3:Take effect in the Presentation Ceremony screen after finished stage
+:quarteta:00000000:FFCC15:00000000:00000010:Rapid Fire PL3:Hold shot button
+:quarteta:00000000:FFC030:00000009:FFFFFFFF:Infinite Credits PL4
+:quarteta:00000000:FFC816:00000009:FFFFFFFF:Infinite Energy PL4
+:quarteta:00010000:FFC817:00000000:FFFFFFFF:Infinite Energy PL4 (2/2)
+:quarteta:00000000:FFD11B:00000077:FFFFFFFF:Invincibility PL4
+:quarteta:00010000:FFD118:00000008:00000008:Invincibility PL4 (2/2)
+:quarteta:00800000:FFD117:0000000F:FFFFFFFF:Always Maximum Shot Power PL4
+:quarteta:00800000:FFD118:00000008:00000008:Always Have Shield PL4
+:quarteta:00800000:FFD118:00000080:00000080:Always Have Speed Up PL4
+:quarteta:00800000:FFD118:00000040:00000040:Always Have Jump High PL4
+:quarteta:00800000:FFD118:00000004:00000004:Always Have Scores Double PL4
+:quarteta:00800000:FFD111:00000020:00000020:Always Have Jet Engine PL4
+:quarteta:00800000:FFD0F1:00000080:FFFFFFFF:Always Have Key PL4
+:quarteta:00800000:FFCB8B:00000063:FFFFFFFF:Always Maximum Bonus PL4:Take effect in the Presentation Ceremony screen after finished stage
+:quarteta:00000000:FFCC17:00000000:00000010:Rapid Fire PL4:Hold shot button
 
 ; [ Quarth (Japan) ]
 :quarth:00000000:40A0:00000002:FFFFFFFF:Infinite Lives PL1
@@ -137454,67 +137454,67 @@
 :quartrba:00000000:E1C4:00000001:FFFFFFFF:Infinite 1st Downs PL1
 
 ; [ Quartet 2 (Japan, 8751 317-unknown) ]
-:quartt2j:60000000:000000:00000000:00000000:[     PL1 is Blue (Lee)     ]
-:quartt2j:60000000:000000:00000000:00000000:[     PL2 is Yellow (Joe)   ]
-:quartt2j:60000000:000000:00000000:00000000:[     PL3 is Red (Mary)     ]
-:quartt2j:60000000:000000:00000000:00000000:[     PL4 is Green (Edgar)  ]
-:quartt2j:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
-:quartt2j:00100000:FFCC64:00001000:FFFFFFFF:Infinite Time
-:quartt2j:00100001:FFCC64:00000000:FFFFFFFF:Time Up Now!:Death approaches soon
-:quartt2j:00800000:FFCC25:0000000F:FFFFFFFF:No Stop type Enemies
-:quartt2j:00800000:FFCC27:000000FF:FFFFFFFF:No Destroy type Enemies
-:quartt2j:00000301:FFC831:0000001F:FFFFFFFF:Select Stage
-:quartt2j:00000301:FFC833:0000001F:FFFFFFFF:Select Stage (Display)
-:quartt2j:00000000:FFCC13:00000000:00000004:Rapid Fire [1st PLAYER]:Hold shot button
-:quartt2j:00000000:FFCC17:00000000:00000004:Rapid Fire [2nd PLAYER]:Hold shot button
-:quartt2j:00000000:FFC810:00000009:FFFFFFFF:Infinite Energy PL1
-:quartt2j:00010000:FFC811:00000000:FFFFFFFF:Infinite Energy PL1 (2/2)
-:quartt2j:00000000:FFD02B:00000077:FFFFFFFF:Invincibility PL1
-:quartt2j:00010000:FFD028:00000008:00000008:Invincibility PL1 (2/2)
-:quartt2j:00800000:FFD027:0000000C:FFFFFFFF:Always Maximum Shot Power PL1
-:quartt2j:00800000:FFD028:00000008:00000008:Always Have Shield PL1
-:quartt2j:00800000:FFD028:00000080:00000080:Always Have Speed Up PL1
-:quartt2j:00800000:FFD028:00000040:00000040:Always Have Jump High PL1
-:quartt2j:00800000:FFD028:00000004:00000004:Always Have Scores Double PL1
-:quartt2j:00800000:FFD021:00000020:00000020:Always Have Jet Engine PL1
-:quartt2j:00800000:FFD001:00000080:FFFFFFFF:Always Have Key PL1
-:quartt2j:00800000:FFCA0B:00000063:FFFFFFFF:Always Maximum Bonus PL1:Take effect in the Presentation Ceremony screen after finished stage
-:quartt2j:00000000:FFC812:00000009:FFFFFFFF:Infinite Energy PL2
-:quartt2j:00010000:FFC813:00000000:FFFFFFFF:Infinite Energy PL2 (2/2)
-:quartt2j:00000000:FFD07B:00000077:FFFFFFFF:Invincibility PL2
-:quartt2j:00010000:FFD078:00000008:00000008:Invincibility PL2 (2/2)
-:quartt2j:00800000:FFD077:0000000D:FFFFFFFF:Always Maximum Shot Power PL2
-:quartt2j:00800000:FFD078:00000008:00000008:Always Have Shield PL2
-:quartt2j:00800000:FFD078:00000080:00000080:Always Have Speed Up PL2
-:quartt2j:00800000:FFD078:00000040:00000040:Always Have Jump High PL2
-:quartt2j:00800000:FFD078:00000004:00000004:Always Have Scores Double PL2
-:quartt2j:00800000:FFD071:00000020:00000020:Always Have Jet Engine PL2
-:quartt2j:00800000:FFD051:00000080:FFFFFFFF:Always Have Key PL2
-:quartt2j:00800000:FFCA8B:00000063:FFFFFFFF:Always Maximum Bonus PL2:Take effect in the Presentation Ceremony screen after finished stage
-:quartt2j:00000000:FFC814:00000009:FFFFFFFF:Infinite Energy PL3
-:quartt2j:00010000:FFC815:00000000:FFFFFFFF:Infinite Energy PL3 (2/2)
-:quartt2j:00000000:FFD0CB:00000077:FFFFFFFF:Invincibility PL3
-:quartt2j:00010000:FFD0C8:00000008:00000008:Invincibility PL3 (2/2)
-:quartt2j:00800000:FFD0C7:0000000E:FFFFFFFF:Always Maximum Shot Power PL3
-:quartt2j:00800000:FFD0C8:00000008:00000008:Always Have Shield PL3
-:quartt2j:00800000:FFD0C8:00000080:00000080:Always Have Speed Up PL3
-:quartt2j:00800000:FFD0C8:00000040:00000040:Always Have Jump High PL3
-:quartt2j:00800000:FFD0C8:00000004:00000004:Always Have Scores Double PL3
-:quartt2j:00800000:FFD0C1:00000020:00000020:Always Have Jet Engine PL3
-:quartt2j:00800000:FFD0A1:00000080:FFFFFFFF:Always Have Key PL3
-:quartt2j:00800000:FFCB0B:00000063:FFFFFFFF:Always Maximum Bonus PL3:Take effect in the Presentation Ceremony screen after finished stage
-:quartt2j:00000000:FFC816:00000009:FFFFFFFF:Infinite Energy PL4
-:quartt2j:00010000:FFC817:00000000:FFFFFFFF:Infinite Energy PL4 (2/2)
-:quartt2j:00000000:FFD11B:00000077:FFFFFFFF:Invincibility PL4
-:quartt2j:00010000:FFD118:00000008:00000008:Invincibility PL4 (2/2)
-:quartt2j:00800000:FFD117:0000000F:FFFFFFFF:Always Maximum Shot Power PL4
-:quartt2j:00800000:FFD118:00000008:00000008:Always Have Shield PL4
-:quartt2j:00800000:FFD118:00000080:00000080:Always Have Speed Up PL4
-:quartt2j:00800000:FFD118:00000040:00000040:Always Have Jump High PL4
-:quartt2j:00800000:FFD118:00000004:00000004:Always Have Scores Double PL4
-:quartt2j:00800000:FFD111:00000020:00000020:Always Have Jet Engine PL4
-:quartt2j:00800000:FFD0F1:00000080:FFFFFFFF:Always Have Key PL4
-:quartt2j:00800000:FFCB8B:00000063:FFFFFFFF:Always Maximum Bonus PL4:Take effect in the Presentation Ceremony screen after finished stage
+:quartet2a:60000000:000000:00000000:00000000:[     PL1 is Blue (Lee)     ]
+:quartet2a:60000000:000000:00000000:00000000:[     PL2 is Yellow (Joe)   ]
+:quartet2a:60000000:000000:00000000:00000000:[     PL3 is Red (Mary)     ]
+:quartet2a:60000000:000000:00000000:00000000:[     PL4 is Green (Edgar)  ]
+:quartet2a:00000000:FFC000:00000009:FFFFFFFF:Infinite Credits
+:quartet2a:00100000:FFCC64:00001000:FFFFFFFF:Infinite Time
+:quartet2a:00100001:FFCC64:00000000:FFFFFFFF:Time Up Now!:Death approaches soon
+:quartet2a:00800000:FFCC25:0000000F:FFFFFFFF:No Stop type Enemies
+:quartet2a:00800000:FFCC27:000000FF:FFFFFFFF:No Destroy type Enemies
+:quartet2a:00000301:FFC831:0000001F:FFFFFFFF:Select Stage
+:quartet2a:00000301:FFC833:0000001F:FFFFFFFF:Select Stage (Display)
+:quartet2a:00000000:FFCC13:00000000:00000004:Rapid Fire [1st PLAYER]:Hold shot button
+:quartet2a:00000000:FFCC17:00000000:00000004:Rapid Fire [2nd PLAYER]:Hold shot button
+:quartet2a:00000000:FFC810:00000009:FFFFFFFF:Infinite Energy PL1
+:quartet2a:00010000:FFC811:00000000:FFFFFFFF:Infinite Energy PL1 (2/2)
+:quartet2a:00000000:FFD02B:00000077:FFFFFFFF:Invincibility PL1
+:quartet2a:00010000:FFD028:00000008:00000008:Invincibility PL1 (2/2)
+:quartet2a:00800000:FFD027:0000000C:FFFFFFFF:Always Maximum Shot Power PL1
+:quartet2a:00800000:FFD028:00000008:00000008:Always Have Shield PL1
+:quartet2a:00800000:FFD028:00000080:00000080:Always Have Speed Up PL1
+:quartet2a:00800000:FFD028:00000040:00000040:Always Have Jump High PL1
+:quartet2a:00800000:FFD028:00000004:00000004:Always Have Scores Double PL1
+:quartet2a:00800000:FFD021:00000020:00000020:Always Have Jet Engine PL1
+:quartet2a:00800000:FFD001:00000080:FFFFFFFF:Always Have Key PL1
+:quartet2a:00800000:FFCA0B:00000063:FFFFFFFF:Always Maximum Bonus PL1:Take effect in the Presentation Ceremony screen after finished stage
+:quartet2a:00000000:FFC812:00000009:FFFFFFFF:Infinite Energy PL2
+:quartet2a:00010000:FFC813:00000000:FFFFFFFF:Infinite Energy PL2 (2/2)
+:quartet2a:00000000:FFD07B:00000077:FFFFFFFF:Invincibility PL2
+:quartet2a:00010000:FFD078:00000008:00000008:Invincibility PL2 (2/2)
+:quartet2a:00800000:FFD077:0000000D:FFFFFFFF:Always Maximum Shot Power PL2
+:quartet2a:00800000:FFD078:00000008:00000008:Always Have Shield PL2
+:quartet2a:00800000:FFD078:00000080:00000080:Always Have Speed Up PL2
+:quartet2a:00800000:FFD078:00000040:00000040:Always Have Jump High PL2
+:quartet2a:00800000:FFD078:00000004:00000004:Always Have Scores Double PL2
+:quartet2a:00800000:FFD071:00000020:00000020:Always Have Jet Engine PL2
+:quartet2a:00800000:FFD051:00000080:FFFFFFFF:Always Have Key PL2
+:quartet2a:00800000:FFCA8B:00000063:FFFFFFFF:Always Maximum Bonus PL2:Take effect in the Presentation Ceremony screen after finished stage
+:quartet2a:00000000:FFC814:00000009:FFFFFFFF:Infinite Energy PL3
+:quartet2a:00010000:FFC815:00000000:FFFFFFFF:Infinite Energy PL3 (2/2)
+:quartet2a:00000000:FFD0CB:00000077:FFFFFFFF:Invincibility PL3
+:quartet2a:00010000:FFD0C8:00000008:00000008:Invincibility PL3 (2/2)
+:quartet2a:00800000:FFD0C7:0000000E:FFFFFFFF:Always Maximum Shot Power PL3
+:quartet2a:00800000:FFD0C8:00000008:00000008:Always Have Shield PL3
+:quartet2a:00800000:FFD0C8:00000080:00000080:Always Have Speed Up PL3
+:quartet2a:00800000:FFD0C8:00000040:00000040:Always Have Jump High PL3
+:quartet2a:00800000:FFD0C8:00000004:00000004:Always Have Scores Double PL3
+:quartet2a:00800000:FFD0C1:00000020:00000020:Always Have Jet Engine PL3
+:quartet2a:00800000:FFD0A1:00000080:FFFFFFFF:Always Have Key PL3
+:quartet2a:00800000:FFCB0B:00000063:FFFFFFFF:Always Maximum Bonus PL3:Take effect in the Presentation Ceremony screen after finished stage
+:quartet2a:00000000:FFC816:00000009:FFFFFFFF:Infinite Energy PL4
+:quartet2a:00010000:FFC817:00000000:FFFFFFFF:Infinite Energy PL4 (2/2)
+:quartet2a:00000000:FFD11B:00000077:FFFFFFFF:Invincibility PL4
+:quartet2a:00010000:FFD118:00000008:00000008:Invincibility PL4 (2/2)
+:quartet2a:00800000:FFD117:0000000F:FFFFFFFF:Always Maximum Shot Power PL4
+:quartet2a:00800000:FFD118:00000008:00000008:Always Have Shield PL4
+:quartet2a:00800000:FFD118:00000080:00000080:Always Have Speed Up PL4
+:quartet2a:00800000:FFD118:00000040:00000040:Always Have Jump High PL4
+:quartet2a:00800000:FFD118:00000004:00000004:Always Have Scores Double PL4
+:quartet2a:00800000:FFD111:00000020:00000020:Always Have Jet Engine PL4
+:quartet2a:00800000:FFD0F1:00000080:FFFFFFFF:Always Have Key PL4
+:quartet2a:00800000:FFCB8B:00000063:FFFFFFFF:Always Maximum Bonus PL4:Take effect in the Presentation Ceremony screen after finished stage
 
 ; [ Quasar ]
 :quasar:00000000:1EF7:00000099:FFFFFFFF:Infinite Energy
@@ -184652,8 +184652,8 @@
 :timepltc:00000000:AD20:00000007:FFFFFFFF:Infinite Lives PL2
 
 ; [ Time Scanner (set 1, System 16A, FD1089B 317-0024) ]
-:timesca1:00000000:FFC203:00000003:FFFFFFFF:Infinite Lives
-:timesca1:00010000:FFC204:00000001:FFFFFFFF:Infinite Lives (2/2)
+:timescan1:00000000:FFC203:00000003:FFFFFFFF:Infinite Lives
+:timescan1:00010000:FFC204:00000001:FFFFFFFF:Infinite Lives (2/2)
 
 ; [ Time Scanner (set 2, System 16B) ]
 :timescan:00000000:FFC203:00000003:FFFFFFFF:Infinite Lives
@@ -204355,12 +204355,12 @@
 ;ajax=ajaxj=typhoon
 ;akkanvdr=spcinv95=spcnv95u
 ;alcon=slapbtjp=slapbtuk=slapfgtr=slapfiga=slapfigh
-;alexkid1=alexkidd
+;alexkidd1=alexkidd
 ;alien3=alien3u
 ;alienar=alienaru
 ;alieninv=cosmicm2=cosmicmo=invaddlx=invader4=invaderl=invaders=invadpt2=invadrmr=invasion=jspecter=jspectr2=moonbase=searthia=searthin=sicv=sinvemag=sinvzen=sisv=sisv2=sitv=spaceat2=spaceatt=spacewr3=spceking=spcewars=sstrangr=sstrngr2=superinv~polaris~(highspla=highsplt=spacefev=spacefva~=spacelnc)
 ;aliens=aliens2=aliens3=aliensj=aliensj2=aliensu
-;aliensy1=aliensy2=aliensy3=aliensyn
+;aliensynjo=aliensyn2=aliensy3=aliensyn
 ;aligator=aligatun
 ;alphamis=aso
 ;alphaona~alphaone=(mhavoc=mhavoc2=mhavocp=mhavocrv)
@@ -204742,7 +204742,7 @@
 ;fantasy=fantasyu=fantasyj (no relation to spectar!)
 ;fantjour~gokuparo~sexyparo
 ;fantland~fantlnda
-;fantzone=fantzon1
+;fantzone=fantzone1
 ;farmer=ikki
 ;fatfurspa=fatfursp
 ;fcrash=ffight=ffightj=ffightj1=ffightu=ffightua
@@ -205236,7 +205236,7 @@
 ;qntoond=qntoondo    (unchecked relationship)
 ;quantum=quantum1=quantump
 ;quarterb=quartrba
-;quartet=quartetj~=(quartet2=quartt2j)(Credit and Rapid Fire cheats are different only no real PL1-4 in 2 player version but comment covers)
+;quartet=quarteta~=(quartet2=quartet2a)(Credit and Rapid Fire cheats are different only no real PL1-4 in 2 player version but comment covers)
 ;quiz365~quiz365t
 ;quizchql=quizchq
 ;rabiolep=rpunch
@@ -205480,7 +205480,7 @@
 ;tigeroad=tigerodb=toramich
 ;timecris=timecrsa
 ;timekill131=timekill
-;timescan=timesca1
+;timescan=timescan1
 ;titlef=titlefu
 ;tknight=wildfang
 ;tmek~tmekprot
