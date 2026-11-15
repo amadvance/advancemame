@@ -470,7 +470,7 @@ ROM_START( rungun )
 
 	/* '936 tiles */
 	ROM_REGION( 0x400000, REGION_GFX1, 0)
-	ROM_LOAD( "247-a13", 0x000000, 0x200000, CRC(cc194089) SHA1(b5af94f5f583d282ac1499b371bbaac8b2fedc03) )
+	ROM_LOAD( "247a13", 0x000000, 0x200000, CRC(c5a8ef29) SHA1(23938b8093bc0b9eef91f6d38127ca7acbdc06a6) )
 
 	/* sprites */
 	ROM_REGION( 0x800000, REGION_GFX2, 0)
@@ -511,7 +511,7 @@ ROM_START( runguna )
 
 	/* '936 tiles */
 	ROM_REGION( 0x400000, REGION_GFX1, 0)
-	ROM_LOAD( "247-a13", 0x000000, 0x200000, CRC(cc194089) SHA1(b5af94f5f583d282ac1499b371bbaac8b2fedc03) )
+	ROM_LOAD( "247a13", 0x000000, 0x200000, CRC(c5a8ef29) SHA1(23938b8093bc0b9eef91f6d38127ca7acbdc06a6) )
 
 	/* sprites */
 	ROM_REGION( 0x800000, REGION_GFX2, 0)
@@ -528,6 +528,9 @@ ROM_START( runguna )
 	ROM_REGION( 0x400000, REGION_SOUND1, 0)
 	ROM_LOAD( "247-a06", 0x000000, 0x200000, CRC(b8b2a67e) SHA1(a873d32f4b178c714743664fa53c0dca29cb3ce4) )
 	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // default eeprom to prevent game booting upside down with error
+	ROM_LOAD( "runguna.nv", 0x0000, 0x080, CRC(7bbf0e3c) SHA1(0fd3c9400e9b97a06517e0c8620f773a383100fd) )
 ROM_END
 
 ROM_START( rungunu )
@@ -566,7 +569,48 @@ ROM_START( rungunu )
 	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
 ROM_END
 
-ROM_START( rungunua )
+ROM_START( rungunb )
+	/* main program Europe Version AA 1993, 9.10 (prototype?) */
+	ROM_REGION( 0x300000, REGION_CPU1, 0)
+	ROM_LOAD16_BYTE( "4.18n", 0x000000, 0x80000, CRC(d6515edb) SHA1(4c30c5df231945027a7d3c54e250b0a246ae3b17) )
+	ROM_LOAD16_BYTE( "5.16n", 0x000001, 0x80000, CRC(f2f03eec) SHA1(081fd43b83e148694d34349b826bd02e0a1f85c9) )
+
+	/* data (Guru 1 megabyte redump) */
+	ROM_LOAD16_BYTE( "247b01.23n", 0x200000, 0x80000, CRC(2d774f27) SHA1(c48de9cb9daba25603b8278e672f269807aa0b20) )
+	ROM_CONTINUE(                  0x100000, 0x80000)
+	ROM_LOAD16_BYTE( "247b02.21n", 0x200001, 0x80000, CRC(d088c9de) SHA1(19d7ad4120f7cfed9cae862bb0c799fdad7ab15c) )
+	ROM_CONTINUE(                  0x100001, 0x80000)
+
+	/* sound program */
+	ROM_REGION( 0x030000, REGION_CPU2, 0 )
+	ROM_LOAD("1.13g",  0x000000, 0x20000, CRC(c0b35df9) SHA1(a0c73d993eb32bd0cd192351b5f86794efd91949) )
+	ROM_RELOAD(         0x010000, 0x20000 )
+
+	/* '936 tiles */
+	ROM_REGION( 0x400000, REGION_GFX1, 0)
+	ROM_LOAD( "247a13", 0x000000, 0x200000, CRC(c5a8ef29) SHA1(23938b8093bc0b9eef91f6d38127ca7acbdc06a6) )
+
+	/* sprites */
+	ROM_REGION( 0x800000, REGION_GFX2, 0)
+	ROM_LOAD64_WORD( "247-a11", 0x000000, 0x200000, CRC(c3f60854) SHA1(cbee7178ab9e5aa6a5aeed0511e370e29001fb01) )	// 5y
+	ROM_LOAD64_WORD( "247-a08", 0x000002, 0x200000, CRC(3e315eef) SHA1(898bc4d5ad244e5f91cbc87820b5d0be99ef6662) )	// 2u
+	ROM_LOAD64_WORD( "247-a09", 0x000004, 0x200000, CRC(5ca7bc06) SHA1(83c793c68227399f93bd1ed167dc9ed2aaac4167) )	// 2y
+	ROM_LOAD64_WORD( "247-a10", 0x000006, 0x200000, CRC(a5ccd243) SHA1(860b88ade1a69f8b6c5b8206424814b386343571) )	// 5u
+
+	/* TTL text plane ("fix layer") */
+	ROM_REGION( 0x20000, REGION_GFX3, 0)
+	ROM_LOAD( "247-a12", 0x000000, 0x20000, CRC(57a8d26e) SHA1(0431d10b76d77c26a1f6f2b55d9dbcfa959e1cd0) )
+
+	/* sound data */
+	ROM_REGION( 0x400000, REGION_SOUND1, 0)
+	ROM_LOAD( "247-a06", 0x000000, 0x200000, CRC(b8b2a67e) SHA1(a873d32f4b178c714743664fa53c0dca29cb3ce4) )
+	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // default eeprom to prevent game booting upside down with error
+	ROM_LOAD( "runguna.nv", 0x0000, 0x080, CRC(7bbf0e3c) SHA1(0fd3c9400e9b97a06517e0c8620f773a383100fd) )
+ROM_END
+
+ROM_START( rungunuba )
 	/* main program US Version BA 1993 10.8 */
 	ROM_REGION( 0x300000, REGION_CPU1, 0)
 	ROM_LOAD16_BYTE( "247uba03.bin", 0x000000, 0x80000, CRC(c24d7500) SHA1(38e6ae9fc00bf8f85549be4733992336c46fe1f3) )
@@ -602,6 +646,9 @@ ROM_START( rungunua )
 	ROM_REGION( 0x400000, REGION_SOUND1, 0)
 	ROM_LOAD( "247-a06", 0x000000, 0x200000, CRC(b8b2a67e) SHA1(a873d32f4b178c714743664fa53c0dca29cb3ce4) )
 	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // default eeprom to prevent game booting upside down with error
+	ROM_LOAD( "rungunua.nv", 0x0000, 0x080, CRC(9890d304) SHA1(c94a77d1d45e372350456cf8eaa7e7ebd3cdbb84) )
 ROM_END
 
 ROM_START( slmdunkj )
@@ -623,7 +670,7 @@ ROM_START( slmdunkj )
 
 	/* '936 tiles */
 	ROM_REGION( 0x400000, REGION_GFX1, 0)
-	ROM_LOAD( "247-a13", 0x000000, 0x200000, CRC(cc194089) SHA1(b5af94f5f583d282ac1499b371bbaac8b2fedc03) )
+	ROM_LOAD( "247a13", 0x000000, 0x200000, CRC(c5a8ef29) SHA1(23938b8093bc0b9eef91f6d38127ca7acbdc06a6) )
 
 	/* sprites */
 	ROM_REGION( 0x800000, REGION_GFX2, 0)
@@ -640,6 +687,9 @@ ROM_START( slmdunkj )
 	ROM_REGION( 0x400000, REGION_SOUND1, 0)
 	ROM_LOAD( "247-a06", 0x000000, 0x200000, CRC(b8b2a67e) SHA1(a873d32f4b178c714743664fa53c0dca29cb3ce4) )
 	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // default eeprom to prevent game booting upside down with error
+	ROM_LOAD( "slmdunkj.nv", 0x0000, 0x080, CRC(531d27bd) SHA1(42251272691c66c1f89f99e6e5e2f300c1a7d69d) )
 ROM_END
 
 static DRIVER_INIT( rng )
@@ -659,6 +709,7 @@ MACHINE_RESET( rng )
 
 GAME( 1993, rungun,   0,      rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
 GAME( 1993, runguna,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.4)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
+GAME( 1993, rungunb,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 9.10, prototype?)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
 GAME( 1993, rungunu,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UAB 1993 10.12)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, rungunua, rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UBA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
+GAME( 1993, rungunuba, rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UBA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
 GAME( 1993, slmdunkj, rungun, rng, rng, rng, ROT0, "Konami", "Slam Dunk (ver JAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset

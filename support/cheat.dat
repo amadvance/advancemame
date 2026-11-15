@@ -144985,30 +144985,30 @@
 :rungunu:00010001:601283:00000000:FFFFFFFF:Team 2 points = 100 Now! (2/2)
 
 ; [ Run and Gun (ver UBA 1993 10.8) ]
-:rungunua:00000000:601319:00000003:FFFFFFFF:Infinite Time
-:rungunua:00010000:60131A:00000005:FFFFFFFF:Infinite Time (2/3)
-:rungunua:00010000:60131B:00000009:FFFFFFFF:Infinite Time (3/3)
-:rungunua:00000001:601319:00000000:FFFFFFFF:Finish this Quarter Now!
-:rungunua:00010001:60131A:00000000:FFFFFFFF:Finish this Quarter Now! (2/3)
-:rungunua:00010001:60131B:00000000:FFFFFFFF:Finish this Quarter Now! (3/3)
-:rungunua:60000000:000000:00000000:00000000:[ Team 1 is the team used by PL3 and PL4                    ]
-:rungunua:00000000:601280:00000000:FFFFFFFF:Team 1 points always = 0
-:rungunua:00010000:601281:00000000:FFFFFFFF:Team 1 points always = 0 (2/2)
-:rungunua:00000000:601280:00000001:FFFFFFFF:Team 1 points always = 100
-:rungunua:00010000:601281:00000000:FFFFFFFF:Team 1 points always = 100 (2/2)
-:rungunua:00000001:601280:00000000:FFFFFFFF:Team 1 points = 0 Now!
-:rungunua:00010001:601281:00000000:FFFFFFFF:Team 1 points = 0 Now! (2/2)
-:rungunua:00000001:601280:00000001:FFFFFFFF:Team 1 points = 100 Now!
-:rungunua:00010001:601281:00000000:FFFFFFFF:Team 1 points = 100 Now! (2/2)
-:rungunua:60000000:000000:00000000:00000000:[ Team 2 is the team used by PL1 and PL2 or the CPU         ]
-:rungunua:00000000:601282:00000000:FFFFFFFF:Team 2 points always = 0
-:rungunua:00010000:601283:00000000:FFFFFFFF:Team 2 points always = 0 (2/2)
-:rungunua:00000000:601282:00000001:FFFFFFFF:Team 2 points always = 100
-:rungunua:00010000:601283:00000000:FFFFFFFF:Team 2 points always = 100 (2/2)
-:rungunua:00000001:601282:00000000:FFFFFFFF:Team 2 points = 0 Now!
-:rungunua:00010001:601283:00000000:FFFFFFFF:Team 2 points = 0 Now! (2/2)
-:rungunua:00000001:601282:00000001:FFFFFFFF:Team 2 points = 100 Now!
-:rungunua:00010001:601283:00000000:FFFFFFFF:Team 2 points = 100 Now! (2/2)
+:rungunuba:00000000:601319:00000003:FFFFFFFF:Infinite Time
+:rungunuba:00010000:60131A:00000005:FFFFFFFF:Infinite Time (2/3)
+:rungunuba:00010000:60131B:00000009:FFFFFFFF:Infinite Time (3/3)
+:rungunuba:00000001:601319:00000000:FFFFFFFF:Finish this Quarter Now!
+:rungunuba:00010001:60131A:00000000:FFFFFFFF:Finish this Quarter Now! (2/3)
+:rungunuba:00010001:60131B:00000000:FFFFFFFF:Finish this Quarter Now! (3/3)
+:rungunuba:60000000:000000:00000000:00000000:[ Team 1 is the team used by PL3 and PL4                    ]
+:rungunuba:00000000:601280:00000000:FFFFFFFF:Team 1 points always = 0
+:rungunuba:00010000:601281:00000000:FFFFFFFF:Team 1 points always = 0 (2/2)
+:rungunuba:00000000:601280:00000001:FFFFFFFF:Team 1 points always = 100
+:rungunuba:00010000:601281:00000000:FFFFFFFF:Team 1 points always = 100 (2/2)
+:rungunuba:00000001:601280:00000000:FFFFFFFF:Team 1 points = 0 Now!
+:rungunuba:00010001:601281:00000000:FFFFFFFF:Team 1 points = 0 Now! (2/2)
+:rungunuba:00000001:601280:00000001:FFFFFFFF:Team 1 points = 100 Now!
+:rungunuba:00010001:601281:00000000:FFFFFFFF:Team 1 points = 100 Now! (2/2)
+:rungunuba:60000000:000000:00000000:00000000:[ Team 2 is the team used by PL1 and PL2 or the CPU         ]
+:rungunuba:00000000:601282:00000000:FFFFFFFF:Team 2 points always = 0
+:rungunuba:00010000:601283:00000000:FFFFFFFF:Team 2 points always = 0 (2/2)
+:rungunuba:00000000:601282:00000001:FFFFFFFF:Team 2 points always = 100
+:rungunuba:00010000:601283:00000000:FFFFFFFF:Team 2 points always = 100 (2/2)
+:rungunuba:00000001:601282:00000000:FFFFFFFF:Team 2 points = 0 Now!
+:rungunuba:00010001:601283:00000000:FFFFFFFF:Team 2 points = 0 Now! (2/2)
+:rungunuba:00000001:601282:00000001:FFFFFFFF:Team 2 points = 100 Now!
+:rungunuba:00010001:601283:00000000:FFFFFFFF:Team 2 points = 100 Now! (2/2)
 
 ; [ Rush'n Attack (US) ]
 :rushatck:00000000:DBCB:000000FF:FFFFFFFF:Infinite Time
@@ -205306,7 +205306,7 @@
 ;rtypelej=rtypeleo
 ;rugrats=wiping
 ;rundeep~=thedeep
-;rungun=runguna=rungunu=rungunua=slmdunkj
+;rungun=runguna=rungunu=rungunuba=slmdunkj
 ;rushcrsh=srumbler=srumblr2
 ;rygar=rygar2=rygarj
 ;s1945=s1945a=s1945j=s1945nj

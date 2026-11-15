@@ -4774,8 +4774,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mtlchmpa )	/* GX234 (c) 1993 (Japan) */
 	DRIVER( rungun )	/* GX247 (c) 1993 (World) */
 	DRIVER( runguna )	/* GX247 (c) 1993 (World) */
+	DRIVER( rungunb )	/* GX247 (c) 1993 (World) */
 	DRIVER( rungunu )	/* GX247 (c) 1993 (US) */
-	DRIVER( rungunua )	/* GX247 (c) 1993 (US) */
+	DRIVER( rungunuba )	/* GX247 (c) 1993 (US) */
 	DRIVER( slmdunkj )	/* GX247 (c) 1993 (Japan) */
 	DRIVER( dbz )		/* (c) 1993 Banpresto */
 	DRIVER( dbz2 )		/* (c) 1994 Banpresto */
