@@ -409,7 +409,7 @@ turtshik:  ;******turtle ship (korea)
 mrkougar:
 mrkougb:
 mrkougb2:  ;******Mr. Kougar (bootleg Set 2)
-mrkougr2:  ;******mr.kougar (earlier)
+mrkougar2:  ;******mr.kougar (earlier)
 0:40a6:12:00:00
 0:4a61:1:10:10
 0:4a41:1:10:10
@@ -1357,7 +1357,7 @@ bloodbra:  ;******Blood Bros. (set 2)
 ;******scorpion (set 1)
 scorpion:
 scorpnmc:  ;******scorpion (moon cresta hardware)
-scrpiona:  ;******Scoprion (set 2)
+scorpiona:  ;******Scoprion (set 2)
 0:4207:f:00:00
 0:42ad:f:10:10
 
@@ -2324,7 +2324,7 @@ pairlove:
 knockout:
 mariner:
 scramble:
-scrambls:
+scrambles:
 triplep:
 800fath:
 strfbomb:
@@ -9462,7 +9462,7 @@ stratgys:
 
 ;******scramble.c
 atlantis:
-atlants2:
+atlantis2:
 0:403d:2c:00:00
 
 cavelon:
@@ -9476,7 +9476,7 @@ froggers:
 knockout:
 mariner:
 scramble:
-scrambls:
+scrambles:
 triplep:
 800fath:
 0:4200:1e:00:01

@@ -8377,14 +8377,14 @@
 :atlantol:00000000:2834:00000000:FFFFFFFF:Take steroids
 
 ; [ Battle of Atlantis (set 2) ]
-:atlants2:00000000:4035:00000099:FFFFFFFF:Infinite Credits
-:atlants2:00000000:4024:00000006:FFFFFFFF:Infinite Lives PL1
-:atlants2:00000000:4027:00000006:FFFFFFFF:Infinite Lives PL2
-:atlants2:20800000:0224:00000085:FFFFFFFF:Invincibility
-:atlants2:20810000:0313:00000024:FFFFFFFF:Invincibility (2/3)
-:atlants2:00010000:401A:00000039:FFFFFFFF:Invincibility (3/3)
-:atlants2:00000000:4007:00000008:00000008:Rapid Fire - Shot
-:atlants2:00000000:4007:00000002:00000002:Rapid Fire - Missile
+:atlantis2:00000000:4035:00000099:FFFFFFFF:Infinite Credits
+:atlantis2:00000000:4024:00000006:FFFFFFFF:Infinite Lives PL1
+:atlantis2:00000000:4027:00000006:FFFFFFFF:Infinite Lives PL2
+:atlantis2:20800000:0224:00000085:FFFFFFFF:Invincibility
+:atlantis2:20810000:0313:00000024:FFFFFFFF:Invincibility (2/3)
+:atlantis2:00010000:401A:00000039:FFFFFFFF:Invincibility (3/3)
+:atlantis2:00000000:4007:00000008:00000008:Rapid Fire - Shot
+:atlantis2:00000000:4007:00000002:00000002:Rapid Fire - Missile
 
 ; [ Atomic Boy ]
 :atomboy:00000000:D0F0:00000009:FFFFFFFF:Infinite Time
@@ -100669,8 +100669,8 @@
 :mrkougb2:20800000:29BB:000000C9:FFFFFFFF:Invincibility
 
 ; [ Mr. Kougar (earlier) ]
-:mrkougr2:00000000:41A0:00000007:FFFFFFFF:Infinite Lives
-:mrkougr2:20800000:29BB:000000C9:FFFFFFFF:Invincibility
+:mrkougar2:00000000:41A0:00000007:FFFFFFFF:Infinite Lives
+:mrkougar2:20800000:29BB:000000C9:FFFFFFFF:Invincibility
 
 ; [ Mr. Lo! ]
 :mrlo:20800000:32A6:00000018:FFFFFFFF:Invincibility
@@ -147941,13 +147941,13 @@
 :scramble:00000303:411E:00000005:FFFFFFFF:Select next level
 
 ; [ Scramble (Stern) ]
-:scrambls:00000000:4108:00000005:FFFFFFFF:Infinite Lives
-:scrambls:00000000:4105:000000FF:FFFFFFFF:Infinite Fuel
-:scrambls:20800000:2680:000000C9:FFFFFFFF:Invincibility
-:scrambls:20810000:274C:000000C9:FFFFFFFF:Invincibility (2/2)
-:scrambls:60000000:0000:00000000:00000000:[Level 6 = Base             ]
-:scrambls:00000301:411E:00000005:FFFFFFFF:Select current level
-:scrambls:00000303:411E:00000005:FFFFFFFF:Select next level
+:scrambles:00000000:4108:00000005:FFFFFFFF:Infinite Lives
+:scrambles:00000000:4105:000000FF:FFFFFFFF:Infinite Fuel
+:scrambles:20800000:2680:000000C9:FFFFFFFF:Invincibility
+:scrambles:20810000:274C:000000C9:FFFFFFFF:Invincibility (2/2)
+:scrambles:60000000:0000:00000000:00000000:[Level 6 = Base             ]
+:scrambles:00000301:411E:00000005:FFFFFFFF:Select current level
+:scrambles:00000303:411E:00000005:FFFFFFFF:Select next level
 
 ; [ Scrambled Egg ]
 :scregg:20800000:4B4B:00000060:FFFFFFFF:Invincibility
@@ -147972,15 +147972,15 @@
 :scross:00100000:200FD0:00000000:FFFFFFFF:Always Min Total Time
 
 ; [ Scorpion (set 2) ]
-:scrpiona:00100000:41F5:00009999:FFFFFFFF:Infinite Credits
-:scrpiona:00000000:42A8:0000000A:FFFFFFFF:Infinite Lives
-:scrpiona:00100000:41A8:0000487D:FFFFFFFF:Infinite Fuel
-:scrpiona:00000000:40B3:00000000:00000004:Infinite Missiles
-:scrpiona:20800000:1BB7:00000018:FFFFFFFF:Invincibility
-:scrpiona:20810000:26AA:000000C9:FFFFFFFF:Invincibility (2/3):1st = Ground, 2nd = Scenery
-:scrpiona:20810000:275D:000000C9:FFFFFFFF:Invincibility (3/3):Object
-:scrpiona:00000000:41EB:00000002:00000002:Rapid Fire - Shot
-:scrpiona:00000000:41EB:00000008:00000008:Rapid Fire - Missile
+:scorpiona:00100000:41F5:00009999:FFFFFFFF:Infinite Credits
+:scorpiona:00000000:42A8:0000000A:FFFFFFFF:Infinite Lives
+:scorpiona:00100000:41A8:0000487D:FFFFFFFF:Infinite Fuel
+:scorpiona:00000000:40B3:00000000:00000004:Infinite Missiles
+:scorpiona:20800000:1BB7:00000018:FFFFFFFF:Invincibility
+:scorpiona:20810000:26AA:000000C9:FFFFFFFF:Invincibility (2/3):1st = Ground, 2nd = Scenery
+:scorpiona:20810000:275D:000000C9:FFFFFFFF:Invincibility (3/3):Object
+:scorpiona:00000000:41EB:00000002:00000002:Rapid Fire - Shot
+:scorpiona:00000000:41EB:00000008:00000008:Rapid Fire - Missile
 
 ; [ Section Z (set 2) ]
 :sctionza:00000000:CDA0:0000000B:FFFFFFFF:Infinite Lives
@@ -204332,7 +204332,7 @@
 ;720=720g=720gr1=720r1=720r2=720r3
 ;7jigen~=neruton~(mjangels=yarunara)
 ;7toitsu=mgakuen~=mgakuen2
-;800fath=mariner=scramblb~=explorer=scramble=strfbomb~=scrambls~=(scobra=scobrase~=(scobrab=scobras))
+;800fath=mariner=scramblb~=explorer=scramble=strfbomb~=scrambles~=(scobra=scobrase~=(scobrab=scobras))
 ;88games=hypsptsp=konami88
 ;8ball=8ball1
 ;8ballact=8ballat2~8bpm
@@ -204406,7 +204406,7 @@
 ;atarifb=atarifb1=atarifb4
 ;ataxx~=ataxxa~=ataxxj
 ;atetckt2=atetcktl=atetris=atetrisa=atetrisb=atetrsb2
-;atlantis~atlants2
+;atlantis~atlantis2
 ;atlantol~=(hyprolyb=hyprolym=trackfld)  {atlantol has just 2 players}
 ;atomboy=wilytowr
 ;atompunk=dynablst=dynablstb)~=(bbmanw=bbmanwj=bbmanwja=bomblord=newapunk~bombrman)  {bomblord is untested}
@@ -205084,7 +205084,7 @@
 ;mpatrol=mpatrolw
 ;mplanuk~mplanets
 ;mrdo=mrdofix=mrdot=mrlo=mrdu=yankeedo~mrdoy
-;mrkougar=mrkougb=mrkougb2=mrkougr2
+;mrkougar=mrkougb=mrkougb2=mrkougar2
 ;mrviking=mrvikngj
 ;ms4plus=mslug4 (look at weapon cheats - they may not work?)
 ;ms5pcb=ms5plus=mslug5
@@ -205325,7 +205325,7 @@
 ;sci=scia=sciu
 ;scion=scionc
 ;scontra=scontraj
-;scorpion=scorpnmc=scrpiona
+;scorpion=scorpnmc=scorpiona
 ;sctionza=sectionz
 ;scud~scudau~scudplus    (unchecked relationship - make machine single/standalone to play)
 ;searchar=sercharj=sercharu
@@ -205670,7 +205670,7 @@
 ; astrofl (made by ShimaPong) [????]
 ; athena (made by ShimaPong) [Z80]
 ; atlantis (made by ShimaPong) [????]
-; atlants2 (made by ShimaPong) [????]
+; atlantis2 (made by ShimaPong) [????]
 ; atomboy (made by Pugsy) [Z80]
 ; aurail (made by ShimaPong) [????]
 ; aurail1 (made by ShimaPong) [????]
@@ -206164,7 +206164,7 @@
 ; mrkougar (made by ShimaPong) [????]
 ; mrkougb (made by ShimaPong) [????]
 ; mrkougb2 (made by ShimaPong) [????]
-; mrkougr2 (made by ShimaPong) [????]
+; mrkougar2 (made by ShimaPong) [????]
 ; mrlo (made by Pugsy) [Z80]
 ; mrviking (made by ShimaPong) [Z80]
 ; mrvikngj (made by ShimaPong) [Z80]
@@ -206364,9 +206364,9 @@
 ; scorpnmc (updated/fixed by ShimaPong) [Z80]
 ; scramblb (made by Pugsy) [Z80]
 ; scramble (made by Pugsy) [Z80]
-; scrambls (made by Pugsy) [Z80]
+; scrambles (made by Pugsy) [Z80]
 ; scregg (made by Pugsy) [M6502]
-; scrpiona (updated/fixed by ShimaPong) [Z80]
+; scorpiona (updated/fixed by ShimaPong) [Z80]
 ; sdungeon (made by ShimaPong) [????]
 ; searthia (made by Pugsy) [8080]
 ; searthin (made by Pugsy) [8080]

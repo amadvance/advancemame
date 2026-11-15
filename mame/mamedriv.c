@@ -238,12 +238,12 @@ const game_driver * const drivers[] =
 
 	/* "Scramble hardware" (and variations) games */
 	DRIVER( scramble )	/* GX387 (c) 1981 Konami */
-	DRIVER( scrambls )	/* GX387 (c) 1981 Stern */
+	DRIVER( scrambles )	/* GX387 (c) 1981 Stern */
 	DRIVER( scramblb )	/* bootleg */
 	DRIVER( explorer )	/* bootleg */
 	DRIVER( strfbomb )	/* bootleg */
 	DRIVER( atlantis )	/* (c) 1981 Comsoft */
-	DRIVER( atlants2 )	/* (c) 1981 Comsoft */
+	DRIVER( atlantis2 )	/* (c) 1981 Comsoft */
 	DRIVER( theend )	/* (c) 1980 Konami */
 	DRIVER( theends )	/* (c) 1980 Stern */
 	DRIVER( omega )		/* bootleg */
@@ -259,10 +259,11 @@ const game_driver * const drivers[] =
 	DRIVER( devilfsh )	/* (c) 1982 Artic */
 	DRIVER( newsin7 )	/* (c) 1983 ATW USA, Inc. */
 	DRIVER( mrkougar )	/* (c) 1984 ATW */
-	DRIVER( mrkougr2 )
+	DRIVER( mrkougar2 )
 	DRIVER( mrkougb )	/* bootleg */
 	DRIVER( mrkougb2 )	/* bootleg */
 	DRIVER( hotshock )	/* (c) 1982 E.G. Felaco */
+	DRIVER( hotshockb )
 	DRIVER( conquer )	/* (c) 1982 ???? */
 	DRIVER( hunchbks )	/* (c) 1983 Century */
 	DRIVER( hncholms )
@@ -320,7 +321,7 @@ const game_driver * const drivers[] =
 	DRIVER( redrobin )	/* (c) 1986 Elettronolo */
 	DRIVER( imago )
 	DRIVER( scorpion )	/* (c) 1982 Zaccaria */
-	DRIVER( scrpiona )	/* (c) 1982 Zaccaria */
+	DRIVER( scorpiona )	/* (c) 1982 Zaccaria */
 	DRIVER( ad2083 )	/* (c) 1983 Midcoin */
 
 	/* "Crazy Climber hardware" games */

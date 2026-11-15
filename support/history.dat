@@ -18550,7 +18550,7 @@ While popular history seems to think that Data East designed the game (because t
 $end
 
 
-$info=atlantis,atlants2,
+$info=atlantis,atlantis2,
 $bio
 
 Battle of Atlantis (c) 1981 Comsoft / Game World.
@@ -139643,7 +139643,7 @@ This game is known outside Japan as "BlockBuster" and as "Crazy Blocks".
 $end
 
 
-$info=mrkougar,mrkougb,mrkougr2,mrkougb2,
+$info=mrkougar,mrkougb,mrkougar2,mrkougb2,
 $bio
 
 Mr. Kougar (c) 1983 Artic Electronics (ATW).
@@ -188041,7 +188041,7 @@ Buttons : 1
 $end
 
 
-$info=scorpion,scrpiona,scorpnmc,
+$info=scorpion,scorpiona,scorpnmc,
 $bio
 
 Scorpion (c) 1982 Zaccaria.
@@ -188083,7 +188083,7 @@ A bootleg of this game was released by ''Dorneer'' on "Moon Cresta" Hardware.
 $end
 
 
-$info=scramble,scrambls,scramblb,
+$info=scramble,scrambles,scramblb,
 $bio
 
 Scramble (c) 02/1981 Konami.
