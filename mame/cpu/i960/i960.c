@@ -2785,11 +2785,9 @@ static offs_t i960_disasm(char *buffer, offs_t pc)
 #ifdef MAME_DEBUG
 	disassemble_t dis;
 
-	dis.mnemonic = buffer;
+	dis.buffer = buffer;
 	dis.IP = pc;
-	dis.disp = 0;
 	dis.IPinc = 0;
-	dis.mem = (const UINT8 *)cpu_opptr(pc);
 
 	i960_disassemble(&dis);
 
