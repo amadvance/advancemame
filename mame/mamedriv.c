@@ -3550,17 +3550,20 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( astormu )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astormj )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( bloxeed )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( bloxeeda )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( shdancer )	/* (c) 1989 */
-	DRIVER( shdancej )	/* (c) 1989 */
-	DRIVER( shdance1 )	/* (c) 1989 */
+	DRIVER( shdancerj )	/* (c) 1989 */
+	DRIVER( shdancer1 )	/* (c) 1989 */
 	DRIVER( ddcrew )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( ddcrewu )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( ddcrew2 )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( ddcrew1 )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( ddcrewj )	/* (c) 1991 (FD1094, decrypted) */
+	DRIVER( ddcrewj2 )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( cltchitr )	/* (c) 1991 (FD1094, decrypted) */
-	DRIVER( cltchtrj )	/* (c) 1991 (FD1094, decrypted) */
+	DRIVER( cltchitrj )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( desertbr )	/* (c) 1993 (FD1094, decrypted) */
+	DRIVER( desertbrj )	/* (c) 1993 (FD1094, decrypted) */
 	DRIVER( hamaway )       /* (c) 1991 Sega / Santos Unreleased Prototype */
 	DRIVER( mwalk )		/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalku )	/* (c) 1990 (FD1094+8751, decrypted) */
@@ -3568,8 +3571,10 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( pontoon )
 	DRIVER( lghost )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( lghostu )	/* (c) 1990 (FD1094, decrypted) */
+	DRIVER( lghostj )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( wwallyj )	/* (c) 1992 (FD1094, decrypted) */
 	DRIVER( wwallyja )	/* (c) 1992 (FD1094, decrypted) */
+	DRIVER( wwallyja3p )	/* (c) 1992 (FD1094, decrypted) */
 
 	/* System18 Bootlegs */
 	DRIVER( astormbl )	/* BOOTLEG */

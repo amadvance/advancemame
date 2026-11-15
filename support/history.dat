@@ -26320,7 +26320,7 @@ NEC PC-Engine (1990)
 $end
 
 
-$info=bloxeed,bloxeedc,bloxeedu,
+$info=bloxeed,bloxeeda,bloxeedc,bloxeedu,
 $bio
 
 Bloxeed (c) 1989 Sega.
@@ -39111,7 +39111,7 @@ This game is also known as "Graplop".
 $end
 
 
-$info=cltchitr,cltchtrj,
+$info=cltchitr,cltchitrj,
 $bio
 
 Clutch Hitter (c) 1991 Sega.
@@ -46594,7 +46594,7 @@ Buttons : 4
 $end
 
 
-$info=ddcrew,ddcrew1,ddcrew2,ddcrewu,ddcrewj,
+$info=ddcrew,ddcrew1,ddcrew2,ddcrewu,ddcrewj,ddcrewj2,
 $bio
 
 D.D. Crew (c) 1991 Sega.
@@ -51886,7 +51886,7 @@ Hardware : Shingo Mitsui
 $end
 
 
-$info=desertbr,
+$info=desertbr,desertbrj,
 $bio
 
 Desert Breaker (c) 1992 Sega.
@@ -112216,7 +112216,7 @@ Tis game was manufactured and distributed by Bally Midway in the USA as "Lazaria
 $end
 
 
-$info=lghost,lghostu,
+$info=lghost,lghostu,lghostj,
 $bio
 
 Laser Ghost (c) 1991 Sega.
@@ -191269,7 +191269,7 @@ Amstrad CPC (1988)
 $end
 
 
-$info=shdancer,shdancej,shdancbl,shdance1,
+$info=shdancer,shdancerj,shdancbl,shdancer1,
 $bio
 
 Shadow Dancer - Kage no Mai (c) 12/1989 Sega.
@@ -253020,7 +253020,7 @@ Buttons : 2
 $end
 
 
-$info=wwallyj,wwallyja,
+$info=wwallyj,wwallyja,wwallyja3p,
 $bio
 
 Wally wo Sagase! (c) 1992 Sega.

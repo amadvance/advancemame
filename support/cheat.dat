@@ -19830,26 +19830,26 @@
 :cltchitr:00000001:FF2632:00000032:FFFFFFFF:Set score = 50 Now! PL2
 
 ; [ Clutch Hitter (set 1, Japan, FD1094 317-0175) ]
-:cltchtrj:00000000:FF2000:00000063:FFFFFFFF:Infinite Credits
-:cltchtrj:00000000:FF21C0:00000000:FFFFFFFF:Infinite Strikes
-:cltchtrj:00000000:FF21C1:00000000:FFFFFFFF:Infinite Balls
-:cltchtrj:00000000:FF2180:00000000:FFFFFFFF:Infinite Outs
-:cltchtrj:00000001:FF21C0:00000000:FFFFFFFF:Set Strikes to 0 Now!
-:cltchtrj:00000001:FF21C0:00000002:FFFFFFFF:Set Strikes to 2 Now!
-:cltchtrj:00000001:FF21C1:00000000:FFFFFFFF:Set Balls to 0 Now!
-:cltchtrj:00000001:FF21C1:00000003:FFFFFFFF:Set Balls to 3 Now!
-:cltchtrj:00000001:FF2180:00000000:FFFFFFFF:Set Outs to 0 Now!
-:cltchtrj:00000001:FF2180:00000002:FFFFFFFF:Set Outs to 2 Now!
-:cltchtrj:00000101:FF2432:00000063:FFFFFFFF:Select Score PL1
-:cltchtrj:00000000:FF2432:00000000:FFFFFFFF:Score always = 0 PL1
-:cltchtrj:00000000:FF2432:00000063:FFFFFFFF:Score always = 99 PL1
-:cltchtrj:00000001:FF2432:00000000:FFFFFFFF:Set score = 0 Now! PL1
-:cltchtrj:00000001:FF2432:00000032:FFFFFFFF:Set score = 50 Now! PL1
-:cltchtrj:00000101:FF2632:00000063:FFFFFFFF:Select Score PL2
-:cltchtrj:00000000:FF2632:00000000:FFFFFFFF:Score always = 0 PL2
-:cltchtrj:00000000:FF2632:00000063:FFFFFFFF:Score always = 99 PL2
-:cltchtrj:00000001:FF2632:00000000:FFFFFFFF:Set score = 0 Now! PL2
-:cltchtrj:00000001:FF2632:00000032:FFFFFFFF:Set score = 50 Now! PL2
+:cltchitrj:00000000:FF2000:00000063:FFFFFFFF:Infinite Credits
+:cltchitrj:00000000:FF21C0:00000000:FFFFFFFF:Infinite Strikes
+:cltchitrj:00000000:FF21C1:00000000:FFFFFFFF:Infinite Balls
+:cltchitrj:00000000:FF2180:00000000:FFFFFFFF:Infinite Outs
+:cltchitrj:00000001:FF21C0:00000000:FFFFFFFF:Set Strikes to 0 Now!
+:cltchitrj:00000001:FF21C0:00000002:FFFFFFFF:Set Strikes to 2 Now!
+:cltchitrj:00000001:FF21C1:00000000:FFFFFFFF:Set Balls to 0 Now!
+:cltchitrj:00000001:FF21C1:00000003:FFFFFFFF:Set Balls to 3 Now!
+:cltchitrj:00000001:FF2180:00000000:FFFFFFFF:Set Outs to 0 Now!
+:cltchitrj:00000001:FF2180:00000002:FFFFFFFF:Set Outs to 2 Now!
+:cltchitrj:00000101:FF2432:00000063:FFFFFFFF:Select Score PL1
+:cltchitrj:00000000:FF2432:00000000:FFFFFFFF:Score always = 0 PL1
+:cltchitrj:00000000:FF2432:00000063:FFFFFFFF:Score always = 99 PL1
+:cltchitrj:00000001:FF2432:00000000:FFFFFFFF:Set score = 0 Now! PL1
+:cltchitrj:00000001:FF2432:00000032:FFFFFFFF:Set score = 50 Now! PL1
+:cltchitrj:00000101:FF2632:00000063:FFFFFFFF:Select Score PL2
+:cltchitrj:00000000:FF2632:00000000:FFFFFFFF:Score always = 0 PL2
+:cltchitrj:00000000:FF2632:00000063:FFFFFFFF:Score always = 99 PL2
+:cltchitrj:00000001:FF2632:00000000:FFFFFFFF:Set score = 0 Now! PL2
+:cltchitrj:00000001:FF2632:00000032:FFFFFFFF:Set score = 50 Now! PL2
 
 ; [ Mahjong CLUB 90's (set 1) (Japan 900919) ]
 :club90s:00000000:F0EF:00000063:FFFFFFFF:Infinite Money
@@ -26603,41 +26603,41 @@
 :ddcrew2:00000000:FFC172:00000000:00000001:Rapid Fire PL2
 
 ; [ D. D. Crew (set 5, Japan, 2 Player, FD1094 317-0182) ]
-:ddcrewj:00000000:FFC000:00000063:FFFFFFFF:Infinite Credits
-:ddcrewj:00000001:FFD861:00000000:FFFFFFFF:1 Hit to Kill Enemy Now!
-:ddcrewj:00010001:FFD961:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (2/4)
-:ddcrewj:00010001:FFDA61:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (3/4)
-:ddcrewj:00010001:FFDB61:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (4/4)
-:ddcrewj:00000000:FFC12C:00000018:FFFFFFFF:Infinite Bonus Stage Time:Only enable this cheat on the Bonus Stage and turn it OFF after you've finished with it
-:ddcrewj:00000001:FFC12C:00000000:FFFFFFFF:Finish Bonus Stage Now!
-:ddcrewj:00000000:FFC161:00000000:FFFFFFFF:Start on Stage 1:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000000:FFFFFFFF:Start on Stage 1 (2/2)
-:ddcrewj:00000000:FFC161:00000001:FFFFFFFF:Start on Stage 2:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000002:FFFFFFFF:Start on Stage 2 (2/2)
+:ddcrewj2:00000000:FFC000:00000063:FFFFFFFF:Infinite Credits
+:ddcrewj2:00000001:FFD861:00000000:FFFFFFFF:1 Hit to Kill Enemy Now!
+:ddcrewj2:00010001:FFD961:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (2/4)
+:ddcrewj2:00010001:FFDA61:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (3/4)
+:ddcrewj2:00010001:FFDB61:00000000:FFFFFFFF:1 Hit to Kill Enemy Now! (4/4)
+:ddcrewj2:00000000:FFC12C:00000018:FFFFFFFF:Infinite Bonus Stage Time:Only enable this cheat on the Bonus Stage and turn it OFF after you've finished with it
+:ddcrewj2:00000001:FFC12C:00000000:FFFFFFFF:Finish Bonus Stage Now!
+:ddcrewj2:00000000:FFC161:00000000:FFFFFFFF:Start on Stage 1:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000000:FFFFFFFF:Start on Stage 1 (2/2)
+:ddcrewj2:00000000:FFC161:00000001:FFFFFFFF:Start on Stage 2:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000002:FFFFFFFF:Start on Stage 2 (2/2)
 ;In both bonus stages, you can't finish bonus stage and go to next stage because bonus stage timer doesn't work.
 ;In stage 4, you will not be able to move because start with out of floor????
-:ddcrewj:00000000:FFC161:00000002:FFFFFFFF:Start on Bonus Stage 1 (Buggy !):Can't finish this stage. Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000005:FFFFFFFF:Start on Bonus Stage 1 (2/2)
-:ddcrewj:00000000:FFC161:00000003:FFFFFFFF:Start on Stage 3:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000007:FFFFFFFF:Start on Stage 3 (2/2)
-:ddcrewj:00000000:FFC161:00000004:FFFFFFFF:Start on Stage 4 (Buggy !):Can't start this stage. Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:0000000B:FFFFFFFF:Start on Stage 4 (2/2)
-:ddcrewj:00000000:FFC161:00000005:FFFFFFFF:Start on Bonus Stage 2 (Buggy !):Can't finish this stage. Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000012:FFFFFFFF:Start on Bonus Stage 2 (2/2)
-:ddcrewj:00000000:FFC161:00000006:FFFFFFFF:Start on Stage 5:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000014:FFFFFFFF:Start on Stage 5 (2/2)
-:ddcrewj:00000000:FFC161:00000007:FFFFFFFF:Start on Stage 6:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000017:FFFFFFFF:Start on Stage 6 (2/2)
-:ddcrewj:00000000:FFC161:00000008:FFFFFFFF:Start on Stage 7:Turn this cheat OFF after you've started the game on the selected stage.
-:ddcrewj:00010000:FFC16F:00000019:FFFFFFFF:Start on Stage 7 (2/2)
-:ddcrewj:00000000:FFD088:00000009:FFFFFFFF:Infinite Lives PL1
-:ddcrewj:00000000:FFD089:00000004:FFFFFFFF:Infinite Energy PL1
-:ddcrewj:00000000:FFD09F:0000000F:FFFFFFFF:Invincibility PL1
-:ddcrewj:00000000:FFC171:00000000:00000001:Rapid Fire PL1
-:ddcrewj:00000000:FFD288:00000009:FFFFFFFF:Infinite Lives PL2
-:ddcrewj:00000000:FFD289:00000004:FFFFFFFF:Infinite Energy PL2
-:ddcrewj:00000000:FFD29F:0000000F:FFFFFFFF:Invincibility PL2
-:ddcrewj:00000000:FFC172:00000000:00000001:Rapid Fire PL2
+:ddcrewj2:00000000:FFC161:00000002:FFFFFFFF:Start on Bonus Stage 1 (Buggy !):Can't finish this stage. Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000005:FFFFFFFF:Start on Bonus Stage 1 (2/2)
+:ddcrewj2:00000000:FFC161:00000003:FFFFFFFF:Start on Stage 3:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000007:FFFFFFFF:Start on Stage 3 (2/2)
+:ddcrewj2:00000000:FFC161:00000004:FFFFFFFF:Start on Stage 4 (Buggy !):Can't start this stage. Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:0000000B:FFFFFFFF:Start on Stage 4 (2/2)
+:ddcrewj2:00000000:FFC161:00000005:FFFFFFFF:Start on Bonus Stage 2 (Buggy !):Can't finish this stage. Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000012:FFFFFFFF:Start on Bonus Stage 2 (2/2)
+:ddcrewj2:00000000:FFC161:00000006:FFFFFFFF:Start on Stage 5:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000014:FFFFFFFF:Start on Stage 5 (2/2)
+:ddcrewj2:00000000:FFC161:00000007:FFFFFFFF:Start on Stage 6:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000017:FFFFFFFF:Start on Stage 6 (2/2)
+:ddcrewj2:00000000:FFC161:00000008:FFFFFFFF:Start on Stage 7:Turn this cheat OFF after you've started the game on the selected stage.
+:ddcrewj2:00010000:FFC16F:00000019:FFFFFFFF:Start on Stage 7 (2/2)
+:ddcrewj2:00000000:FFD088:00000009:FFFFFFFF:Infinite Lives PL1
+:ddcrewj2:00000000:FFD089:00000004:FFFFFFFF:Infinite Energy PL1
+:ddcrewj2:00000000:FFD09F:0000000F:FFFFFFFF:Invincibility PL1
+:ddcrewj2:00000000:FFC171:00000000:00000001:Rapid Fire PL1
+:ddcrewj2:00000000:FFD288:00000009:FFFFFFFF:Infinite Lives PL2
+:ddcrewj2:00000000:FFD289:00000004:FFFFFFFF:Infinite Energy PL2
+:ddcrewj2:00000000:FFD29F:0000000F:FFFFFFFF:Invincibility PL2
+:ddcrewj2:00000000:FFC172:00000000:00000001:Rapid Fire PL2
 
 ; [ D. D. Crew (set 3, US, 4 Player, FD1094 317-0186) ]
 :ddcrewu:00000000:FFC000:00000063:FFFFFFFF:Infinite Credits
@@ -164867,52 +164867,52 @@
 :shdancbl:00000000:FFEB8A:0000009A:FFFFFFFF:Infinite Lives PL2
 
 ; [ Shadow Dancer (set 1) ]
-:shdance1:00000000:FFC407:00000059:FFFFFFFF:Infinite Time
-:shdance1:00000000:FFC41F:00000009:FFFFFFFF:Infinite Magic
-:shdance1:20900000:00ABDC:00004E75:FFFFFFFF:Invincibility:You die though when you fall into water (3-3, 4-2) or off a high platform (4-1)
-:shdance1:20910000:00B3C8:00004E75:FFFFFFFF:Invincibility (02/14):1st = Direct Attack, 2nd = Boss 1
-:shdance1:20910000:00B45C:00004E75:FFFFFFFF:Invincibility (03/14):Ninja
-:shdance1:20910000:00B4C8:00004E75:FFFFFFFF:Invincibility (04/14):Enemy
-:shdance1:20910000:0170F2:00004E75:FFFFFFFF:Invincibility (05/14):Alligator
-:shdance1:20910000:017B96:00004E75:FFFFFFFF:Invincibility (06/14):Boss 1 Attack
-:shdance1:20910000:01856A:00004E75:FFFFFFFF:Invincibility (07/14):Boss 2
-:shdance1:20910000:018F90:00004E75:FFFFFFFF:Invincibility (08/14):Boss 2 Attack
-:shdance1:20910000:019E40:00004E75:FFFFFFFF:Invincibility (09/14):Boss 3 Attack
-:shdance1:20910000:019E7C:00004E75:FFFFFFFF:Invincibility (10/14):Boss 3
-:shdance1:20910000:019F16:00004E75:FFFFFFFF:Invincibility (11/14):Boss 3 Barrier
-:shdance1:20910000:01B720:00004E75:FFFFFFFF:Invincibility (12/14):Boss 4
-:shdance1:20910000:01B86C:00004E75:FFFFFFFF:Invincibility (13/14):Boss 4 Attack
-:shdance1:20910000:01D84A:00004E75:FFFFFFFF:Invincibility (14/14):Indirect Attack
-:shdance1:00000000:FFC490:00000000:FFFFFFFF:Always have the Normal gun
-:shdance1:00000000:FFC490:00000001:FFFFFFFF:Always have the Power-up gun
-:shdance1:00000001:FFC490:00000000:FFFFFFFF:Get the Normal gun Now!
-:shdance1:00000001:FFC490:00000001:FFFFFFFF:Get the Power-up gun Now!
-:shdance1:00000000:FFEB0A:0000009A:FFFFFFFF:Infinite Lives PL1
-:shdance1:00000000:FFEB8A:0000009A:FFFFFFFF:Infinite Lives PL2
+:shdancer1:00000000:FFC407:00000059:FFFFFFFF:Infinite Time
+:shdancer1:00000000:FFC41F:00000009:FFFFFFFF:Infinite Magic
+:shdancer1:20900000:00ABDC:00004E75:FFFFFFFF:Invincibility:You die though when you fall into water (3-3, 4-2) or off a high platform (4-1)
+:shdancer1:20910000:00B3C8:00004E75:FFFFFFFF:Invincibility (02/14):1st = Direct Attack, 2nd = Boss 1
+:shdancer1:20910000:00B45C:00004E75:FFFFFFFF:Invincibility (03/14):Ninja
+:shdancer1:20910000:00B4C8:00004E75:FFFFFFFF:Invincibility (04/14):Enemy
+:shdancer1:20910000:0170F2:00004E75:FFFFFFFF:Invincibility (05/14):Alligator
+:shdancer1:20910000:017B96:00004E75:FFFFFFFF:Invincibility (06/14):Boss 1 Attack
+:shdancer1:20910000:01856A:00004E75:FFFFFFFF:Invincibility (07/14):Boss 2
+:shdancer1:20910000:018F90:00004E75:FFFFFFFF:Invincibility (08/14):Boss 2 Attack
+:shdancer1:20910000:019E40:00004E75:FFFFFFFF:Invincibility (09/14):Boss 3 Attack
+:shdancer1:20910000:019E7C:00004E75:FFFFFFFF:Invincibility (10/14):Boss 3
+:shdancer1:20910000:019F16:00004E75:FFFFFFFF:Invincibility (11/14):Boss 3 Barrier
+:shdancer1:20910000:01B720:00004E75:FFFFFFFF:Invincibility (12/14):Boss 4
+:shdancer1:20910000:01B86C:00004E75:FFFFFFFF:Invincibility (13/14):Boss 4 Attack
+:shdancer1:20910000:01D84A:00004E75:FFFFFFFF:Invincibility (14/14):Indirect Attack
+:shdancer1:00000000:FFC490:00000000:FFFFFFFF:Always have the Normal gun
+:shdancer1:00000000:FFC490:00000001:FFFFFFFF:Always have the Power-up gun
+:shdancer1:00000001:FFC490:00000000:FFFFFFFF:Get the Normal gun Now!
+:shdancer1:00000001:FFC490:00000001:FFFFFFFF:Get the Power-up gun Now!
+:shdancer1:00000000:FFEB0A:0000009A:FFFFFFFF:Infinite Lives PL1
+:shdancer1:00000000:FFEB8A:0000009A:FFFFFFFF:Infinite Lives PL2
 
 ; [ Shadow Dancer (set 2, Japan) ]
-:shdancej:00000000:FFC407:00000059:FFFFFFFF:Infinite Time
-:shdancej:00000000:FFC41F:00000009:FFFFFFFF:Infinite Magic
-:shdancej:20900000:00ABFE:00004E75:FFFFFFFF:Invincibility:You die though when you fall into water (3-3, 4-2) or off a high platform (4-1)
-:shdancej:20910000:00B3EA:00004E75:FFFFFFFF:Invincibility (02/14):1st = Direct Attack, 2nd = Boss 1
-:shdancej:20910000:00B47E:00004E75:FFFFFFFF:Invincibility (03/14):Ninja
-:shdancej:20910000:00B4EA:00004E75:FFFFFFFF:Invincibility (04/14):Enemy
-:shdancej:20910000:017114:00004E75:FFFFFFFF:Invincibility (05/14):Alligator
-:shdancej:20910000:017BB8:00004E75:FFFFFFFF:Invincibility (06/14):Boss 1 Attack
-:shdancej:20910000:01858C:00004E75:FFFFFFFF:Invincibility (07/14):Boss 2
-:shdancej:20910000:018FB2:00004E75:FFFFFFFF:Invincibility (08/14):Boss 2 Attack
-:shdancej:20910000:019E62:00004E75:FFFFFFFF:Invincibility (09/14):Boss 3 Attack
-:shdancej:20910000:019E9E:00004E75:FFFFFFFF:Invincibility (10/14):Boss 3
-:shdancej:20910000:019F38:00004E75:FFFFFFFF:Invincibility (11/14):Boss 3 Barrier
-:shdancej:20910000:01B742:00004E75:FFFFFFFF:Invincibility (12/14):Boss 4
-:shdancej:20910000:01B88E:00004E75:FFFFFFFF:Invincibility (13/14):Boss 4 Attack
-:shdancej:20910000:01D86C:00004E75:FFFFFFFF:Invincibility (14/14):Indirect Attack
-:shdancej:00000000:FFC490:00000000:FFFFFFFF:Always have the Normal gun
-:shdancej:00000000:FFC490:00000001:FFFFFFFF:Always have the Power-up gun
-:shdancej:00000001:FFC490:00000000:FFFFFFFF:Get the Normal gun Now!
-:shdancej:00000001:FFC490:00000001:FFFFFFFF:Get the Power-up gun Now!
-:shdancej:00000000:FFEB0A:0000009A:FFFFFFFF:Infinite Lives PL1
-:shdancej:00000000:FFEB8A:0000009A:FFFFFFFF:Infinite Lives PL2
+:shdancerj:00000000:FFC407:00000059:FFFFFFFF:Infinite Time
+:shdancerj:00000000:FFC41F:00000009:FFFFFFFF:Infinite Magic
+:shdancerj:20900000:00ABFE:00004E75:FFFFFFFF:Invincibility:You die though when you fall into water (3-3, 4-2) or off a high platform (4-1)
+:shdancerj:20910000:00B3EA:00004E75:FFFFFFFF:Invincibility (02/14):1st = Direct Attack, 2nd = Boss 1
+:shdancerj:20910000:00B47E:00004E75:FFFFFFFF:Invincibility (03/14):Ninja
+:shdancerj:20910000:00B4EA:00004E75:FFFFFFFF:Invincibility (04/14):Enemy
+:shdancerj:20910000:017114:00004E75:FFFFFFFF:Invincibility (05/14):Alligator
+:shdancerj:20910000:017BB8:00004E75:FFFFFFFF:Invincibility (06/14):Boss 1 Attack
+:shdancerj:20910000:01858C:00004E75:FFFFFFFF:Invincibility (07/14):Boss 2
+:shdancerj:20910000:018FB2:00004E75:FFFFFFFF:Invincibility (08/14):Boss 2 Attack
+:shdancerj:20910000:019E62:00004E75:FFFFFFFF:Invincibility (09/14):Boss 3 Attack
+:shdancerj:20910000:019E9E:00004E75:FFFFFFFF:Invincibility (10/14):Boss 3
+:shdancerj:20910000:019F38:00004E75:FFFFFFFF:Invincibility (11/14):Boss 3 Barrier
+:shdancerj:20910000:01B742:00004E75:FFFFFFFF:Invincibility (12/14):Boss 4
+:shdancerj:20910000:01B88E:00004E75:FFFFFFFF:Invincibility (13/14):Boss 4 Attack
+:shdancerj:20910000:01D86C:00004E75:FFFFFFFF:Invincibility (14/14):Indirect Attack
+:shdancerj:00000000:FFC490:00000000:FFFFFFFF:Always have the Normal gun
+:shdancerj:00000000:FFC490:00000001:FFFFFFFF:Always have the Power-up gun
+:shdancerj:00000001:FFC490:00000000:FFFFFFFF:Get the Normal gun Now!
+:shdancerj:00000001:FFC490:00000001:FFFFFFFF:Get the Power-up gun Now!
+:shdancerj:00000000:FFEB0A:0000009A:FFFFFFFF:Infinite Lives PL1
+:shdancerj:00000000:FFEB8A:0000009A:FFFFFFFF:Infinite Lives PL2
 
 ; [ Shadow Dancer (set 3, US) ]
 :shdancer:00000000:FFC407:00000059:FFFFFFFF:Infinite Time
@@ -204568,7 +204568,7 @@
 ;cloak=cloakfr=cloakgr=cloaksp
 ;clowns~clowns1
 ;clshrdst=clshroad
-;cltchitr=cltchtrj~=mvp=mvpj(balls=4 on MVP)
+;cltchitr=cltchitrj~=mvp=mvpj(balls=4 on MVP)
 ;cm2841a=cm2v841  (unchecked relationship)
 ;cnights2=cnightst
 ;cninja=cninja0=cninjau=joemac=stoneage
@@ -204636,7 +204636,7 @@
 ;dbreed~dbreedm72
 ;dday=ddayc
 ;ddayjlc=ddayjlca
-;ddcrew~=(ddcrew1=ddcrewu)~=(ddcrew2=ddcrewj)
+;ddcrew~=(ddcrew1=ddcrewu)~=(ddcrew2=ddcrewj2)
 ;ddonpach=ddonpchj
 ;ddragn2u=ddragnw1=ddragon=ddragon2=ddragonb=ddragonu=ddragonw
 ;ddrago3b=ddragon3
@@ -205352,7 +205352,7 @@
 ;sgunner=sgunnerj
 ;shadowld=yokaidko=youkaidk
 ;sharrier=sharrirb
-;shdancbl=shdancer=shdance1=shdancej
+;shdancbl=shdancer=shdancer1=shdancerj
 ;shimpacp=shimpact
 ;shinobi=shinobi1=shinobi2=shinobi3=shinobi4=shinobl
 ;shiryu2=strider2=stridr2a
@@ -206387,8 +206387,8 @@
 ; shangon3 (made by ShimaPong) [????]
 ; shaolins (made by Pugsy) [M6809]
 ; shdancbl (made by ShimaPong) [68000]
-; shdance1 (made by ShimaPong) [68000]
-; shdancej (made by ShimaPong) [68000]
+; shdancer1 (made by ShimaPong) [68000]
+; shdancerj (made by ShimaPong) [68000]
 ; shdancer (made by ShimaPong) [68000]
 ; sheriff (made by ShimaPong) [????]
 ; shinobi (made by ShimaPong) [????]

@@ -1124,7 +1124,7 @@ VIDEO_UPDATE( system18old ){
 	tilemap_draw( bitmap,cliprect, text_layer, 0, 0xf );
 
 	if (!strcmp(Machine->gamedrv->name,"cltchitr"))  update_system18_vdp(bitmap,cliprect); // kludge: render vdp here for clthitr, draws the ball in game!
-	if (!strcmp(Machine->gamedrv->name,"cltchtrj"))  update_system18_vdp(bitmap,cliprect); // kludge: render vdp here for clthitr, draws the ball in game!
+	if (!strcmp(Machine->gamedrv->name,"cltchitrj"))  update_system18_vdp(bitmap,cliprect); // kludge: render vdp here for clthitr, draws the ball in game!
 //  if (!strcmp(Machine->gamedrv->name,"astorm"))  update_system18_vdp(bitmap,cliprect); // kludge: render vdp here for astorm
 
 	draw_sprites( bitmap,cliprect, 0 );
