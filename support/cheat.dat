@@ -138498,38 +138498,38 @@
 :ragtime:00000100:2082FB:00000005:FFFFFFFF:Select Speed PL2
 
 ; [ Raiden ]
-:raiden:00000000:0BD5:0000000A:FFFFFFFF:Infinite Lives PL1
-:raiden:00000000:0BE3:00000006:FFFFFFFF:Infinite Bombs PL1
-:raiden:00000000:1215:0000000B:FFFFFFFF:Invincibility PL1
-:raiden:00000000:0BDB:00000008:FFFFFFFF:Always Max Normal weapon PL1
-:raiden:00000000:0BDD:00000008:FFFFFFFF:Always Max Laser weapon PL1
-:raiden:00000000:0BDF:00000004:FFFFFFFF:Always Max Rocket weapon PL1
-:raiden:00000000:0BE1:00000004:FFFFFFFF:Always Max Missile weapon PL1
-:raiden:00000001:0BDB:00000008:FFFFFFFF:Get Max Normal weapon Now!PL1
-:raiden:00000001:0BDD:00000008:FFFFFFFF:Get Max Laser weapon Now! PL1
-:raiden:00000001:0BDF:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL1
-:raiden:00000001:0BE1:00000004:FFFFFFFF:Get Max Missile weaponNow!PL1
-:raiden:00000000:0D42:00000000:FFFFFFFF:Infinite Vulcan PL1
-:raiden:00000000:0D43:00000000:FFFFFFFF:Infinite Laser PL1
-:raiden:00000000:0D44:00000000:FFFFFFFF:Infinite Missile PL1
-:raiden:00000000:0D45:00000000:FFFFFFFF:Infinite Homing PL1
-:raiden:00000000:123C:00000000:00000010:Rapid Fire PL1
-:raiden:00000000:0BFB:0000000A:FFFFFFFF:Infinite Lives PL2
-:raiden:00000000:0C09:00000006:FFFFFFFF:Infinite Bombs PL2
-:raiden:00000000:1285:0000000C:FFFFFFFF:Invincibility PL2
-:raiden:00000000:0C01:00000008:FFFFFFFF:Always Max Normal weapon PL2
-:raiden:00000000:0C03:00000008:FFFFFFFF:Always Max Laser weapon PL2
-:raiden:00000000:0C05:00000004:FFFFFFFF:Always Max Rocket weapon PL2
-:raiden:00000000:0C07:00000004:FFFFFFFF:Always Max Missile weapon PL2
-:raiden:00000001:0C01:00000008:FFFFFFFF:Get Max Normal weapon Now!PL2
-:raiden:00000001:0C03:00000008:FFFFFFFF:Get Max Laser weapon Now! PL2
-:raiden:00000001:0C05:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL2
-:raiden:00000001:0C07:00000004:FFFFFFFF:Get Max Missile weaponNow!PL2
-:raiden:00000000:0D52:00000000:FFFFFFFF:Infinite Vulcan PL2
-:raiden:00000000:0D53:00000000:FFFFFFFF:Infinite Laser PL2
-:raiden:00000000:0D54:00000000:FFFFFFFF:Infinite Missile PL2
-:raiden:00000000:0D55:00000000:FFFFFFFF:Infinite Homing PL2
-:raiden:00000000:12AC:00000000:00000010:Rapid Fire PL2
+:raidenb:00000000:0BD5:0000000A:FFFFFFFF:Infinite Lives PL1
+:raidenb:00000000:0BE3:00000006:FFFFFFFF:Infinite Bombs PL1
+:raidenb:00000000:1215:0000000B:FFFFFFFF:Invincibility PL1
+:raidenb:00000000:0BDB:00000008:FFFFFFFF:Always Max Normal weapon PL1
+:raidenb:00000000:0BDD:00000008:FFFFFFFF:Always Max Laser weapon PL1
+:raidenb:00000000:0BDF:00000004:FFFFFFFF:Always Max Rocket weapon PL1
+:raidenb:00000000:0BE1:00000004:FFFFFFFF:Always Max Missile weapon PL1
+:raidenb:00000001:0BDB:00000008:FFFFFFFF:Get Max Normal weapon Now!PL1
+:raidenb:00000001:0BDD:00000008:FFFFFFFF:Get Max Laser weapon Now! PL1
+:raidenb:00000001:0BDF:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL1
+:raidenb:00000001:0BE1:00000004:FFFFFFFF:Get Max Missile weaponNow!PL1
+:raidenb:00000000:0D42:00000000:FFFFFFFF:Infinite Vulcan PL1
+:raidenb:00000000:0D43:00000000:FFFFFFFF:Infinite Laser PL1
+:raidenb:00000000:0D44:00000000:FFFFFFFF:Infinite Missile PL1
+:raidenb:00000000:0D45:00000000:FFFFFFFF:Infinite Homing PL1
+:raidenb:00000000:123C:00000000:00000010:Rapid Fire PL1
+:raidenb:00000000:0BFB:0000000A:FFFFFFFF:Infinite Lives PL2
+:raidenb:00000000:0C09:00000006:FFFFFFFF:Infinite Bombs PL2
+:raidenb:00000000:1285:0000000C:FFFFFFFF:Invincibility PL2
+:raidenb:00000000:0C01:00000008:FFFFFFFF:Always Max Normal weapon PL2
+:raidenb:00000000:0C03:00000008:FFFFFFFF:Always Max Laser weapon PL2
+:raidenb:00000000:0C05:00000004:FFFFFFFF:Always Max Rocket weapon PL2
+:raidenb:00000000:0C07:00000004:FFFFFFFF:Always Max Missile weapon PL2
+:raidenb:00000001:0C01:00000008:FFFFFFFF:Get Max Normal weapon Now!PL2
+:raidenb:00000001:0C03:00000008:FFFFFFFF:Get Max Laser weapon Now! PL2
+:raidenb:00000001:0C05:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL2
+:raidenb:00000001:0C07:00000004:FFFFFFFF:Get Max Missile weaponNow!PL2
+:raidenb:00000000:0D52:00000000:FFFFFFFF:Infinite Vulcan PL2
+:raidenb:00000000:0D53:00000000:FFFFFFFF:Infinite Laser PL2
+:raidenb:00000000:0D54:00000000:FFFFFFFF:Infinite Missile PL2
+:raidenb:00000000:0D55:00000000:FFFFFFFF:Infinite Homing PL2
+:raidenb:00000000:12AC:00000000:00000010:Rapid Fire PL2
 
 ; [ Raiden 2 (set 1, US Fabtek) ]
 :raiden2:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -138582,38 +138582,38 @@
 :raiden2e:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Raiden (Alternate Hardware) ]
-:raidena:00000000:0B85:0000000A:FFFFFFFF:Infinite Lives PL1
-:raidena:00000000:0B93:00000006:FFFFFFFF:Infinite Bombs PL1
-:raidena:00000000:11C5:0000000B:FFFFFFFF:Invincibility PL1
-:raidena:00000000:0B8B:00000008:FFFFFFFF:Always Max Normal weapon PL1
-:raidena:00000000:0B8D:00000008:FFFFFFFF:Always Max Laser weapon PL1
-:raidena:00000000:0B8F:00000004:FFFFFFFF:Always Max Rocket weapon PL1
-:raidena:00000000:0B91:00000004:FFFFFFFF:Always Max Missile weapon PL1
-:raidena:00000001:0B8B:00000008:FFFFFFFF:Get Max Normal weapon Now!PL1
-:raidena:00000001:0B8D:00000008:FFFFFFFF:Get Max Laser weapon Now! PL1
-:raidena:00000001:0B8F:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL1
-:raidena:00000001:0B91:00000004:FFFFFFFF:Get Max Missile weaponNow!PL1
-:raidena:00000000:0CF2:00000000:FFFFFFFF:Infinite Vulcan PL1
-:raidena:00000000:0CF3:00000000:FFFFFFFF:Infinite Laser PL1
-:raidena:00000000:0CF4:00000000:FFFFFFFF:Infinite Missile PL1
-:raidena:00000000:0CF5:00000000:FFFFFFFF:Infinite Homing PL1
-:raidena:00000000:11EC:00000000:00000010:Rapid Fire PL1
-:raidena:00000000:0BAB:0000000A:FFFFFFFF:Infinite Lives PL2
-:raidena:00000000:0BB9:00000006:FFFFFFFF:Infinite Bombs PL2
-:raidena:00000000:1235:0000000C:FFFFFFFF:Invincibility PL2
-:raidena:00000000:0BB1:00000008:FFFFFFFF:Always Max Normal weapon PL2
-:raidena:00000000:0BB3:00000008:FFFFFFFF:Always Max Laser weapon PL2
-:raidena:00000000:0BB5:00000004:FFFFFFFF:Always Max Rocket weapon PL2
-:raidena:00000000:0BB7:00000004:FFFFFFFF:Always Max Missile weapon PL2
-:raidena:00000001:0BB1:00000008:FFFFFFFF:Get Max Normal weapon Now!PL2
-:raidena:00000001:0BB3:00000008:FFFFFFFF:Get Max Laser weapon Now! PL2
-:raidena:00000001:0BB5:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL2
-:raidena:00000001:0BB7:00000004:FFFFFFFF:Get Max Missile weaponNow!PL2
-:raidena:00000000:0D02:00000000:FFFFFFFF:Infinite Vulcan PL2
-:raidena:00000000:0D03:00000000:FFFFFFFF:Infinite Laser PL2
-:raidena:00000000:0D04:00000000:FFFFFFFF:Infinite Missile PL2
-:raidena:00000000:0D05:00000000:FFFFFFFF:Infinite Homing PL2
-:raidena:00000000:125C:00000000:00000010:Rapid Fire PL2
+:raiden:00000000:0B85:0000000A:FFFFFFFF:Infinite Lives PL1
+:raiden:00000000:0B93:00000006:FFFFFFFF:Infinite Bombs PL1
+:raiden:00000000:11C5:0000000B:FFFFFFFF:Invincibility PL1
+:raiden:00000000:0B8B:00000008:FFFFFFFF:Always Max Normal weapon PL1
+:raiden:00000000:0B8D:00000008:FFFFFFFF:Always Max Laser weapon PL1
+:raiden:00000000:0B8F:00000004:FFFFFFFF:Always Max Rocket weapon PL1
+:raiden:00000000:0B91:00000004:FFFFFFFF:Always Max Missile weapon PL1
+:raiden:00000001:0B8B:00000008:FFFFFFFF:Get Max Normal weapon Now!PL1
+:raiden:00000001:0B8D:00000008:FFFFFFFF:Get Max Laser weapon Now! PL1
+:raiden:00000001:0B8F:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL1
+:raiden:00000001:0B91:00000004:FFFFFFFF:Get Max Missile weaponNow!PL1
+:raiden:00000000:0CF2:00000000:FFFFFFFF:Infinite Vulcan PL1
+:raiden:00000000:0CF3:00000000:FFFFFFFF:Infinite Laser PL1
+:raiden:00000000:0CF4:00000000:FFFFFFFF:Infinite Missile PL1
+:raiden:00000000:0CF5:00000000:FFFFFFFF:Infinite Homing PL1
+:raiden:00000000:11EC:00000000:00000010:Rapid Fire PL1
+:raiden:00000000:0BAB:0000000A:FFFFFFFF:Infinite Lives PL2
+:raiden:00000000:0BB9:00000006:FFFFFFFF:Infinite Bombs PL2
+:raiden:00000000:1235:0000000C:FFFFFFFF:Invincibility PL2
+:raiden:00000000:0BB1:00000008:FFFFFFFF:Always Max Normal weapon PL2
+:raiden:00000000:0BB3:00000008:FFFFFFFF:Always Max Laser weapon PL2
+:raiden:00000000:0BB5:00000004:FFFFFFFF:Always Max Rocket weapon PL2
+:raiden:00000000:0BB7:00000004:FFFFFFFF:Always Max Missile weapon PL2
+:raiden:00000001:0BB1:00000008:FFFFFFFF:Get Max Normal weapon Now!PL2
+:raiden:00000001:0BB3:00000008:FFFFFFFF:Get Max Laser weapon Now! PL2
+:raiden:00000001:0BB5:00000004:FFFFFFFF:Get Max Rocket weapon Now!PL2
+:raiden:00000001:0BB7:00000004:FFFFFFFF:Get Max Missile weaponNow!PL2
+:raiden:00000000:0D02:00000000:FFFFFFFF:Infinite Vulcan PL2
+:raiden:00000000:0D03:00000000:FFFFFFFF:Infinite Laser PL2
+:raiden:00000000:0D04:00000000:FFFFFFFF:Infinite Missile PL2
+:raiden:00000000:0D05:00000000:FFFFFFFF:Infinite Homing PL2
+:raiden:00000000:125C:00000000:00000010:Rapid Fire PL2
 
 ; [ Raiden (Korea) ]
 :raidenk:00000000:0B85:0000000A:FFFFFFFF:Infinite Lives PL1
@@ -205244,7 +205244,7 @@
 ;racingj=racingj2   (unchecked relationship)
 ;radm=radmu=radr=radru
 ;raflesia=raflsiau
-;raiden~raidena=raidenk=raident
+;raiden=raidenk=raident~raidenb
 ;raiders5=raidrs5t
 ;raidndx=raidndxa=raidndxb=raidndxj=raidndxm      (unchecked relationship)
 ;raiga=stratof

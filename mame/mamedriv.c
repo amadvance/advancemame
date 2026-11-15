@@ -6180,7 +6180,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( dbldyn )	/* (c) 1989 Seibu Kaihatsu + Fabtek license */
 	DRIVER( dbldynf )	/* (c) 1989 Seibu Kaihatsu + Fabtek license */
 	DRIVER( raiden )	/* (c) 1990 Seibu Kaihatsu */
-	DRIVER( raidena )	/* (c) 1990 Seibu Kaihatsu */
+	DRIVER( raidenb )	/* (c) 1990 Seibu Kaihatsu */
 	DRIVER( raidenk )	/* (c) 1990 Seibu Kaihatsu + IBL Corporation license */
 	DRIVER( raident )	/* (c) 1990 Seibu Kaihatsu + Liang HWA Electronics license */
 	DRIVER( sdgndmps )	/* (c) Banpresto / Bandai (Japan) */

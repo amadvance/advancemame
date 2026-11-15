@@ -9354,10 +9354,10 @@ qwak:
 
 ;********raiden.c
 ;**********needs raidenk added
-raiden:
+raidenb:
 0:000c27:b4:50:00
 
-raidena:
+raiden:
 0:000bd7:b4:50:00
 
 jumping:
