@@ -10576,22 +10576,22 @@
 :bayroutej:00000000:500A37:0000003F:FFFFFFFF:Invincibility PL2:Walking into flames will still kill you though
 
 ; [ Bay Route (bootleg set 1) ]
-:bayrtbl1:00000000:50017F:00000009:FFFFFFFF:Infinite Credits
-:bayrtbl1:00000000:500A15:00000099:FFFFFFFF:Infinite Lives PL1
-:bayrtbl1:00000000:500A14:00000002:FFFFFFFF:Infinite Energy PL1
-:bayrtbl1:00000000:500A17:0000003F:FFFFFFFF:Invincibility PL1:Walking into flames will still kill you though
-:bayrtbl1:00000000:500A35:00000099:FFFFFFFF:Infinite Lives PL2
-:bayrtbl1:00000000:500A34:00000002:FFFFFFFF:Infinite Energy PL2
-:bayrtbl1:00000000:500A37:0000003F:FFFFFFFF:Invincibility PL2:Walking into flames will still kill you though
+:bayrouteb1:00000000:50017F:00000009:FFFFFFFF:Infinite Credits
+:bayrouteb1:00000000:500A15:00000099:FFFFFFFF:Infinite Lives PL1
+:bayrouteb1:00000000:500A14:00000002:FFFFFFFF:Infinite Energy PL1
+:bayrouteb1:00000000:500A17:0000003F:FFFFFFFF:Invincibility PL1:Walking into flames will still kill you though
+:bayrouteb1:00000000:500A35:00000099:FFFFFFFF:Infinite Lives PL2
+:bayrouteb1:00000000:500A34:00000002:FFFFFFFF:Infinite Energy PL2
+:bayrouteb1:00000000:500A37:0000003F:FFFFFFFF:Invincibility PL2:Walking into flames will still kill you though
 
 ; [ Bay Route (bootleg set 2) ]
-:bayrtbl2:00000000:50017F:00000009:FFFFFFFF:Infinite Credits
-:bayrtbl2:00000000:500A15:00000099:FFFFFFFF:Infinite Lives PL1
-:bayrtbl2:00000000:500A14:00000002:FFFFFFFF:Infinite Energy PL1
-:bayrtbl2:00000000:500A17:0000003F:FFFFFFFF:Invincibility PL1:Walking into flames will still kill you though
-:bayrtbl2:00000000:500A35:00000099:FFFFFFFF:Infinite Lives PL2
-:bayrtbl2:00000000:500A34:00000002:FFFFFFFF:Infinite Energy PL2
-:bayrtbl2:00000000:500A37:0000003F:FFFFFFFF:Invincibility PL2:Walking into flames will still kill you though
+:bayrouteb2:00000000:50017F:00000009:FFFFFFFF:Infinite Credits
+:bayrouteb2:00000000:500A15:00000099:FFFFFFFF:Infinite Lives PL1
+:bayrouteb2:00000000:500A14:00000002:FFFFFFFF:Infinite Energy PL1
+:bayrouteb2:00000000:500A17:0000003F:FFFFFFFF:Invincibility PL1:Walking into flames will still kill you though
+:bayrouteb2:00000000:500A35:00000099:FFFFFFFF:Infinite Lives PL2
+:bayrouteb2:00000000:500A34:00000002:FFFFFFFF:Infinite Energy PL2
+:bayrouteb2:00000000:500A37:0000003F:FFFFFFFF:Invincibility PL2:Walking into flames will still kill you though
 
 ; [ Battle Bakraid - Unlimited version (Japan) (Tue Jun 8 1999) ]
 :bbakradu:00000000:20F792:00000000:FFFFFFFF:Player select -  Default
@@ -51752,16 +51752,16 @@
 :goldmedl:00000000:040377:00000000:FFFFFFFF:Gold Medals all round:Need to finish the event in time though
 
 ; [ Golden Axe (bootleg) ]
-:goldnabl:00000000:FFE018:00000005:FFFFFFFF:Infinite Lives PL1
-:goldnabl:00000000:FFC070:00000030:FFFFFFFF:Infinite Energy PL1
-:goldnabl:00000000:FFE030:00000004:FFFFFFFF:Infinite Magic - Green D PL1
-:goldnabl:00000000:FFE030:00000006:FFFFFFFF:Infinite Magic - Blue W PL1
-:goldnabl:00000000:FFE030:00000009:FFFFFFFF:Infinite Magic - Red V PL1
-:goldnabl:00000000:FFE098:00000005:FFFFFFFF:Infinite Lives PL2
-:goldnabl:00000000:FFC270:00000030:FFFFFFFF:Infinite Energy PL2
-:goldnabl:00000000:FFE0B0:00000004:FFFFFFFF:Infinite Magic - Green D PL2
-:goldnabl:00000000:FFE0B0:00000006:FFFFFFFF:Infinite Magic - Blue W PL2
-:goldnabl:00000000:FFE0B0:00000009:FFFFFFFF:Infinite Magic - Red V PL2
+:goldnaxeb1:00000000:FFE018:00000005:FFFFFFFF:Infinite Lives PL1
+:goldnaxeb1:00000000:FFC070:00000030:FFFFFFFF:Infinite Energy PL1
+:goldnaxeb1:00000000:FFE030:00000004:FFFFFFFF:Infinite Magic - Green D PL1
+:goldnaxeb1:00000000:FFE030:00000006:FFFFFFFF:Infinite Magic - Blue W PL1
+:goldnaxeb1:00000000:FFE030:00000009:FFFFFFFF:Infinite Magic - Red V PL1
+:goldnaxeb1:00000000:FFE098:00000005:FFFFFFFF:Infinite Lives PL2
+:goldnaxeb1:00000000:FFC270:00000030:FFFFFFFF:Infinite Energy PL2
+:goldnaxeb1:00000000:FFE0B0:00000004:FFFFFFFF:Infinite Magic - Green D PL2
+:goldnaxeb1:00000000:FFE0B0:00000006:FFFFFFFF:Infinite Magic - Blue W PL2
+:goldnaxeb1:00000000:FFE0B0:00000009:FFFFFFFF:Infinite Magic - Red V PL2
 
 ; [ Golden Axe (set 1, World, FD1094 317-0110) ]
 :goldnaxe1:00000000:FFE018:00000005:FFFFFFFF:Infinite Lives PL1
@@ -165064,18 +165064,18 @@
 :shinobi4:00000000:FFD74F:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ Shinobi (bootleg) ]
-:shinobl:000000A2:FFD79B:00000059:FFFFFFFF:Infinite Time
-:shinobl:20800000:003F8A:00000060:FFFFFFFF:Invincibility
-:shinobl:00000000:FFD778:00000001:FFFFFFFF:Infinite Ninja Magic
-:shinobl:00000000:FFD779:00000000:FFFFFFFF:Always Ninja Magic Type 1
-:shinobl:00000000:FFD779:00000001:FFFFFFFF:Always Ninja Magic Type 2
-:shinobl:00000000:FFD779:00000002:FFFFFFFF:Always Ninja Magic Type 3
-:shinobl:00000000:FFD79E:00000001:FFFFFFFF:Always have Power Up Gun
-:shinobl:00000001:FFD79E:00000001:FFFFFFFF:Get Power Up Gun Now!
-:shinobl:00000001:FFC891:00000000:FFFFFFFF:Kill Boss with 1 Hit Now!:This cheat is partial - it only works for some bosses
-:shinobl:00000000:FFD752:00000000:00000002:Rapid Fire:Turn it OFF on name entry screen
-:shinobl:00000000:FFD750:00000006:FFFFFFFF:Infinite Lives PL1
-:shinobl:00000000:FFD74F:00000006:FFFFFFFF:Infinite Lives PL2
+:shinobls:000000A2:FFD79B:00000059:FFFFFFFF:Infinite Time
+:shinobls:20800000:003F8A:00000060:FFFFFFFF:Invincibility
+:shinobls:00000000:FFD778:00000001:FFFFFFFF:Infinite Ninja Magic
+:shinobls:00000000:FFD779:00000000:FFFFFFFF:Always Ninja Magic Type 1
+:shinobls:00000000:FFD779:00000001:FFFFFFFF:Always Ninja Magic Type 2
+:shinobls:00000000:FFD779:00000002:FFFFFFFF:Always Ninja Magic Type 3
+:shinobls:00000000:FFD79E:00000001:FFFFFFFF:Always have Power Up Gun
+:shinobls:00000001:FFD79E:00000001:FFFFFFFF:Get Power Up Gun Now!
+:shinobls:00000001:FFC891:00000000:FFFFFFFF:Kill Boss with 1 Hit Now!:This cheat is partial - it only works for some bosses
+:shinobls:00000000:FFD752:00000000:00000002:Rapid Fire:Turn it OFF on name entry screen
+:shinobls:00000000:FFD750:00000006:FFFFFFFF:Infinite Lives PL1
+:shinobls:00000000:FFD74F:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ Shippu Mahou Daisakusen (Japan) ]
 :shippumd:00000000:10041D:00000009:FFFFFFFF:Infinite Credits
@@ -204427,7 +204427,7 @@
 ;battles=xevios~=sxevious~=xevious~=(xeviousa=xeviousb=xeviousc)
 ;battlntj=battlnts
 ;batwings=bwing=bwings
-;bayroute1=bayroute=bayroutej=bayrtbl1=bayrtbl2
+;bayroute1=bayroute=bayroutej=bayrouteb1=bayrouteb2
 ;bbakradu=bbakraid
 ;bbros=pang=pangb=pompingw
 ;bchopper=mrheli
@@ -204816,7 +204816,7 @@
 ;gogomile~=gogomilj
 ;goindol=goindolj=goindolu=homo
 ;goldmeda=goldmedb=goldmedl
-;goldnabl=goldnaxe1=goldnaxe2=goldnaxe3=goldnaxe=goldnaxej=goldnaxeu
+;goldnaxeb1=goldnaxe1=goldnaxe2=goldnaxe3=goldnaxe=goldnaxej=goldnaxeu
 ;goldstar=goldstbl=moonlght
 ;gondo=makyosen
 ;goonies~=pc_goons
@@ -205343,7 +205343,7 @@
 ;sharrier=sharrirb
 ;shdancbl=shdancer=shdancer1=shdancerj
 ;shimpacp=shimpact
-;shinobi=shinobi1=shinobi2=shinobi3=shinobi4=shinobl
+;shinobi=shinobi1=shinobi2=shinobi3=shinobi4=shinobls
 ;shiryu2=strider2=stridr2a
 ;shocktro=shocktroa
 ;shollow=shollow2
@@ -206385,7 +206385,7 @@
 ; shinobi2 (made by ShimaPong) [????]
 ; shinobi3 (made by ShimaPong) [????]
 ; shinobi4 (made by ShimaPong) [????]
-; shinobl (made by ShimaPong) [????]
+; shinobls (made by ShimaPong) [????]
 ; shootoub (made by ugetab) [M6502]
 ; shootouj (made by ugetab) [M6502]
 ; shootout (made by ugetab) [M6502]

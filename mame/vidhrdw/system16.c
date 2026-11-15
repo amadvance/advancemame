@@ -58,7 +58,7 @@ type0:
 most games
 
 type1:
-alexkidd,fantzone,shinobl,hangon
+alexkidd,fantzone,shinobls,hangon
 mjleague
 
 others:
@@ -136,6 +136,7 @@ int sys16_bg_priority_value;
 int sys16_fg_priority_value;
 int sys16_18_mode;
 int sys16_tilebank_switch;
+int sys16_tile_color_shift;
 int sys16_rowscroll_scroll;
 
 /* video registers */
@@ -591,7 +592,7 @@ static void get_bg_tile_info( int offset ){
 		SET_TILE_INFO(
 				0,
 				tile_number,
-				(data>>5)&0x7f,
+				(data>>sys16_tile_color_shift)&0x7f,
 				0)
 	}
 
@@ -622,7 +623,7 @@ static void get_fg_tile_info( int offset ){
 		SET_TILE_INFO(
 				0,
 				tile_number,
-				(data>>5)&0x7f,
+				(data>>sys16_tile_color_shift)&0x7f,
 				0)
 	}
 	switch(sys16_fg_priority_mode){
@@ -821,6 +822,7 @@ VIDEO_START( system16 ){
 		sys16_bg_priority_mode=0;
 		sys16_fg_priority_mode=0;
 		sys16_tilebank_switch=0x1000;
+		sys16_tile_color_shift=5;
 
 		// Defaults for sys16 games
 		sys16_textlayer_lo_min=0;

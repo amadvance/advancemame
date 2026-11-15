@@ -19332,7 +19332,7 @@ F.A.Q. by Kevin Butler A.K.A. War Doc
 $end
 
 
-$info=bayroute,bayroute1,bayroutej,bayrtbl1,bayrtbl2,
+$info=bayroute,bayroute1,bayroutej,bayrouteb1,bayrouteb2,
 $bio
 
 Bay-Route (c) 03/1989 Sunsoft / Sega.
@@ -80327,7 +80327,7 @@ Buttons : 3
 $end
 
 
-$info=goldnaxe,goldnabl,goldnaxej,goldnaxe2,goldnaxe3,goldnaxe1,goldnaxeu,
+$info=goldnaxe,goldnaxeb1,goldnaxej,goldnaxe2,goldnaxe3,goldnaxe1,goldnaxeu,
 $bio
 
 Golden Axe (c) 06/1989 Sega.
@@ -192639,7 +192639,7 @@ Shinobi was one of the many names given to the ninja in feudal Japan. It literal
 $end
 
 
-$info=shinobi,shinobi1,shinobi3,shinobi2,shinobi4,shinobl,
+$info=shinobi,shinobi1,shinobi3,shinobi2,shinobi4,shinobls,
 $bio
 
 Shinobi (c) 1987 Sega.
