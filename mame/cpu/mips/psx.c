@@ -2734,6 +2734,11 @@ static UINT32 getcp2dr( int n_reg )
 	{
 		mipscpu.cp2dr[ n_reg ].d = (UINT32)(UINT16)mipscpu.cp2dr[ n_reg ].d;
 	}
+	else if( n_reg == 15 )
+	{
+		/* SXYP reads the newest projected vertex, even after a GTE command. */
+		SXYP = SXY2;
+	}
 	else if( n_reg == 29 )
 	{
 		ORGB = ( ( IR1 >> 7 ) & 0x1f ) | ( ( IR2 >> 2 ) & 0x3e0 ) | ( ( IR3 << 3 ) & 0x7c00 );

@@ -2959,100 +2959,134 @@ V-V                           TP-027
 
 	/* Capcom ZN1 */
 	DRIVER( coh1000c )
-	DRIVER( ts2 )		/* Battle Arena Toshinden 2 (USA 951124) */
-	DRIVER( ts2j )		/* Battle Arena Toshinden 2 (JAPAN 951124) */
-	DRIVER( starglad )	/* Star Gladiator (USA 960627) */
-	DRIVER( sfex )		/* Street Fighter EX (USA 961219) */
-	DRIVER( sfexa )		/* Street Fighter EX (ASIA 961219) */
-	DRIVER( sfexj )		/* Street Fighter EX (JAPAN 961130) */
-	DRIVER( glpracr )	/* Gallop Racer (JAPAN Ver 9.01.12) */
-	DRIVER( sfexp )		/* Street Fighter EX Plus (USA 970407) */
+	DRIVER( ts2 )	/* Battle Arena Toshinden 2 (Europe 951124) */
+	DRIVER( ts2u )	/* Battle Arena Toshinden 2 (USA 951124) */
+	DRIVER( ts2ua )	/* Battle Arena Toshinden 2 (USA 951124, 32Mb mask ROMs) */
+	DRIVER( ts2j )	/* Battle Arena Toshinden 2 (Japan 951124) */
+	DRIVER( ts2ja )	/* Battle Arena Toshinden 2 (Japan 951124, 32Mb mask ROMs) */
+	DRIVER( starglad )	/* Star Gladiator Episode I: Final Crusade (USA 960627) */
+	DRIVER( stargladj )	/* Star Gladiator Episode I: Final Crusade (Japan 960627) */
+	DRIVER( glpracr )	/* Gallop Racer (English Ver 10.17.K) */
+	DRIVER( glpracrj )	/* Gallop Racer (Japanese Ver 9.01.12) */
+	DRIVER( sfex )	/* Street Fighter EX (Europe 961219) */
+	DRIVER( sfexu )	/* Street Fighter EX (USA 961219) */
+	DRIVER( sfexa )	/* Street Fighter EX (Asia 961219) */
+	DRIVER( sfexj )	/* Street Fighter EX (Japan 961130) */
+	DRIVER( sfexp )	/* Street Fighter EX Plus (USA 970407) */
 	DRIVER( sfexpu1 )	/* Street Fighter EX Plus (USA 970311) */
-	DRIVER( sfexpj )	/* Street Fighter EX Plus (JAPAN 970311) */
+	DRIVER( sfexpj )	/* Street Fighter EX Plus (Japan 970407) */
+	DRIVER( sfexpj1 )	/* Street Fighter EX Plus (Japan 970311) */
 
 	/* Capcom ZN2 */
 	DRIVER( coh3002c )
-	DRIVER( rvschool )	/* Rival Schools (USA 971117) */
-	DRIVER( rvschola )	/* Rival Schools (ASIA 971117) */
-	DRIVER( jgakuen )	/* Justice Gakuen (JAPAN 971117) */
-	DRIVER( sfex2 )		/* Street Fighter EX 2 (USA 980526) */
-	DRIVER( sfex2j )	/* Street Fighter EX 2 (JAPAN 980312) */
-	DRIVER( sfex2a )	/* Street Fighter EX 2 (ASIA 980312) */
-	DRIVER( plsmaswd )	/* Plasma Sword (USA 980316) */
-	DRIVER( stargld2 )	/* Star Gladiator 2 (JAPAN 980316) */
-	DRIVER( plsmswda )	/* Plasma Sword (ASIA 980316) */
-	DRIVER( tgmj )		/* Tetris The Grand Master (JAPAN 980710) */
-	DRIVER( techromn )	/* Tech Romancer (EURO 980914) */
-	DRIVER( techromu )	/* Tech Romancer (USA 980914) */
-	DRIVER( kikaioh )	/* Kikaioh (JAPAN 980914) */
-	DRIVER( sfex2p )	/* Street Fighter EX 2 Plus (USA 990611) */
-	DRIVER( sfex2pa )	/* Street Fighter EX 2 Plus (ASIA 990611) */
-	DRIVER( sfex2pj )	/* Street Fighter EX 2 Plus (JAPAN 990611) */
-	DRIVER( strider2 )	/* Strider 2 (USA 991213) */
-	DRIVER( stridr2a )	/* Strider 2 (ASIA 991213) */
-	DRIVER( shiryu2 )	/* Strider Hiryu 2 (JAPAN 991213) */
+	DRIVER( rvschool )	/* Rival Schools: United By Fate (Europe 971117) */
+	DRIVER( rvschoolu )	/* Rival Schools: United By Fate (USA 971117) */
+	DRIVER( rvschoola )	/* Rival Schools: United By Fate (Asia 971117) */
+	DRIVER( jgakuen )	/* Shiritsu Justice Gakuen: Legion of Heroes (Japan 971216) */
+	DRIVER( jgakuen1 )	/* Shiritsu Justice Gakuen: Legion of Heroes (Japan 971117) */
+	DRIVER( sfex2 )	/* Street Fighter EX2 (Europe 980312) */
+	DRIVER( sfex2u )	/* Street Fighter EX2 (USA 980526) */
+	DRIVER( sfex2u1 )	/* Street Fighter EX2 (USA 980312) */
+	DRIVER( sfex2a )	/* Street Fighter EX2 (Asia 980312) */
+	DRIVER( sfex2h )	/* Street Fighter EX2 (Hispanic 980312) */
+	DRIVER( sfex2j )	/* Street Fighter EX2 (Japan 980312) */
+	DRIVER( plsmaswd )	/* Plasma Sword: Nightmare of Bilstein (USA 980316) */
+	DRIVER( plsmaswda )	/* Plasma Sword: Nightmare of Bilstein (Asia 980316) */
+	DRIVER( stargld2 )	/* Star Gladiator 2: Nightmare of Bilstein (Japan 980316) */
+	DRIVER( tgmj )	/* Tetris: The Grand Master (Japan 980710) */
+	DRIVER( techromn )	/* Tech Romancer (Europe 980914) */
+	DRIVER( techromnu )	/* Tech Romancer (USA 980914) */
+	DRIVER( techromna )	/* Tech Romancer (Asia 980914) */
+	DRIVER( kikaioh )	/* Choukou Senki Kikaioh (Japan 980914) */
+	DRIVER( sfex2p )	/* Street Fighter EX2 Plus (Europe 990611) */
+	DRIVER( sfex2pu )	/* Street Fighter EX2 Plus (USA 990611) */
+	DRIVER( sfex2pa )	/* Street Fighter EX2 Plus (Asia 990611) */
+	DRIVER( sfex2ph )	/* Street Fighter EX2 Plus (Hispanic 990611) */
+	DRIVER( sfex2pj )	/* Street Fighter EX2 Plus (Japan 990611) */
+	DRIVER( strider2 )	/* Strider 2 (Europe 991213) */
+	DRIVER( strider2u )	/* Strider 2 (USA 991213) */
+	DRIVER( strider2a )	/* Strider 2 (Asia 991213) */
+	DRIVER( shiryu2 )	/* Strider Hiryu 2 (Japan 991213) */
 
 	/* Tecmo ZN1 */
 	DRIVER( coh1002m )
-	DRIVER( glpracr2 )	/* Gallop Racer 2 (USA) */
-	DRIVER( glprac2j )	/* Gallop Racer 2 (JAPAN) */
-	DRIVER( glprac2l )	/* Gallop Racer 2 Link HW (JAPAN) */
-	DRIVER( doapp )		/* Dead Or Alive ++ (JAPAN) */
-	DRIVER( cbaj )		/* Cool Boaders Arcade Jam */
-	DRIVER( shngmtkb )	/* Shanghai Matekibuyuu */
-	DRIVER( tondemo )	/* Tondemo Crisis (JAPAN) */
-	DRIVER( glpracr3 )	/* Gallop Racer 3 (JAPAN) */
-	DRIVER( flamegun )	/* Flame Gunner (USA) */
-	DRIVER( flameguj )	/* Flame Gunner (JAPAN) */
-	DRIVER( tecmowcm )	/* Tecmo World Cup Millenium (JAPAN) */
-	DRIVER( lpadv )
-	DRIVER( tblkkuzu )
-	DRIVER( mfjump )	/* Monster Farm Jump (JAPAN) */
+	DRIVER( glpracr2 )	/* Gallop Racer 2 (Export) */
+	DRIVER( glpracr2j )	/* Gallop Racer 2 (Japan) */
+	DRIVER( glpracr2l )	/* Gallop Racer 2 Link HW (Japan) */
+	DRIVER( doapp )	/* Dead Or Alive ++ (Japan/USA/Export) */
+	DRIVER( doappk )	/* Dead Or Alive ++ (Korea) */
+	DRIVER( cbaj )	/* Cool Boarders Arcade Jam (Export) */
+	DRIVER( cbajbl )	/* Cool Boarders Arcade Jam (Export bootleg) */
+	DRIVER( shngmtkb )	/* Shanghai Matekibuyuu (Japan) */
+	DRIVER( tondemo )	/* Tondemo Crisis (Japan) */
+	DRIVER( glpracr3 )	/* Gallop Racer 3 (Export) */
+	DRIVER( glpracr3j )	/* Gallop Racer 3 (Japan) */
+	DRIVER( flamegun )	/* Flame Gunner (Export) */
+	DRIVER( flamegunj )	/* Flame Gunner (Japan) */
+	DRIVER( lpadv )	/* Logic Pro Adventure (Japan) */
+	DRIVER( tblkkuzu )	/* The Block Kuzushi (Japan) */
+	DRIVER( 1on1gov )	/* 1 on 1 Government (Japan) */
+	DRIVER( twcupmil )	/* Tecmo World Cup Millennium (Japan) */
+	DRIVER( mfjump )	/* Monster Farm Jump (Japan) */
+	DRIVER( brvblade )	/* Brave Blade (World) */
+	DRIVER( brvbladeu )	/* Brave Blade (USA) */
+	DRIVER( brvbladea )	/* Brave Blade (Asia) */
+	DRIVER( brvbladej )	/* Brave Blade (Japan) */
 
 	/* Atlus ZN1 */
 	DRIVER( coh1001l )
-	DRIVER( hvnsgate )	/* Heaven's Gate (JAPAN) */
+	DRIVER( hvnsgate )	/* Heaven's Gate */
 
 	/* PS Arcade 95 */
 	DRIVER( coh1002e )
-	DRIVER( beastrzr )	/* Beastorizer (USA) */
-	DRIVER( beastrzrb )	/* Beastorizer (USA Bootleg) */
-	DRIVER( bldyror2 )	/* Bloody Roar 2 (JAPAN) */
-	DRIVER( brvblade )	/* Brave Blade (JAPAN) */
+	DRIVER( beastrzr )	/* Beastorizer (USA, Sep 22 1997) */
+	DRIVER( beastrzra )	/* Beastorizer (USA, Jun 21 1997) */
+	DRIVER( bldyroar )	/* Bloody Roar (Japan, Jun 21 1997) */
+	DRIVER( beastrzrb )	/* Beastorizer (USA bootleg) */
+	DRIVER( bldyror2 )	/* Bloody Roar 2 (World) */
+	DRIVER( bldyror2u )	/* Bloody Roar 2 (USA) */
+	DRIVER( bldyror2a )	/* Bloody Roar 2 (Asia) */
+	DRIVER( bldyror2j )	/* Bloody Roar 2 (Japan) */
 
 	/* Atari PSX */
 	DRIVER( coh1000w )
-	DRIVER( primrag2 )	/* Primal Rage 2 */
+	DRIVER( primrag2 )	/* Primal Rage II (Test Version 0.36a) */
 
 	/* Acclaim PSX */
 	DRIVER( coh1000a )
-	DRIVER( nbajamex )	/* NBA Jam Extreme */
-	DRIVER( jdredd )	/* Judge Dredd (Rev C) */
-	DRIVER( jdreddb )	/* Judge Dredd (Rev B) */
+	DRIVER( nbajamex )	/* NBA Jam Extreme (ver. 1.10I) */
+	DRIVER( nbajamexa )	/* NBA Jam Extreme (ver. 1.04) */
+	DRIVER( jdredd )	/* Judge Dredd (Rev C Dec. 17 1997) */
+	DRIVER( jdreddb )	/* Judge Dredd (Rev B Nov. 26 1997) */
 
 	/* Video System ZN1 */
-	DRIVER( coh1002v )	/* Video System PSX */
+	DRIVER( coh1002v )
 	DRIVER( aerofgts )	/* Aero Fighters Special (USA) */
 	DRIVER( aerofgtst )	/* Aero Fighters Special (Taiwan) */
 	DRIVER( sncwgltd )	/* Sonic Wings Limited (Japan) */
 
-	/* Taito FX1a */
+	/* Taito FX1 */
 	DRIVER( coh1000t )
-	DRIVER( sfchamp )	/* Super Football Champ (Ver 2.5J) */
+	DRIVER( sfchamp )	/* Super Football Champ (Ver 2.5O) */
+	DRIVER( sfchampo )	/* Super Football Champ (Ver 2.4O) */
+	DRIVER( sfchampu )	/* Super Football Champ (Ver 2.4A) */
 	DRIVER( sfchampj )	/* Super Football Champ (Ver 2.4J) */
 	DRIVER( psyforce )	/* Psychic Force (Ver 2.4O) */
-	DRIVER( psyforcj )	/* Psychic Force (Ver 2.4J) */
-	DRIVER( psyfrcex )	/* Psychic Force EX (Ver 2.0J) */
-	DRIVER( mgcldate )	/* Magical Date (JAPAN Ver 2.02J) */
-	DRIVER( mgcldtex )	/* Magical Date EX (JAPAN Ver 2.01J) */
-
-	/* Taito FX1b */
+	DRIVER( psyforcej )	/* Psychic Force (Ver 2.4J) */
+	DRIVER( psyforcex )	/* Psychic Force EX (Ver 2.0J) */
+	DRIVER( mgcldate )	/* Magical Date / Magical Date - Dokidoki Kokuhaku Daisakusen (Ver 2.02J) */
+	DRIVER( mgcldtex )	/* Magical Date EX / Magical Date - Sotsugyou Kokuhaku Daisakusen (Ver 2.01J) */
 	DRIVER( raystorm )	/* Ray Storm (Ver 2.06A) */
-	DRIVER( raystorj )	/* Ray Storm (Ver 2.05J) */
+	DRIVER( raystormo )	/* Ray Storm (Ver 2.05O) */
+	DRIVER( raystormu )	/* Ray Storm (Ver 2.05A) */
+	DRIVER( raystormj )	/* Ray Storm (Ver 2.05J) */
 	DRIVER( ftimpact )	/* Fighters' Impact (Ver 2.02O) */
+	DRIVER( ftimpactu )	/* Fighters' Impact (Ver 2.02A) */
+	DRIVER( ftimpactj )	/* Fighters' Impact (Ver 2.02J) */
 	DRIVER( ftimpcta )	/* Fighters' Impact A (Ver 2.00J) */
-	DRIVER( gdarius )	/* G-Darius (Ver 2.01J) */
-	DRIVER( gdariusb )	/* G-Darius (Ver 2.02A) */
+	DRIVER( gdarius )	/* G-Darius (Ver 2.02O) */
+	DRIVER( gdariusu )	/* G-Darius (Ver 2.02A) */
+	DRIVER( gdariusj )	/* G-Darius (Ver 2.01J) */
 	DRIVER( gdarius2 )	/* G-Darius Ver.2 (Ver 2.03J) */
 
 	/* Taito GNET */

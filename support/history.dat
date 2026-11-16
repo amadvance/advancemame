@@ -17474,7 +17474,7 @@ Alfa Records released a limited-edition soundtrack album for this game (Konami G
 $end
 
 
-$info=ts2,ts2j,
+$info=ts2,ts2j,ts2ja,ts2u,ts2ua,
 $bio
 
 Battle Arena Toshinden 2 (c) 11/1995 Takara / Tamsoft.
@@ -19603,7 +19603,7 @@ This game is also known as "The Glob" and "Super Glob".
 $end
 
 
-$info=beastrzr,beastrzb,
+$info=beastrzr,beastrzb,beastrzra,bldyroar,
 $bio
 
 Beastorizer (c) 1997 Eighting / Raizing.
@@ -26187,7 +26187,7 @@ Buttons : 4
 $end
 
 
-$info=bldyror2,
+$info=bldyror2,bldyror2a,bldyror2j,bldyror2u,
 $bio
 
 Bloody Roar 2 - Bringer of The New Age (c) 1998 Eighting / Raizing.
@@ -29147,7 +29147,7 @@ Buttons : 2
 $end
 
 
-$info=brvblade,
+$info=brvblade,brvbladea,brvbladej,brvbladeu,
 $bio
 
 Brave Blade (c) 2000 Eighting / Raizing.
@@ -41215,7 +41215,7 @@ Buttons : 3
 $end
 
 
-$info=cbaj,
+$info=cbaj,cbajbl,
 $bio
 
 Cool Boarder - Arcade Jam (c) 1998 Tecmo.
@@ -50134,7 +50134,7 @@ Microsoft XBOX (2004, "Dead or Alive Ultimate")
 $end
 
 
-$info=doapp,
+$info=doapp,doappk,
 $bio
 
 Dead or Alive ++ (c) 1998 Tecmo.
@@ -73043,7 +73043,7 @@ Brian Hill holds the official record for this game with 856,170 points.
 $end
 
 
-$info=gdarius,gdariusb,
+$info=gdarius,gdariusu,gdariusj,
 $bio
 
 G-Darius (c) 1997 Taito.
@@ -74982,7 +74982,7 @@ Victor Entertainment released a limited-edition soundtrack album for this game (
 $end
 
 
-$info=glpracr,
+$info=glpracr,glpracrj,
 $bio
 
 Gallop Racer - One and only road to victory (c) 1996 Tecmo.
@@ -75048,7 +75048,7 @@ Sony PlayStation (1999)
 $end
 
 
-$info=glpracr2,glprac2j,glprac2l,
+$info=glpracr2,glpracr2j,glpracr2l,
 $bio
 
 Gallop Racer 2 (c) 1997 Tecmo.
@@ -75108,7 +75108,7 @@ Sony PlayStation 2 (2004)
 $end
 
 
-$info=glpracr3,
+$info=glpracr3,glpracr3j,
 $bio
 
 Gallop Racer 3 (c) 1999 Tecmo.
@@ -142892,7 +142892,7 @@ Sega Mega CD (1993)
 $end
 
 
-$info=nbajamex,
+$info=nbajamex,nbajamexa,
 $bio
 
 NBA Jam Extreme (c) 1996 Acclaim.
@@ -164871,7 +164871,7 @@ Music composed by : Cheabow
 $end
 
 
-$info=psyforce,psyforcj,
+$info=psyforce,psyforcej,
 $bio
 
 Psychic Force (c) 1995 Taito.
@@ -164966,7 +164966,7 @@ Sony PlayStation (1996)
 $end
 
 
-$info=psyfrcex,
+$info=psyforcex,
 $bio
 
 Psychic Force EX (c) 1996 Taito.
@@ -175523,7 +175523,7 @@ Direction : Kenji Wakabayashi
 $end
 
 
-$info=raystorm,raystorj,
+$info=raystorm,raystormj,raystormo,raystormu,
 $bio
 
 Ray Storm (c) 06/1996 Taito.
@@ -179443,7 +179443,7 @@ This game is known in Japan as "Gussun Oyoyo".
 $end
 
 
-$info=rvschool,rvschola,
+$info=rvschool,rvschoola,rvschoolu,
 $bio
 
 Rival Schools - United by Fate (c) 11/1997 Capcom.
@@ -192904,7 +192904,7 @@ Sega Saturn (1996)
 $end
 
 
-$info=jgakuen,
+$info=jgakuen,jgakuen1,
 $bio
 
 Shiritsu Justice Gakuen - Legion of Heroes (c) 11/1997 Capcom.
@@ -207029,7 +207029,7 @@ MSX (1985)
 $end
 
 
-$info=starglad,
+$info=starglad,stargladj,
 $bio
 
 Star Gladiator - Episode : I Final Crusade (c) 06/1996 Capcom.
@@ -210678,7 +210678,7 @@ Sony PSP (2006, "Street Fighter Zero 3 Double Upper") : allows to play with Eagl
 $end
 
 
-$info=sfex,sfexa,sfexj,
+$info=sfex,sfexa,sfexj,sfexu,
 $bio
 
 Street Fighter EX (c) 11/1996 Arika / Capcom.
@@ -210829,7 +210829,7 @@ Garuda : Hosoi Osamu
 $end
 
 
-$info=sfexp,sfexpu1,sfexpj,
+$info=sfexp,sfexpu1,sfexpj,sfexpj1,
 $bio
 
 Street Fighter EX Plus (c) 03/1997 Arika / Capcom.
@@ -210991,7 +210991,7 @@ Sony PlayStation (1998, "Street Fighter EX Plus Alpha")
 $end
 
 
-$info=sfex2,sfex2j,
+$info=sfex2,sfex2j,sfex2h,sfex2u,sfex2u1,
 $bio
 
 Street Fighter EX2 (c) 03/1998 Arika / Capcom.
@@ -211090,7 +211090,7 @@ Technical support : Noriyuki Takahashi, Kumapu, Masahito Kurihara, Kimiaki Kazam
 $end
 
 
-$info=sfex2p,sfex2pj,sfex2pa,
+$info=sfex2p,sfex2pj,sfex2pa,sfex2ph,sfex2pu,
 $bio
 
 Street Fighter EX2 Plus (c) 06/1999 Arika / Capcom.
@@ -214111,7 +214111,7 @@ Tiger Handheld LCD Game (19??)
 $end
 
 
-$info=strider2,stridr2a,
+$info=strider2,strider2a,strider2u,
 $bio
 
 Strider 2 (c) 12/1999 Capcom.
@@ -217485,7 +217485,7 @@ This game is a bootleg of "Space Invaders".
 $end
 
 
-$info=sfchamp,sfchampj,
+$info=sfchamp,sfchampj,sfchampo,sfchampu,
 $bio
 
 Super Football Champ (c) 1995 Taito.
@@ -228409,7 +228409,7 @@ Designed and programmed by : Chris Oberth, Gunar Licitis
 $end
 
 
-$info=techromn,
+$info=techromn,techromna,techromnu,
 $bio
 
 Tech Romancer (c) 09/1998 Capcom.
@@ -228947,7 +228947,7 @@ Buttons : 6
 $end
 
 
-$info=tecmowcm,
+$info=twcupmil,
 $bio
 
 Tecmo World Cup Millenium (c) 2000 Tecmo.
