@@ -562,18 +562,20 @@ const game_driver * const drivers[] =
 
 	/* Namco games (plus some intruders on similar hardware) */
 	DRIVER( geebee )	/* [1978] Namco */
-	DRIVER( geebeeg )	/* [1978] Gremlin */
+	DRIVER( geebeea )	/* [1978] Namco (Alca license) */
+	DRIVER( geebeeb )	/* [1978] Namco (F.lli Bertolino license) */
+	DRIVER( geebeeg )	/* [1978] Namco (Gremlin license) */
 	DRIVER( bombbee )	/* [1979] Namco */
 	DRIVER( cutieq )	/* (c) 1979 Namco */
 	DRIVER( navarone )	/* (c) 1980 Namco */
-	DRIVER( kaitei )	/* [1980] Namco */
-	DRIVER( kaiteik )	/* [1980] K.K. Tokki (prototype?) */
-	DRIVER( sos )		/* [1980] Namco */
+	DRIVER( kaitein )	/* [1980] K.K. Tokki (Namco license) */
+	DRIVER( kaitei )	/* [1980] K.K. Tokki */
+	DRIVER( sos )		/* [1979] K.K. Tokki (Namco license) */
 	DRIVER( tankbatt )	/* (c) 1980 Namco */
 	DRIVER( tankbattb )	/* bootleg */
 	DRIVER( warpwarp )	/* (c) 1981 Namco */
-	DRIVER( warpwarr )	/* (c) 1981 Rock-ola - the high score table says "NAMCO" */
-	DRIVER( warpwar2 )	/* (c) 1981 Rock-ola - the high score table says "NAMCO" */
+	DRIVER( warpwarpr )	/* (c) 1981 Rock-Ola - the high score table says "NAMCO" */
+	DRIVER( warpwarpr2 )	/* (c) 1981 Rock-Ola - the high score table says "NAMCO" */
 	DRIVER( rallyx )	/* (c) 1980 Namco */
 	DRIVER( rallyxm )	/* (c) 1980 Midway */
 	DRIVER( nrallyx )	/* (c) 1981 Namco */

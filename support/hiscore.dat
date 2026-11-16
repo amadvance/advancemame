@@ -268,10 +268,10 @@ edfu:  ;******E.D.F. : Earth Defense Force (North America)
 0:61d3e:4:00:00
 0:64ccb:1:09:09
 
-kaiteik:  ;******kaitei takara sagashi (k`k-tokki) 
+kaitei:  ;******kaitei takara sagashi 
 0:200e:5:00:00
 
-kaitei:  ;******kaitei takara sagashi  
+kaitein:  ;******kaitei takara sagashi (namco license)
 0:403e:2:00:00
 0:21c0:1:00:00
 0:21e0:1:00:00

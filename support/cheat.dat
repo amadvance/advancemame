@@ -64199,12 +64199,12 @@
 :kaiserkn:20800000:1FFFFF:00000002:FFFFFFFF:Region Switch = US:Global Champion
 :kaiserkn:20800000:1FFFFF:00000003:FFFFFFFF:Region Switch = World:Kaiser Knuckle
 
-; [ Kaitei Takara Sagashi ]
-:kaitei:00000000:400F:00000009:FFFFFFFF:Infinite Credits
-:kaitei:00000000:4020:00000013:FFFFFFFF:Infinite Lives
-:kaitei:20800000:0E20:000000C3:FFFFFFFF:Invincibility (Incomplete):Enabled only against a shark
-:kaitei:00000006:4026:00050004:FFFFFFFF:Watch a Pod:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kill You !)
-:kaitei:20900000:08E0:00000903:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
+; [ Kaitei Takara Sagashi (Namco license) ]
+:kaitein:00000000:400F:00000009:FFFFFFFF:Infinite Credits
+:kaitein:00000000:4020:00000013:FFFFFFFF:Infinite Lives
+:kaitein:20800000:0E20:000000C3:FFFFFFFF:Invincibility (Incomplete):Enabled only against a shark
+:kaitein:00000006:4026:00050004:FFFFFFFF:Watch a Pod:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kill You !)
+:kaitein:20900000:08E0:00000903:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
 
 ; [ Kaitei Daisensou (Japan) ]
 :kaiteids:00000000:EB8A0:00000063:FFFFFFFF:Infinite Time
@@ -64287,25 +64287,25 @@
 :kaiteids:00000000:E0084:00000007:FFFFFFFF:Start on End Screen (Stage 8)
 :kaiteids:00000303:E0084:00000007:FFFFFFFF:Select next stage
 
-; [ Kaitei Takara Sagashi (K'K-Tokki) ]
-:kaiteik:00000000:2003:00000009:FFFFFFFF:Infinite Credits
-:kaiteik:20800000:0B72:000000C9:FFFFFFFF:Invincibility (Incomplete):Enabled only against a shark
-:kaiteik:00000000:22A1:000000FB:FFFFFFFF:Infinite Lives PL1
-:kaiteik:00010000:22C1:000000FB:FFFFFFFF:Infinite Lives PL1 (2/7)
-:kaiteik:00010000:22E1:000000FB:FFFFFFFF:Infinite Lives PL1 (3/7)
-:kaiteik:00010000:2301:000000FB:FFFFFFFF:Infinite Lives PL1 (4/7)
-:kaiteik:00010000:2321:000000FB:FFFFFFFF:Infinite Lives PL1 (5/7)
-:kaiteik:00010000:2341:000000FB:FFFFFFFF:Infinite Lives PL1 (6/7)
-:kaiteik:00010000:2361:000000FB:FFFFFFFF:Infinite Lives PL1 (7/7)
-:kaiteik:00000006:4000:00050004:FFFFFFFF:Watch a Pod PL1:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kills You !)
-:kaiteik:00000000:20C1:000000FB:FFFFFFFF:Infinite Lives PL2
-:kaiteik:00010000:20E1:000000FB:FFFFFFFF:Infinite Lives PL2 (2/7)
-:kaiteik:00010000:2101:000000FB:FFFFFFFF:Infinite Lives PL2 (3/7)
-:kaiteik:00010000:2121:000000FB:FFFFFFFF:Infinite Lives PL2 (4/7)
-:kaiteik:00010000:2141:000000FB:FFFFFFFF:Infinite Lives PL2 (5/7)
-:kaiteik:00010000:2161:000000FB:FFFFFFFF:Infinite Lives PL2 (6/7)
-:kaiteik:00010000:2181:000000FB:FFFFFFFF:Infinite Lives PL2 (7/7)
-:kaiteik:00000006:4008:80050004:FFFFFFFF:Watch a Pod PL2:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kills You !)
+; [ Kaitei Takara Sagashi ]
+:kaitei:00000000:2003:00000009:FFFFFFFF:Infinite Credits
+:kaitei:20800000:0B72:000000C9:FFFFFFFF:Invincibility (Incomplete):Enabled only against a shark
+:kaitei:00000000:22A1:000000FB:FFFFFFFF:Infinite Lives PL1
+:kaitei:00010000:22C1:000000FB:FFFFFFFF:Infinite Lives PL1 (2/7)
+:kaitei:00010000:22E1:000000FB:FFFFFFFF:Infinite Lives PL1 (3/7)
+:kaitei:00010000:2301:000000FB:FFFFFFFF:Infinite Lives PL1 (4/7)
+:kaitei:00010000:2321:000000FB:FFFFFFFF:Infinite Lives PL1 (5/7)
+:kaitei:00010000:2341:000000FB:FFFFFFFF:Infinite Lives PL1 (6/7)
+:kaitei:00010000:2361:000000FB:FFFFFFFF:Infinite Lives PL1 (7/7)
+:kaitei:00000006:4000:00050004:FFFFFFFF:Watch a Pod PL1:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kills You !)
+:kaitei:00000000:20C1:000000FB:FFFFFFFF:Infinite Lives PL2
+:kaitei:00010000:20E1:000000FB:FFFFFFFF:Infinite Lives PL2 (2/7)
+:kaitei:00010000:2101:000000FB:FFFFFFFF:Infinite Lives PL2 (3/7)
+:kaitei:00010000:2121:000000FB:FFFFFFFF:Infinite Lives PL2 (4/7)
+:kaitei:00010000:2141:000000FB:FFFFFFFF:Infinite Lives PL2 (5/7)
+:kaitei:00010000:2161:000000FB:FFFFFFFF:Infinite Lives PL2 (6/7)
+:kaitei:00010000:2181:000000FB:FFFFFFFF:Infinite Lives PL2 (7/7)
+:kaitei:00000006:4008:80050004:FFFFFFFF:Watch a Pod PL2:Left value = Right Pod, Right value = Left Pod, 0x00 = Bad Pod (Kills You !)
 
 ; [ Mahjong Kakumei ]
 :kakumei:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -194533,16 +194533,16 @@
 :warofbug:00000000:4109:00000006:FFFFFFFF:Infinite Lives PL1
 :warofbug:00000000:4209:00000006:FFFFFFFF:Infinite Lives PL2
 
-; [ Warp Warp (Rock-ola set 2) ]
-:warpwar2:00000000:8000:00000004:FFFFFFFF:Infinite Lives
-;warpwar2:0:81C0:01:000:Invincibility
-;warpwar2:0:81C0:02:040:Invincibility 2
-:warpwar2:20800000:10F8:000000C9:FFFFFFFF:Invincibility
-:warpwar2:20810000:14F1:000000C9:FFFFFFFF:Invincibility (2/3):1st = Enemy, 2nd = Fire
-:warpwar2:20810000:199E:000000A3:FFFFFFFF:Invincibility (3/3):Bomb Explosion
-:warpwar2:20900000:28D7:00002948:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
-:warpwar2:20810000:28D9:000000FA:FFFFFFFF:Skip RAM/ROM Check (2/3): 1st & 2nd = Changed SP (To skip RAM/ROM check, but need to initialize RAM region due to bad hi-socre display)
-:warpwar2:20810000:298F:000000C9:FFFFFFFF:Skip RAM/ROM Check (3/3): Forced RAM/ROM Error Skipping
+; [ Warp Warp (Rock-Ola set 2) ]
+:warpwarpr2:00000000:8000:00000004:FFFFFFFF:Infinite Lives
+;warpwarpr2:0:81C0:01:000:Invincibility
+;warpwarpr2:0:81C0:02:040:Invincibility 2
+:warpwarpr2:20800000:10F8:000000C9:FFFFFFFF:Invincibility
+:warpwarpr2:20810000:14F1:000000C9:FFFFFFFF:Invincibility (2/3):1st = Enemy, 2nd = Fire
+:warpwarpr2:20810000:199E:000000A3:FFFFFFFF:Invincibility (3/3):Bomb Explosion
+:warpwarpr2:20900000:28D7:00002948:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
+:warpwarpr2:20810000:28D9:000000FA:FFFFFFFF:Skip RAM/ROM Check (2/3): 1st & 2nd = Changed SP (To skip RAM/ROM check, but need to initialize RAM region due to bad hi-socre display)
+:warpwarpr2:20810000:298F:000000C9:FFFFFFFF:Skip RAM/ROM Check (3/3): Forced RAM/ROM Error Skipping
 
 ; [ Warp & Warp ]
 :warpwarp:00000000:8000:00000004:FFFFFFFF:Infinite Lives
@@ -194554,15 +194554,15 @@
 :warpwarp:20910000:2909:00002A2A:FFFFFFFF:Skip RAM/ROM Check (2/3):1st & 2nd = Changed SP (To skip RAM/ROM check, but need to initialize RAM region due to bad hi-socre display)
 :warpwarp:20810000:29BF:000000C9:FFFFFFFF:Skip RAM/ROM Check (3/3):Forced RAM/ROM Error Skipping
 
-; [ Warp Warp (Rock-ola set 1) ]
-:warpwarr:00000000:8000:00000004:FFFFFFFF:Infinite Lives
-;warpwarr:0:81C0:01:000:Invincibility
-:warpwarr:20800000:10F8:000000C9:FFFFFFFF:Invincibility
-:warpwarr:20810000:14F1:000000C9:FFFFFFFF:Invincibility (2/3):1st = Enemy, 2nd = Fire
-:warpwarr:20810000:199E:000000A3:FFFFFFFF:Invincibility (3/3):Bomb Explosion
-:warpwarr:20900000:28D7:00002948:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
-:warpwarr:20810000:28D9:000000FA:FFFFFFFF:Skip RAM/ROM Check (2/3):1st & 2nd = Changed SP (To skip RAM/ROM check, but need to initialize RAM region due to bad hi-socre display)
-:warpwarr:20810000:298F:000000C9:FFFFFFFF:Skip RAM/ROM Check (3/3):Forced RAM/ROM Error Skipping
+; [ Warp Warp (Rock-Ola set 1) ]
+:warpwarpr:00000000:8000:00000004:FFFFFFFF:Infinite Lives
+;warpwarpr:0:81C0:01:000:Invincibility
+:warpwarpr:20800000:10F8:000000C9:FFFFFFFF:Invincibility
+:warpwarpr:20810000:14F1:000000C9:FFFFFFFF:Invincibility (2/3):1st = Enemy, 2nd = Fire
+:warpwarpr:20810000:199E:000000A3:FFFFFFFF:Invincibility (3/3):Bomb Explosion
+:warpwarpr:20900000:28D7:00002948:FFFFFFFF:Skip RAM/ROM Check:It's better to use together with Pre-Enable
+:warpwarpr:20810000:28D9:000000FA:FFFFFFFF:Skip RAM/ROM Check (2/3):1st & 2nd = Changed SP (To skip RAM/ROM check, but need to initialize RAM region due to bad hi-socre display)
+:warpwarpr:20810000:298F:000000C9:FFFFFFFF:Skip RAM/ROM Check (3/3):Forced RAM/ROM Error Skipping
 
 ; [ Warrior ]
 :warrior:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 7
@@ -205564,7 +205564,7 @@
 ;vsyard=vsyard2=yard
 ;vulgus=vulgus2=vulgusj
 ;wallc=wallca
-;warpwar2=warpwarp=warpwarr
+;warpwarp=warpwarpr=warpwarpr2
 ;wb3~=(wb31=wb32=wb33=wb34=wb3bbl)
 ;wbdeluxe=wboy=wboy2=wboy2u=wboy3=wboyo=wboysys2=wboyu
 ;wbeachv2~wbeachvl (+credit differences)
@@ -206023,8 +206023,8 @@
 ; kagekij (made by ShimaPong) [????]
 ; kaiserknj (made by ugetab) [68EC020]
 ; kaiserkn (made by ugetab) [68EC020]
+; kaitein (made by ShimaPong) [????]
 ; kaitei (made by ShimaPong) [????]
-; kaiteik (made by ShimaPong) [????]
 ; kamikaze (made by ShimaPong) [????]
 ; kangaroa (made by ShimaPong) [????]
 ; kangarob (made by ShimaPong) [????]

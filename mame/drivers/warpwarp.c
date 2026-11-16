@@ -25,7 +25,7 @@ Address          Dir Data     Name      Description
 -011--xxxxxxxxxx R   xxxxxxxx CGROM     Character Generator ROM
 -100----xxxxxxxx R/W xxxxxxxx RAM       work RAM
 -101----------00*R   --xxxxxx SW READ 0 switch inputs bank #1 (coins, buttons)
--101----------01*R   --xxxxxx SW READ 1 switch inputs bank #2 (optional, only kaiteik uses it)
+-101----------01*R   --xxxxxx SW READ 1 switch inputs bank #2 (optional, only kaitei uses it)
 -101----------10*R   --xxxxxx SW READ 2 dip switches
 -101----------11*R   xxxxxxxx VOL READ  paddle input (digital joystick is hacked in for the other games)
 -110----------00*  W xxxxxxxx BHD       ball horizontal position
@@ -91,40 +91,41 @@ Notes:
   the correct sizes by checking how the games handle the ball position in
   cocktail mode (the ball isn't automatically flipped by the hardware).
 
-- kaitei and kaiteik are intriguing. The game is more or less the same, but the
+- kaitein and kaitei are intriguing. The game is more or less the same, but the
   code is radically different, and the gfx ROMs are arranged differently.
-  kaitei is by Namco and kaiteik is by "K'K-TOKKI". kaitei does a ROM/RAM
-  test on startup, while kaiteik jumps straight into the game. kaitei is
-  locked in cocktail mode, while kaiteik has support for a cabinet dip
-  switch. The title screen in kaitei is nice and polished, while in kaiteik
+  kaitein is by Namco and kaitei is by "K'K-TOKKI". kaitein does a ROM/RAM
+  test on startup, while kaitei jumps straight into the game. kaitein is
+  locked in cocktail mode, while kaitei has support for a cabinet dip
+  switch. The title screen in kaitein is nice and polished, while in kaitei
   it's confused, with fishes going over the text. There are several other
   differences.
-  The code in kaiteik is longer (0x1800 bytes vs. just 0x1000 in kaitei) and
-  less efficient, while kaitei has some clever space optimizations.
-  My opinion is that kaiteik is the prototype version, developed by a third
-  party and sold to Namco, where it was rewritten.
+  The code in kaitei is longer (0x1800 bytes vs. just 0x1000 in kaitein) and
+  less efficient, while kaitein has some clever space optimizations.
 
-- The coin counter doesn't work in kaiteik. This might be the expected behaviour.
+  Kaitei (and SOS) is developed by Kazuharu Yoshioka of K.K.Tokki (Universal Tokki).
+  Namco acquired license for these games.
+
+- The coin counter doesn't work in kaitei. This might be the expected behaviour.
 
 - sos does a "coffee break" every 2000 points, showing a girl. The first times,
   she wears a bikini. If the "nudity" switch is on, after 6000 points she's
   topless and every 10000 points she's nude.
 
-- The only difference between 'warpwarr' and 'warpwar2' is the copyright
+- The only difference between 'warpwarpr' and 'warpwarpr2' is the copyright
   string on the first screen (when the scores are displayed) :
-  * 'warpwarr' : "(c) 1981 ROCK-OLA MFG.CORP."  (text stored at 0x33ff to 0x3417)
-  * 'warpwar2' : "(c) 1981 ROCK-OLA MFG.CO."    (text stored at 0x33ff to 0x3415)
+  * 'warpwarpr' : "(c) 1981 ROCK-OLA MFG.CORP."  (text stored at 0x33ff to 0x3417)
+  * 'warpwarp2' : "(c) 1981 ROCK-OLA MFG.CO."    (text stored at 0x33ff to 0x3415)
   Note that the checksum at 0x37ff (used for checking ROM at 0x3000 to 0x37ff)
   is different of course.
 
-- warpwarr doesn't have an explicit Namco copyright notice, but in the default
+- warpwarpr doesn't have an explicit Namco copyright notice, but in the default
   high score table the names are NNN AAA MMM CCC OOO. warpwarp doesn't have an
   high score table at all.
 
 
 TODO:
 - I arbitrarily assigned a uniform blue overlay to sos. I don't know how it's
-  supposed to be. navarone and kaitei are missing the overlay too.
+  supposed to be. navarone, kaitein and kaitei are missing the overlay too.
 
 ***************************************************************************/
 
@@ -197,6 +198,7 @@ OVERLAY_END
 
 
 static int handle_joystick;
+static int geebee_lockout;
 
 READ8_HANDLER( geebee_in_r )
 {
@@ -254,7 +256,9 @@ WRITE8_HANDLER( geebee_out7_w )
 			coin_counter_w(0,data & 1);
 			break;
 		case 4:
-			coin_lockout_global_w(~data & 1);
+			/* geebeea and geebeeb have no coin lockout */
+			if (geebee_lockout)
+				coin_lockout_global_w(~data & 1);
 			break;
 		case 5:
 			if( geebee_bgw != (data & 1) )
@@ -366,7 +370,7 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( writemem_geebee, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0x2000, 0x23ff) AM_WRITE(geebee_videoram_w) AM_BASE(&geebee_videoram)
-	AM_RANGE(0x2400, 0x27ff) AM_WRITE(geebee_videoram_w) /* mirror used by kaiteik due to a bug */
+	AM_RANGE(0x2400, 0x27ff) AM_WRITE(geebee_videoram_w) /* mirror used by kaitei due to a bug */
 	AM_RANGE(0x3000, 0x37ff) AM_WRITE(MWA8_ROM)
     AM_RANGE(0x4000, 0x40ff) AM_WRITE(MWA8_RAM)
 	AM_RANGE(0x6000, 0x6fff) AM_WRITE(geebee_out6_w)
@@ -467,6 +471,46 @@ INPUT_PORTS_START( geebee )
 	PORT_BIT( 0xff, 0x58, IPT_PADDLE ) PORT_MINMAX(0x10,0xa0) PORT_SENSITIVITY(30) PORT_KEYDELTA(15) PORT_CENTERDELTA(0) PORT_REVERSE PORT_COCKTAIL
 INPUT_PORTS_END
 
+INPUT_PORTS_START( geebeeb )
+	PORT_START_TAG("SW0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1   )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2   )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START1  )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START2  )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_SERVICE( 0x20, IP_ACTIVE_LOW )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("SW1")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Cocktail) )
+	PORT_DIPNAME( 0x32, 0x10, "Lives/Bonus Life" )
+	PORT_DIPSETTING(    0x10, "3/40k" )
+	PORT_DIPSETTING(    0x20, "3/70k" )
+	PORT_DIPSETTING(    0x30, "3/100k" )
+	PORT_DIPSETTING(    0x00, "3/None" )
+	PORT_DIPSETTING(    0x12, "5/60k" )
+	PORT_DIPSETTING(    0x22, "5/100k" )
+	PORT_DIPSETTING(    0x32, "5/150k" )
+	PORT_DIPSETTING(    0x02, "5/None" )
+	PORT_DIPNAME( 0x0c, 0x00, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( Free_Play ) )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("VOLIN")
+	PORT_BIT( 0xff, 0x58, IPT_PADDLE ) PORT_MINMAX(0x10,0xa0) PORT_SENSITIVITY(30) PORT_KEYDELTA(15) PORT_CENTERDELTA(0) PORT_REVERSE
+
+	PORT_START_TAG("VOLINC") //Cocktail
+	PORT_BIT( 0xff, 0x58, IPT_PADDLE ) PORT_MINMAX(0x10,0xa0) PORT_SENSITIVITY(30) PORT_KEYDELTA(15) PORT_CENTERDELTA(0) PORT_REVERSE PORT_COCKTAIL
+INPUT_PORTS_END
+
 INPUT_PORTS_START( navarone )
 	PORT_START_TAG("SW0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1   )
@@ -509,7 +553,7 @@ INPUT_PORTS_START( navarone )
 	PORT_BIT( 0x02, 0x00, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
 INPUT_PORTS_END
 
-INPUT_PORTS_START( kaitei )
+INPUT_PORTS_START( kaitein )
 	PORT_START_TAG("SW0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW,	IPT_COIN1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW,	IPT_BUTTON1 ) PORT_COCKTAIL
@@ -549,7 +593,7 @@ INPUT_PORTS_START( kaitei )
 	PORT_BIT( 0x02, 0x00, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
 INPUT_PORTS_END
 
-INPUT_PORTS_START( kaiteik )
+INPUT_PORTS_START( kaitei )
 	PORT_START_TAG("SW0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW,	IPT_COIN1 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW,	IPT_START1 )
@@ -781,7 +825,7 @@ INPUT_PORTS_START( warpwarp )
 INPUT_PORTS_END
 
 /* has High Score Initials dip switch instead of rack test */
-INPUT_PORTS_START( warpwarr )
+INPUT_PORTS_START( warpwarpr )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
@@ -987,6 +1031,24 @@ ROM_START( geebee )
 	ROM_LOAD( "geebee.3a",    0x3000, 0x0400, CRC(f257b21b) SHA1(c788fd923438f1bffbff9ff3cd4c5c8b547c0c14) )
 ROM_END
 
+ROM_START( geebeea )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "132",          0x0000, 0x0400, CRC(23252fc7) SHA1(433f0f435ff741a789942194356aaec53192608a) )
+	ROM_LOAD( "133",          0x0400, 0x0400, CRC(0bc4d4ca) SHA1(46028ce1dbf46e49b921cfabec78cded914af358) )
+	ROM_LOAD( "134",          0x0800, 0x0400, CRC(7899b4c1) SHA1(70f609f9873f1a4d9c8a90361c7519bdd24ad9ea) )
+	ROM_LOAD( "135",          0x0c00, 0x0400, CRC(0b6e6fcb) SHA1(e7c3e8a13e3d2be6cfb6675fb57cc4a2fda6bec2) )
+	ROM_LOAD( "a_136",        0x3000, 0x0400, CRC(bd01437d) SHA1(4324c68472f762a13f978e54b3c4a7984cc7195a) )
+ROM_END
+
+ROM_START( geebeeb )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "1.1m",         0x0000, 0x0400, CRC(23252fc7) SHA1(433f0f435ff741a789942194356aaec53192608a) )
+	ROM_LOAD( "2.1p",         0x0400, 0x0400, CRC(0bc4d4ca) SHA1(46028ce1dbf46e49b921cfabec78cded914af358) )
+	ROM_LOAD( "3.1s",         0x0800, 0x0400, CRC(7899b4c1) SHA1(70f609f9873f1a4d9c8a90361c7519bdd24ad9ea) )
+	ROM_LOAD( "4.1t",         0x0c00, 0x0400, CRC(0b6e6fcb) SHA1(e7c3e8a13e3d2be6cfb6675fb57cc4a2fda6bec2) )
+	ROM_LOAD( "geebee.3a",    0x3000, 0x0400, CRC(f257b21b) SHA1(c788fd923438f1bffbff9ff3cd4c5c8b547c0c14) )
+ROM_END
+
 ROM_START( geebeeg )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "geebee.1k",    0x0000, 0x1000, CRC(8a5577e0) SHA1(356d33e19c6b4f519816ee4b65ff9b59d6c1b565) )
@@ -995,23 +1057,23 @@ ROM_END
 
 ROM_START( navarone )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
-	ROM_LOAD( "navalone.p1",  0x0000, 0x0800, CRC(5a32016b) SHA1(d856d069eba470a81341de0bf47eca2a629a69a6) )
-	ROM_LOAD( "navalone.p2",  0x0800, 0x0800, CRC(b1c86fe3) SHA1(0293b742806c1517cb126443701115a3427fc60a) )
-	ROM_LOAD( "navalone.chr", 0x3000, 0x0800, CRC(b26c6170) SHA1(ae0aec2b60e1fd3b212e311afb1c588b2b286433) )
+	ROM_LOAD( "navarone.p1",  0x0000, 0x0800, CRC(5a32016b) SHA1(d856d069eba470a81341de0bf47eca2a629a69a6) )
+	ROM_LOAD( "navarone.p2",  0x0800, 0x0800, CRC(b1c86fe3) SHA1(0293b742806c1517cb126443701115a3427fc60a) )
+	ROM_LOAD( "navarone.chr", 0x3000, 0x0800, CRC(b26c6170) SHA1(ae0aec2b60e1fd3b212e311afb1c588b2b286433) )
 ROM_END
 
-ROM_START( kaitei )
+ROM_START( kaitein )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "kaitein.p1",   0x0000, 0x0800, CRC(d88e10ae) SHA1(76d6cd46b6e59e528e7a8fff9965375a1446a91d) )
 	ROM_LOAD( "kaitein.p2",   0x0800, 0x0800, CRC(aa9b5763) SHA1(64a6c8f25b0510841dcce0b57505731aa0deeda7) )
 	ROM_LOAD( "kaitein.chr",  0x3000, 0x0800, CRC(3125af4d) SHA1(9e6b161636665ee48d6bde2d5fc412fde382c687) )
 ROM_END
 
-ROM_START( kaiteik )
+ROM_START( kaitei )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "kaitei_7.1k",  0x0000, 0x0800, CRC(32f70d48) SHA1(c5ae606df1d0e513daea909f5474309a176096c1) )
 	ROM_RELOAD(               0x0800, 0x0800 )
-    ROM_LOAD( "kaitei_1.1m",  0x1000, 0x0400, CRC(9a7ab3b9) SHA1(94a82ba66e51c8203ec61c9320edbddbb6462d33) )
+	ROM_LOAD( "kaitei_1.1m",  0x1000, 0x0400, CRC(9a7ab3b9) SHA1(94a82ba66e51c8203ec61c9320edbddbb6462d33) )
 	ROM_LOAD( "kaitei_2.1p",  0x1400, 0x0400, CRC(5eeb0fff) SHA1(91cb84a9af8e4df4e6c896e7655199328b7da30b) )
 	ROM_LOAD( "kaitei_3.1s",  0x1800, 0x0400, CRC(5dff4df7) SHA1(c179c93a559a0d18db3092c842634de02f3f03ea) )
 	ROM_LOAD( "kaitei_4.1t",  0x1c00, 0x0400, CRC(e5f303d6) SHA1(6dd57e0b17f51d101c6c5dbfeadb7418098cc440) )
@@ -1028,8 +1090,9 @@ ROM_END
 
 ROM_START( bombbee )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "bombbee.1k",   0x0000, 0x2000, CRC(9f8cd7af) SHA1(0d6e1ee5519660d1498eb7a093872ed5034423f2) )
-	ROM_LOAD( "bombbee.4c",   0x4800, 0x0800, CRC(5f37d569) SHA1(d5e3fb4c5a1612a6e568c8970161b0290b88993f) )
+	ROM_LOAD( "tmm333.2k",    0x0000, 0x1000, CRC(a442f22b) SHA1(c31a2a44e71fd0e8b6460a415b9bd8b298e68d6c) )
+	ROM_LOAD( "tmm333.1k",    0x1000, 0x1000, CRC(81f805b3) SHA1(380d68c016400ae5d7f271813bc9726d9be639d1) )
+	ROM_LOAD( "tmm334.4c",    0x4800, 0x0800, CRC(5f37d569) SHA1(d5e3fb4c5a1612a6e568c8970161b0290b88993f) )
 ROM_END
 
 ROM_START( cutieq )
@@ -1040,14 +1103,13 @@ ROM_END
 
 ROM_START( warpwarp )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "g-n9601n.2r",  0x0000, 0x1000, CRC(f5262f38) SHA1(1c64d0282b0a209390a548ceeaaf8b7b55e50896) )
-	ROM_LOAD( "g-09602n.2m",  0x1000, 0x1000, CRC(de8355dd) SHA1(133d137711d79aaeb45cd3ee041c0be3b73e1b2f) )
-	ROM_LOAD( "g-09603n.1p",  0x2000, 0x1000, CRC(bdd1dec5) SHA1(bb3d9d1500e31bb271a394facaec7adc3c987e5e) )
-	ROM_LOAD( "g-09613n.1t",  0x3000, 0x0800, CRC(af3d77ef) SHA1(5b79aabbe14c2997e0b1a9276c483ae76814a63a) )
-	ROM_LOAD( "g-9611n.4c",   0x4800, 0x0800, CRC(380994c8) SHA1(0cdf6a05db52c423365bff9c9df6d93ac885794e) )
+	ROM_LOAD( "ww1_prg1.s10", 0x0000, 0x1000, CRC(f5262f38) SHA1(1c64d0282b0a209390a548ceeaaf8b7b55e50896) )
+	ROM_LOAD( "ww1_prg2.s8",  0x1000, 0x1000, CRC(de8355dd) SHA1(133d137711d79aaeb45cd3ee041c0be3b73e1b2f) )
+	ROM_LOAD( "ww1_prg3.s4",  0x2000, 0x1000, CRC(bdd1dec5) SHA1(bb3d9d1500e31bb271a394facaec7adc3c987e5e) )
+	ROM_LOAD( "ww1_chg1.s12", 0x4800, 0x0800, CRC(380994c8) SHA1(0cdf6a05db52c423365bff9c9df6d93ac885794e) )
 ROM_END
 
-ROM_START( warpwarr )
+ROM_START( warpwarpr )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "g-09601.2r",   0x0000, 0x1000, CRC(916ffa35) SHA1(bca2087f8b78a128cdffc55db9814854b72daab5) )
 	ROM_LOAD( "g-09602.2m",   0x1000, 0x1000, CRC(398bb87b) SHA1(74373336288dc13d59e6f7e7c718aa51d857b087) )
@@ -1056,7 +1118,7 @@ ROM_START( warpwarr )
 	ROM_LOAD( "g-9611.4c",    0x4800, 0x0800, CRC(00e6a326) SHA1(67b7ab5b7b2c9a97d4d690d88561da48b86bc66e) )
 ROM_END
 
-ROM_START( warpwar2 )
+ROM_START( warpwarpr2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "g-09601.2r",   0x0000, 0x1000, CRC(916ffa35) SHA1(bca2087f8b78a128cdffc55db9814854b72daab5) )
 	ROM_LOAD( "g-09602.2m",   0x1000, 0x1000, CRC(398bb87b) SHA1(74373336288dc13d59e6f7e7c718aa51d857b087) )
@@ -1070,6 +1132,7 @@ ROM_END
 static DRIVER_INIT( geebee )
 {
 	handle_joystick = 0;
+	geebee_lockout = 1;
 
 	artwork_set_overlay(geebee_overlay);
 	// turn off overlay in cocktail mode; this assumes that the cabinet dip switch
@@ -1080,27 +1143,36 @@ static DRIVER_INIT( geebee )
 	warpwarp_ball_sizey = 4;
 }
 
+static DRIVER_INIT( geebeeb )
+{
+	init_geebee();
+	geebee_lockout = 0;
+}
+
 static DRIVER_INIT( navarone )
 {
 	handle_joystick = 1;
+	geebee_lockout = 1;
 	geebee_handleoverlay = 0;
 
 	warpwarp_ball_sizex = 4;
 	warpwarp_ball_sizey = 4;
 }
 
-static DRIVER_INIT( kaitei )
+static DRIVER_INIT( kaitein )
 {
 	handle_joystick = 1;
+	geebee_lockout = 1;
 	geebee_handleoverlay = 0;
 
 	warpwarp_ball_sizex = 1;
 	warpwarp_ball_sizey = 16;
 }
 
-static DRIVER_INIT( kaiteik )
+static DRIVER_INIT( kaitei )
 {
 	handle_joystick = 0;
+	geebee_lockout = 1;
 	geebee_handleoverlay = 0;
 
 	warpwarp_ball_sizex = 1;
@@ -1110,6 +1182,7 @@ static DRIVER_INIT( kaiteik )
 static DRIVER_INIT( sos )
 {
 	handle_joystick = 1;
+	geebee_lockout = 1;
 
 	artwork_set_overlay(sos_overlay);
 	geebee_handleoverlay = 0;
@@ -1138,16 +1211,18 @@ static DRIVER_INIT( warpwarp )
 
 
 /* B & W games */
-GAME( 1978, geebee,   0,        geebee,   geebee,   geebee,   ROT90, "Namco", "Gee Bee", 0 )
-GAME( 1978, geebeeg,  geebee,   geebee,   geebee,   geebee,   ROT90, "[Namco] (Gremlin license)", "Gee Bee (Gremlin)", 0 )
-GAME( 1980, navarone, 0,        navarone, navarone, navarone, ROT90, "Namco", "Navarone", GAME_IMPERFECT_SOUND )
-GAME( 1980, kaitei,   0,        navarone, kaitei,   kaitei,   ROT90, "Namco", "Kaitei Takara Sagashi", 0 )
-GAME( 1980, kaiteik,  kaitei,   navarone, kaiteik,  kaiteik,  ROT90, "K.K. Tokki", "Kaitei Takara Sagashi (K'K-Tokki)", 0 )
-GAME( 1980, sos,      0,        navarone, sos,      sos,      ROT90, "Namco", "SOS", GAME_IMPERFECT_SOUND )
+GAME( 1978, geebee,    0,        geebee,   geebee,    geebee,   ROT90, "Namco", "Gee Bee (Japan)", 0 )
+GAME( 1978, geebeea,   geebee,   geebee,   geebeeb,   geebeeb,  ROT90, "Namco (Alca license)", "Gee Bee (UK)", 0 )
+GAME( 1978, geebeeb,   geebee,   geebee,   geebeeb,   geebeeb,  ROT90, "Namco (F.lli Bertolino license)", "Gee Bee (Europe)", 0 )
+GAME( 1978, geebeeg,   geebee,   geebee,   geebee,    geebee,   ROT90, "Namco (Gremlin license)", "Gee Bee (US)", 0 )
+GAME( 1979, sos,       0,        navarone, sos,       sos,      ROT90, "K.K. Tokki (Namco license)", "SOS", GAME_IMPERFECT_SOUND )
+GAME( 1980, navarone,  0,        navarone, navarone,  navarone, ROT90, "Namco", "Navarone", GAME_IMPERFECT_SOUND )
+GAME( 1980, kaitein,   kaitei,   navarone, kaitein,   kaitein,  ROT90, "K.K. Tokki (Namco license)", "Kaitei Takara Sagashi (Namco license)", 0 )
+GAME( 1980, kaitei,    0,        navarone, kaitei,    kaitei,   ROT90, "K.K. Tokki", "Kaitei Takara Sagashi", 0 )
 
 /* Color games */
-GAME( 1979, bombbee,  0,        bombbee,  bombbee,  bombbee,  ROT90, "Namco", "Bomb Bee", 0 )
-GAME( 1979, cutieq,   0,        bombbee,  cutieq,   bombbee,  ROT90, "Namco", "Cutie Q", 0 )
-GAME( 1981, warpwarp, 0,        warpwarp, warpwarp, warpwarp, ROT90, "Namco", "Warp & Warp", 0 )
-GAME( 1981, warpwarr, warpwarp, warpwarp, warpwarr, warpwarp, ROT90, "[Namco] (Rock-ola license)", "Warp Warp (Rock-ola set 1)", 0 )
-GAME( 1981, warpwar2, warpwarp, warpwarp, warpwarr, warpwarp, ROT90, "[Namco] (Rock-ola license)", "Warp Warp (Rock-ola set 2)", 0 )
+GAME( 1979, bombbee,   0,        bombbee,  bombbee,   bombbee,  ROT90, "Namco", "Bomb Bee", 0 )
+GAME( 1979, cutieq,    0,        bombbee,  cutieq,    bombbee,  ROT90, "Namco", "Cutie Q", 0 )
+GAME( 1981, warpwarp,  0,        warpwarp, warpwarp,  warpwarp, ROT90, "Namco", "Warp & Warp", 0 )
+GAME( 1981, warpwarpr, warpwarp, warpwarp, warpwarpr, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 1)", 0 )
+GAME( 1981, warpwarpr2,warpwarp, warpwarp, warpwarpr, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 2)", 0 )

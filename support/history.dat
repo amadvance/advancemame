@@ -77772,7 +77772,7 @@ Nintendo Game Boy Color (2000)
 $end
 
 
-$info=geebee,geebeeg,
+$info=geebee,geebeea,geebeeb,geebeeg,
 $bio
 
 Gee Bee (c) 10/1978 Namco.
@@ -101998,7 +101998,7 @@ Sega Saturn (1995)
 $end
 
 
-$info=kaitei,kaiteik,
+$info=kaitei,kaitein,
 $bio
 
 Kaitei Takara Sagashi (c) 1980 Namco.
@@ -253712,7 +253712,7 @@ MSX
 $end
 
 
-$info=warpwarr,warpwar2,
+$info=warpwarpr,warpwarpr2,
 $bio
 
 Warp Warp (c) 08/1981 Rock-ola.
