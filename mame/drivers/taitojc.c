@@ -337,6 +337,7 @@ Notes:
 #include "driver.h"
 #include "taito_f3.h"
 #include "taitojc.h"
+#include "cpu/m68000/m68k.h"
 #include "cpu/mc68hc11/mc68hc11.h"
 #include "sound/es5506.h"
 #include "sound/okim6295.h"
@@ -421,7 +422,12 @@ static READ32_HANDLER ( jc_control_r )
 			if ((!(mem_mask & 0xff000000)))
 			{
 				static const UINT8 contacts[6] = { 0x01, 0x10, 0x02, 0x20, 0x04, 0x40 };
-				r |= (0xff ^ contacts[readinputportbytag("MASCON") >> 4]) << 24;
+				/* only the train games have the throttle lever, the others have plain buttons */
+				int mascon = readinputportbytag_safe("MASCON", 0xff);
+				if (mascon == 0xff)
+					r |= readinputportbytag("BUTTONS") << 24;
+				else
+					r |= (0xff ^ contacts[mascon >> 4]) << 24;
 			}
 			return r;
 		}
@@ -564,6 +570,39 @@ static WRITE32_HANDLER(mcu_comm_w)
 	}
 }
 
+/*
+ * The 68000 interface of this core keeps a single interrupt level: clearing any
+ * input line drops the level to zero. The vblank (level 2) and the DSP shared RAM
+ * request (level 6) often overlap, and acknowledging the vblank would silently
+ * discard a pending DSP request. The DSP then waits forever for the main CPU to
+ * acknowledge it at 0x7ffe (Side by Side 2 freezes after the boot tests), so the
+ * pending levels are tracked here and the highest one is always presented.
+ */
+static int jc_irq_pending;
+
+static void jc_update_irq(void)
+{
+	if (jc_irq_pending & (1 << 6))
+		cpunum_set_input_line(0, 6, ASSERT_LINE);
+	else if (jc_irq_pending & (1 << 2))
+		cpunum_set_input_line(0, 2, ASSERT_LINE);
+	else
+		cpunum_set_input_line(0, 2, CLEAR_LINE);
+}
+
+static int jc_irq_callback(int line)
+{
+	/* the vblank is acknowledged by the CPU, the DSP request only by reading 0x10001ff8 */
+	if (line == 2)
+	{
+		jc_irq_pending &= ~(1 << 2);
+		jc_update_irq();
+		return 130;
+	}
+
+	return M68K_INT_ACK_AUTOVECTOR;
+}
+
 static READ32_HANDLER(jc_unknown1_r)
 {
 	return 0;
@@ -571,6 +610,12 @@ static READ32_HANDLER(jc_unknown1_r)
 
 static READ32_HANDLER(dsp_shared_r)
 {
+	/* reading the DSP to main register acknowledges the shared RAM request, as in MAME */
+	if (offset == 0x1ff8/4 && !(mem_mask & 0x00ff0000))
+	{
+		jc_irq_pending &= ~(1 << 6);
+		jc_update_irq();
+	}
 
 	return jc.m_dsp_shared_ram[offset] << 16;
 }
@@ -588,9 +633,6 @@ static WRITE32_HANDLER(dsp_shared_w)
 		jc.m_dsp_shared_ram[offset] &= 0xff00;
 		jc.m_dsp_shared_ram[offset] |= (data >> 16) & 0x00ff;
 	}
-
-	if (offset == 0x1ff8/4)
-		cpunum_set_input_line(0, 6, CLEAR_LINE);
 
 	if (offset == 0x1ffc/4)
 	{
@@ -878,7 +920,8 @@ static READ16_HANDLER( dsp_to_main_r )
 static WRITE16_HANDLER( dsp_to_main_w )
 {
 
-	cpunum_set_input_line(0, 6, ASSERT_LINE);
+	jc_irq_pending |= 1 << 6;
+	jc_update_irq();
 
 	COMBINE_DATA(&jc.m_dsp_shared_ram[0x7fe]);
 }
@@ -892,7 +935,8 @@ static READ16_HANDLER( dsp_idle_r )
 }
 
 static ADDRESS_MAP_START( tms_program_map, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x4000, 0x7fff) AM_RAM
+	AM_RANGE(0x0000, 0x1fff) AM_RAM AM_MIRROR(0x4000)
+	AM_RANGE(0x6000, 0x7fff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( tms_data_map, ADDRESS_SPACE_DATA, 16 )
@@ -967,6 +1011,104 @@ INPUT_PORTS_START( dendeg )
 	PORT_BIT( 0xff, 0x00, IPT_PADDLE ) PORT_MINMAX(0x00, 0xef) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_CENTERDELTA(0) PORT_NAME("Brake Lever")
 INPUT_PORTS_END
 
+INPUT_PORTS_START( landgear )
+	PORT_START_TAG("COINS")
+	PORT_BIT( 0xcc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE( 0x02, IP_ACTIVE_LOW )
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
+
+	PORT_START_TAG("START")
+	PORT_BIT( 0xec, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_TILT )
+
+	PORT_START_TAG("UNUSED")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("View Switch")
+	PORT_BIT( 0xfe, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("BUTTONS")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("ANALOG1")
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(5) PORT_REVERSE
+
+	PORT_START_TAG("ANALOG2")
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Y ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(5)
+
+	PORT_START_TAG("ANALOG3")
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Z ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(5) PORT_CENTERDELTA(0) PORT_REVERSE
+INPUT_PORTS_END
+
+INPUT_PORTS_START( sidebs )
+	PORT_START_TAG("COINS")
+	PORT_BIT( 0xcc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE( 0x02, IP_ACTIVE_LOW )
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
+
+	PORT_START_TAG("START")
+	PORT_BIT( 0xec, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED ) /* no start button */
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_TILT )
+
+	PORT_START_TAG("UNUSED")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("View Switch")
+	PORT_BIT( 0xfe, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("BUTTONS")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_NAME("Shift Up")
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_NAME("Shift Down")
+	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("ANALOG1")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_NAME("Steering Wheel")
+
+	PORT_START_TAG("ANALOG2")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(25) PORT_NAME("Gas Pedal")
+
+	PORT_START_TAG("ANALOG3")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(25) PORT_NAME("Brake Pedal")
+INPUT_PORTS_END
+
+INPUT_PORTS_START( dangcurv )
+	PORT_START_TAG("COINS")
+	PORT_BIT( 0xcc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE( 0x02, IP_ACTIVE_LOW )
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SPECIAL )
+
+	PORT_START_TAG("START")
+	PORT_BIT( 0xec, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED ) /* no start button */
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_TILT )
+
+	PORT_START_TAG("UNUSED")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("View Switch")
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Rear Switch")
+	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("BUTTONS")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_NAME("Shift Up")
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_NAME("Shift Down")
+	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("ANALOG1")
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_REVERSE PORT_NAME("Steering Wheel")
+
+	PORT_START_TAG("ANALOG2")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(25) PORT_REVERSE PORT_NAME("Gas Pedal")
+
+	PORT_START_TAG("ANALOG3")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(25) PORT_REVERSE PORT_NAME("Brake Pedal")
+INPUT_PORTS_END
+
 static MACHINE_RESET( taitojc )
 {
 
@@ -979,6 +1121,9 @@ static MACHINE_RESET( taitojc )
 	cpunum_set_input_line(1, INPUT_LINE_RESET, PULSE_LINE);
 	jc.m_polygon_fifo_ptr = 0;
 	jc.m_first_dsp_reset = 1;
+
+	jc_irq_pending = 0;
+	cpunum_set_irq_callback(0, jc_irq_callback);
 
 	jc.m_mcu_comm_main = 0;
 	jc.m_mcu_comm_hc11 = 0;
@@ -1004,7 +1149,8 @@ static MACHINE_RESET( taitojc )
 
 static INTERRUPT_GEN( taitojc_vblank )
 {
-	cpunum_set_input_line_and_vector(0, 2, HOLD_LINE, 130);
+	jc_irq_pending |= 1 << 2;
+	jc_update_irq();
 }
 
 static struct ES5505interface es5505_interface =
@@ -1073,6 +1219,13 @@ static DRIVER_INIT( dangcurv )
 {
 	init_taitojc();
 	jc.m_has_dsp_hack = 0;
+}
+
+static DRIVER_INIT( dendego )
+{
+	init_taitojc();
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x06e0000c, 0x06e0000f, 0, 0, train_sound_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x06e0000c, 0x06e0000f, 0, 0, train_sound_w);
 }
 
 static DRIVER_INIT( dendego2 )
@@ -1529,7 +1682,7 @@ ROM_START( dendego )
 	ROM_LOAD( "e35-11.ic20",  0x0c00000, 0x200000, CRC(dc8f5e88) SHA1(e311252db8a7232a5325a3eff5c1890d20bd3f8f) )
 	ROM_LOAD( "e35-12.ic21",  0x0e00000, 0x200000, CRC(039b604c) SHA1(7e394e7cddc6bf42f3834d5331203e8496597a90) )
 
-	ROM_REGION( 0x40000, REGION_USER3, 0 ) /* train board, OKI6295 sound samples */
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) /* train board, OKI6295 sound samples */
 	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
 
 	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
@@ -1573,7 +1726,7 @@ ROM_START( dendegoa )
 	ROM_LOAD( "e35-11.ic20",  0x0c00000, 0x200000, CRC(dc8f5e88) SHA1(e311252db8a7232a5325a3eff5c1890d20bd3f8f) )
 	ROM_LOAD( "e35-12.ic21",  0x0e00000, 0x200000, CRC(039b604c) SHA1(7e394e7cddc6bf42f3834d5331203e8496597a90) )
 
-	ROM_REGION( 0x40000, REGION_USER3, 0 ) /* train board, OKI6295 sound samples */
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) /* train board, OKI6295 sound samples */
 	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
 
 	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
@@ -1617,7 +1770,7 @@ ROM_START( dendegox )
 	ROM_LOAD( "e35-11.ic20",  0x0c00000, 0x200000, CRC(dc8f5e88) SHA1(e311252db8a7232a5325a3eff5c1890d20bd3f8f) )
 	ROM_LOAD( "e35-12.ic21",  0x0e00000, 0x200000, CRC(039b604c) SHA1(7e394e7cddc6bf42f3834d5331203e8496597a90) )
 
-	ROM_REGION( 0x40000, REGION_USER3, 0 ) /* train board, OKI6295 sound samples */
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) /* train board, OKI6295 sound samples */
 	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
 
 	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
@@ -1713,7 +1866,7 @@ ROM_START( dendego23k )
 	ROM_LOAD( "e52-11.ic20",  0x0c00000, 0x200000, CRC(1bc22680) SHA1(1f71db88d6df3b4bdf090b77bc83a67906bb31da) )
 	ROM_LOAD( "e52-12.ic21",  0x0e00000, 0x200000, CRC(a8bb91c5) SHA1(959a9fedb7839e1e4e7658d920bd5da4fd8cae48) )
 
-	ROM_REGION( 0x40000, REGION_USER3, 0 ) /* train board, OKI6295 sound samples */
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) /* train board, OKI6295 sound samples */
 	ROM_LOAD( "e35-28.trn",  0x000000, 0x040000, CRC(d1b571c1) SHA1(cac7d3f0285544fe36b8b744edfbac0190cdecab) )
 
 	ROM_REGION16_BE( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
@@ -2022,22 +2175,22 @@ ROM_START( dangcurvj ) /* Dangerous Curves Ver 2.2 J */
 	ROM_LOAD16_BYTE( "e09-20.ic35",  0xc00000, 0x200000, CRC(9652a5c4) SHA1(2933e4e8e57ff618ce21721036d96347471c5539) )
 ROM_END
 
-GAME( 1995, dangcurv, 0, taitojc, dendeg, dangcurv, ROT0, "Taito", "Dangerous Curves (Ver 2.9 O)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1995, dangcurvj, dangcurv, taitojc, dendeg, dangcurv, ROT0, "Taito", "Dangerous Curves (Ver 2.2 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1995, landgear, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Landing Gear (Ver 4.2 O)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1995, landgearj, landgear, taitojc, dendeg, taitojc, ROT0, "Taito", "Landing Gear (Ver 4.2 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1995, landgeara, landgear, taitojc, dendeg, taitojc, ROT0, "Taito", "Landing Gear (Ver 3.1 O)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1995, landgearja, landgear, taitojc, dendeg, taitojc, ROT0, "Taito", "Landing Gear (Ver 3.0 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, sidebs, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side (Ver 3.0 OK)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, sidebsj, sidebs, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side (Ver 2.7 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, sidebsja, sidebs, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side (Ver 2.6 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, sidebsjb, sidebs, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side (Ver 2.5 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, dendego, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Densha de GO! (Ver 2.3 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, dendegoa, dendego, taitojc, dendeg, taitojc, ROT0, "Taito", "Densha de GO! (Ver 2.2 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1996, dendegox, dendego, taitojc, dendeg, taitojc, ROT0, "Taito", "Densha de GO! EX (Ver 2.4 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1997, sidebs2, 0, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side 2 (Ver 2.6 OK)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1997, sidebs2u, sidebs2, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side 2 (Ver 2.6 A)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1997, sidebs2j, sidebs2, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side 2 Evoluzione RR (Ver 3.1 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 1997, sidebs2ja, sidebs2, taitojc, dendeg, taitojc, ROT0, "Taito", "Side by Side 2 Evoluzione (Ver 2.4 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1995, dangcurv, 0, taitojc, dangcurv, dangcurv, ROT0, "Taito", "Dangerous Curves (Ver 2.9 O)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1995, dangcurvj, dangcurv, taitojc, dangcurv, dangcurv, ROT0, "Taito", "Dangerous Curves (Ver 2.2 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1995, landgear, 0, taitojc, landgear, taitojc, ROT0, "Taito", "Landing Gear (Ver 4.2 O)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, landgearj, landgear, taitojc, landgear, taitojc, ROT0, "Taito", "Landing Gear (Ver 4.2 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, landgeara, landgear, taitojc, landgear, taitojc, ROT0, "Taito", "Landing Gear (Ver 3.1 O)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, landgearja, landgear, taitojc, landgear, taitojc, ROT0, "Taito", "Landing Gear (Ver 3.0 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, sidebs, 0, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side (Ver 3.0 OK)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, sidebsj, sidebs, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side (Ver 2.7 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, sidebsja, sidebs, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side (Ver 2.6 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, sidebsjb, sidebs, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side (Ver 2.5 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, dendego, 0, dendego2, dendeg, dendego, ROT0, "Taito", "Densha de GO! (Ver 2.3 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, dendegoa, dendego, dendego2, dendeg, dendego, ROT0, "Taito", "Densha de GO! (Ver 2.2 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, dendegox, dendego, dendego2, dendeg, dendego, ROT0, "Taito", "Densha de GO! EX (Ver 2.4 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sidebs2, 0, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side 2 (Ver 2.6 OK)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sidebs2u, sidebs2, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side 2 (Ver 2.6 A)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sidebs2j, sidebs2, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side 2 Evoluzione RR (Ver 3.1 J)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sidebs2ja, sidebs2, taitojc, sidebs, taitojc, ROT0, "Taito", "Side by Side 2 Evoluzione (Ver 2.4 J)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1998, dendego2, 0, dendego2, dendeg, dendego2, ROT0, "Taito", "Densha de GO! 2 Kousoku-hen (Ver 2.5 J)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, dendego23k, dendego2, taitojc, dendeg, taitojc, ROT0, "Taito", "Densha de GO! 2 Kousoku-hen 3000-bandai (Ver 2.20 J)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 1998, dendego23k, dendego2, dendego2, dendeg, dendego2, ROT0, "Taito", "Densha de GO! 2 Kousoku-hen 3000-bandai (Ver 2.20 J)", GAME_IMPERFECT_GRAPHICS )

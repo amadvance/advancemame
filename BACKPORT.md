@@ -43,6 +43,12 @@ Options marked *(debugger)* require the debugger build (`make -j$(nproc) CONF_DE
 
 `-debug_watch` and `-debug_break` are independent of `-debug_cpu` and gated by `-debug_start`. Only one watched range and one breakpoint per run; watch addresses/lengths are in bytes, breakpoint addresses in the CPU's native PC units.
 
+Pitfalls:
+- The snapshot taken on the same frame as `-debug_exit` can come out blank. Use an exit frame one past the last wanted snapshot (e.g. `-debug_snap_step 500 -debug_exit 4001`), otherwise a working screen looks like a black-screen bug.
+- Some CPU cores do not dump registers in `-debug_cpu` traces (e.g. TMS32051 only shows the disassembly). To find which address a polling loop reads, add a temporary `fprintf(stderr, ...)` in the opcode handler, rate-limited because it runs millions of times.
+- Opcode files such as `mame/cpu/tms32051/32051ops.c` are `#include`d by the core file and are not tracked as make dependencies: after editing them, `touch` the including file (`tms32051.c`), or the old code keeps running.
+- `-log` writes `advmame.log` in the current directory, overwriting any existing file with that name.
+
 Examples:
 ```bash
 # Trace CPU 0 and capture PNG/WAV from frame 100 to 120
@@ -92,6 +98,19 @@ end)
 ```
 Find the port tag (e.g. `":SYSTEM"`, `":IN0"`, `":DSW"`) and field bitmask (e.g. `0x10` for `IPT_COIN1`) in the driver's `INPUT_PORTS_START` in `resource/mame/`.
 
+### Memory Write Logs (Lua write taps)
+To compare with an AdvanceMAME `-debug_watch` log, log the writes of official MAME to the same range with frame number and PC, without the interactive debugger:
+```lua
+local sp = manager.machine.devices[":maincpu"].spaces["program"]
+local scr = manager.machine.screens[":screen"]
+local cpu = manager.machine.devices[":maincpu"]
+local f = io.open("/tmp/advancemame/mame_watch.log", "w")
+tap = sp:install_write_tap(0x40f8000, 0x40fbfff, "watch", function(offset, data, mask)
+    f:write(string.format("%d %08X %08X %08X\n", scr:frame_number(), cpu.state["PC"].value, offset, data))
+end)
+```
+Keep the tap in a global variable, otherwise it is garbage collected and stops logging. Frame numbers drift between the two emulators, so align the logs on the sequence of events (e.g. commands written to a shared RAM register), not on absolute frames.
+
 ---
 
 ## 5. Emulation & Debugging Pitfalls
@@ -108,4 +127,6 @@ Find the port tag (e.g. `":SYSTEM"`, `":IN0"`, `":DSW"`) and field bitmask (e.g.
 
 6. **Signed Positions vs. Unsigned Limits**: Virtual laserdisc lead-in positions can be negative. Comparing a signed position with an unsigned count converts it to a large value: `track >= total_hunks / 2` can be true for a negative `track` when `total_hunks` is unsigned. In the Cube Quest Simutrek player, this clamped the head to the end of the disc on the first slider movement and left the firmware in its initialization or search loop. Keep positions and bounds in a consistent signed domain: derive a signed maximum after establishing that the count fits its type, then compare against it. Do not cast the position to unsigned or clamp valid lead-in positions to zero merely to silence a warning.
 
-7. **Analog Ports Need `PORT_MINMAX`**: In MAME 0.106 an absolute analog port (`IPT_PEDAL*`, `IPT_PADDLE*`, `IPT_AD_STICK_*`, `IPT_LIGHTGUN_*`) without `PORT_MINMAX` keeps `analog.min = analog.max = 0`, while modern MAME defaults them to `0..mask`. The scale factors are computed from `default - min` and `max - default`, so a pedal with default `0x00` gets a zero range and never moves, whatever keys are pressed: the game then waits forever on screens like "STEP ON THE PEDAL TO START" (Final Lap R). Always add `PORT_MINMAX(0x00,0xff)` (or the matching mask, e.g. `0x3ff`) when backporting an analog port. Ports with a mid-scale default (e.g. `0x80`) may still work through the signed fallback, but their direction can be inverted. To find the missing ones, check each `PORT_BIT` of these types, including the modifiers on the following lines.
+7. **68000 Interrupt Levels Are Not Combined**: In the 0.106 68000 interface (`mame/cpu/m68000/m68kmame.c`), `ASSERT_LINE` on line N sets the CPU level to N and `CLEAR_LINE` on *any* line sets it to 0. A `HOLD_LINE` vblank acknowledged while another level is pending (or asserted later than it) silently discards that pending interrupt, while modern MAME keeps each line separately. Typical symptom: a sub-CPU/DSP posts a request, raises an IRQ and polls forever for the acknowledge, and the main CPU idles in its frame loop without ever entering that handler (Taito JC Side by Side 2 froze after the boot tests with no 3D). Fix it in the driver: keep a pending-level mask, always assert the highest pending level, and install `cpunum_set_irq_callback()` to clear the auto-acknowledged levels and return the vector (see `jc_update_irq()` in `mame/drivers/taitojc.c`).
+
+8. **Analog Ports Need `PORT_MINMAX`**: In MAME 0.106 an absolute analog port (`IPT_PEDAL*`, `IPT_PADDLE*`, `IPT_AD_STICK_*`, `IPT_LIGHTGUN_*`) without `PORT_MINMAX` keeps `analog.min = analog.max = 0`, while modern MAME defaults them to `0..mask`. The scale factors are computed from `default - min` and `max - default`, so a pedal with default `0x00` gets a zero range and never moves, whatever keys are pressed: the game then waits forever on screens like "STEP ON THE PEDAL TO START" (Final Lap R). Always add `PORT_MINMAX(0x00,0xff)` (or the matching mask, e.g. `0x3ff`) when backporting an analog port. Ports with a mid-scale default (e.g. `0x80`) may still work through the signed fallback, but their direction can be inverted. To find the missing ones, check each `PORT_BIT` of these types, including the modifiers on the following lines.
