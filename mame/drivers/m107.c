@@ -9,8 +9,6 @@
     World PK Soccer                         (c) 1995 Jaleco
 
 
-    Graphics glitches in both games.
-
     Emulation by Bryan McPhail, mish@tendril.co.uk
 
 *******************************************************************************/
@@ -800,7 +798,7 @@ static DRIVER_INIT( wpksoc )
 
 /***************************************************************************/
 
-GAME( 1993, airass,   0,        airass,   firebarr, airass,   ROT270, "Irem", "Air Assault (World)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, firebarr, airass,   firebarr, firebarr, firebarr, ROT270, "Irem", "Fire Barrel (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, airass,   0,        airass,   firebarr, airass,   ROT270, "Irem", "Air Assault (World)", 0 )
+GAME( 1993, firebarr, airass,   firebarr, firebarr, firebarr, ROT270, "Irem", "Fire Barrel (Japan)", 0 )
 GAME( 1994, dsoccr94, 0,        dsoccr94, dsoccr94, dsoccr94, ROT0,   "Irem (Data East Corporation license)", "Dream Soccer '94 (World, M107 hardware)", 0 )
 GAME( 1995, wpksoc,   0,        firebarr, wpksoc,   wpksoc,   ROT0,   "Jaleco", "World PK Soccer", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
