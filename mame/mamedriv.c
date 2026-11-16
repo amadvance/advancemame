@@ -7239,17 +7239,19 @@ Other Sun games
 	DRIVER( silkroad )	/* (c) 1999 */
 
 	/* Afega games */
-	DRIVER( twinactn )	/* (c) 1996 - bootleg of mustang in nmk16.c */
+	DRIVER( twinactn )	/* (c) 1995 - bootleg of mustang in nmk16.c */
 	DRIVER( stagger1 )	/* (c) 1998 */
 	DRIVER( redhawk )	/* (c) 1997 */
 	DRIVER( redhawkb )	/* (c) 1997 */
 	DRIVER( grdnstrm )	/* (c) 1998 */
+	DRIVER( grdnstrmk )	/* (c) 1998 */
 	DRIVER( bubl2000 )	/* (c) 1998 Tuning */
 	DRIVER( hotbubl )	/* (c) 1998 Pandora */
 	DRIVER( popspops )	/* (c) 1999 */
 	DRIVER( firehawk )	/* (c) 2001 ESD */
 	DRIVER( mangchi )	/* (c) 2000 */
-	DRIVER( spec2k )	/* (c) 2000 Yonatech */
+	DRIVER( spec2k )	/* (c) 2000 Yona Tech */
+	DRIVER( spec2kh )	/* (c) 2000 Yona Tech */
 
 	/* ESD games */
 	/* http://www.esdgame.co.kr/english/ */
