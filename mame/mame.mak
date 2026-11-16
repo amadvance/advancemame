@@ -683,7 +683,6 @@ $(OBJ)/dooyong.a: \
 	$(OBJ)/drivers/gundealr.o $(OBJ)/vidhrdw/gundealr.o \
 
 $(OBJ)/dynax.a: \
-	$(OBJ)/drivers/cherrym2.o \
 	$(OBJ)/drivers/ddenlovr.o \
 	$(OBJ)/drivers/dynax.o $(OBJ)/vidhrdw/dynax.o \
 	$(OBJ)/drivers/hnayayoi.o $(OBJ)/vidhrdw/hnayayoi.o \

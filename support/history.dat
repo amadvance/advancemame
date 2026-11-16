@@ -37130,36 +37130,6 @@ Buttons : 5
 $end
 
 
-$info=cm2841a,cm2v841
-$bio
-
-Cherry Master II (c) 198? Dyna Electronics.
-
-
-- TECHNICAL -
-
-
-Main CPU : Z80 (@ 4 Mhz)
-
-Sound Chips : AY8910 (@ 1.536 Mhz)
-
-
-Screen orientation : Horizontal
-
-Video resolution : 256 x 224 pixels
-
-Aspect ratio : 4/3
-
-Screen refresh : 60.00 Hz
-
-Palette colors : 256
-
-
-Players : 1
-
-$end
-
-
 $info=chewing,
 $bio
 

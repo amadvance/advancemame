@@ -8050,8 +8050,6 @@ Other Sun games
 	DRIVER( vroulet )	/* (c) 1989 World Game */
 	DRIVER( rcasino )	/* (c) 1984 Dyna Electronics */
 	DRIVER( cmv823 )	/* (c) 198? Corsica */
-	DRIVER( cm2v841 )	/* (c) 198? Dyna Electronics */
-	DRIVER( cm2841a )	/* (c) 198? Dyna Electronics */
 	DRIVER( smotor )
 	DRIVER( pokerout )
 	DRIVER( ampoker2 )	/* (c) 198? Novomatic */

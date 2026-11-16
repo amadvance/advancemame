@@ -20017,26 +20017,6 @@
 :cluclu:00000000:0080:00000009:FFFFFFFF:Infinite Lives PL1
 :cluclu:00000000:0081:00000009:FFFFFFFF:Infinite Lives PL2
 
-; [ Cherry Master II v8.41 (set 2) ]
-:cm2841a:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:cm2841a:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
-; [ Cherry Master II v8.41 (set 1) ]
-:cm2v841:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:cm2v841:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
 ; [ Mahjong Circuit no Mehyou (Japan) ]
 :cmehyou:60000000:0000:00000000:00000000:[ The winning hand cheat must be activated when  ]
 :cmehyou:60000000:0000:00000000:00000000:[ there are 14 tiles in your hand, then press    ]
@@ -203271,8 +203251,6 @@
 ; { Reason 01 } ; chainrec  [ Chain Reaction (World, Version 2.2, 1995.09.25) ]
 ; { Reason 01 } ; choko     [ Choko (Japan 010820) ]
 ; { Reason 01 } ; chwy      [ Highway Chase? (Cassette) ]
-; { Reason 01 } ; cm2841a   [ Cherry Master II v8.41 (set 2) ]
-; { Reason 01 } ; cm2v841   [ Cherry Master II v8.41 (set 1) ]
 ; { Reason 01 } ; cmv801    [ Cherry Master (v8.01) ]
 ; { Reason 01 } ; cntsteer  [ Counter Steer ]
 ; { Reason 01 } ; conquer   [ Conquer ]
@@ -204566,7 +204544,6 @@
 ;clowns~clowns1
 ;clshrdst=clshroad
 ;cltchitr=cltchitrj~=mvp=mvpj(balls=4 on MVP)
-;cm2841a=cm2v841  (unchecked relationship)
 ;cnights2=cnightst
 ;cninja=cninja0=cninjau=joemac=stoneage
 ;cobracmj=cobracom
