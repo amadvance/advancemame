@@ -7359,8 +7359,9 @@ Other Sun games
 	DRIVER( drgwrld3 )	/* (c) 1995 */
 
 	DRIVER( lordgun )	/* (c) 1994 */
+	DRIVER( lordgunu )	/* (c) 1994 */
 	DRIVER( aliencha )	/* (c) 1994 */
-	DRIVER( hfh )		/* (c) 199? */
+	DRIVER( alienchac )	/* (c) 1994 */
 	DRIVER( tarzanc )
 
 	/* IGS PGM2 parent sets */

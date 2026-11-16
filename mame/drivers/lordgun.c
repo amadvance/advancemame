@@ -14,10 +14,11 @@ Sound   :   Z80 + M6295 [+ M6295] + YM3812
 NVRAM   :   93C46
 
 -----------------------------------------------------------------------------------
-Year + Game           PCB    FM Sound  Chips                         Notes
+Year + Game                PCB    FM Sound  Chips                         Notes
 -----------------------------------------------------------------------------------
-1994  Lord Of Gun     T0076  YM3812    IGS005? IGS006 IGS007 IGS008  Lightguns
-199?  Huang Fei Hong  ?      ?         ?                             Not encrypted
+1994  Lord Of Gun (World)  T0062  YM3812    IGS005 IGS006 IGS007 IGS008   Lightguns
+1994  Lord Of Gun (USA)    T0076  YM3812    IGS005 IGS006 IGS007 IGS008   Lightguns
+1994  Alien Challenge      NO-0085 YMF278B IGS005 IGS006 IGS007 IGS008   Not encrypted
 -----------------------------------------------------------------------------------
 
 To do:
@@ -84,10 +85,6 @@ static DRIVER_INIT( lordgun )
 
 		src[i] = x;
 	}
-
-	// protection
-	src[0x14832/2]	=	0x6000;		// 014832: 6700 0006  beq     $1483a (protection)
-	src[0x1587e/2]	=	0x6010;		// 01587E: 6710       beq     $15890 (rom check)
 }
 
 /***************************************************************************
@@ -96,7 +93,40 @@ static DRIVER_INIT( lordgun )
 
 ***************************************************************************/
 
-// to be done
+static WRITE16_HANDLER( lordgun_protection_w )
+{
+	switch (offset & 0x60)
+	{
+		case 0x00/2:	// increment counter
+			aliencha_protection_data = (aliencha_protection_data + 1) & 0x1f;
+			break;
+		case 0xc0/2:	// reset protection device
+			aliencha_protection_data = 0;
+			break;
+	}
+}
+
+static READ16_HANDLER( lordgun_protection_r )
+{
+	UINT8 x;
+	switch (offset & 0x60)
+	{
+		case 0x40/2:	// bitswap and xor counter
+			x = aliencha_protection_data;
+			aliencha_protection_data = ((((x >> 0) | (x >> 1)) & 1) << 4) |
+				(((~x >> 2) & 1) << 3) |
+				((((~x >> 4) | (x >> 0)) & 1) << 2) |
+				(((x >> 3) & 1) << 1) |
+				((((~x >> 0) | (x >> 2)) & 1) << 0);
+			return 0;
+		case 0x80/2:	// return value if conditions are met
+			if ((aliencha_protection_data & 0x11) == 0x01) return 0x10;
+			if ((aliencha_protection_data & 0x06) == 0x02) return 0x10;
+			if ((aliencha_protection_data & 0x09) == 0x08) return 0x10;
+			return 0;
+	}
+	return 0;
+}
 
 /***************************************************************************
 
@@ -260,7 +290,7 @@ static ADDRESS_MAP_START( lordgun_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x504000, 0x504001) AM_WRITE(lordgun_soundlatch_w)
 	AM_RANGE(0x506000, 0x506007) AM_READWRITE(lordgun_ppi8255_0_r, lordgun_ppi8255_0_w)
 	AM_RANGE(0x508000, 0x508007) AM_READWRITE(lordgun_ppi8255_1_r, lordgun_ppi8255_1_w)
-	AM_RANGE(0x50a900, 0x50a9ff) AM_RAM	// protection
+	AM_RANGE(0x50a900, 0x50a9ff) AM_READWRITE(lordgun_protection_r, lordgun_protection_w)
 ADDRESS_MAP_END
 
 
@@ -289,33 +319,6 @@ static ADDRESS_MAP_START( aliencha_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x508000, 0x508007) AM_READWRITE(lordgun_ppi8255_1_r, lordgun_ppi8255_1_w)
 	AM_RANGE(0x50b900, 0x50b9ff) AM_READWRITE(aliencha_protection_r, aliencha_protection_w)
 ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( hfh_map, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x0fffff) AM_ROM
-	AM_RANGE(0x200000, 0x20ffff) AM_RAM
-	AM_RANGE(0x210000, 0x21ffff) AM_RAM AM_BASE(&lordgun_priority_ram)	// PRIORITY
-	AM_RANGE(0x300000, 0x30ffff) AM_READWRITE(MRA16_RAM, lordgun_vram_0_w) AM_BASE(&lordgun_vram_0)	// DISPLAY
-	AM_RANGE(0x310000, 0x313fff) AM_READWRITE(MRA16_RAM, lordgun_vram_1_w) AM_BASE(&lordgun_vram_1)	// DISPLAY
-	AM_RANGE(0x314000, 0x317fff) AM_READWRITE(MRA16_RAM, lordgun_vram_2_w) AM_BASE(&lordgun_vram_2)	// DISPLAY
-	AM_RANGE(0x318000, 0x319fff) AM_READWRITE(MRA16_RAM, lordgun_vram_3_w) AM_BASE(&lordgun_vram_3)	// DISPLAY
-	AM_RANGE(0x31c000, 0x31c7ff) AM_RAM AM_BASE(&lordgun_scrollram)		// LINE
-	AM_RANGE(0x400000, 0x4007ff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)	// ANIMATOR
-	AM_RANGE(0x500000, 0x500fff) AM_READWRITE(MRA16_RAM, paletteram16_xxxxBBBBGGGGRRRR_word_w) AM_BASE(&paletteram16)
-	AM_RANGE(0x502000, 0x502001) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_0)
-	AM_RANGE(0x502200, 0x502201) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_1)
-	AM_RANGE(0x502400, 0x502401) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_2)
-	AM_RANGE(0x502600, 0x502601) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_x_3)
-	AM_RANGE(0x502800, 0x502801) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_0)
-	AM_RANGE(0x502a00, 0x502a01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_1)
-	AM_RANGE(0x502c00, 0x502c01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_2)
-	AM_RANGE(0x502e00, 0x502e01) AM_WRITE(MWA16_RAM) AM_BASE(&lordgun_scroll_y_3)
-	AM_RANGE(0x503000, 0x503001) AM_WRITE(lordgun_priority_w)
-	AM_RANGE(0x504000, 0x504001) AM_WRITE(lordgun_soundlatch_w)
-	AM_RANGE(0x506000, 0x506007) AM_READWRITE(lordgun_ppi8255_0_r, lordgun_ppi8255_0_w)
-	AM_RANGE(0x508000, 0x508007) AM_READWRITE(lordgun_ppi8255_1_r, lordgun_ppi8255_1_w)
-	AM_RANGE(0x50b900, 0x50b9ff) AM_RAM	// protection
-ADDRESS_MAP_END
-
 
 /***************************************************************************
 
@@ -359,17 +362,6 @@ static ADDRESS_MAP_START( aliencha_soundio_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x7400, 0x7400) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
 	AM_RANGE(0x7800, 0x7800) AM_READWRITE(OKIM6295_status_1_r, OKIM6295_data_1_w)
 ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( hfh_soundio_map, ADDRESS_SPACE_IO, 8 )
-	AM_RANGE(0x3000, 0x3000) AM_READ( soundlatch2_r )
-	AM_RANGE(0x4000, 0x4000) AM_READ( soundlatch_r )
-	AM_RANGE(0x5000, 0x5000) AM_READ( MRA8_NOP )
-	AM_RANGE(0x7000, 0x7000) AM_WRITE( YM3812_control_port_0_w )
-	AM_RANGE(0x7001, 0x7001) AM_WRITE( YM3812_write_port_0_w )
-	AM_RANGE(0x7400, 0x7400) AM_READWRITE( OKIM6295_status_0_r, OKIM6295_data_0_w )
-	AM_RANGE(0x7800, 0x7800) AM_READWRITE( OKIM6295_status_1_r, OKIM6295_data_1_w )
-ADDRESS_MAP_END
-
 
 /***************************************************************************
 
@@ -435,9 +427,9 @@ static const gfx_decode lordgun_gfxdecodeinfo[] =
 
 INPUT_PORTS_START( lordgun )
 	PORT_START	// IN0
-	PORT_DIPNAME( 0x01, 0x01, "Game Mode" )
-	PORT_DIPSETTING(    0x01, "Arcade" )
-	PORT_DIPSETTING(    0x00, "Street" )
+	PORT_DIPNAME( 0x01, 0x01, "Stage Select" )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x02, 0x02, "Guns" )
 	PORT_DIPSETTING(    0x02, "IGS" )		// x table offset  = 0x25
 	PORT_DIPSETTING(    0x00, "Konami" )	// "" = 0x2c
@@ -445,10 +437,10 @@ INPUT_PORTS_START( lordgun )
 	PORT_DIPSETTING(    0x04, "Exciting" )
 	PORT_DIPSETTING(    0x00, "Tender" )
 	PORT_DIPNAME( 0x08, 0x08, "Coin Slots" )
-	PORT_DIPSETTING(    0x08, "Separate" )
-	PORT_DIPSETTING(    0x00, "Common" )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x08, "2" )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_SERVICE_NO_TOGGLE( 0x40, IP_ACTIVE_LOW )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_SPECIAL )	// eeprom
 
@@ -459,7 +451,7 @@ INPUT_PORTS_START( lordgun )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN  )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN  )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN  )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) // cheat: skip ahead
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) // game cheat: skip stage
 
 	PORT_START	// IN2
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START2  )
@@ -492,16 +484,16 @@ INPUT_PORTS_START( lordgun )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 	PORT_START	// IN5
-	PORT_BIT( 0x1ff, 0x100, IPT_LIGHTGUN_X ) PORT_MINMAX(0,0x1ff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(1)
+	PORT_BIT( 0x1ff, 0x100, IPT_LIGHTGUN_X ) PORT_MINMAX(0x3c,0x1d8) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(1)
 
 	PORT_START	// IN6
-	PORT_BIT( 0x1ff, 0x100, IPT_LIGHTGUN_X ) PORT_MINMAX(0,0x1ff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(2)
+	PORT_BIT( 0x1ff, 0x100, IPT_LIGHTGUN_X ) PORT_MINMAX(0x3c,0x1d8) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(2)
 
 	PORT_START	// IN7
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(1)
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,224) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(1)
 
 	PORT_START	// IN8
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,224) PORT_SENSITIVITY(35) PORT_KEYDELTA(10) PORT_PLAYER(2)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( aliencha )
@@ -621,8 +613,23 @@ static ppi8255_interface ppi8255_intf =
 	{ fake2_w,				fake_w },				// Port C write
 };
 
+static NVRAM_HANDLER( lordgun )
+{
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&eeprom_interface_93C46);
+		if (file)
+			EEPROM_load(file);
+		else
+			EEPROM_set_data(memory_region(REGION_USER1), memory_region_length(REGION_USER1));
+	}
+}
+
 static MACHINE_RESET( lordgun )
 {
+	aliencha_protection_data = 0;
 	ppi8255_init(&ppi8255_intf);
 }
 
@@ -650,7 +657,7 @@ static MACHINE_DRIVER_START( lordgun )
 
 	MDRV_MACHINE_RESET(lordgun)
 
-	MDRV_NVRAM_HANDLER(93C46)
+	MDRV_NVRAM_HANDLER(lordgun)
 
 	MDRV_GFXDECODE(lordgun_gfxdecodeinfo)
 
@@ -734,23 +741,6 @@ static MACHINE_DRIVER_START( aliencha )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.5)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.5)
 MACHINE_DRIVER_END
-
-static MACHINE_DRIVER_START( hfh )
-	MDRV_IMPORT_FROM(lordgun)
-	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(hfh_map,0)
-
-	MDRV_CPU_MODIFY("sound")
-	MDRV_CPU_IO_MAP(hfh_soundio_map,0)
-
-	// sound hardware
-	MDRV_SOUND_ADD(OKIM6295, 1000000/132)	// 5MHz/132 can't be right!
-	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
-MACHINE_DRIVER_END
-
-
 
 /***************************************************************************
 
@@ -932,66 +922,79 @@ NOTE: Speakers should be connected serially to Speaker (+) and Speaker (-).
    4| Gun OPTO - Blue Wire   (Manual says "HIT")
 */
 
-ROM_START( lordgun )
+ROM_START( lordgun )	// World set, excluding USA, Canada, Mexico, Japan & Taiwan
 	ROM_REGION( 0x100000, REGION_CPU1, 0 ) // 68000
-	ROM_LOAD16_BYTE( "lordgun.10", 0x00000, 0x80000, CRC(acda77ef) SHA1(7cd8580419e2f62a3b5a1e4a6020a3ef978ff1e8) )
-	ROM_LOAD16_BYTE( "lordgun.4",  0x00001, 0x80000, CRC(a1a61254) SHA1(b0c5aa656024cfb9be28a11061656159e7b72d00) )
+	ROM_LOAD16_BYTE( "lord_gun_u144-ch.u144", 0x00000, 0x80000, CRC(ea54ee18) SHA1(5ce3fe0d46c524562a627fe7418dab9753cf74b3) ) // hand written label  LORD/GUN   U144-CH
+	ROM_LOAD16_BYTE( "lord_gun_u122-ch.u122", 0x00001, 0x80000, CRC(969a0348) SHA1(6ce064c7c42c51969ea1271c6f75fc602602cfa3) ) // hand written label  LORD/GUN   U122-CH
 
 	ROM_REGION( 0x010000, REGION_CPU2, 0 ) // Z80
-	ROM_LOAD( "lordgun.90", 0x00000, 0x10000, CRC(d59b5e28) SHA1(36696058684d69306f463ed543c8b0195bafa21e) )	// 1xxxxxxxxxxxxxxx = 0xFF
+	ROM_LOAD( "lord_gun_160.u160", 0x00000, 0x10000, CRC(d59b5e28) SHA1(36696058684d69306f463ed543c8b0195bafa21e) ) // == lord_gun_u90.u90 - 1xxxxxxxxxxxxxxx = 0xFF
 
 	ROM_REGION( 0xc00000, REGION_GFX1, 0 )	// Sprites
-	ROM_LOAD( "igsa001.14", 0x000000, 0x200000, CRC(400abe33) SHA1(20de1eb626424ea41bd55eb3cecd6b50be744ee0) )
-	ROM_LOAD( "igsa004.13", 0x200000, 0x200000, CRC(52687264) SHA1(28444cf6b5662054e283992857e0827a2ca15b83) )
-	ROM_LOAD( "igsa002.9",  0x400000, 0x200000, CRC(a4810e38) SHA1(c31fe641feab2c93795fc35bf71d4f37af1056d4) )
-	ROM_LOAD( "igsa005.8",  0x600000, 0x200000, CRC(e32e79e3) SHA1(419f9b501e5a37d763ece9322271e61035b50217) )
-	ROM_LOAD( "igsa003.3",  0x800000, 0x200000, CRC(649e48d9) SHA1(ce346154024cf13f3e40000ceeb4c2003cd35894) )
-	ROM_LOAD( "igsa006.2",  0xa00000, 0x200000, CRC(39288eb6) SHA1(54d157f0e151f6665f4288b4d09bd65571005132) )
+	ROM_LOAD( "igs_a001.u22",             0x000000, 0x200000, CRC(400abe33) SHA1(20de1eb626424ea41bd55eb3cecd6b50be744ee0) ) // == igs_a001.u14, different U location
+	ROM_LOAD16_BYTE( "lord_gun_u24.u24",  0x200000, 0x080000, CRC(454a5b11) SHA1(2e2e16e5f61c6e4648252ef172409efabbaa0b80) ) // == 1/2 IGS A004 even
+	ROM_LOAD16_BYTE( "lord_gun_u23.u23",  0x200001, 0x080000, CRC(a0d7aada) SHA1(3c6d4053e0930dcfdd43c7eb85ca2ba2297c136f) ) // == 1/2 IGS A004 odd
+	ROM_LOAD16_BYTE( "lord_gun_u7.u7",    0x300000, 0x080000, CRC(95ef3894) SHA1(0962e2545f7d0551a8272d87ea21401d2c5b8d80) )
+	ROM_LOAD16_BYTE( "lord_gun_u14.u14",  0x300001, 0x080000, CRC(dc8a77a1) SHA1(0247acda7556c300e1baa9b726ec835523456761) )
+	ROM_LOAD( "igs_a002.u21",             0x400000, 0x200000, CRC(a4810e38) SHA1(c31fe641feab2c93795fc35bf71d4f37af1056d4) ) // == igs_a002.u9, different U location
+	ROM_LOAD16_BYTE( "lord_gun_u5.u5",    0x600000, 0x080000, CRC(63aa10c3) SHA1(743207237409319aec79dc2a486736247a582ca9) ) // == 1/2 IGS A005 even
+	ROM_LOAD16_BYTE( "lord_gun_u13.u13",  0x600001, 0x080000, CRC(478e248c) SHA1(3b2c4cdf262fe766015e8c12a4fe356da8d88f84) ) // == 1/2 IGS A005 odd
+	ROM_LOAD16_BYTE( "lord_gun_u4.u4",    0x700000, 0x080000, CRC(d203c24e) SHA1(d90ba0ea0f823a8013a5a2be50e1c36af96f9efd) )
+	ROM_LOAD16_BYTE( "lord_gun_u11.u11",  0x700001, 0x080000, CRC(72277dcd) SHA1(89f6ad1f6813751fcccc15ee5ab6ce63b93a9b13) )
+	ROM_LOAD( "igs_a003.u20",             0x800000, 0x200000, CRC(649e48d9) SHA1(ce346154024cf13f3e40000ceeb4c2003cd35894) ) // == igs_a003.u3, different U location
+	ROM_LOAD16_BYTE( "lord_gun_u12.u12",  0xa00000, 0x080000, CRC(a2a55d65) SHA1(aad9ee5b9a93a5cd14a088c4bade9bab34f9e206) ) // == 1/2 IGS A006 even
+	ROM_LOAD16_BYTE( "lord_gun_u6.u6",    0xa00001, 0x080000, CRC(fe649605) SHA1(80c22099ed630bdc825ebd910bcc48caad72e647) ) // == 1/2 IGS A006 odd
+	ROM_LOAD16_BYTE( "lord_gun_u10.u10",  0xb00000, 0x080000, CRC(eea39e5e) SHA1(806a97a08d0108509d30732b507e1064215295c6) )
+	ROM_LOAD16_BYTE( "lord_gun_u3.u3",    0xb00001, 0x080000, CRC(233782f8) SHA1(ef2049aadbcf5c409275ecfbbe75bdade5b087d4) )
 
 	ROM_REGION( 0x300000, REGION_GFX2, 0 )	// Tilemaps 0 & 3
-	ROM_LOAD( "igst001.108", 0x000000, 0x100000, CRC(36dd96f3) SHA1(4e70eb807160e7ed1b19d7f38df3a38021f42d9b) )
-	ROM_LOAD( "igst002.114", 0x100000, 0x100000, CRC(816a7665) SHA1(f2f2624ab262c957f84c657cfc432d14c61b19e8) )
-	ROM_LOAD( "igst003.119", 0x200000, 0x100000, CRC(cbfee543) SHA1(6fad8ef8d683f709f6ff2b16319447516c372fc8) )
+	ROM_LOAD( "igs_t001.u8",  0x000000, 0x100000, CRC(36dd96f3) SHA1(4e70eb807160e7ed1b19d7f38df3a38021f42d9b) ) // same data as lordgunu set, different U location
+	ROM_LOAD( "igs_t002.u18", 0x100000, 0x100000, CRC(816a7665) SHA1(f2f2624ab262c957f84c657cfc432d14c61b19e8) )
+	ROM_LOAD( "igs_t003.u19", 0x200000, 0x100000, CRC(cbfee543) SHA1(6fad8ef8d683f709f6ff2b16319447516c372fc8) )
 
 	ROM_REGION( 0x600000, REGION_GFX3, 0 )	// Tilemaps 1 & 2
-	ROM_LOAD( "igsb001.82", 0x000000, 0x200000, CRC(3096de1c) SHA1(d010990d21cfda9cb8ab5b4bc0e329c23b7719f5) )
-	ROM_LOAD( "igsb002.91", 0x200000, 0x200000, CRC(2234531e) SHA1(58a82e31a1c0c1a4dd026576319f4e7ecffd140e) )
-	ROM_LOAD( "igsb003.97", 0x400000, 0x200000, CRC(6cbf21ac) SHA1(ad25090a00f291aa48929ffa01347cc53e0051f8) )
+	ROM_LOAD( "igs_b001.u1", 0x000000, 0x200000, CRC(3096de1c) SHA1(d010990d21cfda9cb8ab5b4bc0e329c23b7719f5) ) // same data as lordgunu set, different U location
+	ROM_LOAD( "igs_b002.u2", 0x200000, 0x200000, CRC(2234531e) SHA1(58a82e31a1c0c1a4dd026576319f4e7ecffd140e) )
+	ROM_LOAD( "igs_b003.u9", 0x400000, 0x200000, CRC(6cbf21ac) SHA1(ad25090a00f291aa48929ffa01347cc53e0051f8) )
 
 	ROM_REGION( 0x080000, REGION_SOUND1, 0 ) // Samples
-	ROM_LOAD( "lordgun.100", 0x00000, 0x80000, CRC(b4e0fa07) SHA1(f5f33fe3f3a124f4737751fda3ea409fceeec0be) )
+	ROM_LOAD( "lord_gun_u161-3.u161", 0x00000, 0x80000, CRC(b4e0fa07) SHA1(f5f33fe3f3a124f4737751fda3ea409fceeec0be) ) // == lord_gun_u100.u100
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // Default eeprom
+	ROM_LOAD16_WORD( "eeprom", 0x00, 0x80, CRC(0dad0e43) SHA1(c216d1f19228e103b78e5acb30a66dab3804ac70) )
 ROM_END
 
-
-
-/*
-
-    Huang Fei Hong
-
-*/
-
-ROM_START( hfh )
+ROM_START( lordgunu )	// USA, Canada & Mexico
 	ROM_REGION( 0x100000, REGION_CPU1, 0 ) // 68000
-	ROM_LOAD16_BYTE( "hfh_p.u80", 0x00000, 0x80000, CRC(5175ebdc) SHA1(4a0bdda0f8291f895f888bfd45328b2b124b9051) )
-	ROM_LOAD16_BYTE( "hfh_p.u79", 0x00001, 0x80000, CRC(42ad978c) SHA1(eccb96e7170902b37989c8f207e1a821f29b2475) )
+	ROM_LOAD16_BYTE( "lord_gun_u10.u10", 0x00000, 0x80000, CRC(acda77ef) SHA1(7cd8580419e2f62a3b5a1e4a6020a3ef978ff1e8) ) // == LORD GUN U144-M3?
+	ROM_LOAD16_BYTE( "lord_gun_u4.u4",   0x00001, 0x80000, CRC(a1a61254) SHA1(b0c5aa656024cfb9be28a11061656159e7b72d00) ) // == LORD GUN U122-M3?
 
 	ROM_REGION( 0x010000, REGION_CPU2, 0 ) // Z80
-	ROM_LOAD( "hfh_s.u86", 0x00000, 0x10000, CRC(5728a9ed) SHA1(e5a9e4a1a2cc6c848b08608bc8727bc739270873) )
+	ROM_LOAD( "lord_gun_u90.u90", 0x00000, 0x10000, CRC(d59b5e28) SHA1(36696058684d69306f463ed543c8b0195bafa21e) ) // labeled as LORD/GUN U90 - 1xxxxxxxxxxxxxxx = 0xFF
 
-	ROM_REGION( 0x100000, REGION_GFX1, 0 )
-	ROM_LOAD( "hfh_g1", 0x000000, 0x100000, NO_DUMP )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )	// Sprites
+	ROM_LOAD( "igs_a001.u14", 0x000000, 0x200000, CRC(400abe33) SHA1(20de1eb626424ea41bd55eb3cecd6b50be744ee0) )
+	ROM_LOAD( "igs_a004.u13", 0x200000, 0x200000, CRC(52687264) SHA1(28444cf6b5662054e283992857e0827a2ca15b83) )
+	ROM_LOAD( "igs_a002.u9",  0x400000, 0x200000, CRC(a4810e38) SHA1(c31fe641feab2c93795fc35bf71d4f37af1056d4) )
+	ROM_LOAD( "igs_a005.u8",  0x600000, 0x200000, CRC(e32e79e3) SHA1(419f9b501e5a37d763ece9322271e61035b50217) )
+	ROM_LOAD( "igs_a003.u3",  0x800000, 0x200000, CRC(649e48d9) SHA1(ce346154024cf13f3e40000ceeb4c2003cd35894) )
+	ROM_LOAD( "igs_a006.u2",  0xa00000, 0x200000, CRC(39288eb6) SHA1(54d157f0e151f6665f4288b4d09bd65571005132) )
 
-	ROM_REGION( 0x100000, REGION_GFX2, 0 )
-	ROM_LOAD( "hfh_g2", 0x000000, 0x100000, NO_DUMP )
+	ROM_REGION( 0x300000, REGION_GFX2, 0 )	// Tilemaps 0 & 3
+	ROM_LOAD( "igs_t001.u108", 0x000000, 0x100000, CRC(36dd96f3) SHA1(4e70eb807160e7ed1b19d7f38df3a38021f42d9b) )
+	ROM_LOAD( "igs_t002.u114", 0x100000, 0x100000, CRC(816a7665) SHA1(f2f2624ab262c957f84c657cfc432d14c61b19e8) )
+	ROM_LOAD( "igs_t003.u119", 0x200000, 0x100000, CRC(cbfee543) SHA1(6fad8ef8d683f709f6ff2b16319447516c372fc8) )
 
-	ROM_REGION( 0x100000, REGION_GFX3, 0 )
-	ROM_LOAD( "hfh_g3", 0x000000, 0x100000, NO_DUMP )
+	ROM_REGION( 0x600000, REGION_GFX3, 0 )	// Tilemaps 1 & 2
+	ROM_LOAD( "igs_b001.u82", 0x000000, 0x200000, CRC(3096de1c) SHA1(d010990d21cfda9cb8ab5b4bc0e329c23b7719f5) )
+	ROM_LOAD( "igs_b002.u91", 0x200000, 0x200000, CRC(2234531e) SHA1(58a82e31a1c0c1a4dd026576319f4e7ecffd140e) )
+	ROM_LOAD( "igs_b003.u97", 0x400000, 0x200000, CRC(6cbf21ac) SHA1(ad25090a00f291aa48929ffa01347cc53e0051f8) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) // Samples
-	ROM_LOAD( "hfh_g.u65", 0x00000, 0x40000, CRC(ec469b57) SHA1(ba1668078987ad51f47bcd3e61c51a0cf2545350) )
+	ROM_REGION( 0x080000, REGION_SOUND1, 0 ) // Samples
+	ROM_LOAD( "lord_gun_u100.u100", 0x00000, 0x80000, CRC(b4e0fa07) SHA1(f5f33fe3f3a124f4737751fda3ea409fceeec0be) ) // labeled as LORD/GUN U100
 
-	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) // Samples
-	ROM_LOAD( "hfh_g.u66", 0x00000, 0x40000, CRC(7cfcd98e) SHA1(3b03123160adfd3404a9e0c4c68420930e80ae48) )
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // Default eeprom
+	ROM_LOAD16_WORD( "eeprom", 0x00, 0x80, CRC(0dad0e43) SHA1(c216d1f19228e103b78e5acb30a66dab3804ac70) )
 ROM_END
 
 ROM_START( aliencha )
@@ -1026,12 +1029,47 @@ ROM_START( aliencha )
 	ROM_LOAD( "yrw801-m", 0x000000, 0x200000, CRC(2a9d8d43) SHA1(32760893ce06dbe3930627755ba065cc3d8ec6ca) )
 ROM_END
 
+ROM_START( alienchac )
+	ROM_REGION( 0x300000, REGION_CPU1, 0 ) // 68000
+	ROM_LOAD16_BYTE( "hfh_p.u80", 0x000000, 0x080000, CRC(5175ebdc) SHA1(4a0bdda0f8291f895f888bfd45328b2b124b9051) )
+	ROM_LOAD16_BYTE( "hfh_p.u79", 0x000001, 0x080000, CRC(42ad978c) SHA1(eccb96e7170902b37989c8f207e1a821f29b2475) )
+	ROM_LOAD( "igsc0101.u81",     0x100000, 0x200000, CRC(704c48cf) SHA1(908017b206622680ab766251294806c8c8c9388b) ) // bytes 0x000000-0x0fffff == 0x100000-0x1fffff of IGSC0102
+
+	ROM_REGION( 0x010000, REGION_CPU2, 0 ) // Z80
+	ROM_LOAD( "alien_u-86.u86", 0x00000, 0x10000, CRC(5728a9ed) SHA1(e5a9e4a1a2cc6c848b08608bc8727bc739270873) ) // labeled as  ALIEN  U-86, == hfh_s.u86
+
+	ROM_REGION( 0x300000, REGION_GFX2, 0 ) // Tilemaps 0 & 3
+	ROM_LOAD( "igst0101.u9",  0x000000, 0x100000, CRC(2ce12d7b) SHA1(aa93a82e5f4015c46bb705efb2051b62cd5d7e04) )
+	ROM_LOAD( "igst0102.u10", 0x100000, 0x100000, CRC(542a76a0) SHA1(6947b50a024d0053c1eaf9da8c90652bab875142) )
+	ROM_LOAD( "igst0103.u11", 0x200000, 0x100000, CRC(adf5698a) SHA1(4b798f8acc5d7581c7e0989260863ae0ca654acd) )
+
+	ROM_REGION( 0x600000, REGION_GFX3, 0 ) // Tilemaps 1 & 2
+	ROM_LOAD( "igsb0101.u8",  0x000000, 0x200000, CRC(5c995f7e) SHA1(4f08cf13e313c6802c924b914c73cab4b450da61) )
+	ROM_LOAD( "igsb0102.u7",  0x200000, 0x200000, CRC(a2ae9baf) SHA1(338ee260c33448568f138ca00e1d4edda4da018f) )
+	ROM_LOAD( "igsb0103.u6",  0x400000, 0x200000, CRC(11b927af) SHA1(2f15e5cea1b86cde3b679bdd0f3d79672d0ddd3e) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) // Sprites
+	ROM_LOAD( "igsa0101.u3",  0x000000, 0x400000, CRC(374d07c4) SHA1(87e9bfe32cbfe9964ba7253847fbd14aa3c8ed20) )
+	ROM_LOAD( "igsa0102.u2",  0x400000, 0x400000, CRC(dbeee7ac) SHA1(e0eb0d73d9230aa6f69f5ac25d44fa19affebe88) )
+	ROM_LOAD( "igsa0103.u1",  0x800000, 0x400000, CRC(e5f19041) SHA1(c92a29bbbcb9a1f63364c665e3e0f9679add4389) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) // Samples
+	ROM_LOAD( "alien_u65.u65", 0x00000, 0x40000, CRC(ec469b57) SHA1(ba1668078987ad51f47bcd3e61c51a0cf2545350) ) // labeled as  ALIEN  U65, == hfh_g.u65
+
+	ROM_REGION( 0x40000, REGION_SOUND2, 0 ) // Samples
+	ROM_LOAD( "alien_u66.u66", 0x00000, 0x40000, CRC(7cfcd98e) SHA1(3b03123160adfd3404a9e0c4c68420930e80ae48) ) // labeled as  ALIEN  U66, == hfh_g.u66
+
+	ROM_REGION( 0x200000, REGION_SOUND3, 0 ) // Samples (Standard Yamaha YRW801 2MB samples ROM)
+	ROM_LOAD( "yrw801-m", 0x000000, 0x200000, CRC(2a9d8d43) SHA1(32760893ce06dbe3930627755ba065cc3d8ec6ca) ) // Not dumped from PCB, but is a standard samples rom
+ROM_END
+
 /***************************************************************************
 
     Game Drivers
 
 ***************************************************************************/
 
-GAME( 1994, lordgun, 0, lordgun, lordgun, lordgun, ROT0, "IGS", "Lord of Gun (USA)", GAME_IMPERFECT_GRAPHICS | GAME_UNEMULATED_PROTECTION )
-GAME( 1994, aliencha, 0, aliencha, aliencha, 0, ROT0, "IGS", "Alien Challenge (World)", 0 )
-GAME( 199?, hfh,     0, hfh,     lordgun, 0,       ROT0, "IGS", "Huang Fei Hong",    GAME_IMPERFECT_GRAPHICS | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1994, lordgun,   0,        lordgun,  lordgun,  lordgun, ROT0, "IGS", "Lord of Gun (World)",     GAME_IMPERFECT_GRAPHICS ) // Excludes USA, Canada, Mexico, Japan & Taiwan
+GAME( 1994, lordgunu,  lordgun,  lordgun,  lordgun,  lordgun, ROT0, "IGS", "Lord of Gun (USA)",       GAME_IMPERFECT_GRAPHICS ) // USA, Canada & Mexico
+GAME( 1994, aliencha,  0,        aliencha, aliencha, 0,       ROT0, "IGS", "Alien Challenge (World)", 0 )
+GAME( 1994, alienchac, aliencha, aliencha, aliencha, 0,       ROT0, "IGS", "Alien Challenge (China)", 0 )

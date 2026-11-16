@@ -3842,6 +3842,16 @@
 ;at 12FD.
 ;:alienaru:20800000:12FD:00000020:FFFFFFFF:One Piece Construction PL1
 
+; [ Alien Challenge (China) ]
+:alienchac:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:alienchac:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+
 ; [ Alien Invasion Part II ]
 :alieninvp2:00000000:20EB:00000099:FFFFFFFF:Infinite Credits
 :alieninvp2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
@@ -57187,16 +57197,6 @@
 :hexpool:00000000:1E88:00000000:FFFFFFFF:Infinite Time
 :hexpool:00000000:1E0A:00000006:FFFFFFFF:Infinite Lives PL1
 :hexpool:00000000:1E0B:00000006:FFFFFFFF:Infinite Lives PL2
-
-; [ Huang Fei Hong ]
-:hfh:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:hfh:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Taisen Hot Gimmick Kairakuten (Japan) ]
 :hgkairak:60000000:00000000:00000000:00000000:[ The winning hand cheat must be activated when  ]
@@ -203216,6 +203216,7 @@
 ; { Reason 01 } ; ainferno  [ Air Inferno (US) ]
 ; { Reason 01 } ; airco22b  [ Air Combat 22 (Rev. ACS1 Ver.B) ]
 ; { Reason 01 } ; airraid   [ Air Raid (encrypted) ]
+; { Reason 01 } ; alienchac [ Alien Challenge (China) ]
 ; { Reason 01 } ; alpinerc  [ Alpine Racer (Rev. AR2 Ver.C) ]
 ; { Reason 01 } ; alpinerd  [ Alpine Racer (Rev. AR2 Ver.D) ]
 ; { Reason 01 } ; alpinesa  [ Alpine Surfer (Rev. AF2 Ver.A) ]
@@ -203364,7 +203365,6 @@
 ; { Reason 01 } ; harem     [ Harem ]
 ; { Reason 01 } ; harley    [ Harley-Davidson and L.A. Riders ]
 ; { Reason 01 } ; heatof11  [ Heat of Eleven '98 (ver EAA) ]
-; { Reason 01 } ; hfh       [ Huang Fei Hong ]
 ; { Reason 01 } ; hidnctch  [ Hidden Catch (World) / Tul Lin Gu Lim Chat Ki '98 (Korea) (pcb ver 3.03) ]
 ; { Reason 01 } ; hotd      [ House of the Dead ]
 ; { Reason 01 } ; hyprdriv  [ Hyperdrive ]
