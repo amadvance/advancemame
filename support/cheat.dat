@@ -16021,11 +16021,11 @@
 :buckyua:00000000:080ACC:00000005:FFFFFFFF:Infinite Bombs PL4
 :buckyua:00000000:080AE7:00000001:FFFFFFFF:Invincibility PL4
 
-; [ Buggy Boy (Single Monitor) ]
-:buggyb1:00100000:00549:0000FFFF:FFFFFFFF:Infinite Time
-
 ; [ Buggy Boy ]
 :buggyboy:00100000:00549:0000FFFF:FFFFFFFF:Infinite Time
+
+; [ Buggy Boy Junior/Speed Buggy (upright) ]
+:buggyboyjr:00100000:00549:0000FFFF:FFFFFFFF:Infinite Time
 
 ; [ Buggy Challenge ]
 :buggychl:00000000:8005:00000009:FFFFFFFF:Infinite Credits
@@ -204465,7 +204465,7 @@
 ;buccanra~=buccanrs
 ;buckrog=buckrogn~zoom909
 ;bucky=buckyua
-;buggyb1=buggyboy
+;buggyboy=buggyboyjr
 ;buggychl=buggycht
 ;bullfgt=thetogyu
 ;bullfgtr=bullfgts
