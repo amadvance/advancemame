@@ -3173,11 +3173,12 @@ V-V                           TP-027
 
 	/* Konami GV */
 	DRIVER( konamigv )
-	DRIVER( kdeadeye )	/* GV054, UA01 */
-	DRIVER( pbball96 )	/* GV017, Japan 1.03 */
+	DRIVER( powyak96 )	/* GV017, Japan 1.03 */
 	DRIVER( hyperath )	/* GV021, Japan 1.00 */
+	DRIVER( lacrazyc )	/* GV027, Asia 1.10 */
 	DRIVER( susume )	/* GV027, Japan 1.20 */
 	DRIVER( btchamp )	/* GV053, UAA01 */
+	DRIVER( kdeadeye )	/* GV054, UAA01 */
 	DRIVER( weddingr )	/* GX624, JAA */
 	DRIVER( nagano98 )	/* GX720, EAA */
 	DRIVER( simpbowl )	/* GQ829, UAA */
