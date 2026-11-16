@@ -12,6 +12,34 @@
     },
     {
       "shortnames": [
+        "abyssal"
+      ],
+      "title": "Abyssal Infants",
+      "year": 2021,
+      "developer": "Kako Eimon",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Abyssal Infants is a horizontally scrolling shooter by Kako Eimon, also developed for the Mega Drive and PlayStation. Guide a small creature through an organic underworld, firing at enemies while avoiding their projectiles. Slow movement helps with precise dodging, while a dash provides a faster way through danger; a second player can join the action.",
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://kakoeimon.itch.io/abyssal-infants"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://kakoeimon.itch.io/abyssal-infants"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "akatana"
       ],
       "title": "Akai Katana",
@@ -780,6 +808,35 @@
     },
     {
       "shortnames": [
+        "neo2048"
+      ],
+      "title": "Neo 2048",
+      "year": 2021,
+      "developer": "Nicole Branagan",
+      "category": "homebrew",
+      "genre": "Puzzle",
+      "platform": "Neo Geo MVS",
+      "players": 1,
+      "release_status": "released",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Neo 2048 brings the number-merging puzzle 2048 to the Neo Geo. Slide the tiles across a four-by-four grid to combine matching values into larger powers of two, aiming to create a 2048 tile before the board fills. Nicole Branagan created this version as a one-week programming challenge, with a score counter and simple tile animations.",
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://nicole.express/2021/high-speed-coding-neo-geo.html"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://nicole.express/2021/high-speed-coding-neo-geo.html"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "neopang"
       ],
       "title": "Neo Pang",
@@ -1234,6 +1291,36 @@
     },
     {
       "shortnames": [
+        "violentv"
+      ],
+      "title": "Violent Vengeance: The Universe Hero",
+      "year": 2026,
+      "developer": "Balek Corp",
+      "category": "port",
+      "genre": "Fighter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "version": "beta 3.28",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Violent Vengeance: The Universe Hero adapts Accend's 1995 MS-DOS fighting game to Neo Geo with a new engine and revised combat. Choose from ten fighters, each with a distinct stage and special moves, and face opponents in one-on-one bouts, including two non-playable bosses. This beta 3.28 release retains the project's humorous presentation while expanding its arcade fighting system.",
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/violentv"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/violentv"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "vs10yard",
         "vs10yardj"
       ],
@@ -1263,11 +1350,55 @@
     },
     {
       "shortnames": [
+        "wrldracr"
+      ],
+      "title": "World Racer",
+      "year": 2025,
+      "developer": "Blastar",
+      "category": "homebrew",
+      "genre": "Driving",
+      "platform": "Neo Geo MVS",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "World Racer is a top-down racing game by Blastar. Compete against computer-controlled cars on a scrolling circuit, steering through bends and accelerating away from the starting grid. A course map shows the positions of the player and the opposing racers.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "xeno"
       ],
       "title": "Xeno Crisis",
       "category": "homebrew",
       "description": "Xeno Crisis is a one- or two-player top-down arena run-and-gun shooter developed and published by Bitmap Bureau for the Neo Geo MVS in 2019. Players control battle-hardened marines clearing procedurally arranged alien-infested outpost rooms using twin-stick style eight-way firing, dodge rolls, grenades, and temporary heavy weapons."
+    },
+    {
+      "shortnames": [
+        "yoyoshkn"
+      ],
+      "title": "Yo-Yo Shuriken",
+      "year": 2023,
+      "developer": "Dr. Ludos",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Yo-Yo Shuriken is a single-screen shooter in which one or two ninjas defend a dojo against robots. Throw a single shuriken and recall it to strike enemies from behind, or charge the weapon to cut through several opponents at once. Seven stages combine waves of enemies with boss encounters, and two players can tackle them together.",
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://drludos.itch.io/yo-yo-shuriken-neo-geo"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://drludos.itch.io/yo-yo-shuriken-neo-geo"
+        }
+      ],
+      "confidence": "verified"
     }
   ]
 }

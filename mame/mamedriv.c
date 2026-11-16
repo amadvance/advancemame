@@ -5930,6 +5930,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( timesup )
 	DRIVER( cnbe2018 )
 	DRIVER( caravan )
+	DRIVER( wrldracr )
+	DRIVER( yoyoshkn )
+	DRIVER( abyssal )
+	DRIVER( neo2048 )
+	DRIVER( violentv )
 
 	/* The BreezaSoft games don't have proper ID codes */
 	DRIVER( jockeygp )
