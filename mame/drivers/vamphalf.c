@@ -9,16 +9,12 @@
 
  Games Supported:
 
-    Vamp 1/2                 (c) 1999 Danbi & F2 System  (Korea version)
-    Mission Craft            (c) 2000 Sun                (version 2.4)
-    Minigame Cool Collection (c) 1999 Semicom
+    Vamf x1/2                (c) 1999 Danbi / F2 System  (Europe and Korea versions)
+    Mission Craft            (c) 2000 Sun                (version 2.7 and 2.4)
+    Minigame Cool Collection (c) 1999 SemiCom            (World and Italy versions)
     Super Lup Lup Puzzle     (c) 1999 Omega System       (version 4.0)
-    Lup Lup Puzzle           (c) 1999 Omega System       (version 3.0 and 2.9)
-    Puzzle Bang Bang         (c) 1999 Omega System       (version 2.8)
-
- Games Needed:
-
-    Vamp 1/2 (World version)
+    Lup Lup Puzzle           (c) 1999 Omega System       (version 3.0, 2.9 and 1.05)
+    Puzzle Bang Bang         (c) 1999 Omega System       (version 2.9 and 2.8)
 
 *********************************************************************/
 
@@ -272,28 +268,6 @@ static const gfx_decode gfxdecodeinfo[] =
 };
 
 
-UINT8 suplup_default_nvram[128] = {
-	0xE8, 0xFE, 0xFF, 0xFF, 0x10, 0x80, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x96, 0x2D, 0xB4, 0x80, 0x00,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA
-};
-
-UINT8 misncrft_default_nvram[128] = {
-	0x67, 0xBE, 0x00, 0x01, 0x80, 0xFE, 0x04, 0x10, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA
-};
-
 void nvram_handler_93C46_vamphalf(mame_file *file,int read_or_write)
 {
 	if (read_or_write)
@@ -308,8 +282,6 @@ void nvram_handler_93C46_vamphalf(mame_file *file,int read_or_write)
 		else
 		{
 			if (memory_region(REGION_USER3)) EEPROM_set_data(memory_region(REGION_USER3), 128);
-			if (!strcmp(Machine->gamedrv->name,"suplup")) EEPROM_set_data(suplup_default_nvram,128);
-			if (!strcmp(Machine->gamedrv->name,"misncrft")) EEPROM_set_data(misncrft_default_nvram,128);
 		}
 	}
 }
@@ -443,7 +415,35 @@ ROML* / U*:    Graphics, device is MX29F1610ML (surface mounted SOP44 MASK ROM)
 ROM_START( vamphalf )
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
 	/* 0 - 0x80000 empty */
-	ROM_LOAD( "prom1", 0x80000, 0x80000, CRC(f05e8e96) SHA1(c860e65c811cbda2dc70300437430fb4239d3e2d) )
+	ROM_LOAD( "prg.rom1", 0x80000, 0x80000, CRC(9b1fc6c5) SHA1(acf10a50d2119ac893b6cbd494911982a9352350) ) /* at 0x16554: Europe Version 1.1.0908 */
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
+	ROM_LOAD32_WORD( "eur.roml00", 0x000000, 0x200000, CRC(bdee9a46) SHA1(7e240b07377201afbe0cd0911ccee4ad52a74079) )
+	ROM_LOAD32_WORD( "eur.romu00", 0x000002, 0x200000, CRC(fa79e8ea) SHA1(feaba99f0a863bc5d27ad91d206168684976b4c2) )
+	ROM_LOAD32_WORD( "eur.roml01", 0x400000, 0x200000, CRC(a7995b06) SHA1(8b789b6a00bc177c3329ee4a31722fc65376b975) )
+	ROM_LOAD32_WORD( "eur.romu01", 0x400002, 0x200000, CRC(e269f5fe) SHA1(70f1308f11e147dd20f8bd45b91aefc9fd653da6) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
+	ROM_LOAD( "snd.vrom1", 0x00000, 0x40000, CRC(ee9e371e) SHA1(3ead5333121a77d76e4e40a0e0bf0dbc75f261eb) )
+ROM_END
+
+ROM_START( vamphalfr1 )
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	/* 0 - 0x80000 empty */
+	ROM_LOAD( "ws1-01201.rom1", 0x80000, 0x80000, CRC(afa75c19) SHA1(5dac104d1b3c026b6fce4d1f9126c048ebb557ef) ) /* at 0x162B8: Europe Version 1.0.0903 */
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
+	ROM_LOAD32_WORD( "elc.roml01", 0x000000, 0x400000, CRC(19df4056) SHA1(8b05769d8e245f8b25bf92013b98c9d7e5ab4548) ) /* only 2 ROMs, though twice as big as other sets */
+	ROM_LOAD32_WORD( "evi.romu01", 0x000002, 0x400000, CRC(f9803923) SHA1(adc1d4fa2c6283bc24829f924b58fbd9d1bacdd2) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
+	ROM_LOAD( "ws1-01202.vrom1", 0x00000, 0x40000, CRC(ee9e371e) SHA1(3ead5333121a77d76e4e40a0e0bf0dbc75f261eb) ) /* same data as other sets */
+ROM_END
+
+ROM_START( vamphalfk )
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	/* 0 - 0x80000 empty */
+	ROM_LOAD( "prom1", 0x80000, 0x80000, CRC(f05e8e96) SHA1(c860e65c811cbda2dc70300437430fb4239d3e2d) ) /* at 0x1653C: Korean Version 1.1.0908 */
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
 	ROM_LOAD32_WORD( "roml00", 0x000000, 0x200000, CRC(cc075484) SHA1(6496d94740457cbfdac3d918dce2e52957341616) )
@@ -452,7 +452,7 @@ ROM_START( vamphalf )
 	ROM_LOAD32_WORD( "romu01", 0x400002, 0x200000, CRC(d5be3363) SHA1(dbdd0586909064e015f190087f338f37bbf205d2) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
-	ROM_LOAD( "vrom1", 0x00000, 0x40000, CRC(ee9e371e) SHA1(3ead5333121a77d76e4e40a0e0bf0dbc75f261eb) )
+	ROM_LOAD( "snd.vrom1", 0x00000, 0x40000, CRC(ee9e371e) SHA1(3ead5333121a77d76e4e40a0e0bf0dbc75f261eb) )
 ROM_END
 
 /*
@@ -501,7 +501,31 @@ Notes:
 
 */
 
-ROM_START( misncrft )
+ROM_START( misncrft ) /* Version 2.7 */
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	/* 0 - 0x80000 empty */
+	ROM_LOAD( "prg-rom2.bin", 0x80000, 0x80000, CRC(04d22da6) SHA1(1c5be430000a31f21204fb756fadf2523a546b8b) )
+
+	ROM_REGION( 0x400000, REGION_CPU2, 0 )	/* i8052 code */
+	ROM_LOAD( "snd-rom2.us1", 0x00000, 0x20000, CRC(8821e5b9) SHA1(4b8df97bc61b48aa16ed411614fcd7ed939cac33) )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD32_WORD( "roml00", 0x000000, 0x200000, CRC(748c5ae5) SHA1(28005f655920e18c82eccf05c0c449dac16ee36e) )
+	ROM_LOAD32_WORD( "romh00", 0x000002, 0x200000, CRC(f34ae697) SHA1(2282e3ef2d100f3eea0167b25b66b35a64ddb0f8) )
+	ROM_LOAD32_WORD( "roml01", 0x400000, 0x200000, CRC(e37ece7b) SHA1(744361bb73905bc0184e6938be640d3eda4b758d) )
+	ROM_LOAD32_WORD( "romh01", 0x400002, 0x200000, CRC(71fe4bc3) SHA1(08110b02707e835bf428d343d5112b153441e255) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "snd-rom1.u15", 0x00000, 0x80000, CRC(fb381da9) SHA1(2b1a5447ed856ab92e44d000f27a04d981e3ac52) )
+
+	ROM_REGION( 0x80000, REGION_SOUND2, 0 )
+	ROM_LOAD( "qs1001a.u17", 0x00000, 0x80000, CRC(d13c6407) SHA1(57b14f97c7d4f9b5d9745d3571a0b7115fbe3176) )
+
+	ROM_REGION( 0x80, REGION_USER3, 0 ) /* Default EEPROM */
+	ROM_LOAD( "93c46-eeprom-misncrft", 0x0000, 0x0080, CRC(83c813eb) SHA1(fe09ea1b4ad959c11fd904e55f7072dc12235491) )
+ROM_END
+
+ROM_START( misncrfta ) /* Version 2.4 */
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
 	/* 0 - 0x80000 empty */
 	ROM_LOAD( "prg-rom2.bin", 0x80000, 0x80000, CRC(059ae8c1) SHA1(2c72fcf560166cb17cd8ad665beae302832d551c) )
@@ -520,6 +544,9 @@ ROM_START( misncrft )
 
 	ROM_REGION( 0x80000, REGION_SOUND2, 0 )
 	ROM_LOAD( "qs1001a.u17", 0x00000, 0x80000, CRC(d13c6407) SHA1(57b14f97c7d4f9b5d9745d3571a0b7115fbe3176) )
+
+	ROM_REGION( 0x80, REGION_USER3, 0 ) /* Default EEPROM */
+	ROM_LOAD( "93c46-eeprom-misncrfta", 0x0000, 0x0080, CRC(9ad27077) SHA1(7f0e98eff9cf6e1b60c19fc1016b888e50b087e0) )
 ROM_END
 
 /*
@@ -558,8 +585,8 @@ F-E1-16-008
 
 ROM_START( coolmini )
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
-	ROM_LOAD( "cm-rom1.040", 0x00000, 0x80000, CRC(9688fa98) SHA1(d5ebeb1407980072f689c3b3a5161263c7082e9a) )
-	ROM_LOAD( "cm-rom2.040", 0x80000, 0x80000, CRC(9d588fef) SHA1(7b6b0ba074c7fa0aecda2b55f411557b015522b6) )
+	ROM_LOAD( "cm-rom1", 0x00000, 0x80000, CRC(9688fa98) SHA1(d5ebeb1407980072f689c3b3a5161263c7082e9a) )
+	ROM_LOAD( "cm-rom2", 0x80000, 0x80000, CRC(9d588fef) SHA1(7b6b0ba074c7fa0aecda2b55f411557b015522b6) )
 
 	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )  /* 16x16x8 Sprites */
 	ROM_LOAD32_WORD( "roml00", 0x000000, 0x200000, CRC(4b141f31) SHA1(cf4885789b0df67d00f9f3659c445248c4e72446) )
@@ -572,7 +599,26 @@ ROM_START( coolmini )
 	ROM_LOAD32_WORD( "romu03", 0xc00002, 0x200000, CRC(273d5654) SHA1(0ae3d1c4c4862a8642dbebd7c955b29df29c4938) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
-	ROM_LOAD( "cm-vrom1.020", 0x00000, 0x40000, CRC(fcc28081) SHA1(44031df0ee28ca49df12bcb73c83299fac205e21) )
+	ROM_LOAD( "cm-vrom1", 0x00000, 0x40000, CRC(fcc28081) SHA1(44031df0ee28ca49df12bcb73c83299fac205e21) )
+ROM_END
+
+ROM_START( coolminii )
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	ROM_LOAD( "cm-rom1.040", 0x00000, 0x80000, CRC(aa94bb86) SHA1(f1d75bf54b75f234cc872779c5b1ff6679778841) )
+	ROM_LOAD( "cm-rom2.040", 0x80000, 0x80000, CRC(be7d02c8) SHA1(4897f3c890dd66f94d7a29f7a73c59857e4af218) )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )  /* 16x16x8 Sprites */
+	ROM_LOAD32_WORD( "roml00", 0x000000, 0x200000, CRC(4b141f31) SHA1(cf4885789b0df67d00f9f3659c445248c4e72446) )
+	ROM_LOAD32_WORD( "romu00", 0x000002, 0x200000, CRC(9b2fb12a) SHA1(8dce367c4c2cab6e84f586bd8dfea3ea0b6d7225) )
+	ROM_LOAD32_WORD( "roml01", 0x400000, 0x200000, CRC(1e3a04bb) SHA1(9eb84b6a0172a8868f440065c30b4519e0c3fe33) )
+	ROM_LOAD32_WORD( "romu01", 0x400002, 0x200000, CRC(06dd1a6c) SHA1(8c707d388848bc5826fbfc48c3035fdaf5018515) )
+	ROM_LOAD32_WORD( "roml02", 0x800000, 0x200000, CRC(1e8c12cb) SHA1(f57489e81eb1e476939148cfc8d03f3df03b2a84) )
+	ROM_LOAD32_WORD( "romu02", 0x800002, 0x200000, CRC(4551d4fc) SHA1(4ec102120ab99e324d9574bfce93837d8334da06) )
+	ROM_LOAD32_WORD( "roml03.l03", 0xc00000, 0x200000, CRC(30a7fe2f) SHA1(f2c56728fcbe656bf22239763884518b01b3697c) ) /* only these two changed for the Italian version */
+	ROM_LOAD32_WORD( "romu03.u03", 0xc00002, 0x200000, CRC(eb7c943d) SHA1(2a3207dea482a71d7cce017c429a2915ae99fdb1) ) /* only these two changed for the Italian version */
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
+	ROM_LOAD( "cm-vrom1", 0x00000, 0x40000, CRC(fcc28081) SHA1(44031df0ee28ca49df12bcb73c83299fac205e21) )
 ROM_END
 
 /*
@@ -626,15 +672,17 @@ ROM_START( luplup ) /* version 3.0 / 990128 */
 	ROM_LOAD( "luplup-rom2.v30", 0x80000, 0x80000, CRC(99840155) SHA1(e208f8731c06b634e84fb73e04f6cdbb8b504b94) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
-	ROM_LOAD32_WORD( "luplup-roml00", 0x000000, 0x200000, CRC(8e2c4453) SHA1(fbf7d72263beda2ef90bccf0369d6e93e76d45b2) )
-	ROM_LOAD32_WORD( "luplup-romu00", 0x000002, 0x200000, CRC(b57f4ca5) SHA1(b968c44a0ceb3274e066fa1d057fb6b017bb3fd3) )
-	ROM_LOAD32_WORD( "luplup-roml01", 0x400000, 0x200000, CRC(40e85f94) SHA1(531e67eb4eedf47b0dded52ba2f4942b12cbbe2f) )
-	ROM_LOAD32_WORD( "luplup-romu01", 0x400002, 0x200000, CRC(f2645b78) SHA1(b54c3047346c0f40dba0ba23b0d607cc53384edb) )
+	ROM_LOAD32_WORD( "luplup-roml00",   0x000000, 0x200000, CRC(08b2aa75) SHA1(7577b3ab79c54980307a83186dd1500f044c1bc8) )
+	ROM_LOAD32_WORD( "luplup-romu00",   0x000002, 0x200000, CRC(b57f4ca5) SHA1(b968c44a0ceb3274e066fa1d057fb6b017bb3fd3) )
+	ROM_LOAD32_WORD( "luplup30-roml01", 0x400000, 0x200000, CRC(40e85f94) SHA1(531e67eb4eedf47b0dded52ba2f4942b12cbbe2f) ) /* This one changed between v2.9 & v3.0 */
+	ROM_LOAD32_WORD( "luplup30-romu01", 0x400002, 0x200000, CRC(f2645b78) SHA1(b54c3047346c0f40dba0ba23b0d607cc53384edb) ) /* This one changed between v2.9 & v3.0 */
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
-ROM_END
 
+	ROM_REGION( 0x0400, REGION_PLDS, 0 )
+	ROM_LOAD( "gal22v10b.gal1", 0x0000, 0x02e5, NO_DUMP ) /* GAL is read protected */
+ROM_END
 
 ROM_START( luplup29 ) /* version 2.9 / 990108 */
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
@@ -642,31 +690,62 @@ ROM_START( luplup29 ) /* version 2.9 / 990108 */
 	ROM_LOAD( "luplup-rom2.v29", 0x80000, 0x80000, CRC(50dac70f) SHA1(0e313114a988cb633a89508fda17eb09023827a2) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
-	ROM_LOAD32_WORD( "luplup29-roml00", 0x000000, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "luplup29-romu00", 0x000002, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "luplup29-roml01", 0x400000, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "luplup29-romu01", 0x400002, 0x200000, NO_DUMP )
+	ROM_LOAD32_WORD( "luplup-roml00", 0x000000, 0x200000, CRC(08b2aa75) SHA1(7577b3ab79c54980307a83186dd1500f044c1bc8) )
+	ROM_LOAD32_WORD( "luplup-romu00", 0x000002, 0x200000, CRC(b57f4ca5) SHA1(b968c44a0ceb3274e066fa1d057fb6b017bb3fd3) )
+	ROM_LOAD32_WORD( "luplup-roml01", 0x400000, 0x200000, CRC(41c7ca8c) SHA1(55704f9d54f31bbaa044cd9d10ac2d9cb5e8fb70) )
+	ROM_LOAD32_WORD( "luplup-romu01", 0x400002, 0x200000, CRC(16746158) SHA1(a5036a7aaa717fde89d62b7ff7a3fded8b7f5cda) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
 ROM_END
 
+ROM_START( luplup10 ) /* version 1.05 / 981214 */
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	ROM_LOAD( "p0_rom1.rom1", 0x00000, 0x80000, CRC(a2684e3c) SHA1(9178ab6e7695cfb5bcdac3f3b8f3ea2a86372018) )
+	ROM_LOAD( "p1_rom2.rom2", 0x80000, 0x80000, CRC(1043ce44) SHA1(13a23f35ff2335d837f682761f774a70e298e77a) )
 
-ROM_START( puzlbang ) /* version 2.8 / 990106 */
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
+	ROM_LOAD32_WORD( "roml00.roml00", 0x000000, 0x200000, CRC(e2eeb61e) SHA1(5261cf29cd7e10d86c0dd4bc640ad9c3db99cec3) )
+	ROM_LOAD32_WORD( "romu00.romu00", 0x000002, 0x200000, CRC(9ee855b9) SHA1(a51b268a640b667d88a8ceab562607a811602fff) )
+	ROM_LOAD32_WORD( "roml01.roml01", 0x400000, 0x200000, CRC(7182864c) SHA1(48789b20d9b8f41d7c9f5690f4f44bc6f15b8cfe) )
+	ROM_LOAD32_WORD( "romu01.romu01", 0x400002, 0x200000, CRC(44f76640) SHA1(6a49ed4d5584ecd0496b9ce19aefd5f4e0126da7) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
+	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
+
+	ROM_REGION( 0x0400, REGION_PLDS, 0 )
+	ROM_LOAD( "gal22v10b.gal1",  0x0000, 0x02e5, CRC(776c5137) SHA1(f6ced83ef803549cc61c14c276f914f267e91ce6) ) /* GAL22V10B at GAL1 */
+ROM_END
+
+ROM_START( puzlbang ) /* version 2.9 / 990108 - Korea only, cannot select title, language and limited selection of background choices, EI: censored */
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
+	ROM_LOAD( "pbb-rom1.v29", 0x00000, 0x80000, CRC(eb829586) SHA1(1f8a6af7c51c715724f5a242f4e22f7f6fb1f0ee) )
+	ROM_LOAD( "pbb-rom2.v29", 0x80000, 0x80000, CRC(fb84c793) SHA1(a2d27caecdae457d12b48d88d19ce417f69507c6) )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
+	ROM_LOAD32_WORD( "luplup-roml00", 0x000000, 0x200000, CRC(08b2aa75) SHA1(7577b3ab79c54980307a83186dd1500f044c1bc8) )
+	ROM_LOAD32_WORD( "luplup-romu00", 0x000002, 0x200000, CRC(b57f4ca5) SHA1(b968c44a0ceb3274e066fa1d057fb6b017bb3fd3) )
+	ROM_LOAD32_WORD( "luplup-roml01", 0x400000, 0x200000, CRC(41c7ca8c) SHA1(55704f9d54f31bbaa044cd9d10ac2d9cb5e8fb70) )
+	ROM_LOAD32_WORD( "luplup-romu01", 0x400002, 0x200000, CRC(16746158) SHA1(a5036a7aaa717fde89d62b7ff7a3fded8b7f5cda) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
+	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
+ROM_END
+
+ROM_START( puzlbanga ) /* version 2.8 / 990106 - Korea only, cannot select title, language or change background selection, EI: censored */
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
 	ROM_LOAD( "pbb-rom1.v28", 0x00000, 0x80000, CRC(fd21c5ff) SHA1(bc6314bbb2495c140788025153c893d5fd00bdc1) )
 	ROM_LOAD( "pbb-rom2.v28", 0x80000, 0x80000, CRC(490ecaeb) SHA1(2b0f25e3d681ddf95b3c65754900c046b5b50b09) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 Sprites */
-	ROM_LOAD32_WORD( "pbbang28-roml00", 0x000000, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "pbbang28-romu00", 0x000002, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "pbbang28-roml01", 0x400000, 0x200000, NO_DUMP )
-	ROM_LOAD32_WORD( "pbbang28-romu01", 0x400002, 0x200000, NO_DUMP )
+	ROM_LOAD32_WORD( "luplup-roml00", 0x000000, 0x200000, CRC(08b2aa75) SHA1(7577b3ab79c54980307a83186dd1500f044c1bc8) )
+	ROM_LOAD32_WORD( "luplup-romu00", 0x000002, 0x200000, CRC(b57f4ca5) SHA1(b968c44a0ceb3274e066fa1d057fb6b017bb3fd3) )
+	ROM_LOAD32_WORD( "luplup-roml01", 0x400000, 0x200000, CRC(41c7ca8c) SHA1(55704f9d54f31bbaa044cd9d10ac2d9cb5e8fb70) )
+	ROM_LOAD32_WORD( "luplup-romu01", 0x400002, 0x200000, CRC(16746158) SHA1(a5036a7aaa717fde89d62b7ff7a3fded8b7f5cda) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
 ROM_END
-
 
 ROM_START( suplup )
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 ) /* Hyperstone CPU Code */
@@ -681,6 +760,9 @@ ROM_START( suplup )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Oki Samples */
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(34a56987) SHA1(4d8983648a7f0acf43ff4c9c8aa6c8640ee2bbfe) )
+
+	ROM_REGION( 0x80, REGION_USER3, 0 ) /* Default EEPROM */
+	ROM_LOAD( "eeprom-suplup.bin", 0x0000, 0x0080, CRC(e60c9883) SHA1(662dd8fb85eb97a8a4d53886198b269a5f6a6268) )
 ROM_END
 
 static int irq_active(void)
@@ -692,7 +774,35 @@ static int irq_active(void)
 		return 0;
 }
 
-static READ16_HANDLER( vamphalf_speedup_r )
+static UINT32 idle_address, idle_pc;
+
+static WRITE16_HANDLER( puzzle_flip_w )
+{
+	if (ACCESSING_MSB) flipscreen = (data & 0x8000) != 0;
+}
+
+static READ16_HANDLER( puzzle_idle_r )
+{
+	if (activecpu_get_pc() == idle_pc)
+	{
+		if (irq_active()) cpu_spinuntil_int();
+		else activecpu_eat_cycles(50);
+	}
+	return wram[idle_address / 2 + offset];
+}
+
+static void puzzle_init(UINT32 address, UINT32 pc, int flip)
+{
+	idle_address = address;
+	idle_pc = pc;
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, address, address + 1, 0, 0, puzzle_idle_r);
+	if (flip) memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xe0000000, 0xe0000003, 0, 0, puzzle_flip_w);
+	palshift = 0;
+	flip_bit = 1;
+	flipscreen = 0;
+}
+
+static READ16_HANDLER( vamphalfk_speedup_r )
 {
 	if(activecpu_get_pc() == 0x82de)
 	{
@@ -785,7 +895,19 @@ static READ16_HANDLER( puzlbang_speedup_r )
 
 DRIVER_INIT( vamphalf )
 {
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x0004a6d0, 0x0004a6d3, 0, 0, vamphalf_speedup_r );
+	puzzle_init(0x4a7b8, 0x82ec, 0);
+	flip_bit = 0x80;
+}
+
+DRIVER_INIT( vamphalfr1 )
+{
+	puzzle_init(0x4a468, 0x82ec, 0);
+	flip_bit = 0x80;
+}
+
+DRIVER_INIT( vamphalfk )
+{
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x0004a6d0, 0x0004a6d3, 0, 0, vamphalfk_speedup_r );
 
 	palshift = 0;
 	flip_bit = 0x80;
@@ -793,10 +915,21 @@ DRIVER_INIT( vamphalf )
 
 DRIVER_INIT( misncrft )
 {
+	puzzle_init(0x741e8, 0xff5a, 0);
+	flip_bit = 1;
+}
+
+DRIVER_INIT( misncrfta )
+{
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x00072eb4, 0x00072eb7, 0, 0, misncrft_speedup_r );
 
 	palshift = 0;
 	flip_bit = 1;
+}
+
+DRIVER_INIT( coolminii )
+{
+	puzzle_init(0xd30a8, 0x76024, 0);
 }
 
 DRIVER_INIT( coolmini )
@@ -823,6 +956,13 @@ DRIVER_INIT( luplup )
 	/* no flipscreen */
 }
 
+DRIVER_INIT( luplup10 )
+{
+	puzzle_init(0x113b78, 0xb1128, 0);
+	palshift = 8;
+	/* no flipscreen */
+}
+
 DRIVER_INIT( luplup29 )
 {
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x00113f08, 0x00113f0b, 0, 0, luplup29_speedup_r );
@@ -833,24 +973,36 @@ DRIVER_INIT( luplup29 )
 
 DRIVER_INIT( puzlbang )
 {
+	puzzle_init(0x113f14, 0xae6cc, 0);
+	palshift = 8;
+	/* no flipscreen */
+}
+
+DRIVER_INIT( puzlbanga )
+{
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x00113ecc, 0x00113ecf, 0, 0, puzlbang_speedup_r );
 
 	palshift = 8;
 	/* no flipscreen */
 }
 
-GAME( 1999, suplup,   0,      suplup,   common, suplup,   ROT0,  "Omega System",      "Super Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 4.0 / 990518)" , 0) // also has 'Puzzle Bang Bang' title but it can't be selected
-GAME( 1999, luplup,   suplup, suplup,   common, luplup,   ROT0,  "Omega System",      "Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 3.0 / 990128)", 0 )
-GAME( 1999, luplup29, suplup, suplup,   common, luplup29, ROT0,  "Omega System",      "Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 2.9 / 990108)", GAME_NOT_WORKING )
-GAME( 1999, puzlbang, suplup, suplup,   common, puzlbang, ROT0,  "Omega System",      "Puzzle Bang Bang (version 2.8 / 990106)", GAME_NOT_WORKING ) // Korean only
-GAME( 1999, vamphalf, 0,      vamphalf, common, vamphalf, ROT0,  "Danbi & F2 System", "Vamp 1/2 (Korea version)", 0 )
-GAME( 2000, misncrft, 0,      misncrft, common, misncrft, ROT90, "Sun",               "Mission Craft (version 2.4)", GAME_NO_SOUND )
-GAME( 1999, coolmini, 0,      coolmini, common, coolmini, ROT0,  "Semicom",           "Cool Minigame Collection", 0 )
+GAME( 1999, suplup,     0,        suplup,   common, suplup,     ROT0,  "Omega System",                "Super Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 4.0 / 990518)", 0 ) // also has 'Puzzle Bang Bang' title but it can't be selected
+GAME( 1999, luplup,     suplup,   suplup,   common, luplup,     ROT0,  "Omega System",                "Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 3.0 / 990128)", 0 )
+GAME( 1999, luplup29,   suplup,   suplup,   common, luplup29,   ROT0,  "Omega System",                "Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 2.9 / 990108)", 0 )
+GAME( 1999, luplup10,   suplup,   suplup,   common, luplup10,   ROT0,  "Omega System (Adko license)", "Lup Lup Puzzle / Zhuan Zhuan Puzzle (version 1.05 / 981214)", 0 )
+GAME( 1999, puzlbang,   suplup,   suplup,   common, puzlbang,   ROT0,  "Omega System",                "Puzzle Bang Bang (Korea, version 2.9 / 990108)", 0 ) // Korean only
+GAME( 1999, puzlbanga,  suplup,   suplup,   common, puzlbanga,  ROT0,  "Omega System",                "Puzzle Bang Bang (Korea, version 2.8 / 990106)", 0 ) // Korean only
+GAME( 1999, vamphalf,   0,        vamphalf, common, vamphalf,   ROT0,  "Danbi / F2 System",           "Vamf x1/2 (Europe, version 1.1.0908)", 0 )
+GAME( 1999, vamphalfr1, vamphalf, vamphalf, common, vamphalfr1, ROT0,  "Danbi / F2 System",           "Vamf x1/2 (Europe, version 1.0.0903)", 0 )
+GAME( 1999, vamphalfk,  vamphalf, vamphalf, common, vamphalfk,  ROT0,  "Danbi / F2 System",           "Vamp x1/2 (Korea, version 1.1.0908)", 0 )
+GAME( 2000, misncrft,   0,        misncrft, common, misncrft,   ROT90, "Sun",                         "Mission Craft (version 2.7)", GAME_NO_SOUND )
+GAME( 2000, misncrfta,  misncrft, misncrft, common, misncrfta,  ROT90, "Sun",                         "Mission Craft (version 2.4)", GAME_NO_SOUND )
+GAME( 1999, coolmini,   0,        coolmini, common, coolmini,   ROT0,  "SemiCom",                     "Cool Minigame Collection", 0 )
+GAME( 1999, coolminii,  coolmini, coolmini, common, coolminii,  ROT0,  "SemiCom",                     "Cool Minigame Collection (Italy)", 0 )
 
 
 static UINT32 *aoh_tiles, *aoh_wram, *aoh_palette;
 static int sample_bank_chip;
-static UINT32 idle_address, idle_pc;
 
 static void select_sample_bank(int bank)
 {
@@ -870,11 +1022,6 @@ static MACHINE_RESET( banked_sound )
 static WRITE16_HANDLER( dtfamily_bank_w )
 {
 	if (ACCESSING_LSB) select_sample_bank(data);
-}
-
-static WRITE16_HANDLER( puzzle_flip_w )
-{
-	if (ACCESSING_MSB) flipscreen = (data & 0x8000) != 0;
 }
 
 static ADDRESS_MAP_START( jmpbreak_io, ADDRESS_SPACE_IO, 16 )
@@ -1056,30 +1203,11 @@ static MACHINE_DRIVER_START( aoh )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
-static READ16_HANDLER( puzzle_idle_r )
-{
-	if (activecpu_get_pc() == idle_pc)
-	{
-		if (irq_active()) cpu_spinuntil_int();
-		else activecpu_eat_cycles(50);
-	}
-	return wram[idle_address / 2 + offset];
-}
-
-static void puzzle_init(UINT32 address, UINT32 pc, int flip)
-{
-	idle_address = address;
-	idle_pc = pc;
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, address, address + 1, 0, 0, puzzle_idle_r);
-	if (flip) memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xe0000000, 0xe0000003, 0, 0, puzzle_flip_w);
-	palshift = 0;
-	flip_bit = 1;
-	flipscreen = 0;
-}
-
 static DRIVER_INIT( jmpbreak ) { puzzle_init(0x906f4, 0x984a, 1); }
+static DRIVER_INIT( jmpbreaka ) { puzzle_init(0xe1dfc, 0x909ac, 1); }
 static DRIVER_INIT( poosho ) { puzzle_init(0xc8b58, 0xa8c78, 1); }
 static DRIVER_INIT( newxpang ) { puzzle_init(0x61218, 0x8b8e, 1); }
+static DRIVER_INIT( newxpanga ) { puzzle_init(0x82ad8, 0x86ec, 1); }
 static DRIVER_INIT( mrdig ) { puzzle_init(0xe0768, 0xae38, 1); }
 static DRIVER_INIT( toyland ) { puzzle_init(0x780d8, 0x130c2, 0); }
 static DRIVER_INIT( dtfamily )
@@ -1208,6 +1336,24 @@ ROM_START( jmpbreak )
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(1b6e3671) SHA1(bd601460387b56c989785ae03d5bb3c6cdb30a50) )
 ROM_END
 
+ROM_START( jmpbreaka ) /* PCB has a New Impeuropex sticker, so sold in the Italian market. There also an hand-written IMP 28.04.99 */
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_LOAD( "2.rom1", 0x00000, 0x80000, CRC(553af133) SHA1(e2ae803e8f58426417093cc4b3784dee858f41ef) )
+	ROM_LOAD( "3.rom2", 0x80000, 0x80000, CRC(bd0a5eed) SHA1(9aaf83e4dcd4d02fb9b1c3156264c013a6873972) )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* these were not dumped for this set */
+	ROM_LOAD32_WORD( "roml00.bin", 0x000000, 0x200000, BAD_DUMP CRC(4b99190a) SHA1(30af068f7d9f9f349db5696c19ab53ac33304271) )
+	ROM_LOAD32_WORD( "romu00.bin", 0x000002, 0x200000, BAD_DUMP CRC(e93762f8) SHA1(cc589b59e3ab7aa7092e96a1ff8a9de8a499b257) )
+	ROM_LOAD32_WORD( "roml01.bin", 0x400000, 0x200000, BAD_DUMP CRC(6796a104) SHA1(3f7352cd37f78c1b01f7df45344ee7800db110f9) )
+	ROM_LOAD32_WORD( "romu01.bin", 0x400002, 0x200000, BAD_DUMP CRC(0cc907c8) SHA1(86029eca0870f3b7dd4f1ee8093ccb09077cc00b) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "1.vrom1", 0x00000, 0x40000, CRC(1b6e3671) SHA1(bd601460387b56c989785ae03d5bb3c6cdb30a50) )
+
+	ROM_REGION( 0x2dd, REGION_PLDS, 0 )
+	ROM_LOAD( "palce22v10h.gal1", 0x000, 0x2dd, CRC(0ff86470) SHA1(0cc2bd2958c71d0bb58081a8f88327b09e92e2ea) )
+ROM_END
+
 ROM_START( mrdig )
 	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 )
 	ROM_LOAD( "rom1.bin", 0x00000, 0x80000, CRC(5b960320) SHA1(adf5499a39987041fc93e409bdb5fd07dacec4f9) )
@@ -1231,6 +1377,21 @@ ROM_START( newxpang )
 	ROM_LOAD32_WORD( "romu00.bin", 0x000002, 0x200000, CRC(0ac8f8e4) SHA1(af89b1bb422faa42f5a0980a999803150e7d9f39) )
 	ROM_LOAD32_WORD( "roml01.bin", 0x400000, 0x200000, CRC(66e6e05e) SHA1(032fa6155590bea879ce09ce8d08101c9eed8b7b) )
 	ROM_LOAD32_WORD( "romu01.bin", 0x400002, 0x200000, CRC(73907b33) SHA1(63320131f9c1c07ab537c98cf5f31a077fb70799) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(0f339d68) SHA1(9dc128aa35d37c84c2caee839f69bd0d090bae8f) )
+ROM_END
+
+ROM_START( newxpanga ) /* F-E1-16-002, too, but uses jmpbreak I/O map */
+	ROM_REGION16_BE( 0x100000, REGION_USER1, ROMREGION_ERASE00 )
+	/* ROM1 empty */
+	ROM_LOAD( "rom2.bin", 0x80000, 0x80000, CRC(325c2c4f) SHA1(8019032cb714d85f182bb15650f9dad4fe89d8f0) )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE ) /* 16x16x8 sprites, not dumped for this set, seem to work fine */
+	ROM_LOAD32_WORD( "roml00.bin", 0x000000, 0x200000, BAD_DUMP CRC(4f8253d3) SHA1(0a4d5db879da6412326bff3edc3007402883fb02) )
+	ROM_LOAD32_WORD( "romu00.bin", 0x000002, 0x200000, BAD_DUMP CRC(0ac8f8e4) SHA1(af89b1bb422faa42f5a0980a999803150e7d9f39) )
+	ROM_LOAD32_WORD( "roml01.bin", 0x400000, 0x200000, BAD_DUMP CRC(66e6e05e) SHA1(032fa6155590bea879ce09ce8d08101c9eed8b7b) )
+	ROM_LOAD32_WORD( "romu01.bin", 0x400002, 0x200000, BAD_DUMP CRC(73907b33) SHA1(63320131f9c1c07ab537c98cf5f31a077fb70799) )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
 	ROM_LOAD( "vrom1.bin", 0x00000, 0x40000, CRC(0f339d68) SHA1(9dc128aa35d37c84c2caee839f69bd0d090bae8f) )
@@ -1282,10 +1443,12 @@ GAME( 2001, aoh, 0, aoh, aoh, aoh, ROT0, "Unico", "Age Of Heroes - Silkroad 2 (v
 GAME( 2001, dtfamily, 0, dtfamily, common, dtfamily, ROT0, "SemiCom", "Diet Family", 0 )
 
 GAME( 1999, jmpbreak, 0, jmpbreak, common, jmpbreak, ROT0, "F2 System", "Jumping Break (set 1)", 0 )
+GAME( 1999, jmpbreaka, jmpbreak, jmpbreak, common, jmpbreaka, ROT0, "F2 System", "Jumping Break (set 2)", 0 )
 
 GAME( 2000, mrdig, 0, mrdig, common, mrdig, ROT0, "Sun", "Mr. Dig", 0 )
 
 GAME( 1999, newxpang, 0, newxpang, common, newxpang, ROT0, "F2 System", "New Cross Pang (set 1)", 0 )
+GAME( 1999, newxpanga, newxpang, jmpbreak, common, newxpanga, ROT0, "F2 System", "New Cross Pang (set 2)", 0 )
 
 GAME( 1999, poosho, 0, jmpbreak, common, poosho, ROT0, "F2 System", "Poosho Poosho", 0 )
 

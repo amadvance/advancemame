@@ -7843,20 +7843,28 @@ Other Sun games
 	DRIVER( ltcasino )	/* (c) 1982 Digital Controls Inc */
 	DRIVER( mv4in1 )	/* (c) 1983 Entertainment Enterprises */
 	DRIVER( ltcasin2 )	/* (c) 1984 Digital Controls Inc */
-	DRIVER( coolmini )	/* (c) 1999 Semicom */
+	DRIVER( coolmini )	/* (c) 1999 SemiCom */
+	DRIVER( coolminii )	/* (c) 1999 SemiCom */
 	DRIVER( aoh )
 	DRIVER( dtfamily )
 	DRIVER( jmpbreak )
+	DRIVER( jmpbreaka )
 	DRIVER( mrdig )
 	DRIVER( newxpang )
+	DRIVER( newxpanga )
 	DRIVER( poosho )
 	DRIVER( toyland )
 	DRIVER( luplup )	/* (c) 1999 Omega System */
 	DRIVER( luplup29 )	/* (c) 1999 Omega System */
+	DRIVER( luplup10 )	/* (c) 1999 Omega System (Adko license) */
 	DRIVER( puzlbang )	/* (c) 1999 Omega System */
+	DRIVER( puzlbanga )	/* (c) 1999 Omega System */
 	DRIVER( suplup )	/* (c) 1999 Omega System */
-	DRIVER( vamphalf )	/* (c) 1999 DanBi & F2 System */
+	DRIVER( vamphalf )	/* (c) 1999 Danbi / F2 System */
+	DRIVER( vamphalfr1 )	/* (c) 1999 Danbi / F2 System */
+	DRIVER( vamphalfk )	/* (c) 1999 Danbi / F2 System */
 	DRIVER( misncrft )	/* (c) 2000 Sun */
+	DRIVER( misncrfta )	/* (c) 2000 Sun */
 	DRIVER( candy )
 	DRIVER( hidctch3 )
 	DRIVER( hidnc2k )
