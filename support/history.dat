@@ -8701,7 +8701,7 @@ This game was the fifth in the series of Sega's System 32 games.
 $end
 
 
-$info=arabianm,arabiamj,arabiamu,
+$info=arabianm,arabianmj,arabianmu,
 $bio
 
 Arabian Magic (c) 07/1992 Taito.
@@ -10061,7 +10061,7 @@ MSX2
 $end
 
 
-$info=arkretrn,
+$info=arkretrn,arkretrnu,arkretrnj,
 $bio
 
 Arkanoid Returns (c) 02/1997 Taito.
@@ -30172,7 +30172,7 @@ Nokia N-Gage (2004, "Taito Memories")
 $end
 
 
-$info=bublbob2,
+$info=bublbob2,bublbob2o,
 $bio
 
 Bubble Bobble II (c) 10/1994 Taito.
@@ -30300,7 +30300,7 @@ Hardware Works : Katsumi Kaneoka, Hironobu Suzuki, Jun Sawaki
 $end
 
 
-$info=bubblem,bubblemj,
+$info=bubblem,bubblemu,bubblemj,
 $bio
 
 Bubble Memories - The Story of Bubble Bobble III (c) 02/1996 Taito.
@@ -30399,7 +30399,7 @@ Hardware design : Takashi Kinugasa, Katsumi Kaneoka, Tomio Takeda, Kazuhiko Band
 $end
 
 
-$info=bubsympe,bubsymph,bubsympu,
+$info=bubsymphe,bubsymphj,bubsymphu,
 $bio
 
 Bubble Symphony (c) 10/1994 Taito.
@@ -32005,7 +32005,7 @@ Aska : Haruka Itoh
 $end
 
 
-$info=pbobbl2u,
+$info=pbobble2u,
 $bio
 
 Bust-A-Move Again (c) 07/1995 Taito.
@@ -38751,7 +38751,7 @@ Remenber! If two clays are hit in a round, the points are doubled; if three clay
 $end
 
 
-$info=cleopatr,
+$info=cleopatr,cleopatro,
 $bio
 
 Cleopatra Fortune (c) 09/1996 Taito.
@@ -59822,7 +59822,7 @@ This game is known outside Japan as "Body Slam".
 $end
 
 
-$info=dungeonm,dungenmu,
+$info=dungeonm,dungeonmu,
 $bio
 
 Dungeon Magic (c) 02/1994 Taito.
@@ -77837,7 +77837,7 @@ Designed by : Toru Iwantani
 $end
 
 
-$info=gekirido,
+$info=gekiridn,gekiridnj,
 $bio
 
 Gekirindan (c) 09/1995 Taito.
@@ -90531,7 +90531,7 @@ Sony PlayStation 2 (2005, "Taito Memories Vol. 2")
 $end
 
 
-$info=hthero93,
+$info=hthero93,hthero93u,
 $bio
 
 Hattrick Hero '93 (c) 02/1993 Taito.
@@ -90731,7 +90731,7 @@ Stunt : Tomohisa Yamashita
 $end
 
 
-$info=hthero95,hthro95u,
+$info=hthero95,hthero95u,hthero95a,
 $bio
 
 Hattrick Hero '95 (c) 11/1994 Taito.
@@ -101811,7 +101811,7 @@ Nintendo Game Boy (19??, "Gensou Yanchamaru")
 $end
 
 
-$info=kaiserkn,kaiserkj,
+$info=kaiserkn,kaiserknj,
 $bio
 
 Kaiser Knuckle (c) 07/1994 Taito.
@@ -111860,7 +111860,7 @@ Engineer : Lee Jung HOON, Kim Han BYEOL, Hong Young PYO, Hong Eun AH
 $end
 
 
-$info=landmakr,landmkrp,
+$info=landmakr,landmakrj,landmakrp,
 $bio
 
 Land Maker (c) 06/1998 Taito.
@@ -115185,7 +115185,7 @@ Sega Saturn (1997, "Salamander Deluxe pack Plus")
 $end
 
 
-$info=lightbr,
+$info=lightbr,lightbrj,
 $bio
 
 Lightbringer (c) 02/1994 Taito.
@@ -163714,7 +163714,7 @@ Sony PlayStation (1995, "J-League Prime Goal EX")
 $end
 
 
-$info=prmtmfgt,prmtmfgo,
+$info=prmtmfgt,prmtmfgto,
 $bio
 
 Prime Time Fighter (c) 05/1993 Taito.
@@ -165324,7 +165324,7 @@ Project leader : Akira Sakuma
 $end
 
 
-$info=puchicar,puchicrj,
+$info=puchicar,puchicaru,puchicarj,
 $bio
 
 Puchi Carat - Gemstone Ohkoku no Sekai (c) 10/1997 Taito.
@@ -166845,7 +166845,7 @@ PC [MS Windows 95, CD-ROM] (1996)
 $end
 
 
-$info=pbobbl2n,pbobble2,pbobbl2j,
+$info=pbobbl2n,pbobble2,pbobble2o,pbobble2j,
 $bio
 
 Puzzle Bobble 2 (c) 07/1995 Taito.
@@ -167060,7 +167060,7 @@ SNK Neo-Geo MVS (1999)
 $end
 
 
-$info=pbobbl2x,
+$info=pbobble2x,
 $bio
 
 Puzzle Bobble 2X (c) 11/1995 Taito.
@@ -167159,7 +167159,7 @@ PC [Windows 95 Ver.1.0, CD-ROM] (1998)
 $end
 
 
-$info=pbobble3,pbobbl3u,pbobbl3j,
+$info=pbobble3,pbobble3u,pbobble3j,
 $bio
 
 Puzzle Bobble 3 (c) 09/1996 Taito.
@@ -167280,7 +167280,7 @@ Nintendo Game Boy (1998, "Bust A Move 3 DX")
 $end
 
 
-$info=pbobble4,pbobbl4u,pbobbl4j,
+$info=pbobble4,pbobble4u,pbobble4j,
 $bio
 
 Puzzle Bobble 4 (c) 12/1997 Taito.
@@ -175629,7 +175629,7 @@ Sony PlayStation 2 (2005, "Taito Memories Vol. 2")
 $end
 
 
-$info=rayforce,rayforcj,
+$info=rayforce,rayforcej,
 $bio
 
 Rayforce (c) 01/1994 Taito.
@@ -178601,7 +178601,7 @@ Music : Shinji Hosoe, Ayako Saso, Nobuyoshi Sano, Takayuki Aihara
 $end
 
 
-$info=ridingf,ridefgtu,ridefgtj,
+$info=ridingf,ridingfu,ridingfj,
 $bio
 
 Riding Fight (c) 1992 Taito.
@@ -179143,7 +179143,7 @@ Assists : B G, Batayon, Hideo, Tora, Hin-Hans, PONTA, Hiroaki Kondo
 $end
 
 
-$info=ringrage,ringragu,ringragj,
+$info=ringrage,ringrageu,ringragej,
 $bio
 
 Ring Rage (c) 08/1992 Taito.
@@ -201966,7 +201966,7 @@ F.A.Q. by Kevin Butler A.K.A. War Doc
 $end
 
 
-$info=spcinv95,spcnv95u,
+$info=spcinv95,spcinv95u,
 $bio
 
 Space Invaders '95 - The Attack of Lunar Loonies (c) 06/1995 Taito.
@@ -216963,7 +216963,7 @@ Buttons : 3
 $end
 
 
-$info=scfinals,
+$info=scfinals,scfinalso,scfinalsoc,
 $bio
 
 Super Cup Finals (c) 11/1993 Taito.

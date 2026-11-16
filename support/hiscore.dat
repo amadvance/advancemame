@@ -1896,7 +1896,7 @@ sabotnba:
 0:f6e00:6c:00:1e
 
 puchicar:
-puchicrj:
+puchicarj:
 0:401c7e:348:00:04
 
 ;marvel vs capcom (by bugfinder)
@@ -2721,7 +2721,7 @@ evilston:
 
 ;********taito_f3.c (puzzle bobble 2 (world)/bust a move again (us))
 pbobble2:
-pbobbl2u:
+pbobble2u:
 0:40a854:10c:00:00 
 0:40a8bf:1:05:05
 
@@ -4117,8 +4117,8 @@ sgemfa:
 
 ;(ring rage (world)) and clones (by GeoMan)
 ringrage:
-ringragj:
-ringragu:
+ringragej:
+ringrageu:
 0:40e660:30:00:4b
 0:40e690:280:53:00
 
@@ -4197,7 +4197,7 @@ trstarj:
 trstaro:
 trstaroj:
 prmtmfgt:
-prmtmfgo:
+prmtmfgto:
 0:413d10:2:00:00
 0:413d12:7fe:13:00
 
@@ -4564,8 +4564,8 @@ sadari:
 
 ;(riding fight (world)) and clones (by GeoMan)
 ridingf: 
-ridefgtu: 
-ridefgtj: 
+ridingfu: 
+ridingfj: 
 0:408060:80:00:3f
  
 ;(reikai doushi (japan)) 
@@ -5488,8 +5488,8 @@ robocpu0:
 0:ffb523:1:05:05
 
 ;Puzzle Bobble 4 clones
-pbobbl4j:
-pbobbl4u:
+pbobble4j:
+pbobble4u:
 0:40e85a:116:00:00
 0:40e8ba:1:41:41
 
@@ -5840,7 +5840,7 @@ athena:
 0:d7f5:3:00:00
 
 ;********taito_f3.c (puzzle bobble 2x (japan))
-pbobbl2x:
+pbobble2x:
 0:40db78:104:00:3e
 0:40dbd8:1:41:41
 
@@ -6238,7 +6238,8 @@ ponpoko:
 0:4c53:1:02:02
 
 ;********taito_f3.c (gekirindan (japan))
-gekirido:
+gekiridn:
+gekiridnj:
 0:408e72:7a:00:01
 0:408e4c:4:00:00
 
@@ -7084,8 +7085,8 @@ thndblst:
 
 ;********taito_f3.c (arabian magic)
 arabianm:
-arabiamj:
-arabiamu:
+arabianmj:
+arabianmu:
 0:410ef8:30:00:01
 
 ;********vsnes.c (duck hunt)
@@ -10051,8 +10052,8 @@ bubblemj:
 0:407135:3:27:13
 
 bublbob2:
-bubsymph:
-bubsympu:
+bubsymphj:
+bubsymphu:
 0:40ed6c:96:00:07
 
 gseeker:

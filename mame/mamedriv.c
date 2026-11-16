@@ -1938,88 +1938,102 @@ const game_driver * const drivers[] =
 
 	/* Taito F3 games */
 	DRIVER( ringrage )	/* D21 (c) 1992 Taito Corporation Japan (World) */
-	DRIVER( ringragj )	/* D21 (c) 1992 Taito Corporation (Japan) */
-	DRIVER( ringragu )	/* D21 (c) 1992 Taito America Corporation (US) */
+	DRIVER( ringragej )	/* D21 (c) 1992 Taito Corporation (Japan) */
+	DRIVER( ringrageu )	/* D21 (c) 1992 Taito America Corporation (US) */
 	DRIVER( arabianm )	/* D29 (c) 1992 Taito Corporation Japan (World) */
-	DRIVER( arabiamj )	/* D29 (c) 1992 Taito Corporation (Japan) */
-	DRIVER( arabiamu )	/* D29 (c) 1992 Taito America Corporation (US) */
+	DRIVER( arabianmj )	/* D29 (c) 1992 Taito Corporation (Japan) */
+	DRIVER( arabianmu )	/* D29 (c) 1992 Taito America Corporation (US) */
 	DRIVER( ridingf )	/* D34 (c) 1992 Taito Corporation Japan (World) */
-	DRIVER( ridefgtj )	/* D34 (c) 1992 Taito Corporation (Japan) */
-	DRIVER( ridefgtu )	/* D34 (c) 1992 Taito America Corporation (US) */
+	DRIVER( ridingfj )	/* D34 (c) 1992 Taito Corporation (Japan) */
+	DRIVER( ridingfu )	/* D34 (c) 1992 Taito America Corporation (US) */
 	DRIVER( gseeker )	/* D40 (c) 1992 Taito Corporation Japan (World) */
 	DRIVER( gseekerj )	/* D40 (c) 1992 Taito Corporation (Japan) */
 	DRIVER( gseekeru )	/* D40 (c) 1992 Taito America Corporation (US) */
-	DRIVER( hthero93 )	/* D49 (c) 1992 Taito Corporation (Japan) */
+	DRIVER( commandw )	/* prototype */
 	DRIVER( cupfinal )	/* D49 (c) 1993 Taito Corporation Japan (World) */
+	DRIVER( hthero93 )	/* D49 (c) 1993 Taito Corporation (Japan) */
+	DRIVER( hthero93u )	/* D49 (c) 1993 Taito America Corporation (US) */
 	DRIVER( trstar )	/* D53 (c) 1993 Taito Corporation Japan (World) */
 	DRIVER( trstarj )	/* D53 (c) 1993 Taito Corporation (Japan) */
-	DRIVER( prmtmfgt )	/* D53 (c) 1993 Taito Corporation (US) */
 	DRIVER( trstaro )	/* D53 (c) 1993 Taito Corporation (World) */
 	DRIVER( trstaroj )	/* D53 (c) 1993 Taito Corporation (Japan) */
-	DRIVER( prmtmfgo )	/* D53 (c) 1993 Taito Corporation (US) */
+	DRIVER( prmtmfgt )	/* D53 (c) 1993 Taito Corporation (US) */
+	DRIVER( prmtmfgto )	/* D53 (c) 1993 Taito Corporation (US) */
 	DRIVER( gunlock )	/* D66 (c) 1993 Taito Corporation Japan (World) */
-	DRIVER( rayforcj )	/* D66 (c) 1993 Taito Corporation (Japan) */
+	DRIVER( rayforcej )	/* D66 (c) 1993 Taito Corporation (Japan) */
 	DRIVER( rayforce )	/* D66 (c) 1993 Taito America Corporation (US) */
-	DRIVER( scfinals )	/* D68 (c) 1993 Taito Corporation Japan (World) */
+	DRIVER( scfinals )	/* D68 (c) 1993 Taito Corporation Japan (World, v2.2O, single PCB) */
+	DRIVER( scfinalso )	/* D68 (c) 1993 Taito Corporation Japan (World, v2.1O, single PCB) */
+	DRIVER( scfinalsoc )	/* D68 (c) 1993 Taito Corporation Japan (World, v2.1O, F3 cartridge) */
+	DRIVER( lightbr )	/* D69 (c) 1993 Taito Corporation Japan (World) */
+	DRIVER( lightbrj )	/* D69 (c) 1993 Taito Corporation (Japan) */
+	DRIVER( dungeonm )	/* D69 (c) 1993 Taito Corporation Japan (World) */
+	DRIVER( dungeonmu )	/* D69 (c) 1993 Taito America Corporation (US) */
 	DRIVER( intcup94 )	/* D78 (c) 1994 Taito */
 	DRIVER( hthero94 )	/* D78 (c) 1994 Taito */
-	DRIVER( dungeonm )	/* D69 (c) 1993 Taito Corporation Japan (World) */
-	DRIVER( lightbr )	/* D69 (c) 1993 Taito Corporation (Japan) */
-	DRIVER( dungenmu )	/* D69 (c) 1993 Taito America Corporation (US) */
 	DRIVER( kaiserkn )	/* D84 (c) 1994 Taito Corporation Japan (World) */
-	DRIVER( kaiserkj )	/* D84 (c) 1994 Taito Corporation (Japan) */
+	DRIVER( kaiserknj )	/* D84 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( gblchmp )	/* D84 (c) 1994 Taito America Corporation (US) */
 	DRIVER( dankuga )	/* D84? (c) 1994 Taito Corporation (Japan) */
 	DRIVER( dariusg )	/* D87 (c) 1994 Taito Corporation Japan (World) */
 	DRIVER( dariusgj )	/* D87 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( dariusgu )	/* D87 (c) 1994 Taito America Corporation (US) */
 	DRIVER( dariusgx )	/* D87 (c) 1994 Taito Corporation */
-	DRIVER( bublbob2 )	/* D90 (c) 1994 Taito Corporation Japan (World) */
+	DRIVER( bublbob2 )	/* D90 (c) 1994 Taito Corporation Japan (World, v2.6O) */
+	DRIVER( bublbob2o )	/* D90 (c) 1994 Taito Corporation Japan (World, v2.5O) */
 	DRIVER( bublbob2p )	/* D90 (c) 1993 Taito Corporation Japan (Prototype) */
-	DRIVER( bubsympe )	/* D90 (c) 1994 Taito Corporation Japan (Europe) */
-	DRIVER( bubsympu )	/* D90 (c) 1994 Taito America Corporation (US) */
-	DRIVER( bubsymph )	/* D90 (c) 1994 Taito Corporation (Japan) */
+	DRIVER( bubsymphe )	/* D90 (c) 1994 Taito Corporation Japan (Europe) */
+	DRIVER( bubsymphu )	/* D90 (c) 1994 Taito America Corporation (US) */
+	DRIVER( bubsymphj )	/* D90 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( spcinvdj )	/* D93 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( pwrgoal )	/* D94 (c) 1995 Taito Corporation Japan (World) */
 	DRIVER( hthero95 )	/* D94 (c) 1995 Taito Corporation (Japan) */
-	DRIVER( hthro95u )	/* D94 (c) 1995 Taito America Corporation (US) */
+	DRIVER( hthero95u )	/* D94 (c) 1995 Taito America Corporation (US) */
+	DRIVER( hthero95a )	/* D94 (c) 1995 Taito Corporation Japan (Asia) */
 	DRIVER( qtheater )	/* D95 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( elvactr )	/* E02 (c) 1994 Taito Corporation Japan (World) */
 	DRIVER( elvactrj )	/* E02 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( elvact2u )	/* E02 (c) 1994 Taito America Corporation (US) */
+	DRIVER( recalh )	/* prototype */
 	DRIVER( spcinv95 )	/* E06 (c) 1995 Taito Corporation Japan (World) */
-	DRIVER( spcnv95u )	/* E06 (c) 1995 Taito America Corporation (US) */
+	DRIVER( spcinv95u )	/* E06 (c) 1995 Taito America Corporation (US) */
 	DRIVER( akkanvdr )	/* E06 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( twinqix )	/* ??? (c) 1995 Taito America Corporation (US) */
 	DRIVER( quizhuhu )	/* E08 (c) 1995 Taito Corporation (Japan) */
-	DRIVER( pbobble2 )	/* E10 (c) 1995 Taito Corporation Japan (World) */
-	DRIVER( pbobbl2j )	/* E10 (c) 1995 Taito Corporation (Japan) */
-	DRIVER( pbobbl2u )	/* E10 (c) 1995 Taito America Corporation (US) */
-	DRIVER( pbobbl2x )	/* E10 (c) 1995 Taito Corporation (Japan) */
-	DRIVER( gekirido )	/* E11 (c) 1995 Taito Corporation (Japan) */
+	DRIVER( pbobble2 )	/* E10 (c) 1995 Taito Corporation Japan (World, v2.3O) */
+	DRIVER( pbobble2o )	/* E10 (c) 1995 Taito Corporation Japan (World, v2.2O) */
+	DRIVER( pbobble2j )	/* E10 (c) 1995 Taito Corporation (Japan) */
+	DRIVER( pbobble2u )	/* E10 (c) 1995 Taito America Corporation (US) */
+	DRIVER( pbobble2x )	/* E10 (c) 1995 Taito Corporation (Japan) */
+	DRIVER( gekiridn )	/* E11 (c) 1995 Taito Corporation (World) */
+	DRIVER( gekiridnj )	/* E11 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( tcobra2 )	/* E15 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( tcobra2u )	/* E15 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( ktiger2 )	/* E15 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( bubblem )	/* E21 (c) 1995 Taito Corporation Japan (World) */
+	DRIVER( bubblemu )	/* E21 (c) 1996 Taito America Corporation (US) */
 	DRIVER( bubblemj )	/* E21 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( cleopatr )	/* E28 (c) 1996 Taito Corporation (Japan) */
+	DRIVER( cleopatro )	/* E28 (c) 1996 Taito Corporation (bootleg) */
 	DRIVER( pbobble3 )	/* E29 (c) 1996 Taito Corporation (World) */
-	DRIVER( pbobbl3u )	/* E29 (c) 1996 Taito Corporation (US) */
-	DRIVER( pbobbl3j )	/* E29 (c) 1996 Taito Corporation (Japan) */
-	DRIVER( arkretrn )	/* E36 (c) 1997 Taito Corporation (Japan) */
+	DRIVER( pbobble3u )	/* E29 (c) 1996 Taito Corporation (US) */
+	DRIVER( pbobble3j )	/* E29 (c) 1996 Taito Corporation (Japan) */
+	DRIVER( arkretrn )	/* E36 (c) 1997 Taito Corporation (World) */
+	DRIVER( arkretrnu )	/* E36 (c) 1997 Taito Corporation (US) */
+	DRIVER( arkretrnj )	/* E36 (c) 1997 Taito Corporation (Japan) */
 	DRIVER( kirameki )	/* E44 (c) 1997 Taito Corporation (Japan) */
 	DRIVER( puchicar )	/* E46 (c) 1997 Taito Corporation (World) */
-	DRIVER( puchicrj )	/* E46 (c) 1997 Taito Corporation (Japan) */
+	DRIVER( puchicaru )	/* E46 (c) 1997 Taito America Corporation (US) */
+	DRIVER( puchicarj )	/* E46 (c) 1997 Taito Corporation (Japan) */
 	DRIVER( pbobble4 )	/* E49 (c) 1997 Taito Corporation (World) */
-	DRIVER( pbobbl4j )	/* E49 (c) 1997 Taito Corporation (Japan) */
-	DRIVER( pbobbl4u )	/* E49 (c) 1997 Taito Corporation (US) */
+	DRIVER( pbobble4j )	/* E49 (c) 1997 Taito Corporation (Japan) */
+	DRIVER( pbobble4u )	/* E49 (c) 1997 Taito Corporation (US) */
 	DRIVER( popnpop )	/* E51 (c) 1997 Taito Corporation (World) */
 	DRIVER( popnpopj )	/* E51 (c) 1997 Taito Corporation (Japan) */
 	DRIVER( popnpopu )	/* E51 (c) 1997 Taito Corporation (US) */
-	DRIVER( landmakr )	/* E61 (c) 1998 Taito Corporation (Japan) */
-	DRIVER( landmkrp )	/* E61 (c) 1998 Taito Corporation (World, prototype) */
-	DRIVER( recalh )	/* prototype */
-	DRIVER( commandw )	/* prototype */
+	DRIVER( landmakr )	/* E61 (c) 1998 Taito Corporation (World) */
+	DRIVER( landmakrj )	/* E61 (c) 1998 Taito Corporation (Japan) */
+	DRIVER( landmakrp )	/* E61 (c) 1998 Taito Corporation (World, prototype) */
 
 	/* Taito JC System */
 	DRIVER( landgear )	/* E17 (c) 199? Taito Corporation */
