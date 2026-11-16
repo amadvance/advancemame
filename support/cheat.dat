@@ -134005,14 +134005,6 @@
 :powerins:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
 :powerins:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
-; [ Gouketsuji Ichizoku (Japan, bootleg) ]
-:powernjb:00000000:180344:00000099:FFFFFFFF:Infinite Time
-:powernjb:00000001:180344:00000000:FFFFFFFF:Finish this Round Now!
-:powernjb:00000000:180699:000000FF:FFFFFFFF:Infinite Energy PL1
-:powernjb:00000001:180699:00000000:FFFFFFFF:Drain All Energy Now! PL1
-:powernjb:00000000:180799:000000FF:FFFFFFFF:Infinite Energy PL2
-:powernjb:00000001:180799:00000000:FFFFFFFF:Drain All Energy Now! PL2
-
 ; [ Datsugoku - Prisoners of War (Japan) ]
 :powj:00000000:04003B:00000063:FFFFFFFF:Infinite Lives PL1
 :powj:00000000:040036:0000001F:FFFFFFFF:Infinite Energy PL1
@@ -205213,7 +205205,7 @@
 ;poundfor=poundforu
 ;pow=powj
 ;powerbal~powerbls
-;powerinsa=powerinsb=powerins=powernjb
+;powerinsa=powerinsb=powerins
 ;primraga~primrage
 ;prmrsocj=prmrsocr
 ;prmtmfgto=prmtmfgt=trstar=trstarj=trstaro=trstaroj

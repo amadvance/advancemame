@@ -6981,7 +6981,6 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( powerinsj )	/* (c) 1993 Atlus (Japan) */
 	DRIVER( powerinsa )	/* bootleg */
 	DRIVER( powerinsb )	/* bootleg */
-	DRIVER( powernjb )	/* bootleg */
 	DRIVER( ohmygod )	/* (c) 1993 Atlus (Japan) */
 	DRIVER( naname )	/* (c) 1994 Atlus (Japan) */
 	DRIVER( blmbycar )	/* (c) 1994 ABM & Gecas - uses same gfx chip as powerins? */
