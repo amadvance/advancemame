@@ -671,7 +671,7 @@ WRITE16_HANDLER ( genesis_io_w )
 
 		case 0x03: /* port C data */
 		genesis_io_ram[offset] = (data & (genesis_io_ram[0x06])) | (genesis_io_ram[offset] & ~(genesis_io_ram[0x06]));
-		bios_6204 = data & 0x07;
+		megaplay_io_c_w(data);
 		break;
 
 		case 0x04: /* port A control */

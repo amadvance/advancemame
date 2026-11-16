@@ -48,8 +48,20 @@ static unsigned int bios_mode = MP_ROM;  // determines whether ROM banks or Game
 static unsigned int bios_width;  // determines the way the game info ROM is read
 unsigned char bios_ctrl[6];
 static unsigned char bios_6600;
-unsigned char bios_6204;
+
+/* 68k to BIOS serial link on the low bits of the port C data register.
+   The game pulses the clock bit for only a few microseconds, but the BIOS polls
+   it with a period of about 14 microseconds, so a pulse is missed unless the
+   timing happens to match. The BIOS gives up after a few frames and the game
+   then waits forever on a black screen (Tecmo World Cup). Let the BIOS see
+   every value written by the 68k, one for each read, to make it deterministic. */
+#define IOC_QUEUE_SIZE 16
+static unsigned char ioc_queue[IOC_QUEUE_SIZE];
+static int ioc_count;
+static unsigned char ioc_seen;
+static unsigned char ioc_last;
 static unsigned char bios_6403;
+static unsigned char bios_6402_latch;
 static unsigned char bios_6404;
 static unsigned char* ic3_ram;
 //static unsigned char ic36_ram[0x4000];
@@ -60,8 +72,39 @@ static unsigned int readpos = 1;  // serial bank selection position (9-bit)
 static UINT32 mp_bios_bank_addr;
 
 
+void megaplay_io_c_w(unsigned char data)
+{
+	data &= 0x07;
+	if (data == ioc_last)
+		return;
+	ioc_last = data;
+	if (ioc_count == IOC_QUEUE_SIZE) {
+		/* fallback: never lose the latest value if the BIOS doesn't read */
+		ioc_seen = ioc_queue[0];
+		memmove(&ioc_queue[0], &ioc_queue[1], IOC_QUEUE_SIZE - 1);
+		--ioc_count;
+	}
+	ioc_queue[ioc_count++] = data;
+}
+
+static unsigned char megaplay_io_c_r(int pop)
+{
+	unsigned char data = ioc_seen;
+
+	if (pop && ioc_count) {
+		ioc_seen = ioc_queue[0];
+		memmove(&ioc_queue[0], &ioc_queue[1], IOC_QUEUE_SIZE - 1);
+		--ioc_count;
+	}
+	return data;
+}
+
 static MACHINE_RESET( megaplay )
 {
+	ioc_count = 0;
+	ioc_seen = 0;
+	ioc_last = 0;
+
 //  unsigned char* ram = memory_region(REGION_CPU3);
 
 	/* mirroring of ram etc. */
@@ -566,12 +609,13 @@ static WRITE8_HANDLER ( bank_w )
 
 static READ8_HANDLER( megaplay_bios_6402_r )
 {
-	return genesis_io_ram[3];// & 0xfe;
-//  return bios_6402;// & 0xfe;
+	/* CXD1095 port C: the low nibble is an input (68k side), the high nibble reads back the latched output */
+	return (genesis_io_ram[3] & 0x08) | megaplay_io_c_r(0) | (bios_6402_latch & 0xf0);
 }
 
 static WRITE8_HANDLER( megaplay_bios_6402_w )
 {
+	bios_6402_latch = data;
 	genesis_io_ram[3] = (genesis_io_ram[3] & 0x07) | ((data & 0x70) >> 1);
 //  bios_6402 = (data >> 4) & 0x07;
 //  logerror("BIOS: 0x6402 write: 0x%02x\n",data);
@@ -585,7 +629,16 @@ static READ8_HANDLER( megaplay_bios_6404_r )
 static WRITE8_HANDLER( megaplay_bios_6404_w )
 {
 	if(((bios_6404 & 0x0c) == 0x00) && ((data & 0x0c) == 0x0c))
+	{
+		/* the reset of the 68k clears the I/O port. Without this the BIOS reads the
+           stale clock bit left by the previous 68k run, starts a transfer while the
+           68k is still booting, and it stays one group out of phase with the game */
+		genesis_io_ram[3] &= ~0x07;
+		ioc_count = 0;
+		ioc_seen = 0;
+		ioc_last = 0;
 		cpunum_set_input_line(0, INPUT_LINE_RESET, PULSE_LINE);
+	}
 	bios_6404 = data;
 
 //  logerror("BIOS: 0x6404 write: 0x%02x\n",data);
@@ -593,7 +646,8 @@ static WRITE8_HANDLER( megaplay_bios_6404_w )
 
 static READ8_HANDLER( megaplay_bios_6204_r )
 {
-	return (genesis_io_ram[3]);
+	/* CXD1095 port E: bits 0-2 are inputs (68k side), bit 3 reads back the latched output */
+	return megaplay_io_c_r(1) | (bios_width & 0x08);
 //  return (bios_width & 0xf8) + (bios_6204 & 0x07);
 }
 
@@ -824,7 +878,7 @@ ROM_START( mp_col3 ) /* Columns 3 */
 	MEGAPLAY_BIOS
 ROM_END
 
-ROM_START( mp_gaxe2 ) /* Golden Axe 2 */
+ROM_START( mp_gaxe2 ) /* Golden Axe 2, revision B */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "ep15179b.ic2", 0x000000, 0x040000, CRC(00d97b84) SHA1(914bbf566ddf940aab67b92af237d251650ddadf) )
 	ROM_LOAD16_BYTE( "ep15178b.ic1", 0x000001, 0x040000, CRC(2ea576db) SHA1(6d96b948243533de1f488b1f80e0d5431a4f1f53) )
@@ -832,6 +886,19 @@ ROM_START( mp_gaxe2 ) /* Golden Axe 2 */
 
 	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
 	ROM_LOAD( "ep15175-02b.ic3", 0x000000, 0x08000, CRC(3039b653) SHA1(b19874c74d0fc0cca1169f62e5e74f0e8ca83679) ) // 15175-02b.ic3
+
+	ROM_REGION( 0x28000, REGION_CPU3, 0 ) /* Bios */
+	MEGAPLAY_BIOS
+ROM_END
+
+ROM_START( mp_gaxe2a ) /* Golden Axe 2 */
+	ROM_REGION( 0x400000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr-15179.ic2", 0x000000, 0x040000, CRC(d35f1a35) SHA1(3105cd3b55f65337863703db04527fe298fc04e0) )
+	ROM_LOAD16_BYTE( "epr-15178.ic1", 0x000001, 0x040000, CRC(2c6b6b76) SHA1(25577f49ecad451c217da9cacbd78ffca9dca24e) )
+	/* Game Instruction rom copied to 0x300000 - 0x310000 (odd / even bytes equal) */
+
+	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
+	ROM_LOAD( "epr-15175-02.ic3", 0x000000, 0x08000, CRC(cfc87f91) SHA1(110609094aa6d848bec613faa0558db7ad272b77) )
 
 	ROM_REGION( 0x28000, REGION_CPU3, 0 ) /* Bios */
 	MEGAPLAY_BIOS
@@ -851,7 +918,7 @@ ROM_START( mp_gslam ) /* Grand Slam */
 ROM_END
 
 
-ROM_START( mp_twc ) /* Tecmo World Cup */
+ROM_START( mp_twcup ) /* Tecmo World Cup */
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "ep15183.ic2", 0x000000, 0x040000, CRC(8b79b861) SHA1(c72af72840513b82f2562409eccdf13b031bf3c0) )
 	ROM_LOAD16_BYTE( "ep15182.ic1", 0x000001, 0x040000, CRC(eb8325c3) SHA1(bb21ac926c353e14184dd476222bc6a8714606e5) )
@@ -990,9 +1057,10 @@ didn't have original Sega part numbers it's probably a converted TWC cart
 
 /* -- */ GAMEB( 1993, megaplay, 0,        megaplay, megaplay, megaplay, megaplay, ROT0, "Sega",                  "Mega Play BIOS", NOT_A_DRIVER )
 /* 01 */ GAMEB( 1993, mp_sonic, megaplay, megaplay, megaplay, mp_sonic, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog (Mega Play)" , 0 )
-/* 02 */ GAMEB( 1993, mp_gaxe2, megaplay, megaplay, megaplay, mp_gaxe2, megaplay, ROT0, "Sega",                  "Golden Axe II (Mega Play)" , 0 )
+/* 02 */ GAMEB( 1993, mp_gaxe2, megaplay, megaplay, megaplay, mp_gaxe2, megaplay, ROT0, "Sega",                  "Golden Axe II (Mega Play) (Rev B)" , 0 )
+/* 02 */ GAMEB( 1993, mp_gaxe2a,mp_gaxe2, megaplay, megaplay, mp_gaxe2, megaplay, ROT0, "Sega",                  "Golden Axe II (Mega Play)" , 0 )
 /* 03 */ GAMEB( 1993, mp_gslam, megaplay, megaplay, megaplay, mp_gslam,	megaplay, ROT0, "Sega",                  "Grand Slam (Mega Play)", 0 )
-/* 04 */ GAMEB( 1993, mp_twc,   megaplay, megaplay, megaplay, mp_twc,	megaplay, ROT0, "Sega",                  "Tecmo World Cup (Mega Play)" , GAME_NOT_WORKING ) // doesn't boot
+/* 04 */ GAMEB( 1993, mp_twcup, megaplay, megaplay, megaplay, mp_twc,	megaplay, ROT0, "Sega",                  "Tecmo World Cup (Mega Play)" , 0 )
 /* 05 */ GAMEB( 1993, mp_sor2,  megaplay, megaplay, megaplay, mp_sor2,	megaplay, ROT0, "Sega",                  "Streets of Rage II (Mega Play)" , 0 )
 /* 06 */ GAMEB( 1993, mp_bio,   megaplay, megaplay, megaplay, mp_bio,	megaplay, ROT0, "Sega",                  "Bio-hazard Battle (Mega Play)" , 0 )
 /* 07 */ GAMEB( 1993, mp_soni2, megaplay, megaplay, megaplay, mp_soni2, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog 2 (Mega Play)" , 0 )

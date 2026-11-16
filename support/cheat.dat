@@ -100460,16 +100460,16 @@
 :mp_sor2:00000000:FEFC0A:00000000:00000040:Rapid Fire PL2:IE. You can hit faster...Turn it OFF on the name entry screen
 
 ; [ Tecmo World Cup (Mega Play) ]
-:mp_twc:00000000:FEF123:00000087:FFFFFFFF:Infinite Time
-:mp_twc:00010000:FEF122:00000013:FFFFFFFF:Infinite Time (2/2)
-:mp_twc:00000001:FEF123:00000001:FFFFFFFF:Finish this Half Now!
-:mp_twc:00010001:FEF122:00000000:FFFFFFFF:Finish this Half Now! (2/2)
-:mp_twc:00000001:FEF125:00000032:FFFFFFFF:Score = 50 Now! LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
-:mp_twc:00000001:FEF125:00000000:FFFFFFFF:Score = 0 Now! LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
-:mp_twc:00000101:FEF125:00000063:FFFFFFFF:Select Score LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
-:mp_twc:00000001:FEF127:00000032:FFFFFFFF:Score = 50 Now! RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
-:mp_twc:00000001:FEF127:00000000:FFFFFFFF:Score = 0 Now! RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
-:mp_twc:00000101:FEF127:00000063:FFFFFFFF:Select Score RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
+:mp_twcup:00000000:FEF123:00000087:FFFFFFFF:Infinite Time
+:mp_twcup:00010000:FEF122:00000013:FFFFFFFF:Infinite Time (2/2)
+:mp_twcup:00000001:FEF123:00000001:FFFFFFFF:Finish this Half Now!
+:mp_twcup:00010001:FEF122:00000000:FFFFFFFF:Finish this Half Now! (2/2)
+:mp_twcup:00000001:FEF125:00000032:FFFFFFFF:Score = 50 Now! LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
+:mp_twcup:00000001:FEF125:00000000:FFFFFFFF:Score = 0 Now! LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
+:mp_twcup:00000101:FEF125:00000063:FFFFFFFF:Select Score LEFT TEAM:This is PL1 in the First Half and PL2 in the Second Half
+:mp_twcup:00000001:FEF127:00000032:FFFFFFFF:Score = 50 Now! RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
+:mp_twcup:00000001:FEF127:00000000:FFFFFFFF:Score = 0 Now! RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
+:mp_twcup:00000101:FEF127:00000063:FFFFFFFF:Select Score RIGHT TEAM:This is PL2 in the First Half and PL1 in the Second Half
 
 ; [ Moonquake ]
 :mquake:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1

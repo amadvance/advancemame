@@ -4259,8 +4259,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( megaplay )
 	DRIVER( mp_sonic )	/* 01 */
 	DRIVER( mp_gaxe2 )	/* 02 */
+	DRIVER( mp_gaxe2a )	/* 02 */
 	DRIVER( mp_gslam )	/* 03 */
-	DRIVER( mp_twc )	/* 04 */
+	DRIVER( mp_twcup )	/* 04 */
 	DRIVER( mp_sor2 )	/* 05 */
 	DRIVER( mp_bio )	/* 06 */
 	DRIVER( mp_soni2 )	/* 07 */

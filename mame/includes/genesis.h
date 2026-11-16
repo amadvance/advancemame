@@ -10,7 +10,7 @@
 /*----------- defined in drivers/megaplay.c -----------*/
 
 extern UINT16 *ic36_ram;
-extern unsigned char bios_6204;
+extern void megaplay_io_c_w(unsigned char data);
 extern unsigned char bios_bank;
 extern INTERRUPT_GEN( megaplay_vblank_interrupt );
 extern int megaplay_iack;
