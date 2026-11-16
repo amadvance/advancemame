@@ -24005,19 +24005,19 @@
 :cubybop:00000303:8498:0000000F:FFFFFFFF:Select next stage
 
 ; [ Cue Brick (World version D) ]
-:cuebrckj:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:cuebrckj:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:cuebrickj:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Cue Brick (Japan) ]
 :cuebrick:02000000:060008:00000003:FFFFFFFF:Infinite Play Time
@@ -52565,118 +52565,118 @@
 :grdians:00000000:20126B:00000019:FFFFFFFF:Always Perfect PL2:Only for Bonus Stages
 
 ; [ Gradius II - GOFER no Yabou (Japan Old Ver.) ]
-:grdius2a:02000000:60400:00000009:FFFFFFFF:Infinite Lives
-:grdius2a:22900000:1B35C:00004E71:FFFFFFFF:Invincibility
-:grdius2a:22810000:1B396:00000060:FFFFFFFF:Invincibility (2/2):1st = Object, 2nd = Scenery
-:grdius2a:02000000:6040F:0000000C:FFFFFFFF:Next Capsule Blue
-:grdius2a:62000000:00000:00000000:00000000:Select Current Speed
-:grdius2a:02010000:60428:00000000:00000007:0
-:grdius2a:02010000:60428:00000001:00000001:1
-:grdius2a:02010000:60428:00000002:00000002:2
-:grdius2a:02010000:60428:00000003:00000003:3
-:grdius2a:02010000:60428:00000004:00000004:4
-:grdius2a:02010000:60428:00000005:00000005:5
-:grdius2a:62000000:00000:00000000:00000000:Select Current Shot
-:grdius2a:02010000:60429:00000000:00000007:Normal
-:grdius2a:02010000:60429:00000001:00000001:Double
-:grdius2a:02010000:60429:00000002:00000002:Tail Gun
-:grdius2a:02010000:60429:00000003:00000003:Ripple Laser
-:grdius2a:02010000:60429:00000004:00000004:Laser
-:grdius2a:62000000:00000:00000000:00000000:Select Current Missile
-:grdius2a:02010000:60428:00000000:00000038:No Missile
-:grdius2a:02010000:60428:00000008:00000008:Missile
-:grdius2a:02010000:60428:00000010:00000010:Spread
-:grdius2a:02010000:60428:00000018:00000018:Photon
-:grdius2a:02010000:60428:00000020:00000020:Twin
-:grdius2a:02000000:60068:00000000:00000020:Rapid Fire - Shot:Turn it OFF when you have Laser
-:grdius2a:02000000:60068:00000000:00000040:Rapid Fire - Missile
-:grdius2a:02000001:60420:00000001:FFFFFFFF:Gauge = SpeedUp Now!
-:grdius2a:02000001:60420:00000002:FFFFFFFF:Gauge = Missile Now!
-:grdius2a:02000001:60420:00000003:FFFFFFFF:Gauge = Double Now!
-:grdius2a:02000001:60420:00000004:FFFFFFFF:Gauge = Laser Now!
-:grdius2a:02000001:60420:00000005:FFFFFFFF:Gauge = Option Now!
-:grdius2a:02000001:60420:00000006:FFFFFFFF:Gauge = Shield Now!
-:grdius2a:02000301:60420:00000006:FFFFFFFF:Gauge = Bar Select Now!
-:grdius2a:60000000:00000:00000000:00000000:[Enable these cheats on the ]
-:grdius2a:60000000:00000:00000000:00000000:[weapon select mode screen  ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 1 Area from 1 to 5 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 2 Area from 1 to 5 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 3 Area from 1 to 5 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 4 Area from 1 to 4 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 5 Area from 1 to 6 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 6 Area from 1 to 9 ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 7 Area from 1 only ]
-:grdius2a:60000000:00000:00000000:00000000:[ Round 8 Area from 1 to 6 ]
-:grdius2a:02000101:6041B:000000FF:FFFFFFFF:Select Starting Lap
-:grdius2a:02000101:60419:00000008:FFFFFFFF:Select Starting Round
-:grdius2a:02000001:60411:00000000:FFFFFFFF:Start in Area 1
-:grdius2a:02000001:60411:00000004:FFFFFFFF:Start in Area 2
-:grdius2a:02000001:60411:00000008:FFFFFFFF:Start in Area 3
-:grdius2a:02000001:60411:0000000C:FFFFFFFF:Start in Area 4
-:grdius2a:02000001:60411:00000010:FFFFFFFF:Start in Area 5
-:grdius2a:02000001:60411:00000014:FFFFFFFF:Start in Area 6
-:grdius2a:02000001:60411:00000018:FFFFFFFF:Start in Area 7
-:grdius2a:02000001:60411:0000001C:FFFFFFFF:Start in Area 8
-:grdius2a:02000001:60411:00000020:FFFFFFFF:Start in Area 9
-:grdius2a:22900000:01052:00001054:FFFFFFFF:Skip RAM/ROM Check
-:grdius2a:02000000:60002:000000FF:FFFFFFFF:Sound Test Timer Stop:[PL1 Shot3]Next Code
+:gradius2a:02000000:60400:00000009:FFFFFFFF:Infinite Lives
+:gradius2a:22900000:1B35C:00004E71:FFFFFFFF:Invincibility
+:gradius2a:22810000:1B396:00000060:FFFFFFFF:Invincibility (2/2):1st = Object, 2nd = Scenery
+:gradius2a:02000000:6040F:0000000C:FFFFFFFF:Next Capsule Blue
+:gradius2a:62000000:00000:00000000:00000000:Select Current Speed
+:gradius2a:02010000:60428:00000000:00000007:0
+:gradius2a:02010000:60428:00000001:00000001:1
+:gradius2a:02010000:60428:00000002:00000002:2
+:gradius2a:02010000:60428:00000003:00000003:3
+:gradius2a:02010000:60428:00000004:00000004:4
+:gradius2a:02010000:60428:00000005:00000005:5
+:gradius2a:62000000:00000:00000000:00000000:Select Current Shot
+:gradius2a:02010000:60429:00000000:00000007:Normal
+:gradius2a:02010000:60429:00000001:00000001:Double
+:gradius2a:02010000:60429:00000002:00000002:Tail Gun
+:gradius2a:02010000:60429:00000003:00000003:Ripple Laser
+:gradius2a:02010000:60429:00000004:00000004:Laser
+:gradius2a:62000000:00000:00000000:00000000:Select Current Missile
+:gradius2a:02010000:60428:00000000:00000038:No Missile
+:gradius2a:02010000:60428:00000008:00000008:Missile
+:gradius2a:02010000:60428:00000010:00000010:Spread
+:gradius2a:02010000:60428:00000018:00000018:Photon
+:gradius2a:02010000:60428:00000020:00000020:Twin
+:gradius2a:02000000:60068:00000000:00000020:Rapid Fire - Shot:Turn it OFF when you have Laser
+:gradius2a:02000000:60068:00000000:00000040:Rapid Fire - Missile
+:gradius2a:02000001:60420:00000001:FFFFFFFF:Gauge = SpeedUp Now!
+:gradius2a:02000001:60420:00000002:FFFFFFFF:Gauge = Missile Now!
+:gradius2a:02000001:60420:00000003:FFFFFFFF:Gauge = Double Now!
+:gradius2a:02000001:60420:00000004:FFFFFFFF:Gauge = Laser Now!
+:gradius2a:02000001:60420:00000005:FFFFFFFF:Gauge = Option Now!
+:gradius2a:02000001:60420:00000006:FFFFFFFF:Gauge = Shield Now!
+:gradius2a:02000301:60420:00000006:FFFFFFFF:Gauge = Bar Select Now!
+:gradius2a:60000000:00000:00000000:00000000:[Enable these cheats on the ]
+:gradius2a:60000000:00000:00000000:00000000:[weapon select mode screen  ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 1 Area from 1 to 5 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 2 Area from 1 to 5 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 3 Area from 1 to 5 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 4 Area from 1 to 4 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 5 Area from 1 to 6 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 6 Area from 1 to 9 ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 7 Area from 1 only ]
+:gradius2a:60000000:00000:00000000:00000000:[ Round 8 Area from 1 to 6 ]
+:gradius2a:02000101:6041B:000000FF:FFFFFFFF:Select Starting Lap
+:gradius2a:02000101:60419:00000008:FFFFFFFF:Select Starting Round
+:gradius2a:02000001:60411:00000000:FFFFFFFF:Start in Area 1
+:gradius2a:02000001:60411:00000004:FFFFFFFF:Start in Area 2
+:gradius2a:02000001:60411:00000008:FFFFFFFF:Start in Area 3
+:gradius2a:02000001:60411:0000000C:FFFFFFFF:Start in Area 4
+:gradius2a:02000001:60411:00000010:FFFFFFFF:Start in Area 5
+:gradius2a:02000001:60411:00000014:FFFFFFFF:Start in Area 6
+:gradius2a:02000001:60411:00000018:FFFFFFFF:Start in Area 7
+:gradius2a:02000001:60411:0000001C:FFFFFFFF:Start in Area 8
+:gradius2a:02000001:60411:00000020:FFFFFFFF:Start in Area 9
+:gradius2a:22900000:01052:00001054:FFFFFFFF:Skip RAM/ROM Check
+:gradius2a:02000000:60002:000000FF:FFFFFFFF:Sound Test Timer Stop:[PL1 Shot3]Next Code
 
 ; [ Gradius II - GOFER no Yabou (Japan Older Ver.) ]
-:grdius2b:02000000:60400:00000009:FFFFFFFF:Infinite Lives
-:grdius2b:22900000:1B35C:00004E71:FFFFFFFF:Invincibility
-:grdius2b:22810000:1B396:00000060:FFFFFFFF:Invincibility (2/2):1st = Object, 2nd = Scenery
-:grdius2b:02000000:6040F:0000000C:FFFFFFFF:Next Capsule Blue
-:grdius2b:62000000:0000:00000000:00000000:Select Current Speed
-:grdius2b:02010000:60428:00000000:00000007:0
-:grdius2b:02010000:60428:00000001:00000001:1
-:grdius2b:02010000:60428:00000002:00000002:2
-:grdius2b:02010000:60428:00000003:00000003:3
-:grdius2b:02010000:60428:00000004:00000004:4
-:grdius2b:02010000:60428:00000005:00000005:5
-:grdius2b:62000000:00000:00000000:00000000:Select Current Shot
-:grdius2b:02010000:60429:00000000:00000007:Normal
-:grdius2b:02010000:60429:00000001:00000001:Double
-:grdius2b:02010000:60429:00000002:00000002:Tail Gun
-:grdius2b:02010000:60429:00000003:00000003:Ripple Laser
-:grdius2b:02010000:60429:00000004:00000004:Laser
-:grdius2b:62000000:00000:00000000:00000000:Select Current Missile
-:grdius2b:02010000:60428:00000000:00000038:No Missile
-:grdius2b:02010000:60428:00000008:00000008:Missile
-:grdius2b:02010000:60428:00000010:00000010:Spread
-:grdius2b:02010000:60428:00000018:00000018:Photon
-:grdius2b:02010000:60428:00000020:00000020:Twin
-:grdius2b:02000000:60068:00000000:00000020:Rapid Fire - Shot:Turn it OFF when you have Laser
-:grdius2b:02000000:60068:00000000:00000040:Rapid Fire - Missile
-:grdius2b:02000001:60420:00000001:FFFFFFFF:Gauge = SpeedUp Now!
-:grdius2b:02000001:60420:00000002:FFFFFFFF:Gauge = Missile Now!
-:grdius2b:02000001:60420:00000003:FFFFFFFF:Gauge = Double Now!
-:grdius2b:02000001:60420:00000004:FFFFFFFF:Gauge = Laser Now!
-:grdius2b:02000001:60420:00000005:FFFFFFFF:Gauge = Option Now!
-:grdius2b:02000001:60420:00000006:FFFFFFFF:Gauge = Shield Now!
-:grdius2b:02000301:60420:00000006:FFFFFFFF:Gauge = Bar Select Now!
-:grdius2b:60000000:00000:00000000:00000000:[Enable these cheats on the ]
-:grdius2b:60000000:00000:00000000:00000000:[weapon select mode screen  ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 1 Area from 1 to 5 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 2 Area from 1 to 5 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 3 Area from 1 to 5 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 4 Area from 1 to 4 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 5 Area from 1 to 6 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 6 Area from 1 to 9 ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 7 Area from 1 only ]
-:grdius2b:60000000:00000:00000000:00000000:[ Round 8 Area from 1 to 6 ]
-:grdius2b:02000101:6041B:000000FF:FFFFFFFF:Select Starting Lap
-:grdius2b:02000101:60419:00000008:FFFFFFFF:Select Starting Round
-:grdius2b:02000001:60411:00000000:FFFFFFFF:Start in Area 1
-:grdius2b:02000001:60411:00000004:FFFFFFFF:Start in Area 2
-:grdius2b:02000001:60411:00000008:FFFFFFFF:Start in Area 3
-:grdius2b:02000001:60411:0000000C:FFFFFFFF:Start in Area 4
-:grdius2b:02000001:60411:00000010:FFFFFFFF:Start in Area 5
-:grdius2b:02000001:60411:00000014:FFFFFFFF:Start in Area 6
-:grdius2b:02000001:60411:00000018:FFFFFFFF:Start in Area 7
-:grdius2b:02000001:60411:0000001C:FFFFFFFF:Start in Area 8
-:grdius2b:02000001:60411:00000020:FFFFFFFF:Start in Area 9
-:grdius2b:22900000:01052:00001054:FFFFFFFF:Skip RAM/ROM Check
-:grdius2b:02000000:60002:000000FF:FFFFFFFF:Sound Test Timer Stop:[PL1 Shot3]Next Code
+:gradius2b:02000000:60400:00000009:FFFFFFFF:Infinite Lives
+:gradius2b:22900000:1B35C:00004E71:FFFFFFFF:Invincibility
+:gradius2b:22810000:1B396:00000060:FFFFFFFF:Invincibility (2/2):1st = Object, 2nd = Scenery
+:gradius2b:02000000:6040F:0000000C:FFFFFFFF:Next Capsule Blue
+:gradius2b:62000000:0000:00000000:00000000:Select Current Speed
+:gradius2b:02010000:60428:00000000:00000007:0
+:gradius2b:02010000:60428:00000001:00000001:1
+:gradius2b:02010000:60428:00000002:00000002:2
+:gradius2b:02010000:60428:00000003:00000003:3
+:gradius2b:02010000:60428:00000004:00000004:4
+:gradius2b:02010000:60428:00000005:00000005:5
+:gradius2b:62000000:00000:00000000:00000000:Select Current Shot
+:gradius2b:02010000:60429:00000000:00000007:Normal
+:gradius2b:02010000:60429:00000001:00000001:Double
+:gradius2b:02010000:60429:00000002:00000002:Tail Gun
+:gradius2b:02010000:60429:00000003:00000003:Ripple Laser
+:gradius2b:02010000:60429:00000004:00000004:Laser
+:gradius2b:62000000:00000:00000000:00000000:Select Current Missile
+:gradius2b:02010000:60428:00000000:00000038:No Missile
+:gradius2b:02010000:60428:00000008:00000008:Missile
+:gradius2b:02010000:60428:00000010:00000010:Spread
+:gradius2b:02010000:60428:00000018:00000018:Photon
+:gradius2b:02010000:60428:00000020:00000020:Twin
+:gradius2b:02000000:60068:00000000:00000020:Rapid Fire - Shot:Turn it OFF when you have Laser
+:gradius2b:02000000:60068:00000000:00000040:Rapid Fire - Missile
+:gradius2b:02000001:60420:00000001:FFFFFFFF:Gauge = SpeedUp Now!
+:gradius2b:02000001:60420:00000002:FFFFFFFF:Gauge = Missile Now!
+:gradius2b:02000001:60420:00000003:FFFFFFFF:Gauge = Double Now!
+:gradius2b:02000001:60420:00000004:FFFFFFFF:Gauge = Laser Now!
+:gradius2b:02000001:60420:00000005:FFFFFFFF:Gauge = Option Now!
+:gradius2b:02000001:60420:00000006:FFFFFFFF:Gauge = Shield Now!
+:gradius2b:02000301:60420:00000006:FFFFFFFF:Gauge = Bar Select Now!
+:gradius2b:60000000:00000:00000000:00000000:[Enable these cheats on the ]
+:gradius2b:60000000:00000:00000000:00000000:[weapon select mode screen  ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 1 Area from 1 to 5 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 2 Area from 1 to 5 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 3 Area from 1 to 5 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 4 Area from 1 to 4 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 5 Area from 1 to 6 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 6 Area from 1 to 9 ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 7 Area from 1 only ]
+:gradius2b:60000000:00000:00000000:00000000:[ Round 8 Area from 1 to 6 ]
+:gradius2b:02000101:6041B:000000FF:FFFFFFFF:Select Starting Lap
+:gradius2b:02000101:60419:00000008:FFFFFFFF:Select Starting Round
+:gradius2b:02000001:60411:00000000:FFFFFFFF:Start in Area 1
+:gradius2b:02000001:60411:00000004:FFFFFFFF:Start in Area 2
+:gradius2b:02000001:60411:00000008:FFFFFFFF:Start in Area 3
+:gradius2b:02000001:60411:0000000C:FFFFFFFF:Start in Area 4
+:gradius2b:02000001:60411:00000010:FFFFFFFF:Start in Area 5
+:gradius2b:02000001:60411:00000014:FFFFFFFF:Start in Area 6
+:gradius2b:02000001:60411:00000018:FFFFFFFF:Start in Area 7
+:gradius2b:02000001:60411:0000001C:FFFFFFFF:Start in Area 8
+:gradius2b:02000001:60411:00000020:FFFFFFFF:Start in Area 9
+:gradius2b:22900000:01052:00001054:FFFFFFFF:Skip RAM/ROM Check
+:gradius2b:02000000:60002:000000FF:FFFFFFFF:Sound Test Timer Stop:[PL1 Shot3]Next Code
 
 ; [ Gradius III (Asia) ]
 :grdius3a:00000000:101050:00000003:FFFFFFFF:Infinite Lives
@@ -203765,7 +203765,7 @@
 ; { Reason 11 } ; cookbib3  [ Cookie & Bibi 3 ]
 ; { Reason 11 } ; coolmini  [ Cool Minigame Collection ]
 ; { Reason 11 } ; crgolfhi  [ Crowns Golf in Hawaii ]
-; { Reason 11 } ; cuebrckj  [ Cue Brick (World version D) ]
+; { Reason 11 } ; cuebrickj  [ Cue Brick (World version D) ]
 ; { Reason 11 } ; danchih   [ Danchi de Hanafuoda (J 990607 V1.400) ]
 ; { Reason 11 } ; darkhors  [ Dark Horse ]
 ; { Reason 11 } ; dcclub    [ Dynamic Country Club ]
@@ -204840,7 +204840,7 @@
 ;gorkans=mrtnt
 ;gotcha=ppchamp
 ;gpriderus=gpriderus  (unchecked relationship)
-;gradius2=grdius2a=grdius2b=vulcan
+;gradius2=gradius2a=gradius2b=vulcan
 ;gradius3=grdius3a=grdius3e
 ;gradius~nemesis=nemesuk
 ;gratia=gratiaa
@@ -205944,8 +205944,8 @@
 ; gradius2 (made by ShimaPong) [????]
 ; gradius3 (made by ShimaPong) [68000]
 ; grdforce (made by ShimaPong) [????]
-; grdius2a (made by ShimaPong) [????]
-; grdius2b (made by ShimaPong) [????]
+; gradius2a (made by ShimaPong) [????]
+; gradius2b (made by ShimaPong) [????]
 ; grdius3a (made by ShimaPong) [68000]
 ; grdius3e (made by ShimaPong) [68000]
 ; griffon (made by Pugsy) [Z80]

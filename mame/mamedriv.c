@@ -4811,17 +4811,19 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( darkadv )	/* GX687 (c) 1987 */
 	DRIVER( majuu )		/* GX687 (c) 1987 (Japan) */
 	DRIVER( vulcan )	/* GX785 (c) 1988 */
+	DRIVER( vulcana )	/* GX785 (c) 1988 */
+	DRIVER( vulcanb )	/* GX785 (c) 1988 */
 	DRIVER( gradius2 )	/* GX785 (c) 1988 (Japan) */
-	DRIVER( grdius2a )	/* GX785 (c) 1988 (Japan) */
-	DRIVER( grdius2b )	/* GX785 (c) 1988 (Japan) */
-	DRIVER( cuebrick )	/* GX903 (c) 1989 */
+	DRIVER( gradius2a )	/* GX785 (c) 1988 (Japan) */
+	DRIVER( gradius2b )	/* GX785 (c) 1988 (Japan) */
+	DRIVER( cuebrickj )	/* GX903 (c) 1989 (Japan) */
 	DRIVER( fround )	/* GX870 (c) 1988 */
 	DRIVER( froundl )	/* GX870 (c) 1988 */
 	DRIVER( hpuncher )	/* GX870 (c) 1988 (Japan) */
 	DRIVER( miaj )		/* GX808 (c) 1989 (Japan) */
 
 	/* (some) Konami 68000 games */
-	DRIVER( cuebrckj )	/* GX903 (c) 1989 */
+	DRIVER( cuebrick )	/* GX903 (c) 1989 */
 	DRIVER( mia )		/* GX808 (c) 1989 */
 	DRIVER( mia2 )		/* GX808 (c) 1989 */
 	DRIVER( tmnt )		/* GX963 (c) 1989 (World) */

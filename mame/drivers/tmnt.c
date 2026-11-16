@@ -2896,7 +2896,7 @@ MACHINE_DRIVER_END
 
 ***************************************************************************/
 
-ROM_START( cuebrckj )
+ROM_START( cuebrick )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 )	/* 2*64k for 68000 code */
 	ROM_LOAD16_BYTE( "903d25.g12",   0x00000, 0x10000, CRC(8d575663) SHA1(0e308e04936efa80351bf808ac304d3fcc82f19a) )
 	ROM_LOAD16_BYTE( "903d24.f12",   0x00001, 0x10000, CRC(2973625d) SHA1(e2496704390930761204624d4bf6b0b68d3133ab) )
@@ -4148,7 +4148,7 @@ static DRIVER_INIT( cuebrckj )
 	shuffle(memory_region(REGION_GFX2),memory_region_length(REGION_GFX2));
 }
 
-GAME( 1989, cuebrckj, cuebrick, cuebrckj, mia,      cuebrckj, ROT0,  "Konami", "Cue Brick (World version D)", 0 )
+GAME( 1989, cuebrick, 0,        cuebrckj, mia,      cuebrckj, ROT0,  "Konami", "Cue Brick (World version D)", 0 )
 
 GAME( 1989, mia,      0,        mia,      mia,      mia,      ROT0,  "Konami", "M.I.A. - Missing in Action (version T)", 0 )
 GAME( 1989, mia2,     mia,      mia,      mia,      mia,      ROT0,  "Konami", "M.I.A. - Missing in Action (version S)", 0 )

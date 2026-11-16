@@ -45388,7 +45388,7 @@ This game is a prototype, was in Location Test, and was never released.
 $end
 
 
-$info=cuebrick,cuebrckj,
+$info=cuebrick,cuebrickj,
 $bio
 
 Cue Brick (c) 08/1989 Konami.
@@ -82996,7 +82996,7 @@ Music by : Miki Higashino
 $end
 
 
-$info=gradius2,grdius2a,grdius2b,
+$info=gradius2,gradius2a,gradius2b,
 $bio
 
 Gradius II - GOFER no Yabou (c) 03/1988 Konami.

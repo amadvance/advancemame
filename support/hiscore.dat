@@ -3013,7 +3013,7 @@ bigbang:
 0:1ff169:1:01:01
 
 ;*******cuebrick
-cuebrick:
+cuebrickj:
 2:60368:50:00:4f
 
 ;********************************************************************************
@@ -10419,9 +10419,11 @@ hpuncher:
 1:40300:50:4a:00
 
 vulcan:
+vulcana:
+vulcanb:
 gradius2:
-grdius2a:
-grdius2b:
+gradius2a:
+gradius2b:
 2:600a1:63:22:30
 2:60058:4:00:30
 
