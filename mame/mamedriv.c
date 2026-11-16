@@ -2081,7 +2081,7 @@ const game_driver * const drivers[] =
 	DRIVER( dendego23k )	/* E52 (c) 1998 Taito Corporation (3000-bandai Ver 2.20 J) */
 
 	/* Taito "Wolf" System */
-	DRIVER( pf2012 )	/* E59 (c) 1997 Taito */
+	DRIVER( pf2012 )	/* E59 (c) 1998 Taito (Ver 2.04J) */
 
 	/* Toaplan games */
 	DRIVER( perfrman )	/* (c) 1985 Data East Corporation (Japan) */

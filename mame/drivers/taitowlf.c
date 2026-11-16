@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Ville Linde
+// copyright-holders:Ville Linde, Angelo Salese
 /*  Taito Wolf System
 
     Driver by Ville Linde
@@ -500,8 +500,9 @@ static DRIVER_INIT( taitowlf )
 /*****************************************************************************/
 
 ROM_START(pf2012)
-	ROM_REGION32_LE(0x40000, REGION_USER1, 0)
-	ROM_LOAD("p5tx-la.bin", 0x00000, 0x40000, CRC(072e6d51) SHA1(70414349b37e478fc28ecbaba47ad1033ae583b7))
+	ROM_REGION32_LE(0x40000, REGION_USER1, ROMREGION_ERASEFF)
+	// TAITO Ver1.0 1998/5/7
+	ROM_LOAD("p5tx-la_861.u16", 0x20000, 0x20000, CRC(a4d4a0fc) SHA1(af3a49a1bee416b58a61af28473f3dac0a4160c8))
 
 	ROM_REGION(0x08100, REGION_GFX1, 0)
     ROM_LOAD("cga.chr",     0x00000, 0x01000, CRC(42009069) SHA1(ed08559ce2d7f97f68b9f540bddad5b6295294dd))
@@ -511,7 +512,7 @@ ROM_START(pf2012)
 	ROM_LOAD("u2.bin", 0x200000, 0x200000, CRC(59881781) SHA1(85ff074ab2a922eac37cf96f0bf153a2dac55aa4))
 
 	ROM_REGION32_LE(0x4000000, REGION_USER4, 0)		// Data ROM disk
-	ROM_LOAD("e59-01.u20", 0x0000000, 0x800000, CRC(701d3a9a) SHA1(34c9f34f4da34bb8eed85a4efd1d9eea47a21d77) )
+	ROM_LOAD("e59-01.u20", 0x0000000, 0x800000, CRC(60f2ce4a) SHA1(322dd62022527997ecc655347fdf75a092aefa8a) )
 	ROM_LOAD("e59-02.u23", 0x0800000, 0x800000, CRC(626df682) SHA1(35bb4f91201734ce7ccdc640a75030aaca3d1151) )
 	ROM_LOAD("e59-03.u26", 0x1000000, 0x800000, CRC(74e4efde) SHA1(630235c2e4a11f615b5f3b8c93e1e645da09eefe) )
 	ROM_LOAD("e59-04.u21", 0x1800000, 0x800000, CRC(c900e8df) SHA1(93c06b8f5082e33f0dcc41f1be6a79283de16c40) )
@@ -537,4 +538,4 @@ ROM_END
 
 /*****************************************************************************/
 
-GAME(1997, pf2012, 0,	taitowlf, taitowlf, taitowlf,	ROT0,   "Taito",  "Psychic Force 2012", GAME_NOT_WORKING | GAME_NO_SOUND);
+GAME(1998, pf2012, 0,	taitowlf, taitowlf, taitowlf,	ROT0,   "Taito",  "Psychic Force 2012 (Ver 2.04J)", GAME_NOT_WORKING | GAME_NO_SOUND);
