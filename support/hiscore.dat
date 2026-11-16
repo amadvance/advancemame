@@ -9944,7 +9944,7 @@ alpinea:
 0:c65e:1:00:00
 
 elevator:
-elevatob:
+elevatorb:
 0:8350:3:00:01
 
 frontlin:
@@ -9972,7 +9972,7 @@ tinstar:
 0:835f:1:00:00
 
 wwestern:
-wwester1:
+wwestern1:
 0:8630:5c:01:ba
 0:c5be:2:00:1d
 0:c5de:2:01:0a

@@ -1541,20 +1541,26 @@ const game_driver * const drivers[] =
 	DRIVER( spaceskr )	/* EB  (c) 1981 Taito Corporation */
 	DRIVER( spacecr )	/* CG  (c) 1981 Taito Corporation */
 	DRIVER( junglek )	/* KN  (c) 1982 Taito Corporation */
-	DRIVER( junglkj2 )	/* KN  (c) 1982 Taito Corporation */
+	DRIVER( junglekas )	/* KN  (c) 1982 Taito Corporation */
+	DRIVER( junglekj2 )	/* KN  (c) 1982 Taito Corporation */
+	DRIVER( junglekj2a )	/* KN  (c) 1982 Taito Corporation */
 	DRIVER( jungleh )	/* KN  (c) 1982 Taito America Corporation */
-	DRIVER( junglhbr )	/* KN  (c) 1982 Taito do Brasil */
+	DRIVER( junglehbr )	/* KN  (c) 1982 Taito do Brasil */
 	DRIVER( piratpet )	/* KN  (c) 1982 Taito America Corporation */
+	DRIVER( jungleby )	/* bootleg */
 	DRIVER( alpine )	/* RH  (c) 1982 Taito Corporation */
 	DRIVER( alpinea )	/* RH  (c) 1982 Taito Corporation */
-	DRIVER( adcanoe )	/* ??  (c) 1982 Taito Corporation */
+	DRIVER( adcanoe )	/* ??  (c) 1982 Taito */
 	DRIVER( timetunl )	/* UN  (c) 1982 Taito Corporation */
 	DRIVER( wwestern )	/* WW  (c) 1982 Taito Corporation */
-	DRIVER( wwester1 )	/* WW  (c) 1982 Taito Corporation */
-	DRIVER( frontlin )	/* FL  (c) 1982 Taito Corporation */
-	DRIVER( elevator )	/* EA  (c) 1983 Taito Corporation */
-	DRIVER( elevatob )	/* bootleg */
+	DRIVER( wwestern1 )	/* WW  (c) 1982 Taito Corporation */
+	DRIVER( frontlin )	/* AA1 (c) 1982 Taito Corporation */
+	DRIVER( frontlina )	/* FL  (c) 1982 Taito Corporation */
+	DRIVER( elevator )	/* BA3 (c) 1983 Taito Corporation */
+	DRIVER( elevatora )	/* EA  (c) 1983 Taito Corporation */
+	DRIVER( elevatorb )	/* bootleg */
 	DRIVER( tinstar )	/* A10 (c) 1983 Taito Corporation */
+	DRIVER( tinstara )	/* TS  (c) 1983 Taito Corporation */
 	DRIVER( waterski )	/* A03 (c) 1983 Taito Corporation */
 	DRIVER( bioatack )	/* AA8 (c) 1983 Taito Corporation + Fox Video Games license */
 	DRIVER( hwrace )	/* AC4 (c) 1983 Taito Corporation */

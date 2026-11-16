@@ -41816,78 +41816,78 @@
 :elephfam:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Elevator Action (bootleg) ]
-:elevatob:00000000:8234:00000014:FFFFFFFF:Infinite Lives
-:elevatob:60000000:0000:00000000:00000000:[Disable invincibility with ]
-:elevatob:60000000:0000:00000000:00000000:[F6 to enter the car and    ]
-:elevatob:60000000:0000:00000000:00000000:[finish each level.         ]
-:elevatob:00000000:8523:00000000:FFFFFFFF:Invincibility
-:elevatob:60000000:0000:00000000:00000000:[                           ]
-:elevatob:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:elevatob:60000000:0000:00000000:00000000:[enable an alternate        ]
-:elevatob:60000000:0000:00000000:00000000:[Invincibility cheat.       ]
-:elevatob:60000000:0000:00000000:00000000:[                           ]
-:elevatob:00000000:8240:000000FF:FFFFFFFF:Lamps never fall
-:elevatob:00000000:8211:00000008:FFFFFFFF:Always No red door on fl. 1
-:elevatob:00000000:8212:00000008:FFFFFFFF:Always No red door on fl. 2
-:elevatob:00000000:8213:00000008:FFFFFFFF:Always No red door on fl. 3
-:elevatob:00000000:8214:00000008:FFFFFFFF:Always No red door on fl. 4
-:elevatob:00000000:8215:00000008:FFFFFFFF:Always No red door on fl. 5
-:elevatob:00000000:8216:00000008:FFFFFFFF:Always No red door on fl. 6
-:elevatob:00000000:8217:00000008:FFFFFFFF:Always No red door on fl. 7
-:elevatob:00000000:8218:00000008:FFFFFFFF:Always No red door on fl. 8
-:elevatob:00000000:8219:00000008:FFFFFFFF:Always No red door on fl. 9
-:elevatob:00000000:821A:00000008:FFFFFFFF:Always No red door on fl. 10
-:elevatob:00000000:821B:00000008:FFFFFFFF:Always No red door on fl. 11
-:elevatob:00000000:821C:00000008:FFFFFFFF:Always No red door on fl. 12
-:elevatob:00000000:821D:00000008:FFFFFFFF:Always No red door on fl. 13
-:elevatob:00000000:821E:00000008:FFFFFFFF:Always No red door on fl. 14
-:elevatob:00000000:821F:00000008:FFFFFFFF:Always No red door on fl. 15
-:elevatob:00000000:8220:00000008:FFFFFFFF:Always No red door on fl. 16
-:elevatob:00000000:8221:00000008:FFFFFFFF:Always No red door on fl. 17
-:elevatob:00000000:8222:00000008:FFFFFFFF:Always No red door on fl. 18
-:elevatob:00000000:8223:00000008:FFFFFFFF:Always No red door on fl. 19
-:elevatob:00000000:8224:00000008:FFFFFFFF:Always No red door on fl. 20
-:elevatob:00000000:8225:00000008:FFFFFFFF:Always No red door on fl. 21
-:elevatob:00000000:8226:00000008:FFFFFFFF:Always No red door on fl. 22
-:elevatob:00000000:8227:00000008:FFFFFFFF:Always No red door on fl. 23
-:elevatob:00000000:8228:00000008:FFFFFFFF:Always No red door on fl. 24
-:elevatob:00000000:8229:00000008:FFFFFFFF:Always No red door on fl. 25
-:elevatob:00000000:822A:00000008:FFFFFFFF:Always No red door on fl. 26
-:elevatob:00000000:822B:00000008:FFFFFFFF:Always No red door on fl. 27
-:elevatob:00000000:822C:00000008:FFFFFFFF:Always No red door on fl. 28
-:elevatob:00000000:822D:00000008:FFFFFFFF:Always No red door on fl. 29
-:elevatob:00000000:822E:00000008:FFFFFFFF:Always No red door on fl. 30
-:elevatob:00000001:8211:00000008:FFFFFFFF:No red door on fl. 1 Now!
-:elevatob:00000001:8212:00000008:FFFFFFFF:No red door on fl. 2 Now!
-:elevatob:00000001:8213:00000008:FFFFFFFF:No red door on fl. 3 Now!
-:elevatob:00000001:8214:00000008:FFFFFFFF:No red door on fl. 4 Now!
-:elevatob:00000001:8215:00000008:FFFFFFFF:No red door on fl. 5 Now!
-:elevatob:00000001:8216:00000008:FFFFFFFF:No red door on fl. 6 Now!
-:elevatob:00000001:8217:00000008:FFFFFFFF:No red door on fl. 7 Now!
-:elevatob:00000001:8218:00000008:FFFFFFFF:No red door on fl. 8 Now!
-:elevatob:00000001:8219:00000008:FFFFFFFF:No red door on fl. 9 Now!
-:elevatob:00000001:821A:00000008:FFFFFFFF:No red door on fl. 10 Now!
-:elevatob:00000001:821B:00000008:FFFFFFFF:No red door on fl. 11 Now!
-:elevatob:00000001:821C:00000008:FFFFFFFF:No red door on fl. 12 Now!
-:elevatob:00000001:821D:00000008:FFFFFFFF:No red door on fl. 13 Now!
-:elevatob:00000001:821E:00000008:FFFFFFFF:No red door on fl. 14 Now!
-:elevatob:00000001:821F:00000008:FFFFFFFF:No red door on fl. 15 Now!
-:elevatob:00000001:8220:00000008:FFFFFFFF:No red door on fl. 16 Now!
-:elevatob:00000001:8221:00000008:FFFFFFFF:No red door on fl. 17 Now!
-:elevatob:00000001:8222:00000008:FFFFFFFF:No red door on fl. 18 Now!
-:elevatob:00000001:8223:00000008:FFFFFFFF:No red door on fl. 19 Now!
-:elevatob:00000001:8224:00000008:FFFFFFFF:No red door on fl. 20 Now!
-:elevatob:00000001:8225:00000008:FFFFFFFF:No red door on fl. 21 Now!
-:elevatob:00000001:8226:00000008:FFFFFFFF:No red door on fl. 22 Now!
-:elevatob:00000001:8227:00000008:FFFFFFFF:No red door on fl. 23 Now!
-:elevatob:00000001:8228:00000008:FFFFFFFF:No red door on fl. 24 Now!
-:elevatob:00000001:8229:00000008:FFFFFFFF:No red door on fl. 25 Now!
-:elevatob:00000001:822A:00000008:FFFFFFFF:No red door on fl. 26 Now!
-:elevatob:00000001:822B:00000008:FFFFFFFF:No red door on fl. 27 Now!
-:elevatob:00000001:822C:00000008:FFFFFFFF:No red door on fl. 28 Now!
-:elevatob:00000001:822D:00000008:FFFFFFFF:No red door on fl. 29 Now!
-:elevatob:00000001:822E:00000008:FFFFFFFF:No red door on fl. 30 Now!
-:elevatob:00000001:8237:00000004:FFFFFFFF:Level 5 (Highlander test)
+:elevatorb:00000000:8234:00000014:FFFFFFFF:Infinite Lives
+:elevatorb:60000000:0000:00000000:00000000:[Disable invincibility with ]
+:elevatorb:60000000:0000:00000000:00000000:[F6 to enter the car and    ]
+:elevatorb:60000000:0000:00000000:00000000:[finish each level.         ]
+:elevatorb:00000000:8523:00000000:FFFFFFFF:Invincibility
+:elevatorb:60000000:0000:00000000:00000000:[                           ]
+:elevatorb:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:elevatorb:60000000:0000:00000000:00000000:[enable an alternate        ]
+:elevatorb:60000000:0000:00000000:00000000:[Invincibility cheat.       ]
+:elevatorb:60000000:0000:00000000:00000000:[                           ]
+:elevatorb:00000000:8240:000000FF:FFFFFFFF:Lamps never fall
+:elevatorb:00000000:8211:00000008:FFFFFFFF:Always No red door on fl. 1
+:elevatorb:00000000:8212:00000008:FFFFFFFF:Always No red door on fl. 2
+:elevatorb:00000000:8213:00000008:FFFFFFFF:Always No red door on fl. 3
+:elevatorb:00000000:8214:00000008:FFFFFFFF:Always No red door on fl. 4
+:elevatorb:00000000:8215:00000008:FFFFFFFF:Always No red door on fl. 5
+:elevatorb:00000000:8216:00000008:FFFFFFFF:Always No red door on fl. 6
+:elevatorb:00000000:8217:00000008:FFFFFFFF:Always No red door on fl. 7
+:elevatorb:00000000:8218:00000008:FFFFFFFF:Always No red door on fl. 8
+:elevatorb:00000000:8219:00000008:FFFFFFFF:Always No red door on fl. 9
+:elevatorb:00000000:821A:00000008:FFFFFFFF:Always No red door on fl. 10
+:elevatorb:00000000:821B:00000008:FFFFFFFF:Always No red door on fl. 11
+:elevatorb:00000000:821C:00000008:FFFFFFFF:Always No red door on fl. 12
+:elevatorb:00000000:821D:00000008:FFFFFFFF:Always No red door on fl. 13
+:elevatorb:00000000:821E:00000008:FFFFFFFF:Always No red door on fl. 14
+:elevatorb:00000000:821F:00000008:FFFFFFFF:Always No red door on fl. 15
+:elevatorb:00000000:8220:00000008:FFFFFFFF:Always No red door on fl. 16
+:elevatorb:00000000:8221:00000008:FFFFFFFF:Always No red door on fl. 17
+:elevatorb:00000000:8222:00000008:FFFFFFFF:Always No red door on fl. 18
+:elevatorb:00000000:8223:00000008:FFFFFFFF:Always No red door on fl. 19
+:elevatorb:00000000:8224:00000008:FFFFFFFF:Always No red door on fl. 20
+:elevatorb:00000000:8225:00000008:FFFFFFFF:Always No red door on fl. 21
+:elevatorb:00000000:8226:00000008:FFFFFFFF:Always No red door on fl. 22
+:elevatorb:00000000:8227:00000008:FFFFFFFF:Always No red door on fl. 23
+:elevatorb:00000000:8228:00000008:FFFFFFFF:Always No red door on fl. 24
+:elevatorb:00000000:8229:00000008:FFFFFFFF:Always No red door on fl. 25
+:elevatorb:00000000:822A:00000008:FFFFFFFF:Always No red door on fl. 26
+:elevatorb:00000000:822B:00000008:FFFFFFFF:Always No red door on fl. 27
+:elevatorb:00000000:822C:00000008:FFFFFFFF:Always No red door on fl. 28
+:elevatorb:00000000:822D:00000008:FFFFFFFF:Always No red door on fl. 29
+:elevatorb:00000000:822E:00000008:FFFFFFFF:Always No red door on fl. 30
+:elevatorb:00000001:8211:00000008:FFFFFFFF:No red door on fl. 1 Now!
+:elevatorb:00000001:8212:00000008:FFFFFFFF:No red door on fl. 2 Now!
+:elevatorb:00000001:8213:00000008:FFFFFFFF:No red door on fl. 3 Now!
+:elevatorb:00000001:8214:00000008:FFFFFFFF:No red door on fl. 4 Now!
+:elevatorb:00000001:8215:00000008:FFFFFFFF:No red door on fl. 5 Now!
+:elevatorb:00000001:8216:00000008:FFFFFFFF:No red door on fl. 6 Now!
+:elevatorb:00000001:8217:00000008:FFFFFFFF:No red door on fl. 7 Now!
+:elevatorb:00000001:8218:00000008:FFFFFFFF:No red door on fl. 8 Now!
+:elevatorb:00000001:8219:00000008:FFFFFFFF:No red door on fl. 9 Now!
+:elevatorb:00000001:821A:00000008:FFFFFFFF:No red door on fl. 10 Now!
+:elevatorb:00000001:821B:00000008:FFFFFFFF:No red door on fl. 11 Now!
+:elevatorb:00000001:821C:00000008:FFFFFFFF:No red door on fl. 12 Now!
+:elevatorb:00000001:821D:00000008:FFFFFFFF:No red door on fl. 13 Now!
+:elevatorb:00000001:821E:00000008:FFFFFFFF:No red door on fl. 14 Now!
+:elevatorb:00000001:821F:00000008:FFFFFFFF:No red door on fl. 15 Now!
+:elevatorb:00000001:8220:00000008:FFFFFFFF:No red door on fl. 16 Now!
+:elevatorb:00000001:8221:00000008:FFFFFFFF:No red door on fl. 17 Now!
+:elevatorb:00000001:8222:00000008:FFFFFFFF:No red door on fl. 18 Now!
+:elevatorb:00000001:8223:00000008:FFFFFFFF:No red door on fl. 19 Now!
+:elevatorb:00000001:8224:00000008:FFFFFFFF:No red door on fl. 20 Now!
+:elevatorb:00000001:8225:00000008:FFFFFFFF:No red door on fl. 21 Now!
+:elevatorb:00000001:8226:00000008:FFFFFFFF:No red door on fl. 22 Now!
+:elevatorb:00000001:8227:00000008:FFFFFFFF:No red door on fl. 23 Now!
+:elevatorb:00000001:8228:00000008:FFFFFFFF:No red door on fl. 24 Now!
+:elevatorb:00000001:8229:00000008:FFFFFFFF:No red door on fl. 25 Now!
+:elevatorb:00000001:822A:00000008:FFFFFFFF:No red door on fl. 26 Now!
+:elevatorb:00000001:822B:00000008:FFFFFFFF:No red door on fl. 27 Now!
+:elevatorb:00000001:822C:00000008:FFFFFFFF:No red door on fl. 28 Now!
+:elevatorb:00000001:822D:00000008:FFFFFFFF:No red door on fl. 29 Now!
+:elevatorb:00000001:822E:00000008:FFFFFFFF:No red door on fl. 30 Now!
+:elevatorb:00000001:8237:00000004:FFFFFFFF:Level 5 (Highlander test)
 
 ; [ Elevator Action ]
 :elevator:00000000:8234:00000014:FFFFFFFF:Infinite Lives
@@ -63822,16 +63822,16 @@
 :junglers:00000000:9F40:00000004:FFFFFFFF:Infinite Lives PL2
 
 ; [ Jungle Hunt (Brazil) ]
-:junglhbr:00000000:842F:00000099:FFFFFFFF:Infinite Time
-:junglhbr:00000000:8457:00000030:FFFFFFFF:Infinite Oxygen
-:junglhbr:00000000:8425:0000001F:FFFFFFFF:Infinite Lives PL1
-:junglhbr:00000000:8426:0000001F:FFFFFFFF:Infinite Lives PL2
+:junglehbr:00000000:842F:00000099:FFFFFFFF:Infinite Time
+:junglehbr:00000000:8457:00000030:FFFFFFFF:Infinite Oxygen
+:junglehbr:00000000:8425:0000001F:FFFFFFFF:Infinite Lives PL1
+:junglehbr:00000000:8426:0000001F:FFFFFFFF:Infinite Lives PL2
 
 ; [ Jungle King (Japan, earlier) ]
-:junglkj2:00000000:842F:00000099:FFFFFFFF:Infinite Time
-:junglkj2:00000000:8457:00000030:FFFFFFFF:Infinite Oxygen
-:junglkj2:00000000:8425:0000001F:FFFFFFFF:Infinite Lives PL1
-:junglkj2:00000000:8426:0000001F:FFFFFFFF:Infinite Lives PL2
+:junglekj2:00000000:842F:00000099:FFFFFFFF:Infinite Time
+:junglekj2:00000000:8457:00000030:FFFFFFFF:Infinite Oxygen
+:junglekj2:00000000:8425:0000001F:FFFFFFFF:Infinite Lives PL1
+:junglekj2:00000000:8426:0000001F:FFFFFFFF:Infinite Lives PL2
 
 ; [ Juno First ]
 :junofrst:00000000:8880:0000000A:FFFFFFFF:Infinite Lives
@@ -198247,9 +198247,9 @@
 :wwallyja:00000000:FFC0B0:00000008:FFFFFFFF:Always Have Foods PL2
 
 ; [ Wild Western (set 2) ]
-:wwester1:00000000:8620:00000003:FFFFFFFF:Infinite Lives
-:wwester1:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:wwester1:60000000:0000:00000000:00000000:[enable Invincibility.      ]
+:wwestern1:00000000:8620:00000003:FFFFFFFF:Infinite Lives
+:wwestern1:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:wwestern1:60000000:0000:00000000:00000000:[enable Invincibility.      ]
 
 ; [ Wild Western (set 1) ]
 :wwestern:00000000:8620:00000003:FFFFFFFF:Infinite Lives
@@ -204703,7 +204703,7 @@
 ;eggvent7=eggventr=eggvntdx
 ;ehrgeiz=ehrgeiza
 ;elecyoy2=elecyoyo
-;elevatob=elevator
+;elevatorb=elevator
 ;elim2=elim2a~elim2c~(elim4=elim4p)
 ;elvact2u=elvactr=elvactrj
 ;emeralda=emerldaa
@@ -204920,7 +204920,7 @@
 ;jumping=rainbow=rainbowo~rainbowe
 ;jumpkids~=pangpang~=(tumblep=tumbleb2=tumbleb=tumblepj)~fncywld(+ED8230 to address + other differences)
 ;jumpshot=jumpshtp
-;jungleh=junglek=junglhbr=junglkj2~=piratpet
+;jungleh=junglek=junglehbr=junglekj2~=piratpet
 ;jungler=junglers
 ;junofrst=junofstg
 ;kabukiz=kabukizj
@@ -205571,7 +205571,7 @@
 ;wrestwar1=wrestwar2=wrestwar
 ;ws~=ws89=ws90
 ;wwallyj=wwallyja
-;wwester1=wwestern
+;wwestern1=wwestern
 ;wwfsstaa=wwfsstaj=wwfsstar=wwfsstau
 ;wwfwfest=wwfwfsta=wwfwfstb=wwfwfstj
 ;xexex~=xexexj

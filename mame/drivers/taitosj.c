@@ -102,7 +102,7 @@ Address          Dir Data     Name       Description
 
 
 [4] The first page of tilemap RAM c000-c3ff is used by bioatack during sprite
-    collision detection. It is also initialised by wwestern and wwester1
+    collision detection. It is also initialised by wwestern and wwestern1
     although they don't appear to use it.
 
 SOUND CPU:
@@ -2140,8 +2140,73 @@ ROM_START( junglek )
     ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
-ROM_START( junglkj2 )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
+ROM_START( junglekas ) // alternate sound - no tarzan yell
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "kn21-1.bin",   0x00000, 0x1000, CRC(45f55d30) SHA1(bb9518d7728938f673a663801e47ae0438cdbea1) )
+	ROM_LOAD( "kn22-1.bin",   0x01000, 0x1000, CRC(07cc9a21) SHA1(3fe35935e0a430ab0edc6a762623972fa37ea926) )
+	ROM_LOAD( "kn43.bin",     0x02000, 0x1000, CRC(a20e5a48) SHA1(af961b671dc4c865d0181d08a70b902bb96f29d0) )
+	ROM_LOAD( "kn24.bin",     0x03000, 0x1000, CRC(19ea7f83) SHA1(2399cc89f73811575c3f644d5c04ef13ceec6838) )
+	ROM_LOAD( "kn25.bin",     0x04000, 0x1000, CRC(844365ea) SHA1(af34712620e4b784a5014283d3111048c5f81a56) )
+	ROM_LOAD( "kn46.bin",     0x05000, 0x1000, CRC(27a95fd5) SHA1(160ee5d11126ac4155b479e43ec1bd6a4e9e21e7) )
+	ROM_LOAD( "kn47.bin",     0x06000, 0x1000, CRC(5c3199e0) SHA1(c57dec92998b971d76aecd23674c25cf7b8be667) )
+	ROM_LOAD( "kn28.bin",     0x07000, 0x1000, CRC(194a2d09) SHA1(88999493e470acdcf932efff71cd6155387a63d0) )
+	// 10000-10fff space for another banked ROM (not used)
+	ROM_LOAD( "kn60.bin",     0x11000, 0x1000, CRC(1a9c0a26) SHA1(82f4cebeba90419e83a00427b671985824babd7a) ) // banked at 7000
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "kn-a17.bin",   0x0000, 0x1000, CRC(62f6763a) SHA1(84eadbc5c6a37c53c104e4ac1fd273b6b2a335e5) )
+	ROM_LOAD( "kn-a18.bin",   0x1000, 0x1000, CRC(8a813a7c) SHA1(e1c1bba0e793afeebd463d5cba9ff4110af238b2) )
+	ROM_LOAD( "kn-a19.bin",   0x2000, 0x1000, CRC(abbe4ae5) SHA1(992db7b1748a8c1c5093fd8441de512794380478) )
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )   // graphic ROMs used at runtime
+	ROM_LOAD( "kn29.bin",     0x0000, 0x1000, CRC(8f83c290) SHA1(aa95ed2d2e15f573e092e8eed7d80479512d9409) )
+	ROM_LOAD( "kn30.bin",     0x1000, 0x1000, CRC(89fd19f1) SHA1(fc7dfe3a1d78ac37a036fa9d8ebf3a33a2f4cbe8) )
+	ROM_LOAD( "kn51.bin",     0x2000, 0x1000, CRC(70e8fc12) SHA1(505c90c662d372d28cb38201433054b8e3d723d1) )
+	ROM_LOAD( "kn52.bin",     0x3000, 0x1000, CRC(bcbac1a3) SHA1(bcd5fc9b3791ab67e0ad9f9ced7226853e9a2a00) )
+	ROM_LOAD( "kn53.bin",     0x4000, 0x1000, CRC(b946c87d) SHA1(d16cb6bf38e00ae11c204cbf8f400f8a85c807c2) )
+	ROM_LOAD( "kn34.bin",     0x5000, 0x1000, CRC(320db2e1) SHA1(ca8722010712302b491eb5f51d73043bcb2ddc8f) )
+	ROM_LOAD( "kn55.bin",     0x6000, 0x1000, CRC(70aef58f) SHA1(df7454a1c3676181eca698bb3b2ef3253a45ca0f) )
+	ROM_LOAD( "kn56.bin",     0x7000, 0x1000, CRC(932eb667) SHA1(4bf7c01ab212b616931a21a43a453521aa01ff36) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( jungleby )
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "j1.bin",   0x00000, 0x1000, CRC(6f2ac11f) SHA1(c6592d369449140ed4a8dffea76f4809e0f76f06) ) // modified copyright
+	ROM_LOAD( "j2.bin",   0x01000, 0x1000, CRC(07cc9a21) SHA1(3fe35935e0a430ab0edc6a762623972fa37ea926) )
+	ROM_LOAD( "j3.bin",   0x02000, 0x1000, CRC(a20e5a48) SHA1(af961b671dc4c865d0181d08a70b902bb96f29d0) )
+	ROM_LOAD( "j4.bin",   0x03000, 0x1000, CRC(19ea7f83) SHA1(2399cc89f73811575c3f644d5c04ef13ceec6838) )
+	ROM_LOAD( "j5.bin",   0x04000, 0x1000, CRC(844365ea) SHA1(af34712620e4b784a5014283d3111048c5f81a56) )
+	ROM_LOAD( "j6.bin",   0x05000, 0x1000, CRC(27a95fd5) SHA1(160ee5d11126ac4155b479e43ec1bd6a4e9e21e7) )
+	ROM_LOAD( "j7.bin",   0x06000, 0x1000, CRC(5c3199e0) SHA1(c57dec92998b971d76aecd23674c25cf7b8be667) )
+	ROM_LOAD( "j8.bin",   0x07000, 0x1000, CRC(895e5708) SHA1(66261a266d026d90074eafb564d647bde3a7b736) ) // modified title logo
+
+	// 10000-10fff space for another banked ROM (not used)
+	ROM_LOAD( "j9.bin",     0x11000, 0x1000, CRC(1a9c0a26) SHA1(82f4cebeba90419e83a00427b671985824babd7a) ) // banked at 7000
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "j10.bin",   0x0000, 0x1000, CRC(dee7f5d4) SHA1(cd8179a17ccd054fb470c4eee97192c2dd226397) )
+	ROM_LOAD( "j11.bin",   0x1000, 0x1000, CRC(bffd3d21) SHA1(a2b3393e9694d6979d39ab0f1ab82b7ef892b3da) )
+	ROM_LOAD( "j12.bin",   0x2000, 0x1000, CRC(cee485fc) SHA1(1e0c52ec6b1d3cfd47247db71bcf3fe476c32039) )
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )   // graphic ROMs used at runtime
+	ROM_LOAD( "j13.bin",     0x0000, 0x1000, CRC(8f83c290) SHA1(aa95ed2d2e15f573e092e8eed7d80479512d9409) )
+	ROM_LOAD( "j14.bin",     0x1000, 0x1000, CRC(89fd19f1) SHA1(fc7dfe3a1d78ac37a036fa9d8ebf3a33a2f4cbe8) )
+	ROM_LOAD( "j15.bin",     0x2000, 0x1000, CRC(70e8fc12) SHA1(505c90c662d372d28cb38201433054b8e3d723d1) )
+	ROM_LOAD( "j16.bin",     0x3000, 0x1000, CRC(bcbac1a3) SHA1(bcd5fc9b3791ab67e0ad9f9ced7226853e9a2a00) )
+	ROM_LOAD( "j17.bin",     0x4000, 0x1000, CRC(b946c87d) SHA1(d16cb6bf38e00ae11c204cbf8f400f8a85c807c2) )
+	ROM_LOAD( "j18.bin",     0x5000, 0x1000, CRC(320db2e1) SHA1(ca8722010712302b491eb5f51d73043bcb2ddc8f) )
+	ROM_LOAD( "j19.bin",     0x6000, 0x1000, CRC(8438eb41) SHA1(fc76747abe91e965390e06533c56b6cd4e2d62a0) ) // modified tiles for title logo
+	ROM_LOAD( "j20.bin",     0x7000, 0x1000, CRC(932eb667) SHA1(4bf7c01ab212b616931a21a43a453521aa01ff36) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( junglekj2 )
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
 	ROM_LOAD( "kn41.bin",     0x00000, 0x1000, CRC(7e4cd631) SHA1(512c08795d7946500b22d6f63a482c5156e6764b) )
 	ROM_LOAD( "kn42.bin",     0x01000, 0x1000, CRC(bade53af) SHA1(c3d2cf776598cb2d8684fa0b3ea7af90af9e8dae) )
 	ROM_LOAD( "kn43.bin",     0x02000, 0x1000, CRC(a20e5a48) SHA1(af961b671dc4c865d0181d08a70b902bb96f29d0) )
@@ -2150,15 +2215,15 @@ ROM_START( junglkj2 )
 	ROM_LOAD( "kn46.bin",     0x05000, 0x1000, CRC(27a95fd5) SHA1(160ee5d11126ac4155b479e43ec1bd6a4e9e21e7) )
 	ROM_LOAD( "kn47.bin",     0x06000, 0x1000, CRC(5c3199e0) SHA1(c57dec92998b971d76aecd23674c25cf7b8be667) )
 	ROM_LOAD( "kn48.bin",     0x07000, 0x1000, CRC(e690b36e) SHA1(25a6c06d6c2bf0082cc776255448c329cb2e74e0) )
-	/* 10000-10fff space for another banked ROM (not used) */
-	ROM_LOAD( "kn60.bin",     0x11000, 0x1000, CRC(1a9c0a26) SHA1(82f4cebeba90419e83a00427b671985824babd7a) ) /* banked at 7000 */
+	// 10000-10fff space for another banked ROM (not used)
+	ROM_LOAD( "kn60.bin",     0x11000, 0x1000, CRC(1a9c0a26) SHA1(82f4cebeba90419e83a00427b671985824babd7a) ) // banked at 7000
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "kn57-1.bin",   0x0000, 0x1000, CRC(62f6763a) SHA1(84eadbc5c6a37c53c104e4ac1fd273b6b2a335e5) )
 	ROM_LOAD( "kn58-1.bin",   0x1000, 0x1000, CRC(9ef46c7f) SHA1(867d9352cde4d6496f59e790cbbf15302a55364e) )
 	ROM_LOAD( "kn59-1.bin",   0x2000, 0x1000, CRC(cee485fc) SHA1(1e0c52ec6b1d3cfd47247db71bcf3fe476c32039) )
 
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
 	ROM_LOAD( "kn49.bin",     0x0000, 0x1000, CRC(fe275213) SHA1(5fcbe2db9371ae46610e7ce261498f3a9b4116ec) )
 	ROM_LOAD( "kn50.bin",     0x1000, 0x1000, CRC(d9f93c55) SHA1(de04845a42b8214eceda1c9aa92af631f3236ee9) )
 	ROM_LOAD( "kn51.bin",     0x2000, 0x1000, CRC(70e8fc12) SHA1(505c90c662d372d28cb38201433054b8e3d723d1) )
@@ -2168,7 +2233,39 @@ ROM_START( junglkj2 )
 	ROM_LOAD( "kn55.bin",     0x6000, 0x1000, CRC(70aef58f) SHA1(df7454a1c3676181eca698bb3b2ef3253a45ca0f) )
 	ROM_LOAD( "kn56.bin",     0x7000, 0x1000, CRC(932eb667) SHA1(4bf7c01ab212b616931a21a43a453521aa01ff36) )
 
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( junglekj2a )
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "kn41.bin",     0x00000, 0x1000, CRC(7e4cd631) SHA1(512c08795d7946500b22d6f63a482c5156e6764b) )
+	ROM_LOAD( "kn42.bin",     0x01000, 0x1000, CRC(bade53af) SHA1(c3d2cf776598cb2d8684fa0b3ea7af90af9e8dae) )
+	ROM_LOAD( "kn43.bin",     0x02000, 0x1000, CRC(a20e5a48) SHA1(af961b671dc4c865d0181d08a70b902bb96f29d0) )
+	ROM_LOAD( "kn44.bin",     0x03000, 0x1000, CRC(44c770d3) SHA1(57a1ddc07009f0dbd423cbe111b886e919a8bb0a) )
+	ROM_LOAD( "kn45.bin",     0x04000, 0x1000, CRC(f60a3d06) SHA1(7c387f0aeb9497b026d8838ee6ea7ff11dea506a) )
+	ROM_LOAD( "kn26.bin",     0x05000, 0x1000, CRC(4b5adca2) SHA1(00040491a57e5247a051eacbe57e30763109ef13) ) // a few bytes differences in tables vs junglekj2
+	ROM_LOAD( "kn27.bin",     0x06000, 0x1000, CRC(5c3199e0) SHA1(c57dec92998b971d76aecd23674c25cf7b8be667) )
+	ROM_LOAD( "kn48.bin",     0x07000, 0x1000, CRC(e690b36e) SHA1(25a6c06d6c2bf0082cc776255448c329cb2e74e0) )
+	// 10000-10fff space for another banked ROM (not used)
+	ROM_LOAD( "kn60.bin",     0x11000, 0x1000, CRC(1a9c0a26) SHA1(82f4cebeba90419e83a00427b671985824babd7a) ) // banked at 7000
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "kn37.bin",   0x0000, 0x1000, CRC(60d13095) SHA1(c9a3bdc3a5432945cd09588708b8a24ff7d772c3) ) // significant differences from junglekj2 (but same label as junglehbr?)
+	ROM_LOAD( "kn38.bin",   0x1000, 0x1000, CRC(6950413d) SHA1(263472a25213f411a8be7d30f5dec6aec186c1d4) ) //  ^^
+	ROM_LOAD( "kn59.bin",   0x2000, 0x1000, CRC(cee485fc) SHA1(1e0c52ec6b1d3cfd47247db71bcf3fe476c32039) )
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
+	ROM_LOAD( "kn49.bin",     0x0000, 0x1000, CRC(fe275213) SHA1(5fcbe2db9371ae46610e7ce261498f3a9b4116ec) )
+	ROM_LOAD( "kn50.bin",     0x1000, 0x1000, CRC(d9f93c55) SHA1(de04845a42b8214eceda1c9aa92af631f3236ee9) )
+	ROM_LOAD( "kn51.bin",     0x2000, 0x1000, CRC(70e8fc12) SHA1(505c90c662d372d28cb38201433054b8e3d723d1) )
+	ROM_LOAD( "kn52.bin",     0x3000, 0x1000, CRC(bcbac1a3) SHA1(bcd5fc9b3791ab67e0ad9f9ced7226853e9a2a00) )
+	ROM_LOAD( "kn53.bin",     0x4000, 0x1000, CRC(b946c87d) SHA1(d16cb6bf38e00ae11c204cbf8f400f8a85c807c2) )
+	ROM_LOAD( "kn54.bin",     0x5000, 0x1000, CRC(f757d8f0) SHA1(896118d990e3733aeb45842c0dc2103cbf2ba1a2) )
+	ROM_LOAD( "kn55.bin",     0x6000, 0x1000, CRC(70aef58f) SHA1(df7454a1c3676181eca698bb3b2ef3253a45ca0f) )
+	ROM_LOAD( "kn56.bin",     0x7000, 0x1000, CRC(932eb667) SHA1(4bf7c01ab212b616931a21a43a453521aa01ff36) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
@@ -2204,7 +2301,7 @@ ROM_START( jungleh )
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
-ROM_START( junglhbr )
+ROM_START( junglehbr )
 	ROM_REGION( 0x12000, REGION_CPU1, 0 ) /* 64k for code */
 	ROM_LOAD( "ic1.bin",      0x00000, 0x2000, CRC(3255a10e) SHA1(846448151e7db84b66ab6778c86c0b1bf8c3fec7) )
 	ROM_LOAD( "ic2.bin",      0x02000, 0x2000, CRC(8482bc63) SHA1(56ddfc4df4867d81ad78c23fc80f53ff711dffd6) )
@@ -2396,7 +2493,7 @@ ROM_START( wwestern )
 	ROM_LOAD( "ww17",         0x0000, 0x0100, CRC(93447d2b) SHA1(d29f4a56a06ac809b4b9efa8aa9d1f246250e3a2) )
 ROM_END
 
-ROM_START( wwester1 )
+ROM_START( wwestern1 )
 	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
 	ROM_LOAD( "ww01.bin",     0x0000, 0x1000, CRC(bfe10753) SHA1(468cf5a2f7232b5faf4a371aee2c83196fc486a5) )
 	ROM_LOAD( "ww02",         0x1000, 0x1000, CRC(f011103a) SHA1(4d94140fb121abb366933bb56d216bdcf2b0a9f4) )
@@ -2422,107 +2519,208 @@ ROM_START( wwester1 )
 	ROM_LOAD( "ww17",         0x0000, 0x0100, CRC(93447d2b) SHA1(d29f4a56a06ac809b4b9efa8aa9d1f246250e3a2) )
 ROM_END
 
-ROM_START( frontlin )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
-	ROM_LOAD( "fl69.u69",     0x00000, 0x1000, CRC(93b64599) SHA1(1d4e135d5105d5e2949dbd791eb87c30e8505f1d) )
-	ROM_LOAD( "fl68.u68",     0x01000, 0x1000, CRC(82dccdfb) SHA1(0c88feff88b61dc0ae5487aa0a83f665a308658f) )
-	ROM_LOAD( "fl67.u67",     0x02000, 0x1000, CRC(3fa1ba12) SHA1(06eaccc75a4a950ed509c0dd203eeb7120849e74) )
-	ROM_LOAD( "fl66.u66",     0x03000, 0x1000, CRC(4a3db285) SHA1(0b486523d4ae302962dcb4ca042754fd96208259) )
-	ROM_LOAD( "fl65.u65",     0x04000, 0x1000, CRC(da00ec70) SHA1(652eb07c1e98ed04042a334ad8e27fd3da8dd6a2) )
-	ROM_LOAD( "fl64.u64",     0x05000, 0x1000, CRC(9fc90a20) SHA1(2d1bc248ed68dbb1993c360a9f2e2dbe26c216fb) )
-	ROM_LOAD( "fl55.u55",     0x06000, 0x1000, CRC(359242c2) SHA1(63bd845b2d881946a7904e4df1db3d78a60b57ad) )
-	ROM_LOAD( "fl54.u54",     0x07000, 0x1000, CRC(d234c60f) SHA1(b45bf432a64b7aaf3762d72a762b5eca198d5b3d) )
-	ROM_LOAD( "aa1_10.8",     0x0e000, 0x1000, CRC(2704aa4c) SHA1(d8dbad5deeef2c7b032b741ab3014a8402c334eb) )
-	ROM_LOAD( "fl53.u53",     0x10000, 0x1000, CRC(67429975) SHA1(b84254b2d04b034c2602f95587523a77dfdbae71) ) /* banked at 6000 */
-	ROM_LOAD( "fl52.u52",     0x11000, 0x1000, CRC(cb223d34) SHA1(a1a4530ed25064c6cabe34c52bb239e3656e4ced) ) /* banked at 7000 */
+ROM_START( frontlin ) // later 4 PCB stack
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )  // on PBC J000004A / K1000103A
+	ROM_LOAD( "aa1_05.ic1", 0x00000, 0x2000, CRC(4b7c0d81) SHA1(2261421b01a56c8ec3e27e97f9202682ffc472aa) )  // 2764
+	ROM_LOAD( "aa1_06.ic2", 0x02000, 0x2000, CRC(caacdc02) SHA1(7dd46e79e403c3a45dafe5d8844818cffbc0ef89) )  // 2764
+	ROM_LOAD( "aa1_07.ic3", 0x04000, 0x2000, CRC(df2b2691) SHA1(79a99687c4c9931f247810732523a2ecf840dcad) )  // 2764
+	ROM_LOAD( "aa1_08.ic6", 0x06000, 0x2000, CRC(f9bc3374) SHA1(20939b1eebc990ed20cf386d091a496dd1449ba7) )  // 2764
+	ROM_LOAD( "aa1_10.ic8", 0x0e000, 0x1000, CRC(2704aa4c) SHA1(d8dbad5deeef2c7b032b741ab3014a8402c334eb) )  // 2732
+	ROM_LOAD( "aa1_09.ic7", 0x10000, 0x2000, CRC(e24d1f05) SHA1(06f973673729bc82a5cd43fcec50d721fed6dc72) )  // 2764
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
-	ROM_LOAD( "fl70.u70",     0x0000, 0x1000, CRC(15f4ed8c) SHA1(ec096234e4e594100180eb99c8c57eb97b9f57e2) )
-	ROM_LOAD( "fl71.u71",     0x1000, 0x1000, CRC(c3eb38e7) SHA1(427e5deb6a6e22d8c34923209a818f79d50e59d4) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )  // on PCB J10000001A / K1000100A / M4200331A
+	ROM_LOAD( "aa1_11.ic70", 0x0000, 0x1000, CRC(15f4ed8c) SHA1(ec096234e4e594100180eb99c8c57eb97b9f57e2) )  // 2732
+	ROM_LOAD( "aa1_12.ic71", 0x1000, 0x1000, CRC(c3eb38e7) SHA1(427e5deb6a6e22d8c34923209a818f79d50e59d4) )  // 2732
 
-	ROM_REGION( 0x0800, REGION_CPU3, 0 )       /* 2k for the microcontroller */
-	ROM_LOAD( "aa1.13",       0x0000, 0x0800, CRC(7e78bdd3) SHA1(9eeb0e969fd013b9db074a15b0463216453e9364) )
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )  // 2k for the microcontroller on PCB J1000003A / K1000102A
+	ROM_LOAD( "aa1_13.ic24", 0x0000, 0x0800, CRC(7e78bdd3) SHA1(9eeb0e969fd013b9db074a15b0463216453e9364) ) // Not marked as a MC68705P3S, instead had a custom ID: Motorola 15-00011-001 DA68235
 
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
-	ROM_LOAD( "fl1.u1",       0x0000, 0x1000, CRC(e82c9f46) SHA1(eaab468bb5e46e9c714e6f84e65f954331fdbc56) )
-	ROM_LOAD( "fl2.u2",       0x1000, 0x1000, CRC(123055d3) SHA1(6aaddd8ebb418c7c8584eb74ad13cd5accd5a196) )
-	ROM_LOAD( "fl3.u3",       0x2000, 0x1000, CRC(7ea46347) SHA1(b924a614abe01f7ca6a31463864d6cc55a47946e) )
-	ROM_LOAD( "fl4.u4",       0x3000, 0x1000, CRC(9e2cff10) SHA1(0932c15eacccab5a3a931dd40c1a35b5a4ca1cd5) )
-	ROM_LOAD( "fl5.u5",       0x4000, 0x1000, CRC(630b4be1) SHA1(780f75fdea68917a08f5f00da3831eaa26fd4405) )
-	ROM_LOAD( "fl6.u6",       0x5000, 0x1000, CRC(9e092d58) SHA1(8388870bb40c7a2e3b4ede74c37c71c3a3d1a607) )
-	ROM_LOAD( "fl7.u7",       0x6000, 0x1000, CRC(613682a3) SHA1(b681f3a4e70f207ce140adfac1388900d5013317) )
-	ROM_LOAD( "fl8.u8",       0x7000, 0x1000, CRC(f73b0d5e) SHA1(3f4ae070e39fac3c64c6c438168d131bffc580e2) )
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )  // graphic ROMs used at runtime on PBC J000004A / K1000103A
+	ROM_LOAD( "aa1_01.ic4",  0x0000, 0x2000, CRC(724fd755) SHA1(fd4d903edc6fccf7f350788e10bdbf3e1005790d) )  // 2764
+	ROM_LOAD( "aa1_02.ic5",  0x2000, 0x2000, CRC(b2d35070) SHA1(f9476207a930509bf02c8af6fc76b471578746a7) )  // 2764
+	ROM_LOAD( "aa1_03.ic9",  0x4000, 0x2000, CRC(d0723026) SHA1(a4ddfe198453304c50ce0eac5055357e24fd14c9) )  // 2764
+	ROM_LOAD( "aa1_04.ic10", 0x6000, 0x2000, CRC(bdc0a4f0) SHA1(a2fa59ec1d4e7bd4f6d2b0743bcbb0ff3750420c) )  // 2764
 
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )  // layer PROM - on PCB J1000002A / K1000101A
+	ROM_LOAD( "eb16.ic22", 0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( frontlina ) // 5 PCB stack - same data as above in 2732 EPROM format
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "fl69.u69",     0x00000, 0x1000, CRC(93b64599) SHA1(1d4e135d5105d5e2949dbd791eb87c30e8505f1d) ) // == aa1_05.ic1 1/2
+	ROM_LOAD( "fl68.u68",     0x01000, 0x1000, CRC(82dccdfb) SHA1(0c88feff88b61dc0ae5487aa0a83f665a308658f) ) // == aa1_05.ic1 2/2
+	ROM_LOAD( "fl67.u67",     0x02000, 0x1000, CRC(3fa1ba12) SHA1(06eaccc75a4a950ed509c0dd203eeb7120849e74) ) // == aa1_06.ic2 1/2
+	ROM_LOAD( "fl66.u66",     0x03000, 0x1000, CRC(4a3db285) SHA1(0b486523d4ae302962dcb4ca042754fd96208259) ) // == aa1_06.ic2 2/2
+	ROM_LOAD( "fl65.u65",     0x04000, 0x1000, CRC(da00ec70) SHA1(652eb07c1e98ed04042a334ad8e27fd3da8dd6a2) ) // == aa1_07.ic3 1/2
+	ROM_LOAD( "fl64.u64",     0x05000, 0x1000, CRC(9fc90a20) SHA1(2d1bc248ed68dbb1993c360a9f2e2dbe26c216fb) ) // == aa1_07.ic3 2/2
+	ROM_LOAD( "fl55.u55",     0x06000, 0x1000, CRC(359242c2) SHA1(63bd845b2d881946a7904e4df1db3d78a60b57ad) ) // == aa1_08.ic6 1/2
+	ROM_LOAD( "fl54.u54",     0x07000, 0x1000, CRC(d234c60f) SHA1(b45bf432a64b7aaf3762d72a762b5eca198d5b3d) ) // == aa1_08.ic6 2/2
+	ROM_LOAD( "aa1_10.ic8",   0x0e000, 0x1000, CRC(2704aa4c) SHA1(d8dbad5deeef2c7b032b741ab3014a8402c334eb) )
+	ROM_LOAD( "fl53.u53",     0x10000, 0x1000, CRC(67429975) SHA1(b84254b2d04b034c2602f95587523a77dfdbae71) ) // == aa1_09.ic7 1/2 - banked at 6000
+	ROM_LOAD( "fl52.u52",     0x11000, 0x1000, CRC(cb223d34) SHA1(a1a4530ed25064c6cabe34c52bb239e3656e4ced) ) // == aa1_09.ic7 2/2 - banked at 7000
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "fl70.u70",     0x0000, 0x1000, CRC(15f4ed8c) SHA1(ec096234e4e594100180eb99c8c57eb97b9f57e2) ) // aa1_11.ic70
+	ROM_LOAD( "fl71.u71",     0x1000, 0x1000, CRC(c3eb38e7) SHA1(427e5deb6a6e22d8c34923209a818f79d50e59d4) ) // aa1_12.ic71
+
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )  // 2k for the microcontroller
+	ROM_LOAD( "aa1_13.ic24",  0x0000, 0x0800, CRC(7e78bdd3) SHA1(9eeb0e969fd013b9db074a15b0463216453e9364) ) // Not marked as a MC68705P3S, instead had a custom ID: Motorola 15-00011-001 DA68235
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )  // graphic ROMs used at runtime
+	ROM_LOAD( "fl1.u1",       0x0000, 0x1000, CRC(e82c9f46) SHA1(eaab468bb5e46e9c714e6f84e65f954331fdbc56) ) // == aa1_01.ic4 1/2
+	ROM_LOAD( "fl2.u2",       0x1000, 0x1000, CRC(123055d3) SHA1(6aaddd8ebb418c7c8584eb74ad13cd5accd5a196) ) // == aa1_01.ic4 2/2
+	ROM_LOAD( "fl3.u3",       0x2000, 0x1000, CRC(7ea46347) SHA1(b924a614abe01f7ca6a31463864d6cc55a47946e) ) // == aa1_02.ic5 1/2
+	ROM_LOAD( "fl4.u4",       0x3000, 0x1000, CRC(9e2cff10) SHA1(0932c15eacccab5a3a931dd40c1a35b5a4ca1cd5) ) // == aa1_02.ic5 2/2
+	ROM_LOAD( "fl5.u5",       0x4000, 0x1000, CRC(630b4be1) SHA1(780f75fdea68917a08f5f00da3831eaa26fd4405) ) // == aa1_03.ic9 1/2
+	ROM_LOAD( "fl6.u6",       0x5000, 0x1000, CRC(9e092d58) SHA1(8388870bb40c7a2e3b4ede74c37c71c3a3d1a607) ) // == aa1_03.ic9 2/2
+	ROM_LOAD( "fl7.u7",       0x6000, 0x1000, CRC(613682a3) SHA1(b681f3a4e70f207ce140adfac1388900d5013317) ) // == aa1_04.ic10 1/2
+	ROM_LOAD( "fl8.u8",       0x7000, 0x1000, CRC(f73b0d5e) SHA1(3f4ae070e39fac3c64c6c438168d131bffc580e2) ) // == aa1_04.ic10 2/2
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )  // layer PROM
+	ROM_LOAD( "eb16.ic22",    0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( elevator ) // later 4 board set, with rom data on 2764s, split between gfx and cpu data.
+	ROM_REGION( 0x12000, REGION_CPU1, 0 ) // on L-shaped rom board
+	ROM_LOAD( "ba3__01.2764.ic1",  0x0000, 0x2000, CRC(da775a24) SHA1(b4341d2c87285d7a3d1773e2d94b3f621ebb4489) ) // == ea_12.2732.ic69 + ea_13.2732.ic68
+	ROM_LOAD( "ba3__02.2764.ic2",  0x2000, 0x2000, CRC(fbfd8b3a) SHA1(9dff36dcaf43a2403b9a3497512dfec228144a7c) ) // == ea_14.2732.ic67 + ea_15.2732.ic66
+	ROM_LOAD( "ba3__03-1.2764.ic3",0x4000, 0x2000, CRC(a2e69833) SHA1(0f324c3adec27fcfebd779328db6f1da6cc8d227) ) // == ea_16.2732.ic65 + ea_17.2732.ic64
+	ROM_LOAD( "ba3__04-1.2764.ic6",0x6000, 0x2000, CRC(2b78c462) SHA1(ae41e0089c7f445fa271f6af7e141b112f0009e6) ) // == ea_18.2732.ic55 + ea_19.2732.ic54
+	// 10000-11fff space for banked ROMs (not used)
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) // on GAME BOARD
+	ROM_LOAD( "ba3__09.2732.ic70",  0x0000, 0x1000, CRC(6d5f57cb) SHA1(abb916d675ee85032697d656121d4f525202cab3) ) // == ea_9.2732.ic70
+	ROM_LOAD( "ba3__10.2732.ic71",  0x1000, 0x1000, CRC(f0a769a1) SHA1(9970fba3afeaaaa7fd217f0704fb9df9cf13cf65) ) // == ea_10.2732.ic71
+
+
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )       // 2k for the microcontroller
+	ROM_LOAD( "ba3__11.mc68705p3.ic24",       0x0000, 0x0800, CRC(9ce75afc) SHA1(4c8f5d926ae2bec8fcb70692125b9e1c863166c6) ) // IC24 on the later CPU BOARD; The MCU itself has a strange custom from-factory silkscreen, rather than "MC68705P3S" it is labeled "15-00011-001 // DA68237"
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime, on L-shaped rom board
+	ROM_LOAD( "ba3__05.2764.ic4",   0x0000, 0x2000, CRC(6c4ee58f) SHA1(122369a0fc901b0a60a3fb3b3646427beb1cd0c6) ) // == ea_20.2732.ic1 + ea_21.2732.ic2
+	ROM_LOAD( "ba3__06.2764.ic5",   0x2000, 0x2000, CRC(41ab0afc) SHA1(d18df5a5d054a35d20da04a3f35cf005387a1de4) ) // == ea_22.2732.ic3 + ea_23.2732.ic4
+	ROM_LOAD( "ba3__07.2764.ic9",   0x4000, 0x2000, CRC(efe43731) SHA1(7815df72f0d7a5752628986ec97de96fa764699e) ) // == ea_24.2732.ic5 + ea_25.2732.ic6
+	ROM_LOAD( "ba3__08.2764.ic10",  0x6000, 0x2000, CRC(3ca20696) SHA1(2c2d4f82a4e6aa72510337ee330d8c22098a0944) ) // == ea_26.2732.ic7 + ea_27.2732.ic8
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.ic22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( elevatora ) // 5 board set, using 2732s on both mainboard and square rom board, and 68705 on daughterboard at bottom of stack, upside down
+	ROM_REGION( 0x12000, REGION_CPU1, 0 ) // on CPU BOARD
+	ROM_LOAD( "ea_12.2732.ic69",  0x0000, 0x1000, CRC(24e277ef) SHA1(764e3b3a34bf0ec849d58023f710e5b0a0d0ccb5) ) // needs label verified
+	ROM_LOAD( "ea_13.2732.ic68",  0x1000, 0x1000, CRC(13702e39) SHA1(b72fea84f8322463ff224e3b06698a1ed7e305b7) ) // needs label verified
+	ROM_LOAD( "ea_14.2732.ic67",  0x2000, 0x1000, CRC(46f52646) SHA1(11b68b89ab0f580bfe88047e59bd9bba237a2eb4) ) // needs label verified
+	ROM_LOAD( "ea_15.2732.ic66",  0x3000, 0x1000, CRC(e22fe57e) SHA1(50888975e698c4d2a124e5731d0922df43eb01ef) ) // needs label verified
+	ROM_LOAD( "ea_16.2732.ic65",  0x4000, 0x1000, CRC(c10691d7) SHA1(a7657d3d661421d1fca3b04e4025725272b77203) ) // needs label verified \ one of these is probably -1
+	ROM_LOAD( "ea_17.2732.ic64",  0x5000, 0x1000, CRC(8913b293) SHA1(163daa07b6d45469f18e4f4a1904b60a890c8699) ) // needs label verified /
+	ROM_LOAD( "ea_18.2732.ic55",  0x6000, 0x1000, CRC(1cabda08) SHA1(8fff75a354ee7589bd0ffe8b0271fd9111b2b241) ) // needs label verified \ one of these is probably -1
+	ROM_LOAD( "ea_19.2732.ic54",  0x7000, 0x1000, CRC(f4647b4f) SHA1(711a9447d30b35bc38e149e0cf6e835ff06efd54) ) // needs label verified /
+	// 10000-11fff space for banked ROMs (not used)
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) // on GAME BOARD
+	ROM_LOAD( "ea_9.2732.ic70",  0x0000, 0x1000, CRC(6d5f57cb) SHA1(abb916d675ee85032697d656121d4f525202cab3) )
+	ROM_LOAD( "ea_10.2732.ic71", 0x1000, 0x1000, CRC(f0a769a1) SHA1(9970fba3afeaaaa7fd217f0704fb9df9cf13cf65) )
+
+
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )       // 2k for the microcontroller
+	ROM_LOAD( "ba3__11.mc68705p3.ic4",       0x0000, 0x0800, CRC(9ce75afc) SHA1(4c8f5d926ae2bec8fcb70692125b9e1c863166c6) ) // IC4 on the older Z80+security daughterboard; The MCU itself has a strange custom from-factory silkscreen, rather than "MC68705P3S" it is labeled "15-00011-001 // DA68237"
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime, on Square ROM board
+	ROM_LOAD( "ea_20.2732.ic1",   0x0000, 0x1000, CRC(bbbb3fba) SHA1(a8e3a0886ea5dc8e70aa280b4cef5fb26ca0e125) )
+	ROM_LOAD( "ea_21.2732.ic2",   0x1000, 0x1000, CRC(639cc2fd) SHA1(0ba292ac34dbf779a929db6358cd842d38077b3d) )
+	ROM_LOAD( "ea_22.2732.ic3",   0x2000, 0x1000, CRC(61317eea) SHA1(f1a18c09e31edb4ec3ad7ab853f425383ca22314) )
+	ROM_LOAD( "ea_23.2732.ic4",   0x3000, 0x1000, CRC(55446482) SHA1(0767701213920d30d5a3a226b25cfbbd3f24437a) )
+	ROM_LOAD( "ea_24.2732.ic5",   0x4000, 0x1000, CRC(77895c0f) SHA1(fe116c53a7e8ac523a17249a56df9f40b503b30d) )
+	ROM_LOAD( "ea_25.2732.ic6",   0x5000, 0x1000, CRC(9a1b6901) SHA1(646491c1d28904d9e662b1bff554bb74ec47708d) )
+	ROM_LOAD( "ea_26.2732.ic7",   0x6000, 0x1000, CRC(839112ec) SHA1(30bca7f5214bf424aa10184094947496f054ddf4) )
+	ROM_LOAD( "ea_27.2732.ic8",   0x7000, 0x1000, CRC(db7ff692) SHA1(4d0d9ab0c9d8d758e121f2bcfc6422ffadf2d760) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.ic22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( elevatorb ) // bootleg of 5 board set above, with protection patched out
+/* Rom labels below are made up except where they are identical to the set above,
+in which case they use those names.
+The reason for this is that different elevator action bootlegs have the roms labeled
+completely differently, at the whim of whoever copied the roms.
+I'm guessing the bootlegs are mostly this set, but it is quite likely we are missing
+dumps of other variations on this bootleg.
+Examples of names:
+position - real name - name1 - name2
+ic1        "ea_20"   - "9"   - "EAS1"
+ic2        "ea_21"   - "10"  - "EAS2"
+ic3        "ea_22"   - "11"  - "EAS3"
+ic4        "ea_23"   - "12"  - "EAS4"
+ic5        "ea_24"   - "13"  - "EAS5"
+ic6        "ea_25"   - "14"  - "EAS6"
+ic7        "ea_26"   - "15"  - "EAS7"
+ic8        "ea_27"   - "16"  - "EAS8"
+
+real name - http://i.ebayimg.com/images/g/75kAAOSwXeJXfVvj/s-l1600.jpg
+name1 - https://s7.postimg.org/lo6dxb09n/IMG_7573.jpg
+name2 - http://s133.photobucket.com/user/phetishboy/media/Rampagee/DSC01184.jpg.html
+        http://s133.photobucket.com/user/phetishboy/media/Rampagee/DSC01183.jpg.html
+*/
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "eabl_12.2732.ic69", 0x0000, 0x1000, CRC(66baa214) SHA1(fad660d2983daad478085be3b1a951b0864485dd) )
+	ROM_LOAD( "ea_13.2732.ic68",   0x1000, 0x1000, CRC(13702e39) SHA1(b72fea84f8322463ff224e3b06698a1ed7e305b7) )
+	ROM_LOAD( "ea_14.2732.ic67",   0x2000, 0x1000, CRC(46f52646) SHA1(11b68b89ab0f580bfe88047e59bd9bba237a2eb4) )
+	ROM_LOAD( "eabl_15.2732.ic66", 0x3000, 0x1000, CRC(b88f3383) SHA1(99f23d82d7866e4bca8f5a508e0913673d12489b) )
+	ROM_LOAD( "ea_16.2732.ic65",   0x4000, 0x1000, CRC(c10691d7) SHA1(a7657d3d661421d1fca3b04e4025725272b77203) )
+	ROM_LOAD( "ea_17.2732.ic64",   0x5000, 0x1000, CRC(8913b293) SHA1(163daa07b6d45469f18e4f4a1904b60a890c8699) )
+	ROM_LOAD( "eabl_18.2732.ic55", 0x6000, 0x1000, CRC(d546923e) SHA1(1de128cf96e6d976f6f09e4ac2b4d2507935bfe9) )
+	ROM_LOAD( "eabl_19.2732.ic54", 0x7000, 0x1000, CRC(963ec5a5) SHA1(b2f684b61feb31e3d1856c16edcef33262f68581) )
+	// 10000-10fff space for another banked ROM (not used)
+	ROM_LOAD( "eabl.2732.ic52",    0x11000, 0x1000, CRC(44b1314a) SHA1(e8980536f787fcb603943d4b2b3a64f475e51a16) ) // protection crack, bank switched at 7000
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) // on GAME BOARD
+	ROM_LOAD( "ea_9.2732.ic70",  0x0000, 0x1000, CRC(6d5f57cb) SHA1(abb916d675ee85032697d656121d4f525202cab3) )
+	ROM_LOAD( "ea_10.2732.ic71", 0x1000, 0x1000, CRC(f0a769a1) SHA1(9970fba3afeaaaa7fd217f0704fb9df9cf13cf65) )
+
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
+	ROM_LOAD( "ea_20.2732.ic1",   0x0000, 0x1000, CRC(bbbb3fba) SHA1(a8e3a0886ea5dc8e70aa280b4cef5fb26ca0e125) )
+	ROM_LOAD( "ea_21.2732.ic2",   0x1000, 0x1000, CRC(639cc2fd) SHA1(0ba292ac34dbf779a929db6358cd842d38077b3d) )
+	ROM_LOAD( "ea_22.2732.ic3",   0x2000, 0x1000, CRC(61317eea) SHA1(f1a18c09e31edb4ec3ad7ab853f425383ca22314) )
+	ROM_LOAD( "ea_23.2732.ic4",   0x3000, 0x1000, CRC(55446482) SHA1(0767701213920d30d5a3a226b25cfbbd3f24437a) )
+	ROM_LOAD( "ea_24.2732.ic5",   0x4000, 0x1000, CRC(77895c0f) SHA1(fe116c53a7e8ac523a17249a56df9f40b503b30d) )
+	ROM_LOAD( "ea_25.2732.ic6",   0x5000, 0x1000, CRC(9a1b6901) SHA1(646491c1d28904d9e662b1bff554bb74ec47708d) )
+	ROM_LOAD( "ea_26.2732.ic7",   0x6000, 0x1000, CRC(839112ec) SHA1(30bca7f5214bf424aa10184094947496f054ddf4) )
+	ROM_LOAD( "eabl_27.2732.ic8", 0x7000, 0x1000, CRC(67ebf7c1) SHA1(ec4db1392967f3959574bc4ca03e95938a6e5173) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
+	ROM_LOAD( "eb16.ic22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
+ROM_END
+
+ROM_START( tinstar ) // later 4 PCB stack
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
+	ROM_LOAD( "a10-01.bin",        0x0000, 0x2000, CRC(19faf0b3) SHA1(2dfb3fa7890687cae840769849c96e04a706dd63) )
+	ROM_LOAD( "a10-02.bin",        0x2000, 0x2000, CRC(99bb26ff) SHA1(80adb2d11b7fbb6fcd8b1dc9270a7fdc471cc0aa) )
+	ROM_LOAD( "a10-03.bin",        0x4000, 0x2000, CRC(3169e175) SHA1(7cc92f87d511f702aebe6e82d0f435d1ff3aa828) )
+	ROM_LOAD( "a10-04.bin",        0x6000, 0x2000, CRC(6641233c) SHA1(5544c31e1a44bbd056d16571056821d865cb6e29) )
+	// 10000-11fff space for banked ROMs (not used)
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "a10-29.bin",        0x0000, 0x2000, CRC(771f1a6a) SHA1(c5d1841840ff35e2c20a285b1b7f35150356f50f) )
+	ROM_LOAD( "a10-10.bin",        0x2000, 0x1000, CRC(beeed8f3) SHA1(2a18edecabbfd10b3238338cb5554edc8c18d93c) )
+
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )       // 2k for the microcontroller
+	ROM_LOAD( "a10-12",       0x0000, 0x0800, CRC(889eefc9) SHA1(1a31aa21c02215410eea27ed52fad67f007ee810) )
+
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
+	ROM_LOAD( "a10-05.bin",         0x0000, 0x2000, CRC(6bb1bba9) SHA1(00924ba8da95c7ca7598d462673cdb98772f4fff) )
+	ROM_LOAD( "a10-06.bin",         0x2000, 0x2000, CRC(0abff1a1) SHA1(6876753c53b250968777c54b8c57d97fa45086f5) )
+	ROM_LOAD( "a10-07.bin",         0x4000, 0x2000, CRC(d1bec7a8) SHA1(40873ce1b07cc21e4ed4fff78a29dfcf9d735ca8) )
+	ROM_LOAD( "a10-08.bin",         0x6000, 0x2000, CRC(15c6eb41) SHA1(e208f3c3dcaa3e6e8e3dfcaddae2dbf1c57c06f1) )
+
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
-ROM_START( elevator )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
-	ROM_LOAD( "ea-ic69.bin",  0x0000, 0x1000, CRC(24e277ef) SHA1(764e3b3a34bf0ec849d58023f710e5b0a0d0ccb5) )
-	ROM_LOAD( "ea-ic68.bin",  0x1000, 0x1000, CRC(13702e39) SHA1(b72fea84f8322463ff224e3b06698a1ed7e305b7) )
-	ROM_LOAD( "ea-ic67.bin",  0x2000, 0x1000, CRC(46f52646) SHA1(11b68b89ab0f580bfe88047e59bd9bba237a2eb4) )
-	ROM_LOAD( "ea-ic66.bin",  0x3000, 0x1000, CRC(e22fe57e) SHA1(50888975e698c4d2a124e5731d0922df43eb01ef) )
-	ROM_LOAD( "ea-ic65.bin",  0x4000, 0x1000, CRC(c10691d7) SHA1(a7657d3d661421d1fca3b04e4025725272b77203) )
-	ROM_LOAD( "ea-ic64.bin",  0x5000, 0x1000, CRC(8913b293) SHA1(163daa07b6d45469f18e4f4a1904b60a890c8699) )
-	ROM_LOAD( "ea-ic55.bin",  0x6000, 0x1000, CRC(1cabda08) SHA1(8fff75a354ee7589bd0ffe8b0271fd9111b2b241) )
-	ROM_LOAD( "ea-ic54.bin",  0x7000, 0x1000, CRC(f4647b4f) SHA1(711a9447d30b35bc38e149e0cf6e835ff06efd54) )
-	/* 10000-11fff space for banked ROMs (not used) */
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
-	ROM_LOAD( "ea-ic70.bin",  0x0000, 0x1000, CRC(6d5f57cb) SHA1(abb916d675ee85032697d656121d4f525202cab3) )
-	ROM_LOAD( "ea-ic71.bin",  0x1000, 0x1000, CRC(f0a769a1) SHA1(9970fba3afeaaaa7fd217f0704fb9df9cf13cf65) )
-
-	ROM_REGION( 0x0800, REGION_CPU3, 0 )       /* 2k for the microcontroller */
-	ROM_LOAD( "ba3.11",       0x0000, 0x0800, CRC(9ce75afc) SHA1(4c8f5d926ae2bec8fcb70692125b9e1c863166c6) )
-
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
-	ROM_LOAD( "ea-ic1.bin",   0x0000, 0x1000, CRC(bbbb3fba) SHA1(a8e3a0886ea5dc8e70aa280b4cef5fb26ca0e125) )
-	ROM_LOAD( "ea-ic2.bin",   0x1000, 0x1000, CRC(639cc2fd) SHA1(0ba292ac34dbf779a929db6358cd842d38077b3d) )
-	ROM_LOAD( "ea-ic3.bin",   0x2000, 0x1000, CRC(61317eea) SHA1(f1a18c09e31edb4ec3ad7ab853f425383ca22314) )
-	ROM_LOAD( "ea-ic4.bin",   0x3000, 0x1000, CRC(55446482) SHA1(0767701213920d30d5a3a226b25cfbbd3f24437a) )
-	ROM_LOAD( "ea-ic5.bin",   0x4000, 0x1000, CRC(77895c0f) SHA1(fe116c53a7e8ac523a17249a56df9f40b503b30d) )
-	ROM_LOAD( "ea-ic6.bin",   0x5000, 0x1000, CRC(9a1b6901) SHA1(646491c1d28904d9e662b1bff554bb74ec47708d) )
-	ROM_LOAD( "ea-ic7.bin",   0x6000, 0x1000, CRC(839112ec) SHA1(30bca7f5214bf424aa10184094947496f054ddf4) )
-	ROM_LOAD( "ea-ic8.bin",   0x7000, 0x1000, CRC(db7ff692) SHA1(4d0d9ab0c9d8d758e121f2bcfc6422ffadf2d760) )
-
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
-	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
-ROM_END
-
-ROM_START( elevatob )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
-	ROM_LOAD( "ea69.bin",     0x0000, 0x1000, CRC(66baa214) SHA1(fad660d2983daad478085be3b1a951b0864485dd) )
-	ROM_LOAD( "ea-ic68.bin",  0x1000, 0x1000, CRC(13702e39) SHA1(b72fea84f8322463ff224e3b06698a1ed7e305b7) )
-	ROM_LOAD( "ea-ic67.bin",  0x2000, 0x1000, CRC(46f52646) SHA1(11b68b89ab0f580bfe88047e59bd9bba237a2eb4) )
-	ROM_LOAD( "ea66.bin",     0x3000, 0x1000, CRC(b88f3383) SHA1(99f23d82d7866e4bca8f5a508e0913673d12489b) )
-	ROM_LOAD( "ea-ic65.bin",  0x4000, 0x1000, CRC(c10691d7) SHA1(a7657d3d661421d1fca3b04e4025725272b77203) )
-	ROM_LOAD( "ea-ic64.bin",  0x5000, 0x1000, CRC(8913b293) SHA1(163daa07b6d45469f18e4f4a1904b60a890c8699) )
-	ROM_LOAD( "ea55.bin",     0x6000, 0x1000, CRC(d546923e) SHA1(1de128cf96e6d976f6f09e4ac2b4d2507935bfe9) )
-	ROM_LOAD( "ea54.bin",     0x7000, 0x1000, CRC(963ec5a5) SHA1(b2f684b61feb31e3d1856c16edcef33262f68581) )
-	/* 10000-10fff space for another banked ROM (not used) */
-	ROM_LOAD( "ea52.bin",     0x11000, 0x1000, CRC(44b1314a) SHA1(e8980536f787fcb603943d4b2b3a64f475e51a16) ) /* protection crack, bank switched at 7000 */
-
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
-	ROM_LOAD( "ea-ic70.bin",  0x0000, 0x1000, CRC(6d5f57cb) SHA1(abb916d675ee85032697d656121d4f525202cab3) )
-	ROM_LOAD( "ea-ic71.bin",  0x1000, 0x1000, CRC(f0a769a1) SHA1(9970fba3afeaaaa7fd217f0704fb9df9cf13cf65) )
-
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
-	ROM_LOAD( "ea-ic1.bin",   0x0000, 0x1000, CRC(bbbb3fba) SHA1(a8e3a0886ea5dc8e70aa280b4cef5fb26ca0e125) )
-	ROM_LOAD( "ea-ic2.bin",   0x1000, 0x1000, CRC(639cc2fd) SHA1(0ba292ac34dbf779a929db6358cd842d38077b3d) )
-	ROM_LOAD( "ea-ic3.bin",   0x2000, 0x1000, CRC(61317eea) SHA1(f1a18c09e31edb4ec3ad7ab853f425383ca22314) )
-	ROM_LOAD( "ea-ic4.bin",   0x3000, 0x1000, CRC(55446482) SHA1(0767701213920d30d5a3a226b25cfbbd3f24437a) )
-	ROM_LOAD( "ea-ic5.bin",   0x4000, 0x1000, CRC(77895c0f) SHA1(fe116c53a7e8ac523a17249a56df9f40b503b30d) )
-	ROM_LOAD( "ea-ic6.bin",   0x5000, 0x1000, CRC(9a1b6901) SHA1(646491c1d28904d9e662b1bff554bb74ec47708d) )
-	ROM_LOAD( "ea-ic7.bin",   0x6000, 0x1000, CRC(839112ec) SHA1(30bca7f5214bf424aa10184094947496f054ddf4) )
-	ROM_LOAD( "ea08.bin",     0x7000, 0x1000, CRC(67ebf7c1) SHA1(ec4db1392967f3959574bc4ca03e95938a6e5173) )
-
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
-	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
-ROM_END
-
-ROM_START( tinstar )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
+ROM_START( tinstara ) // 5 PCB stack - same data as above in 2732 EPROM format
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
 	ROM_LOAD( "ts.69",        0x0000, 0x1000, CRC(a930af60) SHA1(1644fcf3460a1dfceaa39ccc54c9506289965f4c) )
 	ROM_LOAD( "ts.68",        0x1000, 0x1000, CRC(7f2714ca) SHA1(55e6c83336e4db1142cc6f867e84359fadc39d5a) )
 	ROM_LOAD( "ts.67",        0x2000, 0x1000, CRC(49170786) SHA1(9749c60a225b9698bb19b3ab99ea91dd4571197d) )
@@ -2531,17 +2729,17 @@ ROM_START( tinstar )
 	ROM_LOAD( "ts.64",        0x5000, 0x1000, CRC(812285d5) SHA1(e57adc29567379603570316d37b8abde05c1e690) )
 	ROM_LOAD( "ts.55",        0x6000, 0x1000, CRC(6b80ac51) SHA1(5b3b848273763af5629bad8b5f3a8518d37a6316) )
 	ROM_LOAD( "ts.54",        0x7000, 0x1000, CRC(b352360f) SHA1(85dedb98a9d604bd816f626fb39fc49a7f1e73d2) )
-	/* 10000-11fff space for banked ROMs (not used) */
+	// 10000-11fff space for banked ROMs (not used)
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "ts.70",        0x0000, 0x1000, CRC(4771838d) SHA1(f84f1367f8a86e6c070da29419c8de5c302d1469) )
 	ROM_LOAD( "ts.71",        0x1000, 0x1000, CRC(03c91332) SHA1(3903e876ae02e9aea7ee6854bb4c6407dd7108d6) )
 	ROM_LOAD( "ts.72",        0x2000, 0x1000, CRC(beeed8f3) SHA1(2a18edecabbfd10b3238338cb5554edc8c18d93c) )
 
-	ROM_REGION( 0x0800, REGION_CPU3, 0 )       /* 2k for the microcontroller */
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )       // 2k for the microcontroller
 	ROM_LOAD( "a10-12",       0x0000, 0x0800, CRC(889eefc9) SHA1(1a31aa21c02215410eea27ed52fad67f007ee810) )
 
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
 	ROM_LOAD( "ts.1",         0x0000, 0x1000, CRC(f1160718) SHA1(d35ebb96867299137ba1ce19da998002a6b9898d) )
 	ROM_LOAD( "ts.2",         0x1000, 0x1000, CRC(39dc6dbb) SHA1(223c3430ea9acaeed921f31e6c1e5153dc48874c) )
 	ROM_LOAD( "ts.3",         0x2000, 0x1000, CRC(079df429) SHA1(7f1fb64dfecf7b20a7e8357393084eb9c709a898) )
@@ -2551,12 +2749,12 @@ ROM_START( tinstar )
 	ROM_LOAD( "ts.7",         0x6000, 0x1000, CRC(894f6332) SHA1(9b4a0e35ec08f2d6c5340435c69a05ad0333627c) )
 	ROM_LOAD( "ts.8",         0x7000, 0x1000, CRC(519aed19) SHA1(8618a794bdd091ed7c2300a2dabf99455c9e2ebd) )
 
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
 ROM_START( waterski )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
 	ROM_LOAD( "a03-01",       0x0000, 0x1000, CRC(322c4c2c) SHA1(8f25acd50fdda4cae756849f3961c79d6138866e) )
 	ROM_LOAD( "a03-02",       0x1000, 0x1000, CRC(8df176d1) SHA1(db6e7a82320dc478306b0b1a06c284ed4faf5103) )
 	ROM_LOAD( "a03-03",       0x2000, 0x1000, CRC(420bd04f) SHA1(1efce6d384cde94c0fd9e7c3a43feaa18b6c3d73) )
@@ -2564,20 +2762,20 @@ ROM_START( waterski )
 	ROM_LOAD( "a03-05",       0x4000, 0x1000, CRC(1fae90d2) SHA1(f5f2e022794593a5a6a06223e7a1ac19ef23e140) )
 	ROM_LOAD( "a03-06",       0x5000, 0x1000, CRC(55b7c151) SHA1(ad05dcd07a7907d08c5d8827e323c207a7c8ace6) )
 	ROM_LOAD( "a03-07",       0x6000, 0x1000, CRC(8abc7522) SHA1(4a3d8ea006630020722d385f4d7b50ece323cad2) )
-	/* 10000-11fff space for banked ROMs (not used) */
+	// 10000-11fff space for banked ROMs (not used)
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "a03-13",       0x0000, 0x1000, CRC(78c7d37f) SHA1(460bff7c78a2fa78a7c6f95c7f2847c1c5267626) )
 	ROM_LOAD( "a03-14",       0x1000, 0x1000, CRC(31f991ca) SHA1(82cbaa618ac3de6fce12e9dcbb89ab064773b2bd) )
 
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
-	ROM_LOAD( "a03-08",       0x0000, 0x1000, CRC(c206d870) SHA1(0be09b7da28d60bf23a0b87cff28957bb165bec5) )
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
+	ROM_LOAD( "a03-08",       0x0000, 0x1000, BAD_DUMP CRC(c206d870) SHA1(0be09b7da28d60bf23a0b87cff28957bb165bec5) ) // small glitches in font gfx
 	ROM_LOAD( "a03-09",       0x1000, 0x1000, CRC(48ac912a) SHA1(09d57b5b76a4416f1ee5eb2077bc969d2afbbf11) )
 	ROM_LOAD( "a03-10",       0x2000, 0x1000, CRC(a056defb) SHA1(15b4202b19f7190bfc953d0958c189db2db928cc) )
 	ROM_LOAD( "a03-11",       0x3000, 0x1000, CRC(f06cddd6) SHA1(483a25880a29552f4b70cd5d41de5cfe4ed64475) )
 	ROM_LOAD( "a03-12",       0x4000, 0x1000, CRC(27dfd8c2) SHA1(cf4d2c4b52598cff7a934c816514de1471e4af8d) )
 
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
@@ -2666,28 +2864,28 @@ ROM_START( hwrace )
 ROM_END
 
 ROM_START( kikstart )
-	ROM_REGION( 0x12000, REGION_CPU1, 0 )      /* 64k for code */
+	ROM_REGION( 0x12000, REGION_CPU1, 0 )
 	ROM_LOAD( "a20-01",       0x00000, 0x2000, CRC(5810be97) SHA1(da3507b8274a1f5c0d5b10ad7259a0f02bfb6eda) )
 	ROM_LOAD( "a20-02",       0x02000, 0x2000, CRC(13e9565d) SHA1(bb73b965262bc1bd90266b460d95fe217938a33c) )
 	ROM_LOAD( "a20-03",       0x04000, 0x2000, CRC(93d7a9e1) SHA1(ab9289172a8f52e1a191efd91b52e8cf762d1f7f) )
 	ROM_LOAD( "a20-04",       0x06000, 0x2000, CRC(1f23c5d6) SHA1(104312f09916e9938f71c3dffb94aaa335afb084) )
-	ROM_LOAD( "a20-05",       0x10000, 0x2000, CRC(66e100aa) SHA1(a3b78b1b0250491c5e9bd39e761612a1f70640dd) ) /* banked at 6000 */
+	ROM_LOAD( "a20-05",       0x10000, 0x2000, CRC(66e100aa) SHA1(a3b78b1b0250491c5e9bd39e761612a1f70640dd) ) // banked at 6000
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )      /* 64k for the audio CPU */
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "a20-10",       0x0000, 0x1000, CRC(de4352a4) SHA1(1548f8d7ac9e79ccaf1a503ded4b868bd350fd7e) )
 	ROM_LOAD( "a20-11",       0x1000, 0x1000, CRC(8db12dd9) SHA1(3b291d478b3f3f1bf93d95a78506d99a71f36d05) )
 	ROM_LOAD( "a20-12",       0x2000, 0x1000, CRC(e7eeb933) SHA1(26f3904f6d4dc814318221f1c9cd5dcc671fe05a) )
 
-	ROM_REGION( 0x0800, REGION_CPU3, 0 )       /* 2k for the microcontroller */
-	ROM_LOAD( "a20-13",       0x0000, 0x0800, CRC(11e23c5c) SHA1(cf2fcdc70d616508dd7ae630bad6a5e4ff91cdad) )
+	ROM_REGION( 0x0800, REGION_CPU3, 0 )       // 2k for the microcontroller
+	ROM_LOAD( "a20-13.ic91",  0x0000, 0x0800, CRC(3fb6c4fb) SHA1(04b9458f21a793444cd587055e2e3ccfa3f835a2) )
 
-	ROM_REGION( 0x8000, REGION_GFX1, 0 )       /* graphic ROMs used at runtime */
+	ROM_REGION( 0x8000, REGION_GFX1, 0 )       // graphic ROMs used at runtime
 	ROM_LOAD( "a20-06",       0x0000, 0x2000, CRC(6582fc89) SHA1(a902f4f2d3c9e352ac2f49f33b9f30be931f2be1) )
 	ROM_LOAD( "a20-07",       0x2000, 0x2000, CRC(8c0b76d2) SHA1(243ef5cdd5bbf504dd040a01b8e126dbbc65f9a9) )
 	ROM_LOAD( "a20-08",       0x4000, 0x2000, CRC(0cca7a9d) SHA1(bf83ad5791a2277c51b1a2644a078be0ca8a4047) )
 	ROM_LOAD( "a20-09",       0x6000, 0x2000, CRC(da625ccf) SHA1(092c72b5a23d7a5683889f7597096938ba879602) )
 
-	ROM_REGION( 0x0100, REGION_PROMS, 0 )      /* layer PROM */
+	ROM_REGION( 0x0100, REGION_PROMS, 0 )      // layer PROM
 	ROM_LOAD( "eb16.22",      0x0000, 0x0100, CRC(b833b5ea) SHA1(d233f1bf8a3e6cd876853ffd721b9b64c61c9047) )
 ROM_END
 
@@ -2734,22 +2932,28 @@ void taitosj_register_main_savestate(void)
 GAME( 1981, spaceskr, 0,        nomcu,    spaceskr,   0,       ROT180, "Taito Corporation", "Space Seeker", GAME_SUPPORTS_SAVE )
 GAME( 1981, spacecr,  0,        nomcu,    spacecr,    spacecr, ROT90,  "Taito Corporation", "Space Cruiser", GAME_SUPPORTS_SAVE )
 GAME( 1982, junglek,  0,        nomcu,    junglek,    0,       ROT0,   "Taito Corporation", "Jungle King (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1982, junglkj2, junglek,  nomcu,    junglek,    0,       ROT0,   "Taito Corporation", "Jungle King (Japan, earlier)", GAME_SUPPORTS_SAVE )
+GAME( 1982, junglekas,junglek,  nomcu,    junglek,    0,       ROT0,   "Taito Corporation", "Jungle King (alternate sound)", GAME_SUPPORTS_SAVE )
+GAME( 1982, junglekj2,junglek,  nomcu,    junglek,    0,       ROT0,   "Taito Corporation", "Jungle King (Japan, earlier)", GAME_SUPPORTS_SAVE )
+GAME( 1982, junglekj2a,junglek, nomcu,    junglek,    0,       ROT0,   "Taito Corporation", "Jungle King (Japan, earlier, alt)", GAME_SUPPORTS_SAVE )
 GAME( 1982, jungleh,  junglek,  nomcu,    junglek,    0,       ROT0,   "Taito America Corporation", "Jungle Hunt (US)", GAME_SUPPORTS_SAVE )
-GAME( 1983, junglhbr, junglek,  nomcu,    junglek,    junglhbr,ROT0,   "Taito do Brasil",   "Jungle Hunt (Brazil)", GAME_SUPPORTS_SAVE )
+GAME( 1983, junglehbr,junglek,  nomcu,    junglek,    junglhbr,ROT0,   "Taito do Brasil",   "Jungle Hunt (Brazil)", GAME_SUPPORTS_SAVE )
 GAME( 1982, piratpet, junglek,  nomcu,    piratpet,   0,       ROT0,   "Taito America Corporation", "Pirate Pete", GAME_SUPPORTS_SAVE )
+GAME( 1982, jungleby, junglek,  nomcu,    junglek,    0,       ROT0,   "bootleg", "Jungle Boy (bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1982, alpine,   0,        nomcu,    alpine,     alpine,  ROT270, "Taito Corporation", "Alpine Ski (set 1)", GAME_SUPPORTS_SAVE )
 GAME( 1982, alpinea,  alpine,   nomcu,    alpinea,    alpinea, ROT270, "Taito Corporation", "Alpine Ski (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, adcanoe,  0,        nomcu,    adcanoe,    0,       ROT90,  "Taito Corporation", "Adventure Canoe", GAME_SUPPORTS_SAVE )
+GAME( 1982, adcanoe,  0,        nomcu,    adcanoe,    0,       ROT90,  "Taito", "Adventure Canoe", GAME_SUPPORTS_SAVE )
 GAME( 1982, timetunl, 0,        nomcu,    timetunl,   0,       ROT0,   "Taito Corporation", "Time Tunnel", GAME_SUPPORTS_SAVE )
 GAME( 1982, wwestern, 0,        nomcu,    wwestern,   0,       ROT270, "Taito Corporation", "Wild Western (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1982, wwester1, wwestern, nomcu,    wwestern,   0,       ROT270, "Taito Corporation", "Wild Western (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, frontlin, 0,        mcu,      frontlin,   0,       ROT270, "Taito Corporation", "Front Line", GAME_SUPPORTS_SAVE )
-GAME( 1983, elevator, 0,        mcu,      elevator,   0,       ROT0,   "Taito Corporation", "Elevator Action", GAME_SUPPORTS_SAVE )
-GAME( 1983, elevatob, elevator, nomcu,    elevator,   0,       ROT0,   "bootleg", "Elevator Action (bootleg)", GAME_SUPPORTS_SAVE )
-GAME( 1983, tinstar,  0,        mcu,      tinstar,    0,       ROT0,   "Taito Corporation", "The Tin Star", GAME_SUPPORTS_SAVE )
+GAME( 1982, wwestern1,wwestern, nomcu,    wwestern,   0,       ROT270, "Taito Corporation", "Wild Western (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1982, frontlin, 0,        mcu,      frontlin,   0,       ROT270, "Taito Corporation", "Front Line (AA1, 4 PCB version)", GAME_SUPPORTS_SAVE )
+GAME( 1982, frontlina,frontlin, mcu,      frontlin,   0,       ROT270, "Taito Corporation", "Front Line (FL, 5 PCB version)", GAME_SUPPORTS_SAVE )
+GAME( 1983, elevator, 0,        mcu,      elevator,   0,       ROT0,   "Taito Corporation", "Elevator Action (BA3, 4 PCB version, 1.1)", GAME_SUPPORTS_SAVE )
+GAME( 1983, elevatora,elevator, mcu,      elevator,   0,       ROT0,   "Taito Corporation", "Elevator Action (EA, 5 PCB version, 1.1)", GAME_SUPPORTS_SAVE )
+GAME( 1983, elevatorb,elevator, nomcu,    elevator,   0,       ROT0,   "bootleg", "Elevator Action (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1983, tinstar,  0,        mcu,      tinstar,    0,       ROT0,   "Taito Corporation", "The Tin Star (A10, 4 PCB version)", GAME_SUPPORTS_SAVE )
+GAME( 1983, tinstara, tinstar,  mcu,      tinstar,    0,       ROT0,   "Taito Corporation", "The Tin Star (TS, 5 PCB version)", GAME_SUPPORTS_SAVE )
 GAME( 1983, waterski, 0,        nomcu,    waterski,   0,       ROT270, "Taito Corporation", "Water Ski", GAME_SUPPORTS_SAVE )
-GAME( 1983, bioatack, 0,        nomcu,    bioatack,   0,       ROT270, "Taito Corporation (Fox Video Games license)", "Bio Attack", GAME_SUPPORTS_SAVE )
+GAME( 1983, bioatack, 0,        nomcu,    bioatack,   0,       ROT270, "Taito Corporation", "Bio Attack", GAME_SUPPORTS_SAVE )
 GAME( 1984, sfposeid, 0,        mcu,      sfposeid,   0,       ROT0,   "Taito Corporation", "Sea Fighter Poseidon", GAME_SUPPORTS_SAVE )
 GAME( 1983, hwrace,   0,        nomcu,    hwrace,     0,       ROT270, "Taito Corporation", "High Way Race", GAME_SUPPORTS_SAVE )
-GAME( 1984, kikstart, 0,        kikstart, kikstart,   kikstart,ROT0,   "Taito Corporation", "Kick Start Wheelie King", GAME_SUPPORTS_SAVE )
+GAME( 1984, kikstart, 0,        kikstart, kikstart,   kikstart,ROT0,   "Taito Corporation", "Kick Start: Wheelie King", GAME_SUPPORTS_SAVE )

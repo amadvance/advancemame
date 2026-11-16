@@ -62307,7 +62307,7 @@ Buttons : 7
 $end
 
 
-$info=elevator,elevatob,
+$info=elevator,elevatorb,
 $bio
 
 Elevator Action (c) 07/1983 Taito.
@@ -100960,7 +100960,7 @@ Big Diamond : ???
 $end
 
 
-$info=junglhbr,jungleh,
+$info=junglehbr,jungleh,
 $bio
 
 Jungle Hunt (c) 10/1982 Taito.
@@ -101139,7 +101139,7 @@ F.A.Q. by Kevin Butler A.K.A. War Doc
 $end
 
 
-$info=junglek,junglkj2,
+$info=junglek,junglekj2,
 $bio
 
 Jungle King (c) 08/1982 Taito.
@@ -255461,7 +255461,7 @@ Pilot : E. Aida
 $end
 
 
-$info=wwestern,wwester1,
+$info=wwestern,wwestern1,
 $bio
 
 Wild Western (c) 05/1982 Taito.
