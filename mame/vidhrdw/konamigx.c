@@ -214,7 +214,7 @@ VIDEO_START(konamigx_5bpp)
 		gx_tilemode = 1;
 	} else
 
-	if (!strcmp(Machine->gamedrv->name,"puzldama"))
+	if (!strcmp(Machine->gamedrv->name,"puzldama") || !strcmp(Machine->gamedrv->name,"crzcross"))
 	{
 		K053247GP_set_SpriteOffset(-46, -23);
 		konamigx_mixer_primode(5);

@@ -4983,17 +4983,19 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* GX Type 1 */
 	DRIVER( racinfrc )	/* GX250 (c) 1994 */
+	DRIVER( racinfrcu )	/* GX250 (c) 1994 */
 	DRIVER( opengolf )	/* GX218 (c) 1994 */
-	DRIVER( opengol2 )	/* GX218 (c) 1994 */
+	DRIVER( opengolf2 )	/* GX218 (c) 1994 */
 	DRIVER( ggreats2 )	/* GX218 (c) 1994 */
 
 	/* GX Type 2 */
 	DRIVER( le2 )		/* GX312 (c) 1994 */
 	DRIVER( le2u )		/* GX312 (c) 1994 */
 	DRIVER( le2j )		/* GX312 (c) 1994 */
-	DRIVER( puzldama )	/* GX315 (c) 1994 (Japan) */
-	DRIVER( gokuparo )	/* GX321 (c) 1994 (Japan) */
 	DRIVER( fantjour )	/* GX321 (c) 1994 */
+	DRIVER( gokuparo )	/* GX321 (c) 1994 (Japan) */
+	DRIVER( crzcross )	/* GX315 (c) 1994 */
+	DRIVER( puzldama )	/* GX315 (c) 1994 (Japan) */
 	DRIVER( dragoona )	/* GX417 (c) 1995 (Asia) */
 	DRIVER( dragoonj )	/* GX417 (c) 1995 (Japan) */
 	DRIVER( tbyahhoo )	/* GX424 (c) 1995 (Japan) */
@@ -5003,12 +5005,12 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( daiskiss )	/* GX535 (c) 1996 (Japan) */
 	DRIVER( tokkae )	/* GX615 (c) 1996 (Japan) */
 	DRIVER( winspike )	/* GX705 (c) 1997 EAA */
-	DRIVER( winspikj )	/* GX705 (c) 1997 JAA */
+	DRIVER( winspikej )	/* GX705 (c) 1997 JAA */
 
 	/* GX Type 3 */
 	DRIVER( soccerss )	/* GX427 (c) 1994 */
-	DRIVER( soccersj )	/* GX427 (c) 1994 */
-	DRIVER( soccersa )	/* GX427 (c) 1994 */
+	DRIVER( soccerssja )	/* GX427 (c) 1994 */
+	DRIVER( soccerssa )	/* GX427 (c) 1994 */
 
 	/* GX Type 4 */
 	DRIVER( vsnetscr )	/* GX627 (c) 1996 */

@@ -122472,13 +122472,13 @@
 :opaopa:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Konami's Open Golf Championship (ver EAD) ]
-:opengol2:00000000:C00205:00000063:FFFFFFFF:Infinite Credits
-:opengol2:00000000:C00283:00000002:FFFFFFFF:Infinite Lives PL1
-:opengol2:00000000:C0028D:00000000:FFFFFFFF:Infinite Strokes PL1:Always get a Hole in One
-:opengol2:00000001:C0028D:00000000:FFFFFFFF:Reset Strokes Now! PL1
-:opengol2:00000000:C00303:00000002:FFFFFFFF:Infinite Lives PL2
-:opengol2:00000000:C0030D:00000000:FFFFFFFF:Infinite Strokes PL2:Always get a Hole in One
-:opengol2:00000001:C0030D:00000000:FFFFFFFF:Reset Strokes Now! PL2
+:opengolf2:00000000:C00205:00000063:FFFFFFFF:Infinite Credits
+:opengolf2:00000000:C00283:00000002:FFFFFFFF:Infinite Lives PL1
+:opengolf2:00000000:C0028D:00000000:FFFFFFFF:Infinite Strokes PL1:Always get a Hole in One
+:opengolf2:00000001:C0028D:00000000:FFFFFFFF:Reset Strokes Now! PL1
+:opengolf2:00000000:C00303:00000002:FFFFFFFF:Infinite Lives PL2
+:opengolf2:00000000:C0030D:00000000:FFFFFFFF:Infinite Strokes PL2:Always get a Hole in One
+:opengolf2:00000001:C0030D:00000000:FFFFFFFF:Reset Strokes Now! PL2
 
 ; [ Konami's Open Golf Championship (ver EAE) ]
 :opengolf:00000000:C00205:00000063:FFFFFFFF:Infinite Credits
@@ -168921,24 +168921,24 @@
 :soccer:00010001:00A2:00000000:FFFFFFFF:Finish this Game Now! (2/2)
 
 ; [ Soccer Superstars (ver AAA) ]
-:soccersa:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:soccersa:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:soccerssa:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Soccer Superstars (ver JAA) ]
-:soccersj:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:soccersj:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:soccerssja:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Soccer Superstars (ver EAA) ]
 :soccerss:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -197356,17 +197356,17 @@
 :winspike:00000001:C00B22:00000011:FFFFFFFF:Score = 17 Now! PL2
 
 ; [ Winning Spike (ver JAA) ]
-:winspikj:00000000:C01023:00000063:FFFFFFFF:Infinite Credits
-:winspikj:00000101:C00A22:00000011:FFFFFFFF:Select Score PL1
-:winspikj:00000000:C00A22:00000000:FFFFFFFF:Score always = 0 PL1
-:winspikj:00000000:C00A22:00000011:FFFFFFFF:Score always = 17 PL1
-:winspikj:00000001:C00A22:00000000:FFFFFFFF:Score = 0 Now! PL1
-:winspikj:00000001:C00A22:00000011:FFFFFFFF:Score = 17 Now! PL1
-:winspikj:00000101:C00B22:00000011:FFFFFFFF:Select Score PL2
-:winspikj:00000000:C00B22:00000000:FFFFFFFF:Score always = 0 PL2
-:winspikj:00000000:C00B22:00000011:FFFFFFFF:Score always = 17 PL2
-:winspikj:00000001:C00B22:00000000:FFFFFFFF:Score = 0 Now! PL2
-:winspikj:00000001:C00B22:00000011:FFFFFFFF:Score = 17 Now! PL2
+:winspikej:00000000:C01023:00000063:FFFFFFFF:Infinite Credits
+:winspikej:00000101:C00A22:00000011:FFFFFFFF:Select Score PL1
+:winspikej:00000000:C00A22:00000000:FFFFFFFF:Score always = 0 PL1
+:winspikej:00000000:C00A22:00000011:FFFFFFFF:Score always = 17 PL1
+:winspikej:00000001:C00A22:00000000:FFFFFFFF:Score = 0 Now! PL1
+:winspikej:00000001:C00A22:00000011:FFFFFFFF:Score = 17 Now! PL1
+:winspikej:00000101:C00B22:00000011:FFFFFFFF:Select Score PL2
+:winspikej:00000000:C00B22:00000000:FFFFFFFF:Score always = 0 PL2
+:winspikej:00000000:C00B22:00000011:FFFFFFFF:Score always = 17 PL2
+:winspikej:00000001:C00B22:00000000:FFFFFFFF:Score = 0 Now! PL2
+:winspikej:00000001:C00B22:00000011:FFFFFFFF:Score = 17 Now! PL2
 
 ; [ Winter Bobble, The ]
 :wintbob:00000000:100195:00000009:FFFFFFFF:Infinite Credits
@@ -203550,8 +203550,8 @@
 ; { Reason 01 } ; sliver    [ Sliver ]
 ; { Reason 01 } ; slrasslt  [ Solar Assault DR2 (ver UAA) ]
 ; { Reason 01 } ; smleague  [ Super Major League (U 960108 V1.000) ]
-; { Reason 01 } ; soccersa  [ Soccer Superstars (ver AAA) ]
-; { Reason 01 } ; soccersj  [ Soccer Superstars (ver JAA) ]
+; { Reason 01 } ; soccerssa  [ Soccer Superstars (ver AAA) ]
+; { Reason 01 } ; soccerssja  [ Soccer Superstars (ver JAA) ]
 ; { Reason 01 } ; soccerss  [ Soccer Superstars (ver EAA) ]
 ; { Reason 01 } ; soulclba  [ Soul Calibur (SOC11/VER.C) ]
 ; { Reason 01 } ; soulclbb  [ Soul Calibur (SOC11/VER.B) ]
@@ -204785,7 +204785,7 @@
 ;gepoker=gepoker1=gepoker2=gepoker3 (unchecked relationship)
 ;getstar=getstarb=getstarj=gtstarba
 ;gforce2=gforce2j
-;ggreats2=opengol2=opengolf
+;ggreats2=opengolf2=opengolf
 ;ghostb~ghostb3~meikyuh
 ;gigandes~=gigandsj (credits only the same other offset by 8)
 ;gigasb=oigas~gigasm2b
@@ -205354,7 +205354,7 @@
 ;smgp=smgp5=smgp6=smgpj=smgpu=smgpu1=smgpu2=smgpu3
 ;snowbalt~snowboar
 ;snowbro3~=(snowbrosa=snowbrosb=snowbrosc=snowbrosj=snowbros=wintbob) differences due to graphics ie. SNOW or BALL
-;soccersa=soccersj=soccerss    (unchecked relationship)
+;soccerssa=soccerssja=soccerss    (unchecked relationship)
 ;solarwar=xsleena=xsleenab
 ;sonic=sonicp
 ;sonson=sonsonj
@@ -205546,7 +205546,7 @@
 ;wh1=wh1ha~(wh2~=wh2j~=whp)
 ;willow=willowj=willowje
 ;wingwar=wingwara
-;winspike=winspikj
+;winspike=winspikej
 ;wiseguy=yamyam
 ;wiz=wizt
 ;wizzquiz=wizzquza

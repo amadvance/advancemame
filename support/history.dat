@@ -109521,7 +109521,7 @@ Alfa Records released a limited-edition soundtrack album for this game (Konami G
 $end
 
 
-$info=opengolf,opengol2,
+$info=opengolf,opengolf2,
 $bio
 
 Konami's Open Golf Championship (c) 1994 Konami.
@@ -197864,7 +197864,7 @@ SNK Neo-Geo CD (1995)
 $end
 
 
-$info=soccerss,soccersa,soccersj,
+$info=soccerss,soccerssa,soccerssja,
 $bio
 
 Soccer Superstars (c) 1994 Konami.
@@ -256175,7 +256175,7 @@ Buttons : 4
 $end
 
 
-$info=winspike,winspikj,
+$info=winspike,winspikej,
 $bio
 
 Winning Spike (c) 1997 Konami.
