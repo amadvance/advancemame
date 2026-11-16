@@ -1766,7 +1766,7 @@ MACHINE_RESET( cgraplop )
 	type3_swap = TYPE3_SWAP_56;
 }
 
-MACHINE_RESET( cgraplp2 )
+MACHINE_RESET( cgraplop2 )
 {
 	decocass_init_common();
 	LOG(0,("dongle type #3 (PAL)\n"));
@@ -1811,7 +1811,7 @@ MACHINE_RESET( cnightst )
 	type3_swap = TYPE3_SWAP_13;
 }
 
-MACHINE_RESET( cprosocc )
+MACHINE_RESET( cpsoccer )
 {
 	decocass_init_common();
 	LOG(0,("dongle type #3 (PAL)\n"));

@@ -4296,8 +4296,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cprogolf )	/* 13 (c) 1981 */
 	DRIVER( cluckypo )	/* 15 (c) 1981 */
 	DRIVER( ctisland )	/* 16 (c) 1981 */
-	DRIVER( ctislnd2 )	/* 16 (c) 1981 */
-	DRIVER( ctislnd3 )	/* 16? (c) 1981 */
+	DRIVER( ctisland2 )	/* 16 (c) 1981 */
+	DRIVER( ctisland3 )	/* 16? (c) 1981 */
 	DRIVER( cdiscon1 )	/* 19 (c) 1982 */
 	DRIVER( csweetht )	/* ?? (c) 1982, clone of disco no 1 */
 	DRIVER( ctornado )	/* 20 (c) 1982 */
@@ -4308,15 +4308,15 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cadanglr )      /* 25 (c) 1982 */
         DRIVER( cfishing )      /* 25 (c) 1982 */
 	DRIVER( cburnrub )	/* ?? (c) 1982 */
-	DRIVER( cburnrb2 )	/* ?? (c) 1982 */
+	DRIVER( cburnrub2 )	/* ?? (c) 1982 */
 	DRIVER( cbnj )		/* 27 (c) 1982 */
 	DRIVER( cgraplop )	/* 28 (c) 1983 */
-	DRIVER( cgraplp2 )	/* 28? (c) 1983 */
+	DRIVER( cgraplop2 )	/* 28? (c) 1983 */
 	DRIVER( clapapa )	/* 29 (c) 1983 */
 	DRIVER( clapapa2 )	/* 29 (c) 1983 */ /* this one doesn't display lapapa anyehere */
 	DRIVER( cnightst )	/* 32 (c) 1983 */
-	DRIVER( cnights2 )	/* 32 (c) 1983 */
-	DRIVER( cprosocc )	/* 33 (c) 1983 */
+	DRIVER( cnightst2 )	/* 32 (c) 1983 */
+	DRIVER( cpsoccer )	/* 33 (c) 1983 */
 	DRIVER( cprobowl )	/* ?? (c) 1983 */
 	DRIVER( cscrtry )	/* 38 (c) 1984 */
 	DRIVER( cscrtry2 )	/* 38 (c) 1984 */

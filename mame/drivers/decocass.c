@@ -227,80 +227,541 @@ INPUT_PORTS_START( decocass )
 	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Y ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(2)
 
 	PORT_START_TAG("DSW1")
-	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coin_A ) )
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coin_A ) )						PORT_DIPLOCATION("SW1:1,2")
 	PORT_DIPSETTING(	0x00, DEF_STR( 2C_1C ) )
 	PORT_DIPSETTING(	0x03, DEF_STR( 1C_1C ) )
 	PORT_DIPSETTING(	0x02, DEF_STR( 1C_2C ) )
 	PORT_DIPSETTING(	0x01, DEF_STR( 1C_3C ) )
-	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Coin_B ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Coin_B ) )						PORT_DIPLOCATION("SW1:3,4")
 	PORT_DIPSETTING(	0x00, DEF_STR( 2C_1C ) )
 	PORT_DIPSETTING(	0x0c, DEF_STR( 1C_1C ) )
 	PORT_DIPSETTING(	0x08, DEF_STR( 1C_2C ) )
 	PORT_DIPSETTING(	0x04, DEF_STR( 1C_3C ) )
-	PORT_DIPNAME( 0x30, 0x30, "Board type" )    /* used by the "bios" */
-	PORT_DIPSETTING(	0x00, "old" )
+	PORT_DIPNAME( 0x30, 0x30, "Type of Tape" )							PORT_DIPLOCATION("SW1:5,6")	/* used by the "bios" */
+	PORT_DIPSETTING(	0x00, "MT (Big)" )
 	PORT_DIPSETTING(	0x10, "invalid?" )
 	PORT_DIPSETTING(	0x20, "invalid?" )
-	PORT_DIPSETTING(	0x30, "new" )
-	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(	0x30, "MD (Small)" )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Cabinet ) )						PORT_DIPLOCATION("SW1:7")
 	PORT_DIPSETTING(	0x00, DEF_STR( Upright ) )
 	PORT_DIPSETTING(	0x40, DEF_STR( Cocktail ) )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK	)
 
-	PORT_START_TAG("DSW2")
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( On ) )
+	PORT_START_TAG("DSW2") /* start with all Unknown as each can change per game, except for Country Code */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )					PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(	0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )					PORT_DIPLOCATION("SW2:2")
+	PORT_DIPSETTING(	0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )					PORT_DIPLOCATION("SW2:3")
+	PORT_DIPSETTING(	0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )					PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(	0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )					PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(	0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xe0, 0xe0, "Country Code" )							PORT_DIPLOCATION("SW2:6,7,8")
+	PORT_DIPSETTING(	0xe0, "A" )
+	PORT_DIPSETTING(	0xc0, "B" )
+	PORT_DIPSETTING(	0xa0, "C" )
+	PORT_DIPSETTING(	0x80, "D" )
+	PORT_DIPSETTING(	0x60, "E" )
+	PORT_DIPSETTING(	0x40, "F" )
 INPUT_PORTS_END
 
-INPUT_PORTS_START( dc_btime )
+INPUT_PORTS_START( cterrani )
 	PORT_INCLUDE( decocass )
 
 	PORT_MODIFY("DSW2")
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )
-	PORT_DIPSETTING(	0x01, "3" )
-	PORT_DIPSETTING(	0x00, "5" )
-	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )
-	PORT_DIPSETTING(	0x06, "20000" )
-	PORT_DIPSETTING(	0x04, "30000" )
-	PORT_DIPSETTING(	0x02, "40000"  )
-	PORT_DIPSETTING(	0x00, "50000"  )
-	PORT_DIPNAME( 0x08, 0x08, "Enemies" )
-	PORT_DIPSETTING(	0x08, "4" )
-	PORT_DIPSETTING(	0x00, "6" )
-	PORT_DIPNAME( 0x10, 0x10, "End of Level Pepper" )
-	PORT_DIPSETTING(	0x10, DEF_STR( No ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x20, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(	0x80, DEF_STR( On ) )
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "3000" )
+	PORT_DIPSETTING(    0x04, "5000" )
+	PORT_DIPSETTING(    0x02, "7000" )
+	PORT_DIPNAME( 0x08, 0x08, "Player's Rocket Movement" )              PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	PORT_DIPNAME( 0x10, 0x10, "Alien Craft Movement" )                  PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	/* Switches 6, 7 & 8 are shown as completly blank */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( csuperas )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "20000" )
+	PORT_DIPSETTING(    0x04, "30000" )
+	PORT_DIPSETTING(    0x02, "40000" )
+	PORT_DIPNAME( 0x08, 0x08, "Alien Craft Movement" )                  PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( clocknchj )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "15000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	/* Switches 4, 5, 6, 7 & 8 are listed as "Not Used" and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( clocknch )
+	PORT_INCLUDE( clocknchj )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x08, 0x08, "Game Speed" ) PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "Slow" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cprogolf )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "2" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3") /* You must shoot equal to or under the listed value for a bonus */
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x02, "6 Under" )
+	PORT_DIPSETTING(    0x04, "3 Under" )
+	PORT_DIPSETTING(    0x06, "1 Under" )
+	PORT_DIPNAME( 0x08, 0x08, "Number of Strokes" )                     PORT_DIPLOCATION("SW2:4") /* You must shoot equal to or under to continue, else you lose a life */
+	PORT_DIPSETTING(    0x00, "Par +2" )
+	PORT_DIPSETTING(    0x08, "Par +3" )
+	PORT_DIPNAME( 0x10, 0x10, "Show Stroke Power/Ball Direction" )      PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cexplore )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "1500000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4") /* Listed as "Missle" */
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	PORT_DIPNAME( 0x10, 0x10, "Number of UFOs" )                        PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, "Few" )
+	PORT_DIPSETTING(    0x00, "Many" )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( ctornado )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPNAME( 0x08, 0x08, "Crash Bombs" )                           PORT_DIPLOCATION("SW2:4") /* Printed English translation "Hero Destructor" */
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x10, 0x10, "Alens' Speed" )                          PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, "Slow" )
+	PORT_DIPSETTING(    0x00, "Fast" )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cmissnx )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "5000" )
+	PORT_DIPSETTING(    0x04, "10000" )
+	PORT_DIPSETTING(    0x02, "15000" )
+	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4,5") /* Listed as "Game Level" */
+	PORT_DIPSETTING(    0x18, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cbtime )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x06, "20000" )
+	PORT_DIPSETTING(    0x04, "30000" )
+	PORT_DIPSETTING(    0x02, "40000" )
+	PORT_DIPSETTING(    0x00, "50000" )
+	PORT_DIPNAME( 0x08, 0x08, "Enemies" )                               PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x00, "6" )
+	PORT_DIPNAME( 0x10, 0x10, "End of Level Pepper" )                   PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cgraplop )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "20000" )
+	PORT_DIPSETTING(    0x04, "50000" )
+	PORT_DIPSETTING(    0x02, "70000" )
+	PORT_DIPNAME( 0x08, 0x08, "Number of Up Sign" )                     PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "Few" )
+	PORT_DIPSETTING(    0x00, "Many" )
+	PORT_DIPNAME( 0x10, 0x10, "Falling Speed" )                         PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	/* Switches 6, 7 & 8 are listed as "Not Used" and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cnightst )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x06, "When Night Star Completed (First 2 Times)" )
+	PORT_DIPSETTING(    0x04, "When Night Star Completed (First Time Only)" )
+	PORT_DIPSETTING(    0x02, "Every 70000"  )
+	PORT_DIPSETTING(    0x00, "30000 Only"  )
+	PORT_DIPNAME( 0x08, 0x08, "Number of Missles" )                     PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "Few" )
+	PORT_DIPSETTING(    0x00, "Many" )
+	PORT_DIPNAME( 0x10, 0x10, "Enemy's Speed" )                         PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, "Slow" )
+	PORT_DIPSETTING(    0x00, "Fast" )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cpsoccer )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1") /* Listed as "Number of Balls" */
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, "Number of Nice Goal" )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "5" )
+	PORT_DIPSETTING(    0x04, "10" )
+	PORT_DIPSETTING(    0x02, "20" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )                  PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4") /* Listed as "Class" */
+	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cscrtry )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "2" )
+	PORT_DIPSETTING(    0x00, "4" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "30000" )
+	PORT_DIPSETTING(    0x04, "50000" )
+	PORT_DIPSETTING(    0x02, "70000" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	PORT_DIPNAME( 0x10, 0x10, "Timer(Don't Change)" )                   PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, "Timer decrease" )
+	PORT_DIPSETTING(    0x00, "Timer infinity" )
+	/* Switches 6, 7 & 8 are listed as "Special Purpose" and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cfghtice )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, "Very Difficult" )               PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x04, DEF_STR( Very_Easy )  )
+	PORT_DIPSETTING(    0x06, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	PORT_DIPSETTING(    0x02, "Very Difficult" )
+	PORT_DIPNAME( 0x08, 0x08, "Enemy's Speed" )                         PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, "Fast" )
+	PORT_BIT( 0x10, 0x10, IPT_DIPSWITCH_NAME ) PORT_NAME( DEF_STR( Service_Mode ) ) PORT_CODE(KEYCODE_F2) PORT_TOGGLE PORT_DIPLOCATION("SW2:5")    /* Listed as Test Mode, but doesn't seem to work??? */
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cbdash )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "20000" )
+	PORT_DIPSETTING(    0x04, "30000" )
+	PORT_DIPSETTING(    0x02, "40000" )
+	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4,5")
+	PORT_DIPSETTING(    0x18, DEF_STR( Normal ) )       /* Number of Diamonds Little, Timer: Long */
+	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )     /* Number of Diamonds Little, Timer: Long */
+	PORT_DIPSETTING(    0x08, DEF_STR( Harder ) )       /* Number of Diamonds Many, Timer: Short */
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )      /* Number of Diamonds Many, Timer: Short */
+	/* Switches 6, 7 & 8 are listed as "Country Code" A through F and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cfishing )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None )  )
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, "Difficult" )
+	/* Switches 5, 6, 7 & 8 are listed as "Not Used" and "Don't Change" */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( ctisland )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x06, "15000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "25000" )
+	PORT_DIPSETTING(    0x00, "30000"  )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cppicf )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x06, "30000" )
+	PORT_DIPSETTING(    0x04, "50000" )
+	PORT_DIPSETTING(    0x02, "70000" )
+	PORT_DIPNAME( 0x10, 0x10, "Infinite Lives" )                        PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( clapapa )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cburnrub )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x02, "20000" )
+	PORT_DIPSETTING(    0x00, "30000" )
+	PORT_DIPSETTING(    0x06, "Every 30000" )
+	PORT_DIPSETTING(    0x04, "Every 70000" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Allow_Continue ) )               PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cluckypo )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, "Show Dealer Hand" )                      PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( czeroize )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x06, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x04, "50000" )
+	PORT_DIPSETTING(    0x02, "70000" )
+	PORT_DIPSETTING(    0x00, "90000"  )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cflyball )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x06, "20000" )
+	PORT_DIPSETTING(    0x04, "50000" )
+	PORT_DIPSETTING(    0x02, "70000" )
+	PORT_DIPNAME( 0x08, 0x08, "Push Backs" )                            PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "2" )
+	PORT_DIPSETTING(    0x00, "3" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cdiscon1 )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPNAME( 0x08, 0x08, "Music Weapons" )                         PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( csweetht )
+	PORT_INCLUDE( cdiscon1 )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x08, 0x08, "Music Weapons" )                         PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "5" )
+	PORT_DIPSETTING(    0x00, "8" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( chwy )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( castfant )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	/* other dips not verified */
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cptennis )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Lives ) )                        PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x01, "2" )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Bonus_Life ) )                   PORT_DIPLOCATION("SW2:2,3")
+	PORT_DIPSETTING(    0x06, "10000" )
+	PORT_DIPSETTING(    0x04, "20000" )
+	PORT_DIPSETTING(    0x02, "30000" )
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )                   PORT_DIPLOCATION("SW2:4")
+	PORT_DIPSETTING(    0x08, "Amateur" )
+	PORT_DIPSETTING(    0x00, "Professional" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) )                      PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	// DIPs verified from DIPSW sheet
+INPUT_PORTS_END
+
+INPUT_PORTS_START( cprobowl )
+	PORT_INCLUDE( decocass )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, "Show Bonus Instructions" )               PORT_DIPLOCATION("SW2:1")
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( On ) )
+	/* other dips not verified */
 INPUT_PORTS_END
 
 static const gfx_layout charlayout =
@@ -607,11 +1068,11 @@ static MACHINE_DRIVER_START( cgraplop )
 MACHINE_DRIVER_END
 
 
-static MACHINE_DRIVER_START( cgraplp2 )
+static MACHINE_DRIVER_START( cgraplop2 )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(decocass)
-	MDRV_MACHINE_RESET(cgraplp2)
+	MDRV_MACHINE_RESET(cgraplop2)
 MACHINE_DRIVER_END
 
 
@@ -647,11 +1108,11 @@ static MACHINE_DRIVER_START( cnightst )
 MACHINE_DRIVER_END
 
 
-static MACHINE_DRIVER_START( cprosocc )
+static MACHINE_DRIVER_START( cpsoccer )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(decocass)
-	MDRV_MACHINE_RESET(cprosocc)
+	MDRV_MACHINE_RESET(cpsoccer)
 MACHINE_DRIVER_END
 
 
@@ -748,7 +1209,7 @@ ROM_START( clocknch )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "de-0061.pro", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
+	ROM_LOAD( "dp-1110_b.dgl", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "clocknch.cas", 0x0000, 0x8000, CRC(c9d163a4) SHA1(3ef55a8d8f603059e263776c08eb81f2cf18b75c) )
@@ -770,7 +1231,7 @@ ROM_START( ctisland )
 	ROM_LOAD( "deco-ti.x4",   0x3000, 0x1000, CRC(1cbe43de) SHA1(8f26ad224e96c87da810c60d3dd88d415400b9fc) )
 ROM_END
 
-ROM_START( ctislnd2 )
+ROM_START( ctisland2 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
@@ -786,7 +1247,7 @@ ROM_START( ctislnd2 )
 	ROM_LOAD( "deco-ti.x4",   0x3000, 0x1000, CRC(1cbe43de) SHA1(8f26ad224e96c87da810c60d3dd88d415400b9fc) )
 ROM_END
 
-ROM_START( ctislnd3 )
+ROM_START( ctisland3 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
@@ -826,7 +1287,7 @@ ROM_START( cluckypo )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "de-0061.pro", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
+	ROM_LOAD( "dp-1150_b.dgl", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cluckypo.cas", 0x0000, 0x8000, CRC(2070c243) SHA1(cd3af309af8eb27937756c1fe6fd0504be5aaaf5) )
@@ -836,10 +1297,10 @@ ROM_START( cterrani )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "de-0061.pro", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
+	ROM_LOAD( "dp-1040.dgl", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
-	ROM_LOAD( "cterrani.cas", 0x0000, 0x8000, CRC(eb71adbc) SHA1(67becfde39c034d4b8edc2eb100050de102773da) )
+	ROM_LOAD( "dt-1040.cas", 0x0000, 0x8000, CRC(eb71adbc) SHA1(67becfde39c034d4b8edc2eb100050de102773da) )
 ROM_END
 
 ROM_START( cexplore )
@@ -859,10 +1320,10 @@ ROM_START( cprogolf )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00020, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "de-0061.pro", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
+	ROM_LOAD( "dp-1130_b.dgl", 0x0000, 0x0020, CRC(e09ae5de) SHA1(7dec067d0739a6dad2607132641b66880a5b7751) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
-	ROM_LOAD( "cprogolf.cas", 0x0000, 0x8000, CRC(02123cd1) SHA1(e4c630ed293725f23d539cb43beb97953558dabd) )
+	ROM_LOAD( "dt-1130_9b.cas", 0x0000, 0x8000, CRC(02123cd1) SHA1(e4c630ed293725f23d539cb43beb97953558dabd) )
 ROM_END
 
 /* The Following use Dongle Type 2 (CS82-007)
@@ -872,7 +1333,7 @@ ROM_START( cmissnx )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00800, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cmissnx.pro",  0x0000, 0x0800, CRC(8a41c071) SHA1(7b16d933707bf21d25dcd11db6a6c28834b11c5b) )
+	ROM_LOAD( "dp-121_b.dgl",  0x0000, 0x0800, CRC(8a41c071) SHA1(7b16d933707bf21d25dcd11db6a6c28834b11c5b) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cmissnx.cas",  0x0000, 0x8000, CRC(3a094e11) SHA1(c355fe14838187cbde19a799e5c60083c82615ac) )
@@ -882,7 +1343,7 @@ ROM_START( cdiscon1 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x00800, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cdiscon1.pro", 0x0000, 0x0800, CRC(0f793fab) SHA1(331f1b1b482fcd10f42c388a503f9af62d705401) )
+	ROM_LOAD( "dp-1190_b.dgl", 0x0000, 0x0800, CRC(0f793fab) SHA1(331f1b1b482fcd10f42c388a503f9af62d705401) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cdiscon1.cas", 0x0000, 0x8000, CRC(1429a397) SHA1(12f9e03fcda31dc6161a39bf5c3315a1e9e94565) )
@@ -947,17 +1408,17 @@ ROM_START( cburnrub )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cburnrub.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
+	ROM_LOAD( "dp-127_b.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cburnrub.cas",   0x0000, 0x8000, CRC(4528ac22) SHA1(dc0fcc5e5fd21c1c858a90f43c175e36a24b3c3d) )
 ROM_END
 
-ROM_START( cburnrb2 )
+ROM_START( cburnrub2 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cburnrub.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
+	ROM_LOAD( "dp-127_b.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cburnrb2.cas",   0x0000, 0x8000, CRC(84a9ed66) SHA1(a9c536e46b89fc6b9c6271776292fed1241d2f3f) )
@@ -967,7 +1428,7 @@ ROM_START( cbnj )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cburnrub.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
+	ROM_LOAD( "dp-127_b.pro",   0x0000, 0x1000, CRC(9f396832) SHA1(0e302fd094474ac792882948a018c73ce76e0759) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
 	ROM_LOAD( "cbnj.cas",       0x0000, 0x8000, CRC(eed41560) SHA1(85d5df76efac33cd10427f659c4259afabb3daaf) )
@@ -977,10 +1438,10 @@ ROM_START( cbtime )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
-	ROM_LOAD( "cbtime.pro",   0x0000, 0x1000, CRC(25bec0f0) SHA1(9fb1f9699f37937421e26d4fb8fdbcd21a5ddc5c) )
+	ROM_LOAD( "dp-126_b.dgl",   0x0000, 0x1000, CRC(25bec0f0) SHA1(9fb1f9699f37937421e26d4fb8fdbcd21a5ddc5c) )
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
-	ROM_LOAD( "cbtime.cas",   0x0000, 0x8000, CRC(56d7dc58) SHA1(34b2513c9ca7ab40f532b6d6d911aa3012113632) )
+	ROM_LOAD( "dt-126_7b.cas",   0x0000, 0x8000, CRC(56d7dc58) SHA1(34b2513c9ca7ab40f532b6d6d911aa3012113632) )
 ROM_END
 
 ROM_START( cgraplop )
@@ -993,14 +1454,14 @@ ROM_START( cgraplop )
 	ROM_LOAD( "cgraplop.cas", 0x0000, 0x8000, CRC(d2c1c1bb) SHA1(db67304caa11540363735e7d4bf03507ccbe9980) )
 ROM_END
 
-ROM_START( cgraplp2 )
+ROM_START( cgraplop2 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
 	ROM_LOAD( "cgraplop.pro", 0x0000, 0x1000, CRC(ee93787d) SHA1(0c753d62fdce2fdbd5b329a5aa259a967d07a651) ) /* is this right for this set? */
 
 	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
-	ROM_LOAD( "cgraplp2.cas", 0x0000, 0x8000, CRC(2e728981) SHA1(83ba90d95858d647315a1c311b8643672afea5f7) )
+	ROM_LOAD( "cgraplop2.cas", 0x0000, 0x8000, CRC(2e728981) SHA1(83ba90d95858d647315a1c311b8643672afea5f7) )
 ROM_END
 
 ROM_START( clapapa )
@@ -1053,7 +1514,7 @@ ROM_START( cnightst )
 	ROM_LOAD( "cnightst.cas", 0x0000, 0x8000, CRC(c6f844cb) SHA1(5fc6154c20ee4e2f4049a78df6f3cacbb96b0dc0) )
 ROM_END
 
-ROM_START( cnights2 )
+ROM_START( cnightst2 )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )   /* dongle data */
@@ -1063,7 +1524,7 @@ ROM_START( cnights2 )
 	ROM_LOAD( "cnights2.cas", 0x0000, 0x8000, CRC(1a28128c) SHA1(4b620a1919d02814f734aba995115c09dc2db930) )
 ROM_END
 
-ROM_START( cprosocc )
+ROM_START( cpsoccer )
 	DECOCASS_COMMON_ROMS
 
 	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
@@ -1212,45 +1673,45 @@ static DRIVER_INIT( decocrom )
 }
 
 
-BIOSB( 1981, decocass, 0,        decocass, decocass, decocass, decocass, ROT270, "Data East Corporation", "Cassette System", 0 )
-GAMEB( 1981, ctsttape, decocass, decocass, ctsttape, decocass, decocass, ROT270, "Data East Corporation", "Test Tape (Cassette)", 0 )
-GAMEB( 1981, clocknch, decocass, decocass, clocknch, decocass, decocass, ROT270, "Data East Corporation", "Lock'n'Chase (Cassette)", 0 )
-GAMEB( 1981, ctisland, decocass, decocass, ctisland, decocass, decocrom, ROT270, "Data East Corporation", "Treasure Island (Cassette, set 1)", 0 )
-GAMEB( 1981, ctislnd2, ctisland, decocass, ctisland, decocass, decocrom, ROT270, "Data East Corporation", "Treasure Island (Cassette, set 2)", 0 )
-GAMEB( 1981, ctislnd3, ctisland, decocass, ctisland, decocass, decocrom, ROT270, "Data East Corporation", "Treasure Island (Cassette, set 3)", GAME_NOT_WORKING ) /* Different Bitswap? */
-GAMEB( 1981, csuperas, decocass, decocass, csuperas, decocass, decocass, ROT270, "Data East Corporation", "Super Astro Fighter (Cassette)", 0 )
-GAMEB( 1981, castfant, decocass, decocass, castfant, decocass, decocass, ROT270, "Data East Corporation", "Astro Fantasia (Cassette)", 0 )
-GAMEB( 1981, cluckypo, decocass, decocass, cluckypo, decocass, decocass, ROT270, "Data East Corporation", "Lucky Poker (Cassette)", 0 )
-GAMEB( 1981, cterrani, decocass, decocass, cterrani, decocass, decocass, ROT270, "Data East Corporation", "Terranean (Cassette)", 0 )
-GAMEB( 1982, cexplore, decocass, decocass, cexplore, decocass, decocass, ROT270, "Data East Corporation", "Explorer (Cassette)", GAME_NOT_WORKING )
-GAMEB( 1981, cprogolf, decocass, decocass, cprogolf, decocass, decocass, ROT270, "Data East Corporation", "Pro Golf (Cassette)", 0 )
-GAMEB( 1982, cmissnx,  decocass, decocass, cmissnx,  decocass, decocass, ROT270, "Data East Corporation", "Mission-X (Cassette)", 0 )
-GAMEB( 1982, cdiscon1, decocass, decocass, cdiscon1, decocass, decocass, ROT270, "Data East Corporation", "Disco No.1 (Cassette)", 0 )
-GAMEB( 1982, csweetht, cdiscon1, decocass, cdiscon1, decocass, decocass, ROT270, "Data East Corporation", "Sweet Heart (Cassette)", 0 )
-GAMEB( 1982, cptennis, decocass, decocass, cptennis, decocass, decocass, ROT270, "Data East Corporation", "Pro Tennis (Cassette)", 0 )
-GAMEB( 1982, ctornado, decocass, decocass, ctornado, decocass, decocass, ROT270, "Data East Corporation", "Tornado (Cassette)", 0 )
-GAMEB( 1982, cburnrub, decocass, decocass, cburnrub, decocass, decocass, ROT270, "Data East Corporation", "Burnin' Rubber (Cassette, set 1)", 0 )
-GAMEB( 1982, cburnrb2, cburnrub, decocass, cburnrub, decocass, decocass, ROT270, "Data East Corporation", "Burnin' Rubber (Cassette, set 2)", 0 )
-GAMEB( 1982, cbnj,     cburnrub, decocass, cbnj,     decocass, decocass, ROT270, "Data East Corporation", "Bump N Jump (Cassette)", 0 )
-GAMEB( 1983, cbtime,   decocass, decocass, cbtime,   dc_btime, decocass, ROT270, "Data East Corporation", "Burger Time (Cassette)", 0 )
-GAMEB( 1982, cadanglr, decocass, decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Angler Dangler (Cassette)", 0 )
-GAMEB( 1982, cfishing, cadanglr, decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Fishing (Cassette)",0 )
-GAMEB( 1983, cgraplop, decocass, decocass, cgraplop, decocass, decocass, ROT270, "Data East Corporation", "Graplop (aka Cluster Buster) (Cassette, set 1)", 0 )
-GAMEB( 1983, cgraplp2, cgraplop, decocass, cgraplp2, decocass, decocass, ROT270, "Data East Corporation", "Graplop (aka Cluster Buster) (Cassette, set 2)", GAME_NOT_WORKING )
-GAMEB( 1983, clapapa,  decocass, decocass, clapapa,  decocass, decocass, ROT270, "Data East Corporation", "Rootin' Tootin' (aka La.Pa.Pa) (Cassette)" , 0) /* Displays 'LaPaPa during attract */
-GAMEB( 1983, clapapa2, clapapa,  decocass, clapapa,  decocass, decocass, ROT270, "Data East Corporation", "Rootin' Tootin' (Cassette)" , 0)				/* Displays 'Rootin' Tootin' during attract */
-GAMEB( 1984, cfghtice, decocass, decocass, cfghtice, decocass, decocass, ROT270, "Data East Corporation", "Fighting Ice Hockey (Cassette)", 0 )
-GAMEB( 1983, cprobowl, decocass, decocass, cprobowl, decocass, decocass, ROT270, "Data East Corporation", "Pro Bowling (Cassette)", 0 )
-GAMEB( 1983, cnightst, decocass, decocass, cnightst, decocass, decocass, ROT270, "Data East Corporation", "Night Star (Cassette, set 1)", 0 )
-GAMEB( 1983, cnights2, cnightst, decocass, cnightst, decocass, decocass, ROT270, "Data East Corporation", "Night Star (Cassette, set 2)", 0 )
-GAMEB( 1983, cprosocc, decocass, decocass, cprosocc, decocass, decocass, ROT270, "Data East Corporation", "Pro Soccer (Cassette)", 0 )
-GAMEB( 1983, czeroize, decocass, decocass, czeroize, decocass, decocass, ROT270, "Data East Corporation", "Zeroize (Cassette)", 0 )
-GAMEB( 1984, cppicf,   decocass, decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Peter Pepper's Ice Cream Factory (Cassette, set 1)", 0 )
-GAMEB( 1984, cppicf2,  cppicf,   decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Peter Pepper's Ice Cream Factory (Cassette, set 2)", 0 )
-GAMEB( 1984, cscrtry,  decocass, decocass, cscrtry,  decocass, decocass, ROT270, "Data East Corporation", "Scrum Try (Cassette, set 1)", 0 )
-GAMEB( 1984, cscrtry2, cscrtry,  decocass, cscrtry,  decocass, decocass, ROT270, "Data East Corporation", "Scrum Try (Cassette, set 2)", 0 )
-GAMEB( 1985, cflyball, decocass, decocass, cflyball, decocass, decocass, ROT270, "Data East Corporation", "Flying Ball (Cassette)", GAME_NO_SOUND )
-GAMEB( 1985, cbdash,   decocass, decocass, cbdash,   decocass, decocass, ROT270, "Data East Corporation", "Boulder Dash (Cassette)", 0 )
+BIOSB( 1981, decocass, 0,        decocass, decocass, decocass, decocass, ROT270, "Data East Corporation", "DECO Cassette System", 0 )
+GAMEB( 1981, ctsttape,  decocass, decocass, ctsttape, decocass, decocass, ROT270, "Data East Corporation", "Test Tape (DECO Cassette) (US)", 0 )
+GAMEB( 1981, clocknch,  decocass, decocass, clocknch, clocknch, decocass, ROT270, "Data East Corporation", "Lock'n'Chase (DECO Cassette) (US)", 0 )
+GAMEB( 1981, ctisland,  decocass, decocass, ctisland, ctisland, decocass, ROT270, "Data East Corporation", "Treasure Island (DECO Cassette) (US) (set 1)", 0 )
+GAMEB( 1981, ctisland2, ctisland, decocass, ctisland, ctisland, decocass, ROT270, "Data East Corporation", "Treasure Island (DECO Cassette) (US) (set 2)", 0 )
+GAMEB( 1981, ctisland3, ctisland, decocass, ctisland, ctisland, decocass, ROT270, "Data East Corporation", "Treasure Island (DECO Cassette) (Europe?)", GAME_NOT_WORKING ) /* Different Bitswap? */
+GAMEB( 1981, csuperas,  decocass, decocass, csuperas, csuperas, decocass, ROT270, "Data East Corporation", "Super Astro Fighter (DECO Cassette) (US)", 0 )
+GAMEB( 1981, castfant,  decocass, decocass, castfant, castfant, decocass, ROT270, "Data East Corporation", "Astro Fantasia (DECO Cassette) (US)", 0 )
+GAMEB( 1981, cluckypo,  decocass, decocass, cluckypo, cluckypo, decocass, ROT270, "Data East Corporation", "Lucky Poker (DECO Cassette) (US)", 0 )
+GAMEB( 1981, cterrani,  decocass, decocass, cterrani, cterrani, decocass, ROT270, "Data East Corporation", "Terranean (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cexplore,  decocass, decocass, cexplore, cexplore, decocass, ROT270, "Data East Corporation", "Explorer (DECO Cassette) (US)", GAME_NOT_WORKING )
+GAMEB( 1981, cprogolf,  decocass, decocass, cprogolf, cprogolf, decocass, ROT270, "Data East Corporation", "Tournament Pro Golf (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cmissnx,   decocass, decocass, cmissnx,  cmissnx,  decocass, ROT270, "Data East Corporation", "Mission-X (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cdiscon1,  decocass, decocass, cdiscon1, cdiscon1, decocass, ROT270, "Data East Corporation", "Disco No.1 (DECO Cassette) (US)", 0 )
+GAMEB( 1982, csweetht,  cdiscon1, decocass, cdiscon1, csweetht, decocass, ROT270, "Data East Corporation", "Sweet Heart (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cptennis,  decocass, decocass, cptennis, cptennis, decocass, ROT270, "Data East Corporation", "Pro Tennis (DECO Cassette) (US)", 0 )
+GAMEB( 1982, ctornado,  decocass, decocass, ctornado, ctornado, decocass, ROT270, "Data East Corporation", "Tornado (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cburnrub,  decocass, decocass, cburnrub, cburnrub, decocass, ROT270, "Data East Corporation", "Burnin' Rubber (DECO Cassette) (US) (set 1)", 0 )
+GAMEB( 1982, cburnrub2, cburnrub, decocass, cburnrub, cburnrub, decocass, ROT270, "Data East Corporation", "Burnin' Rubber (DECO Cassette) (US) (set 2)", 0 )
+GAMEB( 1982, cbnj,      cburnrub, decocass, cbnj,     cburnrub, decocass, ROT270, "Data East Corporation", "Bump 'n' Jump (DECO Cassette) (US)", 0 )
+GAMEB( 1983, cbtime,    decocass, decocass, cbtime,   cbtime,   decocass, ROT270, "Data East Corporation", "Burger Time (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cadanglr,  decocass, decocass, cppicf,   cfishing, decocass, ROT270, "Data East Corporation", "Angler Dangler (DECO Cassette) (US)", 0 )
+GAMEB( 1982, cfishing,  cadanglr, decocass, cppicf,   cfishing, decocass, ROT270, "Data East Corporation", "Fishing (DECO Cassette) (Japan)", 0 )
+GAMEB( 1983, cgraplop,  decocass, decocass, cgraplop, cgraplop, decocass, ROT270, "Data East Corporation", "Cluster Buster (DECO Cassette) (US)", 0 )
+GAMEB( 1983, cgraplop2, cgraplop, decocass, cgraplop2, cgraplop, decocass, ROT270, "Data East Corporation", "Graplop (DECO Cassette) (US) (Prototype?)", GAME_NOT_WORKING )
+GAMEB( 1983, clapapa,   decocass, decocass, clapapa,  clapapa,  decocass, ROT270, "Data East Corporation", "Rootin' Tootin' / La-Pa-Pa (DECO Cassette) (US)", 0 ) /* Displays 'La-Pa-Pa during attract */
+GAMEB( 1983, clapapa2,  clapapa,  decocass, clapapa,  clapapa,  decocass, ROT270, "Data East Corporation", "Rootin' Tootin' (DECO Cassette) (US)", 0 ) /* Displays 'Rootin' Tootin' during attract */
+GAMEB( 1984, cfghtice,  decocass, decocass, cfghtice, cfghtice, decocass, ROT270, "Data East Corporation", "Fighting Ice Hockey (DECO Cassette) (US)", 0 )
+GAMEB( 1983, cprobowl,  decocass, decocass, cprobowl, cprobowl, decocass, ROT270, "Data East Corporation", "Pro Bowling (DECO Cassette) (US)", 0 )
+GAMEB( 1983, cnightst,  decocass, decocass, cnightst, cnightst, decocass, ROT270, "Data East Corporation", "Night Star (DECO Cassette) (US) (set 1)", 0 )
+GAMEB( 1983, cnightst2, cnightst, decocass, cnightst, cnightst, decocass, ROT270, "Data East Corporation", "Night Star (DECO Cassette) (US) (set 2)", 0 )
+GAMEB( 1983, cpsoccer,  decocass, decocass, cpsoccer, cpsoccer, decocass, ROT270, "Data East Corporation", "Pro Soccer (DECO Cassette) (US)", 0 )
+GAMEB( 1983, czeroize,  decocass, decocass, czeroize, czeroize, decocass, ROT270, "Data East Corporation", "Zeroize (DECO Cassette) (US)", 0 )
+GAMEB( 1984, cppicf,    decocass, decocass, cppicf,   cppicf,   decocass, ROT270, "Data East Corporation", "Peter Pepper's Ice Cream Factory (DECO Cassette) (US) (set 1)", 0 )
+GAMEB( 1984, cppicf2,   cppicf,   decocass, cppicf,   cppicf,   decocass, ROT270, "Data East Corporation", "Peter Pepper's Ice Cream Factory (DECO Cassette) (US) (set 2)", 0 )
+GAMEB( 1984, cscrtry,   decocass, decocass, cscrtry,  cscrtry,  decocass, ROT270, "Data East Corporation", "Scrum Try (DECO Cassette) (US) (set 1)", 0 )
+GAMEB( 1984, cscrtry2,  cscrtry,  decocass, cscrtry,  cscrtry,  decocass, ROT270, "Data East Corporation", "Scrum Try (DECO Cassette) (US) (set 2)", 0 )
+GAMEB( 1985, cflyball,  decocass, decocass, cflyball, cflyball, decocass, ROT270, "Data East Corporation", "Flying Ball (DECO Cassette) (US)", GAME_NO_SOUND )
+GAMEB( 1985, cbdash,    decocass, decocass, cbdash,   cbdash,   decocass, ROT270, "Data East Corporation", "Boulder Dash (DECO Cassette) (US)", 0 )
 
 /* The following may be missing dongle data if they're not Type 1 */
-GAMEB( 1985, chwy,     decocass, decocass, decocass, decocass, decocass, ROT270, "Data East Corporation", "Highway Chase? (Cassette)", GAME_NOT_WORKING )
+GAMEB( 1980, chwy,      decocass, decocass, decocass, chwy,     decocass, ROT270, "Data East Corporation", "Highway Chase (DECO Cassette) (US)", GAME_NOT_WORKING )

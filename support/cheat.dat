@@ -17626,10 +17626,10 @@
 :cbtime:00000000:002C:00000099:FFFFFFFF:Infinite Pepper PL2
 
 ; [ Burnin' Rubber (Cassette, set 2) ]
-:cburnrb2:00000000:00004:00000009:FFFFFFFF:Infinite Credits
-:cburnrb2:00000000:00018:00000005:FFFFFFFF:Infinite Lives
-:cburnrb2:20800000:10BEF:00000060:FFFFFFFF:Invincibility
-:cburnrb2:20810000:10D22:00000060:FFFFFFFF:Invincibility (2/2)
+:cburnrub2:00000000:00004:00000009:FFFFFFFF:Infinite Credits
+:cburnrub2:00000000:00018:00000005:FFFFFFFF:Infinite Lives
+:cburnrub2:20800000:10BEF:00000060:FFFFFFFF:Invincibility
+:cburnrub2:20810000:10D22:00000060:FFFFFFFF:Invincibility (2/2)
 
 ; [ Burnin' Rubber (Cassette, set 1) ]
 :cburnrub:00000000:00004:00000009:FFFFFFFF:Infinite Credits
@@ -18168,10 +18168,10 @@
 :cgraplop:20810000:117A3:00000060:FFFFFFFF:Invincibility (2/2)
 
 ; [ Graplop (aka Cluster Buster) (Cassette, set 2) ]
-:cgraplp2:00000000:00030:00000006:FFFFFFFF:Infinite Lives
-:cgraplp2:00000010:000D9:000000CF:000000CF:Always Keep One Ball in Play
-:cgraplp2:20800000:111E6:00000060:FFFFFFFF:Invincibility
-:cgraplp2:20810000:117A3:00000060:FFFFFFFF:Invincibility (2/2)
+:cgraplop2:00000000:00030:00000006:FFFFFFFF:Infinite Lives
+:cgraplop2:00000010:000D9:000000CF:000000CF:Always Keep One Ball in Play
+:cgraplop2:20800000:111E6:00000060:FFFFFFFF:Invincibility
+:cgraplop2:20810000:117A3:00000060:FFFFFFFF:Invincibility (2/2)
 
 ; [ Chain Reaction (World, Version 2.2, 1995.09.25) ]
 :chainrec:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
@@ -20116,13 +20116,13 @@
 :cmv801:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Night Star (Cassette, set 2) ]
-:cnights2:00000000:0004:00000009:FFFFFFFF:Infinite Credits
-:cnights2:00000000:0018:00000099:FFFFFFFF:Infinite Lives
-:cnights2:00900000:0ACC:000058EA:FFFFFFFF:Invincibility:Don't enable this cheat during the loading of the game from cassette tape to prevent any problems
-:cnights2:00810000:0C0C:00000060:FFFFFFFF:Invincibility:1st = Fire (nop/sec), 2nd = Enemy (rst)
-:cnights2:00000000:0017:0000005B:FFFFFFFF:Always Have Power Up
-:cnights2:00010000:0046:00000009:FFFFFFFF:Always Have Power Up (2/2)
-:cnights2:00000000:0029:00000000:FFFFFFFF:Rapid Fire
+:cnightst2:00000000:0004:00000009:FFFFFFFF:Infinite Credits
+:cnightst2:00000000:0018:00000099:FFFFFFFF:Infinite Lives
+:cnightst2:00900000:0ACC:000058EA:FFFFFFFF:Invincibility:Don't enable this cheat during the loading of the game from cassette tape to prevent any problems
+:cnightst2:00810000:0C0C:00000060:FFFFFFFF:Invincibility:1st = Fire (nop/sec), 2nd = Enemy (rst)
+:cnightst2:00000000:0017:0000005B:FFFFFFFF:Always Have Power Up
+:cnightst2:00010000:0046:00000009:FFFFFFFF:Always Have Power Up (2/2)
+:cnightst2:00000000:0029:00000000:FFFFFFFF:Rapid Fire
 
 ; [ Night Star (Cassette, set 1) ]
 :cnightst:00000000:0004:00000009:FFFFFFFF:Infinite Credits
@@ -21461,8 +21461,8 @@
 :cprogolf:00010001:0082:00000007:FFFFFFFF:Reset Strokes Now! (2/2)
 
 ; [ Pro Soccer (Cassette) ]
-:cprosocc:00000000:059E:00000007:FFFFFFFF:Infinite Lives
-:cprosocc:00000901:059F:00000099:FFFFFFFF:Select Goals Scored
+:cpsoccer:00000000:059E:00000007:FFFFFFFF:Infinite Lives
+:cpsoccer:00000901:059F:00000099:FFFFFFFF:Select Goals Scored
 
 ; [ Pro Tennis (Cassette) ]
 :cptennis:00000000:00D1:00000009:FFFFFFFF:Infinite Credits
@@ -23778,13 +23778,13 @@
 :ctisland:00000000:0002F:00000005:FFFFFFFF:Infinite Lives PL2
 
 ; [ Treasure Island (Cassette, set 2) ]
-:ctislnd2:00000000:0040:00000005:FFFFFFFF:Infinite Lives
-:ctislnd2:20800000:00CE5:00000000:FFFFFFFF:Invincibility
-:ctislnd2:20810000:111BA:00000060:FFFFFFFF:Invincibility (2/3):1st = Sea, 2nd = Skull
-:ctislnd2:20810000:11A39:00000060:FFFFFFFF:Invincibility (3/3):Monster
+:ctisland2:00000000:0040:00000005:FFFFFFFF:Infinite Lives
+:ctisland2:20800000:00CE5:00000000:FFFFFFFF:Invincibility
+:ctisland2:20810000:111BA:00000060:FFFFFFFF:Invincibility (2/3):1st = Sea, 2nd = Skull
+:ctisland2:20810000:11A39:00000060:FFFFFFFF:Invincibility (3/3):Monster
 
 ; [ Treasure Island (Cassette, set 3) ]
-:ctislnd3:00000000:0040:00000005:FFFFFFFF:Infinite Lives
+:ctisland3:00000000:0040:00000005:FFFFFFFF:Infinite Lives
 
 ; [ Captain Tomaday ]
 :ctomaday:00000000:10137D:0000000A:FFFFFFFF:Infinite Lives PL1
@@ -204511,7 +204511,7 @@
 ;catmousa=catnmous (unchecked relationship)
 ;catt=mcatadv=mcatadvj
 ;cawing=cawingj=cawingu
-;cbnj=cburnrub~=cburnrb2
+;cbnj=cburnrub~=cburnrub2
 ;cbuster=cbusterj=cbusterw=twocrude
 ;ccastles=ccastle3~ccastle2
 ;ccboot=ccboot2=cclimber=cclimbrj
@@ -204519,7 +204519,7 @@
 ;cclimbr2=cclmbr2a
 ;cdiscon1~=csweetht
 ;cgangpzj=cgangpzl
-;cgraplop=cgraplp2
+;cgraplop=cgraplop2
 ;champb2a=champbas=champbb2=champbbj=champbja
 ;champwr=champwrj=champwru
 ;changes=changesa=looper
@@ -204544,7 +204544,7 @@
 ;clowns~clowns1
 ;clshrdst=clshroad
 ;cltchitr=cltchitrj~=mvp=mvpj(balls=4 on MVP)
-;cnights2=cnightst
+;cnightst2=cnightst
 ;cninja=cninja0=cninjau=joemac=stoneage
 ;cobracmj=cobracom
 ;colony7=colony7a
@@ -204582,7 +204582,7 @@
 ;csk227it~csk234it
 ;csprint=csprint1=csprint2~(csprins1=csprintf=csprints~=(cspring1=csprintg))~(sspring1=ssprint=ssprint1=ssprint3~=(ssprintf=ssprintg=ssprints))
 ;cstlevna~=pc_cvnia
-;ctisland~(ctislnd2=ctislnd3)
+;ctisland~(ctisland2=ctisland3)
 ;ctribe=ctribeb
 ;cupfinal=hthero93~=(hthero94=intcup94)~=scfinals
 ;cupsoc=cupsocs2=cupsocbl=goal92=olysoc92
@@ -205720,14 +205720,14 @@
 ; cbdash (made by ShimaPong) [????]
 ; cbnj (made by ShimaPong) [M6502]
 ; cbtime (made by Pugsy) [M6502]
-; cburnrb2 (made by ShimaPong) [M6502]
+; cburnrub2 (made by ShimaPong) [M6502]
 ; cburnrub (made by ShimaPong) [M6502]
 ; centipd2 (made by Pugsy) [M6502]
 ; centipdb (made by Pugsy) [M6502]
 ; centiped (made by Pugsy) [M6502]
 ; centtime (made by Pugsy) [M6502]
 ; cgraplop (made by ShimaPong) [M6502]
-; cgraplp2 (made by ShimaPong) [M6502]
+; cgraplop2 (made by ShimaPong) [M6502]
 ; chaknpop (made by ShimaPong) [????]
 ; chameleo (made by Pugsy) [M6502]
 ; cheesech (made by ShimaPong) [????]
@@ -205747,7 +205747,7 @@
 ; clshrdst (made by ShimaPong) [????]
 ; clshroad (made by ShimaPong) [????]
 ; cmissnx (made by ShimaPong) [????]
-; cnights2 (made by ShimaPong) [????]
+; cnightst2 (made by ShimaPong) [????]
 ; cnightst (made by ShimaPong) [????]
 ; cobracmj (made by Pugsy) [M6809]
 ; cobracom (made by Pugsy) [M6809]
@@ -205776,7 +205776,7 @@
 ; csuperas (made by ShimaPong) [????]
 ; cterrani (made by ShimaPong) [????]
 ; ctisland (made by ShimaPong) [????]
-; ctislnd2 (made by ShimaPong) [????]
+; ctisland2 (made by ShimaPong) [????]
 ; ctornado (made by ShimaPong) [????]
 ; ctrpllrp (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; czeroize (made by ShimaPong) [????]
@@ -206646,7 +206646,7 @@
 ; bnzabros (found by ShimaPong)
 ; quester (found by ugetab)
 ; cgraplop (found by ShimaPong)
-; cgraplp2 (found by ShimaPong)
+; cgraplop2 (found by ShimaPong)
 ; pinbo (found by ShimaPong)
 ; pinboa (found by ShimaPong)
 ; pinbos (found by ShimaPong)

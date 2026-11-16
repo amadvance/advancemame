@@ -31723,7 +31723,7 @@ Arcade Retro Lounge; http://tips.retrogames.com/
 $end
 
 
-$info=cburnrub,cburnrb2,
+$info=cburnrub,cburnrub2,
 $bio
 
 Burnin' Rubber (c) 11/1982 Data East.
@@ -39036,7 +39036,7 @@ Commodore C64
 $end
 
 
-$info=cgraplop,cgraplp2,
+$info=cgraplop,cgraplop2,
 $bio
 
 Cluster Buster (c) 11/1983 Data East.
@@ -146470,7 +146470,7 @@ Buttons : 6
 $end
 
 
-$info=cnightst,cnights2,
+$info=cnightst,cnightst2,
 $bio
 
 Night Star (c) 04/1983 Data East.
@@ -164252,7 +164252,7 @@ Buttons : 2
 $end
 
 
-$info=cprosocc,
+$info=cpsoccer,
 $bio
 
 Pro Soccer (c) 11/1983 Data East.
@@ -238872,7 +238872,7 @@ Sega Saturn (1997)
 $end
 
 
-$info=ctisland,ctislnd2,ctislnd3,
+$info=ctisland,ctisland2,ctisland3,
 $bio
 
 Treasure Island (c) 01/1982 Data East.

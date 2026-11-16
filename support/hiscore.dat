@@ -3856,13 +3856,13 @@ clapapa2:
 0:3:1:0:0
 
 ;(cassette: pro soccer) (by GeoMan)
-cprosocc:
+cpsoccer:
 0:56a:23:00:00
 0:591:3:0:0
 
 ;(cassette: night star (set 1)) and clones (by GeoMan)
 cnightst:
-cnights2:
+cnightst2:
 0:d:2:00:03
 0:7800:40:03:00
 0:7940:40:6b:00
@@ -3959,7 +3959,7 @@ csweetht:
 ;(cassette: bump n jump) and clones (by GeoMan)
 cburnrub:
 cbnj:
-cburnrb2:
+cburnrub2:
 0:9:3:12:01
 0:7800:f:01:82
 0:9800:f:4d:4d
