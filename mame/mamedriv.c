@@ -8006,9 +8006,10 @@ Other Sun games
 	DRIVER( tictac )	/* (c) 1985 Merit */
 	DRIVER( phrcraze )	/* (c) 1986 Merit */
 	DRIVER( phrcrazs )	/* (c) 1986 Merit */
-	DRIVER( couple )	/* (c) 1988 Merit */
-	DRIVER( couplep )	/* (c) 1988 Merit */
-	DRIVER( couplei )	/* (c) 1988 Merit */
+	DRIVER( matchem )	/* (c) 1986 Merit */
+	DRIVER( couple )	/* (c) 1988 bootleg */
+	DRIVER( couplep )	/* (c) 1988 bootleg */
+	DRIVER( couplei )	/* (c) 1988 bootleg */
 	DRIVER( suprgolf )	/* (c) 19?? Nasco */
 	DRIVER( hotblock )	/* (c) 1993 Nics? / Nix? */
 	DRIVER( pntnpuzl )	/* Century? */
