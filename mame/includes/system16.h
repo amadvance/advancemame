@@ -10,18 +10,6 @@ VIDEO_START( hangon );
 VIDEO_START( sharrier );
 VIDEO_UPDATE( hangon );
 
-/*----------- defined in vidhrdw/segas16a.c -----------*/
-
-VIDEO_START( system16a );
-VIDEO_UPDATE( system16a );
-
-/*----------- defined in vidhrdw/segas16b.c -----------*/
-
-VIDEO_START( system16b );
-VIDEO_START( lockonph );
-VIDEO_START( timscanr );
-VIDEO_UPDATE( system16b );
-
 /*----------- defined in vidhrdw/segas18.c -----------*/
 
 VIDEO_START( system18 );

@@ -133,7 +133,7 @@ Tetris         -         -         -         -         EPR12169  EPR12170  -    
 */
 
 #include "driver.h"
-#include "system16.h"
+#include "segas16a.h"
 #include "machine/8255ppi.h"
 #include "cpu/i8039/i8039.h"
 #include "sound/dac.h"
@@ -1568,8 +1568,8 @@ static MACHINE_DRIVER_START( system16a )
 	MDRV_SOUND_ROUTE(1, "right", 0.43)
 
 	MDRV_SOUND_ADD_TAG("dac", DAC, 0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.80)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.80)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.20)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.20)
 MACHINE_DRIVER_END
 
 

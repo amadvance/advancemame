@@ -831,13 +831,14 @@ WW.B11    Object 5 - Even
 */
 
 #include "driver.h"
-#include "system16.h"
+#include "segas16b.h"
 #include "machine/segaic16.h"
 #include "sound/2151intf.h"
 #include "sound/2413intf.h"
 #include "sound/upd7759.h"
 #include "sound/okim6295.h"
 #include "sound/dac.h"
+#include "cpu/m68000/m68000.h"
 
 
 /*************************************
@@ -1411,8 +1412,9 @@ static void goldnaxe_i8751_sim(void)
 {
 	UINT16 temp;
 
-	/* signal a VBLANK to the main CPU */
-	cpunum_set_input_line(0, 4, HOLD_LINE);
+	/* signal a VBLANK to the main CPU (do not latch while masked, or a stale IRQ fires right after RAM clear with workram[0x2c96/2] == 0) */
+	if ((cpunum_get_reg(0, M68K_SR) & 0x0700) < 0x0400)
+		cpunum_set_input_line(0, 4, HOLD_LINE);
 
 	/* they periodically clear the data at 2cd8,2cda,2cdc,2cde and expect the MCU to fill it in */
 	if (workram[0x2cd8/2] == 0 && workram[0x2cda/2] == 0 && workram[0x2cdc/2] == 0 && workram[0x2cde/2] == 0)
@@ -1882,6 +1884,8 @@ static WRITE16_HANDLER( sjryuko_custom_io_w )
 		case 0x0000/2:
 			if (((last_val ^ data) & 4) && (data & 4))
 				mj_input_num = (mj_input_num + 1) % 6;
+
+			last_val = data;
 			break;
 	}
 	standard_io_w(offset, data, mem_mask);
@@ -3743,6 +3747,7 @@ static MACHINE_DRIVER_START( system16b_8751 )
 	MDRV_CPU_VBLANK_INT(i8751_main_cpu_vblank,1)
 
 	MDRV_CPU_ADD(I8751, 8000000)
+	MDRV_CPU_FLAGS(CPU_DISABLE)
 	MDRV_CPU_PROGRAM_MAP(mcu_map,0)
 	MDRV_CPU_DATA_MAP(mcu_data_map,0)
 	MDRV_CPU_VBLANK_INT(irq0_line_pulse,1)
@@ -6849,7 +6854,7 @@ static DRIVER_INIT( generic_5358_small )
 static DRIVER_INIT( aliensy3_5358 )
 {
 	void fd1089_decrypt_0033(void);
-	init_generic_5358();
+	init_generic_5358_small();
 	fd1089_decrypt_0033();
 }
 
@@ -6957,14 +6962,14 @@ static DRIVER_INIT( hwchamp_5521 )
 
 static DRIVER_INIT( sdi_5358 )
 {
-	init_generic_5358();
+	init_generic_5358_small();
 	custom_io_r = sdi_custom_io_r;
 }
 
 static DRIVER_INIT( defense_5358 )
 {
 	void fd1089_decrypt_0028(void);
-	init_generic_5358();
+	init_generic_5358_small();
 	fd1089_decrypt_0028();
 	custom_io_r = sdi_custom_io_r;
 }
@@ -6973,7 +6978,7 @@ static DRIVER_INIT( defense_5358 )
 static DRIVER_INIT( sjryuko_5358 )
 {
 	void fd1089_decrypt_5021(void);
-	init_generic_5358();
+	init_generic_5358_small();
 	fd1089_decrypt_5021();
 	custom_io_r = sjryuko_custom_io_r;
 	custom_io_w = sjryuko_custom_io_w;
@@ -7040,7 +7045,7 @@ static DRIVER_INIT( snapper )
  *************************************/
 
 GAME( 1988, aceattac, 0, system16b_aceattac, aceattac, aceattac, ROT270, "Sega", "Ace Attacker (FD1094 317-0059)", 0 )
-GAME( 1987, aliensyn, 0,        system16b,      aliensyn, generic_5358,           ROT0,   "Sega",           "Alien Syndrome (set 4, System 16B, unprotected)", 0 )
+GAME( 1987, aliensyn, 0,        system16b,      aliensyn, generic_5358_small,     ROT0,   "Sega",           "Alien Syndrome (set 4, System 16B, unprotected)", 0 )
 GAME( 1987, aliensyn3, aliensyn, system16b,      aliensyn, aliensy3_5358,          ROT0,   "Sega",           "Alien Syndrome (set 3, System 16B, FD1089A 317-0033)", 0 )
 GAME( 1988, altbeast, 0,        system16b_8751, altbeast, altbeast_5521,          ROT0,   "Sega",           "Altered Beast (set 8) (8751 317-0078)", 0 )
 GAME( 1988, altbeastj, altbeast, system16b_8751, altbeast, altbeasj_5521,          ROT0,   "Sega",           "Juuouki (set 7, Japan) (8751 317-0077)", 0 )
@@ -7094,11 +7099,11 @@ GAME( 1987, shinobi4, shinobi,  system16b,      shinobi,  shinobi4_5521,        
 GAME( 1987, shinobi3, shinobi,  system16b,      shinobi,  shinobi3_5358,           ROT0,   "Sega",           "Shinobi (set 3, System 16B) (MC-8123B 317-0054)", 0 )
 GAME( 1987, shinobi2, shinobi,  system16b,      shinobi,  generic_5358,           ROT0,   "Sega",           "Shinobi (set 2, System 16B) (FD1094 317-0049)", 0 )
 GAME( 1987, sonicbom, 0,        system16b,      sonicbom, generic_5358,           ROT270, "Sega",           "Sonic Boom (FD1094 317-0053)", 0 )
-GAME( 1988, sjryuko,  0,        timescan,       sjryuko,  sjryuko_5358,           ROT0,   "White Board",    "Sukeban Jansi Ryuko (set 2, System 16B, FD1089B 317-5021)", 0 )
+GAME( 1988, sjryuko,  0,        system16b,      sjryuko,  sjryuko_5358,           ROT0,   "White Board",    "Sukeban Jansi Ryuko (set 2, System 16B, FD1089B 317-5021)", 0 )
 GAME( 1987, suprleag, 0,        system16b,      exctleag, exctleag,               ROT0,   "Sega",           "Super League (FD1094 317-0045)", 0 )
 GAME( 1988, tetris2,  tetris,   system16b,      tetris,   generic_5704,           ROT0,   "Sega",           "Tetris (set 2, Japan, System 16B) (FD1094 317-0092)", 0 )
-GAME( 1988, tetris1,  tetris,   system16b,      tetris,   generic_5358,           ROT0,   "Sega",           "Tetris (set 1, Japan, System 16B) (FD1094 317-0091)", 0 )
-GAME( 1987, timescan, 0,        timescan,       timescan, generic_5358,           ROT270, "Sega",           "Time Scanner (set 2, System 16B)", 0 )
+GAME( 1988, tetris1,  tetris,   system16b,      tetris,   generic_5358_small,     ROT0,   "Sega",           "Tetris (set 1, Japan, System 16B) (FD1094 317-0091)", 0 )
+GAME( 1987, timescan, 0,        timescan,       timescan, generic_5358_small,     ROT270, "Sega",           "Time Scanner (set 2, System 16B)", 0 )
 GAME( 1994, toryumon, 0,        system16b,      toryumon, generic_5797,           ROT0,   "Sega",           "Toryumon", 0 )
 GAME( 1996, ultracin, 0, system16b, ultracin, generic_5797, ROT0, "Sega", "Waku Waku Ultraman Racing", 0 )
 GAME( 1989, tturf,    0,        system16b_8751, tturf,    tturf_5704,             ROT0,   "Sega / Sunsoft", "Tough Turf (set 2, Japan) (8751 317-0104)", 0)

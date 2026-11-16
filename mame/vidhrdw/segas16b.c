@@ -8,7 +8,7 @@
 
 #include "driver.h"
 #include "segaic16.h"
-#include "includes/system16.h"
+#include "includes/segas16b.h"
 
 
 

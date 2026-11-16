@@ -1202,7 +1202,6 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/segaorun.o $(OBJ)/vidhrdw/segaorun.o \
 	$(OBJ)/drivers/segar.o $(OBJ)/machine/segar.o $(OBJ)/sndhrdw/segar.o $(OBJ)/vidhrdw/segar.o \
 	$(OBJ)/drivers/segas16a.o $(OBJ)/vidhrdw/segas16a.o \
-	$(OBJ)/drivers/segas16b.o \
 	$(OBJ)/drivers/segas16b.o $(OBJ)/vidhrdw/segas16b.o \
 	$(OBJ)/drivers/segas18.o $(OBJ)/vidhrdw/segas18.o \
 	$(OBJ)/drivers/segas32.o $(OBJ)/machine/segas32.o $(OBJ)/vidhrdw/segas32.o \
