@@ -1503,6 +1503,7 @@ const game_driver * const drivers[] =
 	DRIVER( gunforc2 )	/* (c) 1994 Irem */
 	DRIVER( geostorm )	/* (c) 1994 Irem (Japan) */
 	/* M107 */
+	DRIVER( airass )	/* (c) 1993 Irem (World) */
 	DRIVER( firebarr )	/* (c) 1993 Irem (Japan) */
 	DRIVER( dsoccr94 )	/* (c) 1994 Irem (Data East Corporation license) */
 	DRIVER( wpksoc )	/* (c) 1995 Jaleco */
