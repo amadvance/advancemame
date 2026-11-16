@@ -51105,7 +51105,7 @@ Arcade Retro Lounge; http://tips.retrogames.com/
 $end
 
 
-$info=demonwld,demonwl1,
+$info=demonwld,demonwld2,
 $bio
 
 Demon's World (c) 1990 Toaplan.
@@ -91886,7 +91886,7 @@ Buttons : 1
 $end
 
 
-$info=hellfire,hellfir1,
+$info=hellfire,hellfire1a,
 $bio
 
 Hellfire (c) 1989 Toaplan.
@@ -185343,7 +185343,7 @@ Sega Saturn (1997, "Salamander Deluxe pack Plus")
 $end
 
 
-$info=samesame,samesam2,
+$info=samesame,samesame2,
 $bio
 
 Same! Same! Same! (c) 1989 Toaplan.
@@ -248691,7 +248691,7 @@ Sinclair ZX Spectrum (1989)
 $end
 
 
-$info=vimana,vimanan,vimana1,
+$info=vimana,vimanan,vimanaj,
 $bio
 
 Vimana (c) 1991 Toaplan.

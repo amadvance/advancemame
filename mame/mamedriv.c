@@ -2119,38 +2119,41 @@ const game_driver * const drivers[] =
 	DRIVER( rallybik )	/* TP-012 (c) 1988 Taito */
 	DRIVER( truxton )	/* TP-013B (c) 1988 Taito */
 	DRIVER( hellfire )	/* TP-??? (c) 1989 Toaplan + Taito license */
-	DRIVER( hellfir1 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+	DRIVER( hellfire1 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+	DRIVER( hellfire1a )	/* TP-??? (c) 1989 Toaplan + Taito license */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( hellfir2 )	/* TP-??? (c) 1989 Toaplan + Taito license */
-	DRIVER( hellfir3 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+	DRIVER( hellfire2a )	/* TP-??? (c) 1989 Toaplan + Taito license */
 
 	DRIVER( zerowing )	/* TP-015 (c) 1989 Toaplan */
+	DRIVER( zerowing1 )	/* TP-015 (c) 1989 Toaplan */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( zerowng2 )	/* TP-015 (c) 1989 Toaplan */
+	DRIVER( zerowingw )	/* TP-015 (c) 1989 Toaplan */
 
 	DRIVER( demonwld )	/* TP-016 (c) 1990 Toaplan (+ Taito license when set to Japan) */
-	DRIVER( demonwl1 )	/* TP-016 (c) 1989 Toaplan + Taito license */
-	DRIVER( demonwl2 )	/* TP-016 (c) 1989 Toaplan */
+	DRIVER( demonwld1 )	/* TP-016 (c) 1989 Toaplan */
+	DRIVER( demonwld2 )	/* TP-016 (c) 1989 Toaplan + Taito license */
+	DRIVER( demonwld3 )	/* TP-016 (c) 1989 Toaplan */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( demonwl3 )	/* TP-016 (c) 1989 Toaplan */
-	DRIVER( demonwl4 )	/* TP-016 (c) 1989 Toaplan */
+	DRIVER( demonwld4 )	/* TP-016 (c) 1989 Toaplan */
+	DRIVER( demonwld5 )	/* TP-016 (c) 1989 Toaplan + APM Electronics license */
 
 	DRIVER( fireshrk )	/* TP-017 (c) 1990 Toaplan */
 	DRIVER( samesame )	/* TP-017 (c) 1989 Toaplan */
-	DRIVER( samesam2 )	/* TP-017 (c) 1989 Toaplan */
+	DRIVER( samesame2 )	/* TP-017 (c) 1989 Toaplan */
 	DRIVER( outzone )	/* TP-018 (c) 1990 Toaplan */
+	DRIVER( outzoneh )	/* TP-018 (c) 1990 Toaplan */
 	DRIVER( outzonea )	/* TP-018 (c) 1990 Toaplan */
-	DRIVER( outzoneb )	/* TP-018 (c) 1990 Toaplan */
 	DRIVER( outzonec )	/* TP-018 (c) 1990 Toaplan */
 
 	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
-	DRIVER( outzoned )	/* TP-018 (c) 1990 Toaplan */
+	DRIVER( outzoneb )	/* TP-018 (c) 1990 Toaplan */
+	DRIVER( outzonecv )	/* TP-015 (c) 1990 Toaplan */
 
 	DRIVER( vimana )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan) */
-	DRIVER( vimana1 )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan)  */
+	DRIVER( vimanaj )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan)  */
 	DRIVER( vimanan )	/* TP-019 (c) 1991 Toaplan (+ Nova Apparate GMBH & Co license) */
 	DRIVER( snowbros )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */
 	DRIVER( snowbrosa )	/* MIN16-02 (c) 1990 Toaplan + Romstar license */

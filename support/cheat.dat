@@ -37967,74 +37967,74 @@
 :demoneye:00000000:002D:00000007:FFFFFFFF:Infinite Lives PL2
 
 ; [ Demon's World / Horror Story (Taito license) ]
-:demonwl1:60000000:000000:00000000:00000000:[ See the Dip Switch Menu for Invincibility.     ]
-:demonwl1:00000000:C002F9:0000000A:FFFFFFFF:Infinite Lives PL1
-:demonwl1:00000000:C00355:0000001E:0000001E:Always have the Shield PL1
-:demonwl1:00000001:C00355:0000001E:0000001E:Get the Shield Now! PL1
-:demonwl1:00000001:C00355:00000000:0000001E:Lose the Shield Now! PL1
-:demonwl1:00000000:C002E9:00000002:FFFFFFFF:Next 'P' always = Shield PL1
-:demonwl1:00000001:C002E9:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL1
-:demonwl1:00000001:C002ED:00000000:FFFFFFFF:Get the Missiles Now! PL1
-:demonwl1:00000001:C002ED:00000001:FFFFFFFF:Get the Laser Now! PL1
-:demonwl1:00000001:C002ED:00000002:FFFFFFFF:Get the Auto Now! PL1
-:demonwl1:00000001:C002ED:00000003:FFFFFFFF:Get the Bombs Now! PL1
-:demonwl1:00000001:C002ED:00000004:FFFFFFFF:Get the 3-Way Now! PL1
-:demonwl1:00000000:C002ED:00000000:FFFFFFFF:Always have the Missiles PL1
-:demonwl1:00000000:C002ED:00000001:FFFFFFFF:Always have the Laser PL1
-:demonwl1:00000000:C002ED:00000002:FFFFFFFF:Always have the Auto PL1
-:demonwl1:00000000:C002ED:00000003:FFFFFFFF:Always have the Bombs PL1
-:demonwl1:00000000:C002ED:00000004:FFFFFFFF:Always have the 3-Way PL1
-:demonwl1:00000000:C002FB:0000000A:FFFFFFFF:Infinite Lives PL2
-:demonwl1:00000000:C003B5:0000001E:0000001E:Always have the Shield PL2
-:demonwl1:00000001:C003B5:0000001E:0000001E:Get the Shield Now! PL2
-:demonwl1:00000001:C003B5:00000000:0000001E:Lose the Shield Now! PL2
-:demonwl1:00000000:C002EB:00000002:FFFFFFFF:Next 'P' always = Shield PL2
-:demonwl1:00000001:C002EB:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL2
-:demonwl1:00000000:C002EF:00000000:FFFFFFFF:Always have the Missiles PL2
-:demonwl1:00000000:C002EF:00000001:FFFFFFFF:Always have the Laser PL2
-:demonwl1:00000000:C002EF:00000002:FFFFFFFF:Always have the Auto PL2
-:demonwl1:00000000:C002EF:00000003:FFFFFFFF:Always have the Bombs PL2
-:demonwl1:00000000:C002EF:00000004:FFFFFFFF:Always have the 3-Way PL2
-:demonwl1:00000001:C002EF:00000000:FFFFFFFF:Get the Missiles Now! PL2
-:demonwl1:00000001:C002EF:00000001:FFFFFFFF:Get the Laser Now! PL2
-:demonwl1:00000001:C002EF:00000002:FFFFFFFF:Get the Auto Now! PL2
-:demonwl1:00000001:C002EF:00000003:FFFFFFFF:Get the Bombs Now! PL2
-:demonwl1:00000001:C002EF:00000004:FFFFFFFF:Get the 3-Way Now! PL2
+:demonwld2:60000000:000000:00000000:00000000:[ See the Dip Switch Menu for Invincibility.     ]
+:demonwld2:00000000:C002F9:0000000A:FFFFFFFF:Infinite Lives PL1
+:demonwld2:00000000:C00355:0000001E:0000001E:Always have the Shield PL1
+:demonwld2:00000001:C00355:0000001E:0000001E:Get the Shield Now! PL1
+:demonwld2:00000001:C00355:00000000:0000001E:Lose the Shield Now! PL1
+:demonwld2:00000000:C002E9:00000002:FFFFFFFF:Next 'P' always = Shield PL1
+:demonwld2:00000001:C002E9:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL1
+:demonwld2:00000001:C002ED:00000000:FFFFFFFF:Get the Missiles Now! PL1
+:demonwld2:00000001:C002ED:00000001:FFFFFFFF:Get the Laser Now! PL1
+:demonwld2:00000001:C002ED:00000002:FFFFFFFF:Get the Auto Now! PL1
+:demonwld2:00000001:C002ED:00000003:FFFFFFFF:Get the Bombs Now! PL1
+:demonwld2:00000001:C002ED:00000004:FFFFFFFF:Get the 3-Way Now! PL1
+:demonwld2:00000000:C002ED:00000000:FFFFFFFF:Always have the Missiles PL1
+:demonwld2:00000000:C002ED:00000001:FFFFFFFF:Always have the Laser PL1
+:demonwld2:00000000:C002ED:00000002:FFFFFFFF:Always have the Auto PL1
+:demonwld2:00000000:C002ED:00000003:FFFFFFFF:Always have the Bombs PL1
+:demonwld2:00000000:C002ED:00000004:FFFFFFFF:Always have the 3-Way PL1
+:demonwld2:00000000:C002FB:0000000A:FFFFFFFF:Infinite Lives PL2
+:demonwld2:00000000:C003B5:0000001E:0000001E:Always have the Shield PL2
+:demonwld2:00000001:C003B5:0000001E:0000001E:Get the Shield Now! PL2
+:demonwld2:00000001:C003B5:00000000:0000001E:Lose the Shield Now! PL2
+:demonwld2:00000000:C002EB:00000002:FFFFFFFF:Next 'P' always = Shield PL2
+:demonwld2:00000001:C002EB:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL2
+:demonwld2:00000000:C002EF:00000000:FFFFFFFF:Always have the Missiles PL2
+:demonwld2:00000000:C002EF:00000001:FFFFFFFF:Always have the Laser PL2
+:demonwld2:00000000:C002EF:00000002:FFFFFFFF:Always have the Auto PL2
+:demonwld2:00000000:C002EF:00000003:FFFFFFFF:Always have the Bombs PL2
+:demonwld2:00000000:C002EF:00000004:FFFFFFFF:Always have the 3-Way PL2
+:demonwld2:00000001:C002EF:00000000:FFFFFFFF:Get the Missiles Now! PL2
+:demonwld2:00000001:C002EF:00000001:FFFFFFFF:Get the Laser Now! PL2
+:demonwld2:00000001:C002EF:00000002:FFFFFFFF:Get the Auto Now! PL2
+:demonwld2:00000001:C002EF:00000003:FFFFFFFF:Get the Bombs Now! PL2
+:demonwld2:00000001:C002EF:00000004:FFFFFFFF:Get the 3-Way Now! PL2
 
 ; [ Demon's World / Horror Story (first edition) ]
-:demonwl2:60000000:000000:00000000:00000000:[ See the Dip Switch Menu for Invincibility.     ]
-:demonwl2:00000000:C002F9:0000000A:FFFFFFFF:Infinite Lives PL1
-:demonwl2:00000000:C00355:0000001E:0000001E:Always have the Shield PL1
-:demonwl2:00000001:C00355:0000001E:0000001E:Get the Shield Now! PL1
-:demonwl2:00000001:C00355:00000000:0000001E:Lose the Shield Now! PL1
-:demonwl2:00000000:C002E9:00000002:FFFFFFFF:Next 'P' always = Shield PL1
-:demonwl2:00000001:C002E9:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL1
-:demonwl2:00000001:C002ED:00000000:FFFFFFFF:Get the Missiles Now! PL1
-:demonwl2:00000001:C002ED:00000001:FFFFFFFF:Get the Laser Now! PL1
-:demonwl2:00000001:C002ED:00000002:FFFFFFFF:Get the Auto Now! PL1
-:demonwl2:00000001:C002ED:00000003:FFFFFFFF:Get the Bombs Now! PL1
-:demonwl2:00000001:C002ED:00000004:FFFFFFFF:Get the 3-Way Now! PL1
-:demonwl2:00000000:C002ED:00000000:FFFFFFFF:Always have the Missiles PL1
-:demonwl2:00000000:C002ED:00000001:FFFFFFFF:Always have the Laser PL1
-:demonwl2:00000000:C002ED:00000002:FFFFFFFF:Always have the Auto PL1
-:demonwl2:00000000:C002ED:00000003:FFFFFFFF:Always have the Bombs PL1
-:demonwl2:00000000:C002ED:00000004:FFFFFFFF:Always have the 3-Way PL1
-:demonwl2:00000000:C002FB:0000000A:FFFFFFFF:Infinite Lives PL2
-:demonwl2:00000000:C003B5:0000001E:0000001E:Always have the Shield PL2
-:demonwl2:00000001:C003B5:0000001E:0000001E:Get the Shield Now! PL2
-:demonwl2:00000001:C003B5:00000000:0000001E:Lose the Shield Now! PL2
-:demonwl2:00000000:C002EB:00000002:FFFFFFFF:Next 'P' always = Shield PL2
-:demonwl2:00000001:C002EB:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL2
-:demonwl2:00000000:C002EF:00000000:FFFFFFFF:Always have the Missiles PL2
-:demonwl2:00000000:C002EF:00000001:FFFFFFFF:Always have the Laser PL2
-:demonwl2:00000000:C002EF:00000002:FFFFFFFF:Always have the Auto PL2
-:demonwl2:00000000:C002EF:00000003:FFFFFFFF:Always have the Bombs PL2
-:demonwl2:00000000:C002EF:00000004:FFFFFFFF:Always have the 3-Way PL2
-:demonwl2:00000001:C002EF:00000000:FFFFFFFF:Get the Missiles Now! PL2
-:demonwl2:00000001:C002EF:00000001:FFFFFFFF:Get the Laser Now! PL2
-:demonwl2:00000001:C002EF:00000002:FFFFFFFF:Get the Auto Now! PL2
-:demonwl2:00000001:C002EF:00000003:FFFFFFFF:Get the Bombs Now! PL2
-:demonwl2:00000001:C002EF:00000004:FFFFFFFF:Get the 3-Way Now! PL2
+:demonwld3:60000000:000000:00000000:00000000:[ See the Dip Switch Menu for Invincibility.     ]
+:demonwld3:00000000:C002F9:0000000A:FFFFFFFF:Infinite Lives PL1
+:demonwld3:00000000:C00355:0000001E:0000001E:Always have the Shield PL1
+:demonwld3:00000001:C00355:0000001E:0000001E:Get the Shield Now! PL1
+:demonwld3:00000001:C00355:00000000:0000001E:Lose the Shield Now! PL1
+:demonwld3:00000000:C002E9:00000002:FFFFFFFF:Next 'P' always = Shield PL1
+:demonwld3:00000001:C002E9:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL1
+:demonwld3:00000001:C002ED:00000000:FFFFFFFF:Get the Missiles Now! PL1
+:demonwld3:00000001:C002ED:00000001:FFFFFFFF:Get the Laser Now! PL1
+:demonwld3:00000001:C002ED:00000002:FFFFFFFF:Get the Auto Now! PL1
+:demonwld3:00000001:C002ED:00000003:FFFFFFFF:Get the Bombs Now! PL1
+:demonwld3:00000001:C002ED:00000004:FFFFFFFF:Get the 3-Way Now! PL1
+:demonwld3:00000000:C002ED:00000000:FFFFFFFF:Always have the Missiles PL1
+:demonwld3:00000000:C002ED:00000001:FFFFFFFF:Always have the Laser PL1
+:demonwld3:00000000:C002ED:00000002:FFFFFFFF:Always have the Auto PL1
+:demonwld3:00000000:C002ED:00000003:FFFFFFFF:Always have the Bombs PL1
+:demonwld3:00000000:C002ED:00000004:FFFFFFFF:Always have the 3-Way PL1
+:demonwld3:00000000:C002FB:0000000A:FFFFFFFF:Infinite Lives PL2
+:demonwld3:00000000:C003B5:0000001E:0000001E:Always have the Shield PL2
+:demonwld3:00000001:C003B5:0000001E:0000001E:Get the Shield Now! PL2
+:demonwld3:00000001:C003B5:00000000:0000001E:Lose the Shield Now! PL2
+:demonwld3:00000000:C002EB:00000002:FFFFFFFF:Next 'P' always = Shield PL2
+:demonwld3:00000001:C002EB:00000002:FFFFFFFF:Next 'P' gives Shield Now!PL2
+:demonwld3:00000000:C002EF:00000000:FFFFFFFF:Always have the Missiles PL2
+:demonwld3:00000000:C002EF:00000001:FFFFFFFF:Always have the Laser PL2
+:demonwld3:00000000:C002EF:00000002:FFFFFFFF:Always have the Auto PL2
+:demonwld3:00000000:C002EF:00000003:FFFFFFFF:Always have the Bombs PL2
+:demonwld3:00000000:C002EF:00000004:FFFFFFFF:Always have the 3-Way PL2
+:demonwld3:00000001:C002EF:00000000:FFFFFFFF:Get the Missiles Now! PL2
+:demonwld3:00000001:C002EF:00000001:FFFFFFFF:Get the Laser Now! PL2
+:demonwld3:00000001:C002EF:00000002:FFFFFFFF:Get the Auto Now! PL2
+:demonwld3:00000001:C002EF:00000003:FFFFFFFF:Get the Bombs Now! PL2
+:demonwld3:00000001:C002EF:00000004:FFFFFFFF:Get the 3-Way Now! PL2
 
 ; [ Demon's World / Horror Story ]
 :demonwld:60000000:000000:00000000:00000000:[ See the Dip Switch Menu for Invincibility.     ]
@@ -57005,14 +57005,14 @@
 :helifire:00000000:7D08:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Hellfire (1P Ver.) ]
-:hellfir1:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
-:hellfir1:60000000:000000:00000000:00000000:[enable an alternate        ]
-:hellfir1:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
-:hellfir1:00000000:042437:00000003:FFFFFFFF:Infinite Lives
-:hellfir1:00000000:041BD3:00000005:FFFFFFFF:Maximum Power
-:hellfir1:00000000:041BD7:00000028:FFFFFFFF:Maximum Speed
-:hellfir1:00000000:041BD1:00000020:FFFFFFFF:Invincibility
-:hellfir1:00000000:041BDD:000000A9:FFFFFFFF:Super Invincibility
+:hellfire1a:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
+:hellfire1a:60000000:000000:00000000:00000000:[enable an alternate        ]
+:hellfire1a:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
+:hellfire1a:00000000:042437:00000003:FFFFFFFF:Infinite Lives
+:hellfire1a:00000000:041BD3:00000005:FFFFFFFF:Maximum Power
+:hellfire1a:00000000:041BD7:00000028:FFFFFFFF:Maximum Speed
+:hellfire1a:00000000:041BD1:00000020:FFFFFFFF:Invincibility
+:hellfire1a:00000000:041BDD:000000A9:FFFFFFFF:Super Invincibility
 
 ; [ Hellfire ]
 :hellfire:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
@@ -123290,61 +123290,61 @@
 :outzonea:00000001:241EBC:00000080:00000080:Get Shield Now! PL2
 
 ; [ Out Zone (set 3, prototype?) ]
-:outzoneb:60000000:000000:00000000:00000000:[                           ]
-:outzoneb:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
-:outzoneb:60000000:000000:00000000:00000000:[enable an alternate        ]
-:outzoneb:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
-:outzoneb:60000000:000000:00000000:00000000:[                           ]
-:outzoneb:60000000:000000:00000000:00000000:[If you want to skip the    ]
-:outzoneb:60000000:000000:00000000:00000000:[level or see the game very ]
-:outzoneb:60000000:000000:00000000:00000000:[fast then enable Infinite  ]
-:outzoneb:60000000:000000:00000000:00000000:[Bombs AND Invincibility and]
-:outzoneb:60000000:000000:00000000:00000000:[put frameskip to 11 and hit]
-:outzoneb:60000000:000000:00000000:00000000:[F10 to put speed to max.The]
-:outzoneb:60000000:000000:00000000:00000000:[faster the puter the better]
-:outzoneb:60000000:000000:00000000:00000000:[Just walk UP and use bomb  ]
-:outzoneb:60000000:000000:00000000:00000000:[to kill the boss.          ]
-:outzoneb:00000000:240BCF:00000009:FFFFFFFF:Infinite Lives PL1
-:outzoneb:00000000:241E7A:000000D0:FFFFFFFF:Infinite Energy PL1
-:outzoneb:00000000:241E53:0000000B:FFFFFFFF:Infinite Bombs PL1
-:outzoneb:00000000:241E5D:0000000A:FFFFFFFF:Invincibility PL1
-:outzoneb:00000001:241E4F:00000002:FFFFFFFF:Get Max Firepower Now! PL1
-:outzoneb:00000001:241E38:00000000:0000004B:Get Normal Weapon Now! PL1
-:outzoneb:00000001:241E38:00000000:0000004A:Get 3-Way Weapon Now!PL1
-:outzoneb:00010001:241E38:00000001:00000001:Get 3-Way Weapon Now!PL1(2/2)
-:outzoneb:00000001:241E38:00000008:00000008:Get Super Ball Now! PL1
-:outzoneb:00000001:241E38:00000040:00000040:Get Super Burner Now!PL1
-:outzoneb:00010001:241E38:00000000:00000008:Get Super Burner Now!PL1(2/2)
-:outzoneb:00000001:241E38:00000020:00000020:Get Speed Up Now! PL1
-:outzoneb:00000001:241E38:00000080:00000080:Get Shield Now! PL1
-:outzoneb:00000000:240BD1:00000009:FFFFFFFF:Infinite Lives PL2
-:outzoneb:00000000:241EFA:000000D0:FFFFFFFF:Infinite Energy PL2
-:outzoneb:00000000:241ED3:0000000B:FFFFFFFF:Infinite Bombs PL2
-:outzoneb:00000000:241EDD:0000000A:FFFFFFFF:Invincibility PL2
-:outzoneb:00000001:241ECF:00000002:FFFFFFFF:Get Max Firepower Now! PL2
-:outzoneb:00000001:241EB8:00000000:0000004B:Get Normal Weapon Now! PL2
-:outzoneb:00000001:241EB8:00000000:0000004A:Get 3-Way Weapon Now!PL2
-:outzoneb:00010001:241EB8:00000001:00000001:Get 3-Way Weapon Now!PL2(2/2)
-:outzoneb:00000001:241EB8:00000008:00000008:Get Super Ball Now! PL2
-:outzoneb:00000001:241EB8:00000040:00000040:Get Super Burner Now!PL2
-:outzoneb:00010001:241EB8:00000000:00000008:Get Super Burner Now!PL2(2/2)
-:outzoneb:00000001:241EB8:00000020:00000020:Get Speed Up Now! PL2
-:outzoneb:00000001:241EB8:00000080:00000080:Get Shield Now! PL2
+:outzonec:60000000:000000:00000000:00000000:[                           ]
+:outzonec:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
+:outzonec:60000000:000000:00000000:00000000:[enable an alternate        ]
+:outzonec:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
+:outzonec:60000000:000000:00000000:00000000:[                           ]
+:outzonec:60000000:000000:00000000:00000000:[If you want to skip the    ]
+:outzonec:60000000:000000:00000000:00000000:[level or see the game very ]
+:outzonec:60000000:000000:00000000:00000000:[fast then enable Infinite  ]
+:outzonec:60000000:000000:00000000:00000000:[Bombs AND Invincibility and]
+:outzonec:60000000:000000:00000000:00000000:[put frameskip to 11 and hit]
+:outzonec:60000000:000000:00000000:00000000:[F10 to put speed to max.The]
+:outzonec:60000000:000000:00000000:00000000:[faster the puter the better]
+:outzonec:60000000:000000:00000000:00000000:[Just walk UP and use bomb  ]
+:outzonec:60000000:000000:00000000:00000000:[to kill the boss.          ]
+:outzonec:00000000:240BCF:00000009:FFFFFFFF:Infinite Lives PL1
+:outzonec:00000000:241E7A:000000D0:FFFFFFFF:Infinite Energy PL1
+:outzonec:00000000:241E53:0000000B:FFFFFFFF:Infinite Bombs PL1
+:outzonec:00000000:241E5D:0000000A:FFFFFFFF:Invincibility PL1
+:outzonec:00000001:241E4F:00000002:FFFFFFFF:Get Max Firepower Now! PL1
+:outzonec:00000001:241E38:00000000:0000004B:Get Normal Weapon Now! PL1
+:outzonec:00000001:241E38:00000000:0000004A:Get 3-Way Weapon Now!PL1
+:outzonec:00010001:241E38:00000001:00000001:Get 3-Way Weapon Now!PL1(2/2)
+:outzonec:00000001:241E38:00000008:00000008:Get Super Ball Now! PL1
+:outzonec:00000001:241E38:00000040:00000040:Get Super Burner Now!PL1
+:outzonec:00010001:241E38:00000000:00000008:Get Super Burner Now!PL1(2/2)
+:outzonec:00000001:241E38:00000020:00000020:Get Speed Up Now! PL1
+:outzonec:00000001:241E38:00000080:00000080:Get Shield Now! PL1
+:outzonec:00000000:240BD1:00000009:FFFFFFFF:Infinite Lives PL2
+:outzonec:00000000:241EFA:000000D0:FFFFFFFF:Infinite Energy PL2
+:outzonec:00000000:241ED3:0000000B:FFFFFFFF:Infinite Bombs PL2
+:outzonec:00000000:241EDD:0000000A:FFFFFFFF:Invincibility PL2
+:outzonec:00000001:241ECF:00000002:FFFFFFFF:Get Max Firepower Now! PL2
+:outzonec:00000001:241EB8:00000000:0000004B:Get Normal Weapon Now! PL2
+:outzonec:00000001:241EB8:00000000:0000004A:Get 3-Way Weapon Now!PL2
+:outzonec:00010001:241EB8:00000001:00000001:Get 3-Way Weapon Now!PL2(2/2)
+:outzonec:00000001:241EB8:00000008:00000008:Get Super Ball Now! PL2
+:outzonec:00000001:241EB8:00000040:00000040:Get Super Burner Now!PL2
+:outzonec:00010001:241EB8:00000000:00000008:Get Super Burner Now!PL2(2/2)
+:outzonec:00000001:241EB8:00000020:00000020:Get Speed Up Now! PL2
+:outzonec:00000001:241EB8:00000080:00000080:Get Shield Now! PL2
 
 ; [ Out Zone (set 4) ]
-:outzonec:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:outzonec:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:outzoneb:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Over Drive ]
 :overdriv:00000000:040014:00000099:FFFFFFFF:Infinite Credits
@@ -146098,32 +146098,32 @@
 :salmndr2:00000100:C00843:00000005:FFFFFFFF:Select Speed PL2
 
 ; [ Same! Same! Same! (2P Ver.) ]
-:samesam2:60000000:00000:00000000:00000000:[ See the Dip Switch Menu to enable ]
-:samesam2:60000000:00000:00000000:00000000:[ an alternate Invincibility cheat. ]
-:samesam2:00000000:C1EA7:0000000A:FFFFFFFF:Infinite Lives PL1
-:samesam2:00000000:C16E9:00000008:FFFFFFFF:Infinite Bombs PL1
-:samesam2:00000000:C16DA:00000000:FFFFFFFF:Invincibility "ON" PL1:Invincibility "ON" stops you from picking up bonuses
-:samesam2:00000001:C16DA:00000080:FFFFFFFF:Invincibility "OFF" PL1
-:samesam2:00000000:C1EBD:00000003:FFFFFFFF:Maximum Fire Power PL1
-:samesam2:00010000:C16E7:00000003:FFFFFFFF:Maximum Fire Power PL1 (2/2)
-:samesam2:00000000:C16E3:00000000:FFFFFFFF:Always have Normal Weapon PL1
-:samesam2:00000000:C16E3:00000008:FFFFFFFF:Always have Laser Weapon PL1
-:samesam2:00000000:C16E3:00000010:FFFFFFFF:Always have Fire Weapon PL1
-:samesam2:00000001:C16E3:00000000:FFFFFFFF:Get Normal Weapon Now! PL1
-:samesam2:00000001:C16E3:00000008:FFFFFFFF:Get Laser Weapon Now! PL1
-:samesam2:00000001:C16E3:00000010:FFFFFFFF:Get Fire Weapon Now! PL1
-:samesam2:00000000:C1EA9:0000000A:FFFFFFFF:Infinite Lives PL2
-:samesam2:00000000:C1749:00000008:FFFFFFFF:Infinite Bombs PL2
-:samesam2:00000000:C173A:00000000:FFFFFFFF:Invincibility "ON" PL2:Invincibility "ON" stops you from picking up bonuses
-:samesam2:00000001:C173A:00000080:FFFFFFFF:Invincibility "OFF" PL2
-:samesam2:00000000:C1EBF:00000003:FFFFFFFF:Maximum Fire Power PL2
-:samesam2:00010000:C1747:00000003:FFFFFFFF:Maximum Fire Power PL2 (2/2)
-:samesam2:00000000:C1743:00000000:FFFFFFFF:Always have Normal Weapon PL2
-:samesam2:00000000:C1743:00000008:FFFFFFFF:Always have Laser Weapon PL2
-:samesam2:00000000:C1743:00000010:FFFFFFFF:Always have Fire Weapon PL2
-:samesam2:00000001:C1743:00000000:FFFFFFFF:Get Normal Weapon Now! PL2
-:samesam2:00000001:C1743:00000008:FFFFFFFF:Get Laser Weapon Now! PL2
-:samesam2:00000001:C1743:00000010:FFFFFFFF:Get Fire Weapon Now! PL2
+:samesame2:60000000:00000:00000000:00000000:[ See the Dip Switch Menu to enable ]
+:samesame2:60000000:00000:00000000:00000000:[ an alternate Invincibility cheat. ]
+:samesame2:00000000:C1EA7:0000000A:FFFFFFFF:Infinite Lives PL1
+:samesame2:00000000:C16E9:00000008:FFFFFFFF:Infinite Bombs PL1
+:samesame2:00000000:C16DA:00000000:FFFFFFFF:Invincibility "ON" PL1:Invincibility "ON" stops you from picking up bonuses
+:samesame2:00000001:C16DA:00000080:FFFFFFFF:Invincibility "OFF" PL1
+:samesame2:00000000:C1EBD:00000003:FFFFFFFF:Maximum Fire Power PL1
+:samesame2:00010000:C16E7:00000003:FFFFFFFF:Maximum Fire Power PL1 (2/2)
+:samesame2:00000000:C16E3:00000000:FFFFFFFF:Always have Normal Weapon PL1
+:samesame2:00000000:C16E3:00000008:FFFFFFFF:Always have Laser Weapon PL1
+:samesame2:00000000:C16E3:00000010:FFFFFFFF:Always have Fire Weapon PL1
+:samesame2:00000001:C16E3:00000000:FFFFFFFF:Get Normal Weapon Now! PL1
+:samesame2:00000001:C16E3:00000008:FFFFFFFF:Get Laser Weapon Now! PL1
+:samesame2:00000001:C16E3:00000010:FFFFFFFF:Get Fire Weapon Now! PL1
+:samesame2:00000000:C1EA9:0000000A:FFFFFFFF:Infinite Lives PL2
+:samesame2:00000000:C1749:00000008:FFFFFFFF:Infinite Bombs PL2
+:samesame2:00000000:C173A:00000000:FFFFFFFF:Invincibility "ON" PL2:Invincibility "ON" stops you from picking up bonuses
+:samesame2:00000001:C173A:00000080:FFFFFFFF:Invincibility "OFF" PL2
+:samesame2:00000000:C1EBF:00000003:FFFFFFFF:Maximum Fire Power PL2
+:samesame2:00010000:C1747:00000003:FFFFFFFF:Maximum Fire Power PL2 (2/2)
+:samesame2:00000000:C1743:00000000:FFFFFFFF:Always have Normal Weapon PL2
+:samesame2:00000000:C1743:00000008:FFFFFFFF:Always have Laser Weapon PL2
+:samesame2:00000000:C1743:00000010:FFFFFFFF:Always have Fire Weapon PL2
+:samesame2:00000001:C1743:00000000:FFFFFFFF:Get Normal Weapon Now! PL2
+:samesame2:00000001:C1743:00000008:FFFFFFFF:Get Laser Weapon Now! PL2
+:samesame2:00000001:C1743:00000010:FFFFFFFF:Get Fire Weapon Now! PL2
 
 ; [ Same! Same! Same! ]
 :samesame:00000000:C1B17:0000000A:FFFFFFFF:Infinite Lives
@@ -192437,19 +192437,19 @@
 :vimana:00000000:48046D:000000E0:FFFFFFFF:Invincibility PL2
 
 ; [ Vimana (old set) ]
-:vimana1:00000000:440005:00000009:FFFFFFFF:Infinite Credits
-:vimana1:00000000:4803A5:00000059:FFFFFFFF:Always have maximum bonus
-:vimana1:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
-:vimana1:60000000:000000:00000000:00000000:[enable an alternate        ]
-:vimana1:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
-:vimana1:00000000:4803C9:00000008:FFFFFFFF:Infinite Lives PL1
-:vimana1:00000000:4803CD:00000008:FFFFFFFF:Infinite Bombs PL1
-:vimana1:00000000:4803CB:00000004:FFFFFFFF:Always have maximum power PL1
-:vimana1:00000000:48041D:000000E0:FFFFFFFF:Invincibility PL1
-:vimana1:00000000:4803DD:00000008:FFFFFFFF:Infinite Lives PL2
-:vimana1:00000000:4803E1:00000008:FFFFFFFF:Infinite Bombs PL2
-:vimana1:00000000:4803DF:00000004:FFFFFFFF:Always have maximum power PL2
-:vimana1:00000000:48046D:000000E0:FFFFFFFF:Invincibility PL2
+:vimanaj:00000000:440005:00000009:FFFFFFFF:Infinite Credits
+:vimanaj:00000000:4803A5:00000059:FFFFFFFF:Always have maximum bonus
+:vimanaj:60000000:000000:00000000:00000000:[See the Dip Switch Menu to ]
+:vimanaj:60000000:000000:00000000:00000000:[enable an alternate        ]
+:vimanaj:60000000:000000:00000000:00000000:[Invincibility cheat.       ]
+:vimanaj:00000000:4803C9:00000008:FFFFFFFF:Infinite Lives PL1
+:vimanaj:00000000:4803CD:00000008:FFFFFFFF:Infinite Bombs PL1
+:vimanaj:00000000:4803CB:00000004:FFFFFFFF:Always have maximum power PL1
+:vimanaj:00000000:48041D:000000E0:FFFFFFFF:Invincibility PL1
+:vimanaj:00000000:4803DD:00000008:FFFFFFFF:Infinite Lives PL2
+:vimanaj:00000000:4803E1:00000008:FFFFFFFF:Infinite Bombs PL2
+:vimanaj:00000000:4803DF:00000004:FFFFFFFF:Always have maximum power PL2
+:vimanaj:00000000:48046D:000000E0:FFFFFFFF:Invincibility PL2
 
 ; [ Vimana (Nova Apparate GMBH & Co) ]
 :vimanan:00000000:440005:00000009:FFFFFFFF:Infinite Credits
@@ -203860,7 +203860,7 @@
 ; { Reason 11 } ; noahsark  [ Noah's Ark ]
 ; { Reason 11 } ; orlegend105k  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 105, Korean Booard) ]
 ; { Reason 11 } ; orlegend111c  [ Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 111, Chinese Board) ]
-; { Reason 11 } ; outzonec  [ Out Zone (set 4) ]
+; { Reason 11 } ; outzoneb  [ Out Zone (set 4) ]
 ; { Reason 11 } ; pacapp2   [ Paca Paca Passion 2 (PKS1/VER.A) ]
 ; { Reason 11 } ; pacappsp  [ Paca Paca Passion Special (PSP1/VER.A) ]
 ; { Reason 11 } ; pairlove  [ Pairs Love ]
@@ -204641,7 +204641,7 @@
 ;defense=sdi=sdib
 ;deltrace=omegrace
 ;demoderb~=demoderm
-;demonwl1=demonwl2=demonwld
+;demonwld2=demonwld3=demonwld
 ;depthch=depthv1=subhunt
 ;desterth=grescue=lrescue
 ;devilfsg=devilfsh
@@ -204747,7 +204747,7 @@
 ;finalb=finalbj=finalbu
 ;finalizb=finalizr
 ;firehawk=spec2k
-;fireshrk~=samesam2~samesame
+;fireshrk~=samesame2~samesame
 ;firetpbl=firetrap
 ;fitter=roundup
 ;fixeighb=fixeight
@@ -204868,7 +204868,7 @@
 ;hbarrel=hbarrelw
 ;hcastle=hcastleo=hcastlej=hcastljo
 ;helifira=helifire
-;hellfir1~hellfire
+;hellfire1a~hellfire
 ;herbiedk~hncholms~huncholy
 ;herodk=herodku=outline=radarzn1=radarznt=radarzon
 ;hexpool=racknrol
@@ -205137,7 +205137,7 @@
 ;othunder=othundrj=othundu=othunduo
 ;outfxesj=outfxies
 ;outrun=outrundxa=outrunra=outrunb
-;outzone~=outzonea~=outzoneb
+;outzone~=outzonea~=outzonec
 ;ozmawars=ozmawar2=solfight=spaceph
 ;p47=p47j
 ;pacland=pacland2=pacland3=paclandm
@@ -205529,7 +205529,7 @@
 ;vformula=vr
 ;victorba~=victory
 ;vigilant=vigilntj=vigilntu
-;vimana=vimana1=vimanan
+;vimana=vimanaj=vimanan
 ;vindctr2r1=vindctr2r2=vindctr2~(vindice3=vindice4=vindict1=vindict2=vindict4=vindicte=vindictg=vindictr)
 ;viofight=viofightu
 ;viostorm=viostrma=viostrmj=viostrmu
