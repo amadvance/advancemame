@@ -5597,21 +5597,21 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tnk3b )		/* bootleg */
 	DRIVER( athena )	/*       'UP' (c) 1986 */
 	DRIVER( fitegolf )	/*       'GU' (c) 1988 */
-	DRIVER( fitegol2 )	/*       'GU' (c) 1988 */
+	DRIVER( fitegolfu )	/*       'GU' (c) 1988 */
 	DRIVER( countryc )	/*       'CC' (c) 1988 */
 	DRIVER( ikari )		/* A5004 'IW' (c) 1986 */
 	DRIVER( ikarijp )	/* A5004 'IW' (c) 1986 (Japan) */
 	DRIVER( ikarijpb )	/* bootleg */
 	DRIVER( victroad )	/*            (c) 1986 */
 	DRIVER( dogosoke )	/*            (c) 1986 */
-	DRIVER( dogosokj )	/* bootleg */
+	DRIVER( dogosokb )	/* bootleg */
 	DRIVER( gwar )		/* A7003 'GV' (c) 1987 */
 	DRIVER( gwarj )		/* A7003 'GV' (c) 1987 (Japan) */
 	DRIVER( gwara )		/* A7003 'GV' (c) 1987 */
 	DRIVER( gwarb )		/* bootleg */
 	DRIVER( bermudat )	/* A6003 'WW' (c) 1987 */
-	DRIVER( bermudao )	/* A6003 'WW' (c) 1987 */
-	DRIVER( bermudaa )	/* A6003 'WW' (c) 1987 */
+	DRIVER( bermudatj )	/* A6003 'WW' (c) 1987 */
+	DRIVER( bermudata )	/* A6003 'WW' (c) 1987 */
 	DRIVER( worldwar )	/* A6003 'WW' (c) 1987 */
 	DRIVER( psychos )	/*       'PS' (c) 1987 */
 	DRIVER( psychosj )	/*       'PS' (c) 1987 (Japan) */
@@ -5619,7 +5619,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( choppera )	/* A7003 'KK' (c) 1988 */
 	DRIVER( chopperb )	/* A7003 'KK' (c) 1988 */
 	DRIVER( legofair )	/* A7003 'KK' (c) 1988 */
-	DRIVER( ftsoccer )	/*            (c) 1988 */
+	DRIVER( fsoccer )	/*            (c) 1988 */
+	DRIVER( fsoccerb )	/* bootleg */
 	DRIVER( tdfever )	/* A6006 'TD' (c) 1987 */
 	DRIVER( tdfeverj )	/* A6006 'TD' (c) 1987 */
 	DRIVER( tdfever2 )	/* A6006 'TD'?(c) 1988 */

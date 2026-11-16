@@ -11038,26 +11038,26 @@
 :berlwallt:00000000:2029E1:00000002:FFFFFFFF:Invincibility PL2
 
 ; [ Bermuda Triangle (US older version) ]
-:bermudaa:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
-:bermudaa:00000000:E400:00000099:FFFFFFFF:Infinite Lives PL1
-:bermudaa:00000000:E417:00000012:FFFFFFFF:Infinite Energy PL1
-:bermudaa:00000000:E42B:0000009D:FFFFFFFF:Invincibility PL1
-:bermudaa:00000000:E450:00000099:FFFFFFFF:Infinite Lives PL2
-:bermudaa:00000000:E467:00000012:FFFFFFFF:Infinite Energy PL2
-:bermudaa:00000000:E47B:0000009D:FFFFFFFF:Invincibility PL2
+:bermudata:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
+:bermudata:00000000:E400:00000099:FFFFFFFF:Infinite Lives PL1
+:bermudata:00000000:E417:00000012:FFFFFFFF:Infinite Energy PL1
+:bermudata:00000000:E42B:0000009D:FFFFFFFF:Invincibility PL1
+:bermudata:00000000:E450:00000099:FFFFFFFF:Infinite Lives PL2
+:bermudata:00000000:E467:00000012:FFFFFFFF:Infinite Energy PL2
+:bermudata:00000000:E47B:0000009D:FFFFFFFF:Invincibility PL2
 
 ; [ Bermuda Triangle (Japan old version) ]
-:bermudao:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
-:bermudao:00000000:E428:00000000:FFFFFFFF:Infinite Time PL1
-:bermudao:00010000:E429:00000030:FFFFFFFF:Infinite Time PL1 (2/2)
-:bermudao:00000000:E400:00000099:FFFFFFFF:Infinite Lives PL1
-:bermudao:00000000:E417:000000BF:FFFFFFFF:Infinite Energy PL1
-:bermudao:00000000:E42B:0000009D:FFFFFFFF:Invincibility PL1
-:bermudao:00000000:E478:00000000:FFFFFFFF:Infinite Time PL2
-:bermudao:00010000:E479:00000030:FFFFFFFF:Infinite Time PL2 (2/2)
-:bermudao:00000000:E450:00000099:FFFFFFFF:Infinite Lives PL2
-:bermudao:00000000:E467:000000BF:FFFFFFFF:Infinite Energy PL2
-:bermudao:00000000:E47B:0000009D:FFFFFFFF:Invincibility PL2
+:bermudatj:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
+:bermudatj:00000000:E428:00000000:FFFFFFFF:Infinite Time PL1
+:bermudatj:00010000:E429:00000030:FFFFFFFF:Infinite Time PL1 (2/2)
+:bermudatj:00000000:E400:00000099:FFFFFFFF:Infinite Lives PL1
+:bermudatj:00000000:E417:000000BF:FFFFFFFF:Infinite Energy PL1
+:bermudatj:00000000:E42B:0000009D:FFFFFFFF:Invincibility PL1
+:bermudatj:00000000:E478:00000000:FFFFFFFF:Infinite Time PL2
+:bermudatj:00010000:E479:00000030:FFFFFFFF:Infinite Time PL2 (2/2)
+:bermudatj:00000000:E450:00000099:FFFFFFFF:Infinite Lives PL2
+:bermudatj:00000000:E467:000000BF:FFFFFFFF:Infinite Energy PL2
+:bermudatj:00000000:E47B:0000009D:FFFFFFFF:Invincibility PL2
 
 ; [ Bermuda Triangle (Japan) ]
 :bermudat:00000000:E3CA:00000099:FFFFFFFF:Infinite Credits
@@ -39327,35 +39327,35 @@
 :dogosoke:00000001:FE0B:00000004:FFFFFFFF:Get boomerang Now! PL2
 
 ; [ Dogou Souken (Joystick bootleg) ]
-:dogosokj:00000000:FC5C:00000099:FFFFFFFF:Infinite Credits
-:dogosokj:00000000:FDC6:00000099:FFFFFFFF:Infinite Lives PL1
-:dogosokj:00000000:FDE8:000000B4:FFFFFFFF:Invincibility PL1
-:dogosokj:00000000:FDB7:00000002:00000002:Always have armour PL1
-:dogosokj:00000001:FDB7:00000000:00000002:Lose armour Now! PL1
-:dogosokj:00000000:FDB7:00000000:00000004:Always have black grenadesPL1
-:dogosokj:00000000:FDB7:00000004:00000004:Always have red grenades  PL1
-:dogosokj:00000001:FDB7:00000000:00000004:Get black grenades Now! PL1
-:dogosokj:00000001:FDB7:00000004:00000004:Get red grenades Now! PL1
-:dogosokj:00000000:FDBB:00000002:FFFFFFFF:Always have flamethrower PL1
-:dogosokj:00000000:FDBB:00000003:FFFFFFFF:Always have sword PL1
-:dogosokj:00000000:FDBB:00000004:FFFFFFFF:Always have boomerang PL1
-:dogosokj:00000001:FDBB:00000002:FFFFFFFF:Get flamethrower Now! PL1
-:dogosokj:00000001:FDBB:00000003:FFFFFFFF:Get sword Now! PL1
-:dogosokj:00000001:FDBB:00000004:FFFFFFFF:Get boomerang Now! PL1
-:dogosokj:00000000:FE16:00000099:FFFFFFFF:Infinite Lives PL2
-:dogosokj:00000000:FE38:000000B4:FFFFFFFF:Invincibility PL2
-:dogosokj:00000000:FE07:00000002:00000002:Always have armour PL2
-:dogosokj:00000001:FE07:00000000:00000002:Lose armour Now! PL2
-:dogosokj:00000000:FE07:00000000:00000004:Always have black grenadesPL2
-:dogosokj:00000000:FE07:00000004:00000004:Always have red grenades  PL2
-:dogosokj:00000001:FE07:00000000:00000004:Get black grenades Now! PL2
-:dogosokj:00000001:FE07:00000004:00000004:Get red grenades Now! PL2
-:dogosokj:00000000:FE0B:00000002:FFFFFFFF:Always have flamethrower PL2
-:dogosokj:00000000:FE0B:00000003:FFFFFFFF:Always have sword PL2
-:dogosokj:00000000:FE0B:00000004:FFFFFFFF:Always have boomerang PL2
-:dogosokj:00000001:FE0B:00000002:FFFFFFFF:Get flamethrower Now! PL2
-:dogosokj:00000001:FE0B:00000003:FFFFFFFF:Get sword Now! PL2
-:dogosokj:00000001:FE0B:00000004:FFFFFFFF:Get boomerang Now! PL2
+:dogosokb:00000000:FC5C:00000099:FFFFFFFF:Infinite Credits
+:dogosokb:00000000:FDC6:00000099:FFFFFFFF:Infinite Lives PL1
+:dogosokb:00000000:FDE8:000000B4:FFFFFFFF:Invincibility PL1
+:dogosokb:00000000:FDB7:00000002:00000002:Always have armour PL1
+:dogosokb:00000001:FDB7:00000000:00000002:Lose armour Now! PL1
+:dogosokb:00000000:FDB7:00000000:00000004:Always have black grenadesPL1
+:dogosokb:00000000:FDB7:00000004:00000004:Always have red grenades  PL1
+:dogosokb:00000001:FDB7:00000000:00000004:Get black grenades Now! PL1
+:dogosokb:00000001:FDB7:00000004:00000004:Get red grenades Now! PL1
+:dogosokb:00000000:FDBB:00000002:FFFFFFFF:Always have flamethrower PL1
+:dogosokb:00000000:FDBB:00000003:FFFFFFFF:Always have sword PL1
+:dogosokb:00000000:FDBB:00000004:FFFFFFFF:Always have boomerang PL1
+:dogosokb:00000001:FDBB:00000002:FFFFFFFF:Get flamethrower Now! PL1
+:dogosokb:00000001:FDBB:00000003:FFFFFFFF:Get sword Now! PL1
+:dogosokb:00000001:FDBB:00000004:FFFFFFFF:Get boomerang Now! PL1
+:dogosokb:00000000:FE16:00000099:FFFFFFFF:Infinite Lives PL2
+:dogosokb:00000000:FE38:000000B4:FFFFFFFF:Invincibility PL2
+:dogosokb:00000000:FE07:00000002:00000002:Always have armour PL2
+:dogosokb:00000001:FE07:00000000:00000002:Lose armour Now! PL2
+:dogosokb:00000000:FE07:00000000:00000004:Always have black grenadesPL2
+:dogosokb:00000000:FE07:00000004:00000004:Always have red grenades  PL2
+:dogosokb:00000001:FE07:00000000:00000004:Get black grenades Now! PL2
+:dogosokb:00000001:FE07:00000004:00000004:Get red grenades Now! PL2
+:dogosokb:00000000:FE0B:00000002:FFFFFFFF:Always have flamethrower PL2
+:dogosokb:00000000:FE0B:00000003:FFFFFFFF:Always have sword PL2
+:dogosokb:00000000:FE0B:00000004:FFFFFFFF:Always have boomerang PL2
+:dogosokb:00000001:FE0B:00000002:FFFFFFFF:Get flamethrower Now! PL2
+:dogosokb:00000001:FE0B:00000003:FFFFFFFF:Get sword Now! PL2
+:dogosokb:00000001:FE0B:00000004:FFFFFFFF:Get boomerang Now! PL2
 
 ; [ Dog Patch ]
 :dogpatch:00000000:2003:00000099:FFFFFFFF:Infinite cans
@@ -44766,12 +44766,12 @@
 :firetrk:00000000:0039:00000099:FFFFFFFF:Infinite Fuel
 
 ; [ Fighting Golf (US) ]
-:fitegol2:00000000:FD28:00000099:FFFFFFFF:Infinite Time PL1
-:fitegol2:00000000:FD21:00000009:FFFFFFFF:Infinite Holes PL1
-:fitegol2:00000000:FD18:00000000:FFFFFFFF:Infinite Strokes PL1
-:fitegol2:00000000:FD88:00000099:FFFFFFFF:Infinite Time PL2
-:fitegol2:00000000:FD81:00000009:FFFFFFFF:Infinite Holes PL2
-:fitegol2:00000000:FD78:00000000:FFFFFFFF:Infinite Strokes PL2
+:fitegolfu:00000000:FD28:00000099:FFFFFFFF:Infinite Time PL1
+:fitegolfu:00000000:FD21:00000009:FFFFFFFF:Infinite Holes PL1
+:fitegolfu:00000000:FD18:00000000:FFFFFFFF:Infinite Strokes PL1
+:fitegolfu:00000000:FD88:00000099:FFFFFFFF:Infinite Time PL2
+:fitegolfu:00000000:FD81:00000009:FFFFFFFF:Infinite Holes PL2
+:fitegolfu:00000000:FD78:00000000:FFFFFFFF:Infinite Strokes PL2
 
 ; [ Fighting Golf (World?) ]
 :fitegolf:00000000:FD28:00000099:FFFFFFFF:Infinite Time PL1
@@ -46358,20 +46358,20 @@
 :ftimpcta:00000001:0016EC2E:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ Fighting Soccer ]
-:ftsoccer:00000000:E10B:00000099:FFFFFFFF:Infinite Time
-:ftsoccer:00010000:E10C:00000059:FFFFFFFF:Infinite Time (2/2)
-:ftsoccer:00000001:E10B:00000000:FFFFFFFF:Finish Game Now!
-:ftsoccer:00010001:E10C:00000000:FFFFFFFF:Finish Game Now! (2/2)
-:ftsoccer:00000901:E118:00000099:FFFFFFFF:Select Score Team 1
-:ftsoccer:00000000:E118:00000000:FFFFFFFF:Score always = 0 Team 1
-:ftsoccer:00000000:E118:00000010:FFFFFFFF:Score always = 10 Team 1
-:ftsoccer:00000001:E118:00000000:FFFFFFFF:Score = 0 Now! Team 1
-:ftsoccer:00000001:E118:00000010:FFFFFFFF:Score = 10 Now! Team 1
-:ftsoccer:00000901:E119:00000099:FFFFFFFF:Select Score Team 2
-:ftsoccer:00000000:E119:00000000:FFFFFFFF:Score always = 0 Team 2
-:ftsoccer:00000000:E119:00000010:FFFFFFFF:Score always = 10 Team 2
-:ftsoccer:00000001:E119:00000000:FFFFFFFF:Score = 0 Now! Team 2
-:ftsoccer:00000001:E119:00000010:FFFFFFFF:Score = 10 Now! Team 2
+:fsoccerb:00000000:E10B:00000099:FFFFFFFF:Infinite Time
+:fsoccerb:00010000:E10C:00000059:FFFFFFFF:Infinite Time (2/2)
+:fsoccerb:00000001:E10B:00000000:FFFFFFFF:Finish Game Now!
+:fsoccerb:00010001:E10C:00000000:FFFFFFFF:Finish Game Now! (2/2)
+:fsoccerb:00000901:E118:00000099:FFFFFFFF:Select Score Team 1
+:fsoccerb:00000000:E118:00000000:FFFFFFFF:Score always = 0 Team 1
+:fsoccerb:00000000:E118:00000010:FFFFFFFF:Score always = 10 Team 1
+:fsoccerb:00000001:E118:00000000:FFFFFFFF:Score = 0 Now! Team 1
+:fsoccerb:00000001:E118:00000010:FFFFFFFF:Score = 10 Now! Team 1
+:fsoccerb:00000901:E119:00000099:FFFFFFFF:Select Score Team 2
+:fsoccerb:00000000:E119:00000000:FFFFFFFF:Score always = 0 Team 2
+:fsoccerb:00000000:E119:00000010:FFFFFFFF:Score always = 10 Team 2
+:fsoccerb:00000001:E119:00000000:FFFFFFFF:Score = 0 Now! Team 2
+:fsoccerb:00000001:E119:00000010:FFFFFFFF:Score = 10 Now! Team 2
 
 ; [ Full Throttle (Japan) ]
 :fullthrl:00000000:400823:00000009:FFFFFFFF:Infinite Credits
@@ -204401,7 +204401,7 @@
 ;beezer~=beezer1
 ;berabohm=beraboho
 ;berlwall~=berlwallt
-;bermudaa=worldwar~=(bermudao=bermudat)
+;bermudata=worldwar~=(bermudatj=bermudat)
 ;berzerk=berzerk1
 ;bestleag=bigstrik=bigstrkb
 ;bigbang=tdragon2~=raphero
@@ -204540,7 +204540,7 @@
 ;cotton=cottonja=cottonu
 ;cottong=gutangtn=locomotn
 ;countrb2=countrnb=countrun
-;countryc=fitegol2=fitegolf
+;countryc=fitegolfu=fitegolf
 ;couple=couplei=couplep
 ;cppicf=cppicf2
 ;crazycop=gbusters
@@ -204628,7 +204628,7 @@
 ;docastl2=docastle=docastlo=douni~dowild~=jjack
 ;dockman=portman
 ;dogfgt=dogfgtj
-;dogosoke=dogosokj~(ikari=ikarijp=ikarijpb)=victroad
+;dogosoke=dogosokb~(ikari=ikarijp=ikarijpb)=victroad
 ;dokyusei~dokyusp
 ;dondokdj=dondokdu=dondokod
 ;donpachi=donpachj=donpachk
