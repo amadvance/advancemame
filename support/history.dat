@@ -145403,7 +145403,7 @@ PC [MS Windows] (2005, "Taito Legends")
 $end
 
 
-$info=nzerotea,
+$info=nzeroteamb,
 $bio
 
 New Zero Team (c) 1993 Seibu Kaihatsu.
@@ -263452,7 +263452,7 @@ This game is known in Japan as "Gekitsui Oh".
 $end
 
 
-$info=zeroteam,zeroteaa,zeroteab,
+$info=zeroteam,zeroteama,zeroteamb,
 $bio
 
 Zero Team (c) 1993 Seibu Kaihatsu.

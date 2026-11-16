@@ -787,15 +787,6 @@
     },
     {
       "shortnames": [
-        "nzerotea"
-      ],
-      "title": "New Zero Team",
-      "category": "clone",
-      "original_game": "zeroteam",
-      "parent_shortname": "nzeroteam"
-    },
-    {
-      "shortnames": [
         "pbobble2x"
       ],
       "title": "Puzzle Bobble 2X",

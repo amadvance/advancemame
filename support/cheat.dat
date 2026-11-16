@@ -121773,16 +121773,6 @@
 :nynyg:00000000:034D:00000002:FFFFFFFF:Infinite Lives PL1
 :nynyg:00000000:0356:00000002:FFFFFFFF:Infinite Lives PL2
 
-; [ New Zero Team ]
-:nzerotea:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:nzerotea:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
 ; [ Ironman Stewart's Super Off-Road ]
 :offroad:00000001:E186:00000003:FFFFFFFF:Final Lap for Red Car Now!
 :offroad:00000001:E186:00000000:FFFFFFFF:First Lap for Red Car Now!
@@ -202524,27 +202514,27 @@
 :zeropnta:00000000:EF0D69:00000009:FFFFFFFF:Infinite Lives PL1
 :zeropnta:00000000:EF0D6B:00000009:FFFFFFFF:Infinite Lives PL2
 
-; [ Zero Team (set 2) ]
-:zeroteaa:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:zeroteaa:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+; [ Zero Team (Japan?, earlier?, set 1) ]
+:zeroteama:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:zeroteama:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Zero Team (set 3) ]
-:zeroteab:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:zeroteab:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+; [ Zero Team (Japan?, later batteryless) ]
+:zeroteamb:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:zeroteamb:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Zero Team (set 1) ]
+; [ Zero Team USA (US) ]
 :zeroteam:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :zeroteam:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :zeroteam:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -203442,7 +203432,6 @@
 ; { Reason 01 } ; nflfoot   [ NFL Football ]
 ; { Reason 01 } ; nss_skin  [ Skins Game (Nintendo Super System) ]
 ; { Reason 01 } ; nss_sten  [ Super Tennis (Nintendo Super System) ]
-; { Reason 01 } ; nzerotea  [ New Zero Team ]
 ; { Reason 01 } ; olds      [ Oriental Legend Super / Special (Korea 101) ]
 ; { Reason 01 } ; olds100   [ Oriental Legend Super / Special (100) ]
 ; { Reason 01 } ; olds100a  [ Oriental Legend Super / Special (100 alt) ]
@@ -203651,9 +203640,9 @@
 ; { Reason 01 } ; zerogun   [ Zero Gunner (Model 2B) ]
 ; { Reason 01 } ; zeroguna  [ Zero Gunner (Model 2A) ]
 ; { Reason 01 } ; zerogunj  [ Zero Gunner (Japan Model 2B) ]
-; { Reason 01 } ; zeroteaa  [ Zero Team (set 2) ]
-; { Reason 01 } ; zeroteab  [ Zero Team (set 3) ]
-; { Reason 01 } ; zeroteam  [ Zero Team (set 1) ]
+; { Reason 01 } ; zeroteama [ Zero Team (Japan?, earlier?, set 1) ]
+; { Reason 01 } ; zeroteamb [ Zero Team (Japan?, later batteryless) ]
+; { Reason 01 } ; zeroteam  [ Zero Team USA (US) ]
 ; { Reason 01 } ; zerotrgt  [ Zero Target (World) ]
 ; { Reason 01 } ; znpwfv    [ Zen Nippon Pro-Wrestling Featuring Virtua (J 971123 V1.000) ]
 ; { Reason 02 } ; hanaroku  [ Hanaroku ]
