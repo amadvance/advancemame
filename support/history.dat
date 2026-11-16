@@ -51372,7 +51372,7 @@ Buttons : 2
 $end
 
 
-$info=dendeg,
+$info=dendego,dendegoa,
 $bio
 
 Densha De Go! (c) 05/1997 Taito.
@@ -51512,7 +51512,7 @@ Sega Dreamcast (2000)
 $end
 
 
-$info=dendeg2x,
+$info=dendego23k,
 $bio
 
 Densha De Go! 2 EX (c) 1998 Taito.
@@ -51567,7 +51567,7 @@ The title translates from Japanese as 'Let's go by Train! 2 EX'.
 $end
 
 
-$info=dendegx,
+$info=dendegox,
 $bio
 
 Densha De Go! EX (c) 1997 Taito.
@@ -112016,7 +112016,7 @@ Staff : Ichiro Fujisue (I.FUJISUE), Yasumasa Sasabe (Y.SASABE), Keisuke Hasegawa
 $end
 
 
-$info=landgear,
+$info=landgear,landgearj,landgeara,landgearja,
 $bio
 
 Landing Gear (c) 1995 Taito.
@@ -194398,7 +194398,7 @@ Commodore Amiga
 $end
 
 
-$info=sidebs,
+$info=sidebs,sidebsj,sidebsja,sidebsjb,
 $bio
 
 Side By Side (c) 08/1996 Taito.
@@ -194448,7 +194448,7 @@ Sony PlayStation (1997, "Side By Side Special")
 $end
 
 
-$info=sidebs2,
+$info=sidebs2,sidebs2u,sidebs2j,sidebs2ja,
 $bio
 
 Side By Side 2 (c) 06/1997 Taito.

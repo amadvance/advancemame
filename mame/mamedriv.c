@@ -2054,13 +2054,25 @@ const game_driver * const drivers[] =
 	DRIVER( landmakrp )	/* E61 (c) 1998 Taito Corporation (World, prototype) */
 
 	/* Taito JC System */
-	DRIVER( landgear )	/* E17 (c) 199? Taito Corporation */
-	DRIVER( dendeg )	/* E35 (c) 199? Taito Corporation */
-	DRIVER( dendegx )	/* E35 (c) 199? Taito Corporation */
-	DRIVER( dendego2 )	/* E52 (c) 1998 Taito Corporation */
-	DRIVER( dendeg2x )	/* E52 (c) 199? Taito Corporation */
-	DRIVER( sidebs )	/* E23 (c) 199? Taito Corporation */
-	DRIVER( sidebs2 )	/* E38 (c) 199? Taito Corporation */
+	DRIVER( dangcurv )	/* E09 (c) 1995 Taito Corporation (Ver 2.9 O) */
+	DRIVER( dangcurvj )	/* E09 (c) 1995 Taito Corporation (Ver 2.2 J) */
+	DRIVER( landgear )	/* E17 (c) 1995 Taito Corporation (Ver 4.2 O) */
+	DRIVER( landgearj )	/* E17 (c) 1995 Taito Corporation (Ver 4.2 J) */
+	DRIVER( landgeara )	/* E17 (c) 1995 Taito Corporation (Ver 3.1 O) */
+	DRIVER( landgearja )	/* E17 (c) 1995 Taito Corporation (Ver 3.0 J) */
+	DRIVER( sidebs )	/* E23 (c) 1996 Taito Corporation (Ver 3.0 OK) */
+	DRIVER( sidebsj )	/* E23 (c) 1996 Taito Corporation (Ver 2.7 J) */
+	DRIVER( sidebsja )	/* E23 (c) 1996 Taito Corporation (Ver 2.6 J) */
+	DRIVER( sidebsjb )	/* E23 (c) 1996 Taito Corporation (Ver 2.5 J) */
+	DRIVER( dendego )	/* E35 (c) 1996 Taito Corporation (Ver 2.3 J) */
+	DRIVER( dendegoa )	/* E35 (c) 1996 Taito Corporation (Ver 2.2 J) */
+	DRIVER( dendegox )	/* E35 (c) 1996 Taito Corporation (EX Ver 2.4 J) */
+	DRIVER( sidebs2 )	/* E38 (c) 1997 Taito Corporation (Ver 2.6 OK) */
+	DRIVER( sidebs2u )	/* E38 (c) 1997 Taito America Corporation (Ver 2.6 A) */
+	DRIVER( sidebs2j )	/* E38 (c) 1997 Taito Corporation (Evoluzione RR Ver 3.1 J) */
+	DRIVER( sidebs2ja )	/* E38 (c) 1997 Taito Corporation (Evoluzione Ver 2.4 J) */
+	DRIVER( dendego2 )	/* E52 (c) 1998 Taito Corporation (Ver 2.5 J) */
+	DRIVER( dendego23k )	/* E52 (c) 1998 Taito Corporation (3000-bandai Ver 2.20 J) */
 
 	/* Taito "Wolf" System */
 	DRIVER( pf2012 )	/* E59 (c) 1997 Taito */
