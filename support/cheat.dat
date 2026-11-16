@@ -15976,7 +15976,7 @@
 :buckrog:20800000:13AD6:000000C9:FFFFFFFF:Invincibility
 :buckrog:00000001:0F811:0000000D:FFFFFFFF:Kill 1 UFO to finish Sector Now!
 
-; [ Buck Rogers: Planet of Zoom (not encrypted) ]
+; [ Buck Rogers: Planet of Zoom (not encrypted, set 1) ]
 :buckrogn:00000000:F83E:00000099:FFFFFFFF:Infinite Credits
 :buckrogn:000000A2:F810:00000070:FFFFFFFF:Infinite Time
 :buckrogn:00000000:F800:00000008:FFFFFFFF:Infinite Lives
@@ -187843,17 +187843,33 @@
 :tunhuntc:00000000:02BD:0000007F:FFFFFFFF:Infinite Shields
 :tunhuntc:00000000:00E1:00000000:FFFFFFFF:Infinite Hull Temperature
 
-; [ Turbo ]
+; [ Turbo (program 1513-1515) ]
 :turbo:00000000:F212:00000063:FFFFFFFF:Infinite Time
 :turbo:00000000:F270:00000040:FFFFFFFF:Invincibility
 
-; [ Turbo (encrypted set 1) ]
+; [ Turbo (encrypted, program 1262-1264) ]
 :turboa:00000000:F212:00000063:FFFFFFFF:Infinite Time
 :turboa:00000000:F270:00000040:FFFFFFFF:Invincibility
 
-; [ Turbo (encrypted set 2) ]
+; [ Turbo (encrypted, program 1363-1365 rev C) ]
 :turbob:00000000:F212:00000063:FFFFFFFF:Infinite Time
 :turbob:00000000:F270:00000040:FFFFFFFF:Invincibility
+
+; [ Indianapolis (bootleg of Turbo) ]
+:turbobl:00000000:F212:00000063:FFFFFFFF:Infinite Time
+:turbobl:00000000:F270:00000040:FFFFFFFF:Invincibility
+
+; [ Turbo (encrypted, program 1363-1365 rev B) ]
+:turboc:00000000:F212:00000063:FFFFFFFF:Infinite Time
+:turboc:00000000:F270:00000040:FFFFFFFF:Invincibility
+
+; [ Turbo (encrypted, program 1363-1365 rev A) ]
+:turbod:00000000:F212:00000063:FFFFFFFF:Infinite Time
+:turbod:00000000:F270:00000040:FFFFFFFF:Invincibility
+
+; [ Turbo (encrypted, program 1363-1365) ]
+:turboe:00000000:F212:00000063:FFFFFFFF:Infinite Time
+:turboe:00000000:F270:00000040:FFFFFFFF:Invincibility
 
 ; [ Turbo Force ]
 :turbofrc:60000000:00000:00000000:00000000:[Turn off cheats with F6 at ]

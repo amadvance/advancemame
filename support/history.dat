@@ -30708,7 +30708,7 @@ Buttons : 2
 $end
 
 
-$info=buckrog,buckrogn,
+$info=buckrog,buckrogn,buckrogn2,
 $bio
 
 Buck Rogers - Planet of Zoom (c) 12/1982 Sega.
@@ -240845,7 +240845,7 @@ Hardware by : Dave Sherman
 $end
 
 
-$info=turbo,turboa,turbob,
+$info=turbo,turboa,turbob,turboc,turbod,turboe,turbobl,
 $bio
 
 Turbo (c) 10/1981 Sega.

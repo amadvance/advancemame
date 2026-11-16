@@ -3470,9 +3470,14 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( turbo )		/* (c) 1981 Sega */
 	DRIVER( turboa )	/* (c) 1981 Sega */
 	DRIVER( turbob )	/* (c) 1981 Sega */
+	DRIVER( turboc )	/* (c) 1981 Sega */
+	DRIVER( turbod )	/* (c) 1981 Sega */
+	DRIVER( turboe )	/* (c) 1981 Sega */
+	DRIVER( turbobl )	/* bootleg */
 	DRIVER( subroc3d )	/* (c) 1982 Sega */
 	DRIVER( buckrog )	/* (c) 1982 Sega */
 	DRIVER( buckrogn )	/* (c) 1982 Sega */
+	DRIVER( buckrogn2 )	/* (c) 1982 Sega */
 	DRIVER( zoom909 )	/* (c) 1982 Sega */
 	DRIVER( kopunch )	/* 834-0103 (c) 1981 Sega */
 	DRIVER( suprloco )	/* (c) 1982 Sega */
