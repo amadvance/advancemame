@@ -163,6 +163,21 @@
     },
     {
       "shortnames": [
+        "chuckie"
+      ],
+      "title": "Chuckie Egg",
+      "year": 2023,
+      "developer": "Arlasoft",
+      "category": "port",
+      "genre": "Platform",
+      "platform": "Namco Pac-Man hardware",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Chuckie Egg is a platform game adapted by Arlasoft for arcade hardware in 2023. Climb ladders and jump between platforms to collect eggs while avoiding the birds patrolling the stage.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "cnbe2018"
       ],
       "title": "Codename: Blut Engel",
@@ -315,6 +330,21 @@
       ],
       "description": "Deathsmiles (Hidden Elements Full Open + Character Enhancement) is a modified version of Cave's 2007 horizontal gothic shoot-'em-up Deathsmiles on Cave CV1000 hardware, unlocking secret elements and boosting character firepower.",
       "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "dilith"
+      ],
+      "title": "Dilithium Lift",
+      "year": 2023,
+      "developer": "Arlasoft",
+      "category": "homebrew",
+      "genre": "Maze",
+      "platform": "Namco Pac-Man hardware",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "Dilithium Lift is a maze game by Arlasoft, released in 2023. Collect the crystals distributed through a grid of corridors while keeping track of the remaining lives.",
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -787,12 +817,74 @@
     },
     {
       "shortnames": [
+        "pactetris"
+      ],
+      "title": "Tetris on Pacman hardware",
+      "year": 2012,
+      "developer": "Ben Leperchey",
+      "category": "homebrew",
+      "genre": "Puzzle",
+      "platform": "Namco Pac-Man hardware",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "This experimental Tetris adaptation by Ben Leperchey uses the graphics of Pac-Man for its falling blocks. The incomplete version has no text or score display and behaves erratically when a game ends.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "pacupacu"
+      ],
+      "title": "Pacu Pacu",
+      "year": 2025,
+      "developer": "Sokurah",
+      "category": "homebrew",
+      "genre": "Maze",
+      "platform": "Namco Pac-Man hardware",
+      "version": "1.0",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "Pacu Pacu is a one-dimensional chase game by Sokurah. A yellow character and a ghost share a narrow horizontal corridor, reducing the familiar maze-chase format to a single lane.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "pakupaku"
+      ],
+      "title": "Paku Paku",
+      "year": 2025,
+      "developer": "Sokurah",
+      "category": "homebrew",
+      "genre": "Maze",
+      "platform": "Namco Pac-Man hardware",
+      "version": "0.01",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "Paku Paku is a compact arcade game by Sokurah in which a yellow character collects dots along a single horizontal lane while avoiding a ghost. Its minimalist playfield condenses a maze chase into one dimension.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "pbobble2x"
       ],
       "title": "Puzzle Bobble 2X",
       "category": "clone",
       "original_game": "pbobble2",
       "parent_shortname": "pbobble2"
+    },
+    {
+      "shortnames": [
+        "pollen"
+      ],
+      "title": "Pollen Angel",
+      "year": 2023,
+      "developer": "Arlasoft",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Namco Pac-Man hardware",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "Pollen Angel is a platform game by Arlasoft, released in 2023. Its single-screen stages feature flowers, flying insects and platforms surrounded by spikes, with a timer limiting each attempt.",
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -1019,6 +1111,36 @@
     },
     {
       "shortnames": [
+        "sokoban"
+      ],
+      "title": "Sokoban LE",
+      "year": 2015,
+      "developer": "cmonkey",
+      "category": "port",
+      "genre": "Puzzle",
+      "platform": "Taito L-System",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Sokoban LE is a box-pushing puzzle game adapted by cmonkey for Taito L-System hardware. Push crates through confined rooms and place them on their marked destinations; a crate trapped against a wall or in a corner can make a puzzle impossible to finish.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "speccies"
+      ],
+      "title": "Speccies 2",
+      "year": 2015,
+      "developer": "Sokurah",
+      "category": "homebrew",
+      "genre": "Puzzle",
+      "platform": "Taito L-System",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Speccies 2 is a puzzle game by Sokurah. Guide a character across a compact grid of colored tiles, solving each arrangement before moving on to the next level.",
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "spf2xpri"
       ],
       "title": "Super Puzzle Fighter 2 X'",
@@ -1033,6 +1155,21 @@
         }
       ],
       "description": "Super Puzzle Fighter 2 X' (X Prime) is a 2021 balance hack of Capcom's 1996 CPS-2 falling-gem puzzle game Super Puzzle Fighter II Turbo created by Kaito Sinclaire. It recreates the rebalanced X' mode from Super Puzzle Fighter II Turbo HD Remix on original arcade hardware, adjusting attack drop patterns and character balance."
+    },
+    {
+      "shortnames": [
+        "sqij"
+      ],
+      "title": "SQIJ!",
+      "year": 2018,
+      "developer": "Sokurah",
+      "category": "homebrew",
+      "genre": "Arcade",
+      "platform": "Taito L-System",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "SQIJ! is an exploration game by Sokurah. Collect the six parts of the Tree of Life and carry them to a place where it can grow. Shields let you pass through barriers, food restores energy, and contact with enemies or hazardous scenery drains your remaining energy.",
+      "confidence": "verified"
     },
     {
       "shortnames": [

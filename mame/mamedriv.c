@@ -106,6 +106,13 @@ const game_driver * const drivers[] =
 	DRIVER( bigbucks )	/* (c) 1986 Dynasoft Inc. */
 	DRIVER( mschamp )	/* hack */
 
+	DRIVER( pactetris )
+	DRIVER( pollen )
+	DRIVER( dilith )
+	DRIVER( pacupacu )
+	DRIVER( pakupaku )
+	DRIVER( chuckie )
+
 	/* S2650 Pacman Kits */
 	DRIVER( drivfrcp )	/* (c) 1984 Shinkai Inc. (Magic Eletronics Inc. licence) */
 	DRIVER( 8bpm )		/* (c) 1985 Seatongrove Ltd (Magic Eletronics USA licence) */
@@ -1821,6 +1828,10 @@ const game_driver * const drivers[] =
 	DRIVER( cubybop )	/* ??? no copyright message */
 	DRIVER( plgirls )	/* (c) 1992 Hot-B. */
 	DRIVER( plgirls2 )	/* (c) 1993 Hot-B. */
+
+	DRIVER( sokoban )
+	DRIVER( speccies )
+	DRIVER( sqij )
 
 	/* Taito H-System games */
 	DRIVER( syvalion )	/* B51 (c) 1988 Taito Corporation (Japan) */

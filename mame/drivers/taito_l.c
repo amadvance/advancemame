@@ -2927,6 +2927,38 @@ ROM_END
 
 
 
+/* The banked program window starts at 0x10000 and needs a copy of the program ROM. */
+ROM_START( sokoban )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "sokoban.ic10",      0x00000, 0x10000, CRC(5959ddb4) SHA1(73f206e19cdfd151426092aa3eea6f72093f360b) )
+	ROM_RELOAD(                   0x10000, 0x10000 )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "sokoban.ic9", 0x00000, 0x10000, CRC(859e1ff4) SHA1(899b71bd0eb9923e88cf7142ed634b36b3e34c6c) )
+	ROM_LOAD( "sokoban.ic8", 0x10000, 0x10000, CRC(439a6670) SHA1(79144e3ba5205f5356f28d3b23ef32d3d4fca51c) )
+ROM_END
+
+ROM_START( speccies )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "speccies.ic10",     0x00000, 0x55e9, CRC(29e126ac) SHA1(1e3e1379f964e0967d6ea5ef6a84741319b5108f) )
+	ROM_RELOAD(                   0x10000, 0x55e9 )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "speccies.ic9", 0x00000, 0x10000, CRC(11ed1528) SHA1(55f0b63bcbbbe4ad4d1041dca980b55ccb7a7aea) )
+	ROM_LOAD( "speccies.ic8", 0x10000, 0x10000, CRC(fcfeb89f) SHA1(fc0e811c72313b371d3a6530b27f9023ff201e31) )
+ROM_END
+
+ROM_START( sqij )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "sqij.ic10",     0x00000, 0xf000, CRC(214ba802) SHA1(39c1d66178d409ccf41194f99c765d2a98727bf9) )
+	ROM_RELOAD(                   0x10000, 0xf000 )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "sqij.ic9", 0x00000, 0x10000, CRC(c4de729b) SHA1(58e4c8d8af121dd25eba737cc1917841bc3ec6f5) )
+	ROM_LOAD( "sqij.ic8", 0x10000, 0x10000, CRC(978df42d) SHA1(51d7310591c68ec12178b606f0779915f15de8a0) )
+ROM_END
+
+
 // bits 7..0 => bits 0..7
 static DRIVER_INIT( plotting )
 {
@@ -2984,3 +3016,7 @@ GAME( 1992, plgirls,  0,        cachat,   plgirls,  0,        ROT270, "Hot-B.", 
 GAME( 1993, plgirls2, 0,        cachat,   plgirls2, 0,        ROT270, "Hot-B.", "Play Girls 2", 0 )
 
 GAME( 1990, evilston, 0,        evilston, evilston, evilston, ROT270, "Spacy Industrial, Ltd.", "Evil Stone", 0 )
+
+GAME( 2015, sokoban,     0,        plotting,  plotting,  0,        ROT0,   "cmonkey", "Sokoban LE", 0 )
+GAME( 2015, speccies,    0,        plotting,  plotting,  0,        ROT0,   "Sokurah", "Speccies 2", 0 )
+GAME( 2018, sqij,        0,        plotting,  plotting,  0,        ROT0,   "Sokurah", "SQIJ!", 0 )
