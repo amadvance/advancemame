@@ -13,6 +13,7 @@ extern unsigned char *cclimber_bigspriteram;
 extern unsigned char *cclimber_column_scroll;
 
 extern UINT8 *toprollr_videoram2;
+extern int yamato_gradient_bank;
 extern UINT8 *toprollr_videoram3;
 extern UINT8 *toprollr_videoram4;
 

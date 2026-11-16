@@ -340,7 +340,8 @@ const game_driver * const drivers[] =
 	DRIVER( rpatrolo )	/* Orca, from a suspicious set */
 	DRIVER( silvland )	/* Falcon */
 	DRIVER( yamato )	/* (c) 1983 Sega */
-	DRIVER( yamato2 )	/* (c) 1983 Sega */
+	DRIVER( yamatoa )	/* (c) 1983 Sega */
+	DRIVER( yamatou )	/* (c) 1983 Sega */
 	DRIVER( toprollr )	/* (c) 1983 Jaleco */
 	DRIVER( swimmer )	/* (c) 1982 Tehkan */
 	DRIVER( swimmera )	/* (c) 1982 Tehkan */

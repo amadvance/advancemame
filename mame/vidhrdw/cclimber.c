@@ -700,19 +700,36 @@ VIDEO_UPDATE( au )
 }
 
 
+int yamato_gradient_bank;
+
 VIDEO_UPDATE( yamato )
 {
 	int offs;
 	int i,j;
+	int bank;
 
 	/* bg gradient */
 	fillbitmap(bitmap, 0, cliprect);
 
-	for(i=0;i<256;i++)
+	/* the gradient bank is selected by three bits of the output latch, and by the screen flip */
+	bank = yamato_gradient_bank << 8;
+	if (flip_screen_x)
+		bank |= 0x80;
+
+	/* each of the 128 gradient steps is 2 pixels wide, its color comes from two ROMs */
+	for(i=0;i<128;i++)
 	{
+		int data0 = memory_region(REGION_USER1)[0x0000 | bank | i];
+		int data1 = memory_region(REGION_USER1)[0x1000 | bank | i];
+
+		palette_set_color(16*4+8*4 + i, pal5bit(data0 & 0x1f), pal5bit((data0 >> 5) | ((data1 << 3) & 0x18)), pal6bit(data1 >> 2));
+
 		for(j=0;j<256;j++)
 		{
-			plot_pixel(bitmap, i-8, j, 16*4+8*4 + memory_region(REGION_USER1)[(flip_screen_x?0x1280:0x1200)+(i>>1)]);
+			int x = (i*2 - 8) & 0xff;
+
+			plot_pixel(bitmap, x, j, 16*4+8*4 + i);
+			plot_pixel(bitmap, (x + 1) & 0xff, j, 16*4+8*4 + i);
 		}
 	}
 
@@ -969,7 +986,7 @@ VIDEO_UPDATE( toprollr )
 			int flipy=0;
 
 			int code=videoram[y*32+x];
-			int attr=(x>16)?(toprollr_videoram2[(y&0xfe)*32+x]):(toprollr_videoram2[y*32+x]);
+			int attr=toprollr_videoram2[y*32+x];
 			int palette;
 
 			if (flip_screen_x)
@@ -984,7 +1001,7 @@ VIDEO_UPDATE( toprollr )
 			}
 
 			palette=8+(attr&0xf);
-			drawgfx(bitmap, Machine->gfx[0], code+((attr&0xf0)<<4),palette, flipx, flipy, sx, sy, cliprect, TRANSPARENCY_PEN, 0);
+			drawgfx(bitmap, Machine->gfx[0], code+((attr&0x10)<<5)+((attr&0x20)<<3),palette, flipx, flipy, sx, sy, cliprect, TRANSPARENCY_PEN, 0);
 
 		}
 }

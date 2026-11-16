@@ -6,17 +6,9 @@
 
     Yamato:
     -------
-     Added temporary bg gradient (bad colors/offset).
-
-     Gradient table are stored in two(?) ROMs.
-     Each table is 256 bytes long: 128 for normal
-     and 128 bytes for flipped screen.
-     Color format is unknown - probably direct RGB
-     mapping of 8 or 16 (both roms) bits. Also table
-     selection source is unknown.
-
-     TODO:
-      - bg gradient color decode & table selection
+     The bg gradient colors are read from two ROMs, in tables of 128
+     entries, 2 pixels wide each. A table is selected by three bits of
+     the output latch and by the screen flip.
 
 
  Top Roller:
@@ -28,9 +20,7 @@
 
      TODO:
 
-       - COINB DSW is missing
        - few issues in cocktail mode
-       - wrong colors (fg text layer) - game sometimes ("round" text , lives) updates only even columns of cell attribs...
 
 -------------------------------------------------------------------
 
@@ -59,7 +49,7 @@
  [7f989dc9]  p3
  [89327329]  a4 bottom board 89327329
  [7a945733]  c4 bottom board
- [5f2c2a78]  h4 bottom board  bad dump / [1d9e3325] (8307-A)
+ [b6fe97f2]  h4 bottom board  (previously dumped as bad [5f2c2a78] / [1d9e3325])
  [ce3afe26]  j4 bottom board
 
 */
@@ -150,12 +140,6 @@ PALETTE_INIT( yamato )
 		if (i % 4 == 0) COLOR(2,i) = 0;
 		else COLOR(2,i) = i + 64;
 	}
-
-	/* fake colors for bg gradient */
-	for (i = 0;i < 256;i++)
-	{
-		palette_set_color(i+16*4+8*4,0,0,i);
-	}
 }
 
 PALETTE_INIT( toprollr )
@@ -216,6 +200,34 @@ static READ8_HANDLER( p1_r )
 	return p1;
 }
 
+/*
+    The coin B dip switches are not read from a port of their own: they are
+    wired to the two low bits of the player 1 and player 2 inputs.
+*/
+static READ8_HANDLER( yamato_p1_r )
+{
+	return (readinputport(0) & 0xfc) | (readinputport(4) & 0x03);
+}
+
+static READ8_HANDLER( yamato_p2_r )
+{
+	return (readinputport(1) & 0xfc) | ((readinputport(4) >> 2) & 0x03);
+}
+
+/*
+    Only the bits 3, 5 and 6 of the output latch are of interest, they select
+    the gradient bank. They are stored as a 3 bit value, bit 3 being the MSB.
+*/
+static WRITE8_HANDLER( yamato_gradient_w )
+{
+	static int latch;
+
+	/* offset 0 is the latch bit 3 */
+	latch &= ~(1 << (offset + 3));
+	latch |= (data & 1) << (offset + 3);
+	yamato_gradient_bank = ((latch >> 3) & 1) << 2 | ((latch >> 5) & 1) << 1 | ((latch >> 6) & 1);
+}
+
 static WRITE8_HANDLER( flip_screen_x_w )
 {
 	flip_screen_x_set(data);
@@ -235,11 +247,10 @@ static ADDRESS_MAP_START( yamato_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x9000, 0x93ff) AM_READ(MRA8_RAM)	/* video RAM */
 	AM_RANGE(0x9800, 0x9bff) AM_READ(MRA8_RAM)	/* column scroll registers */
 	AM_RANGE(0x9c00, 0x9fff) AM_READ(MRA8_RAM)	/* color RAM */
-	AM_RANGE(0xa000, 0xa000) AM_READ(input_port_0_r)     /* IN0 */
-	AM_RANGE(0xa800, 0xa800) AM_READ(input_port_1_r)     /* IN1 */
-	AM_RANGE(0xb000, 0xb000) AM_READ(input_port_2_r)     /* DSW */
-	AM_RANGE(0xb800, 0xb800) AM_READ(input_port_3_r)     /* IN2 */
-	AM_RANGE(0xba00, 0xba00) AM_READ(input_port_4_r)     /* IN3 (maybe a mirror of b800) */
+	AM_RANGE(0xa000, 0xa7ff) AM_READ(yamato_p1_r)
+	AM_RANGE(0xa800, 0xafff) AM_READ(yamato_p2_r)
+	AM_RANGE(0xb000, 0xb7ff) AM_READ(input_port_2_r)	/* DSW1 */
+	AM_RANGE(0xb800, 0xbfff) AM_READ(input_port_3_r)	/* SYSTEM */
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( yamato_writemem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -260,6 +271,7 @@ static ADDRESS_MAP_START( yamato_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xa000, 0xa000) AM_WRITE(interrupt_enable_w)
 	AM_RANGE(0xa001, 0xa001) AM_WRITE(flip_screen_x_w)
 	AM_RANGE(0xa002, 0xa002) AM_WRITE(flip_screen_y_w)
+	AM_RANGE(0xa003, 0xa007) AM_WRITE(yamato_gradient_w)
 //AM_RANGE(0xa004, 0xa004) AM_WRITE(cclimber_sample_trigger_w)
 //AM_RANGE(0xa800, 0xa800) AM_WRITE(cclimber_sample_rate_w)
 //AM_RANGE(0xb000, 0xb000) AM_WRITE(cclimber_sample_volume_w)
@@ -309,6 +321,17 @@ static WRITE8_HANDLER(rombank_w)
 	}
 }
 
+/*
+    The color RAM has no connection to address bit 5, so every two consecutive
+    rows share the same memory: a write to either row changes both of them.
+*/
+static WRITE8_HANDLER( toprollr_colorram_w )
+{
+	offset &= 0xffdf;
+	toprollr_videoram2[offset] = data;
+	toprollr_videoram2[offset + 0x20] = data;
+}
+
 static ADDRESS_MAP_START( trmem_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_BANK1)
 	AM_RANGE(0x6000, 0x6bff) AM_RAM
@@ -319,7 +342,7 @@ static ADDRESS_MAP_START( trmem_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x9800, 0x987f) AM_RAM /* unused ? */
 	AM_RANGE(0x9880, 0x995f) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
 	AM_RANGE(0x99dc, 0x99df) AM_RAM AM_BASE(&cclimber_bigspriteram)
-	AM_RANGE(0x9c00, 0x9fff) AM_RAM AM_BASE(&toprollr_videoram2)
+	AM_RANGE(0x9c00, 0x9fff) AM_READWRITE(MRA8_RAM, toprollr_colorram_w) AM_BASE(&toprollr_videoram2)
 	AM_RANGE(0xa000, 0xa000) AM_WRITE(interrupt_enable_w) AM_READ(input_port_0_r)     /* IN0 */
 	AM_RANGE(0xa001, 0xa001) AM_WRITE(flip_screen_x_w)
 	AM_RANGE(0xa002, 0xa002) AM_WRITE(flip_screen_y_w)
@@ -339,10 +362,9 @@ static ADDRESS_MAP_START( trport_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x0d, 0x0d) AM_NOP
 ADDRESS_MAP_END
 
-INPUT_PORTS_START( yamato )
-	PORT_START      /* IN0 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+INPUT_PORTS_START( yamatou )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x03, IP_ACTIVE_HIGH, IPT_UNUSED )	/* coin B, read from DSW2 by yamato_p1_r() */
 	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 )
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2 )
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY
@@ -350,9 +372,8 @@ INPUT_PORTS_START( yamato )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY
 
-	PORT_START      /* IN1 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x03, IP_ACTIVE_HIGH, IPT_UNUSED )	/* coin B, read from DSW2 by yamato_p2_r() */
 	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_COCKTAIL
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_COCKTAIL
@@ -360,7 +381,7 @@ INPUT_PORTS_START( yamato )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_COCKTAIL
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_COCKTAIL
 
-	PORT_START      /* DSW */
+	PORT_START_TAG("DSW1")
 	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Lives ) )
 	PORT_DIPSETTING(    0x00, "3" )
 	PORT_DIPSETTING(    0x01, "4" )
@@ -385,29 +406,53 @@ INPUT_PORTS_START( yamato )
 	PORT_DIPSETTING(    0x80, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
 
-	PORT_START      /* IN2 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN2 )	/* set 1 only */
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN2 )
 	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_COIN1 )
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_COIN3 )	/* set 1 only */
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_SERVICE1 )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 
-	PORT_START      /* IN3 */
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
-	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_START2 )
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x07, 0x00, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+INPUT_PORTS_END
+
+/* same as yamatou, but no coin 2 or service coin */
+INPUT_PORTS_START( yamato )
+	PORT_INCLUDE( yamatou )
+
+	PORT_MODIFY("DSW2")
+	PORT_BIT( 0x0f, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_MODIFY("SYSTEM")
+	PORT_BIT( 0x11, IP_ACTIVE_HIGH, IPT_UNUSED )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( toprollr )
 	PORT_START      /* IN0 */
+	PORT_DIPNAME( 0x07, 0x00, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x01, "Invalid" )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( Free_Play ) )
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1 )
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY
@@ -415,6 +460,7 @@ INPUT_PORTS_START( toprollr )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY
 
 	PORT_START      /* IN1 */
+	PORT_BIT( 0x07, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_COCKTAIL
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_COCKTAIL
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_COCKTAIL
@@ -451,9 +497,8 @@ INPUT_PORTS_START( toprollr )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN3 )
-
-
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0xe0, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
 static gfx_layout charlayout =
@@ -557,7 +602,7 @@ static MACHINE_DRIVER_START( yamato )
 	MDRV_SCREEN_SIZE(32*8, 32*8)
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
 	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(96+256)
+	MDRV_PALETTE_LENGTH(96+128)
 	MDRV_COLORTABLE_LENGTH(16*4+8*4)
 
 	MDRV_PALETTE_INIT(yamato)
@@ -612,6 +657,39 @@ MACHINE_DRIVER_END
 
 ROM_START( yamato )
 	ROM_REGION( 2*0x10000, REGION_CPU1, 0 )	/* 64k for code + 64k for decrypted opcodes */
+	ROM_LOAD( "2.5de",        0x0000, 0x2000, CRC(e796fbce) SHA1(6bbb4f7818115ae0502d195e56f9e86e7020abcf) )
+	ROM_LOAD( "3.5f",         0x2000, 0x2000, CRC(de50e4e8) SHA1(11ce219f3a797e715cf79f37943402c7390475dd) )
+	ROM_LOAD( "4.5jh",        0x4000, 0x2000, CRC(4f831d4b) SHA1(01491debec90c49f5645dc4fad35a4142244c090) )
+	/* 6000-7fff not present here */
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* 64k for sound cpu */
+	ROM_LOAD( "1.5v",         0x0000, 0x0800, CRC(3aad9e3c) SHA1(37b0414b265397881bb45b166ecab85880d1358d) )
+
+	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "10.11k",       0x0000, 0x1000, CRC(161121f5) SHA1(017c5c6b773b0ae1d0be52e4bac90b699ea196dd) )
+	ROM_CONTINUE(             0x2000, 0x1000 )
+	ROM_LOAD( "9.11h",        0x1000, 0x1000, CRC(56e84cc4) SHA1(c48e0e5460376d6b34173c42a27907ef12218182) )
+	ROM_CONTINUE(             0x3000, 0x1000 )
+
+	ROM_REGION( 0x2000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "8.11c",        0x0000, 0x1000, CRC(28024d9a) SHA1(c871c4d74be72a8bfea99e89d43f91922f4b734b) )
+	ROM_LOAD( "7.11a",        0x1000, 0x1000, CRC(4a179790) SHA1(7fb6b033de939ff8bd13055c073311dca2c1a6fe) )
+
+	ROM_REGION( 0x2000, REGION_USER1, 0 )
+	ROM_LOAD( "5.5lm",        0x0000, 0x1000, CRC(7761ad24) SHA1(98878b19addd142d35718080eece05eaaee0388d) )	/* ?? */
+	ROM_LOAD( "6.5n",         0x1000, 0x1000, CRC(da48444c) SHA1(a43e672ce262eb817fb4e5715ef4fb304a6a2815) )
+
+	ROM_REGION( 0x00a0, REGION_PROMS, 0 )
+	ROM_LOAD( "1.bpr",        0x0000, 0x0020, CRC(ef2053ab) SHA1(2006cbf003f90a8e75f39047a88a3bba85d78e80) )
+	ROM_LOAD( "2.bpr",        0x0020, 0x0020, CRC(2281d39f) SHA1(e9b568bdacf7ab611801cf42ea5c7624f5440ef6) )
+	ROM_LOAD( "3.bpr",        0x0040, 0x0020, CRC(9e6341e3) SHA1(2e7a4d3c1f40d6089735734b9d9de2ca57fb73c7) )
+	ROM_LOAD( "4.bpr",        0x0060, 0x0020, CRC(1c97dc0b) SHA1(fe8e0a91172abdd2d14b199da144306a9b944372) )
+	ROM_LOAD( "5.bpr",        0x0080, 0x0020, CRC(edd6c05f) SHA1(b95db8aaf74fe175d1179f0d85f79242b16f5fb4) )
+ROM_END
+
+
+ROM_START( yamatou )
+	ROM_REGION( 2*0x10000, REGION_CPU1, 0 )	/* 64k for code + 64k for decrypted opcodes */
 	ROM_LOAD( "2.5de",        0x0000, 0x2000, CRC(20895096) SHA1(af76786e3c519e710899f143d46c53087e9817c7) )
 	ROM_LOAD( "3.5f",         0x2000, 0x2000, CRC(57a696f9) SHA1(28ea80fb100ac92295fc3eb318617d7cb014408d) )
 	ROM_LOAD( "4.5jh",        0x4000, 0x2000, CRC(59a468e8) SHA1(a79cdee6efefd87a356cc8d710f8050bc12e07c3) )
@@ -643,7 +721,7 @@ ROM_START( yamato )
 	ROM_LOAD( "5.bpr",        0x0080, 0x0020, CRC(edd6c05f) SHA1(b95db8aaf74fe175d1179f0d85f79242b16f5fb4) )
 ROM_END
 
-ROM_START( yamato2 )
+ROM_START( yamatoa )
 	ROM_REGION( 2*0x10000, REGION_CPU1, 0 )	/* 64k for code + 64k for decrypted opcodes */
 	ROM_LOAD( "2-2.5de",      0x0000, 0x2000, CRC(93da1d52) SHA1(21b72856ebbd969e4e075b52719e6acdbd1bc4c5) )
 	ROM_LOAD( "3-2.5f",       0x2000, 0x2000, CRC(31e73821) SHA1(e582c9fcea1b29d43f65b6aa67e1895c38d2736c) )
@@ -682,7 +760,7 @@ ROM_START( toprollr )
 	ROM_LOAD( "11.l3", 0xe000, 0x2000, CRC(b20a9fa2) SHA1(accd3296447eca002b0808e7b02832f5e35407e8) )
 
 	ROM_REGION( 0x04000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "15.h4", 0x0000, 0x2000, CRC(1d9e3325) SHA1(e7f6863aa2ba2aeec40cfcc5cf6c69e947c185b5) )
+	ROM_LOAD( "15.h4", 0x0000, 0x2000, CRC(b6fe97f2) SHA1(00c58f693dda0aa3ea4893dcaae90b1b63054789) )
 	ROM_LOAD( "16.j4", 0x2000, 0x2000, CRC(ce3afe26) SHA1(7de00720f091537c64cc0fec687c061de3a8b1a3) )
 
 	ROM_REGION( 0x2000, REGION_GFX2, ROMREGION_DISPOSE )
@@ -727,6 +805,7 @@ static DRIVER_INIT( toprollr )
 	toprollr_decode();
 }
 
-GAME( 1983, yamato,  0,      yamato, yamato, yamato, ROT90, "Sega", "Yamato (US)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1983, yamato2, yamato, yamato, yamato, yamato, ROT90, "Sega", "Yamato (World?)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1983, toprollr, 0, toprollr, toprollr, toprollr, ROT90, "Jaleco", "Top Roller", GAME_IMPERFECT_COLORS )
+GAME( 1983, yamato,  0,      yamato, yamato,  yamato, ROT90, "Sega", "Yamato (set 1)", 0 )
+GAME( 1983, yamatoa, yamato, yamato, yamato,  yamato, ROT90, "Sega", "Yamato (set 2)", 0 )
+GAME( 1983, yamatou, yamato, yamato, yamatou, yamato, ROT90, "Sega", "Yamato (US)", 0 )
+GAME( 1983, toprollr, 0, toprollr, toprollr, toprollr, ROT90, "Jaleco", "Top Roller", 0 )

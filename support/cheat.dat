@@ -202131,20 +202131,20 @@
 :yamato:00000000:6021:00000003:FFFFFFFF:Infinite Lives PL2
 
 ; [ Yamato (World?) ]
-:yamato2:20800000:10FA2:000000C9:FFFFFFFF:Invincibility
-:yamato2:20810000:12AEF:000000C9:FFFFFFFF:Invincibility (2/8)
-:yamato2:20810000:12AF5:000000C9:FFFFFFFF:Invincibility (3/8)
-:yamato2:20810000:12B00:000000C9:FFFFFFFF:Invincibility (4/8)
-:yamato2:20810000:12B70:000000C9:FFFFFFFF:Invincibility (5/8)
-:yamato2:20810000:12B7B:000000C9:FFFFFFFF:Invincibility (6/8)
-:yamato2:20810000:12BE5:000000C9:FFFFFFFF:Invincibility (7/8)
-:yamato2:20810000:12BF0:000000C9:FFFFFFFF:Invincibility (8/8)
-:yamato2:00000000:06001:00000000:00000004:Rapid Fire
-:yamato2:00000000:060F6:00000001:FFFFFFFF:No Delay for Cannon
-:yamato2:00100000:06068:00000000:FFFFFFFF:Fastest Moving Speed
-:yamato2:00100000:0600E:00000000:FFFFFFFF:Fastest Cursor Speed
-:yamato2:00000000:6020:00000003:FFFFFFFF:Infinite Lives PL1
-:yamato2:00000000:6021:00000003:FFFFFFFF:Infinite Lives PL2
+:yamatoa:20800000:10FA2:000000C9:FFFFFFFF:Invincibility
+:yamatoa:20810000:12AEF:000000C9:FFFFFFFF:Invincibility (2/8)
+:yamatoa:20810000:12AF5:000000C9:FFFFFFFF:Invincibility (3/8)
+:yamatoa:20810000:12B00:000000C9:FFFFFFFF:Invincibility (4/8)
+:yamatoa:20810000:12B70:000000C9:FFFFFFFF:Invincibility (5/8)
+:yamatoa:20810000:12B7B:000000C9:FFFFFFFF:Invincibility (6/8)
+:yamatoa:20810000:12BE5:000000C9:FFFFFFFF:Invincibility (7/8)
+:yamatoa:20810000:12BF0:000000C9:FFFFFFFF:Invincibility (8/8)
+:yamatoa:00000000:06001:00000000:00000004:Rapid Fire
+:yamatoa:00000000:060F6:00000001:FFFFFFFF:No Delay for Cannon
+:yamatoa:00100000:06068:00000000:FFFFFFFF:Fastest Moving Speed
+:yamatoa:00100000:0600E:00000000:FFFFFFFF:Fastest Cursor Speed
+:yamatoa:00000000:6020:00000003:FFFFFFFF:Infinite Lives PL1
+:yamatoa:00000000:6021:00000003:FFFFFFFF:Infinite Lives PL2
 
 ; [ Yam! Yam!? ]
 :yamyam:00000000:E906:00000009:FFFFFFFF:Infinite Lives
@@ -206587,7 +206587,7 @@
 ; xmultipl (made by ShimaPong) [????]
 ; xxmissio (made by ShimaPong) [????]
 ; yamato (made by ShimaPong) [????]
-; yamato2 (made by ShimaPong) [????]
+; yamatoa (made by ShimaPong) [????]
 ; yankeedo (made by Pugsy) [Z80]
 ; yiear (made by ShimaPong) [M6809]
 ; yiear2 (made by ShimaPong) [M6809]
