@@ -797,8 +797,8 @@ MACHINE_DRIVER_END
 
 ROM_START( welltris )
 	ROM_REGION( 0x180000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "j2u.8", 0x000000, 0x20000, BAD_DUMP CRC(00a382a4) SHA1(b6a7e1b360e3cefc582983c8dff6aa28a7c77124) )
-	ROM_LOAD16_BYTE( "j1u.7", 0x000001, 0x20000, BAD_DUMP CRC(abcb008b) SHA1(c71ed431cbd8aea0b4396029203a7b735a8fdac3) )
+	ROM_LOAD16_BYTE( "j2u.8", 0x000000, 0x20000, CRC(7488fe94) SHA1(41874366e2ab763cd827ff712b76ea2da0f9af6a) )
+	ROM_LOAD16_BYTE( "j1u.7", 0x000001, 0x20000, CRC(571413ac) SHA1(5eb9387efb9c1597005abff4d79f4b32aa7c93b2) )
 	/* Space */
 	ROM_LOAD16_BYTE( "lh532j10.10", 0x100000, 0x40000, CRC(1187c665) SHA1(c6c55016e46805694348b386e521a3ef1a443621) )
 	ROM_LOAD16_BYTE( "lh532j11.9",  0x100001, 0x40000, CRC(18eda9e5) SHA1(c01d1dc6bfde29797918490947c89440b58d5372) )
@@ -822,7 +822,7 @@ ROM_START( welltris )
 	ROM_LOAD( "lh534j10.124", 0x80000, 0x80000, CRC(e3682221) SHA1(3e1cda07cf451955dc473eabe007854e5148ae27) )
 ROM_END
 
-ROM_START( welltrij )
+ROM_START( welltrisj )
 	ROM_REGION( 0x180000, REGION_CPU1, 0 )	/* 68000 code */
 	ROM_LOAD16_BYTE( "j2.8", 0x000000, 0x20000, CRC(68ec5691) SHA1(8615415c5c98aa9caa0878a8251da7985f050f94) )
 	ROM_LOAD16_BYTE( "j1.7", 0x000001, 0x20000, CRC(1598ea2c) SHA1(e9150c3ab9b5c0eb9a5fee3e071358f92a005078) )
@@ -881,5 +881,5 @@ ROM_END
 
 
 GAME( 1991, welltris, 0,        welltris, welltris, welltris, ROT0,   "Video System Co.", "Welltris (World?, 2 players)", GAME_NO_COCKTAIL )
-GAME( 1991, welltrij, welltris, welltris, welltris, welltris, ROT0,   "Video System Co.", "Welltris (Japan, 2 players)", GAME_NO_COCKTAIL )
+GAME( 1991, welltrisj, welltris, welltris, welltris, welltris, ROT0,   "Video System Co.", "Welltris (Japan, 2 players)", GAME_NO_COCKTAIL )
 GAME( 1992, quiz18k,  0,        quiz18k,  quiz18k,  quiz18k,  ROT0,   "EIM", "Miyasu Nonki no Quiz 18-Kin", GAME_NO_COCKTAIL )

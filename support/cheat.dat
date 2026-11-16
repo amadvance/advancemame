@@ -195965,286 +195965,286 @@
 :weddingr:00000000:1BE864:00000006:FFFFFFFF:Infinite Lives PL2
 
 ; [ Welltris (Japan, 2 players) ]
-:welltrij:00000000:FF803A:00000009:FFFFFFFF:Infinite Credits
-:welltrij:00000000:FF8959:00000000:FFFFFFFF:Infinite Mistakes:You never get Game Over as the playfield depth will never decrease
-:welltrij:00000000:FF8959:00000000:FFFFFFFF:No Handicap PL1
-:welltrij:00000001:FF8959:0000000B:FFFFFFFF:Quick Game Over Now! PL1
-:welltrij:00000000:FF89D9:00000000:FFFFFFFF:No Handicap PL2
-:welltrij:00000001:FF89D9:0000000B:FFFFFFFF:Quick Game Over Now! PL2
-:welltrij:60000000:000000:00000000:00000000:[ Note - the Next Shape Display will not update.      ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[                             #                ###    ]
-:welltrij:60000000:000000:00000000:00000000:[ #=0      ##=1     ###=2    ##=3     ####=4     #=5  ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[ ###      ###      ##        ##     ##               ]
-:welltrij:60000000:000000:00000000:00000000:[ #=6       #=7     ##=8     ##=9    ##=10   #####=11 ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[  #       #        ###               #          #    ]
-:welltrij:60000000:000000:00000000:00000000:[ ###      ##        #       ###      #        ###    ]
-:welltrij:60000000:000000:00000000:00000000:[  #=12     ##=13    #=14    # #=15   ###=16   #=17   ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[ #                                                   ]
-:welltrij:60000000:000000:00000000:00000000:[ ###         #     ####     ##         ##     ####   ]
-:welltrij:60000000:000000:00000000:00000000:[   #=18   ####=19     #=20   ###=21  ###=22     #=23 ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[            #      #                          # #    ]
-:welltrij:60000000:000000:00000000:00000000:[ ####     ###      ###      ###      ###       #     ]
-:welltrij:60000000:000000:00000000:00000000:[  #=24     #=25     #=26     ##=27   ##=28    # #=29 ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:60000000:000000:00000000:00000000:[ #####                                               ]
-:welltrij:60000000:000000:00000000:00000000:[ #####                                               ]
-:welltrij:60000000:000000:00000000:00000000:[ #####      Note - I've not seen shapes 29 & 30      ]
-:welltrij:60000000:000000:00000000:00000000:[ #####             occur naturally so I've made them ]
-:welltrij:60000000:000000:00000000:00000000:[ #####=30          as the bonus shape colour.        ]
-:welltrij:60000000:000000:00000000:00000000:[                                                     ]
-:welltrij:00000000:FF8962:00000000:FFFFFFFF:Next Shape is always Shape 0 PL1
-:welltrij:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 0 PL1 (2/2)
-:welltrij:00000000:FF8962:00000001:FFFFFFFF:Next Shape is always Shape 1 PL1
-:welltrij:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 1 PL1 (2/2)
-:welltrij:00000000:FF8962:00000002:FFFFFFFF:Next Shape is always Shape 2 PL1
-:welltrij:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 2 PL1 (2/2)
-:welltrij:00000000:FF8962:00000003:FFFFFFFF:Next Shape is always Shape 3 PL1
-:welltrij:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 3 PL1 (2/2)
-:welltrij:00000000:FF8962:00000004:FFFFFFFF:Next Shape is always Shape 4 PL1
-:welltrij:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 4 PL1 (2/2)
-:welltrij:00000000:FF8962:00000005:FFFFFFFF:Next Shape is always Shape 5 PL1
-:welltrij:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 5 PL1 (2/2)
-:welltrij:00000000:FF8962:00000006:FFFFFFFF:Next Shape is always Shape 6 PL1
-:welltrij:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 6 PL1 (2/2)
-:welltrij:00000000:FF8962:00000007:FFFFFFFF:Next Shape is always Shape 7 PL1
-:welltrij:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 7 PL1 (2/2)
-:welltrij:00000000:FF8962:00000008:FFFFFFFF:Next Shape is always Shape 8 PL1
-:welltrij:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 8 PL1 (2/2)
-:welltrij:00000000:FF8962:00000009:FFFFFFFF:Next Shape is always Shape 9 PL1
-:welltrij:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 9 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000A:FFFFFFFF:Next Shape is always Shape 10 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 10 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000B:FFFFFFFF:Next Shape is always Shape 11 PL1
-:welltrij:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 11 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000C:FFFFFFFF:Next Shape is always Shape 12 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 12 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000D:FFFFFFFF:Next Shape is always Shape 13 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 13 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000E:FFFFFFFF:Next Shape is always Shape 14 PL1
-:welltrij:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 14 PL1 (2/2)
-:welltrij:00000000:FF8962:0000000F:FFFFFFFF:Next Shape is always Shape 15 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 15 PL1 (2/2)
-:welltrij:00000000:FF8962:00000010:FFFFFFFF:Next Shape is always Shape 16 PL1
-:welltrij:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 16 PL1 (2/2)
-:welltrij:00000000:FF8962:00000011:FFFFFFFF:Next Shape is always Shape 17 PL1
-:welltrij:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 17 PL1 (2/2)
-:welltrij:00000000:FF8962:00000012:FFFFFFFF:Next Shape is always Shape 18 PL1
-:welltrij:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 18 PL1 (2/2)
-:welltrij:00000000:FF8962:00000013:FFFFFFFF:Next Shape is always Shape 19 PL1
-:welltrij:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 19 PL1 (2/2)
-:welltrij:00000000:FF8962:00000014:FFFFFFFF:Next Shape is always Shape 20 PL1
-:welltrij:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 20 PL1 (2/2)
-:welltrij:00000000:FF8962:00000015:FFFFFFFF:Next Shape is always Shape 21 PL1
-:welltrij:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 21 PL1 (2/2)
-:welltrij:00000000:FF8962:00000016:FFFFFFFF:Next Shape is always Shape 22 PL1
-:welltrij:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 22 PL1 (2/2)
-:welltrij:00000000:FF8962:00000017:FFFFFFFF:Next Shape is always Shape 23 PL1
-:welltrij:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 23 PL1 (2/2)
-:welltrij:00000000:FF8962:00000018:FFFFFFFF:Next Shape is always Shape 24 PL1
-:welltrij:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 24 PL1 (2/2)
-:welltrij:00000000:FF8962:00000019:FFFFFFFF:Next Shape is always Shape 25 PL1
-:welltrij:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 25 PL1 (2/2)
-:welltrij:00000000:FF8962:0000001A:FFFFFFFF:Next Shape is always Shape 26 PL1
-:welltrij:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 26 PL1 (2/2)
-:welltrij:00000000:FF8962:0000001B:FFFFFFFF:Next Shape is always Shape 27 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 27 PL1 (2/2)
-:welltrij:00000000:FF8962:0000001C:FFFFFFFF:Next Shape is always Shape 28 PL1
-:welltrij:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 28 PL1 (2/2)
-:welltrij:00000000:FF8962:0000001D:FFFFFFFF:Next Shape is always Shape 29 PL1
-:welltrij:00010000:FF8967:0000000F:FFFFFFFF:Next Shape is always Shape 29 PL1 (2/2)
-:welltrij:00000000:FF8962:0000001E:FFFFFFFF:Next Shape is always Shape 30 PL1
-:welltrij:00010000:FF8967:0000000F:FFFFFFFF:Next Shape is always Shape 30 PL1 (2/2)
-:welltrij:00000001:FF8962:00000000:FFFFFFFF:Next Shape is Shape 0 Now! PL1
-:welltrij:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 0 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000001:FFFFFFFF:Next Shape is Shape 1 Now! PL1
-:welltrij:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 1 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000002:FFFFFFFF:Next Shape is Shape 2 Now! PL1
-:welltrij:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 2 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000003:FFFFFFFF:Next Shape is Shape 3 Now! PL1
-:welltrij:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 3 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000004:FFFFFFFF:Next Shape is Shape 4 Now! PL1
-:welltrij:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 4 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000005:FFFFFFFF:Next Shape is Shape 5 Now! PL1
-:welltrij:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 5 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000006:FFFFFFFF:Next Shape is Shape 6 Now! PL1
-:welltrij:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 6 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000007:FFFFFFFF:Next Shape is Shape 7 Now! PL1
-:welltrij:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 7 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000008:FFFFFFFF:Next Shape is Shape 8 Now! PL1
-:welltrij:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 8 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000009:FFFFFFFF:Next Shape is Shape 9 Now! PL1
-:welltrij:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 9 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000A:FFFFFFFF:Next Shape is Shape 10 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 10 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000B:FFFFFFFF:Next Shape is Shape 11 Now! PL1
-:welltrij:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 11 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000C:FFFFFFFF:Next Shape is Shape 12 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 12 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000D:FFFFFFFF:Next Shape is Shape 13 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 13 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000E:FFFFFFFF:Next Shape is Shape 14 Now! PL1
-:welltrij:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 14 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000000F:FFFFFFFF:Next Shape is Shape 15 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 15 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000010:FFFFFFFF:Next Shape is Shape 16 Now! PL1
-:welltrij:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 16 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000011:FFFFFFFF:Next Shape is Shape 17 Now! PL1
-:welltrij:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 17 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000012:FFFFFFFF:Next Shape is Shape 18 Now! PL1
-:welltrij:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 18 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000013:FFFFFFFF:Next Shape is Shape 19 Now! PL1
-:welltrij:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 19 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000014:FFFFFFFF:Next Shape is Shape 20 Now! PL1
-:welltrij:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 20 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000015:FFFFFFFF:Next Shape is Shape 21 Now! PL1
-:welltrij:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 21 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000016:FFFFFFFF:Next Shape is Shape 22 Now! PL1
-:welltrij:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 22 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000017:FFFFFFFF:Next Shape is Shape 23 Now! PL1
-:welltrij:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 23 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000018:FFFFFFFF:Next Shape is Shape 24 Now! PL1
-:welltrij:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 24 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:00000019:FFFFFFFF:Next Shape is Shape 25 Now! PL1
-:welltrij:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 25 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000001A:FFFFFFFF:Next Shape is Shape 26 Now! PL1
-:welltrij:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 26 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000001B:FFFFFFFF:Next Shape is Shape 27 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 27 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000001C:FFFFFFFF:Next Shape is Shape 28 Now! PL1
-:welltrij:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 28 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000001D:FFFFFFFF:Next Shape is Shape 29 Now! PL1
-:welltrij:00010001:FF8967:0000000F:FFFFFFFF:Next Shape is Shape 29 Now! PL1 (2/2)
-:welltrij:00000001:FF8962:0000001E:FFFFFFFF:Next Shape is Shape 30 Now! PL1
-:welltrij:00010001:FF8967:0000000F:FFFFFFFF:Next Shape is Shape 30 Now! PL1 (2/2)
-:welltrij:00000000:FF89E2:00000000:FFFFFFFF:Next Shape is always Shape 0 PL2
-:welltrij:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 0 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000001:FFFFFFFF:Next Shape is always Shape 1 PL2
-:welltrij:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 1 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000002:FFFFFFFF:Next Shape is always Shape 2 PL2
-:welltrij:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 2 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000003:FFFFFFFF:Next Shape is always Shape 3 PL2
-:welltrij:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 3 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000004:FFFFFFFF:Next Shape is always Shape 4 PL2
-:welltrij:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 4 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000005:FFFFFFFF:Next Shape is always Shape 5 PL2
-:welltrij:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 5 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000006:FFFFFFFF:Next Shape is always Shape 6 PL2
-:welltrij:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 6 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000007:FFFFFFFF:Next Shape is always Shape 7 PL2
-:welltrij:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 7 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000008:FFFFFFFF:Next Shape is always Shape 8 PL2
-:welltrij:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 8 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000009:FFFFFFFF:Next Shape is always Shape 9 PL2
-:welltrij:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 9 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000A:FFFFFFFF:Next Shape is always Shape 10 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 10 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000B:FFFFFFFF:Next Shape is always Shape 11 PL2
-:welltrij:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 11 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000C:FFFFFFFF:Next Shape is always Shape 12 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 12 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000D:FFFFFFFF:Next Shape is always Shape 13 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 13 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000E:FFFFFFFF:Next Shape is always Shape 14 PL2
-:welltrij:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 14 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000000F:FFFFFFFF:Next Shape is always Shape 15 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 15 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000010:FFFFFFFF:Next Shape is always Shape 16 PL2
-:welltrij:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 16 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000011:FFFFFFFF:Next Shape is always Shape 17 PL2
-:welltrij:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 17 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000012:FFFFFFFF:Next Shape is always Shape 18 PL2
-:welltrij:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 18 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000013:FFFFFFFF:Next Shape is always Shape 19 PL2
-:welltrij:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 19 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000014:FFFFFFFF:Next Shape is always Shape 20 PL2
-:welltrij:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 20 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000015:FFFFFFFF:Next Shape is always Shape 21 PL2
-:welltrij:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 21 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000016:FFFFFFFF:Next Shape is always Shape 22 PL2
-:welltrij:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 22 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000017:FFFFFFFF:Next Shape is always Shape 23 PL2
-:welltrij:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 23 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000018:FFFFFFFF:Next Shape is always Shape 24 PL2
-:welltrij:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 24 PL2 (2/2)
-:welltrij:00000000:FF89E2:00000019:FFFFFFFF:Next Shape is always Shape 25 PL2
-:welltrij:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 25 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000001A:FFFFFFFF:Next Shape is always Shape 26 PL2
-:welltrij:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 26 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000001B:FFFFFFFF:Next Shape is always Shape 27 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 27 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000001C:FFFFFFFF:Next Shape is always Shape 28 PL2
-:welltrij:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 28 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000001D:FFFFFFFF:Next Shape is always Shape 29 PL2
-:welltrij:00010000:FF89E7:0000000F:FFFFFFFF:Next Shape is always Shape 29 PL2 (2/2)
-:welltrij:00000000:FF89E2:0000001E:FFFFFFFF:Next Shape is always Shape 30 PL2
-:welltrij:00010000:FF89E7:0000000F:FFFFFFFF:Next Shape is always Shape 30 PL2 (2/2)
-:welltrij:00000001:FF89E2:00000000:FFFFFFFF:Next Shape is Shape 0 Now! PL2
-:welltrij:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 0 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000001:FFFFFFFF:Next Shape is Shape 1 Now! PL2
-:welltrij:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 1 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000002:FFFFFFFF:Next Shape is Shape 2 Now! PL2
-:welltrij:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 2 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000003:FFFFFFFF:Next Shape is Shape 3 Now! PL2
-:welltrij:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 3 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000004:FFFFFFFF:Next Shape is Shape 4 Now! PL2
-:welltrij:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 4 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000005:FFFFFFFF:Next Shape is Shape 5 Now! PL2
-:welltrij:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 5 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000006:FFFFFFFF:Next Shape is Shape 6 Now! PL2
-:welltrij:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 6 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000007:FFFFFFFF:Next Shape is Shape 7 Now! PL2
-:welltrij:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 7 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000008:FFFFFFFF:Next Shape is Shape 8 Now! PL2
-:welltrij:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 8 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000009:FFFFFFFF:Next Shape is Shape 9 Now! PL2
-:welltrij:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 9 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000A:FFFFFFFF:Next Shape is Shape 10 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 10 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000B:FFFFFFFF:Next Shape is Shape 11 Now! PL2
-:welltrij:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 11 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000C:FFFFFFFF:Next Shape is Shape 12 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 12 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000D:FFFFFFFF:Next Shape is Shape 13 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 13 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000E:FFFFFFFF:Next Shape is Shape 14 Now! PL2
-:welltrij:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 14 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000000F:FFFFFFFF:Next Shape is Shape 15 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 15 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000010:FFFFFFFF:Next Shape is Shape 16 Now! PL2
-:welltrij:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 16 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000011:FFFFFFFF:Next Shape is Shape 17 Now! PL2
-:welltrij:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 17 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000012:FFFFFFFF:Next Shape is Shape 18 Now! PL2
-:welltrij:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 18 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000013:FFFFFFFF:Next Shape is Shape 19 Now! PL2
-:welltrij:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 19 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000014:FFFFFFFF:Next Shape is Shape 20 Now! PL2
-:welltrij:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 20 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000015:FFFFFFFF:Next Shape is Shape 21 Now! PL2
-:welltrij:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 21 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000016:FFFFFFFF:Next Shape is Shape 22 Now! PL2
-:welltrij:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 22 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000017:FFFFFFFF:Next Shape is Shape 23 Now! PL2
-:welltrij:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 23 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000018:FFFFFFFF:Next Shape is Shape 24 Now! PL2
-:welltrij:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 24 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:00000019:FFFFFFFF:Next Shape is Shape 25 Now! PL2
-:welltrij:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 25 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000001A:FFFFFFFF:Next Shape is Shape 26 Now! PL2
-:welltrij:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 26 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000001B:FFFFFFFF:Next Shape is Shape 27 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 27 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000001C:FFFFFFFF:Next Shape is Shape 28 Now! PL2
-:welltrij:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 28 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000001D:FFFFFFFF:Next Shape is Shape 29 Now! PL2
-:welltrij:00010001:FF89E7:0000000F:FFFFFFFF:Next Shape is Shape 29 Now! PL2 (2/2)
-:welltrij:00000001:FF89E2:0000001E:FFFFFFFF:Next Shape is Shape 30 Now! PL2
-:welltrij:00010001:FF89E7:0000000F:FFFFFFFF:Next Shape is Shape 30 Now! PL2 (2/2)
+:welltrisj:00000000:FF803A:00000009:FFFFFFFF:Infinite Credits
+:welltrisj:00000000:FF8959:00000000:FFFFFFFF:Infinite Mistakes:You never get Game Over as the playfield depth will never decrease
+:welltrisj:00000000:FF8959:00000000:FFFFFFFF:No Handicap PL1
+:welltrisj:00000001:FF8959:0000000B:FFFFFFFF:Quick Game Over Now! PL1
+:welltrisj:00000000:FF89D9:00000000:FFFFFFFF:No Handicap PL2
+:welltrisj:00000001:FF89D9:0000000B:FFFFFFFF:Quick Game Over Now! PL2
+:welltrisj:60000000:000000:00000000:00000000:[ Note - the Next Shape Display will not update.      ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[                             #                ###    ]
+:welltrisj:60000000:000000:00000000:00000000:[ #=0      ##=1     ###=2    ##=3     ####=4     #=5  ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[ ###      ###      ##        ##     ##               ]
+:welltrisj:60000000:000000:00000000:00000000:[ #=6       #=7     ##=8     ##=9    ##=10   #####=11 ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[  #       #        ###               #          #    ]
+:welltrisj:60000000:000000:00000000:00000000:[ ###      ##        #       ###      #        ###    ]
+:welltrisj:60000000:000000:00000000:00000000:[  #=12     ##=13    #=14    # #=15   ###=16   #=17   ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[ #                                                   ]
+:welltrisj:60000000:000000:00000000:00000000:[ ###         #     ####     ##         ##     ####   ]
+:welltrisj:60000000:000000:00000000:00000000:[   #=18   ####=19     #=20   ###=21  ###=22     #=23 ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[            #      #                          # #    ]
+:welltrisj:60000000:000000:00000000:00000000:[ ####     ###      ###      ###      ###       #     ]
+:welltrisj:60000000:000000:00000000:00000000:[  #=24     #=25     #=26     ##=27   ##=28    # #=29 ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:60000000:000000:00000000:00000000:[ #####                                               ]
+:welltrisj:60000000:000000:00000000:00000000:[ #####                                               ]
+:welltrisj:60000000:000000:00000000:00000000:[ #####      Note - I've not seen shapes 29 & 30      ]
+:welltrisj:60000000:000000:00000000:00000000:[ #####             occur naturally so I've made them ]
+:welltrisj:60000000:000000:00000000:00000000:[ #####=30          as the bonus shape colour.        ]
+:welltrisj:60000000:000000:00000000:00000000:[                                                     ]
+:welltrisj:00000000:FF8962:00000000:FFFFFFFF:Next Shape is always Shape 0 PL1
+:welltrisj:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 0 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000001:FFFFFFFF:Next Shape is always Shape 1 PL1
+:welltrisj:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 1 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000002:FFFFFFFF:Next Shape is always Shape 2 PL1
+:welltrisj:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 2 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000003:FFFFFFFF:Next Shape is always Shape 3 PL1
+:welltrisj:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 3 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000004:FFFFFFFF:Next Shape is always Shape 4 PL1
+:welltrisj:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 4 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000005:FFFFFFFF:Next Shape is always Shape 5 PL1
+:welltrisj:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 5 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000006:FFFFFFFF:Next Shape is always Shape 6 PL1
+:welltrisj:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 6 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000007:FFFFFFFF:Next Shape is always Shape 7 PL1
+:welltrisj:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 7 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000008:FFFFFFFF:Next Shape is always Shape 8 PL1
+:welltrisj:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 8 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000009:FFFFFFFF:Next Shape is always Shape 9 PL1
+:welltrisj:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 9 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000A:FFFFFFFF:Next Shape is always Shape 10 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 10 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000B:FFFFFFFF:Next Shape is always Shape 11 PL1
+:welltrisj:00010000:FF8967:0000000A:FFFFFFFF:Next Shape is always Shape 11 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000C:FFFFFFFF:Next Shape is always Shape 12 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 12 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000D:FFFFFFFF:Next Shape is always Shape 13 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 13 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000E:FFFFFFFF:Next Shape is always Shape 14 PL1
+:welltrisj:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 14 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000000F:FFFFFFFF:Next Shape is always Shape 15 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 15 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000010:FFFFFFFF:Next Shape is always Shape 16 PL1
+:welltrisj:00010000:FF8967:0000000D:FFFFFFFF:Next Shape is always Shape 16 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000011:FFFFFFFF:Next Shape is always Shape 17 PL1
+:welltrisj:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 17 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000012:FFFFFFFF:Next Shape is always Shape 18 PL1
+:welltrisj:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 18 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000013:FFFFFFFF:Next Shape is always Shape 19 PL1
+:welltrisj:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 19 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000014:FFFFFFFF:Next Shape is always Shape 20 PL1
+:welltrisj:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 20 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000015:FFFFFFFF:Next Shape is always Shape 21 PL1
+:welltrisj:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 21 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000016:FFFFFFFF:Next Shape is always Shape 22 PL1
+:welltrisj:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 22 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000017:FFFFFFFF:Next Shape is always Shape 23 PL1
+:welltrisj:00010000:FF8967:00000009:FFFFFFFF:Next Shape is always Shape 23 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000018:FFFFFFFF:Next Shape is always Shape 24 PL1
+:welltrisj:00010000:FF8967:00000008:FFFFFFFF:Next Shape is always Shape 24 PL1 (2/2)
+:welltrisj:00000000:FF8962:00000019:FFFFFFFF:Next Shape is always Shape 25 PL1
+:welltrisj:00010000:FF8967:0000000C:FFFFFFFF:Next Shape is always Shape 25 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000001A:FFFFFFFF:Next Shape is always Shape 26 PL1
+:welltrisj:00010000:FF8967:0000000B:FFFFFFFF:Next Shape is always Shape 26 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000001B:FFFFFFFF:Next Shape is always Shape 27 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 27 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000001C:FFFFFFFF:Next Shape is always Shape 28 PL1
+:welltrisj:00010000:FF8967:0000000E:FFFFFFFF:Next Shape is always Shape 28 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000001D:FFFFFFFF:Next Shape is always Shape 29 PL1
+:welltrisj:00010000:FF8967:0000000F:FFFFFFFF:Next Shape is always Shape 29 PL1 (2/2)
+:welltrisj:00000000:FF8962:0000001E:FFFFFFFF:Next Shape is always Shape 30 PL1
+:welltrisj:00010000:FF8967:0000000F:FFFFFFFF:Next Shape is always Shape 30 PL1 (2/2)
+:welltrisj:00000001:FF8962:00000000:FFFFFFFF:Next Shape is Shape 0 Now! PL1
+:welltrisj:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 0 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000001:FFFFFFFF:Next Shape is Shape 1 Now! PL1
+:welltrisj:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 1 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000002:FFFFFFFF:Next Shape is Shape 2 Now! PL1
+:welltrisj:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 2 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000003:FFFFFFFF:Next Shape is Shape 3 Now! PL1
+:welltrisj:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 3 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000004:FFFFFFFF:Next Shape is Shape 4 Now! PL1
+:welltrisj:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 4 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000005:FFFFFFFF:Next Shape is Shape 5 Now! PL1
+:welltrisj:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 5 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000006:FFFFFFFF:Next Shape is Shape 6 Now! PL1
+:welltrisj:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 6 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000007:FFFFFFFF:Next Shape is Shape 7 Now! PL1
+:welltrisj:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 7 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000008:FFFFFFFF:Next Shape is Shape 8 Now! PL1
+:welltrisj:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 8 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000009:FFFFFFFF:Next Shape is Shape 9 Now! PL1
+:welltrisj:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 9 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000A:FFFFFFFF:Next Shape is Shape 10 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 10 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000B:FFFFFFFF:Next Shape is Shape 11 Now! PL1
+:welltrisj:00010001:FF8967:0000000A:FFFFFFFF:Next Shape is Shape 11 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000C:FFFFFFFF:Next Shape is Shape 12 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 12 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000D:FFFFFFFF:Next Shape is Shape 13 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 13 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000E:FFFFFFFF:Next Shape is Shape 14 Now! PL1
+:welltrisj:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 14 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000000F:FFFFFFFF:Next Shape is Shape 15 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 15 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000010:FFFFFFFF:Next Shape is Shape 16 Now! PL1
+:welltrisj:00010001:FF8967:0000000D:FFFFFFFF:Next Shape is Shape 16 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000011:FFFFFFFF:Next Shape is Shape 17 Now! PL1
+:welltrisj:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 17 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000012:FFFFFFFF:Next Shape is Shape 18 Now! PL1
+:welltrisj:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 18 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000013:FFFFFFFF:Next Shape is Shape 19 Now! PL1
+:welltrisj:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 19 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000014:FFFFFFFF:Next Shape is Shape 20 Now! PL1
+:welltrisj:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 20 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000015:FFFFFFFF:Next Shape is Shape 21 Now! PL1
+:welltrisj:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 21 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000016:FFFFFFFF:Next Shape is Shape 22 Now! PL1
+:welltrisj:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 22 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000017:FFFFFFFF:Next Shape is Shape 23 Now! PL1
+:welltrisj:00010001:FF8967:00000009:FFFFFFFF:Next Shape is Shape 23 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000018:FFFFFFFF:Next Shape is Shape 24 Now! PL1
+:welltrisj:00010001:FF8967:00000008:FFFFFFFF:Next Shape is Shape 24 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:00000019:FFFFFFFF:Next Shape is Shape 25 Now! PL1
+:welltrisj:00010001:FF8967:0000000C:FFFFFFFF:Next Shape is Shape 25 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000001A:FFFFFFFF:Next Shape is Shape 26 Now! PL1
+:welltrisj:00010001:FF8967:0000000B:FFFFFFFF:Next Shape is Shape 26 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000001B:FFFFFFFF:Next Shape is Shape 27 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 27 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000001C:FFFFFFFF:Next Shape is Shape 28 Now! PL1
+:welltrisj:00010001:FF8967:0000000E:FFFFFFFF:Next Shape is Shape 28 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000001D:FFFFFFFF:Next Shape is Shape 29 Now! PL1
+:welltrisj:00010001:FF8967:0000000F:FFFFFFFF:Next Shape is Shape 29 Now! PL1 (2/2)
+:welltrisj:00000001:FF8962:0000001E:FFFFFFFF:Next Shape is Shape 30 Now! PL1
+:welltrisj:00010001:FF8967:0000000F:FFFFFFFF:Next Shape is Shape 30 Now! PL1 (2/2)
+:welltrisj:00000000:FF89E2:00000000:FFFFFFFF:Next Shape is always Shape 0 PL2
+:welltrisj:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 0 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000001:FFFFFFFF:Next Shape is always Shape 1 PL2
+:welltrisj:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 1 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000002:FFFFFFFF:Next Shape is always Shape 2 PL2
+:welltrisj:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 2 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000003:FFFFFFFF:Next Shape is always Shape 3 PL2
+:welltrisj:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 3 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000004:FFFFFFFF:Next Shape is always Shape 4 PL2
+:welltrisj:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 4 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000005:FFFFFFFF:Next Shape is always Shape 5 PL2
+:welltrisj:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 5 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000006:FFFFFFFF:Next Shape is always Shape 6 PL2
+:welltrisj:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 6 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000007:FFFFFFFF:Next Shape is always Shape 7 PL2
+:welltrisj:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 7 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000008:FFFFFFFF:Next Shape is always Shape 8 PL2
+:welltrisj:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 8 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000009:FFFFFFFF:Next Shape is always Shape 9 PL2
+:welltrisj:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 9 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000A:FFFFFFFF:Next Shape is always Shape 10 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 10 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000B:FFFFFFFF:Next Shape is always Shape 11 PL2
+:welltrisj:00010000:FF89E7:0000000A:FFFFFFFF:Next Shape is always Shape 11 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000C:FFFFFFFF:Next Shape is always Shape 12 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 12 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000D:FFFFFFFF:Next Shape is always Shape 13 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 13 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000E:FFFFFFFF:Next Shape is always Shape 14 PL2
+:welltrisj:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 14 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000000F:FFFFFFFF:Next Shape is always Shape 15 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 15 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000010:FFFFFFFF:Next Shape is always Shape 16 PL2
+:welltrisj:00010000:FF89E7:0000000D:FFFFFFFF:Next Shape is always Shape 16 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000011:FFFFFFFF:Next Shape is always Shape 17 PL2
+:welltrisj:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 17 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000012:FFFFFFFF:Next Shape is always Shape 18 PL2
+:welltrisj:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 18 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000013:FFFFFFFF:Next Shape is always Shape 19 PL2
+:welltrisj:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 19 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000014:FFFFFFFF:Next Shape is always Shape 20 PL2
+:welltrisj:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 20 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000015:FFFFFFFF:Next Shape is always Shape 21 PL2
+:welltrisj:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 21 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000016:FFFFFFFF:Next Shape is always Shape 22 PL2
+:welltrisj:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 22 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000017:FFFFFFFF:Next Shape is always Shape 23 PL2
+:welltrisj:00010000:FF89E7:00000009:FFFFFFFF:Next Shape is always Shape 23 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000018:FFFFFFFF:Next Shape is always Shape 24 PL2
+:welltrisj:00010000:FF89E7:00000008:FFFFFFFF:Next Shape is always Shape 24 PL2 (2/2)
+:welltrisj:00000000:FF89E2:00000019:FFFFFFFF:Next Shape is always Shape 25 PL2
+:welltrisj:00010000:FF89E7:0000000C:FFFFFFFF:Next Shape is always Shape 25 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000001A:FFFFFFFF:Next Shape is always Shape 26 PL2
+:welltrisj:00010000:FF89E7:0000000B:FFFFFFFF:Next Shape is always Shape 26 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000001B:FFFFFFFF:Next Shape is always Shape 27 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 27 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000001C:FFFFFFFF:Next Shape is always Shape 28 PL2
+:welltrisj:00010000:FF89E7:0000000E:FFFFFFFF:Next Shape is always Shape 28 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000001D:FFFFFFFF:Next Shape is always Shape 29 PL2
+:welltrisj:00010000:FF89E7:0000000F:FFFFFFFF:Next Shape is always Shape 29 PL2 (2/2)
+:welltrisj:00000000:FF89E2:0000001E:FFFFFFFF:Next Shape is always Shape 30 PL2
+:welltrisj:00010000:FF89E7:0000000F:FFFFFFFF:Next Shape is always Shape 30 PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000000:FFFFFFFF:Next Shape is Shape 0 Now! PL2
+:welltrisj:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 0 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000001:FFFFFFFF:Next Shape is Shape 1 Now! PL2
+:welltrisj:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 1 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000002:FFFFFFFF:Next Shape is Shape 2 Now! PL2
+:welltrisj:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 2 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000003:FFFFFFFF:Next Shape is Shape 3 Now! PL2
+:welltrisj:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 3 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000004:FFFFFFFF:Next Shape is Shape 4 Now! PL2
+:welltrisj:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 4 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000005:FFFFFFFF:Next Shape is Shape 5 Now! PL2
+:welltrisj:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 5 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000006:FFFFFFFF:Next Shape is Shape 6 Now! PL2
+:welltrisj:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 6 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000007:FFFFFFFF:Next Shape is Shape 7 Now! PL2
+:welltrisj:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 7 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000008:FFFFFFFF:Next Shape is Shape 8 Now! PL2
+:welltrisj:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 8 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000009:FFFFFFFF:Next Shape is Shape 9 Now! PL2
+:welltrisj:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 9 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000A:FFFFFFFF:Next Shape is Shape 10 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 10 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000B:FFFFFFFF:Next Shape is Shape 11 Now! PL2
+:welltrisj:00010001:FF89E7:0000000A:FFFFFFFF:Next Shape is Shape 11 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000C:FFFFFFFF:Next Shape is Shape 12 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 12 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000D:FFFFFFFF:Next Shape is Shape 13 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 13 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000E:FFFFFFFF:Next Shape is Shape 14 Now! PL2
+:welltrisj:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 14 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000000F:FFFFFFFF:Next Shape is Shape 15 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 15 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000010:FFFFFFFF:Next Shape is Shape 16 Now! PL2
+:welltrisj:00010001:FF89E7:0000000D:FFFFFFFF:Next Shape is Shape 16 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000011:FFFFFFFF:Next Shape is Shape 17 Now! PL2
+:welltrisj:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 17 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000012:FFFFFFFF:Next Shape is Shape 18 Now! PL2
+:welltrisj:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 18 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000013:FFFFFFFF:Next Shape is Shape 19 Now! PL2
+:welltrisj:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 19 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000014:FFFFFFFF:Next Shape is Shape 20 Now! PL2
+:welltrisj:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 20 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000015:FFFFFFFF:Next Shape is Shape 21 Now! PL2
+:welltrisj:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 21 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000016:FFFFFFFF:Next Shape is Shape 22 Now! PL2
+:welltrisj:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 22 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000017:FFFFFFFF:Next Shape is Shape 23 Now! PL2
+:welltrisj:00010001:FF89E7:00000009:FFFFFFFF:Next Shape is Shape 23 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000018:FFFFFFFF:Next Shape is Shape 24 Now! PL2
+:welltrisj:00010001:FF89E7:00000008:FFFFFFFF:Next Shape is Shape 24 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:00000019:FFFFFFFF:Next Shape is Shape 25 Now! PL2
+:welltrisj:00010001:FF89E7:0000000C:FFFFFFFF:Next Shape is Shape 25 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000001A:FFFFFFFF:Next Shape is Shape 26 Now! PL2
+:welltrisj:00010001:FF89E7:0000000B:FFFFFFFF:Next Shape is Shape 26 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000001B:FFFFFFFF:Next Shape is Shape 27 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 27 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000001C:FFFFFFFF:Next Shape is Shape 28 Now! PL2
+:welltrisj:00010001:FF89E7:0000000E:FFFFFFFF:Next Shape is Shape 28 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000001D:FFFFFFFF:Next Shape is Shape 29 Now! PL2
+:welltrisj:00010001:FF89E7:0000000F:FFFFFFFF:Next Shape is Shape 29 Now! PL2 (2/2)
+:welltrisj:00000001:FF89E2:0000001E:FFFFFFFF:Next Shape is Shape 30 Now! PL2
+:welltrisj:00010001:FF89E7:0000000F:FFFFFFFF:Next Shape is Shape 30 Now! PL2 (2/2)
 
 ; [ Welltris (World?, 2 players) ]
 :welltris:00000000:FF803A:00000009:FFFFFFFF:Infinite Credits
@@ -205571,7 +205571,7 @@
 ;wbml=wbmlb=wbmljb=wbmljo
 ;wc90~=(wc90a=wc90b=wc90t)
 ;wcbowl=wcbowl161=wcbowl165~wcbowl12
-;welltrij=welltris
+;welltrisj=welltris
 ;wfortunea=wfortune
 ;wgp=wgpj~=(wgpjoy=wgpjoya)~wgp2
 ;wh1=wh1ha~(wh2~=wh2j~=whp)
