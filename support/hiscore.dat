@@ -102,7 +102,7 @@ dkongjrm:  ;******donkey kong jr. (moon cresta hardware)
 0:91a1:1:00:00
 
 vspinbal:
-vspinblj:  ;******vs. pinball (japan)
+vspinbalj:  ;******vs. pinball (japan)
 0:ba0:10:1c:00
 0:118:5:00:00
 
@@ -120,7 +120,7 @@ mightybj:  ;******vs. mighty bomb jack (japan)
 0:3a8:4:00:00
 0:3aa:1:10:10
 
-machridj:  ;******vs. mach rider(japan,fighting cource version)
+nvs_machridera:  ;******vs. mach rider(japan,fighting cource version)
 0:700:50:00:4b
 0:701:1:05:05
 
@@ -131,7 +131,7 @@ iceclmrj:  ;******vs. ice climber dual (japan)
 1:751:1:77:77
 
 iceclimb:
-iceclmbj:  ;******vs. ice climber (japan)
+iceclimba:  ;******vs. ice climber (japan)
 0:750:3c:00:23
 
 vsgradus:  ;******vs. gradius
@@ -142,7 +142,7 @@ vsfdf:  ;******vs. freedom force
 0:712:9c:10:28
 
 excitebk:
-excitbkj:  ;******vs. excitebike (japan)
+excitebkj:  ;******vs. excitebike (japan)
 0:630:14f:00:0e
 
 vsgongf:  ;******vs. gong fight

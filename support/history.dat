@@ -250915,7 +250915,7 @@ Musics by : Hirokazu Tanaka
 $end
 
 
-$info=vsbball,vsbballj,vsbbalja,vsbbaljb,
+$info=vsbball,vsbballj,vsbballja,vsbballjb,
 $bio
 
 Vs. Baseball (c) 10/1984 Nintendo.
@@ -251200,7 +251200,7 @@ Produced by : Gunpei Yokoi
 $end
 
 
-$info=excitebk,excitbkj,
+$info=excitebk,excitebko,excitebkj,
 $bio
 
 Vs. Excitebike (c) 1984 Nintendo.
@@ -251399,7 +251399,7 @@ Jack Gale holds the official record for this game with 2,738,100 points.
 $end
 
 
-$info=iceclimb,iceclmbj,
+$info=iceclimb,iceclimba,
 $bio
 
 Vs. Ice Climber (c) 1984 Nintendo.
@@ -251476,7 +251476,7 @@ Buttons : 2
 $end
 
 
-$info=machridr,machridj,
+$info=machridr,nvs_machridera,
 $bio
 
 Vs. Mach Rider (c) 1985 Nintendo.
@@ -251724,7 +251724,7 @@ The princess is called 'Sakura'.
 $end
 
 
-$info=vspinbal,vspinblj,
+$info=vspinbal,vspinbalj,
 $bio
 
 Vs. Pinball (c) 11/1984 Nintendo.
@@ -251892,7 +251892,7 @@ Licensed to Nintendo.
 $end
 
 
-$info=vssoccer,
+$info=vssoccer,vssoccera,
 $bio
 
 Vs. Soccer (c) 1985 Nintendo.
@@ -251978,7 +251978,7 @@ Sound : Hiroyuki Kawada
 $end
 
 
-$info=smgolf,smgolfj,smgolfb,ladygolf,
+$info=smgolf,smgolfj,smgolfb,ladygolf,ladygolfe,
 $bio
 
 Vs. Stroke and Match Golf (c) 11/1984 Nintendo.
@@ -252024,7 +252024,7 @@ Sound : Koji Kondo
 $end
 
 
-$info=suprmrio,
+$info=suprmrio,suprmrioa,skatekds,
 $bio
 
 Vs. Super Mario Bros. (c) 04/1986 Nintendo.
@@ -252230,7 +252230,7 @@ Licensed to Nintendo.
 $end
 
 
-$info=vstennis,vstennij,
+$info=vstennis,vstennisa,vstennisb,
 $bio
 
 Vs. Tennis (c) 02/1984 Nintendo.

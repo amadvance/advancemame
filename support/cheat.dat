@@ -42756,8 +42756,8 @@
 :excelsr:00000000:FF0181:0000003F:FFFFFFFF:Infinite Ammo PL2
 
 ; [ Vs. Excitebike (Japan) ]
-:excitbkj:00000000:0063:00000003:FFFFFFFF:Infinite Time
-:excitbkj:00000000:03E3:00000000:FFFFFFFF:No Overheating
+:excitebkj:00000000:0063:00000003:FFFFFFFF:Infinite Time
+:excitebkj:00000000:03E3:00000000:FFFFFFFF:No Overheating
 
 ; [ Vs. Excitebike ]
 :excitebk:00000000:0063:00000003:FFFFFFFF:Infinite Time
@@ -60115,20 +60115,20 @@
 :hypsptsp:00000000:2240:000000FF:FFFFFFFF:Sound Test Timer Stop:[PL2 Start]Next Code
 
 ; [ Vs. Ice Climber ]
+:iceclimba:00000000:0797:0000005C:FFFFFFFF:Infinite Credits
+:iceclimba:00100000:07FA:00009999:FFFFFFFF:Infinite Time
+:iceclimba:00110000:07FE:00009998:FFFFFFFF:Infinite Time (2/2)
+:iceclimba:20800000:CCC8:00000023:FFFFFFFF:Invincibility:Note - dropping down gaps still kills though.
+:iceclimba:00000000:0020:00000008:FFFFFFFF:Infinite Lives PL1
+:iceclimba:00000000:0021:00000008:FFFFFFFF:Infinite Lives PL2
+
+; [ Vs. Ice Climber (Japan) ]
 :iceclimb:00000000:0797:0000005C:FFFFFFFF:Infinite Credits
 :iceclimb:00100000:07FA:00009999:FFFFFFFF:Infinite Time
 :iceclimb:00110000:07FE:00009998:FFFFFFFF:Infinite Time (2/2)
-:iceclimb:20800000:CCC8:00000023:FFFFFFFF:Invincibility:Note - dropping down gaps still kills though.
+:iceclimb:20800000:CD0D:00000023:FFFFFFFF:Invincibility:Note - dropping down gaps still kills though.
 :iceclimb:00000000:0020:00000008:FFFFFFFF:Infinite Lives PL1
 :iceclimb:00000000:0021:00000008:FFFFFFFF:Infinite Lives PL2
-
-; [ Vs. Ice Climber (Japan) ]
-:iceclmbj:00000000:0797:0000005C:FFFFFFFF:Infinite Credits
-:iceclmbj:00100000:07FA:00009999:FFFFFFFF:Infinite Time
-:iceclmbj:00110000:07FE:00009998:FFFFFFFF:Infinite Time (2/2)
-:iceclmbj:20800000:CD0D:00000023:FFFFFFFF:Invincibility:Note - dropping down gaps still kills though.
-:iceclmbj:00000000:0020:00000008:FFFFFFFF:Infinite Lives PL1
-:iceclmbj:00000000:0021:00000008:FFFFFFFF:Infinite Lives PL2
 
 ; [ Vs. Ice Climber Dual (Japan) ]
 :iceclmrj:20800000:CD0D:00000023:FFFFFFFF:Invincibility (Left Screen):Note - dropping down gaps still kills though.
@@ -89071,9 +89071,9 @@
 :machomou:00000000:8300:0000001A:FFFFFFFF:Infinite Lives PL2
 
 ; [ Vs. Mach Rider (Japan, Fighting Course Version) ]
-:machridj:00000000:0177:00000099:FFFFFFFF:Infinite Credits
-:machridj:00100000:005A:00000280:FFFFFFFF:Infinite Energy
-:machridj:00000000:005D:00000050:FFFFFFFF:Infinite Shot
+:nvs_machridera:00000000:0177:00000099:FFFFFFFF:Infinite Credits
+:nvs_machridera:00100000:005A:00000280:FFFFFFFF:Infinite Energy
+:nvs_machridera:00000000:005D:00000050:FFFFFFFF:Infinite Shot
 
 ; [ Vs. Mach Rider (Endurance Course Version) ]
 :machridr:00000000:0064:00000099:FFFFFFFF:Infinite Time
@@ -193944,26 +193944,26 @@
 :vsavu:00000000:FF8089:00000001:FFFFFFFF:Title Switch = Darkstalkers Jedah's Damnation:Gives English Text
 
 ; [ Vs. BaseBall (Japan set 2) ]
-:vsbbalja:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
-:vsbbalja:00000000:006B:00000000:FFFFFFFF:Infinite Balls
-:vsbbalja:00000000:006C:00000000:FFFFFFFF:Infinite Outs
-:vsbbalja:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
-:vsbbalja:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
-:vsbbalja:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
-:vsbbalja:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
-:vsbbalja:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
-:vsbbalja:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
+:vsbballja:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
+:vsbballja:00000000:006B:00000000:FFFFFFFF:Infinite Balls
+:vsbballja:00000000:006C:00000000:FFFFFFFF:Infinite Outs
+:vsbballja:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
+:vsbballja:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
+:vsbballja:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
+:vsbballja:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
+:vsbballja:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
+:vsbballja:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
 
 ; [ Vs. BaseBall (Japan set 3) ]
-:vsbbaljb:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
-:vsbbaljb:00000000:006B:00000000:FFFFFFFF:Infinite Balls
-:vsbbaljb:00000000:006C:00000000:FFFFFFFF:Infinite Outs
-:vsbbaljb:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
-:vsbbaljb:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
-:vsbbaljb:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
-:vsbbaljb:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
-:vsbbaljb:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
-:vsbbaljb:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
+:vsbballj:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
+:vsbballj:00000000:006B:00000000:FFFFFFFF:Infinite Balls
+:vsbballj:00000000:006C:00000000:FFFFFFFF:Infinite Outs
+:vsbballj:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
+:vsbballj:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
+:vsbballj:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
+:vsbballj:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
+:vsbballj:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
+:vsbballj:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
 
 ; [ Vs. BaseBall ]
 :vsbball:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
@@ -193977,15 +193977,15 @@
 :vsbball:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
 
 ; [ Vs. BaseBall (Japan set 1) ]
-:vsbballj:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
-:vsbballj:00000000:006B:00000000:FFFFFFFF:Infinite Balls
-:vsbballj:00000000:006C:00000000:FFFFFFFF:Infinite Outs
-:vsbballj:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
-:vsbballj:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
-:vsbballj:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
-:vsbballj:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
-:vsbballj:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
-:vsbballj:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
+:vsbballjb:00000000:006A:00000000:FFFFFFFF:Infinite Strikes
+:vsbballjb:00000000:006B:00000000:FFFFFFFF:Infinite Balls
+:vsbballjb:00000000:006C:00000000:FFFFFFFF:Infinite Outs
+:vsbballjb:00000001:006A:00000000:FFFFFFFF:Set Strikes to 0 Now!
+:vsbballjb:00000001:006A:00000002:FFFFFFFF:Set Strikes to 2 Now!
+:vsbballjb:00000001:006B:00000000:FFFFFFFF:Set Balls to 0 Now!
+:vsbballjb:00000001:006B:00000003:FFFFFFFF:Set Balls to 3 Now!
+:vsbballjb:00000001:006C:00000000:FFFFFFFF:Set Outs to 0 Now!
+:vsbballjb:00000001:006C:00000002:FFFFFFFF:Set Outs to 2 Now!
 
 ; [ Vs. Freedom Force ]
 :vsfdf:00000000:07F4:00000099:FFFFFFFF:Infinite Credits
@@ -194127,15 +194127,15 @@
 :vspinbal:00010001:0752:00000024:FFFFFFFF:Middle Protection 'OFF' (2/2)
 
 ; [ Vs. Pinball (Japan) ]
-:vspinblj:00000000:015B:00000009:FFFFFFFF:Infinite Balls
-:vspinblj:00000000:0133:00000001:FFFFFFFF:Left Side Protection 'ON'
-:vspinblj:00000000:0134:00000001:FFFFFFFF:Right Side Protection 'ON'
-:vspinblj:00000000:0751:00000070:FFFFFFFF:Middle Protection 'ON'
-:vspinblj:00010000:0752:00000071:FFFFFFFF:Middle Protection 'ON' (2/2)
-:vspinblj:00000001:0133:00000000:FFFFFFFF:Left Side Protection 'OFF'
-:vspinblj:00000001:0134:00000000:FFFFFFFF:Right Side Protection 'OFF'
-:vspinblj:00000001:0751:00000024:FFFFFFFF:Middle Protection 'OFF'
-:vspinblj:00010001:0752:00000024:FFFFFFFF:Middle Protection 'OFF' (2/2)
+:vspinbalj:00000000:015B:00000009:FFFFFFFF:Infinite Balls
+:vspinbalj:00000000:0133:00000001:FFFFFFFF:Left Side Protection 'ON'
+:vspinbalj:00000000:0134:00000001:FFFFFFFF:Right Side Protection 'ON'
+:vspinbalj:00000000:0751:00000070:FFFFFFFF:Middle Protection 'ON'
+:vspinbalj:00010000:0752:00000071:FFFFFFFF:Middle Protection 'ON' (2/2)
+:vspinbalj:00000001:0133:00000000:FFFFFFFF:Left Side Protection 'OFF'
+:vspinbalj:00000001:0134:00000000:FFFFFFFF:Right Side Protection 'OFF'
+:vspinbalj:00000001:0751:00000024:FFFFFFFF:Middle Protection 'OFF'
+:vspinbalj:00010001:0752:00000024:FFFFFFFF:Middle Protection 'OFF' (2/2)
 
 ; [ Vs. Super SkyKid ]
 :vsskykid:00000000:0066:00000009:FFFFFFFF:Infinite Lives PL1
@@ -194177,20 +194177,20 @@
 :vssoccer:00000901:0084:00000099:FFFFFFFF:Select score Now! PL2
 
 ; [ Vs. Tennis (Japan) ]
-:vstennij:00000000:0058:00000000:FFFFFFFF:"Game" Score always = 0 PL1
-:vstennij:00000001:0058:00000000:FFFFFFFF:"Game" Score = 0 Now! PL1
-:vstennij:00000001:0058:00000003:FFFFFFFF:"Game" Score = 40 Now! PL1
-:vstennij:00000000:0059:00000000:FFFFFFFF:"Game" Score always = 0 PL2/CPU
-:vstennij:00000001:0059:00000000:FFFFFFFF:"Game" Score = 0 Now! PL2/CPU
-:vstennij:00000001:0059:00000003:FFFFFFFF:"Game" Score = 40 Now! PL2/CPU
-
-; [ Vs. Tennis ]
 :vstennis:00000000:0058:00000000:FFFFFFFF:"Game" Score always = 0 PL1
 :vstennis:00000001:0058:00000000:FFFFFFFF:"Game" Score = 0 Now! PL1
 :vstennis:00000001:0058:00000003:FFFFFFFF:"Game" Score = 40 Now! PL1
 :vstennis:00000000:0059:00000000:FFFFFFFF:"Game" Score always = 0 PL2/CPU
 :vstennis:00000001:0059:00000000:FFFFFFFF:"Game" Score = 0 Now! PL2/CPU
 :vstennis:00000001:0059:00000003:FFFFFFFF:"Game" Score = 40 Now! PL2/CPU
+
+; [ Vs. Tennis ]
+:vstennisa:00000000:0058:00000000:FFFFFFFF:"Game" Score always = 0 PL1
+:vstennisa:00000001:0058:00000000:FFFFFFFF:"Game" Score = 0 Now! PL1
+:vstennisa:00000001:0058:00000003:FFFFFFFF:"Game" Score = 40 Now! PL1
+:vstennisa:00000000:0059:00000000:FFFFFFFF:"Game" Score always = 0 PL2/CPU
+:vstennisa:00000001:0059:00000000:FFFFFFFF:"Game" Score = 0 Now! PL2/CPU
+:vstennisa:00000001:0059:00000003:FFFFFFFF:"Game" Score = 40 Now! PL2/CPU
 
 ; [ Vs. Tetris ]
 :vstetris:00000000:0530:00000039:FFFFFFFF:Infinite Credits
@@ -204733,7 +204733,7 @@
 ;esprade=espradej=espradeo
 ;eswat=eswatbl=eswatj=eswatu
 ;euroch92~=(footchmp=hthero)
-;excitbkj=excitebk
+;excitebkj=excitebko=excitebk
 ;excthour=matmania~(maniach=maniach2)
 ;exctscc2=exctscca=exctsccb=exctsccr
 ;exedexes=savgbees
@@ -204910,7 +204910,7 @@
 ;hyperpac=hyperpacb
 ;hyperpac~hyperpacb
 ;hyprdelj=hyprduel
-;iceclimb=iceclmbj~=iceclmrj
+;iceclimb=iceclimba~=iceclmrj
 ;ichir=ichirj=ichirjbl=ichirk~=(tantr=tantrbl=tantrbl2=tantrkor)
 ;iganinju=kazan
 ;ikari3=ikari3nr
@@ -204985,7 +204985,7 @@
 ;kyros=kyrosj
 ;kyukaidk=kyukaido
 ;labyrunk=labyrunr=tricktrp
-;ladygolf=smgolf=smgolfb=smgolfj
+;ladygolf=ladygolfe=smgolf=smgolfb=smgolfj
 ;ladykill=moegonta
 ;landbrk=landbrka
 ;lans2004=shocktr2
@@ -205556,10 +205556,10 @@
 ;von2=von254g       (unchecked relationship)
 ;von=vonusa     (unchecked relationship)
 ;vs2~vs215~vs298~vs29815~vs299~vs2v991 (vs298, vs299 & vs2v991 not working)
-;vsbbalja=vsbbaljb=vsbball=vsbballj
+;vsbballja=vsbballj=vsbball=vsbballjb
 ;vsnetscrj=vsnetscr    (unchecked relationship)
-;vspinbal=vspinblj
-;vstennij=vstennis
+;vspinbal=vspinbalj
+;vstennis=vstennisa=vstennisb
 ;vstriker=vstrikra    (unchecked relationship)
 ;vsyard=vsyard2=yard
 ;vulgus=vulgus2=vulgusj
@@ -205982,8 +205982,8 @@
 ; hiryuken (made by ShimaPong) [Z80]
 ; hishouza (made by ShimaPong) [????]
 ; holeland (made by ShimaPong) [????]
+; iceclimba (made by Pugsy) [N2A03]
 ; iceclimb (made by Pugsy) [N2A03]
-; iceclmbj (made by Pugsy) [N2A03]
 ; iceclmrj (made by Pugsy) [N2A03]
 ; iganinju (made by ShimaPong) [68000]
 ; imago (made by Pugsy) [Z80]

@@ -1039,25 +1039,30 @@ const game_driver * const drivers[] =
 	DRIVER( drmario )	/* (c) 1990 Nintendo */
 	DRIVER( duckhunt )	/* (c) 1985 Nintendo */
 	DRIVER( excitebk )	/* (c) 1984 Nintendo */
-	DRIVER( excitbkj )	/* (c) 1984 Nintendo */
+	DRIVER( excitebko )	/* (c) 1984 Nintendo */
+	DRIVER( excitebkj )	/* (c) 1984 Nintendo */
 	DRIVER( goonies )	/* (c) 1986 Konami */
 	DRIVER( hogalley )	/* (c) 1985 Nintendo */
 	DRIVER( iceclimb )	/* (c) 1984 Nintendo */
-	DRIVER( iceclmbj )	/* (c) 1984 Nintendo */
+	DRIVER( iceclimba )	/* (c) 1984 Nintendo */
 	DRIVER( ladygolf )	/* (c) 1984 Nintendo */
+	DRIVER( ladygolfe )	/* (c) 1984 Nintendo */
 	DRIVER( nvs_machrider )	/* (c) 1985 Nintendo */
-	DRIVER( machridj )	/* (c) 1985 Nintendo */
+	DRIVER( nvs_machridera )	/* (c) 1985 Nintendo */
 	DRIVER( rbibb )		/* (c) 1987 Namco */
 	DRIVER( rbibba )	/* (c) 1987 Namco */
 	DRIVER( suprmrio )	/* (c) 1986 Nintendo */
+	DRIVER( suprmrioa )	/* (c) 1986 Nintendo */
+	DRIVER( skatekds )	/* (c) 1988 hack */
 	DRIVER( vsskykid )	/* (c) 1986 Namco */
 	DRIVER( tkoboxng )	/* (c) 1987 Data East */
 	DRIVER( smgolf )	/* (c) 1984 Nintendo */
 	DRIVER( smgolfj )	/* (c) 1984 Nintendo */
 	DRIVER( vspinbal )	/* (c) 1984 Nintendo */
-	DRIVER( vspinblj )	/* (c) 1984 Nintendo */
+	DRIVER( vspinbalj )	/* (c) 1984 Nintendo */
 	DRIVER( vsslalom )	/* (c) 1986 Nintendo */
 	DRIVER( vssoccer )	/* (c) 1985 Nintendo */
+	DRIVER( vssoccera )	/* (c) 1985 Nintendo */
 	DRIVER( vsgradus )	/* (c) 1986 Konami */
 	DRIVER( nvs_platoon )	/* (c) 1987 Ocean */
 	DRIVER( vstetris )	/* (c) 1988 Atari */
@@ -1066,19 +1071,20 @@ const game_driver * const drivers[] =
 	DRIVER( topgun )	/* (c) 1987 Konami */
 	DRIVER( bnglngby )	/* (c) 1985 Nintendo / Broderbund Software Inc. */
 	DRIVER( vstennis )	/* (c) 1984 Nintendo */
-	DRIVER( vstennij )	/* (c) 1984 Nintendo */
+	DRIVER( vstennisa )	/* (c) 1984 Nintendo */
+	DRIVER( vstennisb )	/* (c) 1984 Nintendo */
 	DRIVER( wrecking )	/* (c) 1984 Nintendo */
 	DRIVER( balonfgt )	/* (c) 1984 Nintendo */
 	DRIVER( vsmahjng )	/* (c) 1984 Nintendo */
 	DRIVER( vsbball )	/* (c) 1984 Nintendo */
 	DRIVER( vsbballj )	/* (c) 1984 Nintendo */
-	DRIVER( vsbbalja )	/* (c) 1984 Nintendo */
+	DRIVER( vsbballja )	/* (c) 1984 Nintendo */
+	DRIVER( vsbballjb )	/* (c) 1984 Nintendo */
 	DRIVER( iceclmrd )	/* (c) 1984 Nintendo */
 	DRIVER( vsgshoe )	/* (c) 1986 Nintendo */
 	DRIVER( supxevs )
 	DRIVER( vsfdf )
 	DRIVER( smgolfb )
-	DRIVER( vsbbaljb )
 
 	/* Nintendo Super System Games */
 	DRIVER( nss )
