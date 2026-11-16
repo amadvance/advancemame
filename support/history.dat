@@ -8356,7 +8356,7 @@ Each in-game wrestler is a parody from a real-life wrestler :
 $end
 
 
-$info=aquajack,aquajckj,
+$info=aquajack,aquajacku,aquajackj,
 $bio
 
 Aqua Jack (c) 1990 Taito.
@@ -18700,7 +18700,7 @@ Hardware : Tomotaka Osada
 $end
 
 
-$info=bshark,bsharkj,
+$info=bshark,bsharku,bsharkuo,bsharkj,bsharkjjs,
 $bio
 
 Battle Shark (c) 1989 Taito.
@@ -36580,7 +36580,7 @@ Background Graphic : Utata.K, M. Natsuki, Y.1Gou, 96-28?, Ryu, Toda.Go
 $end
 
 
-$info=chasehq,chasehqj,
+$info=chasehq,chasehqj,chasehqju,chasehqu,
 $bio
 
 Chase H.Q. (c) 11/1988 Taito.
@@ -40458,7 +40458,7 @@ Buttons : 1
 $end
 
 
-$info=contcirc,contcrcu,contcrua,
+$info=contcirc,contcircu,contcircua,contcircj,
 $bio
 
 Continental Circus (c) 1987 Taito.
@@ -55953,7 +55953,7 @@ There is a new version and an old version. The old version has a white backgroun
 $end
 
 
-$info=dblaxle,
+$info=dblaxle,dblaxleua,dblaxleu,dblaxleul,
 $bio
 
 Double Axle (c) 09/1991 Taito.
@@ -63171,7 +63171,7 @@ Thomson M05
 $end
 
 
-$info=enforce,
+$info=enforce,enforcej,enforceja,
 $bio
 
 Enforce (c) 1988 Taito.
@@ -146603,7 +146603,7 @@ Technical support : Dave Ross, Bob Smith, Rich Adam, Owen Rubin
 $end
 
 
-$info=nightstr,
+$info=nightstr,nightstrj,nightstru,
 $bio
 
 Night Striker (c) 10/1989 Taito.
@@ -171865,7 +171865,7 @@ Buttons : 3
 $end
 
 
-$info=racingb,
+$info=racingb,racingbj,
 $bio
 
 Racing Beat (c) 1991 Taito.
@@ -184199,7 +184199,7 @@ The title of this game translates from Japanese as 'Meteor Mahjong Soldier Glitt
 $end
 
 
-$info=sci,scia,sciu,
+$info=sci,scia,scij,sciu,scin,
 $bio
 
 S.C.I. - Special Criminal Investigation (c) 1989 Taito.
@@ -201315,7 +201315,7 @@ Clearly blue UFO : 1000 points
 $end
 
 
-$info=spacegun,
+$info=spacegun,spacegunj,spacegunu,
 $bio
 
 Space Gun (c) 10/1990 Taito.

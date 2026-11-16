@@ -1977,13 +1977,13 @@ dynagear:
 
 ;******continental circus (world & us set 1)
 contcirc:
-contcrcu:
+contcircu:
 0:83064:257:00:41
 0:84582:4:00:e0
 0:826ef:1:52:52
 
 ;******continental circus (us set 2)
-contcrua:
+contcircua:
 0:8306a:257:00:41
 0:84582:4:00:e0
 0:826ef:1:52:52

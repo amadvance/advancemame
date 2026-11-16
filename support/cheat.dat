@@ -5490,10 +5490,10 @@
 :aquajack:00000001:100117:00000007:FFFFFFFF:See End Sequence after this Round Now!:Enable the cheeat during play
 
 ; [ Aqua Jack (Japan) ]
-:aquajckj:00000000:100049:00000009:FFFFFFFF:Infinite Credits
-:aquajckj:00000000:100115:00000006:FFFFFFFF:Infinite Lives
-:aquajckj:00000000:10012B:00000011:FFFFFFFF:Infinite Missiles
-:aquajckj:00000001:100117:00000007:FFFFFFFF:See End Sequence after this Round Now!:Enable the cheeat during play
+:aquajackj:00000000:100049:00000009:FFFFFFFF:Infinite Credits
+:aquajackj:00000000:100115:00000006:FFFFFFFF:Infinite Lives
+:aquajackj:00000000:10012B:00000011:FFFFFFFF:Infinite Missiles
+:aquajackj:00000001:100117:00000007:FFFFFFFF:See End Sequence after this Round Now!:Enable the cheeat during play
 
 ; [ Aquarium (Japan) ]
 :aquarium:00000000:FF8BF7:00000009:FFFFFFFF:Infinite Credits
@@ -20608,14 +20608,14 @@
 :contcirc:00010000:08458A:00000003:FFFFFFFF:Infinite Time (2/2)
 
 ; [ Continental Circus (US set 1) ]
-:contcrcu:00000000:084573:00000009:FFFFFFFF:Infinite Credits
-:contcrcu:00000000:08458B:000000E7:FFFFFFFF:Infinite Time
-:contcrcu:00010000:08458A:00000003:FFFFFFFF:Infinite Time (2/2)
+:contcircu:00000000:084573:00000009:FFFFFFFF:Infinite Credits
+:contcircu:00000000:08458B:000000E7:FFFFFFFF:Infinite Time
+:contcircu:00010000:08458A:00000003:FFFFFFFF:Infinite Time (2/2)
 
 ; [ Continental Circus (US set 2) ]
-:contcrua:00000000:084573:00000009:FFFFFFFF:Infinite Credits
-:contcrua:00000000:08458B:000000E7:FFFFFFFF:Infinite Time
-:contcrua:00010000:08458A:00000003:FFFFFFFF:Infinite Time (2/2)
+:contcircua:00000000:084573:00000009:FFFFFFFF:Infinite Credits
+:contcircua:00000000:08458B:000000E7:FFFFFFFF:Infinite Time
+:contcircua:00010000:08458A:00000003:FFFFFFFF:Infinite Time (2/2)
 
 ; [ Contra (US) ]
 :contra:00000000:3B1C:00000009:FFFFFFFF:Infinite Time
@@ -204368,7 +204368,7 @@
 ;apb=apb1=apb2=apb3=apb4=apb5=apb6=apbf=apbg
 ;aponow=rescue
 ;apparel=citylove~=secolove
-;aquajack=aquajckj
+;aquajack=aquajackj
 ;ar_ldrb=ar_ldrba
 ;arabfgt=arabfgtj=arabfgtu
 ;arabianmj=arabianmu=arabianm
@@ -204568,7 +204568,7 @@
 ;commandj=commando=commandu=sinvasn=sinvasnb
 ;compglfo=compgolf
 ;congo=tiptop
-;contcirc=contcrcu=contcrua
+;contcirc=contcircu=contcircua
 ;contra=contrab=contraj=contrajb=gryzor
 ;cop01~cop01a
 ;cosmccop~gallopm72

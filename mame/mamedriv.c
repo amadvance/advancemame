@@ -1848,24 +1848,42 @@ const game_driver * const drivers[] =
 
 	/* Taito Z-System games */
 	DRIVER( contcirc )	/* B33 (c) 1987 Taito Corporation Japan (World) */
-	DRIVER( contcrcu )	/* B33 (c) 1987 Taito America Corporation (US) */
-	DRIVER( contcrua )	/* B33 (c) 1987 Taito America Corporation (US) */
+	DRIVER( contcircu )	/* B33 (c) 1987 Taito America Corporation (US set 1) */
+	DRIVER( contcircua )	/* B33 (c) 1987 Taito America Corporation (US set 2) */
+	DRIVER( contcircj )	/* B33 (c) 1987 Taito Corporation (Japan) */
 	DRIVER( chasehq )	/* B52 (c) 1988 Taito Corporation Japan (World) */
 	DRIVER( chasehqj )	/* B52 (c) 1988 Taito Corporation (Japan) */
-	DRIVER( enforce )	/* B58 (c) 1988 Taito Corporation (Japan) */
-	DRIVER( nightstr )	/* B91 (c) 1989 Taito America Corporation (US) */
-	DRIVER( sci )		/* C09 (c) 1989 Taito Corporation Japan (World) */
-	DRIVER( scia )		/* C09 (c) 1989 Taito Corporation Japan (World) */
-	DRIVER( sciu )		/* C09 (c) 1989 Taito America Corporation (US) */
-	DRIVER( bshark )	/* C34 (c) 1989 Taito America Corporation (US) */
+	DRIVER( chasehqju )	/* B52 (c) 1988 Taito Corporation (Japan, upright?) */
+	DRIVER( chasehqu )	/* B52 (c) 1988 Taito America Corporation (US) */
+	DRIVER( enforce )	/* B58 (c) 1988 Taito Corporation Japan (World) */
+	DRIVER( enforcej )	/* B58 (c) 1988 Taito Corporation (Japan) */
+	DRIVER( enforceja )	/* B58 (c) 1988 Taito Corporation (Japan, Analog Controls) */
+	DRIVER( bshark )	/* C34 (c) 1989 Taito Corporation Japan (World) */
+	DRIVER( bsharku )	/* C34 (c) 1989 Taito America Corporation (US) */
+	DRIVER( bsharkuo )	/* C34 (c) 1989 Taito America Corporation (US, older) */
 	DRIVER( bsharkj )	/* C34 (c) 1989 Taito Corporation (Japan) */
-        DRIVER( bsharkjjs )	/* C34 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( bsharkjjs )	/* C34 (c) 1989 Taito Corporation (Japan, Joystick) */
+	DRIVER( sci )		/* C09 (c) 1989 Taito Corporation Japan (World set 1) */
+	DRIVER( scia )		/* C09 (c) 1989 Taito Corporation Japan (World set 2) */
+	DRIVER( scij )		/* C09 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( sciu )		/* C09 (c) 1989 Taito America Corporation (US) */
+	DRIVER( scin )		/* C09 (c) 1991 hack (Negro Torino) */
+	DRIVER( nightstr )	/* B91 (c) 1989 Taito Corporation Japan (World) */
+	DRIVER( nightstrj )	/* B91 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( nightstru )	/* B91 (c) 1989 Taito America Corporation (US) */
 	DRIVER( aquajack )	/* B77 (c) 1990 Taito Corporation Japan (World) */
-	DRIVER( aquajckj )	/* B77 (c) 1990 Taito Corporation (Japan) */
+	DRIVER( aquajacku )	/* B77 (c) 1990 Taito America Corporation (US) */
+	DRIVER( aquajackj )	/* B77 (c) 1990 Taito Corporation (Japan) */
 	DRIVER( spacegun )	/* C57 (c) 1990 Taito Corporation Japan (World) */
-	DRIVER( dblaxle )	/* C78 (c) 1991 Taito America Corporation (US) */
-	DRIVER( pwheelsj )	/* C78 (c) 1991 Taito Corporation (Japan) */
-	DRIVER( racingb )	/* C84 (c) 1991 Taito Coropration .. */
+	DRIVER( spacegunj )	/* C57 (c) 1990 Taito Corporation (Japan) */
+	DRIVER( spacegunu )	/* C57 (c) 1990 Taito America Corporation (US) */
+	DRIVER( dblaxle )	/* C78 (c) 1991 Taito America Corporation (US, Rev 1, set 1) */
+	DRIVER( dblaxleua )	/* C78 (c) 1991 Taito America Corporation (US, Rev 1, set 2) */
+	DRIVER( dblaxleu )	/* C78 (c) 1991 Taito America Corporation (US) */
+	DRIVER( dblaxleul )	/* C78 (c) 1991 Taito America Corporation (US, Rev 1, Linkable) */
+	DRIVER( pwheelsj )	/* C78 (c) 1991 Taito Corporation (Japan, Rev 2, Linkable) */
+	DRIVER( racingb )	/* C84 (c) 1991 Taito Corporation Japan (World) */
+	DRIVER( racingbj )	/* C84 (c) 1991 Taito Corporation (Japan) */
 
 	/* Taito Air System games */
 	DRIVER( topland )	/* B62 (c) 1988 Taito Coporation Japan (World) */
