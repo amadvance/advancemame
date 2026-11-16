@@ -181406,16 +181406,6 @@
 ;tailg:0:0113:09:000:Infinite Credits
 ;tailg:0:00D3:0A:000:Infinite Lives
 
-; [ Taito GNET ]
-:taitogn:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:taitogn:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
 ; [ Taiwan Mahjong [BET] (Japan 881208) ]
 :taiwanmb:00100000:F84A:0000FFFF:FFFFFFFF:Infinite Credits
 :taiwanmb:00100001:F84A:00000000:FFFFFFFF:Clear Credits Now!
@@ -203564,7 +203554,6 @@
 ; { Reason 01 } ; sws99     [ Super World Stadium '99 (SS91/VER.A3) ]
 ; { Reason 01 } ; swtrilgya  [ Star Wars Trilogy ]
 ; { Reason 01 } ; swtrilgy  [ Star Wars Trilogy (ver A) ]
-; { Reason 01 } ; taitogn   [ Taito GNET ]
 ; { Reason 01 } ; targeth   [ Target Hits ]
 ; { Reason 01 } ; tarzan    [ Tarzan ]
 ; { Reason 01 } ; tattack   [ Time Attacker ]

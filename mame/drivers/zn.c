@@ -59,9 +59,6 @@ INLINE void psxwritebyte( UINT32 n_address, UINT8 n_data )
 	*( (UINT8 *)g_p_n_psxram + BYTE4_XOR_LE( n_address ) ) = n_data;
 }
 
-static const unsigned char tt10[ 8 ] = { 0x80, 0x20, 0x38, 0x08, 0xf1, 0x03, 0xfe, 0xfc };
-static const unsigned char tt16[ 8 ] = { 0xc0, 0x04, 0xf9, 0xe1, 0x60, 0x70, 0xf2, 0x02 };
-
 
 static UINT32 m_n_znsecsel;
 static UINT32 m_b_znsecport;
@@ -361,20 +358,10 @@ static void zn_driver_init( void )
 
 	dip_timer = timer_alloc( dip_timer_fired );
 
-	/* the security chips are read from the roms, the only exception
-	   is the Taito G-Net bios that has no dumps of them */
-	if( strcmp( Machine->gamedrv->name, "taitogn" ) == 0 )
+	znsec_init( 0, memory_region( REGION_USER4 ) );
+	if( memory_region( REGION_USER5 ) )
 	{
-		znsec_init( 0, tt10 );
-		znsec_init( 1, tt16 );
-	}
-	else
-	{
-		znsec_init( 0, memory_region( REGION_USER4 ) );
-		if( memory_region( REGION_USER5 ) )
-		{
-			znsec_init( 1, memory_region( REGION_USER5 ) );
-		}
+		znsec_init( 1, memory_region( REGION_USER5 ) );
 	}
 	psx_sio_install_handler( 0, sio_pad_handler );
 }
@@ -1387,195 +1374,6 @@ static MACHINE_DRIVER_START( coh1000tb )
 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
 	MDRV_SCREEN_SIZE( 1024, 1024 )
 	MDRV_VISIBLE_AREA( 0, 320-1, 0, 240-1 )
-	MDRV_PALETTE_LENGTH( 65536 )
-
-	MDRV_PALETTE_INIT( psx )
-	MDRV_VIDEO_START( psx_type2 )
-	MDRV_VIDEO_UPDATE( psx )
-
-	/* sound hardware */
-	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
-
-	MDRV_SOUND_ADD( PSXSPU, 0 )
-	MDRV_SOUND_CONFIG( psxspu_interface )
-	MDRV_SOUND_ROUTE(0, "left", 0.35)
-	MDRV_SOUND_ROUTE(1, "right", 0.35)
-MACHINE_DRIVER_END
-
-/*
-
-GNET Motherboard
-Taito, 1998
-
-The Taito GNET System comprises the following main parts....
-- Sony ZN-2 Motherboard (Main CPU/GPU/SPU, RAM, BIOS, EEPROM & peripheral interfaces)
-- Taito FC PCB (Sound hardware & FLASHROMs for storage of PCMCIA cart contents)
-- Taito CD PCB (PCMCIA cart interface)
-
-Also available are...
-- Optional Communication Interface PCB
-- Optional Save PCB
-
-On power-up, the system checks for a PCMCIA cart. If the cart matches the contents of the flashROMs,
-the game boots immediately with no delay. If the cart doesn't match, it re-flashes the flashROMs with _some_
-of the information contained in the cart, which takes approximately 2-3 minutes. The game then resets
-and boots up.
-
-If no cart is present on power-up, the Taito GNET logo is displayed, then a message 'SYSTEM ERROR'
-Since the logo is shown on boot even without a cart, there must be another sub-BIOS for the initial booting,
-which I suspect is one of the flashROMs that is acting like a standard ROM and is not flashed at all.
-Upon inspecting the GNET top board, it appears flash.u30 is the sub-BIOS and perhaps U27 is something sound related.
-The flashROMs at U55, U56 & U29 appear to be the ones that are re-flashed when swapping game carts.
-
-PCB Layouts
------------
-(Standard ZN2 Motherboard)
-
-ZN-2 COH-3000 (sticker says COH-3002T denoting Taito GNET BIOS version)
-|--------------------------------------------------------|
-|  LA4705             |---------------------------|      |
-|                     |---------------------------|      |
-|    AKM_AK4310VM      AT28C16                           |
-|  VOL                                                   |
-|       S301           COH3002T.353                      |
-|                                                        |
-|                                                        |
-|J                                                       |
-|                                                        |
-|A              814260    CXD2925Q     EPM7064           |
-|                                                        |
-|M                                     67.73MHz          |
-|                                                        |
-|M                                                       |
-|            S551    KM4132G271BQ-8                      |
-|A                                                       |
-|                                CXD8654Q    CXD8661R    |
-|                    KM4132G271BQ-8                      |
-|CN505  CN506                   53.693MHz    100MHz      |
-|            CAT702                                      |
-|                                                        |
-|CN504  CN503                                            |
-|                                                        |
-|            MC44200FT                                   |
-|  NEC_78081G503        KM416V1204BT-L5  KM416V1204BT-L5 |
-|                                                        |
-|CN651  CN652                 *                 *        |
-|                CN654                                   |
-|--------------------------------------------------------|
-Notes:
-      CN506 - Connector for optional 3rd player controls
-      CN505 - Connector for optional 4th player controls
-      CN503 - Connector for optional 15kHz external video output (R,G,B,Sync, GND)
-      CN504 - Connector for optional 2nd speaker (for stereo output)
-      CN652 - Connector for optional trackball
-      CN651 - Connector for optional analog controls
-      CN654 - Connector for optional memory card
-      S301  - Slide switch for stereo or mono sound output
-      S551  - Dip switch (4 position, defaults all OFF)
-
-      COH3002T.353   - GNET BIOS 4MBit MaskROM type M534002 (SOP40)
-      AT28C16        - Atmel AT28C16 2K x8 EEPROM
-      814260-70      - 256K x16 (4MBit) DRAM
-      KM4132G271BQ-8 - 128K x 32Bit x 2 Banks SGRAM
-      KM416V1204BT-L5- 1M x16 EDO DRAM
-      EPM7064        - Altera EPM7064QC100 CPLD (QFP100)
-      CAT702         - Protection chip labelled 'TT10' (DIP20)
-      *              - Unpopulated position for additional KM416V1204BT-L5 RAMs
-
-
-FC PCB  K91X0721B  M43X0337B
-|--------------------------------------------|
-|   |---------------------------|            |
-|   |---------------------------|            |
-| NJM2100  NJM2100                           |
-| MB87078                                    |
-| *MB3773     XC95108         DIP40   CAT702 |
-| *ADM708AR                                  |
-| *UPD6379GR                                 |
-|             FLASH.U30                      |
-|                                            |
-| DIP24                                      |
-|                  *RF5C296                  |
-| -------CD-PCB------- _                     |
-| |                   | |                    |
-| |                   | |                    |
-| |                   | |                    |
-| |                   | |                    |
-| |                   | |                    |
-| |                   | |                    |
-| |                   | |                    |
-| |                   |-|                    |
-| --------------------                       |
-|          M66220FP   FLASH.U55   FLASH16.U29|
-|      FLASH.U27             FLASH.U56       |
-|*LC321664                                   |
-| TMS57002DPHA                *ZSG-2         |
-|           LH52B256      25MHz              |
-|   MN1020012A                               |
-|--------------------------------------------|
-Notes:
-      DIP40           - Unpopulated socket for 8MBit DIP40 EPROM type AM27C800
-      DIP24           - Unpopulated position for FM1208 DIP24 IC
-      FLASH.U30       - Intel TE28F160 16MBit FLASHROM (TSOP56)
-      FLASH.U29/55/56 - Intel TE28F160 16MBit FLASHROM (TSOP56)
-      FLASH.U27       - Intel E28F400 4MBit FLASHROM (TSOP48)
-      LH52B256        - Sharp 32K x8 SRAM (SOP28)
-      LC321664        - Sanyo 64K x16 EDO DRAM (SOP40)
-      XC95108         - XILINX XC95108 CPLD labelled 'E65-01' (QFP100)
-      MN1020012A      - Panasonic MN1020012A Sound CPU (QFP128)
-      ZSG-2           - Zoom Corp ZSG-2 Sound DSP (QFP100)
-      TMS57002DPHA    - Texas Instruments TMS57002DPHA Sound DSP (QFP80)
-      RF5C296         - Ricoh RF5C296 PCMCIA controller (TQFP144)
-      M66220FP        - 256 x8bit Mail-Box (Inter-MPU data transfer)
-      CAT702          - Protection chip labelled 'TT16' (DIP20)
-      CD PCB          - A PCMCIA cart slot connector mounted onto a small daughterboard
-      *               - These parts located under the PCB
-
-*/
-
-static UINT32 coh3002t_unknown;
-
-static WRITE32_HANDLER( coh3002t_unknown_w )
-{
-	COMBINE_DATA( &coh3002t_unknown );
-}
-
-static READ32_HANDLER( coh3002t_unknown_r )
-{
-	return coh3002t_unknown;
-}
-
-DRIVER_INIT( coh3002t )
-{
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f1fffff, 0, 0, MRA32_BANK1 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, coh3002t_unknown_w );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, coh3002t_unknown_r );
-
-	zn_driver_init();
-}
-
-MACHINE_RESET( coh3002t )
-{
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* GNET boot rom */
-	zn_machine_init();
-}
-
-static MACHINE_DRIVER_START( coh3002t )
-	/* basic machine hardware */
-	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
-	MDRV_CPU_PROGRAM_MAP( zn_map, 0 )
-	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
-
-	MDRV_FRAMES_PER_SECOND( 60 )
-	MDRV_VBLANK_DURATION( 0 )
-
-	MDRV_MACHINE_RESET( coh3002t )
-	MDRV_NVRAM_HANDLER( zn_eeprom )
-
-	/* video hardware */
-	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
-	MDRV_SCREEN_SIZE( 1024, 1024 )
-	MDRV_VISIBLE_AREA( 0, 512-1, 0, 240-1 )
 	MDRV_PALETTE_LENGTH( 65536 )
 
 	MDRV_PALETTE_INIT( psx )
@@ -5636,20 +5434,6 @@ ROM_START( sfchampj )
 	ROM_LOAD( "tt02", 0, 8, CRC(b1585ac7) SHA1(d967eea539de2dd7a8d13fa2785c3033065bed9c) )
 ROM_END
 
-#define TAITOGNET_BIOS \
-	ROM_REGION32_LE( 0x080000, REGION_USER1, 0 ) \
-	BIOS_LOAD( "coh3002t", "m534002c-60.ic353", 0x0000000, 0x080000, CRC(03967fa7) SHA1(0e17fec2286e4e25deb23d40e41ce0986f373d49) ) \
-\
-	ROM_REGION32_LE( 0x0200000, REGION_USER2, 0 ) \
-    ROM_LOAD( "flash.u30",    0x000000, 0x200000, CRC(2d6740fc) SHA1(9a17411c1bd07b714227e84de23976ec900bdeed) ) \
-\
-	ROM_REGION( 0x080000, REGION_CPU2, 0 ) \
-    ROM_LOAD( "flash.u27",    0x000000, 0x080000, CRC(75bd9c51) SHA1(e1eeab509faedb1ed815551fcc63a5a41e1cfdf0) ) \
-
-ROM_START( taitogn )
-	TAITOGNET_BIOS
-ROM_END
-
 /* Eighteen Raizing */
 
 #define PSARC95_BIOS \
@@ -6276,11 +6060,6 @@ GAME( 1997, gdarius, gdarius2, coh1000tb, znt2p, coh1000tb, ROT0, "Taito", "G-Da
 GAME( 1997, gdariusu, gdarius2, coh1000tb, znt2p, coh1000tb, ROT0, "Taito", "G-Darius (Ver 2.02A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, gdariusj, gdarius2, coh1000tb, znt2p, coh1000tb, ROT0, "Taito", "G-Darius (Ver 2.01J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, gdarius2, coh1000t, coh1000tb, znt2p, coh1000tb, ROT0, "Taito", "G-Darius Ver.2 (Ver 2.03J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-
-/* A dummy driver, so that the bios can be debugged, and to serve as */
-/* parent for the coh-3002t.353 file, so that we do not have to include */
-/* it in every zip file */
-GAME( 1997, taitogn,  0,        coh3002t, zn, coh3002t, ROT0, "Sony/Taito", "Taito GNET", GAME_NOT_WORKING ) // not a game
 
 /* Eighting/Raizing */
 

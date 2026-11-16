@@ -3094,9 +3094,6 @@ V-V                           TP-027
 	DRIVER( gdariusj )	/* G-Darius (Ver 2.01J) */
 	DRIVER( gdarius2 )	/* G-Darius Ver.2 (Ver 2.03J) */
 
-	/* Taito GNET */
-	DRIVER( taitogn )
-
 	/* Namco System 11 */
 	DRIVER( tekken )	/* Tekken (World, TE2/VER.C) */
 	DRIVER( tekkenb )	/* Tekken (World, TE2/VER.B) */
