@@ -1337,11 +1337,24 @@ INPUT_PORTS_END
 INPUT_PORTS_START( wcbowldx )
 	PORT_INCLUDE(wcbowln)
 
-	PORT_START	/* 280000 */
+	PORT_MODIFY("DIPS")	/* 280000 */
 	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Flip_Screen ) )	/* Verified */
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( On ) )
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( wcbowlo ) /* Earlier versions of World Class Bowling do NOT support a cocktail mode */
+	PORT_INCLUDE(wcbowln)
+
+	PORT_MODIFY("DIPS")	/* 280000 */
+	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Flip_Screen ) )	/* Verified */
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0000, "Freeze Screen" )
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0040, DEF_STR( On ) )
 INPUT_PORTS_END
@@ -1518,9 +1531,9 @@ INPUT_PORTS_START( gt98 )
 	PORT_INCLUDE(gt3d)
 
 	PORT_MODIFY("DIPS")
-	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Unknown ))	/* Seem to have no effect on the game */
-	PORT_DIPSETTING(      0x0000, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0020, DEF_STR( On ))
+	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Controls ))
+	PORT_DIPSETTING(      0x0000, "One Trackball" )
+	PORT_DIPSETTING(      0x0020, "Two Trackballs" )
 	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Cabinet ))
 	PORT_DIPSETTING(      0x0000, DEF_STR( Upright ))
 	PORT_DIPSETTING(      0x0040, DEF_STR( Cocktail ))
@@ -4033,8 +4046,8 @@ GAME( 1994, hotmemry, pairs,    bloodstm, pairs,    bloodstm, ROT0, "Incredible 
 GAME( 1994, pairsred, 0, bloodstm, pairs, bloodstm, ROT0, "Strata / Incredible Technologies", "Pairs Redemption (V1.0, 10/25/94)", 0 )
 GAME( 1994, drivedge, 0,        drivedge, drivedge, drivedge, ROT0, "Strata / Incredible Technologies", "Driver's Edge (v1.6)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1995, wcbowl,   0,        sftm,     wcbowln,  wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.66)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
-GAME( 1995, wcbowl165, wcbowl,   sftm,     shufbowl, wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.65)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
-GAME( 1995, wcbowl161, wcbowl,   sftm,     shufbowl, wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.61)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
+GAME( 1995, wcbowl165, wcbowl,   sftm,     wcbowlo,  wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.65)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
+GAME( 1995, wcbowl161, wcbowl,   sftm,     wcbowlo,  wcbowln,  ROT0, "Incredible Technologies",        "World Class Bowling (v1.61)" , 0) /* PIC 16C54 labeled as ITBWL-3 */
 GAME( 1997, wcbowl140, wcbowl, wcbowlt,  wcbowldx, wcbowlt,  ROT0, "Incredible Technologies",        "World Class Bowling Tournament (v1.40)" , 0) /* PIC 16C54 labeled as ITBWL-4 */
 GAME( 1995, wcbowl12,  wcbowl,   wcbowl,   wcbowl,   wcbowl,   ROT0, "Incredible Technologies",        "World Class Bowling (v1.2)" , 0) /* PIC 16C54 labeled as ITBWL-1 */
 GAME( 1995, sftm,     0,        sftm,     sftm,     sftm,     ROT0, "Capcom / Incredible Technologies", "Street Fighter: The Movie (v1.12)" , 0) /* PIC 16C54 labeled as ITSF-1 */
@@ -4044,7 +4057,7 @@ GAME( 1995, sftmj112,    sftm,     sftm,     sftm,     sftm,     ROT0, "Capcom /
 GAME( 1997, shufshot, 0,        sftm,     shufshot, shufshot, ROT0, "Incredible Technologies", "Shuffleshot (v1.40)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
 GAME( 1997, shufshot139, shufshot, sftm,     shufshot, shufshot, ROT0, "Incredible Technologies", "Shuffleshot (v1.39)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
 GAME( 1997, shufshot137, shufshot, sftm,     shufbowl, shufshot, ROT0, "Incredible Technologies", "Shuffleshot (v1.37)" , 0) /* PIC 16C54 labeled as ITSHF-1 */
-GAME( 1999, wcbowldx, wcbowl,   sftm,     wcbowldx, shufshot, ROT0, "Incredible Technologies",        "World Class Bowling Deluxe (v2.00)" , GAME_STANDALONE) /* PIC 16C54 labeled as ITBWL-4 */
+GAME( 1999, wcbowldx, wcbowl,   sftm,     wcbowldx, shufshot, ROT0, "Incredible Technologies",        "World Class Bowling Deluxe (v2.00)" , 0) /* PIC 16C54 labeled as ITBWL-4 */
 
 /*
     The following naming conventions are used:
