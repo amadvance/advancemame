@@ -198296,124 +198296,124 @@
 :wwfmania:00000001:22C6CC:00000000:FFFFFFFF:Drain All Energy Now! PL2
 
 ; [ WWF Superstars (US, Newer) ]
-:wwfsstaa:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
-:wwfsstaa:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
-:wwfsstaa:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
-:wwfsstaa:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
-:wwfsstaa:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaa:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaa:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
-:wwfsstaa:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
-:wwfsstaa:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
-:wwfsstaa:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
-:wwfsstaa:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
-:wwfsstaa:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
-:wwfsstaa:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
-:wwfsstaa:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
-:wwfsstaa:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
-:wwfsstaa:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
-:wwfsstaa:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaa:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaa:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
-:wwfsstaa:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
-:wwfsstaa:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
-:wwfsstaa:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
-:wwfsstaa:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
-:wwfsstaa:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
-:wwfsstaa:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
-:wwfsstaa:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
-:wwfsstaa:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
-:wwfsstaa:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
-:wwfsstaa:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaa:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaa:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
-:wwfsstaa:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
-:wwfsstaa:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
-:wwfsstaa:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
-:wwfsstaa:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
-:wwfsstaa:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
-:wwfsstaa:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
-:wwfsstaa:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
-:wwfsstaa:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
-:wwfsstaa:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
-:wwfsstaa:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaa:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaa:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaa:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
-:wwfsstaa:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
-:wwfsstaa:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
-:wwfsstaa:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
-:wwfsstaa:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
-:wwfsstaa:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
-:wwfsstaa:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
-:wwfsstaa:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
+:wwfsstaru7:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
+:wwfsstaru7:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
+:wwfsstaru7:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
+:wwfsstaru7:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
+:wwfsstaru7:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru7:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
+:wwfsstaru7:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
+:wwfsstaru7:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
+:wwfsstaru7:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
+:wwfsstaru7:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
+:wwfsstaru7:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
+:wwfsstaru7:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
+:wwfsstaru7:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
+:wwfsstaru7:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
+:wwfsstaru7:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
+:wwfsstaru7:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru7:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
+:wwfsstaru7:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
+:wwfsstaru7:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
+:wwfsstaru7:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
+:wwfsstaru7:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
+:wwfsstaru7:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
+:wwfsstaru7:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
+:wwfsstaru7:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
+:wwfsstaru7:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
+:wwfsstaru7:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
+:wwfsstaru7:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru7:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
+:wwfsstaru7:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
+:wwfsstaru7:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
+:wwfsstaru7:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
+:wwfsstaru7:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
+:wwfsstaru7:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
+:wwfsstaru7:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
+:wwfsstaru7:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
+:wwfsstaru7:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
+:wwfsstaru7:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
+:wwfsstaru7:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru7:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru7:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
+:wwfsstaru7:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
+:wwfsstaru7:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
+:wwfsstaru7:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
+:wwfsstaru7:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
+:wwfsstaru7:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
+:wwfsstaru7:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
+:wwfsstaru7:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
 
 ; [ WWF Superstars (Japan) ]
-:wwfsstaj:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
-:wwfsstaj:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
-:wwfsstaj:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
-:wwfsstaj:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
-:wwfsstaj:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaj:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
-:wwfsstaj:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
-:wwfsstaj:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
-:wwfsstaj:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
-:wwfsstaj:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
-:wwfsstaj:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
-:wwfsstaj:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
-:wwfsstaj:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
-:wwfsstaj:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
-:wwfsstaj:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
-:wwfsstaj:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaj:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
-:wwfsstaj:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
-:wwfsstaj:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
-:wwfsstaj:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
-:wwfsstaj:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
-:wwfsstaj:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
-:wwfsstaj:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
-:wwfsstaj:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
-:wwfsstaj:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
-:wwfsstaj:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
-:wwfsstaj:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaj:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
-:wwfsstaj:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
-:wwfsstaj:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
-:wwfsstaj:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
-:wwfsstaj:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
-:wwfsstaj:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
-:wwfsstaj:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
-:wwfsstaj:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
-:wwfsstaj:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
-:wwfsstaj:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
-:wwfsstaj:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstaj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstaj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstaj:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
-:wwfsstaj:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
-:wwfsstaj:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
-:wwfsstaj:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
-:wwfsstaj:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
-:wwfsstaj:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
-:wwfsstaj:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
-:wwfsstaj:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
+:wwfsstarj:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
+:wwfsstarj:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
+:wwfsstarj:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
+:wwfsstarj:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
+:wwfsstarj:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstarj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstarj:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
+:wwfsstarj:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
+:wwfsstarj:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
+:wwfsstarj:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
+:wwfsstarj:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
+:wwfsstarj:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
+:wwfsstarj:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
+:wwfsstarj:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
+:wwfsstarj:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
+:wwfsstarj:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
+:wwfsstarj:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstarj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstarj:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
+:wwfsstarj:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
+:wwfsstarj:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
+:wwfsstarj:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
+:wwfsstarj:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
+:wwfsstarj:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
+:wwfsstarj:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
+:wwfsstarj:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
+:wwfsstarj:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
+:wwfsstarj:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
+:wwfsstarj:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstarj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstarj:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
+:wwfsstarj:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
+:wwfsstarj:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
+:wwfsstarj:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
+:wwfsstarj:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
+:wwfsstarj:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
+:wwfsstarj:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
+:wwfsstarj:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
+:wwfsstarj:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
+:wwfsstarj:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
+:wwfsstarj:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstarj:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstarj:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstarj:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
+:wwfsstarj:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
+:wwfsstarj:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
+:wwfsstarj:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
+:wwfsstarj:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
+:wwfsstarj:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
+:wwfsstarj:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
+:wwfsstarj:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
 
 ; [ WWF Superstars (Europe) ]
 :wwfsstar:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
@@ -198476,64 +198476,64 @@
 :wwfsstar:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
 
 ; [ WWF Superstars (US) ]
-:wwfsstau:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
-:wwfsstau:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
-:wwfsstau:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
-:wwfsstau:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
-:wwfsstau:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstau:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstau:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstau:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstau:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
-:wwfsstau:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
-:wwfsstau:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
-:wwfsstau:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
-:wwfsstau:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
-:wwfsstau:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
-:wwfsstau:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
-:wwfsstau:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
-:wwfsstau:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
-:wwfsstau:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
-:wwfsstau:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstau:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstau:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstau:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstau:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
-:wwfsstau:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
-:wwfsstau:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
-:wwfsstau:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
-:wwfsstau:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
-:wwfsstau:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
-:wwfsstau:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
-:wwfsstau:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
-:wwfsstau:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
-:wwfsstau:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
-:wwfsstau:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstau:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstau:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstau:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstau:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
-:wwfsstau:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
-:wwfsstau:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
-:wwfsstau:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
-:wwfsstau:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
-:wwfsstau:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
-:wwfsstau:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
-:wwfsstau:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
-:wwfsstau:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
-:wwfsstau:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
-:wwfsstau:60000000:000000:00000000:00000000:[Enable these player selection  ]
-:wwfsstau:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
-:wwfsstau:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
-:wwfsstau:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
-:wwfsstau:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
-:wwfsstau:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
-:wwfsstau:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
-:wwfsstau:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
-:wwfsstau:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
-:wwfsstau:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
-:wwfsstau:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
-:wwfsstau:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
+:wwfsstaru4:00000000:1C0017:00000099:FFFFFFFF:Infinite Credits
+:wwfsstaru4:00000000:1C1851:00000042:FFFFFFFF:Infinite Time
+:wwfsstaru4:00000000:1C013D:00000030:FFFFFFFF:Infinite Energy 1st Character
+:wwfsstaru4:00000001:1C013D:00000000:FFFFFFFF:Drain All Energy Now! 1st Char
+:wwfsstaru4:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru4:00000001:1C0071:00000000:FFFFFFFF:Play as Savage 1st Char
+:wwfsstaru4:00000001:1C0071:00000001:FFFFFFFF:Play as Hogan 1st Char
+:wwfsstaru4:00000001:1C0071:00000002:FFFFFFFF:Play as Warrior 1st Char
+:wwfsstaru4:00000001:1C0071:00000003:FFFFFFFF:Play as Honky Tonk 1st Char
+:wwfsstaru4:00000001:1C0071:00000004:FFFFFFFF:Play as Duggan 1st Char
+:wwfsstaru4:00000001:1C0071:00000005:FFFFFFFF:Play as Big Boss 1st Char
+:wwfsstaru4:00000001:1C0071:00000006:FFFFFFFF:Play as Dibiase 1st Char:The name displayed is Andre though!
+:wwfsstaru4:00000001:1C0071:00000007:FFFFFFFF:Play as Andre 1st Char:The name displayed is Dibiase though!
+:wwfsstaru4:00000000:1C0257:00000030:FFFFFFFF:Infinite Energy 2nd Character
+:wwfsstaru4:00000001:1C0257:00000000:FFFFFFFF:Drain All Energy Now! 2nd Char
+:wwfsstaru4:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru4:00000001:1C006F:00000000:FFFFFFFF:Play as Savage 2nd Char
+:wwfsstaru4:00000001:1C006F:00000001:FFFFFFFF:Play as Hogan 2nd Char
+:wwfsstaru4:00000001:1C006F:00000002:FFFFFFFF:Play as Warrior 2nd Char
+:wwfsstaru4:00000001:1C006F:00000003:FFFFFFFF:Play as Honky Tonk 2nd Char
+:wwfsstaru4:00000001:1C006F:00000004:FFFFFFFF:Play as Duggan 2nd Char
+:wwfsstaru4:00000001:1C006F:00000005:FFFFFFFF:Play as Big Boss 2nd Char
+:wwfsstaru4:00000001:1C006F:00000006:FFFFFFFF:Play as Dibiase 2nd Char
+:wwfsstaru4:00000001:1C006F:00000007:FFFFFFFF:Play as Andre 2nd Char
+:wwfsstaru4:00000000:1C0371:00000030:FFFFFFFF:Infinite Energy 3rd Character
+:wwfsstaru4:00000001:1C0371:00000000:FFFFFFFF:Drain All Energy Now! 3rd Char
+:wwfsstaru4:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru4:00000001:1C0087:00000000:FFFFFFFF:Play as Savage 3rd Char
+:wwfsstaru4:00000001:1C0087:00000001:FFFFFFFF:Play as Hogan 3rd Char
+:wwfsstaru4:00000001:1C0087:00000002:FFFFFFFF:Play as Warrior 3rd Char
+:wwfsstaru4:00000001:1C0087:00000003:FFFFFFFF:Play as Honky Tonk 3rd Char
+:wwfsstaru4:00000001:1C0087:00000004:FFFFFFFF:Play as Duggan 3rd Char
+:wwfsstaru4:00000001:1C0087:00000005:FFFFFFFF:Play as Big Boss 3rd Char
+:wwfsstaru4:00000001:1C0087:00000006:FFFFFFFF:Play as Dibiase 3rd Char:The name displayed is Andre though!
+:wwfsstaru4:00000001:1C0087:00000007:FFFFFFFF:Play as Andre 3rd Char:The name displayed is Dibiase though!
+:wwfsstaru4:00000000:1C048B:00000030:FFFFFFFF:Infinite Energy 4th Character
+:wwfsstaru4:00000001:1C048B:00000000:FFFFFFFF:Drain All Energy Now! 4th Char
+:wwfsstaru4:60000000:000000:00000000:00000000:[Enable these player selection  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[cheats on the interluding WWF  ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[screen (the one with 3 people) ]
+:wwfsstaru4:60000000:000000:00000000:00000000:[Pause the game and enable.     ]
+:wwfsstaru4:00000001:1C0085:00000000:FFFFFFFF:Play as Savage 4th Char
+:wwfsstaru4:00000001:1C0085:00000001:FFFFFFFF:Play as Hogan 4th Char
+:wwfsstaru4:00000001:1C0085:00000002:FFFFFFFF:Play as Warrior 4th Char
+:wwfsstaru4:00000001:1C0085:00000003:FFFFFFFF:Play as Honky Tonk 4th Char
+:wwfsstaru4:00000001:1C0085:00000004:FFFFFFFF:Play as Duggan 4th Char
+:wwfsstaru4:00000001:1C0085:00000005:FFFFFFFF:Play as Big Boss 4th Char
+:wwfsstaru4:00000001:1C0085:00000006:FFFFFFFF:Play as Dibiase 4th Char
+:wwfsstaru4:00000001:1C0085:00000007:FFFFFFFF:Play as Andre 4th Char
 
 ; [ WWF WrestleFest (US set 1) ]
 :wwfwfest:00000000:1C004F:00000063:FFFFFFFF:Infinite Credits

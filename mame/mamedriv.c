@@ -5969,9 +5969,13 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( saiyugb1 )	/* bootleg */
 	DRIVER( saiyugb2 )	/* bootleg */
 	DRIVER( wwfsstar )	/* TA-0024 (c) 1989 (Europe) */
-	DRIVER( wwfsstaa )	/* TA-0024 (c) 1989 (US, newer) */
-	DRIVER( wwfsstau )	/* TA-0024 (c) 1989 (US) */
-	DRIVER( wwfsstaj )	/* TA-0024 (c) 1989 (Japan) */
+	DRIVER( wwfsstaru7 )	/* TA-0024 (c) 1989 (US revision 7) */
+	DRIVER( wwfsstaru6 )	/* TA-0024 (c) 1989 (US revision 6) */
+	DRIVER( wwfsstaru4 )	/* TA-0024 (c) 1989 (US revision 4) */
+	DRIVER( wwfsstarj )	/* TA-0024 (c) 1989 (Japan) */
+	DRIVER( wwfsstarc )	/* TA-0024 (c) 1989 (Canada) */
+	DRIVER( wwfsstarb )	/* bootleg */
+	DRIVER( wwfsstarb2 )	/* bootleg */
 	DRIVER( vball )		/* TA-0025 (c) 1988 */
 	DRIVER( vball2pj )	/* TA-0025 (c) 1988 (Japan) */
 	DRIVER( ddragon2 )	/* TA-0026 (c) 1988 (World) */
