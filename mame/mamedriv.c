@@ -1160,7 +1160,7 @@ const game_driver * const drivers[] =
 	DRIVER( moonbase )	/* Zeta - Nichibutsu */
 				/* 870 - Space Invaders Deluxe cocktail */
 	DRIVER( searthin )
-	DRIVER( searthia )
+	DRIVER( searthina )
 	DRIVER( invadrmr )
 	DRIVER( spaceatt )
 	DRIVER( spaceat2 )
@@ -1168,15 +1168,16 @@ const game_driver * const drivers[] =
 	DRIVER( superinv )
 	DRIVER( invasion )
 	DRIVER( sstrangr )
-	DRIVER( sstrngr2 )
+	DRIVER( sstrangr2 )
 	DRIVER( sinvemag )
 	DRIVER( jspecter )
-	DRIVER( jspectr2 )
+	DRIVER( jspecter2 )
 	DRIVER( invrvnge )
-	DRIVER( invrvnga )
+	DRIVER( invrvngeb )
+	DRIVER( invrvngedu )
 	DRIVER( galxwars )
-	DRIVER( galxwar2 )
-	DRIVER( galxwart )
+	DRIVER( galxwars2 )
+	DRIVER( galxwarst )
 	DRIVER( starw )
 	DRIVER( lrescue )	/* LR  (c) 1979 Taito */
 	DRIVER( grescue )	/* bootleg? */
@@ -1185,16 +1186,18 @@ const game_driver * const drivers[] =
 	DRIVER( cosmicm2 )	/* Universal */
 	DRIVER( rollingc )	/* Nichibutsu */
 	DRIVER( ozmawars )	/* Shin Nihon Kikaku (SNK) */
-	DRIVER( ozmawar2 )	/* Shin Nihon Kikaku (SNK) */
+	DRIVER( ozmawars2 )	/* Shin Nihon Kikaku (SNK) */
 	DRIVER( solfight )	/* bootleg */
 	DRIVER( spaceph )	/* Zilec Games */
 	DRIVER( schaser )	/* RT  Taito */
-	DRIVER( schasrcv )	/* RT  Taito */
+	DRIVER( schasercv )	/* RT  Taito */
 	DRIVER( lupin3 )	/* LP  (c) 1980 Taito */
+	DRIVER( lupin3a )
 	DRIVER( spclaser )
 	DRIVER( laser )
 	DRIVER( spcewarl )
 	DRIVER( polaris )	/* PS  (c) 1980 Taito */
+	DRIVER( polarisb )
 	DRIVER( polarisa )	/* PS  (c) 1980 Taito */
 	DRIVER( astropal )
 	DRIVER( cane )
@@ -1205,7 +1208,7 @@ const game_driver * const drivers[] =
 	DRIVER( indianbt )	/* (c) 1980 Taito */
 	DRIVER( steelwkr )	/* (c) 1980 Taito */
 	DRIVER( m79amb )
-	DRIVER( alieninv )
+	DRIVER( alieninvp2 )
 	DRIVER( tst_invd )
 	DRIVER( sitv )
 	DRIVER( sicv )
@@ -1215,7 +1218,7 @@ const game_driver * const drivers[] =
 	DRIVER( invaderl )
 	DRIVER( invader4 )
 	DRIVER( yosakdon )
-	DRIVER( yosakdoa )
+	DRIVER( yosakdona )
 	DRIVER( spceking )
 	DRIVER( spcewars )
 	DRIVER( cosmo )		/* TDS+Mints */

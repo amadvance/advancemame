@@ -2007,7 +2007,7 @@ MACHINE_DRIVER_END
 /*                                                     */
 /*******************************************************/
 
-INPUT_PORTS_START( lupin3 )
+INPUT_PORTS_START( lupin3a )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* selects color mode (dynamic vs. static) */
 	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* something has to do with sound */
@@ -2050,7 +2050,7 @@ INPUT_PORTS_START( lupin3 )
 	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
 INPUT_PORTS_END
 
-static MACHINE_DRIVER_START( lupin3 )
+static MACHINE_DRIVER_START( lupin3a )
 
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(8080bw)
@@ -3448,6 +3448,78 @@ static MACHINE_DRIVER_START( indianbt )
 
 MACHINE_DRIVER_END
 
+static ADDRESS_MAP_START( lupin3_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_WRITE(indianbt_sh_port7_w)
+	AM_RANGE(0x02, 0x02) AM_WRITE(c8080bw_shift_amount_w)
+	AM_RANGE(0x04, 0x04) AM_WRITE(c8080bw_shift_data_w)
+	AM_RANGE(0x05, 0x05) AM_WRITE(lupin3_port5_w)
+	AM_RANGE(0x06, 0x06) AM_WRITENOP /* watchdog */
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( lupin3 )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_TILT )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1) PORT_COCKTAIL
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_4WAY PORT_COCKTAIL
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_4WAY
+
+	PORT_START_TAG("DSW0")
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x02, "5" )
+	PORT_DIPSETTING(    0x03, "6" )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x08, 0x00, "Bags to Collect" )
+	PORT_DIPSETTING(    0x08, "2" )
+	PORT_DIPSETTING(    0x00, "8" )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH,  IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH,  IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH,  IPT_UNUSED )
+	PORT_DIPNAME(0x80,  0x00, "Invulnerability (Cheat)")
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
+INPUT_PORTS_END
+
+static MACHINE_DRIVER_START( lupin3 )
+
+	/* basic machine hardware */
+	/* the invaders machine is not imported because its reset installs the invaders sound handlers on ports 3 and 5 */
+	MDRV_IMPORT_FROM(8080bw)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(c8080bw_readport,lupin3_writeport)
+
+	/* video hardware */
+	MDRV_VISIBLE_AREA(1*8, 31*8-1, 4*8, 32*8-1)
+	MDRV_PALETTE_LENGTH(8)
+	MDRV_PALETTE_INIT(indianbt)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD_TAG("discrete", DISCRETE, 0)
+	MDRV_SOUND_CONFIG(indianbt_discrete_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+
+MACHINE_DRIVER_END
+
+
 /*****************************************************
 
  Omori "Shuttle Invader" ??
@@ -4393,7 +4465,7 @@ ROM_START( searthin )
 	ROM_LOAD( "earthinv.e",   0x1800, 0x0800, CRC(df397b12) SHA1(e7e8c080cb6baf342ec637532e05d38129ae73cf) )
 ROM_END
 
-ROM_START( searthia )
+ROM_START( searthina )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "unkh.h1",   0x0000, 0x0400, CRC(272b9bf3) SHA1(dd57d6a88d42024a39640931114107b547b4c520) )
 	ROM_LOAD( "unkg.g1",   0x0400, 0x0400, CRC(61bb6101) SHA1(8fc8bbd8ac93d239e0cf0e4881f709860ec2c973) )
@@ -4407,11 +4479,8 @@ ROM_END
 
 
 ROM_START( invadrmr )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	/* yes, this rom is really on the PCB twice?! */
-	ROM_LOAD( "11.1s",       0x0000, 0x0400, CRC(389d44b6) SHA1(5d2581b8bc0da918ce57cf319e06b5b31989c681) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "11.1t",       0x0000, 0x0400, CRC(389d44b6) SHA1(5d2581b8bc0da918ce57cf319e06b5b31989c681) )
-
 	ROM_LOAD( "sv02.1p",     0x0400, 0x0400, CRC(0e159534) SHA1(94b2015a9d38ca738705b8d024a79fd2f9855b98) )
 	ROM_LOAD( "20.1n",       0x0800, 0x0400, CRC(805b04f0) SHA1(209f42dfde1593699ccf3755e9267d425416d910) )
 	ROM_LOAD( "sv04.1j",     0x1400, 0x0400, CRC(1293b826) SHA1(165cd5d08a19eadbe954145b12807f10df9e691a) )
@@ -4467,7 +4536,7 @@ ROM_START( tst_invd )
 	ROM_LOAD( "invaders.e",   0x1800, 0x0800, CRC(14e538b0) SHA1(1d6ca0c99f9df71e2990b610deb9d7da0125e2d8) )
 ROM_END
 
-ROM_START( alieninv )
+ROM_START( alieninvp2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "1h.bin",       0x0000, 0x0800, CRC(c46df7f4) SHA1(eec34b3d5585bae03c7b80585daaa05ddfcc2164) )
 	ROM_LOAD( "1g.bin",       0x0800, 0x0800, CRC(4b1112d6) SHA1(b693667656e5d8f44eeb2ea730f4d4db436da579) )
@@ -4484,42 +4553,35 @@ ROM_START( sitv )
 ROM_END
 
 ROM_START( sicv )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "cv17.bin",     0x0000, 0x0800, CRC(3dfbe9e6) SHA1(26487df7fa0bbd0b9b7f74347c4b9318b0a73b89) )
-	ROM_LOAD( "cv18.bin",     0x0800, 0x0800, CRC(bc3c82bf) SHA1(33e39fc97bd46699be1f9b9741a86f433efdc911) )
-	ROM_LOAD( "cv19.bin",     0x1000, 0x0800, CRC(d202b41c) SHA1(868fe938ef768655c894ec95b7d9a81bf21f69ca) )
-	ROM_LOAD( "cv20.bin",     0x1800, 0x0800, CRC(c74ee7b6) SHA1(4f52db274a2d4433ab67c099ee805e8eb8516c0f) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "cv17.36",     0x0000, 0x0800, CRC(3dfbe9e6) SHA1(26487df7fa0bbd0b9b7f74347c4b9318b0a73b89) )
+	ROM_LOAD( "cv18.35",     0x0800, 0x0800, CRC(bc3c82bf) SHA1(33e39fc97bd46699be1f9b9741a86f433efdc911) )
+	ROM_LOAD( "cv19.34",     0x1000, 0x0800, CRC(d202b41c) SHA1(868fe938ef768655c894ec95b7d9a81bf21f69ca) )
+	ROM_LOAD( "cv20.33",     0x1800, 0x0800, CRC(c74ee7b6) SHA1(4f52db274a2d4433ab67c099ee805e8eb8516c0f) )
 
-	ROM_REGION( 0x0800, REGION_PROMS, 0 )		/* color maps player 1/player 2 */
-	ROM_LOAD( "cv01_1.bin",   0x0000, 0x0400, CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
-	ROM_LOAD( "cv02_2.bin",   0x0400, 0x0400, CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	ROM_LOAD( "cv01.1",      0x0000, 0x0400, CRC(037e16ac) SHA1(d585030aaff428330c91ae94d7cd5c96ebdd67dd) )
+	ROM_LOAD( "cv02.2",      0x0400, 0x0400, CRC(8263da38) SHA1(2e7c769d129e6f8a1a31eba1e02777bb94ac32b2) )
 ROM_END
 
 ROM_START( sisv )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "sv0h.bin",     0x0000, 0x0400, CRC(86bb8cb6) SHA1(a75648e7f2446c756d86624b15d387d25ce47b66) )
-	ROM_LOAD( "sv02.bin",     0x0400, 0x0400, CRC(0e159534) SHA1(94b2015a9d38ca738705b8d024a79fd2f9855b98) )
-	ROM_LOAD( "invaders.g",   0x0800, 0x0800, CRC(6bfaca4a) SHA1(16f48649b531bdef8c2d1446c429b5f414524350) )
-	ROM_LOAD( "invaders.f",   0x1000, 0x0800, CRC(0ccead96) SHA1(537aef03468f63c5b9e11dd61e253f7ae17d9743) )
-	ROM_LOAD( "tv04.m1",      0x1800, 0x0800, CRC(cd2c67f6) SHA1(60f9d8fe2d36ff589277b607f07c1edc917c755c) )
-
-	ROM_REGION( 0x0800, REGION_PROMS, 0 )		/* color maps player 1/player 2 */
-	ROM_LOAD( "cv01_1.bin",   0x0000, 0x0400, CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
-	ROM_LOAD( "cv02_2.bin",   0x0400, 0x0400, CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "sv0h.36",     0x0000, 0x0400, CRC(86bb8cb6) SHA1(a75648e7f2446c756d86624b15d387d25ce47b66) )
+	ROM_LOAD( "sv11.35",     0x0400, 0x0400, CRC(febe6d1a) SHA1(e1c3a24b4fa5862107ada1f9d7249466e8c3f06a) )
+	ROM_LOAD( "sv12.34",     0x0800, 0x0400, CRC(a08e7202) SHA1(de9f7c851d1b894915e720cfc5d794cdb31752f6) )
+	ROM_LOAD( "sv04.31",     0x1400, 0x0400, CRC(1293b826) SHA1(165cd5d08a19eadbe954145b12807f10df9e691a) )
+	ROM_LOAD( "sv13.42",     0x1800, 0x0400, CRC(a9011634) SHA1(1f1369ecb02078042cfdf17a497b8dda6dd23793) )
+	ROM_LOAD( "sv14.41",     0x1c00, 0x0400, CRC(58730370) SHA1(13dc806bcecd2d6089a85dd710ac2869413f7475) )
 ROM_END
 
 ROM_START( sisv2 )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "sv0h.bin",     0x0000, 0x0400, CRC(86bb8cb6) SHA1(a75648e7f2446c756d86624b15d387d25ce47b66) )
-	ROM_LOAD( "emag_si.b",    0x0400, 0x0400, CRC(febe6d1a) SHA1(e1c3a24b4fa5862107ada1f9d7249466e8c3f06a) )
-	ROM_LOAD( "sv12",         0x0800, 0x0400, CRC(a08e7202) SHA1(de9f7c851d1b894915e720cfc5d794cdb31752f6) )
-	ROM_LOAD( "invaders.f",   0x1000, 0x0800, CRC(0ccead96) SHA1(537aef03468f63c5b9e11dd61e253f7ae17d9743) )
-	ROM_LOAD( "sv13",         0x1800, 0x0400, CRC(a9011634) SHA1(1f1369ecb02078042cfdf17a497b8dda6dd23793) )
-	ROM_LOAD( "sv14",         0x1c00, 0x0400, CRC(58730370) SHA1(13dc806bcecd2d6089a85dd710ac2869413f7475) )
-
-	ROM_REGION( 0x0800, REGION_PROMS, 0 )		/* color maps player 1/player 2 */
-	ROM_LOAD( "cv01_1.bin",   0x0000, 0x0400, CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
-	ROM_LOAD( "cv02_2.bin",   0x0400, 0x0400, CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "sv01.36",     0x0000, 0x0400, CRC(d0c32d72) SHA1(b3bd950b1ba940fbeb5d95e55113ed8f4c311434) )
+	ROM_LOAD( "sv02.35",     0x0400, 0x0400, CRC(0e159534) SHA1(94b2015a9d38ca738705b8d024a79fd2f9855b98) )
+	ROM_LOAD( "sv10.34",     0x0800, 0x0400, CRC(483e651e) SHA1(ae795ee3bc53ac3936f6cf2c72cca7a890783513) )
+	ROM_LOAD( "sv04.31",     0x1400, 0x0400, CRC(1293b826) SHA1(165cd5d08a19eadbe954145b12807f10df9e691a) )
+	ROM_LOAD( "sv09.42",     0x1800, 0x0400, CRC(cd80b13f) SHA1(0f4b9537b99fe3cdeebe525efb1869a1be0bc704) )
+	ROM_LOAD( "sv06.41",     0x1c00, 0x0400, CRC(2c68e0b4) SHA1(a5e5357120102ad32792bf3ef6362f45b7ba7070) )
 ROM_END
 
 ROM_START( spceking )
@@ -4531,10 +4593,11 @@ ROM_START( spceking )
 ROM_END
 
 ROM_START( spcewars )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "sanritsu.1",   0x0000, 0x0400, CRC(ca331679) SHA1(5c362c3d1c721d293bcddbef4033533769c8f0e0) )
 	ROM_LOAD( "sanritsu.2",   0x0400, 0x0400, CRC(48dc791c) SHA1(91a98205c83ca38961e6ba2ac43a41e6e8bc2675) )
-	ROM_LOAD( "ic35.bin",     0x0800, 0x0800, CRC(40c2d55b) SHA1(b641b63046d242ad23911143ed840011fc98eaff) )
+	ROM_LOAD( "sanritsu.3",   0x0800, 0x0400, CRC(c34842cb) SHA1(6565ff760909f9339194b7ea45aa8c4e871b9f56) )
+	ROM_LOAD( "sanritsu.4",   0x0c00, 0x0400, CRC(a7fdfd0e) SHA1(d8501881ce38d7bca29010debf34a8b996f1f103) )
 	ROM_LOAD( "sanritsu.5",   0x1000, 0x0400, CRC(77475431) SHA1(15a04a2655847ee462be65d1065d643c872bb47c) )
 	ROM_LOAD( "sanritsu.6",   0x1400, 0x0400, CRC(392ef82c) SHA1(77c98c11ee727ed3ed6e118f13d97aabdb555540) )
 	ROM_LOAD( "sanritsu.7",   0x1800, 0x0400, CRC(b3a93df8) SHA1(3afc96814149d4d5343fe06eac09f808384d02c4) )
@@ -4576,7 +4639,7 @@ ROM_START( jspecter )
 	ROM_LOAD( "3306.u7",      0x1400, 0x1000, CRC(0df142a7) SHA1(2f1c32d6fe7eafb7808fef0bdeb69b4909427417) )
 ROM_END
 
-ROM_START( jspectr2 )
+ROM_START( jspecter2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "unksi.b2",     0x0000, 0x1000, CRC(0584b6c4) SHA1(c130021b878bde2beda4a189f71bbfed61088535) )
 	ROM_LOAD( "unksi.a2",     0x1400, 0x1000, CRC(58095955) SHA1(545df3bb9ee4ff09f491d7a4b704e31aa311a8d7) )
@@ -4623,69 +4686,131 @@ ROM_START( moonbase )
 ROM_END
 
 ROM_START( invrvnge )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "invrvnge.h",   0x0000, 0x0800, CRC(aca41bbb) SHA1(ca71f792abd6d9a44d15b19d2ccf678e82ccba4f) )
-	ROM_LOAD( "invrvnge.g",   0x0800, 0x0800, CRC(cfe89dad) SHA1(218b6a0b636c49c4cdc3667e8b1387ef0e257115) )
-	ROM_LOAD( "invrvnge.f",   0x1000, 0x0800, CRC(e350de2c) SHA1(e845565e2f96f9dec3242ec5ab75910a515428c9) )
-	ROM_LOAD( "invrvnge.e",   0x1800, 0x0800, CRC(1ec8dfc8) SHA1(fc8fbe1161958f57c9f4ccbcab8a769184b1c562) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "h.ic36",      0x0000, 0x0800, CRC(0e229b9f) SHA1(617197bf94e9700cbbb2f32487dc47b318d4f2af) )
+	ROM_LOAD( "g.ic35",      0x0800, 0x0800, CRC(26b38aa4) SHA1(f281c7ec47ce6ab61bfda2e7aa6a5b8a01f2c11e) )
+	ROM_LOAD( "f.ic34",      0x1000, 0x0800, CRC(b3b2749e) SHA1(4f854f981396e2d6a959dd48cff12234074fb69b) )
+	ROM_LOAD( "e.ic33",      0x1800, 0x0800, CRC(d8e75102) SHA1(86d5618944265947e3ce60fdf048d8fff4a55744) )
+
+	ROM_REGION( 0x10000, REGION_USER2, 0 )	/* encrypted */
+	ROM_LOAD( "snd.2c",      0xc000, 0x0800, CRC(135f3b16) SHA1(d472a6ca32c4a16cc1faf09f4a4876d75cd4ba24) )
+	ROM_LOAD( "snd.1c",      0xe000, 0x0800, CRC(152fc85e) SHA1(df207d6e690287a56e4e330deaa5ee40a179f1fc) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )
+	ROM_LOAD( "colour.bin",  0x0000, 0x0800, CRC(7de74988) SHA1(0b8c94b2bfdbc3921d60aad765df8af611f3fdd7) )
 ROM_END
 
-ROM_START( invrvnga )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "5m.bin",       0x0000, 0x0800, CRC(b145cb71) SHA1(127eb11de7ab9835f06510fb12838c0b728c0d42) )
-	ROM_LOAD( "5n.bin",       0x0800, 0x0800, CRC(660e8af3) SHA1(bd52eadf4ee3d717fd5bd7206e1e87d729250c92) )
-	ROM_LOAD( "5p.bin",       0x1000, 0x0800, CRC(6ec5a9ad) SHA1(d1e84d2d60c6128c092f2cd20a2b87216df3034b) )
-	ROM_LOAD( "5r.bin",       0x1800, 0x0800, CRC(74516811) SHA1(0f595c7b0fae5f3f83fdd1ffed5a408ee77c9438) )
+ROM_START( invrvngeb )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "invrvnge.h",  0x0000, 0x0800, CRC(aca41bbb) SHA1(ca71f792abd6d9a44d15b19d2ccf678e82ccba4f) )
+	ROM_LOAD( "invrvnge.g",  0x0800, 0x0800, CRC(cfe89dad) SHA1(218b6a0b636c49c4cdc3667e8b1387ef0e257115) )
+	ROM_LOAD( "invrvnge.f",  0x1000, 0x0800, CRC(e350de2c) SHA1(e845565e2f96f9dec3242ec5ab75910a515428c9) )
+	ROM_LOAD( "invrvnge.e",  0x1800, 0x0800, CRC(1ec8dfc8) SHA1(fc8fbe1161958f57c9f4ccbcab8a769184b1c562) )
+
+	ROM_REGION( 0x10000, REGION_USER2, 0 )	/* encrypted */
+	ROM_LOAD( "snd.2c",      0xc000, 0x0800, BAD_DUMP CRC(135f3b16) SHA1(d472a6ca32c4a16cc1faf09f4a4876d75cd4ba24) )	/* not dumped, taken from parent */
+	ROM_LOAD( "snd.1c",      0xe000, 0x0800, BAD_DUMP CRC(152fc85e) SHA1(df207d6e690287a56e4e330deaa5ee40a179f1fc) )	/* not dumped, taken from parent */
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )
+	ROM_LOAD( "colour.bin",  0x0000, 0x0800, BAD_DUMP CRC(7de74988) SHA1(0b8c94b2bfdbc3921d60aad765df8af611f3fdd7) )	/* not dumped, taken from parent */
+ROM_END
+
+ROM_START( invrvngedu )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ir.5m",       0x0000, 0x0800, CRC(b145cb71) SHA1(127eb11de7ab9835f06510fb12838c0b728c0d42) )
+	ROM_LOAD( "ir.5n",       0x0800, 0x0800, CRC(660e8af3) SHA1(bd52eadf4ee3d717fd5bd7206e1e87d729250c92) )
+	ROM_LOAD( "ir.5p",       0x1000, 0x0800, CRC(6ec5a9ad) SHA1(d1e84d2d60c6128c092f2cd20a2b87216df3034b) )
+	ROM_LOAD( "ir.5r",       0x1800, 0x0800, CRC(74516811) SHA1(0f595c7b0fae5f3f83fdd1ffed5a408ee77c9438) )
+
+	ROM_REGION( 0x10000, REGION_USER2, 0 )	/* encrypted */
+	ROM_LOAD( "ir.1t",       0xc000, 0x0800, BAD_DUMP CRC(135f3b16) SHA1(d472a6ca32c4a16cc1faf09f4a4876d75cd4ba24) )	/* not dumped, taken from parent */
+	ROM_LOAD( "ir.1u",       0xe000, 0x0800, BAD_DUMP CRC(152fc85e) SHA1(df207d6e690287a56e4e330deaa5ee40a179f1fc) )	/* not dumped, taken from parent */
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )
+	ROM_LOAD( "ir.3r",       0x0000, 0x0800, CRC(57da51a9) SHA1(a8cb0b45c52eef353b83fe75b61e4990e27eb124) )
 ROM_END
 
 ROM_START( spclaser )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "la01",         0x0000, 0x0800, CRC(bedc0078) SHA1(a5bb0cbbb8e3f27d03beb8101b2be1111d73689d) )
-	ROM_LOAD( "spcewarl.2",   0x0800, 0x0800, CRC(43bc65c5) SHA1(5f9827c02c2d221e1607359c840374ff7fb92fbf) )
+	ROM_LOAD( "la02",         0x0800, 0x0800, CRC(43bc65c5) SHA1(5f9827c02c2d221e1607359c840374ff7fb92fbf) )
 	ROM_LOAD( "la03",         0x1000, 0x0800, CRC(1083e9cc) SHA1(7ad45c6230c9e02fcf51e3414c15e2237eebbd7a) )
 	ROM_LOAD( "la04",         0x1800, 0x0800, CRC(5116b234) SHA1(b165b2574cbcb26a5bb43f91df5f8be5f111f486) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from sisv/intruder */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
 ROM_START( laser )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "1.u36",        0x0000, 0x0800, CRC(b44e2c41) SHA1(00e0b2e088495d6f3bc175e8a53dcb3686ea8484) )
 	ROM_LOAD( "2.u35",        0x0800, 0x0800, CRC(9876f331) SHA1(14e36b26d186d9a195492834ef989ed5664d7b65) )
 	ROM_LOAD( "3.u34",        0x1000, 0x0800, CRC(ed79000b) SHA1(bfe0407e833ce61aa909f5f1f93c3fc1d46605e9) )
 	ROM_LOAD( "4.u33",        0x1800, 0x0800, CRC(10a160a1) SHA1(e2d4208af11b65fc42d2856e57ee3c196f89d360) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from intruder */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
 ROM_START( spcewarl )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "spcewarl.1",   0x0000, 0x0800, CRC(1fcd34d2) SHA1(674139944e0d842a85bd21b326bd735e15453038) )
 	ROM_LOAD( "spcewarl.2",   0x0800, 0x0800, CRC(43bc65c5) SHA1(5f9827c02c2d221e1607359c840374ff7fb92fbf) )
 	ROM_LOAD( "spcewarl.3",   0x1000, 0x0800, CRC(7820df3a) SHA1(53315857f4282c68624b338b068d80ee6828af4c) )
 	ROM_LOAD( "spcewarl.4",   0x1800, 0x0800, CRC(adc05b8d) SHA1(c4acf75537c0662a4785d5d6a90643239a54bf43) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from intruder */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
 ROM_START( galxwars )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "univgw3.0",    0x0000, 0x0400, CRC(937796f4) SHA1(88e9494cc532498e51e3a68fa1122c40f22b27dd) )
 	ROM_LOAD( "univgw4.1",    0x0400, 0x0400, CRC(4b86e7a6) SHA1(167f9f7491a2de39d08e3e6f7057cc75b36c9340) )
 	ROM_LOAD( "univgw5.2",    0x0800, 0x0400, CRC(47a187cd) SHA1(640c896ba25f34d323624005bd676257ad17b687) )
 	ROM_LOAD( "univgw6.3",    0x0c00, 0x0400, CRC(7b7d22ff) SHA1(74364cf2b04dcfbbc8e0131fa12c0e574f693d34) )
 	ROM_LOAD( "univgw1.4",    0x4000, 0x0400, CRC(0871156e) SHA1(3726d0bfe153a0afc62ea56737662074986064b0) )
 	ROM_LOAD( "univgw2.5",    0x4400, 0x0400, CRC(6036d7bf) SHA1(36c2ad2ffdb47bbecc40fd67ced6ab51a5cd2f3e) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from sisv/intruder */
+	/* Or are colormaps generated by a group of TTLs, similar to dai3wksi? */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
-ROM_START( galxwar2 )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+ROM_START( galxwars2 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "3192.h6",      0x0000, 0x1000, CRC(bde6860b) SHA1(e04b8add32d8f7ea588fae6d6a387f1d40495f1b) )
-	ROM_LOAD( "3193.h7",      0x4000, 0x1000, CRC(a17cd507) SHA1(554ab0e8bdc0e7af4a30b0ddc8aa053c8e70255c) ) /* 2nd half unused */
+	ROM_LOAD( "3193.h7",      0x4000, 0x1000, CRC(a17cd507) SHA1(554ab0e8bdc0e7af4a30b0ddc8aa053c8e70255c) )	/* 2nd half unused */
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from sisv/intruder */
+	/* Or are colormaps generated by a group of TTLs, similar to dai3wksi? */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
-ROM_START( galxwart )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+ROM_START( galxwarst )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "galxwars.0",   0x0000, 0x0400, CRC(608bfe7f) SHA1(a41a40a2f0a1bb61a70b9ff8a7da925ab1db7f74) )
 	ROM_LOAD( "galxwars.1",   0x0400, 0x0400, CRC(a810b258) SHA1(030a72fffcf240f643bc3006028cb4883cf58bbc) )
 	ROM_LOAD( "galxwars.2",   0x0800, 0x0400, CRC(74f31781) SHA1(1de70e8ebbb26eea20ffedb7bd0ca051a67f45e7) )
 	ROM_LOAD( "galxwars.3",   0x0c00, 0x0400, CRC(c88f886c) SHA1(4d705fbb97e3868c3f6c90c5e5753ad17cfbf5d6) )
 	ROM_LOAD( "galxwars.4",   0x4000, 0x0400, CRC(ae4fe8fb) SHA1(494f44167dc84e4515b769c12f6e24419461dce4) )
 	ROM_LOAD( "galxwars.5",   0x4400, 0x0400, CRC(37708a35) SHA1(df6fd521ddfa146ef93e390e47741bdbfda1e7ba) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	/* !! not dumped yet, these were taken from sisv/intruder */
+	/* Or are colormaps generated by a group of TTLs, similar to dai3wksi? */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, BAD_DUMP CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, BAD_DUMP CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
 ROM_START( starw )
@@ -4836,7 +4961,7 @@ ROM_START( sflush )
 	ROM_LOAD( "taitofr.001",        0xf800, 0x800, CRC(55d688c6) SHA1(574a3a2ca73cabb4b8f3444aa4464e6d64daa3ad) )
 ROM_END
 
-ROM_START( schasrcv )
+ROM_START( schasercv )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "1",     		  0x0000, 0x0400, CRC(bec2b16b) SHA1(c62210ecb64d7c38e5b63481d7fe04eb59bb1068) )
 	ROM_LOAD( "2",     		  0x0400, 0x0400, CRC(9d25e608) SHA1(4cc52a93a3ab96a0ec1d07593e17832fa59b30a1) )
@@ -4855,7 +4980,21 @@ ROM_START( schasrcv )
 ROM_END
 
 ROM_START( lupin3 )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "lp01.36",      0x0000, 0x0800, CRC(fd506ee8) SHA1(67ce62f24892f0eddf3e47913dff541f41493a17) )
+	ROM_LOAD( "lp02.35",      0x0800, 0x0800, CRC(ec4225f8) SHA1(cd7360b3b339e5050075b498226070914fb7a031) )
+	ROM_LOAD( "lp03.34",      0x1000, 0x0800, CRC(9307d377) SHA1(081f6c63ff2dcc549e44ab5ff5f5ddf99d544640) )
+	ROM_LOAD( "lp04.33",      0x1800, 0x0800, CRC(e41e8b2b) SHA1(e67eaa8aeaf13f706afc17074fbbde3ad2cc9548) )
+	ROM_LOAD( "lp05.32",      0x4000, 0x0800, CRC(f5c2faf4) SHA1(8d056f8c630e4659c02dd5da759dd497e4734292) )
+	ROM_LOAD( "lp06.31",      0x4800, 0x0800, CRC(66289ab2) SHA1(fc9b4a7b7a08d43f34beaf1a8e68ed0ff6148534) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color map */
+	ROM_LOAD( "lp08.1",       0x0000, 0x0400, CRC(33dbd03a) SHA1(1e0ae1cad1e9a90642886ae2ef726d3f383dd6cf) )
+	ROM_LOAD( "lp09.2",       0x0400, 0x0400, CRC(9eaee652) SHA1(a4d2d8282ba825f3a8c0cc9bca16e1d36a0d0796) )
+ROM_END
+
+ROM_START( lupin3a )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "lp12.bin",     0x0000, 0x0800, CRC(68a7f47a) SHA1(dce99b3810331d7603fa468f1dea984e571f709b) )
 	ROM_LOAD( "lp13.bin",     0x0800, 0x0800, CRC(cae9a17b) SHA1(a333ba7db45325996e3254ab36162bb7577e8a38) )
 	ROM_LOAD( "lp14.bin",     0x1000, 0x0800, CRC(3553b9e4) SHA1(6affb5b6caf08f365c0dce669e44046295c3df91) )
@@ -4866,59 +5005,87 @@ ROM_START( lupin3 )
 ROM_END
 
 ROM_START( polaris )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "ps-01",        0x0000, 0x0800, CRC(c04ce5a9) SHA1(62cc9b3b682ebecfb7600393862c65e26ff5263f) )
-	ROM_LOAD( "ps-09",        0x0800, 0x0800, CRC(9a5c8cb2) SHA1(7a8c5d74f8b431072d9476d3ef65a3fe1d639813) )
-	ROM_LOAD( "ps-08",        0x1000, 0x0800, CRC(8680d7ea) SHA1(7fd4b8a415666c36842fed80d2798b48f8b29d0d) )
-	ROM_LOAD( "ps-04",        0x1800, 0x0800, CRC(65694948) SHA1(de92a7f3e3ef732b573254baa60df60f8e068a5d) )
-	ROM_LOAD( "ps-05",        0x4000, 0x0800, CRC(772e31f3) SHA1(fa0b866b6df1a9217e286ca880b3bb3fb0644bf3) )
-	ROM_LOAD( "ps-10",        0x4800, 0x0800, CRC(3df77bac) SHA1(b3275c34b8d42df83df2c404c5b7d220aae651fa) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ps01-1.ic71",   0x0000, 0x0800, CRC(7d41007c) SHA1(168f002fe997aac6e4141292de826d389859bb04) )
+	ROM_LOAD( "ps02-9.ic70",   0x0800, 0x0800, CRC(9a5c8cb2) SHA1(7a8c5d74f8b431072d9476d3ef65a3fe1d639813) )
+	ROM_LOAD( "ps03-1.ic69",   0x1000, 0x0800, CRC(21f32415) SHA1(6ac9ae9b55e342729fe260147021ed3911a24dc2) )
+	ROM_LOAD( "ps04-18.ic62",  0x1800, 0x0800, CRC(d717aef3) SHA1(e3361c06e92f82e96d7c6e3d6f8fad89bbf23689) )
+	ROM_LOAD( "ps05.ic61",     0x4000, 0x0800, CRC(772e31f3) SHA1(fa0b866b6df1a9217e286ca880b3bb3fb0644bf3) )
+	ROM_LOAD( "ps06-10.ic60",  0x4800, 0x0800, CRC(3df77bac) SHA1(b3275c34b8d42df83df2c404c5b7d220aae651fa) )
+	ROM_LOAD( "ps26.ic60a",    0x5000, 0x0800, CRC(9d5c3d50) SHA1(a6acf9ca6e807625156cb1759269014d5830a44f) )
 
-	ROM_REGION( 0x0400, REGION_PROMS, 0 )		/* background color map */
-	ROM_LOAD( "ps07",         0x0000, 0x0400, CRC(164aa05d) SHA1(41c699ce45c76a60c71294f25d8df6c6e6c1280a) )
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )	/* background color map */
+	ROM_LOAD( "ps08.1b", 0x0000, 0x0400, CRC(164aa05d) SHA1(41c699ce45c76a60c71294f25d8df6c6e6c1280a) )	/* NEC B406 or compatible BPROM (82S137) */
 
-	ROM_REGION( 0x0100, REGION_USER1, 0 )		/* cloud graphics */
-	ROM_LOAD( "mb7052.2c",    0x0000, 0x0100, CRC(2953253b) SHA1(2fb851bc9652ca4e51d473b484ede6dab05f1b51) )
+	ROM_REGION( 0x0100, REGION_USER1, 0 )	/* cloud graphics */
+	ROM_LOAD( "ps07.2c", 0x0000, 0x0100, CRC(2953253b) SHA1(2fb851bc9652ca4e51d473b484ede6dab05f1b51) )	/* MB7052 or compatible BPROM (82S129) */
+ROM_END
+
+ROM_START( polarisb )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ps01.ic71",    0x0000, 0x0800, CRC(c04ce5a9) SHA1(62cc9b3b682ebecfb7600393862c65e26ff5263f) )
+	ROM_LOAD( "ps02-9.ic70",  0x0800, 0x0800, CRC(9a5c8cb2) SHA1(7a8c5d74f8b431072d9476d3ef65a3fe1d639813) )	/* was PS09, an alternate label designation? */
+	ROM_LOAD( "ps03.ic69",    0x1000, 0x0800, CRC(8680d7ea) SHA1(7fd4b8a415666c36842fed80d2798b48f8b29d0d) )
+	ROM_LOAD( "ps04.ic62",    0x1800, 0x0800, CRC(65694948) SHA1(de92a7f3e3ef732b573254baa60df60f8e068a5d) )
+	ROM_LOAD( "ps05.ic61",    0x4000, 0x0800, CRC(772e31f3) SHA1(fa0b866b6df1a9217e286ca880b3bb3fb0644bf3) )
+	ROM_LOAD( "ps06-10.ic60", 0x4800, 0x0800, CRC(3df77bac) SHA1(b3275c34b8d42df83df2c404c5b7d220aae651fa) )	/* was PS10, an alternate label designation? */
+
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )	/* background color map */
+	ROM_LOAD( "ps08.1b", 0x0000, 0x0400, CRC(164aa05d) SHA1(41c699ce45c76a60c71294f25d8df6c6e6c1280a) )	/* NEC B406 or compatible BPROM (82S137) */
+
+	ROM_REGION( 0x0100, REGION_USER1, 0 )	/* cloud graphics */
+	ROM_LOAD( "ps07.2c", 0x0000, 0x0100, CRC(2953253b) SHA1(2fb851bc9652ca4e51d473b484ede6dab05f1b51) )	/* MB7052 or compatible BPROM (82S129) */
 ROM_END
 
 ROM_START( polarisa )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "ps01-1",       0x0000, 0x0800, CRC(7d41007c) SHA1(168f002fe997aac6e4141292de826d389859bb04) )
-	ROM_LOAD( "ps-09",        0x0800, 0x0800, CRC(9a5c8cb2) SHA1(7a8c5d74f8b431072d9476d3ef65a3fe1d639813) )
-	ROM_LOAD( "ps03-1",       0x1000, 0x0800, CRC(21f32415) SHA1(6ac9ae9b55e342729fe260147021ed3911a24dc2) )
-	ROM_LOAD( "ps-04",        0x1800, 0x0800, CRC(65694948) SHA1(de92a7f3e3ef732b573254baa60df60f8e068a5d) )
-	ROM_LOAD( "ps-05",        0x4000, 0x0800, CRC(772e31f3) SHA1(fa0b866b6df1a9217e286ca880b3bb3fb0644bf3) )
-	ROM_LOAD( "ps-10",        0x4800, 0x0800, CRC(3df77bac) SHA1(b3275c34b8d42df83df2c404c5b7d220aae651fa) )
-	ROM_LOAD( "ps26",         0x5000, 0x0800, CRC(9d5c3d50) SHA1(a6acf9ca6e807625156cb1759269014d5830a44f) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ps01-1.ic71",   0x0000, 0x0800, CRC(7d41007c) SHA1(168f002fe997aac6e4141292de826d389859bb04) )
+	ROM_LOAD( "ps02-9.ic70",   0x0800, 0x0800, CRC(9a5c8cb2) SHA1(7a8c5d74f8b431072d9476d3ef65a3fe1d639813) )	/* was PS09, an alternate label designation? */
+	ROM_LOAD( "ps03-1.ic69",   0x1000, 0x0800, CRC(21f32415) SHA1(6ac9ae9b55e342729fe260147021ed3911a24dc2) )
+	ROM_LOAD( "ps04.ic62",     0x1800, 0x0800, CRC(65694948) SHA1(de92a7f3e3ef732b573254baa60df60f8e068a5d) )
+	ROM_LOAD( "ps05.ic61",     0x4000, 0x0800, CRC(772e31f3) SHA1(fa0b866b6df1a9217e286ca880b3bb3fb0644bf3) )
+	ROM_LOAD( "ps06-10.ic60",  0x4800, 0x0800, CRC(3df77bac) SHA1(b3275c34b8d42df83df2c404c5b7d220aae651fa) )	/* was PS10, an alternate label designation? */
+	ROM_LOAD( "ps26.ic60a",    0x5000, 0x0800, CRC(9d5c3d50) SHA1(a6acf9ca6e807625156cb1759269014d5830a44f) )
 
-	ROM_REGION( 0x0400, REGION_PROMS, 0 )		/* background color map */
-	ROM_LOAD( "ps07",         0x0000, 0x0400, CRC(164aa05d) SHA1(41c699ce45c76a60c71294f25d8df6c6e6c1280a) )
+	ROM_REGION( 0x0400, REGION_PROMS, 0 )	/* background color map */
+	ROM_LOAD( "ps08.1b", 0x0000, 0x0400, CRC(164aa05d) SHA1(41c699ce45c76a60c71294f25d8df6c6e6c1280a) )	/* NEC B406 or compatible BPROM (82S137) */
 
-	ROM_REGION( 0x0100, REGION_USER1, 0 )		/* cloud graphics */
-	ROM_LOAD( "mb7052.2c",    0x0000, 0x0100, CRC(2953253b) SHA1(2fb851bc9652ca4e51d473b484ede6dab05f1b51) )
+	ROM_REGION( 0x0100, REGION_USER1, 0 )	/* cloud graphics */
+	ROM_LOAD( "ps07.2c", 0x0000, 0x0100, CRC(2953253b) SHA1(2fb851bc9652ca4e51d473b484ede6dab05f1b51) )	/* MB7052 or compatible BPROM (82S129) */
 ROM_END
 
 ROM_START( ozmawars )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "mw01",         0x0000, 0x0800, CRC(31f4397d) SHA1(bba9765aadd608d19e2515a5edf8e0eceb70916a) )
 	ROM_LOAD( "mw02",         0x0800, 0x0800, CRC(d8e77c62) SHA1(84fc81cf9a924ecbb13a008cd7435b7d465bddf6) )
 	ROM_LOAD( "mw03",         0x1000, 0x0800, CRC(3bfa418f) SHA1(7318878202322a2263551ca463e4c70943401f68) )
 	ROM_LOAD( "mw04",         0x1800, 0x0800, CRC(e190ce6c) SHA1(120898e9a683f5ce874c6fde761570a26de2fa8c) )
 	ROM_LOAD( "mw05",         0x4000, 0x0800, CRC(3bc7d4c7) SHA1(b084f8cd2ce0f502c2e915da3eceffcbb448e9c0) )
 	ROM_LOAD( "mw06",         0x4800, 0x0800, CRC(99ca2eae) SHA1(8d0f220f68043eff0c85d2de7bee7fd4365fb51c) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
-ROM_START( ozmawar2 )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
-	ROM_LOAD( "mw01",         0x0000, 0x0800, CRC(31f4397d) SHA1(bba9765aadd608d19e2515a5edf8e0eceb70916a) )
-	ROM_LOAD( "mw02",         0x0800, 0x0800, CRC(d8e77c62) SHA1(84fc81cf9a924ecbb13a008cd7435b7d465bddf6) )
+ROM_START( ozmawars2 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "oz1",          0x0000, 0x0400, CRC(9300830e) SHA1(7ed349f7ad01b30aefb41dcaf97e209d00f5af6c) )
+	ROM_LOAD( "oz2",          0x0400, 0x0400, CRC(957fc661) SHA1(ac0edc901d8033619f62967f8eaf53a02947e109) )
+	ROM_LOAD( "oz3",          0x0800, 0x0400, CRC(cf8f4d6c) SHA1(effb4dc48594e1b7164b37f683a5a78b1a9bdd4f) )
+	ROM_LOAD( "oz4",          0x0c00, 0x0400, CRC(f51544a5) SHA1(368411a2dadaebcbb4d5b6cf6c2beec036ce817f) )
 	ROM_LOAD( "oz5",          0x1000, 0x0400, CRC(5597bf52) SHA1(626c7348365ed974d416485d94d057745b5d9b96) )
 	ROM_LOAD( "oz6",          0x1400, 0x0400, CRC(19b43578) SHA1(3609b7c77f5ee6f10f302892f56fcc8375577f20) )
 	ROM_LOAD( "oz7",          0x1800, 0x0400, CRC(a285bfde) SHA1(ed7a9fce4d887d3b5d596645893ea87c0bafda02) )
 	ROM_LOAD( "oz8",          0x1c00, 0x0400, CRC(ae59a629) SHA1(0c9ea67dc35f93ec65ec91e1dab2e4b6212428bf) )
-	ROM_LOAD( "mw05",         0x4000, 0x0800, CRC(3bc7d4c7) SHA1(b084f8cd2ce0f502c2e915da3eceffcbb448e9c0) )
+	ROM_LOAD( "oz9",          0x4000, 0x0400, CRC(df0cc633) SHA1(3725af2e5a6e9ab08dd9ada345630de19c88ce73) )
+	ROM_LOAD( "oz10",         0x4400, 0x0400, CRC(31b7692e) SHA1(043880750d134d04311eab55e30ee223977d3d17) )
 	ROM_LOAD( "oz11",         0x4800, 0x0400, CRC(660e934c) SHA1(1d50ae3a9de041b908e256892203ce1738d588f6) )
 	ROM_LOAD( "oz12",         0x4c00, 0x0400, CRC(8b969f61) SHA1(6d12cacc73c31a897812ccd8de24725ee56dd975) )
+
+	ROM_REGION( 0x0800, REGION_PROMS, 0 )	/* color maps player 1/player 2 */
+	ROM_LOAD( "01.1",         0x0000, 0x0400, CRC(aac24f34) SHA1(ad110e776547fb48baac568bb50d61854537ca34) )
+	ROM_LOAD( "02.2",         0x0400, 0x0400, CRC(2bdf83a0) SHA1(01ffbd43964c41987e7d44816271308f9a70802b) )
 ROM_END
 
 ROM_START( solfight )
@@ -4971,7 +5138,7 @@ ROM_START( yosakdon )
 	ROM_LOAD( "yd7.bin", 	  0x1c00, 0x0400, CRC(2744e68b) SHA1(5ad5a7a615d36f57b6d560425e035c15e25e9005) )
 ROM_END
 
-ROM_START( yosakdoa )
+ROM_START( yosakdona )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "yosaku1",      0x0000, 0x0400, CRC(d132f4f0) SHA1(373c7ea1bd6debcb3dad5881793b8c31dc7a01e6) )
 	ROM_LOAD( "yd2.bin", 	  0x0400, 0x0400, CRC(78336df4) SHA1(b0b6254568d191d2d0b9c9280a3ccf2417ef3f38) )
@@ -4994,7 +5161,7 @@ ROM_START( sstrangr )
 	ROM_LOAD( "hss-08.65",     0x1c00, 0x0400, CRC(bd14d0b0) SHA1(9665f639afef9c1291f2efc054216ff44c595b45) )
 ROM_END
 
-ROM_START( sstrngr2 )
+ROM_START( sstrangr2 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for code */
 	ROM_LOAD( "4764.09",      0x0000, 0x2000, CRC(d88f86cc) SHA1(9f284ee50caf3c64bd04a79a798de620348881bc) )
 	ROM_LOAD( "2708.10",      0x6000, 0x0400, CRC(eba304c1) SHA1(3fa6fbb29fa46c146283f69a712bfc51cbb2a43c) )
@@ -5325,72 +5492,75 @@ ROM_END
 
 /* 640                                                                          "Midway", "Space Walk" */
 /* 749                                                                          "Midway", "4 Player Bowling Alley (cocktail) "*/
-/* 852 */ GAME( 1980, invaddlx, invadpt2, invaders, invadpt2, invaddlx, ROT270, "Midway", "Space Invaders Deluxe", 0 )
+/* 852 */ GAME( 1980, invaddlx, invadpt2, invaders, invadpt2, invaddlx, ROT270, "Taito (Midway license)", "Space Invaders Deluxe", 0 )
 /* 870                                                                          "Midway", "Space Invaders Deluxe (cocktail) "*/
 
 /* Taito games */
 
-	  GAME( 1978, sitv,     invaders, invaders, sitv,     invaders, ROT270, "Taito", "Space Invaders (TV Version)", 0 )
-	  GAME( 1979, sicv,     invaders, invadpt2, invaders, invadpt2, ROT270, "Taito", "Space Invaders (CV Version)", 0 )
-	  GAME( 1978, sisv,     invaders, invadpt2, invaders, invadpt2, ROT270, "Taito", "Space Invaders (SV Version)", 0 )
-	  GAME( 1978, sisv2,    invaders, invadpt2, invaders, invadpt2, ROT270, "Taito", "Space Invaders (SV Version 2)", 0 )
+	  GAME( 1978, sitv,     invaders, invaders, sitv,     invaders, ROT270, "Taito", "Space Invaders (TV Version rev 2)", 0 )
+	  GAME( 1979, sicv,     invaders, invadpt2, invaders, invadpt2, ROT270, "Taito", "Space Invaders (CV Version, larger roms)", 0 )
+	  GAME( 1978, sisv,     invaders, invaders, sitv,     invaders, ROT270, "Taito", "Space Invaders (SV Version rev 4)", 0 )
+	  GAME( 1978, sisv2,    invaders, invaders, sitv,     invaders, ROT270, "Taito", "Space Invaders (SV Version rev 2)", 0 )
 	  GAME( 1980, ballbomb, 0,        ballbomb, ballbomb, ballbomb, ROT270, "Taito", "Balloon Bomber", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )	/* missing clouds */
-GAME( 1980, galactic, 0, galactic, galactic, invaders, ROT270, "Taito do Brasil", "Galactica - Batalha Espacial", GAME_IMPERFECT_SOUND )
+GAME( 1980?, galactic, 0, galactic, galactic, invaders, ROT270, "Taito do Brasil", "Galactica - Batalha Espacial", GAME_IMPERFECT_SOUND )
 	  GAME( 1979, galxwars, 0,        invaders, galxwars, invaders, ROT270, "Universal", "Galaxy Wars (Universal set 1)", 0 )
-	  GAME( 1979, galxwar2, galxwars, invaders, galxwars, invaders, ROT270, "Universal", "Galaxy Wars (Universal set 2)", 0 )
-	  GAME( 1979, galxwart, galxwars, invaders, galxwars, invaders, ROT270,	"Taito?", "Galaxy Wars (Taito?)" , 0) /* Copyright Not Displayed */
-	  GAME( 1979, starw,    galxwars, invaders, galxwars, invaders, ROT270, "bootleg", "Star Wars", 0 )
+	  GAME( 1979, galxwars2, galxwars, invaders, galxwars, invaders, ROT270, "Universal", "Galaxy Wars (Universal set 2)", 0 )
+	  GAME( 1979, galxwarst, galxwars, invaders, galxwars, invaders, ROT270,	"Universal (Taito license?)", "Galaxy Wars (Taito?)" , 0) /* Copyright Not Displayed */
+	  GAME( 1979, starw,    galxwars, invaders, galxwars, invaders, ROT270, "bootleg", "Star Wars (bootleg of Galaxy Wars, set 1)", 0 )
 	  GAME( 1979, lrescue,  0,        invadpt2, lrescue,  invadpt2, ROT270, "Taito", "Lunar Rescue", 0 )
 	  GAME( 1979, grescue,  lrescue,  invadpt2, lrescue,  invadpt2, ROT270, "Taito (Universal license?)", "Galaxy Rescue", 0 )
-	  GAME( 1979, desterth, lrescue,  invadpt2, invrvnge, invadpt2, ROT270, "bootleg", "Destination Earth", 0 )
-	  GAME( 1979, invadpt2, 0,        invadpt2, invadpt2, invadpt2, ROT270, "Taito", "Space Invaders Part II (Taito)", 0 )
-	  GAME( 1979, schaser,  0,        schaser,  schaser,  schaser,  ROT270, "Taito", "Space Chaser", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_COLORS )
-	  GAME( 1979, schasrcv, schaser,  lupin3,   schasrcv, schaser,  ROT270, "Taito", "Space Chaser (CV version)", GAME_NO_SOUND | GAME_IMPERFECT_COLORS | GAME_NO_COCKTAIL )
+	  GAME( 1979, desterth, lrescue,  invadpt2, invrvnge, invadpt2, ROT270, "bootleg", "Destination Earth (bootleg of Lunar Rescue)", 0 )
+	  GAME( 1979, invadpt2, 0,        invadpt2, invadpt2, invadpt2, ROT270, "Taito", "Space Invaders Part II (Taito, bigger ROMs)", 0 )
+	  GAME( 1979, schaser,  0,        schaser,  schaser,  schaser,  ROT270, "Taito", "Space Chaser (set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_COLORS )
+	  GAME( 1979, schasercv, schaser,  lupin3a,  schasrcv, schaser,  ROT270, "Taito", "Space Chaser (CV version - set 1)", GAME_NO_SOUND | GAME_IMPERFECT_COLORS | GAME_NO_COCKTAIL )
 	  GAME( 1979, sflush,   0,        sflush,   sflush,   rollingc,	ROT270, "Taito", "Straight Flush",GAME_NO_SOUND| GAME_IMPERFECT_COLORS | GAME_NO_COCKTAIL)
-	  GAME( 1980, lupin3,   0,        lupin3,   lupin3,   lupin3,   ROT270, "Taito", "Lupin III", GAME_NO_SOUND | GAME_NO_COCKTAIL )
-	  GAME( 1980, polaris,  0,        polaris,  polaris,  polaris,  ROT270, "Taito", "Polaris (set 1)", 0 )
-	  GAME( 1980, polarisa, polaris,  polaris,  polaris,  polaris,  ROT270, "Taito", "Polaris (set 2)", 0 )
+	  GAME( 1980, lupin3,   0,        lupin3,   lupin3,   indianbt, ROT270, "Taito", "Lupin III (set 1)", GAME_IMPERFECT_SOUND )
+	  GAME( 1980, lupin3a,  lupin3,   lupin3a,  lupin3a,  lupin3a,  ROT270, "Taito", "Lupin III (set 2)", GAME_NO_SOUND | GAME_NO_COCKTAIL )
+	  GAME( 1980, polaris,  0,        polaris,  polaris,  polaris,  ROT270, "Taito", "Polaris (latest version)", 0 )
+	  GAME( 1980, polarisb, polaris,  polaris,  polaris,  polaris,  ROT270, "Taito", "Polaris (first revision)", 0 )
+	  GAME( 1980, polarisa, polaris,  polaris,  polaris,  polaris,  ROT270, "Taito", "Polaris (second revision)", 0 )
 	  GAME( 1980, indianbt, 0,        indianbt, indianbt, indianbt, ROT270, "Taito", "Indian Battle", 0 )
 	  GAME( 1980, steelwkr, 0,        steelwkr, steelwkr, invadpt2, ROT0,   "Taito", "Steel Worker", 0 )
 
 /* Misc. manufacturers */
 
-	  GAME( 1980, searthin, invaders, invaders, earthinv, invaders, ROT270, "bootleg", "Super Earth Invasion (set 1)", 0 )
-	  GAME( 1980, searthia, invaders, invaders, earthinv, invaders, ROT270, "bootleg", "Super Earth Invasion (set 2)", 0 )
-	  GAME( 1978, invadrmr, invaders, invaders, invaders, invaders, ROT270, "Model Racing", "Space Invaders (Model Racing)", 0 )
-	  GAME( 1978, spaceatt, invaders, invaders, invaders, invaders, ROT270, "Video Games GMBH", "Space Attack", 0 )
-	  GAME( 1980, spaceat2, invaders, invaders, spaceatt, invaders, ROT270, "Zenitone-Microsec Ltd", "Space Attack II", 0 )
-	  GAME( 19??, sinvzen,  invaders, invaders, spaceatt, invaders, ROT270, "Zenitone-Microsec Ltd", "Super Invaders (Zenitone-Microsec)", 0 )
-	  GAME( 19??, sinvemag, invaders, invaders, sinvemag, invaders, ROT270, "bootleg", "Super Invaders (EMAG)", 0 )
-	  GAME( 19??, tst_invd, invaders, invaders, invaders, invaders, ROT0,   "Test ROM", "Space Invaders Test ROM", 0 )
-	  GAME( 19??, alieninv, invaders, invaders, earthinv, invaders, ROT270, "bootleg", "Alien Invasion Part II", 0 )
-	  GAME( 1978, spceking, invaders, invaders, spceking, invaders, ROT270, "Leijac (Konami)","Space King", 0 )
-	  GAME( 1978, spcewars, invaders, invaders, invadpt2, invaders, ROT270, "Sanritsu", "Space War (Sanritsu)", 0 )
+	  GAME( 1980, searthin, invaders, invaders, earthinv, invaders, ROT270, "bootleg (Competitive Video)", "Super Earth Invasion (set 1)", 0 )
+	  GAME( 1980, searthina, invaders, invaders, earthinv, invaders, ROT270, "bootleg (Competitive Video)", "Super Earth Invasion (set 2)", 0 )
+	  GAME( 1978, invadrmr, invaders, invaders, invaders, invaders, ROT270, "Taito / Model Racing", "Space Invaders (Model Racing)", 0 )
+	  GAME( 1978, spaceatt, invaders, invaders, invaders, invaders, ROT270, "bootleg (Video Games GmbH)", "Space Attack (bootleg of Space Invaders)", 0 )
+	  GAME( 1980, spaceat2, invaders, invaders, spaceatt, invaders, ROT270, "bootleg (Video Games UK)", "Space Attack II (bootleg of Super Invaders)", 0 )
+	  GAME( 1980?, sinvzen,  invaders, invaders, spaceatt, invaders, ROT270, "Taito / Zenitone-Microsec Ltd.", "Super Invaders (Zenitone-Microsec)", 0 )
+	  GAME( 1978, sinvemag, invaders, invaders, sinvemag, invaders, ROT270, "bootleg (Emag)", "Super Invaders (Emag bootleg set 1)", 0 )
+	  GAME( 19??, tst_invd, invaders, invaders, invaders, invaders, ROT0,   "<unknown>", "Space Invaders Test ROM", 0 )
+	  GAME( 19??, alieninvp2, invaders, invaders, earthinv, invaders, ROT270, "bootleg", "Alien Invasion Part II", 0 )
+	  GAME( 1978, spceking, invaders, invaders, spceking, invaders, ROT270, "Taito / Leijac Corporation","Space King", 0 )
+	  GAME( 1978, spcewars, invaders, invaders, invadpt2, invaders, ROT270, "Taito / Sanritsu", "Space War (Sanritsu)", 0 )
 	  GAME( 1978, spacewr3, invaders, invaders, spacewr3, invaders, ROT270, "bootleg", "Space War Part 3", 0 )
-	  GAME( 1978, invaderl, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Space Invaders (Logitec)", 0 )
-	  GAME( 1978, invader4, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Space Invaders Part Four", 0 )
-	  GAME( 1979, jspecter, invaders, invaders, jspecter, invaders, ROT270, "Jatre", "Jatre Specter (set 1)", 0 )
-	  GAME( 1979, jspectr2, invaders, invaders, jspecter, invaders, ROT270, "Jatre", "Jatre Specter (set 2)", 0 )
-	  GAME( 1979, cosmicmo, invaders, invaders, cosmicmo, invaders, ROT270, "Universal", "Cosmic Monsters", 0 )
-          GAME( 1979, cosmicm2, invaders, invaders, cosmicmo, invaders, ROT270, "Universal", "Cosmic Monsters 2", 0 )
-	  GAME( 19??, superinv, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Super Invaders", 0 )
-	  GAME( 19??, invasion, invaders, invaders, invasion, invaders, ROT270, "Sidam", "Invasion", 0 )
-	  GAME( 1978, sstrangr, 0,		  sstrangr, sstrangr, 8080bw,   ROT270,	"Yachiyo Electronics, Ltd.", "Space Stranger", 0 )
-	  GAME( 1979, sstrngr2, sstrangr, sstrngr2, sstrngr2, sstrngr2, ROT270, "Yachiyo Electronics, Ltd.", "Space Stranger 2", GAME_STANDALONE )
-	  GAME( 1979, moonbase, invadpt2, invadpt2, invadpt2, invadpt2, ROT270, "Nichibutsu", "Moon Base", 0 )
+	  GAME( 1978, invaderl, invaders, invaders, invaders, invaders, ROT270, "Taito / Logitec", "Space Invaders (Logitec)", 0 )
+	  GAME( 1980, invader4, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Space Invaders Part Four (bootleg of Space Attack II)", 0 )
+	  GAME( 1979, jspecter, invaders, invaders, jspecter, invaders, ROT270, "Taito / Jatre", "Jatre Specter (set 1)", 0 )
+	  GAME( 1979, jspecter2, invaders, invaders, jspecter, invaders, ROT270, "Taito / Jatre", "Jatre Specter (set 2)", 0 )
+	  GAME( 1979, cosmicmo, invaders, invaders, cosmicmo, invaders, ROT270, "bootleg (Universal)", "Cosmic Monsters (version II)", 0 )
+          GAME( 1979, cosmicm2, invaders, invaders, cosmicmo, invaders, ROT270, "bootleg (Universal)", "Cosmic Monsters 2", 0 )
+	  GAME( 1978, superinv, invaders, invaders, invaders, invaders, ROT270, "bootleg", "Super Invaders (bootleg set 1)", 0 )
+	  GAME( 19??, invasion, invaders, invaders, invasion, invaders, ROT270, "bootleg (Sidam)", "Invasion (Sidam)", 0 )
+	  GAME( 1978, sstrangr, 0,		  sstrangr, sstrangr, 8080bw,   ROT270,	"Yachiyo Electric", "Space Stranger", 0 )
+	  GAME( 1979, sstrangr2, sstrangr, sstrngr2, sstrngr2, sstrngr2, ROT270, "Yachiyo Electric", "Space Stranger 2", 0 )
+	  GAME( 1979, moonbase, invadpt2, invadpt2, invadpt2, invadpt2, ROT270, "Taito / Nichibutsu", "Moon Base Zeta (set 1)", 0 )
 	  GAME( 1979, cosmo,    0,        cosmo,    cosmo,    cosmo,    ROT90,  "TDS & MINTS", "Cosmo", GAME_IMPERFECT_SOUND )
-	  GAME( 19??, invrvnge, 0,        invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge",  GAME_NO_SOUND )
-	  GAME( 19??, invrvnga, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd. (Dutchford license)", "Invader's Revenge (Dutchford)", GAME_NO_SOUND )
+	  GAME( 1980?, invrvnge, 0,        invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge (set 1)", GAME_NO_SOUND )
+	  GAME( 1980?, invrvngeb, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge (set 3)", GAME_NO_SOUND )
+	  GAME( 1980?, invrvngedu, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd. (Dutchford license)", "Invader's Revenge (Dutchford, single PCB)", GAME_NO_SOUND )
 	  GAME( 1979, spcewarl, 0,        invaders, spcewarl, invaddlx, ROT270, "Konami (Leijac Corporation license)","Space War (Leijac Corporation)", 0 )
-	  GAME( 1980, spclaser, spcewarl, invaders, spclaser, invaddlx, ROT270, "GamePlan (Taito)", "Space Laser", 0 )
-	  GAME( 1980, laser,    spcewarl, invaders, spclaser, invaddlx, ROT270, "<unknown>", "Laser", 0 )
+	  GAME( 1980, spclaser, spcewarl, invaders, spclaser, invaddlx, ROT270, "Konami (Taito license)", "Space Laser", 0 )
+	  GAME( 1980, laser,    spcewarl, invaders, spclaser, invaddlx, ROT270, "bootleg (Leisure Time Electronics)", "Astro Laser (bootleg of Space Laser)", 0 )
 	  GAME( 1979, rollingc, 0,        rollingc, rollingc, rollingc, ROT270, "Nichibutsu", "Rolling Crash / Moon Base", GAME_NO_SOUND )
 	  GAME( 1979, ozmawars, 0,        invaders, ozmawars, 8080bw,   ROT270, "SNK", "Ozma Wars (set 1)", 0 )
-	  GAME( 1979, ozmawar2, ozmawars, invaders, ozmawars, 8080bw,   ROT270, "SNK", "Ozma Wars (set 2)" , 0) /* Uses Taito's three board colour version of Space Invaders PCB */
-	  GAME( 1979, solfight, ozmawars, invaders, ozmawars, 8080bw,   ROT270, "bootleg", "Solar Fight", 0 )
-	  GAME( 1979, spaceph,  ozmawars, invaders, spaceph,  8080bw,   ROT270, "Zilec Games", "Space Phantoms", 0 )
+	  GAME( 1979, ozmawars2, ozmawars, invaders, ozmawars, 8080bw,   ROT270, "SNK", "Ozma Wars (set 2)" , 0) /* Uses Taito's three board colour version of Space Invaders PCB */
+	  GAME( 1979, solfight, ozmawars, invaders, ozmawars, 8080bw,   ROT270, "bootleg", "Solar Fight (bootleg of Ozma Wars)", 0 )
+	  GAME( 1979, spaceph,  ozmawars, invaders, spaceph,  8080bw,   ROT270, "bootleg? (Zilec Games)", "Space Phantoms (bootleg of Ozma Wars)", 0 )
 	  GAME( 1979, yosakdon, 0,        yosakdon, yosakdon, 8080bw,   ROT270, "Wing", "Yosaku to Donbei (set 1)", GAME_IMPERFECT_SOUND ) /* bootleg? */
-	  GAME( 1979, yosakdoa, yosakdon, yosakdon, yosakdon, 8080bw,   ROT270, "Wing", "Yosaku to Donbei (set 2)", GAME_IMPERFECT_SOUND ) /* bootleg? */
+	  GAME( 1979, yosakdona, yosakdon, yosakdon, yosakdon, 8080bw,   ROT270, "Wing", "Yosaku to Donbei (set 2)", GAME_IMPERFECT_SOUND ) /* bootleg? */
 
 GAME( 1976, seawolf, 0, mw_seawolf, seawolf, seawolf, ROT0, "Dave Nutting Associates / Midway", "Sea Wolf (set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1976, seawolfo, seawolf, mw_seawolf, seawolf, seawolf, ROT0, "Dave Nutting Associates / Midway", "Sea Wolf (set 2)", GAME_IMPERFECT_SOUND )
@@ -5398,7 +5568,7 @@ GAME( 1976, seawolfa, seawolf, mw_seawolf, seawolf, seawolf, ROT0, "Dave Nutting
 GAME( 1975, gunfight, 0, mw_gunfight, gunfight, gunfight, ROT0, "Dave Nutting Associates / Midway", "Gun Fight (set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1975, gunfighto, gunfight, mw_gunfight, gunfight, gunfight, ROT0, "Dave Nutting Associates / Midway", "Gun Fight (set 2)", GAME_IMPERFECT_SOUND )
 GAME( 1976, tornbase, 0, mw_tornbase, tornbase, 8080bw, ROT0, "Dave Nutting Associates / Midway / Taito", "Tornado Baseball / Ball Park", GAME_IMPERFECT_SOUND )
-GAME( 1976, 280zzzap, 0, mw_zzzap, 280zzzap, 8080bw, ROT0, "Dave Nutting Associates / Midway", "280-ZZZAP", GAME_IMPERFECT_SOUND )
+GAME( 1976, 280zzzap, 0, mw_zzzap, 280zzzap, 8080bw, ROT0, "Dave Nutting Associates / Midway", "280-ZZZAP (set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1976, maze, 0, mw_maze, maze, 8080bw, ROT0, "Midway", "Amazing Maze", 0 )
 GAME( 1977, boothill, 0, mw_boothill, boothill, 8080bw, ROT0, "Dave Nutting Associates / Midway", "Boot Hill", 0 )
 GAME( 1977, checkmat, 0, mw_checkmat, checkmat, 8080bw, ROT0, "Dave Nutting Associates / Midway", "Checkmate", GAME_IMPERFECT_SOUND )
@@ -5418,13 +5588,13 @@ GAME( 1980, spcenctr, 0, mw_spcenctr, spcenctr, 8080bw, ROT0, "Midway", "Space E
 GAME( 1979, phantom2, 0, mw_phantom2, phantom2, phantom2, ROT0, "Midway", "Phantom II", GAME_IMPERFECT_SOUND )
 GAME( 1978, bowler, 0, mw_bowler, bowler, bowler, ROT90, "Midway", "Bowling Alley", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL )
 GAME( 1978, invaders, 0, invaders, invaders, invaders, ROT270, "Taito / Midway", "Space Invaders / Space Invaders M", 0 )
-GAME( 1978, blueshrk, 0, mw_blueshrk, blueshrk, blueshrk, ROT0, "Midway", "Blue Shark", GAME_IMPERFECT_SOUND )
+GAME( 1978, blueshrk, 0, mw_blueshrk, blueshrk, blueshrk, ROT0, "Midway", "Blue Shark (Midway)", GAME_IMPERFECT_SOUND )
 GAME( 1978, blueshrkmr, blueshrk, mw_blueshrk, blueshrk, blueshrk, ROT0, "bootleg (Model Racing)", "Blue Shark (Model Racing bootleg, set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1978, blueshrkmr2, blueshrk, mw_blueshrk, blueshrk, blueshrk, ROT0, "bootleg (Model Racing)", "Blue Shark (Model Racing bootleg, set 2)", GAME_IMPERFECT_SOUND )
 GAME( 1980, invad2ct, 0, invad2ct, invad2ct, invad2ct, ROT90, "Midway", "Space Invaders II (Midway, cocktail)", GAME_IMPERFECT_SOUND )
 
 	  GAME( 1979, shuttlei, 0, shuttlei, shuttlei, shuttlei, ROT270, "Omori Electric Co., Ltd.", "Shuttle Invader", GAME_IMPERFECT_SOUND )
 GAME( 1979, skylove, 0, shuttlei, skylove, shuttlei, ROT270, "Omori Electric Co., Ltd.", "Sky Love", GAME_IMPERFECT_SOUND )
-GAME( 1979, cane, 0, cane, cane, 8080bw, ROT0, "Model Racing", "Cane (prototype)", GAME_IMPERFECT_SOUND )
-GAME( 1979, orbite, 0, orbite, orbite, orbite, ROT270, "Model Racing", "Orbite (prototype)", 0 ) /* unfinished prototype without sound */
-GAME( 1980, astropal, 0, astropal, astropal, 8080bw, ROT0, "Sidam?", "Astropal", GAME_IMPERFECT_SOUND )
+GAME( 1979?, cane, 0, cane, cane, 8080bw, ROT0, "Model Racing", "Cane (prototype)", GAME_IMPERFECT_SOUND )
+GAME( 1979?, orbite, 0, orbite, orbite, orbite, ROT270, "Model Racing", "Orbite (prototype)", 0 ) /* unfinished prototype without sound */
+GAME( 1980?, astropal, 0, astropal, astropal, 8080bw, ROT0, "Sidam?", "Astropal", GAME_IMPERFECT_SOUND )

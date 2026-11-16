@@ -3843,132 +3843,132 @@
 ;:alienaru:20800000:12FD:00000020:FFFFFFFF:One Piece Construction PL1
 
 ; [ Alien Invasion Part II ]
-:alieninv:00000000:20EB:00000099:FFFFFFFF:Infinite Credits
-:alieninv:00000000:2009:00000078:FFFFFFFF:Invaders never drop
-:alieninv:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
-:alieninv:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
-:alieninv:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
-:alieninv:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
-:alieninv:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
-:alieninv:62000000:0000:00000000:00000000:Bullet Speed always =
-:alieninv:00010000:202C:00000002:FFFFFFFF:Slow
-:alieninv:00010000:202C:00000004:FFFFFFFF:Normal
-:alieninv:00010000:202C:00000006:FFFFFFFF:Fast
-:alieninv:00010000:202C:00000008:FFFFFFFF:V Fast
-:alieninv:00010000:202C:0000000A:FFFFFFFF:Turbo
-:alieninv:20800000:163E:00000000:FFFFFFFF:Autofire Mode
-:alieninv:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
-:alieninv:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
-:alieninv:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
-:alieninv:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
-:alieninv:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
-:alieninv:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
-:alieninv:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
-:alieninv:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
-:alieninv:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
-:alieninv:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
-:alieninv:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
-:alieninv:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
-:alieninv:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
-:alieninv:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
-:alieninv:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
-:alieninv:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
-:alieninv:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
-:alieninv:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
-:alieninv:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
-:alieninv:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
-:alieninv:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
-:alieninv:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
-:alieninv:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
-:alieninv:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
-:alieninv:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
-:alieninv:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
-:alieninv:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
-:alieninv:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
-:alieninv:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
-:alieninv:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
-:alieninv:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
-:alieninv:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
-:alieninv:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
-:alieninv:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
-:alieninv:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
-:alieninv:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
-:alieninv:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
-:alieninv:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
-:alieninv:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
-:alieninv:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
-:alieninv:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
-:alieninv:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
-:alieninv:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
-:alieninv:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
-:alieninv:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
-:alieninv:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
-:alieninv:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
-:alieninv:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
-:alieninv:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
-:alieninv:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
-:alieninv:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
-:alieninv:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
-:alieninv:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
-:alieninv:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
-:alieninv:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
-:alieninv:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
-:alieninv:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
-:alieninv:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
-:alieninv:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
-:alieninv:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
-:alieninv:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
-:alieninv:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
-:alieninv:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
-:alieninv:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
-:alieninv:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
-:alieninv:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
-:alieninv:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
-:alieninv:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
-:alieninv:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
-:alieninv:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
-:alieninv:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
-:alieninv:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
-:alieninv:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
-:alieninv:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
-:alieninv:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
-:alieninv:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
-:alieninv:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
-:alieninv:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
-:alieninv:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
-:alieninv:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
-:alieninv:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
-:alieninv:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
-:alieninv:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
-:alieninv:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
-:alieninv:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
-:alieninv:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
-:alieninv:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
-:alieninv:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
-:alieninv:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
-:alieninv:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
-:alieninv:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
-:alieninv:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
-:alieninv:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
-:alieninv:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
-:alieninv:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
-:alieninv:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
-:alieninv:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
-:alieninv:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
-:alieninv:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
-:alieninv:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
-:alieninv:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
-:alieninv:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
-:alieninv:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
-:alieninv:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
-:alieninv:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
-:alieninv:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
-:alieninv:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
-:alieninv:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
-:alieninv:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
-:alieninv:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
-:alieninv:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
-:alieninv:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
+:alieninvp2:00000000:20EB:00000099:FFFFFFFF:Infinite Credits
+:alieninvp2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
+:alieninvp2:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
+:alieninvp2:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
+:alieninvp2:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
+:alieninvp2:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
+:alieninvp2:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
+:alieninvp2:62000000:0000:00000000:00000000:Bullet Speed always =
+:alieninvp2:00010000:202C:00000002:FFFFFFFF:Slow
+:alieninvp2:00010000:202C:00000004:FFFFFFFF:Normal
+:alieninvp2:00010000:202C:00000006:FFFFFFFF:Fast
+:alieninvp2:00010000:202C:00000008:FFFFFFFF:V Fast
+:alieninvp2:00010000:202C:0000000A:FFFFFFFF:Turbo
+:alieninvp2:20800000:163E:00000000:FFFFFFFF:Autofire Mode
+:alieninvp2:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
+:alieninvp2:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
+:alieninvp2:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
+:alieninvp2:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
+:alieninvp2:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
+:alieninvp2:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
+:alieninvp2:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
+:alieninvp2:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
+:alieninvp2:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
+:alieninvp2:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
+:alieninvp2:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
+:alieninvp2:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
+:alieninvp2:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
+:alieninvp2:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
+:alieninvp2:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
+:alieninvp2:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
+:alieninvp2:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
+:alieninvp2:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
+:alieninvp2:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
+:alieninvp2:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
+:alieninvp2:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
+:alieninvp2:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
+:alieninvp2:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
+:alieninvp2:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
+:alieninvp2:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
+:alieninvp2:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
+:alieninvp2:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
+:alieninvp2:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
+:alieninvp2:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
+:alieninvp2:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
+:alieninvp2:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
+:alieninvp2:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
+:alieninvp2:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
+:alieninvp2:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
+:alieninvp2:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
+:alieninvp2:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
+:alieninvp2:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
+:alieninvp2:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
+:alieninvp2:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
+:alieninvp2:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
+:alieninvp2:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
+:alieninvp2:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
+:alieninvp2:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
+:alieninvp2:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
+:alieninvp2:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
+:alieninvp2:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
+:alieninvp2:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
+:alieninvp2:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
+:alieninvp2:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
+:alieninvp2:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
+:alieninvp2:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
+:alieninvp2:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
+:alieninvp2:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
+:alieninvp2:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
+:alieninvp2:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
+:alieninvp2:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
+:alieninvp2:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
+:alieninvp2:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
+:alieninvp2:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
+:alieninvp2:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
+:alieninvp2:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
+:alieninvp2:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
+:alieninvp2:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
+:alieninvp2:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
+:alieninvp2:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
+:alieninvp2:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
+:alieninvp2:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
+:alieninvp2:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
+:alieninvp2:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
+:alieninvp2:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
+:alieninvp2:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
+:alieninvp2:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
+:alieninvp2:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
+:alieninvp2:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
+:alieninvp2:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
+:alieninvp2:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
+:alieninvp2:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
+:alieninvp2:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
+:alieninvp2:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
+:alieninvp2:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
+:alieninvp2:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
+:alieninvp2:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
+:alieninvp2:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
+:alieninvp2:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
+:alieninvp2:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
+:alieninvp2:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
+:alieninvp2:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
+:alieninvp2:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
+:alieninvp2:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
+:alieninvp2:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
+:alieninvp2:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
+:alieninvp2:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
+:alieninvp2:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
+:alieninvp2:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
+:alieninvp2:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
+:alieninvp2:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
+:alieninvp2:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
+:alieninvp2:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
+:alieninvp2:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
+:alieninvp2:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
+:alieninvp2:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
+:alieninvp2:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
+:alieninvp2:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
+:alieninvp2:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
+:alieninvp2:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
+:alieninvp2:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
+:alieninvp2:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
+:alieninvp2:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
+:alieninvp2:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
+:alieninvp2:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
+:alieninvp2:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
+:alieninvp2:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Aliens (World set 1) ]
 :aliens:00000000:0802:00000099:FFFFFFFF:Infinite Credits
@@ -47711,13 +47711,13 @@
 :galturbo:00100000:4013:00000000:00001010:Rapid Fire:This cheat enables continuous attack during by holding the fire button
 
 ; [ Galaxy Wars (Universal set 2) ]
-:galxwar2:00000000:2061:00000005:FFFFFFFF:Infinite Lives
+:galxwars2:00000000:2061:00000005:FFFFFFFF:Infinite Lives
 
 ; [ Galaxy Wars (Universal set 1) ]
 :galxwars:00000000:2061:00000005:FFFFFFFF:Infinite Lives
 
 ; [ Galaxy Wars (Taito?) ]
-:galxwart:00000000:2061:00000005:FFFFFFFF:Infinite Lives
+:galxwarst:00000000:2061:00000005:FFFFFFFF:Infinite Lives
 
 ; [ Game Paradise - Master of Shooting! / Game Tengoku - The Game Paradise, The ]
 :gametngk:00000300:FEE0020E:00000006:FFFFFFFF:Select Stage:0x07 is Time Attack Stage
@@ -61978,10 +61978,10 @@
 :invinco:00000000:961E:00000050:FFFFFFFF:Enemies Don't Shoot
 
 ; [ Invader's Revenge (Dutchford) ]
-:invrvnga:00000000:2083:00000006:FFFFFFFF:Infinite Lives PL1
-:invrvnga:00000000:2085:00000040:FFFFFFFF:Infinite Energy PL1
-:invrvnga:00000000:20C3:00000006:FFFFFFFF:Infinite Lives PL2
-:invrvnga:00000000:20C5:00000040:FFFFFFFF:Infinite Energy PL2
+:invrvngedu:00000000:2083:00000006:FFFFFFFF:Infinite Lives PL1
+:invrvngedu:00000000:2085:00000040:FFFFFFFF:Infinite Energy PL1
+:invrvngedu:00000000:20C3:00000006:FFFFFFFF:Infinite Lives PL2
+:invrvngedu:00000000:20C5:00000040:FFFFFFFF:Infinite Energy PL2
 
 ; [ Invader's Revenge ]
 :invrvnge:00000000:2083:00000006:FFFFFFFF:Infinite Lives PL1
@@ -63439,131 +63439,131 @@
 :jspecter:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Jatre Specter (set 2) ]
-:jspectr2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
-:jspectr2:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
-:jspectr2:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
-:jspectr2:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
-:jspectr2:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
-:jspectr2:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
-:jspectr2:62000000:0000:00000000:00000000:Bullet Speed always =
-:jspectr2:00010000:202C:00000002:FFFFFFFF:Slow
-:jspectr2:00010000:202C:00000004:FFFFFFFF:Normal
-:jspectr2:00010000:202C:00000006:FFFFFFFF:Fast
-:jspectr2:00010000:202C:00000008:FFFFFFFF:V Fast
-:jspectr2:00010000:202C:0000000A:FFFFFFFF:Turbo
-:jspectr2:20800000:163E:00000000:FFFFFFFF:Autofire Mode
-:jspectr2:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
-:jspectr2:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
-:jspectr2:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
-:jspectr2:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
-:jspectr2:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
-:jspectr2:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
-:jspectr2:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
-:jspectr2:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
-:jspectr2:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
-:jspectr2:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
-:jspectr2:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
-:jspectr2:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
-:jspectr2:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
-:jspectr2:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
-:jspectr2:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
-:jspectr2:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
-:jspectr2:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
-:jspectr2:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
-:jspectr2:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
-:jspectr2:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
-:jspectr2:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
-:jspectr2:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
-:jspectr2:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
-:jspectr2:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
-:jspectr2:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
-:jspectr2:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
-:jspectr2:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
-:jspectr2:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
-:jspectr2:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
-:jspectr2:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
-:jspectr2:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
-:jspectr2:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
-:jspectr2:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
-:jspectr2:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
-:jspectr2:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
-:jspectr2:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
-:jspectr2:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
-:jspectr2:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
-:jspectr2:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
-:jspectr2:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
-:jspectr2:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
-:jspectr2:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
-:jspectr2:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
-:jspectr2:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
-:jspectr2:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
-:jspectr2:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
-:jspectr2:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
-:jspectr2:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
-:jspectr2:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
-:jspectr2:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
-:jspectr2:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
-:jspectr2:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
-:jspectr2:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
-:jspectr2:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
-:jspectr2:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
-:jspectr2:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
-:jspectr2:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
-:jspectr2:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
-:jspectr2:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
-:jspectr2:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
-:jspectr2:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
-:jspectr2:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
-:jspectr2:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
-:jspectr2:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
-:jspectr2:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
-:jspectr2:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
-:jspectr2:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
-:jspectr2:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
-:jspectr2:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
-:jspectr2:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
-:jspectr2:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
-:jspectr2:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
-:jspectr2:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
-:jspectr2:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
-:jspectr2:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
-:jspectr2:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
-:jspectr2:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
-:jspectr2:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
-:jspectr2:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
-:jspectr2:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
-:jspectr2:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
-:jspectr2:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
-:jspectr2:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
-:jspectr2:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
-:jspectr2:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
-:jspectr2:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
-:jspectr2:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
-:jspectr2:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
-:jspectr2:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
-:jspectr2:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
-:jspectr2:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
-:jspectr2:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
-:jspectr2:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
-:jspectr2:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
-:jspectr2:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
-:jspectr2:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
-:jspectr2:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
-:jspectr2:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
-:jspectr2:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
-:jspectr2:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
-:jspectr2:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
-:jspectr2:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
-:jspectr2:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
-:jspectr2:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
-:jspectr2:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
-:jspectr2:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
-:jspectr2:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
-:jspectr2:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
-:jspectr2:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
-:jspectr2:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
-:jspectr2:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
-:jspectr2:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
+:jspecter2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
+:jspecter2:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
+:jspecter2:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
+:jspecter2:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
+:jspecter2:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
+:jspecter2:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
+:jspecter2:62000000:0000:00000000:00000000:Bullet Speed always =
+:jspecter2:00010000:202C:00000002:FFFFFFFF:Slow
+:jspecter2:00010000:202C:00000004:FFFFFFFF:Normal
+:jspecter2:00010000:202C:00000006:FFFFFFFF:Fast
+:jspecter2:00010000:202C:00000008:FFFFFFFF:V Fast
+:jspecter2:00010000:202C:0000000A:FFFFFFFF:Turbo
+:jspecter2:20800000:163E:00000000:FFFFFFFF:Autofire Mode
+:jspecter2:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
+:jspecter2:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
+:jspecter2:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
+:jspecter2:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
+:jspecter2:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
+:jspecter2:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
+:jspecter2:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
+:jspecter2:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
+:jspecter2:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
+:jspecter2:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
+:jspecter2:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
+:jspecter2:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
+:jspecter2:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
+:jspecter2:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
+:jspecter2:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
+:jspecter2:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
+:jspecter2:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
+:jspecter2:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
+:jspecter2:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
+:jspecter2:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
+:jspecter2:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
+:jspecter2:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
+:jspecter2:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
+:jspecter2:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
+:jspecter2:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
+:jspecter2:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
+:jspecter2:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
+:jspecter2:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
+:jspecter2:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
+:jspecter2:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
+:jspecter2:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
+:jspecter2:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
+:jspecter2:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
+:jspecter2:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
+:jspecter2:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
+:jspecter2:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
+:jspecter2:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
+:jspecter2:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
+:jspecter2:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
+:jspecter2:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
+:jspecter2:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
+:jspecter2:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
+:jspecter2:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
+:jspecter2:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
+:jspecter2:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
+:jspecter2:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
+:jspecter2:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
+:jspecter2:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
+:jspecter2:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
+:jspecter2:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
+:jspecter2:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
+:jspecter2:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
+:jspecter2:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
+:jspecter2:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
+:jspecter2:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
+:jspecter2:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
+:jspecter2:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
+:jspecter2:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
+:jspecter2:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
+:jspecter2:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
+:jspecter2:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
+:jspecter2:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
+:jspecter2:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
+:jspecter2:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
+:jspecter2:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
+:jspecter2:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
+:jspecter2:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
+:jspecter2:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
+:jspecter2:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
+:jspecter2:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
+:jspecter2:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
+:jspecter2:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
+:jspecter2:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
+:jspecter2:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
+:jspecter2:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
+:jspecter2:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
+:jspecter2:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
+:jspecter2:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
+:jspecter2:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
+:jspecter2:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
+:jspecter2:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
+:jspecter2:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
+:jspecter2:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
+:jspecter2:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
+:jspecter2:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
+:jspecter2:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
+:jspecter2:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
+:jspecter2:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
+:jspecter2:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
+:jspecter2:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
+:jspecter2:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
+:jspecter2:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
+:jspecter2:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
+:jspecter2:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
+:jspecter2:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
+:jspecter2:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
+:jspecter2:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
+:jspecter2:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
+:jspecter2:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
+:jspecter2:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
+:jspecter2:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
+:jspecter2:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
+:jspecter2:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
+:jspecter2:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
+:jspecter2:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
+:jspecter2:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
+:jspecter2:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
+:jspecter2:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
+:jspecter2:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
+:jspecter2:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
+:jspecter2:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
+:jspecter2:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Jump Bug ]
 :jumpbug:00000000:421B:00000002:FFFFFFFF:Invincibility
@@ -123379,11 +123379,11 @@
 :overtop:00010000:10FD82:00000000:FFFFFFFF:Home (NEOGEO)
 
 ; [ Ozma Wars (set 2) ]
-:ozmawar2:00000000:203B:0000000F:FFFFFFFF:Infinite Energy
-:ozmawar2:00010000:203C:00000027:FFFFFFFF:Infinite Energy (2/2)
-:ozmawar2:20A00000:08AC:0008A1C3:FFFFFFFF:Invincibility
-:ozmawar2:20810000:131A:000000C3:FFFFFFFF:Invincibllity (2/2):1st = Enemy, 2nd = Fire
-:ozmawar2:00000000:205C:00000000:FFFFFFFF:Rapid Fire
+:ozmawars2:00000000:203B:0000000F:FFFFFFFF:Infinite Energy
+:ozmawars2:00010000:203C:00000027:FFFFFFFF:Infinite Energy (2/2)
+:ozmawars2:20A00000:08AC:0008A1C3:FFFFFFFF:Invincibility
+:ozmawars2:20810000:131A:000000C3:FFFFFFFF:Invincibllity (2/2):1st = Enemy, 2nd = Fire
+:ozmawars2:00000000:205C:00000000:FFFFFFFF:Rapid Fire
 
 ; [ Ozma Wars (set 1) ]
 :ozmawars:00000000:203B:0000000F:FFFFFFFF:Infinite Energy
@@ -147730,11 +147730,11 @@
 :schaser:00000000:2330:00000003:FFFFFFFF:Infinite Lives PL2
 
 ; [ Space Chaser (CV version) ]
-:schasrcv:00000000:233D:00000009:FFFFFFFF:Infinite Credits
-:schasrcv:00000000:2014:000000E0:FFFFFFFF:Infinite Fuel
-:schasrcv:00000000:2012:00000099:FFFFFFFF:Infinite Bonus
-:schasrcv:00000000:232F:00000003:FFFFFFFF:Infinite Lives PL1
-:schasrcv:00000000:2330:00000003:FFFFFFFF:Infinite Lives PL2
+:schasercv:00000000:233D:00000009:FFFFFFFF:Infinite Credits
+:schasercv:00000000:2014:000000E0:FFFFFFFF:Infinite Fuel
+:schasercv:00000000:2012:00000099:FFFFFFFF:Infinite Bonus
+:schasercv:00000000:232F:00000003:FFFFFFFF:Infinite Lives PL1
+:schasercv:00000000:2330:00000003:FFFFFFFF:Infinite Lives PL2
 
 ; [ Schmeiser Robo (Japan) ]
 :schmeisr:00000000:FF06A7:00000063:FFFFFFFF:Infinite Credits
@@ -148281,131 +148281,131 @@
 :searchey:00000000:123EC3:00000009:FFFFFFFF:Infinite Clues PL2
 
 ; [ Super Earth Invasion (set 2) ]
-:searthia:00000000:2009:00000078:FFFFFFFF:Invaders never drop
-:searthia:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
-:searthia:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
-:searthia:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
-:searthia:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
-:searthia:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
-:searthia:62000000:0000:00000000:00000000:Bullet Speed always =
-:searthia:00010000:202C:00000002:FFFFFFFF:Slow
-:searthia:00010000:202C:00000004:FFFFFFFF:Normal
-:searthia:00010000:202C:00000006:FFFFFFFF:Fast
-:searthia:00010000:202C:00000008:FFFFFFFF:V Fast
-:searthia:00010000:202C:0000000A:FFFFFFFF:Turbo
-:searthia:20800000:163E:00000000:FFFFFFFF:Autofire Mode
-:searthia:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
-:searthia:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
-:searthia:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
-:searthia:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
-:searthia:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
-:searthia:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
-:searthia:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
-:searthia:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
-:searthia:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
-:searthia:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
-:searthia:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
-:searthia:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
-:searthia:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
-:searthia:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
-:searthia:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
-:searthia:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
-:searthia:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
-:searthia:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
-:searthia:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
-:searthia:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
-:searthia:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
-:searthia:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
-:searthia:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
-:searthia:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
-:searthia:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
-:searthia:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
-:searthia:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
-:searthia:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
-:searthia:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
-:searthia:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
-:searthia:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
-:searthia:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
-:searthia:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
-:searthia:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
-:searthia:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
-:searthia:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
-:searthia:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
-:searthia:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
-:searthia:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
-:searthia:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
-:searthia:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
-:searthia:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
-:searthia:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
-:searthia:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
-:searthia:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
-:searthia:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
-:searthia:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
-:searthia:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
-:searthia:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
-:searthia:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
-:searthia:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
-:searthia:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
-:searthia:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
-:searthia:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
-:searthia:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
-:searthia:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
-:searthia:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
-:searthia:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
-:searthia:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
-:searthia:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
-:searthia:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
-:searthia:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
-:searthia:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
-:searthia:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
-:searthia:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
-:searthia:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
-:searthia:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
-:searthia:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
-:searthia:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
-:searthia:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
-:searthia:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
-:searthia:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
-:searthia:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
-:searthia:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
-:searthia:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
-:searthia:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
-:searthia:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
-:searthia:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
-:searthia:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
-:searthia:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
-:searthia:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
-:searthia:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
-:searthia:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
-:searthia:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
-:searthia:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
-:searthia:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
-:searthia:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
-:searthia:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
-:searthia:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
-:searthia:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
-:searthia:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
-:searthia:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
-:searthia:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
-:searthia:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
-:searthia:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
-:searthia:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
-:searthia:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
-:searthia:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
-:searthia:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
-:searthia:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
-:searthia:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
-:searthia:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
-:searthia:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
-:searthia:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
-:searthia:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
-:searthia:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
-:searthia:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
-:searthia:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
-:searthia:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
-:searthia:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
-:searthia:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
-:searthia:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
+:searthina:00000000:2009:00000078:FFFFFFFF:Invaders never drop
+:searthina:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
+:searthina:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
+:searthina:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
+:searthina:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
+:searthina:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
+:searthina:62000000:0000:00000000:00000000:Bullet Speed always =
+:searthina:00010000:202C:00000002:FFFFFFFF:Slow
+:searthina:00010000:202C:00000004:FFFFFFFF:Normal
+:searthina:00010000:202C:00000006:FFFFFFFF:Fast
+:searthina:00010000:202C:00000008:FFFFFFFF:V Fast
+:searthina:00010000:202C:0000000A:FFFFFFFF:Turbo
+:searthina:20800000:163E:00000000:FFFFFFFF:Autofire Mode
+:searthina:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
+:searthina:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
+:searthina:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
+:searthina:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
+:searthina:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
+:searthina:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
+:searthina:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
+:searthina:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
+:searthina:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
+:searthina:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
+:searthina:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
+:searthina:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
+:searthina:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
+:searthina:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
+:searthina:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
+:searthina:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
+:searthina:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
+:searthina:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
+:searthina:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
+:searthina:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
+:searthina:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
+:searthina:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
+:searthina:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
+:searthina:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
+:searthina:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
+:searthina:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
+:searthina:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
+:searthina:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
+:searthina:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
+:searthina:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
+:searthina:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
+:searthina:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
+:searthina:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
+:searthina:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
+:searthina:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
+:searthina:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
+:searthina:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
+:searthina:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
+:searthina:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
+:searthina:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
+:searthina:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
+:searthina:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
+:searthina:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
+:searthina:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
+:searthina:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
+:searthina:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
+:searthina:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
+:searthina:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
+:searthina:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
+:searthina:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
+:searthina:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
+:searthina:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
+:searthina:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
+:searthina:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
+:searthina:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
+:searthina:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
+:searthina:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
+:searthina:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
+:searthina:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
+:searthina:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
+:searthina:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
+:searthina:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
+:searthina:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
+:searthina:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
+:searthina:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
+:searthina:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
+:searthina:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
+:searthina:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
+:searthina:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
+:searthina:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
+:searthina:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
+:searthina:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
+:searthina:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
+:searthina:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
+:searthina:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
+:searthina:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
+:searthina:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
+:searthina:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
+:searthina:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
+:searthina:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
+:searthina:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
+:searthina:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
+:searthina:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
+:searthina:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
+:searthina:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
+:searthina:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
+:searthina:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
+:searthina:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
+:searthina:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
+:searthina:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
+:searthina:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
+:searthina:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
+:searthina:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
+:searthina:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
+:searthina:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
+:searthina:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
+:searthina:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
+:searthina:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
+:searthina:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
+:searthina:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
+:searthina:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
+:searthina:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
+:searthina:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
+:searthina:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
+:searthina:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
+:searthina:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
+:searthina:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
+:searthina:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
+:searthina:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
+:searthina:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
+:searthina:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
+:searthina:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Super Earth Invasion (set 1) ]
 :searthin:00000000:2009:00000078:FFFFFFFF:Invaders never drop
@@ -177429,131 +177429,131 @@
 :sstrikra:00010001:10181F:00000008:00000008:Next Extra Weapon=Homing Now!PL2 (2/2)
 
 ; [ Space Stranger 2 ]
-:sstrngr2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
-:sstrngr2:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
-:sstrngr2:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
-:sstrngr2:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
-:sstrngr2:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
-:sstrngr2:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
-:sstrngr2:62000000:0000:00000000:00000000:Bullet Speed always =
-:sstrngr2:00010000:202C:00000002:FFFFFFFF:Slow
-:sstrngr2:00010000:202C:00000004:FFFFFFFF:Normal
-:sstrngr2:00010000:202C:00000006:FFFFFFFF:Fast
-:sstrngr2:00010000:202C:00000008:FFFFFFFF:V Fast
-:sstrngr2:00010000:202C:0000000A:FFFFFFFF:Turbo
-:sstrngr2:20800000:163E:00000000:FFFFFFFF:Autofire Mode
-:sstrngr2:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
-:sstrngr2:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
-:sstrngr2:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
-:sstrngr2:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
-:sstrngr2:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
-:sstrngr2:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
-:sstrngr2:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
-:sstrngr2:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
-:sstrngr2:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
-:sstrngr2:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
-:sstrngr2:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
-:sstrngr2:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
-:sstrngr2:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
-:sstrngr2:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
-:sstrngr2:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
-:sstrngr2:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
-:sstrngr2:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
-:sstrngr2:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
-:sstrngr2:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
-:sstrngr2:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
-:sstrngr2:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
-:sstrngr2:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
-:sstrngr2:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
-:sstrngr2:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
-:sstrngr2:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
-:sstrngr2:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
-:sstrngr2:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
-:sstrngr2:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
-:sstrngr2:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
-:sstrngr2:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
-:sstrngr2:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
-:sstrngr2:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
-:sstrngr2:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
-:sstrngr2:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
-:sstrngr2:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
-:sstrngr2:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
-:sstrngr2:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
-:sstrngr2:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
-:sstrngr2:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
-:sstrngr2:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
-:sstrngr2:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
-:sstrngr2:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
-:sstrngr2:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
-:sstrngr2:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
-:sstrngr2:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
-:sstrngr2:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
-:sstrngr2:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
-:sstrngr2:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
-:sstrngr2:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
-:sstrngr2:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
-:sstrngr2:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
-:sstrngr2:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
-:sstrngr2:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
-:sstrngr2:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
-:sstrngr2:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
-:sstrngr2:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
-:sstrngr2:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
-:sstrngr2:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
-:sstrngr2:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
-:sstrngr2:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
-:sstrngr2:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
-:sstrngr2:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
-:sstrngr2:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
-:sstrngr2:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
-:sstrngr2:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
-:sstrngr2:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
-:sstrngr2:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
-:sstrngr2:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
-:sstrngr2:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
-:sstrngr2:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
-:sstrngr2:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
-:sstrngr2:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
-:sstrngr2:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
-:sstrngr2:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
-:sstrngr2:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
-:sstrngr2:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
-:sstrngr2:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
-:sstrngr2:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
-:sstrngr2:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
-:sstrngr2:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
-:sstrngr2:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
-:sstrngr2:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
-:sstrngr2:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
-:sstrngr2:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
-:sstrngr2:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
-:sstrngr2:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
-:sstrngr2:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
-:sstrngr2:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
-:sstrngr2:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
-:sstrngr2:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
-:sstrngr2:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
-:sstrngr2:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
-:sstrngr2:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
-:sstrngr2:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
-:sstrngr2:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
-:sstrngr2:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
-:sstrngr2:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
-:sstrngr2:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
-:sstrngr2:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
-:sstrngr2:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
-:sstrngr2:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
-:sstrngr2:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
-:sstrngr2:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
-:sstrngr2:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
-:sstrngr2:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
-:sstrngr2:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
-:sstrngr2:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
-:sstrngr2:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
-:sstrngr2:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
-:sstrngr2:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
-:sstrngr2:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
-:sstrngr2:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
+:sstrangr2:00000000:2009:00000078:FFFFFFFF:Invaders never drop
+:sstrangr2:00000000:2069:00000000:FFFFFFFF:Invaders don't fire
+:sstrangr2:00010000:206A:00000030:FFFFFFFF:Invaders don't fire (2/2)
+:sstrangr2:20800000:0293:000000C3:FFFFFFFF:Bullet Invincibility
+:sstrangr2:00010000:2094:00000000:00000004:Bullet Invincibility (2/3)
+:sstrangr2:00010000:2015:000000FF:FFFFFFFF:Bullet Invincibility (3/3)
+:sstrangr2:62000000:0000:00000000:00000000:Bullet Speed always =
+:sstrangr2:00010000:202C:00000002:FFFFFFFF:Slow
+:sstrangr2:00010000:202C:00000004:FFFFFFFF:Normal
+:sstrangr2:00010000:202C:00000006:FFFFFFFF:Fast
+:sstrangr2:00010000:202C:00000008:FFFFFFFF:V Fast
+:sstrangr2:00010000:202C:0000000A:FFFFFFFF:Turbo
+:sstrangr2:20800000:163E:00000000:FFFFFFFF:Autofire Mode
+:sstrangr2:00000000:21FF:00000007:FFFFFFFF:Infinite Lives PL1
+:sstrangr2:00000001:2100:00000000:FFFFFFFF:Kill All Invaders Now! PL1
+:sstrangr2:00010001:2101:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (2/55):1st Line includes 1/55
+:sstrangr2:00010001:2102:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (3/55)
+:sstrangr2:00010001:2103:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (4/55)
+:sstrangr2:00010001:2104:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (5/55)
+:sstrangr2:00010001:2105:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (6/55)
+:sstrangr2:00010001:2106:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (7/55)
+:sstrangr2:00010001:2107:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (8/55)
+:sstrangr2:00010001:2108:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (9/55)
+:sstrangr2:00010001:2109:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (10/55)
+:sstrangr2:00010001:210A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (11/55)
+:sstrangr2:00010001:210B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (12/55):2nd Line
+:sstrangr2:00010001:210C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (13/55)
+:sstrangr2:00010001:210D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (14/55)
+:sstrangr2:00010001:210E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (15/55)
+:sstrangr2:00010001:210F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (16/55)
+:sstrangr2:00010001:2110:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (17/55)
+:sstrangr2:00010001:2111:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (18/55)
+:sstrangr2:00010001:2112:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (19/55)
+:sstrangr2:00010001:2113:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (20/55)
+:sstrangr2:00010001:2114:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (21/55)
+:sstrangr2:00010001:2115:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (22/55)
+:sstrangr2:00010001:2116:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (23/55):3rd Line
+:sstrangr2:00010001:2117:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (24/55)
+:sstrangr2:00010001:2118:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (25/55)
+:sstrangr2:00010001:2119:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (26/55)
+:sstrangr2:00010001:211A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (27/55)
+:sstrangr2:00010001:211B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (28/55)
+:sstrangr2:00010001:211C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (29/55)
+:sstrangr2:00010001:211D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (30/55)
+:sstrangr2:00010001:211E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (31/55)
+:sstrangr2:00010001:211F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (32/55)
+:sstrangr2:00010001:2120:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (33/55)
+:sstrangr2:00010001:2121:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (34/55):4th Line
+:sstrangr2:00010001:2122:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (35/55)
+:sstrangr2:00010001:2123:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (36/55)
+:sstrangr2:00010001:2124:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (37/55)
+:sstrangr2:00010001:2125:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (38/55)
+:sstrangr2:00010001:2126:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (39/55)
+:sstrangr2:00010001:2127:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (40/55)
+:sstrangr2:00010001:2128:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (41/55)
+:sstrangr2:00010001:2129:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (42/55)
+:sstrangr2:00010001:212A:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (43/55)
+:sstrangr2:00010001:212B:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (44/55)
+:sstrangr2:00010001:212C:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (45/55):Top Line
+:sstrangr2:00010001:212D:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (46/55)
+:sstrangr2:00010001:212E:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (47/55)
+:sstrangr2:00010001:212F:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (48/55)
+:sstrangr2:00010001:2130:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (49/55)
+:sstrangr2:00010001:2131:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (50/55)
+:sstrangr2:00010001:2132:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (51/55)
+:sstrangr2:00010001:2133:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (52/55)
+:sstrangr2:00010001:2134:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (53/55)
+:sstrangr2:00010001:2135:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (54/55)
+:sstrangr2:00010001:2136:00000000:FFFFFFFF:Kill All Invaders Now! PL1 (55/55)
+:sstrangr2:00000000:22FF:00000007:FFFFFFFF:Infinite Lives PL2
+:sstrangr2:00000001:2200:00000000:FFFFFFFF:Kill All Invaders Now! PL2
+:sstrangr2:00010001:2201:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (2/55):1st Line includes 1/55
+:sstrangr2:00010001:2202:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (3/55)
+:sstrangr2:00010001:2203:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (4/55)
+:sstrangr2:00010001:2204:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (5/55)
+:sstrangr2:00010001:2205:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (6/55)
+:sstrangr2:00010001:2206:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (7/55)
+:sstrangr2:00010001:2207:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (8/55)
+:sstrangr2:00010001:2208:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (9/55)
+:sstrangr2:00010001:2209:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (10/55)
+:sstrangr2:00010001:220A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (11/55)
+:sstrangr2:00010001:220B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (12/55):2nd Line
+:sstrangr2:00010001:220C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (13/55)
+:sstrangr2:00010001:220D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (14/55)
+:sstrangr2:00010001:220E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (15/55)
+:sstrangr2:00010001:220F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (16/55)
+:sstrangr2:00010001:2210:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (17/55)
+:sstrangr2:00010001:2211:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (18/55)
+:sstrangr2:00010001:2212:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (19/55)
+:sstrangr2:00010001:2213:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (20/55)
+:sstrangr2:00010001:2214:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (21/55)
+:sstrangr2:00010001:2215:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (22/55)
+:sstrangr2:00010001:2216:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (23/55):3rd Line
+:sstrangr2:00010001:2217:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (24/55)
+:sstrangr2:00010001:2218:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (25/55)
+:sstrangr2:00010001:2219:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (26/55)
+:sstrangr2:00010001:221A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (27/55)
+:sstrangr2:00010001:221B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (28/55)
+:sstrangr2:00010001:221C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (29/55)
+:sstrangr2:00010001:221D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (30/55)
+:sstrangr2:00010001:221E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (31/55)
+:sstrangr2:00010001:221F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (32/55)
+:sstrangr2:00010001:2220:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (33/55)
+:sstrangr2:00010001:2221:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (34/55):4th Line
+:sstrangr2:00010001:2222:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (35/55)
+:sstrangr2:00010001:2223:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (36/55)
+:sstrangr2:00010001:2224:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (37/55)
+:sstrangr2:00010001:2225:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (38/55)
+:sstrangr2:00010001:2226:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (39/55)
+:sstrangr2:00010001:2227:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (40/55)
+:sstrangr2:00010001:2228:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (41/55)
+:sstrangr2:00010001:2229:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (42/55)
+:sstrangr2:00010001:222A:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (43/55)
+:sstrangr2:00010001:222B:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (44/55)
+:sstrangr2:00010001:222C:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (45/55):Top Line
+:sstrangr2:00010001:222D:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (46/55)
+:sstrangr2:00010001:222E:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (47/55)
+:sstrangr2:00010001:222F:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (48/55)
+:sstrangr2:00010001:2230:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (49/55)
+:sstrangr2:00010001:2231:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (50/55)
+:sstrangr2:00010001:2232:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (51/55)
+:sstrangr2:00010001:2233:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (52/55)
+:sstrangr2:00010001:2234:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (53/55)
+:sstrangr2:00010001:2235:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (54/55)
+:sstrangr2:00010001:2236:00000000:FFFFFFFF:Kill All Invaders Now! PL2 (55/55)
 
 ; [ Space Tactics ]
 :stactics:00000000:4087:00000004:FFFFFFFF:Infinite Shields
@@ -202274,11 +202274,11 @@
 :yokaidko:00000006:40B0:00000000:FFFFFFFF:Watch me for answer
 
 ; [ Yosaku To Donbei (set 2) ]
-:yosakdoa:00000000:23A7:00000099:FFFFFFFF:Infinite Credits
-:yosakdoa:00000000:202C:00000003:FFFFFFFF:Infinite Lives
-:yosakdoa:00000000:2025:00000049:FFFFFFFF:Birds never drop
-:yosakdoa:00000000:201C:00000059:FFFFFFFF:Birds don't fire
-:yosakdoa:00010000:2032:00000059:FFFFFFFF:Birds don't fire (2/2)
+:yosakdona:00000000:23A7:00000099:FFFFFFFF:Infinite Credits
+:yosakdona:00000000:202C:00000003:FFFFFFFF:Infinite Lives
+:yosakdona:00000000:2025:00000049:FFFFFFFF:Birds never drop
+:yosakdona:00000000:201C:00000059:FFFFFFFF:Birds don't fire
+:yosakdona:00010000:2032:00000059:FFFFFFFF:Birds don't fire (2/2)
 
 ; [ Yosaku To Donbei (set 1) ]
 :yosakdon:00000000:23A7:00000099:FFFFFFFF:Infinite Credits
@@ -204363,7 +204363,7 @@
 ;alexkidd1=alexkidd
 ;alien3=alien3u
 ;alienar=alienaru
-;alieninv=cosmicm2=cosmicmo=invaddlx=invader4=invaderl=invaders=invadpt2=invadrmr=invasion=jspecter=jspectr2=moonbase=searthia=searthin=sicv=sinvemag=sinvzen=sisv=sisv2=sitv=spaceat2=spaceatt=spacewr3=spceking=spcewars=sstrangr=sstrngr2=superinv~polaris~(highspla=highsplt=spacefev=spacefva~=spacelnc)
+;alieninvp2=cosmicm2=cosmicmo=invaddlx=invader4=invaderl=invaders=invadpt2=invadrmr=invasion=jspecter=jspecter2=moonbase=searthina=searthin=sicv=sinvemag=sinvzen=sisv=sisv2=sitv=spaceat2=spaceatt=spacewr3=spceking=spcewars=sstrangr=sstrangr2=superinv~polaris~(highspla=highsplt=spacefev=spacefva~=spacelnc)
 ;aliens=aliens2=aliens3=aliensj=aliensj2=aliensu
 ;aliensynjo=aliensyn2=aliensyn3=aliensyn
 ;aligator=aligatun
@@ -204802,7 +204802,7 @@
 ;galpania~galpanib~galpanic
 ;galpans2=panicstr
 ;galspnbl~hotpinbl
-;galxwar2=galxwars=galxwart=starw
+;galxwars2=galxwars=galxwarst=starw
 ;gangonta=prtytime
 ;gangwarb=gangwars
 ;gardia~gardiab
@@ -204918,7 +204918,7 @@
 ;indytem2~=indytem3~=(indytem4=indytemd=indytemp)
 ;inthunt=inthuntu=kaiteids
 ;intrepi2=intrepid=zaryavos
-;invrvnga=invrvnge
+;invrvngedu=invrvnge
 ;jack=jack2=jack3=treahunt
 ;jackal=jackalj=topgunbl=topgunr
 ;jackrab2=jackrabs=jackrabt
@@ -205154,7 +205154,7 @@
 ;outfxesj=outfxies
 ;outrun=outrundxa=outrunra=outrunb
 ;outzone~=outzonea~=outzonec
-;ozmawars=ozmawar2=solfight=spaceph
+;ozmawars=ozmawars2=solfight=spaceph
 ;p47=p47j
 ;pacland=pacland2=pacland3=paclandm
 ;pacmania~=pacmanij
@@ -205326,7 +205326,7 @@
 ;satansat=zarzon
 ;sbasketb=sbasketo=sbasketu
 ;sbdk~superbik
-;schaser=schasrcv
+;schaser=schasercv
 ;sci=scia=sciu
 ;scion=scionc
 ;scontra=scontraj
@@ -205596,7 +205596,7 @@
 ;xmvsf=xmvsfa=xmvsfar1=xmvsfb=xmvsfh=xmvsfj=xmvsfjr1=xmvsfjr2=xmvsfr1=xmvsfu=xmvsfur1
 ;xybots=xybots1=xybotsf=xybotsg~=xybots0
 ;yiear=yiear2
-;yosakdoa=yosakdon
+;yosakdona=yosakdon
 ;zaviga=zavigaj
 ;zeropnt=zeropnta
 ;zigzag=zigzag2
@@ -205643,7 +205643,7 @@
 ; alibaba (made by ShimaPong) [????]
 ; alien3 (made by ShimaPong) [????]
 ; alien3u (made by ShimaPong) [????]
-; alieninv (made by Pugsy) [8080]
+; alieninvp2 (made by Pugsy) [8080]
 ; alpham (made by ShimaPong) [????]
 ; amatelas (updated by ShimaPong) [68000]
 ; amazon (updated by ShimaPong) [68000]
@@ -206012,7 +206012,7 @@
 ; jrpacman (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; jrpacmbl (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; jspecter (made by Pugsy) [8080]
-; jspectr2 (made by Pugsy) [8080]
+; jspecter2 (made by Pugsy) [8080]
 ; jumpcoas (made by ShimaPong) [????]
 ; jumpcoat (made by ShimaPong) [????]
 ; kabukikl (made by ShimaPong) [????]
@@ -206219,7 +206219,7 @@
 ; nunchaku (made by ShimaPong) [????]
 ; nyny (made by Pugsy) [M6809]
 ; nynyg (made by Pugsy) [M6809]
-; ozmawar2 (made by ShimaPong) [8080]
+; ozmawars2 (made by ShimaPong) [8080]
 ; ozmawars (made by ShimaPong) [8080]
 ; pacgal (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
 ; pacheart (made by ShimaPong (Invincibility) & ugetab (Speed Hack)) [Z80]
@@ -206373,7 +206373,7 @@
 ; scregg (made by Pugsy) [M6502]
 ; scorpiona (updated/fixed by ShimaPong) [Z80]
 ; sdungeon (made by ShimaPong) [????]
-; searthia (made by Pugsy) [8080]
+; searthina (made by Pugsy) [8080]
 ; searthin (made by Pugsy) [8080]
 ; seganinj (made by ShimaPong) [Z80]
 ; seganinju (made by ShimaPong) [Z80]
@@ -206462,7 +206462,7 @@
 ; sstarbtl (made by ShimaPong) [????]
 ; sstingry (made by ShimaPong) [????]
 ; sstrangr (made by Pugsy) [8080]
-; sstrngr2 (made by Pugsy) [8080]
+; sstrangr2 (made by Pugsy) [8080]
 ; stactics (made by ShimaPong) [????]
 ; starforc (made by ShimaPong) [Z80]
 ; starforce (made by ShimaPong) [Z80]

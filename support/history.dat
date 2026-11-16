@@ -5579,7 +5579,7 @@ Players : 1
 $end
 
 
-$info=alieninv,
+$info=alieninvp2,
 $bio
 
 Alien Invasion Part II (c) 1978.
@@ -74723,7 +74723,7 @@ A bootleg of this game is known as "Destination Earth".
 $end
 
 
-$info=galxwars,galxwar2,galxwart,
+$info=galxwars,galxwars2,galxwarst,
 $bio
 
 Galaxy Wars (c) 08/1979 Universal.
@@ -97473,7 +97473,7 @@ Arcade Retro Lounge; http://tips.retrogames.com/
 $end
 
 
-$info=invrvnge,invrvnga,
+$info=invrvnge,invrvngeb,invrvngedu,
 $bio
 
 Invader's Revenge (c) 1979 Zenitone Microsec.
@@ -98969,7 +98969,7 @@ NEC PC-Engine Arcade CD (1995)
 $end
 
 
-$info=jspecter,jspectr2,
+$info=jspecter,jspecter2,
 $bio
 
 Jatre Specter (c) 1979 Jatre.
@@ -118183,7 +118183,7 @@ REVISION 2 :
 $end
 
 
-$info=lupin3,
+$info=lupin3,lupin3a,
 $bio
 
 Lupin III (c) 04/1980 Taito.
@@ -152295,7 +152295,7 @@ SNK Neo-Geo CD (1996)
 $end
 
 
-$info=ozmawars,ozmawar2,
+$info=ozmawars,ozmawars2,
 $bio
 
 Ozma Wars (c) 12/1979 SNK.
@@ -159968,7 +159968,7 @@ Leprechaun's Poker Ladies version has some differences :
 $end
 
 
-$info=polaris,polarisa,
+$info=polaris,polarisa,polarisb,
 $bio
 
 Polaris (c) 08/1980 Taito.
@@ -200514,7 +200514,7 @@ GAT stands for 'Game A Tron'.
 $end
 
 
-$info=schaser,schasrcv,
+$info=schaser,schasercv,
 $bio
 
 Space Chaser (c) 10/1979 Taito.
@@ -203425,7 +203425,7 @@ Buttons : 1
 $end
 
 
-$info=sstrngr2,
+$info=sstrangr2,
 $bio
 
 Space Stranger 2 (c) 1979 Yachiyo Electronics.
@@ -217442,7 +217442,7 @@ Players : 1
 $end
 
 
-$info=searthin,searthia,
+$info=searthin,searthina,
 $bio
 
 Super Earth Invasion (c) 1980 Competitive Video.
@@ -262326,7 +262326,7 @@ Nintendo Famicom (1987)
 $end
 
 
-$info=yosakdon,yosakdoa,
+$info=yosakdon,yosakdona,
 $bio
 
 Yosaku to Donbei (c) 1979 Wing.

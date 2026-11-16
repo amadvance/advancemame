@@ -156,7 +156,7 @@ DRIVER_INIT( polaris )
 	videoram_w_p = polaris_videoram_w;
 }
 
-DRIVER_INIT( lupin3 )
+DRIVER_INIT( lupin3a )
 {
 	init_8080bw();
 	videoram_w_p = lupin3_videoram_w;
@@ -237,6 +237,13 @@ void c8080bw_flip_screen_w(int data)
 	}
 }
 
+
+WRITE8_HANDLER( lupin3_port5_w )
+{
+	/* bit 6 selects the color map, bit 5 flips the screen only in cocktail mode */
+	set_vh_global_attribute(&color_map_select, data & 0x40);
+	flip_screen_set((data & 0x20) && (input_port_2_r(0) & 0x04));
+}
 
 void c8080bw_screen_red_w(int data)
 {

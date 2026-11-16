@@ -489,7 +489,7 @@ brdrlinb:  ;******borderline (bootleg)
 0:938d:2:00:00
 
 yosakdon:
-yosakdoa:  ;******yokasu to donbei (set 2)
+yosakdona:  ;******yokasu to donbei (set 2)
 0:23ab:3:00:00
 
 dynablst:
@@ -627,7 +627,7 @@ sitv:
 sicv:
 sisv:
 sisv2:
-alieninv:
+alieninvp2:
 spceking:
 spcewars:
 spacewr3:
@@ -2139,7 +2139,7 @@ griffon:
 ;******invasion & super earth invaders (set 1 & 2)
 invasion:
 searthin:
-searthia:
+searthina:
 0:20f4:2:00:00
 
 dkong3:
@@ -6161,7 +6161,7 @@ robocop:
 
 ;********8080bw.c (space stranger & space stranger 2)
 sstrangr:
-sstrngr2:
+sstrangr2:
 0:20f4:2:00:00
 
 ;********sega.c (zektor (revision b))
@@ -7321,7 +7321,7 @@ invaddlx:
 0:2340:a:1b:1b
 
 invrvnge:
-invrvnga:
+invrvngedu:
 0:2019:3:00:00
 
 jspecter:

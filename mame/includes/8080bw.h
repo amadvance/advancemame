@@ -50,6 +50,7 @@ MACHINE_RESET( polaris );
 MACHINE_RESET( clowns );
 
 WRITE8_HANDLER( indianbt_sh_port7_w );
+WRITE8_HANDLER( lupin3_port5_w );
 
 extern struct Samplesinterface boothill_samples_interface;
 extern struct discrete_sound_block clowns_discrete_interface[];
@@ -80,7 +81,7 @@ DRIVER_INIT( invad2ct );
 DRIVER_INIT( schaser );
 DRIVER_INIT( rollingc );
 DRIVER_INIT( polaris );
-DRIVER_INIT( lupin3 );
+DRIVER_INIT( lupin3a );
 DRIVER_INIT( seawolf );
 DRIVER_INIT( blueshrk );
 DRIVER_INIT( desertgu );
