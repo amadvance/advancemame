@@ -85928,38 +85928,38 @@
 :ksayakyu:00000001:A482:00000002:FFFFFFFF:Set Outs to 2 Now!
 
 ; [ Kyukyoku Tiger (Japan) ]
-:ktiger:00000000:31871:0000000A:FFFFFFFF:Infinite Lives PL1
-:ktiger:00000000:3004D:00000009:FFFFFFFF:Infinite Bombs PL1
-:ktiger:00000000:30023:0000002E:FFFFFFFF:Invincibility PL1
-:ktiger:00010000:30038:00000080:FFFFFFFF:Invincibility PL1 (2/2)
-:ktiger:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
-:ktiger:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
-:ktiger:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
-:ktiger:00000000:3004B:00000028:FFFFFFFF:Always max fire power PL1
-:ktiger:00000000:3005B:00000000:FFFFFFFF:Always Normal fire PL1
-:ktiger:00000000:3005B:0000002C:FFFFFFFF:Always Laser PL1
-:ktiger:00000000:3005B:00000058:FFFFFFFF:Always Multiway fire PL1
-:ktiger:00000000:3005B:00000084:FFFFFFFF:Always 4-sides fire PL1
-:ktiger:00000001:3005B:00000000:FFFFFFFF:Get Normal fire Now! PL1
-:ktiger:00000001:3005B:0000002C:FFFFFFFF:Get Laser Now! PL1
-:ktiger:00000001:3005B:00000058:FFFFFFFF:Get Multiway fire Now! PL1
-:ktiger:00000001:3005B:00000084:FFFFFFFF:Get 4-sides fire Now! PL1
-:ktiger:00000000:31873:0000000A:FFFFFFFF:Infinite Lives PL2
-:ktiger:00000000:300AD:00000009:FFFFFFFF:Infinite Bombs PL2
-:ktiger:00000000:30083:0000002F:FFFFFFFF:Invincibility PL2
-:ktiger:00010000:30098:00000080:FFFFFFFF:Invincibility PL2 (2/2)
-:ktiger:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
-:ktiger:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
-:ktiger:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
-:ktiger:00000000:300AB:00000028:FFFFFFFF:Always max fire power PL2
-:ktiger:00000000:300BB:00000000:FFFFFFFF:Always Normal fire PL2
-:ktiger:00000000:300BB:0000002C:FFFFFFFF:Always Laser PL2
-:ktiger:00000000:300BB:00000058:FFFFFFFF:Always Multiway fire PL2
-:ktiger:00000000:300BB:00000084:FFFFFFFF:Always 4-sides fire PL2
-:ktiger:00000001:300BB:00000000:FFFFFFFF:Get Normal fire Now! PL2
-:ktiger:00000001:300BB:0000002C:FFFFFFFF:Get Laser Now! PL2
-:ktiger:00000001:300BB:00000058:FFFFFFFF:Get Multiway fire Now! PL2
-:ktiger:00000001:300BB:00000084:FFFFFFFF:Get 4-sides fire Now! PL2
+:ktigera:00000000:31871:0000000A:FFFFFFFF:Infinite Lives PL1
+:ktigera:00000000:3004D:00000009:FFFFFFFF:Infinite Bombs PL1
+:ktigera:00000000:30023:0000002E:FFFFFFFF:Invincibility PL1
+:ktigera:00010000:30038:00000080:FFFFFFFF:Invincibility PL1 (2/2)
+:ktigera:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
+:ktigera:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
+:ktigera:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
+:ktigera:00000000:3004B:00000028:FFFFFFFF:Always max fire power PL1
+:ktigera:00000000:3005B:00000000:FFFFFFFF:Always Normal fire PL1
+:ktigera:00000000:3005B:0000002C:FFFFFFFF:Always Laser PL1
+:ktigera:00000000:3005B:00000058:FFFFFFFF:Always Multiway fire PL1
+:ktigera:00000000:3005B:00000084:FFFFFFFF:Always 4-sides fire PL1
+:ktigera:00000001:3005B:00000000:FFFFFFFF:Get Normal fire Now! PL1
+:ktigera:00000001:3005B:0000002C:FFFFFFFF:Get Laser Now! PL1
+:ktigera:00000001:3005B:00000058:FFFFFFFF:Get Multiway fire Now! PL1
+:ktigera:00000001:3005B:00000084:FFFFFFFF:Get 4-sides fire Now! PL1
+:ktigera:00000000:31873:0000000A:FFFFFFFF:Infinite Lives PL2
+:ktigera:00000000:300AD:00000009:FFFFFFFF:Infinite Bombs PL2
+:ktigera:00000000:30083:0000002F:FFFFFFFF:Invincibility PL2
+:ktigera:00010000:30098:00000080:FFFFFFFF:Invincibility PL2 (2/2)
+:ktigera:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
+:ktigera:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
+:ktigera:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
+:ktigera:00000000:300AB:00000028:FFFFFFFF:Always max fire power PL2
+:ktigera:00000000:300BB:00000000:FFFFFFFF:Always Normal fire PL2
+:ktigera:00000000:300BB:0000002C:FFFFFFFF:Always Laser PL2
+:ktigera:00000000:300BB:00000058:FFFFFFFF:Always Multiway fire PL2
+:ktigera:00000000:300BB:00000084:FFFFFFFF:Always 4-sides fire PL2
+:ktigera:00000001:300BB:00000000:FFFFFFFF:Get Normal fire Now! PL2
+:ktigera:00000001:300BB:0000002C:FFFFFFFF:Get Laser Now! PL2
+:ktigera:00000001:300BB:00000058:FFFFFFFF:Get Multiway fire Now! PL2
+:ktigera:00000001:300BB:00000084:FFFFFFFF:Get 4-sides fire Now! PL2
 
 ; [ Kyukyoku Tiger II (Ver 2.1J 1995/11/30) ]
 :ktiger2:00000000:4006CB:00000009:FFFFFFFF:Infinite Credits
@@ -188162,38 +188162,38 @@
 :twincobr:00000001:300BB:00000084:FFFFFFFF:Get 4-sides fire Now! PL2
 
 ; [ Twin Cobra (US) ]
-:twincobu:00000000:31871:0000000A:FFFFFFFF:Infinite Lives PL1
-:twincobu:00000000:3004D:00000009:FFFFFFFF:Infinite Bombs PL1
-:twincobu:00000000:30023:0000002E:FFFFFFFF:Invincibility PL1
-:twincobu:00010000:30038:00000080:FFFFFFFF:Invincibility PL1 (2/2)
-:twincobu:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
-:twincobu:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
-:twincobu:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
-:twincobu:00000000:3004B:00000028:FFFFFFFF:Always max fire power PL1
-:twincobu:00000000:3005B:00000000:FFFFFFFF:Always Normal fire PL1
-:twincobu:00000000:3005B:0000002C:FFFFFFFF:Always Laser PL1
-:twincobu:00000000:3005B:00000058:FFFFFFFF:Always Multiway fire PL1
-:twincobu:00000000:3005B:00000084:FFFFFFFF:Always 4-sides fire PL1
-:twincobu:00000001:3005B:00000000:FFFFFFFF:Get Normal fire Now! PL1
-:twincobu:00000001:3005B:0000002C:FFFFFFFF:Get Laser Now! PL1
-:twincobu:00000001:3005B:00000058:FFFFFFFF:Get Multiway fire Now! PL1
-:twincobu:00000001:3005B:00000084:FFFFFFFF:Get 4-sides fire Now! PL1
-:twincobu:00000000:31873:0000000A:FFFFFFFF:Infinite Lives PL2
-:twincobu:00000000:300AD:00000009:FFFFFFFF:Infinite Bombs PL2
-:twincobu:00000000:30083:0000002F:FFFFFFFF:Invincibility PL2
-:twincobu:00010000:30098:00000080:FFFFFFFF:Invincibility PL2 (2/2)
-:twincobu:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
-:twincobu:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
-:twincobu:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
-:twincobu:00000000:300AB:00000028:FFFFFFFF:Always max fire power PL2
-:twincobu:00000000:300BB:00000000:FFFFFFFF:Always Normal fire PL2
-:twincobu:00000000:300BB:0000002C:FFFFFFFF:Always Laser PL2
-:twincobu:00000000:300BB:00000058:FFFFFFFF:Always Multiway fire PL2
-:twincobu:00000000:300BB:00000084:FFFFFFFF:Always 4-sides fire PL2
-:twincobu:00000001:300BB:00000000:FFFFFFFF:Get Normal fire Now! PL2
-:twincobu:00000001:300BB:0000002C:FFFFFFFF:Get Laser Now! PL2
-:twincobu:00000001:300BB:00000058:FFFFFFFF:Get Multiway fire Now! PL2
-:twincobu:00000001:300BB:00000084:FFFFFFFF:Get 4-sides fire Now! PL2
+:twincobru:00000000:31871:0000000A:FFFFFFFF:Infinite Lives PL1
+:twincobru:00000000:3004D:00000009:FFFFFFFF:Infinite Bombs PL1
+:twincobru:00000000:30023:0000002E:FFFFFFFF:Invincibility PL1
+:twincobru:00010000:30038:00000080:FFFFFFFF:Invincibility PL1 (2/2)
+:twincobru:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
+:twincobru:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
+:twincobru:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
+:twincobru:00000000:3004B:00000028:FFFFFFFF:Always max fire power PL1
+:twincobru:00000000:3005B:00000000:FFFFFFFF:Always Normal fire PL1
+:twincobru:00000000:3005B:0000002C:FFFFFFFF:Always Laser PL1
+:twincobru:00000000:3005B:00000058:FFFFFFFF:Always Multiway fire PL1
+:twincobru:00000000:3005B:00000084:FFFFFFFF:Always 4-sides fire PL1
+:twincobru:00000001:3005B:00000000:FFFFFFFF:Get Normal fire Now! PL1
+:twincobru:00000001:3005B:0000002C:FFFFFFFF:Get Laser Now! PL1
+:twincobru:00000001:3005B:00000058:FFFFFFFF:Get Multiway fire Now! PL1
+:twincobru:00000001:3005B:00000084:FFFFFFFF:Get 4-sides fire Now! PL1
+:twincobru:00000000:31873:0000000A:FFFFFFFF:Infinite Lives PL2
+:twincobru:00000000:300AD:00000009:FFFFFFFF:Infinite Bombs PL2
+:twincobru:00000000:30083:0000002F:FFFFFFFF:Invincibility PL2
+:twincobru:00010000:30098:00000080:FFFFFFFF:Invincibility PL2 (2/2)
+:twincobru:60000000:00000:00000000:00000000:[ You must enable the max fire      ]
+:twincobru:60000000:00000:00000000:00000000:[ fire power cheat to use the four  ]
+:twincobru:60000000:00000:00000000:00000000:[ fire type cheats.                 ]
+:twincobru:00000000:300AB:00000028:FFFFFFFF:Always max fire power PL2
+:twincobru:00000000:300BB:00000000:FFFFFFFF:Always Normal fire PL2
+:twincobru:00000000:300BB:0000002C:FFFFFFFF:Always Laser PL2
+:twincobru:00000000:300BB:00000058:FFFFFFFF:Always Multiway fire PL2
+:twincobru:00000000:300BB:00000084:FFFFFFFF:Always 4-sides fire PL2
+:twincobru:00000001:300BB:00000000:FFFFFFFF:Get Normal fire Now! PL2
+:twincobru:00000001:300BB:0000002C:FFFFFFFF:Get Laser Now! PL2
+:twincobru:00000001:300BB:00000058:FFFFFFFF:Get Multiway fire Now! PL2
+:twincobru:00000001:300BB:00000084:FFFFFFFF:Get 4-sides fire Now! PL2
 
 ; [ Twin Eagle II - The Rescue Mission ]
 :twineag2:00000000:E2A9:00000009:FFFFFFFF:Infinite Credits
@@ -204860,7 +204860,7 @@
 ;gtmr2=gtmr2u~gtmr2a
 ;gtmr=gtmra~(gtmre=gtmrusa)
 ;gulfstr2~=gulfstrm
-;gulfwar2=ktiger=twincobr=twincobu
+;gulfwar2=ktigera=twincobr=twincobru
 ;gunball~=nitrobal (select stage cheats differ slightly)
 ;gunbird=gunbirdj=gunbirdk
 ;gunbulet~=ptblank (only difference - credits differently triggered)

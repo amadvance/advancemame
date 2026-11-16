@@ -2106,15 +2106,22 @@ const game_driver * const drivers[] =
 
 	DRIVER( fshark )	/* TP-007 (c) 1987 Taito Corporation (World) */
 	DRIVER( skyshark )	/* TP-007 (c) 1987 Taito America Corporation + Romstar license (US) */
+	DRIVER( skysharka )	/* TP-007 (c) 1987 Taito America Corporation + Romstar license (US) */
 	DRIVER( hishouza )	/* TP-007 (c) 1987 Taito Corporation (Japan) */
+	DRIVER( fsharkb )	/* bootleg */
+	DRIVER( hishouzab )	/* bootleg */
 	DRIVER( fsharkbt )	/* bootleg */
+	DRIVER( fnshark )	/* bootleg */
+	DRIVER( skysharkb )	/* bootleg */
 	DRIVER( wardner )	/* TP-009 (c) 1987 Taito Corporation Japan (World) */
 	DRIVER( pyros )		/* TP-009 (c) 1987 Taito America Corporation (US) */
 	DRIVER( wardnerj )	/* TP-009 (c) 1987 Taito Corporation (Japan) */
 	DRIVER( twincobr )	/* TP-011 (c) 1987 Taito Corporation (World) */
-	DRIVER( twincobu )	/* TP-011 (c) 1987 Taito America Corporation + Romstar license (US) */
-	DRIVER( ktiger )	/* TP-011 (c) 1987 Taito Corporation (Japan) */
+	DRIVER( twincobru )	/* TP-011 (c) 1987 Taito America Corporation + Romstar license (US) */
+	DRIVER( ktiger )	/* TP-011 (c) 1989 Taito Corporation (Japan) */
+	DRIVER( ktigera )	/* TP-011 (c) 1987 Taito Corporation (Japan) */
 	DRIVER( gulfwar2 )	/* (c) 1991 Comad */
+	DRIVER( gulfwar2a )	/* (c) 1991 Comad */
 
 	DRIVER( rallybik )	/* TP-012 (c) 1988 Taito */
 	DRIVER( truxton )	/* TP-013B (c) 1988 Taito */
