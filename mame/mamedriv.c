@@ -3939,7 +3939,7 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( rsgun )		/* (c) 1998 Treasure */
 	DRIVER( sandor )	/* (c) 1995 */
 	DRIVER( thunt )		/* (c) 1995 Sega (Deniam License) */
-	DRIVER( sassisu )	/* (c) 1992 */
+	DRIVER( sasissu )	/* (c) 1998 Sega */
 	DRIVER( seabass )	/* (c) 1998 A wave Inc (Able License) */
 	DRIVER( shanhigw )	/* (c) 1996 */
 	DRIVER( shienryu )	/* (c) 1997 Warashi */

@@ -1031,7 +1031,7 @@ static void sassisu_slave_speedup( UINT32 data )
 			cpunum_spinuntil_trigger(1, 1000);
 }
 
-DRIVER_INIT(sassisu)
+DRIVER_INIT(sasissu)
 {
 	cpunum_set_info_fct(1, CPUINFO_PTR_SH2_FTCSR_READ_CALLBACK, (genf*)sassisu_slave_speedup );
 
