@@ -93733,19 +93733,19 @@
 :minefld:00000000:86F1:00000063:FFFFFFFF:Infinite Missiles
 
 ; [ Minesweeper (4-Player) ]
-:minesw4p:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
-:minesw4p:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ This game hasn't even ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ been looked at due to ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ time constraints - Too]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ many games and so     ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ little time. It is    ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ even possible that    ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ this game may be a    ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ clone of an existing  ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ game which may have   ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ cheats. Please search ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ the cheat forums      ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
+:mineswpr4:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
 ; [ Minesweeper ]
 :mineswpr:00000000:FF0C:00000000:FFFFFFFF:Score always set to 0 PL1
@@ -203849,7 +203849,7 @@
 ; { Reason 11 } ; mf_achas  [ Astro Chase (Max-A-Flex) ]
 ; { Reason 11 } ; mf_brist  [ Bristles (Max-A-Flex) ]
 ; { Reason 11 } ; mf_flip   [ Flip & Flop (Max-A-Flex) ]
-; { Reason 11 } ; minesw4p  [ Minesweeper (4-Player) ]
+; { Reason 11 } ; mineswpr4  [ Minesweeper (4-Player) ]
 ; { Reason 11 } ; mmpanic   [ Monkey Mole Panic (USA) ]
 ; { Reason 11 } ; mogura    [ Mogura Desse ]
 ; { Reason 11 } ; moremore  [ More More ]

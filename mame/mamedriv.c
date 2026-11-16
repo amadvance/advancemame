@@ -3346,12 +3346,13 @@ V-V                           TP-027
 
 	/* Gremlin 8080 games */
 	/* the numbers listed are the range of ROM part numbers */
-	DRIVER( blockade )	/* 1-4 [1977 Gremlin] */
-	DRIVER( comotion )	/* 5-7 [1977 Gremlin] */
+	DRIVER( blockade )	/* 1-4 [1976 Gremlin] */
+	DRIVER( comotion )	/* 5-7 [1976 Gremlin] */
+	DRIVER( comotionp )	/* [1976 Gremlin] */
 	DRIVER( hustle )	/* 16-21 [1977 Gremlin] */
 	DRIVER( blasto )	/* [1978 Gremlin] */
 	DRIVER( mineswpr )	/* [1977 Amutech] */
-	DRIVER( minesw4p )	/* [1977 Amutech] */
+	DRIVER( mineswpr4 )	/* [1977 Amutech] */
 
 	/* Gremlin/Sega "VIC dual game board" games */
 	/* the numbers listed are the range of ROM part numbers */
