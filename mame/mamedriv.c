@@ -570,6 +570,7 @@ const game_driver * const drivers[] =
 	DRIVER( kaiteik )	/* [1980] K.K. Tokki (prototype?) */
 	DRIVER( sos )		/* [1980] Namco */
 	DRIVER( tankbatt )	/* (c) 1980 Namco */
+	DRIVER( tankbattb )	/* bootleg */
 	DRIVER( warpwarp )	/* (c) 1981 Namco */
 	DRIVER( warpwarr )	/* (c) 1981 Rock-ola - the high score table says "NAMCO" */
 	DRIVER( warpwar2 )	/* (c) 1981 Rock-ola - the high score table says "NAMCO" */
