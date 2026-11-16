@@ -1097,13 +1097,13 @@
     },
     {
       "shortnames": [
-        "vsyard",
-        "vsyard2"
+        "vs10yard",
+        "vs10yardj"
       ],
       "title": "Vs 10-Yard Fight",
       "category": "regional_variant",
-      "original_game": "yard",
-      "parent_shortname": "yard"
+      "original_game": "10yard",
+      "parent_shortname": "10yard"
     },
     {
       "shortnames": [

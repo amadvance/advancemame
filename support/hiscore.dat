@@ -10566,9 +10566,10 @@ xybots:
 0:ffac22:ca:00:a4
 
 ;********yard.c
-yard:
-vsyard:
-vsyard2:
+10yard:
+10yardj:
+vs10yard:
+vs10yardj:
 0:e600:8a:00:4a
 0:e008:3:00:03
 

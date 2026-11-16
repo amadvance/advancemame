@@ -1374,9 +1374,10 @@ const game_driver * const drivers[] =
 	DRIVER( alpha1v )
 	DRIVER( mpatrolw )	/* M52 (c) 1982 + Williams license */
 	DRIVER( troangel )	/* (c) 1983 */
-	DRIVER( yard )		/* (c) 1983 */
-	DRIVER( vsyard )	/* (c) 1983/1984 */
-	DRIVER( vsyard2 )	/* (c) 1983/1984 */
+	DRIVER( 10yard )	/* (c) 1983 */
+	DRIVER( 10yardj )	/* (c) 1983 */
+	DRIVER( vs10yard )	/* (c) 1983/1984 */
+	DRIVER( vs10yardj )	/* (c) 1983/1984 */
 	DRIVER( travrusa )	/* (c) 1983 */
 	DRIVER( motorace )	/* (c) 1983 Williams license */
 	DRIVER( shtrider )	/* (c) 1984 Seibu Kaihatsu */

@@ -673,6 +673,13 @@
 :005:00000000:E382:0000000A:FFFFFFFF:Infinite Lives PL1
 :005:00000000:E383:0000000A:FFFFFFFF:Infinite Lives PL2
 
+; [ 10-Yard Fight (World, set 1) ]
+:10yard:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
+:10yard:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
+:10yard:00000000:E432:00000000:FFFFFFFF:Always 1st Down
+:10yard:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:10yard:60000000:0000:00000000:00000000:[enable Invincibility.      ]
+
 ; [ Eleven Beat ]
 :11beat:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :11beat:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
@@ -193349,6 +193356,20 @@
 :vroulet:60000000:0000:00000000:00000000:[ before posting cheat  ]:REASON 11
 :vroulet:60000000:0000:00000000:00000000:[ requests/cheat finding]:REASON 11
 
+; [ Vs 10-Yard Fight (World, 11/05/84) ]
+:vs10yard:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
+:vs10yard:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
+:vs10yard:00000000:E432:00000000:FFFFFFFF:Always 1st Down
+:vs10yard:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:vs10yard:60000000:0000:00000000:00000000:[enable Invincibility.      ]
+
+; [ Vs 10-Yard Fight (Japan) ]
+:vs10yardj:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
+:vs10yardj:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
+:vs10yardj:00000000:E432:00000000:FFFFFFFF:Always 1st Down
+:vs10yardj:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
+:vs10yardj:60000000:0000:00000000:00000000:[enable Invincibility.      ]
+
 ; [ Virtua Striker 2 (Step 2.0) ]
 :vs2:00100000:0FF4E2:0000FFFF:FFFFFFFF:Infinite Time
 :vs2:00100001:0FF4E2:00000001:FFFFFFFF:Finish this Game Now!
@@ -194200,20 +194221,6 @@
 :vstrikra:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
 :vstrikra:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :vstrikra:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
-
-; [ Vs 10-Yard Fight (World, 11/05/84) ]
-:vsyard:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
-:vsyard:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
-:vsyard:00000000:E432:00000000:FFFFFFFF:Always 1st Down
-:vsyard:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:vsyard:60000000:0000:00000000:00000000:[enable Invincibility.      ]
-
-; [ Vs 10-Yard Fight (Japan) ]
-:vsyard2:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
-:vsyard2:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
-:vsyard2:00000000:E432:00000000:FFFFFFFF:Always 1st Down
-:vsyard2:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:vsyard2:60000000:0000:00000000:00000000:[enable Invincibility.      ]
 
 ; [ Vulcan Venture ]
 :vulcan:02000000:60400:00000009:FFFFFFFF:Infinite Lives
@@ -202138,13 +202145,6 @@
 :yankeedo:00000000:E126:00000001:FFFFFFFF:One red monster PL2
 :yankeedo:00000000:E126:00000000:FFFFFFFF:NO red monsters PL2
 
-; [ 10-Yard Fight (Japan) ]
-:yard:000000A0:E44A:00000030:FFFFFFFF:Infinite Time
-:yard:00000001:E44A:00000060:FFFFFFFF:Reset Timer (once)
-:yard:00000000:E432:00000000:FFFFFFFF:Always 1st Down
-:yard:60000000:0000:00000000:00000000:[See the Dip Switch Menu to ]
-:yard:60000000:0000:00000000:00000000:[enable Invincibility.      ]
-
 ; [ Mahjong Yarunara (Japan) ]
 :yarunara:60000000:0000:00000000:00000000:[ The winning hand cheat must be      ]
 :yarunara:60000000:0000:00000000:00000000:[ activated when there are 14 tiles   ]
@@ -205503,12 +205503,12 @@
 ;von2=von254g       (unchecked relationship)
 ;von=vonusa     (unchecked relationship)
 ;vs2~vs215~vs298~vs29815~vs299~vs2v991 (vs298, vs299 & vs2v991 not working)
+;vs10yard=vs10yardj=10yard
 ;vsbballja=vsbballj=vsbball=vsbballjb
 ;vsnetscrj=vsnetscr    (unchecked relationship)
 ;vspinbal=vspinbalj
 ;vstennis=vstennisa=vstennisb
 ;vstriker=vstrikra    (unchecked relationship)
-;vsyard=vsyard2=yard
 ;vulgus=vulgus2=vulgusj
 ;wallc=wallca
 ;warpwarp=warpwarpr=warpwarpr2
