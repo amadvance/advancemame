@@ -46,28 +46,72 @@ READ8_HANDLER( strnskil_d800_r )
 
 /****************************************************************************/
 
+/* banbam/pettanp protection simulation: the SUN 8212 MCU is not emulated */
+static UINT8 packet_buffer[2];
+static UINT8 packet_write_pos;
+static int packet_reset;
+
+static MACHINE_RESET( strnskil )
+{
+	packet_write_pos = 0;
+	packet_reset = 1;
+}
+
 static READ8_HANDLER( protection_r )
 {
-	int res;
+	const UINT8 *protrom = memory_region(REGION_USER2);
+	UINT8 init = packet_buffer[0] & 0x0f;
+	UINT8 comm = packet_buffer[1] & 0xf0;
+	UINT8 arg = packet_buffer[1] & 0x0f;
 
-	switch (activecpu_get_pc())
+	if (packet_reset)
 	{
-		case 0x6066:	res = 0xa5;	break;
-		case 0x60dc:	res = 0x20;	break;	/* bits 0-3 unknown */
-		case 0x615d:	res = 0x30;	break;	/* bits 0-3 unknown */
-		case 0x61b9:	res = 0x60|(rand()&0x0f);	break;	/* bits 0-3 unknown */
-		case 0x6219:	res = 0x77;	break;
-		case 0x626c:	res = 0xb4;	break;
-		default:		res = 0xff; break;
+		/* returning packet_buffer[0] breaks the demo */
+		return 0xa5;
 	}
-
-	logerror("%04x: protection_r -> %02x\n",activecpu_get_pc(),res);
-	return res;
+	else if (init == 0x08 || init == 0x05)
+	{
+		switch (comm)
+		{
+		case 0x30:
+			/* palette/gfx select */
+			arg = protrom[0x799 + (arg * 4)];
+			break;
+		case 0x40:
+			/* palette/gfx select */
+			arg = protrom[0x7c5 + (arg * 4)];
+			break;
+		case 0x60:
+			/* enemy wave timer trigger, randomized */
+			arg = rand();
+			break;
+		case 0x70:
+			arg++;
+			break;
+		case 0xb0:
+			arg = arg + 3;
+			break;
+		default:
+			logerror("unknown command %02x, argument is %02x\n",comm,arg);
+			arg = 0;
+			break;
+		}
+		arg &= 0x0f;
+	}
+	else
+	{
+		comm = 0xf0;
+		arg = 0x0f;
+	}
+	return comm | arg;
 }
 
 static WRITE8_HANDLER( protection_w )
 {
-	logerror("%04x: protection_w %02x\n",activecpu_get_pc(),data);
+	packet_reset = (packet_write_pos == 0);
+
+	packet_buffer[packet_write_pos] = data;
+	packet_write_pos = (packet_write_pos + 1) & 1;
 }
 
 /****************************************************************************/
@@ -124,19 +168,19 @@ ADDRESS_MAP_END
 
 INPUT_PORTS_START( strnskil )
 	PORT_START  /* dsw1 */
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW1:1")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x00, "Unknown 1-2" )
+	PORT_DIPNAME( 0x02, 0x00, "Unknown 1-2" ) PORT_DIPLOCATION("SW1:2")
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x02, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Flip_Screen ) )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Flip_Screen ) ) PORT_DIPLOCATION("SW1:3")
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, "Unknown 1-4" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0xf0, 0x00, "Coin1 / Coin2" )
+	PORT_DIPNAME( 0x08, 0x00, "Coin Chutes" ) PORT_DIPLOCATION("SW1:4")
+	PORT_DIPSETTING(    0x00, "Individual" )
+	PORT_DIPSETTING(    0x08, "Common" )
+	PORT_DIPNAME( 0xf0, 0x00, DEF_STR( Coinage ) ) PORT_DIPLOCATION("SW1:5,6,7,8")
 	PORT_DIPSETTING(    0x00, "1C 1C / 1C 1C" )
 	PORT_DIPSETTING(    0x10, "2C 1C / 2C 1C" )
 	PORT_DIPSETTING(    0x20, "2C 1C / 1C 3C" )
@@ -155,7 +199,7 @@ INPUT_PORTS_START( strnskil )
 	PORT_DIPSETTING(    0xf0, DEF_STR( Free_Play ) )
 
 	PORT_START  /* dsw2 */
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Difficulty ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SW2:1")
 	PORT_DIPSETTING(    0x00, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
 	PORT_DIPNAME( 0x02, 0x00, "Unknown 2-2" )
@@ -211,21 +255,21 @@ INPUT_PORTS_START( strnskil )
 	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
 INPUT_PORTS_END
 
-INPUT_PORTS_START( pettanp )
+INPUT_PORTS_START( banbam )
 	PORT_START  /* dsw1 */
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Lives ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Lives ) ) PORT_DIPLOCATION("SW1:1")
 	PORT_DIPSETTING(    0x00, "3" )
 	PORT_DIPSETTING(    0x01, "5" )
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Cabinet ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SW1:2")
 	PORT_DIPSETTING(    0x02, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Flip_Screen ) )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Flip_Screen ) ) PORT_DIPLOCATION("SW1:3")
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x00, "Unknown 1-4" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0xf0, 0x00, "Coin1 / Coin2" )
+	PORT_DIPNAME( 0x08, 0x00, "Coin Chutes" ) PORT_DIPLOCATION("SW1:4")
+	PORT_DIPSETTING(    0x00, "Individual" )
+	PORT_DIPSETTING(    0x08, "Common" )
+	PORT_DIPNAME( 0xf0, 0x00, DEF_STR( Coinage ) ) PORT_DIPLOCATION("SW1:5,6,7,8")
 	PORT_DIPSETTING(    0x00, "1C 1C / 1C 1C" )
 	PORT_DIPSETTING(    0x10, "2C 1C / 2C 1C" )
 	PORT_DIPSETTING(    0x20, "2C 1C / 1C 3C" )
@@ -244,27 +288,27 @@ INPUT_PORTS_START( pettanp )
 	PORT_DIPSETTING(    0xf0, DEF_STR( Free_Play ) )
 
 	PORT_START  /* dsw2 */
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW2:1")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x06, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPNAME( 0x06, 0x00, DEF_STR( Bonus_Life ) ) PORT_DIPLOCATION("SW2:2,3")
 	PORT_DIPSETTING(    0x00, "20000 50000" )
 	PORT_DIPSETTING(    0x02, "20000 80000" )
 	PORT_DIPSETTING(    0x04, "20000" )
 	PORT_DIPSETTING(    0x06, DEF_STR( None ) )
-	PORT_DIPNAME( 0x08, 0x00, "Second Practice" )
+	PORT_DIPNAME( 0x08, 0x00, "Second Practice" ) PORT_DIPLOCATION("SW2:4")
 	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x00, "Unknown 2-5" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x10, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "Unknown 2-6" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x00, "Unknown 2-7" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x00, "Freeze" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) ) PORT_DIPLOCATION("SW2:5")
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unused ) ) PORT_DIPLOCATION("SW2:6")
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) ) PORT_DIPLOCATION("SW2:7")
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x00, "Freeze" ) PORT_DIPLOCATION("SW2:8")
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
 
@@ -347,6 +391,8 @@ static MACHINE_DRIVER_START( strnskil )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(100)
+
+	MDRV_MACHINE_RESET(strnskil)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -438,6 +484,44 @@ ROM_START( guiness )
 	ROM_LOAD( "15-6.prm", 0x0000,  0x0100, CRC(ec4faf5b) SHA1(7ebbf50807d04105ebadec91bded069408e399ba) )
 ROM_END
 
+ROM_START( banbam )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* main CPU */
+	ROM_LOAD( "ban-rom2.ic7",    0x0000,  0x2000, CRC(a5aeef6e) SHA1(92c1ad6ccb96b723e122899150e3c1855c5017b8) )
+	ROM_CONTINUE(                0x8000,  0x2000 )
+	ROM_LOAD( "ban-rom3.ic8",    0x2000,  0x2000, CRC(f91472bf) SHA1(94988b7bf2be3d3704a802db544070251d6c6a9c) )
+	ROM_LOAD( "ban-rom4.ic9",    0x4000,  0x2000, CRC(436a09ef) SHA1(7287f741fbf3ac43d5c46b2f43ec4439cb3d0d56) )
+	ROM_LOAD( "ban-rom5.ic10",   0x6000,  0x2000, CRC(45205f86) SHA1(a11d10beb21519f797c902b8a18775c8e2aa0fae) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* sub CPU */
+	ROM_LOAD( "ban-rom1.ic2",    0x0000,  0x2000, CRC(e36009f6) SHA1(72c485e8c19fbfc9c850094cfd87f1055154c0c5) )
+
+	ROM_REGION( 0x0800, REGION_USER3, 0 ) /* Fujitsu MB8841 4-bit MCU internal ROM, not emulated */
+	ROM_LOAD( "sun-8212.ic3",    0x0000,  0x0800, CRC(8869611e) SHA1(c6443f3bcb0cdb4d7b1b19afcbfe339c300f36aa) )
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* protection, data used with the MCU */
+	ROM_LOAD( "ban-rom12.ic2",   0x0000,  0x2000, CRC(044bb2f6) SHA1(829b2152740061e0506c7504885d8404fb8fe360) )
+
+	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_DISPOSE ) /* sprite */
+	ROM_LOAD( "ban-rom6.ic90",   0x0000,  0x2000, CRC(41fc44df) SHA1(1c4f21cdc423078fab58370d5245a13292bf7fe6) )
+	ROM_LOAD( "ban-rom7.ic92",   0x2000,  0x2000, CRC(8b429c5b) SHA1(505796eac2c8dd84f9ed29a6227b3243f81ec072) )
+	ROM_LOAD( "ban-rom8.ic94",   0x4000,  0x2000, CRC(76c02d6b) SHA1(9ef7585da5376cdd604afee281594e24c69addf2) )
+
+	ROM_REGION( 0x6000, REGION_GFX2, ROMREGION_DISPOSE ) /* bg */
+	ROM_LOAD( "ban-rom11.ic102", 0x0000,  0x2000, CRC(aa827c57) SHA1(87d0c5e7df6ce40b0b2fc8f4b9dd43d4b7b0bc2e) )
+	ROM_LOAD( "ban-rom10.ic101", 0x2000,  0x2000, CRC(51bd1c5c) SHA1(f714a3168d59cb4f8512440f7a2e27b6e0726a39) )
+	ROM_LOAD( "ban-rom9.ic100",  0x4000,  0x2000, CRC(c0a5a4c8) SHA1(7f0978669218982d379a5d72c6198a33a8213ab5) )
+
+	ROM_REGION( 0x0700, REGION_PROMS, 0 ) /* color PROMs */
+	ROM_LOAD( "16-3.66",         0x0000,  0x0100, CRC(dbcd3bec) SHA1(1baeec277b16c82b67e10da9d4c84cf383ef4a82) ) /* R */
+	ROM_LOAD( "16-4.67",         0x0100,  0x0100, CRC(9eb7b6cf) SHA1(86451e8a510f8cfbc0be7d4e7bb1ee7dfd67f1f4) ) /* G */
+	ROM_LOAD( "16-5.68",         0x0200,  0x0100, CRC(9b30a7f3) SHA1(a0aefc2c8325b95ea227e404583d14622b04a3b9) ) /* B */
+	ROM_LOAD( "16-1.148",        0x0300,  0x0200, CRC(777e2770) SHA1(7f4ef42ab4e0546c2932d498cf573bd4f4296db7) ) /* sprite */
+	ROM_LOAD( "16-2.97",         0x0500,  0x0200, CRC(7f95d4b2) SHA1(68dc311739a4d5d72f4cfbace27f3a82f05316ff) ) /* bg */
+
+	ROM_REGION( 0x0100, REGION_USER1, 0 ) /* scroll control PROM */
+	ROM_LOAD( "16-6.59",         0x0000,  0x0100, CRC(ec4faf5b) SHA1(7ebbf50807d04105ebadec91bded069408e399ba) )
+ROM_END
+
 ROM_START( pettanp )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* main CPU */
 	ROM_LOAD( "tvg2-16a.7",  0x0000,  0x2000, CRC(4cbbbd01) SHA1(3905cf9e9d324bb23688ab29c98d71529d3dbf0c) )
@@ -448,6 +532,9 @@ ROM_START( pettanp )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* sub CPU */
 	ROM_LOAD( "tvg1-16.2",   0x0000,  0x2000, CRC(e36009f6) SHA1(72c485e8c19fbfc9c850094cfd87f1055154c0c5) )
+
+	ROM_REGION( 0x0800, REGION_USER3, 0 ) /* Fujitsu MB8841 4-bit MCU internal ROM, not emulated */
+	ROM_LOAD( "sun-8212.ic3", 0x0000,  0x0800, NO_DUMP ) /* very likely the same as banbam */
 
 	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_DISPOSE ) /* sprite */
 	ROM_LOAD( "tvg6-16.90",  0x0000,  0x2000, CRC(6905d9d5) SHA1(586bf72bab5ab6e3e319c925decc16d7f3711af1) )
@@ -467,12 +554,13 @@ ROM_START( pettanp )
 	ROM_LOAD( "16-2.97",  0x0500,  0x0200, CRC(7f95d4b2) SHA1(68dc311739a4d5d72f4cfbace27f3a82f05316ff) ) /* bg */
 
 	ROM_REGION( 0x0100, REGION_USER1, 0 ) /* scroll control PROM */
-	ROM_LOAD( "16-6",     0x0000,  0x0100, NO_DUMP )
+	ROM_LOAD( "16-6.59",  0x0000,  0x0100, CRC(ec4faf5b) SHA1(7ebbf50807d04105ebadec91bded069408e399ba) )
 
-	ROM_REGION( 0x1000, REGION_USER2, 0 ) /* protection? */
+	ROM_REGION( 0x1000, REGION_USER2, 0 ) /* protection, data used with the MCU */
 	ROM_LOAD( "tvg12-16.2", 0x0000,  0x1000, CRC(3abc6ba8) SHA1(15e0b0f9d068f6094e2be4f4f1dea0ff6e85686b) )
 ROM_END
 
 GAME(  1984, strnskil, 0,        strnskil, strnskil, 0, ROT0, "Sun Electronics", "Strength & Skill", 0 )
 GAME(  1984, guiness,  strnskil, strnskil, strnskil, 0, ROT0, "Sun Electronics", "The Guiness (Japan)", 0 )
-GAME( 1984, pettanp,  0,        strnskil, pettanp,  0, ROT0, "Sun Electronics", "Pettan Pyuu (Japan)", GAME_UNEMULATED_PROTECTION )
+GAME( 1984, banbam,   0,        strnskil, banbam,   0, ROT0, "Sun Electronics", "BanBam", GAME_UNEMULATED_PROTECTION )
+GAME( 1984, pettanp,  banbam,   strnskil, banbam,   0, ROT0, "Sun Electronics", "Pettan Pyuu (Japan)", GAME_UNEMULATED_PROTECTION )

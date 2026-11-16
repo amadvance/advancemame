@@ -7012,6 +7012,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( markham )	/* TVG14 (c) 1983 Sun Electronics */
 	DRIVER( strnskil )	/* TVG15 (c) 1984 Sun Electronics */
 	DRIVER( guiness )	/* TVG15 (c) 1984 Sun Electronics */
+	DRIVER( banbam )	/* TVG16 (c) 1984 Sun Electronics */
 	DRIVER( pettanp )	/* TVG16 (c) 1984 Sun Electronics (Japan) */
 	DRIVER( ikki )		/* TVG17 (c) 1985 Sun Electronics (Japan) */
 	DRIVER( farmer )	/* TVG17 (c) 1985 Sun Electronics */
