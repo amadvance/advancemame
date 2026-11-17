@@ -1278,21 +1278,60 @@
     },
     {
       "shortnames": [
+        "mhavocpe",
         "mhavocpex7"
       ],
       "title": "Major Havoc - The Promised End",
+      "year": 2023,
+      "developer": "Atari",
       "category": "hack",
-      "release_status": "beta",
-      "original_game": "mhavoc",
+      "genre": "Shooter",
+      "platform": "Atari Major Havoc hardware",
+      "release_status": "released",
+      "version": "1.01",
       "parent_shortname": "mhavoc",
-      "hack_author": "JMA",
+      "original_game": "mhavoc",
+      "series": "Major Havoc",
+      "variants": [
+        {
+          "shortname": "mhavocpex7",
+          "parent_shortname": "mhavocpe",
+          "year": 2021,
+          "version": "0.78 beta",
+          "differences": [
+            "Earlier beta release."
+          ]
+        }
+      ],
+      "hack_author": "Jess Askey (JMA)",
       "modifications": [
         {
           "type": "levels",
           "description": "Adds new mission stages, enemy encounters, and a final boss ending sequence to Atari's vector arcade game Major Havoc."
+        },
+        {
+          "type": "audio",
+          "description": "Adds speech to the original POKEY sound effects and music."
         }
       ],
-      "description": "Major Havoc - The Promised End is an extensive homebrew expansion hack by JMA for Atari's 1983 vector arcade game Major Havoc, introducing new levels, gameplay mechanics, and an ending mission sequence."
+      "description": "Major Havoc - The Promised End expands Atari's vector arcade game with new missions, enemies, warps and an ending on the homeworld. The journey alternates space combat with exploration of reactor mazes, preserving the roller controls and adding speech. Jess Askey developed the expansion with contributions from original designer Owen Rubin and the project team. Version 1.01 is the finished English release with ADPCM speech; the earlier 0.78 beta is also available.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/jessaskey/mhavocpe"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://github.com/jessaskey/mhavocpe"
+        },
+        {
+          "type": "documentation",
+          "url": "https://github.com/jessaskey/mhavocpe/blob/master/ROMs/mhavocpe/buildinfo.txt"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [

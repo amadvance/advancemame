@@ -314,15 +314,34 @@ static ADDRESS_MAP_START( gamma_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 
+static READ8_HANDLER( mhavocpe_leta_r )
+{
+	return readinputport(offset ? 6 : 2);
+}
+
+static ADDRESS_MAP_START( gamma_mhavocpe_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x07ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0800, 0x1fff) AM_READ(mhavoc_gammaram_r)
+	AM_RANGE(0x2000, 0x203f) AM_MIRROR(0x07c0) AM_READ(quad_pokey_r)
+	AM_RANGE(0x2800, 0x2800) AM_MIRROR(0x07ff) AM_READ(mhavoc_port_1_r)
+	AM_RANGE(0x3000, 0x3000) AM_MIRROR(0x07ff) AM_READ(mhavoc_alpha_r)
+	AM_RANGE(0x3800, 0x3801) AM_READ(mhavocpe_leta_r)
+	AM_RANGE(0x6000, 0x61ff) AM_MIRROR(0x1e00) AM_READ(MRA8_RAM)
+	AM_RANGE(0x8000, 0xbfff) AM_MIRROR(0x4000) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+
 static ADDRESS_MAP_START( gamma_mhavocpe_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x07ff) AM_WRITE(MWA8_RAM)			/* Program RAM (2K) */
 	AM_RANGE(0x0800, 0x1fff) AM_WRITE(mhavoc_gammaram_w) AM_BASE(&gammaram)	/* wraps to 0x000-0x7ff */
-	AM_RANGE(0x2000, 0x203f) AM_WRITE(quad_pokey_w)		/* Quad Pokey write */
-	AM_RANGE(0x4000, 0x4000) AM_WRITE(mhavoc_gamma_irq_ack_w)	/* IRQ Acknowledge  */
-	AM_RANGE(0x4800, 0x4800) AM_WRITE(mhavoc_out_1_w)		/* Coin Counters    */
-	AM_RANGE(0x5000, 0x5000) AM_WRITE(mhavoc_alpha_w)		/* Alpha Comm. Write Port */
+	AM_RANGE(0x2000, 0x203f) AM_MIRROR(0x07c0) AM_WRITE(quad_pokey_w)		/* Quad Pokey write */
+	AM_RANGE(0x4000, 0x4000) AM_MIRROR(0x07ff) AM_WRITE(mhavoc_gamma_irq_ack_w)	/* IRQ Acknowledge  */
+	AM_RANGE(0x4800, 0x4800) AM_MIRROR(0x07ff) AM_WRITE(mhavoc_out_1_w)		/* Coin Counters    */
+	AM_RANGE(0x5000, 0x5000) AM_MIRROR(0x07ff) AM_WRITE(mhavoc_alpha_w)		/* Alpha Comm. Write Port */
+	/* Latch writes must not clock the speech byte a second time. */
+	AM_RANGE(0x5800, 0x5800) AM_WRITE(MWA8_NOP)
 	AM_RANGE(0x5900, 0x5900) AM_WRITE(OKIM6295_data_0_w)
-	AM_RANGE(0x6000, 0x61ff) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)	/* EEROM        */
+	AM_RANGE(0x6000, 0x61ff) AM_MIRROR(0x1e00) AM_WRITE(MWA8_RAM) AM_BASE(&generic_nvram) AM_SIZE(&generic_nvram_size)	/* EEROM        */
 ADDRESS_MAP_END
 
 /*************************************
@@ -371,13 +390,35 @@ ADDRESS_MAP_END
 
 
 
+static WRITE8_HANDLER( mhavocpe_out_0_w )
+{
+	avg_set_flip_x(data & 0x40);
+	avg_set_flip_y(data & 0x80);
+	mhavoc_out_0_w(offset, data);
+}
+
+static ADDRESS_MAP_START( alpha_mhavocpe_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x01ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0200, 0x07ff) AM_MIRROR(0x0800) AM_READ(MRA8_BANK1)
+	AM_RANGE(0x0800, 0x09ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x1000, 0x1000) AM_READ(mhavoc_gamma_r)
+	AM_RANGE(0x1200, 0x1200) AM_READ(mhavoc_port_0_r)
+	AM_RANGE(0x1800, 0x1fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x2000, 0x3fff) AM_READ(MRA8_BANK2)
+	AM_RANGE(0x4000, 0x4fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x5000, 0x5fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x6000, 0x7fff) AM_READ(MRA8_BANK3)
+	AM_RANGE(0x8000, 0xffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+
 static ADDRESS_MAP_START( alpha_mhavocpe_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x01ff) AM_WRITE(MWA8_RAM)			/* 0.5K Program Ram */
-	AM_RANGE(0x0200, 0x07ff) AM_WRITE(MWA8_BANK1)			/* 3K Paged Program RAM */
+	AM_RANGE(0x0200, 0x07ff) AM_MIRROR(0x0800) AM_WRITE(MWA8_BANK1)			/* 3K Paged Program RAM */
 	AM_RANGE(0x0800, 0x09ff) AM_WRITE(MWA8_RAM)			/* 0.5K Program RAM */
 	AM_RANGE(0x1200, 0x1200) AM_WRITE(MWA8_NOP)			/* don't care */
 	AM_RANGE(0x1400, 0x141f) AM_RAM AM_BASE(&mhavoc_colorram)	/* ColorRAM */
-	AM_RANGE(0x1600, 0x1600) AM_WRITE(mhavoc_out_0_w)		/* Control Signals */
+	AM_RANGE(0x1600, 0x1600) AM_WRITE(mhavocpe_out_0_w)		/* Control Signals */
 	AM_RANGE(0x1640, 0x1640) AM_WRITE(avgdvg_go_w)		/* Vector Generator GO */
 	AM_RANGE(0x1680, 0x1680) AM_WRITE(watchdog_reset_w)	/* Watchdog Clear */
 	AM_RANGE(0x16c0, 0x16c0) AM_WRITE(avgdvg_reset_w)		/* Vector Generator Reset */
@@ -468,6 +509,40 @@ INPUT_PORTS_START( mhavoc )
 	PORT_DIPSETTING(    0x40, "1" )
 	PORT_DIPSETTING(    0x00, "2" )
 	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( mhavocpe )
+	PORT_START
+	PORT_BIT( 0x03, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x1c, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_SERVICE1 ) PORT_NAME("Diag Step/Coin C") PORT_CODE(KEYCODE_F1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN2 )
+
+	PORT_START
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(100) PORT_KEYDELTA(40) PORT_REVERSE
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x3f, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Cabinet Switch")
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_PLAYER(2) PORT_SENSITIVITY(100) PORT_KEYDELTA(40) PORT_REVERSE
 INPUT_PORTS_END
 
 
@@ -644,15 +719,24 @@ static MACHINE_DRIVER_START( alphaone )
 MACHINE_DRIVER_END
 
 
+static MACHINE_RESET( mhavocpe )
+{
+	machine_reset_mhavoc();
+	mhavocpe_rom_banksel_w(0, 0);
+	avg_set_flip_x(0);
+	avg_set_flip_y(0);
+}
+
 static MACHINE_DRIVER_START( mhavocpe )
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(mhavoc)
 	MDRV_CPU_MODIFY("alpha")
-	MDRV_CPU_PROGRAM_MAP(alpha_readmem, alpha_mhavocpe_writemem)
+	MDRV_CPU_PROGRAM_MAP(alpha_mhavocpe_readmem, alpha_mhavocpe_writemem)
 	MDRV_CPU_MODIFY("gamma")
-	MDRV_CPU_PROGRAM_MAP(gamma_readmem, gamma_mhavocpe_writemem)
+	MDRV_CPU_PROGRAM_MAP(gamma_mhavocpe_readmem, gamma_mhavocpe_writemem)
+	MDRV_MACHINE_RESET(mhavocpe)
 
-	MDRV_SOUND_ADD_TAG("oki", OKIM6295, 12000)
+	MDRV_SOUND_ADD_TAG("oki", OKIM6295, 8000)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
@@ -883,6 +967,29 @@ ROM_START( mhavocpex7 )
 	ROM_LOAD( "036408-01.b1",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
 ROM_END
 
+ROM_START( mhavocpe )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+	ROM_LOAD( "mhpe101.6kl", 0x05000, 0x2000, CRC(ddcaab40) SHA1(d70b91137204ebbf2685fe22a3498cb6014a7bef) )
+	ROM_LOAD( "mhpe101.1mn", 0x08000, 0x4000, CRC(8b4b1c7c) SHA1(9840532b78f5ca7e9785d35883f191b46d0e1436) )
+	ROM_LOAD( "mhpe101.1l", 0x0c000, 0x4000, CRC(90348169) SHA1(58227bd56d123aa76c8f287f75b83a3a7cc6d1d2) )
+	ROM_LOAD( "mhpe101.1q", 0x30000, 0x8000, CRC(d5d86868) SHA1(ddc6330a55106dadefa356b55f1562affb9ebc00) )
+	ROM_LOAD( "mhpe101.1np", 0x38000, 0x8000, CRC(6f7b38a9) SHA1(0107cc88a54780c6bca97afbf0e99adf1f4ceba1) )
+	ROM_LOAD( "mhpe101.6h", 0x18000, 0x4000, CRC(6b380183) SHA1(2fad9dc301aa5622195e3acac2865339406ccc38) )
+	ROM_LOAD( "mhpe101.6jk", 0x1c000, 0x4000, CRC(7ecfd43b) SHA1(7f99fde09062bc4ca4bbbf06f1b11dc3f5203541) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "mhpe101.9s", 0x8000, 0x4000, CRC(46cdd0fa) SHA1(f6c75333311279b15cb42ce3ed8a40e54a508869) )
+	ROM_RELOAD( 0xc000, 0x4000 )
+
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "136002-125.6c", 0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )
+	ROM_LOAD( "mhpe101.x1", 0x000000, 0x040000, CRC(aade65d1) SHA1(7e379ee84ee36395095ce68d1c1da4fcf907a07e) )
+ROM_END
+
+
+
 
 
 
@@ -899,4 +1006,5 @@ GAME( 1983, mhavocrv, mhavoc, mhavoc,   mhavoc,   0, ROT0, "hack",  "Major Havoc
 GAME( 1983, mhavocp,  mhavoc, mhavoc,   mhavocp,  0, ROT0, "Atari", "Major Havoc (prototype)", 0 )
 GAME( 1983, alphaone, mhavoc, alphaone, alphaone, 0, ROT0, "Atari", "Alpha One (prototype, 3 lives)", 0 )
 GAME( 1983, alphaona, mhavoc, alphaone, alphaone, 0, ROT0, "Atari", "Alpha One (prototype, 5 lives)", 0 )
-GAME( 2021, mhavocpex7,mhavoc, mhavocpe, mhavoc,   0, ROT0, "JMA","Major Havoc-The Promised End (BETA 0.78)", 0 )
+GAME( 2021, mhavocpex7,mhavocpe, mhavocpe, mhavocpe,   0, ROT0, "JMA","Major Havoc-The Promised End (BETA 0.78)", 0 )
+GAME( 2023, mhavocpe, mhavoc, mhavocpe, mhavocpe, 0, ROT0, "JMA", "Major Havoc - The Promised End (v1.01)", GAME_STANDALONE )

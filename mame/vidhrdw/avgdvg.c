@@ -813,7 +813,12 @@ static int mhavoc_strobe2(vgdata *vg)
 			vg->color = vg->dvy & 0xf;
 
 			vg->intensity = (vg->dvy >> 4) & 0xf;
-			vg->map = (vg->dvy >> 8) & 0x3;
+			if (vg->map != ((vg->dvy >> 8) & 0x3))
+			{
+				vg->map = (vg->dvy >> 8) & 0x3;
+				/* CPU ROM checks use the same page selected by the AVG. */
+				memory_set_bankptr(3, &memory_region(REGION_CPU1)[0x18000 + (vg->map << 13)]);
+			}
 
 			vg->enspkl = (vg->dvy & 0x800) >> 11;
 		}
@@ -1425,6 +1430,7 @@ VIDEO_START( avg_mhavoc )
 	memset(&vgd, 0, sizeof(vgd));
 	vg = &vgd;
 	vg->state_prom = memory_region(REGION_PROMS);
+	memory_set_bankptr(3, &memory_region(REGION_CPU1)[0x18000]);
 	return avgdvg_init();
 }
 
