@@ -1932,6 +1932,16 @@ ROM_START( puyopuy2 ) /* Puyo Puyo 2  (c)1994 Compile */
 ROM_END
 
 
+ROM_START( puyopuy2e )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "pp2e-17241.ic32", 0x000000, 0x080000, CRC(6a1c9865) SHA1(d067d991be92d051da440d32640a4fb12333e82a) )
+	ROM_LOAD16_BYTE( "pp2e-17240.ic31", 0x000001, 0x080000, CRC(384bcad2) SHA1(569510f45b3bcbd1d191524de78e6b47c2b1cc47) )
+
+	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr-17239.ic4", 0x000000, 0x080000, CRC(020ff6ef) SHA1(6095b8277b47a6fd7a9721f15a70ae5bf6be9b1a) )
+ROM_END
+
+
 ROM_START( potopoto ) /* Poto Poto  (c)1994 Sega */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "epr16662", 0x000000, 0x040000, CRC(bbd305d6) SHA1(1a4f4869fefac188c69bc67df0b625e43a0c3f1f) )
@@ -2507,6 +2517,7 @@ GAME( 1994, ichirk,   ichir,    segac2,   ichir,    ichirk,   ROT0, "Sega",     
 GAME( 1994, ichirj,   ichir,    segac2,   ichir,    ichirj,   ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Japan)", 0 )
 GAME( 1994, ichirjbl, ichir,    segac,    ichir,    ichirjbl, ROT0, "bootleg",                "Puzzle & Action: Ichidant-R (Japan) (bootleg)", 0 ) // C board, no samples
 GAME( 1994, puyopuy2, 0,        segac2,   puyopuy2, puyopuy2, ROT0, "Compile (Sega license)", "Puyo Puyo 2 (Japan)", 0 )
+GAME( 1994, puyopuy2e,puyopuy2, segac2,   puyopuy2, puyopuy2, ROT0, "bootleg",                "Puyo Puyo 2 (English translation)", 0 )
 GAME( 1994, zunkyou,  0,        segac2,   zunkyou,  zunkyou,  ROT0, "Sega",                   "Zunzunkyou No Yabou (Japan)", 0 )
 GAME( 1994, headonch, 0,        segac2,   headonch, c2boot,   ROT0, "Sega",                   "Head On Channel (Japan, prototype)", 0 )
 

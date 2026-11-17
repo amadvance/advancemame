@@ -2020,6 +2020,24 @@
     },
     {
       "shortnames": [
+        "puyopuy2e"
+      ],
+      "title": "Puyo Puyo 2 (English translation)",
+      "category": "hack",
+      "original_game": "puyopuy2",
+      "parent_shortname": "puyopuy2",
+      "hack_author": "Zanac",
+      "hack_year": 2026,
+      "modifications": [
+        {
+          "type": "translation",
+          "description": "Localizes the character profiles, attract-mode tutorials, menus, match prompts, and service menu in English."
+        }
+      ],
+      "description": "Zanac's English translation of Compile's Sega System C-2 arcade puzzle game redraws the title logo and adds an English font for character profiles and tutorials. It keeps the original gameplay and sound."
+    },
+    {
+      "shortnames": [
         "puyosune"
       ],
       "title": "Puyo Puyo Sun (English translation)",

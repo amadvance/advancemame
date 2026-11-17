@@ -4194,6 +4194,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( stkclmns )	/* (c) 1994 Sega */
 	DRIVER( stkclmnj )	/* (c) 1994 Sega */
 	DRIVER( puyopuy2 )	/* (c) 1994 Compile + Sega license */
+	DRIVER( puyopuy2e )	/* bootleg, English translation */
 	DRIVER( potopoto )	/* (c) 1994 Sega */
 	DRIVER( zunkyou )	/* (c) 1994 Sega */
 	DRIVER( headonch )      /* (c) 1994 Sega (Unreleased) */
