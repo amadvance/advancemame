@@ -16,7 +16,7 @@
 
 COREOBJS += $(OBJ)/mamedriv.o
 
-OBJDIRS += $(OBJ)/devices
+OBJDIRS += $(OBJ)/devices $(OBJ)/cpu/tms57002
 COREOBJS += $(OBJ)/devices/sente6vb.o \
 	$(OBJ)/devices/midssio.o \
 	$(OBJ)/devices/t5182.o \
@@ -170,6 +170,7 @@ CPUS += MEDIAGX
 CPUS += I960
 CPUS += H83002
 CPUS += V810
+CPUS += MN10200
 CPUS += M37702
 CPUS += M37710
 CPUS += PPC403
@@ -592,7 +593,7 @@ $(OBJ)/capcom.a: \
 	$(OBJ)/drivers/vulgus.o $(OBJ)/vidhrdw/vulgus.o \
 	$(OBJ)/drivers/tigeroad.o $(OBJ)/vidhrdw/tigeroad.o \
 	$(OBJ)/drivers/supduck.o \
-	$(OBJ)/drivers/zn.o $(OBJ)/machine/znsec.o $(OBJ)/machine/at28c16.o $(OBJ)/machine/mb3773.o \
+	$(OBJ)/drivers/zn.o $(OBJ)/sndhrdw/taitozoom.o $(OBJ)/sound/zsg2.o $(OBJ)/cpu/tms57002/tms57002.o $(OBJ)/machine/znsec.o $(OBJ)/machine/at28c16.o $(OBJ)/machine/mb3773.o \
 	$(OBJ)/drivers/cps2.o $(OBJ)/machine/cps2crpt.o \
 	$(OBJ)/machine/kabuki.o \
 

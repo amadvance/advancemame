@@ -12,6 +12,7 @@
 
 #include <stdarg.h>
 #include "driver.h"
+#include "sndhrdw/taitozoom.h"
 #include "cpu/mips/psx.h"
 #include "cpu/z80/z80.h"
 #include "includes/psx.h"
@@ -1091,15 +1092,6 @@ Notes:
 
 static size_t taitofx1_eeprom_size1 = 0;
 static UINT8 *taitofx1_eeprom1 = NULL;
-static size_t taitofx1_eeprom_size2 = 0;
-static UINT8 *taitofx1_eeprom2 = NULL;
-
-static WRITE32_HANDLER( bank_coh1000t_w )
-{
-	mb3773_set_ck( ( data & 0x20 ) >> 5 );
-	verboselog( 1, "bank_coh1000t_w( %08x, %08x, %08x )\n", offset, data, mem_mask );
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) + ( ( data & 3 ) * 0x800000 ) );
-}
 
 INTERRUPT_GEN( coh1000t_vblank )
 {
@@ -1136,16 +1128,27 @@ INTERRUPT_GEN( coh1000t_vblank )
 	psx_vblank();
 }
 
-static unsigned fx1a_rom_banks;
+static unsigned taitofx1_rom_banks;
 
-static WRITE32_HANDLER( fx1a_rom_bankswitch_w )
+static WRITE32_HANDLER( taitofx1_rom_bankswitch_w )
 {
 	if( ACCESSING_LSB32 )
 	{
 		unsigned bank = data & 3;
 		mb3773_set_ck( ( data & 0x20 ) >> 5 );
-		if( bank < fx1a_rom_banks )
+		if( bank < taitofx1_rom_banks )
 			memory_set_bank( 1, bank );
+	}
+}
+
+static void taitofx1_install_rom_banks( void )
+{
+	taitofx1_rom_banks = memory_region_length( REGION_USER2 ) / 0x800000;
+	if( taitofx1_rom_banks )
+	{
+		memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );
+		memory_configure_bank( 1, 0, taitofx1_rom_banks, memory_region( REGION_USER2 ), 0x800000 );
+		memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, taitofx1_rom_bankswitch_w );
 	}
 }
 
@@ -1173,13 +1176,9 @@ DRIVER_INIT( coh1000ta )
 {
 	taitofx1_eeprom_size1 = 0x200; taitofx1_eeprom1 = auto_malloc( taitofx1_eeprom_size1 );
 
-	fx1a_rom_banks = memory_region_length( REGION_USER2 ) / 0x800000;
-	if( fx1a_rom_banks )
+	taitofx1_install_rom_banks();
+	if( taitofx1_rom_banks )
 	{
-		memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );
-		memory_configure_bank( 1, 0, fx1a_rom_banks, memory_region( REGION_USER2 ), 0x800000 );
-		memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, fx1a_rom_bankswitch_w );
-
 		memory_configure_bank( 10, 0, 1, memory_region( REGION_CPU2 ), 0x4000 );
 		memory_configure_bank( 10, 1, 7, memory_region( REGION_CPU2 ) + 0x10000, 0x4000 );
 	}
@@ -1195,7 +1194,7 @@ DRIVER_INIT( coh1000ta )
 
 MACHINE_RESET( coh1000ta )
 {
-	if( fx1a_rom_banks )
+	if( taitofx1_rom_banks )
 	{
 		memory_set_bank( 1, 0 );
 		memory_set_bank( 10, 1 );
@@ -1304,47 +1303,43 @@ static MACHINE_DRIVER_START( coh1000ta )
 	MDRV_SOUND_ROUTE(2, "right", 1.0)
 MACHINE_DRIVER_END
 
-static WRITE32_HANDLER( taitofx1b_volume_w )
+static READ32_HANDLER( taitofx1b_fram_r )
 {
-	verboselog( 1, "taitofx1_volume_w( %08x, %08x, %08x )\n", offset, data, mem_mask );
+	const UINT32 *fram = (const UINT32 *)taitofx1_eeprom1;
+	return fram[offset] & 0x00ff00ff;
 }
 
-static WRITE32_HANDLER( taitofx1b_sound_w )
+static WRITE32_HANDLER( taitofx1b_fram_w )
 {
-	verboselog( 1, "taitofx1_sound_w( %08x, %08x, %08x )\n", offset, data, mem_mask );
-}
+	UINT32 *fram = (UINT32 *)taitofx1_eeprom1;
 
-static READ32_HANDLER( taitofx1b_sound_r )
-{
-	UINT32 data = 0; // bit 0 = busy?
-	verboselog( 1, "taitofx1_sound_r( %08x, %08x, %08x )\n", offset, data, mem_mask );
-	return data;
+	mem_mask |= 0xff00ff00;
+	COMBINE_DATA( &fram[offset] );
 }
 
 DRIVER_INIT( coh1000tb )
 {
 	taitofx1_eeprom_size1 = 0x400; taitofx1_eeprom1 = auto_malloc( taitofx1_eeprom_size1 );
-	taitofx1_eeprom_size2 = 0x200; taitofx1_eeprom2 = auto_malloc( taitofx1_eeprom_size2 );
 
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 ); /* banked game rom */
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00000 + ( taitofx1_eeprom_size1 - 1 ), 0, 0, MRA32_BANK2 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00000 + ( taitofx1_eeprom_size1 - 1 ), 0, 0, MWA32_BANK2 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, bank_coh1000t_w ); /* bankswitch */
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb80000, 0x1fb80003, 0, 0, taitofx1b_volume_w );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fba0000, 0x1fba0003, 0, 0, taitofx1b_sound_w );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fbc0000, 0x1fbc0003, 0, 0, taitofx1b_sound_r );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fbe0000, 0x1fbe0000 + ( taitofx1_eeprom_size2 - 1 ), 0, 0, MRA32_BANK3 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fbe0000, 0x1fbe0000 + ( taitofx1_eeprom_size2 - 1 ), 0, 0, MWA32_BANK3 );
+	taitofx1_install_rom_banks();
+	memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb003ff, 0, 0, taitofx1b_fram_r );
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb003ff, 0, 0, taitofx1b_fram_w );
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb80000, 0x1fb80003, 0, 0, taitozoom_reg_w );
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fba0000, 0x1fba0003, 0, 0, taitozoom_sound_irq_w );
+	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fbc0000, 0x1fbc0003, 0, 0, taitozoom_sound_irq_r );
+	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fbe0000, 0x1fbe01ff, 0, 0, taitozoom_shared_r );
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fbe0000, 0x1fbe01ff, 0, 0, taitozoom_shared_w );
 
+	taitozoom_init();
+	state_save_register_item_pointer( "zn", 0, taitofx1_eeprom1, taitofx1_eeprom_size1 );
 	zn_driver_init();
 	mb3773_init();
 }
 
 MACHINE_RESET( coh1000tb )
 {
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* banked game rom */
-	memory_set_bankptr( 2, taitofx1_eeprom1 );
-	memory_set_bankptr( 3, taitofx1_eeprom2 );
+	memory_set_bank( 1, 0 );
+	taitozoom_reset();
 	zn_machine_init();
 }
 
@@ -1354,17 +1349,14 @@ static NVRAM_HANDLER( coh1000tb )
 	if (read_or_write)
 	{
 		mame_fwrite(file, taitofx1_eeprom1, taitofx1_eeprom_size1);
-		mame_fwrite(file, taitofx1_eeprom2, taitofx1_eeprom_size2);
 	}
 	else if (file)
 	{
 		mame_fread(file, taitofx1_eeprom1, taitofx1_eeprom_size1);
-		mame_fread(file, taitofx1_eeprom2, taitofx1_eeprom_size2);
 	}
 	else
 	{
 		memset(taitofx1_eeprom1, 0xff, taitofx1_eeprom_size1);
-		memset(taitofx1_eeprom2, 0xff, taitofx1_eeprom_size2);
 	}
 }
 
@@ -1373,6 +1365,9 @@ static MACHINE_DRIVER_START( coh1000tb )
 	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
 	MDRV_CPU_PROGRAM_MAP( zn_map, 0 )
 	MDRV_CPU_VBLANK_INT( coh1000t_vblank, 1 )
+
+	MDRV_CPU_ADD( MN10200, 25000000 / 4 )
+	MDRV_CPU_PROGRAM_MAP( taitozoom_mn_map, 0 )
 
 	MDRV_FRAMES_PER_SECOND( 60 )
 	MDRV_VBLANK_DURATION( 0 )
@@ -1397,6 +1392,10 @@ static MACHINE_DRIVER_START( coh1000tb )
 	MDRV_SOUND_CONFIG( psxspu_interface )
 	MDRV_SOUND_ROUTE(0, "left", 0.35)
 	MDRV_SOUND_ROUTE(1, "right", 0.35)
+	MDRV_SOUND_ADD( CUSTOM, 0 )
+	MDRV_SOUND_CONFIG( taitozoom_custom_interface )
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
 /*
@@ -5045,7 +5044,7 @@ ROM_START( ftimpact )
 
 	ROM_REGION( 0x600000, REGION_SOUND1, 0 )
 	ROM_LOAD( "e25-04.27",    0x0000000, 0x400000, CRC(09a66d35) SHA1(f0df24bc9bfc9eb0f5150dc035c19fc5b8a39bf9) )
-	ROM_LOAD( "e25-05.28",    0x0040000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
+	ROM_LOAD( "e25-05.28",    0x0400000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
 
 	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
 	ROM_LOAD( "tt05", 0, 8, CRC(66045c83) SHA1(b040fa87e855fd512fa99e80056d37aba895805b) )
@@ -5066,7 +5065,7 @@ ROM_START( ftimpactj )
 
 	ROM_REGION( 0x600000, REGION_SOUND1, 0 )
 	ROM_LOAD( "e25-04.27",    0x0000000, 0x400000, CRC(09a66d35) SHA1(f0df24bc9bfc9eb0f5150dc035c19fc5b8a39bf9) )
-	ROM_LOAD( "e25-05.28",    0x0040000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
+	ROM_LOAD( "e25-05.28",    0x0400000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
 
 	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
 	ROM_LOAD( "tt05", 0, 8, CRC(66045c83) SHA1(b040fa87e855fd512fa99e80056d37aba895805b) )
@@ -5087,7 +5086,7 @@ ROM_START( ftimpactu )
 
 	ROM_REGION( 0x600000, REGION_SOUND1, 0 )
 	ROM_LOAD( "e25-04.27",    0x0000000, 0x400000, CRC(09a66d35) SHA1(f0df24bc9bfc9eb0f5150dc035c19fc5b8a39bf9) )
-	ROM_LOAD( "e25-05.28",    0x0040000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
+	ROM_LOAD( "e25-05.28",    0x0400000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
 
 	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
 	ROM_LOAD( "tt05", 0, 8, CRC(66045c83) SHA1(b040fa87e855fd512fa99e80056d37aba895805b) )
@@ -5108,7 +5107,7 @@ ROM_START( ftimpcta )
 
 	ROM_REGION( 0x600000, REGION_SOUND1, 0 )
 	ROM_LOAD( "e25-04.27",    0x0000000, 0x400000, CRC(09a66d35) SHA1(f0df24bc9bfc9eb0f5150dc035c19fc5b8a39bf9) )
-	ROM_LOAD( "e25-05.28",    0x0040000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
+	ROM_LOAD( "e25-05.28",    0x0400000, 0x200000, CRC(3fb57636) SHA1(aa38bfac11ecf10fd55143cf4525a2a529be8bb6) )
 
 	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
 	ROM_LOAD( "tt05", 0, 8, CRC(66045c83) SHA1(b040fa87e855fd512fa99e80056d37aba895805b) )
