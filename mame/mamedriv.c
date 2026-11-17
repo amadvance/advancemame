@@ -5752,6 +5752,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( wh1h )		/* 0053 (c) 1992 Alpha Denshi Co. */
 	DRIVER( wh1ha )		/* 0053 (c) 1992 Alpha Denshi Co. */
 	DRIVER( crswd2bl )      /* 0054 Crossed Swords 2  (CD only? not confirmed, MVS might exist) */
+	DRIVER( csw2 )
 	DRIVER( kof94 )		/* 0055 (c) 1994 SNK */
 	DRIVER( aof2 )		/* 0056 (c) 1994 SNK */
 	DRIVER( aof2a )		/* 0056 (c) 1994 SNK */
@@ -5910,6 +5911,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 //	DRIVER( ms5pcb )	/* 0268 (c) 2003 Playmore */  // Just like mslug5
 	DRIVER( mslug5 )	/* 0268 (c) 2003 Playmore */
 	DRIVER( ms5plus )	/* bootleg */
+	DRIVER( ms5sp )
 	DRIVER( svcpcb )	/* 0269 (c) 2003 Playmore / Capcom - JAMMA PCB */
 	DRIVER( svcpcba )	/* 0269 (c) 2003 Playmore / Capcom - JAMMA PCB */
 	DRIVER( svc )		/* 0269 (c) 2003 Playmore / Capcom */
@@ -5963,6 +5965,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( neo2048 )
 	DRIVER( violentv )
 	DRIVER( blueandr )
+	DRIVER( mslug5ast )
 
 	/* The BreezaSoft games don't have proper ID codes */
 	DRIVER( jockeygp )
@@ -7511,6 +7514,7 @@ Other Sun games
 	DRIVER( keta )
 	DRIVER( ketb )
 	DRIVER( ketikd )
+	DRIVER( ketarr )
 	DRIVER( espgal )
 	DRIVER( akatana )
 	DRIVER( akatanaultd )

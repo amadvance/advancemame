@@ -7019,6 +7019,26 @@ ROM_START( ket )
 	ROM_LOAD( "ket_defaults.nv", 0x000000, 0x020000, CRC(3ca892d8) SHA1(67430df5217e453ae8140c5653deeadfad8fa684) )
 ROM_END
 
+ROM_START( ketarr )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ketarr17_v100.u38", 0x000000, 0x200000, CRC(2cb80b89) SHA1(e1aa072b8344890486e11795e02703aa2d234bb1) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "cave_t04701w064.u19",   0x400000, 0x800000, CRC(2665b041) SHA1(fb1107778b66f2af0de77ac82e1ee2902f53a959) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "cave_a04701w064.u7",    0x0000000, 0x0800000, CRC(5ef1b94b) SHA1(f10dfa46e0a4d297c3a856aea5b49d648f98935c) )
+	ROM_LOAD( "cave_a04702w064.u8",    0x0800000, 0x0800000, CRC(26d6da7f) SHA1(f20e07a7994f41b5ed917f8b0119dc5542f3541c) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "cave_b04701w064.u1",    0x0000000, 0x0800000, CRC(1bec008d) SHA1(07d117dc2eebb35727fb18a7c563acbaf25a8d36) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "cave_m04701b032.u17",    0x400000, 0x400000, CRC(b46e22d1) SHA1(670853dc485942fb96380568494bdf3235f446ee) )
+
+	ROM_REGION( 0x20000, REGION_USER2, 0 ) /* default settings */
+	ROM_LOAD( "ket_defaults.nv", 0x000000, 0x020000, CRC(3ca892d8) SHA1(67430df5217e453ae8140c5653deeadfad8fa684) )
+ROM_END
+
 ROM_START( keta )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 )
 	ROM_LOAD16_WORD_SWAP( "ketsui_prg_revised.bin", 0x000000, 0x200000, CRC(69fcf5eb) SHA1(f726e251b4daa2f8d717e32000d4d7abc71c710d) )
@@ -7155,4 +7175,5 @@ GAME( 2002, ket, 0, pgm_cave, ddp3, ket, ROT270, "Cave (AMI license)", "Ketsui: 
 GAME( 2002, keta, ket, pgm_cave, ddp3, ket, ROT270, "Cave (AMI license)", "Ketsui: Kizuna Jigoku Tachi (2003/01/01 Master Ver.)", GAME_IMPERFECT_SOUND )
 GAME( 2002, ketb, ket, pgm_cave, ddp3, ket, ROT270, "Cave (AMI license)", "Ketsui: Kizuna Jigoku Tachi (2003/01/01 Master Ver)", GAME_IMPERFECT_SOUND )
 GAME( 2007, ketikd, ket, pgm_cave, ddp3, ket, ROT270, "Cave (AMI license)", "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)", GAME_IMPERFECT_SOUND )
+GAME( 2014, ketarr, ket, pgm_cave, ddp3, ket, ROT270, "trap15", "Ketsui: Kizuna Jigoku Tachi (2014/07/16 ARRANGE 1.7 VER)", GAME_IMPERFECT_SOUND | GAME_STANDALONE )
 GAME( 2003, espgal, 0, pgm_cave, espgal, espgal, ROT270, "Cave (AMI license)", "Espgaluda (2003/10/15 Master Ver)", GAME_IMPERFECT_SOUND )

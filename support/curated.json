@@ -386,6 +386,22 @@
     },
     {
       "shortnames": [
+        "csw2"
+      ],
+      "title": "Crossed Swords 2 (full CD music)",
+      "year": 2026,
+      "developer": "pierpa86",
+      "category": "port",
+      "genre": "Action",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "parent_shortname": null,
+      "original_game": "crswd2bl",
+      "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS conversion of the Neo Geo CD action RPG with the complete arranged soundtrack converted to run on the YM2610 sound hardware."
+    },
+    {
+      "shortnames": [
         "cyberb21",
         "cyberb22",
         "cyberb23",
@@ -1301,6 +1317,23 @@
     },
     {
       "shortnames": [
+        "ketarr"
+      ],
+      "title": "Ketsui: Kizuna Jigoku Tachi (Arrange 1.7)",
+      "year": 2014,
+      "developer": "Cave",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "IGS PGM",
+      "version": "1.7 (2014-07-16)",
+      "parent_shortname": null,
+      "original_game": "ket",
+      "series": "Ketsui",
+      "hack_author": "trap15",
+      "description": "Ketsui Arrange is a comprehensive arcade overhaul by trap15 that rewrites the scoring system, dynamic rank, bullet patterns, and option formations to create an arrange-style bullet-hell experience on PGM hardware."
+    },
+    {
+      "shortnames": [
         "ketikd"
       ],
       "title": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)",
@@ -1507,6 +1540,37 @@
       "research_notes": [
         "A complete feature list specific to beta 1 has not been confirmed; changes documented only for beta 2 are excluded."
       ]
+    },
+    {
+      "shortnames": [
+        "ms5sp"
+      ],
+      "title": "Metal Slug 5 Plus (Super Enhanced)",
+      "year": 2003,
+      "developer": "SNK Playmore",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "parent_shortname": "mslug5",
+      "original_game": "mslug5",
+      "series": "Metal Slug",
+      "description": "Metal Slug 5 Plus (Super Enhanced) is an arcade bootleg modification of Metal Slug 5 based on Metal Slug 5 Plus with altered program code, weapon selection, and enhanced gameplay tweaks."
+    },
+    {
+      "shortnames": [
+        "mslug5ast"
+      ],
+      "title": "Metal Slug Asteroids",
+      "year": 2022,
+      "developer": "CB, Willnie",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "parent_shortname": null,
+      "original_game": "mslug5",
+      "series": "Metal Slug",
+      "hack_author": "CB, Willnie",
+      "description": "Metal Slug Asteroids is a total conversion built on Metal Slug 5 assets that replaces the side-scrolling run-and-gun stages with Asteroids-style multidirectional space shooter gameplay."
     },
     {
       "shortnames": [

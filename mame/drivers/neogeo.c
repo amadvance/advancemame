@@ -6300,6 +6300,36 @@ ROM_START( ms5plus )
 	ROM_LOAD16_BYTE( "268-c8c.c8", 0x3000001, 0x800000, CRC(551d720e) SHA1(ebf69e334fcaba0fda6fd432fd0970283a365d12) ) /* Plane 2,3 */
 ROM_END
 
+ROM_START( ms5sp )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "268sp.p1",    0x000000, 0x100000, CRC(540cd43f) SHA1(29378262a40e09f21dc6f033b8a97463caf5f1a9) )
+	ROM_LOAD16_WORD_SWAP( "ms5-p2p.bin", 0x100000, 0x200000, CRC(d6a458e8) SHA1(c0a8bdae06d62859fb6734766ccc190eb2a809a4) )
+	ROM_LOAD16_WORD_SWAP( "ms5-p3p.bin", 0x300000, 0x200000, CRC(439ec031) SHA1(f0ad8f9be7d26bc504593c1321bd23c286a221f0) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, 0 )
+	ROM_LOAD( "ms5-s1p.bin", 0x000000, 0x20000, CRC(21e04432) SHA1(10057a2aa487087f7143d1d69fdad978a6bef0f7) )
+	ROM_REGION( 0x20000, REGION_GFX2, 0 )
+	ROM_LOAD( "sfix.sfix",   0x000000, 0x20000, CRC(c2ea0cfd) SHA1(fd4a618cdcdbf849374f0a50dd8efe9dbab706c3) )
+
+	NEO_BIOS_SOUND_ENCRYPTED_512K( "268-m1.m1", CRC(4a5a6e0e) SHA1(df0f660f2465e1db7be5adfcaf5e88ad61a74a42) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "268-v1c.v1", 0x000000, 0x800000, CRC(ae31d60c) SHA1(c42285cf4e52fea74247860813e826df5aa7600a) )
+	ROM_LOAD( "268-v2c.v2", 0x800000, 0x800000, CRC(c40613ed) SHA1(af889570304e2867d7dfea1e94e388c06249fb67) )
+
+	NO_DELTAT_REGION
+
+	ROM_REGION( 0x4000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "268-c1c.c1", 0x0000000, 0x800000, CRC(ab7c389a) SHA1(025a188de589500bf7637fa8e7a37ab24bf4312e) )
+	ROM_LOAD16_BYTE( "268-c2c.c2", 0x0000001, 0x800000, CRC(3560881b) SHA1(493d218c92290b4770024d6ee2917c4022753b07) )
+	ROM_LOAD16_BYTE( "268-c3c.c3", 0x1000000, 0x800000, CRC(3af955ea) SHA1(cf36b6ae9b0d12744b17cb7a928399214de894be) )
+	ROM_LOAD16_BYTE( "268-c4c.c4", 0x1000001, 0x800000, CRC(c329c373) SHA1(5073d4079958a0ef5426885af2c9e3178f37d5e0) )
+	ROM_LOAD16_BYTE( "268-c5c.c5", 0x2000000, 0x800000, CRC(959c8177) SHA1(889bda7c65d71172e7d89194d1269561888fe789) )
+	ROM_LOAD16_BYTE( "268-c6c.c6", 0x2000001, 0x800000, CRC(010a831b) SHA1(aec140661e3ae35d264df416478ba15188544d91) )
+	ROM_LOAD16_BYTE( "268-c7c.c7", 0x3000000, 0x800000, CRC(6d72a969) SHA1(968dd9a4d1209b770b9b85ea6532fa24d262a262) )
+	ROM_LOAD16_BYTE( "268-c8c.c8", 0x3000001, 0x800000, CRC(551d720e) SHA1(ebf69e334fcaba0fda6fd432fd0970283a365d12) )
+ROM_END
+
 ROM_START( svcpcb ) /* Encrypted Set, JAMMA PCB */
 	ROM_REGION( 0x2000000, REGION_CPU1, 0 )
 	ROM_LOAD16_WORD_SWAP( "269-p1.p1", 0x000000, 0x2000000, CRC(432cfdfc) SHA1(19b40d32188a8bace6d2d570c6cf3d2f1e31e379) )
@@ -7303,6 +7333,28 @@ ROM_START( crswd2bl )
 	ROM_LOAD16_BYTE( "054-c2.c2", 0x000001, 0x400000, CRC(d6c6183d) SHA1(cc546ff063fae2c01c109fabcd5b2d29ec3299db) )
 ROM_END
 
+ROM_START( csw2 )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "054.p1", 0x100000, 0x100000, CRC(aa14d534) SHA1(1683a63e749d48d56f71c515c1aa12e93102ba9a) )
+	ROM_CONTINUE( 0x000000, 0x100000 )
+
+	NEO_SFIX_128K( "054.s1", CRC(22e02ddd) SHA1(ebd834affc763cc5854abf1c6c42f43f3f3755fd) )
+
+	NEO_BIOS_SOUND_128K( "054.m1", CRC(53412b7a) SHA1(75031a28adf537c9f7c5370337cb4936df89f683) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "054.v1", 0x000000, 0x400000, CRC(72364102) SHA1(047d64e16c0a2ce4800454d1237a46fbc85c538c) )
+	ROM_LOAD( "054.v2", 0x400000, 0x400000, CRC(501d65cc) SHA1(a9c80ae8d0ff7fb9f7a10e2efe09a78146902376) )
+	ROM_LOAD( "054.v3", 0x800000, 0x400000, CRC(913be857) SHA1(f50cb3552730a363a2936d691ee0e93a1e56a9ac) )
+	ROM_LOAD( "054.v4", 0xc00000, 0x400000, CRC(278220ce) SHA1(0d4b1f1eafae89439f7c85839c97b033724fdb5e) )
+
+	NO_DELTAT_REGION
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "054.c1", 0x000000, 0x400000, CRC(8221b712) SHA1(7e68871f1bfc402ef27c8fa088c680cbd133f71a) )
+	ROM_LOAD16_BYTE( "054.c2", 0x000001, 0x400000, CRC(d6c6183d) SHA1(cc546ff063fae2c01c109fabcd5b2d29ec3299db) )
+ROM_END
+
 /* Unlicensed Prototypes */
 
 ROM_START( diggerma )
@@ -7942,6 +7994,29 @@ ROM_START( blueandr )
 	ROM_LOAD16_BYTE( "519.c2", 0x000001, 0x40000, CRC(47647e8d) SHA1(f64dce9049813626abc98d999eb48aa099dba3f8) )
 ROM_END
 
+ROM_START( mslug5ast )
+	ROM_REGION( 0x800000, REGION_CPU1, 0 )
+	ROM_LOAD32_WORD_SWAP( "5555.p1", 0x000000, 0x400000, CRC(1e0506cf) SHA1(f1a20f1f0fc3fd74dd5d258eaf75965eb2b4cd91) )
+	ROM_LOAD32_WORD_SWAP( "5555.p2", 0x000002, 0x400000, CRC(894cd3dd) SHA1(553f90fce8c04940892bd797dc4f1dddf7276c81) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, 0 )
+	ROM_FILL( 0x000000, 0x20000, 0x000000 )
+	ROM_REGION( 0x20000, REGION_GFX2, 0 )
+	ROM_LOAD( "sfix.sfix", 0x000000, 0x20000, CRC(c2ea0cfd) SHA1(fd4a618cdcdbf849374f0a50dd8efe9dbab706c3) )
+
+	NEO_BIOS_SOUND_ENCRYPTED_128K( "5555.m1", CRC(876df5e1) SHA1(a54bd3eb76d9768fec26fbf4153c0a6055df159f) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "5555.v1", 0x000000, 0x800000, CRC(5d904213) SHA1(62bf1a832c14203ce913f6ac3dc5df75d141155a) )
+	ROM_LOAD( "5555.v2", 0x800000, 0x800000, CRC(97cee550) SHA1(b4429e71847ead15b146754f35023efa276253a7) )
+
+	NO_DELTAT_REGION
+
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "5555.c1", 0x000000, 0x800000, CRC(92a89586) SHA1(9d6dca9fd73cdd6d382d26708c632ec01654c050) )
+	ROM_LOAD16_BYTE( "5555.c2", 0x000001, 0x800000, CRC(18d14a71) SHA1(95e7518091fe5600bd5fb5c90fcec22670bf8910) )
+ROM_END
+
 /* dummy entry for the dummy bios driver */
 ROM_START( neogeo )
 	ROM_REGION16_BE( 0x020000, REGION_USER1, 0 )
@@ -8228,6 +8303,25 @@ DRIVER_INIT( ms5plus )
 	neogeo_fix_bank_type = 1;
 	init_neogeo();
 	install_ms5plus_protection();
+}
+
+static DRIVER_INIT( mslug5ast )
+{
+	UINT8 *cpuram = memory_region(REGION_CPU1);
+	UINT8 *ymram = memory_region(REGION_SOUND1);
+	UINT8 *sprram = memory_region(REGION_GFX3);
+	int p_enc = (cpuram[0x100] != 0x45);
+
+	if (p_enc)
+		mslug5_decrypt_68k();
+	if (ymram[0x60] != 0x82)
+		neo_pcm2_swap(2);
+	neogeo_fix_bank_type = 2;
+	if (sprram[0] != 0)
+		kof2000_neogeo_gfx_decrypt(0x19);
+	init_neogeo();
+	if (p_enc)
+		install_pvc_protection();
 }
 
 DRIVER_INIT( svcpcb )
@@ -8699,6 +8793,7 @@ GAMEB( 2004, kof2k4se, kof2002,  neogeo, neogeo, neogeo,  kof2k4se, ROT0, "bootl
 GAMEB( 2003, mslug5, neogeo,   neogeo, neogeo, neogeo,  mslug5,   ROT0, "SNK Playmore", "Metal Slug 5 (NGM-2680)", 0 )
 GAME ( 2003, ms5pcb,   0,                neogeo, neogeo,  ms5pcb,   ROT0, "SNK Playmore", "Metal Slug 5 (JAMMA PCB)", 0 )
 GAMEB( 2003, ms5plus, mslug5,   neogeo, neogeo, neogeo,  ms5plus,  ROT0, "bootleg", "Metal Slug 5 Plus (bootleg)",0 )
+GAMEB( 2003, ms5sp,   mslug5,   neogeo, neogeo, neogeo,  ms5plus,  ROT0, "hack", "Metal Slug 5 Plus (Super enhanced version)", 0 )
 GAME ( 2003, svcpcb,   0,                neogeo, svcpcb,  svcpcb,   ROT0, "Playmore / Capcom", "SNK vs. Capcom - SVC Chaos (JAMMA PCB, NEO-MVH MVO PCB)", 0 ) // not a clone of neogeo because it's NOT a neogeo cart.
 GAME ( 2003, svcpcba,  svcpcb,           neogeo, svcpcb,  svcpcb,   ROT0, "Playmore / Capcom", "SNK vs. Capcom - SVC Chaos (JAMMA PCB, NEO-MVH MVOB PCB)" , 0 ) /* Encrypted Code */
 GAMEB( 2003, svc, neogeo,   neogeo, neogeo, neogeo,  svchaosa, ROT0, "Playmore / Capcom", "SNK vs. Capcom - SVC Chaos (NGM-2690 ~ NGH-2690)", 0 )
@@ -8867,6 +8962,7 @@ GAMEB( 2001, vliner54, vliner,   neogeo, neogeo, vliner,  vliner,   ROT0, "Dyna 
 
 /* Bootleg NeoCD to MVS conversion */
 GAMEB( 1996, crswd2bl, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "bootleg (Razoola)", "Crossed Swords 2 (bootleg of CD version)", 0 )
+GAMEB( 2026, csw2,     neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "pierpa86", "Crossed Swords 2 (full CD music)", 0 )
 
 /* Kyle Hodgetts */
 GAMEB( 2000, diggerma, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Kyle Hodgetts", "Digger Man (prototype)", 0 )
@@ -8921,3 +9017,4 @@ GAMEB( 2021, abyssal,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "K
 GAMEB( 2021, neo2048,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Nicole Branagan", "Neo 2048", 0 )
 GAMEB( 2026, violentv,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Balek Corp", "Violent Vengeance: the universe hero (beta 3.28, 2026-02-01)", 0 )
 GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.6", 0 )
+GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
