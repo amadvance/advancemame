@@ -120,6 +120,46 @@
     },
     {
       "shortnames": [
+        "bgaregga01"
+      ],
+      "title": "Battle Garegga (Zakk version, set 1)",
+      "year": 2008,
+      "developer": "Raizing",
+      "publisher": "Eighting",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Raizing hardware",
+      "parent_shortname": "bgaregga",
+      "original_game": "bgaregga",
+      "series": "Battle Garegga",
+      "hack_author": "Zakk",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Unlocks the Mahou Daisakusen guest characters without entering the selection code."
+        },
+        {
+          "type": "difficulty",
+          "description": "Prevents the starting rank from increasing across successive games."
+        }
+      ],
+      "description": "Zakk's Battle Garegga patch makes the Mahou Daisakusen guest characters available immediately and prevents difficulty rank from accumulating between games. Players can start successive credits from the default rank without resetting the machine, while the original stages, weapons and scoring remain intact.",
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://shmups.system11.org/viewtopic.php?t=20888"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://shmups.system11.org/viewtopic.php?t=20888"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "bktigerb"
       ],
       "title": "Black Tiger",
@@ -779,6 +819,115 @@
     },
     {
       "shortnames": [
+        "galaga01"
+      ],
+      "title": "Galaga Wave Mixer",
+      "year": 2024,
+      "developer": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Namco Galaga hardware",
+      "parent_shortname": "galaga",
+      "original_game": "galaga",
+      "series": "Galaga",
+      "hack_author": "Paul Goes",
+      "description": "Galaga Wave Mixer randomizes the paths taken by incoming enemy waves, choosing from 24 routes with additional mirroring and timing variations. Some routes lead into the usual formation while others do not. Challenging Stages are also mixed, and each new game uses a different random seed.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/page_other.html"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/page_other.html"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "galaga02"
+      ],
+      "title": "Galaga Challenging Only",
+      "year": 2024,
+      "developer": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Namco Galaga hardware",
+      "parent_shortname": "galaga",
+      "original_game": "galaga",
+      "series": "Galaga",
+      "hack_author": "Paul Goes",
+      "description": "Galaga Challenging Only turns the game's bonus rounds into the entire playing experience. Shoot down incoming formations in successive Challenging Stages and aim for perfect clears. The normal combat stages are omitted, so the focus is on accuracy and learning the enemies' flight paths.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/page_other.html"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/page_other.html"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "galaga84"
+      ],
+      "title": "Galaga '84",
+      "year": 1984,
+      "developer": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Namco Galaga hardware",
+      "parent_shortname": "galaga",
+      "original_game": "galaga",
+      "series": "Galaga",
+      "description": "Galaga '84 changes the title and alien graphics of Namco's fixed-screen shooter. Move a fighter along the bottom of the screen and destroy enemy formations as individual aliens break away to dive toward the player. The modified presentation retains the familiar Galaga scoring and combat structure.",
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "galagap"
+      ],
+      "title": "Galaga (patched)",
+      "year": 2007,
+      "developer": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Namco Galaga hardware",
+      "parent_shortname": "galaga",
+      "original_game": "galaga",
+      "series": "Galaga",
+      "hack_author": "Don Hodges",
+      "modifications": [
+        {
+          "type": "bugfix",
+          "description": "Corrects the stage 256 progression bug."
+        }
+      ],
+      "description": "Don Hodges' Galaga patch corrects the bug that prevents normal progression at stage 256. It retains the original enemy formations, graphics, controls and scoring, allowing an extended run to continue beyond the affected stage.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.classicarcadegaming.com/forums/index.php?topic=1318.0"
+        }
+      ],
+      "sources": [
+        {
+          "type": "community",
+          "url": "https://www.classicarcadegaming.com/forums/index.php?topic=1318.0"
+        }
+      ],
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
         "gladmort"
       ],
       "title": "Gladmort",
@@ -1006,6 +1155,45 @@
       "original_game": "ket",
       "parent_shortname": "ket",
       "description": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special) is a special event version of Cave's 2003 vertical bullet-hell shoot-'em-up Ketsui directed by Tsuneki Ikeda (IKD) and exhibited at the 2007 Cave Matsuri festival."
+    },
+    {
+      "shortnames": [
+        "kgpe"
+      ],
+      "title": "Kingdom Grand Prix (English translation)",
+      "year": null,
+      "developer": "Raizing",
+      "publisher": "Eighting",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Raizing hardware",
+      "parent_shortname": "kingdmgp",
+      "original_game": "kingdmgp",
+      "series": "Mahou Daisakusen",
+      "hack_author": "Neil Corlett",
+      "modifications": [
+        {
+          "type": "translation",
+          "description": "Replaces the text-layer graphics with English text."
+        }
+      ],
+      "description": "Neil Corlett's English-text modification of Kingdom Grand Prix makes the text presentation accessible in English while retaining the original shooting and racing mechanics. Fight through vertically scrolling courses, clear enemies and compete with rival racers for a higher finishing position.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.retrogames.com/082001.html"
+        }
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://www.retrogames.com/082001.html"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The original game dates to 1994. The translation was documented in August 2001, but its precise release date has not been established."
+      ]
     },
     {
       "shortnames": [

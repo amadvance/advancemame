@@ -609,6 +609,10 @@ const game_driver * const drivers[] =
 	DRIVER( galagamk )	/* (c) 1981 Midway */
 	DRIVER( gallag )	/* bootleg */
 	DRIVER( gatsbee )	/* (c) 1984 Uchida / hack */
+	DRIVER( galaga84 )
+	DRIVER( galagap )
+	DRIVER( galaga01 )
+	DRIVER( galaga02 )
 	DRIVER( digdug )	/* (c) 1982 */
 	DRIVER( digdugb )	/* (c) 1982 */
 	DRIVER( digdugat )	/* 136007   (c) 1982 Atari */
@@ -2253,6 +2257,8 @@ const game_driver * const drivers[] =
 	DRIVER( bgaregt2 )  /* (c) 1996 Raizing/8ing */
 	DRIVER( bgaregcn )  /* (c) 1996 Raizing/8ing */
 	DRIVER( bgaregtw )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgaregga01 )
+	DRIVER( kgpe )
 	DRIVER( batrider )  /* (c) 1998 Raizing/8ing */
 	DRIVER( batridu )   /* (c) 1998 Raizing/8ing */
 	DRIVER( batridc )   /* (c) 1998 Raizing/8ing */
