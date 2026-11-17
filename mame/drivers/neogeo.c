@@ -7925,6 +7925,23 @@ ROM_START( violentv )
 	ROM_LOAD16_BYTE( "516b.c2", 0x000001, 0x1000000, CRC(970ba8c2) SHA1(c75444236de9aba99f9415f8ab0748376435046e) )
 ROM_END
 
+ROM_START( blueandr )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "519.p1", 0x000000, 0x100000, CRC(6e4f71aa) SHA1(04f6be53c276fbdd98ddb2831e508314dd57bfdd) )
+
+	NEO_SFIX_128K( "519.s1", CRC(0d0067f5) SHA1(ed77445e94d58ed83b27480c5e939ca2c0b6a90c) )
+
+	NEO_BIOS_SOUND_256K( "519.m1", CRC(19f32974) SHA1(4c0c11ee493f8cc12f95ac4de312544f23faf762) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "519.v1", 0x000000, 0x040000, CRC(7d5535dd) SHA1(96180a18b3fecfc9583a7ae36bd1aa47eafad07e) )
+	ROM_LOAD( "519.v2", 0x040000, 0xb80000, CRC(d52a3036) SHA1(0e9d6ffd643b499d55201543b35af3762a88aba2) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "519.c1", 0x000000, 0x40000, CRC(79b934a5) SHA1(b2b063b97a791a9ef88530c9e8c3a2530fc53ce6) )
+	ROM_LOAD16_BYTE( "519.c2", 0x000001, 0x40000, CRC(47647e8d) SHA1(f64dce9049813626abc98d999eb48aa099dba3f8) )
+ROM_END
+
 /* dummy entry for the dummy bios driver */
 ROM_START( neogeo )
 	ROM_REGION16_BE( 0x020000, REGION_USER1, 0 )
@@ -8903,3 +8920,4 @@ GAMEB( 2023, yoyoshkn,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "D
 GAMEB( 2021, abyssal,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kako Eimon", "Abyssal Infants", 0 )
 GAMEB( 2021, neo2048,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Nicole Branagan", "Neo 2048", 0 )
 GAMEB( 2026, violentv,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Balek Corp", "Violent Vengeance: the universe hero (beta 3.28, 2026-02-01)", 0 )
+GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.6", 0 )

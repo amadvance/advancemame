@@ -197,6 +197,23 @@
     },
     {
       "shortnames": [
+        "blueandr"
+      ],
+      "title": "Blue and Red Fight the Robots",
+      "year": 2026,
+      "developer": "Kaiju Wasp",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.6",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Blue and Red Fight the Robots is a cooperative arcade platformer originally developed for the Amiga and ported to Neo Geo by Kaiju Wasp. Play alone or with a second player across 40 stages, zapping and stomping rogue robots to rescue the kidnapped pets Bernie and Dino."
+    },
+    {
+      "shortnames": [
         "bpanicdx"
       ],
       "title": "Block Panic DX",
@@ -534,6 +551,22 @@
     },
     {
       "shortnames": [
+        "dkchrmx"
+      ],
+      "title": "Donkey Kong Christmas Remix",
+      "year": 2017,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "description": "Donkey Kong Christmas Remix gives Nintendo's arcade platformer a holiday makeover with winter-themed sprites, festive colors, and remixed stages built on the Braze expansion kit."
+    },
+    {
+      "shortnames": [
         "dkong21"
       ],
       "title": "Donkey Kong Pac-Man Crossover",
@@ -711,6 +744,22 @@
     },
     {
       "shortnames": [
+        "dkongte"
+      ],
+      "title": "Donkey Kong Tournament Edition",
+      "year": 2022,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "description": "Donkey Kong Tournament Edition reworks the classic arcade stages and scoring challenges specifically for competitive high-score play on the Braze expansion hardware."
+    },
+    {
+      "shortnames": [
         "dkpace"
       ],
       "title": "Donkey Kong Pace",
@@ -767,6 +816,22 @@
         }
       ],
       "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkspkyrmx"
+      ],
+      "title": "Donkey Kong Spooky Remix",
+      "year": 2018,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "description": "Donkey Kong Spooky Remix transforms the arcade stages with a Halloween aesthetic featuring ghosts, pumpkins, bats, and Pauline dressed as a witch, alongside remixed board layouts."
     },
     {
       "shortnames": [
@@ -1873,6 +1938,36 @@
     },
     {
       "shortnames": [
+        "sf2mix"
+      ],
+      "title": "Street Fighter II: Dream Battle",
+      "year": 2025,
+      "developer": "Capcom",
+      "category": "hack",
+      "genre": "Fighter",
+      "platform": "Capcom CPS-1",
+      "version": "1.6",
+      "parent_shortname": null,
+      "original_game": "sf2ce",
+      "series": "Street Fighter",
+      "hack_author": "Zero800",
+      "description": "Street Fighter II: Dream Battle (SF2Mix) is an extensive CPS-1 overhaul of Street Fighter II': Champion Edition that adds modern fighting mechanics such as parries, a Vigor guard/super meter, hidden character forms, combo counters, and DIP-switch options including False 3D stages.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://sf2mix.github.io/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://sf2mix.github.io/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "sf2t",
         "sf2tj"
       ],
@@ -2103,6 +2198,37 @@
       "research_notes": [
         "The available detailed changelog covers revision 5.0.053; its later changes and reversions are not attributed to 5.0.050."
       ]
+    },
+    {
+      "shortnames": [
+        "umk3plus20220307"
+      ],
+      "title": "Ultimate Mortal Kombat 3 Plus",
+      "year": 2022,
+      "developer": "Midway",
+      "category": "hack",
+      "genre": "Fighter",
+      "platform": "Midway Wolf Unit",
+      "version": "Beta 2 (2022-03-07)",
+      "release_status": "beta",
+      "parent_shortname": null,
+      "original_game": "umk3",
+      "series": "Mortal Kombat",
+      "hack_author": "Team Plus",
+      "description": "Ultimate Mortal Kombat 3 Plus expands the arcade fighter on Wolf Unit hardware with additional playable characters, new arenas and finishers, and extensive bug, palette, and animation fixes over revision 1.2.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://www.mortalkombatplus.com/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://www.mortalkombatplus.com/"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [

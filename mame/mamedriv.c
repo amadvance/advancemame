@@ -997,6 +997,9 @@ const game_driver * const drivers[] =
 	DRIVER( dkrndmzr )
 	DRIVER( dkbarpal )
 	DRIVER( dkongan )
+	DRIVER( dkchrmx )
+	DRIVER( dkspkyrmx )
+	DRIVER( dkongte )
 
 	/* Nintendo Playchoice 10 games */
 	DRIVER( playch10 )
@@ -2653,6 +2656,7 @@ V-V                           TP-027
 	DRIVER( sf2m7 )		/* hack */
 	DRIVER( sf2yyc )	/* hack */
 	DRIVER( sf2koryu )	/* hack */
+	DRIVER( sf2mix )
 	DRIVER( varth )		/* 14/07/1992 (c) 1992 (World) */
 	DRIVER( varthr1 )	/* 12/06/1992 (c) 1992 (World) */
 	DRIVER( varthu )	/* 12/06/1992 (c) 1992 (US) */
@@ -5958,6 +5962,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( abyssal )
 	DRIVER( neo2048 )
 	DRIVER( violentv )
+	DRIVER( blueandr )
 
 	/* The BreezaSoft games don't have proper ID codes */
 	DRIVER( jockeygp )
@@ -6259,6 +6264,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( umk3 )		/* (c) 1994 Midway */
 	DRIVER( umk3r11 )	/* (c) 1994 Midway */
 	DRIVER( umk3r10 )	/* (c) 1994 Midway */
+	DRIVER( umk3plus20220307 )
 	DRIVER( wwfmania )	/* (c) 1995 Midway */
 	DRIVER( openice )	/* (c) 1995 Midway */
 	DRIVER( nbahangt )	/* (c) 1996 Midway */
