@@ -233,6 +233,14 @@ INPUT_PORTS_START( arknoidj )
 	PORT_DIPSETTING(    0x80, DEF_STR( Cocktail ) )
 INPUT_PORTS_END
 
+static INPUT_PORTS_START( akgcdx )
+	PORT_INCLUDE( arknoidj )
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x01, 0x01, "Ball Speed" )
+	PORT_DIPSETTING(    0x01, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, "Faster" )
+INPUT_PORTS_END
+
 /* Is the same as arkanoij, but the Coinage,
   Lives and Bonus_Life dips are different */
 INPUT_PORTS_START( arkatayt )
@@ -501,6 +509,21 @@ static MACHINE_DRIVER_START( brixian )
 MACHINE_DRIVER_END
 
 /* ROMs */
+
+ROM_START( akgcdx )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "akgcdx.bin",    0x0000,  0x10000, CRC(6e6ba560) SHA1(477a68caa1a9d0ce6e21f1164f8ec01434011308) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "a75-03.ic64",   0x00000, 0x8000, CRC(038b74ba) SHA1(ac053cc4908b4075f918748b89570e07a0ba5116) )
+	ROM_LOAD( "a75-04.ic63",   0x08000, 0x8000, CRC(71fae199) SHA1(5d253c46ccf4cd2976a5fb8b8713f0f345443d06) )
+	ROM_LOAD( "a75-05.ic62",   0x10000, 0x8000, CRC(c76374e2) SHA1(7520dd48de20db60a2038f134dcaa454988e7874) )
+
+	ROM_REGION( 0x0600, REGION_PROMS, 0 )
+	ROM_LOAD( "a75-07.ic24",   0x0000, 0x0200, CRC(0af8b289) SHA1(6bc589e8a609b4cf450aebedc8ce02d5d45c970f) )
+	ROM_LOAD( "a75-08.ic23",   0x0200, 0x0200, CRC(abb002fb) SHA1(c14f56b8ef103600862e7930709d293b0aa97a73) )
+	ROM_LOAD( "a75-09.ic22",   0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )
+ROM_END
 
 ROM_START( arkanoid )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
@@ -785,6 +808,39 @@ ROM_START( brixian )
 	ROM_LOAD( "n82s131n.6m", 0x0400, 0x0200, CRC(05297649) SHA1(35f99cf8dddd66e26e2110619eb46bd6ccff41df) )
 ROM_END
 
+static UINT8 akgcdx_command;
+
+static READ8_HANDLER( akgcdx_prot_r )
+{
+	switch (akgcdx_command)
+	{
+		case 0x8a: return 0xa5;
+		case 0xff: return 0xe2;
+		default: return 0;
+	}
+}
+
+static WRITE8_HANDLER( akgcdx_prot_w )
+{
+	int pc = activecpu_get_pc();
+	akgcdx_command = 0;
+	if ((data == 0x8a && pc == 0x9661) || (data == 0xff && pc == 0x9670))
+		akgcdx_command = data;
+}
+
+static READ8_HANDLER( akgcdx_paddle_r )
+{
+	return 0x02 | ((arkanoid_input_2_r(offset) < 0x40) ? 0x20 : 0);
+}
+
+static DRIVER_INIT( akgcdx )
+{
+	akgcdx_command = 0;
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xf002, 0xf002, 0, 0, akgcdx_prot_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xd018, 0xd018, 0, 0, akgcdx_prot_w);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xd008, 0xd008, 0, 0, akgcdx_paddle_r);
+}
+
 /* Driver Initialization */
 
 static DRIVER_INIT( brixian )
@@ -830,3 +886,5 @@ GAME( 1987, arkatour, 0,        arkanoid, arkanoid, 0,       ROT90, "Taito Ameri
 GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
 GAME( 2023, cruisin5, 0,        cruisin5,  cruisin5, 0,       ROT90, "Abyss", "Cruisin 5: Cruise Back", GAME_SUPPORTS_SAVE )
 GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )
+
+GAME( 2000, akgcdx, arkanoid, bootleg, akgcdx, akgcdx, ROT90, "hack", "Arkanoid Deluxe (Game Corporation)", 0 )

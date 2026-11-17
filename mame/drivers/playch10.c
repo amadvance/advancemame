@@ -808,6 +808,68 @@ SYSTEM_BIOS_END
 /******************************************************************************/
 
 /* Standard Games */
+ROM_START( pc_galag )
+	BIOS_CPU
+	ROM_LOAD( "u3", 0x0c000, 0x2000, CRC(415b8807) SHA1(9d6161bbc6dec5873cc6d8a570141d4af42fa232) )
+	BIOS_GFX
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "galaga.u1", 0x8000, 0x8000, CRC(b4c4c5fe) SHA1(16e53935fc998de1eb8a88f73217ef1e2005d026) )
+
+	ROM_REGION( 0x02000, REGION_GFX2, 0 )
+	ROM_LOAD( "galaga.u2", 0x00000, 0x2000, CRC(e2d5964e) SHA1(62b2cd49a6a4c6f1e2b0742db3b7493e167e9a23) )
+
+	ROM_REGION( 0x0100,  REGION_USER1, 0 )
+	ROM_LOAD( "29893c7f.prm", 0x00000, 0x10, CRC(29893c7f) SHA1(58478b7de2177c8dc1d6885bd34eeeeb5e46d7a3) )
+ROM_END
+
+ROM_START( pc_mman5 )
+	BIOS_CPU
+	ROM_LOAD( "2n-u3", 0x0c000, 0x2000, CRC(65298370) SHA1(fd120f43e465a2622f2e2679ace2fb0fe7e709b1) )
+	BIOS_GFX
+
+	ROM_REGION( 0x50000, REGION_CPU2, 0 )
+	ROM_LOAD( "2n-u5",    0x10000, 0x40000, CRC(f3c743aa) SHA1(ee907c7279dba52320e35906ab5b0a1bdbbf0bfb) )
+
+	ROM_REGION( 0x40000, REGION_GFX2, 0 )
+	ROM_LOAD( "2n-u1",    0x00000, 0x40000, CRC(25e0ae72) SHA1(45d3ffbb5e399c891df6fcbd78b94b866be9b663) )
+
+	ROM_REGION( 0x0100,  REGION_USER1, 0 )
+	ROM_LOAD( "237e8519.prm", 0x00000, 0x10, CRC(237e8519) SHA1(81b368d0784e4172c5cf9f4f4b92e29e05d34ae7) )
+ROM_END
+
+ROM_START( pc_pacm )
+	BIOS_CPU
+	ROM_LOAD( "gf-u3", 0x0c000, 0x2000, CRC(882dea87) SHA1(e3bbca36efa66231b933713dec032bbb926b36e5) )
+	BIOS_GFX
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "pacman.u1",   0xc000, 0x4000, CRC(de2070ab) SHA1(a9324a94fa3d5ae6396a90c3d6d8399de8f93bd1) )
+	ROM_RELOAD( 0x8000, 0x4000 )
+
+	ROM_REGION( 0x02000, REGION_GFX2, 0 )
+	ROM_LOAD( "pacman.u2",   0x00000, 0x2000, CRC(db6c9324) SHA1(f0d0fa49fbccc3b005742fc72a8dd3dce63909d1) )
+
+	ROM_REGION( 0x0100,  REGION_USER1, 0 )
+	ROM_LOAD( "2cd98ef6.prm", 0x00000, 0x10, CRC(2cd98ef6) SHA1(bd5142c6a29df674ab835c8beafff7e93712d88f) )
+ROM_END
+
+ROM_START( pc_smb3_ps01 )
+	BIOS_CPU
+	ROM_LOAD( "u3um", 0x0c000, 0x2000, CRC(45e92f7f) SHA1(9071d5f18639ac58d6d4d72674856f9ecab911f0) )
+	BIOS_GFX
+
+	ROM_REGION( 0x50000, REGION_CPU2, 0 )
+	ROM_LOAD( "u4um_ps01",    0x10000, 0x20000, CRC(80a11ad0) SHA1(1e2c01834d2dc9334030a0858ee8f8ffc43eb2e2) )
+	ROM_LOAD( "u5um_ps01",    0x30000, 0x20000, CRC(09daacf2) SHA1(b8d53ad91cf554fedf11167d56c082961d7b989a) )
+
+	ROM_REGION( 0x020000, REGION_GFX2, 0 )
+	ROM_LOAD( "u1um",    0x00000, 0x20000, CRC(c2928c49) SHA1(2697d1f21b72a6d8e7d2a2d2c51c9c5550f68b56) )
+
+	ROM_REGION( 0x0100, REGION_USER1, 0 )
+	ROM_LOAD( "security.prm", 0x00, 0x10, CRC(e48f4945) SHA1(66fe537cfe540317d6194847321ce4a9bdf0bba4) )
+ROM_END
+
 ROM_START( pc_smb )		/* Super Mario Bros. */
 	BIOS_CPU
 	ROM_LOAD( "u3sm",    0x0c000, 0x2000, CRC(4b5f717d) SHA1(c39c90f9503c4692af4a8fdb3e18ef7cf04e897f) ) /* extra bios code for this game */
@@ -1741,3 +1803,8 @@ GAMEB( 1990, pc_sjetm, playch10, playch10, playch10, playch10, pciboard, ROT0, "
 
 /* K-Board Games */
 GAMEB( 1991, pc_moglf, playch10, playch10, playch10, playch10, pckboard, ROT0, "Nintendo",									"Mario's Open Golf (PlayChoice-10)", 0 )
+
+GAMEB( 2002, pc_galag, playch10, playch10, playch10, playch10, pc_hrz, ROT0, "NES->PC-10", "Galaga (PlayChoice-10)", 0 )
+GAMEB( 2002, pc_mman5, playch10, playch10, playch10, playch10, pcgboard, ROT0, "NES->PC-10", "Megaman 5 (PlayChoice-10)", 0 )
+GAMEB( 2002, pc_pacm, playch10, playch10, playch10, playch10, pc_hrz, ROT0, "NES->PC-10", "Pacman (PlayChoice-10)", 0 )
+GAMEB( 2012, pc_smb3_ps01, pc_smb3, playch10, playch10, playch10, pcgboard, ROT0, "hack", "Super Mario Bros. 3 (135 Hack, 2012-01-23)(PlayChoice-10)", 0 )

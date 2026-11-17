@@ -1041,6 +1041,10 @@ const game_driver * const drivers[] =
 	DRIVER( pc_smb2 )	/* (c) 1988 Nintendo */
 	DRIVER( pc_smb3 )	/* (c) 1988 Nintendo */
 	DRIVER( pc_mman3 )	/* (c) 1990 Capcom USA (Nintendo of America license) */
+	DRIVER( pc_galag )
+	DRIVER( pc_mman5 )
+	DRIVER( pc_pacm )
+	DRIVER( pc_smb3_ps01 )
 	DRIVER( pc_radr2 )	/* (c) 1990 Square (Nintendo of America license) */
 	DRIVER( pc_suprc )	/* (c) 1990 Konami (Nintendo of America license) */
 	DRIVER( pc_tmnt2 )	/* (c) 1990 Konami (Nintendo of America license) */
@@ -1688,6 +1692,7 @@ const game_driver * const drivers[] =
 	DRIVER( boblbobl )	/* bootleg */
 	DRIVER( sboblbob )	/* bootleg */
         DRIVER( bublboblu )	/* bootleg */
+	DRIVER( bublboblu2 )
         DRIVER( bublcave )	/* bootleg */
 	DRIVER( missb2 )	/* bootleg on enhanced hardware */
 	DRIVER( kikikai )	/* A85 (c) 1986 Taito Corporation */
@@ -1722,6 +1727,7 @@ const game_driver * const drivers[] =
 	DRIVER( arkanoidja )	/* A75 (c) 1986 Taito Corporation (Japan) */
 	DRIVER( arkanoidjbl )	/* bootleg */
 	DRIVER( arkgcbl )	/* bootleg */
+	DRIVER( akgcdx )
 	DRIVER( paddle2 )	/* bootleg */
 	DRIVER( arktayt2 )	/* bootleg */
 	DRIVER( arkblock )	/* bootleg */

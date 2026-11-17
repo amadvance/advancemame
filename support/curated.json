@@ -66,6 +66,25 @@
     },
     {
       "shortnames": [
+        "akgcdx"
+      ],
+      "title": "Arkanoid Deluxe (Game Corporation)",
+      "year": 2000,
+      "developer": "Taito",
+      "category": "hack",
+      "genre": "Ball & Paddle",
+      "platform": "Taito Arkanoid hardware",
+      "parent_shortname": "arkanoid",
+      "original_game": "arkanoid",
+      "series": "Arkanoid",
+      "description": "Arkanoid Deluxe is a modified edition of Taito's brick-breaking game for Game Corporation bootleg hardware. Move the paddle to keep the ball in play and clear the brick patterns.",
+      "confidence": "uncertain",
+      "research_notes": [
+        "The hack author, release history and complete list of changes have not been independently established."
+      ]
+    },
+    {
+      "shortnames": [
         "alphaona"
       ],
       "title": "Alpha One",
@@ -196,20 +215,46 @@
     },
     {
       "shortnames": [
-        "bublboblu"
+        "bublboblu",
+        "bublboblu2"
       ],
-      "title": "Bubble Bobble (Ultra Version)",
+      "title": "Bubble Bobble Ultra",
+      "year": 2011,
+      "developer": "Taito",
       "category": "hack",
-      "original_game": "bublbobl",
+      "genre": "Platform",
+      "platform": "Taito Bubble Bobble hardware",
       "parent_shortname": "bublbobl",
+      "original_game": "bublbobl",
+      "series": "Bubble Bobble",
+      "hack_author": "Penta Penguin",
       "modifications": [
         {
           "type": "levels",
-          "description": "Replaces stage layouts and enemy placements with redesigned levels."
+          "description": "Reworks stage layouts and enemy placements across the 100 stages, mixing entirely redesigned layouts with layouts inspired by Super Bubble Bobble."
+        },
+        {
+          "type": "graphics",
+          "description": "Changes the stage color palettes."
         }
       ],
-      "description": "Bubble Bobble (Ultra Version) is a level and gameplay modification of Taito's 1986 arcade platformer Bubble Bobble, featuring redesigned single-screen stages and altered enemy arrangements.",
-      "confidence": "corroborated"
+      "description": "Penta Penguin's Bubble Bobble Ultra replaces the original game's 100 stages with a mixture of redesigned layouts and stages inspired by Super Bubble Bobble, with altered enemy arrangements and color palettes. Bub and Bob still trap enemies in bubbles and pop them to clear each room, alone or together.",
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://retro-replay.com/romhacking/hacks/bubble-bobble-ultra/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://retro-replay.com/romhacking/hacks/bubble-bobble-ultra/"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The differences between the two Ultra program revisions and the 2012 date assigned to the USA set remain unverified."
+      ]
     },
     {
       "shortnames": [
@@ -1561,6 +1606,125 @@
       "category": "clone",
       "original_game": "pbobble2",
       "parent_shortname": "pbobble2"
+    },
+    {
+      "shortnames": [
+        "pc_galag"
+      ],
+      "title": "Galaga (PlayChoice-10)",
+      "year": 2002,
+      "developer": "Namco",
+      "category": "port",
+      "genre": "Shooter",
+      "platform": "Nintendo PlayChoice-10",
+      "parent_shortname": "playch10",
+      "original_game": "galaga",
+      "series": "Galaga",
+      "description": "A cartridge conversion of the NES version of Galaga for Nintendo's PlayChoice-10 arcade system. Shoot the incoming enemy formations and diving attackers while protecting the fighter at the bottom of the screen.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "sources": [
+        {
+          "type": "documentation",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
+    },
+    {
+      "shortnames": [
+        "pc_mman5"
+      ],
+      "title": "Mega Man 5 (PlayChoice-10)",
+      "year": 2002,
+      "developer": "Capcom",
+      "category": "port",
+      "genre": "Platform",
+      "platform": "Nintendo PlayChoice-10",
+      "parent_shortname": "playch10",
+      "original_game": "megaman5",
+      "series": "Mega Man",
+      "description": "A cartridge conversion of Capcom's NES game Mega Man 5 for the PlayChoice-10 arcade system. Choose a stage, jump and shoot through its obstacles, then defeat its Robot Master to acquire another weapon.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "sources": [
+        {
+          "type": "documentation",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
+    },
+    {
+      "shortnames": [
+        "pc_pacm"
+      ],
+      "title": "Pac-Man (PlayChoice-10)",
+      "year": 2002,
+      "developer": "Namco",
+      "category": "port",
+      "genre": "Maze",
+      "platform": "Nintendo PlayChoice-10",
+      "parent_shortname": "playch10",
+      "original_game": "pacman",
+      "series": "Pac-Man",
+      "description": "A cartridge conversion of the NES version of Pac-Man for Nintendo's PlayChoice-10 arcade system. Clear the maze of dots while avoiding the ghosts, using power pellets to turn the chase around temporarily.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "sources": [
+        {
+          "type": "documentation",
+          "url": "https://www.riemen.net/playchoice/downloads/manuals/par_pc10_hacks.pdf"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
+    },
+    {
+      "shortnames": [
+        "pc_smb3_ps01"
+      ],
+      "title": "Super Mario Bros. 3 (135 Hack)",
+      "year": 2012,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo PlayChoice-10",
+      "version": "135 Hack, 2012-01-23",
+      "parent_shortname": "pc_smb3",
+      "original_game": "pc_smb3",
+      "series": "Super Mario",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Redesigns the opening stage with platforms over water."
+        }
+      ],
+      "description": "135 Hack is a modified version of Super Mario Bros. 3 for the PlayChoice-10 arcade system. Its opening stage replaces the familiar terrain with platforms over water.",
+      "confidence": "uncertain",
+      "research_notes": [
+        "The hack author and complete list of stage and gameplay changes have not been independently established."
+      ]
     },
     {
       "shortnames": [
