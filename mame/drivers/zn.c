@@ -331,12 +331,6 @@ static ADDRESS_MAP_START( zn_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0xfffe0130, 0xfffe0133) AM_WRITENOP
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( link_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( link_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-ADDRESS_MAP_END
-
 static NVRAM_HANDLER( zn_eeprom )
 {
 	const UINT8 *defaults = memory_region( REGION_USER6 );
@@ -2815,79 +2809,133 @@ Notes:
       for 11 more 32MBit smt SOP44 MASKROMs.
 */
 
+#define TPS_ROM_BANK_SIZE 0x800000
+
+static int coh1002m_rom_banks;
+
 static WRITE32_HANDLER( coh1002m_bank_w )
 {
-	verboselog( 1, "coh1002m_bank_w( %08x, %08x, %08x )\n", offset, data, mem_mask );
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) + ((data>>16) * 0x800000));
+	if( ( mem_mask & 0x00ff0000 ) == 0 )
+	{
+		unsigned bank = ( data >> 16 ) & 0xff;
+		if( bank < coh1002m_rom_banks )
+			memory_set_bank( 1, bank );
+	}
 }
 
-/* The sound board has two 1K-byte FIFOs: command bursts must not overwrite
- * earlier bytes, and polling status must not consume pending data. */
-static UINT8 cbaj_fifo[2][0x400];
-static unsigned cbaj_main_ptr[2], cbaj_z80_ptr[2];
+static WRITE32_HANDLER( coh1002m_coin_w )
+{
+	if( ACCESSING_LSB32 )
+	{
+		coin_counter_w( 0, data & 0x01 );
+		coin_counter_w( 2, data & 0x04 );
+		coin_counter_w( 1, data & 0x10 );
+		coin_counter_w( 3, data & 0x40 );
+	}
+}
+
+#define CBAJ_FIFO_SIZE 0x400
+
+static struct cbaj_fifo
+{
+	UINT8 data[CBAJ_FIFO_SIZE];
+	UINT16 head;
+	UINT16 count;
+} cbaj_to_z80, cbaj_to_main;
+
+static UINT8 cbaj_fifo_read( struct cbaj_fifo *fifo )
+{
+	UINT8 data;
+
+	if( !fifo->count )
+		return 0xff;
+
+	data = fifo->data[fifo->head];
+	fifo->head = (fifo->head + 1) & (CBAJ_FIFO_SIZE - 1);
+	fifo->count--;
+	return data;
+}
+
+static void cbaj_fifo_write( struct cbaj_fifo *fifo, UINT8 data )
+{
+	if( fifo->count < CBAJ_FIFO_SIZE )
+	{
+		fifo->data[(fifo->head + fifo->count) & (CBAJ_FIFO_SIZE - 1)] = data;
+		fifo->count++;
+	}
+}
 
 static READ32_HANDLER( cbaj_z80_r )
 {
 	UINT32 result = 0;
 
-	if (ACCESSING_LSB32)
-	{
-		result = cbaj_fifo[1][cbaj_main_ptr[1]];
-		cbaj_main_ptr[1] = (cbaj_main_ptr[1] + 1) & 0x3ff;
-	}
-	if (!(mem_mask & 0xff000000))
-		result |= (cbaj_main_ptr[1] != cbaj_z80_ptr[1]) ? 0x02000000 : 0;
+	if( ACCESSING_LSB32 )
+		result = cbaj_fifo_read( &cbaj_to_main );
+	if( ACCESSING_MSB32 && cbaj_to_main.count )
+		result |= 0x02000000;
 	return result;
 }
 
 static WRITE32_HANDLER( cbaj_z80_w )
 {
-	if (ACCESSING_LSB32)
-	{
-		cbaj_fifo[0][cbaj_main_ptr[0]] = data;
-		cbaj_main_ptr[0] = (cbaj_main_ptr[0] + 1) & 0x3ff;
-	}
+	if( ACCESSING_LSB32 )
+		cbaj_fifo_write( &cbaj_to_z80, data );
 }
 
 DRIVER_INIT( coh1002m )
 {
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, cbaj_z80_r );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, cbaj_z80_w );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00004, 0x1fb00007, 0, 0, coh1002m_bank_w );
-
+	coh1002m_rom_banks = memory_region_length( REGION_USER2 ) / TPS_ROM_BANK_SIZE;
+	if( coh1002m_rom_banks )
+	{
+		memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );
+		memory_configure_bank( 1, 0, coh1002m_rom_banks, memory_region( REGION_USER2 ), TPS_ROM_BANK_SIZE );
+		memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00004, 0x1fb00007, 0, 0, coh1002m_bank_w );
+	}
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fa20000, 0x1fa20003, 0, 0, coh1002m_coin_w );
 	zn_driver_init();
+}
+
+static DRIVER_INIT( cbaj )
+{
+	init_coh1002m();
+	memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, cbaj_z80_r );
+	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, cbaj_z80_w );
+
+	state_save_register_item_array( "cbaj", 0, cbaj_to_z80.data );
+	state_save_register_item( "cbaj", 0, cbaj_to_z80.head );
+	state_save_register_item( "cbaj", 0, cbaj_to_z80.count );
+	state_save_register_item_array( "cbaj", 0, cbaj_to_main.data );
+	state_save_register_item( "cbaj", 0, cbaj_to_main.head );
+	state_save_register_item( "cbaj", 0, cbaj_to_main.count );
 }
 
 MACHINE_RESET( coh1002m )
 {
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) );
+	if( coh1002m_rom_banks )
+		memory_set_bank( 1, 0 );
 	zn_machine_init();
 }
 
 static MACHINE_RESET( coh1002msnd )
 {
-	cbaj_main_ptr[0] = cbaj_main_ptr[1] = 0;
-	cbaj_z80_ptr[0] = cbaj_z80_ptr[1] = 0;
+	cbaj_to_z80.head = cbaj_to_z80.count = 0;
+	cbaj_to_main.head = cbaj_to_main.count = 0;
 	machine_reset_coh1002m();
 }
 
 static READ8_HANDLER( cbaj_z80_latch_r )
 {
-	UINT8 result = cbaj_fifo[0][cbaj_z80_ptr[0]];
-	cbaj_z80_ptr[0] = (cbaj_z80_ptr[0] + 1) & 0x3ff;
-	return result;
+	return cbaj_fifo_read( &cbaj_to_z80 );
 }
 
 static WRITE8_HANDLER( cbaj_z80_latch_w )
 {
-	cbaj_fifo[1][cbaj_z80_ptr[1]] = data;
-	cbaj_z80_ptr[1] = (cbaj_z80_ptr[1] + 1) & 0x3ff;
+	cbaj_fifo_write( &cbaj_to_main, data );
 }
 
 static READ8_HANDLER( cbaj_z80_ready_r )
 {
-	return (cbaj_main_ptr[0] != cbaj_z80_ptr[0]) ? 0x02 : 0x00;
+	return cbaj_to_z80.count ? 0x02 : 0x00;
 }
 
 ADDRESS_MAP_START( cbaj_z80_map, ADDRESS_SPACE_PROGRAM, 8 )
@@ -2978,40 +3026,6 @@ static MACHINE_DRIVER_START( coh1002msnd )
 
 	MDRV_SOUND_ADD(YMZ280B, 16934400)
 	MDRV_SOUND_CONFIG(ymz280b_intf)
-	MDRV_SOUND_ROUTE(0, "left", 0.35)
-	MDRV_SOUND_ROUTE(1, "right", 0.35)
-MACHINE_DRIVER_END
-
-static MACHINE_DRIVER_START( coh1002ml )
-	/* basic machine hardware */
-	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
-	MDRV_CPU_PROGRAM_MAP( zn_map, 0 )
-	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
-
-	MDRV_CPU_ADD( Z80, 8000000 )
-	MDRV_CPU_PROGRAM_MAP( link_readmem, link_writemem )
-
-	MDRV_FRAMES_PER_SECOND( 60 )
-	MDRV_VBLANK_DURATION( 0 )
-
-	MDRV_MACHINE_RESET( coh1002m )
-	MDRV_NVRAM_HANDLER( zn_eeprom )
-
-	/* video hardware */
-	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
-	MDRV_SCREEN_SIZE( 1024, 1024 )
-	MDRV_VISIBLE_AREA( 0, 320-1, 0, 240-1 )
-	MDRV_PALETTE_LENGTH( 65536 )
-
-	MDRV_PALETTE_INIT( psx )
-	MDRV_VIDEO_START( psx_type2 )
-	MDRV_VIDEO_UPDATE( psx )
-
-	/* sound hardware */
-	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
-
-	MDRV_SOUND_ADD( PSXSPU, 0 )
-	MDRV_SOUND_CONFIG( psxspu_interface )
 	MDRV_SOUND_ROUTE(0, "left", 0.35)
 	MDRV_SOUND_ROUTE(1, "right", 0.35)
 MACHINE_DRIVER_END
@@ -4614,7 +4628,7 @@ ROM_START( glpracr2l )
 	ROM_LOAD( "gra2-6.223",          0x2000000, 0x400000, CRC(8c6b4c4c) SHA1(0053f736dcd437c01da8cadd820e8af658ce6077) )
 	ROM_LOAD( "gra2-7.323",          0x2400000, 0x400000, CRC(7dfb6c54) SHA1(6e9a9a4172f957ba354ddd82c30735a56c5934b1) )
 
-	ROM_REGION( 0x040000, REGION_CPU2, 0 )
+	ROM_REGION( 0x040000, REGION_USER7, 0 )
 	ROM_LOAD( "link3118.bin", 0x0000000, 0x040000, CRC(a4d4761e) SHA1(3fb25dfa5220d25093588d9501e0666214491100) )
 
 	ROM_REGION( 0x000008, REGION_USER5, 0 ) /* CAT702, ROM board */
@@ -4829,7 +4843,7 @@ ROM_END
 ROM_START( flamegun )
 	TPS_BIOS
 
-	ROM_REGION32_LE( 0x03400000, REGION_USER2, 0 )
+	ROM_REGION32_LE( 0x03800000, REGION_USER2, 0 )
 	ROM_LOAD16_BYTE( "flamegun.119",   0x0000001, 0x100000, CRC(bc8e9e29) SHA1(02e4f079f0ed864dbc056d5f64d33a0522c034fd) )
 	ROM_LOAD16_BYTE( "flamegun.120",   0x0000000, 0x100000, CRC(387f3070) SHA1(6b12765f1d3ec5f3d1cdfd961fba72a319d65ff4) )
 	ROM_LOAD( "fg00.216",              0x0400000, 0x400000, CRC(f33736ca) SHA1(7b18f9fef1df913b7ed3a2c97e9c4925790d86c5) )
@@ -4852,7 +4866,7 @@ ROM_END
 ROM_START( flamegunj )
 	TPS_BIOS
 
-	ROM_REGION32_LE( 0x03400000, REGION_USER2, 0 )
+	ROM_REGION32_LE( 0x03800000, REGION_USER2, 0 )
 	ROM_LOAD16_BYTE( "fg_1.119",       0x0000001, 0x100000, CRC(1f2aa527) SHA1(de3a20d9aeb745fe82cd1d87bde26876e088483a) )
 	ROM_LOAD16_BYTE( "fg_2.120",       0x0000000, 0x100000, CRC(a2cd4cad) SHA1(bf542eeb6e768b3e86bacdc79ab04be394ce3e63) )
 	ROM_LOAD( "fg00.216",              0x0400000, 0x400000, CRC(f33736ca) SHA1(7b18f9fef1df913b7ed3a2c97e9c4925790d86c5) )
@@ -6000,11 +6014,11 @@ BIOS( 1997, coh1002m, 0, coh1002m, zn, coh1002m, ROT0, "Tecmo", "Tecmo TPS Syste
 
 GAME( 1997, glpracr2, coh1002m, coh1002m, glpracr2, coh1002m, ROT0, "Tecmo", "Gallop Racer 2 (Export)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, glpracr2j, glpracr2, coh1002m, glpracr2, coh1002m, ROT0, "Tecmo", "Gallop Racer 2 (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, glpracr2l, glpracr2, coh1002ml, glpracr2, coh1002m, ROT0, "Tecmo", "Gallop Racer 2 Link HW (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, glpracr2l, glpracr2, coh1002m, glpracr2, coh1002m, ROT0, "Tecmo", "Gallop Racer 2 Link HW (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, doapp, coh1002m, coh1002m, zn2p, coh1002m, ROT0, "Tecmo", "Dead Or Alive ++ (Japan/USA/Export)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, doappk, doapp, coh1002m, zn2p, coh1002m, ROT0, "Tecmo", "Dead Or Alive ++ (Korea)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1998, cbaj, coh1002m, coh1002msnd, zn1p, coh1002m, ROT0, "UEP Systems", "Cool Boarders Arcade Jam (Export)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1998, cbajbl, cbaj, coh1002msnd, zn1p, coh1002m, ROT0, "bootleg", "Cool Boarders Arcade Jam (Export bootleg)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1998, cbaj, coh1002m, coh1002msnd, zn1p, cbaj, ROT0, "UEP Systems", "Cool Boarders Arcade Jam (Export)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1998, cbajbl, cbaj, coh1002msnd, zn1p, cbaj, ROT0, "bootleg", "Cool Boarders Arcade Jam (Export bootleg)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1998, shngmtkb, coh1002m, coh1002m, zn2p, coh1002m, ROT0, "Sunsoft / Activision", "Shanghai Matekibuyuu (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1999, tondemo, coh1002m, coh1002m, zn1p, coh1002m, ROT0, "Tecmo", "Tondemo Crisis (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1999, glpracr3, coh1002m, coh1002m, glpracr2, coh1002m, ROT0, "Tecmo", "Gallop Racer 3 (Export)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
