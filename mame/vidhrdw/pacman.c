@@ -232,19 +232,13 @@ WRITE8_HANDLER( pacman_flipscreen_w )
   the main emulation engine.
 
 ***************************************************************************/
-VIDEO_UPDATE( pacman )
+static void pacman_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 {
-	if (bgpriority != 0)
-		fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
-	else
-		tilemap_draw(bitmap,cliprect,bg_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
-
 	if( spriteram_size )
 	{
 		int offs;
 
-		rectangle spriteclip = spritevisiblearea;
-		sect_rect(&spriteclip, cliprect);
+		rectangle spriteclip = *cliprect;
 
 		/* Draw the sprites. Note that it is important to draw them exactly in this */
 		/* order, to have the correct priorities. */
@@ -296,9 +290,51 @@ VIDEO_UPDATE( pacman )
 					&spriteclip,TRANSPARENCY_COLOR,0);
 		}
 	}
+}
+
+VIDEO_UPDATE( pacman )
+{
+	rectangle spriteclip = spritevisiblearea;
+
+	if (bgpriority != 0)
+		fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
+	else
+		tilemap_draw(bitmap,cliprect,bg_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
+
+	sect_rect(&spriteclip, cliprect);
+	pacman_draw_sprites(bitmap, &spriteclip);
 
 	if (bgpriority != 0)
 		tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
+}
+
+
+VIDEO_UPDATE( alibaba )
+{
+	rectangle spriteclip = *cliprect;
+
+	tilemap_draw(bitmap,cliprect,bg_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
+
+	if (flipscreen)
+		spriteclip.min_x = 6*8;
+	else
+		spriteclip.max_x = 30*8-1;
+	sect_rect(&spriteclip, cliprect);
+	pacman_draw_sprites(bitmap, &spriteclip);
+
+	if (alibaba_mystery_control & 2)
+	{
+		int x = flipscreen ? 144 : 120;
+		int y = 96 + (alibaba_mystery_clock & 0x10);
+
+		if (alibaba_mystery_clock <= 16)
+			drawgfx(bitmap, Machine->gfx[2], 0x1f, 1, 0, 0, x, flipscreen ? 96 : 112,
+					cliprect, TRANSPARENCY_PEN, 0);
+
+		drawgfx(bitmap, Machine->gfx[2], alibaba_mystery_clock ^ 0x1f, 1,
+				flipscreen, flipscreen, x, flipscreen ? 208-y : y,
+				cliprect, TRANSPARENCY_PEN, 0);
+	}
 }
 
 

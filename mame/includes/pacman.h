@@ -12,6 +12,8 @@ PALETTE_INIT( pacman );
 VIDEO_START( pacman );
 VIDEO_START( birdiy );
 VIDEO_UPDATE( pacman );
+VIDEO_UPDATE( alibaba );
+extern UINT8 alibaba_mystery_control, alibaba_mystery_clock;
 
 WRITE8_HANDLER( pacman_videoram_w );
 WRITE8_HANDLER( mspactwin_videoram_w );

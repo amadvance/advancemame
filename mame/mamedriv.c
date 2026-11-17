@@ -92,6 +92,7 @@ const game_driver * const drivers[] =
 	DRIVER( ponpokov )	/* (c) 1982 Sigma Ent. Inc. + Venture Line license */
 	DRIVER( lizwiz )	/* (c) 1985 Techstar + "Sunn presents" */
 	DRIVER( alibaba )	/* (c) 1982 Sega */
+	DRIVER( alibabab )	/* bootleg */
 	DRIVER( dremshpr )	/* (c) 1982 Sanritsu */
 	DRIVER( vanvan )	/* (c) 1983 Sanritsu */
 	DRIVER( vanvank )	/* (c) 1983 Karateco (bootleg?) */
