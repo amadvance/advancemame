@@ -1253,12 +1253,110 @@
     },
     {
       "shortnames": [
+        "mk07"
+      ],
+      "title": "Mortal Kombat Plus",
+      "year": 2020,
+      "developer": "Midway",
+      "category": "hack",
+      "genre": "Fighter",
+      "platform": "Midway T-Unit",
+      "parent_shortname": "mk",
+      "original_game": "mk",
+      "series": "Mortal Kombat",
+      "hack_author": "Zpaul2fresh8",
+      "description": "Mortal Kombat Plus expands the original arcade fighter with a menu of game modes, including Survival, and a stage selector. Reptile joins the playable fighters, while revised battle ladders, additional stage cycles and changes to the presentation give the familiar tournament a different progression.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://www.mortalkombatplus.com/game-hacks/mk"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://www.mortalkombatplus.com/game-hacks/mk"
+        }
+      ],
+      "confidence": "verified",
+      "version": "5.0.0741",
+      "release_status": "beta"
+    },
+    {
+      "shortnames": [
+        "mk2s03"
+      ],
+      "title": "Mortal Kombat II Plus",
+      "year": 2017,
+      "developer": "Midway",
+      "category": "hack",
+      "genre": "Fighter",
+      "platform": "Midway T-Unit",
+      "parent_shortname": "mk2",
+      "original_game": "mk2",
+      "series": "Mortal Kombat",
+      "hack_author": "mortalkombatplus.com",
+      "description": "Mortal Kombat II Plus is an expanded version of Midway's one-on-one arcade fighter. The beta 1 release displays hit counts and damage during combos while preserving the five-button controls and the tournament through Outworld.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://www.mortalkombatplus.com/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://www.mortalkombatplus.com/"
+        }
+      ],
+      "confidence": "uncertain",
+      "version": "2.8.0 beta 1",
+      "release_status": "beta",
+      "research_notes": [
+        "A complete feature list specific to beta 1 has not been confirmed; changes documented only for beta 2 are excluded."
+      ]
+    },
+    {
+      "shortnames": [
         "msmatsuri"
       ],
       "title": "Mushihime-Sama Matsuri Ver 1.5",
       "category": "original",
       "original_game": "mushisam",
       "description": "Mushihime-Sama Matsuri Ver 1.5 is a special festival edition of Cave's vertical shoot-'em-up Mushihime-Sama produced for the May 2011 Cave Matsuri event on Cave CV1000 hardware, reworking the original game with Ver 1.5 scoring and bullet patterns."
+    },
+    {
+      "shortnames": [
+        "nbajam03"
+      ],
+      "title": "NBA Jam Tournament Edition SE",
+      "year": 2023,
+      "developer": "Midway",
+      "category": "hack",
+      "genre": "Sports",
+      "platform": "Midway T-Unit",
+      "parent_shortname": "nbajamte",
+      "original_game": "nbajamte",
+      "series": "NBA Jam",
+      "hack_author": "Asure",
+      "description": "NBA Jam Tournament Edition SE revives a special edition of Midway's two-on-two basketball game. Version 5.0 includes Ken Griffey Jr. and Gary Payton as hidden characters, adding them to the arcade game's mixture of NBA teams, exaggerated dunks and secret players.",
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://www.arcade-projects.com/threads/updated-release-nba-jam-tournament-edition-se-5-02.28249/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "community",
+          "url": "https://www.arcade-projects.com/threads/updated-release-nba-jam-tournament-edition-se-5-02.28249/"
+        }
+      ],
+      "confidence": "verified",
+      "version": "5.0",
+      "tips": [
+        "Unlock Ken Griffey Jr. with initials GKG and birthday FEB 4; unlock Gary Payton with initials GEE and birthday JUL 23."
+      ]
     },
     {
       "shortnames": [
@@ -1726,6 +1824,39 @@
       "title": "Treasure of the Caribbean",
       "category": "homebrew",
       "description": "Treasure of the Caribbean is a pirate-themed puzzle game originally developed by FACE Corporation for the Neo Geo in 1994 and later published in 2011 by N.C.I / Le Cortex."
+    },
+    {
+      "shortnames": [
+        "umk2s01"
+      ],
+      "title": "Ultimate Mortal Kombat II Tournament Edition",
+      "year": 2014,
+      "developer": "Midway",
+      "category": "hack",
+      "genre": "Fighter",
+      "platform": "Midway T-Unit",
+      "parent_shortname": "mk2",
+      "original_game": "mk2",
+      "series": "Mortal Kombat",
+      "hack_author": "SK",
+      "description": "Ultimate Mortal Kombat II Tournament Edition revises the balance and fighting rules of Mortal Kombat II for competitive play. Changes to individual fighters, special moves and combo behavior alter matchups while retaining the original arenas and five-button control scheme.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://kombatnetwork.com/wp-content/uploads/2025/08/MKII-Hack-5.0.053.pdf"
+        }
+      ],
+      "sources": [
+        {
+          "type": "documentation",
+          "url": "https://kombatnetwork.com/wp-content/uploads/2025/08/MKII-Hack-5.0.053.pdf"
+        }
+      ],
+      "confidence": "corroborated",
+      "version": "5.0.050",
+      "research_notes": [
+        "The available detailed changelog covers revision 5.0.053; its later changes and reversions are not attributed to 5.0.050."
+      ]
     },
     {
       "shortnames": [

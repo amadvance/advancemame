@@ -6239,6 +6239,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( nbajamt1 )	/* (c) 1994 Midway */
 	DRIVER( nbajamt2 )	/* (c) 1994 Midway */
 	DRIVER( nbajamt3 )	/* (c) 1994 Midway */
+	DRIVER( mk07 )
+	DRIVER( mk2s03 )
+	DRIVER( umk2s01 )
+	DRIVER( nbajam03 )
+	DRIVER( nbajam04 )
 	DRIVER( revx )		/* (c) 1994 Midway */
 	DRIVER( mk3 )		/* (c) 1994 Midway */
 	DRIVER( mk3r20 )	/* (c) 1994 Midway */

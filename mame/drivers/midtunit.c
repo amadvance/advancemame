@@ -1278,6 +1278,180 @@ ROM_END
 
 
 
+ROM_START( mk07 )
+	ROM_REGION( 0x50000, REGION_CPU2, 0 )
+	ROM_LOAD( "sl1_mortal_kombat_u3_sound_rom.u3", 0x10000, 0x40000, CRC(c615844c) SHA1(5732f9053a5f73b0cc3b0166d7dc4430829d5bc7) )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "sl1_mortal_kombat_u12_sound_rom.u12", 0x00000, 0x40000, CRC(258bd7f9) SHA1(463890b23f17350fb9b8a85897b0777c45bc2d54) )
+	ROM_RELOAD(                                      0x40000, 0x40000 )
+	ROM_LOAD( "sl1_mortal_kombat_u13_sound_rom.u13", 0x80000, 0x40000, CRC(7b7ec3b6) SHA1(6eec1b90d4a4855f34a7ebfbf93f3358d5627db4) )
+	ROM_RELOAD(                                      0xc0000, 0x40000 )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "mk07.uj12", 0x00000, 0x80000, CRC(8edf28c0) SHA1(bc91c95d3bbe9942e6cbfa04b77449f9b7becef5) )
+	ROM_LOAD16_BYTE( "mk07.ug12", 0x00001, 0x80000, CRC(be771d8d) SHA1(9644acd2c9392c3a84586d0ea9a51e96e195bf27) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_ug14_game_rom.ug14", 0x000000, 0x80000, CRC(9e00834e) SHA1(2b97b63f52ba1dba6af6ae56c223519a52b2ab9d) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_uj14_game_rom.uj14", 0x300000, 0x80000, CRC(f4b0aaa7) SHA1(4cc6ee34c89e3cde325ad24b29511f70ae6a5a72) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_ug19_game_rom.ug19", 0x600000, 0x80000, CRC(2d8c7ba1) SHA1(f891d6eb618dbf3e77f02e0f93da216e20571905) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_uj19_game_rom.uj19", 0x900000, 0x80000, CRC(33b9b7a4) SHA1(e8ceca4c049e1f55d480a03ff793b595bd04d344) )
+
+	ROM_LOAD( "l1_mortal_kombat_t-unit_ug16_game_rom.ug16", 0x080000, 0x80000, CRC(52c9d1e5) SHA1(7b1880fca0a11544782b70365c7dd96381ac48e7) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_uj16_game_rom.uj16", 0x380000, 0x80000, CRC(c94c58cf) SHA1(974d75667eee779497325d5be8df937f15417edf) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_ug20_game_rom.ug20", 0x680000, 0x80000, CRC(2f7e55d3) SHA1(bda6892ee6fcb46959e4d0892bbe7d9fc6072dd3) )
+	ROM_LOAD( "l1_mortal_kombat_t-unit_uj20_game_rom.uj20", 0x980000, 0x80000, CRC(eae96df0) SHA1(b40532312ba61e4065abfd733dd0c93eecad48e9) )
+
+	ROM_LOAD( "mk07.ug17", 0x100000, 0x80000, CRC(44b5de0e) SHA1(6de874ca200102ab7e584b66c32d2b3973e55289) )
+	ROM_LOAD( "mk07.uj17", 0x400000, 0x80000, CRC(c69cd46c) SHA1(6bd20e9b6c17c1fa706210c79cb3da2f82b003b2) )
+	ROM_LOAD( "mk07.ug22", 0x700000, 0x80000, CRC(e742a405) SHA1(cf37eb68464955415ae71d7ffbc8c9dd0fc13f87) )
+	ROM_LOAD( "mk07.uj22", 0xa00000, 0x80000, CRC(34110899) SHA1(84139426caf0c89b921ba74638ae8a6564616f9f) )
+ROM_END
+
+ROM_START( mk2s03 )
+	ROM_REGION16_LE( 0xc00000, REGION_SOUND1, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u2.u2", 0x000000, 0x80000, CRC(5f23d71d) SHA1(54c2afef243759e0f3dbe2907edbc4302f5c8bad) )
+	ROM_RELOAD(                0x100000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u3.u3", 0x200000, 0x80000, CRC(d6d92bf9) SHA1(397351c6b707f2595e36360471015f9fa494e894) )
+	ROM_RELOAD(                0x300000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u4.u4", 0x400000, 0x80000, CRC(eebc8e0f) SHA1(705ab63ff7672a4857d546afda6dca4973cce1ad) )
+	ROM_RELOAD(                0x500000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u5.u5", 0x600000, 0x80000, CRC(2b0b7961) SHA1(1cdc64aab74d14afbd8c3531e3d0bd49271a281f) )
+	ROM_RELOAD(                0x700000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u6.u6", 0x800000, 0x80000, CRC(f694b27f) SHA1(d43e38a124665f49ebb4ffc5a55e8f19a1a64686) )
+	ROM_RELOAD(                0x900000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u7.u7", 0xa00000, 0x80000, CRC(20387e0a) SHA1(505d05173b2a1f1ee3ebc2898ccd3a95c98dd04a) )
+	ROM_RELOAD(                0xb00000, 0x80000 )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "mk2s03.uj12", 0x00000, 0x80000, CRC(87a755b5) SHA1(d1796dfae89ca1163cb3db3638066d4bd54d32a8) )
+	ROM_LOAD16_BYTE( "mk2s03.ug12", 0x00001, 0x80000, CRC(b59368c4) SHA1(987ff2ee0944955289b6b156c375b183819072bd) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug14.ug14", 0x000000, 0x100000, CRC(01e73af6) SHA1(6598cfd704cc92a7f358a0e1f1c973ab79dcc493) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj14.uj14", 0x300000, 0x100000, CRC(d4985cbb) SHA1(367865da7efae38d83de3c0868d02a705177ae63) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug19.ug19", 0x600000, 0x100000, CRC(fec137be) SHA1(f11ecb8a7993f5c4f4449564b4911f69bd6e9bf8) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj19.uj19", 0x900000, 0x100000, CRC(2d763156) SHA1(06536006da49ab5fb6b75b25f801b83fad000ff5) )
+
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug16.ug16", 0x100000, 0x100000, CRC(8ba6ae18) SHA1(465fe907de4a1e502180c4e41642998dd3abc8e6) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj16.uj16", 0x400000, 0x100000, CRC(39d885b4) SHA1(2251826d247c3c6df421124718401fb35a672f83) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug20.ug20", 0x700000, 0x100000, CRC(809118c1) SHA1(86153e648834c749e34573151cd4fee403a81962) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj20.uj20", 0xa00000, 0x100000, CRC(b96824f0) SHA1(d42b122f9a57da330192abc7e5f97abc4065d718) )
+
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug17.ug17", 0x200000, 0x100000, CRC(937d8620) SHA1(8b9f80a460b124a747a6d1495b53f01f580e28f1) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj17.uj17", 0x500000, 0x100000, CRC(218de160) SHA1(87aea173720d2a33d8183903f4fe8ba1d47e3348) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug22.ug22", 0x800000, 0x100000, CRC(154d53b1) SHA1(58ff0aa59101f40a9a3b5fbae1c904d0b0b31612) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj22.uj22", 0xb00000, 0x100000, CRC(8891d785) SHA1(fd460df1ef8f4306ea42f7dc41488a80fd2c8f53) )
+ROM_END
+
+ROM_START( umk2s01 )
+	ROM_REGION16_LE( 0xc00000, REGION_SOUND1, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u2.u2", 0x000000, 0x80000, CRC(5f23d71d) SHA1(54c2afef243759e0f3dbe2907edbc4302f5c8bad) )
+	ROM_RELOAD(                0x100000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u3.u3", 0x200000, 0x80000, CRC(d6d92bf9) SHA1(397351c6b707f2595e36360471015f9fa494e894) )
+	ROM_RELOAD(                0x300000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u4.u4", 0x400000, 0x80000, CRC(eebc8e0f) SHA1(705ab63ff7672a4857d546afda6dca4973cce1ad) )
+	ROM_RELOAD(                0x500000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u5.u5", 0x600000, 0x80000, CRC(2b0b7961) SHA1(1cdc64aab74d14afbd8c3531e3d0bd49271a281f) )
+	ROM_RELOAD(                0x700000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u6.u6", 0x800000, 0x80000, CRC(f694b27f) SHA1(d43e38a124665f49ebb4ffc5a55e8f19a1a64686) )
+	ROM_RELOAD(                0x900000, 0x80000 )
+	ROM_LOAD16_BYTE( "l1_mortal_kombat_ii_sound_rom_u7.u7", 0xa00000, 0x80000, CRC(20387e0a) SHA1(505d05173b2a1f1ee3ebc2898ccd3a95c98dd04a) )
+	ROM_RELOAD(                0xb00000, 0x80000 )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "umk2s01.uj12", 0x00000, 0x80000, CRC(62ef20f8) SHA1(0e0392bb4b59fb4e01369f533fdcfa6ee5fb6939) )
+	ROM_LOAD16_BYTE( "umk2s01.ug12", 0x00001, 0x80000, CRC(8c66e999) SHA1(ddb9f39149a7ded105f2e993a4c39c473067adf6) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug14.ug14", 0x000000, 0x100000, CRC(01e73af6) SHA1(6598cfd704cc92a7f358a0e1f1c973ab79dcc493) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj14.uj14", 0x300000, 0x100000, CRC(d4985cbb) SHA1(367865da7efae38d83de3c0868d02a705177ae63) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug19.ug19", 0x600000, 0x100000, CRC(fec137be) SHA1(f11ecb8a7993f5c4f4449564b4911f69bd6e9bf8) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj19.uj19", 0x900000, 0x100000, CRC(2d763156) SHA1(06536006da49ab5fb6b75b25f801b83fad000ff5) )
+
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug16.ug16", 0x100000, 0x100000, CRC(8ba6ae18) SHA1(465fe907de4a1e502180c4e41642998dd3abc8e6) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj16.uj16", 0x400000, 0x100000, CRC(39d885b4) SHA1(2251826d247c3c6df421124718401fb35a672f83) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug20.ug20", 0x700000, 0x100000, CRC(809118c1) SHA1(86153e648834c749e34573151cd4fee403a81962) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj20.uj20", 0xa00000, 0x100000, CRC(b96824f0) SHA1(d42b122f9a57da330192abc7e5f97abc4065d718) )
+
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug17.ug17", 0x200000, 0x100000, CRC(937d8620) SHA1(8b9f80a460b124a747a6d1495b53f01f580e28f1) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj17.uj17", 0x500000, 0x100000, CRC(218de160) SHA1(87aea173720d2a33d8183903f4fe8ba1d47e3348) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_ug22.ug22", 0x800000, 0x100000, CRC(154d53b1) SHA1(58ff0aa59101f40a9a3b5fbae1c904d0b0b31612) )
+	ROM_LOAD( "l1_mortal_kombat_ii_game_rom_uj22.uj22", 0xb00000, 0x100000, CRC(8891d785) SHA1(fd460df1ef8f4306ea42f7dc41488a80fd2c8f53) )
+ROM_END
+
+ROM_START( nbajam03 )
+	ROM_REGION( 0x50000, REGION_CPU2, 0 )
+	ROM_LOAD(  "l1_nba_jam_tournament_u3_sound_rom.u3", 0x010000, 0x20000, CRC(d4551195) SHA1(e8908fbe4339fb8c93f7e74113dfd25dda1667ea) )
+	ROM_RELOAD(             0x030000, 0x20000 )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "l1_nba_jam_tournament_u12_sound_rom.u12", 0x000000, 0x80000, CRC(4fac97bc) SHA1(bd88d8c3edab0e35ad9f9350bcbaa17cda61d87a) )
+	ROM_LOAD( "l1_nba_jam_tournament_u13_sound_rom.u13", 0x080000, 0x80000, CRC(6f27b202) SHA1(c1f0db15624d1e7102ce9fd1db49ccf86e8611d6) )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "nbajam03.uj12", 0x00000, 0x80000, CRC(a317f3bf) SHA1(059cec300e8ea856b3e89fb80b6d53dcb7461598) )
+	ROM_LOAD16_BYTE( "nbajam03.ug12", 0x00001, 0x80000, CRC(90e66e60) SHA1(3ab49ab0c8fcd3fc9344426140c28218e0a9fbe7) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_ug14.ug14", 0x000000, 0x80000, CRC(04bb9f64) SHA1(9e1a8c37e14cb6fe67f4aa3caa9022f356f1ca64) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_uj14.uj14", 0x300000, 0x80000, CRC(b34b7af3) SHA1(0abb74d2f414bc9da0380a81beb134f3a87c1a0a) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_ug19.ug19", 0x600000, 0x80000, CRC(a8f22fbb) SHA1(514208a9d6d0c8c2d7847cc02d4387eac90be659) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_uj19.uj19", 0x900000, 0x80000, CRC(8130a8a2) SHA1(f23f124024285d07d8cf822817b62e42c38b82db) )
+
+	ROM_LOAD( "nbajam03.ug16", 0x080000, 0x80000, CRC(c8da980e) SHA1(a907d579e7ce699f14787d45110b0723e8ac8577) )
+	ROM_LOAD( "nbajam03.uj16", 0x380000, 0x80000, CRC(205c5fb7) SHA1(9e5ae65fb2d38643406149ffde081ee3845e1cd5) )
+	ROM_LOAD( "nbajam03.ug20", 0x680000, 0x80000, CRC(9cd4f985) SHA1(97ebe1df160803a2c48cbad48e66a7fba9e7f7f0) )
+	ROM_LOAD( "nbajam03.uj20", 0x980000, 0x80000, CRC(7a47f364) SHA1(55ef88680a5a26da3140fe49d1c102f472d41a89) )
+
+	ROM_LOAD( "nbajam03.ug17", 0x100000, 0x80000, CRC(1b7ddbe9) SHA1(198309e4eabd33f23b28b99a589cf54f8f5690e8) )
+	ROM_LOAD( "nbajam03.uj17", 0x400000, 0x80000, CRC(cb08465f) SHA1(856bd3475bed9652252ba14095e4bb56df7112ac) )
+	ROM_LOAD( "nbajam03.ug22", 0x700000, 0x80000, CRC(5427ca82) SHA1(bf206c8fd47e4fa93abf344fcb4f56ab7cdc9a14) )
+	ROM_LOAD( "nbajam03.uj22", 0xa00000, 0x80000, CRC(569b1ae5) SHA1(c8f73b24b24bb50e9972a7ef4b94fdc3f3d4d70d) )
+
+	ROM_LOAD( "nbajam03.ug18", 0x180000, 0x80000, CRC(741f313e) SHA1(f067c7b92dd6d4db96da7e68062d8103f4dda30f) )
+	ROM_LOAD( "nbajam03.uj18", 0x480000, 0x80000, CRC(5c1d6d77) SHA1(e986269cb750c1e0e2afbee77332317858885cb4) )
+	ROM_LOAD( "nbajam03.ug23", 0x780000, 0x80000, CRC(168d93ce) SHA1(2f7ceb88e6d873edfc5bb51e9bdd2e9e794328fa) )
+	ROM_LOAD( "nbajam03.uj23", 0xa80000, 0x80000, CRC(424fbd82) SHA1(fae7e23dd7807de8c2e467f21afda1a427260883) )
+ROM_END
+
+ROM_START( nbajam04 )
+	ROM_REGION( 0x50000, REGION_CPU2, 0 )
+	ROM_LOAD(  "l1_nba_jam_tournament_u3_sound_rom.u3", 0x010000, 0x20000, CRC(d4551195) SHA1(e8908fbe4339fb8c93f7e74113dfd25dda1667ea) )
+	ROM_RELOAD(             0x030000, 0x20000 )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "nbajam02.u12", 0x000000, 0x80000, CRC(cd5d4532) SHA1(63ff4b5b22e02ee90cdcb745acc6bf9dbc1c3140) )
+	ROM_LOAD( "nbajam04.u13", 0x080000, 0x80000, CRC(c4cbede2) SHA1(8b1a26ee852281de1564af35fc3605a89eb0b7dd) )
+
+	ROM_REGION16_LE( 0x100000, REGION_USER1, 0 )
+	ROM_LOAD16_BYTE( "nbajam02.uj12", 0x00000, 0x80000, CRC(9b3fc483) SHA1(4e7b6b85d9972063ebdb08ad2c860e082b6e886b) )
+	ROM_LOAD16_BYTE( "nbajam02.ug12", 0x00001, 0x80000, CRC(18e75204) SHA1(e33eaa969dbc7ac19641238fc62d2af4d75bddef) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_ug14.ug14", 0x000000, 0x80000, CRC(04bb9f64) SHA1(9e1a8c37e14cb6fe67f4aa3caa9022f356f1ca64) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_uj14.uj14", 0x300000, 0x80000, CRC(b34b7af3) SHA1(0abb74d2f414bc9da0380a81beb134f3a87c1a0a) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_ug19.ug19", 0x600000, 0x80000, CRC(a8f22fbb) SHA1(514208a9d6d0c8c2d7847cc02d4387eac90be659) )
+	ROM_LOAD( "l1_nba_jam_tournament_game_rom_uj19.uj19", 0x900000, 0x80000, CRC(8130a8a2) SHA1(f23f124024285d07d8cf822817b62e42c38b82db) )
+
+	ROM_LOAD( "nbajam02.ug16", 0x080000, 0x80000, CRC(b9a07a6f) SHA1(0b9410ae9d761928b828449f45302f0951a6a8af) )
+	ROM_LOAD( "nbajam02.uj16", 0x380000, 0x80000, CRC(ffa7db04) SHA1(984a1011f378d7e77acf43f285f7c72f035fc7ee) )
+	ROM_LOAD( "nbajam02.ug20", 0x680000, 0x80000, CRC(67c8646b) SHA1(a0584e79cdd5c83cd62bda09470f67082a670fe1) )
+	ROM_LOAD( "nbajam02.uj20", 0x980000, 0x80000, CRC(71d028f8) SHA1(6c9d3cb6b937a53af8be0c7c5e209fb8740d6d9a) )
+
+	ROM_LOAD( "nbajam02.ug17", 0x100000, 0x80000, CRC(34c6bdb8) SHA1(fe613fc3256eafc368ba566dd989c05293df1829) )
+	ROM_LOAD( "nbajam02.uj17", 0x400000, 0x80000, CRC(3af5b32e) SHA1(397d2524a5749f8e8419280cc3c48ec3081834b5) )
+	ROM_LOAD( "nbajam02.ug22", 0x700000, 0x80000, CRC(d41234d2) SHA1(9dab65c7843758572634c4805227fee1850b0349) )
+	ROM_LOAD( "nbajam02.uj22", 0xa00000, 0x80000, CRC(42196c84) SHA1(7f30204a4764b4afd38cf82f8be909c9ee5a0a0b) )
+
+	ROM_LOAD( "nbajam02.ug18", 0x180000, 0x80000, CRC(fe18a6ef) SHA1(58b8bbf257b3de5d7536421dda302e2d93f51999) )
+	ROM_LOAD( "nbajam02.uj18", 0x480000, 0x80000, CRC(9a6d36de) SHA1(1bb24ff5fdbdc1f7265da0ba43e3d96ab589548f) )
+	ROM_LOAD( "nbajam02.ug23", 0x780000, 0x80000, CRC(8d1af1a6) SHA1(4de21240ec0ffce9346e75b9719d9ae71bfbdb8e) )
+	ROM_LOAD( "nbajam02.uj23", 0xa80000, 0x80000, CRC(b5bf66f9) SHA1(de12e47e44f9cf7c611d674fe6c9b3466fde2081) )
+ROM_END
+
+
 /*************************************
  *
  *  Game drivers
@@ -1303,3 +1477,9 @@ GAME( 1994, nbajamte, 0,         tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway"
 GAME( 1994, nbajamt1, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",   "NBA Jam TE (rev 1.0 01/17/94)", 0 )
 GAME( 1994, nbajamt2, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",   "NBA Jam TE (rev 2.0 01/28/94)", 0 )
 GAME( 1994, nbajamt3, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",   "NBA Jam TE (rev 3.0 03/04/94)", 0 )
+
+GAME( 2020, mk07,      mk,       tunit_adpcm,  mk,       mktunit,  ROT0, "Zpaul2fresh8", "Mortal Kombat Plus (v5.0.0741)", GAME_STANDALONE )
+GAME( 2017, mk2s03,    mk2,      tunit_dcs,    mk2,      mk2,      ROT0, "mortalkombatplus.com", "Mortal Kombat II (2.8.0 plus beta 1, 2017-09-24)", GAME_STANDALONE )
+GAME( 2014, umk2s01,   mk2,      tunit_dcs,    mk2,      mk2,      ROT0, "SK", "Ultimate Mortal Kombat II (Tournament Edition 5.0.050)", 0 )
+GAME( 2023, nbajam03,  nbajamte, tunit_adpcm,  nbajamte, nbajamte, ROT0, "Asure", "NBA Jam Tournament Edition SE (rev 5.0)", 0 )
+GAME( 2023, nbajam04,  nbajamte, tunit_adpcm,  nbajamte, nbajamte, ROT0, "Asure", "NBA Jam Rewind (rev 1.2)", 0 )
