@@ -3253,5 +3253,5 @@ GAME( 1982, dzigzag,  digdug,  dzigzag, digdug,   0,       ROT90, "bootleg", "Zi
 
 GAME( 1984, galaga84,    galaga,    galaga,   galaga,   galaga,   ROT90, "hack", "Galaga '84", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
 GAME( 2007, galagap,     galaga,    galaga,   galaga,   galaga,   ROT90, "Don Hodges", "Galaga (patched)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 2024, galaga01,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Wave Mixer (2024-04-02)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS | GAME_STANDALONE )
-GAME( 2024, galaga02,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Challenging Only", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS | GAME_STANDALONE )
+GAME( 2024, galaga01,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Wave Mixer (2024-04-02)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
+GAME( 2024, galaga02,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Challenging Only", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )

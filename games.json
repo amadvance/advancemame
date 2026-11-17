@@ -23910,10 +23910,10 @@
       "shortnames": [
         "bublboblu"
       ],
-      "title": "Bubble Bobble (Ultra Version)",
+      "title": "Bubble Bobble Ultra",
       "year": 2012,
-      "developer": "Taito Corporation",
-      "publisher": "Taito Corporation",
+      "developer": "Taito",
+      "publisher": "Taito",
       "category": "hack",
       "genre": "Platform",
       "platform": "Arcade",
@@ -23930,14 +23930,18 @@
           "region": "USA"
         }
       ],
-      "hack_author": null,
+      "hack_author": "Penta Penguin",
       "modifications": [
         {
           "type": "levels",
-          "description": "Replaces stage layouts and enemy placements with redesigned levels."
+          "description": "Reworks stage layouts and enemy placements across the 100 stages, mixing entirely redesigned layouts with layouts inspired by Super Bubble Bobble."
+        },
+        {
+          "type": "graphics",
+          "description": "Changes the stage color palettes."
         }
       ],
-      "description": "Bubble Bobble (Ultra Version) is a level and gameplay modification of Taito's 1986 arcade platformer Bubble Bobble, featuring redesigned single-screen stages and altered enemy arrangements.",
+      "description": "Penta Penguin's Bubble Bobble Ultra replaces the original game's 100 stages with a mixture of redesigned layouts and stages inspired by Super Bubble Bobble, with altered enemy arrangements and color palettes. Bub and Bob still trap enemies in bubbles and pop them to clear each room, alone or together.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -23961,6 +23965,10 @@
         {
           "type": "reference",
           "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=bublbobl&lang=en"
+        },
+        {
+          "type": "release",
+          "url": "https://retro-replay.com/romhacking/hacks/bubble-bobble-ultra/"
         }
       ],
       "sources": [
@@ -23970,7 +23978,7 @@
           "path": "mame/drivers/bublbobl.c"
         }
       ],
-      "confidence": "corroborated",
+      "confidence": "verified",
       "research_notes": []
     },
     {
@@ -107180,34 +107188,43 @@
       ],
       "title": "Major Havoc - The Promised End",
       "year": 2021,
-      "developer": "JMA",
-      "publisher": "JMA",
+      "developer": "Atari",
+      "publisher": "Atari",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Arcade",
       "players": 2,
-      "release_status": "beta",
-      "version": null,
+      "release_status": "released",
+      "version": "1.01",
       "parent_shortname": "mhavoc",
       "original_game": "mhavoc",
+      "series": "Major Havoc",
       "variants": [
         {
           "shortname": "mhavocpex7",
           "title": "Major Havoc-The Promised End (BETA 0.78)"
         }
       ],
-      "hack_author": "JMA",
+      "hack_author": "Jess Askey (JMA)",
       "modifications": [
         {
           "type": "levels",
           "description": "Adds new mission stages, enemy encounters, and a final boss ending sequence to Atari's vector arcade game Major Havoc."
+        },
+        {
+          "type": "audio",
+          "description": "Adds speech to the original POKEY sound effects and music."
         }
       ],
-      "description": "Major Havoc - The Promised End is an extensive homebrew expansion hack by JMA for Atari's 1983 vector arcade game Major Havoc, introducing new levels, gameplay mechanics, and an ending mission sequence.",
+      "description": "Major Havoc - The Promised End expands Atari's vector arcade game with new missions, enemies, warps and an ending on the homeworld. The journey alternates space combat with exploration of reactor mazes, preserving the roller controls and adding speech. Jess Askey developed the expansion with contributions from original designer Owen Rubin and the project team. Version 1.01 is the finished English release with ADPCM speech; the earlier 0.78 beta is also available.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/jessaskey/mhavocpe"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Major_Havoc"
@@ -162906,7 +162923,7 @@
           "version": "(Sang Ho Soft)"
         }
       ],
-      "description": null,
+      "description": "Sexy Boom is a 1992 Korean arcade puzzle game developed by Sang Ho Soft, released as a revised version of the earlier Super Puzzle. Players use an eight-way joystick to solve picture-reconstruction puzzles by arranging numbered tiles, with an optional setting that displays numbers on the pieces. The game supports two players taking turns and features a vertically oriented display.\nIt runs on Sang Ho Soft's unusual MSX-derived arcade hardware, combining a Z80 processor, Yamaha V9958 graphics, and YM2413-compatible sound. The circuit board includes a battery-backed programmable logic device whose failure can render the original hardware unusable, making preservation of surviving boards particularly important.",
       "trivia": [],
       "tips": [],
       "scoring": [],

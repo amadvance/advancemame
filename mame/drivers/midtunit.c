@@ -1478,8 +1478,8 @@ GAME( 1994, nbajamt1, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",
 GAME( 1994, nbajamt2, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",   "NBA Jam TE (rev 2.0 01/28/94)", 0 )
 GAME( 1994, nbajamt3, nbajamte, tunit_adpcm, nbajamte, nbajamte, ROT0, "Midway",   "NBA Jam TE (rev 3.0 03/04/94)", 0 )
 
-GAME( 2020, mk07,      mk,       tunit_adpcm,  mk,       mktunit,  ROT0, "Zpaul2fresh8", "Mortal Kombat Plus (v5.0.0741)", GAME_STANDALONE )
-GAME( 2017, mk2s03,    mk2,      tunit_dcs,    mk2,      mk2,      ROT0, "mortalkombatplus.com", "Mortal Kombat II (2.8.0 plus beta 1, 2017-09-24)", GAME_STANDALONE )
+GAME( 2020, mk07,      mk,       tunit_adpcm,  mk,       mktunit,  ROT0, "Zpaul2fresh8", "Mortal Kombat Plus (v5.0.0741)", 0 )
+GAME( 2017, mk2s03,    mk2,      tunit_dcs,    mk2,      mk2,      ROT0, "mortalkombatplus.com", "Mortal Kombat II (2.8.0 plus beta 1, 2017-09-24)", 0 )
 GAME( 2014, umk2s01,   mk2,      tunit_dcs,    mk2,      mk2,      ROT0, "SK", "Ultimate Mortal Kombat II (Tournament Edition 5.0.050)", 0 )
 GAME( 2023, nbajam03,  nbajamte, tunit_adpcm,  nbajamte, nbajamte, ROT0, "Asure", "NBA Jam Tournament Edition SE (rev 5.0)", 0 )
 GAME( 2023, nbajam04,  nbajamte, tunit_adpcm,  nbajamte, nbajamte, ROT0, "Asure", "NBA Jam Rewind (rev 1.2)", 0 )

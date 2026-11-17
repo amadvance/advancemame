@@ -210,7 +210,20 @@
       "version": "1.6",
       "parent_shortname": null,
       "original_game": null,
-      "description": "Blue and Red Fight the Robots is a cooperative arcade platformer originally developed for the Amiga and ported to Neo Geo by Kaiju Wasp. Play alone or with a second player across 40 stages, zapping and stomping rogue robots to rescue the kidnapped pets Bernie and Dino."
+      "description": "Blue and Red Fight the Robots is a fast-paced cooperative arcade platformer originally developed for the Amiga and ported to Neo Geo by Kaiju Wasp. Play solo or with a second player across 40 stages, zapping and stomping rogue robots, building combo chains, and rescuing the kidnapped pets Bernie and Dino.",
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://kaijuwasp.itch.io/blue-and-red-fight-the-robots-arcade-edition"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://kaijuwasp.itch.io/blue-and-red-fight-the-robots-arcade-edition"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -398,7 +411,14 @@
       "release_status": "released",
       "parent_shortname": null,
       "original_game": "crswd2bl",
-      "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS conversion of the Neo Geo CD action RPG with the complete arranged soundtrack converted to run on the YM2610 sound hardware."
+      "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS conversion of ADK's Neo Geo CD action RPG by pierpa86. Unlike earlier cartridge conversions that omitted or altered the redbook audio, this release adapts the complete CD soundtrack to the YM2610 sound chip while keeping the original stereo sound effects intact.",
+      "modifications": [
+        {
+          "type": "audio",
+          "description": "Integrates the full Neo Geo CD soundtrack converted to run on the YM2610 hardware while preserving stereo sound effects."
+        }
+      ],
+      "confidence": "corroborated"
     },
     {
       "shortnames": [
@@ -579,7 +599,30 @@
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
-      "description": "Donkey Kong Christmas Remix gives Nintendo's arcade platformer a holiday makeover with winter-themed sprites, festive colors, and remixed stages built on the Braze expansion kit."
+      "description": "Donkey Kong Christmas Remix gives Nintendo's arcade platformer a holiday makeover with winter-themed sprites, festive colors, and remixed stages built on the Braze expansion kit.",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Replaces character, hazard, and stage visuals with Christmas-themed sprites and winter palettes."
+        },
+        {
+          "type": "levels",
+          "description": "Introduces remixed stage layouts on the Braze expansion kit."
+        }
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -768,11 +811,34 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": null,
+      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
-      "description": "Donkey Kong Tournament Edition reworks the classic arcade stages and scoring challenges specifically for competitive high-score play on the Braze expansion hardware."
+      "description": "Donkey Kong Tournament Edition reworks the classic arcade stages and scoring challenges specifically for competitive high-score play on the Braze expansion hardware.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adjusts stage flow and scoring challenges for competitive high-score tournaments."
+        },
+        {
+          "type": "levels",
+          "description": "Reworks board layouts on the Braze expansion kit."
+        }
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -847,7 +913,30 @@
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
-      "description": "Donkey Kong Spooky Remix transforms the arcade stages with a Halloween aesthetic featuring ghosts, pumpkins, bats, and Pauline dressed as a witch, alongside remixed board layouts."
+      "description": "Donkey Kong Spooky Remix transforms the arcade stages with a Halloween aesthetic featuring ghosts, pumpkins, bats, and Pauline dressed as a witch, alongside remixed board layouts.",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Reskins sprites and stages with a Halloween theme featuring ghosts, pumpkins, bats, and Pauline dressed as a witch."
+        },
+        {
+          "type": "levels",
+          "description": "Introduces remixed stage layouts on the Braze expansion kit."
+        }
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -1330,7 +1419,30 @@
       "original_game": "ket",
       "series": "Ketsui",
       "hack_author": "trap15",
-      "description": "Ketsui Arrange is a comprehensive arcade overhaul by trap15 that rewrites the scoring system, dynamic rank, bullet patterns, and option formations to create an arrange-style bullet-hell experience on PGM hardware."
+      "description": "Ketsui Arrange is a comprehensive arcade overhaul by trap15 that rewrites the scoring system, dynamic rank, bullet patterns, and option formations to create an arrange-style bullet-hell experience on PGM hardware.",
+      "modifications": [
+        {
+          "type": "scoring",
+          "description": "Rewrites the scoring and chip-collection mechanics for arrange-style play."
+        },
+        {
+          "type": "difficulty",
+          "description": "Overhauls bullet patterns, dynamic rank progression, and option formations."
+        }
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://trap15.dev/hacks/ketarr/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://trap15.dev/hacks/ketarr/"
+        }
+      ],
+      "confidence": "verified"
     },
     {
       "shortnames": [
@@ -1554,7 +1666,14 @@
       "parent_shortname": "mslug5",
       "original_game": "mslug5",
       "series": "Metal Slug",
-      "description": "Metal Slug 5 Plus (Super Enhanced) is an arcade bootleg modification of Metal Slug 5 based on Metal Slug 5 Plus with altered program code, weapon selection, and enhanced gameplay tweaks."
+      "description": "Metal Slug 5 Plus (Super Enhanced) is an arcade bootleg modification of Metal Slug 5 based on Metal Slug 5 Plus with altered program code, weapon selection, and enhanced gameplay tweaks.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Modifies program logic based on Metal Slug 5 Plus with enhanced weapon and stage options."
+        }
+      ],
+      "confidence": "corroborated"
     },
     {
       "shortnames": [
@@ -1570,7 +1689,18 @@
       "original_game": "mslug5",
       "series": "Metal Slug",
       "hack_author": "CB, Willnie",
-      "description": "Metal Slug Asteroids is a total conversion built on Metal Slug 5 assets that replaces the side-scrolling run-and-gun stages with Asteroids-style multidirectional space shooter gameplay."
+      "description": "Metal Slug Asteroids is a total conversion built on Metal Slug 5 assets that replaces the side-scrolling run-and-gun stages with Asteroids-style multidirectional space shooter gameplay.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Replaces the side-scrolling run-and-gun gameplay with Asteroids-style multidirectional space combat."
+        },
+        {
+          "type": "levels",
+          "description": "Introduces new scenes and an interactive menu triggered after game over."
+        }
+      ],
+      "confidence": "corroborated"
     },
     {
       "shortnames": [
@@ -2028,7 +2158,17 @@
           "url": "https://sf2mix.github.io/"
         }
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adds parries, a Vigor guard/super meter, combo counters, and hidden character forms such as Evil Ryu and Violent Ken."
+        },
+        {
+          "type": "graphics",
+          "description": "Adds DIP-switch options including False 3D stage effects and custom button-mapped color palettes."
+        }
+      ]
     },
     {
       "shortnames": [
@@ -2292,7 +2432,17 @@
           "url": "https://www.mortalkombatplus.com/"
         }
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Expands the GFX banks to add playable characters including Raiden, Baraka, Johnny Cage, and Sheeva."
+        },
+        {
+          "type": "bugfix",
+          "description": "Fixes legacy animation, sprite-layer, and palette bugs from arcade revision 1.2 and polishes fatalities."
+        }
+      ]
     },
     {
       "shortnames": [
