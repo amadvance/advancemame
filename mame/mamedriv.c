@@ -984,6 +984,15 @@ const game_driver * const drivers[] =
 	DRIVER( spnchoutj )	/* (c) 1984 (Japan) */
 	DRIVER( armwrest )	/* (c) 1985 */
 	DRIVER( dkongx )	/* (c) 2015 Braze Tech Upgrade Kit */
+	DRIVER( dkong21 )
+	DRIVER( dkong25 )
+	DRIVER( dkongex )
+	DRIVER( dkongp )
+	DRIVER( dkpace )
+	DRIVER( dkongce )
+	DRIVER( dkrndmzr )
+	DRIVER( dkbarpal )
+	DRIVER( dkongan )
 
 	/* Nintendo Playchoice 10 games */
 	DRIVER( playch10 )

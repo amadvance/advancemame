@@ -376,6 +376,272 @@
     },
     {
       "shortnames": [
+        "dkbarpal"
+      ],
+      "title": "Donkey Kong Barrelpalooza",
+      "year": 2021,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.07",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Twelve barrel-board variants introduce challenges such as reversed routes, altered gravity and moving springs. Boards and difficulty levels are selected randomly, with optional fixed choices through DIP switches.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkong21"
+      ],
+      "title": "Donkey Kong Pac-Man Crossover",
+      "year": 2024,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.00",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong meets Pac-Man: collect every pellet before finishing each board. Power pellets temporarily turn Jumpman into an invincible Pac-Man who can chase the four ghosts.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkong25"
+      ],
+      "title": "Donkey Kong: Bowser's Takeover",
+      "year": 2026,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.00",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Bowser replaces Donkey Kong in this Mario-themed variation. Avoid Piranha Plants, Koopas, Thwomps and lava, collecting three coins on each board to unlock its exit.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkongan"
+      ],
+      "title": "Donkey Kong 40th Anniversary Edition",
+      "year": 2021,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "An anniversary celebration gives the familiar Donkey Kong boards new layouts and party decorations. Guide Jumpman to Donkey Kong and Pauline, collecting presents and balloons along the way.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkongce"
+      ],
+      "title": "Donkey Kong Championship Edition",
+      "year": 2020,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.01",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "A tournament-oriented Donkey Kong variant that ends at a configurable earlier kill screen. Choose level 5, 7, 9 or 11; the bonus life is fixed at 7,000 points.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkongex"
+      ],
+      "title": "Donkey Kong Foundry",
+      "year": 2005,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Jeff Kulczycki",
+      "description": "Donkey Kong Foundry expands the original arcade game with a fifth board, the Foundry, alongside the four familiar stages. This modification by Jeff Kulczycki also adds an optional free-play mode that keeps the attract sequence running between games.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://www.jeffsromhack.com/products/donkeykong.htm"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://www.jeffsromhack.com/products/donkeykong.htm"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "dkongp"
+      ],
+      "title": "Donkey Kong (patched)",
+      "year": 2007,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Don Hodges",
+      "description": "This Don Hodges patch corrects the bonus-timer calculation responsible for the level 22 kill screen in Donkey Kong. The original boards and gameplay remain intact, allowing a run to continue past the point where the unmodified game becomes unplayable.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://www.classicarcadegaming.com/forums/index.php?topic=1318.0"
+        }
+      ],
+      "sources": [
+        {
+          "type": "community",
+          "url": "https://www.classicarcadegaming.com/forums/index.php?topic=1318.0"
+        }
+      ],
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "dkpace"
+      ],
+      "title": "Donkey Kong Pace",
+      "year": 2016,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "description": "Donkey Kong Pace adds score-tracking information to the original game. Its pace chart and calculations help players judge how their scoring compares with a longer run, while retaining the familiar boards and gameplay.",
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://forums.arcade-museum.com/threads/donkey-kong-remix-with-deranged-trainer-and-pace-www-highscoresaves-com.382544/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "community",
+          "url": "https://forums.arcade-museum.com/threads/donkey-kong-remix-with-deranged-trainer-and-pace-www-highscoresaves-com.382544/"
+        }
+      ],
+      "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "dkrndmzr"
+      ],
+      "title": "Donkey Kong RNDMZR",
+      "year": 2022,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.00",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Randomly generated layouts reshape all four Donkey Kong board types while preserving the original movement and hazards. Each new board offers a different arrangement of platforms and ladders.",
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "dogosokb"
       ],
       "title": "Dogou Souken",
