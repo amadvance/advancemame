@@ -8666,6 +8666,22 @@ void neogeo_register_main_savestate(void)
 
 /******************************************************************************/
 
+ROM_START( fixfelng )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "fixfelng.p1", 0x000000, 0x100000, CRC(79d32b5c) SHA1(4b773c56b6be5f76151dabbd9bb03b973c30a790) )
+
+	NEO_SFIX_128K( "fixfelng.s1", CRC(a26d5bf1) SHA1(ed47b02f56f6f55bec23e52a4c883910b2e88bc7) )
+
+	NEO_BIOS_SOUND_128K( "fixfelng.m1", CRC(4d5dae43) SHA1(e59ea238ba539c6a2309b2803ae128decb80ef2b) )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "fixfelng.v1", 0x000000, 0x200000, CRC(155e48bc) SHA1(697e07fadf851738ff6cdcc7b3e59eff30e4d3fb) )
+
+	ROM_REGION( 0x200000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "fixfelng.c1", 0x000000, 0x100000, CRC(7a877af9) SHA1(d5fc1f6ce68ee233543ddb9df0184c4e10bbfa9b) )
+	ROM_LOAD16_BYTE( "fixfelng.c2", 0x000001, 0x100000, CRC(00281fba) SHA1(5dc53bed99f0d6e1a06629c25476f3abf0e7d70b) )
+ROM_END
+
 /* A dummy driver, so that the bios can be debugged, and to serve as */
 /* parent for the NEOGEO_BIOS files, so that we do not have to include */
 /* them in every zip file */
@@ -9018,3 +9034,5 @@ GAMEB( 2021, neo2048,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "N
 GAMEB( 2026, violentv,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Balek Corp", "Violent Vengeance: the universe hero (beta 3.28, 2026-02-01)", 0 )
 GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.6", 0 )
 GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
+
+GAMEB( 2026, fixfelng, 0, neogeo, neogeo_full, neogeo, neogeo, ROT270, "Zanac", "Fix-It Felix Jr. (Neo Geo)", 0 )

@@ -2199,6 +2199,24 @@
     },
     {
       "shortnames": [
+        "fixfelc2",
+        "fixfelng"
+      ],
+      "title": "Fix-It Felix Jr. - Arcade Edition",
+      "year": 2026,
+      "developer": "Vanni Brutto (Zanac)",
+      "category": "homebrew",
+      "players": 2,
+      "description": "Repair broken windows while dodging Ralph’s bricks in this arcade adaptation for Capcom CPS-2 and Neo Geo MVS. Both versions add an easy difficulty and a cooperative mode in which two players repair the same building.",
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://zanac79.itch.io/fix-it-felix-jr-arcade-edition"
+        }
+      ]
+    },
+    {
+      "shortnames": [
         "sfz3mix"
       ],
       "title": "Street Fighter Zero 3 Mix",

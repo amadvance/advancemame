@@ -10955,6 +10955,27 @@ ROM_START( xmvsfb )
 	ROM_LOAD( "xmvsfb.key",   0x000000, 0x000014, CRC(f0384798) SHA1(a221b888d9ed1f9d1da0aab1b4749c3c6d2586f6) )
 ROM_END
 
+ROM_START( fixfelc2 )
+	ROM_REGION( CODE_SIZE, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ffc2.03",      0x000000, 0x080000, CRC(8f71b72c) SHA1(09389a43805ccb86fc6c8ce0cff0b7506c412e1d) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD64_WORD( "ffc2.13m",  0x000000, 0x300000, CRC(b3271d50) SHA1(60253e7fe5e43048588378e0bcf63336a1818113) )
+	ROM_LOAD64_WORD( "ffc2.15m",  0x000002, 0x300000, CRC(81259fd2) SHA1(4e17d7ea81b4802ea0cb594aeb21aec8e4d80770) )
+	ROM_LOAD64_WORD( "ffc2.17m",  0x000004, 0x300000, CRC(d2e18d6c) SHA1(b0bf508206332b5e4e8a2862fd10dbc56f921826) )
+	ROM_LOAD64_WORD( "ffc2.19m",  0x000006, 0x300000, CRC(9df91c33) SHA1(bc2a2884247ae6ba2a06de88b6deb6cc7c96958f) )
+
+	ROM_REGION( QSOUND_SIZE, REGION_CPU2, 0 )
+	ROM_LOAD( "ffc2.01",   0x00000, 0x08000, CRC(90990a4c) SHA1(cd3b4d9435363b9eb000b4f7407641329fe135af) )
+	ROM_CONTINUE(          0x10000, 0x18000 )
+
+	ROM_REGION( 0x400000, REGION_SOUND1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ffc2.11m",   0x000000, 0x400000, CRC(7a0d6f51) SHA1(711277b628f536c3c4710762894886af6bd437f4) )
+
+	ROM_REGION( 0x20, REGION_USER1, 0 )
+	ROM_LOAD( "fixfelc2.key", 0x000000, 0x000014, CRC(2cf772b0) SHA1(eff33c65a4f3862c231f9e4d6fefa7b34398dbf2) )
+ROM_END
+
 /* Updated with MAME 0.277 */
 
 GAME( 1993, ssf2,     0,       cps2, ssf2,    cps2, ROT0,   "Capcom", "Super Street Fighter II: The New Challengers (World 931005)", 0 )
@@ -11252,3 +11273,5 @@ GAME( 2000, 1944u,    1944,    cps2, 19xx,    cps2, ROT0,   "Eighting / Raizing 
 GAME( 2001, progear,  0,       cps2, sgemf,   cps2, ROT0,   "Cave (Capcom license)", "Progear (USA 010117)", 0 )
 GAME( 2001, progearj, progear, cps2, sgemf,   cps2, ROT0,   "Cave (Capcom license)", "Progear no Arashi (Japan 010117)", 0 )
 GAME( 2001, progeara, progear, cps2, sgemf,   cps2, ROT0,   "Cave (Capcom license)", "Progear (Asia 010117)", 0 )
+
+GAME( 2026, fixfelc2, 0, cps2, 19xx, cps2, ROT270, "Zanac", "Fix-It Felix Jr. (CPS-2)", 0 )
