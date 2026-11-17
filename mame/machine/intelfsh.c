@@ -31,6 +31,8 @@ enum
 	FM_ERASEAMD2,	// part 2 of AMD erase sequence
 	FM_ERASEAMD3,	// part 3 of AMD erase sequence
 	FM_BYTEPROGRAM,
+	FM_BUFFER_COUNT,
+	FM_BUFFER_DATA,
 };
 
 struct flash_chip
@@ -43,6 +45,10 @@ struct flash_chip
 	int device_id;
 	int maker_id;
 	void *flash_memory;
+	UINT16 buffer[16];
+	UINT32 buffer_start;
+	UINT8 buffer_count, buffer_used;
+	UINT8 status;
 };
 
 static struct flash_chip chips[FLASH_CHIPS_MAX];
@@ -58,6 +64,12 @@ void* intelflash_getmemptr(int chip)
 	c = &chips[ chip ];
 
 	return c->flash_memory;
+}
+
+void intelflash_reset(int chip)
+{
+	chips[chip].flash_mode = FM_NORMAL;
+	chips[chip].status = 0x80;
 }
 
 void intelflash_init(int chip, int type, void *data)
@@ -97,6 +109,12 @@ void intelflash_init(int chip, int type, void *data)
 		c->maker_id = 0x89;
 		c->device_id = 0xa2;
 		break;
+	case FLASH_INTEL_28F640J5:
+		c->bits = 16;
+		c->size = 0x800000;
+		c->maker_id = 0x89;
+		c->device_id = 0x15;
+		break;
 	case FLASH_INTEL_TE28F160:
 		c->bits = 16;
 		c->size = 0x200000;
@@ -110,13 +128,21 @@ void intelflash_init(int chip, int type, void *data)
 		memset( data, 0xff, c->size );
 	}
 
-	c->flash_mode = FM_NORMAL;
+	intelflash_reset(chip);
 	c->flash_master_lock = 0;
 	c->flash_memory = data;
 
 	state_save_register_item( "intelfsh", chip, c->flash_mode );
 	state_save_register_item( "intelfsh", chip, c->flash_master_lock );
 	state_save_register_memory( "intelfsh", chip, "flash_memory", c->flash_memory, c->bits/8, c->size / (c->bits/8) );
+	if( type == FLASH_INTEL_28F640J5 )
+	{
+		state_save_register_item_array( "intelfsh", chip, c->buffer );
+		state_save_register_item( "intelfsh", chip, c->buffer_start );
+		state_save_register_item( "intelfsh", chip, c->buffer_count );
+		state_save_register_item( "intelfsh", chip, c->buffer_used );
+		state_save_register_item( "intelfsh", chip, c->status );
+	}
 }
 
 UINT32 intelflash_read(int chip, UINT32 address)
@@ -129,6 +155,8 @@ UINT32 intelflash_read(int chip, UINT32 address)
 		return 0;
 	}
 	c = &chips[ chip ];
+	if( c->type == FLASH_INTEL_28F640J5 )
+		address &= 0x3fffff;
 
 	switch( c->flash_mode )
 	{
@@ -150,9 +178,12 @@ UINT32 intelflash_read(int chip, UINT32 address)
 			break;
 		}
 		break;
-	case FM_READSTATUS:
-//      c->flash_mode = FM_NORMAL;
+	case FM_BUFFER_COUNT:
 		data = 0x80;
+		break;
+	case FM_BUFFER_DATA:
+	case FM_READSTATUS:
+		data = c->status;
 		break;
 	case FM_READAMDID3:
 		// DDR and baseball require Intel 29F016, fishing requires 280F16
@@ -211,6 +242,8 @@ void intelflash_write(int chip, UINT32 address, UINT32 data)
 		return;
 	}
 	c = &chips[ chip ];
+	if( c->type == FLASH_INTEL_28F640J5 )
+		address &= 0x3fffff;
 
 //  logerror( "%08x: intelflash_write( %d, %08x, %08x )\n", activecpu_get_pc(), chip, address, data );
 
@@ -233,7 +266,12 @@ void intelflash_write(int chip, UINT32 address, UINT32 data)
 		case 0x10:	// program
 			c->flash_mode = FM_WRITEPART1;
 			break;
+		case 0xe8:
+			if( c->type == FLASH_INTEL_28F640J5 )
+				c->flash_mode = FM_BUFFER_COUNT;
+			break;
 		case 0x50:	// clear status reg
+			c->status = 0x80;
 			c->flash_mode = FM_READSTATUS;
 			break;
 		case 0x20:	// block erase
@@ -341,6 +379,39 @@ void intelflash_write(int chip, UINT32 address, UINT32 data)
 		}
 		c->flash_mode = FM_NORMAL;
 		break;
+	case FM_BUFFER_COUNT:
+		c->buffer_count = MIN(data, 15) + 1;
+		c->buffer_used = 0;
+		c->status = 0x80;
+		c->flash_mode = FM_BUFFER_DATA;
+		break;
+	case FM_BUFFER_DATA:
+		if( c->buffer_used < c->buffer_count )
+		{
+			if( c->buffer_used == 0 )
+				c->buffer_start = address;
+			if( address == c->buffer_start + c->buffer_used )
+				c->buffer[c->buffer_used++] = data;
+			else
+			{
+				c->status = 0x30;
+				c->flash_mode = FM_READSTATUS;
+			}
+		}
+		else
+		{
+			if( (data & 0xff) == 0xd0 )
+			{
+				UINT16 *mem = c->flash_memory;
+				unsigned i;
+				for( i = 0; i < c->buffer_count; i++ )
+					mem[c->buffer_start + i] &= c->buffer[i];
+			}
+			else
+				c->status = 0x30;
+			c->flash_mode = FM_READSTATUS;
+		}
+		break;
 	case FM_WRITEPART1:
 		switch( c->bits )
 		{
@@ -353,10 +424,14 @@ void intelflash_write(int chip, UINT32 address, UINT32 data)
 		case 16:
 			{
 				UINT16 *flash_memory = c->flash_memory;
-				flash_memory[ address ] = data;
+				if( c->type == FLASH_INTEL_28F640J5 )
+					flash_memory[ address ] &= data;
+				else
+					flash_memory[ address ] = data;
 			}
 			break;
 		}
+		c->status = 0x80;
 		c->flash_mode = FM_READSTATUS;
 		break;
 	case FM_CLEARPART1:

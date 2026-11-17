@@ -1006,7 +1006,7 @@ $(OBJ)/namco.a: \
 	$(OBJ)/drivers/namconb1.o $(OBJ)/vidhrdw/namconb1.o \
 	$(OBJ)/drivers/namcond1.o $(OBJ)/machine/namcond1.o $(OBJ)/vidhrdw/ygv608.o \
 	$(OBJ)/drivers/namcos1.o $(OBJ)/machine/namcos1.o $(OBJ)/vidhrdw/namcos1.o \
-	$(OBJ)/drivers/namcos10.o \
+	$(OBJ)/drivers/namcos10.o $(OBJ)/drivers/namcos10mem.o \
 	$(OBJ)/drivers/namcos11.o \
 	$(OBJ)/drivers/namcos12.o \
 	$(OBJ)/drivers/namcos2.o $(OBJ)/machine/namcos2.o $(OBJ)/vidhrdw/namcos2.o \

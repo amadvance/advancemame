@@ -15,6 +15,9 @@
 #define FLASH_INTEL_E28F008SA ( 3 )
 #define FLASH_INTEL_TE28F160 ( 4 )
 
+#define FLASH_INTEL_28F640J5 ( 5 )
+
+extern void intelflash_reset( int chip );
 extern void intelflash_init( int chip, int type, void *data );
 extern UINT32 intelflash_read( int chip, UINT32 address );
 extern void intelflash_write( int chip, UINT32 address, UINT32 value );
