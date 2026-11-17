@@ -3300,6 +3300,31 @@ OSC:    28.0000MHz
 
 ***************************************************************************/
 
+ROM_START( ddonpachjh )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "ddonpachjh.u27", 0x000000, 0x080000, CRC(8faf593f) SHA1(79f2252a14651662e1cbceb3a6c06c80263a2e96) )
+	ROM_LOAD16_BYTE( "ddonpachjh.u26", 0x000001, 0x080000, CRC(259fb1a3) SHA1(d4e5bfb17c4e1928597225813e874677f51dff00) )
+
+	ROM_REGION( 0x800000 * 2, REGION_GFX1, 0 )
+	ROM_LOAD( "u50.bin", 0x000000, 0x200000, CRC(14b260ec) SHA1(33bda210302428d5500115d0c7a839cdfcb67d17) )
+	ROM_LOAD( "u51.bin", 0x200000, 0x200000, CRC(e7ba8cce) SHA1(ad74a6b7d53760b19587c4a6dbea937daa7e87ce) )
+	ROM_LOAD( "u52.bin", 0x400000, 0x200000, CRC(02492ee0) SHA1(64d9cc64a4ad189a8b03cf6a749ddb732b4a0014) )
+	ROM_LOAD( "u53.bin", 0x600000, 0x200000, CRC(cb4c10f0) SHA1(a622e8bd0c938b5d38b392b247400b744d8be288) )
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "u60.bin", 0x000000, 0x200000, CRC(903096a7) SHA1(a243e903fef7c4a7b71383263e82e42acd869261) )
+
+	ROM_REGION( 0x200000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "u61.bin", 0x000000, 0x200000, CRC(d89b7631) SHA1(a66bb4955ca58fab8973ca37a0f971e9a67ce017) )
+
+	ROM_REGION( 0x200000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "u62.bin", 0x000000, 0x200000, CRC(292bfb6b) SHA1(11b385991ee990eb5ef36e136b988802b5f90fa4) )
+
+	ROM_REGION( 0x400000, REGION_SOUND1, 0 )
+	ROM_LOAD( "u6.bin", 0x000000, 0x200000, CRC(9dfdafaf) SHA1(f5cb450cdc78a20c3a74c6dac05c9ac3cba08327) )
+	ROM_LOAD( "u7.bin", 0x200000, 0x200000, CRC(795b17d5) SHA1(cbfc29f1df9600c82e0fdae00edd00da5b73e14c) )
+ROM_END
+
 ROM_START( ddonpach )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )		/* 68000 Code */
 	ROM_LOAD16_BYTE( "b1.u27", 0x000000, 0x080000, CRC(b5cdc8d3) SHA1(58757b50e21a27e500a82c03f62cf02a85389926) )
@@ -4835,3 +4860,5 @@ GAME( 1999, gaia,     0,        gaia,     gaia,     gaia,     ROT0,   "Noise Fac
 GAME( 1999, korokoro, 0,        korokoro, korokoro, korokoro, ROT0,   "Takumi",                               "Koro Koro Quest (Japan)"                 , 0 )
 GAME( 1999, crusherm, 0, crusherm, korokoro, korokoro, ROT0, "Takumi", "Crusher Makochan (Japan)", 0 )
 GAME( 2001, theroes,  0, gaia,     theroes,  gaia,     ROT0, "Primetek Investments", "Thunder Heroes (set 1)", GAME_IMPERFECT_SOUND )
+
+GAME( 2021, ddonpachjh, ddonpach, ddonpach, cave, ddonpach, ROT270, "Olifante", "DoDonPachi (Japan, hack)", 0 )

@@ -365,6 +365,49 @@
     },
     {
       "shortnames": [
+        "ddonpachjh"
+      ],
+      "title": "DoDonPachi (Ship Color Hack)",
+      "year": 2021,
+      "developer": "Cave",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "CAVE 68000 hardware",
+      "release_status": "released",
+      "parent_shortname": "ddonpach",
+      "original_game": "ddonpach",
+      "series": "DoDonPachi",
+      "hack_author": "Olifante",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Adds a choice of 64 player ship palettes during ship selection."
+        },
+        {
+          "type": "audio",
+          "description": "Removes background music while retaining sound effects."
+        }
+      ],
+      "description": "Olifante's hack of the Japanese arcade version of DoDonPachi adds a choice of 64 color palettes for the player ship and removes the background music while retaining sound effects. The original stages, enemies and scoring remain intact.",
+      "tips": [
+        "Press left or right during ship selection to change the ship palette."
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://epozzobon.it/re/ddonpach/patcher/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "official",
+          "url": "https://epozzobon.it/re/ddonpach/patcher/"
+        }
+      ],
+      "confidence": "verified"
+    },
+    {
+      "shortnames": [
         "ddpdojblkb"
       ],
       "title": "DoDonPachi Dai-Ou-Jou (Black Label)",
