@@ -1136,42 +1136,54 @@ INTERRUPT_GEN( coh1000t_vblank )
 	psx_vblank();
 }
 
+static unsigned fx1a_rom_banks;
+
+static WRITE32_HANDLER( fx1a_rom_bankswitch_w )
+{
+	if( ACCESSING_LSB32 )
+	{
+		unsigned bank = data & 3;
+		mb3773_set_ck( ( data & 0x20 ) >> 5 );
+		if( bank < fx1a_rom_banks )
+			memory_set_bank( 1, bank );
+	}
+}
+
 static WRITE8_HANDLER( fx1a_sound_bankswitch_w )
 {
-	/* the first 16k are at the start of the region, the other banks are after the 0x10000 offset */
-	if( ( data & 0x07 ) == 0 )
-	{
-		memory_set_bankptr( 10, memory_region( REGION_CPU2 ) );
-	}
-	else
-	{
-		memory_set_bankptr( 10, memory_region( REGION_CPU2 ) + 0x10000 + ( ( ( data & 0x07 ) - 1 ) * 0x4000 ) );
-	}
+	memory_set_bank( 10, data & 7 );
 }
 
 static READ32_HANDLER( taitofx1a_ymsound_r )
 {
-	return taitosound_comm_r(0)<<16;
+	if( ( mem_mask & 0x00ff0000 ) == 0 )
+		return taitosound_comm_r( 0 ) << 16;
+	return 0;
 }
 
 static WRITE32_HANDLER( taitofx1a_ymsound_w )
 {
-	if (mem_mask == 0xffff0000)
-	{
-		taitosound_port_w(0, data&0xff);
-	}
-	else
-	{
-		taitosound_comm_w(0, (data>>16)&0xff);
-	}
+	if( ACCESSING_LSB32 )
+		taitosound_port_w( 0, data & 0xff );
+	if( ( mem_mask & 0x00ff0000 ) == 0 )
+		taitosound_comm_w( 0, ( data >> 16 ) & 0xff );
 }
 
 DRIVER_INIT( coh1000ta )
 {
 	taitofx1_eeprom_size1 = 0x200; taitofx1_eeprom1 = auto_malloc( taitofx1_eeprom_size1 );
 
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );     /* banked game rom */
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, bank_coh1000t_w ); /* bankswitch */
+	fx1a_rom_banks = memory_region_length( REGION_USER2 ) / 0x800000;
+	if( fx1a_rom_banks )
+	{
+		memory_install_read32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f7fffff, 0, 0, MRA32_BANK1 );
+		memory_configure_bank( 1, 0, fx1a_rom_banks, memory_region( REGION_USER2 ), 0x800000 );
+		memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb40000, 0x1fb40003, 0, 0, fx1a_rom_bankswitch_w );
+
+		memory_configure_bank( 10, 0, 1, memory_region( REGION_CPU2 ), 0x4000 );
+		memory_configure_bank( 10, 1, 7, memory_region( REGION_CPU2 ) + 0x10000, 0x4000 );
+	}
+	taitosound_state_register();
 	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb80000, 0x1fb80003, 0, 0, taitofx1a_ymsound_r );
 	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb80000, 0x1fb80003, 0, 0, taitofx1a_ymsound_w );
 	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fbe0000, 0x1fbe0000 + ( taitofx1_eeprom_size1 - 1 ), 0, 0, MRA32_BANK2 );
@@ -1183,9 +1195,13 @@ DRIVER_INIT( coh1000ta )
 
 MACHINE_RESET( coh1000ta )
 {
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* banked game rom */
+	if( fx1a_rom_banks )
+	{
+		memory_set_bank( 1, 0 );
+		memory_set_bank( 10, 1 );
+	}
 	memory_set_bankptr( 2, taitofx1_eeprom1 );
-	memory_set_bankptr( 10, memory_region( REGION_CPU2 ) + 0x10000 ); /* bank 1 at reset */
+	taitosound_reset();
 	zn_machine_init();
 }
 

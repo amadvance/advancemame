@@ -42,6 +42,22 @@ typedef struct TC0140SYT
 static struct TC0140SYT tc0140syt;
 
 
+void taitosound_reset(void)
+{
+	memset(&tc0140syt, 0, sizeof(tc0140syt));
+}
+
+void taitosound_state_register(void)
+{
+	state_save_register_item_array("tc0140syt", 0, tc0140syt.slavedata);
+	state_save_register_item_array("tc0140syt", 0, tc0140syt.masterdata);
+	state_save_register_item("tc0140syt", 0, tc0140syt.mainmode);
+	state_save_register_item("tc0140syt", 0, tc0140syt.submode);
+	state_save_register_item("tc0140syt", 0, tc0140syt.status);
+	state_save_register_item("tc0140syt", 0, tc0140syt.nmi_enabled);
+	state_save_register_item("tc0140syt", 0, tc0140syt.nmi_req);
+}
+
 static void Interrupt_Controller(void)
 {
 	if ( tc0140syt.nmi_req && tc0140syt.nmi_enabled )
