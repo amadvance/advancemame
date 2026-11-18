@@ -2363,6 +2363,115 @@ static ADDRESS_MAP_START( orbs_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 /***************************************************************************
+                  Kero Kero Keroppi's Let's Play Together
+***************************************************************************/
+
+static int keroppi_prize_hop;
+static int keroppi_protection_count;
+static mame_timer *keroppi_prize_hop_timer;
+
+static const UINT16 keroppi_protection_word[] = {
+	0x0000,
+	0x0000, 0x0000, 0x0000,
+	0x2000, 0x2000, 0x2000,
+	0x2000, 0x2000, 0x2000,
+	0x0400, 0x0400, 0x0400,
+	0x0000, 0x0000, 0x0000
+};
+
+static READ16_HANDLER( keroppi_protection_r )
+{
+	UINT16 result = keroppi_protection_word[keroppi_protection_count];
+
+	keroppi_protection_count++;
+	if (keroppi_protection_count > 15)
+		keroppi_protection_count = 15;
+
+	return result;
+}
+
+static READ16_HANDLER( keroppi_protection_init_r )
+{
+	keroppi_protection_count = 0;
+
+	return 0x00;
+}
+
+static READ16_HANDLER( keroppi_coin_r )
+{
+	UINT16 result = readinputport(2);
+
+	if (keroppi_prize_hop == 2)
+	{
+		result &= ~0x0002;
+		keroppi_prize_hop = 0;
+	}
+
+	return result;
+}
+
+static void keroppi_prize_hop_callback(int param)
+{
+	keroppi_prize_hop = 2;
+}
+
+static WRITE16_HANDLER( keroppi_prize_w )
+{
+	if ((data & 0x0010) && !keroppi_prize_hop)
+	{
+		keroppi_prize_hop = 1;
+		timer_adjust(keroppi_prize_hop_timer, TIME_IN_SEC(3), 0x20, 0);
+	}
+}
+
+static MACHINE_START( keroppi )
+{
+	keroppi_prize_hop_timer = timer_alloc(keroppi_prize_hop_callback);
+	keroppi_prize_hop = 0;
+	keroppi_protection_count = 0;
+	return 0;
+}
+
+static MACHINE_RESET( keroppi )
+{
+	keroppi_prize_hop = 0;
+	keroppi_protection_count = 0;
+}
+
+static ADDRESS_MAP_START( keroppi_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM					)
+	AM_RANGE(0xf00000, 0xf0ffff) AM_READ(MRA16_RAM					)
+	AM_RANGE(0x100000, 0x100001) AM_READ(keroppi_protection_r		)
+	AM_RANGE(0x200000, 0x200001) AM_READ(keroppi_protection_init_r	)
+	AM_RANGE(0x300000, 0x300003) AM_READ(seta_dsw_r					)
+	AM_RANGE(0x500000, 0x500001) AM_READ(input_port_0_word_r		)
+	AM_RANGE(0x500002, 0x500003) AM_READ(input_port_1_word_r		)
+	AM_RANGE(0x500004, 0x500005) AM_READ(keroppi_coin_r				)
+	AM_RANGE(0x8000f0, 0x8000f1) AM_READ(MRA16_RAM					)
+	AM_RANGE(0x800100, 0x8001ff) AM_READ(MRA16_RAM					)
+	AM_RANGE(0xa00000, 0xa03fff) AM_READ(seta_sound_word_r			)
+	AM_RANGE(0xb00000, 0xb003ff) AM_READ(MRA16_RAM					)
+	AM_RANGE(0xc00000, 0xc03fff) AM_READ(MRA16_RAM					)
+	AM_RANGE(0xd00000, 0xd00001) AM_READ(MRA16_RAM					)
+	AM_RANGE(0xe00000, 0xe00607) AM_READ(MRA16_RAM					)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( keroppi_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM					)
+	AM_RANGE(0xf00000, 0xf0ffff) AM_WRITE(MWA16_RAM					)
+	AM_RANGE(0x400000, 0x400001) AM_WRITE(MWA16_NOP					)
+	AM_RANGE(0x8000f0, 0x8000f1) AM_WRITE(MWA16_RAM					)
+	AM_RANGE(0x800100, 0x8001ff) AM_WRITE(MWA16_RAM					)
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(MWA16_NOP					)
+	AM_RANGE(0x900002, 0x900003) AM_WRITE(keroppi_prize_w			)
+	AM_RANGE(0xa00000, 0xa03fff) AM_WRITE(seta_sound_word_w			)
+	AM_RANGE(0xb00000, 0xb003ff) AM_WRITE(paletteram16_xRRRRRGGGGGBBBBB_word_w) AM_BASE(&paletteram16	)
+	AM_RANGE(0xc00000, 0xc03fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16_2	)
+	AM_RANGE(0xd00000, 0xd00001) AM_WRITE(MWA16_RAM					)
+	AM_RANGE(0xe00000, 0xe00607) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16	)
+ADDRESS_MAP_END
+
+/***************************************************************************
                                 Krazy Bowl
 ***************************************************************************/
 
@@ -4323,6 +4432,83 @@ static INPUT_PORTS_START( orbs )
 	PORT_DIPNAME( 0x8000, 0x8000, "Unknown 1-8" )
 	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( keroppi )
+	PORT_START_TAG("P1")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Prize Out") PORT_CODE(KEYCODE_W)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("P2")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_SERVICE1 ) PORT_IMPULSE(5)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("COINS")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(5)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Prize Hopper") PORT_CODE(KEYCODE_Q)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x0003, 0x0003, "Obstacle Course Payout Setting" ) PORT_DIPLOCATION("SW2:1,2")
+	PORT_DIPSETTING(      0x0000, "Highest (0, 3, 5, 7, 15 Tickets)" )
+	PORT_DIPSETTING(      0x0001, "High (0, 3, 4, 5, 10 Tickets)" )
+	PORT_DIPSETTING(      0x0002, "Low (0, 1, 2, 3, 6 Tickets)" )
+	PORT_DIPSETTING(      0x0003, "Medium (0, 2, 3, 4, 8 Tickets)" )
+	PORT_DIPNAME( 0x000c, 0x000c, "Treasure Hunt Payout Setting" ) PORT_DIPLOCATION("SW2:3,4")
+	PORT_DIPSETTING(      0x0000, "Highest (5, 10, 15 Tickets)" )
+	PORT_DIPSETTING(      0x0004, "High (5, 7, 10 Tickets)" )
+	PORT_DIPSETTING(      0x0008, "Low (1, 3, 5 Tickets)" )
+	PORT_DIPSETTING(      0x000c, "Medium (3, 5, 7 Tickets)" )
+	PORT_DIPNAME( 0x0030, 0x0030, "New Jersey Payout Setting" ) PORT_DIPLOCATION("SW2:5,6")
+	PORT_DIPSETTING(      0x0000, "Always Payout 5 Tickets" )
+	PORT_DIPSETTING(      0x0010, "Always Payout 3 Tickets" )
+	PORT_DIPSETTING(      0x0020, "Always Payout 1 Ticket" )
+	PORT_DIPSETTING(      0x0030, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Mercy Ticket Payout Setting (Treasure Hunt Only)" ) PORT_DIPLOCATION("SW2:7,8")
+	PORT_DIPSETTING(      0x0000, "No Payout" )
+	PORT_DIPSETTING(      0x0040, "3 Tickets" )
+	PORT_DIPSETTING(      0x0080, "2 Tickets" )
+	PORT_DIPSETTING(      0x00c0, "1 Ticket" )
+
+	PORT_DIPNAME( 0x0300, 0x0300, DEF_STR( Coinage ) ) PORT_DIPLOCATION("SW1:1,2")
+	PORT_DIPSETTING(      0x0000, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0300, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW1:3")
+	PORT_DIPSETTING(      0x0400, DEF_STR( On ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x0800, 0x0800, "Vending Style" ) PORT_DIPLOCATION("SW1:4")
+	PORT_DIPSETTING(      0x0800, "Ticket" )
+	PORT_DIPSETTING(      0x0000, "No Vending" )
+	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Free_Play ) ) PORT_DIPLOCATION("SW1:5")
+	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x6000, 0x6000, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SW1:6,7")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x6000, DEF_STR( Normal ) )
+	PORT_DIPNAME( 0x8000, 0x8000, "Payout Setting" ) PORT_DIPLOCATION("SW1:8")
+	PORT_DIPSETTING(      0x8000, "Normal Payout" )
+	PORT_DIPSETTING(      0x0000, "No Payout" )
 INPUT_PORTS_END
 
 /***************************************************************************
@@ -7330,6 +7516,36 @@ static MACHINE_DRIVER_START( orbs )
 	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
+
+static MACHINE_DRIVER_START( keroppi )
+
+	MDRV_CPU_ADD(M68000, 14318180/2)
+	MDRV_CPU_PROGRAM_MAP(keroppi_readmem,keroppi_writemem)
+	MDRV_CPU_VBLANK_INT(seta_interrupt_1_and_2,SETA_INTERRUPTS_NUM)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_START(keroppi)
+	MDRV_MACHINE_RESET(keroppi)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
+	MDRV_GFXDECODE(tndrcade_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(512)
+
+	MDRV_VIDEO_START(seta_no_layers)
+	MDRV_VIDEO_UPDATE(seta_no_layers)
+
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(X1_010, 14318180)
+	MDRV_SOUND_CONFIG(seta_sound_intf)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
+MACHINE_DRIVER_END
+
 /***************************************************************************
                                 Krazy Bowl
 ***************************************************************************/
@@ -8816,6 +9032,20 @@ ROM_START( orbs )
 	ROM_LOAD( "orbs.u16",  0x080000, 0x080000, CRC(aecd8373) SHA1(5620bcb281a9ea4920cfe81d163827013289c5bf) )
 ROM_END
 
+ROM_START( keroppi )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "keroppi jr. code =u10= v1.0.u10",  0x000000, 0x040000, CRC(1fc2e895) SHA1(08f1f48d4f601cf51583bf8854a9fa7016337cfc) )
+	ROM_LOAD16_BYTE( "keroppi jr. code =u9= v1.0.u9",    0x000001, 0x040000, CRC(e0599e7b) SHA1(46b5ecc2864ab9e75540764453df5a2e6b6195e0) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "keroppi jr. chr=u11= v1.0.u11",  0x000000, 0x080000, CRC(74148c23) SHA1(26e642e2e0ad2b2af749355e9c46605061b100bc) )
+	ROM_LOAD( "keroppi jr. chr=u12= v1.0.u12",  0x080000, 0x080000, CRC(6f4dae98) SHA1(da88837278cea956485f11ef55da8a4e9504c97a) )
+
+	ROM_REGION( 0x100000, REGION_SOUND1, 0 )
+	ROM_LOAD( "keroppi jr. snd =u15= v1.0.u15",  0x000000, 0x080000, CRC(c98dacf0) SHA1(b508433e2383af1e8bd5fda253c9925c48443490) )
+	ROM_LOAD( "keroppi jr. snd =u16= v1.0.u16",  0x080000, 0x080000, CRC(d61e5a32) SHA1(aa2edf39e72ac15a8c8dd016b87bea17472f0f94) )
+ROM_END
+
 ROM_START( krzybowl )
 	ROM_REGION( 0x080000, REGION_CPU1, 0 )		/* 68000 Code */
 	ROM_LOAD16_BYTE( "fv001.002", 0x000000, 0x040000, CRC(8c03c75f) SHA1(e56c50440681a0b06d785000018c4213266f2a4e) )
@@ -9312,6 +9542,7 @@ GAME( 1994, eightfrc, 0,        eightfrc, eightfrc, eightfrc, ROT90,  "Tecmo", "
 GAME( 1994, kiwame,   0,        kiwame,   kiwame,   kiwame,   ROT0,   "Athena", "Pro Mahjong Kiwame", 0 )
 GAME( 1994, krzybowl, 0,        krzybowl, krzybowl, 0,        ROT270, "American Sammy", "Krazy Bowl", 0 )
 GAME( 1994, orbs,     0,        orbs,     orbs,     0,        ROT0,   "American Sammy", "Orbs (10/7/94 prototype?)", 0 )
+GAME( 1995, keroppi,  0,        keroppi,  keroppi,  0,        ROT0,   "American Sammy", "Kero Kero Keroppi's Let's Play Together (USA, Version 2.0)", 0 )
 GAME( 1995, extdwnhl, 0,        extdwnhl, extdwnhl, 0,        ROT0,   "Sammy Industries Japan", "Extreme Downhill (v1.5)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1995, gundhara, 0,        gundhara, gundhara, 0,        ROT270, "Banpresto", "Gundhara", 0 )
 GAME( 1995, sokonuke, 0,        extdwnhl, sokonuke, 0,        ROT0,   "Sammy Industries", "Sokonuke Taisen Game (Japan)", GAME_IMPERFECT_SOUND )

@@ -6961,6 +6961,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( eightfrc )	/* (c) 1994 Tecmo */
 	DRIVER( kiwame )	/* (c) 1994 Athena */
 	DRIVER( orbs )
+	DRIVER( keroppi )	/* (c) 1995 American Sammy */
 	DRIVER( krzybowl )	/* (c) 1994 American Sammy */
 	DRIVER( extdwnhl )	/* (c) 1995 Sammy Japan */
 	DRIVER( gundhara )	/* (c) 1995 Banpresto */
