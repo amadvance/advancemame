@@ -11,6 +11,8 @@
 static UINT32 dsp_comm_ppc[MAX_CG_BOARDS][2];
 static UINT32 dsp_comm_sharc[MAX_CG_BOARDS][2];
 static int dsp_shared_ram_bank[MAX_CG_BOARDS];
+static UINT32 dsp_state[MAX_CG_BOARDS];
+static int enable_3d[MAX_CG_BOARDS];
 
 static int cgboard_id;
 static int cgboard_texture_bank = -1;
@@ -25,7 +27,14 @@ void init_konami_cgboard(int board_id, int type)
 	dsp_comm_ppc[board_id][0] = 0x00;
 	dsp_shared_ram[board_id] = auto_malloc(0x20000);
 	dsp_shared_ram_bank[board_id] = 0;
+	dsp_state[board_id] = 0x80;
+	enable_3d[board_id] = 0;
 	cgboard_type = type;
+}
+
+int cgboard_output_3d_enabled(void)
+{
+	return enable_3d[cgboard_id];
 }
 
 void set_cgboard_id(int board_id)
@@ -45,7 +54,7 @@ void set_cgboard_texture_bank(int bank)
 READ32_HANDLER( cgboard_dsp_comm_r_ppc )
 {
 //  printf("dsp_cmd_r: %08X, %08X at %08X\n", offset, mem_mask, activecpu_get_pc());
-	return dsp_comm_sharc[cgboard_id][offset];
+	return dsp_comm_sharc[cgboard_id][offset] | (dsp_state[cgboard_id] << 16);
 }
 
 WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
@@ -58,6 +67,12 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 		{
 			if (!(mem_mask & 0xff000000))
 			{
+				/* the bank must be selected before the DSP is released, as it boots from the shared RAM */
+				dsp_shared_ram_bank[cgboard_id] = (data >> 24) & 0x1;
+
+				if (data & 0x80000000)
+					dsp_state[cgboard_id] |= 0x10;
+
 				if (data & 0x10000000)
 				{
 					cpunum_set_input_line(2, INPUT_LINE_RESET, CLEAR_LINE);
@@ -79,7 +94,11 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 					cpu_spinuntil_time(TIME_IN_USEC(1000));		// Give the SHARC enough time to respond
 				}
 
-				dsp_shared_ram_bank[cgboard_id] = (data >> 24) & 0x1;
+			}
+
+			if (!(mem_mask & 0x00ff0000))
+			{
+				enable_3d[cgboard_id] = (data >> 22) & 1;
 			}
 
 			if (!(mem_mask & 0x000000ff))
@@ -99,6 +118,11 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 		{
 			if (!(mem_mask & 0xff000000))
 			{
+				dsp_shared_ram_bank[cgboard_id] = (data >> 24) & 0x1;
+
+				if (data & 0x80000000)
+					dsp_state[cgboard_id] |= 0x10;
+
 				if (data & 0x10000000)
 				{
 					cpunum_set_input_line(3, INPUT_LINE_RESET, CLEAR_LINE);
@@ -120,7 +144,11 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 					cpu_spinuntil_time(TIME_IN_USEC(1000));		// Give the SHARC enough time to respond
 				}
 
-				dsp_shared_ram_bank[cgboard_id] = (data >> 24) & 0x1;
+			}
+
+			if (!(mem_mask & 0x00ff0000))
+			{
+				enable_3d[cgboard_id] = (data >> 22) & 1;
 			}
 
 			if (!(mem_mask & 0x000000ff))
@@ -180,9 +208,14 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_sharc )
 		}
 	}
 
-	if (cgboard_type == CGBOARD_TYPE_GTICLUB)
+	if (cgboard_type == CGBOARD_TYPE_GTICLUB || cgboard_type == CGBOARD_TYPE_ZR107)
 	{
 		cpunum_set_input_line(2, SHARC_INPUT_FLAG0, ASSERT_LINE);
+
+		if (cgboard_type == CGBOARD_TYPE_ZR107 && offset == 1 && (data & 0x03))
+		{
+			cpunum_set_input_line(2, INPUT_LINE_IRQ2, ASSERT_LINE);
+		}
 	}
 
 //  printf("cgboard_dsp_comm_w_sharc: %08X, %08X, %08X at %08X\n", data, offset, mem_mask, activecpu_get_pc());

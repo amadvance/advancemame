@@ -945,7 +945,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/xexex.o $(OBJ)/vidhrdw/xexex.o \
 	$(OBJ)/drivers/xmen.o $(OBJ)/vidhrdw/xmen.o \
 	$(OBJ)/drivers/yiear.o $(OBJ)/vidhrdw/yiear.o \
-	$(OBJ)/drivers/zr107.o \
+	$(OBJ)/drivers/zr107.o $(OBJ)/vidhrdw/k001005.o \
 	$(OBJ)/vidhrdw/konamiic.o \
 
 $(OBJ)/meadows.a: \

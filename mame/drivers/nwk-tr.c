@@ -258,6 +258,18 @@ void K001604_tile_draw(mame_bitmap *bitmap, const rectangle *cliprect)
 	tilemap_draw(bitmap, cliprect, K001604_layer_8x8[0], 0,0);
 }
 
+void K001604_tile_draw_back(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	if (K001604_reg[0x60/4] & 0x40000000)
+		tilemap_draw(bitmap, cliprect, K001604_layer_8x8[1], 0,0);
+}
+
+void K001604_tile_draw_front(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	if (K001604_reg[0x60/4] & 0x80000000)
+		tilemap_draw(bitmap, cliprect, K001604_layer_8x8[0], 0,0);
+}
+
 READ32_HANDLER(K001604_tile_r)
 {
 	return K001604_tile_ram[offset];
