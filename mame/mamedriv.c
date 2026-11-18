@@ -8239,6 +8239,11 @@ Other Sun games
 	DRIVER( phpython )
 	DRIVER( phklad )
 
+	/* Photon IK-3 System */
+	DRIVER( kok )
+	DRIVER( black )
+	DRIVER( brod )
+
 	DRIVER( stuntair )
 
 	/* United Amusements PC Engine */

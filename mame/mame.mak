@@ -1602,6 +1602,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/musclem.o \
 	$(OBJ)/drivers/calcune.o $(OBJ)/vidhrdw/calcune.o \
 	$(OBJ)/drivers/photon.o \
+	$(OBJ)/drivers/photon2.o \
 	$(OBJ)/drivers/megaphx.o \
 	$(OBJ)/drivers/limenko.o $(OBJ)/sndhrdw/limenko.o \
 	$(OBJ)/drivers/lethalj.o $(OBJ)/vidhrdw/lethalj.o \
