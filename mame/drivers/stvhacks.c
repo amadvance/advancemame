@@ -504,36 +504,6 @@ DRIVER_INIT(fhboxers)
 }
 
 
-static READ32_HANDLER( bakubaku_speedup_r )
-{
-	if (activecpu_get_pc()==0x06036dc8) cpu_spinuntil_int(); // title logos
-
-	return stv_workram_h[0x0833f0/4];
-}
-
-static READ32_HANDLER( bakubaku_speedup2_r )
-{
-	if (activecpu_get_pc()==0x06033762) 	cpunum_set_input_line(1, INPUT_LINE_HALT, ASSERT_LINE);
-
-	return stv_workram_h[0x0033762/4];
-}
-
-static READ32_HANDLER( bakubaku_hangskip_r )
-{
-	if (activecpu_get_pc()==0x060335e4) stv_workram_h[0x0335e6/4] = 0x32300909;
-
-	return stv_workram_h[0x033660/4];
-}
-
-DRIVER_INIT(bakubaku)
-{
-   	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x60833f0, 0x60833f3, 0, 0, bakubaku_speedup_r ); // idle loop of main cpu
-   	memory_install_read32_handler(1, ADDRESS_SPACE_PROGRAM, 0x60fdfe8, 0x60fdfeb, 0, 0, bakubaku_speedup2_r ); // turn off slave sh2, is it needed after boot ??
-   	//memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x6033660, 0x6033663, 0, 0, bakubaku_hangskip_r ); // it waits for a ram address to change what should change it?
-
-	init_ic13();
-}
-
 static READ32_HANDLER( groovef_hack1_r )
 {
 	if(activecpu_get_pc() == 0x6005e7e) stv_workram_h[0x0fffcc/4] = 0x00000000;

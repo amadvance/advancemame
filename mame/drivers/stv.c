@@ -123,7 +123,7 @@ ToDo / Notes:
 -colmns97/puyosun/mausuke/cotton2/cottonbm: interrupt issues? we can't check the SCU mask
  on SMPC or controls fail
 -mausuke/bakubaku/grdforce: need to sort out transparency on the colour mapped sprites
--bakubaku/colmns97: no sound? Caused by missing irq?
+-colmns97: no sound? Caused by missing irq?
 -myfairld: Doesn't work with -sound enabled because of a sound ram check at relative
  addresses of $700/$710/$720/$730,so I'm not removing the NOT_WORKING flag due of that.Also
  Micronet programmers had the "great" idea to *not* use the ST-V input standards,infact
@@ -197,7 +197,6 @@ extern UINT32* stv_vdp1_vram;
 DRIVER_INIT( ic13 );
 NVRAM_HANDLER( stv );
 void install_stvbios_speedups(void);
-DRIVER_INIT(bakubaku);
 DRIVER_INIT(mausuke);
 DRIVER_INIT(puyosun);
 DRIVER_INIT(puyosune);
@@ -3216,11 +3215,10 @@ ROM_END
 ROM_START( bakubaku )
 	STV_BIOS
 
-	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
-	ROM_LOAD( "fpr17969.13",               0x0000000, 0x0100000, CRC(bee327e5) SHA1(1d226db72d6ef68fd294f60659df7f882b25def6) ) // ic13 bad?!
-	ROM_RELOAD ( 0x0100000, 0x0100000 )
-	ROM_RELOAD ( 0x0200000, 0x0100000 )
-	ROM_RELOAD ( 0x0300000, 0x0100000 )
+	ROM_REGION32_BE( 0x3000000, REGION_USER1, ROMREGION_ERASE00 ) /* SH2 code */
+	ROM_LOAD16_BYTE( "fpr17969.13",        0x0000001, 0x0100000, CRC(bee327e5) SHA1(1d226db72d6ef68fd294f60659df7f882b25def6) )
+	ROM_LOAD( "fpr17969.13",               0x0200000, 0x0100000, CRC(bee327e5) SHA1(1d226db72d6ef68fd294f60659df7f882b25def6) )
+	ROM_RELOAD(                            0x0300000, 0x0100000 )
 	ROM_LOAD16_WORD_SWAP( "mpr17970.2",    0x0400000, 0x0400000, CRC(bc4d6f91) SHA1(dcc241dcabea59325decfba3fd5e113c07958422) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr17971.3",    0x0800000, 0x0400000, CRC(c780a3b3) SHA1(99587eea528a6413cacc3e4d3d1dbfff57b03dca) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr17972.4",    0x0c00000, 0x0400000, CRC(8f29815a) SHA1(e86acd8096f2aee5f5e3ddfd3abb4f5c2b11df66) ) // good
@@ -4184,7 +4182,7 @@ Others may exist as well...
 
 GAMEB( 1996, stvbios,   0,       stvbios, stv, stv,  stv,       ROT0,   "Sega",                      "ST-V BIOS", NOT_A_DRIVER )
 GAMEB( 1998, astrass,   stvbios, stvbios, stv, stv6b, astrass,   ROT0,   "Sunsoft",    				  "Astra SuperStars (J 980514 V1.002)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAMEB( 1995, bakubaku,  stvbios, stvbios, stv, stv,  bakubaku,  ROT0,   "Sega",     				  "Baku Baku Animal (J 950407 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1995, bakubaku,  stvbios, stvbios, stv, stv,  stv,       ROT0,   "Sega",     				  "Baku Baku Animal (J 950407 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, batmanfr,  stvbios, stvbios, batmanfr, batmanfr,  batmanfr,  ROT0,   "Acclaim",    				  "Batman Forever (JUE 960507 V1.000)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1996, colmns97,  stvbios, stvbios, stv, stv,  colmns97,  ROT0,   "Sega", 	 				  "Columns '97 (JET 961209 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // graphics issues
 GAMEB( 1997, cotton2,   stvbios, stvbios, stv, stv,  cotton2,   ROT0,   "Success",  				  "Cotton 2 (JUET 970902 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
