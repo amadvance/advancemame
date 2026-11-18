@@ -2148,12 +2148,6 @@ Protection & cartridge handling
 
 These are the known ST-V games that uses this area as a valid protection,I have written
 the data used by the games in the various circumstances for reference:
--Astra Super Stars [astrass]
- [0]        [1]        [2]        [3]
- 0x000y0000 0x00000000 0x06130027 0x01230000 test mode,char transfer (3)
- 0x???????? 0x???????? 0x???????? 0x???????? attract mode
- 0x000y0000 0x00000000 0x06130027 0x01230000 gameplay,char transfer (3)
-
 -Elan Doree : Legend of Dragon [elandore]
  [0]        [1]        [2]        [3]
  No protection                               test mode
@@ -2202,8 +2196,6 @@ For now I'm writing this function with a command basis so I can work better with
 
 static UINT32 a_bus[4];
 static UINT32 ctrl_index;
-static UINT32 internal_counter;
-static UINT8 char_offset; //helper to jump the decoding of the NULL chars.
 static READ32_HANDLER( a_bus_ctrl_r )
 {
 	UINT32 *ROM = (UINT32 *)memory_region(REGION_USER1);
@@ -2218,70 +2210,6 @@ static READ32_HANDLER( a_bus_ctrl_r )
 			#endif
 			switch(a_bus[3])
 			{
-				case 0x01230000://astrass,char data in test mode PC=60118f2
-				/*
-                TODO: the chars that are used are 8x8x4,but we need to convert them to
-                16x16x4 format.
-                [01] NULL
-                [02] NULL
-                [03] NULL
-                [04] NULL
-                [05] NULL
-                [06] NULL
-                [07] NULL
-                [08] NULL
-                [09] data 1
-                [10] data 2
-                [11] data 3
-                [12] data 4
-                [13] data 5
-                [14] data 6
-                [15] data 7
-                [16] data 8
-
-                2b5 = A (up-left)
-                2b6 = A (up-right)
-                2d1 = A (down-left)
-                2d0 = A (down-right)
-                2f2 = S (up-left)
-                2f3 = S (up-right)
-                311 = S (down-left)
-                310 = S (down-right)
-                2f4 = T (up-left)
-                2f5 = T (up-right)
-                2b7 = E (up-left) (not 2bc,maybe because the up-left corner of E is equal of B?)
-                2bd = E (up-right)
-                */
-					internal_counter++;
-					if(char_offset == 0)
-					{
-						if(internal_counter > ((8*0x234)-1))
-						{
-							internal_counter = 0;
-							char_offset = 1;
-						}
-
-						return 0;
-					}
-					else
-					{
-						if(internal_counter > 8)
-						{
-							if(internal_counter > 15)
-							{
-								ctrl_index-=8;
-								internal_counter = 0;
-							}
-
-							ctrl_index++;
-							return ROM[ctrl_index];
-						}
-						else
-						{
-							ctrl_index++;
-							return ROM[ctrl_index];
-						}
-					}
 				case 0x2c5b0000://sss
 				case 0x47f10000:
 				case 0xfcda0000:
@@ -2334,11 +2262,6 @@ static WRITE32_HANDLER ( a_bus_ctrl_w )
 	{
 		switch(a_bus[3])
 		{
-			/*astrass,I need an original test mode screen to compare...*/
-			case 0x01230000:
-			char_offset = 0;
-			internal_counter = 0;
-			ctrl_index = ((0x400000)/4)-1; break;
 			/*sss,TRUSTED*/
 			case 0x2c5b0000: ctrl_index = (0x145ffac/4)-1; break;
 			/*sss,might be offset...*/
@@ -3276,11 +3199,10 @@ Update:Issue fixed,see stvhacks.c for more details (TODO: Clean-up that)
 ROM_START( astrass )
 	STV_BIOS
 
-	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
-	ROM_LOAD( "epr20825.13",                0x0000000, 0x0100000, CRC(94a9ad8f) SHA1(861311c14cfa9f560752aa5b023c147a539cf135) ) // ic13 bad?! (was .24)
-	ROM_RELOAD ( 0x0100000, 0x0100000 )
-	ROM_RELOAD ( 0x0200000, 0x0100000 )
-	ROM_RELOAD ( 0x0300000, 0x0100000 )
+	ROM_REGION32_BE( 0x3000000, REGION_USER1, ROMREGION_ERASE00 ) /* SH2 code */
+	ROM_LOAD16_BYTE( "epr20825.13",        0x0000001, 0x0100000, CRC(94a9ad8f) SHA1(861311c14cfa9f560752aa5b023c147a539cf135) )
+	ROM_LOAD( "epr20825.13",               0x0200000, 0x0100000, CRC(94a9ad8f) SHA1(861311c14cfa9f560752aa5b023c147a539cf135) )
+	ROM_RELOAD(                            0x0300000, 0x0100000 )
 	ROM_LOAD16_WORD_SWAP( "mpr20827.2",     0x0400000, 0x0400000, CRC(65cabbb3) SHA1(5e7cb090101dc42207a4084465e419f4311b6baf) ) // good (was .12)
 	ROM_LOAD16_WORD_SWAP( "mpr20828.3",     0x0800000, 0x0400000, CRC(3934d44a) SHA1(969406b8bfac43b30f4d732702ca8cffeeefffb9) ) // good (was .13)
 	ROM_LOAD16_WORD_SWAP( "mpr20829.4",     0x0c00000, 0x0400000, CRC(814308c3) SHA1(45c3f551690224c95acd156ae8f8397667927a04) ) // good (was .14)
@@ -4261,7 +4183,7 @@ Others may exist as well...
 */
 
 GAMEB( 1996, stvbios,   0,       stvbios, stv, stv,  stv,       ROT0,   "Sega",                      "ST-V BIOS", NOT_A_DRIVER )
-GAMEB( 1998, astrass,   stvbios, stvbios, stv, stv,  astrass,   ROT0,   "Sunsoft",    				  "Astra SuperStars (J 980514 V1.002)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING) // wrong background
+GAMEB( 1998, astrass,   stvbios, stvbios, stv, stv6b, astrass,   ROT0,   "Sunsoft",    				  "Astra SuperStars (J 980514 V1.002)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1995, bakubaku,  stvbios, stvbios, stv, stv,  bakubaku,  ROT0,   "Sega",     				  "Baku Baku Animal (J 950407 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, batmanfr,  stvbios, stvbios, batmanfr, batmanfr,  batmanfr,  ROT0,   "Acclaim",    				  "Batman Forever (JUE 960507 V1.000)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1996, colmns97,  stvbios, stvbios, stv, stv,  colmns97,  ROT0,   "Sega", 	 				  "Columns '97 (JET 961209 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // graphics issues

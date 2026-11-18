@@ -688,13 +688,15 @@ static READ32_HANDLER( astrass_speedup_r )
 	return stv_workram_h[0x8e4d8/4];
 }
 
+static void install_stv_5881(UINT32 game_key);
+
 DRIVER_INIT( astrass )
 {
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x6000770, 0x6000773, 0, 0, astrass_hack_r );
 
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x0608e4d8, 0x0608e4db, 0, 0, astrass_speedup_r );
-
-	init_ic13();
+	init_stv();
+	install_stv_5881(0x052e2901);
 }
 
 /* Treasure Hunt idle loop skipping */
