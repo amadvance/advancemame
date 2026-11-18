@@ -7979,19 +7979,18 @@ ROM_END
 
 ROM_START( blueandr )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )
-	ROM_LOAD16_WORD_SWAP( "519.p1", 0x000000, 0x100000, CRC(6e4f71aa) SHA1(04f6be53c276fbdd98ddb2831e508314dd57bfdd) )
+	ROM_LOAD16_WORD_SWAP( "519.p1", 0x000000, 0x100000, CRC(39755597) SHA1(12cefd1e68560ea096bcd826e7fa558475dad13c) )
 
 	NEO_SFIX_128K( "519.s1", CRC(0d0067f5) SHA1(ed77445e94d58ed83b27480c5e939ca2c0b6a90c) )
 
-	NEO_BIOS_SOUND_256K( "519.m1", CRC(19f32974) SHA1(4c0c11ee493f8cc12f95ac4de312544f23faf762) )
+	NEO_BIOS_SOUND_256K( "519.m1", CRC(170e7948) SHA1(824e83b15adc26be346235f29848ac7582c9bd1f) )
 
 	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
-	ROM_LOAD( "519.v1", 0x000000, 0x040000, CRC(7d5535dd) SHA1(96180a18b3fecfc9583a7ae36bd1aa47eafad07e) )
-	ROM_LOAD( "519.v2", 0x040000, 0xb80000, CRC(d52a3036) SHA1(0e9d6ffd643b499d55201543b35af3762a88aba2) )
+	ROM_LOAD( "519.v1", 0x000000, 0xb80000, CRC(4aa33827) SHA1(2935649e4e87f6f66b8d13802ad5ea751c58ce8b) )
 
 	ROM_REGION( 0x100000, REGION_GFX3, 0 )
-	ROM_LOAD16_BYTE( "519.c1", 0x000000, 0x40000, CRC(79b934a5) SHA1(b2b063b97a791a9ef88530c9e8c3a2530fc53ce6) )
-	ROM_LOAD16_BYTE( "519.c2", 0x000001, 0x40000, CRC(47647e8d) SHA1(f64dce9049813626abc98d999eb48aa099dba3f8) )
+	ROM_LOAD16_BYTE( "519.c1", 0x000000, 0x40000, CRC(c4dada7c) SHA1(6e45be91a9e24dc7153b1052522b243be817d3b8) )
+	ROM_LOAD16_BYTE( "519.c2", 0x000001, 0x40000, CRC(76edd8a9) SHA1(3bf89afdabd3fabbca240548f150b37d60f19cc3) )
 ROM_END
 
 ROM_START( mslug5ast )
@@ -9032,7 +9031,7 @@ GAMEB( 2023, yoyoshkn,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "D
 GAMEB( 2021, abyssal,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kako Eimon", "Abyssal Infants", 0 )
 GAMEB( 2021, neo2048,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Nicole Branagan", "Neo 2048", 0 )
 GAMEB( 2026, violentv,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Balek Corp", "Violent Vengeance: the universe hero (beta 3.28, 2026-02-01)", 0 )
-GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.6", 0 )
+GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.7", 0 )
 GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
 
 GAMEB( 2026, fixfelng, 0, neogeo, neogeo_full, neogeo, neogeo, ROT270, "Zanac", "Fix-It Felix Jr. (Neo Geo)", 0 )
