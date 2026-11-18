@@ -8112,7 +8112,13 @@ Other Sun games
 	DRIVER( laserbas )	/* (c) 1981 Amstar/HOEI */
 	DRIVER( laserbsa )	/* (c) 1981 Amstar/HOEI */
 	DRIVER( futflash )	/* (c) 1980 Hoei */
-	DRIVER( turbosub )	/* (c) 1986 Entertainment Sciences */
+	DRIVER( turbosub )
+	DRIVER( turbosubc5 )
+	DRIVER( turbosubc5s )
+	DRIVER( turbosubc6 )
+	DRIVER( turbosubc7 )
+	DRIVER( turbosubc8 )
+	DRIVER( turbosubb8 )
 	DRIVER( pipeline )	/* (c) 1990 Daehyun Electronics */
 	DRIVER( ttchamp )
 	DRIVER( ttchampa )

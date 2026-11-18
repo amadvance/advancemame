@@ -104,6 +104,7 @@ void tms32026_get_info(UINT32 state, union cpuinfo *info);
 void tms32031_get_info(UINT32 state, union cpuinfo *info);
 void tms32032_get_info(UINT32 state, union cpuinfo *info);
 void tms32051_get_info(UINT32 state, union cpuinfo *info);
+void esrip_get_info(UINT32 state, union cpuinfo *info);
 void ccpu_get_info(UINT32 state, union cpuinfo *info);
 void adsp2100_get_info(UINT32 state, union cpuinfo *info);
 void adsp2101_get_info(UINT32 state, union cpuinfo *info);
@@ -518,6 +519,9 @@ static const struct
 #endif
 #if (HAS_TMS32051)
 	{ CPU_TMS32051, tms32051_get_info },
+#endif
+#if (HAS_ESRIP)
+	{ CPU_ESRIP, esrip_get_info },
 #endif
 #if (HAS_CCPU)
 	{ CPU_CCPU, ccpu_get_info },

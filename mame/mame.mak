@@ -118,6 +118,7 @@ CPUS += TMS32026
 CPUS += TMS32031
 CPUS += TMS32051
 CPUS += CCPU
+CPUS += ESRIP
 CPUS += ADSP2100
 CPUS += ADSP2101
 CPUS += ADSP2104
@@ -1573,6 +1574,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/epos.o $(OBJ)/vidhrdw/epos.o \
 	$(OBJ)/drivers/ertictac.o \
 	$(OBJ)/drivers/esd16.o $(OBJ)/vidhrdw/esd16.o \
+	$(OBJ)/drivers/esripsys.o $(OBJ)/vidhrdw/esripsys.o \
 	$(OBJ)/drivers/ettrivia.o \
 	$(OBJ)/drivers/flipjack.o \
 	$(OBJ)/drivers/flower.o $(OBJ)/sndhrdw/flower.o $(OBJ)/vidhrdw/flower.o \
@@ -1645,7 +1647,6 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/trvquest.o \
 	$(OBJ)/drivers/ttchamp.o \
 	$(OBJ)/drivers/tugboat.o \
-	$(OBJ)/drivers/turbosub.o \
 	$(OBJ)/drivers/usgames.o $(OBJ)/vidhrdw/usgames.o \
 	$(OBJ)/drivers/vamphalf.o \
 	$(OBJ)/drivers/vp906iii.o \

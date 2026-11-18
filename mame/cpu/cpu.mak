@@ -175,6 +175,18 @@ endif
 
 
 #-------------------------------------------------
+# Entertainment Sciences Real-Time Image Processor
+#-------------------------------------------------
+
+$(1)CPUDEFS += -DHAS_ESRIP=$$(if $$(filter ESRIP,$$($(1)CPUS)),1,0)
+
+ifneq ($$(filter ESRIP,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/esrip
+$(1)CPUOBJS += $(2)/cpu/esrip/esrip.o
+endif
+
+
+#-------------------------------------------------
 # DEC T-11
 #-------------------------------------------------
 
