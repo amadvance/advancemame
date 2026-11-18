@@ -1590,6 +1590,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/hexa.o $(OBJ)/vidhrdw/hexa.o \
 	$(OBJ)/drivers/homedata.o $(OBJ)/vidhrdw/homedata.o \
 	$(OBJ)/drivers/hotblock.o \
+	$(OBJ)/drivers/imolagp.o \
 	$(OBJ)/drivers/intrscti.o \
 	$(OBJ)/drivers/jackpool.o \
 	$(OBJ)/drivers/kyugo.o $(OBJ)/vidhrdw/kyugo.o \

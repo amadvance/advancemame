@@ -7885,6 +7885,8 @@ Other Sun games
 	DRIVER( sextriv2 )	/* (c) 1985 Kinky Kit and Game Co. */
 	DRIVER( dribling )	/* (c) 1983 Model Racing */
 	DRIVER( driblino )	/* (c) 1983 Olympia */
+	DRIVER( imolagp )
+	DRIVER( imolagpo )
 	DRIVER( ace )		/* [1976 Allied Leisure] */
 	DRIVER( clayshoo )	/* [1979 Allied Leisure] */
 	DRIVER( pirates )	/* (c) 1994 NIX */
