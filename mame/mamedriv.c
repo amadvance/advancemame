@@ -3215,6 +3215,11 @@ V-V                           TP-027
 	/* Konami GQ */
 	DRIVER( cryptklr )	/* Crypt Killer (GQ420 UAA) */
 
+	/* Konami GSAN1 */
+	DRIVER( ddrkids )
+	DRIVER( musclhit )
+	DRIVER( runpuppy )
+
 	/* Konami GV */
 	DRIVER( konamigv )
 	DRIVER( powyak96 )	/* GV017, Japan 1.03 */

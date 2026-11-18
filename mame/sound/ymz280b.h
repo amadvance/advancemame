@@ -18,6 +18,9 @@ struct YMZ280Binterface
 	write8_handler ext_write;		/* external RAM write */
 };
 
+/* Call at machine start with both external handlers and a power-of-two RAM size. */
+void ymz280b_enable_sample_ram(int chipnum, UINT32 size);
+
 READ8_HANDLER ( YMZ280B_status_0_r );
 WRITE8_HANDLER( YMZ280B_register_0_w );
 READ8_HANDLER( YMZ280B_data_0_r );

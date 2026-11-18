@@ -899,6 +899,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/jailbrek.o $(OBJ)/vidhrdw/jailbrek.o \
 	$(OBJ)/drivers/junofrst.o \
 	$(OBJ)/drivers/konamigq.o \
+	$(OBJ)/drivers/konamigs.o \
 	$(OBJ)/drivers/konamigv.o \
 	$(OBJ)/drivers/konamigx.o $(OBJ)/machine/konamigx.o $(OBJ)/vidhrdw/konamigx.o \
 	$(OBJ)/drivers/konamim2.o \
