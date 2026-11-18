@@ -257,54 +257,60 @@ static void tx1_draw_char(UINT8 *bitmap)
 	pix[NUM][3][0] = prom_a[0];			pix[NUM][3][1] = prom_b[0];			pix[NUM][3][2] = prom_c[0]; \
 }
 
-INLINE void tx1_draw_road_pixel(int screen, UINT8 *bmpaddr,
-								UINT8 apix[3], UINT8 bpix[3], UINT32 pixnuma, UINT32 pixnumb,
-								UINT8 stl, UINT8 sld, UINT8 selb,
-								UINT8 bnk, UINT8 rorev, UINT8 eb, UINT8 r, UINT8 delr)
+/* Cache the road color and select equations for all pixel and scanline
+   inputs. Only the road color register can invalidate the table. */
+static UINT8 tx1_road_lut[64 * 4 * 64];
+static UINT16 tx1_road_lut_scol;
+static int tx1_road_lut_valid;
+
+static void tx1_build_road_lut(void)
 {
-	UINT8 a0 = BIT(apix[0], pixnuma);
-	UINT8 a1 = BIT(apix[1], pixnuma);
-	UINT8 a2 = BIT(apix[2], pixnuma);
+	UINT32 key, bk, ab;
 
-	UINT8 b0 = BIT(bpix[0], pixnumb);
-	UINT8 b1 = BIT(bpix[1], pixnumb);
-	UINT8 b2 = BIT(bpix[2], pixnumb);
-
-	UINT8 d3;
-	UINT8 d2;
-	UINT8 d1;
-	UINT8 d0;
-	UINT8 sel;
-	UINT8 c6 = BIT(sld, 6);
-	UINT8 c5 = BIT(sld, 5);
-	UINT8 c4 = BIT(sld, 4);
-	UINT8 c3 = BIT(sld, 2);
-
-	UINT32 addr_offset = screen * 256;
-
-	sel = !bnk && ( (a2 && !b0) || (!a0 && b2) || !a1 || !a2 || !b1 || !b2 );
-
-	d3 =
-		(a2 && a1 && a0 && b2 && b1 && b0 && !rorev)
-		|| (a1 && b1 && !b0 && stl && !bnk && !c6)
-		|| (a1 && !a0 && b1 && stl && !bnk && !c6)
-		|| (a1 && !b2 && b1 && stl && !bnk && !c6)
-		|| (a2 && b2 && !b1 && stl && !bnk && !c4)
-		|| (a2 && !a1 && b2 && stl && !bnk && !c4)
-		|| (!a2 && a1 && b2 && stl && !bnk && !c6)
-		|| (a2 && !b2 && b1 && stl && !bnk && !c6)
-		|| (!a2 && !a1 && stl && !bnk && !c5)
-		|| (!b2 && !b1 && stl && !bnk && !c5)
-		|| (!b0 && !stl && !bnk && !c3)
-		|| (!b1 && !stl && !bnk && !c3)
-		|| (!a0 && !stl && !bnk && !c3)
-		|| (!a1 && !stl && !bnk && !c3)
-		|| (!a2 && !stl && !bnk && !c3)
-		|| (!b2 && !stl && !bnk && !c3)
-		|| (bnk && !rorev);
-
-	if (eb == 0)
+	for (key = 0; key < 64; key++)
+	for (bk = 0; bk < 4; bk++)
+	for (ab = 0; ab < 64; ab++)
 	{
+		UINT8 stl = BIT(key, 0);
+		UINT8 selb = BIT(key, 1);
+		UINT8 c3 = BIT(key, 2);
+		UINT8 c4 = BIT(key, 3);
+		UINT8 c5 = BIT(key, 4);
+		UINT8 c6 = BIT(key, 5);
+		UINT8 bnk = BIT(bk, 1);
+		UINT8 rorev = BIT(bk, 0);
+
+		UINT8 a0 = BIT(ab, 0);
+		UINT8 a1 = BIT(ab, 1);
+		UINT8 a2 = BIT(ab, 2);
+		UINT8 b0 = BIT(ab, 3);
+		UINT8 b1 = BIT(ab, 4);
+		UINT8 b2 = BIT(ab, 5);
+
+		UINT8 d3, d2, d1, d0, sel;
+
+		sel = !bnk && ( (a2 && !b0) || (!a0 && b2) || !a1 || !a2 || !b1 || !b2 );
+
+		d3 =
+			(a2 && a1 && a0 && b2 && b1 && b0 && !rorev)
+			|| (a1 && b1 && !b0 && stl && !bnk && !c6)
+			|| (a1 && !a0 && b1 && stl && !bnk && !c6)
+			|| (a1 && !b2 && b1 && stl && !bnk && !c6)
+			|| (a2 && b2 && !b1 && stl && !bnk && !c4)
+			|| (a2 && !a1 && b2 && stl && !bnk && !c4)
+			|| (!a2 && a1 && b2 && stl && !bnk && !c6)
+			|| (a2 && !b2 && b1 && stl && !bnk && !c6)
+			|| (!a2 && !a1 && stl && !bnk && !c5)
+			|| (!b2 && !b1 && stl && !bnk && !c5)
+			|| (!b0 && !stl && !bnk && !c3)
+			|| (!b1 && !stl && !bnk && !c3)
+			|| (!a0 && !stl && !bnk && !c3)
+			|| (!a1 && !stl && !bnk && !c3)
+			|| (!a2 && !stl && !bnk && !c3)
+			|| (!b2 && !stl && !bnk && !c3)
+			|| (bnk && !rorev);
+
+		/* eb == 0 */
 		if (sel == 1)
 		{
 			d2 = stl && (!a2 || !b2);
@@ -327,11 +333,24 @@ INLINE void tx1_draw_road_pixel(int screen, UINT8 *bmpaddr,
 			d1 = BIT(tx1_vregs.scol, selb ? 1 : 9);
 			d0 = BIT(tx1_vregs.scol, selb ? 0 : 8);
 		}
-	}
-	else
-		d2 = d1 = d0 = 0;
 
-	*(bmpaddr + addr_offset) = (bnk << 6) | (r << 5) | (!(sel && delr) << 4 ) | (d3 << 3) | (d2 << 2) | (d1 << 1) | d0;
+		tx1_road_lut[(key * 4 + bk) * 64 + ab] = (sel << 4) | (d3 << 3) | (d2 << 2) | (d1 << 1) | d0;
+	}
+
+	tx1_road_lut_scol = tx1_vregs.scol;
+	tx1_road_lut_valid = 1;
+}
+
+INLINE void tx1_draw_road_pixel(UINT8 *dst, const UINT8 *line_lut,
+									const UINT8 *apix, const UINT8 *bpix, UINT32 pixnuma, UINT32 pixnumb,
+									UINT32 bnk, UINT32 rorev, UINT32 eb, UINT32 r, UINT32 delr)
+{
+	UINT32 ab = BIT(apix[0], pixnuma) | (BIT(apix[1], pixnuma) << 1) | (BIT(apix[2], pixnuma) << 2)
+	          | (BIT(bpix[0], pixnumb) << 3) | (BIT(bpix[1], pixnumb) << 4) | (BIT(bpix[2], pixnumb) << 5);
+	UINT32 e = line_lut[((bnk << 1) | rorev) * 64 + ab];
+	UINT32 sel = BIT(e, 4);
+
+	*dst = (bnk << 6) | (r << 5) | (!(sel && delr) << 4 ) | (e & 8) | (eb ? 0 : (e & 7));
 }
 
 static void tx1_draw_road(UINT8 *bitmap)
@@ -350,6 +369,7 @@ static void tx1_draw_road(UINT8 *bitmap)
 	UINT16	road1_hcnt;
 	UINT8	road1_pcnt;
 	UINT8	pix[2][4][3];
+	const UINT8 *line_lut;
 
 	const UINT8 *const gfx3 = memory_region(REGION_GFX4);
 	const UINT8 *const rom_a = gfx3;
@@ -367,6 +387,9 @@ static void tx1_draw_road(UINT8 *bitmap)
 	tnlf	= BIT(tx1_vregs.flags, TX1_RDFLAG_TNLF);
 	scchgf	= BIT(tx1_vregs.flags, TX1_RDFLAG_SCCHGF);
 	stlf	= BIT(tx1_vregs.flags, TX1_RDFLAG_STLF);
+
+	if (!tx1_road_lut_valid || tx1_road_lut_scol != tx1_vregs.scol)
+		tx1_build_road_lut();
 
 	for (y = 0; y < 240; ++y)
 	{
@@ -514,6 +537,9 @@ static void tx1_draw_road(UINT8 *bitmap)
 
 		stl = !stlf || v0 || (!v2 && !scchgf) || scchgf;
 		selb = (!v2 && !scchgf) || v2;
+
+		line_lut = &tx1_road_lut[(stl | (selb << 1) | (BIT(sld, 2) << 2) | (BIT(sld, 4) << 3)
+		                         | (BIT(sld, 5) << 4) | (BIT(sld, 6) << 5)) * 4 * 64];
 
 		rltmp =
 		(v2 && !v0 && !va10)
@@ -684,10 +710,10 @@ static void tx1_draw_road(UINT8 *bitmap)
 				else
 					b = 3;
 
-				tx1_draw_road_pixel(0, bmpaddr,
+				tx1_draw_road_pixel(bmpaddr, line_lut,
 						 &pix[0][a][0], &pix[1][b][0],
 						 pixnum0, pixnum1,
-						 stl, sld, selb, bnkls, rorevls, ebls, rl, delrl);
+						 bnkls, rorevls, ebls, rl, delrl);
 			}
 			else
 				*(bmpaddr) = (bnkls << 6) | (rl << 5);
@@ -706,10 +732,10 @@ static void tx1_draw_road(UINT8 *bitmap)
 				else
 					b = 3;
 
-				tx1_draw_road_pixel(1, bmpaddr,
+				tx1_draw_road_pixel(bmpaddr + 256, line_lut,
 						 &pix[0][a][0], &pix[1][b][0],
 						 pixnum0, pixnum1,
-						 stl, sld, selb, bnkcs, rorevcs, ebcs, rc, delrc);
+						 bnkcs, rorevcs, ebcs, rc, delrc);
 			}
 			else
 				*(bmpaddr + 256) = (bnkcs << 6) | (rc << 5);
@@ -728,10 +754,10 @@ static void tx1_draw_road(UINT8 *bitmap)
 				else
 					b = 3;
 
-				tx1_draw_road_pixel(2, bmpaddr,
+				tx1_draw_road_pixel(bmpaddr + 512, line_lut,
 						 &pix[0][a][0], &pix[1][b][0],
 						 pixnum0, pixnum1,
-						 stl, sld, selb, bnkrs, rorevrs, ebrs, rr, delrr);
+						 bnkrs, rorevrs, ebrs, rr, delrr);
 			}
 			else
 				*(bmpaddr + 512) = (bnkrs << 6) | (rr << 5);
@@ -972,11 +998,47 @@ static void tx1_draw_objects(UINT8 *bitmap)
 	}
 }
 
+/* The mixer depends on six priority bits and the character color PROM. */
+static UINT8 tx1_sel_lut[64];		/* sel in bits 0-1, psel in bits 2-3 */
+static UINT8 tx1_chr_lut[256];		/* the color of a character pixel */
+
+static void tx1_build_luts(void)
+{
+	UINT8 const *const chr_pal = memory_region(REGION_PROMS) + 0x900;
+	int i;
+
+	for (i = 0; i < 64; i++)
+	{
+		UINT32 c7 = BIT(i, 5);
+		UINT32 c1 = BIT(i, 4);
+		UINT32 c0 = BIT(i, 3);
+		UINT32 r6 = BIT(i, 2);
+		UINT32 r5 = BIT(i, 1);
+		UINT32 obj6 = BIT(i, 0);
+
+		UINT32 term1 = !(c7 && c1);
+		UINT32 term2 = !(c7 && c0);
+		UINT32 term3 = r5 || !r6;
+		UINT32 p12 = !(term1 && term2 && term3);
+		UINT32 p6 = !(obj6 && term1 && term2);
+		UINT32 sel =  p12 | (p6 << 1);
+
+		UINT32 psel =  (!(p6 && p12) << 1) | p6;
+
+		tx1_sel_lut[i] = sel | (psel << 2);
+	}
+
+	for (i = 0; i < 256; i++)
+		tx1_chr_lut[i] = ((i & 0xc0) >> 2) | (chr_pal[i] & 0xf);
+}
+
 VIDEO_START( tx1 )
 {
 	tx1_chr_bmp = auto_malloc(sizeof(UINT8) * 256 * 3 * 240);
 	tx1_obj_bmp = auto_malloc(sizeof(UINT8) * 256 * 3 * 240);
 	tx1_rod_bmp = auto_malloc(sizeof(UINT8) * 256 * 3 * 240);
+
+	tx1_build_luts();
 
 	interrupt_timer = timer_alloc(interrupt_callback);
 
@@ -991,50 +1053,34 @@ VIDEO_EOF( tx1 )
 
 static void tx1_combine_layers(mame_bitmap *bitmap, int screen)
 {
-	int x, y;
-	UINT8 *chr_pal = memory_region(REGION_PROMS) + 0x900;
-
 	int x_offset = screen * 256;
+	int x, y;
 
 	for (y = 0; y < 240; ++y)
 	{
-		UINT16 *bmp_addr = ((UINT16 *)bitmap->line[y]) + x_offset;
+		UINT16 *bmp_addr = (UINT16 *)bitmap->line[y] + x_offset;
 
 		UINT32 bmp_offset = y * 768 + x_offset;
 
-		UINT8 *chr_addr = tx1_chr_bmp + bmp_offset;
-		UINT8 *rod_addr = tx1_rod_bmp + bmp_offset;
-		UINT8 *obj_addr = tx1_obj_bmp + bmp_offset;
+		const UINT8 *chr_addr = tx1_chr_bmp + bmp_offset;
+		const UINT8 *rod_addr = tx1_rod_bmp + bmp_offset;
+		const UINT8 *obj_addr = tx1_obj_bmp + bmp_offset;
 
 		for (x = 0; x < 256; ++x)
 		{
-			UINT8 out_val;
+			UINT32 out_val;
 			UINT32 char_val = chr_addr[x];
-			UINT32 c7 = BIT(char_val, 7);
-			UINT32 c1 = BIT(char_val, 1);
-			UINT32 c0 = BIT(char_val, 0);
-
 			UINT32 road_val = rod_addr[x];
-			UINT32 r6 = BIT(road_val, 6);
-			UINT32 r5 = BIT(road_val, 5);
-
 			UINT32 obj_val = obj_addr[x];
-			UINT32 obj6 = BIT(obj_val, 6);
+			UINT32 sp = tx1_sel_lut[((char_val >> 2) & 0x20) | ((char_val << 3) & 0x18)
+			                        | ((road_val >> 4) & 0x06) | ((obj_val >> 6) & 0x01)];
+			UINT32 sel = sp & 3;
 
-			UINT32 term1 = !(c7 && c1);
-			UINT32 term2 = !(c7 && c0);
-			UINT32 term3 = r5 || !r6;
-			UINT32 p12 = !(term1 && term2 && term3);
-			UINT32 p6 = !(obj6 && term1 && term2);
-			UINT32 sel =  p12 | (p6 << 1);
+			if      (sel == 3)  out_val = tx1_chr_lut[char_val];
+			else if (sel == 2)  out_val = road_val & 0x3f;
+			else                out_val = obj_val & 0x3f;
 
-			UINT32 psel =  (!(p6 && p12) << 1) | p6;
-
-			if		(sel == 3)	out_val = ((char_val & 0xc0) >> 2) | (chr_pal[char_val] & 0xf);
-			else if (sel == 2)	out_val = road_val & 0x3f;
-			else				out_val = obj_val & 0x3f;
-
-			*bmp_addr++ = (psel << 6) | out_val;
+			bmp_addr[x] = ((sp >> 2) << 6) | out_val;
 		}
 	}
 }
