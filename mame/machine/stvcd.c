@@ -719,8 +719,18 @@ static void cd_writeWord(UINT32 addr, UINT16 data)
 			temp = (cr3&0xff)<<16;
 			temp |= cr4;
 			cr2 = 0x4101;	// CTRL/track
-			cr3 = (curdir[temp].firstfad>>16)&0xff;
-			cr4 = (curdir[temp].firstfad&0xffff);
+			/* without a disc there is no current directory: the cartridge games
+			   probe the CD block and must not crash */
+			if (curdir)
+			{
+				cr3 = (curdir[temp].firstfad>>16)&0xff;
+				cr4 = (curdir[temp].firstfad&0xffff);
+			}
+			else
+			{
+				cr3 = 0;
+				cr4 = 0;
+			}
 			break;
 
 		case 0x7200:	// Get file system scope
@@ -742,7 +752,7 @@ static void cd_writeWord(UINT32 addr, UINT16 data)
 			temp = (cr3&0xff)<<16;
 			temp |= cr4;
 
-			if (temp == 0xffffff)	// special
+			if (temp == 0xffffff || !curdir)	// special, or no directory
 			{
 			}
 			else
@@ -781,6 +791,14 @@ static void cd_writeWord(UINT32 addr, UINT16 data)
 			logerror( "CD: Read File (PC=%x)\n",   activecpu_get_pc());
 			temp = (cr3&0xff)<<16;
 			temp |= cr4;
+
+			if (!curdir)
+			{
+				/* no disc, no file system */
+				cd_stat = CD_STAT_PAUSE;
+				hirqreg |= (CMOK|DRDY);
+				break;
+			}
 
 			cd_stat = CD_STAT_PLAY|0x80;	// set "cd-rom" bit
 			cr2 = 0x4101;	// CTRL/track
