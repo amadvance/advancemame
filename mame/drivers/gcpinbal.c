@@ -41,6 +41,7 @@ Stephh's notes (based on the game M68000 code and some tests) :
 /* M6585 */
 
 static int start, end, bank;
+static int adpcm_playing, adpcm_base, adpcm_trigger;
 
 /***********************************************************
                       INTERRUPTS
@@ -54,10 +55,7 @@ void gcpinbal_interrupt1(int x)
 void gcpinbal_interrupt3(int x)
 {
 	// IRQ3 is from the M6585
-//  if (!ADPCM_playing(0))
-	{
-		cpunum_set_input_line(0,3,HOLD_LINE);
-	}
+	cpunum_set_input_line(0,3,HOLD_LINE);
 }
 
 static INTERRUPT_GEN( gcpinbal_interrupt )
@@ -121,6 +119,11 @@ static WRITE16_HANDLER( ioc_w )
 	{
 		// these are all written every frame
 		case 0x3b:
+		case 0x47:
+			/* reset of the ES8712 */
+			adpcm_playing = 0;
+			MSM5205_reset_w(0, 1);
+			break;
 		case 0xa:
 		case 0xc:
 		case 0xb:
@@ -128,19 +131,12 @@ static WRITE16_HANDLER( ioc_w )
 		case 0xe:
 		case 0xf:
 		case 0x10:
-		case 0x47:
 			break;
 
 		// MSM6585 bank, coin LEDs, maybe others?
 		case 0x44:
-			if (data & 0x10)
-			{
-				bank = 0x100000;
-			}
-			else
-			{
-				bank = 0;
-			}
+			bank = (data & 0x10) ? 0x100000 : 0;
+			OKIM6295_set_bank_base(0, (data & 0x20) ? 0x40000 : 0);
 			break;
 
 		case 0x45:
@@ -178,10 +174,21 @@ static WRITE16_HANDLER( ioc_w )
 			end |= (data<<8);
 			break;
 		case 0x66:
+			/* the ES8712 addresses are 20 bit */
+			start &= 0xfffff;
+			end &= 0xfffff;
 			if (start < end)
 			{
-//              ADPCM_stop(0);
-//              ADPCM_play(0, start+bank, end-start);
+				if (!adpcm_playing)
+				{
+					adpcm_playing = 1;
+					MSM5205_reset_w(0, 0);
+					adpcm_base = start;
+				}
+			}
+			else if (adpcm_playing)
+			{
+				adpcm_playing = 0;
 			}
 			break;
 
@@ -368,10 +375,41 @@ static const gfx_decode gfxdecodeinfo[] =
                             (SOUND)
 **************************************************************/
 
+/* the ES8712 feeds the ADPCM nibbles, low nibble first, at each VCK */
+static void gcpinbal_vclk(int num)
+{
+	if (!adpcm_playing)
+		return;
+
+	if (adpcm_base >= 0x100000 || adpcm_base > end)
+	{
+		adpcm_playing = 0;
+		MSM5205_reset_w(0, 1);
+		adpcm_trigger = 0;
+	}
+	else
+	{
+		UINT8 byte = memory_region(REGION_SOUND2)[bank + adpcm_base];
+		MSM5205_data_w(0, adpcm_trigger ? byte >> 4 : byte & 0x0f);
+		adpcm_trigger ^= 1;
+		if (!adpcm_trigger)
+			++adpcm_base;
+	}
+}
+
+static MACHINE_RESET( gcpinbal )
+{
+	/* the MSM6585 is held in reset until the ES8712 starts a sample, otherwise it ramps to full scale */
+	adpcm_playing = 0;
+	adpcm_trigger = 0;
+	bank = 0;
+	MSM5205_reset_w(0, 1);
+}
+
 static struct MSM5205interface msm5205_interface =
 {
-	NULL,				/* VCK function */
-	MSM5205_S48_4B		/* 8 kHz */
+	gcpinbal_vclk,		/* VCK function */
+	MSM5205_S48_4B		/* 16 kHz at 768 kHz */
 };
 
 /***********************************************************
@@ -395,6 +433,8 @@ static MACHINE_DRIVER_START( gcpinbal )
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(4096)
 
+	MDRV_MACHINE_RESET(gcpinbal)
+
 	MDRV_VIDEO_START(gcpinbal)
 	MDRV_VIDEO_UPDATE(gcpinbal)
 
@@ -405,7 +445,7 @@ static MACHINE_DRIVER_START( gcpinbal )
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
 
-	MDRV_SOUND_ADD(MSM5205, 384000)
+	MDRV_SOUND_ADD(MSM5205, 768000)
 	MDRV_SOUND_CONFIG(msm5205_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
@@ -415,6 +455,30 @@ MACHINE_DRIVER_END
 /***************************************************************************
                                   DRIVERS
 ***************************************************************************/
+
+ROM_START( pwrflip )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )     /* 512k for 68000 program */
+	ROM_LOAD16_WORD_SWAP( "p.f_1.33.u43",  0x000000, 0x80000, CRC(d760c987) SHA1(9200604377542193afc866c84733f2d3b5aa1c80) )
+	ROM_FILL            ( 0x80000,  0x080000, 0x0 )
+	ROM_LOAD16_WORD_SWAP( "p.f.u45",       0x100000, 0x80000, CRC(6ad1a457) SHA1(8746c38efa05e3318e9b1a371470d149803fb6bb) )
+	ROM_LOAD16_WORD_SWAP( "p.f.u46",       0x180000, 0x80000, CRC(e0f3a1b4) SHA1(761dddf374a92c1a1e4a211ead215d5be461a082) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "u1",      0x000000, 0x100000, CRC(afa459bb) SHA1(7a7c64bcb80d71b8cf3fdd3209ef109997b6417c) )	/* BG0 (16 x 16) */
+	ROM_LOAD( "u6",      0x100000, 0x100000, CRC(c3f024e5) SHA1(d197e2b715b154fc64ff9a61f8c6df111d6fd446) )
+
+	ROM_REGION( 0x020000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "p.f.u10", 0x000000, 0x020000, CRC(50e34549) SHA1(ca1808513ff3feb8bcd34d9aafd7b374e4244732) )	/* FG0 (8 x 8) */
+
+	ROM_REGION( 0x200000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "u13",     0x000000, 0x200000, CRC(62f3952f) SHA1(7dc9ccb753d46b6aaa791bcbf6e18e6d872f6b79) )	/* Sprites (16 x 16) */
+
+	ROM_REGION( 0x080000, REGION_SOUND1, 0 )	/* M6295 acc to Raine */
+	ROM_LOAD( "u55",   0x000000, 0x080000, CRC(b3063351) SHA1(825e63e8a824d67d235178897528e5b0b41e4485) )
+
+	ROM_REGION( 0x200000, REGION_SOUND2, 0 )	/* M6585 acc to Raine */
+	ROM_LOAD( "u56",   0x000000, 0x200000, CRC(092b2c0f) SHA1(2ec1904e473ddddb50dbeaa0b561642064d45336) )
+ROM_END
 
 ROM_START( gcpinbal )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )     /* 512k for 68000 program */
@@ -442,4 +506,5 @@ ROM_END
 
 
 
-GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_NO_SOUND | GAME_NO_COCKTAIL) // almost no sound
+GAME( 1994, pwrflip,  0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Power Flipper Pinball Shooting (v1.33)", GAME_NO_COCKTAIL)
+GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_NO_COCKTAIL)

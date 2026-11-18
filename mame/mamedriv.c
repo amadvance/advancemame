@@ -7829,6 +7829,7 @@ Other Sun games
 	DRIVER( buggyboyjr )	/* (c) 1986 Tatsumi */
 	DRIVER( sprcros2 )	/* (c) 1986 GM Shoji */
 	DRIVER( sprcrs2a )	/* (c) 1986 GM Shoji */
+	DRIVER( pwrflip )	/* (c) 1994 Excellent System */
 	DRIVER( gcpinbal )	/* (c) 1994 Excellent System */
 	DRIVER( vmetal )	/* (c) 1995 Excellent System? */
 	DRIVER( vmetaln )	/* (c) 1995 Excellent System? */
