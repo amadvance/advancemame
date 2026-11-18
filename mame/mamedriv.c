@@ -827,7 +827,7 @@ const game_driver * const drivers[] =
 
 	/* Namco System 21 games */
 	DRIVER( winrun )
-				/* 1989, Winning Run Suzuka Grand Prix */
+	DRIVER( winrungp )
 	DRIVER( winrun91 )
 	DRIVER( solvalou )	/* (c) 1991 (Japan) */
 	DRIVER( starblad )	/* (c) 1991 */

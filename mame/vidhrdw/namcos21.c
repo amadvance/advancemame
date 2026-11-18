@@ -43,7 +43,6 @@ READ16_HANDLER(winrun_gpu_register_r)
 WRITE16_HANDLER(winrun_gpu_register_w)
 {
 	COMBINE_DATA( &winrun_gpu_register[offset] );
-	force_partial_update(cpu_getscanline());
 }
 
 WRITE16_HANDLER( winrun_gpu_videoram_w)
