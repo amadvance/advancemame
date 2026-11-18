@@ -4189,6 +4189,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tantrbl )	/* bootleg */
 	DRIVER( tantrbl2 )	/* bootleg */
 	DRIVER( wwpajero )
+	DRIVER( sonicfgt )
 	DRIVER( puyo )		/* (c) 1992 Sega / Compile */
 	DRIVER( puyobl )	/* bootleg */
 	DRIVER( puyoj )		/* (c) 1992 Sega / Compile */
