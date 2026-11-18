@@ -1249,6 +1249,7 @@ static void install_stv_5881(UINT32 game_key)
 DRIVER_INIT(ffreveng)
 {
 	init_stv();
+	minit_boost_timeslice = sinit_boost_timeslice = TIME_IN_USEC(2);
 	install_stv_5881(0x0524ac01);
 }
 
