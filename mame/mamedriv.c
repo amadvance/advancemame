@@ -7889,6 +7889,7 @@ Other Sun games
 	DRIVER( hamboy )
 	DRIVER( dynabomb )
 	DRIVER( legendoh )
+	DRIVER( sb2003 )
 	DRIVER( hotbody )
 	DRIVER( galgame )
 	DRIVER( flipjack )

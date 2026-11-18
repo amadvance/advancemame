@@ -460,6 +460,27 @@ ROM_START(legendoh)
 	ROM_LOAD("qs1003.u4",  0x200000, 0x200000, CRC(19e4b469) SHA1(9460e5b6a0fbf3fdd6a9fa0dcbf5062a2e07fe02))
 ROM_END
 
+ROM_START(sb2003)
+	ROM_REGION32_BE(0x200000, REGION_USER1, 0)
+	ROM_LOAD16_WORD_SWAP("sb2003_05.u6", 0x00000000, 0x200000, CRC(8aec4554) SHA1(57a12b142eb7bf08dd1e78d3c79222001bbaa636))
+
+	ROM_REGION32_BE(0x400000, REGION_USER2, ROMREGION_ERASEFF)
+
+	ROM_REGION(0x80000, REGION_CPU2, 0)
+	ROM_LOAD("07.u16", 0x00000, 0x20000, CRC(78acc607) SHA1(30a1aed40d45233dce88c6114989c71aa0f99ff7))
+	ROM_FILL(          0x20000, 0x60000, 0xff)
+
+	ROM_REGION(0x800000, REGION_GFX1, 0)
+	ROM_LOAD32_BYTE("01.u1", 0x000000, 0x200000, CRC(d2c7091a) SHA1(deff050eb0aee89f60d5ad13053e4f1bd4d35961))
+	ROM_LOAD32_BYTE("02.u2", 0x000001, 0x200000, CRC(a0734195) SHA1(8947f351434e2f750c4bdf936238815baaeb8402))
+	ROM_LOAD32_BYTE("03.u3", 0x000002, 0x200000, CRC(0f020280) SHA1(2c10baec8dbb201ee5e1c4c9d6b962e2ed02df7d))
+	ROM_LOAD32_BYTE("04.u4", 0x000003, 0x200000, CRC(fc2222b9) SHA1(c7ee8cffbbee1673a9f107f3f163d029c3900230))
+
+	ROM_REGION(0x1000000, REGION_SOUND2, 0)
+	ROM_LOAD("06.u18",    0x000000, 0x200000, CRC(b6ad0d32) SHA1(33e73963ea25e131801dc11f25be6ab18bef03ed))
+	ROM_LOAD("qs1003.u4", 0x200000, 0x200000, CRC(19e4b469) SHA1(9460e5b6a0fbf3fdd6a9fa0dcbf5062a2e07fe02))
+ROM_END
+
 static READ32_HANDLER( dynabomb_speedup_r )
 {
 	if (activecpu_get_pc() == 0xc25b8)
@@ -472,6 +493,12 @@ static READ32_HANDLER( legendoh_speedup_r )
 		activecpu_adjust_icount(-50);
 	return mainram[0x32ab0 / 4];
 }
+static READ32_HANDLER( sb2003_speedup_r )
+{
+	if (activecpu_get_pc() == 0x26da4)
+		activecpu_adjust_icount(-50);
+	return mainram[0x135800 / 4];
+}
 static DRIVER_INIT( dynabomb )
 {
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0xe2784, 0xe2787, 0, 0, dynabomb_speedup_r);
@@ -481,5 +508,11 @@ static DRIVER_INIT( legendoh )
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x32ab0, 0x32ab3, 0, 0, legendoh_speedup_r);
 }
 
+static DRIVER_INIT( sb2003 )
+{
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x135800, 0x135803, 0, 0, sb2003_speedup_r);
+}
+
 GAME( 2000, dynabomb, 0, limenko, sb2003, dynabomb, ROT0, "Limenko", "Dynamite Bomber (Korea, Rev 1.5)", 0 )
 GAME( 2000, legendoh, 0, limenko, legendoh, legendoh, ROT0, "Limenko", "Legend of Heroes", 0 )
+GAME( 2003, sb2003,   0, limenko, sb2003, sb2003, ROT0, "Limenko", "Super Bubble 2003 (World, Ver 1.0)", 0 )
