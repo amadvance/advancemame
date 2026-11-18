@@ -7197,6 +7197,7 @@ Other Sun games
 	DRIVER( drtomy )	/* (c) 1993 no copyright message (1993 on pcb), some code taken from 'Big Karnak' */
 	DRIVER( sderby )	/* (c) 1996 */
 	DRIVER( pmroulet )
+	DRIVER( luckboom )	/* (c) 1996 */
 
 	/* Pacific Novelty games */
 	DRIVER( sharkatt )	/* (c) 1980 */
