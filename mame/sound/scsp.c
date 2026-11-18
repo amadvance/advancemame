@@ -701,9 +701,23 @@ static void SCSP_UpdateRegR(struct _SCSP *SCSP, int reg)
 		case 9:
 			{
 				unsigned char slot=SCSP->udata.data[0x8/2]>>11;
-				unsigned int CA=SCSP->Slots[slot&0x1f].cur_addr>>(SHIFT+12);
-				SCSP->udata.data[0x8/2]&=~(0x780);
-				SCSP->udata.data[0x8/2]|=CA<<7;
+				struct _SLOT *sl=SCSP->Slots+(slot&0x1f);
+				unsigned int CA=(sl->cur_addr>>(SHIFT+12))&0xf;
+				/* SGC (envelope state) and EG (attenuation, 0x1f = silent): sound
+				   drivers read them to know if a voice is free, and with always 0
+				   the voice looks busy forever (Find Love used only the slot 0
+				   and had no music) */
+				unsigned int SGC=sl->EG.state<<5;
+				unsigned int EG=0x1f-(sl->EG.volume>>(EG_SHIFT+5));
+				/* a stopped slot keeps the envelope of the last note: it is silent
+				   anyway, and the driver must see it as free */
+				if(!sl->active)
+				{
+					SGC=RELEASE<<5;
+					EG=0x1f;
+				}
+				SCSP->udata.data[0x8/2]&=~(0x7ff);
+				SCSP->udata.data[0x8/2]|=(CA<<7)|SGC|EG;
 			}
 			break;
 	}
@@ -757,43 +771,25 @@ static unsigned short SCSP_r16(struct _SCSP *SCSP, unsigned int addr)
 
 void SCSP_TimersAddTicks(struct _SCSP *SCSP, int ticks)
 {
-	if(SCSP->TimCnt[0]<=0xff00)
-	{
- 		SCSP->TimCnt[0] += ticks << (8-((SCSP->udata.data[0x18/2]>>8)&0x7));
-		if (SCSP->TimCnt[0] > 0xFF00)
-		{
-			SCSP->TimCnt[0] = 0xFFFF;
-			SCSP->udata.data[0x20/2]|=0x40;
-			SCSP->udata.data[0x2c/2]|=0x40;
-		}
-		SCSP->udata.data[0x18/2]&=0xff00;
-		SCSP->udata.data[0x18/2]|=SCSP->TimCnt[0]>>8;
-	}
+	int i;
+	static const int pend_bit[3]={0x40,0x80,0x100};
 
-	if(SCSP->TimCnt[1]<=0xff00)
+	/* the timers are 8 bit counters incrementing at 44.1 kHz / 2^prescaler. At
+	   the overflow they raise their pending bit and go on counting from 0, they
+	   never stop: a sound driver can acknowledge the pending bit before polling
+	   it (Find Love timer A, acknowledged by the handler of the timer B), and
+	   then it has to wait the next overflow to find it again */
+	for(i=0;i<3;++i)
 	{
-		SCSP->TimCnt[1] += ticks << (8-((SCSP->udata.data[0x1a/2]>>8)&0x7));
-		if (SCSP->TimCnt[1] > 0xFF00)
+		SCSP->TimCnt[i] += ticks << (8-((SCSP->udata.data[(0x18+i*2)/2]>>8)&0x7));
+		if (SCSP->TimCnt[i] > 0xffff)
 		{
-			SCSP->TimCnt[1] = 0xFFFF;
-			SCSP->udata.data[0x20/2]|=0x80;
-			SCSP->udata.data[0x2c/2]|=0x80;
+			SCSP->TimCnt[i] &= 0xffff;
+			SCSP->udata.data[0x20/2]|=pend_bit[i];
+			SCSP->udata.data[0x2c/2]|=pend_bit[i];
 		}
-		SCSP->udata.data[0x1a/2]&=0xff00;
-		SCSP->udata.data[0x1a/2]|=SCSP->TimCnt[1]>>8;
-	}
-
-	if(SCSP->TimCnt[2]<=0xff00)
-	{
-		SCSP->TimCnt[2] += ticks << (8-((SCSP->udata.data[0x1c/2]>>8)&0x7));
-		if (SCSP->TimCnt[2] > 0xFF00)
-		{
-			SCSP->TimCnt[2] = 0xFFFF;
-			SCSP->udata.data[0x20/2]|=0x100;
-			SCSP->udata.data[0x2c/2]|=0x100;
-		}
-		SCSP->udata.data[0x1c/2]&=0xff00;
-		SCSP->udata.data[0x1c/2]|=SCSP->TimCnt[2]>>8;
+		SCSP->udata.data[(0x18+i*2)/2]&=0xff00;
+		SCSP->udata.data[(0x18+i*2)/2]|=SCSP->TimCnt[i]>>8;
 	}
 }
 
