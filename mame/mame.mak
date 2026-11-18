@@ -1198,7 +1198,7 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/model1.o $(OBJ)/machine/model1.o $(OBJ)/vidhrdw/model1.o $(OBJ)/sndhrdw/segadsb.o $(OBJ)/sound/mpeg_audio.o \
 	$(OBJ)/drivers/model2.o $(OBJ)/machine/model2.o $(OBJ)/vidhrdw/model2.o $(OBJ)/machine/sega315_5881.o $(OBJ)/machine/sega315_5838.o \
 	$(OBJ)/drivers/model3.o $(OBJ)/vidhrdw/model3.o $(OBJ)/machine/model3.o \
-	$(OBJ)/drivers/puckpkmn.o \
+	$(OBJ)/drivers/megadriv_ybox.o \
 	$(OBJ)/drivers/sega.o $(OBJ)/sndhrdw/sega.o $(OBJ)/vidhrdw/sega.o \
 	$(OBJ)/drivers/segac2.o \
 	$(OBJ)/drivers/segahang.o $(OBJ)/vidhrdw/segahang.o \
