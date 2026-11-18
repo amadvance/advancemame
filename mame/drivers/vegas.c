@@ -452,6 +452,9 @@ static size_t ramsize;
 
 static UINT32 *nile_regs;
 static UINT16 nile_irq_state;
+static mame_timer *nile_uart_timer;
+static UINT16 nile_uart_divisor;
+static UINT8 nile_uart_ier, nile_uart_empty, nile_uart_pending;
 static UINT16 ide_irq_state;
 
 static UINT32 pci_bridge_regs[0x40];
@@ -470,6 +473,12 @@ static UINT8 sio_led_state;
 
 static UINT8 pending_analog_read;
 static UINT8 analog_shift;
+static UINT16 vegas_i40_select;
+static INT8 wheel_force;
+static INT8 wheel_offset;
+static UINT8 wheel_calibrated;
+static UINT8 keypad_select;
+static UINT8 denver_uart_regs[2][8];
 
 static UINT8 cmos_unlocked;
 
@@ -501,6 +510,7 @@ static struct dynamic_address
 
 static void vblank_assert(int state);
 static void timer_callback(int param);
+static void nile_uart_tx_done(int param);
 static void ide_interrupt(int state);
 static void remap_dynamic_addresses(void);
 
@@ -574,6 +584,7 @@ static MACHINE_RESET( vegas )
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_READONLY, 1);
 
 	/* allocate timers for the NILE */
+	nile_uart_timer = timer_alloc(nile_uart_tx_done);
 	timer[0] = timer_alloc(NULL);
 	timer[1] = timer_alloc(NULL);
 	timer[2] = timer_alloc(timer_callback);
@@ -599,12 +610,21 @@ static MACHINE_RESET( vegas )
 	/* initialize IRQ states */
 	ide_irq_state = 0;
 	nile_irq_state = 0;
+	nile_uart_divisor = 0;
+	nile_uart_ier = nile_uart_pending = 0;
+	nile_uart_empty = 1;
 	memset(sio_data, 0, sizeof(sio_data));
 	sio_irq_clear = 0;
 	sio_irq_enable = 0;
 	sio_irq_state = 0;
 	sio_led_state = 0;
 	pending_analog_read = 0;
+	wheel_force = 0;
+	wheel_offset = 0;
+	wheel_calibrated = 0;
+	keypad_select = 0;
+	vegas_i40_select = 0;
+	memset(denver_uart_regs, 0, sizeof(denver_uart_regs));
 
 	/* find out what type of voodoo we have */
 	voodoo_type = voodoo_get_type(0);
@@ -904,11 +924,11 @@ static void update_nile_irqs(void)
 	UINT8 irq[6];
 	int i;
 
-	/* check for UART transmit IRQ enable and synthsize one */
-	if (nile_regs[NREG_UARTIER] & 2)
-		nile_irq_state |= 0x0010;
+	/* The transmitter interrupt stays clear after IIR acknowledgement until rearmed. */
+	if ((nile_uart_ier & 2) && nile_uart_pending)
+		nile_irq_state |= 1 << NINT_UART;
 	else
-		nile_irq_state &= ~0x0010;
+		nile_irq_state &= ~(1 << NINT_UART);
 
 	irq[0] = irq[1] = irq[2] = irq[3] = irq[4] = irq[5] = 0;
 	nile_regs[NREG_INTSTAT0+0] = 0;
@@ -958,6 +978,14 @@ static void update_nile_irqs(void)
 		}
 	}
 	if (LOG_NILE_IRQS) logerror("\n");
+}
+
+
+static void nile_uart_tx_done(int param)
+{
+	nile_uart_empty = 1;
+	nile_uart_pending = 1;
+	update_nile_irqs();
 }
 
 
@@ -1062,15 +1090,25 @@ static READ32_HANDLER( nile_r )
 			logit = 0;
 			break;
 
-		case NREG_UARTIIR:			/* serial port interrupt ID */
-			if (nile_regs[NREG_UARTIER] & 2)
-				result = 0x02;			/* transmitter buffer IRQ pending */
-			else
-				result = 0x01;			/* no IRQ pending */
+		case NREG_UARTRBR:
+			result = (nile_regs[NREG_UARTLCR] & 0x80) ? nile_uart_divisor & 0xff : 0;
 			break;
 
-		case NREG_UARTLSR:			/* serial port line status */
-			result = 0x60;
+		case NREG_UARTIER:
+			result = (nile_regs[NREG_UARTLCR] & 0x80) ? nile_uart_divisor >> 8 : nile_uart_ier;
+			break;
+
+		case NREG_UARTIIR:
+			result = ((nile_uart_ier & 2) && nile_uart_pending) ? 0x02 : 0x01;
+			if (ACCESSING_LSB32 && result == 0x02)
+			{
+				nile_uart_pending = 0;
+				update_nile_irqs();
+			}
+			break;
+
+		case NREG_UARTLSR:
+			result = nile_uart_empty ? 0x60 : 0;
 			logit = 0;
 			break;
 
@@ -1217,12 +1255,36 @@ static WRITE32_HANDLER( nile_w )
 			}
 			break;
 
-		case NREG_UARTTHR:		/* serial port output */
-			if (PRINTF_SERIAL) printf("%c", data & 0xff);
+		case NREG_UARTTHR:
+			if (ACCESSING_LSB32)
+			{
+				if (nile_regs[NREG_UARTLCR] & 0x80)
+					nile_uart_divisor = (nile_uart_divisor & 0xff00) | (data & 0xff);
+				else
+				{
+					if (PRINTF_SERIAL) printf("%c", data & 0xff);
+					nile_uart_empty = nile_uart_pending = 0;
+					timer_adjust(nile_uart_timer,
+						(12.0 * 16 * 10 * MAX(1, nile_uart_divisor)) / SYSTEM_CLOCK, 0, 0);
+					update_nile_irqs();
+				}
+			}
 			logit = 0;
 			break;
-		case NREG_UARTIER:		/* serial interrupt enable */
-			update_nile_irqs();
+
+		case NREG_UARTIER:
+			if (ACCESSING_LSB32)
+			{
+				if (nile_regs[NREG_UARTLCR] & 0x80)
+					nile_uart_divisor = (nile_uart_divisor & 0xff) | ((data & 0xff) << 8);
+				else
+				{
+					if ((data & 2) && !(nile_uart_ier & 2) && nile_uart_empty)
+						nile_uart_pending = 1;
+					nile_uart_ier = data & 0x0f;
+					update_nile_irqs();
+				}
+			}
 			break;
 
 		case NREG_VID:
@@ -1476,10 +1538,37 @@ static READ32_HANDLER( analog_port_r )
 
 static WRITE32_HANDLER( analog_port_w )
 {
+	int index;
+	UINT32 port_value;
+
 	data >>= analog_shift;
-	if (data < 8 || data > 15)
-		logerror("%08X:Unexpected analog port select = %08X\n", activecpu_get_pc(), data);
-	pending_analog_read = readinputport(4 + (data & 7));
+	index = data & 7;
+	port_value = readinputport(4 + index);
+	if (!wheel_calibrated && (wheel_force > 20 || wheel_force < -20))
+	{
+		int steer_index = (analog_shift == 4) ? 7 : 0;
+		int minval = (index == steer_index) ? 0x10 : 0x00;
+		int maxval = (index == steer_index) ? 0xf0 : 0xff;
+		int tmp;
+
+		if (wheel_force > 0 && wheel_offset < 127)
+			wheel_offset++;
+		else if (wheel_offset > -128)
+			wheel_offset--;
+		tmp = (int)port_value + wheel_offset;
+		if (tmp < minval)
+			pending_analog_read = minval;
+		else if (tmp > maxval)
+			pending_analog_read = maxval;
+		else
+			pending_analog_read = tmp;
+	}
+	else
+	{
+		pending_analog_read = port_value;
+	}
+	if (!wheel_calibrated && ((~readinputportbytag("SYSTEM")) & 0xffff))
+		wheel_calibrated = 1;
 	if (sio_irq_enable & 0x02)
 	{
 		sio_irq_state |= 0x02;
@@ -1554,6 +1643,132 @@ static WRITE32_HANDLER( ethernet_w )
 static WRITE32_HANDLER( dcs3_fifo_full_w )
 {
 	midway_ioasic_fifo_full_w(data);
+}
+
+
+static READ32_HANDLER( unknown_r )
+{
+	return 0xffffffff;
+}
+
+
+static READ32_HANDLER( parallel_r )
+{
+	return 0x7;
+}
+
+
+static WRITE32_HANDLER( mpsreset_w )
+{
+}
+
+
+static UINT32 denver_uart_read(int which, offs_t offset)
+{
+	UINT8 reg = offset & 7;
+	switch (reg)
+	{
+		case 1:
+			return denver_uart_regs[which][1];
+		case 2:
+			return 0x01;
+		case 5:
+			return 0x60;
+		case 6:
+			return 0xb0;
+		default:
+			return denver_uart_regs[which][reg];
+	}
+}
+
+
+static void denver_uart_write(int which, offs_t offset, UINT32 data, UINT32 mem_mask)
+{
+	if (!(mem_mask & 0x000000ff))
+		denver_uart_regs[which][offset & 7] = data & 0xff;
+}
+
+
+static READ32_HANDLER( denver_uart1_r )
+{
+	return denver_uart_read(0, offset);
+}
+
+
+static WRITE32_HANDLER( denver_uart1_w )
+{
+	denver_uart_write(0, offset, data, mem_mask);
+}
+
+
+static READ32_HANDLER( denver_uart2_r )
+{
+	return denver_uart_read(1, offset);
+}
+
+
+static WRITE32_HANDLER( denver_uart2_w )
+{
+	denver_uart_write(1, offset, data, mem_mask);
+}
+
+
+static void wheel_board_w(UINT16 data)
+{
+	int chip_select = (data >> 11) & 1;
+	int Strobe = (data >> 10) & 1;
+	UINT8 op = (data >> 8) & 3;
+
+	if (chip_select && Strobe)
+	{
+		switch (op)
+		{
+			case 0:
+				wheel_force = ~data & 0xff;
+				break;
+
+			case 1:
+				break;
+
+			case 2:
+				keypad_select = data & 0xff;
+				break;
+
+			case 3:
+				break;
+		}
+	}
+}
+
+
+static UINT32 keypad_r(void *param)
+{
+	int row_select;
+	for (row_select = 0; row_select < 4; row_select++)
+		if (!(keypad_select & (1 << row_select)))
+			break;
+	if (row_select < 4)
+	{
+		UINT32 keypad = readinputportbytag("KEYPAD");
+		keypad >>= row_select * 3;
+		return keypad & 7;
+	}
+	else
+		return 0x7;
+}
+
+
+static UINT32 gearshift_r(void *param)
+{
+	static UINT32 gear = 1;
+	int i;
+	UINT32 gear_Read = readinputportbytag("GEAR");
+	for (i = 0; i < 4; i++)
+	{
+		if (gear_Read & (1 << i))
+			gear = 1 << i;
+	}
+	return gear;
 }
 
 
@@ -1647,7 +1862,10 @@ static void remap_dynamic_addresses(void)
 	/* DCS5 */
 	base = nile_regs[NREG_DCS5] & 0x1fffff00;
 	if (base >= ramsize)
+	{
 		add_dynamic_address(base + 0x0000, base + 0x0003, sio_r, sio_w);
+		add_dynamic_address(base + 0x100000, base + 0x1fffff, unknown_r, NULL);
+	}
 
 	/* DCS6 */
 	base = nile_regs[NREG_DCS6] & 0x1fffff00;
@@ -1674,6 +1892,16 @@ static void remap_dynamic_addresses(void)
 			add_dynamic_address(base + 0x5000, base + 0x5003, NULL, dsio_idma_addr_w);
 			add_dynamic_address(base + 0x7000, base + 0x7003, dsio_idma_data_r, dsio_idma_data_w);
 		}
+	}
+
+	/* DCS8 */
+	base = nile_regs[NREG_DCS8] & 0x1fffff00;
+	if (base >= ramsize && dcs_idma_cs == 7)
+	{
+		add_dynamic_address(base + 0x01000000, base + 0x0100001f, denver_uart1_r, denver_uart1_w);
+		add_dynamic_address(base + 0x01400000, base + 0x0140001f, denver_uart2_r, denver_uart2_w);
+		add_dynamic_address(base + 0x01800000, base + 0x0180001f, parallel_r, NULL);
+		add_dynamic_address(base + 0x01c00000, base + 0x01c00003, NULL, mpsreset_w);
 	}
 
 	/* PCI config space */
@@ -2046,7 +2274,7 @@ INPUT_PORTS_START( roadburn )
 	PORT_DIPSETTING(      0x0002, "Disk-based Test" )
 	PORT_DIPSETTING(      0x0001, "EPROM-based Test" )
 	PORT_DIPSETTING(      0x0000, "Interactive Diagnostics" )
-	PORT_DIPNAME( 0x0300, 0x0300, "Resolution" )
+	PORT_DIPNAME( 0x0300, 0x0000, "Resolution" )
 	PORT_DIPSETTING(      0x0300, "Standard Res 512x256" )
 	PORT_DIPSETTING(      0x0200, "Medium Res 512x384" )
 	PORT_DIPSETTING(      0x0000, "VGA Res 640x480" )
@@ -2083,7 +2311,32 @@ INPUT_PORTS_START( roadburn )
 INPUT_PORTS_END
 
 
-INPUT_PORTS_START( nbashowt )
+static void vegas_i40_w(UINT16 data)
+{
+	vegas_i40_select = data & 0xf;
+}
+
+
+static UINT32 vegas_i40_r(void *param)
+{
+	static const UINT8 translate49[] = { 0x8, 0xc, 0xe, 0xf, 0x3, 0x1, 0x0 };
+	static const char *const axes[] = {
+		"49X1", "49Y1", "49X2", "49Y2", "49X3", "49Y3", "49X4", "49Y4"
+	};
+
+	if (readinputportbytag("DIPS") & 0x0100)
+		return readinputportbytag("P4_8WAY");
+	if (vegas_i40_select < ARRAY_LENGTH(axes))
+		return translate49[readinputportbytag(axes[vegas_i40_select]) >> 4];
+
+	/* The game probes for the adapter by checking its response to these selectors. */
+	if (vegas_i40_select >= 10 && vegas_i40_select <= 12)
+		return ~vegas_i40_select & 0xf;
+	return 0;
+}
+
+
+INPUT_PORTS_START( nba_controls )
 	PORT_INCLUDE(vegas_common)
 
 	PORT_MODIFY("DIPS")
@@ -2092,47 +2345,101 @@ INPUT_PORTS_START( nbashowt )
 	PORT_DIPSETTING(      0x0000, "CMOS" )
 	PORT_DIPNAME( 0x000e, 0x000e, DEF_STR( Coinage ))
 	PORT_DIPSETTING(      0x000e, "Mode 1" )
-	PORT_DIPSETTING(      0x0008, "Mode 2" )
-	PORT_DIPSETTING(      0x0009, "Mode 3" )
-	PORT_DIPSETTING(      0x0002, "Mode 4" )
-	PORT_DIPSETTING(      0x000c, "Mode ECA" )
-//  PORT_DIPSETTING(      0x0004, "Not Used 1" )        /* Marked as Unused in the manual */
-//  PORT_DIPSETTING(      0x0008, "Not Used 2" )        /* Marked as Unused in the manual */
+	PORT_DIPSETTING(      0x000c, "Mode 2" )
+	PORT_DIPSETTING(      0x000a, "Mode 3" )
+	PORT_DIPSETTING(      0x0008, "Mode 4" )
+	PORT_DIPSETTING(      0x0006, "Mode 5" )
+	PORT_DIPSETTING(      0x0004, "Mode 6" )
+	PORT_DIPSETTING(      0x0002, "Mode 7" )
 	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ))
-	PORT_DIPNAME( 0x0030, 0x0030, "Curency Type" )
+	PORT_DIPNAME( 0x0030, 0x0030, "Currency Type" )
 	PORT_DIPSETTING(      0x0030, DEF_STR( USA ))
 	PORT_DIPSETTING(      0x0020, DEF_STR( French ))
 	PORT_DIPSETTING(      0x0010, DEF_STR( German ))
-//  PORT_DIPSETTING(      0x0000, "Not Used" )      /* Marked as Unused in the manual */
 	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ))
-	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unknown ))	/* Marked as Unused in the manual */
-	PORT_DIPSETTING(      0x0040, "0" )
-	PORT_DIPSETTING(      0x0000, "1" )
-	PORT_DIPNAME( 0x0080, 0x0080, "Game" )
-	PORT_DIPSETTING(      0x0080, "NBA Showtime" )
-	PORT_DIPSETTING(      0x0000, "Blitz 99" )
+	PORT_BIT( 0x00c0, 0x0040, IPT_UNUSED )
 	PORT_DIPNAME( 0x0100, 0x0100, "Joysticks" )
 	PORT_DIPSETTING(      0x0100, "8-Way" )
 	PORT_DIPSETTING(      0x0000, "49-Way" )
-	PORT_DIPNAME( 0x0600, 0x0200, "Graphics Mode" )
-	PORT_DIPSETTING(      0x0200, "512x385 @ 25KHz" )
-	PORT_DIPSETTING(      0x0400, "512x256 @ 15KHz" )
-//  PORT_DIPSETTING(      0x0600, "0" )         /* Marked as Unused in the manual */
-//  PORT_DIPSETTING(      0x0000, "3" )         /* Marked as Unused in the manual */
-	PORT_DIPNAME( 0x1800, 0x1800, "Graphics Speed" )
-	PORT_DIPSETTING(      0x0000, "45 MHz" )
-	PORT_DIPSETTING(      0x0800, "47 MHz" )
-	PORT_DIPSETTING(      0x1000, "49 MHz" )
-	PORT_DIPSETTING(      0x1800, "51 MHz" )
-	PORT_DIPNAME( 0x2000, 0x0000, "Number of Players" )
+	PORT_DIPNAME( 0x0600, 0x0600, "Graphics Mode" )
+	PORT_DIPSETTING(      0x0600, "Medium Resolution" )
+	PORT_DIPSETTING(      0x0400, "Low Resolution" )
+	PORT_BIT( 0x1800, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x2000, 0x2000, "Number of Players" )
 	PORT_DIPSETTING(      0x2000, "2" )
 	PORT_DIPSETTING(      0x0000, "4" )
+
 	PORT_DIPNAME( 0x4000, 0x0000, "Power On Self Test" )
 	PORT_DIPSETTING(      0x0000, DEF_STR( No ))
 	PORT_DIPSETTING(      0x4000, DEF_STR( Yes ))
 	PORT_DIPNAME( 0x8000, 0x8000, "Test Switch" )
 	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+
+	PORT_MODIFY("P12")
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) PORT_NAME("P1 A")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1) PORT_NAME("P1 B")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1) PORT_NAME("P1 Turbo")
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) PORT_NAME("P2 A")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2) PORT_NAME("P2 B")
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2) PORT_NAME("P2 Turbo")
+
+	PORT_MODIFY("P34")
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3) PORT_NAME("P3 A")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3) PORT_NAME("P3 B")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(3) PORT_NAME("P3 Turbo")
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4) PORT_NAME("P4 A")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(4) PORT_NAME("P4 B")
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(4) PORT_NAME("P4 Turbo")
+	PORT_BIT( 0x0f00, IP_ACTIVE_LOW, IPT_SPECIAL ) PORT_CUSTOM(vegas_i40_r, 0)
+
+	PORT_START_TAG("P4_8WAY")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_PLAYER(4) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_PLAYER(4) PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_PLAYER(4) PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(4) PORT_8WAY
+
+	PORT_START_TAG("49X1")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_X ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
+
+	PORT_START_TAG("49Y1")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_Y ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
+
+	PORT_START_TAG("49X2")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_X ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(2)
+
+	PORT_START_TAG("49Y2")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_Y ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(2)
+
+	PORT_START_TAG("49X3")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_X ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(3)
+
+	PORT_START_TAG("49Y3")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_Y ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(3)
+
+	PORT_START_TAG("49X4")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_X ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(4)
+
+	PORT_START_TAG("49Y4")
+	PORT_BIT( 0xff, 0x38, IPT_AD_STICK_Y ) PORT_MINMAX(0x00, 0x6f) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(4)
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( nbashowt )
+	PORT_INCLUDE(nba_controls)
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( sportstation )
+	PORT_INCLUDE(nba_controls)
+
+	PORT_MODIFY("DIPS")
+	PORT_DIPNAME( 0x0040, 0x0040, "Select Game" )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Yes ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( No ))
+	PORT_DIPNAME( 0x0080, 0x0000, "Game Powerup" )
+	PORT_DIPSETTING(      0x0080, "NFL Blitz" )
+	PORT_DIPSETTING(      0x0000, "NBA Showtime" )
 INPUT_PORTS_END
 
 
@@ -2153,6 +2460,31 @@ INPUT_PORTS_START( sf2049 )
 	PORT_DIPSETTING(      0x0200, "Medium Res 512x384" )
 	PORT_DIPSETTING(      0x0000, "VGA Res 640x480" )
 
+	PORT_MODIFY("SYSTEM")
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_START1 ) PORT_NAME("Start / Abort")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON8 ) PORT_NAME("Reverse")
+
+	PORT_MODIFY("P12")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("View 1")
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("View 2")
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("View 3")
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Music")
+	PORT_BIT( 0x0070, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(keypad_r, 0)
+	PORT_BIT( 0x0f00, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(gearshift_r, 0)
+	PORT_BIT( 0xf080, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Accelerator")
+
+	PORT_START
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL3 ) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Clutch")
+
 	PORT_START
 	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
@@ -2160,22 +2492,30 @@ INPUT_PORTS_START( sf2049 )
 	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Accelerator")
-
-	PORT_START
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL3 ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Clutch")
-
-	PORT_START
-	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Brake")
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Brake")
 
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Steering")
+
+	PORT_START_TAG("GEAR")
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_CODE(KEYCODE_Z) PORT_NAME("1st Gear")
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_CODE(KEYCODE_X) PORT_NAME("2nd Gear")
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_BUTTON7 ) PORT_CODE(KEYCODE_C) PORT_NAME("3rd Gear")
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_BUTTON8 ) PORT_CODE(KEYCODE_V) PORT_NAME("4th Gear")
+
+	PORT_START_TAG("KEYPAD")
+	PORT_BIT(0x0200, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_1_PAD) PORT_NAME("Keypad 1")
+	PORT_BIT(0x0040, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_4_PAD) PORT_NAME("Keypad 4")
+	PORT_BIT(0x0008, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_7_PAD) PORT_NAME("Keypad 7")
+	PORT_BIT(0x0001, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_ASTERISK) PORT_NAME("Keypad *")
+	PORT_BIT(0x0400, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_2_PAD) PORT_NAME("Keypad 2")
+	PORT_BIT(0x0080, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_5_PAD) PORT_NAME("Keypad 5")
+	PORT_BIT(0x0010, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_8_PAD) PORT_NAME("Keypad 8")
+	PORT_BIT(0x0002, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_0_PAD) PORT_NAME("Keypad 0")
+	PORT_BIT(0x0800, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_3_PAD) PORT_NAME("Keypad 3")
+	PORT_BIT(0x0100, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_6_PAD) PORT_NAME("Keypad 6")
+	PORT_BIT(0x0020, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_9_PAD) PORT_NAME("Keypad 9")
+	PORT_BIT(0x0004, IP_ACTIVE_LOW, IPT_OTHER ) PORT_CODE(KEYCODE_PLUS_PAD) PORT_NAME("Keypad #")
 INPUT_PORTS_END
 
 
@@ -2183,15 +2523,23 @@ INPUT_PORTS_START( sf2049se )
 	PORT_INCLUDE(sf2049)
 
 	PORT_MODIFY("DIPS")
-	PORT_DIPNAME( 0x00c0, 0x00c0, "Diagnostics" )
+	PORT_DIPNAME( 0x0001, 0x0001, "PM Dump" )
+	PORT_DIPSETTING(      0x0001, "Watchdog resets only" )
+	PORT_DIPSETTING(      0x0000, "All resets" )
+	PORT_BIT( 0x001e, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x0020, 0x0020, "Console Enable" )
+	PORT_DIPSETTING(      0x0020, DEF_STR( No ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Yes ))
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Test Mode" )
 	PORT_DIPSETTING(      0x00c0, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0040, "Disk-based Test" )
 	PORT_DIPSETTING(      0x0080, "EPROM-based Test" )
+	PORT_DIPSETTING(      0x0040, "Disk-based Test" )
 	PORT_DIPSETTING(      0x0000, "Interactive Diagnostics" )
+	PORT_BIT( 0x1f00, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_DIPNAME( 0x2000, 0x2000, "Cabinet Type" )
 	PORT_DIPSETTING(      0x2000, "Sit down cabinet" )
 	PORT_DIPSETTING(      0x0000, "Upright cabinet" )
-	PORT_DIPNAME( 0xc000, 0x8000, "Video Mode" )
+	PORT_DIPNAME( 0xc000, 0x8000, "Resolution" )
 	PORT_DIPSETTING(      0xc000, "Standard Res 512x256" )
 	PORT_DIPSETTING(      0x4000, "Medium Res 512x384" )
 	PORT_DIPSETTING(      0x8000, "VGA Res 640x480" )
@@ -2233,15 +2581,47 @@ INPUT_PORTS_START( cartfury )
 	PORT_INCLUDE(vegas_common)
 
 	PORT_MODIFY("DIPS")
+	PORT_DIPNAME( 0x0001, 0x0000, "Coinage Source" )
+	PORT_DIPSETTING(      0x0001, "Dipswitch" )
+	PORT_DIPSETTING(      0x0000, "CMOS" )
+	PORT_DIPNAME( 0x000e, 0x000e, DEF_STR( Coinage ))
+	PORT_DIPSETTING(      0x000e, "Mode 1" )
+	PORT_DIPSETTING(      0x000c, "Mode 2" )
+	PORT_DIPSETTING(      0x000a, "Mode 3" )
+	PORT_DIPSETTING(      0x0008, "Mode 4" )
+	PORT_DIPSETTING(      0x0006, "Mode 5" )
+	PORT_DIPSETTING(      0x0004, "Mode 6" )
+	PORT_DIPSETTING(      0x0002, "Mode 7" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ))
+	PORT_DIPNAME( 0x0030, 0x0030, "Currency Type" )
+	PORT_DIPSETTING(      0x0030, DEF_STR( USA ))
+	PORT_DIPSETTING(      0x0020, DEF_STR( French ))
+	PORT_DIPSETTING(      0x0010, DEF_STR( German ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ))
+	PORT_DIPNAME( 0x2000, 0x2000, "Disable Brake" )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Off ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+	PORT_DIPNAME( 0x8000, 0x8000, "Test Switch" )
+	PORT_DIPSETTING(      0x8000, DEF_STR( Off ))
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
+
+	PORT_MODIFY("P12")
+	PORT_BIT( 0x000f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("View 1")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("View 2")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("View 3")
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Boost")
+	PORT_BIT( 0x0f00, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(gearshift_r, 0)
+	PORT_BIT( 0xf000, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10, 0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10, 0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Steering")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Accelerator")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Brake")
 
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
@@ -2257,6 +2637,12 @@ INPUT_PORTS_START( cartfury )
 
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+
+	PORT_START_TAG("GEAR")
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_CODE(KEYCODE_Z) PORT_NAME("1st Gear")
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_BUTTON6 ) PORT_CODE(KEYCODE_X) PORT_NAME("2nd Gear")
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_BUTTON7 ) PORT_CODE(KEYCODE_C) PORT_NAME("3rd Gear")
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_BUTTON8 ) PORT_CODE(KEYCODE_V) PORT_NAME("4th Gear")
 INPUT_PORTS_END
 
 
@@ -2334,7 +2720,7 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( roadburn )
 	MDRV_IMPORT_FROM(vegas32m)
-	MDRV_VISIBLE_AREA(0, 510, 0, 255)
+	MDRV_VISIBLE_AREA(0, 639, 0, 479)
 	MDRV_IMPORT_FROM(dcs2_audio_dsio)
 MACHINE_DRIVER_END
 
@@ -2367,7 +2753,7 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( denver )
 	MDRV_IMPORT_FROM(vegascore)
-	MDRV_VISIBLE_AREA(0, 511, 0, 383)
+	MDRV_VISIBLE_AREA(0, 639, 0, 479)
 	MDRV_CPU_REPLACE("main", RM7000LE, SYSTEM_CLOCK*2.5)
 	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
 	MDRV_VIDEO_START(vegas_voodoo3)
@@ -2628,6 +3014,7 @@ static DRIVER_INIT( nbashowt )
 	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_MACE, 487);
 	midway_ioasic_set_auto_ack(0);
+	midway_ioasic_set_aux_output_callback(vegas_i40_w);
 }
 
 
@@ -2636,6 +3023,7 @@ static DRIVER_INIT( nbanfl )
 	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_BLITZ99, 498/* or 478 or 487 */);
 	midway_ioasic_set_auto_ack(0);
+	midway_ioasic_set_aux_output_callback(vegas_i40_w);
 }
 
 
@@ -2644,21 +3032,24 @@ static DRIVER_INIT( nbagold )
 	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_GAUNTDL, 109);
 	midway_ioasic_set_auto_ack(0);
+	midway_ioasic_set_aux_output_callback(vegas_i40_w);
 }
 
 
 static DRIVER_INIT( sf2049 )
 {
-	dcs2_init(8, 0);
+	dcs2_init(8, 0x0872);
 	init_common(MIDWAY_IOASIC_STANDARD, 336/* others? */);
+	midway_ioasic_set_aux_output_callback(wheel_board_w);
 	analog_shift = 4;
 }
 
 
 static DRIVER_INIT( sf2049se )
 {
-	dcs2_init(8, 0);
+	dcs2_init(8, 0x0872);
 	init_common(MIDWAY_IOASIC_SFRUSHRK, 352);
+	midway_ioasic_set_aux_output_callback(wheel_board_w);
 	analog_shift = 4;
 }
 
@@ -2676,6 +3067,7 @@ static DRIVER_INIT( cartfury )
 	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_CARNEVIL, 495/* others? */);
 	midway_ioasic_set_auto_ack(0);
+	midway_ioasic_set_aux_output_callback(wheel_board_w);
 }
 
 
@@ -2698,18 +3090,18 @@ GAME( 1999, gauntd24, gauntdl,  vegas,    gauntdl,  gauntdl,  ROT0, "Midway Game
 GAME( 1999, warfa,    0,        vegas250, warfa,    warfa,    ROT0, "Atari Games",  "War: Final Assault (GUTS 1.3 Apr 20 1999, GAME Apr 20 1999)", 0 )
 
 /* Durango + DSIO + Voodoo 2 */
-GAME( 1999, roadburn, 0,        roadburn, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners (ver 1.04)", GAME_NOT_WORKING )
-GAME( 1999, roadburn1, roadburn, roadburn, roadburn, roadburn, ROT0, "Atari Games", "Road Burners (ver 1.0)", GAME_NOT_WORKING )
+GAME( 1999, roadburn, 0,        roadburn, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners (ver 1.04)", 0 )
+GAME( 1999, roadburn1, roadburn, roadburn, roadburn, roadburn, ROT0, "Atari Games", "Road Burners (ver 1.0)", 0 )
 
 /* Durango + DSIO? + Voodoo banshee */
-GAME( 1999, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime NBA on NBC (ver 2.0, Apr 25 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAMEB(1999, nbanfl,   0,        nbanfl, vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 2000, nbagold,  0,        nbagold,  nbashowt, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 1999, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime NBA on NBC (ver 2.0, Apr 25 1999)", 0 )
+GAMEB(1999, nbanfl,   0,        nbanfl, vegasban, sportstation, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", 0 )
+GAME( 2000, nbagold,  0,        nbagold,  sportstation, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", 0 )
 
 /* Durango + Denver SIO + Voodoo 3 */
-GAME( 1999, sf2049,   0,        denver,   sf2049,   sf2049,   ROT0, "Atari Games",  "San Francisco Rush 2049", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 2003, sf2049se, 0,        sf2049se, sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 1999, sf2049,   0,        denver,   sf2049,   sf2049,   ROT0, "Atari Games",  "San Francisco Rush 2049", 0 )
+GAME( 2003, sf2049se, 0,        denver,   sf2049se, sf2049se, ROT0, "Atari Games",  "San Francisco Rush 2049: Special Edition", 0 )
 GAME( 1998, sf2049te, sf2049,   denver,   sf2049te, sf2049te, ROT0, "Atari Games",  "San Francisco Rush 2049: Tournament Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Vegas SIO + Voodoo 3 */
-GAME( 2000, cartfury, 0,        vegasv3,  cartfury, cartfury, ROT0, "Midway Games", "CART Fury Championship Racing (ver 1.00)", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 2000, cartfury, 0,        vegasv3,  cartfury, cartfury, ROT0, "Midway Games", "CART Fury Championship Racing (ver 1.00)", 0 )

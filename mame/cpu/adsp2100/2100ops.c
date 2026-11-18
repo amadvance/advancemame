@@ -418,13 +418,21 @@ static void wr_tx1(INT32 val)	{ if (adsp2100.sport_tx_callback) (*adsp2100.sport
 static void wr_owrctr(INT32 val) { adsp2100.cntr = val & 0x3fff; }
 static void wr_topstack(INT32 val) { pc_stack_push_val(val & 0x3fff); }
 
+static void wr_pmovlay(INT32 val)
+{
+	if (chip_type < CHIP_TYPE_ADSP2181)
+		wr_inval(val);
+}
+
 static void wr_dmovlay(INT32 val)
 {
 	if (chip_type >= CHIP_TYPE_ADSP2181)
 	{
-		adsp2100.dmovlay = val & 3;
+		adsp2100.dmovlay = val & 0x3fff;
 		if (adsp2100.dmovlay_callback) adsp2100.dmovlay_callback(adsp2100.dmovlay);
 	}
+	else
+		wr_inval(val);
 }
 
 #define WRITE_REG(grp,reg,val) ((*wr_reg[grp][reg])(val))
@@ -437,7 +445,7 @@ static void (*wr_reg[4][16])(INT32) =
 	},
 	{
 		wr_i0, wr_i1, wr_i2, wr_i3, wr_m0, wr_m1, wr_m2, wr_m3,
-		wr_l0, wr_l1, wr_l2, wr_l3, wr_inval, wr_inval, wr_inval, wr_dmovlay
+		wr_l0, wr_l1, wr_l2, wr_l3, wr_inval, wr_inval, wr_pmovlay, wr_dmovlay
 	},
 	{
 		wr_i4, wr_i5, wr_i6, wr_i7, wr_m4, wr_m5, wr_m6, wr_m7,

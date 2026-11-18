@@ -649,7 +649,7 @@ static void ide_build_features(struct ide_state *ide)
 			"1.0", 4);
 	swap_strncpy(&ide->features[27*2+0], 				/* 27-46: model number */
 			"MAME Compressed Hard Disk", 20);
-	ide->features[47*2+0] = 0x01;						/* 47: read/write multiple support */
+	ide->features[47*2+0] = 0x10;						/* 47: read/write multiple support */
 	ide->features[47*2+1] = 0x80;
 	ide->features[48*2+0] = 0;							/* 48: reserved */
 	ide->features[48*2+1] = 0;
@@ -914,7 +914,7 @@ static void read_sector_done(int which)
 		/* signal an interrupt */
 		if (!ide->verify_only)
 			ide->sectors_until_int--;
-		if (ide->sectors_until_int == 0 || ide->sector_count == 1)
+		if (ide->sectors_until_int == 0 || (ide->sector_count == 1 && ide->command != IDE_COMMAND_READ_MULTIPLE_BLOCK))
 		{
 			ide->sectors_until_int = ((ide->command == IDE_COMMAND_READ_MULTIPLE_BLOCK) ? ide->block_count : 1);
 			signal_interrupt(ide);

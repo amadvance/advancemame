@@ -2048,6 +2048,15 @@ static void adsp21xx_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_REGISTER + ADSP2100_I6:		info->i = adsp2100.i[6];				break;
 		case CPUINFO_INT_REGISTER + ADSP2100_I7:		info->i = adsp2100.i[7];				break;
 
+		case CPUINFO_INT_REGISTER + ADSP2100_I0_BASE:	info->i = adsp2100.base[0];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I1_BASE:	info->i = adsp2100.base[1];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I2_BASE:	info->i = adsp2100.base[2];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I3_BASE:	info->i = adsp2100.base[3];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I4_BASE:	info->i = adsp2100.base[4];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I5_BASE:	info->i = adsp2100.base[5];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I6_BASE:	info->i = adsp2100.base[6];				break;
+		case CPUINFO_INT_REGISTER + ADSP2100_I7_BASE:	info->i = adsp2100.base[7];				break;
+
 		case CPUINFO_INT_REGISTER + ADSP2100_L0:		info->i = adsp2100.l[0];				break;
 		case CPUINFO_INT_REGISTER + ADSP2100_L1:		info->i = adsp2100.l[1];				break;
 		case CPUINFO_INT_REGISTER + ADSP2100_L2:		info->i = adsp2100.l[2];				break;

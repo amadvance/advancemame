@@ -247,6 +247,7 @@ static sljit_s32 jit_cache[32];
 #define JREGH(n)		JMEM(JOFF_R(n) + 4)
 #define JOFF_FPR(n)		((sljit_sw)(offsetof(mips3_regs, cpr) + (32 + (n)) * sizeof(UINT64)))	/* cpr[1][n] */
 #define JOFF_FCSR		((sljit_sw)(offsetof(mips3_regs, ccr) + (32 + 31) * sizeof(UINT64)))	/* ccr[1][31] */
+#define JOFF_SR			((sljit_sw)(offsetof(mips3_regs, cpr) + COP0_Status * sizeof(UINT64)))	/* cpr[0][COP0_Status] */
 /* mips3_icount, kept in S5 while a block runs (stored back when it leaves) */
 #define JICOUNT			SLJIT_S5, 0
 #define JHI				JMEM(JOFF_HI)
@@ -538,10 +539,17 @@ static void jit_store_hilo(struct sljit_compiler *C)
 
 #endif	/* JIT_HOST64 */
 
-/* JAL/JALR link: the return address, zero extended (as the interpreter) */
+/* JAL/JALR link: the return address, sign extended */
 static void jit_store_link(struct sljit_compiler *C, int reg, UINT32 value)
 {
-	jit_store_u32(C, reg, SLJIT_IMM, (sljit_sw)value);
+	if (reg == 0)
+		return;
+#ifdef JIT_HOST64
+	sljit_emit_op1(C, SLJIT_MOV, JREG(reg), SLJIT_IMM, (sljit_sw)(INT32)value);
+#else
+	sljit_emit_op1(C, SLJIT_MOV, JREG(reg), SLJIT_IMM, (sljit_sw)value);
+	sljit_emit_op1(C, SLJIT_MOV, JREGH(reg), SLJIT_IMM, ((INT32)value < 0) ? -1 : 0);
+#endif
 }
 
 
@@ -624,14 +632,17 @@ static int jit_classify(UINT32 op)
 		case 0x11:	/* COP1 */
 			if (OPC_RS(op) == 0x08)		/* BC1F, BC1T, BC1FL, BC1TL */
 				return JIT_BRANCH;
+			/* An enabled division exception must leave the destination
+			   intact and enter the guest exception handler at the fault. */
+			if (cop1_division(op))
+				return JIT_NONE;
 			/* the rest through the interpreter's code, while the FPU is usable */
 			/* (a change of SR_COP1 drops the translations) */
 			return (mips3.cpr[0][COP0_Status] & SR_COP1) ? JIT_SIMPLE : JIT_NONE;
 
 		case 0x31: case 0x39:			/* LWC1, SWC1 */
-			/* the FPU registers are 64-bit slots here, in FR1 mode only: in FR0 mode */
-			/* this core packs the single precision registers in 32-bit words */
-			return (mips3.bigendian || !(mips3.cpr[0][COP0_Status] & SR_FR)) ? JIT_NONE : JIT_MEM;
+			/* the FPU register is selected by the FR mode at run time */
+			return mips3.bigendian ? JIT_NONE : JIT_MEM;
 
 		case 0x08: case 0x09: case 0x0a: case 0x0b:
 		case 0x0c: case 0x0d: case 0x0e: case 0x0f:
@@ -654,67 +665,156 @@ static int jit_classify(UINT32 op)
 static void jit_cache_writeback(struct sljit_compiler *C);
 static void jit_cache_load(struct sljit_compiler *C);
 
+/*
+	The FR mode is not a translation constant: games switch it around short
+	routines (NFL Blitz 2000 in nbanfl for every object it draws), and
+	dropping the translations at each switch makes the recompiler slower
+	than the interpreter. The single precision register n is the low word
+	of cpr[1][n] in FR1 mode and the (n & 1) word of cpr[1][n & ~1] in FR0
+	mode, the same word for an even n. Code touching an odd register, or
+	clearing the high word as FR1 MTC1 and LWC1 do, is emitted for both
+	modes and selected by SR_FR when it runs.
+*/
+INLINE sljit_sw jit_fpr32(int n, int fr1)
+{
+	return fr1 ? JOFF_FPR(n) : JOFF_FPR(n & 0x1e) + 4 * (n & 1);
+}
+
+/* a jump taken in FR0 mode */
+static struct sljit_jump *jit_emit_jump_fr0(struct sljit_compiler *C)
+{
+	sljit_emit_op2u(C, SLJIT_AND32 | SLJIT_SET_Z, JMEM(JOFF_SR), SLJIT_IMM, SR_FR);
+	return sljit_emit_jump(C, SLJIT_ZERO);
+}
+
+/* the word in R0 into the single precision register n, as the interpreter's set_cop1_reg32() */
+static void jit_emit_fpr32_store(struct sljit_compiler *C, int n)
+{
+	struct sljit_jump *fr0, *done;
+
+	fr0 = jit_emit_jump_fr0(C);
+	sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(n)), SLJIT_R0, 0);
+	sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(n) + 4), SLJIT_IMM, 0);
+	done = sljit_emit_jump(C, SLJIT_JUMP);
+	sljit_set_label(fr0, sljit_emit_label(C));
+	sljit_emit_op1(C, SLJIT_MOV32, JMEM(jit_fpr32(n, 0)), SLJIT_R0, 0);
+	sljit_set_label(done, sljit_emit_label(C));
+}
+
+/* the single precision register n into R0, as the interpreter's get_cop1_reg32() */
+static void jit_emit_fpr32_load(struct sljit_compiler *C, int n)
+{
+	struct sljit_jump *fr0, *done;
+
+	if (!(n & 1))
+	{
+		sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JMEM(JOFF_FPR(n)));
+		return;
+	}
+	fr0 = jit_emit_jump_fr0(C);
+	sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JMEM(jit_fpr32(n, 1)));
+	done = sljit_emit_jump(C, SLJIT_JUMP);
+	sljit_set_label(fr0, sljit_emit_label(C));
+	sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JMEM(jit_fpr32(n, 0)));
+	sljit_set_label(done, sljit_emit_label(C));
+}
+
 #if JIT_HOST64
 /*
 	The most used single precision FPU instructions in native code, on the
 	64-bit hosts (x86-64 SSE, AArch64), where the host's float operations
 	are the ones the interpreter's C compiles to: same IEEE results.
-	MTC1; ADD.S SUB.S MUL.S DIV.S (fd = fs op ft, the low word of fd, as
+	MTC1; ADD.S SUB.S MUL.S (fd = fs op ft, the low word of fd, as
 	the interpreter writes it); NEG.S (sign bit); C.EQ/UEQ/OLT/ULT/OLE/ULE.S
 	(the interpreter computes them as fs == ft, fs < ft, fs <= ft).
 	Returns 0 for the others, which go through the interpreter's code.
 */
-static int jit_emit_cop1_native(struct sljit_compiler *C, UINT32 op)
+static int jit_cop1_native_kind(UINT32 op)
 {
-	int rs = OPC_RS(op), rt = OPC_RT(op);
+	if (OPC_RS(op) == 0x04)		/* MTC1 */
+		return 1;
+	if (OPC_RS(op) != 0x10)
+		return 0;
+	switch (op & 63)
+	{
+		case 0x00: case 0x01: case 0x02:	/* ADD.S SUB.S MUL.S */
+		case 0x07:							/* NEG.S */
+			return 2;
+		case 0x32: case 0x3a: case 0x33: case 0x3b:
+		case 0x34: case 0x3c: case 0x35: case 0x3d:
+		case 0x36: case 0x3e:
+			/* SET_FCC: the top condition bit (cc 7, bit 31) also clears */
+			/* the high word in the interpreter: left to it */
+			return fcc_shift[(op >> 8) & 7] >= 31 ? 0 : 2;
+	}
+	return 0;
+}
+
+/* an arithmetic or compare instruction, with the FPU registers of one FR mode */
+static void jit_emit_cop1_arith(struct sljit_compiler *C, UINT32 op, int fr1)
+{
 	int ft = (op >> 16) & 31, fs = (op >> 11) & 31, fd = (op >> 6) & 31;
 	sljit_s32 fop = 0, set = 0, flag = 0;
+	int sh;
 
-	if (rs == 0x04)		/* MTC1: the low word of rt, zero-extended */
-	{
-		sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JREG(rt));
-		sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(fs)), SLJIT_R0, 0);
-		sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(fs) + 4), SLJIT_IMM, 0);
-		return 1;
-	}
-	if (rs != 0x10)
-		return 0;
 	switch (op & 63)
 	{
 		case 0x00:	fop = SLJIT_ADD_F32;	break;
 		case 0x01:	fop = SLJIT_SUB_F32;	break;
 		case 0x02:	fop = SLJIT_MUL_F32;	break;
-		case 0x03:	fop = SLJIT_DIV_F32;	break;
 		case 0x07:	/* NEG.S */
-			sljit_emit_op2(C, SLJIT_XOR32, SLJIT_R0, 0, JMEM(JOFF_FPR(fs)), SLJIT_IMM, (sljit_sw)(sljit_s32)0x80000000);
-			sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(fd)), SLJIT_R0, 0);
-			return 1;
+			sljit_emit_op2(C, SLJIT_XOR32, SLJIT_R0, 0, JMEM(jit_fpr32(fs, fr1)), SLJIT_IMM, (sljit_sw)(sljit_s32)0x80000000);
+			sljit_emit_op1(C, SLJIT_MOV32, JMEM(jit_fpr32(fd, fr1)), SLJIT_R0, 0);
+			return;
 		case 0x32: case 0x3a: case 0x33: case 0x3b:	set = SLJIT_SET_ORDERED_EQUAL;		flag = SLJIT_ORDERED_EQUAL;			break;
 		case 0x34: case 0x3c: case 0x35: case 0x3d:	set = SLJIT_SET_ORDERED_LESS;		flag = SLJIT_ORDERED_LESS;			break;
-		case 0x36: case 0x3e:						set = SLJIT_SET_ORDERED_LESS_EQUAL;	flag = SLJIT_ORDERED_LESS_EQUAL;	break;
-		default:	return 0;
+		default:									set = SLJIT_SET_ORDERED_LESS_EQUAL;	flag = SLJIT_ORDERED_LESS_EQUAL;	break;
 	}
-	sljit_emit_fop1(C, SLJIT_MOV_F32, SLJIT_FR0, 0, JMEM(JOFF_FPR(fs)));
+	sljit_emit_fop1(C, SLJIT_MOV_F32, SLJIT_FR0, 0, JMEM(jit_fpr32(fs, fr1)));
 	if (fop)
 	{
-		sljit_emit_fop2(C, fop, SLJIT_FR0, 0, SLJIT_FR0, 0, JMEM(JOFF_FPR(ft)));
-		sljit_emit_fop1(C, SLJIT_MOV_F32, JMEM(JOFF_FPR(fd)), SLJIT_FR0, 0);
-		return 1;
+		sljit_emit_fop2(C, fop, SLJIT_FR0, 0, SLJIT_FR0, 0, JMEM(jit_fpr32(ft, fr1)));
+		sljit_emit_fop1(C, SLJIT_MOV_F32, JMEM(jit_fpr32(fd, fr1)), SLJIT_FR0, 0);
+		return;
 	}
+	/* SET_FCC: condition bit cc of the FCSR */
+	sh = fcc_shift[(op >> 8) & 7];
+	sljit_emit_fop1(C, SLJIT_CMP_F32 | set, SLJIT_FR0, 0, JMEM(jit_fpr32(ft, fr1)));
+	sljit_emit_op_flags(C, SLJIT_MOV32, SLJIT_R0, 0, flag);
+	sljit_emit_op2(C, SLJIT_SHL32, SLJIT_R0, 0, SLJIT_R0, 0, SLJIT_IMM, sh);
+	sljit_emit_op2(C, SLJIT_AND32, SLJIT_R1, 0, JMEM(JOFF_FCSR), SLJIT_IMM, (sljit_sw)(sljit_s32)~(1u << sh));
+	sljit_emit_op2(C, SLJIT_OR32, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_R0, 0);
+	sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FCSR), SLJIT_R1, 0);
+}
+
+static int jit_emit_cop1_native(struct sljit_compiler *C, UINT32 op)
+{
+	int ft = (op >> 16) & 31, fs = (op >> 11) & 31, fd = (op >> 6) & 31;
+	struct sljit_jump *fr0, *done;
+
+	switch (jit_cop1_native_kind(op))
 	{
-		/* SET_FCC: condition bit cc of the FCSR; the top one (cc 7, bit 31) */
-		/* also clears the high word in the interpreter: left to it */
-		int sh = fcc_shift[(op >> 8) & 7];
-		if (sh >= 31)
-			return 0;
-		sljit_emit_fop1(C, SLJIT_CMP_F32 | set, SLJIT_FR0, 0, JMEM(JOFF_FPR(ft)));
-		sljit_emit_op_flags(C, SLJIT_MOV32, SLJIT_R0, 0, flag);
-		sljit_emit_op2(C, SLJIT_SHL32, SLJIT_R0, 0, SLJIT_R0, 0, SLJIT_IMM, sh);
-		sljit_emit_op2(C, SLJIT_AND32, SLJIT_R1, 0, JMEM(JOFF_FCSR), SLJIT_IMM, (sljit_sw)(sljit_s32)~(1u << sh));
-		sljit_emit_op2(C, SLJIT_OR32, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_R0, 0);
-		sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FCSR), SLJIT_R1, 0);
+		case 1:		/* MTC1: the low word of rt */
+			sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JREG(OPC_RT(op)));
+			jit_emit_fpr32_store(C, fs);
+			return 1;
+		case 2:
+			/* even registers only: the same words in both modes (the */
+			/* compares have the condition code, a multiple of 4, in fd) */
+			if (!((ft | fs | fd) & 1))
+			{
+				jit_emit_cop1_arith(C, op, 1);
+				return 1;
+			}
+			fr0 = jit_emit_jump_fr0(C);
+			jit_emit_cop1_arith(C, op, 1);
+			done = sljit_emit_jump(C, SLJIT_JUMP);
+			sljit_set_label(fr0, sljit_emit_label(C));
+			jit_emit_cop1_arith(C, op, 0);
+			sljit_set_label(done, sljit_emit_label(C));
+			return 1;
 	}
-	return 1;
+	return 0;
 }
 #endif
 
@@ -727,8 +827,7 @@ static void jit_emit_simple(struct sljit_compiler *C, UINT32 op)
 	if ((op >> 26) == 0x11)
 	{
 #if JIT_HOST64
-		/* native code assumes 64-bit FPU register slots: FR1 mode only */
-		if ((mips3.cpr[0][COP0_Status] & SR_FR) && jit_emit_cop1_native(C, op))
+		if (jit_emit_cop1_native(C, op))
 			return;
 #endif
 		jit_cache_writeback(C);
@@ -1320,13 +1419,12 @@ static void jit_emit_mem_access(struct sljit_compiler *C, UINT32 op, sljit_s32 h
 		case 0x3f:	/* SD: low word first, as two little-endian words */
 			jit_store64(C, rt, host);
 			return;
-		case 0x31:	/* LWC1: the word, zero-extended into the FPU register */
+		case 0x31:	/* LWC1 */
 			sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, SLJIT_MEM1(host), 0);
-			sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(rt)), SLJIT_R0, 0);
-			sljit_emit_op1(C, SLJIT_MOV32, JMEM(JOFF_FPR(rt) + 4), SLJIT_IMM, 0);
+			jit_emit_fpr32_store(C, rt);
 			return;
-		case 0x39:	/* SWC1: the low word of the FPU register */
-			sljit_emit_op1(C, SLJIT_MOV32, SLJIT_R0, 0, JMEM(JOFF_FPR(rt)));
+		case 0x39:	/* SWC1 */
+			jit_emit_fpr32_load(C, rt);
 			sljit_emit_op1(C, SLJIT_MOV32, SLJIT_MEM1(host), 0, SLJIT_R0, 0);
 			return;
 	}

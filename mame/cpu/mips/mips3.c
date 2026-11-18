@@ -95,6 +95,12 @@ typedef UINT32 data32_t;
 #define EXCEPTION_BADCOP	11
 #define EXCEPTION_OVERFLOW	12
 #define EXCEPTION_TRAP		13
+#define EXCEPTION_FPE		15
+
+/* FCR31 division-by-zero bits */
+#define FCR31_DIV0_FLAG		0x00000020
+#define FCR31_DIV0_ENABLE	0x00000400
+#define FCR31_DIV0_CAUSE	0x00008000
 
 
 
@@ -120,19 +126,27 @@ typedef UINT32 data32_t;
 #define FSREG		((op >> 11) & 31)
 #define FDREG		((op >> 6) & 31)
 
-#define FRVALS_FR0	(((float *)&mips3.cpr[1][0])[FRREG])
-#define FTVALS_FR0	(((float *)&mips3.cpr[1][0])[FTREG])
-#define FSVALS_FR0	(((float *)&mips3.cpr[1][0])[FSREG])
-#define FDVALS_FR0	(((float *)&mips3.cpr[1][0])[FDREG])
-#define FSVALW_FR0	(((UINT32 *)&mips3.cpr[1][0])[FSREG])
-#define FDVALW_FR0	(((UINT32 *)&mips3.cpr[1][0])[FDREG])
+/* FR0 mode: a single is a half of the even 64-bit slot and a double the
+   whole slot, so an even register is the same low word in FR0 and FR1 modes.
+   NFL Blitz 2000 (nbanfl) sets SR_FR, saves f20-f28 with MFC1 and restores
+   them with MTC1 after clearing it again: a different FR0 layout corrupts
+   the caller's registers. */
+#define FR0_SLOT(n)	(mips3.cpr[1][(n) & 0x1e])
+#define FR0_WORD(n)	(((UINT32 *)&FR0_SLOT(n))[BYTE_XOR_LE((n) & 1)])
 
-#define FRVALD_FR0	(*(double *)&mips3.cpr[1][FRREG/2])
-#define FTVALD_FR0	(*(double *)&mips3.cpr[1][FTREG/2])
-#define FSVALD_FR0	(*(double *)&mips3.cpr[1][FSREG/2])
-#define FDVALD_FR0	(*(double *)&mips3.cpr[1][FDREG/2])
-#define FSVALL_FR0	(((UINT64 *)&mips3.cpr[1][0])[FSREG/2])
-#define FDVALL_FR0	(((UINT64 *)&mips3.cpr[1][0])[FDREG/2])
+#define FRVALS_FR0	(((float *)&FR0_SLOT(FRREG))[BYTE_XOR_LE(FRREG & 1)])
+#define FTVALS_FR0	(((float *)&FR0_SLOT(FTREG))[BYTE_XOR_LE(FTREG & 1)])
+#define FSVALS_FR0	(((float *)&FR0_SLOT(FSREG))[BYTE_XOR_LE(FSREG & 1)])
+#define FDVALS_FR0	(((float *)&FR0_SLOT(FDREG))[BYTE_XOR_LE(FDREG & 1)])
+#define FSVALW_FR0	FR0_WORD(FSREG)
+#define FDVALW_FR0	FR0_WORD(FDREG)
+
+#define FRVALD_FR0	(*(double *)&FR0_SLOT(FRREG))
+#define FTVALD_FR0	(*(double *)&FR0_SLOT(FTREG))
+#define FSVALD_FR0	(*(double *)&FR0_SLOT(FSREG))
+#define FDVALD_FR0	(*(double *)&FR0_SLOT(FDREG))
+#define FSVALL_FR0	FR0_SLOT(FSREG)
+#define FDVALL_FR0	FR0_SLOT(FDREG)
 
 #define FRVALS_FR1	(((float *)&mips3.cpr[1][FRREG])[BYTE_XOR_LE(0)])
 #define FTVALS_FR1	(((float *)&mips3.cpr[1][FTREG])[BYTE_XOR_LE(0)])
@@ -158,11 +172,11 @@ typedef UINT32 data32_t;
 #define LIMMVAL		(op & 0x03ffffff)
 
 #define ADDPC(x)	mips3.nextpc = mips3.pc + ((x) << 2)
-#define ADDPCL(x,l)	{ mips3.nextpc = mips3.pc + ((x) << 2); mips3.r[l] = mips3.pc + 4; }
+#define ADDPCL(x,l)	{ mips3.nextpc = mips3.pc + ((x) << 2); mips3.r[l] = (INT32)(mips3.pc + 4); }
 #define ABSPC(x)	mips3.nextpc = (mips3.pc & 0xf0000000) | ((x) << 2)
-#define ABSPCL(x,l)	{ mips3.nextpc = (mips3.pc & 0xf0000000) | ((x) << 2); mips3.r[l] = mips3.pc + 4; }
+#define ABSPCL(x,l)	{ mips3.nextpc = (mips3.pc & 0xf0000000) | ((x) << 2); mips3.r[l] = (INT32)(mips3.pc + 4); }
 #define SETPC(x)	mips3.nextpc = (x)
-#define SETPCL(x,l)	{ mips3.nextpc = (x); mips3.r[l] = mips3.pc + 4; }
+#define SETPCL(x,l)	{ mips3.nextpc = (x); if (l) mips3.r[l] = (INT32)(mips3.pc + 4); }
 
 #define HIVAL		(UINT32)mips3.hi
 #define LOVAL		(UINT32)mips3.lo
@@ -1184,9 +1198,9 @@ INLINE void set_cop0_reg(int idx, UINT64 val)
 			mips3.cpr[0][idx] = val;
 			if (diff & 0x8000)
 				update_cycle_counting();
-			/* the recompiler translates FPU instructions only while COP1 is usable, */
-			/* and its native FPU code depends on the FR mode */
-			if (diff & (SR_COP1 | SR_FR))
+			/* the recompiler translates FPU instructions only while COP1 is usable */
+			/* (its FPU code selects the FR mode at run time) */
+			if (diff & SR_COP1)
 				jit_flush();
 			check_irqs();
 			break;
@@ -1583,7 +1597,7 @@ printf("Mask = %08X%08X  TLB = %08X%08X  MATCH = %08X%08X\n",
 INLINE UINT32 get_cop1_reg32(int idx)
 {
 	if (IS_FR0)
-		return ((UINT32 *)&mips3.cpr[1][0])[idx];
+		return FR0_WORD(idx);
 	else
 		return mips3.cpr[1][idx];
 }
@@ -1591,7 +1605,7 @@ INLINE UINT32 get_cop1_reg32(int idx)
 INLINE UINT64 get_cop1_reg64(int idx)
 {
 	if (IS_FR0)
-		return ((UINT64 *)&mips3.cpr[1][0])[idx/2];
+		return FR0_SLOT(idx);
 	else
 		return mips3.cpr[1][idx];
 }
@@ -1599,7 +1613,7 @@ INLINE UINT64 get_cop1_reg64(int idx)
 INLINE void set_cop1_reg32(int idx, UINT32 val)
 {
 	if (IS_FR0)
-		((UINT32 *)&mips3.cpr[1][0])[idx] = val;
+		FR0_WORD(idx) = val;
 	else
 		mips3.cpr[1][idx] = val;
 }
@@ -1607,7 +1621,7 @@ INLINE void set_cop1_reg32(int idx, UINT32 val)
 INLINE void set_cop1_reg64(int idx, UINT64 val)
 {
 	if (IS_FR0)
-		((UINT64 *)&mips3.cpr[1][0])[idx/2] = val;
+		FR0_SLOT(idx) = val;
 	else
 		mips3.cpr[1][idx] = val;
 }
@@ -1621,6 +1635,32 @@ INLINE void set_cop1_creg(int idx, UINT64 val)
 {
 	mips3.ccr[1][idx] = val;
 }
+
+INLINE int cop1_division(UINT32 op)
+{
+	return (op & 0xffc0003f) == 0x46000003;
+}
+
+
+INLINE int cop1_divide_by_zero(UINT32 op)
+{
+	if (!(SR & SR_COP1) || !(mips3.ccr[1][31] & FCR31_DIV0_ENABLE))
+		return 0;
+
+	if (IS_SINGLE(op))
+	{
+		UINT32 dividend = get_cop1_reg32(FSREG) & 0x7fffffff;
+		return dividend && dividend < 0x7f800000 &&
+			!(get_cop1_reg32(FTREG) & 0x7fffffff);
+	}
+	else
+	{
+		UINT64 dividend = get_cop1_reg64(FSREG) & U64(0x7fffffffffffffff);
+		return dividend && dividend < U64(0x7ff0000000000000) &&
+			!(get_cop1_reg64(FTREG) & U64(0x7fffffffffffffff));
+	}
+}
+
 
 INLINE void handle_cop1_fr0(UINT32 op)
 {
@@ -2674,6 +2714,16 @@ int mips3_execute(int cycles)
 
 		/* instruction fetch */
 		op = ROPCODE(mips3.pcbase | (mips3.pc & 0xfff));
+
+		/* Trap before committing a pending branch so EPC and Cause.BD
+		   still describe a fault in its delay slot. */
+		if (cop1_division(op) && cop1_divide_by_zero(op))
+		{
+			mips3.ccr[1][31] |= FCR31_DIV0_FLAG | FCR31_DIV0_CAUSE;
+			generate_exception(EXCEPTION_FPE, 1);
+			mips3_icount--;
+			continue;
+		}
 
 		/* adjust for next PC */
 		if (mips3.nextpc != ~0)

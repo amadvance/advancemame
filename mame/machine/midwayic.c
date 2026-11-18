@@ -77,6 +77,7 @@ struct ioasic_state
 	UINT8	shuffle_active;
 	UINT8 *	shuffle_map;
 	void 	(*irq_callback)(int);
+	void	(*aux_output_callback)(UINT16);
 	UINT8	irq_state;
 	UINT16	sound_irq_state;
 	UINT8	auto_ack;
@@ -568,6 +569,7 @@ void midway_ioasic_init(int shuffle, int upper, int yearoffs, void (*irq_callbac
 	ioasic.shuffle_map = &shuffle_maps[shuffle][0];
 	ioasic.auto_ack = 0;
 	ioasic.irq_callback = irq_callback;
+	ioasic.aux_output_callback = NULL;
 
 	/* initialize the PIC */
 	midway_serial_pic2_init(upper, yearoffs);
@@ -599,6 +601,12 @@ void midway_ioasic_set_auto_ack(int auto_ack)
 void midway_ioasic_set_shuffle_state(int state)
 {
 	ioasic.shuffle_active = state;
+}
+
+
+void midway_ioasic_set_aux_output_callback(void (*callback)(UINT16))
+{
+	ioasic.aux_output_callback = callback;
 }
 
 
@@ -987,6 +995,11 @@ WRITE32_HANDLER( midway_ioasic_w )
 				midway_serial_pic2_w(newreg ^ 0x05);
 			else
 				midway_serial_pic2_w(newreg);
+			break;
+
+		case IOASIC_PICIN:
+			if (ioasic.aux_output_callback)
+				(*ioasic.aux_output_callback)(newreg);
 			break;
 
 		case IOASIC_INTCTL:

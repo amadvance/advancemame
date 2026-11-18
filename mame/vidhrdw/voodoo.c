@@ -390,6 +390,10 @@ int voodoo_start(int which, int type, int fbmem_in_mb, int tmem0_in_mb, int tmem
 	v->banshee.io[io_sipMonitor] = 0x40000000;
 	v->banshee.io[io_lfbMemoryConfig] = 0x000a2200;
 	v->banshee.io[io_dramInit0] = 0x00579d29;
+	if (fbmem_in_mb == 16)
+		v->banshee.io[io_dramInit0] |= 0x0c000000;
+	else
+		v->banshee.io[io_dramInit0] |= 0x08000000;
 	v->banshee.io[io_dramInit1] = 0x00f02200;
 	v->banshee.io[io_tmuGbeInit] = 0x00000bfb;
 
@@ -1879,21 +1883,39 @@ static UINT32 cmdfifo_execute(voodoo_state *v, cmdfifo_info *f)
 			target = *src++ / 4;
 
 			/* handle LFB writes */
-			if ((command >> 30) == 2)
+			switch (command >> 30)
 			{
-				if (LOG_CMDFIFO) logerror("  PACKET TYPE 5: LFB count=%d dest=%08X bd2=%X bdN=%X\n", count, target, (command >> 26) & 15, (command >> 22) & 15);
+				case 0:		/* Linear FB */
+					if (LOG_CMDFIFO) logerror("  PACKET TYPE 5: FB count=%d dest=%08X bd2=%X bdN=%X\n", count, target, (command >> 26) & 15, (command >> 22) & 15);
+					for (i = 0; i < count; i++)
+					{
+						UINT32 data = *src++;
+						if (target * 4 <= v->fbi.mask)
+							((UINT32 *)v->fbi.ram)[target] = data;
+						target++;
+					}
+					break;
 
-				/* loop over words */
-				for (i = 0; i < count; i++)
-					cycles += lfb_w(v, target++, *src++, 0, FALSE);
-			}
-			else if ((command >> 30) == 3)
-			{
-				if (LOG_CMDFIFO) logerror("  PACKET TYPE 5: textureRAM count=%d dest=%08X bd2=%X bdN=%X\n", count, target, (command >> 26) & 15, (command >> 22) & 15);
+				case 1:		/* Planar YUV */
+					src += count;
+					target += count;
+					break;
 
-				/* loop over words */
-				for (i = 0; i < count; i++)
-					cycles += texture_w(v, target++, *src++);
+				case 2:		/* 3D LFB */
+					if (LOG_CMDFIFO) logerror("  PACKET TYPE 5: LFB count=%d dest=%08X bd2=%X bdN=%X\n", count, target, (command >> 26) & 15, (command >> 22) & 15);
+
+					/* loop over words */
+					for (i = 0; i < count; i++)
+						cycles += lfb_w(v, target++, *src++, 0, FALSE);
+					break;
+
+				case 3:		/* Texture Port */
+					if (LOG_CMDFIFO) logerror("  PACKET TYPE 5: textureRAM count=%d dest=%08X bd2=%X bdN=%X\n", count, target, (command >> 26) & 15, (command >> 22) & 15);
+
+					/* loop over words */
+					for (i = 0; i < count; i++)
+						cycles += texture_w(v, target++, *src++);
+					break;
 			}
 			break;
 
@@ -1970,7 +1992,9 @@ static void cmdfifo_w(voodoo_state *v, cmdfifo_info *f, offs_t offset, UINT32 da
 			if (f->holes != 0)
 				logerror("Unexpected CMDFIFO: AMin=%08X AMax=%08X Holes=%d WroteTo:%08X\n",
 						f->amin, f->amax, f->holes, addr);
-			f->amin = f->amax = addr;
+			f->holes += (addr - f->base) / 4;
+			f->amin = f->base;
+			f->amax = addr;
 			f->depth++;
 		}
 

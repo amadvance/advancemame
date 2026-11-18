@@ -28,6 +28,7 @@ NVRAM_HANDLER( midway_serial_pic2 );
 void midway_ioasic_init(int shuffle, int upper, int yearoffs, void (*irq_callback)(int));
 void midway_ioasic_set_auto_ack(int auto_ack);
 void midway_ioasic_set_shuffle_state(int state);
+void midway_ioasic_set_aux_output_callback(void (*callback)(UINT16));
 void midway_ioasic_reset(void);
 void midway_ioasic_fifo_w(UINT16 data);
 void midway_ioasic_fifo_reset_w(int state);
