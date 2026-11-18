@@ -1816,8 +1816,10 @@ static void dcs_irq(int state)
 
 	/* copy the current data into the buffer */
 	{
-		int count = dcs.size / 2;
-		INT16 buffer[0x400];
+		int stride = abs(dcs.incs);
+		int count = dcs.size / (2 * (stride ? stride : 1));
+		/* The 14-bit ADSP length register can describe larger Denver buffers. */
+		INT16 buffer[0x2000];
 		int i;
 
 		cpuintrf_push_context(dcs.cpunum);
@@ -1829,7 +1831,7 @@ static void dcs_irq(int state)
 		cpuintrf_pop_context();
 
 		if (dcs.channels)
-			dmadac_transfer(0, dcs.channels, 1, dcs.channels, (dcs.size / 2) / dcs.channels, buffer);
+			dmadac_transfer(0, dcs.channels, 1, dcs.channels, count / dcs.channels, buffer);
 	}
 
 	/* check for wrapping */

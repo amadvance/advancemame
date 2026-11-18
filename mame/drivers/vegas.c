@@ -20,9 +20,6 @@
         * San Francisco Rush 2049 Tournament Edition (PIC ID = 348)
         * CART Fury
 
-    Known bugs:
-        * not working yet
-
 ***************************************************************************
 
     Interrupt summary:
@@ -660,9 +657,11 @@ static READ32_HANDLER( timekeeper_r )
 	/* upper bytes are a realtime clock */
 	if ((offset*4) >= 0x7ff0)
 	{
-		/* get the time */
 		struct tm *exptime;
 		time_t curtime;
+
+		/* The boot ROM measures the RTC access latency. */
+		activecpu_eat_cycles(30);
 		time(&curtime);
 		exptime = localtime(&curtime);
 
@@ -818,12 +817,14 @@ static READ32_HANDLER( pci_3dfx_r )
 		case 0x00:		/* ID register: 0x0002 = SST-2, 0x121a = 3dfx */
 			if (voodoo_type == VOODOO_2)
 				result = 0x0002121a;
+			else if (voodoo_type == VOODOO_3)
+				result = 0x0005121a;
 			else
 				result = 0x0003121a;
 			break;
 
 		case 0x02:		/* revision ID register */
-			result = 0x00000002;
+			result = (voodoo_type == VOODOO_2) ? 0x03800002 : 0x03000002;
 			break;
 
 		case 0x10:		/* fab ID register?? */
@@ -1157,14 +1158,14 @@ static WRITE32_HANDLER( nile_w )
 		case NREG_PCIERR+1:		/* PCI error */
 		case NREG_PCICTRL+0:	/* PCI control */
 		case NREG_PCICTRL+1:	/* PCI arbiter */
-		case NREG_PCIINIT0+0:	/* PCI master */
 		case NREG_PCIINIT0+1:	/* PCI master */
 		case NREG_PCIINIT1+1:	/* PCI master */
 			logit = 0;
 			break;
 
+		case NREG_PCIINIT0+0:	/* PCI master */
 		case NREG_PCIINIT1+0:	/* PCI master */
-			if (((olddata & 0xe) == 0xa) != ((nile_regs[offset] & 0xe) == 0xa))
+			if (olddata != nile_regs[offset])
 				remap_dynamic_addresses();
 			logit = 0;
 			break;
@@ -1356,10 +1357,8 @@ static WRITE32_HANDLER( sio_irq_clear_w )
 
 		/* bit 0x01 seems to be used to reset the IOASIC */
 		if (!(data & 0x01))
-		{
 			midway_ioasic_reset();
-			dcs_reset_w(data & 0x01);
-		}
+		dcs_reset_w(~data & 1);
 
 		/* they toggle bit 0x08 low to reset the VBLANK */
 		if (!(data & 0x08))
@@ -1579,6 +1578,33 @@ INLINE void _add_dynamic_address(offs_t start, offs_t end, read32_handler read, 
 }
 
 
+/* Convert a PCI I/O BAR to its CPU address through the Nile window. */
+static offs_t pci_io_address(offs_t address)
+{
+	int window;
+
+	if (!address)
+		return 0;
+
+	for (window = 0; window < 2; window++)
+	{
+		UINT32 config = nile_regs[NREG_PCIW0 + window * 2];
+		UINT32 init = nile_regs[NREG_PCIINIT0 + window * 2];
+		unsigned int size = config & 0xf;
+		UINT32 mask;
+
+		if ((init & 0xe) != 2 || size < 5)
+			continue;
+		mask = (1U << (36 - size)) - 1;
+		if ((address & ~mask) == (init & ~mask))
+			return (config & 0x1fe00000) + (address & mask);
+	}
+
+	/* Some BIOSes program BARs with the CPU address directly. */
+	return address;
+}
+
+
 static void remap_dynamic_addresses(void)
 {
 	offs_t base;
@@ -1665,15 +1691,15 @@ static void remap_dynamic_addresses(void)
 	else
 	{
 		/* IDE controller */
-		base = pci_ide_regs[0x04] & 0xfffffff0;
+		base = pci_io_address(pci_ide_regs[0x04] & 0xfffffff0);
 		if (base >= ramsize && base < 0x20000000)
 			add_dynamic_address(base + 0x0000, base + 0x000f, ide_main_r, ide_main_w);
 
-		base = pci_ide_regs[0x05] & 0xfffffffc;
+		base = pci_io_address(pci_ide_regs[0x05] & 0xfffffffc);
 		if (base >= ramsize && base < 0x20000000)
 			add_dynamic_address(base + 0x0000, base + 0x0003, ide_alt_r, ide_alt_w);
 
-		base = pci_ide_regs[0x08] & 0xfffffff0;
+		base = pci_io_address(pci_ide_regs[0x08] & 0xfffffff0);
 		if (base >= ramsize && base < 0x20000000)
 			add_dynamic_address(base + 0x0000, base + 0x0007, ide_bus_master32_0_r, ide_bus_master32_0_w);
 
@@ -1693,7 +1719,7 @@ static void remap_dynamic_addresses(void)
             if (base >= ramsize && base < 0x20000000)
 				add_dynamic_address(base + 0x0000000, base + 0x1ffffff, banshee_fb_0_r, banshee_fb_0_w);
 
-			base = pci_3dfx_regs[0x06] & 0xfffffff0;
+			base = pci_io_address(pci_3dfx_regs[0x06] & 0xfffffff0);
             if (base >= ramsize && base < 0x20000000)
 				add_dynamic_address(base + 0x0000000, base + 0x00000ff, banshee_io_0_r, banshee_io_0_w);
 
@@ -1973,6 +1999,18 @@ INPUT_PORTS_START( warfa )
 	PORT_DIPSETTING(      0x4000, "Medium Res 512x384" )
 	PORT_DIPSETTING(      0x0000, "VGA Res 640x480" )
 
+	PORT_MODIFY("P12")
+	PORT_BIT( 0x000f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Trigger")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Discard")
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Jump")
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("View")
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_CODE(KEYCODE_W) PORT_NAME("Forward")
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_CODE(KEYCODE_S) PORT_NAME("Back")
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_CODE(KEYCODE_A) PORT_NAME("Dodge Left")
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_CODE(KEYCODE_D) PORT_NAME("Dodge Right")
+	PORT_BIT( 0xe000, IP_ACTIVE_LOW, IPT_UNUSED )
+
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
 
@@ -2003,28 +2041,30 @@ INPUT_PORTS_START( roadburn )
 	PORT_INCLUDE(vegas_common)
 
 	PORT_MODIFY("DIPS")
-	PORT_DIPNAME( 0x0002, 0x0002, "Boot ROM Test" )
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ))
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ))
-	PORT_DIPNAME( 0x0040, 0x0040, "Quantum 3dfx card rev" )
-	PORT_DIPSETTING(      0x0040, "4" )
-	PORT_DIPSETTING(      0x0000, "?" )
-	PORT_DIPNAME( 0x0080, 0x0080, "PM Dump" )
-	PORT_DIPSETTING(      0x0080, "Watchdog resets only" )
-	PORT_DIPSETTING(      0x0000, "All resets" )
+	PORT_DIPNAME( 0x0003, 0x0003, "Test Mode" )
+	PORT_DIPSETTING(      0x0003, DEF_STR( Off ))
+	PORT_DIPSETTING(      0x0002, "Disk-based Test" )
+	PORT_DIPSETTING(      0x0001, "EPROM-based Test" )
+	PORT_DIPSETTING(      0x0000, "Interactive Diagnostics" )
 	PORT_DIPNAME( 0x0300, 0x0300, "Resolution" )
 	PORT_DIPSETTING(      0x0300, "Standard Res 512x256" )
 	PORT_DIPSETTING(      0x0200, "Medium Res 512x384" )
 	PORT_DIPSETTING(      0x0000, "VGA Res 640x480" )
 
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10, 0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
+	PORT_MODIFY("P12")
+	PORT_BIT( 0x000f, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Brake")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Music")
+	PORT_BIT( 0xff40, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_NAME("Accelerator")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_NAME("Steering")
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_X ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(50) PORT_KEYDELTA(10) PORT_NAME("Bank")
 
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
@@ -2108,65 +2148,53 @@ INPUT_PORTS_START( sf2049 )
 	PORT_DIPNAME( 0x0080, 0x0080, "PM Dump" )
 	PORT_DIPSETTING(      0x0080, "Watchdog resets only" )
 	PORT_DIPSETTING(      0x0000, "All resets" )
-	PORT_DIPNAME( 0x0100, 0x0200, "Resolution" )
-	PORT_DIPSETTING(      0x0000, "Standard Res 512x256" )
+	PORT_DIPNAME( 0x0300, 0x0000, "Resolution" )
+	PORT_DIPSETTING(      0x0300, "Standard Res 512x256" )
 	PORT_DIPSETTING(      0x0200, "Medium Res 512x384" )
-	PORT_DIPSETTING(      0x0300, "VGA Res 640x480" )
+	PORT_DIPSETTING(      0x0000, "VGA Res 640x480" )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10, 0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Accelerator")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL3 ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Clutch")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_BIT( 0xff, 0x00, IPT_UNUSED )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_NAME("Brake")
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(20) PORT_NAME("Steering")
 INPUT_PORTS_END
 
 
 INPUT_PORTS_START( sf2049se )
-	PORT_INCLUDE(vegas_common)
+	PORT_INCLUDE(sf2049)
 
 	PORT_MODIFY("DIPS")
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10, 0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(20)
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_PEDAL ) PORT_MINMAX(0x00, 0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(100) PORT_PLAYER(2)
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
-
-	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_SPECIAL )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Diagnostics" )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( Off ))
+	PORT_DIPSETTING(      0x0040, "Disk-based Test" )
+	PORT_DIPSETTING(      0x0080, "EPROM-based Test" )
+	PORT_DIPSETTING(      0x0000, "Interactive Diagnostics" )
+	PORT_DIPNAME( 0x2000, 0x2000, "Cabinet Type" )
+	PORT_DIPSETTING(      0x2000, "Sit down cabinet" )
+	PORT_DIPSETTING(      0x0000, "Upright cabinet" )
+	PORT_DIPNAME( 0xc000, 0x8000, "Video Mode" )
+	PORT_DIPSETTING(      0xc000, "Standard Res 512x256" )
+	PORT_DIPSETTING(      0x4000, "Medium Res 512x384" )
+	PORT_DIPSETTING(      0x8000, "VGA Res 640x480" )
 INPUT_PORTS_END
 
 
@@ -2239,6 +2267,13 @@ INPUT_PORTS_END
  *
  *************************************/
 
+static struct mips3_config nbagold_config =
+{
+	32768,
+	32768,
+	SYSTEM_CLOCK
+};
+
 static struct mips3_config config =
 {
 	16384,			/* code cache size */
@@ -2292,18 +2327,21 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( vegas32m )
 	MDRV_IMPORT_FROM(vegascore)
-	MDRV_VISIBLE_AREA(0, 510, 0, 255)
-	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_REPLACE("main", R5000LE, SYSTEM_CLOCK*2.5)
 	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
+MACHINE_DRIVER_END
+
+
+MACHINE_DRIVER_START( roadburn )
+	MDRV_IMPORT_FROM(vegas32m)
+	MDRV_VISIBLE_AREA(0, 510, 0, 255)
 	MDRV_IMPORT_FROM(dcs2_audio_dsio)
 MACHINE_DRIVER_END
 
 
 MACHINE_DRIVER_START( vegasban )
-	MDRV_IMPORT_FROM(vegascore)
+	MDRV_IMPORT_FROM(vegas32m)
 	MDRV_VISIBLE_AREA(0, 639, 0, 479)
-	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(vegas_map_32mb,0)
 	MDRV_IMPORT_FROM(dcs2_audio_2104)
 	MDRV_VIDEO_START(vegas_voodoo_banshee)
 MACHINE_DRIVER_END
@@ -2311,6 +2349,9 @@ MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( nbagold )
 	MDRV_IMPORT_FROM(vegasban)
+	MDRV_CPU_REPLACE("main", QED5271LE, SYSTEM_CLOCK*2.5)
+	MDRV_CPU_CONFIG(nbagold_config)
+	MDRV_CPU_PROGRAM_MAP(vegas_map_8mb,0)
 	MDRV_VISIBLE_AREA(0, 511, 0, 383)
 MACHINE_DRIVER_END
 
@@ -2319,6 +2360,7 @@ MACHINE_DRIVER_START( vegasv3 )
 	MDRV_IMPORT_FROM(vegas32m)
 	MDRV_VISIBLE_AREA(0, 639, 0, 479)
 	MDRV_CPU_REPLACE("main", RM7000LE, SYSTEM_CLOCK*2.5)
+	MDRV_IMPORT_FROM(dcs2_audio_2104)
 	MDRV_VIDEO_START(vegas_voodoo3)
 MACHINE_DRIVER_END
 
@@ -2447,10 +2489,16 @@ ROM_START( nbashowt )
 ROM_END
 
 
+SYSTEM_BIOS_START( nbanfl )
+	SYSTEM_BIOS_ADD( 0, "v25", "Version 2.5" )
+	SYSTEM_BIOS_ADD( 1, "v26", "Version 2.6" )
+SYSTEM_BIOS_END
+
+
 ROM_START( nbanfl )
 	ROM_REGION32_LE( 0x80000, REGION_USER1, 0 )
-	ROM_LOAD( "u27nflnba.bin", 0x000000, 0x80000, CRC(6a9bd382) SHA1(18b942df6af86ea944c24166dbe88148334eaff9) )
-//  ROM_LOAD( "bootnflnba.bin", 0x000000, 0x80000, CRC(3def7053) SHA1(8f07567929f40a2269a42495dfa9dd5edef688fe) )
+	ROMX_LOAD( "2.5.u27", 0x000000, 0x80000, CRC(6a9bd382) SHA1(18b942df6af86ea944c24166dbe88148334eaff9), ROM_BIOS(1) )
+	ROMX_LOAD( "2.6.u27", 0x000000, 0x80000, CRC(ec2885e5) SHA1(a7cc77b00d509f87563b57be31df3f8190700905), ROM_BIOS(2) )
 
 	DISK_REGION( REGION_DISKS )
 	DISK_IMAGE( "nbanfl", 0, MD5(9e3748957c672f6d7a1e464546f46b15) SHA1(4256c7487a55fd0d0e4241f595cc886d4402fd7d) )
@@ -2529,6 +2577,7 @@ static void init_common(int ioasic, int serialnum)
 
 	/* initialize the subsystems */
 	ide_controller_init(0, &ide_intf);
+	ide_set_dma_read_time(0, TIME_IN_USEC(15));
 	midway_ioasic_init(ioasic, serialnum, 80, ioasic_irq);
 	midway_ioasic_set_auto_ack(1);
 	smc91c94_init(&ethernet_intf);
@@ -2569,30 +2618,32 @@ static DRIVER_INIT( tenthdeg )
 
 static DRIVER_INIT( roadburn )
 {
-	dcs2_init(4, 0);	/* no place to hook :-( */
+	dcs2_init(4, 0x0ddd);
 	init_common(MIDWAY_IOASIC_STANDARD, 325/* others? */);
 }
 
 
 static DRIVER_INIT( nbashowt )
 {
-	dcs2_init(4, 0);
+	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_MACE, 487);
+	midway_ioasic_set_auto_ack(0);
 }
 
 
 static DRIVER_INIT( nbanfl )
 {
-	dcs2_init(4, 0);
+	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_BLITZ99, 498/* or 478 or 487 */);
-	/* NOT: MACE */
+	midway_ioasic_set_auto_ack(0);
 }
 
 
 static DRIVER_INIT( nbagold )
 {
-	dcs2_init(4, 0);
+	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_GAUNTDL, 109);
+	midway_ioasic_set_auto_ack(0);
 }
 
 
@@ -2622,8 +2673,9 @@ static DRIVER_INIT( sf2049te )
 
 static DRIVER_INIT( cartfury )
 {
-	dcs2_init(4, 0);
+	dcs2_init(4, 0x0b5d);
 	init_common(MIDWAY_IOASIC_CARNEVIL, 495/* others? */);
+	midway_ioasic_set_auto_ack(0);
 }
 
 
@@ -2643,15 +2695,15 @@ GAME( 1998, tenthdeg, 0,        tenthdeg, tenthdeg, tenthdeg, ROT0, "Atari Games
 /* Durango + Vegas SIO + Voodoo 2 */
 GAME( 1999, gauntdl,  0,        vegas,    gauntdl,  gauntdl,  ROT0, "Midway Games", "Gauntlet Dark Legacy (version DL 2.52)", 0 )
 GAME( 1999, gauntd24, gauntdl,  vegas,    gauntdl,  gauntdl,  ROT0, "Midway Games", "Gauntlet Dark Legacy (version DL 2.4)", 0 )
-GAME( 1999, warfa,    0,        vegas250, warfa,    warfa,    ROT0, "Atari Games",  "War: Final Assault (GUTS 1.3 Apr 20 1999, GAME Apr 20 1999)", GAME_NOT_WORKING )
+GAME( 1999, warfa,    0,        vegas250, warfa,    warfa,    ROT0, "Atari Games",  "War: Final Assault (GUTS 1.3 Apr 20 1999, GAME Apr 20 1999)", 0 )
 
 /* Durango + DSIO + Voodoo 2 */
-GAME( 1999, roadburn, 0,        vegas32m, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners (ver 1.04)", GAME_NOT_WORKING )
-GAME( 1999, roadburn1, roadburn, vegas32m, roadburn, roadburn, ROT0, "Atari Games", "Road Burners (ver 1.0)", GAME_NOT_WORKING )
+GAME( 1999, roadburn, 0,        roadburn, roadburn, roadburn, ROT0, "Atari Games",  "Road Burners (ver 1.04)", GAME_NOT_WORKING )
+GAME( 1999, roadburn1, roadburn, roadburn, roadburn, roadburn, ROT0, "Atari Games", "Road Burners (ver 1.0)", GAME_NOT_WORKING )
 
 /* Durango + DSIO? + Voodoo banshee */
 GAME( 1999, nbashowt, 0,        vegasban, nbashowt, nbashowt, ROT0, "Midway Games", "NBA Showtime NBA on NBC (ver 2.0, Apr 25 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 1999, nbanfl,   0,        vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAMEB(1999, nbanfl,   0,        nbanfl, vegasban, nbashowt, nbanfl,   ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC (ver 2.1, Sep 22 1999) / NFL Blitz 2000 Gold Edition (ver 1.5, Sep 22 1999)", GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 2000, nbagold,  0,        nbagold,  nbashowt, nbagold,  ROT0, "Midway Games", "SportStation: NBA Showtime NBA on NBC Gold Edition (ver 3.0, Feb 18 2000) / NFL Blitz 2000 Gold Edition", GAME_NO_SOUND | GAME_NOT_WORKING )
 
 /* Durango + Denver SIO + Voodoo 3 */

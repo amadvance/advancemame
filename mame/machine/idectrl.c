@@ -137,6 +137,7 @@ struct ide_state
 	UINT16	sectors_until_int;
 	UINT8	verify_only;
 
+	double	dma_read_time;
 	UINT8	dma_active;
 	UINT8	dma_cpu;
 	UINT8	dma_address_xor;
@@ -317,6 +318,7 @@ int ide_controller_init_custom(int which, struct ide_interface *intf, chd_file *
 	/* reset the IDE state */
 	memset(ide, 0, sizeof(*ide));
 	ide->intf = intf;
+	ide->dma_read_time = TIME_PER_SECTOR_READ;
 
 	/* set MAME harddisk handle */
 	ide->disk = hard_disk_open(diskhandle);
@@ -401,6 +403,13 @@ int ide_controller_init(int which, struct ide_interface *intf)
 {
 	/* we only support one hard disk right now; get a handle to it */
 	return ide_controller_init_custom(which, intf, get_disk_handle(0));
+}
+
+
+/* Set the per-sector DMA delay in emulated seconds. */
+void ide_set_dma_read_time(int which, double time)
+{
+	idestate[which].dma_read_time = time;
 }
 
 
@@ -955,7 +964,7 @@ static void read_first_sector(struct ide_state *ide)
 		ide_event(ide, 1, seek_time, IDE_EVENT_READ_SECTOR);
 	}
 	else
-		ide_event(ide, 1, TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
+		ide_event(ide, 1, ide->dma_active ? ide->dma_read_time : TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
 }
 
 
@@ -975,7 +984,7 @@ static void read_next_sector(struct ide_state *ide)
 	}
 	else
 		/* just set a timer */
-		ide_event(ide, 1, TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
+		ide_event(ide, 1, ide->dma_active ? ide->dma_read_time : TIME_PER_SECTOR_READ, IDE_EVENT_READ_SECTOR);
 }
 
 

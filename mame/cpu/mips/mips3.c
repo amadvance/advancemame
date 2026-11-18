@@ -860,7 +860,7 @@ static void qed5271be_reset(void)
 
 static void qed5271le_reset(void)
 {
-	mips3_reset(1, 0, 0x2300);
+	mips3_reset(0, 1, 0x2300);
 }
 #endif
 
