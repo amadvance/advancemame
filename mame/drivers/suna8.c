@@ -45,6 +45,7 @@ extern int suna8_text_dim; /* specifies format of text layer */
 
 extern UINT8 suna8_rombank, suna8_spritebank, suna8_palettebank;
 extern UINT8 suna8_unknown;
+extern UINT8 brickzn_paletteram_enab, brickzn_prot2, brickzn_prot2_prev;
 extern int suna8_gfxbank;
 extern int suna8_sample_4bit;
 
@@ -62,6 +63,7 @@ WRITE8_HANDLER( brickzn_banked_paletteram_w );
 VIDEO_START( suna8_textdim0 );
 VIDEO_START( suna8_sparkman );
 VIDEO_START( suna8_starfigh );
+VIDEO_START( suna8_brickzn );
 VIDEO_START( suna8_textdim8 );
 VIDEO_START( suna8_textdim12 );
 VIDEO_UPDATE( suna8 );
@@ -115,7 +117,7 @@ static DRIVER_INIT( hardhedb )
                                 Brick Zone
 ***************************************************************************/
 
-/* !! BRICKZN3 !! */
+static UINT8 *brickzn_decrypt_ptr;
 
 static UINT8 *brickzn_decrypt(void)
 {
@@ -124,6 +126,7 @@ static UINT8 *brickzn_decrypt(void)
 	UINT8   *decrypt = auto_malloc(size);
 	int i;
 
+	brickzn_decrypt_ptr = decrypt;
 	memory_set_decrypted_region(0, 0x0000, 0x7fff, decrypt);
 
 	/* Opcodes and data */
@@ -154,71 +157,53 @@ static UINT8 *brickzn_decrypt(void)
 			x = BITSWAP8(x, 7,2,3,4,5,6,1,0) ^ 0x10;
 
 		decrypt[i] = x;
+
+		if (i >= 0x10000)
+			RAM[i + 0x40000] = RAM[i] ^ 0x44;
 	}
+
+	return decrypt;
+}
+
+static UINT8 *init_brickzn_common(void)
+{
+	UINT8 *decrypt = brickzn_decrypt();
+
+	memory_configure_bank(1, 0, 16*2, memory_region(REGION_CPU1) + 0x10000, 0x4000);
+	memory_configure_bank_decrypted(1, 0, 16, decrypt + 0x10000, 0x4000);
+	memory_configure_bank_decrypted(1, 16, 16, decrypt + 0x10000, 0x4000);
 
 	return decrypt;
 }
 
 DRIVER_INIT( brickzn )
 {
-	UINT8	*RAM	=	memory_region(REGION_CPU1);
-	UINT8   *decrypt = brickzn_decrypt();
-	int i;
+	UINT8 *decrypt = init_brickzn_common();
 
-	// restore opcodes which for some reason shouldn't be decrypted... */
-	for (i = 0; i < 0x8000; i++)
-	{
-		if (	((i >= 0x0730) && (i <= 0x076f)) ||
-				((i >= 0x45c5) && (i <= 0x45e4)) ||
-				((i >= 0x7393) && (i <= 0x73ba)) ||
-				((i >= 0x7a79) && (i <= 0x7aa9)) )
-		{
-			decrypt[i] = RAM[i];
-		}
-	}
+	decrypt[0x11cc] = 0x00;
+	decrypt[0x11cd] = 0x00;
+	decrypt[0x11ce] = 0x00;
 
+	decrypt[0x335b] = 0xc9;
 
-	/* !!!!!! PATCHES !!!!!! */
-
-	decrypt[0x3349] = 0xc9;	// RET Z -> RET (to avoid: jp $C800)
-
-	decrypt[0x1431] = 0x00;	// HALT -> NOP (NMI source??)
-	decrypt[0x24b5] = 0x00;	// HALT -> NOP
-	decrypt[0x2583] = 0x00;	// HALT -> NOP
-
-	memory_configure_bank(1, 0, 16, memory_region(REGION_CPU1) + 0x10000, 0x4000);
-	memory_configure_bank_decrypted(1, 0, 16, decrypt + 0x10000, 0x4000);
+	decrypt[0x1442] = 0xc9;
+	decrypt[0x24c6] = 0x00;
+	decrypt[0x25a4] = 0x00;
 }
 
 DRIVER_INIT( brickzn3 )
 {
-	UINT8	*RAM	=	memory_region(REGION_CPU1);
-	UINT8   *decrypt = brickzn_decrypt();
-	int i;
+	UINT8 *decrypt = init_brickzn_common();
 
-	// restore opcodes which for some reason shouldn't be decrypted... */
-	for (i = 0; i < 0x8000; i++)
-	{
-		if (	((i >= 0x0730) && (i <= 0x076f)) ||
-				((i >= 0x4541) && (i <= 0x4560)) ||
-				((i >= 0x72f3) && (i <= 0x731a)) ||
-				((i >= 0x79d9) && (i <= 0x7a09)) )
-		{
-			decrypt[i] = RAM[i];
-		}
-	}
+	decrypt[0x1190] = 0x00;
+	decrypt[0x1191] = 0x00;
+	decrypt[0x1192] = 0x00;
 
+	decrypt[0x3337] = 0xc9;
 
-	/* !!!!!! PATCHES !!!!!! */
-
-	decrypt[0x3337] = 0xc9;	// RET Z -> RET (to avoid: jp $C800)
-
-	decrypt[0x1406] = 0x00;	// HALT -> NOP (NMI source??)
-	decrypt[0x2487] = 0x00;	// HALT -> NOP
-	decrypt[0x256c] = 0x00;	// HALT -> NOP
-
-	memory_configure_bank(1, 0, 16, memory_region(REGION_CPU1) + 0x10000, 0x4000);
-	memory_configure_bank_decrypted(1, 0, 16, decrypt + 0x10000, 0x4000);
+	decrypt[0x1406] = 0xc9;
+	decrypt[0x2487] = 0x00;
+	decrypt[0x256c] = 0x00;
 }
 
 
@@ -660,54 +645,102 @@ ADDRESS_MAP_END
                                 Brick Zone
 ***************************************************************************/
 
-/*
-?
-*/
-static READ8_HANDLER( brickzn_c140_r )
+static UINT8 brickzn_protection_val;
+static UINT8 brickzn_prot_opcode_toggle;
+static UINT8 brickzn_remap_sound;
+static UINT8 brickzn_wram_disable;
+static UINT8 brickzn_bank_alt;
+static UINT8 *brickzn_wram;
+
+static READ8_HANDLER( brickzn_cheats_r )
 {
-	return 0xff;
+	static UINT8 bit2 = 0;
+	bit2 = 1 - bit2;
+	return (readinputport(6) & (~(1 << 2))) | (bit2 << 2);
 }
 
-/*
-*/
-static WRITE8_HANDLER( brickzn_palettebank_w )
+static WRITE8_HANDLER( brickzn_leds_w )
 {
-	suna8_palettebank = (data >> 1) & 1;
-	if (data & ~0x02) 	logerror("CPU #0 - PC %04X: unknown palettebank bits: %02X\n",activecpu_get_pc(),data);
-
-	/* Also used as soundlatch - depending on c0c0? */
-	soundlatch_w(0,data);
+	set_led_status(0, data & 0x01);
+	set_led_status(1, data & 0x02);
+	coin_counter_w(0, data & 0x04);
 }
 
-/*
-    7654 32--
-    ---- --1-   Ram Bank
-    ---- ---0   Flip Screen
-*/
+static WRITE8_HANDLER( brickzn_palbank_w )
+{
+	suna8_palettebank = data & 0x01;
+}
+
 static WRITE8_HANDLER( brickzn_spritebank_w )
 {
+	brickzn_protection_val = data;
+	flip_screen_set(data & 0x01);
 	suna8_spritebank = (data >> 1) & 1;
-	if (data & ~0x03) 	logerror("CPU #0 - PC %04X: unknown spritebank bits: %02X\n",activecpu_get_pc(),data);
-	flip_screen_set( data & 0x01 );
 }
 
-static WRITE8_HANDLER( brickzn_unknown_w )
-{
-	suna8_unknown = data;
-}
-
-/*
-    7654 ----
-    ---- 3210   ROM Bank
-*/
 static WRITE8_HANDLER( brickzn_rombank_w )
 {
 	int bank = data & 0x0f;
 
-	if (data & ~0x0f) 	logerror("CPU #0 - PC %04X: unknown rom bank bits: %02X\n",activecpu_get_pc(),data);
-
-	memory_set_bank(1, bank);
+	memory_set_bank(1, bank + brickzn_bank_alt);
 	suna8_rombank = data;
+}
+
+static WRITE8_HANDLER( brickzn_multi_w )
+{
+	int protselect = brickzn_protection_val & 0xfc;
+
+	if ((protselect == 0x88) || (protselect == 0x8c))
+	{
+		brickzn_palbank_w(0, data);
+	}
+	else if (protselect == 0x90)
+	{
+		UINT8 remap = (brickzn_remap_sound ? BITSWAP8(data, 7,6,3,4,5,2,1,0) : data);
+		soundlatch_w(0, remap);
+	}
+	else if (protselect == 0x04)
+	{
+		brickzn_leds_w(0, data);
+	}
+
+	if ((brickzn_protection_val & 0x1f) == 0x1c)
+	{
+		brickzn_prot_opcode_toggle ^= 1;
+
+		if (brickzn_prot_opcode_toggle == 0)
+			memory_set_decrypted_region(0, 0x0000, 0x7fff, brickzn_decrypt_ptr);
+		else
+			memory_set_decrypted_region(0, 0x0000, 0x7fff, memory_region(REGION_CPU1));
+	}
+}
+
+static WRITE8_HANDLER( brickzn_prot2_w )
+{
+	brickzn_wram_disable = ((brickzn_prot2 ^ data) == 0x24) ? 1 : 0;
+	brickzn_remap_sound = ((brickzn_prot2 ^ data) == 0xf8) ? 1 : 0;
+	brickzn_bank_alt = (brickzn_prot2 == (data | 0xdc)) ? 0x10 : 0;
+
+	memory_set_bank(1, (suna8_rombank & 0x0f) + brickzn_bank_alt);
+
+	brickzn_prot2_prev = brickzn_prot2;
+	brickzn_prot2 = data;
+}
+
+static WRITE8_HANDLER( brickzn_enab_palram_w )
+{
+	brickzn_paletteram_enab = 1;
+}
+
+static WRITE8_HANDLER( brickzn_disab_palram_w )
+{
+	brickzn_paletteram_enab = 0;
+}
+
+static WRITE8_HANDLER( brickzn_wram_w )
+{
+	if (!brickzn_wram_disable)
+		brickzn_wram[offset] = data;
 }
 
 static ADDRESS_MAP_START( brickzn_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -719,7 +752,7 @@ static ADDRESS_MAP_START( brickzn_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc103, 0xc103) AM_READ(input_port_3_r			)	// DSW 2
 	AM_RANGE(0xc108, 0xc108) AM_READ(input_port_4_r			)	// P1 (Analog)
 	AM_RANGE(0xc10c, 0xc10c) AM_READ(input_port_5_r			)	// P2
-	AM_RANGE(0xc140, 0xc140) AM_READ(brickzn_c140_r			)	// ???
+	AM_RANGE(0xc140, 0xc140) AM_READ(brickzn_cheats_r			)	// Cheats / Debugging Inputs
 	AM_RANGE(0xc600, 0xc7ff) AM_READ(suna8_banked_paletteram_r	)	// Palette (Banked)
 	AM_RANGE(0xc800, 0xdfff) AM_READ(MRA8_RAM					)	// RAM
 	AM_RANGE(0xe000, 0xffff) AM_READ(suna8_banked_spriteram_r	)	// Sprites (Banked)
@@ -729,11 +762,11 @@ static ADDRESS_MAP_START( brickzn_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM						)	// ROM
 	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_ROM						)	// Banked ROM
 	AM_RANGE(0xc040, 0xc040) AM_WRITE(brickzn_rombank_w				)	// ROM Bank
-	AM_RANGE(0xc060, 0xc060) AM_WRITE(brickzn_spritebank_w			)	// Sprite  RAM Bank + Flip Screen
-	AM_RANGE(0xc0a0, 0xc0a0) AM_WRITE(brickzn_palettebank_w			)	// Palette RAM Bank + ?
-	AM_RANGE(0xc0c0, 0xc0c0) AM_WRITE(brickzn_unknown_w				)	// ???
+	AM_RANGE(0xc060, 0xc060) AM_WRITE(brickzn_spritebank_w			)	// Sprite  RAM Bank + Flip Screen + Protection
+	AM_RANGE(0xc0a0, 0xc0a0) AM_WRITE(brickzn_multi_w				)	// Palette RAM Bank / Sound Latch / Leds
+	AM_RANGE(0xc0c0, 0xc0c0) AM_WRITE(brickzn_prot2_w				)	// Protection 2
 	AM_RANGE(0xc600, 0xc7ff) AM_WRITE(brickzn_banked_paletteram_w	)	// Palette (Banked)
-	AM_RANGE(0xc800, 0xdfff) AM_WRITE(MWA8_RAM						)	// RAM
+	AM_RANGE(0xc800, 0xdfff) AM_WRITE(brickzn_wram_w) AM_BASE(&brickzn_wram)
 	AM_RANGE(0xe000, 0xffff) AM_WRITE(suna8_banked_spriteram_w		)	// Sprites (Banked)
 ADDRESS_MAP_END
 
@@ -743,6 +776,8 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( brickzn_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_WRITE(brickzn_disab_palram_w		)
+	AM_RANGE(0xa1, 0xa1) AM_WRITE(brickzn_enab_palram_w			)
 ADDRESS_MAP_END
 
 
@@ -1305,14 +1340,36 @@ INPUT_PORTS_END
 
 INPUT_PORTS_START( brickzn )
 
-	PORT_START_TAG("IN0") // Player 1 - $c100
-	JOY(1)
+	PORT_START_TAG("P1")
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1)
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_DIPNAME( 0x04, 0x04, "Select First Stage" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Cheat 1" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(1)
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(1)
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_START1         )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_COIN1          )
 
-	PORT_START_TAG("IN1") // Player 2 - $c101
-	JOY(2)
+	PORT_START_TAG("P2")
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2)
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_DIPNAME( 0x04, 0x04, "Select Next Stage" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Cheat 2" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(2)
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(2)
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_START2         )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_COIN2          )
 
-	PORT_START_TAG("IN2") // DSW 1 - $c102
-	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coinage ) )	// rom 38:b840
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coinage ) ) PORT_DIPLOCATION("SW-A:1,2,3")
 	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
@@ -1321,7 +1378,7 @@ INPUT_PORTS_START( brickzn )
 	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
 	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( 1C_4C ) )
-	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Difficulty ) )
+	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SW-A:4,5,6")
 	PORT_DIPSETTING(    0x38, DEF_STR( Easiest ) )
 	PORT_DIPSETTING(    0x30, DEF_STR( Very_Easy) )
 	PORT_DIPSETTING(    0x28, DEF_STR( Easy ) )
@@ -1330,25 +1387,22 @@ INPUT_PORTS_START( brickzn )
 	PORT_DIPSETTING(    0x10, DEF_STR( Harder ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Very_Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-//  PORT_DIPNAME( 0x40, 0x40, "Invulnerability (Cheat)")
-//  PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-//  PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_SERVICE(       0x40, IP_ACTIVE_LOW )	// + Invulnerability
-	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_SERVICE(       0x40, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW-A:8")
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
-	PORT_START_TAG("IN3") // DSW 2 - $c103
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) ) PORT_DIPLOCATION("SW-B:1")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Cabinet ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SW-B:2")
 	PORT_DIPSETTING(    0x02, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
-	PORT_DIPNAME( 0x04, 0x04, "Play Together" )
+	PORT_DIPNAME( 0x04, 0x04, "Play Together" ) PORT_DIPLOCATION("SW-B:3")
 	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Bonus_Life ) )
+	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Bonus_Life ) ) PORT_DIPLOCATION("SW-B:4,5,6")
 	PORT_DIPSETTING(    0x30, "10K" )
 	PORT_DIPSETTING(    0x28, "30K" )
 	PORT_DIPSETTING(    0x18, "50K, Every 50K" )
@@ -1357,18 +1411,53 @@ INPUT_PORTS_START( brickzn )
 	PORT_DIPSETTING(    0x08, "100K, Every 100K" )
 	PORT_DIPSETTING(    0x00, "200K, Every 100K" )
 	PORT_DIPSETTING(    0x38, DEF_STR( None ) )
-	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Lives ) )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Lives ) ) PORT_DIPLOCATION("SW-B:7,8")
 	PORT_DIPSETTING(    0x80, "2" )
 	PORT_DIPSETTING(    0xc0, "3" )
 	PORT_DIPSETTING(    0x40, "4" )
 	PORT_DIPSETTING(    0x00, "5" )
 
-	PORT_START_TAG("IN4") // Player 1 - $c108
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(50) PORT_KEYDELTA(0) PORT_REVERSE
+	PORT_START_TAG("SPIN1")
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(30) PORT_KEYDELTA(15) PORT_REVERSE PORT_PLAYER(1)
 
-	PORT_START_TAG("IN5") // Player 2 - $c10c
-	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_X ) PORT_SENSITIVITY(50) PORT_KEYDELTA(0) PORT_REVERSE
+	PORT_START_TAG("SPIN2")
+	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_SENSITIVITY(30) PORT_KEYDELTA(15) PORT_REVERSE PORT_PLAYER(2)
 
+	PORT_START_TAG("CHEATS")
+	PORT_DIPNAME( 0x01, 0x00, "0: Use Cheat 1&2 Setting" )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, "1: Unused?" )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT(  0x04, IP_ACTIVE_HIGH, IPT_SPECIAL )
+	PORT_DIPNAME( 0x08, 0x08, "3: Unused?" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, "4: Unused?" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, "5: Unused?" )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, "6: Unused?" )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Finish Stage (Cheat)")
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( brickznv6 )
+	PORT_INCLUDE(brickzn)
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Bonus_Life ) ) PORT_DIPLOCATION("SW-B:4,5")
+	PORT_DIPSETTING(    0x18, "None" )
+	PORT_DIPSETTING(    0x10, "10K" )
+	PORT_DIPSETTING(    0x08, "30K" )
+	PORT_DIPSETTING(    0x00, "50K" )
+	PORT_DIPNAME( 0x20, 0x20, "Display" ) PORT_DIPLOCATION("SW-B:6")
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Yes ) )
 INPUT_PORTS_END
 
 
@@ -1776,6 +1865,17 @@ INTERRUPT_GEN( brickzn_interrupt )
 	else				 cpunum_set_input_line(0, 0, HOLD_LINE);
 }
 
+static MACHINE_RESET( brickzn )
+{
+	brickzn_protection_val = brickzn_prot2 = brickzn_prot2_prev = 0xff;
+	brickzn_paletteram_enab = 1;
+	brickzn_remap_sound = brickzn_prot_opcode_toggle = 0;
+	brickzn_wram_disable = 0;
+	brickzn_bank_alt = 0;
+	memory_set_bank(1, 0);
+	memory_set_decrypted_region(0, 0x0000, 0x7fff, brickzn_decrypt_ptr);
+}
+
 static MACHINE_DRIVER_START( brickzn )
 
 	/* basic machine hardware */
@@ -1798,6 +1898,8 @@ static MACHINE_DRIVER_START( brickzn )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)	// we're using IPT_VBLANK
 
+	MDRV_MACHINE_RESET(brickzn)
+
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(256, 256)
@@ -1805,7 +1907,7 @@ static MACHINE_DRIVER_START( brickzn )
 	MDRV_GFXDECODE(suna8_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(512)
 
-	MDRV_VIDEO_START(suna8_textdim0)
+	MDRV_VIDEO_START(suna8_brickzn)
 	MDRV_VIDEO_UPDATE(suna8)
 
 	/* sound hardware */
@@ -2312,28 +2414,28 @@ Large epoxy(?) module near the cpu's.
 ***************************************************************************/
 
 ROM_START( brickzn )
-	ROM_REGION( 0x50000, REGION_CPU1, 0 )		/* Main Z80 Code */
-	ROM_LOAD( "brickzon.009", 0x00000, 0x08000, CRC(1ea68dea) SHA1(427152a26b062c5e77089de49c1da69369d4d557) )	// V5.0 1992,3,3
-	ROM_LOAD( "brickzon.008", 0x10000, 0x20000, CRC(c61540ba) SHA1(08c0ede591b229427b910ca6bb904a6146110be8) )
-	ROM_LOAD( "brickzon.007", 0x30000, 0x20000, CRC(ceed12f1) SHA1(9006726b75a65455afb1194298bade8fa2207b4a) )
+	ROM_REGION( 0x50000 + 0x40000, REGION_CPU1, 0 )		/* Main Z80 Code */
+	ROM_LOAD( "p9.m7", 0x00000, 0x08000, CRC(bd7a3c01) SHA1(05fb2836f1c8d8818847ccb76e7b477f13a9929b) )
+	ROM_LOAD( "p8.k7", 0x10000, 0x20000, CRC(ec3e266d) SHA1(4441a5ae88e51353f6d1eb22c00becb0a7ecea6e) )
+	ROM_LOAD( "p7.i7", 0x30000, 0x20000, CRC(4dd88631) SHA1(0dbcaf3420dad82c3ed94d231948fe69b044b786) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )		/* Music Z80 Code */
-	ROM_LOAD( "brickzon.010", 0x00000, 0x10000, CRC(4eba8178) SHA1(9a214a1acacdc124529bc9dde73a8e884fc70293) )
+	ROM_LOAD( "10.o8", 0x00000, 0x10000, CRC(4eba8178) SHA1(9a214a1acacdc124529bc9dde73a8e884fc70293) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )		/* PCM Z80 Code */
-	ROM_LOAD( "brickzon.011", 0x00000, 0x10000, CRC(6c54161a) SHA1(ea216d9f45b441acd56b9fed81a83e3bfe299fbd) )
+	ROM_LOAD( "11.n10", 0x00000, 0x10000, CRC(6c54161a) SHA1(ea216d9f45b441acd56b9fed81a83e3bfe299fbd) )
 
 	ROM_REGION( 0xc0000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )	/* Sprites */
-	ROM_LOAD( "brickzon.002", 0x00000, 0x20000, CRC(241f0659) SHA1(71b577bf7097b3b367d068df42f991d515f9003a) )
-	ROM_LOAD( "brickzon.001", 0x20000, 0x20000, CRC(6970ada9) SHA1(5cfe5dcf25af7aff67ee5d78eb963d598251025f) )
-	ROM_LOAD( "brickzon.003", 0x40000, 0x20000, CRC(2e4f194b) SHA1(86da1a582ea274f2af96d3e3e2ac72bcaf3638cb) )
-	ROM_LOAD( "brickzon.005", 0x60000, 0x20000, CRC(118f8392) SHA1(598fa4df3ae348ec9796cd6d90c3045bec546da3) )
-	ROM_LOAD( "brickzon.004", 0x80000, 0x20000, CRC(2be5f335) SHA1(dc870a3c5303cb2ea1fea4a25f53db016ed5ecee) )
-	ROM_LOAD( "brickzon.006", 0xa0000, 0x20000, CRC(bbf31081) SHA1(1fdbd0e0853082345225e18df340184a7a604b78) )
+	ROM_LOAD( "p5.m5", 0x00000, 0x20000, CRC(ca59e2f7) SHA1(dbb9f2b316a44f760768f0430798e0c4e9e8f3ff) )
+	ROM_LOAD( "p4.l5", 0x20000, 0x20000, CRC(cc8fb330) SHA1(fd263f65b81acbfc00fe339c461068ab160c04af) )
+	ROM_LOAD( "p3.k5", 0x40000, 0x20000, CRC(2e4f194b) SHA1(86da1a582ea274f2af96d3e3e2ac72bcaf3638cb) )
+	ROM_LOAD( "p2.i5", 0x60000, 0x20000, CRC(592d45ce) SHA1(8ce9236b7deba6cf00999680314ac04eff624a6d) )
+	ROM_LOAD( "p1.h5", 0x80000, 0x20000, CRC(7a6bb583) SHA1(ff7018c07182fce0ff6954bbe3b08fa5105f6be0) )
+	ROM_LOAD( "p6.h7", 0xa0000, 0x20000, CRC(bbf31081) SHA1(1fdbd0e0853082345225e18df340184a7a604b78) )
 ROM_END
 
 ROM_START( brickzn3 )
-	ROM_REGION( 0x50000, REGION_CPU1, 0 )		/* Main Z80 Code */
+	ROM_REGION( 0x50000 + 0x40000, REGION_CPU1, 0 )		/* Main Z80 Code */
 	ROM_LOAD( "39",           0x00000, 0x08000, CRC(043380bd) SHA1(7eea7cc7d754815df233879b4a9d3d88eac5b28d) )	// V3.0 1992,1,23
 	ROM_LOAD( "38",           0x10000, 0x20000, CRC(e16216e8) SHA1(e88ae97e8a632823d5f1fe500954b6f6542407d5) )
 	ROM_LOAD( "brickzon.007", 0x30000, 0x20000, CRC(ceed12f1) SHA1(9006726b75a65455afb1194298bade8fa2207b4a) )
@@ -2553,5 +2655,5 @@ GAME( 1988, srangerb, sranger,  rranger,  rranger,	suna8,        ROT0,  "bootleg
 GAME( 1988, srangerw, sranger,  rranger,  rranger,	suna8,        ROT0,  "SunA (WDK license)", "Super Ranger (WDK)", GAME_NOT_WORKING )
 GAME( 1989, sparkman, 0,       sparkman, sparkman, sparkman, ROT0,  "SunA",    "Spark Man (v2.0, set 1)",        0 )
 GAME( 1990, starfigh, 0,       starfigh, starfigh, starfigh, ROT90, "SunA",    "Star Fighter (v1)",             GAME_IMPERFECT_GRAPHICS )
-GAME( 1992, brickzn,  0,       brickzn,  brickzn,  brickzn,  ROT90, "SunA",    "Brick Zone (v5.0)",             GAME_NOT_WORKING )
-GAME( 1992, brickzn3, brickzn, brickzn,  brickzn,  brickzn3, ROT90, "SunA",    "Brick Zone (v4.0)",             GAME_NOT_WORKING )
+GAME( 1992, brickzn,  0,       brickzn,  brickznv6, brickzn,  ROT90, "SunA",    "Brick Zone (v6.0, Joystick)",   0 )
+GAME( 1992, brickzn3, brickzn, brickzn,  brickzn,   brickzn3, ROT90, "SunA",    "Brick Zone (v4.0)",             GAME_NOT_WORKING )

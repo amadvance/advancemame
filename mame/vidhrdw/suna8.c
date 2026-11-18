@@ -82,6 +82,7 @@ int suna8_text_dim; /* specifies format of text layer */
 
 UINT8 suna8_rombank, suna8_spritebank, suna8_palettebank;
 UINT8 suna8_unknown;
+UINT8 brickzn_paletteram_enab, brickzn_prot2, brickzn_prot2_prev;
 
 /* Functions defined in vidhrdw: */
 
@@ -160,21 +161,43 @@ WRITE8_HANDLER( brickzn_banked_paletteram_w )
 {
 	int r,g,b;
 	UINT16 rgb;
+
+	if (!brickzn_paletteram_enab)
+		return;
+
 	offset += suna8_palettebank * 0x200;
 	paletteram[offset] = data;
 	rgb = (paletteram[offset&~1] << 8) + paletteram[offset|1];
-	r	=	(((rgb & (1<<0xc))?1:0)<<0) |
-			(((rgb & (1<<0xb))?1:0)<<1) |
-			(((rgb & (1<<0xe))?1:0)<<2) |
-			(((rgb & (1<<0xf))?1:0)<<3);
-	g	=	(((rgb & (1<<0x8))?1:0)<<0) |
-			(((rgb & (1<<0x9))?1:0)<<1) |
-			(((rgb & (1<<0xa))?1:0)<<2) |
-			(((rgb & (1<<0xd))?1:0)<<3);
-	b	=	(((rgb & (1<<0x4))?1:0)<<0) |
-			(((rgb & (1<<0x3))?1:0)<<1) |
-			(((rgb & (1<<0x6))?1:0)<<2) |
-			(((rgb & (1<<0x7))?1:0)<<3);
+
+	if (brickzn_prot2_prev == 0x3c && brickzn_prot2 == 0x80)
+	{
+		rgb ^= 0x4444;
+
+		r	=	(rgb >> 12) & 0x0f;
+		g	=	(rgb >>  8) & 0x0f;
+		b	=	(rgb >>  4) & 0x0f;
+	}
+	else if (brickzn_prot2_prev == 0xa8 && brickzn_prot2 == 0x00)
+	{
+		r	=	(((rgb & (1<<0xc))?1:0)<<0) |
+				(((rgb & (1<<0xb))?1:0)<<1) |
+				(((rgb & (1<<0xe))?1:0)<<2) |
+				(((rgb & (1<<0xf))?1:0)<<3);
+		g	=	(((rgb & (1<<0x8))?1:0)<<0) |
+				(((rgb & (1<<0x9))?1:0)<<1) |
+				(((rgb & (1<<0xa))?1:0)<<2) |
+				(((rgb & (1<<0xd))?1:0)<<3);
+		b	=	(((rgb & (1<<0x4))?1:0)<<0) |
+				(((rgb & (1<<0x3))?1:0)<<1) |
+				(((rgb & (1<<0x6))?1:0)<<2) |
+				(((rgb & (1<<0x7))?1:0)<<3);
+	}
+	else
+	{
+		r	=	(rgb >> 12) & 0x0f;
+		g	=	(rgb >>  8) & 0x0f;
+		b	=	(rgb >>  4) & 0x0f;
+	}
 
 	r = (r << 4) | r;
 	g = (g << 4) | g;
@@ -227,6 +250,13 @@ VIDEO_START( suna8_starfigh )
 {
 	int result = suna8_vh_start_common(0);
 	suna8_video_type = 2;
+	return result;
+}
+
+VIDEO_START( suna8_brickzn )
+{
+	int result = suna8_vh_start_common(0);
+	suna8_video_type = 3;
 	return result;
 }
 
@@ -309,7 +339,8 @@ void suna8_draw_normal_sprites(mame_bitmap *bitmap,const rectangle *cliprect, in
 				srcy  = (((bank & 0x80)>>4) + (bank & 0x04) + ((~bank >> 4)&2)) * 2;
 				srcpg = (code >> 4) & 7;
 				gfxbank = (bank & 0x3) + (suna8_video_type ? 0 : (srcpg & 4));
-				if (suna8_video_type == 2 && gfxbank == 3) gfxbank += suna8_gfxbank;	// brickzn: 06,a6,a2,b2->6. starfigh: 01->01,4->0
+				if (suna8_video_type == 3) gfxbank += 4;
+				else if (suna8_video_type == 2 && gfxbank == 3) gfxbank += suna8_gfxbank;
 				colorbank = (bank & 8) >> 3;
 				break;
 			case 0x00:
