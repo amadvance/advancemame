@@ -1625,6 +1625,8 @@ bit->  /----15----|----14----|----13----|----12----|----11----|----10----|----09
        |    --    |    --    |    --    |    --    |    --    |    --    |    --    |    --    |
        \----------|----------|----------|----------|----------|----------|----------|---------*/
 
+	#define STV_VDP2_RP_WINDOW (stv_vdp2_regs[0x0d4 / 4] & 0xff)
+
 /* 1800d8 - Line Window Table Address (W0)
  bit-> /----15----|----14----|----13----|----12----|----11----|----10----|----09----|----08----\
        |    --    |    --    |    --    |    --    |    --    |    --    |    --    |    --    |
@@ -3835,6 +3837,43 @@ static void stv_vdp2_check_tilemap(mame_bitmap *bitmap, const rectangle *cliprec
 	}
 }
 
+static void stv_vdp2_get_window0_coordinates(UINT16 *s_x, UINT16 *e_x, UINT16 *s_y, UINT16 *e_y);
+static void stv_vdp2_get_window1_coordinates(UINT16 *s_x, UINT16 *e_x, UINT16 *s_y, UINT16 *e_y);
+
+static void stv_vdp2_rotation_window_line(int window, int y, UINT16 *start, UINT16 *end)
+{
+	UINT16 top, bottom;
+	UINT32 table = stv_vdp2_regs[0x0d8 / 4 + window];
+
+	if (window == 0)
+		stv_vdp2_get_window0_coordinates(start, end, &top, &bottom);
+	else
+		stv_vdp2_get_window1_coordinates(start, end, &top, &bottom);
+
+	if (y < top || y > bottom)
+	{
+		*start = 1;
+		*end = 0;
+	}
+	else if (table & 0x80000000)
+	{
+		UINT32 word_mask = STV_VDP2_VRAMSZ ? 0x3ffff : 0x1ffff;
+		UINT32 line = y >> (STV_VDP2_LSMD == 3);
+		UINT32 data = stv_vdp2_vram[((table >> 1) + line) & word_mask];
+		*start = (data >> 16) & 0x3ff;
+		*end = data & 0x3ff;
+	}
+}
+
+INLINE int stv_vdp2_rotation_window_select(int control, int x,
+		const UINT16 *start, const UINT16 *end)
+{
+	int a = !(control & 0x02) || ((x >= start[0] && x <= end[0]) == (control & 1));
+	int b = !(control & 0x08) || ((x >= start[1] && x <= end[1]) == ((control >> 2) & 1));
+
+	return (control & 0x80) ? (a || b) : (a && b);
+}
+
 static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 									 mame_bitmap *roz_bitmap,
 									 const rectangle *cliprect,
@@ -3858,6 +3897,7 @@ static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 	UINT16 pix;
 	UINT32 coeff_line_color_screen_data;
 	INT32 clipxmask = 0, clipymask = 0;
+	int rotation_window = STV_VDP2_RPMD == 3 ? STV_VDP2_RP_WINDOW : 0;
 
 
 	if((STV_VDP2_LSMD & 3) == 3)
@@ -3980,6 +4020,14 @@ static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 
 	for (vcnt = cliprect->min_y; vcnt <= cliprect->max_y; vcnt++ )
 	{
+		UINT16 window_start[2], window_end[2];
+
+		/* The parameter window splits the screen between two independently transformed maps. */
+		if (rotation_window & 0x02)
+			stv_vdp2_rotation_window_line(0, vcnt, &window_start[0], &window_end[0]);
+		if (rotation_window & 0x08)
+			stv_vdp2_rotation_window_line(1, vcnt, &window_start[1], &window_end[1]);
+
 		/*xsp = RP.A * ( ( RP.xst + RP.dxst * (vcnt << 16) ) - RP.px ) +
               RP.B * ( ( RP.yst + RP.dyst * (vcnt << 16) ) - RP.py ) +
               RP.C * ( RP.zst - RP.pz);
@@ -4075,6 +4123,10 @@ static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 				y = ys >> 16;
 
 				if ( x & clipxmask || y & clipymask ) continue;
+				if ((rotation_window & 0x0a) &&
+					stv_vdp2_rotation_window_select(rotation_window, hcnt, window_start, window_end) != (iRP == 1))
+					continue;
+
 				pix = ((UINT16*)roz_bitmap->line[y & planerenderedsizey])[x & planerenderedsizex];
 				if(stv2_current_tilemap.fade_control & 1)
 					stv_vdp2_compute_color_offset_RGB555_UINT16(&pix,stv2_current_tilemap.fade_control & 2);
@@ -4163,6 +4215,10 @@ static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 				y >>= 16;
 
 				if ( x & clipxmask || y & clipymask ) continue;
+				if ((rotation_window & 0x0a) &&
+					stv_vdp2_rotation_window_select(rotation_window, hcnt, window_start, window_end) != (iRP == 1))
+					continue;
+
 
 				pix = ((UINT16*)roz_bitmap->line[y & planerenderedsizey])[x & planerenderedsizex];
 				if(stv2_current_tilemap.fade_control & 1)
@@ -4651,7 +4707,9 @@ static void stv_vdp2_draw_rotation_screen(mame_bitmap *bitmap, const rectangle *
 	}
 
 
-	if ( stv_vdp2_is_rotation_applied() == 0 )
+	/* Even an identity transform needs the parameter window at screen coordinates. */
+	if (!(STV_VDP2_RPMD == 3 && (STV_VDP2_RP_WINDOW & 0x0a)) &&
+		stv_vdp2_is_rotation_applied() == 0)
 	{
 		stv2_current_tilemap.scrollx = stv_current_rotation_parameter_table.mx >> 16;
 		stv2_current_tilemap.scrolly = stv_current_rotation_parameter_table.my >> 16;
@@ -4832,8 +4890,15 @@ static void stv_vdp2_draw_RBG0(mame_bitmap *bitmap, const rectangle *cliprect)
 			stv_vdp2_draw_rotation_screen(bitmap, cliprect, 2 );
 			stv_vdp2_draw_rotation_screen(bitmap, cliprect, 1 );
 			break;
-		case 3://Rotation Parameter A & B Window (wrong)
-			stv_vdp2_draw_rotation_screen(bitmap, cliprect, 1 );
+		case 3://Rotation Parameter A & B Window
+			if (STV_VDP2_RP_WINDOW & 0x0a)
+			{
+				/* Each pass must start with the original layer blending and scroll state. */
+				const struct stv_vdp2_tilemap_capabilities layer = stv2_current_tilemap;
+				stv_vdp2_draw_rotation_screen(bitmap, cliprect, 2);
+				stv2_current_tilemap = layer;
+			}
+			stv_vdp2_draw_rotation_screen(bitmap, cliprect, 1);
 			break;
 	}
 

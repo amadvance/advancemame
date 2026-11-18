@@ -234,6 +234,7 @@ DRIVER_INIT(pblbeach);
 DRIVER_INIT(shanhigw);
 DRIVER_INIT(finlarch);
 DRIVER_INIT(elandore);
+DRIVER_INIT(ffreveng);
 DRIVER_INIT(rsgun);
 
 /**************************************************************************************/
@@ -2203,27 +2204,6 @@ static UINT32 a_bus[4];
 static UINT32 ctrl_index;
 static UINT32 internal_counter;
 static UINT8 char_offset; //helper to jump the decoding of the NULL chars.
-/*
-ffreveng protection notes
-Global:
-R2 is the vector read (where to jump to)
-R3 is the vector pointer
-
-Notes:
--0x234 is a dummy vector to get safe in the debugger without doing
-anything and to read the registers.
-
-Right vectors:
-0x0603B158 (but not as first,will garbage the registers)
-
-Wrong vectors (at least not where I tested it):
-0x060016fc (1st)
-0x0603AFE0 (1st) (attempts to read to the sh2 internal register fffffe11)
-0x060427FC (1st) (resets the sh2)
-0x0603B1B2 (1st) (crashes the sh2)
-*/
-static UINT32 vector_prot[] = { 0x0603B1B2,0x234 };
-
 static READ32_HANDLER( a_bus_ctrl_r )
 {
 	UINT32 *ROM = (UINT32 *)memory_region(REGION_USER1);
@@ -2302,15 +2282,6 @@ static READ32_HANDLER( a_bus_ctrl_r )
 							return ROM[ctrl_index];
 						}
 					}
-				case 0x10da0000://ffreveng, boot vectors at $6080000,test mode
-					ctrl_index++;
-					if(ctrl_index > 2)
-						return 0x234;
-					else
-						return vector_prot[ctrl_index-1];
-				case 0x10d70000://ffreveng, boot vectors at $6080000,attract mode
-					ctrl_index++;
-					return ROM[ctrl_index];
 				case 0x2c5b0000://sss
 				case 0x47f10000:
 				case 0xfcda0000:
@@ -2368,9 +2339,6 @@ static WRITE32_HANDLER ( a_bus_ctrl_w )
 			char_offset = 0;
 			internal_counter = 0;
 			ctrl_index = ((0x400000)/4)-1; break;
-			/*ffreveng*/
-			case 0x10d70000: ctrl_index = 0; break;
-			case 0x10da0000: ctrl_index = 0; break;
 			/*sss,TRUSTED*/
 			case 0x2c5b0000: ctrl_index = (0x145ffac/4)-1; break;
 			/*sss,might be offset...*/
@@ -3037,13 +3005,12 @@ MACHINE_RESET( stv )
 		sh2_jit_add_fastram(0x00000000, 0x0007ffff, 1, memory_region(REGION_CPU1));
 		sh2_jit_add_fastram(0x00200000, 0x002fffff, 0, stv_workram_l);
 		sh2_jit_add_fastram(0x06000000, 0x060fffff, 0, stv_workram_h);
-		/* the cartridge ROM, as far as it goes (the protection and */
-		/* decompression handlers some games install there stay in use) */
+		/* Route the final 16 bytes of the cartridge window through the A-bus handlers. */
 		if (memory_region_length(REGION_USER1) >= 4)
 		{
 			UINT32 len = memory_region_length(REGION_USER1);
-			if (len > 0x3000000)
-				len = 0x3000000;
+			if (len > 0x2fffff0)
+				len = 0x2fffff0;
 			sh2_jit_add_fastram(0x02000000, 0x02000000 + (len & ~3) - 1, 1, memory_region(REGION_USER1));
 		}
 		sh2_jit_set(1);
@@ -3490,8 +3457,8 @@ ROM_END
 ROM_START( ffreveng )
 	STV_BIOS
 
-	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
-	ROM_FILL(                             0x0000000, 0x0200000, 0x00 )
+	ROM_REGION32_BE( 0x3000000, REGION_USER1, ROMREGION_ERASE00 ) /* SH2 code */
+	ROM_LOAD16_BYTE(      "ffr110.ic35",  0x0000001, 0x0100000, CRC(3ffea541) SHA1(715b070b1d574a99aeb12086de380b0b3aaa25a1) )
 	ROM_LOAD16_WORD_SWAP( "opr21872.7",   0x0200000, 0x0200000, CRC(32d36fee) SHA1(441c4254ef2e9301e1006d69462a850ce339314b) ) // good (was .11s)
 	ROM_LOAD16_WORD_SWAP( "mpr21873.2",   0x0400000, 0x0400000, CRC(dac5bd98) SHA1(6102035ce9eb2f83d7d9b20f989a151f45087c67) ) // good (was .12)
 	ROM_LOAD16_WORD_SWAP( "mpr21874.3",   0x0800000, 0x0400000, CRC(0a7be2f1) SHA1(e2d13f36e54d1e2cb9d584db829c04a6ff65108c) ) // good (was .13)
@@ -4321,7 +4288,7 @@ GAMEB( 1996, diehard,   stvbios, stvbios, stv, stv,  diehard,   ROT0,   "Sega", 
 GAMEB( 1996, dnmtdeka,  diehard, stvbios, stv, stv,  dnmtdeka,  ROT0,   "Sega", 	 				  "Dynamite Deka (J 960515 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS  )
 GAMEB( 1995, ejihon,    stvbios, stvbios, stv, stv,  ic13,      ROT0,   "Sega", 	 				  "Ejihon Tantei Jimusho (J 950613 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, elandore,  stvbios, stvbios, stv, stv6b,  elandore,  ROT0,   "Sai-Mate",   				  "Touryuu Densetsu Elan-Doree / Elan Doree - Legend of Dragoon (JUET 980922 V1.006)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1999, ffreveng,  stvbios, stvbios, stv, stv,  stv,       ROT0,   "Capcom",     				  "Final Fight Revenge / Final Revenge (JUET 990930 V1.100)", GAME_UNEMULATED_PROTECTION | GAME_NO_SOUND | GAME_NOT_WORKING )
+GAMEB( 1999, ffreveng,  stvbios, stvbios, stv, stv6b, ffreveng,  ROT0,   "Capcom",     				  "Final Fight Revenge / Final Revenge (JUET 990930 V1.100)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1995, fhboxers,  stvbios, stvbios, stv, stv,  fhboxers,  ROT0,   "Sega", 	 				  "Funky Head Boxers (JUETBKAL 951218 V1.000)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1997, findlove,  stvbios, stvbios, stv, stv,  ic13,      ROT0,   "Daiki / FCF",    			  "Zenkoku Seifuku Bishoujo Grand Prix Find Love (J 971212 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1994, gaxeduel,  stvbios, stvbios, stv, stv,  gaxeduel,	ROT0,   "Sega", 	     			  "Golden Axe - The Duel (JUETL 950117 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )

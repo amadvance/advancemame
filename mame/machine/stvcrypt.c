@@ -4,7 +4,7 @@
 #include <assert.h>
 enum { FN1GK = 38, FN2GK = 32, BUFFER_SIZE = 2, FLAG_COMPRESSED = 0x20000 };
 struct sbox { UINT8 table[64]; int inputs[6]; int outputs[2]; };
-static UINT32 key = 0x05226d41, prot_cur_address, dec_header;
+static UINT32 key, prot_cur_address, dec_header;
 static UINT16 subkey, dec_hist, buffer2a;
 static UINT8 buffer[2], buffer2[2], lines[2][512];
 static UINT8 *line_buffer = lines[0], *line_buffer_prev = lines[1];
@@ -717,6 +717,10 @@ WRITE32_HANDLER( stv_5881_w )
 		enc_ready = 0;
 	}
 	else if (offset == 3) { subkey = registers[3] >> 16; enc_ready = 0; }
+}
+void stv_5881_set_key(UINT32 game_key)
+{
+	key = game_key;
 }
 void stv_5881_reset(void)
 {

@@ -1263,6 +1263,22 @@ static void elandore_slave_speedup(UINT32 data)
 
 extern READ32_HANDLER( stv_5881_r );
 extern WRITE32_HANDLER( stv_5881_w );
+extern void stv_5881_set_key(UINT32 game_key);
+
+static void install_stv_5881(UINT32 game_key)
+{
+	stv_5881_set_key(game_key);
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
+	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
+	memory_install_read32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
+	memory_install_write32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
+}
+
+DRIVER_INIT(ffreveng)
+{
+	init_stv();
+	install_stv_5881(0x0524ac01);
+}
 
 DRIVER_INIT(elandore)
 {
@@ -1271,11 +1287,7 @@ DRIVER_INIT(elandore)
 	init_stv();
 	minit_boost_timeslice = sinit_boost_timeslice = TIME_IN_USEC(0);
 
-	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
-	memory_install_write32_handler(0, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
-	memory_install_read32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_r);
-	memory_install_write32_handler(1, ADDRESS_SPACE_PROGRAM, 0x04fffff0, 0x04ffffff, 0, 0, stv_5881_w);
-
+	install_stv_5881(0x05226d41);
 }
 
 static READ32_HANDLER( rsgun_speedup_r )

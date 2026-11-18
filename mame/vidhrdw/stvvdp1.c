@@ -614,7 +614,7 @@ INLINE void drawpixel(UINT16 *dest, int patterndata, int offsetcnt)
 {
 	int pix,mode,transmask,spd = stv2_current_sprite.CMDPMOD & 0x40;
 	UINT8* gfxdata = stv_vdp1_gfx_decode;
-	int pix2;
+	int texel;
 
 	if ( stv2_current_sprite.ispoly )
 	{
@@ -642,30 +642,24 @@ INLINE void drawpixel(UINT16 *dest, int patterndata, int offsetcnt)
 				mode = 0;
 				transmask = 0xf;
 				break;
-			case 0x0008: // mode 1 16 colour lookup table mode (4bits)
-				// shienryu explosisons (and some enemies) use this mode
-				pix2 = gfxdata[patterndata+offsetcnt/2];
-				pix2 = offsetcnt&1 ?  (pix2 & 0x0f):((pix2 & 0xf0)>>4);
-				pix = pix2&1 ?
-				((((stv_vdp1_vram[(((stv2_current_sprite.CMDCOLR&0xffff)*8)>>2)+((pix2&0xfffe)/2)])) & 0x0000ffff) >> 0):
-				((((stv_vdp1_vram[(((stv2_current_sprite.CMDCOLR&0xffff)*8)>>2)+((pix2&0xfffe)/2)])) & 0xffff0000) >> 16);
+			case 0x0008: /* 4-bit color lookup table */
+			{
+				UINT32 color;
+				texel = gfxdata[patterndata + offsetcnt / 2];
+				texel = (offsetcnt & 1) ? texel & 0xf : texel >> 4;
 
-				mode = 1;
-				transmask = 0xf;
+				/* Test the texel before lookup, since any bits in the LUT color can be valid. */
+				if ((!spd && texel == 0) ||
+					(!(stv2_current_sprite.CMDPMOD & 0x80) && texel == 0xf))
+					return;
 
-				if (pix2 & 0xf)
-				{
-					if (pix & 0x8000)
-					{
-						mode = 5;
-						transmask = 0x8000;
-					}
-				}
-				else
-				{
-					pix=pix2; // this is messy .. but just ensures that pen 0 isn't drawn
-				}
+				color = stv_vdp1_vram[stv2_current_sprite.CMDCOLR * 2 + texel / 2];
+				pix = (texel & 1) ? color & 0xffff : color >> 16;
+				mode = (pix & 0x8000) ? 5 : 1;
+				transmask = 0;
+				spd = 1;
 				break;
+			}
 			case 0x0010: // mode 2 64 colour bank mode (8bits) (character select portraits on hanagumi)
 				pix = gfxdata[patterndata+offsetcnt];
 				mode = 2;
@@ -698,7 +692,7 @@ INLINE void drawpixel(UINT16 *dest, int patterndata, int offsetcnt)
 
 
 		// preliminary end code disable support
-		if ( ((stv2_current_sprite.CMDPMOD & 0x80) == 0) &&
+		if ( transmask && ((stv2_current_sprite.CMDPMOD & 0x80) == 0) &&
 			((pix & transmask) == transmask) )
 		{
 			return;
