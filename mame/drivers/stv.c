@@ -2711,7 +2711,7 @@ INPUT_PORTS_START( stvmp )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_MAHJONG_I )
 
 	PORT_START/*8*/
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_RON )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_REACH )
 	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -2721,7 +2721,7 @@ INPUT_PORTS_START( stvmp )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_MAHJONG_J )
 
 	PORT_START/*9*/
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_REACH )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_RON )
 	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -2762,7 +2762,7 @@ INPUT_PORTS_START( stvmp )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_MAHJONG_I ) PORT_PLAYER(2)
 
 	PORT_START/*13*/
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_RON ) PORT_PLAYER(2)
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_REACH ) PORT_PLAYER(2)
 	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -2772,7 +2772,7 @@ INPUT_PORTS_START( stvmp )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_MAHJONG_J ) PORT_PLAYER(2)
 
 	PORT_START/*14*/
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_REACH ) PORT_PLAYER(2)
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_MAHJONG_RON ) PORT_PLAYER(2)
 	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -3541,18 +3541,19 @@ ROM_START( introdon )
 	ROM_LOAD16_WORD_SWAP( "mpr18938.1",    0x1800000, 0x0400000, CRC(580ecb83) SHA1(6c59f7da408b53f9fa7aa32c1b53328b5fd6334d) ) // good
 ROM_END
 
-/* set system to 1 player to test rom */
 ROM_START( kiwames )
 	STV_BIOS
 
-	ROM_REGION32_BE( 0x3000000, REGION_USER1, 0 ) /* SH2 code */
-	ROM_LOAD( "epr18737.13",               0x0000000, 0x0080000, CRC(cfad6c49) SHA1(fc69980a351ed13307706db506c79c774eabeb66) ) // bad
-	ROM_RELOAD ( 0x0100000, 0x0100000 )
-	ROM_RELOAD ( 0x0200000, 0x0100000 )
-	ROM_RELOAD ( 0x0300000, 0x0100000 )
+	ROM_REGION32_BE( 0x3000000, REGION_USER1, ROMREGION_ERASE00 ) /* SH2 code */
+	ROM_LOAD16_BYTE( "epr18737.13",        0x0000001, 0x0080000, CRC(cfad6c49) SHA1(fc69980a351ed13307706db506c79c774eabeb66) )
+	ROM_RELOAD(                            0x0100001, 0x0080000 )
 	ROM_LOAD16_WORD_SWAP( "mpr18738.2",    0x0400000, 0x0400000, CRC(4b3c175a) SHA1(b6d2438ae1d3d51950a7ed1eaadf2dae45c4e7b1) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr18739.3",    0x0800000, 0x0400000, CRC(eb41fa67) SHA1(d12acebb1df9eafd17aff1841087f5017225e7e7) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr18740.4",    0x0c00000, 0x0200000, CRC(9ca7962f) SHA1(a09e0db2246b34ca7efa3165afbc5ba292a95398) ) // good
+
+	/* The cartridge requires the cabinet to start in one-player mode. */
+	ROM_REGION( 0x80, REGION_USER4, 0 )
+	ROM_LOAD( "kiwames.nv", 0x0000, 0x0080, CRC(c7002732) SHA1(57395d256a58ddcedd354ce1f2c458321be40505) )
 ROM_END
 
 ROM_START( maruchan )
@@ -4216,7 +4217,7 @@ GAMEB( 1998, grdforce,  stvbios, stvbios, stv, stv,  grdforce,  ROT0,   "Success
 GAMEB( 1997, groovef,   stvbios, stvbios, stv, stv,  groovef,   ROT0,   "Atlus",    				  "Groove on Fight - Gouketsuji Ichizoku 3 (J 970416 V1.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1997, hanagumi,  stvbios, stvbios, stv, stv,  hanagumi,  ROT0,   "Sega",     				  "Sakura Taisen - Hanagumi Taisen Columns (J 971007 V1.010)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1996, introdon,  stvbios, stvbios, stv, stv,  ic13,		ROT0,   "Sunsoft / Success", 		  "Karaoke Quiz Intro Don Don! (J 960213 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1995, kiwames,   stvbios, stvbios, stv, stvmp,ic13,      ROT0,   "Athena",   				  "Pro Mahjong Kiwame S (J 951020 V1.208)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
+GAMEB( 1995, kiwames,   stvbios, stvbios, stv, stvmp,stv,      ROT0,   "Athena",   				  "Pro Mahjong Kiwame S (J 951020 V1.208)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1997, maruchan,  stvbios, stvbios, stv, stv,  maruchan,  ROT0,   "Sega / Toyosuisan", 	      "Maru-Chan de Goo! (J 971216 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, mausuke,   stvbios, stvbios, stv, stv,  mausuke,   ROT0,   "Data East Corporation",				  "Mausuke no Ojama the World (J 960314 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, myfairld,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong 2 - My Fair Lady (J 980608 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
