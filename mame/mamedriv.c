@@ -6852,6 +6852,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( jchan )		/* (c) 1995 Kaneko */
 	DRIVER( jchan2 )	/* (c) 1995 Kaneko */
 	DRIVER( galpani3 )	/* (c) 1995 Kaneko */
+	DRIVER( galpani3j )	/* (c) 1995 Kaneko */
 
 	/* Kaneko "AX System" games */
 	DRIVER( berlwall )	/* (c) 1991 Kaneko */
