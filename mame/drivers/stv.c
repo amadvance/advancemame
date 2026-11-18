@@ -244,7 +244,7 @@ static UINT8 *smpc_ram;
 
 UINT32* stv_workram_l;
 UINT32* stv_workram_h;
-UINT32* stv_backupram;
+static UINT8 stv_backupram[0x8000];
 UINT32* stv_scu;
 static UINT32* ioga;
 static UINT16* scsp_regs;
@@ -2109,6 +2109,36 @@ READ32_HANDLER( stv_sh2_soundram_r )
 	return (sound_ram[offset*2]<<16)|sound_ram[offset*2+1];
 }
 
+/* the backup RAM is connected to the odd bytes only: the even ones read as 0 and
+   ignore the writes, and the BIOS checks the holes */
+static READ32_HANDLER( stv_backupram_r32 )
+{
+	int i;
+	UINT32 data = 0;
+
+	for (i = 0; i < 4; ++i)
+	{
+		int addr = offset * 4 + i;
+		data <<= 8;
+		if (addr & 1)
+			data |= stv_backupram[addr >> 1];
+	}
+	return data;
+}
+
+static WRITE32_HANDLER( stv_backupram_w32 )
+{
+	int i;
+
+	for (i = 0; i < 4; ++i)
+	{
+		int addr = offset * 4 + i;
+		int shift = 24 - i * 8;
+		if ((addr & 1) && ((mem_mask >> shift) & 0xff))
+			stv_backupram[addr >> 1] = data >> shift;
+	}
+}
+
 static READ32_HANDLER( stv_scsp_regs_r32 )
 {
 	offset <<= 1;
@@ -2311,7 +2341,7 @@ static READ32_HANDLER( stv_sh2_random_r )
 static ADDRESS_MAP_START( stv_mem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x0007ffff) AM_ROM   // bios
 	AM_RANGE(0x00100000, 0x0010007f) AM_READWRITE(stv_SMPC_r32, stv_SMPC_w32)
-	AM_RANGE(0x00180000, 0x0018ffff) AM_RAM AM_SHARE(1) AM_BASE(&stv_backupram)
+	AM_RANGE(0x00180000, 0x0018ffff) AM_READWRITE(stv_backupram_r32, stv_backupram_w32)
 	AM_RANGE(0x00200000, 0x002fffff) AM_RAM AM_MIRROR(0x100000) AM_SHARE(2) AM_BASE(&stv_workram_l)
 	AM_RANGE(0x00400000, 0x0040001f) AM_READWRITE(stv_io_r32, stv_io_w32) AM_BASE(&ioga) AM_SHARE(4) AM_MIRROR(0x20)
 	AM_RANGE(0x01000000, 0x01000003) AM_WRITE(minit_w)
@@ -3588,6 +3618,8 @@ ROM_START( myfairld )
 	ROM_LOAD16_WORD_SWAP( "mpr20999.6",    0x1400000, 0x0400000, CRC(82e31f25) SHA1(0cf74af14abb6ede21d19bc22041214232751594) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr20994.1",    0x1800000, 0x0400000, CRC(a69243a0) SHA1(e5a1b6ec62bdd5b015ed6cf48f5a6aabaf4bd837) ) // good
 	ROM_LOAD16_WORD_SWAP( "mpr21001.8",    0x1c00000, 0x0400000, CRC(95fbe549) SHA1(8cfb48f353b2849600373d66f293f103bca700df) ) // good
+	ROM_REGION( 0x80, REGION_USER4, 0 )
+	ROM_LOAD( "myfairld.nv", 0x0000, 0x0080, CRC(c7cf3a5a) SHA1(5365f38047821305658f94395f03cf2c49c87576) )
 ROM_END
 
 ROM_START( othellos )
@@ -4220,7 +4252,7 @@ GAMEB( 1996, introdon,  stvbios, stvbios, stv, stv,  ic13,		ROT0,   "Sunsoft / S
 GAMEB( 1995, kiwames,   stvbios, stvbios, stv, stvmp,stv,      ROT0,   "Athena",   				  "Pro Mahjong Kiwame S (J 951020 V1.208)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1997, maruchan,  stvbios, stvbios, stv, stv,  maruchan,  ROT0,   "Sega / Toyosuisan", 	      "Maru-Chan de Goo! (J 971216 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, mausuke,   stvbios, stvbios, stv, stv,  mausuke,   ROT0,   "Data East Corporation",				  "Mausuke no Ojama the World (J 960314 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1998, myfairld,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong 2 - My Fair Lady (J 980608 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
+GAMEB( 1998, myfairld,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong 2 - My Fair Lady (J 980608 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, othellos,  stvbios, stvbios, stv, stv,  othellos,  ROT0,   "Success",  				  "Othello Shiyouyo (J 980423 V1.002)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1995, pblbeach,  stvbios, stvbios, stv, stv,  pblbeach,  ROT0,   "T&E Soft",   				  "Pebble Beach - The Great Shot (JUE 950913 V0.990)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, prikura,   stvbios, stvbios, stv, stv,  prikura,   ROT0,   "Atlus",    				  "Princess Clara Daisakusen (J 960910 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
