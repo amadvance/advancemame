@@ -8087,7 +8087,8 @@ Other Sun games
 	DRIVER( couple )	/* (c) 1988 bootleg */
 	DRIVER( couplep )	/* (c) 1988 bootleg */
 	DRIVER( couplei )	/* (c) 1988 bootleg */
-	DRIVER( suprgolf )	/* (c) 19?? Nasco */
+	DRIVER( suprgolf )	/* (c) 1989 Nasco */
+	DRIVER( suprgolfj )	/* (c) 1989 Nasco */
 	DRIVER( hotblock )	/* (c) 1993 Nics? / Nix? */
 	DRIVER( pntnpuzl )	/* Century? */
 	DRIVER( trucocl )	/* (c) 1991 Miky SRL */

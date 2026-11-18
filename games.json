@@ -185314,12 +185314,13 @@
     },
     {
       "shortnames": [
-        "suprgolf"
+        "suprgolf",
+        "suprgolfj"
       ],
-      "title": "Super Crown Golf",
+      "title": "Super Crowns Golf",
       "year": 1989,
-      "developer": "Nasco/Face",
-      "publisher": "Nasco/Face",
+      "developer": "Nasco",
+      "publisher": "Nasco",
       "category": "original",
       "genre": "Sports",
       "platform": "Arcade",
