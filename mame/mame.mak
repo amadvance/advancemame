@@ -1281,6 +1281,7 @@ $(OBJ)/snk.a: \
 	$(OBJ)/drivers/hal21.o \
 	$(OBJ)/drivers/jcross.o $(OBJ)/vidhrdw/jcross.o \
 	$(OBJ)/drivers/lasso.o $(OBJ)/vidhrdw/lasso.o \
+	$(OBJ)/drivers/hng64.o $(OBJ)/vidhrdw/hng64.o $(OBJ)/sndhrdw/hng64.o \
 	$(OBJ)/drivers/mainsnk.o $(OBJ)/vidhrdw/mainsnk.o \
 	$(OBJ)/drivers/marvins.o $(OBJ)/vidhrdw/marvins.o \
 	$(OBJ)/drivers/munchmo.o $(OBJ)/vidhrdw/munchmo.o \

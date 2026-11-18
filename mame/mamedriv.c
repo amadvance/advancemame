@@ -5705,6 +5705,16 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( dmndrby )	/* G4001 'DD' (c) 1986 */
 	DRIVER( dmndrbya )	/* G4001 'DD' (c) 1986 */
 
+	/* Hyper Neo Geo 64 */
+	DRIVER( hng64 )
+	DRIVER( roadedge )
+	DRIVER( sams64 )
+	DRIVER( xrally )
+	DRIVER( bbust2 )
+	DRIVER( sams64_2 )
+	DRIVER( fatfurwa )
+	DRIVER( buriki )
+
 	/* Neo Geo games */
 	/* the four digits number is the game ID stored at address 0x0108 of the program ROM */
 	/* info on prototypes taken from http://www.members.tripod.com/fresa/proto/puzzle.htm */
