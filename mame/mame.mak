@@ -932,6 +932,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/simpsons.o $(OBJ)/machine/simpsons.o $(OBJ)/vidhrdw/simpsons.o \
 	$(OBJ)/drivers/spy.o $(OBJ)/vidhrdw/spy.o \
 	$(OBJ)/drivers/surpratk.o $(OBJ)/vidhrdw/surpratk.o \
+	$(OBJ)/drivers/tgtpanic.o \
 	$(OBJ)/drivers/thunderx.o $(OBJ)/vidhrdw/thunderx.o \
 	$(OBJ)/drivers/timeplt.o $(OBJ)/sndhrdw/timeplt.o $(OBJ)/vidhrdw/timeplt.o \
 	$(OBJ)/drivers/tmnt.o $(OBJ)/vidhrdw/tmnt.o \

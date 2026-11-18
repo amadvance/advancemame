@@ -5019,6 +5019,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( dbz2 )		/* (c) 1994 Banpresto */
 	DRIVER( bishi )		/* GX575 (c) 1996 (Japan) */
 	DRIVER( sbishi )	/* GX675 (c) 1998 (Japan) */
+	DRIVER( tgtpanic )
 
 	/* Konami dual 68000 games */
 	DRIVER( overdriv )	/* GX789 (c) 1990 */
