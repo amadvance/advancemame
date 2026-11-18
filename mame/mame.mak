@@ -1585,6 +1585,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/galgame.o \
 	$(OBJ)/drivers/go2000.o \
 	$(OBJ)/drivers/gotcha.o $(OBJ)/vidhrdw/gotcha.o \
+	$(OBJ)/drivers/gstream.o \
 	$(OBJ)/drivers/gumbo.o $(OBJ)/vidhrdw/gumbo.o \
 	$(OBJ)/drivers/gunpey.o \
 	$(OBJ)/drivers/hexa.o $(OBJ)/vidhrdw/hexa.o \

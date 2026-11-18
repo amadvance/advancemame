@@ -7997,6 +7997,10 @@ Other Sun games
 	DRIVER( puzlbang )	/* (c) 1999 Omega System */
 	DRIVER( puzlbanga )	/* (c) 1999 Omega System */
 	DRIVER( suplup )	/* (c) 1999 Omega System */
+	DRIVER( gstream )	/* (c) 2002 Oriental Soft Japan */
+	DRIVER( x2222 )		/* (c) 2000 Oriental Soft / Promat */
+	DRIVER( x2222o )
+
 	DRIVER( vamphalf )	/* (c) 1999 Danbi / F2 System */
 	DRIVER( vamphalfr1 )	/* (c) 1999 Danbi / F2 System */
 	DRIVER( vamphalfk )	/* (c) 1999 Danbi / F2 System */
