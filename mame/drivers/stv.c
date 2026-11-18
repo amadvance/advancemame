@@ -2130,12 +2130,14 @@ static WRITE32_HANDLER( stv_backupram_w32 )
 {
 	int i;
 
-	for (i = 0; i < 4; ++i)
+	/* A zero mask bit enables the write. Preserve the other byte on byte accesses. */
+	for (i = 0; i < 2; ++i)
 	{
-		int addr = offset * 4 + i;
-		int shift = 24 - i * 8;
-		if ((addr & 1) && ((mem_mask >> shift) & 0xff))
-			stv_backupram[addr >> 1] = data >> shift;
+		int shift = 16 - i * 16;
+		UINT8 mask = mem_mask >> shift;
+		UINT8 *dest = &stv_backupram[offset * 2 + i];
+
+		*dest = (*dest & mask) | ((data >> shift) & ~mask);
 	}
 }
 
