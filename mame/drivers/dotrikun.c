@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Takahiro Nogi
+// copyright-holders:Takahiro Nogi, hap
 /***************************************************************************
 
 Dottori Kun (Head On's mini game)
@@ -26,9 +26,13 @@ SOUND : (none)
 #include "cpu/z80/z80.h"
 
 
+#define DOTRIKUN_MASTER_CLOCK 4000000
+#define DOTRIKUN_HTOTAL 256
+#define DOTRIKUN_VTOTAL 256
+#define DOTRIKUN_VDISPLAY 192
+
 WRITE8_HANDLER( dotrikun_videoram_w );
 VIDEO_UPDATE( dotrikun );
-VIDEO_START( dotrikun );
 
 WRITE8_HANDLER( dotrikun_color_w );
 
@@ -46,12 +50,12 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x00, 0x00) AM_READ(input_port_0_r)
+	AM_RANGE(0x00, 0xff) AM_READ(input_port_0_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x00, 0x00) AM_WRITE(dotrikun_color_w)
+	AM_RANGE(0x00, 0xff) AM_WRITE(dotrikun_color_w)
 ADDRESS_MAP_END
 
 
@@ -71,24 +75,26 @@ INPUT_PORTS_END
 static MACHINE_DRIVER_START( dotrikun )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 4000000)		 /* 4 MHz */
+	/* Video fetches steal a quarter of the CPU cycles during the
+	   visible 128 of 256 clocks on each of the 192 active lines. */
+	MDRV_CPU_ADD(Z80, DOTRIKUN_MASTER_CLOCK * 29 / 32)
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_IO_MAP(readport,writeport)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_FRAMES_PER_SECOND((double)DOTRIKUN_MASTER_CLOCK / (DOTRIKUN_HTOTAL * DOTRIKUN_VTOTAL))
+	MDRV_VBLANK_DURATION(1000000 * DOTRIKUN_HTOTAL / DOTRIKUN_MASTER_CLOCK * (DOTRIKUN_VTOTAL - DOTRIKUN_VDISPLAY))
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(256, 256)
-	MDRV_VISIBLE_AREA(0, 256-1, 0, 192-1)
+	MDRV_VISIBLE_AREA(0, 256-1, 0, DOTRIKUN_VDISPLAY-1)
+	MDRV_ASPECT_RATIO(1, 1)
 	MDRV_PALETTE_LENGTH(2)
 
 	MDRV_VIDEO_START(generic_bitmapped)
 	MDRV_VIDEO_UPDATE(dotrikun)
 
-	/* sound hardware */
 MACHINE_DRIVER_END
 
 
@@ -109,5 +115,5 @@ ROM_START( dotriku2 )
 ROM_END
 
 
-GAME( 1990, dotrikun, 0,        dotrikun, dotrikun, 0, ROT0, "Sega", "Dottori Kun (new version)", GAME_NO_SOUND )
+GAME( 1990, dotrikun, 0,        dotrikun, dotrikun, 0, ROT0, "Sega", "Dottori Kun (new version)", 0 )
 GAME( 1990, dotriku2, dotrikun, dotrikun, dotrikun, 0, ROT0, "Sega", "Dottori Kun (old version)", GAME_NO_SOUND )
