@@ -137,6 +137,7 @@ void arm7_get_info(UINT32 state, union cpuinfo *info);
 void arm920t_get_info(UINT32 state, union cpuinfo *info);
 void igs036_get_info(UINT32 state, union cpuinfo *info);
 void xa_get_info(UINT32 state, union cpuinfo *info);
+void xavix2000_get_info(UINT32 state, union cpuinfo *info);
 void sh3be_get_info(UINT32 state, union cpuinfo *info);
 void sh2_get_info(UINT32 state, union cpuinfo *info);
 void dsp32c_get_info(UINT32 state, union cpuinfo *info);
@@ -593,6 +594,9 @@ static const struct
 #endif
 #if (HAS_XA)
 	{ CPU_XA, xa_get_info },
+#endif
+#if (HAS_XAVIX2000)
+	{ CPU_XAVIX2000, xavix2000_get_info },
 #endif
 #if (HAS_IGS036)
 	{ CPU_IGS036, igs036_get_info },

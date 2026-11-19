@@ -1149,6 +1149,13 @@ $(1)CPUOBJS += $(2)/cpu/xa/xa.o
 $(2)/cpu/xa/xa.o: xa.c xa.h
 endif
 
+$(1)CPUDEFS += -DHAS_XAVIX2000=$$(if $$(filter XAVIX2000,$$($(1)CPUS)),1,0)
+ifneq ($$(filter XAVIX2000,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/xavix
+$(1)CPUOBJS += $(2)/cpu/xavix/xavix.o
+$(2)/cpu/xavix/xavix.o: xavix.c xavix.h ../m6502/ops02.h
+endif
+
 $(1)CPUDEFS += -DHAS_CQUESTROT=$$(if $$(filter CQUESTROT,$$($(1)CPUS)),1,0)
 ifneq ($$(filter CQUESTROT,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/cubeqcpu

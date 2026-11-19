@@ -8271,6 +8271,26 @@ Other Sun games
 	DRIVER( altair2 )
 	DRIVER( draco )
 
+	/* SSD Company XaviX 2000 TV games */
+	DRIVER( epo_ebox )	/* (c) 2002 Epoch / SSD Company LTD */
+	DRIVER( epo_bowl )	/* (c) 2002 Epoch / SSD Company LTD */
+	DRIVER( epo_golf )	/* (c) 2003 Epoch / SSD Company LTD */
+	DRIVER( epo_hamc )	/* (c) 2002 Epoch / SSD Company LTD */
+	DRIVER( epo_mini )	/* (c) 2003 Epoch / SSD Company LTD */
+	DRIVER( epo_es2j )	/* (c) 2006 Epoch / SSD Company LTD */
+	DRIVER( duelmast )	/* (c) 2003 Takara / SSD Company LTD */
+	DRIVER( epo_sdb )	/* (c) 2004 Epoch / SSD Company LTD */
+	DRIVER( ttv_sw )	/* (c) 2005 Tiger / SSD Company LTD */
+	DRIVER( ttv_swj )	/* (c) 2005 Tomy / SSD Company LTD */
+	DRIVER( ttv_lotr )	/* (c) 2005 Tiger / SSD Company LTD */
+	DRIVER( ttv_mx )	/* (c) 2005 Tiger / SSD Company LTD */
+	DRIVER( tom_jump )	/* (c) 2005 Tomy / SSD Company LTD */
+	DRIVER( drgqst )	/* (c) 2003 Square Enix / SSD Company LTD */
+	DRIVER( tak_chq )	/* (c) 2003 Takara / SSD Company LTD */
+	DRIVER( ban_onep )	/* (c) 2004 Bandai / SSD Company LTD */
+	DRIVER( ban_omt )	/* (c) 2005 Bandai / SSD Company LTD */
+	DRIVER( tom_dpgm )	/* (c) 2004 Tomy / SSD Company LTD */
+
 
 /* Standalone firmware providers (not runnable machines). */
 	DRIVER( sente6vb )

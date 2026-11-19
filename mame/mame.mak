@@ -131,7 +131,7 @@ CPUS += UPD7810
 CPUS += UPD7807
 CPUS += ARM
 CPUS += ARM7 ARM920T
-CPUS += IGS036 XA
+CPUS += IGS036 XA XAVIX2000
 CPUS += JAGUAR
 CPUS += R3000
 CPUS += R4600
@@ -1653,6 +1653,8 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/starspnr.o \
 	$(OBJ)/drivers/statriv2.o \
 	$(OBJ)/drivers/stuntair.o \
+	$(OBJ)/drivers/xavix_2000.o $(OBJ)/machine/xavix.o $(OBJ)/vidhrdw/xavix.o $(OBJ)/sndhrdw/xavix.o \
+	$(OBJ)/machine/i2cmem.o \
 	$(OBJ)/drivers/superga2.o \
 	$(OBJ)/drivers/supertnk.o \
 	$(OBJ)/drivers/tattack.o \
