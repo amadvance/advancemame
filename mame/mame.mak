@@ -1636,7 +1636,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/news.o $(OBJ)/vidhrdw/news.o \
 	$(OBJ)/drivers/oneshot.o $(OBJ)/vidhrdw/oneshot.o \
 	$(OBJ)/drivers/onetwo.o \
-	$(OBJ)/drivers/othldrby.o $(OBJ)/vidhrdw/othldrby.o \
+	$(OBJ)/drivers/sunwise.o $(OBJ)/vidhrdw/othldrby.o \
 	$(OBJ)/drivers/pass.o $(OBJ)/vidhrdw/pass.o \
 	$(OBJ)/drivers/pipeline.o \
 	$(OBJ)/drivers/pkscram.o \

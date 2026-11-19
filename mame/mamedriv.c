@@ -7875,7 +7875,11 @@ Other Sun games
 	DRIVER( polyplay2c )
 	DRIVER( amspdwy )	/* no copyright notice, but (c) 1987 Enerdyne Technologies, Inc. */
 	DRIVER( amspdwya )	/* no copyright notice, but (c) 1987 Enerdyne Technologies, Inc. */
+	DRIVER( pwrkick )	/* (c) 1994 Sunwise */
+	DRIVER( burgkids )	/* (c) 1995 Sunwise */
+	DRIVER( pyutakun )	/* (c) 1995 Sunwise */
 	DRIVER( othldrby )	/* (c) 1995 Sunwise */
+	DRIVER( monkichi )	/* (c) 1995 Sunwise */
 	DRIVER( mosaic )	/* (c) 1990 Space */
 	DRIVER( mosaica )	/* (c) 1990 Space + Fuuki license */
 	DRIVER( gfire2 )	/* (c) 1992 Topis Corp */
