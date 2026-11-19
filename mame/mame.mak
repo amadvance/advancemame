@@ -1036,6 +1036,7 @@ $(OBJ)/namco.a: \
 $(OBJ)/nasco.a: \
 	$(OBJ)/drivers/crgolf.o $(OBJ)/vidhrdw/crgolf.o \
 	$(OBJ)/drivers/suprgolf.o \
+	$(OBJ)/drivers/himesiki.o \
 
 $(OBJ)/neogeo.a: \
 	$(OBJ)/drivers/neogeo.o $(OBJ)/machine/neogeo.o $(OBJ)/vidhrdw/neogeo.o \

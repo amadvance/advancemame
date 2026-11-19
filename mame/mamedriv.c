@@ -8117,6 +8117,9 @@ Other Sun games
 	DRIVER( couplei )	/* (c) 1988 bootleg */
 	DRIVER( suprgolf )	/* (c) 1989 Nasco */
 	DRIVER( suprgolfj )	/* (c) 1989 Nasco */
+	DRIVER( himesiki )	/* (c) 1989 Hi-Soft */
+	DRIVER( androidp )	/* (c) 1987 Nasco */
+	DRIVER( androidpo )	/* (c) 198? Nasco */
 	DRIVER( hotblock )	/* (c) 1993 Nics? / Nix? */
 	DRIVER( pntnpuzl )	/* Century? */
 	DRIVER( trucocl )	/* (c) 1991 Miky SRL */
