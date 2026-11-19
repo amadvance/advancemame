@@ -66,6 +66,7 @@ WRITE16_HANDLER( aerofgt_bg1videoram_w );
 WRITE16_HANDLER( aerofgt_bg2videoram_w );
 WRITE16_HANDLER( pspikes_gfxbank_w );
 WRITE16_HANDLER( pspikesb_gfxbank_w );
+WRITE16_HANDLER( kickball_gfxbank_w );
 WRITE16_HANDLER( karatblz_gfxbank_w );
 WRITE16_HANDLER( spinlbrk_gfxbank_w );
 WRITE16_HANDLER( turbofrc_gfxbank_w );
@@ -429,6 +430,48 @@ static ADDRESS_MAP_START( wbbc97_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xfff004, 0xfff005) AM_WRITE(aerofgt_bg1scrolly_w)
 	AM_RANGE(0xfff006, 0xfff007) AM_WRITE(sound_command_w)
 	AM_RANGE(0xfff00e, 0xfff00f) AM_WRITE(wbbc97_bitmap_enable_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( kickball_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x100000, 0x10ffff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x200000, 0x20ffff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xff8000, 0xff8fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xffd000, 0xffdfff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xffe000, 0xffefff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xfff000, 0xfff001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0xfff002, 0xfff003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0xfff004, 0xfff005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0xfff006, 0xfff007) AM_READ(pending_command_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( kickball_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
+	AM_RANGE(0x100000, 0x10ffff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x200000, 0x20ffff) AM_WRITE(MWA16_RAM) AM_BASE(&aerofgt_spriteram1) AM_SIZE(&aerofgt_spriteram1_size)
+	AM_RANGE(0xff8000, 0xff8fff) AM_WRITE(aerofgt_bg1videoram_w) AM_BASE(&aerofgt_bg1videoram)
+	AM_RANGE(0xffc000, 0xffc3ff) AM_WRITE(MWA16_RAM) AM_BASE(&aerofgt_spriteram3) AM_SIZE(&aerofgt_spriteram3_size)
+	AM_RANGE(0xffd000, 0xffdfff) AM_WRITE(MWA16_RAM) AM_BASE(&aerofgt_rasterram)
+	AM_RANGE(0xffe000, 0xffefff) AM_WRITE(paletteram16_xRRRRRGGGGGBBBBB_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0xfff000, 0xfff001) AM_WRITE(pspikes_palette_bank_w)
+	AM_RANGE(0xfff002, 0xfff003) AM_WRITE(kickball_gfxbank_w)
+	AM_RANGE(0xfff004, 0xfff005) AM_WRITE(aerofgt_bg1scrolly_w)
+	AM_RANGE(0xfff006, 0xfff007) AM_WRITE(sound_command_w)
+	AM_RANGE(0xfff400, 0xfff403) AM_WRITENOP
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( kickball_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xefff) AM_ROM
+	AM_RANGE(0xf000, 0xf7ff) AM_RAM
+	AM_RANGE(0xf800, 0xf800) AM_READ(soundlatch_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( kickball_sound_port, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
+	AM_RANGE(0x20, 0x20) AM_WRITE(YM3812_write_port_0_w)
+	AM_RANGE(0x40, 0x40) AM_READWRITE(OKIM6295_status_0_r, OKIM6295_data_0_w)
+	AM_RANGE(0xc0, 0xc0) AM_WRITE(pending_command_clear_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -1134,6 +1177,17 @@ static const gfx_layout pspikes_charlayout =
 	32*8
 };
 
+static const gfx_layout kickball_spritelayout =
+{
+	16,16,
+	RGN_FRAC(1,4),
+	4,
+	{ RGN_FRAC(0,4), RGN_FRAC(1,4), RGN_FRAC(2,4), RGN_FRAC(3,4) },
+	{ 6,7, 4,5, 2,3, 0, 1, 14, 15, 12, 13, 10, 11, 8, 9 },
+	{ 0*8, 2*8, 4*8, 6*8, 8*8, 10*8, 12*8, 14*8, 16*8, 18*8, 20*8, 22*8, 24*8, 26*8 ,28*8, 30*8 },
+	32*8
+};
+
 static const gfx_layout aerofgt_charlayout =
 {
 	8,8,
@@ -1294,6 +1348,13 @@ static const gfx_decode aerfboot_gfxdecodeinfo[] =
 	{ REGION_GFX1, 0x20000, &aerfboot_charlayout,   256, 16 },
 	{ REGION_GFX2, 0,       &aerfboot_spritelayout, 512, 16 },
 	{ REGION_GFX3, 0,       &aerfboot_spritelayout, 768, 16 },
+	{ -1 } /* end of array */
+};
+
+static const gfx_decode kickball_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &pspikes_charlayout,      0, 64 },	/* colors    0-1023 in 8 banks */
+	{ REGION_GFX2, 0, &kickball_spritelayout, 1024, 64 },	/* colors 1024-2047 in 4 banks */
 	{ -1 } /* end of array */
 };
 
@@ -1646,6 +1707,42 @@ static MACHINE_DRIVER_START( wbbc97 )
 	MDRV_SOUND_ADD(OKIM6295, 8000)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( kickball )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000,10000000)
+	MDRV_CPU_PROGRAM_MAP(kickball_readmem,kickball_writemem)
+	MDRV_CPU_VBLANK_INT(irq1_line_hold,1)/* only IRQ1 is valid */
+
+	MDRV_CPU_ADD(Z80,4000000)
+	MDRV_CPU_PROGRAM_MAP(kickball_sound_map,0)
+	MDRV_CPU_IO_MAP(kickball_sound_port,0)
+								/* IRQs are triggered by the YM3812 */
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8+4, 44*8+4-1, 0*8, 30*8-1)
+	MDRV_GFXDECODE(kickball_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(2048)
+
+	MDRV_VIDEO_START(pspikes)
+	MDRV_VIDEO_UPDATE(pspikes)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM3812, 4000000)
+	MDRV_SOUND_CONFIG(ym3812_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+
+	MDRV_SOUND_ADD(OKIM6295, 7575)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -2189,6 +2286,38 @@ ROM_START( wbbc97 )
 	ROM_LOAD( "82s147a.rom",  0x000000, 0x200, CRC(72cec9d2) SHA1(1c6fe6b47fe24bdbebb51d6bef56bf71c9029e72) )
 ROM_END
 
+ROM_START( kickball )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
+	ROM_LOAD16_BYTE( "kickball.1", 0x000000, 0x040000, CRC(f0fd971d) SHA1(b887196d9ff62403fd27e41ebda0a1d13215a456) )
+	ROM_LOAD16_BYTE( "kickball.2", 0x000001, 0x040000, CRC(7dab432d) SHA1(e077ea552e9aba4ecc82abd07ea5e94f0f09303f) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Z80 code */
+	ROM_LOAD( "kickball.4", 0x00000, 0x10000, CRC(ef10c2bf) SHA1(44fd03a28221dffe9c4281ef920fe975bbfb67f0) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "kickball.9",  0x000000, 0x080000, CRC(19be87f3) SHA1(661966683f74b4fbfd77eab4477fb0d75e87230e) )
+	ROM_LOAD( "kickball.10", 0x080000, 0x080000, CRC(e3b4f894) SHA1(44b107b87cf9e94f67cfac98b67abed874d534c0) )
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_LOAD( "kickball.5", 0x000000, 0x080000, CRC(050b6387) SHA1(59aa685014a6f138e14dbfe858c6ecc6514e44f6) )
+	ROM_LOAD( "kickball.6", 0x080000, 0x080000, CRC(1e55252f) SHA1(ce1604921af26e8da2fa4cf4a49c67f3b7d4222d) )
+	ROM_LOAD( "kickball.7", 0x100000, 0x080000, CRC(b2ee5218) SHA1(65e240b3ddb673b593404525aa2775c342228130) )
+	ROM_LOAD( "kickball.8", 0x180000, 0x080000, CRC(5f1b07f8) SHA1(add1f66fe09684ce65a54752cc90d7f0a05efc4f) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
+	ROM_LOAD( "kickball.3", 0x000000, 0x040000, CRC(2f3ed4c1) SHA1(4688df5d420343a935d066f3b46580b77ee77b0e) )
+ROM_END
+
+static DRIVER_INIT( kickball )
+{
+	UINT8 *src = memory_region(REGION_GFX2);
+	int i;
+
+	/* bits 5 and 6 are swapped in the first sprite ROM */
+	for (i = 0;i < 0x80000;i++)
+		src[i] = (src[i] & 0x9f) | ((src[i] & 0x20) << 1) | ((src[i] & 0x40) >> 1);
+}
+
 
 GAME( 1990, spinlbrk, 0,        spinlbrk, spinlbrk, 0, ROT0,   "V-System Co.", "Spinal Breakers (World)", GAME_NO_COCKTAIL )
 GAME( 1990, spinlbru, spinlbrk, spinlbrk, spinlbru, 0, ROT0,   "V-System Co.", "Spinal Breakers (US)", GAME_NO_COCKTAIL )
@@ -2207,3 +2336,4 @@ GAME( 1992, aerofgtc, aerofgt,  aerofgtb, aerofgtb, 0, ROT270, "Video System Co.
 GAME( 1992, sonicwi,  aerofgt,  aerofgtb, aerofgtb, 0, ROT270, "Video System Co.", "Sonic Wings (Japan)", GAME_NO_COCKTAIL )
 GAME( 1992, aerfboot, aerofgt,  aerfboot, aerofgtb, 0, ROT270, "bootleg",          "Aero Fighters (bootleg)", GAME_NO_COCKTAIL | GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 1997, wbbc97,   0,        wbbc97,   wbbc97,   0, ROT0,   "Comad",            "Beach Festival World Championship 1997", GAME_NO_COCKTAIL )
+GAME( 1998, kickball, 0,        kickball, pspikes,  kickball, ROT0, "Seoung Youn",      "Kick Ball", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )

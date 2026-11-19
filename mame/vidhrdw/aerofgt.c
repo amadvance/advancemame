@@ -239,6 +239,15 @@ WRITE16_HANDLER( pspikesb_gfxbank_w )
 	setbank(bg1_tilemap,1,(data & 0x0f00) >> 8);
 }
 
+WRITE16_HANDLER( kickball_gfxbank_w )
+{
+	if (ACCESSING_LSB)
+	{
+		setbank(bg1_tilemap,0,(data & 0x0e));
+		setbank(bg1_tilemap,1,(data & 0x0f));
+	}
+}
+
 WRITE16_HANDLER( karatblz_gfxbank_w )
 {
 	if (ACCESSING_MSB)
