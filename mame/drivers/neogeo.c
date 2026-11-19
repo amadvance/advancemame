@@ -6242,14 +6242,12 @@ ROM_START( ms5pcb ) /* Encrypted Set */
 
 	ROM_REGION16_BE( 0x80000, REGION_USER1, 0 )
 	/* this contains both an ASIA and JAPAN bios, HARDDIP3 on the PCB selects which to use */
-	ROM_LOAD16_WORD_SWAP( "268-m1.m1", 0x00000, 0x80000, CRC(4a5a6e0e) SHA1(df0f660f2465e1db7be5adfcaf5e88ad61a74a42) )
+	ROM_LOAD16_WORD_SWAP( "sp-4x.sp1", 0x00000, 0x80000, CRC(b4590283) SHA1(47047ed5b6062babc0a0bebcc30e4b3f021e115a) )
 
-	ROM_REGION( 0x50000, REGION_CPU2, 0 )
-	/* Encrypted, we load it here for reference and replace with decrypted ROM */
-	ROM_LOAD( "268-m1.bin", 0x00000, 0x10000, CRC(58b107d0) SHA1(cc7fe66ff4f9c026cde4df06f86c848eb21f7af8) )
-	/* Decrypted */
-	ROM_LOAD( "268-m1_decrypted.bin", 0x00000, 0x10000, CRC(3c0655a7) SHA1(ae839d4c2b87a7aa3dd8e5caddc43eb75ee9b732) )
-	ROM_RELOAD( 0x10000, 0x10000 )
+	/* Encrypted */
+	ROM_REGION( 0x80000, REGION_USER5, 0 )
+	ROM_LOAD( "268-m1.m1", 0x00000, 0x80000, CRC(4a5a6e0e) SHA1(df0f660f2465e1db7be5adfcaf5e88ad61a74a42) ) /* mask rom TC534000 */
+	ROM_REGION( 0x90000, REGION_CPU2, ROMREGION_ERASEFF )
 
 	ROM_REGION( 0x20000, REGION_GFX4, 0 )
 	ROM_LOAD( "000-lo.lo", 0x00000, 0x20000, CRC(5a86cff2) SHA1(5992277debadeb64d1c1c64b0a92d9293eaf7e4a) )
@@ -8806,7 +8804,8 @@ GAMEB( 2004, kf2k5uni, kof2002,  neogeo, neogeo, neogeo,  kf2k5uni, ROT0, "bootl
 GAMEB( 2005, kf10thep, kof2002,  neogeo, neogeo, neogeo,  kf10thep, ROT0, "bootleg", "The King of Fighters 10th Anniversary Extra Plus (bootleg of The King of Fighters 2002)", 0 ) // fake SNK copyright
 GAMEB( 2004, kof2k4se, kof2002,  neogeo, neogeo, neogeo,  kof2k4se, ROT0, "bootleg", "The King of Fighters Special Edition 2004 (bootleg of The King of Fighters 2002)", 0 ) /* Hack / Bootleg of kof2002 */
 GAMEB( 2003, mslug5, neogeo,   neogeo, neogeo, neogeo,  mslug5,   ROT0, "SNK Playmore", "Metal Slug 5 (NGM-2680)", 0 )
-GAME ( 2003, ms5pcb,   0,                neogeo, neogeo,  ms5pcb,   ROT0, "SNK Playmore", "Metal Slug 5 (JAMMA PCB)", 0 )
+/* clone of mslug5 even if it runs on a different hardware (JAMMA PCB), because it is the same game */
+GAME ( 2003, ms5pcb,   mslug5,          neogeo, neogeo,  ms5pcb,   ROT0, "SNK Playmore", "Metal Slug 5 (JAMMA PCB)", 0 )
 GAMEB( 2003, ms5plus, mslug5,   neogeo, neogeo, neogeo,  ms5plus,  ROT0, "bootleg", "Metal Slug 5 Plus (bootleg)",0 )
 GAMEB( 2003, ms5sp,   mslug5,   neogeo, neogeo, neogeo,  ms5plus,  ROT0, "hack", "Metal Slug 5 Plus (Super enhanced version)", 0 )
 GAME ( 2003, svcpcb,   0,                neogeo, svcpcb,  svcpcb,   ROT0, "Playmore / Capcom", "SNK vs. Capcom - SVC Chaos (JAMMA PCB, NEO-MVH MVO PCB)", 0 ) // not a clone of neogeo because it's NOT a neogeo cart.
