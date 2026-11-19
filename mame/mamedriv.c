@@ -8222,6 +8222,8 @@ Other Sun games
 	DRIVER( trvquest )	/* (c) 1984 Sunn / Techstar */
 	DRIVER( wheelfir )	/* (c) 199? TCH */
 	DRIVER( littlerb )	/* (c) 1994 TCH */
+	DRIVER( rltennis )	/* (c) 1993 TCH */
+	DRIVER( rltennisa )	/* (c) 1993 TCH */
 	DRIVER( tattack )	/* (c) 198? Shonan */
 	DRIVER( mosaicf2 )	/* (c) 1999 F2 System */
 	DRIVER( rbmk )		/* (c) 1995 GMS */

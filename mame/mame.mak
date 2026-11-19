@@ -1412,6 +1412,7 @@ $(OBJ)/tatsumi.a: \
 $(OBJ)/tch.a: \
 	$(OBJ)/drivers/kickgoal.o $(OBJ)/vidhrdw/kickgoal.o \
 	$(OBJ)/drivers/littlerb.o \
+	$(OBJ)/drivers/rltennis.o \
 	$(OBJ)/drivers/speedspn.o $(OBJ)/vidhrdw/speedspn.o \
 	$(OBJ)/drivers/wheelfir.o \
 
