@@ -1673,6 +1673,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/tugboat.o \
 	$(OBJ)/drivers/usgames.o $(OBJ)/vidhrdw/usgames.o \
 	$(OBJ)/drivers/vamphalf.o \
+	$(OBJ)/drivers/vampire.o \
 	$(OBJ)/drivers/vp906iii.o \
 	$(OBJ)/drivers/vroulet.o \
 	$(OBJ)/drivers/wldarrow.o \

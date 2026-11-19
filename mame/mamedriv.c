@@ -8341,6 +8341,7 @@ Other Sun games
 	DRIVER( brod )
 
 	DRIVER( stuntair )
+	DRIVER( vampire )	/* (c) 1983 Entertainment Enterprises */
 
 	/* United Amusements PC Engine */
 	DRIVER( blazlaz )
