@@ -1948,6 +1948,10 @@ const game_driver * const drivers[] =
 	DRIVER( topland )	/* B62 (c) 1988 Taito Coporation Japan (World) */
 	DRIVER( ainferno )	/* C45 (c) 1990 Taito America Corporation (US) */
 
+	/* Taito Midnight Landing games */
+	DRIVER( mlanding )	/* B09 (c) 1987 Taito America Corporation (Germany) */
+	DRIVER( mlandingj )	/* B09 (c) 1987 Taito Corporation (Japan, rev 3) */
+
 	/* enhanced Z-System hardware games */
 	DRIVER( gunbustr )	/* D27 (c) 1992 Taito Corporation (Japan) */
 	DRIVER( superchs )	/* D46 (c) 1992 Taito America Corporation (US) */

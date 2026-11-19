@@ -1362,6 +1362,7 @@ $(OBJ)/taito.a: \
 	$(OBJ)/drivers/mexico86.o $(OBJ)/machine/mexico86.o $(OBJ)/vidhrdw/mexico86.o \
 	$(OBJ)/drivers/minivadr.o $(OBJ)/vidhrdw/minivadr.o \
 	$(OBJ)/drivers/missb2.o \
+	$(OBJ)/drivers/mlanding.o \
 	$(OBJ)/drivers/msisaac.o $(OBJ)/vidhrdw/msisaac.o \
 	$(OBJ)/drivers/ninjaw.o $(OBJ)/vidhrdw/ninjaw.o \
 	$(OBJ)/drivers/nycaptor.o $(OBJ)/machine/nycaptor.o $(OBJ)/vidhrdw/nycaptor.o \
