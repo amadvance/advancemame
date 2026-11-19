@@ -1110,6 +1110,7 @@ $(OBJ)/omori.a: \
 	$(OBJ)/drivers/spaceg.o \
 
 $(OBJ)/orca.a: \
+	$(OBJ)/drivers/akazukin.o \
 	$(OBJ)/drivers/espial.o $(OBJ)/vidhrdw/espial.o \
 	$(OBJ)/drivers/funkybee.o $(OBJ)/vidhrdw/funkybee.o \
 	$(OBJ)/drivers/marineb.o $(OBJ)/vidhrdw/marineb.o \
