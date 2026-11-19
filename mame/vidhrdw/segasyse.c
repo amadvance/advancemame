@@ -229,7 +229,7 @@ unsigned char segae_vdp_ctrl_r ( UINT8 chip )
 {
 	UINT8 temp;
 
-	if(strcmp(Machine->gamedrv->name, "opaopan") == 0)
+	if(strcmp(Machine->gamedrv->name, "opaopan") == 0 || strcmp(Machine->gamedrv->name, "opaopa") == 0)
 	{
      if (chip == 0) return 0; // slave vdp (chip==0) doesn't get to clear hint/vint status. dink
 	} 

@@ -3569,8 +3569,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( opaopa )        /* (c) 1987 */
         DRIVER( opaopan )       /* (c) 1987 */
 	DRIVER( megrescu )	/* (c) 1987 Sega / Exa */
+	DRIVER( fantzn2 )	/* (c) 1988 */
 	DRIVER( tetrisse )	/* (c) 1988 */
-	DRIVER( fantzn2 )
 
 	/* other Sega 8-bit games */
 	DRIVER( turbo )		/* (c) 1981 Sega */

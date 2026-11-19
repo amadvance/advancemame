@@ -2370,3 +2370,36 @@ void mc8123_decrypt_ninjakid2(void)
 		rom[A] = mc8123_decrypt(A,src,key,0);
 	}
 }
+
+/*
+ * decrypt the System E main CPU ROMs using the key ROM loaded in REGION_USER2
+ *
+ * The first 32 KB are the fixed ROM. If banked is set, the 16 banks of 16 KB
+ * mapped at 0x8000 are also decrypted, otherwise they contain only data.
+ */
+void mc8123_decrypt_segae(int banked)
+{
+	UINT8 *rom = memory_region(REGION_CPU1);
+	const UINT8 *key = memory_region(REGION_USER2);
+	UINT8 *decrypted = auto_malloc(0x50000);
+	int length = banked ? 0x50000 : 0x8000;
+	int i;
+
+	for (i = 0; i < length; i++)
+	{
+		/* the banks are decrypted as if they were mapped at 0x8000 */
+		int addr = i >= 0xc000 ? (i & 0x3fff) | 0x8000 : i;
+		UINT8 src = rom[i];
+
+		/* decode the opcodes */
+		decrypted[i] = key_mc8123_decrypt(addr,src,key,1);
+
+		/* decode the data */
+		rom[i] = key_mc8123_decrypt(addr,src,key,0);
+	}
+
+	memory_set_decrypted_region(0, 0x0000, 0x7fff, decrypted);
+
+	if (banked)
+		memory_configure_bank_decrypted(1, 0, 16, decrypted + 0x10000, 0x4000);
+}

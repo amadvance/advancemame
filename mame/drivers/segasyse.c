@@ -295,9 +295,7 @@ static UINT8 rombank;
 
 void segae_bankswitch (void)
 {
-	UINT8 *RAM = memory_region(REGION_CPU1);
-
-	memory_set_bankptr( 1, &RAM[ 0x10000 + ( rombank * 0x4000 ) ] );
+	memory_set_bank( 1, rombank );
 }
 
 
@@ -306,7 +304,7 @@ static WRITE8_HANDLER (segae_port_f7_w)
 	segae_vdp_vrambank[0] = (data & 0x80) >> 7; /* Back  Layer VDP (0) VRAM Bank */
 	segae_vdp_vrambank[1] = (data & 0x40) >> 6; /* Front Layer VDP (1) VRAM Bank */
 	segae_8000bank		  = (data & 0x20) >> 5; /* 0x8000 Write Select */
-	rombank				  =  data & 0x07;		/* Rom Banking */
+	rombank				  =  data & 0x0f;		/* Rom Banking */
 
 	segae_bankswitch();
 }
@@ -792,6 +790,57 @@ INPUT_PORTS_START( opaopa )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( fantzn2 )
+	PORT_START_TAG("DSW0")	/* DSW0 Read from Port 0xf2 */
+	SEGA_COIN_A
+	SEGA_COIN_B
+
+	PORT_START_TAG("DSW1")	/* DSW1 Read from Port 0xf3 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x04, "5" )
+	PORT_DIPNAME( 0x30, 0x30, "Timer" )
+	PORT_DIPSETTING(    0x20, "90" )	/* 210 seconds */
+	PORT_DIPSETTING(    0x30, "80" )	/* 180 seconds */
+	PORT_DIPSETTING(    0x10, "70" )	/* 150 seconds */
+	PORT_DIPSETTING(    0x00, "60" )	/* 120 seconds */
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x80, "Easy" )
+	PORT_DIPSETTING(    0xc0, "Normal" )
+	PORT_DIPSETTING(    0x40, "Hard" )
+	PORT_DIPSETTING(    0x00, "Hardest" )
+
+	PORT_START_TAG("IN0")	/* Read from Port 0xe0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE(0x04, IP_ACTIVE_LOW)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_START2 )
+
+	PORT_START_TAG("IN1")	/* Read from Port 0xe1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
+
+INPUT_PORTS_END
+
+
 INPUT_PORTS_START( slapshtr )
 	PORT_START_TAG("DSW0")	/* Read from Port 0xf2 */
 	SEGA_COIN_A
@@ -982,6 +1031,8 @@ INPUT_PORTS_END
 
 static MACHINE_START( segasyse )
 {
+	memory_configure_bank(1, 0, 16, memory_region(REGION_CPU1) + 0x10000, 0x4000);
+	segae_bankswitch();
 	state_save_register_global(segae_8000bank);
 	state_save_register_global(vintpending);
 	state_save_register_global(hintpending);
@@ -1094,6 +1145,18 @@ static DRIVER_INIT( astrofl )
 	astrofl_decode();
 }
 
+void mc8123_decrypt_segae(int banked);
+
+static DRIVER_INIT( fantzn2 )
+{
+	mc8123_decrypt_segae(0);
+}
+
+static DRIVER_INIT( opaopa )
+{
+	mc8123_decrypt_segae(1);
+}
+
 
 /*******************************************************************************
  Rom Loaders / Game Drivers
@@ -1108,10 +1171,10 @@ static DRIVER_INIT( astrofl )
  slapshtr - Slap Shooter
  megrescu - Megumi Rescue
 
- NOT DECRYPTED
+ Encrypted with the NEC MC-8123
 
- fantzn2  - Fantasy Zone 2 (set 2) *Rom at IC7 Encrypted*
- opaopa   - Opa Opa                *Roms Encrypted/Bad?*
+ fantzn2  - Fantasy Zone II
+ opaopa   - Opa Opa
 *******************************************************************************/
 
 
@@ -1203,40 +1266,42 @@ ROM_START( megrescu )
 	ROM_LOAD( "v10_30ic.2",   0x28000, 0x08000, CRC(5b74c767) SHA1(dbc82a4e046f01130c72bbd7a81190d7f0ca209c) )
 ROM_END
 
-/* Below are encrypted with an NEC MC-8123 processor... it is ESSENTIAL we find these in working condition
-   AS SOON AS POSSIBLE, the batteries on these are dying at an ever increasing rate */
-
-ROM_START( fantzn2 )
-	ROM_REGION( 2*0x30000, REGION_CPU1, 0 )
-	ROM_LOAD( "epr-11416.ic7",	0x00000, 0x08000, CRC(76db7b7b) SHA1(d60e2961fc893dcb4445aed5f67515cbd25b610f) )
-	ROM_LOAD( "epr-11415.ic5",	0x10000, 0x10000, CRC(57b45681) SHA1(1ae6d0d58352e246a4ec4e1ce02b0417257d5d20) )
-	ROM_LOAD( "epr-11414.ic4",	0x20000, 0x10000, CRC(6f7a9f5f) SHA1(b53aa2eded781c80466a79b7d81383b9a875d0be) )
-	ROM_LOAD( "epr-11413.ic3",	0x30000, 0x10000, CRC(a231dc85) SHA1(45b94fdbde28c02e88546178ef3e8f9f3a96ab86) )
-	ROM_LOAD( "epr-11412.ic2",	0x40000, 0x10000, CRC(b14db5af) SHA1(04c7fb659385438b3d8f9fb66800eb7b6373bda9) )
-ROM_END
-
 ROM_START( opaopa )
-	ROM_REGION( 2*0x30000, REGION_CPU1, 0 )
-	ROM_LOAD( "epr11224.ic7",	0x00000, 0x08000, CRC(024b1244) SHA1(59a522ac3d98982cc4ddb1c81f9584d3da453649) ) /* Fixed Code */
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "epr-11054.ic7",  0x00000, 0x08000, CRC(024b1244) SHA1(59a522ac3d98982cc4ddb1c81f9584d3da453649) ) /* encrypted */
 
 	/* The following are 8 0x4000 banks that get mapped to reads from 0x8000 - 0xbfff */
-	ROM_LOAD( "epr11223.ic5",	0x10000, 0x08000, CRC(6bc41d6e) SHA1(8997a4ac2a9704f1400d0ec16b259ee496a7efef) )
-	ROM_LOAD( "epr11222.ic4",	0x18000, 0x08000, CRC(395c1d0a) SHA1(1594bad13e78c5fad4db644cd85a6bac1eaddbad) )
-	ROM_LOAD( "epr11221.ic3",	0x20000, 0x08000, CRC(4ca132a2) SHA1(cb4e4c01b6ab070eef37c0603190caafe6236ccd) )
-	ROM_LOAD( "epr11220.ic2",	0x28000, 0x08000, CRC(a165e2ef) SHA1(498ff4c5d3a2658567393378c56be6ed86ac0384) )
+	ROM_LOAD( "epr-11053.ic5",  0x10000, 0x08000, CRC(6bc41d6e) SHA1(8997a4ac2a9704f1400d0ec16b259ee496a7efef) ) /* encrypted */
+	ROM_LOAD( "epr-11052.ic4",  0x18000, 0x08000, CRC(395c1d0a) SHA1(1594bad13e78c5fad4db644cd85a6bac1eaddbad) ) /* encrypted */
+	ROM_LOAD( "epr-11051.ic3",  0x20000, 0x08000, CRC(4ca132a2) SHA1(cb4e4c01b6ab070eef37c0603190caafe6236ccd) ) /* encrypted */
+	ROM_LOAD( "epr-11050.ic2",  0x28000, 0x08000, CRC(a165e2ef) SHA1(498ff4c5d3a2658567393378c56be6ed86ac0384) ) /* encrypted */
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC8123 key */
+	ROM_LOAD( "317-0042.key",  0x0000, 0x2000, CRC(d6312538) SHA1(494ac7f080775c21dc7d369e6ea78f3299e6975a) )
+ROM_END
+
+ROM_START( fantzn2 )
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "epr-11416.ic7",  0x00000, 0x08000, CRC(76db7b7b) SHA1(d60e2961fc893dcb4445aed5f67515cbd25b610f) ) /* encrypted */
+
+	ROM_LOAD( "epr-11415.ic5",  0x10000, 0x10000, CRC(57b45681) SHA1(1ae6d0d58352e246a4ec4e1ce02b0417257d5d20) )
+	ROM_LOAD( "epr-11413.ic3",  0x20000, 0x10000, CRC(a231dc85) SHA1(45b94fdbde28c02e88546178ef3e8f9f3a96ab86) )
+	ROM_LOAD( "epr-11414.ic4",  0x30000, 0x10000, CRC(6f7a9f5f) SHA1(b53aa2eded781c80466a79b7d81383b9a875d0be) )
+	ROM_LOAD( "epr-11412.ic2",  0x40000, 0x10000, CRC(b14db5af) SHA1(04c7fb659385438b3d8f9fb66800eb7b6373bda9) )
+
+	ROM_REGION( 0x2000, REGION_USER2, 0 ) /* MC8123 key */
+	ROM_LOAD( "317-0057.key",  0x0000, 0x2000, CRC(ee43d0f0) SHA1(72cb75a4d8352fe372db12046a59ea044360d5c3) )
 ROM_END
 
 /*-- Game Drivers --*/
 
 GAME( 1985, hangonjr, 0,        segae,    hangonjr, hangonjr, ROT0,  "Sega", "Hang-On Jr.", 0 )
+GAME( 1986, slapshtr, 0,        segae,    slapshtr, 0,        ROT0,  "Sega", "Slap Shooter", 0 ) /* 1986 date from flyer */
 GAME( 1986, transfrm, 0,        segae,    transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
 GAME( 1986, astrofl,  transfrm, segae,    transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1986, slapshtr, 0,        segae,    slapshtr, 0,        ROT0,  "Sega", "Slap Shooter", 0 ) /* 1986 date from flyer */
 GAME( 1986, ridleofp, 0,        segae,    ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
-GAME( 1987, megrescu, 0,        megrescu, megrescu, ridleofp, ROT90, "Sega / Exa", "Megumi Rescue", 0 )
+GAME( 1987, opaopa,   0,        segae,    opaopa,   opaopa,   ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", 0 )
 GAME( 1987, opaopan,  opaopa,   segae,    opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
+GAME( 1988, fantzn2,  0,        segae,    fantzn2,  fantzn2,  ROT0,  "Sega", "Fantasy Zone II - The Tears of Opa-Opa (MC-8123, 317-0057)", 0 )
 GAME( 1988, tetrisse, 0,        segae,    tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
-
-/* Not Working */
-GAME( 1988, fantzn2,  0,        segae,    dummy,    0,        ROT0,  "Sega", "Fantasy Zone 2", GAME_NOT_WORKING )	/* encrypted */
-GAME( 1987, opaopa,   0,        segae,    opaopa,   0,        ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", GAME_NOT_WORKING ) /* encrypted */
+GAME( 1987, megrescu, 0,        megrescu, megrescu, ridleofp, ROT90, "Sega / Exa", "Megumi Rescue", 0 )
