@@ -1085,6 +1085,27 @@ static MACHINE_DRIVER_START( segae )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( segae_8 )
+
+	MDRV_IMPORT_FROM(segae)
+	MDRV_VISIBLE_AREA(8, 256-1, 0, 192-1)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( segae_8_8 )
+
+	MDRV_IMPORT_FROM(segae)
+	MDRV_VISIBLE_AREA(8, 248-1, 0, 192-1)
+MACHINE_DRIVER_END
+
+
+static MACHINE_DRIVER_START( segae_16_16 )
+
+	MDRV_IMPORT_FROM(segae)
+	MDRV_VISIBLE_AREA(16, 240-1, 0, 192-1)
+MACHINE_DRIVER_END
+
+
 static MACHINE_DRIVER_START( megrescu )
 
 	/* basic machine hardware */
@@ -1295,13 +1316,13 @@ ROM_END
 
 /*-- Game Drivers --*/
 
-GAME( 1985, hangonjr, 0,        segae,    hangonjr, hangonjr, ROT0,  "Sega", "Hang-On Jr.", 0 )
-GAME( 1986, slapshtr, 0,        segae,    slapshtr, 0,        ROT0,  "Sega", "Slap Shooter", 0 ) /* 1986 date from flyer */
-GAME( 1986, transfrm, 0,        segae,    transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
-GAME( 1986, astrofl,  transfrm, segae,    transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1986, ridleofp, 0,        segae,    ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
-GAME( 1987, opaopa,   0,        segae,    opaopa,   opaopa,   ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", 0 )
-GAME( 1987, opaopan,  opaopa,   segae,    opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
-GAME( 1988, fantzn2,  0,        segae,    fantzn2,  fantzn2,  ROT0,  "Sega", "Fantasy Zone II - The Tears of Opa-Opa (MC-8123, 317-0057)", 0 )
-GAME( 1988, tetrisse, 0,        segae,    tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
-GAME( 1987, megrescu, 0,        megrescu, megrescu, ridleofp, ROT90, "Sega / Exa", "Megumi Rescue", 0 )
+GAME( 1985, hangonjr, 0,        segae_16_16, hangonjr, hangonjr, ROT0,  "Sega", "Hang-On Jr.", 0 )
+GAME( 1986, slapshtr, 0,        segae_8_8,   slapshtr, 0,        ROT0,  "Sega", "Slap Shooter", 0 ) /* 1986 date from flyer */
+GAME( 1986, transfrm, 0,        segae_8_8,   transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
+GAME( 1986, astrofl,  transfrm, segae_8_8,   transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1986, ridleofp, 0,        segae_8,     ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
+GAME( 1987, opaopa,   0,        segae_8,     opaopa,   opaopa,   ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", 0 )
+GAME( 1987, opaopan,  opaopa,   segae,       opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
+GAME( 1988, fantzn2,  0,        segae_8,     fantzn2,  fantzn2,  ROT0,  "Sega", "Fantasy Zone II - The Tears of Opa-Opa (MC-8123, 317-0057)", 0 )
+GAME( 1988, tetrisse, 0,        segae,       tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
+GAME( 1987, megrescu, 0,        megrescu,    megrescu, ridleofp, ROT90, "Sega / Exa", "Megumi Rescue", 0 )
