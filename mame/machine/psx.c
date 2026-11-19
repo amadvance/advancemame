@@ -471,6 +471,9 @@ static UINT32 m_p_n_root_start[ 3 ];
 #define RC_REPEAT ( 0x40 )
 #define RC_CLC ( 0x100 )
 #define RC_DIV ( 0x200 )
+#define RC_REACHEDTARGET ( 0x800 )
+#define RC_REACHEDFFFF ( 0x1000 )
+#define RC_REACHED ( RC_REACHEDTARGET | RC_REACHEDFFFF )
 
 static UINT32 psxcpu_gettotalcycles( void )
 {
@@ -513,6 +516,7 @@ static UINT16 root_current( int n_counter )
 			/* TODO: use timer for wrap on 0x10000. */
 			m_p_n_root_count[ n_counter ] = n_current;
 			m_p_n_root_start[ n_counter ] = psxcpu_gettotalcycles();
+			m_p_n_root_mode[ n_counter ] |= RC_REACHEDFFFF;
 		}
 		return n_current;
 	}
@@ -553,6 +557,7 @@ static void root_timer_adjust( int n_counter )
 static void root_finished( int n_counter )
 {
 	verboselog( 2, "root_finished( %d ) %04x\n", n_counter, root_current( n_counter ) );
+	m_p_n_root_mode[ n_counter ] |= root_target( n_counter ) < 0x10000 ? RC_REACHEDTARGET : RC_REACHEDFFFF;
 //  if( ( m_p_n_root_mode[ n_counter ] & RC_COUNTTARGET ) != 0 )
 	{
 		/* TODO: wrap should be handled differently as RC_COUNTTARGET & RC_IRQTARGET don't have to be the same. */
@@ -592,7 +597,8 @@ WRITE32_HANDLER( psx_counter_w )
 			data &= ~( RC_RESET | RC_STOP );
 			m_p_n_root_count[ n_counter ] = 0;
 		}
-		m_p_n_root_mode[ n_counter ] = data;
+		/* Writes to the mode register leave the latched status bits alone. */
+		m_p_n_root_mode[ n_counter ] = ( data & ~RC_REACHED ) | ( m_p_n_root_mode[ n_counter ] & RC_REACHED );
 //      if( ( data & 0xfca6 ) != 0 ||
 //          ( ( data & 0x0100 ) != 0 && n_counter != 0 && n_counter != 1 ) ||
 //          ( ( data & 0x0200 ) != 0 && n_counter != 2 ) )
@@ -625,6 +631,7 @@ READ32_HANDLER( psx_counter_r )
 		break;
 	case 1:
 		data = m_p_n_root_mode[ n_counter ];
+		m_p_n_root_mode[ n_counter ] &= ~RC_REACHED;
 		break;
 	case 2:
 		data = m_p_n_root_target[ n_counter ];

@@ -146,7 +146,7 @@ typedef struct
 	void    *dma_timer[2];
 	int     dma_timer_active[2];
 
-	int     is_slave, cpu_number;
+	int     is_slave, cpu_number, program_peripherals;
 
 	void	(*ftcsr_read_callback)(UINT32 data);
 
@@ -199,7 +199,7 @@ static void sh2_timer_callback(int data);
 
 INLINE UINT8 RB(offs_t A)
 {
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 		return sh2_internal_r((A & 0x1fc)>>2, ~(0xff << (((~A) & 3)*8))) >> (((~A) & 3)*8);
 
 	if (A >= 0xc0000000)
@@ -213,7 +213,7 @@ INLINE UINT8 RB(offs_t A)
 
 INLINE UINT16 RW(offs_t A)
 {
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 		return sh2_internal_r((A & 0x1fc)>>2, ~(0xffff << (((~A) & 2)*8))) >> (((~A) & 2)*8);
 
 	if (A >= 0xc0000000)
@@ -227,7 +227,7 @@ INLINE UINT16 RW(offs_t A)
 
 INLINE UINT32 RL(offs_t A)
 {
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 		return sh2_internal_r((A & 0x1fc)>>2, 0);
 
 	if (A >= 0xc0000000)
@@ -242,7 +242,7 @@ INLINE UINT32 RL(offs_t A)
 INLINE void WB(offs_t A, UINT8 V)
 {
 
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 	{
 		sh2_internal_w((A & 0x1fc)>>2, V << (((~A) & 3)*8), ~(0xff << (((~A) & 3)*8)));
 		return;
@@ -264,7 +264,7 @@ INLINE void WB(offs_t A, UINT8 V)
 
 INLINE void WW(offs_t A, UINT16 V)
 {
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 	{
 		sh2_internal_w((A & 0x1fc)>>2, V << (((~A) & 2)*8), ~(0xffff << (((~A) & 2)*8)));
 		return;
@@ -286,7 +286,7 @@ INLINE void WW(offs_t A, UINT16 V)
 
 INLINE void WL(offs_t A, UINT32 V)
 {
-	if (A >= 0xe0000000)
+	if (A >= 0xe0000000 && !sh2.program_peripherals)
 	{
 		sh2_internal_w((A & 0x1fc)>>2, V, 0);
 		return;
@@ -323,7 +323,7 @@ INLINE void sh2_exception(const char *message, int irqline)
 		}
 		else
 		{
-			if(sh2.m[0x38] & 0x00010000)
+			if(sh2.program_peripherals || (sh2.m[0x38] & 0x00010000))
 			{
 				vector = sh2.irq_callback(irqline);
 				LOG(("SH-2 #%d exception #%d (external vector: $%x) after [%s]\n", cpu_getactivecpu(), irqline, vector, message));
@@ -2341,16 +2341,15 @@ INLINE void sh2_dispatch(UINT16 opcode)
 /* one step of the interpreter (also called by the recompiler when leaving a block) */
 INLINE void sh2_step(void)
 {
-	UINT32 opcode;
+	UINT32 fetch = sh2.delay ? sh2.delay : sh2.pc;
+	/* SH7014 firmware can execute from its on-chip RAM at the top of the bus. */
+	UINT32 opcode = sh2.program_peripherals ? RW(fetch) : cpu_readop16(WORD_XOR_BE(fetch & AM));
 
 	if (sh2.delay)
 	{
-		opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.delay & AM)));
 		change_pc(sh2.pc & AM);
 		sh2.pc -= 2;
 	}
-	else
-		opcode = cpu_readop16(WORD_XOR_BE((UINT32)(sh2.pc & AM)));
 
 	CALL_MAME_DEBUG;
 
@@ -2379,7 +2378,7 @@ static void sh2_reset(void)
 	void *tsave, *tsaved0, *tsaved1;
 	UINT32 *m;
 	int cpunum;
-	int save_is_slave;
+	int save_is_slave, save_program_peripherals;
 
 	void (*f)(UINT32 data);
 	int (*save_irqcallback)(int);
@@ -2393,8 +2392,10 @@ static void sh2_reset(void)
 	f = sh2.ftcsr_read_callback;
 	save_irqcallback = sh2.irq_callback;
 	save_is_slave = sh2.is_slave;
+	save_program_peripherals = sh2.program_peripherals;
 	memset(&sh2, 0, sizeof(SH2));
 	sh2.is_slave = save_is_slave;
+	sh2.program_peripherals = save_program_peripherals;
 	sh2.ftcsr_read_callback = f;
 	sh2.irq_callback = save_irqcallback;
 
@@ -3022,11 +3023,8 @@ static void sh2_init(int index, int clock, const void *config, int (*irqcallback
 		raise( SIGABRT );
 	}
 
-	if(conf)
-		sh2.is_slave = conf->is_slave;
-	else
-		sh2.is_slave = 0;
-
+	sh2.is_slave = conf && (conf->flags & SH2_CONFIG_SLAVE);
+	sh2.program_peripherals = conf && (conf->flags & SH2_CONFIG_PROGRAM_PERIPHERALS);
 	sh2.cpu_number = index;
 	sh2.irq_callback = irqcallback;
 
@@ -3173,7 +3171,11 @@ void sh2_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_INT_PREVIOUSPC:					info->i = sh2.ppc;						break;
 
 		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + SH2_PC:				info->i = (sh2.delay) ? (sh2.delay & AM) : (sh2.pc & AM); break;
+		case CPUINFO_INT_REGISTER + SH2_PC:
+			info->i = sh2.delay ? sh2.delay : sh2.pc;
+			if (!sh2.program_peripherals)
+				info->i &= AM;
+			break;
 		case CPUINFO_INT_SP:   							info->i = sh2.r[15];					break;
 		case CPUINFO_INT_REGISTER + SH2_PR:				info->i = sh2.pr;						break;
 		case CPUINFO_INT_REGISTER + SH2_SR:				info->i = sh2.sr;						break;

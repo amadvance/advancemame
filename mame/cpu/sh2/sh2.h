@@ -55,9 +55,12 @@ enum
 	CPUINFO_PTR_SH2_FTCSR_READ_CALLBACK = CPUINFO_PTR_CPU_SPECIFIC,
 };
 
+#define SH2_CONFIG_SLAVE 1
+#define SH2_CONFIG_PROGRAM_PERIPHERALS 2
+
 struct sh2_config
 {
-  int is_slave;
+  int flags;
 };
 
 extern void sh2_get_info(UINT32 state, union cpuinfo *info);

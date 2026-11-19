@@ -813,6 +813,7 @@ Notes:
 #include "includes/psx.h"
 #include "machine/at28c16.h"
 #include "sound/c352.h"
+#include "includes/namcos12_cdxa.h"
 #include <time.h>
 
 #define VERBOSE_LEVEL ( 0 )
@@ -1390,6 +1391,13 @@ static READ32_HANDLER( tektagt_protection_2_r )
 	return data;
 }
 
+static MACHINE_START( truckk )
+{
+	machine_start_namcos12();
+	namcos12_cdxa_start();
+	return 0;
+}
+
 MACHINE_RESET( namcos12 )
 {
 	s12_jvs_address = s12_jvs_printer_address = 0xff;
@@ -1401,6 +1409,7 @@ MACHINE_RESET( namcos12 )
 	m_n_bankoffset = m_n_bankoffseth = m_n_dmaoffset = m_n_dmabias = 0;
 	m_n_tektagdmaoffset = 0xffffffff;
 	bankoffset_w(0,0,0);
+	if(s12_truck_bank) namcos12_cdxa_reset();
 
 	if( strcmp( Machine->gamedrv->name, "tektagt" ) == 0 ||
 		strcmp( Machine->gamedrv->name, "tektagta" ) == 0 ||
@@ -1721,6 +1730,7 @@ static DRIVER_INIT( namcos12 )
 	{
 		UINT8 *rom = memory_region(REGION_USER1);
 		UINT8 temp[20];
+		namcos12_cdxa_install();
 		memcpy(temp, rom + 0x376ec, sizeof(temp));
 		memmove(rom + 0x376f8, rom + 0x376e4, 8);
 		memcpy(rom + 0x376e4, temp, sizeof(temp));
@@ -1784,7 +1794,7 @@ static INTERRUPT_GEN(s12_sub_vblank)
 
 static MACHINE_DRIVER_START( coh700 )
 	/* basic machine hardware */
-	MDRV_CPU_ADD( PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
+	MDRV_CPU_ADD_TAG( "main", PSXCPU, 33868800 / 2 ) /* 33MHz ?? */
 	MDRV_CPU_PROGRAM_MAP( namcos12_map, 0 )
 	MDRV_CPU_VBLANK_INT( psx_vblank, 1 )
 
@@ -1830,6 +1840,14 @@ static MACHINE_DRIVER_START( ns12 )
 	MDRV_SOUND_CONFIG(c352_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.00)
 	MDRV_SOUND_ROUTE(1, "right", 1.00)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( truckk )
+	MDRV_IMPORT_FROM( ns12 )
+	MDRV_CPU_REPLACE( "main", PSXCPU, 100000000 / 4 )
+	MDRV_INTERLEAVE( 32 )
+	MDRV_IMPORT_FROM( namcos12_cdxa )
+	MDRV_MACHINE_START( truckk )
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( pacapp )
@@ -1888,6 +1906,12 @@ INPUT_PORTS_START( namcos12 )
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Test Switch") PORT_CODE(KEYCODE_F2)
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+INPUT_PORTS_END
+
+INPUT_PORTS_START(aquarush)
+	PORT_INCLUDE(namcos12)
+	PORT_MODIFY("IN0")
+	PORT_BIT(0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN)
 INPUT_PORTS_END
 
 INPUT_PORTS_START(ns12_jvs)
@@ -2034,13 +2058,13 @@ INPUT_PORTS_START(truckk)
 	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_UNUSED)
 
 	PORT_MODIFY("ADC_0")
-	PORT_BIT(0x3ff, 0x0200, IPT_PADDLE) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_NAME("Steering Wheel")
+	PORT_BIT(0x3ff, 0x0200, IPT_PADDLE) PORT_MINMAX(0x000, 0x3ff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20) PORT_NAME("Steering Wheel")
 
 	PORT_MODIFY("ADC_1")
-	PORT_BIT(0x3ff, 0x0200, IPT_PEDAL2) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Brake Pedal") PORT_REVERSE
+	PORT_BIT(0x3ff, 0x0000, IPT_PEDAL2) PORT_MINMAX(0x000, 0x3ff) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Brake Pedal") PORT_REVERSE
 
 	PORT_MODIFY("ADC_2")
-	PORT_BIT(0x3ff, 0x0200, IPT_PEDAL) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Gas Pedal") PORT_REVERSE
+	PORT_BIT(0x3ff, 0x0000, IPT_PEDAL) PORT_MINMAX(0x000, 0x3ff) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_NAME("Gas Pedal") PORT_REVERSE
 INPUT_PORTS_END
 
 INPUT_PORTS_START( ptblank2 )
@@ -2853,7 +2877,7 @@ GAME( 1999, pacapp2,   0,        coh700,   namcos12, namcos12, ROT0, "Produce/Na
 GAME( 1999, mrdrillr,    0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr. Driller (US, DRI3/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
 GAME( 1999, mrdrillrja2, mrdrillr, coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr. Driller (Japan, DRI1/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
 GAME( 1999, pacappsp,  0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion Special (PSP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC052 */ // not able to start game
-GAME( 1999, aquarush,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Aqua Rush (AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC053 */ // crash
+GAME( 1999, aquarush,  0,        coh700,   aquarush, namcos12, ROT0, "Namco",         "Aqua Rush (Japan, AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC053 */
 GAME( 1999, golgo13,   0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 (GLG1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC054 */
-GAME( 2000, truckk, 0, ns12, truckk, namcos12, ROT0, "Metro / Namco", "Truck Kyosokyoku (US?, TKK2/VER.A)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 2000, truckk, 0, truckk, truckk, namcos12, ROT0, "Metro / Namco", "Truck Kyosokyoku (US?, TKK2/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1999, g13knd,    0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 Kiseki no Dandou (GLS1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC059 */
