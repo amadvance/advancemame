@@ -44,3 +44,22 @@ scaling_kernel=0 -2 -6 -8 -10 -8 -3 2 18 50 82 119 155 187 213 227 227 213 187 1
 - How to handle controllers that go to sleep ?
 
 
+
+- Default keyboard keys for IPT_AD_STICK_Z
+In mame/inptport.c the increment/decrement sequences of AD_STICK_Z are empty
+for every player, so these ports can only be moved with a joystick analog Z
+axis, even if they define PORT_KEYDELTA. Most letters are already taken by
+other defaults (A is P2 button 1, Z is P1 button 5); the keypad + and - keys
+are unused. Games with the port and no PORT_CODE_INC/PORT_CODE_DEC:
+  aztarac.c    aztarac
+  bzone.c      bradley
+  redalert.c   panther
+  segas16a.c   mjleague
+  segas16b.c   exctleag, suprleag
+  segas32.c    arescue, arescuej, arescueu
+  segaxbd.c    aburner, aburner2, aburner2g, thndrbld, thndrbld1
+  segaybd.c    gforce2, gforce2sd, gforce2ja, gforce2j, gloc, glocj, glocu, strkfgtr, strkfgtrj
+  starfire.c   starfire, starfira, starfir2
+  taitoair.c   topland
+  taitojc.c    landgear, landgearj, landgeara, landgearja
+mlanding already sets A/Z locally with PORT_CODE_INC/PORT_CODE_DEC.
