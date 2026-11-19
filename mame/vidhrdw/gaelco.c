@@ -115,8 +115,9 @@ VIDEO_START( maniacsq )
 VIDEO_START( xorwflat )
 {
 	if (video_start_maniacsq()) return 1;
-	tilemap_set_scrolldx(pant[0], -208, 0);
-	tilemap_set_scrolldx(pant[1], -208, 0);
+	/* Align both tilemaps with the sprite coordinates in the visible area. */
+	tilemap_set_scrolldx(pant[0], -128, 0);
+	tilemap_set_scrolldx(pant[1], -128, 0);
 	tilemap_set_scrolldy(pant[0], 8, 0);
 	tilemap_set_scrolldy(pant[1], 8, 0);
 	return 0;
@@ -147,7 +148,7 @@ VIDEO_START( xorwflat )
       3  | xxxxxxxx xxxxxx-- | sprite code
 */
 
-static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
+static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int sprite_y_offset)
 {
 	int i, x, y, ex, ey;
 	const gfx_element *gfx = Machine->gfx[0];
@@ -198,7 +199,7 @@ static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 
 				pdrawgfx(bitmap,gfx,number + x_offset[ex] + y_offset[ey],
 						color,xflip,yflip,
-						sx-0x0f+x*8,sy+y*8,
+						sx-0x0f+x*8,sy+sprite_y_offset+y*8,
 						cliprect,TRANSPARENCY_PEN,0,pri_mask);
 			}
 		}
@@ -211,7 +212,7 @@ static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 
 ***************************************************************************/
 
-VIDEO_UPDATE( maniacsq )
+static void gaelco_update_maniacsq(mame_bitmap *bitmap, const rectangle *cliprect, int sprite_y_offset)
 {
 	/* set scroll registers */
 	tilemap_set_scrolly(pant[0], 0, gaelco_vregs[0]);
@@ -234,7 +235,18 @@ VIDEO_UPDATE( maniacsq )
 	tilemap_draw(bitmap,cliprect,pant[1],0,4);
 	tilemap_draw(bitmap,cliprect,pant[0],0,4);
 
-	gaelco_draw_sprites(bitmap,cliprect);
+	gaelco_draw_sprites(bitmap,cliprect,sprite_y_offset);
+}
+
+VIDEO_UPDATE( maniacsq )
+{
+	gaelco_update_maniacsq(bitmap,cliprect,0);
+}
+
+VIDEO_UPDATE( xorwflat )
+{
+	/* Match falling sprites to the tilemap cells occupied by settled blocks. */
+	gaelco_update_maniacsq(bitmap,cliprect,8);
 }
 
 VIDEO_UPDATE( bigkarnk )
@@ -272,5 +284,5 @@ VIDEO_UPDATE( bigkarnk )
 	tilemap_draw(bitmap,cliprect,pant[1],TILEMAP_FRONT | 0,8);
 	tilemap_draw(bitmap,cliprect,pant[0],TILEMAP_FRONT | 0,8);
 
-	gaelco_draw_sprites(bitmap,cliprect);
+	gaelco_draw_sprites(bitmap,cliprect,0);
 }

@@ -284,6 +284,7 @@ VIDEO_UPDATE( maniacsq );
 
 
 VIDEO_START( xorwflat );
+VIDEO_UPDATE( xorwflat );
 
 TILELAYOUT8(0x080000);
 TILELAYOUT16(0x080000);
@@ -733,11 +734,13 @@ static MACHINE_DRIVER_START( xorwflat )
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(512, 512)
-	MDRV_VISIBLE_AREA(0, 255, 16, 255)
+	/* The sprite coordinates place the self-test border at x = 80..335. */
+	/* Gameplay leaves eight unused rows at each vertical edge of the self-test area. */
+	MDRV_VISIBLE_AREA(80, 335, 24, 247)
 	MDRV_GFXDECODE(gfxdecodeinfo_0x020000)
 	MDRV_PALETTE_LENGTH(1024)
 	MDRV_VIDEO_START(xorwflat)
-	MDRV_VIDEO_UPDATE(maniacsq)
+	MDRV_VIDEO_UPDATE(xorwflat)
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 	MDRV_SOUND_ADD(YM3812, 4000000)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
