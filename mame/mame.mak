@@ -1341,6 +1341,7 @@ $(OBJ)/taito.a: \
 	$(OBJ)/drivers/champbwl.o \
 	$(OBJ)/drivers/changela.o \
 	$(OBJ)/drivers/crbaloon.o $(OBJ)/vidhrdw/crbaloon.o $(OBJ)/sndhrdw/crbaloon.o \
+	$(OBJ)/drivers/cyclemb.o \
 	$(OBJ)/drivers/darius.o $(OBJ)/vidhrdw/darius.o \
 	$(OBJ)/drivers/darkmist.o $(OBJ)/vidhrdw/darkmist.o \
 	$(OBJ)/drivers/exzisus.o $(OBJ)/vidhrdw/exzisus.o \

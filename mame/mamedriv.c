@@ -1630,6 +1630,7 @@ const game_driver * const drivers[] =
 	DRIVER( josvolly )	/* ??? (c) 1983 Taito Corporation */
 	DRIVER( gsword )	/* ??? (c) 1984 Taito Corporation */
 	DRIVER( gsword2 )	/* ??? (c) 1984 Taito Corporation */
+	DRIVER( cyclemb )	/* ??? (c) 1984 Taito Corporation */
 	DRIVER( pitnrun )	/* ??? (c) 1984 Taito Corporation */
 	DRIVER( pitnruna )	/* ??? (c) 1984 Taito Corporation */
 	DRIVER( lkage )		/* A54 (c) 1984 Taito Corporation */
@@ -1680,6 +1681,7 @@ const game_driver * const drivers[] =
 	DRIVER( cyclshtg )	/* A97 (c) 1986 Taito Corporation */
 	DRIVER( bronx )		/* bootleg */
 	DRIVER( colt )		/* bootleg */
+	DRIVER( skydest )	/* ??? (c) 1985 Taito Corporation */
 	DRIVER( ksayakyu )	/* ??? (c) 1985 Taito Corporation */
 	DRIVER( benberob )	/* A26 */
 	DRIVER( halleysc )	/* A62 (c) 1986 Taito America Corporation + Coin It (US) */
