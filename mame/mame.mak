@@ -1305,6 +1305,7 @@ $(OBJ)/stern.a: \
 
 $(OBJ)/sun.a: \
 	$(OBJ)/drivers/arabian.o $(OBJ)/vidhrdw/arabian.o \
+	$(OBJ)/drivers/dai3wksi.o \
 	$(OBJ)/drivers/ikki.o $(OBJ)/vidhrdw/ikki.o \
 	$(OBJ)/drivers/kangaroo.o $(OBJ)/vidhrdw/kangaroo.o \
 	$(OBJ)/drivers/markham.o $(OBJ)/vidhrdw/markham.o \

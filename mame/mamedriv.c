@@ -7097,6 +7097,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( route16b )	/* bootleg */
 	DRIVER( routex )	/* bootleg */
 	DRIVER( ttmahjng )	/* Taito */
+	DRIVER( runaways )	/* (c) 1979 Sun Electronics */
+	DRIVER( dai3wksi )	/* (c) 1979 Sun Electronics */
+	DRIVER( warp1 )		/* (c) 1979 Sun Electronics */
+	DRIVER( warp1t )	/* (c) 1979 Sun Electronics (Taito license) */
+	DRIVER( warp1bl )	/* bootleg */
 	DRIVER( fnkyfish )	/* (c) 1981 Sun Electronics */
 	DRIVER( kangaroo )	/* (c) 1982 Sun Electronics */
 	DRIVER( kangaroa )	/* 136008           (c) 1982 Atari */
@@ -7121,9 +7126,6 @@ Other Sun games
 1978 (GT)Block Perfect
 1978 (GT)Block Challenger
 1979 Galaxy Force
-1979 Run Away
-1979 Dai San Wakusei (The Third Planet)
-1979 Warp 1
 1980 Cosmo Police (Cosmopolis?)
 1985 Ikki
 1993 Saikyou Battler Retsuden
