@@ -1956,6 +1956,7 @@ const game_driver * const drivers[] =
 	DRIVER( undrfiru )	/* D67 (c) 1993  Taito America Corporation (US) */
 	DRIVER( undrfirj )	/* D67 (c) 1993 Taito Coporation (Japan) */
 	DRIVER( cbombers )	/* D?? (c) 1994 Taito Coporation Japan (World) */
+	DRIVER( galastrm )	/* C99 (c) 1992 Taito Corporation (Japan) */
 
 	/* Taito F2 games */
 	DRIVER( finalb )	/* B82 (c) 1988 Taito Corporation Japan (World) */

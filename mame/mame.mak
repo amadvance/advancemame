@@ -1347,6 +1347,7 @@ $(OBJ)/taito.a: \
 	$(OBJ)/drivers/exzisus.o $(OBJ)/vidhrdw/exzisus.o \
 	$(OBJ)/drivers/fgoal.o $(OBJ)/vidhrdw/fgoal.o \
 	$(OBJ)/drivers/flstory.o $(OBJ)/machine/flstory.o $(OBJ)/vidhrdw/flstory.o \
+	$(OBJ)/drivers/galastrm.o $(OBJ)/vidhrdw/galastrm.o \
 	$(OBJ)/drivers/gladiatr.o $(OBJ)/vidhrdw/gladiatr.o \
 	$(OBJ)/drivers/grchamp.o $(OBJ)/machine/grchamp.o $(OBJ)/sndhrdw/grchamp.o $(OBJ)/vidhrdw/grchamp.o \
 	$(OBJ)/drivers/groundfx.o $(OBJ)/vidhrdw/groundfx.o \
