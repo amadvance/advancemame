@@ -898,9 +898,12 @@ const game_driver * const drivers[] =
 	DRIVER( panich )	/* (c) 1980 */
 	DRIVER( panicger )	/* (c) 1980 */
 	DRIVER( zerohour )	/* 8011 (c) Universal */
-	DRIVER( redclash )	/* (c) 1981 Tehkan */
-	DRIVER( redclsha )	/* (c) 1981 Tehkan */
-	DRIVER( redclask )	/* (c) Kaneko (bootleg?) */
+	DRIVER( zerohoura )	/* 8011 (c) Universal */
+	DRIVER( zerohouri )	/* bootleg */
+	DRIVER( redclash )	/* (c) 1981 Kaneko */
+	DRIVER( redclasht )	/* (c) 1981 Kaneko (Tehkan license) */
+	DRIVER( redclashta )	/* (c) 1981 Kaneko (Tehkan license) */
+	DRIVER( redclashs )	/* (c) 1982 Kaneko (Suntronics license) */
 	DRIVER( magspot )	/* ???? (c) [1980] */
 	DRIVER( magspot2 )	/* 8013 (c) [1980] */
 	DRIVER( devzone )	/* 8022 (c) [1980] */

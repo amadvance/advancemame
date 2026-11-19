@@ -176913,7 +176913,7 @@ F.A.Q. by Kevin Butler A.K.A. War Doc
 $end
 
 
-$info=redclash,redclask,
+$info=redclash,redclasht,redclashta,redclashs,
 $bio
 
 Red Clash (c) 1981 Tehkan.
@@ -263218,7 +263218,7 @@ Another version runs on the Sega Model 2B hardware.
 $end
 
 
-$info=zerohour,
+$info=zerohour,zerohoura,zerohouri,
 $bio
 
 Zero Hour (c) 12/1980 Universal.

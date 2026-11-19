@@ -1488,7 +1488,7 @@ $(OBJ)/univers.a: \
 	$(OBJ)/drivers/docastle.o $(OBJ)/machine/docastle.o $(OBJ)/vidhrdw/docastle.o \
 	$(OBJ)/drivers/ladybug.o $(OBJ)/vidhrdw/ladybug.o \
 	$(OBJ)/drivers/mrdo.o $(OBJ)/vidhrdw/mrdo.o \
-	$(OBJ)/drivers/redclash.o $(OBJ)/vidhrdw/redclash.o \
+	$(OBJ)/drivers/zerohour.o $(OBJ)/vidhrdw/zerohour.o \
 
 $(OBJ)/upl.a: \
 	$(OBJ)/drivers/mnight.o $(OBJ)/vidhrdw/mnight.o \

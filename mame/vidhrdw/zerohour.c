@@ -12,6 +12,7 @@
 
 static int star_speed;
 static int gfxbank;
+static int background;
 
 static tilemap *fg_tilemap;
 
@@ -47,27 +48,21 @@ PALETTE_INIT( redclash )
 	/* This is for the stars colors */
 	for (i = 32;i < 64;i++)
 	{
-			int bit1,bit2,r,g,b;
+		int bit1,bit2,r,g,b;
 
-			bit2 = (i >> 4) & 0x01;
-			bit1 = (i >> 3) & 0x01;
-			b = 0x47 * bit1 + 0x97 * bit2;
-			bit2 = (i >> 2) & 0x01;
-			bit1 = (i >> 1) & 0x01;
-			g = 0x47 * bit1 + 0x97 * bit2;
-			bit1 = i & 0x01;
-			r = 0x47 * bit1;
-			palette_set_color(i,r,g,b);
+		bit1 = (i >> 4) & 0x01;
+		bit2 = (i >> 3) & 0x01;
+		b = 0x47 * bit1 + 0x97 * bit2;
+		bit1 = (i >> 2) & 0x01;
+		bit2 = (i >> 1) & 0x01;
+		g = 0x47 * bit1 + 0x97 * bit2;
+		r = 0x97 * (i & 0x01);
+		palette_set_color(i,r,g,b);
 	}
 
 	/* characters */
-	for (i = 0;i < 8;i++)
-	{
-		colortable[4 * i] = 0;
-		colortable[4 * i + 1] = i + 0x08;
-		colortable[4 * i + 2] = i + 0x10;
-		colortable[4 * i + 3] = i + 0x18;
-	}
+	for (i = 0;i < 4 * 8;i++)
+		colortable[i] = ((i << 3) & 0x18) | ((i >> 2) & 0x07);
 
 	/* sprites */
 	for (i = 0;i < 4 * 8;i++)
@@ -89,6 +84,10 @@ PALETTE_INIT( redclash )
 		bit3 = (color_prom[i + 32] >> 4) & 0x01;
 		colortable[i + 4 * 16] = 1 * bit0 + 2 * bit1 + 4 * bit2 + 8 * bit3;
 	}
+
+	/* stars */
+	for (i = 0;i < 32;i++)
+		colortable[i + 4 * 24] = i + 32;
 }
 
 WRITE8_HANDLER( redclash_videoram_w )
@@ -102,11 +101,13 @@ WRITE8_HANDLER( redclash_videoram_w )
 
 WRITE8_HANDLER( redclash_gfxbank_w )
 {
-	if (gfxbank != (data & 0x01))
-	{
-		gfxbank = data & 0x01;
-		tilemap_mark_all_tiles_dirty(ALL_TILEMAPS);
-	}
+	gfxbank = data & 0x01;
+}
+
+WRITE8_HANDLER( redclash_background_w )
+{
+	/* 0x70: normal, 0xc3: white, 0x92: white+green, 0xf4: white+red/black */
+	background = data;
 }
 
 WRITE8_HANDLER( redclash_flipscreen_w )
@@ -152,7 +153,11 @@ WRITE8_HANDLER( redclash_star_reset_w )
 static void get_fg_tile_info(int tile_index)
 {
 	int code = videoram[tile_index];
-	int color = (videoram[tile_index] & 0x70) >> 4; // ??
+	int color = (videoram[tile_index] & 0x70) >> 4;
+
+	/* score panel colors are determined differently: P1=5, TOP=4, P2=7 */
+	if ((tile_index & 0x1f) > 0x1b)
+		color = ((((tile_index >> 5) + 12) & 0x1f) >> 3) ^ 7;
 
 	SET_TILE_INFO(0, code, color, 0)
 }
@@ -186,71 +191,54 @@ static void redclash_draw_sprites( mame_bitmap *bitmap )
 
 			if (spriteram[offs + i] & 0x80)
 			{
-				int color = spriteram[offs + i + 2] & 0x0f;
+				int attr = spriteram[offs + i + 2];
+				int color = ((attr >> 2) & 0x08) | (attr & 0x07);
 				int sx = spriteram[offs + i + 3];
-				int sy = offs / 4 + (spriteram[offs + i] & 0x07);
-
+				int sy = offs / 4 + (spriteram[offs + i] & 0x07) - 16;
+				int bank = 0;
+				int code = 0;
 
 				switch ((spriteram[offs + i] & 0x18) >> 3)
 				{
-					case 3:	/* 24x24 */
-					{
-						int code = ((spriteram[offs + i + 1] & 0xf0) >> 4) + ((gfxbank & 1) << 4);
-
-						drawgfx(bitmap,Machine->gfx[3],
-								code,
-								color,
-								0,0,
-								sx,sy - 16,
-								&Machine->visible_area,TRANSPARENCY_PEN,0);
-						/* wraparound */
-						drawgfx(bitmap,Machine->gfx[3],
-								code,
-								color,
-								0,0,
-								sx - 256,sy - 16,
-								&Machine->visible_area,TRANSPARENCY_PEN,0);
+					case 1:	/* 8x8 */
+						bank = 1;
+						code = spriteram[offs + i + 1] + ((gfxbank & 1) << 8);
 						break;
-					}
 
 					case 2:	/* 16x16 */
 						if (spriteram[offs + i] & 0x20)	/* zero hour spaceships */
 						{
-							int code = ((spriteram[offs + i + 1] & 0xf8) >> 3) + ((gfxbank & 1) << 5);
-							int bank = (spriteram[offs + i + 1] & 0x02) >> 1;
-
-							drawgfx(bitmap,Machine->gfx[4+bank],
-									code,
-									color,
-									0,0,
-									sx,sy - 16,
-									&Machine->visible_area,TRANSPARENCY_PEN,0);
+							bank = 4 + ((spriteram[offs + i + 1] & 0x02) >> 1);
+							code = ((spriteram[offs + i + 1] & 0xf8) >> 3) + ((gfxbank & 1) << 5);
 						}
 						else
 						{
-							int code = ((spriteram[offs + i + 1] & 0xf0) >> 4) + ((gfxbank & 1) << 4);
-
-							drawgfx(bitmap,Machine->gfx[2],
-									code,
-									color,
-									0,0,
-									sx,sy - 16,
-									&Machine->visible_area,TRANSPARENCY_PEN,0);
+							bank = 2;
+							code = ((spriteram[offs + i + 1] & 0xf0) >> 4) + ((gfxbank & 1) << 4);
 						}
 						break;
 
-					case 1:	/* 8x8 */
-						drawgfx(bitmap,Machine->gfx[1],
-								spriteram[offs + i + 1],// + 4 * (spriteram[offs + i + 2] & 0x10),
-								color,
-								0,0,
-								sx,sy - 16,
-								&Machine->visible_area,TRANSPARENCY_PEN,0);
+					case 3:	/* 24x24 */
+						bank = 3;
+						code = ((spriteram[offs + i + 1] & 0xf0) >> 4) + ((gfxbank & 1) << 4);
 						break;
+				}
 
-					case 0:
-ui_popup("unknown sprite size 0");
-						break;
+				if (bank)
+				{
+					drawgfx(bitmap,Machine->gfx[bank],
+							code,
+							color,
+							0,0,
+							sx,sy,
+							&Machine->visible_area,TRANSPARENCY_PEN,0);
+					/* wraparound */
+					drawgfx(bitmap,Machine->gfx[bank],
+							code,
+							color,
+							0,0,
+							sx - 256,sy,
+							&Machine->visible_area,TRANSPARENCY_PEN,0);
 				}
 			}
 		}
@@ -263,18 +251,29 @@ static void redclash_draw_bullets( mame_bitmap *bitmap )
 
 	for (offs = 0; offs < 0x20; offs++)
 	{
-//      sx = videoram[offs];
-		int sx = 8 * offs + (videoram[offs] & 0x07);	/* ?? */
+		int sx = 8 * offs + 8;
 		int sy = 0xff - videoram[offs + 0x20];
+		int x, y;
+
+		/* width and color are from the same bitfield */
+		int width = 8 - ((videoram[offs] >> 5) & 6);
+		int color = ((videoram[offs] >> 3) & 0x10) | 5;
 
 		if (flip_screen)
-		{
-			sx = 240 - sx;
-		}
+			sx = 264 - sx;
 
-		if (sx >= Machine->visible_area.min_x && sx <= Machine->visible_area.max_x &&
-				sy >= Machine->visible_area.min_y && sy <= Machine->visible_area.max_y)
-			plot_pixel(bitmap, sx, sy, Machine->pens[0x0e]);
+		sx -= (videoram[offs] >> 3) & 7;
+
+		for (y = 0; y < 2; y++)
+			for (x = 0; x < width; x++)
+			{
+				int px = sx + x;
+				int py = sy - y;
+
+				if (px >= Machine->visible_area.min_x && px <= Machine->visible_area.max_x &&
+						py >= Machine->visible_area.min_y && py <= Machine->visible_area.max_y)
+					plot_pixel(bitmap, px, py, Machine->pens[color]);
+			}
 	}
 }
 
@@ -412,11 +411,25 @@ VIDEO_EOF( redclash )
 	redclash_update_stars_state();
 }
 
+VIDEO_UPDATE( zerohour )
+{
+	fillbitmap(bitmap, get_black_pen(), &Machine->visible_area);
+	redclash_draw_stars(bitmap, 4 * 24, 0, 0x00, 0xff);
+	redclash_draw_bullets(bitmap);
+	redclash_draw_sprites(bitmap);
+	tilemap_draw(bitmap, &Machine->visible_area, fg_tilemap, 0, 0);
+}
+
 VIDEO_UPDATE( redclash )
 {
 	fillbitmap(bitmap, get_black_pen(), &Machine->visible_area);
-	redclash_draw_stars(bitmap, 32, 0, 0x00, 0xff);
-	redclash_draw_sprites(bitmap);
+	redclash_draw_stars(bitmap, 4 * 24, 1, 0x00, 0xff);
+
+	/* background effect, preliminary */
+	if (background & 0x0f)
+		fillbitmap(bitmap, get_white_pen(), &Machine->visible_area);
+
 	redclash_draw_bullets(bitmap);
+	redclash_draw_sprites(bitmap);
 	tilemap_draw(bitmap, &Machine->visible_area, fg_tilemap, 0, 0);
 }

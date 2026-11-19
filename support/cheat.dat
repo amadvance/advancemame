@@ -140827,7 +140827,7 @@
 ; [ Red Baron ]
 :redbaron:00000000:00B0:00000009:FFFFFFFF:Infinite Lives
 
-; [ Red Clash (set 1) ]
+; [ Red Clash ]
 :redclash:20800000:12AD:00000018:FFFFFFFF:Invincibility
 :redclash:20810000:174D:00000018:FFFFFFFF:Invincibility (2/6):1st - 3rd = Enemy 1,2,3
 :redclash:20810000:1827:00000018:FFFFFFFF:Invincibility (3/6)
@@ -140837,24 +140837,14 @@
 :redclash:00000000:6039:00000009:FFFFFFFF:Infinite Lives PL1
 :redclash:00000000:6084:00000009:FFFFFFFF:Infinite Lives PL2
 
-; [ Red Clash (Kaneko) ]
-:redclask:20800000:12AD:00000018:FFFFFFFF:Invincibility
-:redclask:20810000:174D:00000018:FFFFFFFF:Invincibility (2/6):1st - 3rd = Enemy 1,2,3
-:redclask:20810000:1827:00000018:FFFFFFFF:Invincibility (3/6)
-:redclask:20810000:1BE4:00000018:FFFFFFFF:Invincibility (4/6):Scenery
-:redclask:20810000:1C90:00000018:FFFFFFFF:Invincibility (5/6):Enemy 4
-:redclask:20810000:2345:00000000:FFFFFFFF:Invincibility (6/6):Boss
-:redclask:00000000:6039:00000009:FFFFFFFF:Infinite Lives PL1
-:redclask:00000000:6084:00000009:FFFFFFFF:Infinite Lives PL2
-
-; [ Red Clash (set 2) ]
-:redclsha:20800000:1235:00000018:FFFFFFFF:Invincibility
-:redclsha:20810000:16B7:00000018:FFFFFFFF:Invincibility (2/5):1st - 3rd = Enemy 1,2,3
-:redclsha:20810000:1827:00000018:FFFFFFFF:Invincibility (3/5)
-:redclsha:20810000:1BD1:00000018:FFFFFFFF:Invincibility (4/5):Scenery
-:redclsha:20810000:1C7D:00000018:FFFFFFFF:Invincibility (5/5):Enemy 4
-:redclsha:00000000:6039:00000009:FFFFFFFF:Infinite Lives PL1
-:redclsha:00000000:6084:00000009:FFFFFFFF:Infinite Lives PL2
+; [ Red Clash (Tehkan, set 2) ]
+:redclashta:20800000:1235:00000018:FFFFFFFF:Invincibility
+:redclashta:20810000:16B7:00000018:FFFFFFFF:Invincibility (2/5):1st - 3rd = Enemy 1,2,3
+:redclashta:20810000:1827:00000018:FFFFFFFF:Invincibility (3/5)
+:redclashta:20810000:1BD1:00000018:FFFFFFFF:Invincibility (4/5):Scenery
+:redclashta:20810000:1C7D:00000018:FFFFFFFF:Invincibility (5/5):Enemy 4
+:redclashta:00000000:6039:00000009:FFFFFFFF:Infinite Lives PL1
+:redclashta:00000000:6084:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Red Hawk (US) ]
 :redhawk:00000000:C0021:00000063:FFFFFFFF:Infinite Credits
@@ -205202,7 +205192,7 @@
 ;rdft2=rdft2a=rdft2a2=rdft2j~=rdft22kc~=rdft2us (minor differences)
 ;rdft=rdftau=rdftdi=rdftj=rdftu
 ;realbrk=realbrkj=realbrkk
-;redclash=redclask=redclsha
+;redclash=redclashta
 ;regulus=reguluso=regulusu
 ;relief~relief2
 ;rescraid=rescrdsa
@@ -206256,8 +206246,7 @@
 ; rbtapper (made by Pugsy) [Z80]
 ; redalert (made by ShimaPong) [????]
 ; redclash (updated/fixed by ShimaPong) [Z80]
-; redclask (updated/fixed by ShimaPong) [Z80]
-; redclsha (made by ShimaPong) [Z80]
+; redclashta (made by ShimaPong) [Z80]
 ; redrobin (made by Pugsy) [Z80]
 ; redufo (updated/fixed by ShimaPong) [Z80]
 ; regulus (made by ShimaPong) [????]
