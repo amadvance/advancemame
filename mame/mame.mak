@@ -1056,6 +1056,7 @@ $(OBJ)/nichibut.a: \
 	$(OBJ)/drivers/magmax.o $(OBJ)/vidhrdw/magmax.o \
 	$(OBJ)/drivers/nbmj8688.o $(OBJ)/vidhrdw/nbmj8688.o \
 	$(OBJ)/drivers/nbmj8891.o $(OBJ)/vidhrdw/nbmj8891.o \
+	$(OBJ)/drivers/nbmj8900.o $(OBJ)/vidhrdw/nbmj8900.o \
 	$(OBJ)/drivers/nbmj8991.o $(OBJ)/vidhrdw/nbmj8991.o \
 	$(OBJ)/drivers/nbmj9195.o $(OBJ)/vidhrdw/nbmj9195.o \
 	$(OBJ)/drivers/niyanpai.o $(OBJ)/machine/m68kfmly.o $(OBJ)/vidhrdw/niyanpai.o \

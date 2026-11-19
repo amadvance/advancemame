@@ -460,6 +460,8 @@ READ8_HANDLER( nb1413m3_inputport1_r )
 			break;
 		case NB1413M3_PAIRSNB:
 		case NB1413M3_PAIRSTEN:
+		case NB1413M3_OHPAIPEE:
+		case NB1413M3_TOGENKYO:
 			return readinputport(3);
 			break;
 		default:
@@ -521,6 +523,8 @@ READ8_HANDLER( nb1413m3_inputport2_r )
 			break;
 		case NB1413M3_PAIRSNB:
 		case NB1413M3_PAIRSTEN:
+		case NB1413M3_OHPAIPEE:
+		case NB1413M3_TOGENKYO:
 			return readinputport(4);
 			break;
 		default:

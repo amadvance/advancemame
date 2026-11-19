@@ -474,6 +474,8 @@ const game_driver * const drivers[] =
 	DRIVER( mjnanpau )	/* (c) 1989 BROOKS */
 	DRIVER( pairsnb )	/* (c) 1989 */
 	DRIVER( pairsten )	/* (c) 1989 System Ten */
+	DRIVER( ohpaipee )	/* (c) 1989 */
+	DRIVER( togenkyo )	/* (c) 1989 */
 	DRIVER( bananadr )	/* (c) 1989 DIGITAL SOFT */
 	DRIVER( mladyhtr )	/* (c) 1990 */
 	DRIVER( chinmoku )	/* (c) 1990 */
