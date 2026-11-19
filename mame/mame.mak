@@ -606,6 +606,7 @@ $(OBJ)/cinemat.a: \
 	$(OBJ)/drivers/cinemat.o $(OBJ)/sndhrdw/cinemat.o $(OBJ)/vidhrdw/cinemat.o \
 	$(OBJ)/drivers/cchasm.o $(OBJ)/machine/cchasm.o $(OBJ)/sndhrdw/cchasm.o $(OBJ)/vidhrdw/cchasm.o \
 	$(OBJ)/drivers/dlair.o $(OBJ)/machine/ldv1000.o \
+	$(OBJ)/drivers/deco_ld.o \
 	$(OBJ)/drivers/cliffhgr.o $(OBJ)/vidhrdw/tms9928a.o \
 	$(OBJ)/drivers/firefox.o $(OBJ)/machine/ldvp931.o \
 	$(OBJ)/drivers/timetrv.o \

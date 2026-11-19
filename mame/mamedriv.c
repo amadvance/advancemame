@@ -7860,6 +7860,11 @@ Other Sun games
 	DRIVER( homo )		/* bootleg */
 	DRIVER( cubeqst )
 	DRIVER( dlair )
+	DRIVER( begas )
+	DRIVER( begas1 )
+	DRIVER( cobra )
+	DRIVER( cobraa )
+	DRIVER( rblaster )
 	DRIVER( cliffhgr )
 	DRIVER( firefox )
 	DRIVER( timetrv )
