@@ -1367,6 +1367,7 @@ $(OBJ)/taito.a: \
 	$(OBJ)/drivers/msisaac.o $(OBJ)/vidhrdw/msisaac.o \
 	$(OBJ)/drivers/ninjaw.o $(OBJ)/vidhrdw/ninjaw.o \
 	$(OBJ)/drivers/nycaptor.o $(OBJ)/machine/nycaptor.o $(OBJ)/vidhrdw/nycaptor.o \
+	$(OBJ)/drivers/wyvernf0.o \
 	$(OBJ)/drivers/opwolf.o $(OBJ)/machine/opwolf.o \
 	$(OBJ)/drivers/othunder.o $(OBJ)/vidhrdw/othunder.o \
 	$(OBJ)/drivers/pitnrun.o $(OBJ)/machine/pitnrun.o $(OBJ)/vidhrdw/pitnrun.o \

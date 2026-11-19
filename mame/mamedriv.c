@@ -1680,6 +1680,8 @@ const game_driver * const drivers[] =
 	DRIVER( ogonsiro )	/* QB  (c) 1986 Taito Corporation (Japan) */
 	DRIVER( greatgur )	/* QB  (c) 1986 Taito Corporation (Japan?) */
 	DRIVER( ppking )
+	DRIVER( wyvernf0 )	/* A39 (c) 1985 Taito Corporation */
+	DRIVER( wyvernf0a )
 	DRIVER( nycaptor )	/* A50 (c) 1985 Taito Corporation */
 	DRIVER( cyclshtg )	/* A97 (c) 1986 Taito Corporation */
 	DRIVER( bronx )		/* bootleg */
