@@ -1275,6 +1275,7 @@ $(OBJ)/seta.a: \
 	$(OBJ)/drivers/st0016.o $(OBJ)/vidhrdw/st0016.o \
 
 $(OBJ)/sigma.a: \
+	$(OBJ)/drivers/sigmab98.o \
 	$(OBJ)/drivers/nyny.o $(OBJ)/vidhrdw/nyny.o \
 	$(OBJ)/drivers/r2dtank.o \
 	$(OBJ)/drivers/spiders.o $(OBJ)/machine/spiders.o $(OBJ)/sndhrdw/spiders.o $(OBJ)/vidhrdw/spiders.o \

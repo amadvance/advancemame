@@ -7435,6 +7435,14 @@ Other Sun games
 	DRIVER( spiders )	/* (c) 1981 Sigma Ent. Inc. */
 	DRIVER( spiders2 )	/* (c) 1981 Sigma Ent. Inc. */
 	DRIVER( spinner )	/* bootleg */
+	DRIVER( dodghero )	/* (c) 1997 Sigma */
+	DRIVER( sushimar )	/* (c) 1997 Sigma */
+	DRIVER( gegege )	/* (c) 1997 Sigma / Banpresto */
+	DRIVER( b3rinsya )	/* (c) 1997 Sigma */
+	DRIVER( pepsiman )	/* (c) 1997 Sigma */
+	DRIVER( tbeastw2 )	/* (c) 1998 Sigma / Transformer Production Company / Takara */
+	DRIVER( ucytokyu )	/* (c) 1997 Sigma */
+	DRIVER( dashhero )	/* (c) 2000 Sigma */
 
 	/* IGS games ( www.igs.com.tw ) */
 	DRIVER( goldstar )	/* (c) 198? IGS */
