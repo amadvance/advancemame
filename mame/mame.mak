@@ -1609,6 +1609,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/hotblock.o \
 	$(OBJ)/drivers/imolagp.o \
 	$(OBJ)/drivers/intrscti.o \
+	$(OBJ)/drivers/istrebiteli.o \
 	$(OBJ)/drivers/jackpool.o \
 	$(OBJ)/drivers/kyugo.o $(OBJ)/vidhrdw/kyugo.o \
 	$(OBJ)/drivers/ladyfrog.o $(OBJ)/vidhrdw/ladyfrog.o \

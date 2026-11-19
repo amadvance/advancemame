@@ -8253,6 +8253,7 @@ Other Sun games
 	DRIVER( blushark )	/* (c) 199? hack? */
 	DRIVER( sliver )	/* (c) 1996 Hollow Corp */
 	DRIVER( intrscti )	/* ???? */
+	DRIVER( istreb )	/* (c) 198? Terminal */
 	DRIVER( konek )		/* (c) 198? Terminal */
 	DRIVER( sosterm )	/* (c) 198? Terminal */
 	DRIVER( koroleva )	/* (c) 198? Terminal */
