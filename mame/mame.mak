@@ -1245,6 +1245,7 @@ $(OBJ)/sega.a: \
 $(OBJ)/seibu.a: \
 	$(OBJ)/drivers/airraid.o \
 	$(OBJ)/drivers/cshooter.o \
+	$(OBJ)/drivers/metlfrzr.o \
 	$(OBJ)/drivers/dcon.o $(OBJ)/vidhrdw/dcon.o \
 	$(OBJ)/drivers/deadang.o $(OBJ)/vidhrdw/deadang.o \
 	$(OBJ)/drivers/dynduke.o $(OBJ)/vidhrdw/dynduke.o \

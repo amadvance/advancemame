@@ -6464,6 +6464,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cshooter )	/* (c) 1987 JKH */
 	DRIVER( airraid )	/* (c) 1987 Seibu Kaihatsu */
 	DRIVER( failgate )	/* (c) 1991 Success */
+	DRIVER( metlfrzr )	/* (c) 1989 Seibu Kaihatsu */
 	DRIVER( panicr )	/* Seibu / Taito */
 	DRIVER( deadang )	/* (c) 1988 Seibu Kaihatsu */
 	DRIVER( ghunter )	/* (c) 1988 Seibu Kaihatsu + Segasa/Sonic license */
