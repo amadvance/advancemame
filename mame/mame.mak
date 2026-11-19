@@ -1456,7 +1456,7 @@ $(OBJ)/tehkan.a: \
 	$(OBJ)/drivers/wc90b.o $(OBJ)/vidhrdw/wc90b.o \
 
 $(OBJ)/thepit.a: \
-	$(OBJ)/drivers/thepit.o $(OBJ)/vidhrdw/thepit.o \
+	$(OBJ)/drivers/roundup.o $(OBJ)/vidhrdw/thepit.o \
 	$(OBJ)/drivers/timelimt.o $(OBJ)/vidhrdw/timelimt.o \
 
 $(OBJ)/toaplan.a: \

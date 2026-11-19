@@ -6428,6 +6428,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( funnymou )	/* (c) 1982 Chuo Co. Ltd */
 	DRIVER( suprmous )	/* (c) 1982 Taito */
 	DRIVER( machomou )	/* (c) 1982 Techstar */
+	DRIVER( desertdn )	/* (c) 1982 Kawakusu (Video Optics license) */
 	DRIVER( intrepid )	/* (c) 1983 Nova Games Ltd. */
 	DRIVER( intrepi2 )	/* (c) 1983 Nova Games Ltd. */
 	DRIVER( zaryavos )	/* (c) 1983 Nova Games of Canada (prototype) */

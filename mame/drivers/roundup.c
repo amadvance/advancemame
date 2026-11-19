@@ -126,6 +126,7 @@ WRITE8_HANDLER( thepit_attributes_w );
 PALETTE_INIT( thepit );
 PALETTE_INIT( suprmous );
 VIDEO_UPDATE( thepit );
+VIDEO_UPDATE( desertdn );
 READ8_HANDLER( thepit_input_port_0_r );
 WRITE8_HANDLER( thepit_sound_enable_w );
 WRITE8_HANDLER( intrepid_graphics_bank_select_w );
@@ -209,8 +210,43 @@ static ADDRESS_MAP_START( intrepid_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 
+static ADDRESS_MAP_START( desertdn_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x8000, 0x87ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x8800, 0x8bff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x8c00, 0x8fff) AM_READ(colorram_r)
+	AM_RANGE(0x9000, 0x93ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x9400, 0x97ff) AM_READ(videoram_r)
+	AM_RANGE(0x9800, 0x98ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xa000, 0xa000) AM_READ(thepit_input_port_0_r)
+	AM_RANGE(0xa800, 0xa800) AM_READ(input_port_1_r)
+	AM_RANGE(0xb000, 0xb000) AM_READ(input_port_2_r)
+	AM_RANGE(0xb800, 0xb800) AM_READ(watchdog_reset_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( desertdn_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x8000, 0x87ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x8800, 0x8bff) AM_WRITE(colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x8c00, 0x8fff) AM_WRITE(colorram_w)
+	AM_RANGE(0x9000, 0x93ff) AM_WRITE(videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x9400, 0x97ff) AM_WRITE(videoram_w)
+	AM_RANGE(0x9800, 0x983f) AM_WRITE(thepit_attributes_w) AM_BASE(&thepit_attributesram)
+	AM_RANGE(0x9840, 0x985f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x9860, 0x98ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xa000, 0xa000) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xb000, 0xb000) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0xb001, 0xb002) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xb003, 0xb003) AM_WRITE(thepit_sound_enable_w)
+	AM_RANGE(0xb004, 0xb005) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xb006, 0xb006) AM_WRITE(flip_screen_x_w)
+	AM_RANGE(0xb007, 0xb007) AM_WRITE(flip_screen_y_w)
+	AM_RANGE(0xb800, 0xb800) AM_WRITE(soundlatch_w)
+ADDRESS_MAP_END
+
+
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x0fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x3800, 0x3bff) AM_READ(MRA8_RAM)
 ADDRESS_MAP_END
 
@@ -295,6 +331,48 @@ IN0_REAL
 	/* Since the real inputs are multiplexed, we used this fake port
        to read the 2nd player controls when the screen is flipped */
 	  IN2_FAKE
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( desertdn )
+IN0_REAL
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_3C ) )
+	PORT_DIPNAME( 0x0c, 0x04, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x08, "5" )
+	PORT_DIPSETTING(    0x0c, "6" )
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Cocktail ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, "Timer Speed" )
+	PORT_DIPSETTING(    0x00, "Slow" )
+	PORT_DIPSETTING(    0x40, "Fast" )
+	PORT_DIPNAME( 0x80, 0x00, "Invulnerability (Cheat)")
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
+
+	/* Since the real inputs are multiplexed, we used this fake port
+       to read the 2nd player controls when the screen is flipped */
+IN2_FAKE
 INPUT_PORTS_END
 
 
@@ -709,6 +787,19 @@ static MACHINE_DRIVER_START( intrepid )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( desertdn )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM(thepit)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(desertdn_readmem,desertdn_writemem)
+
+	/* video hardware */
+	MDRV_GFXDECODE(intrepid_gfxdecodeinfo)
+	MDRV_VIDEO_UPDATE(desertdn)
+MACHINE_DRIVER_END
+
+
 static MACHINE_DRIVER_START( suprmous )
 
 	/* basic machine hardware */
@@ -987,8 +1078,30 @@ ROM_START( machomou )
 	ROM_LOAD( "mm7.3d",       0x2000, 0x1000, CRC(a6f60ed2) SHA1(7ce12a10546144ce529d41159b593f1bac9b900b) )
 
 	ROM_REGION( 0x0040, REGION_PROMS, 0 )
-	ROM_LOAD( "mmouse2.clr",  0x0000, 0x0020, NO_DUMP )
-	ROM_LOAD( "mmouse1.clr",  0x0020, 0x0020, NO_DUMP )
+	ROM_LOAD( "mm-pr1.1",     0x0000, 0x0020, CRC(e4babc1f) SHA1(a41991baafbb3696ea2724a58c31929882341109) )
+	ROM_LOAD( "mm-pr2.2",     0x0020, 0x0020, CRC(9a4919ed) SHA1(09d59b3943a52868fceef9571ca48b7b2e3b24a4) )
+ROM_END
+
+ROM_START( desertdn )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	    /* 64k for main CPU */
+	ROM_LOAD( "rs5.bin",  0x0000, 0x1000, CRC(3a48f53e) SHA1(e568442e47c116982c40555368f6432f609b54e6) )
+	ROM_LOAD( "rs6.bin",  0x1000, 0x1000, CRC(3b6125e9) SHA1(5cbfdc2b84b89d0ab9edcc9cefbf5caab237f197) )
+	ROM_LOAD( "rs7.bin",  0x2000, 0x1000, CRC(2f793ca4) SHA1(8e489a61860d52a37e4e22b12ca647f1866648a7) )
+	ROM_LOAD( "rs8.bin",  0x3000, 0x1000, CRC(52674db3) SHA1(47c8c358205b0b8dde52eb684ffa08294d622f7d) )
+	ROM_LOAD( "rs2.bin",  0x4000, 0x1000, CRC(d0b78243) SHA1(9080f9c93b33057587863672715f64e0e6b36d5f) )
+	ROM_LOAD( "rs3.bin",  0x5000, 0x1000, CRC(54a0d133) SHA1(119769b2c6c9c4b368a3146456c7392bf045840e) )
+	ROM_LOAD( "rs4.bin",  0x6000, 0x1000, CRC(72d79d62) SHA1(0d35053ad7c0f3942dfac6175e96cadf629c802f) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	   /* 64k for audio CPU */
+	ROM_LOAD( "rs9.bin",  0x0000, 0x1000, CRC(6daf40ca) SHA1(968faf09bdbb2c55c9164b665ad1e091d5eca2fc) )
+	ROM_LOAD( "rs10.bin", 0x1000, 0x1000, CRC(f4fc2c53) SHA1(2eb3991db30083ac942e19bf545aa11476535a91) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE ) /* chars and sprites */
+	ROM_LOAD( "rs0.bin",  0x0000, 0x1000, CRC(8eb856e8) SHA1(8d94b21662855a1cbd94fa6a3c14ec89ac0128fa) )
+	ROM_LOAD( "rs1.bin",  0x1000, 0x1000, CRC(c051b090) SHA1(7280831c99a3f5a1d4af707bddf5b25a5000cabd) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "mb7051.8j",   0x0000, 0x0020, CRC(a14111f4) SHA1(cc103d91ca01390a68c8a211409f23d8af713296) )
 ROM_END
 
 ROM_START( rtriv )
@@ -1072,7 +1185,8 @@ GAME( 1982, dockman,  0,        intrepid, dockman,  0,     ROT90, "Taito Corpora
 GAME( 1982, portman,  dockman,  intrepid, dockman,  0,     ROT90, "Nova Games Ltd.", "Port Man", 0 )
 GAME( 1982, suprmous, 0,        suprmous, suprmous, 0,     ROT90, "Taito Corporation", "Super Mouse", 0 )
 GAME( 1982, funnymou, suprmous, suprmous, suprmous, 0,     ROT90, "Chuo Co. Ltd", "Funny Mouse", 0 )
-GAME( 1982, machomou, 0,        suprmous, suprmous, 0,     ROT90, "Techstar", "Macho Mouse", GAME_WRONG_COLORS )
+GAME( 1982, machomou, 0,        suprmous, suprmous, 0,     ROT90, "Techstar", "Macho Mouse", 0 )
+GAME( 1982, desertdn, 0,        desertdn, desertdn, 0,     ROT0,  "Kawakusu (Video Optics license)", "Desert Dan", 0 )
 GAME( 1983, intrepid, 0,        intrepid, intrepid, 0,     ROT90, "Nova Games Ltd.", "Intrepid (set 1)", 0 )
 GAME( 1983, intrepi2, intrepid, intrepid, intrepid, 0,     ROT90, "Nova Games Ltd.", "Intrepid (set 2)", 0 )
 GAME( 1984, zaryavos, 0,        intrepid, intrepid, 0,     ROT90, "Nova Games of Canada", "Zarya Vostoka", GAME_NOT_WORKING )

@@ -27,6 +27,18 @@ static rectangle spritevisibleareaflipx =
 };
 
 
+static rectangle desertdn_spritevisiblearea =
+{
+	0*8+1, 24*8-1,
+	2*8, 30*8-1
+};
+static rectangle desertdn_spritevisibleareaflip =
+{
+	8*8, 32*8-2,
+	2*8, 30*8-1
+};
+
+
 /***************************************************************************
 
   Convert the color PROMs into a more useable format.
@@ -87,8 +99,7 @@ PALETTE_INIT( thepit )
 
 /***************************************************************************
 
- Super Mouse has 5 bits per gun (maybe 6 for green), exact weights are
- unknown.
+ Super Mouse has 5 bits per gun for red and green and 4 bits for blue.
 
 ***************************************************************************/
 PALETTE_INIT( suprmous )
@@ -109,27 +120,15 @@ PALETTE_INIT( suprmous )
 
 	for (i = 0;i < Machine->drv->total_colors-8;i++)
 	{
-		int bit0,bit1,bit2,bit3,bit4,r,g,b;
+		int r,g,b;
 
+		b = BITSWAP8(color_prom[i],0,1,2,3,4,5,6,7);
+		g = BITSWAP8(color_prom[i+0x20],0,1,2,3,4,5,6,7);
+		r = ((b >> 5) & 7) << 2 | ((g >> 6) & 3);
 
-		bit0 = (color_prom[i+0x20] >> 6) & 0x01;
-		bit1 = (color_prom[i+0x20] >> 7) & 0x01;
-		bit2 = (color_prom[i] >> 0) & 0x01;
-		bit3 = (color_prom[i] >> 1) & 0x01;
-		bit4 = (color_prom[i] >> 2) & 0x01;
-		r = 0x10 * bit0 + 0x20 * bit1 + 0x30 * bit2 + 0x40 * bit3 + 0x50 * bit4;
-		bit0 = (color_prom[i+0x20] >> 1) & 0x01;
-		bit1 = (color_prom[i+0x20] >> 2) & 0x01;
-		bit2 = (color_prom[i+0x20] >> 3) & 0x01;
-		bit3 = (color_prom[i+0x20] >> 4) & 0x01;
-		bit4 = (color_prom[i+0x20] >> 5) & 0x01;
-		g = 0x50 * bit0 + 0x40 * bit1 + 0x30 * bit2 + 0x20 * bit3 + 0x10 * bit4;
-		bit0 = (color_prom[i] >> 3) & 0x01;
-		bit1 = (color_prom[i] >> 4) & 0x01;
-		bit2 = (color_prom[i] >> 5) & 0x01;
-		bit3 = (color_prom[i] >> 6) & 0x01;
-		bit4 = (color_prom[i] >> 7) & 0x01;
-		b = 0x50 * bit0 + 0x40 * bit1 + 0x30 * bit2 + 0x20 * bit3 + 0x10 * bit4;
+		r = ((r & 0x1f) << 3) | ((r & 0x1f) >> 2);
+		g = ((g & 0x1f) << 3) | ((g & 0x1f) >> 2);
+		b = (b & 0x0f) * 0x11;
 		palette_set_color(i+8,r,g,b);
 	}
 
@@ -280,7 +279,7 @@ static void drawtiles(mame_bitmap *bitmap,int priority)
 	}
 }
 
-static void drawsprites(mame_bitmap *bitmap,int priority)
+static void drawsprites(mame_bitmap *bitmap,int priority,const rectangle *clip)
 {
 	int offs;
 
@@ -325,7 +324,7 @@ static void drawsprites(mame_bitmap *bitmap,int priority)
 					spriteram[offs + 2] & 0x07,
 					flipx,flipy,
 					sx,sy,
-					flip_screen_x & 1 ? &spritevisibleareaflipx : &spritevisiblearea,TRANSPARENCY_PEN,0);
+					clip,TRANSPARENCY_PEN,0);
 		}
 	}
 }
@@ -333,6 +332,8 @@ static void drawsprites(mame_bitmap *bitmap,int priority)
 
 VIDEO_UPDATE( thepit )
 {
+	const rectangle *clip = flip_screen_x ? &spritevisibleareaflipx : &spritevisiblearea;
+
 	if (get_vh_global_attribute_changed())
 	{
 		memset(dirtybuffer, 1, videoram_size);
@@ -343,11 +344,32 @@ VIDEO_UPDATE( thepit )
 	drawtiles(bitmap,0);
 
 	/* low priority sprites */
-	drawsprites(bitmap,0);
+	drawsprites(bitmap,0,clip);
 
 	/* high priority tiles */
 	drawtiles(bitmap,1);
 
 	/* high priority sprites */
-	drawsprites(bitmap,1);
+	drawsprites(bitmap,1,clip);
+}
+
+
+VIDEO_UPDATE( desertdn )
+{
+	const rectangle *clip = flip_screen_y ? &desertdn_spritevisibleareaflip : &desertdn_spritevisiblearea;
+
+	/* tiles always use the first graphics bank, sprites always the second */
+	graphics_bank = 0;
+	drawtiles(bitmap,0);
+
+	graphics_bank = 2;
+	drawsprites(bitmap,0,clip);
+
+	graphics_bank = 0;
+	drawtiles(bitmap,1);
+
+	graphics_bank = 2;
+	drawsprites(bitmap,1,clip);
+
+	graphics_bank = 0;
 }
