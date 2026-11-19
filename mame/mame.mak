@@ -1478,6 +1478,7 @@ $(OBJ)/tong.a: \
 
 $(OBJ)/unico.a: \
 	$(OBJ)/drivers/drgnmst.o $(OBJ)/vidhrdw/drgnmst.o \
+	$(OBJ)/drivers/goori.o \
 	$(OBJ)/drivers/silkroad.o $(OBJ)/vidhrdw/silkroad.o \
 	$(OBJ)/drivers/unico.o $(OBJ)/vidhrdw/unico.o \
 

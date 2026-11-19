@@ -7356,6 +7356,7 @@ Other Sun games
 	DRIVER( zeropnta )	/* (c) 1998 */
 	DRIVER( zeropnt2 )	/* (c) 1999 */
 	DRIVER( silkroad )	/* (c) 1999 */
+	DRIVER( goori )	/* (c) 1999 */
 
 	/* Afega games */
 	DRIVER( twinactn )	/* (c) 1995 - bootleg of mustang in nmk16.c */
