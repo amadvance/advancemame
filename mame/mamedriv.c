@@ -1258,6 +1258,9 @@ const game_driver * const drivers[] =
 	/* Similar but with a M6800 instead of an 8080 */
 	DRIVER( sflush ) /* (c)1979 Taito */
 
+	/* Z80 with 8080bw like video and sprites */
+	DRIVER( scyclone )	/* (c) 1980 Taito */
+
 	/* Meadows S2650 games */
 	DRIVER( lazercmd )	/* [1976?] */
 	DRIVER( bbonk )		/* [1976?] */

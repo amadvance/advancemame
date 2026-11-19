@@ -1329,6 +1329,7 @@ $(OBJ)/tad.a: \
 	$(OBJ)/drivers/toki.o $(OBJ)/vidhrdw/toki.o \
 
 $(OBJ)/taito.a: \
+	$(OBJ)/drivers/scyclone.o \
 	$(OBJ)/drivers/40love.o $(OBJ)/vidhrdw/40love.o \
 	$(OBJ)/drivers/arkanoid.o $(OBJ)/machine/arkanoid.o $(OBJ)/vidhrdw/arkanoid.o \
 	$(OBJ)/drivers/ashnojoe.o $(OBJ)/vidhrdw/ashnojoe.o \
