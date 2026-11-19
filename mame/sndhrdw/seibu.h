@@ -46,6 +46,7 @@ WRITE8_HANDLER( seibu_main_v30_w );
 
 WRITE16_HANDLER( seibu_main_mustb_w );
 
+WRITE8_HANDLER( seibu_pending_w );
 WRITE8_HANDLER( seibu_irq_clear_w );
 WRITE8_HANDLER( seibu_rst10_ack_w );
 WRITE8_HANDLER( seibu_rst18_ack_w );

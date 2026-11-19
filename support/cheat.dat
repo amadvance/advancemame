@@ -22606,7 +22606,7 @@
 :cshift:00000000:011B:00000003:FFFFFFFF:Infinite Lives PL1
 :cshift:00000000:012E:00000003:FFFFFFFF:Infinite Lives PL2
 
-; [ Cross Shooter (not encrypted) ]
+; [ Cross Shooter (Single PCB) ]
 :cshooter:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
 :cshooter:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
 :cshooter:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
@@ -22616,15 +22616,15 @@
 :cshooter:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
 :cshooter:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
-; [ Cross Shooter (encrypted) ]
-:cshootre:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
-:cshootre:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
+; [ Cross Shooter (2 PCB Stack) ]
+:cshootert:60000000:0000:00000000:00000000:[ There are no cheats   ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ for this game as it   ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ didn't work the last  ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ time it was tested.   ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ If the game now works ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ please request cheats ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ for it on the cheat   ]:REASON 1
+:cshootert:60000000:0000:00000000:00000000:[ forums.               ]:REASON 1
 
 ; [ Captain Silver (Japan) ]
 :csilver:00000000:0054:00000003:FFFFFFFF:Infinite Lives
@@ -203232,8 +203232,8 @@
 ; { Reason 01 } ; crmazeb   [ Crystal Maze - Now Featuring Ocean Zone, The (AMLD Version SWP) ]
 ; { Reason 01 } ; crusnexo  [ Cruis'n Exotica ]
 ; { Reason 01 } ; crusnw13  [ Cruis'n World (rev L1.3) ]
-; { Reason 01 } ; cshooter  [ Cross Shooter (not encrypted) ]
-; { Reason 01 } ; cshootre  [ Cross Shooter (encrypted) ]
+; { Reason 01 } ; cshooter  [ Cross Shooter (Single PCB) ]
+; { Reason 01 } ; cshootert [ Cross Shooter (2 PCB Stack) ]
 ; { Reason 01 } ; cultname  [ Seimei-Kantei-Meimei-Ki Cult Name ]
 ; { Reason 01 } ; cuoreuno  [ Cuore Uno (Italia) ]
 ; { Reason 01 } ; cybertnk  [ Cyber Tank (v1.04) ]
@@ -204292,7 +204292,7 @@
 ;airattck=ssmissin~=(tdragon=tdragonb) {credit location & max value only difference}
 ;airbustj=airbustr
 ;aircombj=aircombu
-;airraid=cshooter=cshootre
+;airraid=cshooter=cshootert
 ;airwolf=skywolf=skywolf2
 ;ajax=ajaxj=typhoon
 ;akkanvdr=spcinv95=spcinv95u

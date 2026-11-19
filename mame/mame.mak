@@ -1243,6 +1243,7 @@ $(OBJ)/sega.a: \
 	$(OBJ)/vidhrdw/stvvdp1.o $(OBJ)/vidhrdw/stvvdp2.o \
 
 $(OBJ)/seibu.a: \
+	$(OBJ)/drivers/airraid.o \
 	$(OBJ)/drivers/cshooter.o \
 	$(OBJ)/drivers/dcon.o $(OBJ)/vidhrdw/dcon.o \
 	$(OBJ)/drivers/deadang.o $(OBJ)/vidhrdw/deadang.o \
