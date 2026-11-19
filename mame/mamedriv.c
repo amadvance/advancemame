@@ -1559,6 +1559,8 @@ const game_driver * const drivers[] =
 	DRIVER( kngtmare )	/* GV-??? (c) 1983 Gottlieb - never released */
 	DRIVER( sqbert )	/* GV-??? (c) 1983 Mylstar - never released */
 	DRIVER( mach3 )		/* GV-109 (c) 1983 Mylstar */
+	DRIVER( cobram3 )	/* (c) 1984 Data East */
+	DRIVER( cobram3a )	/* (c) 1984 Data East */
 	DRIVER( usvsthem )	/* GV-??? (c) 198? Mylstar */
 	DRIVER( 3stooges )	/* GV-113 (c) 1984 Mylstar */
 	DRIVER( qbertqub )	/* GV-119 (c) 1983 Mylstar */

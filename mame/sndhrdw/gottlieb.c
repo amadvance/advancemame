@@ -302,6 +302,35 @@ WRITE8_HANDLER( stooges_sound_control_w )
 	last = data & 0x44;
 }
 
+/* the sound board of the Cobra Command conversion drives the 8913 differently */
+WRITE8_HANDLER( cobram3_sound_control_w )
+{
+	static UINT8 psg_data_latch;
+	static int last;
+
+	common_sound_control_w(offset, data);
+
+	/* bit 4 selects between latching the data and writing address and data to the 8913 */
+	if (data & 0x10)
+		psg_data_latch = psg_latch;
+	else if (data & 0x08)
+	{
+		AY8910_control_port_0_w(0,psg_latch);
+		AY8910_write_port_0_w(0,psg_data_latch);
+	}
+	else
+	{
+		AY8910_control_port_1_w(0,psg_latch);
+		AY8910_write_port_1_w(0,psg_data_latch);
+	}
+
+	/* bit 6 = speech chip DATA PRESENT pin; the chip reads the data on the rising edge */
+	if ((last & 0x40) == 0x00 && (data & 0x40) == 0x40)
+		sp0250_w(0,sp0250_latch);
+
+	last = data & 0x40;
+}
+
 WRITE8_HANDLER( gottlieb_nmi_rate_w )
 {
 	nmi_rate = data;
