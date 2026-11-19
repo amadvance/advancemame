@@ -1289,6 +1289,7 @@ $(OBJ)/snk.a: \
 	$(OBJ)/drivers/hng64.o $(OBJ)/vidhrdw/hng64.o $(OBJ)/sndhrdw/hng64.o \
 	$(OBJ)/drivers/mainsnk.o $(OBJ)/vidhrdw/mainsnk.o \
 	$(OBJ)/drivers/marvins.o $(OBJ)/vidhrdw/marvins.o \
+	$(OBJ)/drivers/miconkit.o \
 	$(OBJ)/drivers/munchmo.o $(OBJ)/vidhrdw/munchmo.o \
 	$(OBJ)/drivers/prehisle.o $(OBJ)/vidhrdw/prehisle.o \
 	$(OBJ)/drivers/rockola.o $(OBJ)/sndhrdw/rockola.o $(OBJ)/vidhrdw/rockola.o \

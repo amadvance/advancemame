@@ -7920,6 +7920,8 @@ Other Sun games
 	DRIVER( imolagpo )
 	DRIVER( ace )		/* [1976 Allied Leisure] */
 	DRIVER( clayshoo )	/* [1979 Allied Leisure] */
+	DRIVER( micon2 )	/* (c) 1978 SNK */
+	DRIVER( smiconk )	/* (c) 1978 SNK */
 	DRIVER( pirates )	/* (c) 1994 NIX */
 	DRIVER( genix )		/* (c) 199? NIX */
 	DRIVER( fitfight )	/* bootleg of Art of Fighting */
