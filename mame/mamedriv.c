@@ -8213,6 +8213,12 @@ Other Sun games
 	DRIVER( go2000 )	/* (c) 2000 SA */
 	DRIVER( mirax )		/* (c) 1985 Current Technologies */
 	DRIVER( lastfght )	/* (c) 2000 Subsino */
+	DRIVER( mtrain )	/* (c) 1997 Subsino */
+	DRIVER( mtraina )	/* (c) 1996 Subsino */
+	DRIVER( strain )	/* (c) 1996 Subsino */
+	DRIVER( tbonusal )	/* (c) 1995 Subsino (American Alpha license) */
+	DRIVER( wtrnymph )	/* (c) 1996 Subsino */
+	DRIVER( blushark )	/* (c) 199? hack? */
 	DRIVER( sliver )	/* (c) 1996 Hollow Corp */
 	DRIVER( intrscti )	/* ???? */
 

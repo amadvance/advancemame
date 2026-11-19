@@ -1605,6 +1605,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/ladyfrog.o $(OBJ)/vidhrdw/ladyfrog.o \
 	$(OBJ)/drivers/laserbas.o \
 	$(OBJ)/drivers/lastfght.o \
+	$(OBJ)/drivers/subsino2.o $(OBJ)/machine/ds2430a.o $(OBJ)/machine/subsino_crypt.o \
 	$(OBJ)/drivers/paracaidista.o \
 	$(OBJ)/drivers/musclem.o \
 	$(OBJ)/drivers/calcune.o $(OBJ)/vidhrdw/calcune.o \
