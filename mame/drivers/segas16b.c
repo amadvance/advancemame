@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Aaron Giles
+// copyright-holders:Aaron Giles, David Haywood
 /***************************************************************************
 
     Sega System 16B hardware
@@ -45,6 +45,11 @@
     Wrestle War      171-5704    a5-a8:12143,12411,12145,12146,fd1094:317-0090
 
     The 171-5521 board is identical to 171-5704 with the jumper difference I mentioned.
+
+    ISG 'Selection Master' Type 2006 is a multi-game cartridge system built as a bootleg of the System 16.
+    The BIOS and the cartridge ROMs have an address XOR and a 16-bit bitswap, a device performs a 32-bit
+    bitswap to produce the decryption keys for the compressed data of the cartridges and the cartridge
+    can also be read through a port with an additional 8-bit data XOR.
 
     Some points for identifying ROM boards:
 
@@ -1852,6 +1857,271 @@ static ADDRESS_MAP_START( dfjail_sound_io, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 
+/* ISG Selection Master Type 2006 (Korean System 16 bootleg) */
+static UINT16 isgsm_cart_addrlatch;
+static UINT32 isgsm_cart_addr;
+static UINT8 isgsm_data_type;
+static UINT32 isgsm_data_addr;
+static UINT8 isgsm_data_mode;
+static UINT16 isgsm_addr_latch;
+static UINT32 isgsm_security_value;
+static UINT16 isgsm_security_latch;
+static UINT8 isgsm_rle_control_position;
+static UINT8 isgsm_rle_control_byte;
+static UINT8 isgsm_rle_latched;
+static UINT8 isgsm_rle_byte;
+static UINT8 isgsm_read_xor;
+static UINT8 isgsm_tiles_dirty;
+static UINT32 (*isgsm_security_callback)(UINT32 input);
+
+static WRITE16_HANDLER( isgsm_cart_addr_high_w )
+{
+	isgsm_cart_addrlatch = data;
+}
+
+static WRITE16_HANDLER( isgsm_cart_addr_low_w )
+{
+	isgsm_cart_addr = data | (isgsm_cart_addrlatch << 16);
+}
+
+/* the cart is read 8-bit at a time, with a cart specific xor on the data */
+static READ16_HANDLER( isgsm_cart_data_r )
+{
+	int size = memory_region_length(REGION_USER2);
+	UINT8 *rgn = memory_region(REGION_USER2);
+	return rgn[(++isgsm_cart_addr & (size - 1)) ^ 1] ^ isgsm_read_xor;
+}
+
+static WRITE16_HANDLER( isgsm_data_w )
+{
+	/*
+        data_type: rrrp o?dd
+            r = bit-rotation
+            p = apply rotation post-operation
+            dd = destination (0 = sprites, 1 = tiles, 2 = sound cpu, 3 = main cpu)
+        data_mode: droo
+            d = direction
+            r = hardware rle (used by the bios only)
+            oo = operator mode (0 = plain, 1 = xor, 2 = or, 3 = and)
+    */
+	UINT8 *dest = 0;
+	int bytes_to_write = 1;
+	int i;
+
+	switch (isgsm_data_type & 0x0f)
+	{
+		case 0x0: dest = memory_region(REGION_GFX2); break;
+		case 0x1: dest = memory_region(REGION_GFX1); break;
+		case 0x2: dest = memory_region(REGION_CPU2); break;
+		case 0x3: dest = memory_region(REGION_CPU1); break;
+	}
+
+	/* pre-rotate */
+	if ((isgsm_data_type & 0x10) == 0x00)
+	{
+		UINT8 shift = ((isgsm_data_type >> 5 & 7) - 1) & 7;
+		data = (data << shift & 0xff) | ((data & 0xff) >> (8 - shift));
+	}
+
+	if (!dest)
+		return;
+
+	if (isgsm_data_mode & 0x4)
+	{
+		if (!isgsm_rle_latched)
+		{
+			if (isgsm_rle_control_position == 8)
+			{
+				isgsm_rle_control_byte = data;
+				isgsm_rle_control_position = 0;
+				bytes_to_write = 0;
+			}
+			else
+			{
+				if (((isgsm_rle_control_byte << isgsm_rle_control_position) & 0x80) == 0)
+				{
+					isgsm_rle_byte = data;
+					isgsm_rle_latched = 1;
+				}
+				++isgsm_rle_control_position;
+			}
+		}
+		else
+		{
+			isgsm_rle_latched = 0;
+			bytes_to_write = data + 2;
+			data = isgsm_rle_byte;
+		}
+	}
+
+	for (i = 0; i < bytes_to_write; ++i)
+	{
+		UINT8 byte = 0;
+
+		if (isgsm_data_mode & 0x8)
+			++isgsm_data_addr;
+		else
+			--isgsm_data_addr;
+		isgsm_data_addr &= 0xfffffff;
+
+		switch (isgsm_data_mode & 0x3)
+		{
+			case 0: byte = data; break;
+			case 1: byte = dest[isgsm_data_addr] ^ data; break;
+			case 2: byte = dest[isgsm_data_addr] | data; break;
+			case 3: byte = dest[isgsm_data_addr] & data; break;
+		}
+
+		/* post-rotate */
+		if ((isgsm_data_type & 0x10) == 0x10)
+		{
+			UINT8 shift = ((isgsm_data_type >> 5 & 7) - 1) & 7;
+			byte = (byte << shift & 0xff) | ((byte & 0xff) >> (8 - shift));
+		}
+
+		dest[isgsm_data_addr] = byte;
+
+		if (dest == memory_region(REGION_GFX1))
+		{
+			/* the tiles are decoded at start, so the changes must be decoded again */
+			decodegfx(Machine->gfx[0], dest, (isgsm_data_addr & 0x1ffff) / 8, 1);
+			isgsm_tiles_dirty = 1;
+		}
+	}
+}
+
+static WRITE16_HANDLER( isgsm_datatype_w )
+{
+	isgsm_data_type = data;
+}
+
+static WRITE16_HANDLER( isgsm_addr_high_w )
+{
+	/* latched until the low part is written */
+	isgsm_addr_latch = data;
+}
+
+static WRITE16_HANDLER( isgsm_addr_low_w )
+{
+	isgsm_data_mode = (isgsm_addr_latch & 0xf000) >> 12;
+	isgsm_data_addr = data | ((isgsm_addr_latch & 0x0fff) << 16);
+
+	/* also resets the rle */
+	isgsm_rle_control_position = 8;
+	isgsm_rle_control_byte = 0;
+	isgsm_rle_latched = 0;
+}
+
+static WRITE16_HANDLER( isgsm_cart_security_high_w )
+{
+	isgsm_security_latch = data;
+}
+
+static WRITE16_HANDLER( isgsm_cart_security_low_w )
+{
+	isgsm_security_value = isgsm_security_callback(data | (isgsm_security_latch << 16));
+}
+
+static READ16_HANDLER( isgsm_cart_security_low_r )
+{
+	return isgsm_security_value & 0xffff;
+}
+
+static READ16_HANDLER( isgsm_cart_security_high_r )
+{
+	return (isgsm_security_value >> 16) & 0xffff;
+}
+
+static UINT32 isgsm_shinfz_security(UINT32 input)
+{
+	return BITSWAP32(input, 19, 20, 25, 26, 15, 0, 16, 2, 8, 9, 13, 14, 31, 21, 7, 18, 11, 30, 22, 17, 3, 4, 12, 28, 29, 5, 27, 10, 23, 24, 1, 6);
+}
+
+static UINT32 isgsm_tetrbx_security(UINT32 input)
+{
+	return input;
+}
+
+static WRITE16_HANDLER( isgsm_sound_reset_w )
+{
+	cpunum_set_input_line(1, INPUT_LINE_RESET, PULSE_LINE);
+	if (data == 0)
+		cpunum_resume(1, SUSPEND_REASON_HALT);
+	else
+		cpunum_suspend(1, SUSPEND_REASON_HALT, 1);
+}
+
+static WRITE16_HANDLER( isgsm_main_bank_change_w )
+{
+	if (data != 0)
+		memory_set_bankptr(2, memory_region(REGION_CPU1));
+}
+
+static INTERRUPT_GEN( isgsm_interrupt )
+{
+	if (isgsm_tiles_dirty)
+	{
+		isgsm_tiles_dirty = 0;
+		tilemap_mark_all_tiles_dirty(NULL);
+	}
+	irq4_line_hold();
+}
+
+static MACHINE_RESET( isgsm )
+{
+	int i;
+
+	isgsm_cart_addrlatch = 0;
+	isgsm_cart_addr = 0;
+	isgsm_data_type = 0;
+	isgsm_data_addr = 0;
+	isgsm_data_mode = 0;
+	isgsm_addr_latch = 0;
+	isgsm_security_value = 0;
+	isgsm_security_latch = 0;
+	isgsm_rle_control_position = 0;
+	isgsm_rle_control_byte = 0;
+	isgsm_rle_latched = 0;
+	isgsm_rle_byte = 0;
+	isgsm_tiles_dirty = 0;
+
+	segaic16_tilemap_reset(0);
+	for (i = 0; i < 16; i++)
+		segaic16_sprites_set_bank(0, i, i);
+
+	memory_set_bankptr(1, memory_region(REGION_CPU2) + 0x10000);
+	memory_set_bankptr(2, memory_region(REGION_USER1));
+	memory_set_bankptr(3, memory_region(REGION_USER2));
+}
+
+static ADDRESS_MAP_START( isgsm_map, ADDRESS_SPACE_PROGRAM, 16 )
+	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) )
+	AM_RANGE(0x000000, 0x0fffff) AM_ROMBANK(2)
+	AM_RANGE(0x200000, 0x23ffff) AM_RAM
+	AM_RANGE(0x3f0000, 0x3fffff) AM_WRITE(rom_5704_bank_w)
+	AM_RANGE(0x400000, 0x40ffff) AM_RAM AM_WRITE(segaic16_tileram_0_w) AM_BASE(&segaic16_tileram_0)
+	AM_RANGE(0x410000, 0x410fff) AM_RAM AM_WRITE(segaic16_textram_0_w) AM_BASE(&segaic16_textram_0)
+	AM_RANGE(0x440000, 0x4407ff) AM_RAM AM_BASE(&segaic16_spriteram_0)
+	AM_RANGE(0x840000, 0x840fff) AM_RAM AM_WRITE(segaic16_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0xc40000, 0xc43fff) AM_READWRITE(standard_io_r, standard_io_w)
+	AM_RANGE(0xe00000, 0xe00001) AM_WRITE(isgsm_data_w)
+	AM_RANGE(0xe00002, 0xe00003) AM_WRITE(isgsm_datatype_w)
+	AM_RANGE(0xe00004, 0xe00005) AM_WRITE(isgsm_addr_high_w)
+	AM_RANGE(0xe00006, 0xe00007) AM_WRITE(isgsm_addr_low_w)
+	AM_RANGE(0xe80000, 0xe80001) AM_READ(isgsm_cart_data_r)
+	AM_RANGE(0xe80002, 0xe80003) AM_READ(input_port_6_word_r)
+	AM_RANGE(0xe80004, 0xe80005) AM_WRITE(isgsm_cart_addr_high_w)
+	AM_RANGE(0xe80006, 0xe80007) AM_WRITE(isgsm_cart_addr_low_w)
+	AM_RANGE(0xe80008, 0xe80009) AM_READWRITE(isgsm_cart_security_high_r, isgsm_cart_security_high_w)
+	AM_RANGE(0xe8000a, 0xe8000b) AM_READWRITE(isgsm_cart_security_low_r, isgsm_cart_security_low_w)
+	AM_RANGE(0xee0000, 0xefffff) AM_ROMBANK(3)
+	AM_RANGE(0xfe0006, 0xfe0007) AM_WRITE(philko_sound_w)
+	AM_RANGE(0xfe0008, 0xfe0009) AM_WRITE(isgsm_sound_reset_w)
+	AM_RANGE(0xfe000a, 0xfe000b) AM_WRITE(isgsm_main_bank_change_w)
+	AM_RANGE(0xffc000, 0xffffff) AM_RAM AM_BASE(&workram)
+ADDRESS_MAP_END
+
+
 static READ16_HANDLER( sjryuko_custom_io_r )
 {
 	static const char *portname[] = { "MJ0", "MJ1", "MJ2", "MJ3", "MJ4", "MJ5" };
@@ -2367,6 +2637,67 @@ static INPUT_PORTS_START( lockonph )
 	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( isgsm )
+	PORT_INCLUDE( system16b_generic )
+
+	PORT_MODIFY("UNUSED")
+	PORT_BIT( 0xff, IP_ACTIVE_HIGH, IPT_UNUSED )
+
+	PORT_MODIFY("DSW")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_MODIFY("COINAGE")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("CARDDSW")
+	PORT_BIT( 0xffff, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( shinfz )
+	PORT_INCLUDE( isgsm )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Cocktail ) )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x08, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x00, "240 (Cheat)")
+	PORT_DIPNAME( 0x30, 0x30, "Extra Ship Cost" )
+	PORT_DIPSETTING(    0x30, "5000" )
+	PORT_DIPSETTING(    0x20, "10000" )
+	PORT_DIPSETTING(    0x10, "15000" )
+	PORT_DIPSETTING(    0x00, "20000" )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+
+	PORT_MODIFY("CARDDSW")
+	PORT_DIPNAME( 0x0003, 0x0000, "Game Type" )
+	PORT_DIPSETTING(      0x0000, "Shinobi Ninja Game" )
+	PORT_DIPSETTING(      0x0001, "FZ-2006 Game I" )
+	PORT_DIPSETTING(      0x0002, "FZ-2006 Game II" )
+	PORT_DIPSETTING(      0x0003, "Invalid" )
+	PORT_BIT( 0xfffc, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( tetrbx )
+	PORT_INCLUDE( isgsm )
+
+	PORT_MODIFY("CARDDSW")
+	PORT_DIPNAME( 0x0003, 0x0000, "Game Type" )
+	PORT_DIPSETTING(      0x0000, "Tetris" )
+	PORT_DIPSETTING(      0x0001, "Tetris II (Blox)" )
+	PORT_DIPSETTING(      0x0002, "Tetris Turbo" )
+	PORT_DIPSETTING(      0x0003, "Invalid" )
+	PORT_BIT( 0xfffc, IP_ACTIVE_HIGH, IPT_UNUSED )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( dfjail )
@@ -3836,6 +4167,14 @@ static MACHINE_DRIVER_START( lockonph )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.2)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( isgsm )
+	MDRV_IMPORT_FROM(system16b)
+	MDRV_CPU_REPLACE("main", M68000, 16000000)
+	MDRV_CPU_PROGRAM_MAP(isgsm_map, 0)
+	MDRV_CPU_VBLANK_INT(isgsm_interrupt, 1)
+	MDRV_MACHINE_RESET(isgsm)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( dfjail )
 	MDRV_IMPORT_FROM(system16b)
 	MDRV_CPU_REPLACE("main", M68000, 16000000/2)
@@ -3948,6 +4287,37 @@ ROM_START( dfjail )
 	ROM_LOAD16_BYTE( "17.g19", 0x180001, 0x020000, CRC(9302cfc3) SHA1(6a63df5e4dbc11404b46a0a7ea90298adba56c14) )
 	ROM_LOAD16_BYTE( "26.h20", 0x1c0000, 0x020000, CRC(5828e0af) SHA1(41d3118eae0c43ad25ef96d1c526a52dc46703d8) )
 	ROM_LOAD16_BYTE( "18.g20", 0x1c0001, 0x020000, CRC(fc8aced0) SHA1(12ffd552228893f2093c2d5617fc00cae262e2ed) )
+ROM_END
+
+#define ISGSM_BIOS_LOAD(name,offset,length,hash,flags) \
+	BIOSX_LOAD("isgsm", name, offset, length, hash, flags)
+
+/* the other regions are filled at run-time with the data of the game cartridge */
+#define ISGSM_REGIONS(load) \
+	ROM_REGION16_BE( 0x100000, REGION_USER1, 0 ) \
+	load( "ism2006v00.u1", 0x00000, 0x20000, CRC(2292585c) SHA1(97ba0e0f0be832a5114d95151e519bc027f6675b), ROM_GROUPWORD | ROM_REVERSE ) \
+	ROM_REGION( 0x100000, REGION_CPU1, ROMREGION_ERASE00 ) \
+	ROM_REGION( 0x60000, REGION_GFX1, ROMREGION_ERASE00 ) \
+	ROM_REGION16_BE( 0x200000, REGION_GFX2, ROMREGION_ERASE00 ) \
+	ROM_REGION( 0x40000, REGION_CPU2, ROMREGION_ERASE00 )
+
+ROM_START( isgsm )
+	ISGSM_REGIONS( ROMX_LOAD )
+	ROM_REGION16_BE( 0x200000, REGION_USER2, ROMREGION_ERASE00 )
+ROM_END
+
+ROM_START( tetrbx )
+	ISGSM_REGIONS( ISGSM_BIOS_LOAD )
+
+	ROM_REGION16_BE( 0x400000, REGION_USER2, ROMREGION_ERASE00 )
+	ROM_LOAD16_WORD_SWAP( "tetr06.u13", 0x00000, 0x080000, CRC(884dd693) SHA1(33549613844be16f7903c9b0cf4e028f0bceaff2) )
+ROM_END
+
+ROM_START( shinfz )
+	ISGSM_REGIONS( ISGSM_BIOS_LOAD )
+
+	ROM_REGION16_BE( 0x200000, REGION_USER2, 0 )
+	ROM_LOAD16_WORD_SWAP( "shin06.u13", 0x00000, 0x200000, CRC(39d773e9) SHA1(5284f90cb5190128a17ebee8b539a39c8914c364) )
 ROM_END
 
 ROM_START( aceattac )
@@ -6819,6 +7189,70 @@ static DRIVER_INIT( dfjail )
 	state_save_register_global(dfjail_dac_data);
 }
 
+static void isgsm_decrypt_bios(void)
+{
+	UINT16 *rom = (UINT16 *)memory_region(REGION_USER1);
+	UINT16 *temp = malloc(0x20000);
+	int addr;
+
+	for (addr = 0; addr < 0x20000/2; addr++)
+		temp[addr ^ 0x4127] = BITSWAP16(rom[addr], 6, 14, 4, 2, 12, 10, 8, 0, 1, 9, 11, 13, 3, 5, 7, 15);
+	memcpy(rom, temp, 0x20000);
+	free(temp);
+}
+
+static DRIVER_INIT( isgsm )
+{
+	segas16b_workram_size = 0x4000;
+	isgsm_decrypt_bios();
+	state_save_register_global(isgsm_cart_addrlatch);
+	state_save_register_global(isgsm_cart_addr);
+	state_save_register_global(isgsm_data_type);
+	state_save_register_global(isgsm_data_addr);
+	state_save_register_global(isgsm_data_mode);
+	state_save_register_global(isgsm_addr_latch);
+	state_save_register_global(isgsm_security_value);
+	state_save_register_global(isgsm_security_latch);
+	state_save_register_global(isgsm_rle_control_position);
+	state_save_register_global(isgsm_rle_control_byte);
+	state_save_register_global(isgsm_rle_latched);
+	state_save_register_global(isgsm_rle_byte);
+}
+
+static DRIVER_INIT( shinfz )
+{
+	UINT16 *rom = (UINT16 *)memory_region(REGION_USER2);
+	UINT16 *temp = malloc(0x200000);
+	int addr;
+
+	init_isgsm();
+
+	for (addr = 0; addr < 0x200000/2; addr++)
+		temp[addr ^ 0x68956] = BITSWAP16(rom[addr], 8, 4, 12, 3, 6, 7, 1, 0, 15, 11, 5, 14, 10, 2, 9, 13);
+	memcpy(rom, temp, 0x200000);
+	free(temp);
+
+	isgsm_read_xor = 0x66;
+	isgsm_security_callback = isgsm_shinfz_security;
+}
+
+static DRIVER_INIT( tetrbx )
+{
+	UINT16 *rom = (UINT16 *)memory_region(REGION_USER2);
+	UINT16 *temp = malloc(0x80000);
+	int addr;
+
+	init_isgsm();
+
+	for (addr = 0; addr < 0x80000/2; addr++)
+		temp[addr ^ 0x2a6e6] = BITSWAP16(rom[addr], 4, 0, 12, 5, 7, 3, 1, 14, 10, 11, 9, 6, 15, 2, 13, 8);
+	memcpy(rom, temp, 0x80000);
+	free(temp);
+
+	isgsm_read_xor = 0x73;
+	isgsm_security_callback = isgsm_tetrbx_security;
+}
+
 static DRIVER_INIT( generic_5521 )
 {
 	system16b_generic_init(ROM_BOARD_171_5521);
@@ -7122,3 +7556,7 @@ GAME( 1990, snapper,  0,        atomicp,        snapper,  snapper,              
 
 GAME( 1991, lockonph, 0, lockonph, lockonph, lockonph, ROT0, "Philko", "Lock On (Philko)", GAME_IMPERFECT_SOUND )
 GAME( 1991, dfjail, 0, dfjail, dfjail, dfjail, ROT0, "Philko", "The Destroyer From Jail (Korea)", GAME_NO_COCKTAIL )
+
+DEVICE( 2006, isgsm, "bootleg (ISG)", "ISG Selection Master Type 2006 BIOS" )
+GAME( 2006, tetrbx, tetris, isgsm, tetrbx, tetrbx, ROT0, "bootleg (ISG)", "Tetris / Bloxeed (Korean System 16 bootleg) (ISG Selection Master Type 2006)", 0 )
+GAME( 2008, shinfz, shinobi, isgsm, shinfz, shinfz, ROT0, "bootleg (ISG)", "Shinobi / FZ-2006 (Korean System 16 bootleg) (ISG Selection Master Type 2006)", 0 )

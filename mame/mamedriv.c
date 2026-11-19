@@ -3634,6 +3634,9 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( ultracin )
 	DRIVER( lockonph )
 	DRIVER( dfjail )
+	DRIVER( isgsm )
+	DRIVER( tetrbx )
+	DRIVER( shinfz )
 	DRIVER( aceattac )	/* (c) 1988 (protected) */
 	DRIVER( aliensyn )	/* (c) 1987 */
 	DRIVER( aliensyn3 )	/* (c) 1987 (FD1089A, decrypted) */
