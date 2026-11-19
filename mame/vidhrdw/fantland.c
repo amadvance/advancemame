@@ -49,7 +49,9 @@
 
         0                       Y offset (low bits)
 
-        1       7654 321-       Code offset
+        1       7--- ----       Flip X (xor with that in spriteram)
+                -6-- ----       Flip Y (xor with that in spriteram)
+                --54 321-       Code offset
                 ---- ---0       Y offset (high bit)
 
         2                       X offset (low bits)
@@ -78,8 +80,8 @@ static void fantland_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 		y		=	ram[4];
 
 		color	=	(attr & 0x03);
-		flipy	=	(attr & 0x10);
-		flipx	=	(attr & 0x20);
+		flipy	=	(attr >> 4) & 1;
+		flipx	=	(attr >> 5) & 1;
 
 		y		+=	(attr & 0x40) << 2;
 		x		+=	(attr & 0x80) << 1;
@@ -99,7 +101,9 @@ static void fantland_draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 			yoffs	=	spriteram_2[idx + 0] + (spriteram_2[idx + 1] << 8);
 			xoffs	=	spriteram_2[idx + 2] + (spriteram_2[idx + 3] << 8);
 
-			code	+=	yoffs >> 9;
+			code	+=	(yoffs & 0x3e00) >> 9;
+			flipy	^=	(yoffs >> 14) & 1;
+			flipx	^=	(yoffs >> 15) & 1;
 		}
 		else
 		{
