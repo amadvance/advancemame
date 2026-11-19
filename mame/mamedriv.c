@@ -8253,6 +8253,12 @@ Other Sun games
 	DRIVER( blushark )	/* (c) 199? hack? */
 	DRIVER( sliver )	/* (c) 1996 Hollow Corp */
 	DRIVER( intrscti )	/* ???? */
+	DRIVER( konek )		/* (c) 198? Terminal */
+	DRIVER( sosterm )	/* (c) 198? Terminal */
+	DRIVER( koroleva )	/* (c) 198? Terminal */
+	DRIVER( bilyard )	/* (c) 198? Terminal */
+	DRIVER( gorodki )	/* (c) 198? Terminal */
+	DRIVER( kot )		/* (c) 198? Terminal */
 
 	DRIVER( bazooka )       /* (c) 1976 Project Support Engineering */
 	DRIVER( bazookabr )     /* (c) 1977 Taito do Brasil */

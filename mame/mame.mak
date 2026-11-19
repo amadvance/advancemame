@@ -1664,6 +1664,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/tcl.o \
 	$(OBJ)/drivers/thedeep.o $(OBJ)/vidhrdw/thedeep.o \
 	$(OBJ)/drivers/tickee.o $(OBJ)/vidhrdw/tickee.o \
+	$(OBJ)/drivers/tiamc1.o \
 	$(OBJ)/drivers/truco.o $(OBJ)/vidhrdw/truco.o \
 	$(OBJ)/drivers/trucocl.o $(OBJ)/vidhrdw/trucocl.o \
 	$(OBJ)/drivers/trvquest.o \
