@@ -246,6 +246,7 @@ UINT32* stv_workram_l;
 UINT32* stv_workram_h;
 static UINT8 stv_backupram[0x8000];
 UINT32* stv_scu;
+static mame_timer *scu_dma_lv2_timer;
 static UINT32* ioga;
 static UINT16* scsp_regs;
 static UINT16* sound_ram;
@@ -495,6 +496,7 @@ static void stv_intback_peripheral(int param)
 static void system_reset()
 {
 	/*Only backup ram and SMPC ram are retained after that this command is issued.*/
+	timer_adjust(scu_dma_lv2_timer, TIME_NEVER, 0, 0);
 	memset(stv_scu      ,0x00,0x000100);
 	memset(scsp_regs    ,0x00,0x001000);
 	memset(sound_ram    ,0x00,0x080000);
@@ -1300,11 +1302,11 @@ WRITE32_HANDLER( stv_scu_w32 )
 		case 1:	scu_dst_0  = ((stv_scu[1] & 0x07ffffff) >> 0); break;
 		case 2: scu_size_0 = ((stv_scu[2] & 0x000fffff) >> 0); break;
 		case 3:
-			/*Read address add value for DMA lv 0*/
+			/*Read address add value for DMA lv 0, 0 keeps the source fixed to fill memory*/
 			if(stv_scu[3] & 0x100)
 				scu_src_add_0 = 4;
 			else
-				scu_src_add_0 = 1;
+				scu_src_add_0 = 0;
 
 			/*Write address add value for DMA lv 0*/
 			switch(stv_scu[3] & 7)
@@ -1370,11 +1372,11 @@ WRITE32_HANDLER( stv_scu_w32 )
 		case 9:	 scu_dst_1  = ((stv_scu[9] &  0x07ffffff) >> 0);  break;
 		case 10: scu_size_1 = ((stv_scu[10] & 0x00001fff) >> 0);  break;
 		case 11:
-		/*Read address add value for DMA lv 1*/
+		/*Read address add value for DMA lv 1, 0 keeps the source fixed to fill memory*/
 		if(stv_scu[11] & 0x100)
 			scu_src_add_1 = 4;
 		else
-			scu_src_add_1 = 1;
+			scu_src_add_1 = 0;
 
 		/*Write address add value for DMA lv 1*/
 		switch(stv_scu[11] & 7)
@@ -1420,11 +1422,11 @@ WRITE32_HANDLER( stv_scu_w32 )
 		case 17: scu_dst_2  = ((stv_scu[17] & 0x07ffffff) >> 0);  break;
 		case 18: scu_size_2 = ((stv_scu[18] & 0x00001fff) >> 0);  break;
 		case 19:
-		/*Read address add value for DMA lv 2*/
+		/*Read address add value for DMA lv 2, 0 keeps the source fixed to fill memory*/
 		if(stv_scu[19] & 0x100)
 			scu_src_add_2 = 4;
 		else
-			scu_src_add_2 = 1;
+			scu_src_add_2 = 0;
 
 		/*Write address add value for DMA lv 2*/
 		switch(stv_scu[19] & 7)
@@ -1750,6 +1752,14 @@ static void dma_direct_lv1()
 	D1MV_0;
 }
 
+static void scu_dma_lv2_done(int param)
+{
+	if(LOG_SCU) logerror("DMA transfer END\n");
+	D2MV_0;
+	if (!(stv_scu[40] & 0x200))
+		cpunum_set_input_line_and_vector(0, 6, HOLD_LINE, 0x49);
+}
+
 static void dma_direct_lv2()
 {
 	static UINT32 tmp_src,tmp_dst,tmp_size;
@@ -1842,10 +1852,6 @@ static void dma_direct_lv2()
 	if(!(DRUP(2))) scu_src_2 = tmp_src;
 	if(!(DWUP(2))) scu_dst_2 = tmp_dst;
 
-	if(LOG_SCU) logerror("DMA transfer END\n");
-	if(!(stv_scu[40] & 0x200))/*Lv 2 DMA end irq*/
-		cpunum_set_input_line_and_vector(0, 6, HOLD_LINE , 0x49);
-
 	if(scu_add_tmp & 0x80000000)
 	{
 		scu_dst_add_2 = (scu_add_tmp & 0xff00) >> 8;
@@ -1853,7 +1859,9 @@ static void dma_direct_lv2()
 		scu_add_tmp^=0x80000000;
 	}
 
-	D2MV_0;
+	/* Wanpaku Safari sets its wait flag just after starting DMA. Allow time
+	   for that write before the completion interrupt clears the flag. */
+	timer_adjust(scu_dma_lv2_timer, TIME_IN_CYCLES((tmp_size + 3) / 4, 0), 0, 0);
 }
 
 static void dma_indirect_lv0()
@@ -2933,6 +2941,7 @@ static void print_game_info(void)
 
 MACHINE_START( stv )
 {
+	scu_dma_lv2_timer = timer_alloc(scu_dma_lv2_done);
 	SCSP_set_ram_base(0, sound_ram);
 	return 0;
 }
@@ -2942,6 +2951,8 @@ extern void stv_5881_reset(void);
 MACHINE_RESET( stv )
 {
 	stv_5881_reset();
+	timer_adjust(scu_dma_lv2_timer, TIME_NEVER, 0, 0);
+	DMA_STATUS = 0;
 	stv_counter_select = stv_ioga_mode = 0;
 	memset(stv_counter_base, 0, sizeof(stv_counter_base));
 	if (port_tag_to_index("PORTG.0") >= 0) ticket_dispenser_init(100, TICKET_MOTOR_ACTIVE_HIGH, TICKET_STATUS_ACTIVE_HIGH);

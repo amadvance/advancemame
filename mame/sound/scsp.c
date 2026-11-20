@@ -216,6 +216,8 @@ static void dma_scsp(struct _SCSP *SCSP); 		/*SCSP DMA transfer function*/
 #define scsp_dexe 		scsp_regs[0x416/2] & 0x1000
 #define dma_transfer_end	((scsp_regs[0x424/2] & 0x10)>>4)|(((scsp_regs[0x426/2] & 0x10)>>4)<<1)|(((scsp_regs[0x428/2] & 0x10)>>4)<<2)
 
+static int envelope_gain[0x400];
+
 static const float SDLT[8]={-1000000.0,-36.0,-30.0,-24.0,-18.0,-12.0,-6.0,0.0};
 
 static stream_sample_t *bufferl;
@@ -348,7 +350,9 @@ static int EG_Update(struct _SLOT *slot)
 			break;
 		case DECAY1:
 			slot->EG.volume-=slot->EG.D1R;
-			if(slot->EG.volume>>(EG_SHIFT+5)>=slot->EG.DL)
+			if(slot->EG.volume < 0)
+				slot->EG.volume = 0;
+			if(slot->EG.volume>>(EG_SHIFT+5)<=slot->EG.DL)
 				slot->EG.state=DECAY2;
 			break;
 		case DECAY2:
@@ -446,6 +450,8 @@ static void SCSP_Init(struct _SCSP *SCSP, const struct SCSPinterface *intf)
 
 	for(i=0;i<0x400;++i)
 	{
+		/* The decay and release stages store attenuation in 3/32 dB steps. */
+		envelope_gain[i] = FIX(pow(10.0, (3.0 * (i - 0x3ff)) / 640.0));
 		float fcent=1200.0*log_base_2((float) ((1024.0+(float)i)/1024.0));
 		fcent=pow(2.0,fcent/1200.0);
 		SCSP->FNS_Table[i]=(float) (1<<SHIFT) *fcent;
@@ -813,19 +819,28 @@ SCSPNAME(_8bit,lfo,alfo,loop)\
 			step=step*PLFO_Step(&(slot->PLFO));\
 			step>>=SHIFT; \
 		}\
-		if(_8bit)\
+		addr = slot->cur_addr >> SHIFT;\
 		{\
-			signed char *p=(signed char *) (slot->base+(slot->cur_addr>>SHIFT));\
-			int s;\
-			signed int fpart=slot->cur_addr&((1<<SHIFT)-1);\
-			s=(int) p[0]*((1<<SHIFT)-fpart)+(int) slot->Prev*fpart;\
-			sample=(s>>SHIFT)<<8;\
-			slot->Prev=p[0];\
-		}\
-		else\
-		{\
-			signed short *p=(signed short *) (slot->base+((slot->cur_addr>>(SHIFT-1))&(~1)));\
-			sample=(p[0]);\
+			UINT32 next = addr + 1;\
+			int fraction = slot->cur_addr & ((1 << SHIFT) - 1);\
+			int p1, p2;\
+			if (next >= LEA(slot))\
+				next = loop == 1 ? LSA(slot) : addr;\
+			if (_8bit)\
+			{\
+				/* PCM bytes share the sound CPU's word-organized RAM. */\
+				UINT32 base = slot->base - SCSP->SCSPRAM;\
+				const INT8 *ram = (const INT8 *)SCSP->SCSPRAM;\
+				p1 = ram[BYTE_XOR_BE(base + addr)] * 256;\
+				p2 = ram[BYTE_XOR_BE(base + next)] * 256;\
+			}\
+			else\
+			{\
+				const INT16 *ram = (const INT16 *)slot->base;\
+				p1 = ram[addr];\
+				p2 = ram[next];\
+			}\
+			sample = p1 + (((p2 - p1) * fraction) >> SHIFT);\
 		}\
 		slot->cur_addr+=step;\
 		addr=slot->cur_addr>>SHIFT;\
@@ -871,7 +886,13 @@ SCSPNAME(_8bit,lfo,alfo,loop)\
 		}\
 		*RBUFDST=sample;\
 		\
-		sample=(sample*EG_Update(slot))>>SHIFT;\
+		{\
+			int attack = slot->EG.state == ATTACK;\
+			int gain = EG_Update(slot);\
+			if (!attack)\
+				gain = envelope_gain[gain >> (SHIFT - 10)];\
+			sample = (sample * gain) >> SHIFT;\
+		}\
 	\
 		*bufl1=*bufl1 + ((sample*SCSP->LPANTABLE[Enc])>>SHIFT);\
 		*bufr1=*bufr1 + ((sample*SCSP->RPANTABLE[Enc])>>SHIFT);\
