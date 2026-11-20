@@ -4,20 +4,12 @@
 
 Atari Triple Hunt Driver
 
-  Calibrate controls in service mode the first time you run this game.
-
-To Do:
- The two 8-Tracks need to be found and recorded.  And then tape emulation
- needs to be added.  1 tape is for Witch Hunt.  The other is used for
- both Bear and Racoon Hunt.
- The 3 different overlays need to be found, scanned and added as artwork
- to really make the game complete.
-
 ***************************************************************************/
 
 #include "driver.h"
 #include "triplhnt.h"
 #include "sound/discrete.h"
+#include "sound/samples.h"
 
 static UINT8 triplhnt_cmos[16];
 static UINT8 triplhnt_da_latch;
@@ -26,10 +18,55 @@ static UINT8 triplhnt_cmos_latch;
 static UINT8 triplhnt_hit_code;
 
 
-static DRIVER_INIT( triplhnt )
+static int triplhnt_cmos_coordinate(int offset)
 {
-	generic_nvram = triplhnt_cmos;
-	generic_nvram_size = sizeof triplhnt_cmos;
+	return ((triplhnt_cmos[offset] & 15) | ((triplhnt_cmos[offset + 1] & 15) << 4)) ^ 0xff;
+}
+
+
+static NVRAM_HANDLER( triplhnt )
+{
+	if (read_or_write)
+		mame_fwrite(file, triplhnt_cmos, sizeof triplhnt_cmos);
+	else if (!file || mame_fread(file, triplhnt_cmos, sizeof triplhnt_cmos) != sizeof triplhnt_cmos)
+		memcpy(triplhnt_cmos, memory_region(REGION_USER1), sizeof triplhnt_cmos);
+	else if (triplhnt_cmos_coordinate(0) >= triplhnt_cmos_coordinate(4) ||
+			triplhnt_cmos_coordinate(2) >= triplhnt_cmos_coordinate(6))
+	{
+		/* The game rejects shots on either axis if its calibration range is empty. */
+		memcpy(triplhnt_cmos, memory_region(REGION_USER1), 8);
+	}
+}
+
+
+static const char *triplhnt_sample_names[] =
+{
+	"*triplhnt",
+	"bear_rac.wav",
+	"witch.wav",
+	0
+};
+
+static const struct Samplesinterface triplhnt_samples_interface =
+{
+	2,
+	triplhnt_sample_names,
+	0
+};
+
+
+static void triplhnt_tape_control(int enabled)
+{
+	int witch = (readinputport(2) & 0xc0) == 0x40;
+	int channel;
+
+	/* Keep both loops loaded so disabling the tape preserves its position. */
+	for (channel = 0; channel < 2; channel++)
+	{
+		if (sample_loaded(channel) && !sample_playing(channel))
+			sample_start(channel, channel, 1);
+		sample_set_pause(channel, !enabled || channel != witch);
+	}
 }
 
 
@@ -43,30 +80,20 @@ void triplhnt_hit_callback(int code)
 
 static void triplhnt_update_misc(int offset)
 {
-	UINT8 bit = offset >> 1;
-
-	/* BIT0 => UNUSED      */
-	/* BIT1 => LAMP        */
-	/* BIT2 => SCREECH     */
-	/* BIT3 => LOCKOUT     */
-	/* BIT4 => SPRITE ZOOM */
-	/* BIT5 => CMOS WRITE  */
-	/* BIT6 => TAPE CTRL   */
-	/* BIT7 => SPRITE BANK */
+	UINT8 mask = 1 << (offset >> 1);
+	UINT8 previous = triplhnt_misc_flags;
 
 	if (offset & 1)
-	{
-		triplhnt_misc_flags |= 1 << bit;
-
-		if (bit == 5)
-		{
-			triplhnt_cmos[triplhnt_cmos_latch] = triplhnt_da_latch;
-		}
-	}
+		triplhnt_misc_flags |= mask;
 	else
-	{
-		triplhnt_misc_flags &= ~(1 << bit);
-	}
+		triplhnt_misc_flags &= ~mask;
+
+	/* The CMOS write strobe acts when the latch output goes high. */
+	if ((~previous & triplhnt_misc_flags) & 0x20)
+		triplhnt_cmos[triplhnt_cmos_latch] = triplhnt_da_latch;
+
+	if ((previous ^ triplhnt_misc_flags) & 0x40)
+		triplhnt_tape_control(triplhnt_misc_flags & 0x40);
 
 	triplhnt_sprite_zoom = (triplhnt_misc_flags >> 4) & 1;
 	triplhnt_sprite_bank = (triplhnt_misc_flags >> 7) & 1;
@@ -114,18 +141,15 @@ READ8_HANDLER( triplhnt_misc_r )
 
 READ8_HANDLER( triplhnt_da_latch_r )
 {
-	int cross_x = readinputport(8);
-	int cross_y = readinputport(9);
-
 	triplhnt_da_latch = offset;
 
-	/* the following is a slight simplification */
-
-	return (offset & 1) ? cross_x : cross_y;
+	/* Keep the analog ports byte-wide and quantize the comparator input here. */
+	return readinputport((offset & 1) ? 8 : 9) & 0xfc;
 }
 
 
 static ADDRESS_MAP_START( triplhnt_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(15) )
 	AM_RANGE(0x0000, 0x00ff) AM_READ(MRA8_RAM) AM_MIRROR(0x300)
 	AM_RANGE(0x0c00, 0x0c00) AM_READ(input_port_0_r)
 	AM_RANGE(0x0c08, 0x0c08) AM_READ(input_port_1_r)
@@ -138,10 +162,10 @@ static ADDRESS_MAP_START( triplhnt_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0c40, 0x0c40) AM_READ(input_port_5_r)
 	AM_RANGE(0x0c48, 0x0c48) AM_READ(input_port_6_r)
 	AM_RANGE(0x7000, 0x7fff) AM_READ(MRA8_ROM) /* program */
-	AM_RANGE(0xf800, 0xffff) AM_READ(MRA8_ROM) /* program mirror */
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( triplhnt_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(15) )
 	AM_RANGE(0x0000, 0x00ff) AM_WRITE(MWA8_RAM) AM_MIRROR(0x300)
 	AM_RANGE(0x0400, 0x04ff) AM_WRITE(MWA8_RAM) AM_BASE(&triplhnt_playfield_ram)
 	AM_RANGE(0x0800, 0x080f) AM_WRITE(MWA8_RAM) AM_BASE(&triplhnt_vpos_ram)
@@ -150,7 +174,6 @@ static ADDRESS_MAP_START( triplhnt_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0830, 0x083f) AM_WRITE(MWA8_RAM) AM_BASE(&triplhnt_code_ram)
 	AM_RANGE(0x0c30, 0x0c3f) AM_WRITE(triplhnt_misc_w)
 	AM_RANGE(0x7000, 0x7fff) AM_WRITE(MWA8_ROM) /* program */
-	AM_RANGE(0xf800, 0xffff) AM_WRITE(MWA8_ROM) /* program mirror */
 ADDRESS_MAP_END
 
 
@@ -188,21 +211,17 @@ INPUT_PORTS_START( triplhnt )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_COIN2 )
 
 	PORT_START /* 0C48 */
-// default to service enabled to make users calibrate gun
-//  PORT_SERVICE( 0x40, IP_ACTIVE_LOW )
-	PORT_BIT(    0x40, 0x00, IPT_DIPSWITCH_NAME ) PORT_NAME( DEF_STR( Service_Mode )) PORT_TOGGLE PORT_CODE(KEYCODE_F2)
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x40, IP_ACTIVE_LOW )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
 
 	PORT_START
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
 
 	PORT_START
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15)
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0x00,0xfc) PORT_SENSITIVITY(25) PORT_KEYDELTA(4)
 
 	PORT_START
-	PORT_BIT( 0xff, 0x78, IPT_LIGHTGUN_Y ) PORT_MINMAX(0x00,0xef) PORT_SENSITIVITY(25) PORT_KEYDELTA(15)
+	PORT_BIT( 0xff, 0x78, IPT_LIGHTGUN_Y ) PORT_MINMAX(0x00,0xec) PORT_SENSITIVITY(25) PORT_KEYDELTA(4)
 
 	PORT_START		/* 10 */
 	PORT_ADJUSTER( 35, "Bear Roar Frequency" )
@@ -319,7 +338,7 @@ static MACHINE_DRIVER_START( triplhnt )
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION((int) ((22. * 1000000) / (262. * 60) + 0.5))
 
-	MDRV_NVRAM_HANDLER(generic_0fill)
+	MDRV_NVRAM_HANDLER(triplhnt)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -330,18 +349,23 @@ static MACHINE_DRIVER_START( triplhnt )
 	MDRV_PALETTE_INIT(triplhnt)
 	MDRV_VIDEO_START(triplhnt)
 	MDRV_VIDEO_UPDATE(triplhnt)
+	MDRV_VIDEO_EOF(triplhnt)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(triplhnt_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+
 	MDRV_SOUND_ADD_TAG("discrete", DISCRETE, 0)
 	MDRV_SOUND_CONFIG(triplhnt_discrete_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.90)
 MACHINE_DRIVER_END
 
 
 ROM_START( triplhnt )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_REGION( 0x8000, REGION_CPU1, 0 )
 	ROM_LOAD_NIB_HIGH( "8404.f1", 0x7000, 0x400, CRC(abc8acd5) SHA1(bcef2abc5829829a01aa21776c3deb2e1bf1d4ac) )
 	ROM_LOAD_NIB_LOW ( "8408.f2", 0x7000, 0x400, CRC(77fcdd3f) SHA1(ce0196abb8d6510aa9a5308f8efd6442e94272c4) )
 	ROM_LOAD_NIB_HIGH( "8403.e1", 0x7400, 0x400, CRC(8d756fa1) SHA1(48a74f710b130d9af0c866483d6fc4ecce4a3ac5) )
@@ -349,9 +373,10 @@ ROM_START( triplhnt )
 	ROM_LOAD_NIB_HIGH( "8402.d1", 0x7800, 0x400, CRC(eb75c936) SHA1(48f9d4113a7ab8413a5aacd44b3506afc99d26ce) )
 	ROM_LOAD_NIB_LOW ( "8406.d2", 0x7800, 0x400, CRC(e7ab1186) SHA1(7185fb837966bfb4aa70be3dd948d44f356b0452) )
 	ROM_LOAD_NIB_HIGH( "8401.c1", 0x7C00, 0x400, CRC(7461b05e) SHA1(16573ae655c306a38ff0f29a3c3285d636907f38) )
-	ROM_RELOAD(                   0xFC00, 0x400 )
 	ROM_LOAD_NIB_LOW ( "8405.c2", 0x7C00, 0x400, CRC(ba370b97) SHA1(5d799ce6ae56c315ff0abedea7ad9204bacc266b) )
-	ROM_RELOAD(                   0xFC00, 0x400 )
+
+	ROM_REGION( 0x10, REGION_USER1, 0 )
+	ROM_LOAD( "74c89.j5", 0x00, 0x10, CRC(1a1a3802) SHA1(e82a1aec083c9cba2f5870ba0c266dc5e8dda3d3) )
 
 	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )  /* sprites */
 	ROM_LOAD( "8423.n1", 0x0000, 0x800, CRC(9937d0da) SHA1(abb906c2d9869b09be5172cc7639bb9cda38831b) )
@@ -363,4 +388,4 @@ ROM_START( triplhnt )
 ROM_END
 
 
-GAME( 1977, triplhnt, 0, triplhnt, triplhnt, triplhnt, 0, "Atari", "Triple Hunt", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // not passing the test screen
+GAME( 1977, triplhnt, 0, triplhnt, triplhnt, 0, 0, "Atari", "Triple Hunt", 0 )

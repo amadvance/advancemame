@@ -87,7 +87,7 @@ const struct discrete_mixer_desc triplhnt_mixer =
 	1e-7,			// C72
 	1e-7,			// C44
 	0,				// vBias not used for resistor network
-	150000
+	245000
 };
 
 /* Nodes - Sounds */

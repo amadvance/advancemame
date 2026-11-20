@@ -25,6 +25,7 @@ extern struct discrete_sound_block triplhnt_discrete_interface[];
 
 VIDEO_START( triplhnt );
 VIDEO_UPDATE( triplhnt );
+VIDEO_EOF( triplhnt );
 
 extern UINT8* triplhnt_playfield_ram;
 extern UINT8* triplhnt_vpos_ram;

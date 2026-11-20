@@ -21,7 +21,9 @@ int triplhnt_sprite_zoom;
 int triplhnt_sprite_bank;
 
 static mame_bitmap* helper;
+static mame_bitmap* collision_bitmap;
 static tilemap* bg_tilemap;
+static int playfield_drawn;
 
 
 static UINT32 get_memory_offset(UINT32 col, UINT32 row, UINT32 num_cols, UINT32 num_rows)
@@ -42,7 +44,9 @@ VIDEO_START( triplhnt )
 {
 	helper = auto_bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height);
 
-	if (helper == NULL)
+	collision_bitmap = auto_bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height);
+
+	if (helper == NULL || collision_bitmap == NULL)
 		return 1;
 
 	bg_tilemap = tilemap_create(get_tile_info, get_memory_offset, 0, 16, 16, 16, 16);
@@ -145,18 +149,31 @@ static void triplhnt_draw_sprites(mame_bitmap* bitmap, const rectangle* cliprect
 }
 
 
+static void triplhnt_draw_playfield(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	tilemap_mark_all_tiles_dirty(bg_tilemap);
+	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
+	triplhnt_draw_sprites(bitmap, cliprect);
+}
+
+
 VIDEO_UPDATE( triplhnt )
 {
-	int cross_x = readinputport(8);
-	int cross_y = readinputport(9);
+	int cross_x = 4 + (readinputport(8) & 0xfc) * 62 / 63;
+	int cross_y = readinputport(9) & 0xfc;
 
-	tilemap_mark_all_tiles_dirty(bg_tilemap);
-
-	tilemap_draw(bitmap, cliprect, bg_tilemap, 0, 0);
-
-	triplhnt_draw_sprites(bitmap, cliprect);
-
+	triplhnt_draw_playfield(bitmap, cliprect);
+	playfield_drawn = 1;
 	draw_crosshair(bitmap, cross_x, cross_y, cliprect, 0);
+}
+
+
+VIDEO_EOF( triplhnt )
+{
+	/* The CPU still receives collision IRQs when the display skips a frame. */
+	if (!playfield_drawn)
+		triplhnt_draw_playfield(collision_bitmap, &Machine->visible_area);
+	playfield_drawn = 0;
 
 	discrete_sound_w(TRIPLHNT_BEAR_ROAR_DATA, triplhnt_playfield_ram[0xfa] & 15);
 	discrete_sound_w(TRIPLHNT_SHOT_DATA, triplhnt_playfield_ram[0xfc] & 15);
