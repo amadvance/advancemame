@@ -247,6 +247,7 @@ UINT32* stv_workram_h;
 static UINT8 stv_backupram[0x8000];
 UINT32* stv_scu;
 static mame_timer *scu_dma_lv2_timer;
+static UINT8 scu_dma_lv0_irq_pending;
 static UINT32* ioga;
 static UINT16* scsp_regs;
 static UINT16* sound_ram;
@@ -497,6 +498,7 @@ static void system_reset()
 {
 	/*Only backup ram and SMPC ram are retained after that this command is issued.*/
 	timer_adjust(scu_dma_lv2_timer, TIME_NEVER, 0, 0);
+	scu_dma_lv0_irq_pending = 0;
 	memset(stv_scu      ,0x00,0x000100);
 	memset(scsp_regs    ,0x00,0x001000);
 	memset(sound_ram    ,0x00,0x080000);
@@ -1233,6 +1235,7 @@ DMA TODO:
 #define DWUP(_lv_)                    (stv_scu[5+(_lv_*8)] & 0x00000100)
 
 #define DMA_STATUS				(stv_scu[31])
+#define DMA0_END_IRQ_MASK		0x0800U
 /*These macros sets the various DMA status flags.*/
 #define D0MV_1	if(!(DMA_STATUS & 0x10))    DMA_STATUS^=0x10
 #define D1MV_1	if(!(DMA_STATUS & 0x100))   DMA_STATUS^=0x100
@@ -1276,8 +1279,8 @@ READ32_HANDLER( stv_scu_r32 )
     else if( offset == 41)
     {
 		logerror("(PC=%08x) IRQ status reg read\n",activecpu_get_pc());
-		/*TODO:for now we're activating everything here,but we need to return the proper active irqs*/
-		return 0xffffffff;
+		/* The other SCU interrupt status bits still use the legacy readback. */
+		return scu_dma_lv0_irq_pending ? 0xffffffff : ~DMA0_END_IRQ_MASK;
 	}
 	else if( offset == 50 )
 	{
@@ -1289,6 +1292,15 @@ READ32_HANDLER( stv_scu_r32 )
     	if(LOG_SCU) logerror("(PC=%08x) SCU reg read at %d = %08x\n",activecpu_get_pc(),offset,stv_scu[offset]);
     	return stv_scu[offset];
    	}
+}
+
+static void scu_dma_lv0_end_irq(void)
+{
+	/* A masked completion remains pending. The sound loader can wait
+	   indefinitely for this IRQ before starting its next DMA transfer. */
+	scu_dma_lv0_irq_pending = (stv_scu[40] & DMA0_END_IRQ_MASK) != 0;
+	if (!scu_dma_lv0_irq_pending)
+		cpunum_set_input_line_and_vector(0, 5, HOLD_LINE, 0x4b);
 }
 
 WRITE32_HANDLER( stv_scu_w32 )
@@ -1493,6 +1505,9 @@ WRITE32_HANDLER( stv_scu_w32 )
 		case 37: if(LOG_SCU) logerror("timer 1 set data = %08x\n",stv_scu[37]); break;
 		case 38: if(LOG_SCU) logerror("timer 1 mode data = %08x\n",stv_scu[38]); break;
 		case 40:
+		if (scu_dma_lv0_irq_pending && !(stv_scu[40] & DMA0_END_IRQ_MASK))
+			scu_dma_lv0_end_irq();
+
 		/*An interrupt is masked when his specific bit is 1.*/
 		/*Are bit 16-bit 31 for External A-Bus irq mask like the status register?*/
 		/*What is 0x00000080 setting?Is it valid?*/
@@ -1525,6 +1540,8 @@ WRITE32_HANDLER( stv_scu_w32 )
 		break;
 		case 41:
 		/*This is r/w by introdon...*/
+		if (!((data | mem_mask) & DMA0_END_IRQ_MASK))
+			scu_dma_lv0_irq_pending = 0;
 		if(LOG_SCU) logerror("IRQ status reg set:%08x\n",stv_scu[41]);
 		break;
 		case 42: if(LOG_SCU) logerror("A-Bus IRQ ACK %08x\n",stv_scu[42]); break;
@@ -1633,8 +1650,7 @@ static void dma_direct_lv0()
 	if(!(DWUP(0))) scu_dst_0 = tmp_dst;
 
 	if(LOG_SCU) logerror("DMA transfer END\n");
-	if(!(stv_scu[40] & 0x800))/*Lv 0 DMA end irq*/
-		cpunum_set_input_line_and_vector(0, 5, HOLD_LINE , 0x4b);
+	scu_dma_lv0_end_irq();
 
 	if(scu_add_tmp & 0x80000000)
 	{
@@ -1937,8 +1953,7 @@ static void dma_indirect_lv0()
 
 	}while(job_done == 0);
 
-	if(!(stv_scu[40] & 0x800))/*Lv 0 DMA end irq*/
-		cpunum_set_input_line_and_vector(0, 5, HOLD_LINE , 0x4b);
+	scu_dma_lv0_end_irq();
 
 	D0MV_0;
 }
@@ -2952,6 +2967,7 @@ MACHINE_RESET( stv )
 {
 	stv_5881_reset();
 	timer_adjust(scu_dma_lv2_timer, TIME_NEVER, 0, 0);
+	scu_dma_lv0_irq_pending = 0;
 	DMA_STATUS = 0;
 	stv_counter_select = stv_ioga_mode = 0;
 	memset(stv_counter_base, 0, sizeof(stv_counter_base));
