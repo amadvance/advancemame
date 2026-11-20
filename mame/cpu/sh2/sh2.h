@@ -57,6 +57,7 @@ enum
 
 #define SH2_CONFIG_SLAVE 1
 #define SH2_CONFIG_PROGRAM_PERIPHERALS 2
+#define SH2_CONFIG_FRT_DIV128_AS_DIV8 4
 
 struct sh2_config
 {

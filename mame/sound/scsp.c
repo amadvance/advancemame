@@ -303,14 +303,6 @@ static int Get_DR(struct _SCSP *SCSP,int base,int R)
 	return SCSP->DRTABLE[Rate];
 }
 
-static int Get_RR(struct _SCSP *SCSP,int base,int R)
-{
-	int Rate=base+(R<<1);
-	if(Rate>63)	Rate=63;
-	if(Rate<0) Rate=0;
-	return SCSP->ARTABLE[63-Rate];
-}
-
 static void Compute_EG(struct _SCSP *SCSP,struct _SLOT *slot)
 {
 	int octave=OCT(slot);
@@ -325,7 +317,7 @@ static void Compute_EG(struct _SCSP *SCSP,struct _SLOT *slot)
 	slot->EG.AR=Get_AR(SCSP,rate,AR(slot));
 	slot->EG.D1R=Get_DR(SCSP,rate,D1R(slot));
 	slot->EG.D2R=Get_DR(SCSP,rate,D2R(slot));
-	slot->EG.RR=Get_RR(SCSP,rate,RR(slot));
+	slot->EG.RR=Get_DR(SCSP,rate,RR(slot));
 	slot->EG.DL=0x1f-DL(slot);
 	slot->EG.EGHOLD=EGHOLD(slot);
 }
@@ -414,7 +406,11 @@ static void SCSP_StartSlot(struct _SCSP *SCSP, struct _SLOT *slot)
 
 static void SCSP_StopSlot(struct _SLOT *slot,int keyoff)
 {
-	slot->active=0;
+	/* Key-off releases the envelope while the sample keeps playing. */
+	if (keyoff)
+		slot->EG.state=RELEASE;
+	else
+		slot->active=0;
 	slot->udata.data[0]&=~0x800;
 }
 
@@ -566,7 +562,7 @@ static void SCSP_UpdateSlotReg(struct _SCSP *SCSP,int s,int r)
 				{
 					struct _SLOT *s2=SCSP->Slots+sl;
 					{
-						if(KEYONB(s2) && !s2->active)
+						if(KEYONB(s2) && (!s2->active || s2->EG.state == RELEASE))
 						{
 							SCSP_StartSlot(SCSP, s2);
 						}
@@ -585,7 +581,7 @@ static void SCSP_UpdateSlotReg(struct _SCSP *SCSP,int s,int r)
 			break;
 		case 0xA:
 		case 0xB:
-			slot->EG.RR=Get_RR(SCSP,0,RR(slot));
+			slot->EG.RR=Get_DR(SCSP,0,RR(slot));
 			slot->EG.DL=0x1f-DL(slot);
 			break;
 		case 0x12:

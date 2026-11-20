@@ -2757,6 +2757,69 @@ static void stv_vdp2_drawgfx_rgb555( mame_bitmap *dest_bmp, unsigned int code, i
 
 }
 
+static void stv_vdp2_get_window_line(int window, int y, UINT16 *start, UINT16 *end);
+
+static void stv_vdp2_draw_4bpp_bitmap(mame_bitmap *bitmap, const rectangle *cliprect,
+		int width, int height)
+{
+	const UINT8 *vram = stv_vdp2_gfx_decode;
+	const UINT32 vram_mask = STV_VDP2_VRAMSZ ? 0xfffff : 0x7ffff;
+	const UINT32 base = stv2_current_tilemap.bitmap_map * 0x20000;
+	const int control = stv2_current_tilemap.window_control;
+	const int windows = control & 6;
+	const int opaque = stv2_current_tilemap.transparency == TRANSPARENCY_NONE;
+	const int blend = stv2_current_tilemap.colour_calculation_enabled;
+	const int xmask = stv2_current_tilemap.linescroll_enable ? 1023 : width - 1;
+	const int ymask = stv2_current_tilemap.vertical_linescroll_enable ? 511 : height - 1;
+	int palette = ((stv2_current_tilemap.bitmap_palette_number +
+			stv2_current_tilemap.colour_ram_address_offset) & 7) * 0x100;
+	int y;
+
+	if (stv2_current_tilemap.fade_control & 1)
+		palette += (stv2_current_tilemap.fade_control & 2) ? 4096 : 2048;
+
+	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
+	{
+		UINT16 *dest = (UINT16 *)bitmap->line[y];
+		UINT16 start[2] = { 0, 0 }, end[2] = { 0, 0 };
+		const UINT32 row = base + ((y + stv2_current_tilemap.scrolly) & ymask) * (width / 2);
+		int x;
+
+		if (control & 2)
+			stv_vdp2_get_window_line(0, y, &start[0], &end[0]);
+		if (control & 4)
+			stv_vdp2_get_window_line(1, y, &start[1], &end[1]);
+
+		for (x = cliprect->min_x; x <= cliprect->max_x; x++)
+		{
+			int source_x, pen;
+			UINT16 color;
+
+			if (windows)
+			{
+				int w0 = ((x >= start[0] && x <= end[0]) == !!(control & 0x10));
+				int w1 = ((x >= start[1] && x <= end[1]) == !!(control & 0x20));
+
+				int visible = windows == 6 ? (control & 1 ? w0 || w1 : w0 && w1) :
+						(windows == 2 ? w0 : w1);
+
+				if (!visible)
+					continue;
+			}
+
+			/* Wrap each source coordinate before forming the VRAM address. */
+			source_x = (x + stv2_current_tilemap.scrollx) & xmask;
+			pen = vram[(row + source_x / 2) & vram_mask];
+			pen = (pen >> ((source_x & 1) ? 0 : 4)) & 0xf;
+			if (!pen && !opaque)
+				continue;
+
+			color = Machine->pens[palette + pen];
+			dest[x] = blend ? alpha_blend16(dest[x], color) : color;
+		}
+	}
+}
+
 static void stv_vdp2_draw_basic_bitmap(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 //  if(LOG_VDP2) logerror ("bitmap enable %02x size %08x depth %08x\n", stv2_current_tilemap.layer_name, stv2_current_tilemap.bitmap_size, stv2_current_tilemap.colour_depth);
@@ -2790,16 +2853,19 @@ static void stv_vdp2_draw_basic_bitmap(mame_bitmap *bitmap, const rectangle *cli
 	xsizemask = xsize - 1;
 	ysizemask = ysize - 1;
 
+	if (stv2_current_tilemap.colour_depth == 0)
+	{
+		stv_vdp2_draw_4bpp_bitmap(bitmap, cliprect, xsize, ysize);
+		return;
+	}
+
 	switch( stv2_current_tilemap.colour_depth )
 	{
-		case 0: xlinesize = xsize / 2; xpixelsize = 0; break;
 		case 1: xlinesize = xsize; xpixelsize = 1; break;
 		case 2: case 3: xlinesize = xsize * 2; xpixelsize = 2; break;
 		case 4: xlinesize = xsize * 4; xpixelsize = 4; break;
 	}
 
-	if(stv2_current_tilemap.colour_depth == 0)
-		stv2_current_tilemap.scrollx /= 2;
 	if(stv2_current_tilemap.colour_depth == 2 || stv2_current_tilemap.colour_depth == 3)
 		stv2_current_tilemap.scrollx*=2;
 	if(stv2_current_tilemap.colour_depth == 4)
@@ -2828,42 +2894,6 @@ static void stv_vdp2_draw_basic_bitmap(mame_bitmap *bitmap, const rectangle *cli
 	switch(stv2_current_tilemap.colour_depth)
 	{
 		/*Palette Format*/
-		case 0:
-			for (ycnt = 0; ycnt <ysize;ycnt++)
-			{
-				for (xcnt = 0; xcnt <xsize;xcnt+=2)
-				{
-					tw = stv_vdp2_window_process(xcnt+1,ycnt);
-					if(tw == 0)
-					{
-						t_pen = (((gfxdata[0] & 0x0f) >> 0) != 0) ? (1) : (0);
-						if(stv2_current_tilemap.transparency == TRANSPARENCY_NONE) t_pen = 1;
-						if(t_pen)
-						{
-							if ( stv2_current_tilemap.colour_calculation_enabled == 0 )
-								plot_pixel(bitmap,xcnt+1,ycnt,Machine->pens[((gfxdata[0] & 0x0f) >> 0) | (stv2_current_tilemap.bitmap_palette_number * 0x100) | pal_color_offset]);
-							else
-								((UINT16*)bitmap->line[ycnt])[xcnt+1] = alpha_blend16(((UINT16*)bitmap->line[ycnt])[xcnt+1], Machine->pens[((gfxdata[0] & 0x0f) >> 0) | (stv2_current_tilemap.bitmap_palette_number * 0x100) | pal_color_offset]);
-						}
-					}
-					tw = stv_vdp2_window_process(xcnt,ycnt);
-					if(tw == 0)
-					{
-						t_pen = (((gfxdata[0] & 0xf0) >> 4) != 0) ? (1) : (0);
-						if(stv2_current_tilemap.transparency == TRANSPARENCY_NONE) t_pen = 1;
-						if(t_pen)
-						{
-							if ( stv2_current_tilemap.colour_calculation_enabled == 0 )
-								plot_pixel(bitmap,xcnt,ycnt,Machine->pens[((gfxdata[0] & 0xf0) >> 4) | (stv2_current_tilemap.bitmap_palette_number * 0x100) | pal_color_offset]);
-							else
-								((UINT16*)bitmap->line[ycnt])[xcnt] = alpha_blend16(((UINT16*)bitmap->line[ycnt])[xcnt], Machine->pens[((gfxdata[0] & 0x0f) >> 0) | (stv2_current_tilemap.bitmap_palette_number * 0x100) | pal_color_offset]);
-						}
-					}
-					gfxdata++;
-					if ( gfxdata >= gfxdatahigh ) gfxdata = gfxdatalow;
-				}
-			}
-			break;
 		case 1:
 			if ( stv2_current_tilemap.incx == 0x10000 && stv2_current_tilemap.incy == 0x10000 )
 			{
@@ -3811,7 +3841,9 @@ static void stv_vdp2_check_tilemap(mame_bitmap *bitmap, const rectangle *cliprec
 	mycliprect.min_y = cliprect->min_y;
 	mycliprect.max_y = cliprect->max_y;
 
-	window_applied = stv_vdp2_apply_window_on_layer(&mycliprect);
+	/* The 4-bit bitmap renderer applies line windows in screen coordinates. */
+	if (!stv2_current_tilemap.bitmap_enable || stv2_current_tilemap.colour_depth != 0)
+		window_applied = stv_vdp2_apply_window_on_layer(&mycliprect);
 
 	if (stv2_current_tilemap.bitmap_enable) // this layer is a bitmap
 	{
@@ -3840,7 +3872,7 @@ static void stv_vdp2_check_tilemap(mame_bitmap *bitmap, const rectangle *cliprec
 static void stv_vdp2_get_window0_coordinates(UINT16 *s_x, UINT16 *e_x, UINT16 *s_y, UINT16 *e_y);
 static void stv_vdp2_get_window1_coordinates(UINT16 *s_x, UINT16 *e_x, UINT16 *s_y, UINT16 *e_y);
 
-static void stv_vdp2_rotation_window_line(int window, int y, UINT16 *start, UINT16 *end)
+static void stv_vdp2_get_window_line(int window, int y, UINT16 *start, UINT16 *end)
 {
 	UINT16 top, bottom;
 	UINT32 table = stv_vdp2_regs[0x0d8 / 4 + window];
@@ -4024,9 +4056,9 @@ static void stv_vdp2_copy_roz_bitmap(mame_bitmap *bitmap,
 
 		/* The parameter window splits the screen between two independently transformed maps. */
 		if (rotation_window & 0x02)
-			stv_vdp2_rotation_window_line(0, vcnt, &window_start[0], &window_end[0]);
+			stv_vdp2_get_window_line(0, vcnt, &window_start[0], &window_end[0]);
 		if (rotation_window & 0x08)
-			stv_vdp2_rotation_window_line(1, vcnt, &window_start[1], &window_end[1]);
+			stv_vdp2_get_window_line(1, vcnt, &window_start[1], &window_end[1]);
 
 		/*xsp = RP.A * ( ( RP.xst + RP.dxst * (vcnt << 16) ) - RP.px ) +
               RP.B * ( ( RP.yst + RP.dyst * (vcnt << 16) ) - RP.py ) +

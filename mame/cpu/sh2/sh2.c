@@ -137,6 +137,7 @@ typedef struct
 	UINT16 	frc;
 	UINT16 	ocra, ocrb, icr;
 	UINT32 	frc_base;
+	const UINT8 *frt_shift;
 
 	int		frt_input;
 	int 	internal_irq_level;
@@ -170,10 +171,9 @@ static SH2 *sh2p = &sh2_boot;
 /* a store over translated code flushes the recompiler's cache */
 #define SH2JIT_STORE(A, size)	do { if (sh2_jit_code_present) sh2_jit_ram_written((A) & AM, size); } while (0)
 
-// Atrocious hack that makes the soldivid music correct
-
-//static const int div_tab[4] = { 3, 5, 7, 0 };
-static const int div_tab[4] = { 3, 5, 3, 0 };
+/* TCR selects the internal clock divided by 8, 32 or 128, or an external clock. */
+static const UINT8 frt_shift[4] = { 3, 5, 7, 0 };
+static const UINT8 frt_shift_div128_as_div8[4] = { 3, 5, 3, 0 };
 
 enum {
 	ICF  = 0x00800000,
@@ -2379,6 +2379,7 @@ static void sh2_reset(void)
 	UINT32 *m;
 	int cpunum;
 	int save_is_slave, save_program_peripherals;
+	const UINT8 *save_frt_shift = sh2.frt_shift;
 
 	void (*f)(UINT32 data);
 	int (*save_irqcallback)(int);
@@ -2396,6 +2397,7 @@ static void sh2_reset(void)
 	memset(&sh2, 0, sizeof(SH2));
 	sh2.is_slave = save_is_slave;
 	sh2.program_peripherals = save_program_peripherals;
+	sh2.frt_shift = save_frt_shift;
 	sh2.ftcsr_read_callback = f;
 	sh2.irq_callback = save_irqcallback;
 
@@ -2465,7 +2467,7 @@ static void sh2_set_context(void *src)
 
 static void sh2_timer_resync(void)
 {
-	int divider = div_tab[(sh2.m[5] >> 8) & 3];
+	int divider = sh2.frt_shift[(sh2.m[5] >> 8) & 3];
 	UINT32 cur_time = cpunum_gettotalcycles(sh2.cpu_number);
 
 	if(divider)
@@ -2500,7 +2502,7 @@ static void sh2_timer_activate(void)
 	}
 
 	if(max_delta != 0xfffff) {
-		int divider = div_tab[(sh2.m[5] >> 8) & 3];
+		int divider = sh2.frt_shift[(sh2.m[5] >> 8) & 3];
 		if(divider) {
 			max_delta <<= divider;
 			sh2.frc_base = cpunum_gettotalcycles(sh2.cpu_number);
@@ -3025,6 +3027,8 @@ static void sh2_init(int index, int clock, const void *config, int (*irqcallback
 
 	sh2.is_slave = conf && (conf->flags & SH2_CONFIG_SLAVE);
 	sh2.program_peripherals = conf && (conf->flags & SH2_CONFIG_PROGRAM_PERIPHERALS);
+	sh2.frt_shift = conf && (conf->flags & SH2_CONFIG_FRT_DIV128_AS_DIV8) ?
+		frt_shift_div128_as_div8 : frt_shift;
 	sh2.cpu_number = index;
 	sh2.irq_callback = irqcallback;
 

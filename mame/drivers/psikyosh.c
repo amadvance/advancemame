@@ -623,6 +623,15 @@ static MACHINE_DRIVER_START( psikyo3v1 )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
+/* Preserve the existing music timing workaround for Sol Divide. */
+static struct sh2_config soldivid_sh2_config = { SH2_CONFIG_FRT_DIV128_AS_DIV8 };
+
+static MACHINE_DRIVER_START( soldivid )
+	MDRV_IMPORT_FROM(psikyo3v1)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_CONFIG(soldivid_sh2_config)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( psikyo5 )
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(psikyo3v1)
@@ -1375,7 +1384,7 @@ static DRIVER_INIT( tgm2p )
 /*     YEAR  NAME      PARENT    MACHINE    INPUT     INIT      MONITOR COMPANY   FULLNAME FLAGS */
 
 /* ps3-v1 */
-GAME( 1997, soldivid, 0,        psikyo3v1,   soldivid, soldivid, ROT0,   "Psikyo", "Sol Divide - The Sword Of Darkness", GAME_IMPERFECT_SOUND ) // Music Tempo
+GAME( 1997, soldivid, 0,        soldivid,    soldivid, soldivid, ROT0,   "Psikyo", "Sol Divide - The Sword Of Darkness", GAME_IMPERFECT_SOUND ) // Music Tempo
 GAME( 1997, s1945ii,  0,        psikyo3v1,   s1945ii,  s1945ii,  ROT270, "Psikyo", "Strikers 1945 II", GAME_IMPERFECT_GRAPHICS ) // linescroll/zoom
 GAME( 1998, daraku,   0,        psikyo3v1,   daraku,   daraku,   ROT0,   "Psikyo", "Daraku Tenshi - The Fallen Angels", 0 )
 GAME( 1998, sbomber,  0,        psikyo3v1,   sbomberb, sbomberb, ROT270, "Psikyo", "Space Bomber (ver. B)", 0 )
