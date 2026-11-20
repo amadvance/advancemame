@@ -561,6 +561,18 @@ GollyGhostUpdateDiorama_c0( int data )
 	}
 }
 
+static void
+BubbleTroubleUpdateDiorama_c0( int data )
+{
+	/* The backlight gates visibility of every moving part. */
+	int lit = data & 0x80;
+	artwork_show("backlight", lit);
+	artwork_show("shell",     lit && (data & 0x01));
+	artwork_show("trapdoor",  lit && (data & 0x02));
+	artwork_show("ship",      lit && (data & 0x04));
+	artwork_show("chest",     lit && (data & 0x08));
+}
+
 static READ16_HANDLER( namcos2_68k_dpram_word_r )
 {
 	return namcos2_dpram[offset];
@@ -572,11 +584,17 @@ static WRITE16_HANDLER( namcos2_68k_dpram_word_w )
 	{
 		namcos2_dpram[offset] = data&0xff;
 
-		if( namcos2_gametype==NAMCOS2_GOLLY_GHOST )
+		if( namcos2_gametype==NAMCOS2_GOLLY_GHOST ||
+			namcos2_gametype==NAMCOS2_BUBBLE_TROUBLE )
 		{
 			switch( offset )
 			{
-			case 0xc0/2: GollyGhostUpdateDiorama_c0(data); break;
+			case 0xc0/2:
+				if( namcos2_gametype==NAMCOS2_BUBBLE_TROUBLE )
+					BubbleTroubleUpdateDiorama_c0(data);
+				else
+					GollyGhostUpdateDiorama_c0(data);
+				break;
 			case 0xc2/2: break; /* unknown; 0x00 or 0x01 - probably lights up guns */
 			case 0xc4/2: GollyGhostUpdateLED_c4(data); break;
 			case 0xc6/2: GollyGhostUpdateLED_c6(data); break;
@@ -1144,22 +1162,22 @@ INPUT_PORTS_START( fourtrax )
 	PORT_BIT(0x40, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME("Service Button") PORT_CODE(KEYCODE_F1)
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
 
-	PORT_START_TAG("AN02")		/* 63B05Z0 - 8 CHANNEL ANALOG - CHANNEL 0 2 */
+	PORT_START_TAG("AN0")
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_START_TAG("AN13")		/* 63B05Z0 - 8 CHANNEL ANALOG - CHANNEL 1 3 */
+	PORT_START_TAG("AN1")
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_START_TAG("AN24")		/* 63B05Z0 - 8 CHANNEL ANALOG - CHANNEL 2 4 */
+	PORT_START_TAG("AN2")
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_START_TAG("AN35")		/* 63B05Z0 - 8 CHANNEL ANALOG - CHANNEL 3 5 */
+	PORT_START_TAG("AN3")
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_START_TAG("AN46")		/* 63B05Z0 - 8 CHANNEL ANALOG - CHANNEL 4 6 */
+	PORT_START_TAG("AN4")
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
-	PORT_START_TAG("AN7")		/* Steering Wheel 7 */		/* sensitivity, delta, min, max */
-	PORT_BIT( 0xff, 0x7f, IPT_DIAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(75) PORT_KEYDELTA(100) PORT_PLAYER(1)
-	PORT_START_TAG("AN8")		/* Brake Pedal 8 */
-	PORT_BIT( 0xff, 0xff, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(30) PORT_PLAYER(2)
-	PORT_START_TAG("AN9")		/* Accelerator Pedal 9 */
-	PORT_BIT( 0xff, 0xff, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(15) PORT_PLAYER(1)
+	PORT_START_TAG("AN5")		/* Steering Wheel */
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x01,0xff) PORT_SENSITIVITY(75) PORT_KEYDELTA(50)
+	PORT_START_TAG("AN6")		/* Brake Pedal */
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0x40) PORT_SENSITIVITY(100) PORT_KEYDELTA(15)
+	PORT_START_TAG("AN7")		/* Accelerator Pedal */
+	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0x80) PORT_SENSITIVITY(100) PORT_KEYDELTA(15)
 
 	PORT_START_TAG("MCUH")		/* 63B05Z0 - PORT H */
 	PORT_DIPNAME( 0x01, 0x01, "PortH 0x01")
@@ -4354,15 +4372,15 @@ ROM_END
 /* BUBBLE TROUBLE */
 ROM_START( bubbletr )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 ) /* Master CPU */
-	ROM_LOAD16_BYTE( "bt1-mpr0c.bin",	0x000000, 0x020000, CRC(64eb3496) SHA1(30cdc116e350270f0303e5d9dddf6c3c8bccbc04) )
-	ROM_LOAD16_BYTE( "bt1-mpr1c.bin",	0x000001, 0x020000, CRC(26785bce) SHA1(ce83a3f2a8adc1a9c3fd9e677565a649a8168801) )
+	ROM_LOAD16_BYTE( "bt2-mpr0b.bin",	0x000000, 0x020000, CRC(26fbfce3) SHA1(532a8bc7f961ddb0ba2af5a6912a4898f84b144d) )
+	ROM_LOAD16_BYTE( "bt2-mpr1b.bin",	0x000001, 0x020000, CRC(21f42ab2) SHA1(c563ff6b81d036c9044125c45b1cf4da0f5495d9) )
 
 	ROM_REGION( 0x040000, REGION_CPU2, 0 ) /* Slave CPU */
-	ROM_LOAD16_BYTE( "bt1-spr0.bin",	0x000000, 0x010000, CRC(b507b00a) SHA1(e7dcb36accf91e8b5b5321e65e6fd6bca7c6dce2) )
-	ROM_LOAD16_BYTE( "bt1-spr1.bin",	0x000001, 0x010000, CRC(4f35540f) SHA1(519510de81e566ed74b80987860778201f6ac785) )
+	ROM_LOAD16_BYTE( "bt1-spr0.11k",	0x000000, 0x010000, CRC(b507b00a) SHA1(e7dcb36accf91e8b5b5321e65e6fd6bca7c6dce2) )
+	ROM_LOAD16_BYTE( "bt1-spr1.13k",	0x000001, 0x010000, CRC(4f35540f) SHA1(519510de81e566ed74b80987860778201f6ac785) )
 
 	ROM_REGION( 0x030000, REGION_CPU3, 0 ) /* Sound CPU (Banked) */
-	ROM_LOAD( "bt1-snd0.bin",  0x00c000, 0x004000, CRC(46a5c625) SHA1(ccc7098f76a0bc39c9fe578d575e6002eca172b5) )
+	ROM_LOAD( "bt1-snd0.7j",  0x00c000, 0x004000, CRC(46a5c625) SHA1(ccc7098f76a0bc39c9fe578d575e6002eca172b5) )
 	ROM_CONTINUE(  0x010000, 0x01c000 )
 	ROM_RELOAD(   0x010000, 0x020000 )
 
@@ -4371,29 +4389,32 @@ ROM_START( bubbletr )
 	ROM_LOAD( "bt1edr0a.ic7", 0x8000, 0x8000, CRC(155b02fc) SHA1(191683c19f756ac150b8e037f46a6daca1a082fa) )
 
 	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE ) /* Sprites */
-	ROM_LOAD( "bt1-obj0.bin",  0x000000, 0x80000, CRC(16b5dc04) SHA1(57cc4b7907442f922102fbd61e470c149f0379ac) )
-	ROM_LOAD( "bt1-obj1.bin",  0x080000, 0x80000, CRC(ae37a969) SHA1(524a8ef68a62f9168d356e6cd37a72a888ced202) )
-	ROM_LOAD( "bt1-obj2.bin",  0x100000, 0x80000, NO_DUMP ) // missing?
-	ROM_LOAD( "bt1-obj3.bin",  0x180000, 0x80000, CRC(7fb23c05) SHA1(da97c595a3338021c1bc46f9668e1ec6c7985cea) )
+	ROM_LOAD( "bt1-obj0.5b",  0x000000, 0x80000, CRC(16b5dc04) SHA1(57cc4b7907442f922102fbd61e470c149f0379ac) )
+	ROM_LOAD( "bt1-obj1.4b",  0x080000, 0x80000, CRC(ae37a969) SHA1(524a8ef68a62f9168d356e6cd37a72a888ced202) )
+	ROM_LOAD( "bt1-obj2.5d",  0x100000, 0x80000, CRC(75f74871) SHA1(75c47a2132e21a2d82000bca137929bffecc96ef) )
+	ROM_LOAD( "bt1-obj3.4d",  0x180000, 0x80000, CRC(7fb23c05) SHA1(da97c595a3338021c1bc46f9668e1ec6c7985cea) )
 
 	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE ) /* Tiles */
-	ROM_LOAD( "bt1-chr0.bin",  0x00000, 0x80000,  CRC(11574c30) SHA1(6e85dd1448961b89a13e8cf905b24a69d182edd8) )
-	/* no chr1, chr2 missing or just not needed? probably just not needed as I see no tile glitches */
+	ROM_LOAD( "bt1-chr0.11n",  0x00000, 0x80000,  CRC(11574c30) SHA1(6e85dd1448961b89a13e8cf905b24a69d182edd8) )
 
 	ROM_REGION( 0x400000, REGION_GFX3, ROMREGION_ERASEFF ) /* ROZ Tiles */
 	/* All ROZ ROM sockets unpopulated on PCB */
 
 	ROM_REGION( 0x080000, REGION_GFX4, 0 ) /* Mask shape */
-	ROM_LOAD( "bt1-sha0.bin",	0x000000, 0x80000, CRC(dc4664df) SHA1(59818b14e74ee9b15a66e850658e4697d78b28d9) )
+	ROM_LOAD( "bt1-sha0.7n",	0x000000, 0x80000, CRC(dc4664df) SHA1(59818b14e74ee9b15a66e850658e4697d78b28d9) )
 
 	ROM_REGION16_BE( 0x200000, REGION_USER1, ROMREGION_ERASEFF ) /* Shared data roms */
-	/* All DAT ROM sockets unpopulated on PCB */
+	NAMCOS2_DATA_LOAD_E_128K( "bt1_dat0.13s",  0x000000, CRC(1001a14e) SHA1(7017a33f0447fb6013d4e246dcdfcd064af87812) )
+	NAMCOS2_DATA_LOAD_O_128K( "bt1_dat1.13p",  0x000000, CRC(7de6a839) SHA1(e6a3fd5b789dc061ec504570984cf61a6af7818f) )
 
 	ROM_REGION16_BE( 0x2000, REGION_USER2, 0 ) /* sprite zoom */
-	ROM_LOAD( "04544191.6n",  0x000000, 0x002000, CRC(90db1bf6) SHA1(dbb9e50a8efc3b4012fcf587cc87da9ef42a1b80) ) // not in this set..
+	ROM_LOAD( "04544191.6n",  0x000000, 0x002000, CRC(90db1bf6) SHA1(dbb9e50a8efc3b4012fcf587cc87da9ef42a1b80) )
 
 	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* Sound voices */
-	ROM_LOAD( "bt1-voi1.bin",  0x000000, 0x080000,  CRC(08b3a089) SHA1(5023c2c0d0a94f0a2f98605d9b93d2d6ce626aa8) )
+	ROM_LOAD( "bt1-voi1.3m",  0x000000, 0x080000,  CRC(08b3a089) SHA1(5023c2c0d0a94f0a2f98605d9b93d2d6ce626aa8) )
+
+	ROM_REGION( 0x2000, REGION_USER4, 0 ) /* Factory EEPROM */
+	ROM_LOAD( "bubbletr.nv",  0x000000, 0x2000, CRC(75ace624) SHA1(1acd2af0c825e50c542db975e1fbda8cbb009f1d) )
 ROM_END
 
 /* LUCKY & WILD */
@@ -4732,7 +4753,7 @@ DRIVER_INIT( luckywld ){
 /* and metal hawk have the B version and dragon saber has the C version       */
 
 /*    YEAR, NAME,     PARENT,   MACHINE,  INPUT,    INIT,     MONITOR, COMPANY, FULLNAME */
-GAME( 1987, finallap, 0,        finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev E)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
+GAME( 1987, finallap, 0,        finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev E)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1987, finalapd, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev D)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
 GAME( 1987, finalapc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev C)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
 GAME( 1987, finlapjc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Japan - Rev C)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
@@ -4747,7 +4768,7 @@ GAME( 1988, ordynej,  ordyne,   default,  default,  ordyne,   ROT180, "Namco", "
 GAME( 1988, mirninja, 0,        default,  default,  mirninja, ROT0,   "Namco", "Mirai Ninja (Japan)", 0 )
 GAME( 1988, phelios,  0,        default2, default,  phelios , ROT90,  "Namco", "Phelios (Japan)" , 0)	/* adjusted */
 GAME( 1989, dirtfoxj, 0,        default2, dirtfox,  dirtfoxj, ROT90,  "Namco", "Dirt Fox (Japan)" , 0)	/* adjusted */
-GAME( 1989, fourtrax, 0,        finallap, fourtrax, fourtrax, ROT0,   "Namco", "Four Trax", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )  // control goes only on the right?
+GAME( 1989, fourtrax, 0,        finallap, fourtrax, fourtrax, ROT0,   "Namco", "Four Trax (World)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1989, valkyrie, 0,        default3, default,  valkyrie, ROT90,  "Namco", "Valkyrie No Densetsu (Japan)", 0 )
 GAME( 1989, finehour, 0,        default2, default,  finehour, ROT0,   "Namco", "Finest Hour (Japan)" , 0)		/* adjusted */
 GAME( 1989, burnforc, 0,        default3, default,  burnforc, ROT0,   "Namco", "Burning Force (Japan new version)", 0 )
@@ -4769,7 +4790,7 @@ GAME( 1991, sgunner2, 0,        sgunner,  sgunner,  sgunner2, ROT0,   "Namco", "
 GAME( 1991, sgunnr2j, sgunner2, sgunner,  sgunner,  sgunner2, ROT0,   "Namco", "Steel Gunner 2 (Japan)", 0 )
 GAME( 1991, cosmogng, 0,        default,  default,  cosmogng, ROT90,  "Namco", "Cosmo Gang the Video (US)", 0 )
 GAME( 1991, cosmognj, cosmogng, default,  default,  cosmogng, ROT90,  "Namco", "Cosmo Gang the Video (Japan)", 0 )
-GAME( 1992, bubbletr, 0,        gollygho, gollygho, bubbletr, ROT180, "Namco", "Bubble Trouble",GAME_NOT_WORKING ) // incomplete dump
+GAME( 1992, bubbletr, 0,        gollygho, gollygho, bubbletr, ROT180, "Namco", "Bubble Trouble - Golly! Ghost! 2 (World, Rev B)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, finalap3, 0,        finallap, finalap3, finalap3, ROT0,   "Namco", "Final Lap 3 (World)", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS  )
 GAME( 1992, finalp3j, finalap3, finallap, finalap3, finalap3, ROT0,   "Namco", "Final Lap 3 (Japan)", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS  )
 GAME( 1992, luckywld, 0,        luckywld, luckywld, luckywld, ROT0,   "Namco", "Lucky & Wild", 0 )
