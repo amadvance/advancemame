@@ -1304,6 +1304,12 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 			ci = color->ui_f.f;
 		}
 
+		/* Keep the pedal track neutral so only the fill shows pedal travel. */
+		if (a->kind == MAME_ANALOG_PEDAL) {
+			cb = color->ui_f.b;
+			ci = ui_help_player_indicator(color, a->player);
+		}
+
 		ui_help_analog(flat, item[i].x + (item[i].dx - UI_HELP_ANALOG_SIZE) / 2, item[i].y, a, color->ui_f.f, cb, ci);
 		ui_help_text(flat, item[i].x + (item[i].dx - ui_help_text_size(label[i])) / 2, item[i].y + UI_HELP_ANALOG_SIZE + UI_HELP_LABEL_GAP, label[i], color->ui_f.f);
 	}
