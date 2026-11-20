@@ -309,7 +309,7 @@ DrawSpriteInit( void )
 	gfx_drawmode_table[255] = DRAWMODE_NONE;
 	for( i = 0; i<16*256; i++ )
 	{
-		palette_shadow_table[i] = i+0x2000;
+		palette_shadow_table[i] = i + Machine->drv->total_colors;
 	}
 }
 
@@ -431,15 +431,43 @@ VIDEO_UPDATE( namcos2_default )
 
 /**************************************************************************/
 
+/* The indicator uses two pens beyond the hardware palette. */
+#define FINAL_LAP_GEAR_RED   0x2000
+#define FINAL_LAP_GEAR_GREEN 0x2001
+
 VIDEO_START( finallap )
 {
 	if( namco_tilemap_init(2,memory_region(REGION_GFX4),TilemapCB)==0 )
 	{
 		DrawSpriteInit();
 		namco_road_init(3);
+		palette_set_color(FINAL_LAP_GEAR_RED, 255, 0, 0);
+		palette_set_color(FINAL_LAP_GEAR_GREEN, 0, 255, 0);
 		return 0;
 	}
 	return -1;
+}
+
+static void DrawFinalLapGear(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	/* The gear switch is active low, so a cleared bit selects high gear. */
+	int high = (readinputportbytag("MCUH") & 0x20) == 0;
+	pen_t pen = Machine->pens[high ? FINAL_LAP_GEAR_GREEN : FINAL_LAP_GEAR_RED];
+	int x = Machine->visible_area.max_x - 11;
+	int y = Machine->visible_area.max_y - 17;
+	int bar_y = y + (high ? 6 : 12);
+	rectangle strokes[] = {
+		{ x, x + 2, y, y + 14 },
+		{ x, x + 8, bar_y, bar_y + 2 },
+		{ x + 6, x + 8, y, y + 14 }
+	};
+	int i;
+
+	for (i = 0; i < (high ? 3 : 2); i++)
+	{
+		sect_rect(&strokes[i], cliprect);
+		fillbitmap(bitmap, pen, &strokes[i]);
+	}
 }
 
 VIDEO_UPDATE( finallap )
@@ -460,6 +488,8 @@ VIDEO_UPDATE( finallap )
 		namco_road_draw( bitmap,&clip,pri );
 		namcos2_draw_sprites( bitmap,&clip,pri,namcos2_gfx_ctrl );
 	}
+	if (namcos2_gametype == NAMCOS2_FINAL_LAP)
+		DrawFinalLapGear(bitmap, cliprect);
 } /* finallap */
 
 /**************************************************************************/
