@@ -50,6 +50,8 @@ extern UINT32 msp_speedup_count[4];
 extern UINT32 adsp_speedup_count[4];
 
 /* Driver/Multisync board */
+extern UINT8 hd68k_adc12_raw;
+
 MACHINE_START( harddriv );
 MACHINE_RESET( harddriv );
 

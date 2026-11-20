@@ -994,7 +994,8 @@ static void s12_jvs_message(void)
 			for(i = 0; i < slots; i++)
 			{
 				value = s12_tag_read(i ? "JVS_COIN2" : "JVS_COIN1", 0);
-				if((value & 1) && !s12_jvs_coin_last[i]) s12_jvs_coins[i]++;
+				if((value & 1) && !s12_jvs_coin_last[i])
+					s12_jvs_coins[i] = (s12_jvs_coins[i] + 1) & 0x3fff;
 				s12_jvs_coin_last[i] = value & 1;
 				reply[count++] = ((s12_jvs_coins[i] >> 8) & 0x3f) | (value & 0xc0);
 				reply[count++] = s12_jvs_coins[i];
@@ -1015,12 +1016,21 @@ static void s12_jvs_message(void)
 			}
 			break;
 		case 0x30:
-		case 0x31:
+		case 0x35:
 			if(pos + 3 > end) return;
-			slots = s12_jvs_tx[pos++];
+			/* JVS numbers coin slots from 1. Debiting the wrong slot leaves
+			   the credit pending and the game processes it again. */
+			slots = s12_jvs_tx[pos++] - 1;
 			value = (s12_jvs_tx[pos] << 8) | s12_jvs_tx[pos + 1]; pos += 2;
-			if(slots > 1) return;
-			s12_jvs_coins[slots] += command == 0x30 ? -value : value;
+			if(printer || slots < 0 || slots >= 2)
+			{
+				reply[count++] = 3;
+				break;
+			}
+			if(command == 0x30)
+				s12_jvs_coins[slots] = s12_jvs_coins[slots] < value ? 0 : s12_jvs_coins[slots] - value;
+			else
+				s12_jvs_coins[slots] = (s12_jvs_coins[slots] + value) & 0x3fff;
 			reply[count++] = 1;
 			break;
 		case 0x32:
@@ -2019,11 +2029,12 @@ INPUT_PORTS_START(technodr)
 	PORT_START_TAG("JVS_ANALOG_INPUT1")
 	PORT_BIT(0xffff, 0x5e00, IPT_PADDLE) PORT_MINMAX(0x1600, 0xa600) PORT_SENSITIVITY(100) PORT_KEYDELTA(1280) PORT_NAME("Steering Wheel") PORT_REVERSE
 
+	/* The legacy pedal scaler uses the minimum as the base for reversed pedals. */
 	PORT_START_TAG("JVS_ANALOG_INPUT2")
-	PORT_BIT(0xffff, 0x5e00, IPT_PEDAL2) PORT_MINMAX(0x3e00, 0x7e00) PORT_SENSITIVITY(100) PORT_KEYDELTA(1280) PORT_NAME("Brake Pedal") PORT_REVERSE
+	PORT_BIT(0xffff, 0x3e00, IPT_PEDAL2) PORT_MINMAX(0x3e00, 0x7e00) PORT_SENSITIVITY(100) PORT_KEYDELTA(1280) PORT_NAME("Brake Pedal") PORT_REVERSE
 
 	PORT_START_TAG("JVS_ANALOG_INPUT3")
-	PORT_BIT(0xffff, 0x9a00, IPT_PEDAL) PORT_MINMAX(0x4680, 0xed80) PORT_SENSITIVITY(100) PORT_KEYDELTA(2560) PORT_NAME("Gas Pedal") PORT_REVERSE
+	PORT_BIT(0xffff, 0x4680, IPT_PEDAL) PORT_MINMAX(0x4680, 0xed80) PORT_SENSITIVITY(100) PORT_KEYDELTA(2560) PORT_NAME("Gas Pedal") PORT_REVERSE
 INPUT_PORTS_END
 
 INPUT_PORTS_START(truckk)

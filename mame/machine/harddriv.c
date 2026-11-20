@@ -145,6 +145,7 @@ static void ds3_sound_reset(void);
 static UINT16 adc_control;
 static UINT8 adc8_select;
 static UINT8 adc8_data;
+UINT8 hd68k_adc12_raw;
 static UINT8 adc12_select;
 static UINT8 adc12_byte;
 static UINT16 adc12_data;
@@ -415,17 +416,26 @@ READ16_HANDLER( hda68k_port1_r )
 }
 
 
+static UINT16 hd68k_read_adc12(int channel)
+{
+	UINT16 value = readinputport(10 + channel);
+
+	/* Street Drivin' defines native ADC values. Older input tables supply eight bits. */
+	return hd68k_adc12_raw ? value : value << 4;
+}
+
+
 READ16_HANDLER( hdc68k_wheel_r )
 {
-	/* grab the new wheel value and upconvert to 12 bits */
-	UINT16 new_wheel = readinputport(10) << 4;
+	UINT16 new_wheel = hd68k_read_adc12(0);
+	UINT16 edge_period = hd68k_adc12_raw ? 0xf00 : 0xf0;
 
 	/* hack to display the wheel position */
 	if (code_pressed(KEYCODE_LSHIFT))
 		ui_popup("%04X", new_wheel);
 
 	/* if we crossed the center line, latch the edge bit */
-	if ((hdc68k_last_wheel / 0xf0) != (new_wheel / 0xf0))
+	if ((hdc68k_last_wheel / edge_period) != (new_wheel / edge_period))
 		hdc68k_wheel_edge = 1;
 
 	/* remember the last value and return the low 8 bits */
@@ -476,7 +486,7 @@ WRITE16_HANDLER( hd68k_adc_control_w )
 	if (adc_control & 0x40)
 	{
 		adc12_select = (adc_control >> 4) & 0x03;
-		adc12_data = readinputport(10 + adc12_select) << 4;
+		adc12_data = hd68k_read_adc12(adc12_select);
 	}
 
 	/* bit 7 selects which byte of the 12 bit data to read */
