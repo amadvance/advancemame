@@ -878,7 +878,8 @@ int ppu2c03b_r( int num, int offset )
 			/* this is necessary */
 			chips[num].toggle = 0;
 
-			/* note that we don't clear the vblank flag - this is correct. */
+			/* Reading PPUSTATUS acknowledges vblank. */
+			chips[num].regs[PPU_STATUS] &= ~PPU_STATUS_VBLANK;
 		break;
 
 		case PPU_SPRITE_DATA:
