@@ -519,6 +519,21 @@ static WRITE32_HANDLER( rabbit_audio_w )
 		I5000_0_w(offset * 2 + 1, data, 0);
 }
 
+static NVRAM_HANDLER( rabbit )
+{
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&eeprom_interface_93C46);
+
+		if (file)
+			EEPROM_load(file);
+		else
+			EEPROM_set_data(memory_region(REGION_USER4), 0x80);
+	}
+}
+
 static ADDRESS_MAP_START( rabbit_readmem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x000000, 0x1fffff) AM_READ(MRA32_ROM)
 	AM_RANGE(0x200000, 0x200003) AM_READ(rabbit_input_r)
@@ -1043,7 +1058,7 @@ static MACHINE_DRIVER_START( rabbit )
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-	MDRV_NVRAM_HANDLER(93C46)
+	MDRV_NVRAM_HANDLER(rabbit)
 
 	MDRV_GFXDECODE(gfxdecodeinfo)
 
@@ -1230,6 +1245,12 @@ ROM_START( rabbit )
 	ROM_REGION( 0x400000, REGION_SOUND1, ROMREGION_ERASE )
 	ROM_LOAD( "jsn0.11", 0x000000, 0x000018, CRC(e1f726e8) SHA1(598d75f3ff9e43ec8ce6131ed37f4345bf2f2d8e) )
 	ROM_CONTINUE(        0x000000, 0x3fffe8 )
+
+	ROM_REGION( 0x80, REGION_USER4, 0 ) /* default eeprom */
+	ROM_LOAD( "rabbit.nv", 0x0000, 0x0080, CRC(73d471ed) SHA1(45e045f5ea9036342b88013e021d402741d98537) )
+
+	ROM_REGION( 0x800, REGION_USER5, 0 ) /* plds */
+	ROM_LOAD( "epm7032.u1", 0x0000, 0x0798, CRC(bb1c930e) SHA1(7513ed6a0d797276dab1e3446fe346a9c340e69d) )
 
 ROM_END
 
