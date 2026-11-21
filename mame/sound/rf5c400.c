@@ -33,6 +33,7 @@ struct rf5c400_info
 		UINT64 step;
 		UINT16 keyon;
 		INT16 volume;
+		UINT16 type;
 		UINT16 pan;
 		UINT16 flag;
 		UINT16 sysflag;
@@ -70,6 +71,18 @@ static void rf5c400_update(void *param, stream_sample_t **inputs, stream_sample_
 				UINT32 cur_pos = channel->start + (channel->pos >> 16);
 
 				sample = rom[cur_pos];
+				if (channel->type != 0)
+				{
+					/* the rom words are pre-converted to sign-magnitude for 16 bit samples, undo it before extracting the byte */
+					if (sample & 0x8000)
+						sample ^= 0x7fff;
+					if (channel->type == 0x0040)
+						sample = (INT16)(sample << 8);
+					else
+						sample = (INT16)(sample & 0xff00);
+					if (sample & 0x8000)
+						sample ^= 0x7fff;
+				}
 
 				sample *= volume_table[channel->volume];
 				buffer[0][i] += (sample - ((sample * (channel->pan & 0xff)) >> 8)) >> 6;
@@ -277,6 +290,7 @@ static void rf5c400_w(int chipnum, int offset, UINT16 data)
 			case 0x08:		// volume
 			{
 				channel->volume = data & 0xff;
+				channel->type = (data >> 8) & 0x00c0;
 				break;
 			}
 			case 0x0E:

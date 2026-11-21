@@ -193,7 +193,6 @@
 #include "machine/timekpr.h"
 #include "sound/rf5c400.h"
 
-static UINT8 led_reg0 = 0x7f, led_reg1 = 0x7f;
 
 /* K037122 Tilemap chip (move to konamiic.c ?) */
 
@@ -463,9 +462,6 @@ VIDEO_UPDATE( hornet )
 
 	K037122_tile_update();
 	K037122_tile_draw(bitmap, cliprect);
-
-	draw_7segment_led(bitmap, 3, 3, led_reg0);
-	draw_7segment_led(bitmap, 9, 3, led_reg1);
 }
 
 VIDEO_UPDATE( hornet_2board )
@@ -475,9 +471,6 @@ VIDEO_UPDATE( hornet_2board )
 
 	K037122_tile_update();
 	K037122_tile_draw(bitmap, cliprect);
-
-	draw_7segment_led(bitmap, 3, 3, led_reg0);
-	draw_7segment_led(bitmap, 9, 3, led_reg1);
 }
 
 /*****************************************************************************/
@@ -518,14 +511,6 @@ static READ32_HANDLER( sysreg_r )
 static WRITE32_HANDLER( sysreg_w )
 {
 	if( offset == 0 ) {
-		if (!(mem_mask & 0xff000000))
-		{
-			led_reg0 = (data >> 24) & 0xff;
-		}
-		if (!(mem_mask & 0x00ff0000))
-		{
-			led_reg1 = (data >> 16) & 0xff;
-		}
 		return;
 	}
 	if( offset == 1 )
@@ -1301,8 +1286,8 @@ ROM_END
 
 /*************************************************************************/
 
-GAME( 1998, gradius4,	0,		hornet,			hornet,	gradius4,	ROT0,	"Konami",	"Gradius 4: Fukkatsu", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // crash
-GAME( 1998, nbapbp,		0,		hornet,			hornet,	nbapbp,		ROT0,	"Konami",	"NBA Play By Play", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING) // crash
+GAME( 1998, gradius4,	0,		hornet,			hornet,	gradius4,	ROT0,	"Konami",	"Gradius 4: Fukkatsu", GAME_IMPERFECT_SOUND )
+GAME( 1998, nbapbp,		0,		hornet,			hornet,	nbapbp,		ROT0,	"Konami",	"NBA Play By Play", GAME_IMPERFECT_SOUND )
 GAME( 2000, sscope,		0,		hornet_2board,	hornet,	sscope,		ROT0,	"Konami",	"Silent Scope (ver UAB)", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )
 GAME( 2000, sscopea,	sscope, hornet_2board,	hornet,	sscope,		ROT0,	"Konami",	"Silent Scope (ver UAA)", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )
 GAME( 2000, sscope2,	0,		hornet_2board,	hornet,	sscope2,	ROT0,	"Konami",	"Silent Scope 2", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )

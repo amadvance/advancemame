@@ -572,11 +572,6 @@ void ppc403_spu_w(UINT32 a, UINT8 d)
 		case 0x5:
 			ppc.spu.brd &= 0xff00;
 			ppc.spu.brd |= d;
-			if (ppc.iocr & 0x2) {
-				printf("ppc: SPU Baud rate: %d\n", (3686400 / (ppc.spu.brd + 1)) / 16);
-			} else {
-				printf("ppc: SPU Baud rate: %d\n", (33333333 / (ppc.spu.brd + 1)) / 16);
-			}
 			break;
 
 		case 0x6:
@@ -639,7 +634,6 @@ void ppc403_spu_w(UINT32 a, UINT8 d)
 			fatalerror("ppc: spu_w: %02X, %02X", a & 0xf, d);
 			break;
 	}
-	printf("spu_w: %02X, %02X at %08X\n", a & 0xf, d, ppc.pc);
 }
 
 void ppc403_spu_rx(UINT8 data)
@@ -761,8 +755,6 @@ static void ppc403_dma_exec(int ch)
 					if( (ch == 2 && ((ppc.spu.sptc >> 5) & 0x3) == 2) ||
 						(ch == 3 && ((ppc.spu.sptc >> 5) & 0x3) == 3) )
 					{
-						printf("ppc: dma_exec: DMA to serial port on channel %d (DA: %08X)\n", ch, ppc.dma[ch].da);
-
 						if (spu_tx_dma_handler)
 						{
 							int length = ppc.dma[ch].ct;
