@@ -27,7 +27,6 @@ To Do:
 
 - raster effects (rabbit only?, see left side of one of the levels in rabbit)
 - clean up zoom code and make zoom effect more accurate
-- sound (adpcm of some kind)
 
 - tilemap.c can't handle tiles with different transpens so we have to invert
   the tilegfx, this means we also have to invert the palette write addresses,
@@ -83,8 +82,7 @@ Custom: Imagetek 15000 (2ch video & 2ch sound)
 
 #include "driver.h"
 #include "machine/eeprom.h"
-
-#define VERBOSE_AUDIO_LOG (0)	// enable to show audio writes (very noisy when music is playing)
+#include "sound/i5000.h"
 
 /* debug */
 static UINT32 *rabbit_viewregs0;
@@ -256,7 +254,7 @@ static void rabbit_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 /* the sprite bitmap can probably be handled better than this ... */
 static void rabbit_clearspritebitmap( mame_bitmap *bitmap, const rectangle *cliprect )
 {
-	UINT32 startx, starty;
+	int startx, starty;
 	int y;
 	int amountx,amounty;
 	UINT16 *dstline;
@@ -270,6 +268,7 @@ static void rabbit_clearspritebitmap( mame_bitmap *bitmap, const rectangle *clip
 	amountx =650;
 	amounty =600;
 
+	if (startx < 0) { amountx += startx; startx = 0; }
 	if ((startx+amountx)>=0x1000) amountx-=(0x1000-(startx+amountx));
 
 	for (y=0; y<amounty;y++)
@@ -502,12 +501,29 @@ READ32_HANDLER( randomrabbits )
 	return mame_rand();
 }
 
+static struct I5000interface i5000_interface =
+{
+	REGION_SOUND1
+};
+
+static READ32_HANDLER( rabbit_audio_r )
+{
+	return (I5000_0_r(offset * 2, 0) << 16) | I5000_0_r(offset * 2 + 1, 0);
+}
+
+static WRITE32_HANDLER( rabbit_audio_w )
+{
+	if (ACCESSING_MSW32)
+		I5000_0_w(offset * 2, data >> 16, 0);
+	if (ACCESSING_LSW32)
+		I5000_0_w(offset * 2 + 1, data, 0);
+}
+
 static ADDRESS_MAP_START( rabbit_readmem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x000000, 0x1fffff) AM_READ(MRA32_ROM)
 	AM_RANGE(0x200000, 0x200003) AM_READ(rabbit_input_r)
 	AM_RANGE(0x400010, 0x400013) AM_READ(randomrabbits) // gfx chip status?
-	AM_RANGE(0x400980, 0x400983) AM_READ(randomrabbits) // sound chip status?
-	AM_RANGE(0x400984, 0x400987) AM_READ(randomrabbits) // sound chip status?
+	AM_RANGE(0x400900, 0x4009ff) AM_READ(rabbit_audio_r)
 	AM_RANGE(0x440000, 0x47ffff) AM_READ(MRA32_BANK1) // roms read from here during testing
 	/* tilemaps */
 	AM_RANGE(0x480000, 0x483fff) AM_READ(rabbit_tilemap0_r)
@@ -548,63 +564,6 @@ WRITE32_HANDLER ( rabbit_rombank_w )
     There are a few other "global" registers, their purpose is unknown at this
     time (timer?  the game seems to "play music" fine with just the VBL).
 */
-
-static WRITE32_HANDLER( rabbit_audio_w )
-{
-#if VERBOSE_AUDIO_LOG
-	int reg, voice, base, i;
-
-	if (mem_mask == 0x0000ffff)
-	{
-		reg = offset*2;
-		data >>= 16;
-	}
-	else if (mem_mask == 0xffff0000)
-	{
-		reg = (offset*2)+1;
-		data &= 0xffff;
-	}
-	else	logerror("audio error: unknown mask %08x\n", mem_mask);
-
-	if (reg < 64)
-	{
-		voice = reg / 4;
-		base = voice*4;
-		logerror("V%02d: parm %d = %04x\n", voice, reg-base, data);
-	}
-	else
-	{
-		if (reg == 66)
-		{
-			logerror("Key on [%04x]: ", data);
-			for (i = 0; i < 16; i++)
-			{
-				if (data & (1<<i))
-				{
-					logerror("%02d ", i);
-				}
-			}
-			logerror("\n");
-		}
-		else if (reg == 67)
-		{
-			logerror("Key off [%04x]: ", data);
-			for (i = 0; i < 16; i++)
-			{
-				if (data & (1<<i))
-				{
-					logerror("%02d ", i);
-				}
-			}
-			logerror("\n");
-		}
-		else
-		{
-			logerror("Unknown write %04x to global reg %d\n", data, reg);
-		}
-	}
-#endif
-}
 
 #define BLITCMDLOG 0
 #define BLITLOG 0
@@ -755,7 +714,7 @@ static ADDRESS_MAP_START( rabbit_writemem, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x400500, 0x400503) AM_WRITE(MWA32_RAM) AM_BASE( &rabbit_viewregs7 )
 	AM_RANGE(0x400700, 0x40070f) AM_WRITE(rabbit_blitter_w) AM_BASE( &rabbit_blitterregs )
 	AM_RANGE(0x400800, 0x40080f) AM_WRITE(MWA32_RAM) AM_BASE( &rabbit_viewregs9 ) // never changes?
-	AM_RANGE(0x400900, 0x40098f) AM_WRITE(rabbit_audio_w)
+	AM_RANGE(0x400900, 0x4009ff) AM_WRITE(rabbit_audio_w)
 	/* hmm */
 	AM_RANGE(0x479700, 0x479713) AM_WRITE(MWA32_RAM) AM_BASE( &rabbit_viewregs10 )
 	/* tilemaps */
@@ -1099,6 +1058,13 @@ static MACHINE_DRIVER_START( rabbit )
 
 	MDRV_VIDEO_START(rabbit)
 	MDRV_VIDEO_UPDATE(rabbit)
+
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(I5000, 40000000)
+	MDRV_SOUND_CONFIG(i5000_interface)
+	MDRV_SOUND_ROUTE(0, "right", 1.0)
+	MDRV_SOUND_ROUTE(1, "left", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -1261,8 +1227,9 @@ ROM_START( rabbit )
 	ROM_LOAD( "jbg1.50", 0x200000, 0x200000, CRC(1fc7f6e0) SHA1(b36062d2a9683683ffffd3003d5244a185f53280) )
 	ROM_LOAD( "jbg2.60", 0x400000, 0x200000, CRC(aee265fc) SHA1(ec420ab30b9b5141162223fc1fbf663ad9f211e6) )
 
-	ROM_REGION( 0x400000, REGION_USER3, 0 ) /* sound rom */
-	ROM_LOAD( "jsn0.11", 0x0000000, 0x400000, CRC(e1f726e8) SHA1(598d75f3ff9e43ec8ce6131ed37f4345bf2f2d8e) )
+	ROM_REGION( 0x400000, REGION_SOUND1, ROMREGION_ERASE )
+	ROM_LOAD( "jsn0.11", 0x000000, 0x000018, CRC(e1f726e8) SHA1(598d75f3ff9e43ec8ce6131ed37f4345bf2f2d8e) )
+	ROM_CONTINUE(        0x000000, 0x3fffe8 )
 
 ROM_END
 
@@ -1298,5 +1265,5 @@ ROM_START( tmmjprd )
 ROM_END
 
 
-GAME( 1997, rabbit,  0, rabbit,  rabbit,  rabbit,  ROT0, "Electronic Arts / Aorn", "Rabbit", GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND ) // somewhat playable
+GAME( 1997, rabbit,  0, rabbit,  rabbit,  rabbit,  ROT0, "Aorn / Electronic Arts", "Rabbit (Asia 3/6)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) // somewhat playable
 GAME( 1997, tmmjprd, 0, tmmjprd, tmmjprd, tmmjprd, ROT0, "Media / Sonnet", "Tokimeki Mahjong Paradise - Dear My Love", GAME_NOT_WORKING | GAME_NO_SOUND )

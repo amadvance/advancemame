@@ -406,6 +406,16 @@ ifneq ($$(filter RF5C400,$$($(1)SOUNDS)),)
 $(1)SOUNDOBJS += $(2)/sound/rf5c400.o
 endif
 
+#-------------------------------------------------
+# Imagetek I5000 sample player
+#-------------------------------------------------
+
+$(1)SOUNDDEFS += -DHAS_I5000=$$(if $$(filter I5000,$$($(1)SOUNDS)),1,0)
+
+ifneq ($$(filter I5000,$$($(1)SOUNDS)),)
+$(1)SOUNDOBJS += $(2)/sound/i5000.o
+endif
+
 
 
 #-------------------------------------------------

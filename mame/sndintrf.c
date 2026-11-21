@@ -149,6 +149,7 @@ void vrender0_get_info(void *token, UINT32 state, sndinfo *info);
 void votrax_get_info(void *token, UINT32 state, sndinfo *info);
 void es8712_get_info(void *token, UINT32 state, sndinfo *info);
 void rf5c400_get_info(void *token, UINT32 state, sndinfo *info);
+void i5000_get_info(void *token, UINT32 state, sndinfo *info);
 
 #ifdef MESS
 void beep_get_info(void *token, UINT32 state, sndinfo *info);
@@ -405,6 +406,9 @@ static const struct
 #endif
 #if (HAS_RF5C400)
 	{ SOUND_RF5C400, rf5c400_get_info },
+#endif
+#if (HAS_I5000)
+	{ SOUND_I5000, i5000_get_info },
 #endif
 
 #ifdef MESS
