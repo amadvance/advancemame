@@ -40,6 +40,7 @@ struct ADPCMVoice
 	UINT32 base_offset;		/* pointer to the base memory location */
 	UINT32 sample;			/* current sample number */
 	UINT32 count;			/* total samples to play */
+	double end_time;		/* emulated time at which the voice ends */
 
 	struct adpcm_state adpcm;/* current ADPCM state */
 	UINT32 volume;			/* output volume */
@@ -52,8 +53,27 @@ struct okim6295
 	INT32 command;
 	INT32 bank_offset;
 	UINT8 *region_base;		/* pointer to the base of the region */
+	int frequency;			/* sample rate of the chip */
 	sound_stream *stream;	/* which stream are we playing on? */
 };
+
+/**********************************************************************************************
+
+     voice_is_playing -- check if a voice is still playing
+
+***********************************************************************************************/
+
+static int voice_is_playing(struct ADPCMVoice *voice)
+{
+	/* the status is derived from the emulated time and not from the samples generated */
+	/* by the stream. The number of samples requested for each frame is arbitrary, and */
+	/* if it's lower than the nominal one the stream runs slower than the emulated time, */
+	/* making the voices last too long for the games that measure their duration */
+	if (voice->playing && timer_get_time() >= voice->end_time)
+		voice->playing = 0;
+
+	return voice->playing;
+}
 
 /* step size index shift table */
 static const int index_shift[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
@@ -290,6 +310,7 @@ static void adpcm_state_save_register(struct ADPCMVoice *voice, int i)
 	state_save_register_item(buf, i, voice->playing);
 	state_save_register_item(buf, i, voice->sample);
 	state_save_register_item(buf, i, voice->count);
+	state_save_register_item(buf, i, voice->end_time);
 	state_save_register_item(buf, i, voice->adpcm.signal);
 	state_save_register_item(buf, i, voice->adpcm.step);
 	state_save_register_item(buf, i, voice->volume);
@@ -333,6 +354,7 @@ static void *okim6295_start(int sndindex, int clock, const void *config)
 	info->region_base = memory_region(intf->region);
 
 	/* generate the name and create the stream */
+	info->frequency = clock;
 	info->stream = stream_create(0, 1, clock, info, okim6295_update);
 
 	/* initialize the voices */
@@ -393,6 +415,7 @@ void OKIM6295_set_bank_base(int which, int base)
 void OKIM6295_set_frequency(int which, int frequency)
 {
 	struct okim6295 *info = sndti_token(SOUND_OKIM6295, which);
+	info->frequency = frequency;
 	stream_set_sample_rate(info->stream, frequency);
 }
 
@@ -417,7 +440,7 @@ static int OKIM6295_status_r(int num)
 		struct ADPCMVoice *voice = &info->voice[i];
 
 		/* set the bit if it's playing */
-		if (voice->playing)
+		if (voice_is_playing(voice))
 			result |= 1 << i;
 	}
 
@@ -460,12 +483,13 @@ static void OKIM6295_data_w(int num, int data)
 				/* set up the voice to play this sample */
 				if (start < stop)
 				{
-					if (!voice->playing) /* fixes Got-cha and Steel Force */
+					if (!voice_is_playing(voice)) /* fixes Got-cha and Steel Force */
 					{
 						voice->playing = 1;
 						voice->base_offset = start;
 						voice->sample = 0;
 						voice->count = 2 * (stop - start + 1);
+						voice->end_time = timer_get_time() + (double)voice->count / info->frequency;
 
 						/* also reset the ADPCM parameters */
 						reset_adpcm(&voice->adpcm);
