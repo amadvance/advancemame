@@ -510,7 +510,7 @@ ROM_START( blueprnj )
 	ROM_LOAD( "greenj.20d", 0x2000, 0x1000, CRC(23026765) SHA1(9b16de37922208f4f2d2afc94189f11f5e5011fa) )
 ROM_END
 
-ROM_START( saturn )
+ROM_START( saturnzi )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "r1",           0x0000, 0x1000, CRC(18a6d68e) SHA1(816baca24dd75c6f9d4c91c86f90825dbb9a1347) )
 	ROM_LOAD( "r2",           0x1000, 0x1000, CRC(a7dd2665) SHA1(02d03fb436c704ccdbad751ccf034742fcd4ae43) )
@@ -559,5 +559,5 @@ ROM_END
 
 GAME( 1982, blueprnt, 0,        blueprnt, blueprnt, 0, ROT270, "[Zilec Electronics] Bally Midway", "Blue Print (Midway)", 0 )
 GAME( 1982, blueprnj, blueprnt, blueprnt, blueprnt, 0, ROT270, "[Zilec Electronics] Jaleco", "Blue Print (Jaleco)", 0 )
-GAME( 1983, saturn,   0,        blueprnt, saturn,   0, ROT270, "[Zilec Electronics] Jaleco", "Saturn", 0 )
+GAME( 1983, saturnzi, 0,        blueprnt, saturn,   0, ROT270, "Zilec Electronics / Jaleco", "Saturn", 0 )
 GAME( 1983, grasspin, 0, grasspin, grasspin, 0, ROT270, "Zilec Electronics / Jaleco", "Grasspin", GAME_IMPERFECT_GRAPHICS )

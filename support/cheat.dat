@@ -147099,8 +147099,8 @@
 :satansat:00000000:00A2:000000C0:FFFFFFFF:Invincibility
 
 ; [ Saturn ]
-:saturn:00000000:80EB:00000009:FFFFFFFF:Infinite Lives PL1
-:saturn:00000000:80EC:00000009:FFFFFFFF:Infinite Lives PL2
+:saturnzi:00000000:80EB:00000009:FFFFFFFF:Infinite Lives PL1
+:saturnzi:00000000:80EC:00000009:FFFFFFFF:Infinite Lives PL2
 
 ; [ Sauro ]
 :sauro:00000000:E207:0000005A:FFFFFFFF:Invincibility
