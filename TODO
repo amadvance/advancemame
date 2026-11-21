@@ -63,3 +63,23 @@ are unused. Games with the port and no PORT_CODE_INC/PORT_CODE_DEC:
   taitoair.c   topland
   taitojc.c    landgear, landgearj, landgeara, landgearja
 mlanding already sets A/Z locally with PORT_CODE_INC/PORT_CODE_DEC.
+
+- Enable a JIT for the PowerPC 403 core (mame/cpu/powerpc), used by the Hornet
+  games (gradius4, nbapbp, ...), with direct memory access
+Write a ppc403jit.c on top of the sljit layer and mame/cpu/jitcache.h, like
+mips3jit.c, and let the generated code access the main RAM and the program
+ROM directly, without going through the memory handlers.
+In the gradius4 profile the interpreter takes about 19% of the time, while the
+Voodoo rasterizer takes about 55%, so the gain is limited: do first the Voodoo
+rasterizer.
+
+- Port the Voodoo rasterizer optimizations from MAME (mame/vidhrdw/voodoo.c)
+In the gradius4 profile raster_generic_1tmu takes about 48% of the time, plus
+about 4% in the few specialized rasterizers: many pixel pipeline states used by
+the Hornet games are not covered by the predefined ones.
+Compare with src/devices/video/voodoo_render.cpp in resource/mame, that has
+a much longer table of predefined rasterizers (RASTERIZER entries, generated
+by the statistics it prints at exit) and a faster generic path with
+precomputed per-triangle parameters and texture lookup.
+First collect the most used pixel pipeline states of gradius4, nbapbp and the
+other Hornet games, then add the matching RASTERIZER_ENTRY in voodoo.c.
