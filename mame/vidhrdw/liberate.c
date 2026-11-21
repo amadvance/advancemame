@@ -20,6 +20,9 @@ static UINT8 deco16_io_ram[16];
 UINT8 *prosport_bg_vram;
 static UINT8 prosport_char_dirty[1024], prosport_sprite_dirty[256];
 static int prosport_gfx_dirty;
+static UINT8 prosoccr_charram[0x1800];
+static UINT8 prosoccr_char_dirty[256];
+static int prosoccr_gfx_dirty, prosoccr_gfx_rom_readback;
 
 #if 0
 void debug_print(mame_bitmap *bitmap)
@@ -75,6 +78,26 @@ static void prosport_get_back_tile_info(int tile_index)
 	SET_TILE_INFO(8,tile,0,0)
 }
 
+static void prosoccr_get_back_tile_info( int tile_index )
+{
+	const UINT8 *RAM = memory_region(REGION_USER1);
+
+	/* Convert tile index of 512x512 to paged format */
+	if (tile_index&0x100) {
+		if (tile_index&0x200)
+			tile_index=(tile_index&0xff)+(deco16_io_ram[5]<<8); /* Bottom right */
+		else
+			tile_index=(tile_index&0xff)+(deco16_io_ram[4]<<8); /* Bottom left */
+	} else {
+		if (tile_index&0x200)
+			tile_index=(tile_index&0xff)+(deco16_io_ram[3]<<8); /* Top right */
+		else
+			tile_index=(tile_index&0xff)+(deco16_io_ram[2]<<8); /* Top left */
+	}
+
+	SET_TILE_INFO(2,RAM[tile_index]&0x7f,0,0)
+}
+
 static void get_fix_tile_info( int tile_index )
 {
 	int tile,color;
@@ -118,6 +141,58 @@ WRITE8_HANDLER( deco16_io_w )
 			cpunum_set_input_line(1,M6502_IRQ_LINE,HOLD_LINE);
 			break;
 	}
+}
+
+void prosoccr_video_reset(void)
+{
+	memset(deco16_io_ram, 0, sizeof(deco16_io_ram));
+	background_disable = 0;
+	prosoccr_gfx_rom_readback = 0;
+	tilemap_mark_all_tiles_dirty(background_tilemap);
+}
+
+WRITE8_HANDLER( prosoccr_io_w )
+{
+	deco16_io_ram[offset]=data;
+	if (offset>1 && offset<6)
+		tilemap_mark_all_tiles_dirty(background_tilemap);
+
+	switch (offset) {
+		case 7:
+			background_disable=~data&0x10;
+			break;
+		case 8: /* Irq ack */
+			cpunum_set_input_line(0,DECO16_IRQ_LINE,CLEAR_LINE);
+			break;
+		case 9: /* Sound */
+			soundlatch_w(0,data);
+			cpunum_set_input_line(1,M6502_IRQ_LINE,HOLD_LINE);
+			break;
+	}
+}
+
+READ8_HANDLER( prosoccr_charram_r )
+{
+	/* the gfx roms can be read back in place of the character ram */
+	if (prosoccr_gfx_rom_readback)
+		return memory_region(REGION_USER2)[(offset & 0x7ff) + ((offset & 0x1800) << 2)];
+
+	return prosoccr_charram[offset];
+}
+
+WRITE8_HANDLER( prosoccr_charram_w )
+{
+	/* only the first 0x800 bytes of each bitplane are writable, the rest is rom */
+	memory_region(REGION_GFX1)[(offset & 0x7ff) + ((offset & 0x1800) << 2)] = data;
+	if (!prosoccr_gfx_rom_readback)
+		prosoccr_charram[offset] = data;
+	prosoccr_gfx_dirty = 1;
+	prosoccr_char_dirty[(offset & 0x7ff) >> 3] = 1;
+}
+
+WRITE8_HANDLER( prosoccr_char_bank_w )
+{
+	prosoccr_gfx_rom_readback = data & 1;
 }
 
 void prosport_video_reset(void)
@@ -179,13 +254,17 @@ WRITE8_HANDLER( liberate_videoram_w )
 
 VIDEO_START( prosoccr )
 {
-	background_tilemap = tilemap_create(get_back_tile_info,back_scan,TILEMAP_OPAQUE,16,16,32,32);
+	background_tilemap = tilemap_create(prosoccr_get_back_tile_info,back_scan,TILEMAP_OPAQUE,16,16,32,32);
 	fix_tilemap = tilemap_create(get_fix_tile_info,fix_scan,TILEMAP_TRANSPARENT,8,8,32,32);
 
 	if (!background_tilemap || !fix_tilemap)
 		return 1;
 
 	tilemap_set_transparent_pen(fix_tilemap,0);
+
+	memset(prosoccr_charram,0,sizeof(prosoccr_charram));
+	memset(prosoccr_char_dirty,0,sizeof(prosoccr_char_dirty));
+	prosoccr_gfx_dirty = 0;
 
 	return 0;
 }
@@ -400,19 +479,51 @@ static void boomrang_drawsprites(mame_bitmap *bitmap, int pri)
 	}
 }
 
+static void prosoccr_drawsprites(mame_bitmap *bitmap, const rectangle *cliprect)
+{
+	int offs;
+
+	for (offs = 0;offs < 0x400;offs += 4)
+	{
+		if (!(spriteram[offs+0] & 1))
+			continue;
+
+		drawgfx(bitmap,Machine->gfx[1],
+				spriteram[offs+1],
+				0,
+				spriteram[offs+0] & 4,spriteram[offs+0] & 2,
+				240 - spriteram[offs+3],240 - spriteram[offs+2],
+				cliprect,TRANSPARENCY_PEN,0);
+	}
+}
+
 /***************************************************************************/
 
 VIDEO_UPDATE( prosoccr )
 {
+	if (prosoccr_gfx_dirty)
+	{
+		int offs;
+		UINT8 *dynamic_gfx = memory_region(REGION_GFX1);
+
+		for (offs = 0; offs < 256; offs++)
+			if (prosoccr_char_dirty[offs])
+			{
+				decodegfx(Machine->gfx[0],dynamic_gfx,offs,1);
+				prosoccr_char_dirty[offs] = 0;
+			}
+		prosoccr_gfx_dirty = 0;
+	}
+
 	tilemap_set_scrolly(background_tilemap,0,deco16_io_ram[1]);
 	tilemap_set_scrollx(background_tilemap,0,-deco16_io_ram[0]);
 
 	if (background_disable)
-		fillbitmap(bitmap,Machine->pens[32],&Machine->visible_area);
+		fillbitmap(bitmap,Machine->pens[32],cliprect);
 	else
 		tilemap_draw(bitmap,cliprect,background_tilemap,0,0);
-	boomrang_drawsprites(bitmap,0);
 	tilemap_draw(bitmap,cliprect,fix_tilemap,0,0);
+	prosoccr_drawsprites(bitmap,cliprect);
 }
 
 VIDEO_UPDATE( prosport )

@@ -42,6 +42,11 @@ WRITE8_HANDLER( prosport_charram_w );
 extern UINT8 *prosport_bg_vram;
 void prosport_video_reset(void);
 WRITE8_HANDLER( liberate_videoram_w );
+WRITE8_HANDLER( prosoccr_io_w );
+READ8_HANDLER( prosoccr_charram_r );
+WRITE8_HANDLER( prosoccr_charram_w );
+WRITE8_HANDLER( prosoccr_char_bank_w );
+void prosoccr_video_reset(void);
 
 /*************************************
  *
@@ -87,6 +92,51 @@ static READ8_HANDLER( deco16_io_r )
 		return 0xff;
 	}
 	return ROM[0x8000+offset];
+}
+
+static WRITE8_HANDLER( prosoccr_io_bank_w )
+{
+	deco16_bank = data & 1;
+}
+
+static READ8_HANDLER( prosoccr_bank_r )
+{
+	const UINT8 *ROM = memory_region(REGION_USER1);
+
+	/* The tilemap bank can be swapped into main memory */
+	if (deco16_bank)
+		return ROM[offset];
+
+	/* Else the handler falls through to read the usual address */
+	if (offset<0x800) return videoram[offset];
+	if (offset<0xc00) return videoram[offset-0x800];
+	if (offset<0x1000) return spriteram[offset-0xc00];
+	if (offset<0x2200) { logerror("%04x: Unmapped bank read %04x\n",activecpu_get_pc(),offset); return 0; }
+	if (offset<0x2800) return scratchram[offset-0x2200];
+
+	logerror("%04x: Unmapped bank read %04x\n",activecpu_get_pc(),offset);
+	return 0;
+}
+
+static WRITE8_HANDLER( prosoccr_colorram_w )
+{
+	liberate_videoram_w(offset,data);
+}
+
+static READ8_HANDLER( prosoccr_main_r )
+{
+	if (deco16_bank && offset<0x10)
+		return deco16_io_r(offset);
+	return prosoccr_charram_r(offset);
+}
+
+static WRITE8_HANDLER( prosoccr_main_w )
+{
+	/* the io registers and the character ram share the same address range */
+	if (deco16_bank)
+		prosoccr_io_w(offset & 0x0f,data);
+	else
+		prosoccr_charram_w(offset,data);
 }
 
 /*************************************
@@ -146,6 +196,30 @@ static ADDRESS_MAP_START( deco16_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x00, 0x00) AM_WRITE(deco16_bank_w)
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( prosoccr_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x1000, 0x3fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x4000, 0x7fff) AM_READ(prosoccr_bank_r)
+	AM_RANGE(0x8000, 0x97ff) AM_READ(prosoccr_main_r)
+	AM_RANGE(0xa000, 0xffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( prosoccr_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1000, 0x3fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x4000, 0x47ff) AM_WRITE(liberate_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x4800, 0x4bff) AM_WRITE(prosoccr_colorram_w)
+	AM_RANGE(0x4c00, 0x4fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram)
+	AM_RANGE(0x6200, 0x67ff) AM_WRITE(MWA8_RAM) AM_BASE(&scratchram)
+	AM_RANGE(0x8000, 0x97ff) AM_WRITE(prosoccr_main_w)
+	AM_RANGE(0x9800, 0x9800) AM_WRITE(prosoccr_char_bank_w)
+	AM_RANGE(0xa000, 0xffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( prosoccr_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_WRITE(prosoccr_io_bank_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( liberatb_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x00fe, 0x00fe) AM_READ(input_port_0_r)
 	AM_RANGE(0x0000, 0x0fff) AM_READ(MRA8_RAM)
@@ -187,6 +261,7 @@ static ADDRESS_MAP_START( prosoccr_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x4000, 0x4000) AM_WRITE(AY8910_control_port_0_w)
 	AM_RANGE(0x6000, 0x6000) AM_WRITE(AY8910_write_port_1_w)
 	AM_RANGE(0x8000, 0x8000) AM_WRITE(AY8910_control_port_1_w)
+	AM_RANGE(0xc000, 0xc000) AM_WRITE(MWA8_NOP)
     AM_RANGE(0xe000, 0xffff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
 
@@ -432,6 +507,37 @@ INPUT_PORTS_START( liberatb )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( prosoccr )
+	PORT_INCLUDE( generic_input )
+
+	PORT_MODIFY("DSW1")
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_MODIFY("DSW2")
+	PORT_DIPNAME( 0x01, 0x01, "Number of Balls" )
+	PORT_DIPSETTING(    0x01, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x06, 0x06, "Number of Nice Goal" )
+	PORT_DIPSETTING(    0x00, DEF_STR( None ) )
+	PORT_DIPSETTING(    0x06, "5" )
+	PORT_DIPSETTING(    0x04, "10" )
+	PORT_DIPSETTING(    0x02, "20" )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, "Class" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
+
 /*************************************
  *
  *  Graphics definitions
@@ -459,6 +565,18 @@ static const gfx_layout sprites =
 		0,1,2,3,4,5,6,7 },
 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 ,8*8,9*8,10*8,11*8,12*8,13*8,14*8,15*8 },
 	16*16
+};
+
+static const gfx_layout prosoccr_tiles =
+{
+	16,16,
+	RGN_FRAC(1,2),
+	3,
+	{ RGN_FRAC(0,2)+4, RGN_FRAC(0,2)+0, RGN_FRAC(1,2)+4 },
+	{ 24,25,26,27, 16,17,18,19, 8,9,10,11, 0,1,2,3 },
+	{ 0*32, 1*32, 2*32, 3*32, 4*32, 5*32, 6*32, 7*32,
+		8*32, 9*32, 10*32, 11*32, 12*32, 13*32, 14*32, 15*32 },
+	64*8
 };
 
 static const gfx_layout pro_tiles =
@@ -509,6 +627,14 @@ static const gfx_decode gfxdecodeinfo[] =
 	{ REGION_GFX2, 0x00000, &tiles1,      0, 4 },
 	{ REGION_GFX2, 0x00000, &tiles2,      0, 4 },
 	{ -1 } /* end of array */
+};
+
+static const gfx_decode prosoccr_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &charlayout, 0, 4 },
+	{ REGION_GFX2, 0, &sprites, 0, 4 },
+	{ REGION_GFX3, 0, &prosoccr_tiles, 8, 2 },
+	{ -1 }
 };
 
 static const gfx_decode prosport_gfxdecodeinfo[] =
@@ -606,18 +732,49 @@ static MACHINE_DRIVER_START( boomrang )
 	MDRV_VIDEO_UPDATE(boomrang)
 MACHINE_DRIVER_END
 
+static MACHINE_RESET( prosoccr )
+{
+	deco16_bank = 0;
+	prosoccr_video_reset();
+}
+
 static MACHINE_DRIVER_START( prosoccr )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(DECO16, 3000000)
-	MDRV_CPU_PROGRAM_MAP(liberate_readmem,liberate_writemem)
-	MDRV_CPU_IO_MAP(deco16_readport,deco16_writeport)
+	MDRV_CPU_ADD(DECO16, 10000000/8)
+	MDRV_CPU_PROGRAM_MAP(prosoccr_readmem,prosoccr_writemem)
+	MDRV_CPU_IO_MAP(deco16_readport,prosoccr_writeport)
+	MDRV_CPU_VBLANK_INT(deco16_interrupt,1)
 
-	MDRV_IMPORT_FROM(liberate)
-	MDRV_CPU_REMOVE("main")
+	MDRV_CPU_ADD(M6502, 10000000/8)
+	/* audio CPU */
+	MDRV_CPU_PROGRAM_MAP(prosoccr_sound_readmem,prosoccr_sound_writemem)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,16)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(529) /* 529ms Vblank duration?? */
+	MDRV_INTERLEAVE(200)
+	MDRV_MACHINE_RESET(prosoccr)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(1*8, 31*8-1, 0*8, 32*8-1)
+	MDRV_GFXDECODE(prosoccr_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(33)
+	MDRV_PALETTE_INIT(liberate)
 
 	MDRV_VIDEO_START(prosoccr)
 	MDRV_VIDEO_UPDATE(prosoccr)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.30)
+
+	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 static MACHINE_RESET( prosport )
@@ -672,26 +829,36 @@ MACHINE_DRIVER_END
  *************************************/
 
 ROM_START( prosoccr )
-	ROM_REGION(0x10000, REGION_CPU1, 0)
-	ROM_LOAD( "am07.7e",  0x8000, 0x2000, CRC(55415fb5) SHA1(676feb07d4fbd76aae8349b46f7edc8f357f2ddf) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "am08.9e",  0xa000, 0x2000, CRC(73d45d0d) SHA1(07736286087478af404bd9c6b279d631a01cf4e2) )
 	ROM_LOAD( "am09.10e", 0xc000, 0x2000, CRC(a7ee0b3a) SHA1(87e487f863bd90c5b979c2d3c4317869ba1d71d9) )
 	ROM_LOAD( "am10.11e", 0xe000, 0x2000, CRC(5571bdb8) SHA1(a3740650453c9e4f78dcc7826eb112d0d9f65b22) )
-//low reload??
+
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )
 	ROM_LOAD( "am06.10a", 0xe000, 0x2000, CRC(37a0c74f) SHA1(5757b9eaf5b1129ee2d03b0ab6c3b15c120cf43c) )
 
-	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_REGION( 0x6000, REGION_USER2, 0 )
 	ROM_LOAD( "am00.2b",  0x0000, 0x2000, CRC(f3c8b649) SHA1(d2d42484e80d9241dac77a78c68314f88e0cbe5d) )
 	ROM_LOAD( "am01.5b",  0x2000, 0x2000, CRC(24785bda) SHA1(536bdda766b46771223f01e463fa4c61e0dd545c) )
 	ROM_LOAD( "am02.7b",  0x4000, 0x2000, CRC(c5af58ea) SHA1(a73d537b88befb76d67cc17d241e78c572c5b737) )
 
-	ROM_REGION( 0x8000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_REGION( 0x6000, REGION_GFX1, ROMREGION_ERASE00 )
+	ROM_COPY( REGION_USER2, 0x0800, 0x0800, 0x1800 )
+	ROM_COPY( REGION_USER2, 0x2800, 0x2800, 0x1800 )
+	ROM_COPY( REGION_USER2, 0x4800, 0x4800, 0x1800 )
+
+	ROM_REGION( 0x6000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_COPY( REGION_USER2, 0x0000, 0x0000, 0x2000 )
+	ROM_COPY( REGION_USER2, 0x2000, 0x2000, 0x2000 )
+	ROM_COPY( REGION_USER2, 0x4000, 0x4000, 0x2000 )
+
+	ROM_REGION( 0x4000, REGION_GFX3, ROMREGION_DISPOSE )
 	ROM_LOAD( "am03.10b", 0x0000, 0x2000, CRC(47dc31dc) SHA1(7f492477e30a0353251a43e7e726551c3861b63f) )
 	ROM_LOAD( "am04.c10", 0x2000, 0x2000, CRC(e057d827) SHA1(81ca4351777de5c32f4cf65547287c8169ba1494) )
 
-	ROM_REGION(0x04000, REGION_USER1, 0 )
-	ROM_LOAD( "am05.d12", 0x0000, 0x2000,  CRC(f63e5a73) SHA1(50e7a1a0eb3bf8df3264bcba441c5fbd7dec52f4) )
+	ROM_REGION( 0x4000, REGION_USER1, 0 )
+	ROM_LOAD( "am05.d12", 0x0000, 0x2000, CRC(f63e5a73) SHA1(50e7a1a0eb3bf8df3264bcba441c5fbd7dec52f4) )
+	ROM_LOAD( "am07.7e",  0x2000, 0x2000, CRC(55415fb5) SHA1(676feb07d4fbd76aae8349b46f7edc8f357f2ddf) )
 
 	ROM_REGION( 64, REGION_PROMS, 0 )
 	ROM_LOAD( "k1",    0, 32,  CRC(ebdc8343) SHA1(c9ae04da662f40237de24f5f01e97051e99e8c15) ) /* Colour */
@@ -983,7 +1150,7 @@ static DRIVER_INIT( liberate )
  *
  *************************************/
 
-GAME( 1983, prosoccr, 0,        prosoccr,  liberate, prosport, ROT270, "Data East Corporation", "Pro Soccer", GAME_NOT_WORKING )
+GAME( 1983, prosoccr, 0,        prosoccr,  prosoccr, prosport, ROT270, "Data East Corporation", "Pro Soccer", 0 )
 GAME( 1983, prosport, 0,        prosport,  prosport, prosport, ROT270, "Data East Corporation", "Pro Sports - Bowling, Tennis, and Golf", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL )
 GAME( 1983, boomrang, 0,        boomrang,  boomrang, prosport, ROT270, "Data East Corporation", "Boomer Rang'r / Genesis", 0 )
 GAME( 1984, kamikcab, 0,        boomrang,  kamikcab, prosport, ROT270, "Data East Corporation", "Kamikaze Cabbie", 0 )
