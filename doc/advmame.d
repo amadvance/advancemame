@@ -2074,9 +2074,8 @@ Configuration
 	:sync_resample auto | emulation | internal
 
 	Options:
-		auto - Select automatically. It's almost always the `emulation`
-			mode with the exception of some games like `starwars`
-			and others using the pokey sound chip. (default).
+		auto - Select automatically. At present it's always the
+			`emulation` mode (default).
 		emulation - Change the emulation to produce the requested
 			number of samples instead of resampling.
 		internal - Internally resample the sound to match the
@@ -2089,8 +2088,7 @@ Configuration
 	is not stored in the recorded input file.
 
 	The `emulation` mode may trigger some bugs in the MAME
-	core. For this reason the games using the pokey sound chip
-	by default use the `internal` mode.
+	core. If a game misbehaves, try the `internal` mode.
 
 	Anyway, the `emulation` mode generates more stable sound
 	if the CPU load isn't totally empty.

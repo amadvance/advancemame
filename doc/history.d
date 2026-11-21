@@ -9,6 +9,9 @@ AdvanceMAME/MESS Version 6.0 (WIP)
 		and GPL-compatible implementations.
 	) Added almost all missing games up to MAME 0.287, backporting hundreds of
 		drivers and titles across classic, 90s, and modern arcade platforms.
+	) Fixed the sound chips running slow when the audio buffer requests few
+		samples. The 'sync_resample auto' option now always selects the
+		'emulation' mode, also for the games using the pokey sound chip.
 	) Added a fallback for ROM loading using a table derived from the old MAME
 		versions, to work with all the old romsets, both SPLIT and MERGED. If a ROM
 		isn't found in the usual archives, the other archives listed for its CRC
