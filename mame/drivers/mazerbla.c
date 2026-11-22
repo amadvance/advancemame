@@ -2,66 +2,101 @@
 // copyright-holders:Jarek Burczynski, Angelo Salese
 /****************************************************************************
 
-Mazer Blazer by Stern (c) 1983
-Great Guns by Stern (c) 1983
+Mazer Blazer by Stern Electronics (c) 1983
+Great Guns by Stern Electronics (c) 1983
 
 
 Driver by Jarek Burczynski
+Added notes by Lord Nightmare
 2003.03.19
 
-
-Issues:
+Notes:
 ======
-Sprites leave trails in both ganes
-Sprites should be transparent (color 0x0f)
-Screen flickers heavily in Great Guns (double buffer issue?).
+Mazer blazer consists of four boards in a cage:
+ZPU-2000 - main cpu board (Zentral (sic) Processor Unit)
+ - this board has the main cpu on it and four roms (seven sockets for roms, three empty)
+   - roms in sockets "ROM0"@H1 "ROM1"@H2 "ROM2"@H3 "ROM3"@H4
+   - "ROM4"@H5 "ROM5"@H6 "ROM6"@H7 are empty
+   - roms are marked "MAZER BLAZER // ZPU <rom#> RA<revision#> // 1983 STERN"
+ - 32 dipswitches in 4 banks of 8
+ - four 'test button' style switches
+ - one 4Mhz xtal @A1
+ - one PAL16R8? @7D (UNDUMPED, if present)
+ - this same board is shared with cliff hanger (stern/cliffhgr.cpp)
 
+CFB-1000 - video/subcpu board (Color Frame Board)
+ - this board has a sub-cpu on it and four roms (six sockets for roms, two empty)
+   - the roms go in sockets "ROM0"@G8, "ROM2"@K8, "ROM3"@K10, "ROM4"@K11
+   - "ROM1"@G6 and "ROM5"@K12 are empty
+   - roms are marked "MAZER BLAZER // CFB <rom#> RA<revision#> // 1983 STERN"
+ - "shared ram" ?6116? SRAM @G3
+ - DIP64 custom framebuffer controller "Video Controller"@E11
+ - "Parameter ram" ?6116? SRAM @K13
+ - "Frame buffer" 16x ?4116? DRAM @ right edge of pcb
+ - "Erase PROM" 82S137 or MMI6353-1 @A16 (UNDUMPED)
+ - 22.1164Mhz xtal @K14
+ - 8 dipswitches in 2 banks of 4, @B5 and @B7
+ - LED @B7
+
+VSB-2000 - sound/speech/subcpu board (Voice and Sound Board)
+ - this board has a sub-cpu on it, a digitalker speech chip, 4 roms (2 dumped, 2 undumped) and 4 PROMs (all dumped)
+ - Z80 CPU @E6
+   - Roms at "ROM0"@D2, "ROM1"@D4
+ - MM54104 Digitalker "SPU" @A6
+   - Roms at "ROM2"@A2, "ROM3"@A4 (UNDUMPED)
+ - roms are marked "MAZER BLAZER // VSB <rom#> RA<revision#> // 1983 STERN"
+ - Sound section
+   - PROMS: 82s123: @B8 @B9; 82s129: @G8 @G9 (all dumped)
+
+CRF-1001 - RF Filter board for video/audio output
+ - this same board is shared with cliff hanger (stern/cliffhgr.cpp)
+
+UIB-1000 - coin inputs, start/fire buttons and gun ADCs (Vin(-) and Vref/2 are calibrated by potentiometers)
+
+Versions:
+======
+Mazer blazer's zpu-2000 roms are known to exist in at least the following versions:
+RA3
+and probably exist in versions RA1 and RA2 as well.
+It is currently unknown what versions the two sets in MAME correspond to.
+The other roms are likely always version RA1, as the RA3-zpu-2000 board has RA1
+roms for all roms except the zpu-2000 board.
 
 TO DO:
 =====
-- handle page flipping
-
-- figure out the VCU modes used in "clr_r":
-  0x13 -? sprites related
-  0x03 -? could be collision detection (if there is such a thing)
-
-- figure out how the palette is handled (partially done)
-
-- find out if there are any CLUTs (might be the other unknown cases in mode 7)
+- fix remaining issues in mb_vcu device.
 
 - figure out what really should happen during VCU test in Great Guns (patched
   out at the moment) (btw. Mazer Blazer doesn't test VCU)
 
-- add sound to Mazer Blazer - Speech processor is unknown chip
-
-
+- add sound interface to Mazer Blazer - Speech processor is Digitalker chip, sample ROMs are currently
+  undumped;
 ****************************************************************************/
+
+/*
+Differences from MAME:
+- The Mazer Blazer VCU is implemented inline in this driver instead of
+  in a separate device.
+- The video RAM has only the two layers used by the VCU draw commands.
+*/
 
 #include "driver.h"
 #include "sound/ay8910.h"
 
+#define VCU_BG_PEN 256
+
 static UINT8 *cfb_ram;
 
-static UINT32 VCU_gfx_addr = 0;
-static UINT32 VCU_gfx_param_addr = 0;
-static UINT32 xpos=0, ypos=0, pix_xsize=0, pix_ysize=0;
-static UINT8 color=0, color2=0, mode=0, plane=0;
-static UINT8 vbank = 0; /* video page select signal, likely for double buffering ?*/
+/* two banks of two layers of 256x256 pens (0x0f is the transparent pen) */
+static UINT8 vcu_vram[2][2][0x10000];
 
-static UINT32 gfx_rom_bank = 0xff;	/* graphics ROMs are banked */
+static UINT16 xpos = 0, ypos = 0, color = 0, pix_xsize = 0, pix_ysize = 0;
+static UINT8 mode = 0;
+static UINT32 param_latch = 0;
+static UINT8 vbank = 0; /* video page select signal, double buffering */
+static UINT8 vcu_vregs[4];
 
-
-
-
-#define MAZERBLA 0x01
-#define GREATGUN 0x02
-static UINT8 game_id = 0; /* hacks per game */
-
-
-
-static UINT8 lookup_RAM[0x100*4];
-
-
+static UINT32 gfx_rom_bank = 0xff; /* graphics ROMs are banked */
 
 #include "vidhrdw/res_net.h"
 /***************************************************************************
@@ -86,203 +121,104 @@ static double weights_r[2], weights_g[3], weights_b[3];
 
 static PALETTE_INIT( mazerbla )
 {
-
 	static const int resistances_r[2]  = { 4700, 2200 };
 	static const int resistances_gb[3] = { 10000, 4700, 2200 };
-
-
-/* just to calculate coefficients for later use */
+	int i;
 
 	compute_resistor_weights(0,	255,	-1.0,
 			3,	resistances_gb,	weights_g,	3600,	0,
 			3,	resistances_gb,	weights_b,	3600,	0,
 			2,	resistances_r,	weights_r,	3600,	0);
 
+	/* pens are set by the VCU, black until then */
+	for (i = 0; i <= VCU_BG_PEN; ++i)
+		palette_set_color(i, 0, 0, 0);
 }
 
-
-static mame_bitmap * tmpbitmaps[4];
-
-VIDEO_START( mazerbla )
+static void vcu_set_color(int pen, UINT8 data)
 {
-	tmpbitmaps[0] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
-	tmpbitmaps[1] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
-	tmpbitmaps[2] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
-	tmpbitmaps[3] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
+	int r, g, b, bit0, bit1, bit2;
 
-	if ((tmpbitmaps[0]==0) || (tmpbitmaps[1]==0) || (tmpbitmaps[2]==0) || (tmpbitmaps[3]==0))
-	{
-		logerror("too bad - run out of memory in video_start() ");
-		return 1;
-	}
+	bit1 = (data >> 7) & 0x01;
+	bit0 = (data >> 6) & 0x01;
+	r = combine_2_weights(weights_r, bit0, bit1);
 
+	bit2 = (data >> 5) & 0x01;
+	bit1 = (data >> 4) & 0x01;
+	bit0 = (data >> 3) & 0x01;
+	g = combine_3_weights(weights_g, bit0, bit1, bit2);
+
+	bit2 = (data >> 2) & 0x01;
+	bit1 = (data >> 1) & 0x01;
+	bit0 = (data >> 0) & 0x01;
+	b = combine_3_weights(weights_b, bit0, bit1, bit2);
+
+	palette_set_color(pen, r, g, b);
+}
+
+static VIDEO_START( mazerbla )
+{
+	memset(vcu_vram, 0x0f, sizeof(vcu_vram));
 	return 0;
 }
 
-#if 0
-static int dbg_info = 1;
-static int dbg_gfx_e = 1;
-static int dbg_clr_e = 0;
-static int dbg_vbank = 1;
-static int dbg_lookup = 4;	//4= off
-
-static int planes_enabled[4] = {1,1,1,1}; //all enabled
-#endif
-
-#if 0
-VIDEO_UPDATE( test_vcu )
+static VIDEO_UPDATE( mazerbla )
 {
-	int j;
-	char buf[128];
+	int x, y;
+	const UINT8 *layer0 = vcu_vram[vbank ^ 1][0];
+	const UINT8 *layer1 = vcu_vram[vbank ^ 1][1];
+	UINT16 pen_base = (vcu_vregs[1] << 4);
 
-	UINT32 color_base=0;
-
-	if (game_id==MAZERBLA)
-		color_base = 0x80;	/* 0x80 constant: matches Mazer Blazer movie */
-
-	if (game_id==GREATGUN)
-		color_base = 0x0;
-
-
-	fillbitmap(bitmap,0,NULL);
-//logerror("-->frame\n");
-
-
-	if (planes_enabled[3])
-		copybitmap(bitmap,tmpbitmaps[3],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE, 0 );
-
-
-	if (planes_enabled[2])
-		copybitmap(bitmap,tmpbitmaps[2],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
-	fillbitmap(tmpbitmaps[2],Machine->pens[color_base],NULL);
-
-
-	if (planes_enabled[1])
-		copybitmap(bitmap,tmpbitmaps[1],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
-	fillbitmap(tmpbitmaps[1],Machine->pens[color_base],NULL);
-
-
-	if (planes_enabled[0])
-		copybitmap(bitmap,tmpbitmaps[0],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
-	fillbitmap(tmpbitmaps[0],Machine->pens[color_base],NULL);
-
-	if (code_pressed_memory(KEYCODE_1))	/* plane 1 */
+	for (y = cliprect->min_y; y <= cliprect->max_y; ++y)
 	{
-		planes_enabled[0] ^= 1;
-	}
-	if (code_pressed_memory(KEYCODE_2))	/* plane 2 */
-	{
-		planes_enabled[1] ^= 1;
-	}
-	if (code_pressed_memory(KEYCODE_3))	/* plane 3 */
-	{
-		planes_enabled[2] ^= 1;
-	}
-	if (code_pressed_memory(KEYCODE_4))	/* plane 4 */
-	{
-		planes_enabled[3] ^= 1;
-	}
+		UINT16 *dst = (UINT16 *)bitmap->line[y];
 
-	if (code_pressed_memory(KEYCODE_I))	/* show/hide debug info */
-	{
-		dbg_info = !dbg_info;
-	}
-
-	if (code_pressed_memory(KEYCODE_G))	/* enable gfx area handling */
-	{
-		dbg_gfx_e = !dbg_gfx_e;
-	}
-
-	if (code_pressed_memory(KEYCODE_C))	/* enable color area handling */
-	{
-		dbg_clr_e = !dbg_clr_e;
-	}
-
-	if (code_pressed_memory(KEYCODE_V))	/* draw only when vbank==dbg_vbank */
-	{
-		dbg_vbank ^= 1;
-	}
-
-	if (code_pressed_memory(KEYCODE_L))	/* showlookup ram */
-	{
-		dbg_lookup = (dbg_lookup+1)%5;//0,1,2,3, 4-off
-	}
-
-
-	if (dbg_info)
-	{
-		sprintf(buf,"I-info, G-gfx, C-color, V-vbank, 1-4 enable planes");
-		ui_draw_text(buf, 10, 0 * ui_get_line_height());
-
-		sprintf(buf,"g:%1i c:%1i v:%1i vbk=%1i  planes=%1i%1i%1i%1i  ", dbg_gfx_e&1, dbg_clr_e&1, dbg_vbank, vbank&1,
-			planes_enabled[0],
-			planes_enabled[1],
-			planes_enabled[2],
-			planes_enabled[3] );
-
-		ui_draw_text(buf, 10, 1 * ui_get_line_height());
-
-		if (dbg_lookup!=4)
+		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
 		{
-			int lookup_offs = (dbg_lookup)*256; //=0,1,2,3*256
-			int y,x;
+			UINT8 dot = layer0[x | (y << 8)];
 
-			for (y=0; y<16; y++)
-			{
-				memset(buf,0,128);
-				sprintf( buf+strlen(buf), "%04x ", lookup_offs+y*16 );
-				for (x=0; x<16; x++)
-				{
-					sprintf( buf+strlen(buf), "%02x ", lookup_RAM[ lookup_offs+x+y*16 ] );
-				}
-				ui_draw_text(buf, 0, (2 + y) * ui_get_line_height());
-			}
+			if (dot == 0x0f)
+				dot = layer1[x | (y << 8)];
+
+			dst[x] = Machine->pens[dot | pen_base];
 		}
 	}
-
 }
-#endif
 
-
-/* these two VIDEO_UPDATE()s will be joined one day */
-VIDEO_UPDATE( greatgun )
+/* gun position as computed by the game: the coordinates are clamped and the
+   vertical one is shifted, leaving out the ammo bar at the bottom */
+static void draw_gun_crosshair(mame_bitmap *bitmap, const rectangle *cliprect, int x, int y, int player)
 {
+	if (x < 0x04)
+		x = 0x04;
+	if (x > 0xfb)
+		x = 0xfb;
 
-	UINT32 color_base=0;
+	if (y < 0x1a)
+		y = 0x1a;
+	if (y > 0xe5)
+		y = 0xe5;
+	y -= 0x16;
+	if (y < 0x04)
+		y = 0x04;
+	if (y > 0xcf)
+		y = 0xcf;
 
-	if (game_id==MAZERBLA)
-		color_base = 0x80;	/* 0x80 constant: matches Mazer Blazer movie */
-
-	if (game_id==GREATGUN)
-		color_base = 0x0;
-
-//fillbitmap(bitmap,0,NULL);
-
-	copybitmap(bitmap,tmpbitmaps[3],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE, 0 );
-	copybitmap(bitmap,tmpbitmaps[2],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
-	copybitmap(bitmap,tmpbitmaps[1],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
-	copybitmap(bitmap,tmpbitmaps[0],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[color_base] );
+	draw_crosshair(bitmap, x, y, cliprect, player);
 }
 
-VIDEO_UPDATE( mazerbla )
+static VIDEO_UPDATE( greatgun )
 {
+	video_update_mazerbla(screen, bitmap, cliprect);
 
-	UINT32 color_base=0;
-
-	if (game_id==MAZERBLA)
-		color_base = 0x80;	/* 0x80 constant: matches Mazer Blazer movie */
-
-	if (game_id==GREATGUN)
-		color_base = 0x0;
-
-//fillbitmap(bitmap,0,NULL);
-
-	copybitmap(bitmap,tmpbitmaps[3],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE, 0 ); //text
-	copybitmap(bitmap,tmpbitmaps[2],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[0] );
-	copybitmap(bitmap,tmpbitmaps[1],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[0] ); //haircross
-	copybitmap(bitmap,tmpbitmaps[0],0,0,0,0,&Machine->visible_area,TRANSPARENCY_PEN, Machine->pens[0] ); //sprites
+	draw_gun_crosshair(bitmap, cliprect, readinputport(6), readinputport(7), 0);
+	/* the number of players is kept in the work RAM */
+	if (videoram[0xad] >= 2)
+	{
+		/* the game reads the second vertical axis inverted */
+		draw_gun_crosshair(bitmap, cliprect, readinputport(8), 255 - readinputport(9), 1);
+	}
 }
-
 
 static UINT8 zpu_int_vector;
 
@@ -563,75 +499,42 @@ static WRITE8_HANDLER(cfb_led_w)
 }
 
 
-static UINT8 bknd_col = 0xaa;
 static WRITE8_HANDLER(cfb_backgnd_color_w)
 {
-
-	if (bknd_col != data)
-	{
-		int r,g,b, bit0, bit1, bit2;
-
-		bknd_col = data;
-
-		/* red component */
-		bit1 = (data >> 7) & 0x01;
-		bit0 = (data >> 6) & 0x01;
-		r = combine_2_weights(weights_r, bit0, bit1);
-
-		/* green component */
-		bit2 = (data >> 5) & 0x01;
-		bit1 = (data >> 4) & 0x01;
-		bit0 = (data >> 3) & 0x01;
-		g = combine_3_weights(weights_g, bit0, bit1, bit2);
-
-		/* blue component */
-		bit2 = (data >> 2) & 0x01;
-		bit1 = (data >> 1) & 0x01;
-		bit0 = (data >> 0) & 0x01;
-		b = combine_3_weights(weights_b, bit0, bit1, bit2);
-
-		palette_set_color(255, r, g, b);
-		//logerror("background color (port 01) write=%02x\n",data);
-	}
+	vcu_set_color(VCU_BG_PEN, data);
 }
 
 
 static WRITE8_HANDLER(cfb_vbank_w)
 {
-	data = (data & 0x40)>>6;	/* only bit 6 connected */
-	if (vbank != data)
-	{
-		vbank = data;
-		//logerror("vbank=%1x\n",vbank);
-	}
+	/* only bit 6 connected */
+	vbank = (data & 0x40) >> 6;
+}
+
+/* Great Guns clears the selected page when switching it */
+static WRITE8_HANDLER(cfb_vbank_clear_w)
+{
+	vbank = (data & 0x40) >> 6;
+
+	memset(vcu_vram[vbank], 0x0f, sizeof(vcu_vram[vbank]));
 }
 
 
-static WRITE8_HANDLER(cfb_rom_bank_sel_w)	/* mazer blazer */
+static WRITE8_HANDLER(cfb_rom_bank_sel_w)
 {
 	gfx_rom_bank = data;
-
-	memory_set_bankptr( 1, memory_region(REGION_CPU3) + (gfx_rom_bank * 0x2000) + 0x10000 );
-}
-static WRITE8_HANDLER(cfb_rom_bank_sel_w_gg)	/* great guns */
-{
-	gfx_rom_bank = data>>1;
-
 	memory_set_bankptr( 1, memory_region(REGION_CPU3) + (gfx_rom_bank * 0x2000) + 0x10000 );
 }
 
 
-/* ????????????? */
-static UINT8 port02_status = 0;
-static READ8_HANDLER( cfb_port_02_r )
+static READ8_HANDLER( cfb_status_r )
 {
-	port02_status ^= 0xff;
-	return (port02_status);
+	return 1;
 }
 
 static ADDRESS_MAP_START( readport_cpu3, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
-	AM_RANGE(0x02, 0x02) AM_READ(cfb_port_02_r)	/* VCU status ? */
+	AM_RANGE(0x02, 0x02) AM_READ(cfb_status_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( writeport_cpu3_mb, ADDRESS_SPACE_IO, 8 )
@@ -640,47 +543,37 @@ static ADDRESS_MAP_START( writeport_cpu3_mb, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x02, 0x02) AM_WRITE(cfb_led_w)
 	AM_RANGE(0x03, 0x03) AM_WRITE(cfb_zpu_int_req_set_w)
 	AM_RANGE(0x04, 0x04) AM_WRITE(cfb_rom_bank_sel_w)
-	AM_RANGE(0x05, 0x05) AM_WRITE(cfb_vbank_w)	//visible/writable videopage select?
+	AM_RANGE(0x05, 0x05) AM_WRITE(cfb_vbank_w)
 ADDRESS_MAP_END
 
-/* Great Guns has a little different banking layout */
 static ADDRESS_MAP_START( writeport_cpu3_gg, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_WRITE(MWA8_NOP)
 	AM_RANGE(0x01, 0x01) AM_WRITE(cfb_backgnd_color_w)
 	AM_RANGE(0x02, 0x02) AM_WRITE(cfb_led_w)
 	AM_RANGE(0x03, 0x03) AM_WRITE(cfb_zpu_int_req_set_w)
-	AM_RANGE(0x04, 0x04) AM_WRITE(cfb_rom_bank_sel_w_gg)
-	AM_RANGE(0x05, 0x05) AM_WRITE(cfb_vbank_w)	//visible/writable videopage select?
+	AM_RANGE(0x04, 0x04) AM_WRITE(cfb_rom_bank_sel_w)
+	AM_RANGE(0x05, 0x05) AM_WRITE(cfb_vbank_clear_w)
 ADDRESS_MAP_END
 
 
 
-static UINT8 VCU_video_reg[4];
 static WRITE8_HANDLER( VCU_video_reg_w )
 {
-	if (VCU_video_reg[offset] != data)
-	{
-		VCU_video_reg[offset] = data;
-		//ui_popup("video_reg= %02x %02x %02x %02x", VCU_video_reg[0], VCU_video_reg[1], VCU_video_reg[2], VCU_video_reg[3] );
-		//logerror("video_reg= %02x %02x %02x %02x\n", VCU_video_reg[0], VCU_video_reg[1], VCU_video_reg[2], VCU_video_reg[3] );
-	}
+	vcu_vregs[offset] = data;
 }
 
+/* latches the parameters of the next VCU command */
 static READ8_HANDLER( VCU_set_cmd_param_r )
 {
-	VCU_gfx_param_addr = offset;
+	param_latch = offset;
 
-								/* offset  = 0 is not known */
-	xpos      = cfb_ram[VCU_gfx_param_addr + 1] | (cfb_ram[VCU_gfx_param_addr + 2]<<8);
-	ypos      = cfb_ram[VCU_gfx_param_addr + 3] | (cfb_ram[VCU_gfx_param_addr + 4]<<8);
-	color     = cfb_ram[VCU_gfx_param_addr + 5];
-	color2    = cfb_ram[VCU_gfx_param_addr + 6];
-	mode      = cfb_ram[VCU_gfx_param_addr + 7];
-	pix_xsize = cfb_ram[VCU_gfx_param_addr + 8];
-	pix_ysize = cfb_ram[VCU_gfx_param_addr + 9];
-
-	plane = mode & 3;
+	xpos      = cfb_ram[param_latch + 1] | (cfb_ram[param_latch + 2] << 8);
+	ypos      = cfb_ram[param_latch + 3] | (cfb_ram[param_latch + 4] << 8);
+	color     = cfb_ram[param_latch + 5] | (cfb_ram[param_latch + 6] << 8);
+	mode      = cfb_ram[param_latch + 7];
+	pix_xsize = cfb_ram[param_latch + 8] + 1;
+	pix_ysize = cfb_ram[param_latch + 9] + 1;
 
 	return 0;
 }
@@ -688,361 +581,148 @@ static READ8_HANDLER( VCU_set_cmd_param_r )
 
 static READ8_HANDLER( VCU_set_gfx_addr_r )
 {
-int offs;
-int x,y;
-int bits = 0;
+	const UINT8 *rom = memory_region(REGION_CPU3) + (gfx_rom_bank * 0x2000) + 0x10000;
+	const int layer = (mode >> 1) & 1;
+	/* the sprite layer is the only one where the transparent pen is drawn */
+	const int opaque_pen = (layer == 1);
+	UINT8 *vram = vcu_vram[vbank][layer];
+	int bits = 0;
+	int x, y;
 
-UINT8 color_base=0;
-
-unsigned char * rom = memory_region(REGION_CPU3) + (gfx_rom_bank * 0x2000) + 0x10000;
-
-/*
-    if ((mode<=0x07) || (mode>=0x10))
-    {
-        logerror("paradr=");
-        logerror("%3x ",VCU_gfx_param_addr );
-
-        logerror("%02x ", cfb_ram[VCU_gfx_param_addr + 0] );
-        logerror("x=%04x ", xpos );                 //1,2
-        logerror("y=%04x ", ypos );                 //3,4
-        logerror("color=%02x ", color);             //5
-        logerror("color2=%02x ", color2);           //6
-        logerror("mode=%02x ", mode );              //7
-        logerror("xpix=%02x ", pix_xsize );         //8
-        logerror("ypix=%02x ", pix_ysize );         //9
-
-        logerror("addr=%4i bank=%1i\n", offset, gfx_rom_bank);
-    }
-*/
-
-	VCU_gfx_addr = offset;
-
-
-/* draw */
-	offs = VCU_gfx_addr;
-
-	switch(mode)
+	switch (mode >> 2)
 	{
-	/* 2 bits per pixel */
-	case 0x0f:
-	case 0x0e:
-	case 0x0d:
-	case 0x0c:
-//if (dbg_gfx_e)
-//{
-	//if (vbank==dbg_vbank)
-	{
-		if (game_id==MAZERBLA)
-			color_base = 0x80;	/* 0x80 constant: matches Mazer Blazer movie */
-
-		if (game_id==GREATGUN)
-			color_base = 0x0;
-
-		for (y = 0; y <= pix_ysize; y++)
+	case 0x00: /* 4bpp */
+		for (y = 0; y < pix_ysize; ++y)
 		{
-			for (x = 0; x <= pix_xsize; x++)
+			for (x = 0; x < pix_xsize; ++x)
 			{
-				UINT8 pixeldata = rom[(offs + (bits>>3)) % 0x2000];
-				UINT8 data = (pixeldata>>(6-(bits&7))) & 3;
-				UINT8 col = 0;
+				int dstx = xpos + x;
+				int dsty = ypos + y;
 
-				switch(data)
+				if (dstx < 256 && dsty < 256)
 				{
-				case 0:
-					col = color_base | ((color &0x0f));		//background PEN
-					break;
-				case 1:
-					col = color_base | ((color &0xf0)>>4);	//foreground PEN
-					break;
-				case 2:
-					col = color_base | ((color2 &0x0f));	//background PEN2
-					break;
-				case 3:
-					col = color_base | ((color2 &0xf0)>>4);	//foreground PEN2
-					break;
-				}
+					UINT8 dot = (rom[(offset + (bits >> 3)) & 0x1fff] >> (4 - (bits & 7))) & 0xf;
 
-				if ( ((xpos+x)<256) && ((ypos+y)<256) )
-				{
-					plot_pixel(tmpbitmaps[plane], xpos+x, ypos+y, col );
+					if (dot != 0xf || opaque_pen)
+						vram[dstx | (dsty << 8)] = dot;
 				}
-
-				bits+=2;
+				bits += 4;
 			}
 		}
-	}
-//}
-	break;
+		break;
 
-	/* 1 bit per pixel */
-	case 0x0b:/* verified - 1bpp ; used for 'cleaning' using color 0xff */
-	case 0x0a:/* verified - 1bpp */
-	case 0x09:/* verified - 1bpp: gun crosshair */
-	case 0x08:/* */
-//if (dbg_gfx_e)
-//{
-	//if (vbank==dbg_vbank)
-	{
-		if (game_id==MAZERBLA)
-			color_base = 0x80;	/* 0x80 - good for Mazer Blazer: (only in game, CRT test mode is bad) */
-
-		if (game_id==GREATGUN)
-			color_base = 0x0;	/* 0x00 - good for Great Guns: (both in game and CRT test mode) */
-		for (y = 0; y <= pix_ysize; y++)
+	case 0x02: /* 1bpp */
+		for (y = 0; y < pix_ysize; ++y)
 		{
-			for (x = 0; x <= pix_xsize; x++)
+			for (x = 0; x < pix_xsize; ++x)
 			{
-				UINT8 pixeldata = rom[(offs + (bits>>3)) % 0x2000];
-				UINT8 data = (pixeldata>>(7-(bits&7))) & 1;
+				int dstx = xpos + x;
+				int dsty = ypos + y;
 
-				/* color = 4 MSB = front PEN, 4 LSB = background PEN */
-
-				if ( ((xpos+x)<256) && ((ypos+y)<256) )
+				if (dstx < 256 && dsty < 256)
 				{
-					plot_pixel(tmpbitmaps[plane], xpos+x, ypos+y, data? color_base | ((color&0xf0)>>4): color_base | ((color&0x0f)) );
-				}
+					UINT8 dot = (rom[(offset + (bits >> 3)) & 0x1fff] >> (7 - (bits & 7))) & 1;
+					UINT8 pen = (color >> (dot << 2)) & 0xf;
 
-				bits+=1;
+					if (pen != 0xf || opaque_pen)
+						vram[dstx | (dsty << 8)] = pen;
+				}
+				bits += 1;
 			}
 		}
-	}
-//}
-	break;
+		break;
 
-	/* 4 bits per pixel */
-	case 0x03:
-	case 0x01:
-	case 0x00:
-//if (dbg_gfx_e)
-//{
-	//if (vbank==dbg_vbank)
-	{
-		if (game_id==MAZERBLA)
-			color_base = 0x80;	/* 0x80 - good for Mazer Blazer: (only in game, CRT test mode is bad) */
-
-		if (game_id==GREATGUN)
-			color_base = 0x0;	/* 0x00 - good for Great Guns: (both in game and CRT test mode) */
-
-		for (y = 0; y <= pix_ysize; y++)
+	case 0x03: /* 2bpp */
+		for (y = 0; y < pix_ysize; ++y)
 		{
-			for (x = 0; x <= pix_xsize; x++)
+			for (x = 0; x < pix_xsize; ++x)
 			{
-				UINT8 pixeldata = rom[(offs + (bits>>3)) % 0x2000];
-				UINT8 data = (pixeldata>>(4-(bits&7))) & 15;
-				UINT8 col = 0;
+				int dstx = xpos + x;
+				int dsty = ypos + y;
 
-				col = color_base | data;
-
-				if ( ((xpos+x)<256) && ((ypos+y)<256) )
+				if (dstx < 256 && dsty < 256)
 				{
-					plot_pixel(tmpbitmaps[plane], xpos+x, ypos+y, col );
-				}
+					UINT8 dot = (rom[(offset + (bits >> 3)) & 0x1fff] >> (6 - (bits & 7))) & 3;
+					UINT8 pen = (color >> (dot << 2)) & 0xf;
 
-				bits+=4;
+					if (pen != 0xf || opaque_pen)
+						vram[dstx | (dsty << 8)] = pen;
+				}
+				bits += 2;
 			}
 		}
-	}
-//}
-	break;
+		break;
+
 	default:
 		ui_popup("not supported VCU drawing mode=%2x", mode);
-	break;
+		break;
 	}
+
 	return 0;
 }
 
+/*
+Read-Modify-Write operations
+
+---0 -111 (0x07) write to the palette
+---0 -011 (0x03) clear VRAM
+---1 -011 (0x13) collision detection
+*/
 static READ8_HANDLER( VCU_set_clr_addr_r )
 {
-int offs;
-int x,y;
-int bits = 0;
+	int x, y;
 
-UINT8 color_base=0;
-
-unsigned char * rom = memory_region(REGION_CPU3) + (gfx_rom_bank * 0x2000) + 0x10000;
-
-/*
-    //if (0) //(mode != 0x07)
-    {
-        logerror("paladr=");
-        logerror("%3x ",VCU_gfx_param_addr );
-
-        logerror("%02x ", cfb_ram[VCU_gfx_param_addr + 0] );
-        logerror("x=%04x ", xpos );                 //1,2
-        logerror("y=%04x ", ypos );                 //3,4
-        logerror("color=%02x ", color);             //5
-        logerror("color2=%02x ", color2 );          //6
-        logerror("mode=%02x ", mode );              //7
-        logerror("xpix=%02x ", pix_xsize );         //8
-        logerror("ypix=%02x ", pix_ysize );         //9
-
-        logerror("addr=%4i bank=%1i\n", offset, gfx_rom_bank);
-
-        for (y=0; y<16; y++)
-        {
-            logerror("%04x: ",offset+y*16);
-            for (x=0; x<16; x++)
-            {
-                logerror("%02x ",cfb_ram[offset+x+y*16]);
-            }
-            logerror("\n");
-        }
-    }
-
-*/
-
-/* copy palette / CLUT(???) */
-
-
-	switch(mode)
+	switch (mode)
 	{
-	case 0x13: /* draws sprites?? in mazer blazer and ... wrong sprite in place of targeting-cross and UFO laser */
-	case 0x03:
-/* ... this may proove that there is really only one area and that
- the draw command/palette selector is done via the 'mode' only ... */
-	//if (dbg_clr_e)
-	{
-		offs = VCU_gfx_addr;
-
-		if (game_id==MAZERBLA)
-			color_base = 0x80;	/* 0x80 constant: matches Mazer Blazer movie */
-
-		if (game_id==GREATGUN)
-			color_base = 0x0;
-
-		for (y = 0; y <= pix_ysize; y++)
+	case 0x13:
 		{
-			for (x = 0; x <= pix_xsize; x++)
+			int collision_flag = 0;
+
+			for (y = 0; y < pix_ysize; ++y)
 			{
-				UINT8 pixeldata = rom[(offs + (bits>>3)) % 0x2000];
-				UINT8 data = (pixeldata>>(6-(bits&7))) & 3;
-				UINT8 col = 0;
-
-				switch(data)
+				for (x = 0; x < pix_xsize; ++x)
 				{
-				case 0:
-					col = color_base | ((color &0x0f));		//background PEN
-					break;
-				case 1:
-					col = color_base | ((color &0xf0)>>4);	//foreground PEN
-					break;
-				case 2:
-					col = color_base | ((color2 &0x0f));	//background PEN2
-					break;
-				case 3:
-					col = color_base | ((color2 &0xf0)>>4);	//foreground PEN2
-					break;
-				}
+					int dstx = xpos + x;
+					int dsty = ypos + y;
 
-				if ( ((xpos+x)<256) && ((ypos+y)<256) )
-				{
-					plot_pixel(tmpbitmaps[plane], xpos+x, ypos+y, col );
+					if (dstx < 256 && dsty < 256)
+					{
+						if (vcu_vram[vbank][0][dstx | (dsty << 8)] == 5)
+							++collision_flag;
+					}
 				}
+			}
 
-				bits+=2;
+			/* threshold to avoid bogus collision hits */
+			if (collision_flag > 5)
+				cfb_ram[param_latch] |= 8;
+			else
+				cfb_ram[param_latch] &= ~8;
+		}
+		break;
+
+	case 0x03:
+		for (y = 0; y < pix_ysize; ++y)
+		{
+			for (x = 0; x < pix_xsize; ++x)
+			{
+				int dstx = xpos + x;
+				int dsty = ypos + y;
+
+				if (dstx < 256 && dsty < 256)
+					vcu_vram[vbank][0][dstx | (dsty << 8)] = 0x0f;
 			}
 		}
-	}
-	break;
+		break;
 
-/* Palette / "something else" write mode */
 	case 0x07:
-
-		offs = offset;
-
-		switch(ypos)
+		/* the palette is at the i/o address 0x600 of the VCU */
+		if ((ypos & 0xff) == 6)
 		{
-		case 6: //seems to encode palete write
-			{
-				int r,g,b, bit0, bit1, bit2;
-
-//pix_xsize and pix_ysize seem to be related to palette length ? (divide by 2)
-				int lookup_offs = (ypos>>1)*256; //=3*256
-
-				for (y=0; y<16; y++)
-				{
-					for (x=0; x<16; x++)
-					{
-						UINT8 colour = cfb_ram[ offs + x + y*16 ];
-
-						/* red component */
-						bit1 = (colour >> 7) & 0x01;
-						bit0 = (colour >> 6) & 0x01;
-						r = combine_2_weights(weights_r, bit0, bit1);
-
-						/* green component */
-						bit2 = (colour >> 5) & 0x01;
-						bit1 = (colour >> 4) & 0x01;
-						bit0 = (colour >> 3) & 0x01;
-						g = combine_3_weights(weights_g, bit0, bit1, bit2);
-
-						/* blue component */
-						bit2 = (colour >> 2) & 0x01;
-						bit1 = (colour >> 1) & 0x01;
-						bit0 = (colour >> 0) & 0x01;
-						b = combine_3_weights(weights_b, bit0, bit1, bit2);
-
-						if ((x+y*16)<255)//keep color 255 free for use as background color
-							palette_set_color(x+y*16, r, g, b);
-
-						lookup_RAM[ lookup_offs + x + y*16 ] = colour;
-					}
-				}
-			}
+			for (x = 0; x < pix_xsize && x < 256; ++x)
+				vcu_set_color(x, cfb_ram[offset + x]);
+		}
 		break;
-		case 4: //seems to encode lookup???? table write
-			{
-				int lookup_offs = (ypos>>1)*256; //=2*256
-
-				for (y=0; y<16; y++)
-				{
-					for (x=0; x<16; x++)
-					{
-						UINT8 dat = cfb_ram[ offs + x + y*16 ];
-						lookup_RAM[ lookup_offs + x + y*16 ] = dat;
-					}
-				}
-			}
-		break;
-		case 2: //seems to encode lookup???? table write
-			{
-				int lookup_offs = (ypos>>1)*256; //=1*256
-
-				for (y=0; y<16; y++)
-				{
-					for (x=0; x<16; x++)
-					{
-						UINT8 dat = cfb_ram[ offs + x + y*16 ];
-						lookup_RAM[ lookup_offs + x + y*16 ] = dat;
-					}
-				}
-			}
-		break;
-		case 0: //seems to encode lookup???? table write
-			{
-				int lookup_offs = (ypos>>1)*256; //=0*256
-
-				for (y=0; y<16; y++)
-				{
-					for (x=0; x<16; x++)
-					{
-						UINT8 dat = cfb_ram[ offs + x + y*16 ];
-						lookup_RAM[ lookup_offs + x + y*16 ] = dat;
-					}
-				}
-			}
-		break;
-
-		default:
-			ui_popup("not supported lookup/color write mode=%2x", ypos);
-		break;
-	}
-	break;
-
-	default:
-		ui_popup("not supported VCU color mode=%2x", mode);
-	break;
-
 	}
 
 	return 0;
@@ -1309,17 +989,17 @@ INPUT_PORTS_START( greatgun )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
 	PORT_START	/* Strobe 1: Dip Switches 28-35*/
-	PORT_DIPNAME( 0x03, 0x00, "Starting Number of Bullets/Credit" )
+	PORT_DIPNAME( 0x03, 0x03, "Starting Number of Bullets/Credit" )
 	PORT_DIPSETTING(	0x03, "60" )
 	PORT_DIPSETTING(	0x02, "70" )
 	PORT_DIPSETTING(	0x01, "80" )
 	PORT_DIPSETTING(	0x00, "90" )
-	PORT_DIPNAME( 0x0c, 0x00, "Target Size" )
+	PORT_DIPNAME( 0x0c, 0x0c, "Target Size" )
 	PORT_DIPSETTING(	0x0c, "7 x 7" )
 	PORT_DIPSETTING(	0x08, "9 x 9" )
 	PORT_DIPSETTING(	0x04, "11x11" )
 	PORT_DIPSETTING(	0x00, "7 x 7" )
-	PORT_DIPNAME( 0x70, 0x00, "Number of points for extra bullet" )
+	PORT_DIPNAME( 0x70, 0x70, "Number of points for extra bullet" )
 	PORT_DIPSETTING(	0x70, "1000" )
 	PORT_DIPSETTING(	0x60, "2000" )
 	PORT_DIPSETTING(	0x50, "3000" )
@@ -1331,7 +1011,7 @@ INPUT_PORTS_START( greatgun )
 	/* from manual:
         "This switch is used when an optional coin return or ticket dispenser is used"
     */
-	PORT_DIPNAME( 0x80, 0x00, "Number of coins or tickets returned" )
+	PORT_DIPNAME( 0x80, 0x80, "Number of coins or tickets returned" )
 	PORT_DIPSETTING(	0x80, "1" )
 	PORT_DIPSETTING(	0x00, "2" )
 
@@ -1430,10 +1110,10 @@ INPUT_PORTS_START( greatgun )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON4 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START	/* Strobe 6: horizontal movement of gun */
 	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(7) PORT_PLAYER(1)
@@ -1443,7 +1123,7 @@ INPUT_PORTS_START( greatgun )
 	PORT_START	/* Strobe 8: horizontal movement of gun */
 	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(7) PORT_PLAYER(2)
 	PORT_START	/* Strobe 9: vertical movement of gun */
-	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(7) PORT_PLAYER(2)
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0,255) PORT_SENSITIVITY(25) PORT_KEYDELTA(7) PORT_REVERSE PORT_PLAYER(2)
 INPUT_PORTS_END
 
 
@@ -1451,7 +1131,8 @@ INPUT_PORTS_END
 
 static MACHINE_RESET( mazerbla )
 {
-	game_id = MAZERBLA;
+	gfx_rom_bank = 0;
+	memory_set_bankptr( 1, memory_region(REGION_CPU3) + 0x10000 );
 	zpu_int_vector = 0xff;
 	cpunum_set_irq_callback(0, irq_callback);
 }
@@ -1459,7 +1140,8 @@ static MACHINE_RESET( mazerbla )
 
 static MACHINE_RESET( greatgun )
 {
-	game_id = GREATGUN;
+	gfx_rom_bank = 0;
+	memory_set_bankptr( 1, memory_region(REGION_CPU3) + 0x10000 );
 	zpu_int_vector = 0xff;
 	cpunum_set_irq_callback(0, irq_callback);
 
@@ -1520,8 +1202,8 @@ but handled differently for now
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(40*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 32*8-1)
-	MDRV_PALETTE_LENGTH(256)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 28*8-1)
+	MDRV_PALETTE_LENGTH(257)
 
 	MDRV_PALETTE_INIT(mazerbla)
 	MDRV_VIDEO_START(mazerbla)
@@ -1561,8 +1243,8 @@ but handled differently for now
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(40*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 32*8-1)
-	MDRV_PALETTE_LENGTH(256)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 0*8, 28*8-1)
+	MDRV_PALETTE_LENGTH(257)
 
 	MDRV_PALETTE_INIT(mazerbla)
 	MDRV_VIDEO_START(mazerbla)
@@ -1642,42 +1324,41 @@ ROM_END
 
 ROM_START( greatgun )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )     /* 64k for main CPU (ZPU board) */
-	ROM_LOAD( "zpu0",0x0000, 0x2000, CRC(80cf2cbf) SHA1(ea24b844ea6d8fc54adb2e28be68e1f3e1184b8b) )
-	ROM_LOAD( "zpu1",0x2000, 0x2000, CRC(fc12af94) SHA1(65f5bca2853271c232bd02dfc3467e6a4f7f0a6f) )
-	ROM_LOAD( "zpu2",0x4000, 0x2000, CRC(b34cfa26) SHA1(903adc6de0d34e5bc8fb0f8d3e74ff53204d8c68) )
-	ROM_LOAD( "zpu3",0x6000, 0x2000, CRC(c142ebdf) SHA1(0b87740d26b19a05f65b811225ee0053ddb27d22) )
+	ROM_LOAD( "zpu0.1h",0x0000, 0x2000, CRC(80cf2cbf) SHA1(ea24b844ea6d8fc54adb2e28be68e1f3e1184b8b) )
+	ROM_LOAD( "zpu1.2h",0x2000, 0x2000, CRC(fc12af94) SHA1(65f5bca2853271c232bd02dfc3467e6a4f7f0a6f) )
+	ROM_LOAD( "zpu2.3h",0x4000, 0x2000, CRC(b34cfa26) SHA1(903adc6de0d34e5bc8fb0f8d3e74ff53204d8c68) )
+	ROM_LOAD( "zpu3.4h",0x6000, 0x2000, CRC(c142ebdf) SHA1(0b87740d26b19a05f65b811225ee0053ddb27d22) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )     /* 64k for sound CPU (PSB board) */
-	ROM_LOAD( "psba4",0x0000, 0x2000, CRC(172a793e) SHA1(3618a778af1f4a6267bf7e0786529be731ac9b76) )
+	ROM_LOAD( "psb.prom0.4a",0x0000, 0x2000, CRC(172a793e) SHA1(3618a778af1f4a6267bf7e0786529be731ac9b76) )
 
-	ROM_REGION( 0x38000, REGION_CPU3, 0 )     /* 64k for video CPU (CFB board) */
-	ROM_LOAD( "cfb0",0x0000, 0x2000, CRC(ee372b1f) SHA1(b630fd659d59eb8c2540f18d91ae0d72e859fc4f) )
-	ROM_LOAD( "cfb1",0x2000, 0x2000, CRC(b76d9527) SHA1(8f16b850bd67d553aaaf7e176754e36aba581445) )
+	ROM_REGION( 0x60000, REGION_CPU3, 0 )     /* 64k for video CPU (CFB board) */
+	ROM_LOAD( "cfb0.7f",0x00000, 0x2000, CRC(ee372b1f) SHA1(b630fd659d59eb8c2540f18d91ae0d72e859fc4f) )
+	ROM_LOAD( "cfb1.8f",0x02000, 0x2000, CRC(b76d9527) SHA1(8f16b850bd67d553aaaf7e176754e36aba581445) )
 
-	ROM_LOAD( "psb00",0x10000,0x2000, CRC(b4956100) SHA1(98baf5c27c76dc5c4eafc44f42705239504637fe) )/*banked at 0x4000*/
-	ROM_LOAD( "psb01",0x12000,0x2000, CRC(acdce2ee) SHA1(96b8961afbd0006b10cfdc825aefe27ec18121ff) )
-	ROM_LOAD( "psb02",0x14000,0x2000, CRC(cb840fc6) SHA1(c30c72d355e1957f3715e9fab701f65b9d7d632a) )
-	ROM_LOAD( "psb03",0x16000,0x2000, CRC(86ea6f99) SHA1(ce5d42557d0a62eebe3d0cee28587d60707573e4) )
-	ROM_LOAD( "psb04",0x18000,0x2000, CRC(65379893) SHA1(84bb755e23d5ce13b1c82e59f24f3890c50697cc) )
-	ROM_LOAD( "psb05",0x1a000,0x2000, CRC(f82245cb) SHA1(fa1cab94a03ce7b8e45ea6eec572b21f268f7547) )
-	ROM_LOAD( "psb06",0x1c000,0x2000, CRC(6b86794f) SHA1(72cf67ecf5a9198ecb44dd846de968e6cdd6458d) )
-	ROM_LOAD( "psb07",0x1e000,0x2000, CRC(60a7abf3) SHA1(44b932d8af29ec706c29d6b71a8bac6318d92315) )
-	ROM_LOAD( "psb08",0x20000,0x2000, CRC(854be14e) SHA1(ae9b1fe2443c87bb4334bc776f7bc7e5fa874f38) )
-	ROM_LOAD( "psb09",0x22000,0x2000, CRC(b2e8afa3) SHA1(30a3d83bf1ec7885549b47f9569e9ae0d05b948d) )
-	ROM_LOAD( "psb10",0x24000,0x2000, CRC(fbfb0aab) SHA1(2eb666a5eff31019b4ffdfc82e242ff47cd59527) )
-	ROM_LOAD( "psb11",0x26000,0x2000, CRC(ddcd3cec) SHA1(7d0c3b4160b11ebe9b097664190d8ae605413baa) )
-	ROM_LOAD( "psb12",0x28000,0x2000, CRC(c6617377) SHA1(29a6fc52e06c41f06ee333aad707c3a1952dff4d) )
-	ROM_LOAD( "psb13",0x2a000,0x2000, CRC(aeab8555) SHA1(c398cac5210022e3c9e25a9f2ef1017b27c21e62) )
-	ROM_LOAD( "psb14",0x2c000,0x2000, CRC(ef35e314) SHA1(2e20517ff89b153fd888cf4eb0404a802e16b1b7) )
-	ROM_LOAD( "psb15",0x2e000,0x2000, CRC(1fafe83d) SHA1(d1d406275f50d87547aabe1295795099f341433d) )
-	ROM_LOAD( "psb16",0x30000,0x2000, CRC(ec49864f) SHA1(7a3b295972b52682406f75c4fe12c29632452491) )
-	ROM_LOAD( "psb17",0x32000,0x2000, CRC(d9778e85) SHA1(2998f0a08cdba8a75e687a54cb9a03edeb4b22cd) )
-	ROM_LOAD( "psb18",0x34000,0x2000, CRC(ef61b6c0) SHA1(7e8a82beefb9fd8e219fc4d7d25a3a43ab8aadf7) )
-	ROM_LOAD( "psb19",0x36000,0x2000, CRC(68752e0d) SHA1(58a4921e4f774af5e1ef7af67f06e9b43643ffab) )
-
+	ROM_LOAD( "great_guns_psb0_ra1.rom0.5g",0x10000,0x2000,   CRC(b4956100) SHA1(98baf5c27c76dc5c4eafc44f42705239504637fe) )/*banked at 0x4000*/
+	ROM_LOAD( "great_guns_psb1_ra1.rom1.5f",0x14000,0x2000,   CRC(acdce2ee) SHA1(96b8961afbd0006b10cfdc825aefe27ec18121ff) )
+	ROM_LOAD( "great_guns_psb2_ra1.rom2.5d",0x18000,0x2000,   CRC(cb840fc6) SHA1(c30c72d355e1957f3715e9fab701f65b9d7d632a) )
+	ROM_LOAD( "great_guns_psb3_ra1.rom3.5c",0x1c000,0x2000,   CRC(86ea6f99) SHA1(ce5d42557d0a62eebe3d0cee28587d60707573e4) )
+	ROM_LOAD( "great_guns_psb4_ra1.rom4.6g",0x20000,0x2000,   CRC(65379893) SHA1(84bb755e23d5ce13b1c82e59f24f3890c50697cc) )
+	ROM_LOAD( "great_guns_psb5_ra1.rom5.6f",0x24000,0x2000,   CRC(f82245cb) SHA1(fa1cab94a03ce7b8e45ea6eec572b21f268f7547) )
+	ROM_LOAD( "great_guns_psb6_ra1.rom6.6d",0x28000,0x2000,   CRC(6b86794f) SHA1(72cf67ecf5a9198ecb44dd846de968e6cdd6458d) )
+	ROM_LOAD( "great_guns_psb7_ra1.rom7.6c",0x2c000,0x2000,   CRC(60a7abf3) SHA1(44b932d8af29ec706c29d6b71a8bac6318d92315) )
+	ROM_LOAD( "great_guns_psb8_ra1.rom8.7g",0x30000,0x2000,   CRC(854be14e) SHA1(ae9b1fe2443c87bb4334bc776f7bc7e5fa874f38) )
+	ROM_LOAD( "great_guns_psb9_ra1.rom9.7f",0x34000,0x2000,   CRC(b2e8afa3) SHA1(30a3d83bf1ec7885549b47f9569e9ae0d05b948d) )
+	ROM_LOAD( "great_guns_psb10_ra1.rom10.7d",0x38000,0x2000, CRC(fbfb0aab) SHA1(2eb666a5eff31019b4ffdfc82e242ff47cd59527) )
+	ROM_LOAD( "great_guns_psb11_ra1.rom11.7c",0x3c000,0x2000, CRC(ddcd3cec) SHA1(7d0c3b4160b11ebe9b097664190d8ae605413baa) )
+	ROM_LOAD( "great_guns_psb12_ra1.rom12.8g",0x40000,0x2000, CRC(c6617377) SHA1(29a6fc52e06c41f06ee333aad707c3a1952dff4d) )
+	ROM_LOAD( "great_guns_psb13_ra1.rom13.8f",0x44000,0x2000, CRC(aeab8555) SHA1(c398cac5210022e3c9e25a9f2ef1017b27c21e62) )
+	ROM_LOAD( "great_guns_psb14_ra1.rom14.8d",0x48000,0x2000, CRC(ef35e314) SHA1(2e20517ff89b153fd888cf4eb0404a802e16b1b7) )
+	ROM_LOAD( "great_guns_psb15_ra1.rom15.8c",0x4c000,0x2000, CRC(1fafe83d) SHA1(d1d406275f50d87547aabe1295795099f341433d) )
+	ROM_LOAD( "great_guns_psb16_ra1.rom16.9g",0x50000,0x2000, CRC(ec49864f) SHA1(7a3b295972b52682406f75c4fe12c29632452491) )
+	ROM_LOAD( "great_guns_psb17_ra1.rom17.9f",0x54000,0x2000, CRC(d9778e85) SHA1(2998f0a08cdba8a75e687a54cb9a03edeb4b22cd) )
+	ROM_LOAD( "great_guns_psb18_ra1.rom18.9d",0x58000,0x2000, CRC(ef61b6c0) SHA1(7e8a82beefb9fd8e219fc4d7d25a3a43ab8aadf7) )
+	ROM_LOAD( "great_guns_psb19_ra1.rom19.9c",0x5c000,0x2000, CRC(68752e0d) SHA1(58a4921e4f774af5e1ef7af67f06e9b43643ffab) )
 ROM_END
 
 
 GAME( 1983, mazerbla, 0,        mazerbla,  mazerbla, 0, ROT0, "Stern", "Mazer Blazer (set 1)", GAME_IMPERFECT_GRAPHICS |GAME_NO_SOUND | GAME_NOT_WORKING )
 GAME( 1983, mzrblzra, mazerbla, mazerbla,  mazerbla, 0, ROT0, "Stern", "Mazer Blazer (set 2)", GAME_IMPERFECT_GRAPHICS |GAME_NO_SOUND | GAME_NOT_WORKING )
-GAME( 1983, greatgun, 0,        greatgun,  greatgun, 0, ROT0, "Stern", "Great Guns", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // graphic issues
+GAME( 1983, greatgun, 0,        greatgun,  greatgun, 0, ROT0, "Stern", "Great Guns", GAME_IMPERFECT_GRAPHICS )
