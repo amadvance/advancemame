@@ -109,6 +109,7 @@ void tms5220_get_info(void *token, UINT32 state, sndinfo *info);
 void vlm5030_get_info(void *token, UINT32 state, sndinfo *info);
 void adpcm_get_info(void *token, UINT32 state, sndinfo *info);
 void okim6295_get_info(void *token, UINT32 state, sndinfo *info);
+void okim9810_get_info(void *token, UINT32 state, sndinfo *info);
 void msm5205_get_info(void *token, UINT32 state, sndinfo *info);
 void msm5232_get_info(void *token, UINT32 state, sndinfo *info);
 void upd7759_get_info(void *token, UINT32 state, sndinfo *info);
@@ -286,6 +287,9 @@ static const struct
 #endif
 #if (HAS_OKIM6295)
 	{ SOUND_OKIM6295, okim6295_get_info },
+#endif
+#if (HAS_OKIM9810)
+	{ SOUND_OKIM9810, okim9810_get_info },
 #endif
 #if (HAS_MSM5205)
 	{ SOUND_MSM5205, msm5205_get_info },

@@ -7468,6 +7468,20 @@ Other Sun games
 	DRIVER( ucytokyu )	/* (c) 1997 Sigma */
 	DRIVER( dashhero )	/* (c) 2000 Sigma */
 
+	/* Sammy Medal Games */
+	DRIVER( sammymdl )	/* BIOS */
+	DRIVER( kingyosu )	/* (c) 1999 Sammy */
+	DRIVER( shatekds )	/* (c) 1999 Sammy */
+	DRIVER( animalc )	/* (c) 2000 Sammy */
+	DRIVER( itazuram )	/* (c) 2000 Sammy */
+	DRIVER( pyenaget )	/* (c) 2000 Sammy */
+	DRIVER( tdoboon )	/* (c) 2000 Sammy */
+	DRIVER( haekaka )	/* (c) 2001 Sammy */
+	DRIVER( kotekita )	/* (c) 2001 Sammy */
+	DRIVER( gunkids )	/* (c) 2002 Sammy */
+	DRIVER( wantouch )	/* (c) 2003 Sammy */
+	DRIVER( gocowboy )	/* (c) 2003 Sammy */
+
 	/* IGS games ( www.igs.com.tw ) */
 	DRIVER( goldstar )	/* (c) 198? IGS */
 	DRIVER( goldstbl )	/* (c) 198? IGS */

@@ -232,6 +232,7 @@ SOUNDS += TMS5220
 SOUNDS += VLM5030
 SOUNDS += ADPCM
 SOUNDS += OKIM6295
+SOUNDS += OKIM9810
 SOUNDS += MSM5205
 SOUNDS += MSM5232
 SOUNDS += UPD7759
@@ -1279,6 +1280,7 @@ $(OBJ)/seta.a: \
 
 $(OBJ)/sigma.a: \
 	$(OBJ)/drivers/sigmab98.o \
+	$(OBJ)/drivers/sammymdl.o \
 	$(OBJ)/drivers/nyny.o $(OBJ)/vidhrdw/nyny.o \
 	$(OBJ)/drivers/r2dtank.o \
 	$(OBJ)/drivers/spiders.o $(OBJ)/machine/spiders.o $(OBJ)/sndhrdw/spiders.o $(OBJ)/vidhrdw/spiders.o \

@@ -352,6 +352,7 @@ endif
 $(1)SOUNDDEFS += -DHAS_MSM5205=$$(if $$(filter MSM5205,$$($(1)SOUNDS)),1,0)
 $(1)SOUNDDEFS += -DHAS_MSM5232=$$(if $$(filter MSM5232,$$($(1)SOUNDS)),1,0)
 $(1)SOUNDDEFS += -DHAS_OKIM6295=$$(if $$(filter OKIM6295,$$($(1)SOUNDS)),1,0)
+$(1)SOUNDDEFS += -DHAS_OKIM9810=$$(if $$(filter OKIM9810,$$($(1)SOUNDS)),1,0)
 
 ifneq ($$(filter MSM5205,$$($(1)SOUNDS)),)
 $(1)SOUNDOBJS += $(2)/sound/msm5205.o
@@ -363,6 +364,10 @@ endif
 
 ifneq ($$(filter OKIM6295,$$($(1)SOUNDS)),)
 $(1)SOUNDOBJS += $(2)/sound/okim6295.o
+endif
+
+ifneq ($$(filter OKIM9810,$$($(1)SOUNDS)),)
+$(1)SOUNDOBJS += $(2)/sound/okim9810.o
 endif
 
 
