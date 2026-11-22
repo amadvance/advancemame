@@ -1251,6 +1251,11 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 					if (msg_buffer[0])
 						sncat(msg_buffer, sizeof(msg_buffer), ", ");
 					sncat(msg_buffer, sizeof(msg_buffer), p->desc);
+					if (digital_map[i].name) {
+						sncat(msg_buffer, sizeof(msg_buffer), " (");
+						sncat(msg_buffer, sizeof(msg_buffer), digital_map[i].name);
+						sncat(msg_buffer, sizeof(msg_buffer), ")");
+					}
 				}
 			}
 		}

@@ -175,6 +175,7 @@ struct mame_digital_map_entry {
 	unsigned port; /**< Digital port. */
 	unsigned seq[MAME_INPUT_MAP_MAX]; /**< Sequence assigned. */
 	adv_bool port_state; /**< State of the port. */
+	const char* name; /**< Game specific name of the port, 0 if none. */
 };
 
 /** \name Analog control kind

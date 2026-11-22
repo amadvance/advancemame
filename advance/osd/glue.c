@@ -2374,6 +2374,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 
 					digital_map[digital_mac].port = port;
 					digital_map[digital_mac].port_state = seq_pressed(seq);
+					digital_map[digital_mac].name = 0;
 
 					glue_seq_convert(seq->code, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
 
@@ -2406,6 +2407,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 
 					digital_map[digital_mac].port = port;
 					digital_map[digital_mac].port_state = seq_pressed(seq);
+					digital_map[digital_mac].name = i->name != IP_NAME_DEFAULT ? i->name : 0;
 
 					glue_seq_convert(seq->code, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
 
