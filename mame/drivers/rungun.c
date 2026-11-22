@@ -56,6 +56,10 @@ UINT16 *rng_936_videoram;
 
 static UINT16 *rng_sysreg;
 static int init_eeprom_count;
+static UINT16 *rng_banked_ram;
+static int rng_ram_bank;
+static int rng_irq5_enable;
+static int rng_single_screen_mode;
 static int rng_z80_control;
 static int rng_sound_status;
 
@@ -84,7 +88,11 @@ static NVRAM_HANDLER( rungun )
 			EEPROM_load(file);
 		}
 		else
+		{
 			init_eeprom_count = 10;
+			if (memory_region(REGION_USER1))
+				EEPROM_set_data(memory_region(REGION_USER1), memory_region_length(REGION_USER1));
+		}
 	}
 }
 
@@ -120,7 +128,8 @@ static READ16_HANDLER( rng_sysregs_r )
                 bit8 : freeze
                 bit9 : joysticks layout(auto detect???)
             */
-			return(input_port_0_word_r(0, 0));
+			data = (input_port_0_word_r(0, 0) & 0xfdff) | ((rng_single_screen_mode ? 1 : (~cpu_getcurrentframe() & 1)) << 9);
+			return(data);
 		break;
 
 		case 0x06/2:
@@ -158,13 +167,19 @@ static WRITE16_HANDLER( rng_sysregs_w )
             */
 			if (ACCESSING_LSB)
 			{
+				rng_ram_bank = (data & 0x80) ? 1 : 0;
 				EEPROM_write_bit((data & 0x01) ? 1 : 0);
 				EEPROM_set_cs_line((data & 0x02) ? CLEAR_LINE : ASSERT_LINE);
 				EEPROM_set_clock_line((data & 0x04) ? ASSERT_LINE : CLEAR_LINE);
 			}
 
-			if (!(data & 0x40))
-				cpunum_set_input_line(0, MC68000_IRQ_5, CLEAR_LINE);
+			if (ACCESSING_MSB)
+			{
+				rng_irq5_enable = (data & 0x400) ? 1 : 0;
+				rng_single_screen_mode = (data & 0x1000) ? 1 : 0;
+				if (!rng_irq5_enable)
+					cpunum_set_input_line(0, MC68000_IRQ_5, CLEAR_LINE);
+			}
 		break;
 
 		case 0x0c/2:
@@ -177,6 +192,17 @@ static WRITE16_HANDLER( rng_sysregs_w )
 			K053246_set_OBJCHA_line((data & 0x04) ? ASSERT_LINE : CLEAR_LINE);
 		break;
 	}
+}
+
+/* the object RAM window is banked: the game keeps the state of the two screens in separate banks */
+static READ16_HANDLER( rng_banked_ram_r )
+{
+	return rng_banked_ram[offset + rng_ram_bank * 0x1000];
+}
+
+static WRITE16_HANDLER( rng_banked_ram_w )
+{
+	COMBINE_DATA(rng_banked_ram + offset + rng_ram_bank * 0x1000);
 }
 
 static WRITE16_HANDLER( sound_cmd1_w )
@@ -207,7 +233,13 @@ static READ16_HANDLER( sound_status_msb_r )
 
 static INTERRUPT_GEN(rng_interrupt)
 {
-	if (rng_sysreg[0x0c/2] & 0x09)
+	int i;
+
+	/* the object chip displays the second bank, copied at every frame */
+	for (i = 0; i < 0x800; ++i)
+		K053247_word_w(i, rng_banked_ram[0x1000 + i], 0);
+
+	if (rng_irq5_enable)
 		cpunum_set_input_line(0, MC68000_IRQ_5, ASSERT_LINE);
 }
 
@@ -221,8 +253,7 @@ static ADDRESS_MAP_START( rngreadmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x580014, 0x580015) AM_READ(sound_status_msb_r)
 	AM_RANGE(0x580000, 0x58001f) AM_READ(MRA16_RAM)		// sound regs read fall-through
 	AM_RANGE(0x5c0000, 0x5c000d) AM_READ(K053246_word_r)	// 246A ROM readback window
-	AM_RANGE(0x600000, 0x600fff) AM_READ(K053247_word_r)	// OBJ RAM
-	AM_RANGE(0x601000, 0x601fff) AM_READ(MRA16_RAM)		// communication? second monitor buffer?
+	AM_RANGE(0x600000, 0x601fff) AM_READ(rng_banked_ram_r)	// OBJ RAM
 	AM_RANGE(0x6c0000, 0x6cffff) AM_READ(MRA16_RAM)		// PSAC2 render RAM
 	AM_RANGE(0x700000, 0x7007ff) AM_READ(MRA16_RAM)		// PSAC2 line effect
 	AM_RANGE(0x740000, 0x741fff) AM_READ(ttl_ram_r)		// text plane RAM
@@ -243,8 +274,7 @@ static ADDRESS_MAP_START( rngwritemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x58000e, 0x58000f) AM_WRITE(sound_cmd2_w)
 	AM_RANGE(0x580000, 0x58001f) AM_WRITE(MWA16_RAM)		// sound regs write fall-through
 	AM_RANGE(0x5c0010, 0x5c001f) AM_WRITE(K053247_reg_word_w)
-	AM_RANGE(0x600000, 0x600fff) AM_WRITE(K053247_word_w)	// OBJ RAM
-	AM_RANGE(0x601000, 0x601fff) AM_WRITE(MWA16_RAM)		// communication? second monitor buffer?
+	AM_RANGE(0x600000, 0x601fff) AM_WRITE(rng_banked_ram_w)	// OBJ RAM
 	AM_RANGE(0x640000, 0x640007) AM_WRITE(K053246_word_w)	// '246A registers
 	AM_RANGE(0x680000, 0x68001f) AM_WRITE(MWA16_RAM) AM_BASE(&K053936_0_ctrl)				// '936 registers
 	AM_RANGE(0x6c0000, 0x6cffff) AM_WRITE(rng_936_videoram_w) AM_BASE(&rng_936_videoram)	// PSAC2 ('936) RAM (34v + 35v)
@@ -567,6 +597,9 @@ ROM_START( rungunu )
 	ROM_REGION( 0x400000, REGION_SOUND1, 0)
 	ROM_LOAD( "247-a06", 0x000000, 0x200000, CRC(b8b2a67e) SHA1(a873d32f4b178c714743664fa53c0dca29cb3ce4) )
 	ROM_LOAD( "247-a07", 0x200000, 0x200000, CRC(0108142d) SHA1(4dc6a36d976dad9c0da5a5b1f01f2eb3b369c99d) )
+
+	ROM_REGION( 0x80, REGION_USER1, 0 ) // default eeprom to prevent game booting upside down with error
+	ROM_LOAD( "rungunu.nv", 0x0000, 0x080, CRC(d501f579) SHA1(9e01d9a6a8cdc782dd2a92fbf2295e8df732f892) )
 ROM_END
 
 ROM_START( rungunb )
@@ -694,6 +727,8 @@ ROM_END
 
 static DRIVER_INIT( rng )
 {
+	rng_banked_ram = auto_malloc(0x4000);
+	memset(rng_banked_ram, 0, 0x4000);
 }
 
 MACHINE_RESET( rng )
@@ -703,13 +738,16 @@ MACHINE_RESET( rng )
 	memset(rng_sysreg, 0, 0x20);
 
 	init_eeprom_count = 0;
+	rng_irq5_enable = 0;
+	rng_ram_bank = 0;
+	rng_single_screen_mode = 0;
 	rng_z80_control = 0;
 	rng_sound_status = 0;
 }
 
-GAME( 1993, rungun,   0,      rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, runguna,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.4)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, rungunb,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 9.10, prototype?)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, rungunu,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UAB 1993 10.12)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, rungunuba, rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UBA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
-GAME( 1993, slmdunkj, rungun, rng, rng, rng, ROT0, "Konami", "Slam Dunk (ver JAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // fail memory check and reset
+GAME( 1993, rungun,   0,      rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1993, runguna,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 10.4)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1993, rungunb,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver EAA 1993 9.10, prototype?)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1993, rungunu,  rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UAB 1993 10.12)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1993, rungunuba, rungun, rng, rng, rng, ROT0, "Konami", "Run and Gun (ver UBA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
+GAME( 1993, slmdunkj, rungun, rng, rng, rng, ROT0, "Konami", "Slam Dunk (ver JAA 1993 10.8)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND )
