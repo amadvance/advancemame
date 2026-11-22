@@ -1329,6 +1329,16 @@ static MACHINE_DRIVER_START( headon2 )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( headon )
+	MDRV_IMPORT_FROM(2ports)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(headon_program, 0)
+	MDRV_CPU_IO_MAP(headon_io, 0)
+	MDRV_SOUND_ADD(DISCRETE, 0)
+	MDRV_SOUND_CONFIG(headon_discrete_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( nostromo )
 	MDRV_IMPORT_FROM(2ports)
 	MDRV_CPU_MODIFY("main")
@@ -1717,7 +1727,7 @@ ROM_START( headon )
 	ROM_LOAD( "316-0138.u44", 0x0000, 0x0020, CRC(67104ea9) SHA1(26b6bd2a1973b83bb9af4e3385d8cb14cb3f62f2) )
 ROM_END
 
-ROM_START( headonb )
+ROM_START( headon1 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
 	ROM_LOAD( "163a",         0x0000, 0x0400, CRC(4bb51259) SHA1(43411ffda3fe03b1d694f70791b0bab5786759c0) )
 	ROM_LOAD( "164a",         0x0400, 0x0400, CRC(aeac8c5f) SHA1(ef9ad63d13076a559ba12c6421ad61de21dd4c90) )
@@ -2294,8 +2304,8 @@ GAME( 1979, sspacat2, sspaceat, 3ports,   sspaceat, sspaceat,  ROT270, "Sega", "
 GAME( 1979, sspacat3, sspaceat, 3ports,   sspaceat, sspaceat,  ROT270, "Sega", "Space Attack (upright set 3)", GAME_NO_SOUND )
 GAME( 1979, sspacatc, sspaceat, 3ports,   sspaceat, sspaceat,  ROT270, "Sega", "Space Attack (cocktail)", GAME_NO_SOUND )
 GAME( 1979, sspacaho, 0,        4ports,   sspacaho, sspacaho,  ROT270, "Sega", "Space Attack / Head On", GAME_NO_SOUND )
-GAME( 1979, headon,   0,        2ports,   headon,   headon,    ROT0,   "Gremlin", "Head On (2 players)", GAME_NO_SOUND )
-GAME( 1979, headonb,  headon,   2ports,   headon,   headon,    ROT0,   "Gremlin", "Head On (1 player)", GAME_NO_SOUND )
+GAME( 1979, headon,   0,        headon,   headon,   headon,    ROT0,   "Gremlin", "Head On (2 players)", GAME_IMPERFECT_SOUND )
+GAME( 1979, headon1,  headon,   headon,   headon,   headon,    ROT0,   "Gremlin", "Head On (1 player)", GAME_IMPERFECT_SOUND )
 GAME( 1979, headon2,  0,        headon2,  headon2,  headon2,   ROT0,   "Sega", "Head On 2", GAME_IMPERFECT_SOUND )
 GAME( 1979, invho2,   0,        invinco4, invho2,   invho2,    ROT270, "Sega", "Invinco / Head On 2", GAME_IMPERFECT_SOUND )
 GAME( 1980, nsub,     0,        nsub,     nsub,     safari,    ROT270, "Sega", "N-Sub (upright)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )

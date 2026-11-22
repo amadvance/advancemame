@@ -56553,7 +56553,7 @@
 :headon2:00000000:E40E:00000007:FFFFFFFF:Infinite Lives PL2
 
 ; [ Head On (1 player) ]
-:headonb:00000000:E593:00000008:FFFFFFFF:Infinite Lives
+:headon1:00000000:E593:00000008:FFFFFFFF:Infinite Lives
 
 ; [ Head On (Irem, M-15 Hardware) ]
 :headoni:00000000:0008:00000099:FFFFFFFF:Infinite Credits

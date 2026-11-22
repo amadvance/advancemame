@@ -1952,7 +1952,7 @@ headoni:
 0:0e:f:00:00
 
 headon:
-headonb:
+headon1:
 ;** does not save in game top score, only hiscore table saves **
 0:878a:f:30:30
 
