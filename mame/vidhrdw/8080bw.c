@@ -31,6 +31,7 @@ static WRITE8_HANDLER( sstrngr2_videoram_w );
 static WRITE8_HANDLER( phantom2_videoram_w );
 static WRITE8_HANDLER( invadpt2_videoram_w );
 static WRITE8_HANDLER( cosmo_videoram_w );
+static WRITE8_HANDLER( vortex_videoram_w );
 static WRITE8_HANDLER( shuttlei_videoram_w );
 
 static VIDEO_UPDATE( 8080bw_common );
@@ -119,6 +120,39 @@ DRIVER_INIT( invrvnge )
 {
 	init_8080bw();
 	artwork_set_overlay(invrvnge_overlay);
+}
+
+DRIVER_INIT( vortex )
+{
+	UINT8 *rom = memory_region(REGION_CPU1);
+	int length = memory_region_length(REGION_CPU1);
+	UINT8 *buf = malloc(length);
+	int x;
+
+	/* the epoxy module inverts address lines A0, A3 and A9 depending on A13-A15 */
+	for (x = 0; x < length; ++x)
+	{
+		int addr = x;
+
+		switch (x & 0xe000)
+		{
+			case 0x0000:
+			case 0x2000:
+			case 0x4000:
+				addr ^= 0x0209;
+				break;
+			default:
+				addr ^= 0x0208;
+				break;
+		}
+		buf[addr] = rom[x];
+	}
+
+	memcpy(rom, buf, length);
+	free(buf);
+
+	init_8080bw();
+	videoram_w_p = vortex_videoram_w;
 }
 
 DRIVER_INIT( invad2ct )
@@ -746,6 +780,29 @@ PALETTE_INIT( indianbt )
 
 }
 
+
+static void vortex_plot_byte(offs_t offset)
+{
+	UINT8 x,y,col;
+
+	y = offset / 32;
+	x = 8 * (offset % 32);
+
+	/* the color depends on bit 0 of the next byte and on the horizontal position */
+	col = (videoram[(offset + 1) & 0x1fff] & 1) ? 0x04 : 0x01;
+	if (x & 0x20)
+		col |= 0x02;
+
+	plot_byte(x, y, videoram[offset], col, 0);
+}
+
+static WRITE8_HANDLER( vortex_videoram_w )
+{
+	videoram[offset] = data;
+
+	vortex_plot_byte(offset);
+	vortex_plot_byte((offset - 1) & 0x1fff);
+}
 
 static WRITE8_HANDLER( invadpt2_videoram_w )
 {

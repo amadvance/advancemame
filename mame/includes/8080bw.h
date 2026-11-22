@@ -36,6 +36,7 @@ READ8_HANDLER( desertgu_port_1_r );
 /*----------- defined in sndhrdw/8080bw.c -----------*/
 
 MACHINE_RESET( invaders );
+MACHINE_RESET( vortex );
 MACHINE_RESET( sstrangr );
 MACHINE_RESET( invad2ct );
 MACHINE_RESET( gunfight );
@@ -77,6 +78,7 @@ DRIVER_INIT( cosmo );
 DRIVER_INIT( sstrngr2 );
 DRIVER_INIT( invaddlx );
 DRIVER_INIT( invrvnge );
+DRIVER_INIT( vortex );
 DRIVER_INIT( invad2ct );
 DRIVER_INIT( schaser );
 DRIVER_INIT( rollingc );

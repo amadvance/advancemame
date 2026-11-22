@@ -1208,6 +1208,7 @@ const game_driver * const drivers[] =
 	DRIVER( invrvnge )
 	DRIVER( invrvngeb )
 	DRIVER( invrvngedu )
+	DRIVER( vortex )
 	DRIVER( galxwars )
 	DRIVER( galxwars2 )
 	DRIVER( galxwarst )

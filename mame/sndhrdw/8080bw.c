@@ -196,6 +196,20 @@ MACHINE_RESET( invaders )
 	SN76477_vco_w(0, 1);
 }
 
+MACHINE_RESET( vortex )
+{
+	/* same sound ports as invaders, but with A9 inverted they appear at 1 and 7 */
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x01, 0x01, 0, 0, invaders_sh_port3_w);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x07, 0x07, 0, 0, invaders_sh_port5_w);
+
+	SN76477_envelope_1_w(0, 1);
+	SN76477_envelope_2_w(0, 0);
+	SN76477_mixer_a_w(0, 0);
+	SN76477_mixer_b_w(0, 0);
+	SN76477_mixer_c_w(0, 0);
+	SN76477_vco_w(0, 1);
+}
+
 MACHINE_RESET( sstrangr )
 {
 	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x42, 0x42, 0, 0, invaders_sh_port3_w);

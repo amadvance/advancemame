@@ -311,6 +311,87 @@ MACHINE_DRIVER_END
 
 /*******************************************************/
 /*                                                     */
+/* Zilec "Vortex"                                      */
+/*                                                     */
+/*******************************************************/
+
+/* Space Invaders CV/PV boardset with an epoxy module encrypting the ROMs
+   (A0, A3 and A9 inverted) and the I/O address A9 inverted */
+
+static ADDRESS_MAP_START( vortex_readport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_MIRROR(0x04) AM_READ(input_port_2_r)
+	AM_RANGE(0x01, 0x01) AM_MIRROR(0x04) AM_READ(c8080bw_shift_data_r)
+	AM_RANGE(0x02, 0x02) AM_MIRROR(0x04) AM_READ(input_port_0_r)
+	AM_RANGE(0x03, 0x03) AM_MIRROR(0x04) AM_READ(input_port_1_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( vortex_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x00) AM_WRITE(c8080bw_shift_amount_w)
+	AM_RANGE(0x04, 0x04) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x06, 0x06) AM_WRITE(c8080bw_shift_data_w)
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( vortex )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW0")
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_2WAY PORT_PLAYER(2)
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_1C ) )
+
+	PORT_START_TAG("FAKE")		/* Dummy port for cocktail mode */
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Cocktail ) )
+INPUT_PORTS_END
+
+static MACHINE_DRIVER_START( vortex )
+	MDRV_IMPORT_FROM(invaders)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_IO_MAP(vortex_readport, vortex_writeport)
+	MDRV_MACHINE_RESET(vortex)
+
+	/* video hardware */
+	MDRV_PALETTE_LENGTH(8)
+	MDRV_PALETTE_INIT(invadpt2)
+MACHINE_DRIVER_END
+
+
+/*******************************************************/
+/*                                                     */
 /* Cosmo                                               */
 /*                                                     */
 /*******************************************************/
@@ -4730,6 +4811,17 @@ ROM_START( invrvngedu )
 	ROM_LOAD( "ir.3r",       0x0000, 0x0800, CRC(57da51a9) SHA1(a8cb0b45c52eef353b83fe75b61e4990e27eb124) )
 ROM_END
 
+ROM_START( vortex )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "1.t36",        0x0000, 0x0800, CRC(577417a6) SHA1(13ed1b989b8ea27cea88be7872921ff9283b5dd6) )
+	ROM_LOAD( "2.t35",        0x0800, 0x0800, CRC(126d0049) SHA1(4c189a2364bca8682543d605e84d458bf81ee489) )
+	ROM_LOAD( "3.t34",        0x1000, 0x0800, CRC(4a2510b3) SHA1(1c62583b7baf8ee2b6014a6e5dfc7e2d516886d1) )
+	ROM_LOAD( "4.t33",        0x1800, 0x0800, CRC(da0274fe) SHA1(b8ab1b16d66700f9ca6a2380a5b6796eaef6e1bd) )
+	ROM_LOAD( "5.t32",        0x4000, 0x0800, CRC(a3de49d6) SHA1(e302c6fd2705c6e7f9125b52b2dcb034cc88a90e) )
+	ROM_LOAD( "6.t31",        0x4800, 0x0800, CRC(271085d0) SHA1(a772cec8135bc746f6c56aa294eb22c0604e16f9) )
+ROM_END
+
+
 ROM_START( spclaser )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "la01",         0x0000, 0x0800, CRC(bedc0078) SHA1(a5bb0cbbb8e3f27d03beb8101b2be1111d73689d) )
@@ -5551,6 +5643,7 @@ GAME( 1980?, galactic, 0, galactic, galactic, invaders, ROT270, "Taito do Brasil
 	  GAME( 1980?, invrvnge, 0,        invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge (set 1)", GAME_NO_SOUND )
 	  GAME( 1980?, invrvngeb, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd.", "Invader's Revenge (set 3)", GAME_NO_SOUND )
 	  GAME( 1980?, invrvngedu, invrvnge, invrvnge, invrvnge, invrvnge, ROT270, "Zenitone-Microsec Ltd. (Dutchford license)", "Invader's Revenge (Dutchford, single PCB)", GAME_NO_SOUND )
+	  GAME( 1980, vortex, 0, vortex, vortex, vortex, ROT270, "Zilec Electronics", "Vortex", GAME_IMPERFECT_SOUND )
 	  GAME( 1979, spcewarl, 0,        invaders, spcewarl, invaddlx, ROT270, "Konami (Leijac Corporation license)","Space War (Leijac Corporation)", 0 )
 	  GAME( 1980, spclaser, spcewarl, invaders, spclaser, invaddlx, ROT270, "Konami (Taito license)", "Space Laser", 0 )
 	  GAME( 1980, laser,    spcewarl, invaders, spclaser, invaddlx, ROT270, "bootleg (Leisure Time Electronics)", "Astro Laser (bootleg of Space Laser)", 0 )
