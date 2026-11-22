@@ -19,8 +19,8 @@ advanced - more colourful, and stores setting in an EEPROM.
 An interesting thing about this hardware is that the same gfx ROMs are used
 to generate both 8x8 and 16x16 tiles for different tilemaps.
 
-Hot Mind has different tilemaps layout than the other ones, also its pcb was
-marked as HARD TIMES 28-06-94, probably the 2 games can be swapped
+Hot Mind runs on the Hard Times hardware, its pcb is marked as HARD TIMES
+28-06-94.
 
 
 Games needed:
@@ -69,11 +69,9 @@ WRITE16_HANDLER( bigtwin_bgvideoram_w );
 WRITE16_HANDLER( bigtwin_scroll_w );
 WRITE16_HANDLER( wbeachvl_scroll_w );
 WRITE16_HANDLER( excelsr_scroll_w );
-WRITE16_HANDLER( hotmind_scroll_w );
 VIDEO_UPDATE( bigtwin );
 VIDEO_UPDATE( wbeachvl );
 VIDEO_UPDATE( excelsr );
-VIDEO_UPDATE( hotmind );
 
 
 
@@ -142,9 +140,9 @@ static READ16_HANDLER( hotmind_port2_r )
 {
 	int bit;
 
-	bit = EEPROM_read_bit() << 7;
+	bit = EEPROM_read_bit() << 6;
 
-	return (input_port_2_r(0) & 0x7f) | bit;
+	return (input_port_2_r(0) & 0xbf) | bit;
 }
 
 static WRITE16_HANDLER( wbeachvl_coin_eeprom_w )
@@ -169,6 +167,7 @@ static WRITE16_HANDLER( hotmind_coin_eeprom_w )
 	if (ACCESSING_LSB)
 	{
 		coin_counter_w(0,data & 0x20);
+		coin_counter_w(1,data & 0x40);
 
 		EEPROM_set_cs_line((data & 1) ? CLEAR_LINE : ASSERT_LINE);
 		EEPROM_write_bit(data & 4);
@@ -337,17 +336,16 @@ static ADDRESS_MAP_START( hotmind_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x100000, 0x103fff) AM_READWRITE(MRA16_RAM, hotmind_bgvideoram_w) AM_BASE(&wbeachvl_videoram3)
 	AM_RANGE(0x104000, 0x107fff) AM_READWRITE(MRA16_RAM, hotmind_fgvideoram_w) AM_BASE(&wbeachvl_videoram2)
 	AM_RANGE(0x108000, 0x10ffff) AM_READWRITE(MRA16_RAM, hotmind_txvideoram_w) AM_BASE(&wbeachvl_videoram1)
-	AM_RANGE(0x110000, 0x11000b) AM_WRITE(hotmind_scroll_w)
-	AM_RANGE(0x11000c, 0x11000d) AM_WRITENOP
+	AM_RANGE(0x110000, 0x11000d) AM_WRITE(hrdtimes_scroll_w)
 	AM_RANGE(0x200000, 0x200fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
-	AM_RANGE(0x280000, 0x2807ff) AM_RAM AM_WRITE(bigtwin_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x280000, 0x2807ff) AM_RAM AM_WRITE(paletteram16_RRRRGGGGBBBBRGBx_word_w) AM_BASE(&paletteram16)
 	AM_RANGE(0x300010, 0x300011) AM_READ(input_port_0_word_r)
 	AM_RANGE(0x300012, 0x300013) AM_READ(input_port_1_word_r)
 	AM_RANGE(0x300014, 0x300015) AM_WRITE(hotmind_coin_eeprom_w) AM_READ(hotmind_port2_r)
 	AM_RANGE(0x30001a, 0x30001b) AM_READ(input_port_3_word_r)
 	AM_RANGE(0x30001c, 0x30001d) AM_READ(input_port_4_word_r)
 	AM_RANGE(0x30001e, 0x30001f) AM_WRITE(playmark_snd_command_w)
-	AM_RANGE(0x304000, 0x304001) AM_WRITENOP		/* watchdog? irq ack? */
+	AM_RANGE(0x304000, 0x304001) AM_WRITENOP
 	AM_RANGE(0xff0000, 0xffffff) AM_RAM
 ADDRESS_MAP_END
 
@@ -806,8 +804,6 @@ INPUT_PORTS_START( hotmind )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
@@ -824,14 +820,14 @@ INPUT_PORTS_START( hotmind )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 	PORT_START_TAG("IN2")
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_VBLANK )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SPECIAL )	/* EEPROM data */
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_SPECIAL )	/* EEPROM data */
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START_TAG("DSW1")
 	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Difficulty ) )
@@ -847,13 +843,13 @@ INPUT_PORTS_START( hotmind )
 	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, "Erogatore Gettoni" )
+	PORT_DIPNAME( 0x20, 0x00, "Erogatore Gettoni" )
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x40, "Erogatore Ticket" )
+	PORT_DIPNAME( 0x40, 0x00, "Erogatore Ticket" )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, "Clear Memory" )
+	PORT_DIPNAME( 0x80, 0x80, "Clear Partial Memory" )
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
@@ -891,10 +887,10 @@ INPUT_PORTS_START( hotmind )
 	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x40, 0x40, "Time Per Line" )
+	PORT_DIPSETTING(    0x40, "10 Seconds" )
+	PORT_DIPSETTING(    0x00, "5 Seconds" )
+	PORT_DIPNAME( 0x80, 0x80, "Clear All Memory" )
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 INPUT_PORTS_END
@@ -909,17 +905,6 @@ static const gfx_layout charlayout =
 	{ 0, 1, 2, 3, 4, 5, 6, 7 },
 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 	32*8
-};
-
-static const gfx_layout hotmind_charlayout =
-{
-	8,8,
-	RGN_FRAC(1,4),
-	4,
-	{ RGN_FRAC(3,4), RGN_FRAC(2,4), RGN_FRAC(1,4), RGN_FRAC(0,4) },
-	{ 0, 1, 2, 3, 4, 5, 6, 7 },
-	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
-	8*8
 };
 
 static const gfx_layout tilelayout =
@@ -1017,13 +1002,6 @@ static const gfx_decode excelsr_gfxdecodeinfo[] =
 	{ -1 } /* end of array */
 };
 
-static const gfx_decode hotmind_gfxdecodeinfo[] =
-{
-	{ REGION_GFX2, 0, &tilelayout,         0x200, 16 },	/* colors 0x200-0x2ff */
-	{ REGION_GFX1, 0, &tilelayout,         0x000, 16 },	/* colors 0x000-0x0ff */
-	{ REGION_GFX1, 0, &hotmind_charlayout, 0x100,  8 },	/* colors 0x100-0x07f */
-	{ -1 } /* end of array */
-};
 
 static const gfx_layout hrdtimes_full_layout =
 {
@@ -1060,6 +1038,26 @@ static const gfx_layout hrdtimes_charlayout =
 	{ 0, 1, 2, 3, 4, 5, 6, 7 },
 	{ 0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16 },
 	8*16
+};
+
+static const gfx_layout hotmind_charlayout =
+{
+	8,8,
+	0x1000,
+	4,
+	{ RGN_FRAC(2,4)+8, RGN_FRAC(2,4), RGN_FRAC(0,4)+8, RGN_FRAC(0,4) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
+	{ 0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16 },
+	8*16
+};
+
+static const gfx_decode hotmind_gfxdecodeinfo[] =
+{
+	{ REGION_GFX2, 0,       &hrdtimes_full_layout, 0x200, 32 },	/* colors 0x200-0x2ff */
+	{ REGION_GFX1, 0,       &hrdtimes_tilelayout,  0x000, 16 },	/* colors 0x000-0x0ff */
+	{ REGION_GFX1, 0x20000, &hrdtimes_tilelayout,  0x000, 16 },	/* colors 0x000-0x0ff */
+	{ REGION_GFX1, 0x30000, &hotmind_charlayout,   0x100,  8 },	/* colors 0x100-0x17f */
+	{ -1 } /* end of array */
 };
 
 static const gfx_decode hrdtimes_gfxdecodeinfo[] =
@@ -1229,14 +1227,16 @@ static MACHINE_DRIVER_START( hotmind )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 12000000)	/* 12 MHz */
 	MDRV_CPU_PROGRAM_MAP(hotmind_main_map, 0)
-	MDRV_CPU_VBLANK_INT(irq2_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
 
 	MDRV_CPU_ADD(PIC16C57, (12000000/PIC16C5x_CLOCK_DIVIDER))	/* 3MHz */
 	/* Program and Data Maps are internal to the MCU */
-	MDRV_CPU_IO_MAP(playmark_sound_io_map, 0)
+	MDRV_CPU_IO_MAP(hrdtimes_sound_io, 0)
+	MDRV_MACHINE_RESET(dumped_pic)
+	MDRV_INTERLEAVE(20)
 
 	MDRV_FRAMES_PER_SECOND(58)
-	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_VBLANK_DURATION(0)
 
 	MDRV_NVRAM_HANDLER(wbeachvl)
 
@@ -1248,7 +1248,7 @@ static MACHINE_DRIVER_START( hotmind )
 	MDRV_PALETTE_LENGTH(1024)
 
 	MDRV_VIDEO_START(hotmind)
-	MDRV_VIDEO_UPDATE(hotmind)
+	MDRV_VIDEO_UPDATE(hrdtimes)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1449,29 +1449,33 @@ Notes:
 
 ROM_START( hotmind )
 	ROM_REGION( 0x40000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "21.u87",       0x00000, 0x20000, CRC(e9000f7f) SHA1(c19fee7b774d3f30f4d4025a63ec396ec119c855) )
-	ROM_LOAD16_BYTE( "22.u68",       0x00001, 0x20000, CRC(2c518ec5) SHA1(6d9e81ddb5793d64e22dc0254519b947f6ec6954) )
+	ROM_LOAD16_BYTE( "21.u67",       0x00000, 0x20000, CRC(e9000f7f) SHA1(c19fee7b774d3f30f4d4025a63ec396ec119c855) )
+	ROM_LOAD16_BYTE( "22.u66",       0x00001, 0x20000, CRC(2c518ec5) SHA1(6d9e81ddb5793d64e22dc0254519b947f6ec6954) )
 
 	ROM_REGION( 0x1000, REGION_CPU2, ROMREGION_ERASE00 )	/* sound (PIC16C57) */
 	/* ROM will be copied here by the init code from REGION_USER1 */
 
-	/* original PIC was protected, but it seem to be good with the Excelsior one (probably they're the same) */
 	ROM_REGION( 0x3000, REGION_USER1, ROMREGION_DISPOSE )
-	ROM_LOAD( "pic16c57-hs.i015", 0x0000, 0x2d4c, CRC(022c6941) SHA1(8ead40bfa7aa783b1ce62bd6cfa673cb876e29e7) )
+	ROM_LOAD( "hotmind_pic16c57-hs_io15.hex", 0x0000, 0x2d4c, BAD_DUMP CRC(f3300d13) SHA1(78892453c7374ea3d1606cdb81197cc466e2a8c5) )
+	ROM_LOAD( "hotmind_pic16c57.hex",         0x0000, 0x2d4c, BAD_DUMP CRC(11957803) SHA1(c2f87659819bfcf3a5b43fbccf81988c43b9c9c8) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
-	ROM_LOAD( "23.u36",       0x00000, 0x20000, CRC(ddcf60b9) SHA1(0c0fbc44131cb7d36c21bf5aead87b498c5684f5) )
-	ROM_LOAD( "27.u42",       0x20000, 0x20000, CRC(413bbcf4) SHA1(d82ae9d26df1a69b760b3025048e47ab757d9175) )
-	ROM_LOAD( "24.u39",       0x40000, 0x20000, CRC(4baa5b4c) SHA1(ee953ed9a4a45715d1ae39b5bb8b9b6505a4e95d) )
-	ROM_LOAD( "28.u49",       0x60000, 0x20000, CRC(8df34d6a) SHA1(ca0d2ca7e0f2a302bc8b1a03c0c18ac72fe105ac) )
+	ROM_LOAD16_BYTE( "23.u36",       0x000000, 0x10000, CRC(ddcf60b9) SHA1(0c0fbc44131cb7d36c21bf5aead87b498c5684f5) )
+	ROM_CONTINUE(                    0x020000, 0x10000 )
+	ROM_LOAD16_BYTE( "27.u42",       0x000001, 0x10000, CRC(413bbcf4) SHA1(d82ae9d26df1a69b760b3025048e47ab757d9175) )
+	ROM_CONTINUE(                    0x020001, 0x10000 )
+	ROM_LOAD16_BYTE( "24.u39",       0x040000, 0x10000, CRC(4baa5b4c) SHA1(ee953ed9a4a45715d1ae39b5bb8b9b6505a4e95d) )
+	ROM_CONTINUE(                    0x060000, 0x10000 )
+	ROM_LOAD16_BYTE( "28.u45",       0x040001, 0x10000, CRC(8df34d6a) SHA1(ca0d2ca7e0f2a302bc8b1a03c0c18ac72fe105ac) )
+	ROM_CONTINUE(                    0x060001, 0x10000 )
 
 	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
-	ROM_LOAD( "26.u34",       0x00000, 0x20000, CRC(ff8d3b75) SHA1(5427b70a61dee4c125877e040be21cb1cadb1af5) )
-	ROM_LOAD( "30.u85",       0x20000, 0x20000, CRC(87a640c7) SHA1(818ff3243cb3ed0189988348e6c2e954f0d3dd4f) )
-	ROM_LOAD( "25.u35",       0x40000, 0x20000, CRC(c4fd4445) SHA1(ab0c5a328a312740595b5c92a1050527140518f3) )
-	ROM_LOAD( "29.u83",       0x60000, 0x20000, CRC(0bebfb53) SHA1(d4342f808141b70af98c370004153a31d120e2a4) )
+	ROM_LOAD16_BYTE( "26.u86",       0x00000, 0x20000, CRC(ff8d3b75) SHA1(5427b70a61dee4c125877e040be21cb1cadb1af5) )
+	ROM_LOAD16_BYTE( "30.u85",       0x00001, 0x20000, CRC(87a640c7) SHA1(818ff3243cb3ed0189988348e6c2e954f0d3dd4f) )
+	ROM_LOAD16_BYTE( "25.u84",       0x40000, 0x20000, CRC(c4fd4445) SHA1(ab0c5a328a312740595b5c92a1050527140518f3) )
+	ROM_LOAD16_BYTE( "29.u83",       0x40001, 0x20000, CRC(0bebfb53) SHA1(d4342f808141b70af98c370004153a31d120e2a4) )
 
-	ROM_REGION( 0xc0000, REGION_SOUND1, 0 ) /* Samples */
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Samples */
 	ROM_LOAD( "20.io13",      0x00000, 0x40000, CRC(0bf3a3e5) SHA1(2ae06f37a6bcd20bc5fbaa90d970aba2ebf3cf5a) )
 ROM_END
 
@@ -1551,6 +1555,18 @@ static DRIVER_INIT( bigtwin )
 	} while (src_pos < 0x2d4c);		/* 0x2d4c is the size of the HEX rom loaded */
 }
 
+static DRIVER_INIT( hotmind )
+{
+	int length = memory_region_length(REGION_SOUND1);
+
+	init_bigtwin();
+
+	/* the OKI upper window is banked by the PIC, keep a copy of the samples */
+	dumped_pic_samples = auto_malloc(length);
+	memcpy(dumped_pic_samples,memory_region(REGION_SOUND1),length);
+	dumped_pic_bank_mask = length / 0x20000 - 1;
+}
+
 ROM_START( hrdtimes )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "31.u67",       0x00000, 0x80000, CRC(53eb041b) SHA1(7437da1ceb26e9518a3085560b8a42f37e77ace9) )
@@ -1581,4 +1597,4 @@ GAME( 1995, wbeachvl, 0,        wbeachvl_pic, wbeachvl, dumped_pic, ROT0, "Playm
 GAME( 1995, wbeachv2, wbeachvl, wbeachvl, wbeachvl, 0,       ROT0, "Playmark", "World Beach Volley (set 2)",  GAME_NO_COCKTAIL | GAME_NO_SOUND )
 GAME( 1996, excelsr,  0,        excelsr,  excelsr,  bigtwin, ROT0, "Playmark", "Excelsior", 0 )
 GAME( 1994, hrdtimes, 0, hrdtimes, hrdtimes, dumped_pic, ROT0, "Playmark", "Hard Times (set 1)", 0 )
-GAME( 1995, hotmind,  0,        hotmind,  hotmind,  bigtwin, ROT0, "Playmark", "Hot Mind", GAME_NOT_WORKING ) // unable to pass initial test
+GAME( 1995, hotmind,  0,        hotmind,  hotmind,  hotmind, ROT0, "Playmark", "Hot Mind (Hard Times hardware, set 1)", 0 )

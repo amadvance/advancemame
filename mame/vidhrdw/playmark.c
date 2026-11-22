@@ -79,30 +79,6 @@ static void wbeachvl_get_bg_tile_info(int tile_index)
 			(code & 0x8000) ? TILE_FLIPX : 0)
 }
 
-static void hotmind_get_tx_tile_info(int tile_index)
-{
-	int code = wbeachvl_videoram1[tile_index] & 0x07ff;
-	int colr = wbeachvl_videoram1[tile_index] & 0xe000;
-
-	SET_TILE_INFO(2,code + 0x3000,colr >> 13,0)
-}
-
-static void hotmind_get_fg_tile_info(int tile_index)
-{
-	int code = wbeachvl_videoram2[tile_index] & 0x07ff;
-	int colr = wbeachvl_videoram2[tile_index] & 0xe000;
-
-	SET_TILE_INFO(1,code + 0x800,(colr >> 13) + 8,0)
-}
-
-static void hotmind_get_bg_tile_info(int tile_index)
-{
-	int code = wbeachvl_videoram3[tile_index] & 0x07ff;
-	int colr = wbeachvl_videoram3[tile_index] & 0xe000;
-
-	SET_TILE_INFO(1,code,colr >> 13,0)
-}
-
 /***************************************************************************
 
   Start the video hardware emulation.
@@ -147,24 +123,6 @@ VIDEO_START( excelsr )
 		return 1;
 
 	tilemap_set_transparent_pen(tx_tilemap,0);
-
-	return 0;
-}
-
-VIDEO_START( hotmind )
-{
-	tx_tilemap = tilemap_create(hotmind_get_tx_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT, 8, 8,64,64);
-	fg_tilemap = tilemap_create(hotmind_get_fg_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,32,32);
-	bg_tilemap = tilemap_create(hotmind_get_bg_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,     16,16,32,32);
-
-	if (!tx_tilemap || !fg_tilemap || !bg_tilemap)
-		return 1;
-
-	tilemap_set_transparent_pen(tx_tilemap,0);
-	tilemap_set_transparent_pen(fg_tilemap,0);
-
-	xoffset = -9;
-	yoffset = -8;
 
 	return 0;
 }
@@ -299,23 +257,6 @@ WRITE16_HANDLER( excelsr_scroll_w )
 	}
 }
 
-WRITE16_HANDLER( hotmind_scroll_w )
-{
-	static UINT16 scroll[6];
-
-	data = COMBINE_DATA(&scroll[offset]);
-
-	switch (offset)
-	{
-		case 0: tilemap_set_scrollx(tx_tilemap,0,data+14); break;
-		case 1: tilemap_set_scrolly(tx_tilemap,0,data);    break;
-		case 2: tilemap_set_scrollx(fg_tilemap,0,data+14); break;
-		case 3: tilemap_set_scrolly(fg_tilemap,0,data);	   break;
-		case 4: tilemap_set_scrollx(bg_tilemap,0,data+14); break;
-		case 5: tilemap_set_scrolly(bg_tilemap,0,data);    break;
-	}
-}
-
 /***************************************************************************
 
   Display refresh
@@ -436,17 +377,6 @@ VIDEO_UPDATE( wbeachvl )
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
-VIDEO_UPDATE( hotmind )
-{
-	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,1,2);
-	tilemap_draw(bitmap,cliprect,fg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,2,2);
-	draw_sprites(bitmap,cliprect,0,2);
-	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
-}
-
-
 static UINT16 hrdtimes_scroll[7];
 
 static void hrdtimes_get_tx_tile_info(int tile_index)
@@ -485,6 +415,24 @@ VIDEO_START( hrdtimes )
 	tilemap_set_scrolldx(fg_tilemap,-10,-10);
 	tilemap_set_scrolldx(bg_tilemap,-12,-12);
 	xoffset = yoffset = -8;
+	memset(hrdtimes_scroll,0,sizeof(hrdtimes_scroll));
+	return 0;
+}
+
+VIDEO_START( hotmind )
+{
+	tx_tilemap = tilemap_create(hrdtimes_get_tx_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
+	fg_tilemap = tilemap_create(hrdtimes_get_fg_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,32,32);
+	bg_tilemap = tilemap_create(hrdtimes_get_bg_tile_info,tilemap_scan_rows,TILEMAP_OPAQUE,16,16,32,32);
+	if (!tx_tilemap || !fg_tilemap || !bg_tilemap)
+		return 1;
+	tilemap_set_transparent_pen(tx_tilemap,0);
+	tilemap_set_transparent_pen(fg_tilemap,0);
+	tilemap_set_scrolldx(tx_tilemap,-14,-14);
+	tilemap_set_scrolldx(fg_tilemap,-14,-14);
+	tilemap_set_scrolldx(bg_tilemap,-14,-14);
+	xoffset = -9;
+	yoffset = -8;
 	memset(hrdtimes_scroll,0,sizeof(hrdtimes_scroll));
 	return 0;
 }
