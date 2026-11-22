@@ -1301,7 +1301,7 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 	// abort if video has been disabled
 	if (!(disp = K055555_read_register(K55_INPUT_ENABLES))) return;
 	cltc_shdpri = K054338_read_register(K338_REG_CONTROL);
-	if (!(cltc_shdpri & K338_CTL_KILL)) return;
+	if (!gx_rushingheroes_hack && !(cltc_shdpri & K338_CTL_KILL)) return;
 
 	// demote shadows by one layer when this bit is set??? (see p.73 8.6)
 	cltc_shdpri &= K338_CTL_SHDPRI;
@@ -1388,7 +1388,7 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 
 		// update shadows status
 		K054338_update_all_shadows();
-		if (!strcmp(Machine->gamedrv->name, "rushhero"))
+		if (gx_rushingheroes_hack)
 			for (i = 0; i < 3; i++) palette_set_shadow_dRGB32(i, -80, -80, -80, 0);
 	}
 
@@ -1653,7 +1653,7 @@ void konamigx_mixer(mame_bitmap *bitmap, const rectangle *cliprect,
 				continue;
 				case -2:
 				case -4:
-				if ((disp & K55_INP_SUB1) || !strcmp(Machine->gamedrv->name, "rushhero"))
+				if ((disp & K55_INP_SUB1) || gx_rushingheroes_hack)
 				{
 					if (j == GXMIX_BLEND_NONE)  { temp1 = 0xff; temp2 = temp3 = 0; } else
 					if (j == GXMIX_BLEND_FORCE) { temp1 = 0x00; temp2 = mixerflags>>24; temp3 = 3; }

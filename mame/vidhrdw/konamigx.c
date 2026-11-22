@@ -14,6 +14,7 @@
 static int layer_colorbase[4];
 static INT32 gx_tilebanks[8], gx_oldbanks[8];
 static int gx_invertlayersBC;
+int gx_rushingheroes_hack;
 static int gx_tilemode, gx_rozenable, psac_colorbase, last_psac_colorbase;
 static tilemap *gx_psac_tilemap, *gx_psac_tilemap2;
 extern UINT32 *gx_psacram, *gx_subpaletteram32;
@@ -340,7 +341,18 @@ VIDEO_START(konamigx_type4)
 		return 1;
 	}
 
-	if (!strcmp(Machine->gamedrv->name, "rushhero"))
+	gx_rushingheroes_hack = !strcmp(Machine->gamedrv->name, "rushhero") || !strcmp(Machine->gamedrv->name, "rungun2");
+
+	if (!strcmp(Machine->gamedrv->name, "rungun2"))
+	{
+		if (K055673_vh_start(REGION_GFX2, K055673_LAYOUT_GX6, -81, -23, konamigx_type2_sprite_callback)) return 1;
+		if (_gxcommoninitnosprites()) return 1;
+		K056832_set_LayerOffset(0, -29, -1);
+		K056832_set_LayerOffset(1, -27, -1);
+		K056832_set_LayerOffset(2, -26, -1);
+		K056832_set_LayerOffset(3, -24, -1);
+	}
+	else if (!strcmp(Machine->gamedrv->name, "rushhero"))
 	{
 		int i;
 		if (K055673_vh_start(REGION_GFX2, K055673_LAYOUT_GX6, -78, -24, konamigx_type2_sprite_callback)) return 1;
@@ -353,7 +365,10 @@ VIDEO_START(konamigx_type4)
 	gx_rozenable = 1;
 
 	K053936_wraparound_enable(0, 0);
-	K053936GP_set_offset(0, !strcmp(Machine->gamedrv->name, "rushhero") ? -36 : 0, 0);
+	if (!strcmp(Machine->gamedrv->name, "rungun2"))
+		K053936GP_set_offset(0, -36, -1);
+	else
+		K053936GP_set_offset(0, !strcmp(Machine->gamedrv->name, "rushhero") ? -36 : 0, 0);
 
 	return 0;
 }
@@ -492,7 +507,7 @@ VIDEO_UPDATE(konamigx)
 
 	if (dirty) K056832_MarkAllTilemapsDirty();
 
-	if (gx_rozenable && !strcmp(Machine->gamedrv->name, "rushhero"))
+	if (gx_rozenable && gx_rushingheroes_hack)
 		konamigx_mixer(bitmap, cliprect, gx_psac_tilemap, GXSUB_8BPP, 0, 0, 0);
 	else if (gx_rozenable)
 		konamigx_mixer(bitmap, cliprect, 0, 0, gx_psac_tilemap, GXSUB_8BPP, 0);
