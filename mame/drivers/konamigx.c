@@ -982,7 +982,7 @@ static int sync_frame = 0;
 
 static READ32_HANDLER( type3_sync_r )
 {
-	if (!strcmp(Machine->gamedrv->name, "rushhero") || !strcmp(Machine->gamedrv->name, "rungun2"))
+	if (!strcmp(Machine->gamedrv->name, "rushhero") || !strcmp(Machine->gamedrv->name, "rungun2") || !strcmp(Machine->gamedrv->name, "slamdnk2"))
 		return 0xfffffffe | (cpu_getcurrentframe() & 1);
 
 	sync_frame ^= 0xffffffff;
@@ -2613,18 +2613,18 @@ ROM_START( slamdnk2 )
 
 	/* sprites */
 	ROM_REGION( 0x1800000, REGION_GFX2, ROMREGION_ERASE00 )
-	ROM_LOAD32_WORD( "505a19.14r", 0x0000000, 2*1024*1024, CRC(ffde4f17) SHA1(df93853f7bd3c775a15836b0ca9042f75eb65630) )
-	ROM_LOAD32_WORD( "505a15.18r", 0x0000002, 2*1024*1024, CRC(d9ab1e6c) SHA1(748a61d939bd335c1b50f440e819303552b3d5a1) )
-	ROM_LOAD32_WORD( "505a18.18m", 0x0400000, 2*1024*1024, CRC(c12bacfe) SHA1(5b5f4dd9a51c7a305dd4de1354cd1df2ce75c932) )
-	ROM_LOAD32_WORD( "505a14.14m", 0x0400002, 2*1024*1024, CRC(356a75b0) SHA1(5f8b7a9d06d4207f19ed0f7c89513226488afde1) )
-	ROM_LOAD32_WORD( "505a13.21r", 0x0800000, 2*1024*1024, CRC(e60c5191) SHA1(02a8af81682838800489aa1123a453045d70acd8) )
-	ROM_LOAD32_WORD( "505a17.16r", 0x0800002, 2*1024*1024, CRC(8176f2f5) SHA1(d7944314b35bcd5301bbfba8a5b1ed6b35b9b888) )
-	ROM_LOAD32_WORD( "505a12.21m", 0x0c00000, 2*1024*1024, CRC(421d5034) SHA1(f7a85b7e41f3ddf9ddbdc6f8b6d3dbf8ba40d61b) )
-	ROM_LOAD32_WORD( "505a16.16m", 0x0c00002, 2*1024*1024, CRC(ca9c2193) SHA1(cc3fb558b834e0b7914879ab47c3750170d257f4) )
-	ROM_LOAD32_WORD( "505a11.23r", 0x1000000, 2*1024*1024, CRC(75c13df0) SHA1(6680f75a67ca510fac29b65bce32fef64e844695) )
-	ROM_LOAD32_WORD( "505a10.23m", 0x1000002, 2*1024*1024, CRC(fc315ee0) SHA1(4dab661e0bd8e5386e52d514a1511ceba6e5b7bd) )
-	ROM_LOAD32_WORD( "505a09.25r", 0x1400000, 2*1024*1024, CRC(3e1d5a15) SHA1(ec4d46c2f2cc57e6193865357ffb3d62a9eecd4f) )
-	ROM_LOAD32_WORD( "505a08.25m", 0x1400002, 2*1024*1024, CRC(442ed3ec) SHA1(d44e1c4e9f8c63a8f754f8d20064cec15ae0b6d6) )
+	_48_WORD_ROM_LOAD( "505a19.14r", 0x0000000, 0x200000, CRC(ffde4f17) SHA1(df93853f7bd3c775a15836b0ca9042f75eb65630) )
+	_48_WORD_ROM_LOAD( "505a15.18r", 0x0000002, 0x200000, CRC(d9ab1e6c) SHA1(748a61d939bd335c1b50f440e819303552b3d5a1) )
+	_48_WORD_ROM_LOAD( "505a11.23r", 0x0000004, 0x200000, CRC(75c13df0) SHA1(6680f75a67ca510fac29b65bce32fef64e844695) )
+	_48_WORD_ROM_LOAD( "505a17.16r", 0x0600000, 0x200000, CRC(8176f2f5) SHA1(d7944314b35bcd5301bbfba8a5b1ed6b35b9b888) )
+	_48_WORD_ROM_LOAD( "505a13.21r", 0x0600002, 0x200000, CRC(e60c5191) SHA1(02a8af81682838800489aa1123a453045d70acd8) )
+	_48_WORD_ROM_LOAD( "505a09.25r", 0x0600004, 0x200000, CRC(3e1d5a15) SHA1(ec4d46c2f2cc57e6193865357ffb3d62a9eecd4f) )
+	_48_WORD_ROM_LOAD( "505a18.18m", 0x0c00000, 0x200000, CRC(c12bacfe) SHA1(5b5f4dd9a51c7a305dd4de1354cd1df2ce75c932) )
+	_48_WORD_ROM_LOAD( "505a14.14m", 0x0c00002, 0x200000, CRC(356a75b0) SHA1(5f8b7a9d06d4207f19ed0f7c89513226488afde1) )
+	_48_WORD_ROM_LOAD( "505a10.23m", 0x0c00004, 0x200000, CRC(fc315ee0) SHA1(4dab661e0bd8e5386e52d514a1511ceba6e5b7bd) )
+	_48_WORD_ROM_LOAD( "505a16.16m", 0x1200000, 0x200000, CRC(ca9c2193) SHA1(cc3fb558b834e0b7914879ab47c3750170d257f4) )
+	_48_WORD_ROM_LOAD( "505a12.21m", 0x1200002, 0x200000, CRC(421d5034) SHA1(f7a85b7e41f3ddf9ddbdc6f8b6d3dbf8ba40d61b) )
+	_48_WORD_ROM_LOAD( "505a08.25m", 0x1200004, 0x200000, CRC(442ed3ec) SHA1(d44e1c4e9f8c63a8f754f8d20064cec15ae0b6d6) )
 
 	/* PSAC2 tiles */
 	ROM_REGION( 0x200000, REGION_GFX3, 0 )
@@ -3892,5 +3892,5 @@ GAME( 1996, vsnetscr, konamigx, gxtype4, type3, konamigx, ROT0, "Konami", "Versu
 GAME( 1996, vsnetscru,vsnetscr, gxtype4, type3, konamigx, ROT0, "Konami", "Versus Net Soccer (ver UAB)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
 GAME( 1996, vsnetscrj,vsnetscr, gxtype4, type3, konamigx, ROT0, "Konami", "Versus Net Soccer (ver JAB)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
 GAME( 1996, rungun2,  konamigx, gxtype4sd2, type3, konamigx, ROT0, "Konami", "Run and Gun 2 (ver UAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, slamdnk2, rungun2,  gxtype4, type3, konamigx, ROT0, "Konami", "Slam Dunk 2 (ver JAA)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )
+GAME( 1996, slamdnk2, rungun2,  gxtype4sd2, type3, konamigx, ROT0, "Konami", "Slam Dunk 2 (ver JAA)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, rushhero, konamigx, rushhero, type3, konamigx, ROT0, "Konami", "Rushing Heroes (ver UAB)", GAME_IMPERFECT_GRAPHICS )

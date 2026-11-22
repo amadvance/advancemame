@@ -341,9 +341,11 @@ VIDEO_START(konamigx_type4)
 		return 1;
 	}
 
-	gx_rushingheroes_hack = !strcmp(Machine->gamedrv->name, "rushhero") || !strcmp(Machine->gamedrv->name, "rungun2");
+	int sd2 = !strcmp(Machine->gamedrv->name, "rungun2") || !strcmp(Machine->gamedrv->name, "slamdnk2");
 
-	if (!strcmp(Machine->gamedrv->name, "rungun2"))
+	gx_rushingheroes_hack = sd2 || !strcmp(Machine->gamedrv->name, "rushhero");
+
+	if (sd2)
 	{
 		if (K055673_vh_start(REGION_GFX2, K055673_LAYOUT_GX6, -81, -23, konamigx_type2_sprite_callback)) return 1;
 		if (_gxcommoninitnosprites()) return 1;
@@ -365,7 +367,7 @@ VIDEO_START(konamigx_type4)
 	gx_rozenable = 1;
 
 	K053936_wraparound_enable(0, 0);
-	if (!strcmp(Machine->gamedrv->name, "rungun2"))
+	if (sd2)
 		K053936GP_set_offset(0, -36, -1);
 	else
 		K053936GP_set_offset(0, !strcmp(Machine->gamedrv->name, "rushhero") ? -36 : 0, 0);
