@@ -691,7 +691,7 @@ INPUT_PORTS_START( cbombers )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
 
 	PORT_START_TAG("IN3")	/* IN 3, steering wheel */
-	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_X ) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_REVERSE PORT_PLAYER(1)
+	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_X ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_REVERSE PORT_PLAYER(1)
 INPUT_PORTS_END
 
 
@@ -842,7 +842,7 @@ static MACHINE_DRIVER_START( cbombers )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
 	MDRV_SCREEN_SIZE(40*8, 32*8)
-	MDRV_VISIBLE_AREA(0, 40*8-1, 3*8, 32*8-1)
+	MDRV_VISIBLE_AREA(0, 40*8-1, 4*8, 32*8-1)
 	MDRV_GFXDECODE(cbombers_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(16384)
 
@@ -1099,4 +1099,4 @@ DRIVER_INIT( cbombers )
 GAME( 1993, undrfire, 0,        undrfire, undrfire, undrfire, ROT0, "Taito Corporation Japan", "Under Fire (World)", 0 )
 GAME( 1993, undrfiru, undrfire, undrfire, undrfire, undrfire, ROT0, "Taito America Corporation", "Under Fire (US)", 0 )
 GAME( 1993, undrfirj, undrfire, undrfire, undrfire, undrfire, ROT0, "Taito Corporation", "Under Fire (Japan)", 0 )
-GAME( 1994, cbombers, 0,        cbombers, cbombers, cbombers, ROT0, "Taito Corporation Japan", "Chase Bombers", GAME_NOT_WORKING ) // control goes only on the right ?
+GAME( 1994, cbombers, 0,        cbombers, cbombers, cbombers, ROT0, "Taito Corporation Japan", "Chase Bombers (World)", 0 )
