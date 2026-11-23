@@ -487,13 +487,22 @@ static void leland_interrupt_callback(int scanline)
 static void ataxx_interrupt_callback(int scanline)
 {
 	extern UINT8 leland_last_scanline_int;
+	double delay;
 	leland_last_scanline_int = scanline;
 
 	/* interrupts generated according to the interrupt control register */
 	cpunum_set_input_line(0, 0, HOLD_LINE);
 
 	/* set a timer for the next one */
-	timer_adjust(master_int_timer, cpu_getscanlinetime(scanline), scanline, 0);
+	delay = cpu_getscanlinetime(scanline);
+
+	/* the timer can fire slightly before its target time because of the double rounding, */
+	/* and the delay then comes out as zero: this would raise a second interrupt on the same */
+	/* scanline and the handler would reprogram the timer, skipping the following interrupt */
+	if (delay < cpu_getscanlineperiod())
+		delay += TIME_IN_HZ(Machine->refresh_rate);
+
+	timer_adjust(master_int_timer, delay, scanline, 0);
 }
 
 
