@@ -21,7 +21,6 @@
       "genre": "Shooter",
       "platform": "Neo Geo MVS",
       "players": 2,
-      "parent_shortname": null,
       "original_game": null,
       "description": "Abyssal Infants is a horizontally scrolling shooter by Kako Eimon, also developed for the Mega Drive and PlayStation. Guide a small creature through an organic underworld, firing at enemies while avoiding their projectiles. Slow movement helps with precise dodging, while a dash provides a faster way through danger; a second player can join the action.",
       "websites": [
@@ -53,7 +52,6 @@
       "title": "Akai Katana Unlimited",
       "category": "hack",
       "original_game": "akatana",
-      "parent_shortname": "akatana",
       "hack_author": "IAmTheChuckster",
       "hack_year": 2022,
       "modifications": [
@@ -74,7 +72,6 @@
       "category": "hack",
       "genre": "Ball & Paddle",
       "platform": "Taito Arkanoid hardware",
-      "parent_shortname": "arkanoid",
       "original_game": "arkanoid",
       "series": "Arkanoid",
       "description": "Arkanoid Deluxe is a modified edition of Taito's brick-breaking game for Game Corporation bootleg hardware. Move the paddle to keep the ball in play and clear the brick patterns.",
@@ -90,8 +87,7 @@
       "title": "Alpha One",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "mhavoc",
-      "parent_shortname": "mhavoc"
+      "original_game": "mhavoc"
     },
     {
       "shortnames": [
@@ -123,7 +119,6 @@
       "title": "Batsugun (Special Ver.)",
       "category": "original",
       "original_game": "batsugun",
-      "parent_shortname": "batsugun",
       "description": "Batsugun (Special Ver.) is an enhanced version of Toaplan's 1993 vertical-scrolling shoot-'em-up Batsugun. It introduces a smaller player hitbox, a protective shield when leveling up weapons, a reworked scoring system, and multiple loops with bullet-canceling mechanics that helped define the modern manic shooter genre."
     },
     {
@@ -148,7 +143,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Raizing hardware",
-      "parent_shortname": "bgaregga",
       "original_game": "bgaregga",
       "series": "Battle Garegga",
       "hack_author": "Zakk",
@@ -183,8 +177,7 @@
       ],
       "title": "Black Tiger",
       "category": "bootleg",
-      "original_game": "blktiger",
-      "parent_shortname": "blktiger"
+      "original_game": "blktiger"
     },
     {
       "shortnames": [
@@ -192,8 +185,7 @@
       ],
       "title": "Black Dragon",
       "category": "bootleg",
-      "original_game": "blktiger",
-      "parent_shortname": "blktiger"
+      "original_game": "blktiger"
     },
     {
       "shortnames": [
@@ -208,7 +200,6 @@
       "players": 2,
       "release_status": "released",
       "version": "1.6",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Blue and Red Fight the Robots is a fast-paced cooperative arcade platformer originally developed for the Amiga and ported to Neo Geo by Kaiju Wasp. Play solo or with a second player across 40 stages, zapping and stomping rogue robots, building combo chains, and rescuing the kidnapped pets Bernie and Dino.",
       "websites": [
@@ -240,8 +231,7 @@
       ],
       "title": "Battle Field",
       "category": "bootleg",
-      "original_game": "timesold",
-      "parent_shortname": "timesold"
+      "original_game": "timesold"
     },
     {
       "shortnames": [
@@ -254,7 +244,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Taito Bubble Bobble hardware",
-      "parent_shortname": "bublbobl",
       "original_game": "bublbobl",
       "series": "Bubble Bobble",
       "hack_author": "Penta Penguin",
@@ -314,7 +303,6 @@
       "category": "port",
       "genre": "Platform",
       "platform": "Namco Pac-Man hardware",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Chuckie Egg is a platform game adapted by Arlasoft for arcade hardware in 2023. Climb ladders and jump between platforms to collect eggs while avoiding the birds patrolling the stage.",
       "confidence": "verified"
@@ -346,7 +334,6 @@
       "title": "Cotton 2 (English translation)",
       "category": "hack",
       "original_game": "cotton2",
-      "parent_shortname": "cotton2",
       "hack_author": "Zanac",
       "modifications": [
         {
@@ -363,7 +350,6 @@
       "title": "Cotton Boomerang (English translation)",
       "category": "hack",
       "original_game": "cottonbm",
-      "parent_shortname": "cottonbm",
       "hack_author": "Zanac",
       "modifications": [
         {
@@ -385,8 +371,7 @@
       ],
       "title": "The Crystal Maze",
       "category": "clone",
-      "original_game": "v4cmaze3",
-      "parent_shortname": "v4cmaze3"
+      "original_game": "v4cmaze3"
     },
     {
       "shortnames": [
@@ -394,8 +379,7 @@
       ],
       "title": "The Crystal Maze - Now Featuring Ocean Zone",
       "category": "clone",
-      "original_game": "v4cmaze3",
-      "parent_shortname": "v4cmaze3"
+      "original_game": "v4cmaze3"
     },
     {
       "shortnames": [
@@ -409,7 +393,6 @@
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "released",
-      "parent_shortname": null,
       "original_game": "crswd2bl",
       "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS conversion of ADK's Neo Geo CD action RPG by pierpa86. Unlike earlier cartridge conversions that omitted or altered the redbook audio, this release adapts the complete CD soundtrack to the YM2610 sound chip while keeping the original stereo sound effects intact.",
       "modifications": [
@@ -429,8 +412,7 @@
       ],
       "title": "Cyberball 2072",
       "category": "clone",
-      "original_game": "cyberbal",
-      "parent_shortname": "cyberbal"
+      "original_game": "cyberbal"
     },
     {
       "shortnames": [
@@ -439,8 +421,7 @@
       "title": "Cyberball",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "cyberbal",
-      "parent_shortname": "cyberbal"
+      "original_game": "cyberbal"
     },
     {
       "shortnames": [
@@ -449,8 +430,7 @@
       ],
       "title": "Tournament Cyberball 2072",
       "category": "clone",
-      "original_game": "cyberbal",
-      "parent_shortname": "cyberbal"
+      "original_game": "cyberbal"
     },
     {
       "shortnames": [
@@ -472,7 +452,6 @@
       "genre": "Shooter",
       "platform": "CAVE 68000 hardware",
       "release_status": "released",
-      "parent_shortname": "ddonpach",
       "original_game": "ddonpach",
       "series": "DoDonPachi",
       "hack_author": "Olifante",
@@ -511,7 +490,6 @@
       "title": "DoDonPachi Dai-Ou-Jou (Black Label)",
       "category": "original",
       "original_game": "ddp3",
-      "parent_shortname": "ddp3",
       "description": "DoDonPachi Dai-Ou-Jou (Black Label) is Cave's updated 2002 edition of the vertical bullet-hell shoot-'em-up DoDonPachi Dai-Ou-Jou on PolyGame Master (PGM) hardware. It allows players to choose between a single-loop (1-ALL) or two-loop (2-ALL) game at the start, lets Hyper items carry over across lives, and adjusts rank progression and scoring balance."
     },
     {
@@ -530,7 +508,6 @@
       "title": "Deathsmiles (Hidden Elements Full Open + Character Enhancement)",
       "category": "hack",
       "original_game": "deathsml",
-      "parent_shortname": "deathsml",
       "modifications": [
         {
           "type": "gameplay",
@@ -550,7 +527,6 @@
       "category": "homebrew",
       "genre": "Maze",
       "platform": "Namco Pac-Man hardware",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "Dilithium Lift is a maze game by Arlasoft, released in 2023. Collect the crystals distributed through a grid of corridors while keeping track of the remaining lives.",
       "confidence": "verified"
@@ -566,7 +542,6 @@
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
       "version": "1.07",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -595,7 +570,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": null,
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
@@ -635,7 +609,6 @@
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
       "version": "1.00",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -665,7 +638,6 @@
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
       "version": "1.00",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -694,7 +666,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -724,7 +695,6 @@
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
       "version": "1.01",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -753,7 +723,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Jeff Kulczycki",
@@ -782,7 +751,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Don Hodges",
@@ -811,7 +779,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
@@ -850,7 +817,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
@@ -880,7 +846,6 @@
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
       "version": "1.00",
-      "parent_shortname": "dkong",
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Paul Goes",
@@ -909,7 +874,6 @@
       "category": "hack",
       "genre": "Platform",
       "platform": "Nintendo Donkey Kong hardware",
-      "parent_shortname": null,
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "John Kowalski",
@@ -945,7 +909,6 @@
       "title": "Dogou Souken",
       "category": "hack",
       "original_game": "victroad",
-      "parent_shortname": "victroad",
       "modifications": [
         {
           "type": "gameplay",
@@ -971,7 +934,6 @@
       "title": "DownTown",
       "category": "hack",
       "original_game": "downtown",
-      "parent_shortname": "downtown",
       "modifications": [
         {
           "type": "gameplay",
@@ -986,8 +948,7 @@
       "title": "DownTown",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "downtown",
-      "parent_shortname": "downtown"
+      "original_game": "downtown"
     },
     {
       "shortnames": [
@@ -995,8 +956,7 @@
       ],
       "title": "Egg Venture Deluxe",
       "category": "clone",
-      "original_game": "eggventr",
-      "parent_shortname": "eggventr"
+      "original_game": "eggventr"
     },
     {
       "shortnames": [
@@ -1004,8 +964,7 @@
       ],
       "title": "Falcon",
       "category": "bootleg",
-      "original_game": "phoenix",
-      "parent_shortname": "phoenix"
+      "original_game": "phoenix"
     },
     {
       "shortnames": [
@@ -1031,7 +990,6 @@
       "title": "Mushihime-Sama Futari Ver 1.5 (Black Label Color)",
       "category": "hack",
       "original_game": "futari15",
-      "parent_shortname": "futari15",
       "hack_author": "ArcCabView",
       "modifications": [
         {
@@ -1048,7 +1006,6 @@
       "title": "Mushihime-Sama Futari Black Label - Another Ver (Original Color)",
       "category": "hack",
       "original_game": "futaribl",
-      "parent_shortname": "futaribl",
       "hack_author": "ArcCabView",
       "modifications": [
         {
@@ -1065,7 +1022,6 @@
       "title": "Mushihime-Sama Futari Black Label (Original Color)",
       "category": "hack",
       "original_game": "futaribl",
-      "parent_shortname": "futaribl",
       "hack_author": "ArcCabView",
       "modifications": [
         {
@@ -1085,7 +1041,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Namco Galaga hardware",
-      "parent_shortname": "galaga",
       "original_game": "galaga",
       "series": "Galaga",
       "hack_author": "Paul Goes",
@@ -1114,7 +1069,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Namco Galaga hardware",
-      "parent_shortname": "galaga",
       "original_game": "galaga",
       "series": "Galaga",
       "hack_author": "Paul Goes",
@@ -1143,7 +1097,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Namco Galaga hardware",
-      "parent_shortname": "galaga",
       "original_game": "galaga",
       "series": "Galaga",
       "description": "Galaga '84 changes the title and alien graphics of Namco's fixed-screen shooter. Move a fighter along the bottom of the screen and destroy enemy formations as individual aliens break away to dive toward the player. The modified presentation retains the familiar Galaga scoring and combat structure.",
@@ -1159,7 +1112,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Namco Galaga hardware",
-      "parent_shortname": "galaga",
       "original_game": "galaga",
       "series": "Galaga",
       "hack_author": "Don Hodges",
@@ -1196,7 +1148,6 @@
       "genre": "Shooter",
       "platform": "Namco Pac-Man hardware",
       "release_status": "released",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "Ghost Hunt is a 2016 homebrew shooting-gallery game developed by Hurray Banana for original Pac-Man arcade hardware. Rather than reproducing Pac-Man's maze-chase gameplay, it presents a compact shooting challenge built around the capabilities of the vintage arcade board: the joystick steers a small tank across the screen while ghosts drift around the playfield, and the 1P Start button fires, with the goal of shooting as many ghosts as possible within 60 seconds. The game emphasizes simple arcade action and immediate player interaction, demonstrating how familiar hardware can support an entirely different kind of game.\n\nOriginally created as an educational exercise for students learning Z80 assembly language, Ghost Hunt was designed to show features such as addressing modes, interrupts, shifting, lookup tables and masking, and was released together with fully commented source code. It was written to run on actual Pac-Man hardware. Although it relies on the same electronic platform as Pac-Man, Ghost Hunt is an independent homebrew game rather than a modified version of the original maze adventure.",
       "websites": [],
@@ -1220,8 +1171,7 @@
       ],
       "title": "Gallop Racer 2 Link HW",
       "category": "regional_variant",
-      "original_game": "glpracr2",
-      "parent_shortname": "glpracr2"
+      "original_game": "glpracr2"
     },
     {
       "shortnames": [
@@ -1341,8 +1291,7 @@
       "title": "Gravitar",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "gravitar",
-      "parent_shortname": "gravitar"
+      "original_game": "gravitar"
     },
     {
       "shortnames": [
@@ -1351,8 +1300,7 @@
       "title": "High Impact Football",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "hiimpact",
-      "parent_shortname": "hiimpact"
+      "original_game": "hiimpact"
     },
     {
       "shortnames": [
@@ -1369,7 +1317,6 @@
       "title": "Ibara Kuro Black Label (Color Sat)",
       "category": "hack",
       "original_game": "ibarablk",
-      "parent_shortname": "ibarablk",
       "hack_author": "ArcCabView",
       "hack_year": 2022,
       "modifications": [
@@ -1387,7 +1334,6 @@
       "title": "Ibara (Color Sat)",
       "category": "hack",
       "original_game": "ibara",
-      "parent_shortname": "ibara",
       "hack_author": "ArcCabView",
       "hack_year": 2022,
       "modifications": [
@@ -1404,8 +1350,7 @@
       ],
       "title": "Jatre Specter",
       "category": "clone",
-      "original_game": "invaders",
-      "parent_shortname": "invaders"
+      "original_game": "invaders"
     },
     {
       "shortnames": [
@@ -1414,7 +1359,6 @@
       "title": "Kageki",
       "category": "hack",
       "original_game": "kageki",
-      "parent_shortname": "kageki",
       "hack_author": "Taito Corporation"
     },
     {
@@ -1437,7 +1381,6 @@
       "genre": "Shooter",
       "platform": "IGS PGM",
       "version": "1.7 (2014-07-16)",
-      "parent_shortname": null,
       "original_game": "ket",
       "series": "Ketsui",
       "hack_author": "trap15",
@@ -1473,7 +1416,6 @@
       "title": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)",
       "category": "original",
       "original_game": "ket",
-      "parent_shortname": "ket",
       "description": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special) is a special event version of Cave's 2003 vertical bullet-hell shoot-'em-up Ketsui directed by Tsuneki Ikeda (IKD) and exhibited at the 2007 Cave Matsuri festival."
     },
     {
@@ -1487,7 +1429,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Raizing hardware",
-      "parent_shortname": "kingdmgp",
       "original_game": "kingdmgp",
       "series": "Mahou Daisakusen",
       "hack_author": "Neil Corlett",
@@ -1522,8 +1463,7 @@
       "title": "Killer Instinct",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "kinst",
-      "parent_shortname": "kinst"
+      "original_game": "kinst"
     },
     {
       "shortnames": [
@@ -1549,7 +1489,6 @@
       "title": "Looptris Plus",
       "category": "homebrew",
       "original_game": "looptris",
-      "parent_shortname": "looptris",
       "description": "Looptris Plus is an expanded 2022 edition of Blastar's Neo Geo falling-block puzzle game Looptris, adding new modes and presentation refinements.",
       "confidence": "corroborated"
     },
@@ -1566,13 +1505,11 @@
       "platform": "Atari Major Havoc hardware",
       "release_status": "released",
       "version": "1.01",
-      "parent_shortname": "mhavoc",
       "original_game": "mhavoc",
       "series": "Major Havoc",
       "variants": [
         {
           "shortname": "mhavocpex7",
-          "parent_shortname": "mhavocpe",
           "year": 2021,
           "version": "0.78 beta",
           "differences": [
@@ -1620,7 +1557,6 @@
       "category": "hack",
       "genre": "Fighter",
       "platform": "Midway T-Unit",
-      "parent_shortname": "mk",
       "original_game": "mk",
       "series": "Mortal Kombat",
       "hack_author": "Zpaul2fresh8",
@@ -1651,7 +1587,6 @@
       "category": "hack",
       "genre": "Fighter",
       "platform": "Midway T-Unit",
-      "parent_shortname": "mk2",
       "original_game": "mk2",
       "series": "Mortal Kombat",
       "hack_author": "mortalkombatplus.com",
@@ -1685,7 +1620,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Neo Geo MVS",
-      "parent_shortname": "mslug5",
       "original_game": "mslug5",
       "series": "Metal Slug",
       "description": "Metal Slug 5 Plus (Super Enhanced) is an arcade bootleg modification of Metal Slug 5 based on Metal Slug 5 Plus with altered program code, weapon selection, and enhanced gameplay tweaks.",
@@ -1707,7 +1641,6 @@
       "category": "hack",
       "genre": "Shooter",
       "platform": "Neo Geo MVS",
-      "parent_shortname": null,
       "original_game": "mslug5",
       "series": "Metal Slug",
       "hack_author": "CB, Willnie",
@@ -1743,7 +1676,6 @@
       "category": "hack",
       "genre": "Sports",
       "platform": "Midway T-Unit",
-      "parent_shortname": "nbajamte",
       "original_game": "nbajamte",
       "series": "NBA Jam",
       "hack_author": "Asure",
@@ -1778,7 +1710,6 @@
       "platform": "Neo Geo MVS",
       "players": 1,
       "release_status": "released",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Neo 2048 brings the number-merging puzzle 2048 to the Neo Geo. Slide the tiles across a four-by-four grid to combine matching values into larger powers of two, aiming to create a 2048 tile before the board fills. Nicole Branagan created this version as a one-week programming challenge, with a score counter and simple tile animations.",
       "websites": [
@@ -1842,7 +1773,6 @@
       "category": "homebrew",
       "genre": "Puzzle",
       "platform": "Namco Pac-Man hardware",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "This experimental Tetris adaptation by Ben Leperchey uses the graphics of Pac-Man for its falling blocks. The incomplete version has no text or score display and behaves erratically when a game ends.",
       "confidence": "verified"
@@ -1858,7 +1788,6 @@
       "genre": "Maze",
       "platform": "Namco Pac-Man hardware",
       "version": "1.0",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "Pacu Pacu is a one-dimensional chase game by Sokurah. A yellow character and a ghost share a narrow horizontal corridor, reducing the familiar maze-chase format to a single lane.",
       "confidence": "verified"
@@ -1874,7 +1803,6 @@
       "genre": "Maze",
       "platform": "Namco Pac-Man hardware",
       "version": "0.01",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "Paku Paku is a compact arcade game by Sokurah in which a yellow character collects dots along a single horizontal lane while avoiding a ghost. Its minimalist playfield condenses a maze chase into one dimension.",
       "confidence": "verified"
@@ -1892,7 +1820,6 @@
       "genre": "Platform",
       "platform": "Namco Galaxian hardware",
       "release_status": "released",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Panda Jump is a 2022 arcade homebrew platform game developed by Ben Larson for original Galaxian hardware. The player controls a panda attempting to retrieve his favorite bamboo by jumping from the bottom of the screen to the top. Moving platforms provide the only safe route across each stage, while deadly lava waits below. The game features nine increasingly challenging levels that demand precise timing, careful landings, and an understanding of the character's momentum.\n\nUnlike conventional platform games with instantaneous movement, Panda Jump rewards anticipating the motion of platforms and controlling momentum while jumping and landing. Later stages require players to build speed to reach otherwise inaccessible platforms. Developed as a spin-off of Larson's Panky the Panda, it transforms classic arcade hardware into a demanding game of precision jumping, where mastering movement is the key to survival.",
       "websites": [],
@@ -1909,8 +1836,7 @@
       ],
       "title": "Puzzle Bobble 2X",
       "category": "clone",
-      "original_game": "pbobble2",
-      "parent_shortname": "pbobble2"
+      "original_game": "pbobble2"
     },
     {
       "shortnames": [
@@ -1922,7 +1848,6 @@
       "category": "port",
       "genre": "Shooter",
       "platform": "Nintendo PlayChoice-10",
-      "parent_shortname": "playch10",
       "original_game": "galaga",
       "series": "Galaga",
       "description": "A cartridge conversion of the NES version of Galaga for Nintendo's PlayChoice-10 arcade system. Shoot the incoming enemy formations and diving attackers while protecting the fighter at the bottom of the screen.",
@@ -1953,7 +1878,6 @@
       "category": "port",
       "genre": "Platform",
       "platform": "Nintendo PlayChoice-10",
-      "parent_shortname": "playch10",
       "original_game": "megaman5",
       "series": "Mega Man",
       "description": "A cartridge conversion of Capcom's NES game Mega Man 5 for the PlayChoice-10 arcade system. Choose a stage, jump and shoot through its obstacles, then defeat its Robot Master to acquire another weapon.",
@@ -1984,7 +1908,6 @@
       "category": "port",
       "genre": "Maze",
       "platform": "Nintendo PlayChoice-10",
-      "parent_shortname": "playch10",
       "original_game": "pacman",
       "series": "Pac-Man",
       "description": "A cartridge conversion of the NES version of Pac-Man for Nintendo's PlayChoice-10 arcade system. Clear the maze of dots while avoiding the ghosts, using power pellets to turn the chase around temporarily.",
@@ -2016,7 +1939,6 @@
       "genre": "Platform",
       "platform": "Nintendo PlayChoice-10",
       "version": "135 Hack, 2012-01-23",
-      "parent_shortname": "pc_smb3",
       "original_game": "pc_smb3",
       "series": "Super Mario",
       "modifications": [
@@ -2041,7 +1963,6 @@
       "category": "homebrew",
       "genre": "Platform",
       "platform": "Namco Pac-Man hardware",
-      "parent_shortname": "puckman",
       "original_game": null,
       "description": "Pollen Angel is a platform game by Arlasoft, released in 2023. Its single-screen stages feature flowers, flying insects and platforms surrounded by spikes, with a timer limiting each attempt.",
       "confidence": "verified"
@@ -2052,8 +1973,7 @@
       ],
       "title": "Pop Flamer",
       "category": "hack",
-      "original_game": "popflame",
-      "parent_shortname": "popflame"
+      "original_game": "popflame"
     },
     {
       "shortnames": [
@@ -2061,8 +1981,7 @@
       ],
       "title": "Psychic Force EX",
       "category": "clone",
-      "original_game": "psyforce",
-      "parent_shortname": "psyforce"
+      "original_game": "psyforce"
     },
     {
       "shortnames": [
@@ -2071,7 +1990,6 @@
       "title": "Puyo Puyo 2 (English translation)",
       "category": "hack",
       "original_game": "puyopuy2",
-      "parent_shortname": "puyopuy2",
       "hack_author": "Zanac",
       "hack_year": 2026,
       "modifications": [
@@ -2089,7 +2007,6 @@
       "title": "Puyo Puyo Sun (English translation)",
       "category": "hack",
       "original_game": "puyosun",
-      "parent_shortname": "puyosun",
       "hack_author": "Zanac / Puyo Nexus",
       "modifications": [
         {
@@ -2105,8 +2022,7 @@
       ],
       "title": "Quartet 2",
       "category": "regional_variant",
-      "original_game": "quartet",
-      "parent_shortname": "quartet"
+      "original_game": "quartet"
     },
     {
       "shortnames": [
@@ -2114,8 +2030,7 @@
       ],
       "title": "Rainbow Islands",
       "category": "clone",
-      "original_game": "rainbow",
-      "parent_shortname": "rainbow"
+      "original_game": "rainbow"
     },
     {
       "shortnames": [
@@ -2123,8 +2038,7 @@
       ],
       "title": "Super Bobble Bobble",
       "category": "bootleg",
-      "original_game": "bublbobl",
-      "parent_shortname": "bublbobl"
+      "original_game": "bublbobl"
     },
     {
       "shortnames": [
@@ -2132,8 +2046,7 @@
       ],
       "title": "Scud Race Plus",
       "category": "clone",
-      "original_game": "scud",
-      "parent_shortname": "scud"
+      "original_game": "scud"
     },
     {
       "shortnames": [
@@ -2142,7 +2055,6 @@
       "title": "DoDonPachi SaiDaiOuJou (hack)",
       "category": "hack",
       "original_game": "ddpsdoj",
-      "parent_shortname": "sdojak",
       "modifications": [
         {
           "type": "gameplay",
@@ -2175,7 +2087,6 @@
       "title": "DoDonPachi SaiDaiOuJou Saya Type B",
       "category": "hack",
       "original_game": "ddpsdoj",
-      "parent_shortname": "sdojak",
       "modifications": [
         {
           "type": "characters",
@@ -2191,8 +2102,7 @@
       ],
       "title": "Super Earth Invasion",
       "category": "bootleg",
-      "original_game": "invaders",
-      "parent_shortname": "invaders"
+      "original_game": "invaders"
     },
     {
       "shortnames": [
@@ -2205,7 +2115,6 @@
       "genre": "Fighter",
       "platform": "Capcom CPS-1",
       "version": "1.6",
-      "parent_shortname": null,
       "original_game": "sf2ce",
       "series": "Street Fighter",
       "hack_author": "Zero800",
@@ -2242,7 +2151,6 @@
       "title": "Street Fighter II' - Hyper Fighting",
       "category": "original",
       "original_game": "sf2",
-      "parent_shortname": "sf2ce",
       "description": "Street Fighter II' - Hyper Fighting (released in Japan as Street Fighter II' Turbo - Hyper Fighting) is Capcom's 1992 competitive update to Street Fighter II': Champion Edition on CPS-1 hardware, increasing game speed and adding new special moves across the twelve-character roster."
     },
     {
@@ -2252,7 +2160,6 @@
       "title": "Street Fighter III 3rd Strike: Fight for the Future (4rd Arrange Edition 2013)",
       "category": "hack",
       "original_game": "sfiii3",
-      "parent_shortname": "sfiii3",
       "modifications": [
         {
           "type": "gameplay",
@@ -2287,7 +2194,6 @@
       "category": "hack",
       "version": "0.32",
       "original_game": "sfa3",
-      "parent_shortname": "sfa3",
       "hack_author": "Zero800",
       "hack_year": 2026,
       "modifications": [
@@ -2314,8 +2220,7 @@
       ],
       "title": "Limited Edition Hang-On",
       "category": "clone",
-      "original_game": "shangon",
-      "parent_shortname": "shangon"
+      "original_game": "shangon"
     },
     {
       "shortnames": [
@@ -2323,8 +2228,7 @@
       ],
       "title": "Super Hang-On",
       "category": "bootleg",
-      "original_game": "shangon",
-      "parent_shortname": "shangon"
+      "original_game": "shangon"
     },
     {
       "shortnames": [
@@ -2332,8 +2236,7 @@
       ],
       "title": "Sichuan II",
       "category": "hack",
-      "original_game": "matchit",
-      "parent_shortname": "matchit"
+      "original_game": "matchit"
     },
     {
       "shortnames": [
@@ -2342,8 +2245,7 @@
       "title": "Sinistar",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "sinistar",
-      "parent_shortname": "sinistar"
+      "original_game": "sinistar"
     },
     {
       "shortnames": [
@@ -2355,7 +2257,6 @@
       "category": "port",
       "genre": "Puzzle",
       "platform": "Taito L-System",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Sokoban LE is a box-pushing puzzle game adapted by cmonkey for Taito L-System hardware. Push crates through confined rooms and place them on their marked destinations; a crate trapped against a wall or in a corner can make a puzzle impossible to finish.",
       "confidence": "verified"
@@ -2370,7 +2271,6 @@
       "category": "homebrew",
       "genre": "Puzzle",
       "platform": "Taito L-System",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Speccies 2 is a puzzle game by Sokurah. Guide a character across a compact grid of colored tiles, solving each arrangement before moving on to the next level.",
       "confidence": "verified"
@@ -2382,7 +2282,6 @@
       "title": "Super Puzzle Fighter 2 X'",
       "category": "hack",
       "original_game": "spf2t",
-      "parent_shortname": "spf2t",
       "hack_author": "Kaito Sinclaire",
       "modifications": [
         {
@@ -2402,7 +2301,6 @@
       "category": "homebrew",
       "genre": "Arcade",
       "platform": "Taito L-System",
-      "parent_shortname": null,
       "original_game": null,
       "description": "SQIJ! is an exploration game by Sokurah. Collect the six parts of the Tree of Life and carry them to a place where it can grow. Shields let you pass through barriers, food restores energy, and contact with enemies or hazardous scenery drains your remaining energy.",
       "confidence": "verified"
@@ -2414,8 +2312,7 @@
       "title": "Steel Talons",
       "category": "prototype",
       "release_status": "prototype",
-      "original_game": "steeltal",
-      "parent_shortname": "steeltal"
+      "original_game": "steeltal"
     },
     {
       "shortnames": [
@@ -2441,8 +2338,7 @@
       ],
       "title": "Top Racer",
       "category": "bootleg",
-      "original_game": "polepos",
-      "parent_shortname": "polepos"
+      "original_game": "polepos"
     },
     {
       "shortnames": [
@@ -2462,7 +2358,6 @@
       "category": "hack",
       "genre": "Fighter",
       "platform": "Midway T-Unit",
-      "parent_shortname": "mk2",
       "original_game": "mk2",
       "series": "Mortal Kombat",
       "hack_author": "SK",
@@ -2497,7 +2392,6 @@
       "platform": "Midway Wolf Unit",
       "version": "Beta 2 (2022-03-07)",
       "release_status": "beta",
-      "parent_shortname": null,
       "original_game": "umk3",
       "series": "Mortal Kombat",
       "hack_author": "Team Plus",
@@ -2539,8 +2433,7 @@
       ],
       "title": "Vautour",
       "category": "bootleg",
-      "original_game": "phoenix",
-      "parent_shortname": "phoenix"
+      "original_game": "phoenix"
     },
     {
       "shortnames": [
@@ -2555,7 +2448,6 @@
       "players": 2,
       "release_status": "beta",
       "version": "beta 3.28",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Violent Vengeance: The Universe Hero adapts Accend's 1995 MS-DOS fighting game to Neo Geo with a new engine and revised combat. Choose from ten fighters, each with a distinct stage and special moves, and face opponents in one-on-one bouts, including two non-playable bosses. This beta 3.28 release retains the project's humorous presentation while expanding its arcade fighting system.",
       "websites": [
@@ -2579,8 +2471,7 @@
       ],
       "title": "Vs 10-Yard Fight",
       "category": "regional_variant",
-      "original_game": "10yard",
-      "parent_shortname": "10yard"
+      "original_game": "10yard"
     },
     {
       "shortnames": [
@@ -2588,8 +2479,7 @@
       ],
       "title": "Euro League",
       "category": "bootleg",
-      "original_game": "twcup90",
-      "parent_shortname": "twcup90"
+      "original_game": "twcup90"
     },
     {
       "shortnames": [
@@ -2598,8 +2488,7 @@
       ],
       "title": "Western Express",
       "category": "bootleg",
-      "original_game": "exprraid",
-      "parent_shortname": "exprraid"
+      "original_game": "exprraid"
     },
     {
       "shortnames": [
@@ -2611,7 +2500,6 @@
       "category": "homebrew",
       "genre": "Driving",
       "platform": "Neo Geo MVS",
-      "parent_shortname": null,
       "original_game": null,
       "description": "World Racer is a top-down racing game by Blastar. Compete against computer-controlled cars on a scrolling circuit, steering through bends and accelerating away from the starting grid. A course map shows the positions of the player and the opposing racers.",
       "confidence": "verified"
@@ -2636,7 +2524,6 @@
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "released",
-      "parent_shortname": null,
       "original_game": null,
       "description": "Yo-Yo Shuriken is a single-screen shooter in which one or two ninjas defend a dojo against robots. Throw a single shuriken and recall it to strike enemies from behind, or charge the weapon to cut through several opponents at once. Seven stages combine waves of enemies with boss encounters, and two players can tackle them together.",
       "websites": [

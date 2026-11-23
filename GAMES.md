@@ -15,6 +15,8 @@
 
 In `support/curated.json`, you can freely omit any fields with `null` values or empty arrays, even if they are required in `games.json`; the build script will automatically fill missing technical fields from `-listxml`.
 
+**Never specify `parent_shortname` in `support/curated.json`.** The parent/clone relationship is derived automatically from `advmame -listxml`, which is the authoritative source (see [Parent/clone relationships](#parent-clone-relationships)). Use `original_game` to record the historically original game.
+
 To regenerate `games.json` use the support scripts:
 ```bash
 python3 support/build_games_json.py && python3 support/enrich_games.py
@@ -157,20 +159,38 @@ Use consistent names for genres and platforms. Do not infer player count or type
 
 | Field | Type | Meaning |
 |---|---|---|
-| `parent_shortname` | string or null | Direct parent declared in AdvanceMAME for the primary shortname |
+| `parent_shortname` | string or null | Direct parent declared in AdvanceMAME for the primary shortname (generated from `-listxml` `cloneof`; never set in `curated.json`) |
 | `original_game` | string or null | Original game's established shortname for a hack, bootleg, port, or derivative |
 | `series` | string or null (optional) | Established franchise or game series name (for example, `"Street Fighter"`, `"Ghosts'n Goblins"`, `"DoDonPachi"`); omit when the game is not part of a multi-installment series |
 
-- **`parent_shortname`:** If the primary shortname is registered as a parent set in AdvanceMAME (`clone_of` is `0` in the `GAME` macro), set `parent_shortname` to `null`.
+- **`parent_shortname`:** Part of the generated `games.json` schema only. Its value is taken automatically from the `cloneof` attribute of the primary shortname in `-listxml`, and is `null` when the primary shortname has no `cloneof` (a parent set, or a standalone hack with `GAME_STANDALONE`). It must not be written in `support/curated.json`, and curated metadata never overrides it. A curated record is always its own family in `games.json`, even when its primary shortname is a normal clone: in that case `parent_shortname` holds the technical parent (for example `dkong`), while a standalone hack has `null` and carries `original_game` to identify the historical original.
 - **`original_game`:** For a standalone original game (`category` is `"original"` and not derived from an earlier work), set `original_game` to `null` (do not repeat the record's own primary shortname). For a hack, bootleg, clone, port, or derivative placed in its own record, set `original_game` to the established shortname of the historically original game.
 - **`series`:** Use a clean scalar franchise name (for example, extracted from `support/external/series.ini` or the `- SERIES -` section of `support/external/history.xml`). Omit `series` when the game is a standalone release not belonging to a series.
 - **The immediate AdvanceMAME parent and the historically original game are not necessarily the same.** Do not conflate them. If a variant has a different direct parent, record that in the variant.
+
+<a id="parent-clone-relationships"></a>
+#### Parent/clone relationships
+
+The technical parent/clone relationships are defined by the AdvanceMAME drivers and exposed by `advmame -listxml`:
+
+- **Normal clone:** both `cloneof` and `romof` are present.
+- **Standalone hack (`GAME_STANDALONE`):** `cloneof` is absent but `romof` is retained. The set is exposed as an independent game while still sharing the ROMs of its technical parent.
+- **Independent parent game:** `cloneof` is absent.
+
+Rules:
+
+1. `parent_shortname` must not be specified in `support/curated.json`; it is derived automatically from `-listxml`.
+2. `romof` represents ROM dependencies, while `cloneof` determines the launcher-visible clone relationship. `parent_shortname` follows `cloneof`.
+3. `GAME_STANDALONE` determines whether a technical clone is exposed as an independent game in `-listxml`.
+4. `original_game` remains available in `curated.json` to identify the historically original game from which a hack, port, or derivative originates. It is independent of the technical parent.
+5. Curated metadata must never override the technical parent/clone relationships supplied by the emulator.
+6. A clone with curated metadata does not necessarily become a standalone game. Curated descriptions and parent/clone grouping are separate concerns; the grouping of a record is defined by its `shortnames` list.
 
 ### 5. Per-shortname differences: `variants` (optional)
 
 Use `variants` **only when at least one covered shortname needs distinct facts**. Every variant object must include `shortname`, which must also occur in the enclosing `shortnames` array, and entries in `variants` must follow the same order as `shortnames`. Other allowed variant properties (in canonical order) are:
 
-- `parent_shortname` (string or null)
+- `parent_shortname` (string or null; generated from `-listxml`, emitted only when different from the record's `parent_shortname`)
 - `title` (string)
 - `year` (integer or null)
 - `developer` (string or null)
@@ -349,7 +369,7 @@ For every new or changed AdvanceMAME game:
 1. **Verify driver registration:** Ensure the shortname is registered in `mame/mamedriv.c` and builds cleanly.
 2. **Determine if curation is necessary:**
    - **Standard MAME games / clones:** No curation needed. Running the generation scripts will automatically place clones under their parent, assign genres from `genre.ini`, and fetch trivia, tips, scoring, and website links from `support/external/`.
-   - **Standalone hacks, bootlegs, or homebrew:** If a set has a `cloneof` tag in the driver but must be a standalone root family in `games.json`, add an entry to `support/curated.json` specifying all covered `shortnames`, `category: "hack"` (or `"bootleg"`/`"homebrew"`), and `original_game`.
+   - **Standalone hacks, bootlegs, or homebrew:** If a set must be a standalone root family in `games.json`, add an entry to `support/curated.json` specifying all covered `shortnames`, `category: "hack"` (or `"bootleg"`/`"homebrew"`), and `original_game`. Do not specify `parent_shortname`; the technical relationship comes from the driver (`GAME_STANDALONE` removes `cloneof` from `-listxml`).
    - **Curated descriptions or custom links:** If you have researched and written an informative gameplay narrative or want to attach specific project/official URLs, add them to the game's record in `support/curated.json`.
 3. **Regenerate the catalog:**
    Run the build and enrichment scripts from `support/`:
@@ -372,7 +392,8 @@ Before completing a change, check:
 - Game records are sorted by their primary identifier.
 - Each variant references a shortname covered by the enclosing record, without duplicates.
 - Variant parent changes and other known differences are represented accurately.
-- Parent and original-game relationships are coherent and agree with known definitions.
+- `support/curated.json` contains no `parent_shortname` property, at any nesting level.
+- Parent and original-game relationships are coherent and agree with known definitions; `parent_shortname` in `games.json` matches `cloneof` in `-listxml`.
 - Hacks and modifications are specific, not speculative, and use allowed types.
 - Categories, statuses, and confidence values use the defined vocabulary.
 - `description` is either `null` or a non-empty, informative, self-contained user-facing text free of boilerplate, driver/MAME registration commentary, and research disclaimers.
