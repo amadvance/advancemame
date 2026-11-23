@@ -1856,6 +1856,20 @@ ADDRESS_MAP_END
  *
  *************************************/
 
+/* the gear shifter stays in the selected gear, starting from the first one */
+static UINT32 gearshift_r(void *param)
+{
+	static UINT32 gear = 1;
+	UINT32 gear_read = readinputportbytag("GEAR");
+	int i;
+
+	for (i = 0; i < 4; ++i)
+		if (gear_read & (1 << i))
+			gear = 1 << i;
+	return gear;
+}
+
+
 INPUT_PORTS_START( seattle_common )
 	PORT_START_TAG("DIPS")
 	PORT_DIPNAME( 0x0001, 0x0001, "Unknown0001" )
@@ -2020,10 +2034,7 @@ INPUT_PORTS_START( sfrush )
 	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(3)	/* track 2 */
 	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(3)	/* track 3 */
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(3)	/* track 4 */
-	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)	/* 1st gear */
-	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)	/* 2nd gear */
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)	/* 3rd gear */
-	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)	/* 4th gear */
+	PORT_BIT( 0x0f00, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM(gearshift_r, 0)
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_VOLUME_DOWN )
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_VOLUME_UP )
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -2055,6 +2066,11 @@ INPUT_PORTS_START( sfrush )
 
 	PORT_START
 	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x10,0xf0) PORT_SENSITIVITY(25) PORT_KEYDELTA(5)
+	PORT_START_TAG("GEAR")
+	PORT_BIT( 0x1, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1)	/* 1st gear */
+	PORT_BIT( 0x2, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_PLAYER(1)	/* 2nd gear */
+	PORT_BIT( 0x4, IP_ACTIVE_HIGH, IPT_BUTTON4 ) PORT_PLAYER(1)	/* 3rd gear */
+	PORT_BIT( 0x8, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_PLAYER(1)	/* 4th gear */
 INPUT_PORTS_END
 
 

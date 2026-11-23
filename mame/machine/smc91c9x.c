@@ -15,6 +15,7 @@
 
 #include "driver.h"
 #include "smc91c9x.h"
+#include <zlib.h>
 
 
 
@@ -36,7 +37,7 @@
  *************************************/
 
 #define ETHER_BUFFER_SIZE	(2048)
-#define ETHER_RX_BUFFERS	(4)
+#define ETHER_BUFFERS		(18)
 
 /* Ethernet registers - bank 0 */
 #define EREG_TCR			(0*8 + 0)
@@ -76,13 +77,14 @@
 
 /* Ethernet MMU commands */
 #define ECMD_NOP			0
-#define ECMD_ALLOCATE		1
-#define ECMD_RESET_MMU		2
-#define ECMD_REMOVE			3
-#define ECMD_REMOVE_RELEASE	4
-#define ECMD_RELEASE_PACKET	5
-#define ECMD_ENQUEUE_PACKET	6
-#define ECMD_RESET_FIFOS	7
+#define ECMD_ALLOCATE		2
+#define ECMD_RESET_MMU		4
+#define ECMD_REMOVE_RX		6
+#define ECMD_REMOVE_TX		7
+#define ECMD_REMOVE_RELEASE_RX	8
+#define ECMD_RELEASE_PACKET	10
+#define ECMD_ENQUEUE_PACKET	12
+#define ECMD_RESET_FIFOS	14
 
 /* Ethernet interrupt bits */
 #define EINT_RCV			0x01
@@ -125,13 +127,16 @@ struct smc91c94_data
 	/* IRQ information */
 	UINT8			irq_state;
 
-	/* allocate information */
-	UINT8			alloc_count;
+	/* packet memory and its allocation by packet number */
+	UINT8			buffer[ETHER_BUFFER_SIZE * ETHER_BUFFERS];
+	UINT32			alloc_tx;
+	UINT32			alloc_rx;
 
-	/* transmit/receive FIFOs */
-	UINT8 			fifo_count;
-	UINT8			rx[ETHER_BUFFER_SIZE * ETHER_RX_BUFFERS];
-	UINT8			tx[ETHER_BUFFER_SIZE];
+	/* fifos of the packet numbers completed, read through FIFO PORTS */
+	UINT8			comp_tx[ETHER_BUFFERS];
+	UINT8			comp_tx_count;
+	UINT8			comp_rx[ETHER_BUFFERS];
+	UINT8			comp_rx_count;
 
 	/* counters */
 	UINT32			sent;
@@ -185,13 +190,13 @@ void smc91c94_reset(void)
 	memset(&ethernet, 0, sizeof(ethernet));
 	ethernet.irq_handler = saved_handler;
 
-	ethernet.reg[EREG_TCR]			= 0x0000;	ethernet.regmask[EREG_TCR]			= 0x3d87;
-	ethernet.reg[EREG_EPH_STATUS]	= 0x0000;	ethernet.regmask[EREG_EPH_STATUS]	= 0x0000;
+	ethernet.reg[EREG_TCR]			= 0x0000;	ethernet.regmask[EREG_TCR]			= 0xbd87;
+	ethernet.reg[EREG_EPH_STATUS]	= 0x4000;	ethernet.regmask[EREG_EPH_STATUS]	= 0x0000;
 	ethernet.reg[EREG_RCR]			= 0x0000;	ethernet.regmask[EREG_RCR]			= 0xc307;
 	ethernet.reg[EREG_COUNTER]		= 0x0000;	ethernet.regmask[EREG_COUNTER]		= 0x0000;
 	ethernet.reg[EREG_MIR]			= 0x1212;	ethernet.regmask[EREG_MIR]			= 0x0000;
 	ethernet.reg[EREG_MCR]			= 0x3300;	ethernet.regmask[EREG_MCR]			= 0x00ff;
-	ethernet.reg[EREG_BANK]			= 0x3300;	ethernet.regmask[EREG_BANK]			= 0x0007;
+	ethernet.reg[EREG_BANK]			= 0x3330;	ethernet.regmask[EREG_BANK]			= 0x0007;
 
 	ethernet.reg[EREG_CONFIG]		= 0x0030;	ethernet.regmask[EREG_CONFIG]		= 0x17c6;
 	ethernet.reg[EREG_BASE]			= 0x1866;	ethernet.regmask[EREG_BASE]			= 0xfffe;
@@ -214,7 +219,7 @@ void smc91c94_reset(void)
 	ethernet.reg[EREG_MT4_5]		= 0x0000;	ethernet.regmask[EREG_MT4_5]		= 0xffff;
 	ethernet.reg[EREG_MT6_7]		= 0x0000;	ethernet.regmask[EREG_MT6_7]		= 0xffff;
 	ethernet.reg[EREG_MGMT]			= 0x3030;	ethernet.regmask[EREG_MGMT]			= 0x0f0f;
-	ethernet.reg[EREG_REVISION]		= 0x3340;	ethernet.regmask[EREG_REVISION]		= 0x0000;
+	ethernet.reg[EREG_REVISION]		= 0x3345;	ethernet.regmask[EREG_REVISION]		= 0x0000;
 	ethernet.reg[EREG_ERCV]			= 0x331f;	ethernet.regmask[EREG_ERCV]			= 0x009f;
 
 	update_ethernet_irq();
@@ -230,8 +235,21 @@ void smc91c94_reset(void)
 
 static void update_ethernet_irq(void)
 {
-	UINT8 mask = ethernet.reg[EREG_INTERRUPT] >> 8;
-	UINT8 state = ethernet.reg[EREG_INTERRUPT] & 0xff;
+	UINT8 mask;
+	UINT8 state;
+
+	/* the tx and rcv interrupts are pending while the completion fifos are not empty */
+	if (ethernet.comp_tx_count)
+		ethernet.reg[EREG_INTERRUPT] |= EINT_TX;
+	else
+		ethernet.reg[EREG_INTERRUPT] &= ~EINT_TX;
+	if (ethernet.comp_rx_count)
+		ethernet.reg[EREG_INTERRUPT] |= EINT_RCV;
+	else
+		ethernet.reg[EREG_INTERRUPT] &= ~EINT_RCV;
+
+	mask = ethernet.reg[EREG_INTERRUPT] >> 8;
+	state = ethernet.reg[EREG_INTERRUPT] & 0xff;
 
 	/* update the IRQ state */
 	ethernet.irq_state = ((mask & state) != 0);
@@ -262,66 +280,191 @@ static void update_stats(void)
  *
  *************************************/
 
-static void finish_enqueue(int param)
+static int address_filter(const UINT8 *buf, UINT16 *status)
 {
-	int is_broadcast = (ethernet.tx[4] == 0xff && ethernet.tx[5] == 0xff && ethernet.tx[6] == 0xff &&
-						ethernet.tx[7] == 0xff && ethernet.tx[8] == 0xff && ethernet.tx[9] == 0xff);
+	int i;
 
-	/* update the EPH register and stuff it in the first transmit word */
-	ethernet.reg[EREG_EPH_STATUS] = 0x0001;
-	if (is_broadcast)
-		ethernet.reg[EREG_EPH_STATUS] |= 0x0040;
-	ethernet.tx[0] = ethernet.reg[EREG_EPH_STATUS];
-	ethernet.tx[1] = ethernet.reg[EREG_EPH_STATUS] >> 8;
+	/* promiscuous mode */
+	if (ethernet.reg[EREG_RCR] & 0x0002)
+		return 1;
 
-	/* signal a transmit interrupt and mark the transmit buffer empty */
-	ethernet.reg[EREG_INTERRUPT] |= EINT_TX;
-	ethernet.reg[EREG_INTERRUPT] |= EINT_TX_EMPTY;
-	ethernet.reg[EREG_FIFO_PORTS] |= 0x0080;
+	if (buf[0] & 1)
+	{
+		UINT32 crc;
+		int hash = 0;
+
+		/* broadcast */
+		if (buf[0] == 0xff && buf[1] == 0xff && buf[2] == 0xff && buf[3] == 0xff && buf[4] == 0xff && buf[5] == 0xff)
+		{
+			*status |= 0x4000;
+			return 1;
+		}
+
+		/* multicast, the hash is from the upper 6 bits of the inverted and reflected crc */
+		crc = crc32(0, buf, 6);
+		for (i = 0; i < 6; ++i)
+			hash |= ((~crc >> i) & 1) << (5 - i);
+		if ((ethernet.reg[EREG_RCR] & 0x0004) || ((ethernet.reg[EREG_MT0_1 + hash / 16] >> (hash % 16)) & 1))
+		{
+			*status |= (hash << 1) | 0x0001;
+			return 1;
+		}
+		return 0;
+	}
+
+	/* unicast, the address registers are little endian like the frame bytes */
+	for (i = 0; i < 6; ++i)
+		if (buf[i] != ((ethernet.reg[EREG_IA0_1 + i / 2] >> (8 * (i & 1))) & 0xff))
+			return 0;
+	return 1;
+}
+
+
+static int alloc_packet(int tx)
+{
+	int i;
+
+	for (i = 0; i < ETHER_BUFFERS; ++i)
+		if (!((ethernet.alloc_tx | ethernet.alloc_rx) & (1 << i)))
+		{
+			if (tx)
+				ethernet.alloc_tx |= 1 << i;
+			else
+				ethernet.alloc_rx |= 1 << i;
+			return i;
+		}
+	return -1;
+}
+
+
+static void release_packet(int packet_num)
+{
+	ethernet.alloc_tx &= ~(1 << packet_num);
+	ethernet.alloc_rx &= ~(1 << packet_num);
+}
+
+
+static void pop_fifo(UINT8 *fifo, UINT8 *count)
+{
+	if (*count)
+	{
+		--*count;
+		memmove(&fifo[0], &fifo[1], *count);
+	}
+}
+
+
+static void mmu_reset(void)
+{
+	ethernet.alloc_tx = 0;
+	ethernet.alloc_rx = 0;
+	ethernet.comp_tx_count = 0;
+	ethernet.comp_rx_count = 0;
+	update_ethernet_irq();
+}
+
+
+static void receive_packet(const UINT8 *buf, int length)
+{
+	UINT16 status = 0;
+	UINT8 *packet;
+	int packet_num;
+	int buf_length;
+
+	if (!(ethernet.reg[EREG_RCR] & 0x0100) || !address_filter(buf, &status))
+		return;
+
+	packet_num = alloc_packet(0);
+	if (packet_num < 0)
+	{
+		ethernet.reg[EREG_INTERRUPT] |= EINT_ALLOC;
+		return;
+	}
+	packet = &ethernet.buffer[packet_num * ETHER_BUFFER_SIZE];
+
+	/* strip the crc */
+	if (ethernet.reg[EREG_RCR] & 0x0200)
+		length -= 4;
+	memcpy(&packet[4], buf, length);
+
+	/* set the control byte at the end */
+	if (length & 1)
+	{
+		status |= 0x1000;
+		packet[4 + length] = 0x60;
+		buf_length = length + 5;
+	}
+	else
+	{
+		packet[4 + length] = 0x00;
+		packet[5 + length] = 0x40;
+		buf_length = length + 6;
+	}
+
+	packet[0] = status;
+	packet[1] = status >> 8;
+	packet[2] = buf_length;
+	packet[3] = buf_length >> 8;
+
+	ethernet.comp_rx[ethernet.comp_rx_count++] = packet_num;
+}
+
+
+static void transmit_packet(int packet_num)
+{
+	UINT8 *tx = &ethernet.buffer[packet_num * ETHER_BUFFER_SIZE];
+	UINT8 frame[ETHER_BUFFER_SIZE + 64];
+	int length = ((tx[3] << 8) | tx[2]) & 0x7ff;
+	UINT8 control = tx[length - 1];
+
+	/* remove the control byte and the optional pad, then the status and length words */
+	length -= (control & 0x20) ? 1 : 2;
+	length -= 4;
+	memcpy(frame, &tx[4], length);
+
+	/* pad to the minimum frame size */
+	if (ethernet.reg[EREG_TCR] & 0x0080)
+		while (length < 60)
+			frame[length++] = 0x00;
+
+	/* append the crc */
+	if ((control & 0x10) || !(ethernet.reg[EREG_TCR] & 0x0100))
+	{
+		UINT32 crc = crc32(0, frame, length);
+		frame[length++] = crc;
+		frame[length++] = crc >> 8;
+		frame[length++] = crc >> 16;
+		frame[length++] = crc >> 24;
+	}
+
+	/* there are no other machines on the cable, so the controller receives only its own
+	   frames, in loopback and in full duplex: Rush uses them to detect that it's alone,
+	   otherwise it waits forever for the other linked cabinets */
+	if (ethernet.reg[EREG_TCR] & 0x2802)
+		receive_packet(frame, length);
+
 	ethernet.sent++;
 	update_stats();
 
-	/* loopback? */
-	if (ethernet.reg[EREG_TCR] & 0x2002)
-		if (ethernet.fifo_count < ETHER_RX_BUFFERS)
-		{
-			int buffer_len = ((ethernet.tx[3] << 8) | ethernet.tx[2]) & 0x7ff;
-			UINT8 *packet = &ethernet.rx[ethernet.fifo_count++ * ETHER_BUFFER_SIZE];
-			int packet_len;
+	/* the transmission always succeeds */
+	ethernet.reg[EREG_EPH_STATUS] = (ethernet.reg[EREG_EPH_STATUS] & 0x4000) | 0x0001;
+	if (frame[0] == 0xff && frame[1] == 0xff && frame[2] == 0xff && frame[3] == 0xff && frame[4] == 0xff && frame[5] == 0xff)
+		ethernet.reg[EREG_EPH_STATUS] |= 0x0040;
+	ethernet.reg[EREG_INTERRUPT] |= EINT_TX_EMPTY;
 
-			/* compute the packet length */
-			packet_len = buffer_len - 6;
-			if (packet[buffer_len - 1] & 0x20)
-				packet_len++;
+	if (ethernet.reg[EREG_CONTROL] & 0x0800)
+	{
+		/* auto release */
+		release_packet(packet_num);
+	}
+	else
+	{
+		/* store the status in the transmit buffer and wait for the cpu to remove it */
+		tx[0] = ethernet.reg[EREG_EPH_STATUS];
+		tx[1] = ethernet.reg[EREG_EPH_STATUS] >> 8;
+		ethernet.comp_tx[ethernet.comp_tx_count++] = packet_num;
+	}
 
-			/* build up the packet */
-			packet[0] = 0x0000;
-			packet[1] = 0x0000;
-			packet[2] = buffer_len;
-			packet[3] = buffer_len >> 8;
-			memcpy(&packet[4], &ethernet.tx[4], 6);
-			memcpy(&packet[10], &ethernet.tx[10], 6);
-			memcpy(&packet[16], &ethernet.tx[16], buffer_len - 16);
-
-			/* set the broadcast flag */
-			if (is_broadcast)
-				packet[1] |= 0x40;
-
-			/* pad? */
-			if (ethernet.reg[EREG_TCR & 0x0080])
-				if (packet_len < 64)
-				{
-					memset(&packet[buffer_len], 0, 64+6 - buffer_len);
-					packet[buffer_len - 1] = 0;
-					buffer_len = 64+6;
-					packet[2] = buffer_len;
-					packet[3] = buffer_len >> 8;
-				}
-
-			/* signal a receive */
-			ethernet.reg[EREG_INTERRUPT] |= EINT_RCV;
-			ethernet.reg[EREG_FIFO_PORTS] &= ~0x8000;
-		}
 	update_ethernet_irq();
 }
 
@@ -335,7 +478,7 @@ static void finish_enqueue(int param)
 
 static void process_command(UINT16 data)
 {
-	switch ((data >> 5) & 7)
+	switch ((data >> 4) & 0xf)
 	{
 		case ECMD_NOP:
 			if (LOG_ETHERNET)
@@ -343,38 +486,43 @@ static void process_command(UINT16 data)
 			break;
 
 		case ECMD_ALLOCATE:
+		{
+			int packet_num = alloc_packet(1);
 			if (LOG_ETHERNET)
-				logerror("   ALLOCATE MEMORY FOR TX (%d)\n", (data & 7));
-			ethernet.reg[EREG_PNR_ARR] &= ~0xff00;
-			ethernet.reg[EREG_PNR_ARR] |= ethernet.alloc_count++ << 8;
-			ethernet.reg[EREG_INTERRUPT] |= 0x0008;
-			update_ethernet_irq();
+				logerror("   ALLOCATE MEMORY FOR TX (%d) = %d\n", (data & 7), packet_num);
+			if (packet_num >= 0)
+			{
+				ethernet.reg[EREG_PNR_ARR] &= ~0xff00;
+				ethernet.reg[EREG_PNR_ARR] |= packet_num << 8;
+				ethernet.reg[EREG_INTERRUPT] |= EINT_ALLOC;
+				update_ethernet_irq();
+			}
 			break;
+		}
 
 		case ECMD_RESET_MMU:
 			if (LOG_ETHERNET)
 				logerror("   RESET MMU\n");
+			mmu_reset();
 			break;
 
-		case ECMD_REMOVE:
+		case ECMD_REMOVE_TX:
+			if (LOG_ETHERNET)
+				logerror("   REMOVE FRAME FROM TX FIFO\n");
+			pop_fifo(ethernet.comp_tx, &ethernet.comp_tx_count);
+			break;
+
+		case ECMD_REMOVE_RX:
+		case ECMD_REMOVE_RELEASE_RX:
 			if (LOG_ETHERNET)
 				logerror("   REMOVE FRAME FROM RX FIFO\n");
-			break;
-
-		case ECMD_REMOVE_RELEASE:
-			if (LOG_ETHERNET)
-				logerror("   REMOVE AND RELEASE FRAME FROM RX FIFO\n");
-			ethernet.reg[EREG_INTERRUPT] &= ~EINT_RCV;
-			if (ethernet.fifo_count > 0)
-				ethernet.fifo_count--;
-			if (ethernet.fifo_count > 0)
+			if (ethernet.comp_rx_count)
 			{
-				memmove(&ethernet.rx[0], &ethernet.rx[ETHER_BUFFER_SIZE], ethernet.fifo_count * ETHER_BUFFER_SIZE);
-				ethernet.reg[EREG_INTERRUPT] |= EINT_RCV;
-				ethernet.reg[EREG_FIFO_PORTS] &= ~0x8000;
+				/* only the remove and release command frees the packet memory */
+				if (((data >> 4) & 0xf) == ECMD_REMOVE_RELEASE_RX)
+					release_packet(ethernet.comp_rx[0]);
+				pop_fifo(ethernet.comp_rx, &ethernet.comp_rx_count);
 			}
-			else
-				ethernet.reg[EREG_FIFO_PORTS] |= 0x8000;
 			update_ethernet_irq();
 			ethernet.recd++;
 			update_stats();
@@ -383,20 +531,33 @@ static void process_command(UINT16 data)
 		case ECMD_RELEASE_PACKET:
 			if (LOG_ETHERNET)
 				logerror("   RELEASE SPECIFIC PACKET\n");
+			release_packet(ethernet.reg[EREG_PNR_ARR] & 0x1f);
 			break;
 
 		case ECMD_ENQUEUE_PACKET:
 			if (LOG_ETHERNET)
 				logerror("   ENQUEUE TX PACKET\n");
-			finish_enqueue(0);
+			if (ethernet.reg[EREG_TCR] & 0x0001)
+				transmit_packet(ethernet.reg[EREG_PNR_ARR] & 0x1f);
 			break;
 
 		case ECMD_RESET_FIFOS:
 			if (LOG_ETHERNET)
 				logerror("   RESET TX FIFOS\n");
+			ethernet.comp_tx_count = 0;
+			update_ethernet_irq();
 			break;
 	}
 	ethernet.reg[EREG_MMU_COMMAND] |= 0x0001;
+}
+
+
+
+/* the data register accesses the first received packet or the selected packet */
+static UINT8 *packet_buffer(void)
+{
+	int packet_num = (ethernet.reg[EREG_POINTER] & 0x8000) ? ethernet.comp_rx[0] : (ethernet.reg[EREG_PNR_ARR] & 0x1f);
+	return &ethernet.buffer[(packet_num % ETHER_BUFFERS) * ETHER_BUFFER_SIZE];
 }
 
 
@@ -431,10 +592,15 @@ READ16_HANDLER( smc91c94_r )
 			}
 			break;
 
+		case EREG_FIFO_PORTS:
+			result = ethernet.comp_tx_count ? ethernet.comp_tx[0] : 0x80;
+			result |= (ethernet.comp_rx_count ? ethernet.comp_rx[0] : 0x80) << 8;
+			break;
+
 		case EREG_DATA_0:	/* data register */
 		case EREG_DATA_1:	/* data register */
 		{
-			UINT8 *buffer = (ethernet.reg[EREG_POINTER] & 0x8000) ? ethernet.rx : ethernet.tx;
+			UINT8 *buffer = packet_buffer();
 			int addr = ethernet.reg[EREG_POINTER] & 0x7ff;
 			result = buffer[addr++];
 			if (!(mem_mask & 0xff00))
@@ -494,9 +660,16 @@ WRITE16_HANDLER( smc91c94_w )
 			break;
 
 		case EREG_RCR:		/* receive control register */
+			if (data & 0x8000)
+				smc91c94_reset();
+			else if ((olddata & 0x0100) && !(data & 0x0100))
+			{
+				/* disabling the receiver drops the received packets */
+				ethernet.comp_rx_count = 0;
+				update_ethernet_irq();
+			}
 			if (LOG_ETHERNET)
 			{
-				if (data & 0x8000) smc91c94_reset();
 				if (data & 0x8000) logerror("   SOFT RST\n");
 				if (data & 0x4000) logerror("   FILT_CAR\n");
 				if (data & 0x0200) logerror("   STRIP CRC\n");
@@ -552,7 +725,7 @@ WRITE16_HANDLER( smc91c94_w )
 		case EREG_DATA_0:	/* data register */
 		case EREG_DATA_1:	/* data register */
 		{
-			UINT8 *buffer = (ethernet.reg[EREG_POINTER] & 0x8000) ? ethernet.rx : ethernet.tx;
+			UINT8 *buffer = packet_buffer();
 			int addr = ethernet.reg[EREG_POINTER] & 0x7ff;
 			buffer[addr++] = data;
 			if (!(mem_mask & 0xff00))
@@ -563,9 +736,10 @@ WRITE16_HANDLER( smc91c94_w )
 		}
 
 		case EREG_INTERRUPT:
-			ethernet.reg[EREG_INTERRUPT] &= ~(data & 0x56);
-			if (ethernet.reg[EREG_FIFO_PORTS] & 0x0080)
-				ethernet.reg[EREG_INTERRUPT] &= ~EINT_TX;
+			/* acknowledging the tx interrupt removes the packet from the completion fifo */
+			if (data & EINT_TX)
+				pop_fifo(ethernet.comp_tx, &ethernet.comp_tx_count);
+			ethernet.reg[EREG_INTERRUPT] &= ~(data & (EINT_ERCV | EINT_RX_OVRN | EINT_TX_EMPTY | EINT_TX));
 			update_ethernet_irq();
 			break;
 	}
