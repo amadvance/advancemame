@@ -544,8 +544,16 @@ void i8051_init(int index, int clock, const void *config, int (*irqcallback)(int
 void i8051_reset(void)
 {
 	int (*save_irqcallback)(int);
+	void (*save_tx_callback)(int data);
+	int (*save_rx_callback)(void);
+	READ32_HANDLER((*save_eram_iaddr_callback));
 
+	/* keep the callbacks installed by the driver across the resets of the
+       reset line, the hold variables are emptied by the first reset */
 	save_irqcallback = i8051.irq_callback;
+	save_tx_callback = i8051.serial_tx_callback;
+	save_rx_callback = i8051.serial_rx_callback;
+	save_eram_iaddr_callback = i8051.eram_iaddr_callback;
 	memset(&i8051, 0, sizeof(I8051));
 	i8051.irq_callback = save_irqcallback;
 
@@ -557,13 +565,13 @@ void i8051_reset(void)
 	i8051.iram_iwrite = internal_ram_write;		//Indirect ram read/write handled the same as direct for 8051!
 
 	//Set up serial call back handlers
-	i8051.serial_tx_callback = hold_serial_tx_callback;
+	i8051.serial_tx_callback = hold_serial_tx_callback ? hold_serial_tx_callback : save_tx_callback;
 	hold_serial_tx_callback = NULL;
-	i8051.serial_rx_callback = hold_serial_rx_callback;
+	i8051.serial_rx_callback = hold_serial_rx_callback ? hold_serial_rx_callback : save_rx_callback;
 	hold_serial_rx_callback = NULL;
 
 	//Setup External ram callback handlers
-	i8051.eram_iaddr_callback = hold_eram_iaddr_callback;
+	i8051.eram_iaddr_callback = hold_eram_iaddr_callback ? hold_eram_iaddr_callback : save_eram_iaddr_callback;
 	hold_eram_iaddr_callback = NULL;
 
 	//Clear Ram (w/0xff)

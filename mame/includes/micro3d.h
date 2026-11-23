@@ -14,3 +14,18 @@ WRITE16_HANDLER( paletteram16_BBBBBRRRRRGGGGGG_word_w );
 VIDEO_START(micro3d);
 VIDEO_UPDATE(micro3d);
 
+void micro3d_video_reset(void);
+void micro3d_vblank_buffers(void);
+WRITE16_HANDLER( micro3d_creg_w );
+WRITE16_HANDLER( micro3d_xfer3dk_w );
+WRITE32_HANDLER( micro3d_fifo_w );
+WRITE32_HANDLER( micro3d_alt_fifo_w );
+READ32_HANDLER( micro3d_pipe_r );
+
+/*----------- defined in sndhrdw/micro3d.c -----------*/
+
+struct CustomSound_interface;
+void *micro3d_noise_start(int clock, const struct CustomSound_interface *config);
+void micro3d_noise_reset(void *token);
+void micro3d_noise_sh_w(int which, UINT8 data);
+void micro3d_noise_dac_w(UINT8 data);

@@ -1,24 +1,46 @@
 // license:BSD-3-Clause
 // copyright-holders:Philip Bennett
-/*====================================================================*/
-/*                         'micro3d.c'                                */
-/*               Microprose 3D Hardware MAME driver                   */
-/*                     Philip J Bennett 2005                          */
-/*                                                                    */
-/* o F-15 Strike Eagle                                                */
-/* o B.O.T.S.S - Battle of the Solar System                           */
-/* o Super Tank Attack                                                */
-/*                                                                    */
-/* Current issues:                                                    */
-/* o No 3D/Am29000 emulation (communications code patched out)        */
-/* o Analogue controls not hooked up                                  */
-/* o Incomplete/crap/incorrect 68901 and 68681 emulation (eg. timers) */
-/* o Video emulation needs to be checked over                         */
-/* o No sound.                                                        */
-/*                                                                    */
-/* It complains about bad object ROM checksums in the MFR test?       */
-/* BOTSS and STANKATK crash when entering TMS monitor mode ?          */
-/*====================================================================*/
+/***************************************************************************
+
+    Microprose Games 3D hardware
+
+    driver by Phil Bennett
+
+    Games supported:
+        * F-15 Strike Eagle [3 sets]
+        * B.O.T.S.S.: Battle of the Solar System [2 sets]
+        * Tank Battle (prototype)
+        * Super Tank Attack (prototype)
+
+    TODO:
+        * DS1215 Phantom time chip
+        * DS1267 Volume control
+
+    Known issues:
+        * Games are running too smoothly!
+        * F-15 controls need tweaking
+        * botss will hit a divide-by-zero error if the throttle is
+          not calibrated first in service mode. (clone is ok)
+
+****************************************************************************/
+/*
+    Differences from MAME:
+
+    The MC68901 MFP and the MC68681 DUART are simplified models of the
+    features used by the games: the MFP timers run at fixed rates, the DUART
+    channel B exchanges whole characters with the 8031 serial port, paced at
+    9600 baud, and channel A only prints the host monitor output.
+
+    The Z8530 SCC of the Dr. Math monitor port only reports an idle
+    transmitter and no carrier.
+
+    The 68000 interrupt levels raised by the DUART, the MFP and the Am29000
+    are kept pending until acknowledged, as the 68000 interface acknowledges
+    a single level at a time.
+
+    The 2D layer is drawn from the DPYADR latched at VBLANK instead of a
+    TMS34010 scanline callback.
+*/
 
 #include "driver.h"
 #include <stdio.h>
@@ -27,9 +49,11 @@
 #include "cpu/tms34010/tms34010.h"
 #include "cpu/tms34010/34010ops.h"
 #include "cpu/i8051/i8051.h"
+#include "cpu/am29000/am29000.h"
+#include "cpu/m68000/m68000.h"
 #include "sound/2151intf.h"
 #include "sound/upd7759.h"
-#include "sound/dac.h"
+#include "sound/custom.h"
 
 #define M68681_CLK 3686400
 #define M68901_CLK 4000000
@@ -49,12 +73,20 @@
 /*====================================================================*/
 
 #ifdef DEBUG
-#define HOST_MONITOR_DISPLAY 1
+#define HOST_MONITOR_DISPLAY 0
 #define VGB_MONITOR_DISPLAY 0
 #define DRMATH_MONITOR_DISPLAY 0
 #endif
 
 UINT16 *micro3d_sprite_vram;
+static UINT16 *shared_ram;
+static UINT32 *mac_sram;
+static mame_timer *mac_done_timer;
+static mame_timer *sound_tx_timer;
+static mame_timer *adc_timer;
+static void adc_done_callback(int param);
+static void sound_tx_callback(int param);
+static void mac_done_callback(int param);
 static UINT16 *m68681_base;
 static UINT16 *m68901_base;
 UINT16 dpyadr;
@@ -108,23 +140,119 @@ enum{   RX=0,TX,STATUS,SYN1,SYN2,DLE,MODE1,MODE2,COMMAND
 };
 
 
-/* Probably wrong and a bit crap */
+/*
+ * The 0.106 68000 interface keeps a single interrupt level: acknowledging a
+ * level clears it, and with it any other level raised meanwhile. The DUART
+ * (3), the MFP (4) and the Am29000 (5) requests are kept pending here until
+ * the 68000 acknowledges each of them, otherwise a Dr. Math request arriving
+ * during an MFP interrupt is lost and the host waits for it forever.
+ */
+static int host_irq_pending;
+static int sound_rx_enabled;
+
+static void host_update_irq(void)
+{
+	if (host_irq_pending & (1 << 5))
+		cpunum_set_input_line(0, 5, ASSERT_LINE);
+	else if (host_irq_pending & (1 << 4))
+		cpunum_set_input_line(0, 4, ASSERT_LINE);
+	else if (host_irq_pending & (1 << 3))
+		cpunum_set_input_line(0, 3, ASSERT_LINE);
+	else
+		cpunum_set_input_line(0, 3, CLEAR_LINE);
+}
+
+static void host_irq(int level)
+{
+	host_irq_pending |= 1 << level;
+	host_update_irq();
+}
+
+/* 68681 interrupt status: TxRDYA, RxRDYA, TxRDYB, RxRDYB */
+static UINT8 duart_isr(void)
+{
+	return ((M68681.SRA & 0x0400) ? 0x01 : 0) |
+	       ((M68681.SRA & 0x0100) ? 0x02 : 0) |
+	       ((M68681.SRB & 0x0400) ? 0x10 : 0) |
+	       ((M68681.SRB & 0x0100) ? 0x20 : 0);
+}
+
+/* the 68681 interrupt output is a level: it stays active while an unmasked
+   condition is set, the transmitters ask for data as long as they are enabled */
+static void duart_update_irq(void)
+{
+	if (duart_isr() & M68681.IMR)
+		host_irq(3);
+}
+
+static int host_irq_callback(int line)
+{
+	host_irq_pending &= ~(1 << line);
+	if (line == 3 && (duart_isr() & M68681.IMR))
+		host_irq_pending |= 1 << 3;
+	host_update_irq();
+
+	/* the DUART supplies its vector, the others are autovectored */
+	if (line == 3)
+		return M68681.IVR;
+	return MC68000_INT_ACK_AUTOVECTOR;
+}
+
+/* 68681 channel B is connected to the 8031 serial port */
 int data_to_i8031(void)
 {
-     printf("68k sent data: %x\n",M68681.TBB);
      return M68681.TBB;
+}
+
+/*
+ * The 8031 core latches a received byte as soon as its receive line is
+ * signalled: the bytes the host writes back to back are queued and sent one
+ * per character time, otherwise each one overwrites the previous before the
+ * 8031 reads it and the sound board never answers the host commands.
+ */
+#define SOUND_TX_FIFO_SIZE 64
+
+static UINT8 sound_tx_fifo[SOUND_TX_FIFO_SIZE];
+static int sound_tx_head;
+static int sound_tx_count;
+
+static void sound_tx_callback(int param)
+{
+     if (sound_tx_count == 0)
+          return;
+
+     M68681.TBB = sound_tx_fifo[sound_tx_head];
+     sound_tx_head = (sound_tx_head + 1) % SOUND_TX_FIFO_SIZE;
+     --sound_tx_count;
+     cpunum_set_input_line(2, I8051_RX_LINE, ASSERT_LINE);
+
+     /* one character at 9600 baud */
+     if (sound_tx_count != 0)
+          timer_adjust(sound_tx_timer, TIME_IN_USEC(1042), 0, 0);
+}
+
+static void sound_tx_w(UINT8 data)
+{
+     if (sound_tx_count < SOUND_TX_FIFO_SIZE)
+     {
+          sound_tx_fifo[(sound_tx_head + sound_tx_count) % SOUND_TX_FIFO_SIZE] = data;
+          ++sound_tx_count;
+     }
+
+     /* start sending if the line is idle */
+     if (sound_tx_count == 1)
+          timer_adjust(sound_tx_timer, TIME_IN_USEC(1042), 0, 0);
 }
 
 void data_from_i8031(int data)
 {
+     /* the DUART drops the characters received while its receiver is disabled */
+     if (!sound_rx_enabled)
+          return;
+
      M68681.RBB  = data<<8;                         // Put into receive buffer.
      M68681.SRB |= 0x0100;                          // Set Receiver B ready.
-     if(M68681.IMR & 0x1000)
-     {
-     	cpunum_set_input_line_and_vector(0,3, HOLD_LINE, M68681.IVR);    // Generate a receiver interrupt.
-     	printf("INTERRUPT!!!\n");
-     }
-   printf("8031 sent data: %x\n",data);
+     duart_update_irq();
 }
 
 
@@ -162,57 +290,26 @@ static MACHINE_RESET( micro3d )
 {
         i8051_set_serial_tx_callback(data_from_i8031);
         i8051_set_serial_rx_callback(data_to_i8031);
+        host_irq_pending = 0;
+        sound_rx_enabled = 0;
+        M68681.OPR = 0;
+        cpunum_set_input_line(2, INPUT_LINE_RESET, ASSERT_LINE);
+        sound_tx_head = 0;
+        sound_tx_count = 0;
+        timer_adjust(sound_tx_timer, TIME_NEVER, 0, 0);
+        cpunum_set_irq_callback(0, host_irq_callback);
+        micro3d_video_reset();
+        cpunum_set_input_line(1, INPUT_LINE_RESET, ASSERT_LINE);
+        cpunum_set_input_line(3, INPUT_LINE_RESET, ASSERT_LINE);
+        timer_adjust(mac_done_timer, TIME_NEVER, 0, 0);
         ti_uart[STATUS]=1;
         M68681.SRA=0x0500;
         M68681.SRB=0x0500;
 }
 
-static DRIVER_INIT( tankbatl )
-{
-       UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
-       rom[0x1F543]=0x4E71;                                       /* 3ea86 - nop */
-       rom[0x1F546]=0x4E71;                                       /* 3ea8c - nop */
-       rom[0x1F596]=0x4E71;
-       rom[0x2182B]=0x6006;      /* Skip AM2k object download */
-       rom[0x21838]=0x4E71;
-       rom[0x1F692]=0x4e71;
-       rom[0x21CA8]=0x4e71;      /* Lie that trig table is intact */
-       rom[0x21C60]=0x4e71;      /* Lie that tree is intact */
-       rom[0x1F581]=0x4e71;
-       rom[0x21905]=0x4E71;
-}
-
-/* same patches of tankbatl, relocated for the rev. 1.12 code */
-static DRIVER_INIT( stankatk )
-{
-       UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
-       rom[0x22F78]=0x4E71;                                       /* 45ef0 - nop */
-       rom[0x22F7B]=0x4E71;                                       /* 45ef6 - nop */
-       rom[0x23019]=0x4E71;
-       rom[0x252B1]=0x6006;      /* Skip AM2k object download */
-       rom[0x252BE]=0x4E71;
-       rom[0x23115]=0x4e71;
-       rom[0x2572E]=0x4e71;      /* Lie that trig table is intact */
-       rom[0x256E6]=0x4e71;      /* Lie that tree is intact */
-       rom[0x22FF2]=0x4e71;
-       rom[0x2538B]=0x4E71;
-}
-
-static DRIVER_INIT( botss11 )
-{
-       UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
-       rom[0x1FCC0]=0x4E71;         /* Eliminate startup Am29000 timeout */
-       rom[0x1FBF0]=0x4E71;         /* Skip AM29k code version detect */
-       rom[0x1FC88]=0x4E71;
-       rom[0x23146]=0x4E71;
-       rom[0x17F4F]=0x6006;         /* Skip download objects */
-       rom[0x17F5B]=0x4E71;
-
-}
-
 /*
- * The rev. 1.1a code checks the hardware version reading 0x140000 and 0x180000
- * and expecting the last one read on bit 7 of inputs A and B.
+ * The botss rev. 1.1a code checks the hardware version reading 0x140000 and
+ * 0x180000 and expecting the last one read on bit 7 of inputs A and B.
  * Without it, it stops with "SYSTEM ERROR#126: INCOMPATIBLE HARDWARE".
  */
 static UINT16 botss_latch;
@@ -234,217 +331,259 @@ static READ16_HANDLER( botss_inputs_a_b_r )
 	return (input_port_0_word_r(0, 0) & ~0x0080) | (botss_latch << 7);
 }
 
-/* same patches of botss11, relocated for the rev. 1.1a code */
+static DRIVER_INIT( micro3d )
+{
+	mac_done_timer = timer_alloc(mac_done_callback);
+	sound_tx_timer = timer_alloc(sound_tx_callback);
+	adc_timer = timer_alloc(adc_done_callback);
+
+	/* The Am29000 program seems to rely on RAM from 0x00470000 onwards being
+       non-zero on a reset, otherwise the 3D object data doesn't get uploaded! */
+	cpuintrf_push_context(3);
+	data_write_dword_32be(0x00470000, 0xa5a5a5a5);
+	cpuintrf_pop_context();
+
+	/* TODO? BOTSS sometimes crashes when starting a stage because the 68000
+       overwrites memory in use by the Am29000. Slowing down the 68000 slightly
+       avoids this. */
+	cpunum_set_clockscale(0, 0.945);
+}
+
 static DRIVER_INIT( botss )
 {
-       UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
-       memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x140000, 0x140001, 0, 0, botss_140000_r);
-       memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x180000, 0x180001, 0, 0, botss_180000_r);
-       memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x940000, 0x940001, 0, 0, botss_inputs_a_b_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x140000, 0x140001, 0, 0, botss_140000_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x180000, 0x180001, 0, 0, botss_180000_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x940000, 0x940001, 0, 0, botss_inputs_a_b_r);
 
-       rom[0x22801]=0x4E71;         /* Eliminate startup Am29000 timeout */
-       rom[0x22760]=0x4E71;         /* Skip AM29k code version detect */
-       rom[0x227DA]=0x4E71;
-       rom[0x255E4]=0x4E71;
-       rom[0x214D6]=0x6006;         /* Skip download objects */
-       rom[0x214E3]=0x6000;         /* bne.w -> bra.w, the rev. 1.1 code has beq.s/bra.w */
+	init_micro3d();
 }
 
-static void f15se_patch(int shift)
-{
-       UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1) + shift;
-       rom[0x2A8B3]=0x6006;                          //055166: 6606                     bne     5516e -> bra
-       rom[0x2A8BF]=0x4E71;                          //05517E: 6704                     beq     55184 -> nop
-       rom[0x28AD1]=0x4E71;                          //0515A2: 67F8                     beq     5159c -> nop
-       rom[0x28A9E]=0x4E71;
-       rom[0x28ABD]=0x4E71;
-       rom[0x28C3B]=0x4E71;
-}
-
-/* the rev. 2.2 code is the rev. 2.1 code moved down by 0x24 bytes at all the patched locations */
-static DRIVER_INIT( f15se )
-{
-       f15se_patch(-0x12);
-}
-
-static DRIVER_INIT( f15se21 )
-{
-       f15se_patch(0);
-}
-
-INPUT_PORTS_START( tankbatl )
-	/* Ports A and B */
-	PORT_START
-	PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0001, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
-//  PORT_DIPNAME( 0x0002, 0x0000, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0002, DEF_STR(Off) )
-//  PORT_DIPSETTING(    0x0000, DEF_STR(On) )
-
-//  PORT_BITX(0x0002, IP_ACTIVE_LOW, 0, "????ht", KEYCODE_K, IP_JOY_NONE )
-
+INPUT_PORTS_START( f15se )
+	PORT_START	/* INPUTS_A_B */
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0004, 0x0000, "Shared Memory Handshake Test")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0004, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0008, 0x0000, "Dr. Math Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0008, DEF_STR(On) )
-	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0010, DEF_STR(On))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( On ))
 	PORT_DIPNAME( 0x0020, 0x0000, "Manufacturing Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0020, DEF_STR(On) )
-	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0040, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0080, 0x0000, "Host Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0080, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( On ) )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Decoy")
+	PORT_SERVICE( 0x0400, IP_ACTIVE_LOW )
+	PORT_BIT( 0xf800, IP_ACTIVE_LOW, IPT_UNUSED )
 
-//  PORT_BITX(0x0100, IP_ACTIVE_LOW, 0, "Blue Lower Right", KEYCODE_A, IP_JOY_NONE )
-//  PORT_BITX(0x0200, IP_ACTIVE_LOW, 0, "Blue Upper Left", KEYCODE_B, IP_JOY_NONE )
-//  PORT_BITX(0x0800, IP_ACTIVE_LOW, 0, "Blue Lower Left", KEYCODE_C, IP_JOY_NONE )
-//  PORT_BITX(0x1000, IP_ACTIVE_LOW, 0, "Yellow Upper Right", KEYCODE_E, IP_JOY_NONE )
-//  PORT_BITX(0x2000, IP_ACTIVE_LOW, 0, "Yellow Lower Right", KEYCODE_F, IP_JOY_NONE )
-
-//  PORT_BITX(0x000f, IP_ACTIVE_HIGH, 0, "Yeft", KEYCODE_K, IP_JOY_NONE )
-	PORT_SERVICE(0x0400, IP_ACTIVE_LOW)
-
-
-	/* C and D ports */
-	PORT_START
+	PORT_START	/* INPUTS_C_D */
 	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN1 )
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN3 )
-//  PORT_BITX( 0x0800, IP_ACTIVE_LOW, 0, "Unk2", KEYCODE_S, IP_JOY_NONE )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Trigger")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Missile")
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Target Select")
+	PORT_BIT( 0x88ff, IP_ACTIVE_LOW, IPT_UNUSED )
 
-//  PORT_BITX( 0x0010, IP_ACTIVE_LOW, 0, "Yellow Upper Right", KEYCODE_Y, IP_JOY_NONE )
-//  PORT_BITX( 0x0020, IP_ACTIVE_LOW, 0, "Yellow Lower Right", KEYCODE_X, IP_JOY_NONE )
-//  PORT_BITX( 0x0040, IP_ACTIVE_LOW, 0, "Unk2", KEYCODE_R, IP_JOY_NONE )
-//  PORT_BITX( 0x0080, IP_ACTIVE_LOW, 0, "Unkn3", KEYCODE_T, IP_JOY_NONE )
-
-//  PORT_BITX( 0x0001, IP_ACTIVE_HIGH, 0, "Blue Top Right", KEYCODE_Z, IP_JOY_NONE )  // ??
-//  PORT_BITX( 0x0002, IP_ACTIVE_HIGH, 0, "Blue Top Right", KEYCODE_Z, IP_JOY_NONE )
-//  PORT_BITX( 0x0004, IP_ACTIVE_LOW, 0, "Blue Top Right", KEYCODE_D, IP_JOY_NONE )
-//  PORT_BITX( 0x0008, IP_ACTIVE_HIGH, 0, "Blue Top Right", KEYCODE_Z, IP_JOY_NONE )
-
-//  PORT_BITX( 0x1000, IP_ACTIVE_LOW, 0, "Unk2", KEYCODE_I,Y IP_JOY_NONE )
-//  PORT_BITX( 0x2000, IP_ACTIVE_LOW, 0, "Blue Trigger", KEYCODE_H, IP_JOY_NONE )
-//  PORT_BITX( 0x4000, IP_ACTIVE_LOW, 0, "Unkn3", KEYCODE_J, IP_JOY_NONE )
-//  PORT_BITX( 0x8000, IP_ACTIVE_LOW, 0, "Yellow Trigger", KEYCODE_G, IP_JOY_NONE )
-
-
-	PORT_START
+	PORT_START	/* VGB_SW */
 	PORT_DIPNAME( 0x0008, 0x0008, "VGB Monitor Mode")
-	PORT_DIPSETTING(	0x0008, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(    0x0008, DEF_STR(Off) )
+	PORT_DIPSETTING(    0x0000, DEF_STR(On) )
 
+	PORT_START	/* SOUND_SW */
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Sound PCB Test SW") PORT_CODE(KEYCODE_F1)
+
+	PORT_START_TAG("JOYSTICK_X")
+	PORT_BIT( 0x1ff, 0xa6, IPT_AD_STICK_X ) PORT_MINMAX(0x000,0x14c) PORT_SENSITIVITY(25) PORT_KEYDELTA(50) PORT_REVERSE
+
+	PORT_START_TAG("JOYSTICK_Y")
+	PORT_BIT( 0x1ff, 0xa6, IPT_AD_STICK_Y ) PORT_MINMAX(0x000,0x14c) PORT_SENSITIVITY(25) PORT_KEYDELTA(50)
+
+	PORT_START_TAG("THROTTLE")
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Z ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_CENTERDELTA(0) PORT_REVERSE PORT_NAME("Throttle")
 INPUT_PORTS_END
 
 INPUT_PORTS_START( botss )
-	PORT_START
-	PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0001, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
-	PORT_DIPNAME( 0x0002, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0002, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_START	/* INPUTS_A_B */
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0004, 0x0000, "Shared Memory Handshake Test")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0004, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0008, 0x0000, "Dr. Math Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0008, DEF_STR(On) )
-	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0010, DEF_STR(On))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( On ))
 	PORT_DIPNAME( 0x0020, 0x0000, "Manufacturing Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0020, DEF_STR(On) )
-	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0040, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_SPECIAL )	/* hardware check, see botss_inputs_a_b_r */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Shield")
+	PORT_SERVICE( 0x0400, IP_ACTIVE_LOW )
+	PORT_BIT( 0x7800, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START	/* INPUTS_C_D */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Trigger")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Blaster")
+	PORT_BIT( 0xccff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START	/* VGB_SW */
+	PORT_DIPNAME( 0x0008, 0x0008, "VGB Monitor Mode")
+	PORT_DIPSETTING(    0x0008, DEF_STR(Off) )
+	PORT_DIPSETTING(    0x0000, DEF_STR(On) )
+
+	PORT_START	/* SOUND_SW */
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Sound PCB Test SW") PORT_CODE(KEYCODE_F1)
+
+	PORT_START_TAG("JOYSTICK_X")
+	PORT_BIT( 0x1ff, 0xa6, IPT_AD_STICK_X ) PORT_MINMAX(0x000,0x14c) PORT_SENSITIVITY(25) PORT_KEYDELTA(50) PORT_REVERSE
+
+	PORT_START_TAG("JOYSTICK_Y")
+	PORT_BIT( 0x1ff, 0xa6, IPT_AD_STICK_Y ) PORT_MINMAX(0x000,0x14c) PORT_SENSITIVITY(25) PORT_KEYDELTA(50)
+
+	PORT_START_TAG("THROTTLE")
+	PORT_BIT( 0xff, 0x80, IPT_AD_STICK_Z ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_CENTERDELTA(0) PORT_REVERSE PORT_NAME("Throttle")
+INPUT_PORTS_END
+
+INPUT_PORTS_START( botss11 )
+	PORT_START	/* INPUTS_A_B */
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0000, "Shared Memory Handshake Test")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0000, "Dr. Math Monitor Mode")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( On ))
+	PORT_DIPNAME( 0x0020, 0x0000, "Manufacturing Tests")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0080, 0x0000, "Host Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0080, DEF_STR(On) )
-//  PORT_BITX(0x0100, IP_ACTIVE_LOW, IPT_START1, "Start", IP_KEY_DEFAULT, IP_JOY_DEFAULT )
-//  PORT_BITX(0x0200, IP_ACTIVE_LOW, 0, "Shield", KEYCODE_A, IP_JOY_NONE )
-	PORT_SERVICE(0x0400, IP_ACTIVE_LOW)
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( On ) )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_NAME("Shield")
+	PORT_SERVICE( 0x0400, IP_ACTIVE_LOW )
 	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	/* C and D ports */
-	PORT_START
+	PORT_START	/* INPUTS_C_D */
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_NAME("Throttle Up")
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_NAME("Throttle Down")
 	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN1 )
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN3 )
-//  PORT_BITX(0x1000, IP_ACTIVE_LOW, 0, "Trigger", KEYCODE_B, IP_JOY_NONE )
-//  PORT_BITX(0x2000, IP_ACTIVE_LOW, 0, "Blaster", KEYCODE_C, IP_JOY_NONE )
-//  PORT_BITX(0x0002, IP_ACTIVE_LOW, 0, "Throttle Up", KEYCODE_D, IP_JOY_NONE )
-//  PORT_BITX(0x0008, IP_ACTIVE_LOW, 0, "Throttle Down", KEYCODE_F, IP_JOY_NONE )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Trigger")
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Blaster")
+	PORT_BIT( 0xccf5, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_START
+	PORT_START	/* VGB_SW */
 	PORT_DIPNAME( 0x0008, 0x0008, "VGB Monitor Mode")
-	PORT_DIPSETTING(	0x0008, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(    0x0008, DEF_STR(Off) )
+	PORT_DIPSETTING(    0x0000, DEF_STR(On) )
 
+	PORT_START	/* SOUND_SW */
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Sound PCB Test SW") PORT_CODE(KEYCODE_F1)
 INPUT_PORTS_END
 
-
-INPUT_PORTS_START( f15se )
-	PORT_START
-	PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0001, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
-	PORT_DIPNAME( 0x0002, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0002, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+INPUT_PORTS_START( tankbatl )
+	PORT_START	/* INPUTS_A_B */
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0004, 0x0000, "Shared Memory Handshake Test")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0004, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0008, 0x0000, "Dr. Math Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0008, DEF_STR(On) )
-	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0010, DEF_STR(On))
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0000, "Burn-in Tests" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( On ))
 	PORT_DIPNAME( 0x0020, 0x0000, "Manufacturing Tests")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0020, DEF_STR(On) )
-	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unused ) )
-	PORT_DIPSETTING(	0x0040, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0080, 0x0000, "Host Monitor Mode")
-	PORT_DIPSETTING(	0x0000, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0080, DEF_STR(On) )
-	PORT_BIT(0x0100, IP_ACTIVE_LOW, IPT_START1)
-	PORT_BIT(0x0200, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_SERVICE(0x0400, IP_ACTIVE_LOW)
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( On ) )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_DOWN )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_UP )
+	PORT_SERVICE( 0x0400, IP_ACTIVE_LOW )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_DOWN )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_JOYSTICKLEFT_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0xc000, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	/* C and D ports */
-	PORT_START
-	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_START	/* INPUTS_C_D */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_UP )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_JOYSTICKRIGHT_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN2 )
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN3 )
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON2 )
-	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON3 )
-	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON4 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 
-	/* Analogue Inputs? */
-
-	PORT_START
+	PORT_START	/* VGB_SW */
 	PORT_DIPNAME( 0x0008, 0x0008, "VGB Monitor Mode")
-	PORT_DIPSETTING(	0x0008, DEF_STR(Off) )
-	PORT_DIPSETTING(	0x0000, DEF_STR(On) )
+	PORT_DIPSETTING(    0x0008, DEF_STR(Off) )
+	PORT_DIPSETTING(    0x0000, DEF_STR(On) )
 
-	/* Sound PCB test button */
-	PORT_START
-	PORT_BIT(0x80, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME("Sound PCB Test") PORT_CODE(KEYCODE_F1)
+	PORT_START	/* SOUND_SW */
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Sound PCB Test SW") PORT_CODE(KEYCODE_F1)
 INPUT_PORTS_END
+
 
 
 void tms_interrupt(int state)
@@ -454,7 +593,248 @@ void tms_interrupt(int state)
 
 void micro3d_vblank(void)
 {
+   micro3d_vblank_buffers();
    m68901_int_gen(GPIP7);
+}
+
+
+/*************************************
+ *
+ *  Math unit
+ *
+ *************************************/
+
+#define MAC_CLK 10000000
+#define VTXROM_FMT(x)       (((x) << 14) | ((x) & (1 << 15) ? 0xc0000000 : 0))
+
+static UINT32 sram_r_addr;
+static UINT32 sram_w_addr;
+static UINT32 vtx_addr;
+static UINT32 mrab11;
+static UINT32 mac_stat;
+static UINT32 mac_inst;
+
+static WRITE32_HANDLER( shared_w )
+{
+	shared_ram[offset * 2 + 1] = data & 0xffff;
+	shared_ram[offset * 2 + 0] = data >> 16;
+}
+
+static READ32_HANDLER( shared_r )
+{
+	return (shared_ram[offset * 2] << 16) | shared_ram[offset * 2 + 1];
+}
+
+static WRITE32_HANDLER( drmath_int_w )
+{
+	host_irq(5);
+}
+
+static WRITE32_HANDLER( drmath_intr2_ack )
+{
+	cpunum_set_input_line(3, AM29000_INTR2, CLEAR_LINE);
+}
+
+static INT64 normalised_multiply(INT32 a, INT32 b)
+{
+	INT64 result = (INT64)a * (INT64)b;
+	return result >> 14;
+}
+
+static void mac_done_callback(int param)
+{
+	cpunum_set_input_line(3, AM29000_INTR0, ASSERT_LINE);
+	mac_stat = 0;
+}
+
+static WRITE32_HANDLER( mac1_w )
+{
+	vtx_addr = (data & 0x3ffff);
+	sram_w_addr = (data >> 18) & 0xfff;
+}
+
+static READ32_HANDLER( mac2_r )
+{
+	return (mac_inst << 1) | mac_stat;
+}
+
+static WRITE32_HANDLER( mac2_w )
+{
+	UINT32 i;
+	UINT32 cnt = data & 0xff;
+	UINT32 inst = (data >> 8) & 0x1f;
+	UINT32 mac_cycles = 1;
+	const UINT16 *rom = (const UINT16 *)memory_region(REGION_USER3);
+
+	mac_stat = (data >> 13) & 1;
+	mac_inst = inst & 0x7;
+	mrab11 = (data >> 18) & (1 << 11);
+	sram_r_addr = (data >> 18) & 0xfff;
+
+	if ((data >> 14) & 1)
+		cpunum_set_input_line(3, AM29000_INTR0, CLEAR_LINE);
+
+	switch (inst)
+	{
+		case 0x00: break;
+		case 0x04: break;
+
+		case 0x0b: cnt += 0x100;
+		case 0x0a: cnt += 0x100;
+		case 0x09: cnt += 0x100;
+		case 0x08:
+		{
+			for (i = 0; i <= cnt; ++i)
+			{
+				INT64 acc;
+				INT32 x, y, z;
+
+				x = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+				y = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+				z = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f0], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f1], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f2], z);
+				acc += mac_sram[mrab11 + 0x7f3];
+				mac_sram[sram_w_addr++] = acc;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f4], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f5], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f6], z);
+				acc += mac_sram[mrab11 + 0x7f7];
+				mac_sram[sram_w_addr++] = acc;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f8], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f9], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7fa], z);
+				acc += mac_sram[mrab11 + 0x7fb];
+				mac_sram[sram_w_addr++] = acc;
+
+				mac_cycles = 16 * cnt;
+			}
+
+			break;
+		}
+		case 0x0e: cnt += 0x100;
+		case 0x0d: cnt += 0x100;
+		case 0x0c:
+		{
+			for (i = 0; i <= cnt; ++i)
+			{
+				INT64 acc;
+				INT32 x, y, z;
+
+				x = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+				y = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+				z = VTXROM_FMT(rom[vtx_addr]);   vtx_addr++;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f0], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f1], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f2], z);
+				mac_sram[sram_w_addr++] = acc;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f4], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f5], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f6], z);
+				mac_sram[sram_w_addr++] = acc;
+
+				acc  = normalised_multiply(mac_sram[mrab11 + 0x7f8], x);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7f9], y);
+				acc += normalised_multiply(mac_sram[mrab11 + 0x7fa], z);
+				mac_sram[sram_w_addr++] = acc;
+
+				mac_cycles = 12 * cnt;
+			}
+			break;
+		}
+		case 0x0f:
+		{
+			for (i = 0; i <= cnt; ++i, vtx_addr += 4)
+			{
+				mac_sram[sram_w_addr++] = VTXROM_FMT(rom[vtx_addr + 0]);
+				mac_sram[sram_w_addr++] = VTXROM_FMT(rom[vtx_addr + 1]);
+				mac_sram[sram_w_addr++] = VTXROM_FMT(rom[vtx_addr + 2]);
+				mac_sram[sram_w_addr++] = VTXROM_FMT(rom[vtx_addr + 3]);
+			}
+
+			mac_cycles = 8 * cnt;
+			break;
+		}
+		/* Dot product of SRAM vectors with single SRAM vector */
+		case 0x11: cnt += 0x100;
+		case 0x10:
+		{
+			INT32 x2 = mac_sram[mrab11 + 0x7fc];
+			INT32 y2 = mac_sram[mrab11 + 0x7fd];
+			INT32 z2 = mac_sram[mrab11 + 0x7fe];
+
+			for (i = 0; i <= cnt; ++i)
+			{
+				INT64 dp;
+				INT32 x1, y1, z1;
+
+				x1 = mac_sram[sram_r_addr++];
+				y1 = mac_sram[sram_r_addr++];
+				z1 = mac_sram[sram_r_addr++];
+
+				dp = (INT64)x1 * (INT64)x2 + (INT64)y1 * (INT64)y2 + (INT64)z1 * (INT64)z2;
+				mac_sram[sram_w_addr++] = dp >> 32;
+				mac_sram[sram_w_addr++] = dp & 0xffffffff;
+				mac_sram[sram_w_addr++] = 0;
+			}
+
+			mac_cycles = 10 * cnt;
+			break;
+		}
+		/* Dot product of SRAM vectors with SRAM vectors */
+		case 0x16: cnt += 0x100;
+		case 0x15: cnt += 0x100;
+		case 0x14:
+		{
+			for (i = 0; i <= cnt; ++i)
+			{
+				INT64 dp;
+				INT32 x1, y1, z1;
+				INT32 x2, y2, z2;
+
+				x1 = mac_sram[sram_r_addr++];
+				y1 = mac_sram[sram_r_addr++];
+				z1 = mac_sram[sram_r_addr++];
+
+				x2 = mac_sram[vtx_addr++];
+				y2 = mac_sram[vtx_addr++];
+				z2 = mac_sram[vtx_addr++];
+
+				dp = (INT64)x1 * (INT64)x2 + (INT64)y1 * (INT64)y2 + (INT64)z1 * (INT64)z2;
+				mac_sram[sram_w_addr++] = dp >> 32;
+				mac_sram[sram_w_addr++] = dp & 0xffffffff;
+				mac_sram[sram_w_addr++] = 0;
+			}
+
+			mac_cycles = 10 * cnt;
+			break;
+		}
+		default:
+			logerror("Unknown MAC instruction : %x\n", inst);
+			break;
+	}
+
+	/* TODO: Calculate a better estimate for timing */
+	if (mac_stat)
+		timer_adjust(mac_done_timer, mac_cycles * TIME_IN_HZ(MAC_CLK), 0, 0);
+}
+
+static WRITE16_HANDLER( reset_w )
+{
+	cpunum_set_input_line(3, INPUT_LINE_RESET, (data & 0x0100) ? CLEAR_LINE : ASSERT_LINE);
+	cpunum_set_input_line(1, INPUT_LINE_RESET, (data & 0x0200) ? CLEAR_LINE : ASSERT_LINE);
+}
+
+static WRITE16_HANDLER( host_drmath_int_w )
+{
+	cpunum_set_input_line(3, AM29000_INTR2, ASSERT_LINE);
+	cpu_boost_interleave(0, TIME_IN_USEC(10));
 }
 
 
@@ -506,10 +886,107 @@ int bit=1 << (source-8*(int)(source/8));
 
        if(m68901_base[IMASK_REG] & (bit<<8))              // If interrupt is not masked by MFD, trigger a 68k INT
        {
-                cpunum_set_input_line(0,4, HOLD_LINE);
+                host_irq(4);
             //    logerror("M68901 interrupt %d serviced.\n",source);
        }
 }
+
+/*************************************
+ *
+ *  Analog controls
+ *
+ *************************************/
+
+/* the joystick encoders give 12 bit two's complement values centered on 0 */
+static UINT16 joystick_r(const char *tag)
+{
+	return (readinputportbytag_safe(tag, 0xa6) - 0xa6) & 0xfff;
+}
+
+static READ16_HANDLER( encoder_h_r )
+{
+	UINT16 x_encoder = joystick_r("JOYSTICK_X");
+	UINT16 y_encoder = joystick_r("JOYSTICK_Y");
+
+	return (y_encoder & 0xf00) | ((x_encoder & 0xf00) >> 8);
+}
+
+static READ16_HANDLER( encoder_l_r )
+{
+	UINT16 x_encoder = joystick_r("JOYSTICK_X");
+	UINT16 y_encoder = joystick_r("JOYSTICK_Y");
+
+	return ((y_encoder & 0xff) << 8) | (x_encoder & 0xff);
+}
+
+/* ADC0844: channel 1 is the throttle, channel 2 the volume control */
+static UINT8 adc_channel;
+static UINT8 adc_result;
+
+static UINT8 adc_clamp(int value)
+{
+	if (value < 0)
+		return 0;
+	if (value > 0xff)
+		return 0xff;
+	return value;
+}
+
+static int adc_input(int ch)
+{
+	switch (ch)
+	{
+		case 1: return readinputportbytag_safe("THROTTLE", 0);
+		case 2: return 0xff;
+	}
+	return 0;
+}
+
+static void adc_done_callback(int param)
+{
+	switch (adc_channel)
+	{
+		/* differential */
+		case 0x00:
+		case 0x08: adc_result = adc_clamp(0xff - (adc_input(2) - adc_input(1))); break;
+		case 0x01:
+		case 0x09: adc_result = adc_clamp(0xff - (adc_input(1) - adc_input(2))); break;
+		case 0x02:
+		case 0x0a: adc_result = adc_clamp(0xff - (adc_input(4) - adc_input(3))); break;
+		case 0x03:
+		case 0x0b: adc_result = adc_clamp(0xff - (adc_input(3) - adc_input(4))); break;
+		/* single-ended */
+		case 0x04: adc_result = adc_input(1); break;
+		case 0x05: adc_result = adc_input(2); break;
+		case 0x06: adc_result = adc_input(3); break;
+		case 0x07: adc_result = adc_input(4); break;
+		/* pseudo-differential */
+		case 0x0c: adc_result = adc_clamp(0xff - (adc_input(4) - adc_input(1))); break;
+		case 0x0d: adc_result = adc_clamp(0xff - (adc_input(4) - adc_input(2))); break;
+		case 0x0e: adc_result = adc_clamp(0xff - (adc_input(4) - adc_input(3))); break;
+		/* undefined */
+		case 0x0f: adc_result = 0x00; break;
+	}
+
+	/* the conversion end is wired to the MFP general purpose input 3 */
+	m68901_int_gen(GPIP3);
+}
+
+static READ16_HANDLER( adc_r )
+{
+	return adc_result;
+}
+
+static WRITE16_HANDLER( adc_w )
+{
+	if (ACCESSING_LSB)
+	{
+		adc_channel = data & 0x0f;
+		timer_adjust(adc_timer, TIME_IN_USEC(40), 0, 0);
+	}
+}
+
+
 
 static WRITE16_HANDLER( m68901_w )
 {
@@ -520,26 +997,26 @@ m68901_base[offset]=data;
 switch(offset)
 {
 
-        case 0x0c:    printf("Timer A Control: %x\n",value);
+        case 0x0c:    logerror("Timer A Control: %x\n",value);
                       break;
-        case 0x0d:    printf("Timer B Control: %x\n",value);
+        case 0x0d:    logerror("Timer B Control: %x\n",value);
                       break;
-        case 0x0e:    printf("Timer C/D Control: %x\n",value);
+        case 0x0e:    logerror("Timer C/D Control: %x\n",value);
                       break;
 
-        case 0x0f:    printf("Timer A Data:%4x\n",value);                                                       // Timer A Data Register
+        case 0x0f:    logerror("Timer A Data:%4x\n",value);                                                       // Timer A Data Register
                      timer_set(TIME_IN_USEC(1000),0,timera_int);
                       break;
 
-        case 0x10:    printf("Timer B Data:%4x\n",value);                                                           // Timer B Data Register
+        case 0x10:    logerror("Timer B Data:%4x\n",value);                                                           // Timer B Data Register
 //                    timer_set(TIME_IN_SEC(value * 200/M68901_CLK),0,timerb_int);
                       break;
 
-        case 0x11:    printf("Timer C Data:%4x\n",value);                                                        // Timer C Data Register
+        case 0x11:    logerror("Timer C Data:%4x\n",value);                                                        // Timer C Data Register
 //                      timer_set(TIME_IN_SEC(value * 200/M68901_CLK),0,timerc_int);
                       break;
 
-        case 0x12:    printf("Timer D Data:%4x\n",value);
+        case 0x12:    logerror("Timer D Data:%4x\n",value);
                       timer_set(TIME_IN_USEC(500),0,timerd_int);                 // Timer D Data Register
                       break;
 
@@ -550,6 +1027,19 @@ switch(offset)
 
 
 /* I should really re-write all this. */
+
+/*
+ * 68681 output port: the pins are the complement of OPR.
+ * 5: /8031 reset
+ * 7: status LED
+ */
+static void duart_output_update(void)
+{
+	UINT8 pins = ~M68681.OPR;
+
+	set_led_status(1, !(pins & 0x80));
+	cpunum_set_input_line(2, INPUT_LINE_RESET, (pins & 0x20) ? CLEAR_LINE : ASSERT_LINE);
+}
 
 static WRITE16_HANDLER( m68681_w )
 {
@@ -568,7 +1058,7 @@ switch(offset)
 
       case 0x03:        M68681.TBA = value;                   // Fill transmit buffer
                         M68681.SRA |=0x0400;                  // Data has been sent - TX ready for more.
-                        if(M68681.IMR & 1)   cpunum_set_input_line_and_vector(0,3, HOLD_LINE, M68681.IVR);         // Generate an interrupt, if allowed.
+                        duart_update_irq();
 
 #if HOST_MONITOR_DISPLAY
                         printf("%c",value);                    // Port A - Monitor
@@ -579,6 +1069,7 @@ switch(offset)
 
       case 0x05:        //printf("IMR=%x\n",M68681.IMR);
                         M68681.IMR = value;                    // Interrupt Mask Reg
+                        duart_update_irq();
                         break;
 
       case 0x06:        break;
@@ -589,17 +1080,17 @@ switch(offset)
 
       case 0x09:        break;
 
-      case 0x0a:        break;
+      case 0x0a:        /* Command Register B: receiver enable/disable */
+                        if ((value & 0x03) == 0x01)
+                              sound_rx_enabled = 1;
+                        else if ((value & 0x03) == 0x02)
+                              sound_rx_enabled = 0;
+                        break;
 
-      case 0x0b:        M68681.TBB = value;                   //  Fill transmit buffer
+      case 0x0b:        sound_tx_w(value);                    //  Fill transmit buffer
                         M68681.SRB |=0x0400;                   // Data has been sent - TX ready for more.
                         // Write to sound board
-                        if(M68681.IMR & 0x1000)
-                        {
-                        	cpunum_set_input_line_and_vector(0,3, HOLD_LINE, M68681.IVR);         // Generate an interrupt, if allowed.
-                        }
-                        cpunum_set_input_line(2, I8051_RX_LINE, ASSERT_LINE);                      // Generate 8031 interrupt
-                        printf("Sound board TX: %4X at PC=%4X\n",value,activecpu_get_pc());
+                        duart_update_irq();
                         break;
 
       case 0x0c:        //printf("IVR: %d",value);
@@ -607,21 +1098,14 @@ switch(offset)
                         break;
 
       case 0x0d:        break;
-      case 0x0e:
-                        set_led_status(1, data&0x80);         // Host Health LED
-                        if(value & 0x20)
-                        {
-//                              cpunum_set_reset_line(2 CLEAR_LINE);
-                              logerror("8031 running at:%x (val=%x).\n",activecpu_get_pc(),value);
-                        }
+      case 0x0e:        /* set output port bits: the pins go low */
+                        M68681.OPR |= value;
+                        duart_output_update();
                         break;
 
-      case 0x0f:        set_led_status(1, ~(data&0x80));      // Host Health LED
-                        if(value & 0x20)
-                        {
-//                              cpunum_set_reset_line(2, ASSERT_LINE);
-                              logerror("8031 reset at:%x (val=%x).\n",activecpu_get_pc(),value);
-                        }
+      case 0x0f:        /* reset output port bits: the pins go high */
+                        M68681.OPR &= ~value;
+                        duart_output_update();
                         break;
 
       default:          m68681_base[offset]=data;
@@ -637,13 +1121,14 @@ switch(offset)
         case 0x01:     return M68681.SRA;                              // Status Register A
 //      case 0x02:     return
 
-        case 0x03:     M68681.SRA^=0x100;
+        case 0x03:     M68681.SRA&=~0x100;
                        return M68681.RBA;                              // RX A - Monitor Port
+
+        case 0x05:     return duart_isr() << 8;                        // Interrupt Status Register
 
         case 0x09:     return M68681.SRB;                              // Status Register B
 
-        case 0x0b:     printf("\nHost received: %x\n",M68681.RBB);
-                       M68681.SRB^=0x0100;                             // No longer have data.
+        case 0x0b:     M68681.SRB&=~0x0100;                            // No longer have data.
                        return M68681.RBB;
                                                                        // RX B - Monitor Port
 }
@@ -731,14 +1216,43 @@ switch(offset)
 
 }
 
+/* Zilog 8530 SCC of the Dr. Math monitor port. Only the status the
+   monitor polls is modelled: transmitter always ready, nothing received
+   and no carrier detect, as no monitor is connected. */
+static UINT8 am_uart_ptr[2];
+
 static WRITE32_HANDLER( am_uart_w )
 {
-       printf("%c",data);
+       int ch = (offset >> 1) & 1;
+
+       if (offset & 1)
+       {
+              /* monitor output is not shown */
+              return;
+       }
+
+       if (am_uart_ptr[ch] == 0)
+              am_uart_ptr[ch] = data & 7;
+       else
+              am_uart_ptr[ch] = 0;
 }
 
 static READ32_HANDLER( am_uart_r )
 {
-       return 0xff;
+       int ch = (offset >> 1) & 1;
+       UINT8 reg = am_uart_ptr[ch];
+
+       if (offset & 1)
+              return 0x00;
+
+       am_uart_ptr[ch] = 0;
+
+       switch (reg)
+       {
+              case 0:  return 0x04;   /* transmit buffer empty */
+              case 1:  return 0x01;   /* all sent */
+              default: return 0x00;
+       }
 }
 
 
@@ -792,18 +1306,18 @@ static WRITE16_HANDLER( reset_slave )
 static ADDRESS_MAP_START( hostmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x13ffff) AM_ROM                           /* 68000 Code ROM and Dr. Math object data */
 	AM_RANGE(0x200000, 0x20ffff) AM_RAM                           /* Battery-backed SRAM (64kB) & DS1215 */
-	AM_RANGE(0x800000, 0x83ffff) AM_RAM                          /* 68000/AM29000 shared RAM (256kB) */
-	AM_RANGE(0x900000, 0x900001) AM_NOP //WRITE(mystery_w)        /* ??????? 16-bit write here. rset? */
+	AM_RANGE(0x800000, 0x83ffff) AM_RAM AM_BASE(&shared_ram)      /* 68000/AM29000 shared RAM (256kB) */
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(host_drmath_int_w)      /* 68000 to Am29000 interrupt */
 	AM_RANGE(0x920000, 0x920001) AM_READ(input_port_1_word_r)     /* User inputs C and D */
 	AM_RANGE(0x940000, 0x940001) AM_READ(input_port_0_word_r)     /* User inputs A and B */
-	AM_RANGE(0x960000, 0x960001) AM_NOP                           /* Lamps */
-	AM_RANGE(0x980000, 0x980001) AM_RAM                           /* ADC0844 */
+	AM_RANGE(0x960000, 0x960001) AM_WRITE(reset_w)                 /* Am29000 and TMS34010 reset */
+	AM_RANGE(0x980000, 0x980001) AM_READWRITE(adc_r, adc_w)        /* ADC0844 */
 	AM_RANGE(0x9a0000, 0x9a0007) AM_READWRITE(tms_host_r, tms_host_w)  /* TMS34010 Interface */
-	AM_RANGE(0x9c0000, 0x9c0001) AM_RAM                            /* ????? Write: 80, A0 and 00 (8-bit high byte) */
+	AM_RANGE(0x9c0000, 0x9c0001) AM_NOP                            /* Lamps */
 	AM_RANGE(0x9e0000, 0x9e00cf) AM_READWRITE(MRA16_RAM, m68901_w) AM_BASE(&m68901_base)  /* 68901 Multifunction Peripheral */
 	AM_RANGE(0xa00000, 0xa000cf) AM_READWRITE(m68681_r, m68681_w) AM_BASE(&m68681_base)   /* 68681 UART */
-	AM_RANGE(0xa20000, 0xa20001) AM_RAM                           /* XY joystick input - sign? */
-	AM_RANGE(0xa40002, 0xa40003) AM_RAM                           /* XY joystick input - actual values */
+	AM_RANGE(0xa20000, 0xa20001) AM_READ(encoder_h_r)             /* XY joystick input, high bits */
+	AM_RANGE(0xa40002, 0xa40003) AM_READ(encoder_l_r)             /* XY joystick input, low bits */
 ADDRESS_MAP_END
 
 
@@ -812,15 +1326,36 @@ static ADDRESS_MAP_START( vgbmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x00000000, 0x007fffff) AM_RAM AM_BASE(&micro3d_sprite_vram)  // 2 Banks
 	AM_RANGE(0x00800000, 0x00bfffff) AM_RAM                         /* 512kB Main DRAM */
 	AM_RANGE(0x00c00000, 0x00c0000f) AM_READ(input_port_2_word_r)   /* TI Monitor Mode switch */
-	AM_RANGE(0x00e00000, 0x00e0000f) AM_RAM //WRITE(mystery2_w)                        /* CREGCLK ??? byte write here. */
+	AM_RANGE(0x00e00000, 0x00e0000f) AM_WRITE(micro3d_xfer3dk_w)  /* XFER3DK */
 	AM_RANGE(0x02000000, 0x0200ffff) AM_READWRITE(MRA16_RAM, paletteram16_BBBBBRRRRRGGGGGG_word_w) AM_BASE(&paletteram16) //      AM_RANGE(0x02010000, 0x027fffff) AM_RAM                         // ??????????? Mirror of VRAM???
-	AM_RANGE(0x02600000, 0x0260000f) AM_RAM                         // XFER3dk???? 16-bit write
+	AM_RANGE(0x02600000, 0x0260000f) AM_WRITE(micro3d_creg_w)       /* CREG */
 	AM_RANGE(0x02c00000, 0x02c0003f) AM_READ(ti_uart_r)            /* SCN UART */
 	AM_RANGE(0x02e00000, 0x02e0003f) AM_WRITE(ti_uart_w)
 	AM_RANGE(0x03800000, 0x03dfffff) AM_ROM AM_REGION(REGION_GFX1, 0)                          /* 2D Graphics ROMs */
 	AM_RANGE(0x03e00000, 0x03ffffff) AM_ROM AM_REGION(REGION_USER1, 0)                         /* 128kB Program ROM */
 	AM_RANGE(0xc0000000, 0xc00001ff) AM_READWRITE(tms34010_io_register_r, micro3d_34010_io_register_w)
 	AM_RANGE(0xffe00000, 0xffffffff) AM_ROM AM_REGION(REGION_USER1, 0)                         /* 128kB Program ROM (Mirror - for interrupt vectors) */
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( drmath_prg, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x00000000, 0x000fffff) AM_ROM AM_REGION(REGION_USER2, 0)
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( drmath_data, ADDRESS_SPACE_DATA, 32 )
+	AM_RANGE(0x00000000, 0x000fffff) AM_ROM AM_REGION(REGION_USER2, 0)
+	AM_RANGE(0x00400000, 0x004fffff) AM_RAM
+	AM_RANGE(0x00500000, 0x005fffff) AM_RAM
+	AM_RANGE(0x00800000, 0x0083ffff) AM_READWRITE(shared_r, shared_w)
+	AM_RANGE(0x00a00000, 0x00a00003) AM_WRITE(drmath_int_w)
+	AM_RANGE(0x01000000, 0x01000003) AM_WRITE(mac1_w)
+	AM_RANGE(0x01000004, 0x01000007) AM_READWRITE(mac2_r, mac2_w)
+	AM_RANGE(0x01200000, 0x01203fff) AM_RAM AM_BASE(&mac_sram)
+	AM_RANGE(0x01400000, 0x01400003) AM_READWRITE(micro3d_pipe_r, micro3d_fifo_w)
+	AM_RANGE(0x01600000, 0x01600003) AM_WRITE(drmath_intr2_ack)
+	AM_RANGE(0x01800000, 0x01800003) AM_WRITE(micro3d_alt_fifo_w)
+	AM_RANGE(0x03fffff0, 0x03ffffff) AM_READWRITE(am_uart_r, am_uart_w)
 ADDRESS_MAP_END
 
 
@@ -837,37 +1372,58 @@ ADDRESS_MAP_END
 /* P1.7 = SELFTEST I         P3.7                                     */
 /*====================================================================*/
 
+static WRITE8_HANDLER( micro3d_upd7759_w )
+{
+	upd7759_0_port_w(0, data);
+	upd7759_0_start_w(0, 0);
+	upd7759_0_start_w(0, 1);
+}
+
+static UINT8 sound_port_latch[4];
+
 static WRITE8_HANDLER(sound_io_w)
 {
+	switch (offset)
+	{
+		case 0x01:
+			sound_port_latch[1] = data;
+			micro3d_noise_sh_w((data >> 2) & 1, data);
+			break;
 
-switch(offset)
-{
-        case 0x01:  break;
-        case 0x03:  //if(data & 0x4) speech_bank=0;
-
-                    if(data & 0x10)
-                    {
-                    	upd7759_0_reset_w(0,0);
-                    }
-                    else
-                    {
-                    	upd7759_0_reset_w(0,1);
-                    }
-                    break;
-}
+		case 0x03:
+			sound_port_latch[3] = data;
+			upd7759_set_bank_base(0, (data & 0x04) ? 0x20000 : 0);
+			upd7759_0_reset_w(0, (data & 0x10) ? 0 : 1);
+			break;
+	}
 }
 
 static READ8_HANDLER(sound_io_r)
 {
+	switch (offset)
+	{
+		case 0x01:  return (sound_port_latch[1] & 0x7f) | (readinputport(3) & 0x80);   /* Test push switch */
+		case 0x03:  return (sound_port_latch[3] & 0xf7) | (upd7759_0_busy_r(0) ? 0x08 : 0);
+		default:    return 0;
+	}
+}
 
-switch(offset)
+static WRITE8_HANDLER( snd_dac_a )
 {
-        case 0x01:  return readinputport(3);                           /* Test push switch */
-        case 0x03:  return upd7759_0_busy_r(0)<<3;
-        default:    return 0;
+	micro3d_noise_dac_w(data);
 }
 
+static WRITE8_HANDLER( snd_dac_b )
+{
+	/* TODO: This controls upd7759 volume */
 }
+
+static struct CustomSound_interface noise_interface =
+{
+	micro3d_noise_start,
+	NULL,
+	micro3d_noise_reset
+};
 
 static ADDRESS_MAP_START( soundmem_prg, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM                    // 32kB Code EPROM
@@ -880,9 +1436,9 @@ static ADDRESS_MAP_START( soundmem_data, ADDRESS_SPACE_DATA, 8 )
 	AM_RANGE(0x0000, 0x07ff) AM_RAM                                  /* 2Kb RAM */
 	AM_RANGE(0xfd00, 0xfd00) AM_WRITE(YM2151_register_port_0_w)
 	AM_RANGE(0xfd01, 0xfd01) AM_READWRITE(YM2151_status_port_0_r,YM2151_data_port_0_w)
-	AM_RANGE(0xfe00, 0xfe00) AM_WRITE(upd7759_0_port_w)
-	AM_RANGE(0xff00, 0xff00) AM_WRITE(DAC_0_data_w)   /* DAC A - used for S&H, special effects? */
-	AM_RANGE(0xff01, 0xff01) AM_WRITE(DAC_1_data_w)   /* DAC B - 'SPEECH' */
+	AM_RANGE(0xfe00, 0xfe00) AM_WRITE(micro3d_upd7759_w)
+	AM_RANGE(0xff00, 0xff00) AM_WRITE(snd_dac_a)
+	AM_RANGE(0xff01, 0xff01) AM_WRITE(snd_dac_b)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( soundmem_io, ADDRESS_SPACE_IO, 8 )
@@ -906,7 +1462,7 @@ static struct tms34010_config vgb_config =
 
 
 static MACHINE_DRIVER_START( micro3d )
-	MDRV_CPU_ADD(M68000, 12000000 )
+	MDRV_CPU_ADD(M68000, 32000000/2)
 	MDRV_CPU_PROGRAM_MAP(hostmem,0)
 	MDRV_CPU_VBLANK_INT(micro3d_vblank,1)
 
@@ -920,7 +1476,11 @@ static MACHINE_DRIVER_START( micro3d )
 	MDRV_CPU_DATA_MAP(soundmem_data,0)
 	MDRV_CPU_IO_MAP(soundmem_io,0)
 
-	MDRV_FRAMES_PER_SECOND(57)
+	MDRV_CPU_ADD(AM29000, 32000000/2)
+	MDRV_CPU_PROGRAM_MAP(drmath_prg,0)
+	MDRV_CPU_DATA_MAP(drmath_data,0)
+
+	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 	MDRV_MACHINE_RESET(micro3d)
 	MDRV_INTERLEAVE(50)
@@ -938,19 +1498,22 @@ static MACHINE_DRIVER_START( micro3d )
 
 	MDRV_SOUND_ADD(UPD7759, UPD7759_STANDARD_CLOCK)
 	MDRV_SOUND_CONFIG(upd7759_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.50)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.50)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.35)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.35)
 
 	MDRV_SOUND_ADD(YM2151, 3579545)
+	MDRV_SOUND_ROUTE(0, "left", 0.35)
+	MDRV_SOUND_ROUTE(1, "right", 0.35)
+
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(noise_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
 	MDRV_SOUND_ROUTE(1, "right", 1.0)
 
-	MDRV_SOUND_ADD(DAC, 0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.0)	/* muted - I don't think it's directly used */
-
-	MDRV_SOUND_ADD(DAC, 0)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.15)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.15)
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(noise_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -1274,9 +1837,9 @@ ROM_END
  *
  *************************************/
 
-GAME( 1991, f15se,    0,        micro3d, f15se,    f15se,    ROT0, "Microprose Games Inc.", "F-15 Strike Eagle (rev. 2.2 02/25/91, 29K ver. 3.1f)", GAME_NOT_WORKING )
-GAME( 1991, f15se21,  f15se,    micro3d, f15se,    f15se21,  ROT0, "Microprose Games Inc.", "F-15 Strike Eagle (rev. 2.1 02/04/91)", GAME_NOT_WORKING )
-GAME( 1992, botss,    0,        micro3d, botss,    botss,    ROT0, "Microprose Games Inc.", "Battle of the Solar System (rev. 1.1a 7/23/92)", GAME_NOT_WORKING )
-GAME( 1992, botss11,  botss,    micro3d, botss,    botss11,  ROT0, "Microprose Games Inc.", "Battle of the Solar System (rev. 1.1 3/24/92)", GAME_NOT_WORKING )
-GAME( 1992, tankbatl, 0,        micro3d, tankbatl, tankbatl, ROT0, "Microprose Games Inc.", "Tank Battle (prototype rev. 4/21/92)", GAME_NOT_WORKING )
-GAME( 1992, stankatk, 0,        micro3d, tankbatl, stankatk, ROT0, "Microprose Games Inc.", "Super Tank Attack (prototype rev. 1.12)", GAME_NOT_WORKING )
+GAME( 1991, f15se,    0,        micro3d, f15se,    micro3d,  ROT0, "Microprose Games Inc.", "F-15 Strike Eagle (rev. 2.2 02/25/91, 29K ver. 3.1f)", GAME_IMPERFECT_SOUND )
+GAME( 1991, f15se21,  f15se,    micro3d, f15se,    micro3d,  ROT0, "Microprose Games Inc.", "F-15 Strike Eagle (rev. 2.1 02/04/91)", GAME_IMPERFECT_SOUND )
+GAME( 1992, botss,    0,        micro3d, botss,    botss,    ROT0, "Microprose Games Inc.", "Battle of the Solar System (rev. 1.1a 7/23/92)", GAME_IMPERFECT_SOUND )
+GAME( 1992, botss11,  botss,    micro3d, botss11,  micro3d,  ROT0, "Microprose Games Inc.", "Battle of the Solar System (rev. 1.1 3/24/92)", GAME_IMPERFECT_SOUND )
+GAME( 1992, tankbatl, 0,        micro3d, tankbatl, micro3d,  ROT0, "Microprose Games Inc.", "Tank Battle (prototype rev. 4/21/92)", GAME_IMPERFECT_SOUND )
+GAME( 1992, stankatk, 0,        micro3d, tankbatl, micro3d,  ROT0, "Microprose Games Inc.", "Super Tank Attack (prototype rev. 1.12)", GAME_IMPERFECT_SOUND )

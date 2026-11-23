@@ -167,6 +167,7 @@ void i486_get_info(UINT32 state, union cpuinfo *info);
 void pentium_get_info(UINT32 state, union cpuinfo *info);
 void mediagx_get_info(UINT32 state, union cpuinfo *info);
 void i960_get_info(UINT32 state, union cpuinfo *info);
+void am29000_get_info(UINT32 state, union cpuinfo *info);
 void h8_3002_get_info(UINT32 state, union cpuinfo *info);
 void mn10200_get_info(UINT32 state, union cpuinfo *info);
 void v810_get_info(UINT32 state, union cpuinfo *info);
@@ -693,6 +694,9 @@ static const struct
 #endif
 #if (HAS_I960)
 	{ CPU_I960, i960_get_info },
+#endif
+#if (HAS_AM29000)
+	{ CPU_AM29000, am29000_get_info },
 #endif
 #if (HAS_H83002)
 	{ CPU_H83002, h8_3002_get_info },

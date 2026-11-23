@@ -436,6 +436,21 @@ endif
 
 
 #-------------------------------------------------
+# AMD Am29000
+#-------------------------------------------------
+
+$(1)CPUDEFS += -DHAS_AM29000=$$(if $$(filter AM29000,$$($(1)CPUS)),1,0)
+
+ifneq ($$(filter AM29000,$$($(1)CPUS)),)
+$(1)OBJDIRS += $(2)/cpu/am29000
+$(1)CPUOBJS += $(2)/cpu/am29000/am29000.o
+$(1)DBGOBJS += $(2)/cpu/am29000/am29dasm.o
+$(2)/cpu/am29000/am29000.o: $$(srcdir)/mame/cpu/am29000/am29000.c $$(srcdir)/mame/cpu/am29000/am29000.h $$(srcdir)/mame/cpu/am29000/am29dasm.h
+$(2)/cpu/am29000/am29dasm.o: $$(srcdir)/mame/cpu/am29000/am29dasm.c $$(srcdir)/mame/cpu/am29000/am29dasm.h
+endif
+
+
+#-------------------------------------------------
 # Intel i960
 #-------------------------------------------------
 

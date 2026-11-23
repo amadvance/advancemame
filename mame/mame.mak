@@ -169,6 +169,7 @@ CPUS += I486
 CPUS += PENTIUM
 CPUS += MEDIAGX
 CPUS += I960
+CPUS += AM29000
 CPUS += H83002
 CPUS += V810
 CPUS += MN10200
@@ -1633,7 +1634,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/magic10.o \
 	$(OBJ)/drivers/malzak.o $(OBJ)/vidhrdw/malzak.o \
 	$(OBJ)/drivers/mcatadv.o $(OBJ)/vidhrdw/mcatadv.o \
-	$(OBJ)/drivers/micro3d.o $(OBJ)/vidhrdw/micro3d.o \
+	$(OBJ)/drivers/micro3d.o $(OBJ)/vidhrdw/micro3d.o $(OBJ)/sndhrdw/micro3d.o \
 	$(OBJ)/drivers/mirax.o \
 	$(OBJ)/drivers/mole.o $(OBJ)/vidhrdw/mole.o \
 	$(OBJ)/drivers/monzagp.o \
