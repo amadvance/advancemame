@@ -63,6 +63,13 @@ Examples:
 
 Official MAME is `/usr/local/bin/mame`. On Linux, multiple `-rompath` entries are separated by semicolons inside quotes, not colons.
 
+For sets flagged as imperfect or with ROMs needing a redump, MAME stops on a warning screen until a key is pressed, even with `-skip_gameinfo`, so scripted runs never start. Skip it with a `ui.ini` containing `skip_warnings 1` in a temporary directory passed with `-inipath`:
+```bash
+mkdir -p /tmp/advancemame/mameini && printf 'skip_warnings 1\n' > /tmp/advancemame/mameini/ui.ini
+/usr/local/bin/mame <driver_name> -inipath /tmp/advancemame/mameini -rompath "/extra/advmame/rom;/extra/mame/rom;/extra/mame/image" -skip_gameinfo -window -nomaximize ...
+```
+`-inipath` also stops MAME from reading its usual `mame.ini`, so always pass `-rompath` explicitly, including the CHD directories (e.g. `/extra/mame/image`).
+
 ### Execution Traces (-debugscript)
 Comparing instruction traces between AdvanceMAME and official MAME quickly pinpoints the branch, unmapped read or protection check where emulation diverges (boot freezes, protection traps). Create a debugger script (e.g. `/tmp/advancemame/trace.cmd`):
 ```text
