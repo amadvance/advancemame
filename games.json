@@ -787,8 +787,8 @@
       ],
       "title": "19YY",
       "year": 2022,
-      "developer": "Ichikyu Wai Wai/EKORZ/Elrayzeur",
-      "publisher": "Ichikyu Wai Wai/EKORZ/Elrayzeur",
+      "developer": "Ichikyu Wai Wai / EKORZ / Elrayzeur",
+      "publisher": "Ichikyu Wai Wai / EKORZ / Elrayzeur",
       "category": "homebrew",
       "genre": "Shooter",
       "platform": "Neo Geo MVS",
@@ -797,6 +797,13 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "19yy",
+          "developer": "Ichikyu Wai Wai/EKORZ/Elrayzeur",
+          "publisher": "Ichikyu Wai Wai/EKORZ/Elrayzeur"
+        }
+      ],
       "description": "19YY is a vertical-scrolling shoot-'em-up developed by Ichikyu Wai Wai, EKORZ, and Elrayzeur for the Neo Geo MVS platform in 2022. Inspired by classic 1940s-style military arcade shooters, players pilot a twin-propeller fighter aircraft across ocean and air stages, shooting down waves of enemy planes and bosses while collecting power-ups and deploying screen-clearing bombs.",
       "trivia": [],
       "tips": [],
@@ -810,7 +817,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The driver identifies the 2022 release and its development credits; Elrayzeur contributed a sound correction dated October 20, 2022. The individual contributions of each credited person to the original game are not established, and no authoritative independent project website has been identified."
+      ]
     },
     {
       "shortnames": [
@@ -856,6 +865,46 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "1stdef"
+      ],
+      "title": "1st Defence: The Final Upgrade",
+      "year": 2026,
+      "developer": "theSEGAshop",
+      "publisher": "theSEGAshop",
+      "category": "homebrew",
+      "genre": "Tabletop",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "1st Defence: The Final Upgrade is a 2026 tower-defense strategy game developed by theSEGAshop for the Neo Geo AES and MVS. Rather than focusing on the immediate movement and shooting action typical of many arcade games, it challenges players with a series of defensive scenarios in which planning and survival are central to success. The main campaign contains eight missions, while an Endless mode provides a continuing challenge beyond the fixed sequence.\n\nThe game also offers a two-player versus mode, adding direct competition to its single-player strategy gameplay. Persistent scoreboards allow players to compare their achievements across sessions, and memory-card support provides a way to retain progress. Multiple soundtracks accompany the action, making this an unusual strategy-focused addition to the Neo Geo homebrew library.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://thesegashop.itch.io/1st-defence-the-final-upgrade"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's page confirms the tower-defense gameplay, eight campaign missions, Endless mode, two-player versus, saved scoreboards and memory-card support; the publisher is taken as the developer because the game is released through the developer's own page.",
+        "No version identifier is established.",
+        "Genre Tabletop is the closest standard label for a tower-defense strategy game."
+      ]
     },
     {
       "shortnames": [
@@ -1870,6 +1919,57 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "7wonders"
+      ],
+      "title": "Seven Wonders Puzzles",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Puzzle",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.0.2",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "7wonders",
+          "title": "Seven Wonders Puzzles v1.0.2"
+        }
+      ],
+      "description": "Seven Wonders Puzzles is a 2026 puzzle game by Eagle Software for the Neo Geo, combining several styles of logic and color-matching challenges within a journey through seven fantasy locations. Players encounter match-three boards, bubble-shooting stages and picture-logic puzzles, each requiring a different approach. Matching colored pieces can create cascades and special items, while bubble stages challenge players to aim shots, connect matching colors and rescue kittens trapped inside bubbles.\n\nThe adventure visits locations such as the Sky Garden, Crystal Canal, Moon Lighthouse and Coral Palace. Two cheerful cat guides, Mimi and Kiko, accompany the player through the colorful environments, reacting to successful combinations and completed challenges. Picture-logic puzzles use numerical clues to reveal hidden images, while stars, scores and collectible rewards encourage players to improve their results. Its pastel presentation, expressive characters and variety of puzzle styles give the game a distinctive identity among Neo Geo homebrew releases.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's README documents the puzzle structure and version 1.0.2; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "The local reference labels this ROM set only as v1, so the exact release could not be verified.",
+        "Earlier preview builds had fewer levels, so no total level count is stated.",
+        "Player count is not established."
+      ]
     },
     {
       "shortnames": [
@@ -4153,12 +4253,22 @@
       "version": null,
       "parent_shortname": "akatana",
       "original_game": "akatana",
+      "variants": [
+        {
+          "shortname": "akatanaultd",
+          "publisher": "Cave"
+        }
+      ],
       "hack_author": "IAmTheChuckster",
       "hack_year": 2022,
       "modifications": [
         {
           "type": "gameplay",
           "description": "Removes the phantom Soul timer drain so players can remain in Soul form indefinitely and alters katana generation mechanics."
+        },
+        {
+          "type": "gameplay",
+          "description": "Removes the time limit on the phantom Soul transformation."
         }
       ],
       "description": "Akai Katana Unlimited is a gameplay modification of Cave's 2010 horizontal shoot-'em-up Akai Katana created by IAmTheChuckster. It removes the time limit on the phantom Soul transformation, allowing players to stay in Soul form continuously and experiment freely with the katana-summoning and bullet-reflection mechanics.",
@@ -4265,8 +4375,10 @@
           "path": "mame/drivers/arkanoid.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The hack author, release history and complete list of changes have not been independently established."
+      ]
     },
     {
       "shortnames": [
@@ -5487,7 +5599,7 @@
           "version": "(prototype, 5 lives)"
         }
       ],
-      "description": "Alpha One is Atari's 1983 vector-graphics prototype that became The Adventures of Major Havoc. The unusual design joins a spaceship shoot-'em-up against robotic defenders with a station-infiltration sequence, in which the protagonist sabotages a reactor and attempts to escape. A rotary controller and action button serve the game's different styles of play.\n\nThis early build preserves an intermediate stage of development: it has no music, some different sound effects and graphics, and a substantially different account of its alien enemies. It also includes the early Breakout-like warp-code challenge. Alpha One is therefore valuable not simply as a renamed game, but as a playable record of how one of Atari's most experimental arcade projects changed before release.",
+      "description": "Alpha One is a development version of Atari's Major Havoc, an intermediate prototype that followed the earlier Tollian's Web prototype. It combines space shooting with exploration of platform-like reactor environments, and shows the game before its final form.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -5516,8 +5628,10 @@
           "path": "mame/drivers/mhavoc.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "It is not claimed that the prototype includes the final game's complete progression."
+      ]
     },
     {
       "shortnames": [
@@ -6671,6 +6785,42 @@
     },
     {
       "shortnames": [
+        "animalc"
+      ],
+      "title": "Animal Catch",
+      "year": 2000,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Misc.",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Animal Catch is a children's video medal game released by Sammy in 2000. Players attempt to capture cartoon animals by activating a trap at the appropriate moment, using a large illuminated button. Successful attempts earn arcade medals. Its simple timing-based interaction was designed for younger visitors to Japanese amusement centers, and the game was distributed on a cartridge for Sammy's dedicated medal-machine platform.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=animalc&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "animaljr"
       ],
       "title": "Animalandia Jr.",
@@ -7526,7 +7676,7 @@
           "title": "Clockwork Aquario (prototype)"
         }
       ],
-      "description": "Clockwork Aquario is a two-player side-scrolling action platformer developed by Westone Bit Entertainment for the Sega System 18 arcade board. Originally planned for release in 1993, the project was cancelled after location testing and remained unreleased for nearly three decades before its prototype ROM was recovered and restored.",
+      "description": "Clockwork Aquario is a two-player side-scrolling action platformer developed by Westone Bit Entertainment for the Sega System 18 arcade board. Originally planned for release in 1993, the project was cancelled after location testing and remained unreleased for nearly three decades before its prototype ROM was recovered and restored.\n\nThe unreleased arcade prototype was later recovered and completed for modern publication; that finished commercial release is distinct from the prototype ROM represented here.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -9030,6 +9180,46 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "arena2"
+      ],
+      "title": "Arena 2",
+      "year": 2026,
+      "developer": "Delarfab",
+      "publisher": "Delarfab",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Arena 2 is a 2026 competitive arena-action game created by Delarfab for the Neo Geo. One or two players battle in compact, single-screen arenas whose edges wrap around, allowing characters and projectiles to travel from one side of the playfield to the other. In Territory mode, moving across blocks and shooting them changes their ownership, with victory going to the player controlling the largest area when time expires. Duel mode instead rewards direct combat, where a single successful hit eliminates an opponent and ammunition must be recovered after use.\n\nPlayers choose from three characters with different weapons: PIX fires paint projectiles and arrows, BOOMA uses a returning boomerang, and VOLT launches bouncing discs. Movement includes jumping, wall jumping, dodging and catching incoming shots. Power-ups and special events can change the arena through effects such as reversed gravity, temporary unlimited ammunition or rain that removes painted territory. Matches can be played against a friend or the computer.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://delarfab.itch.io/arena2"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's page documents one- or two-player Territory and Duel modes, the characters, attacks and movement; the publisher is taken as the developer because the game is released through the developer's own page.",
+        "The exact release version of the ROM set is not established.",
+        "The description does not mention the Totem mode or additional arenas of later releases, since their presence in this ROM set is not verified."
+      ]
     },
     {
       "shortnames": [
@@ -14837,7 +15027,7 @@
       "title": "Batsugun (Special Ver.)",
       "year": 1993,
       "developer": "Toaplan",
-      "publisher": "Toaplan",
+      "publisher": "Taito",
       "category": "original",
       "genre": "Shooter",
       "platform": "Toaplan 2",
@@ -14846,6 +15036,13 @@
       "version": null,
       "parent_shortname": "batsugun",
       "original_game": "batsugun",
+      "variants": [
+        {
+          "shortname": "batugnsp",
+          "publisher": "Toaplan",
+          "language": "English"
+        }
+      ],
       "description": "Batsugun (Special Ver.) is an enhanced version of Toaplan's 1993 vertical-scrolling shoot-'em-up Batsugun. It introduces a smaller player hitbox, a protective shield when leveling up weapons, a reworked scoring system, and multiple loops with bullet-canceling mechanics that helped define the modern manic shooter genre.",
       "trivia": [],
       "tips": [],
@@ -15041,7 +15238,7 @@
       "release_status": "released",
       "version": null,
       "parent_shortname": null,
-      "original_game": "bbakraid",
+      "original_game": null,
       "series": "Battle Garegga",
       "variants": [
         {
@@ -15089,8 +15286,10 @@
           "path": "mame/drivers/toaplan2.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The Unlimited Version is an official revision, not an unofficial modification; the former original_game value was a self-reference to its own primary shortname and was removed."
+      ]
     },
     {
       "shortnames": [
@@ -18914,10 +19113,19 @@
       "platform": "Atari / Midway Seattle",
       "players": 4,
       "release_status": "released",
-      "version": null,
+      "version": "ver 1.2",
       "parent_shortname": null,
       "original_game": null,
       "series": "NFL Blitz",
+      "variants": [
+        {
+          "shortname": "blitz2k",
+          "title": "NFL Blitz 2000 Gold Edition (ver 1.2, Sep 22 1999)",
+          "region": "North America",
+          "language": "English",
+          "version": "(ver 1.2, Sep 22 1999)"
+        }
+      ],
       "description": "NFL Blitz 2000 Gold Edition (1999) is Midway's enhanced arcade entry in its spectacularly exaggerated NFL football series. Players select licensed professional teams and compete in fast seven-on-seven contests featuring huge tackles, aggressive passing and relaxed enforcement of real-world football rules. Up to four people can share a cabinet, while joystick-and-three-button controls keep games accessible even to players unfamiliar with simulation-style sports titles.\n\nGold Edition adds updated 1999 rosters, new offensive and defensive plays, team-specific formations, expanded animations and choices of fields or weather. The result is not merely a renamed earlier Blitz set, but a fuller late-1990s version of Midway's fast and confrontational arcade football formula.",
       "trivia": [],
       "tips": [],
@@ -18951,10 +19159,19 @@
       "platform": "Atari / Midway Seattle",
       "players": 4,
       "release_status": "released",
-      "version": null,
+      "version": "ver 1.30",
       "parent_shortname": null,
       "original_game": null,
       "series": "NFL Blitz",
+      "variants": [
+        {
+          "shortname": "blitz99",
+          "title": "NFL Blitz '99 (ver 1.30, Sep 22 1998)",
+          "region": "North America",
+          "language": "English",
+          "version": "(ver 1.30, Sep 22 1998)"
+        }
+      ],
       "description": "NFL Blitz '99 (1998) is Midway's second arcade entry in its exaggerated American football series. It retains the original's seven-on-seven action, official NFL teams and dramatic disregard for many real-world restrictions, favoring fast plays, long passes and bone-crunching tackles over detailed simulation. Updated rosters, additional plays and refinements to the established formula gave arcade regulars a fresh season of the same confrontational style.\n\nThe sequel also made four-player competition an important arcade attraction, allowing two players to cooperate on each side. With its mix of licensed teams, simple controls and outrageous collisions, Blitz '99 helped secure the series as one of the era's signature arcade sports franchises.",
       "trivia": [],
       "tips": [],
@@ -20273,7 +20490,7 @@
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "released",
-      "version": "1.6",
+      "version": "1.7",
       "parent_shortname": null,
       "original_game": null,
       "variants": [
@@ -20301,7 +20518,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The registered revision is v1.7. The original Amiga release date must not be confused with the Neo Geo revision date."
+      ]
     },
     {
       "shortnames": [
@@ -22587,14 +22806,30 @@
       "variants": [
         {
           "shortname": "bpanicdx",
-          "title": "Block Panic DX (2025-01-01)"
+          "title": "Block Panic DX (2025-01-01)",
+          "publisher": "Blastar"
         }
       ],
       "description": "Block Panic DX is a fast-paced action puzzle game developed by Blastar for the Neo Geo MVS platform and released on January 1, 2025. Players clear and rearrange falling blocks under time pressure across single-player and competitive modes.",
-      "trivia": [],
+      "trivia": [
+        "The developer documents both a cartridge-compatible release and a Neo Geo CD release. The registered revision is dated January 1, 2025."
+      ],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://www.patreon.com/blastar"
+        },
+        {
+          "type": "release",
+          "url": "https://www.patreon.com/blastar/posts/block-panic-dx-119031563"
+        },
+        {
+          "type": "release",
+          "url": "https://www.patreon.com/blastar/posts/block-panic-dx-119035418"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -22602,8 +22837,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "corroborated",
-      "research_notes": []
+      "confidence": "verified",
+      "research_notes": [
+        "The exact rules of the game are not documented in the supplied evidence."
+      ]
     },
     {
       "shortnames": [
@@ -24652,8 +24889,10 @@
           "path": "mame/drivers/bublbobl.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The differences between the two Ultra program revisions and the 2012 date assigned to the USA set remain unverified."
+      ]
     },
     {
       "shortnames": [
@@ -27096,20 +27335,30 @@
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "beta",
-      "version": null,
+      "version": "0.4.19",
       "parent_shortname": null,
       "original_game": null,
       "variants": [
         {
           "shortname": "caravan",
-          "title": "Project Neon Caravan Edition (Prealpha 0.4.19)"
+          "title": "Project Neon Caravan Edition (Prealpha 0.4.19)",
+          "publisher": "Fullset"
         }
       ],
-      "description": "Project Neon Caravan Edition is a pre-alpha score-attack demo of the homebrew vertical-scrolling shoot-'em-up Project Neon developed by Team Fullset for the Neo Geo MVS in 2019. Designed in the tradition of classic caravan shooting competitions, it challenges players to achieve the highest possible score within a timed stage.",
+      "description": "Project Neon Caravan Edition is a pre-alpha score-attack demo of the homebrew vertical-scrolling shoot-'em-up Project Neon, developed by Fullset for the Neo Geo MVS and publicly distributed in 2019. Designed in the tradition of classic caravan shooting competitions, it challenges players to achieve the highest possible score within a timed stage.\n\nThis record represents an early demonstration of Project Neon, not the finished commercial game, and its content should not be confused with the completed release.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://fullset.io/"
+        },
+        {
+          "type": "project",
+          "url": "https://fullset.io/collections/project-neon"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -27117,8 +27366,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The gameplay content, story and release status of the completed Project Neon are not attributed to this 2019 build."
+      ]
     },
     {
       "shortnames": [
@@ -27897,8 +28148,8 @@
       ],
       "title": "Captain Barrel",
       "year": 2024,
-      "developer": "Neo Byte Force Ltd",
-      "publisher": "Neo Byte Force Ltd",
+      "developer": "Neo Byte Force",
+      "publisher": "Neo Byte Force",
       "category": "homebrew",
       "genre": "Platform",
       "platform": "Neo Geo MVS",
@@ -27907,11 +28158,27 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Captain Barrel is a homebrew arcade action game developed and published by Neo Byte Force Ltd for the Neo Geo MVS platform in 2024.",
+      "variants": [
+        {
+          "shortname": "cbarrel",
+          "developer": "Neo Byte Force Ltd",
+          "publisher": "Neo Byte Force Ltd"
+        }
+      ],
+      "description": "Captain Barrel is a pirate-themed arcade action-platform game developed and published by Neo Byte Force for the Neo Geo MVS in 2024. It follows the tradition of compact arcade platform games: players deal with enemies and barrels while working toward the objectives needed to clear each stage, all within a pirate presentation.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/captain-barrel"
+        },
+        {
+          "type": "release",
+          "url": "https://ozzyouzo.itch.io/captain-barrel/devlog/854168/captain-barrel-roms-available-for-purchase"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -27919,8 +28186,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "corroborated",
-      "research_notes": []
+      "confidence": "verified",
+      "research_notes": [
+        "The level count, exact scoring system and any additional game modes are not documented in the supplied evidence."
+      ]
     },
     {
       "shortnames": [
@@ -28041,6 +28310,15 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "cbombers",
+          "title": "Chase Bombers (World)",
+          "region": "World",
+          "language": "English",
+          "version": "(World)"
+        }
+      ],
       "description": "Taito's Chase Bombers (1994) is a chaotic chase-view racing game that replaces police pursuits with weapon-equipped competition. Players select customized vehicles and race through hazardous courses littered with mines, poles, and other obstacles. Item gates dispense offensive and defensive equipment, allowing racers to attack opponents while trying to maintain speed and reach the finish line.\n\nIts exaggerated crashes and tactical weapon use make it closer to combat kart racing than a conventional driving simulation. Chase Bombers is also connected thematically to Taito's Chase H.Q. family, with appearances that recall the police characters from that series, but it redirects the emphasis from catching criminals to battling rival racers.",
       "trivia": [],
       "tips": [],
@@ -28965,6 +29243,55 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "centuryxi"
+      ],
+      "title": "Century XI: The Road to 2030",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Sports",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "version": "4.0.0",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "centuryxi",
+          "title": "Century XI: The Road to 2030 v4.0.0"
+        }
+      ],
+      "description": "Century XI: Road to 2030 is a 2026 football game developed by Eagle Software for the Neo Geo, presenting a humorous alternative to international tournaments. Inspired by the atmosphere of 1990s arcade football, it features 48 fictional nations with their own team colors, flags, player rosters, chants and playing styles. The main Road to 2030 mode recreates a complete 64-match championship with group standings, knockout rounds, leading scorers, player suspensions and a trophy presentation. The competition culminates in a fictional Tokyo stadium called the Big Ramen Bowl.\n\nAlongside the tournament, players can take part in exhibition matches, a shorter cup competition, two-player versus matches, penalty shootouts and training. On the field, the game combines passes, crosses, chips and charged shots with headers, volleys and overhead kicks. Goalkeepers can be controlled directly, while different control schemes and computer difficulty settings accommodate different playing styles. Comical commentary, animated goal celebrations, action replays and exaggerated referees give the game a playful identity distinct from realistic football simulations.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's release index shows that the NeoGeoSDK v1.7.8 pre-release includes Century XI: Road to 2030 v4.0.0, a work-in-progress release, hence the beta status; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "Two-player versus play is documented by the developer; the exact ROM release could not be verified against the documentation."
+      ]
     },
     {
       "shortnames": [
@@ -31195,11 +31522,20 @@
           "publisher": "Arlasoft"
         }
       ],
-      "description": "Chuckie Egg is a platform game adapted by Arlasoft for arcade hardware in 2023. Climb ladders and jump between platforms to collect eggs while avoiding the birds patrolling the stage.",
+      "description": "Chuckie Egg is a 2023 arcade adaptation by Arlasoft of the classic home-computer platform game. Players guide a character through single-screen arrangements of platforms and ladders, collecting eggs while avoiding the birds that patrol the playfield. Successful stages require careful timing of jumps, movement and climbs. This adaptation recreates the original game on Ponpoko arcade hardware, a variation of the Pac-Man board, and was written in Z80 assembly.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://arlagames.itch.io/chuckie-egg-arcade"
+        },
+        {
+          "type": "project",
+          "url": "https://github.com/1888games/chuckieEgg_Arcade"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -31208,7 +31544,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The developer targets Ponpoko hardware, which is based on Pac-Man hardware but provides two additional connected sprite slots; it is not standard Pac-Man hardware."
+      ]
     },
     {
       "shortnames": [
@@ -32875,7 +33213,8 @@
       "variants": [
         {
           "shortname": "cnbe2018",
-          "title": "Codename: Blut Engel (2018-09-05)"
+          "title": "Codename: Blut Engel (2018-09-05)",
+          "publisher": "Blastar"
         }
       ],
       "description": "Codename: Blut Engel is a homebrew horizontal shoot-'em-up developed by Blastar for the Neo Geo MVS platform, represented here by its September 5, 2018 revision.",
@@ -32891,7 +33230,10 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The registered build is dated September 5, 2018; the underlying Codename: Blut Engel project predates this revision, so 2018 is not the project's first release year.",
+        "No verified developer project URL is available in the existing data."
+      ]
     },
     {
       "shortnames": [
@@ -33830,7 +34172,7 @@
       "title": "Columns",
       "year": 1990,
       "developer": "Jeff Kurtz",
-      "publisher": "Jeff Kurtz",
+      "publisher": "Sega Enterprises",
       "category": "homebrew",
       "genre": "Puzzle",
       "platform": "Neo Geo MVS",
@@ -33843,15 +34185,17 @@
       "variants": [
         {
           "shortname": "columnsn",
-          "title": "Columns (NeoGeo)(Homebrew)"
+          "title": "Columns (NeoGeo)(Homebrew)",
+          "publisher": "Jeff Kurtz"
         },
         {
           "shortname": "columnsncd",
           "parent_shortname": "columnsn",
-          "title": "Columns (CD conversion)"
+          "title": "Columns (CD conversion)",
+          "publisher": "Jeff Kurtz"
         }
       ],
-      "description": "Columns is an unofficial homebrew adaptation of Sega's tile-matching puzzle game created by Jeff Kurtz for the Neo Geo platform, where players align falling vertical triplets of colored jewels horizontally, vertically, or diagonally.",
+      "description": "Columns is an unofficial Neo Geo adaptation of Sega's falling-jewel puzzle game created by Jeff Kurtz. Players arrange descending groups of three colored jewels, changing their order before they land to form matching lines horizontally, vertically or diagonally. Successful matches remove jewels and can trigger further combinations as the remaining pieces fall. Play continues as the stack grows and space becomes increasingly limited. The Neo Geo adaptation preserves the recognizable mechanics of the original puzzle game.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -33884,8 +34228,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The original Sega game dates to 1990, but the release year of Jeff Kurtz's Neo Geo adaptation is not established; the cartridge and CD-conversion sets are not documented as differing."
+      ]
     },
     {
       "shortnames": [
@@ -35659,6 +36005,10 @@
         {
           "type": "translation",
           "description": "Translates the attract-mode prologue, character profiles, stage-continue hints, all story dialogue scenes (VS0-VS6), ending sequence (VS7), and staff roll into English."
+        },
+        {
+          "type": "translation",
+          "description": "The original translators' credit from the Saturn English fan translation is retained."
         }
       ],
       "description": "Cotton 2 (English translation) is an English localization patch by Zanac (with help from Katrin and Danthrax) for Success's 1997 Sega ST-V cute-'em-up Cotton 2: Magical Night Dreams. Adapting the script and graphics from the Sega Saturn fan translation to native ST-V arcade hardware, it translates the attract-mode prologue scroll, character profiles, continue-screen hints across all seven stages, in-game story cutscenes, and the ending credits into English while preserving original arcade gameplay timing.",
@@ -35666,6 +36016,10 @@
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/zanac/Cotton2"
+        },
         {
           "type": "reference",
           "url": "https://strategywiki.org/wiki/Cotton_2:_Magical_Night_Dreams"
@@ -35679,7 +36033,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The original game was released in 1997. The translation adapts material from the Saturn English fan translation; the author explicitly documents that Saturn-only sound and timing modifications were not imported."
+      ]
     },
     {
       "shortnames": [
@@ -35758,11 +36114,19 @@
           "language": "English"
         }
       ],
-      "hack_author": "Zanac",
+      "hack_author": "Vanni Brutto (Zanac)",
       "modifications": [
         {
           "type": "translation",
           "description": "Translates stage results, character selection panels, and character names in attract mode into English, and adds a translation credit under the title logo. Uses the translated Japanese mode with every ST-V BIOS region."
+        },
+        {
+          "type": "translation",
+          "description": "Translates twenty-five result-screen dialogue lines, the weapon-selection panels for all eight characters, full character names in attract mode and the remaining Japanese text of the title presentation."
+        },
+        {
+          "type": "bugfix",
+          "description": "Always uses the translated Japanese game mode regardless of the selected BIOS region, correcting original export-mode panel errors and text mistakes."
         }
       ],
       "description": "Cotton Boomerang (English translation) is an English localization patch by Zanac for Success's 1998 Sega ST-V cute-'em-up Cotton Boomerang: Magical Night Dreams. Translating the remaining Japanese text using the English font from the Cotton 2 localization, it translates the character dialogues on the stage result screens, the weapon and shot select panels across all eight playable characters, and full character names in the attract mode, while replacing the title logo subtitle with a translation credit. The patch also forces the game to run in its translated Japanese mode across all ST-V BIOS regions, resolving export-mode omissions and typos while preserving original arcade gameplay and mechanics.",
@@ -35786,8 +36150,10 @@
           "path": "mame/drivers/stv.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The original game was released in 1998. The Japanese character painted on the tea cup in the ending remains untranslated. It is not claimed that every line was observed in a single full playthrough."
+      ]
     },
     {
       "shortnames": [
@@ -38532,7 +38898,7 @@
           "publisher": "pierpa86"
         }
       ],
-      "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS conversion of ADK's Neo Geo CD action RPG by pierpa86. Unlike earlier cartridge conversions that omitted or altered the redbook audio, this release adapts the complete CD soundtrack to the YM2610 sound chip while keeping the original stereo sound effects intact.",
+      "description": "Crossed Swords 2 (full CD music) is a Neo Geo MVS cartridge conversion by pierpa86 of ADK's Neo Geo CD action game Crossed Swords II. Unlike earlier cartridge conversions that omitted or altered the redbook audio, this 2026 release adapts the complete CD soundtrack to the YM2610 sound chip while keeping the original stereo sound effects intact.\n\nThe work is a conversion with adapted audio, not a newly developed sequel; the game itself remains ADK's.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -38545,7 +38911,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "Genre Fighter is the closest standard label for the third-person sword-combat gameplay; 'Action' is not part of the standard genre vocabulary."
+      ]
     },
     {
       "shortnames": [
@@ -39922,11 +40290,20 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Cyborg Force is a homebrew run-and-gun action game developed and published by Neo Byte Force for the Neo Geo MVS platform in 2023.",
+      "description": "Cyborg Force is a side-scrolling military science-fiction run-and-gun game developed and published by Neo Byte Force for the Neo Geo MVS in 2023, in the tradition of classic arcade action games. Players advance through hostile environments, shoot enemies, avoid hazards and confront bosses.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/cyborg-force"
+        },
+        {
+          "type": "release",
+          "url": "https://ozzyouzo.itch.io/cyborg-force/devlog/697753/digital-version-downloads-are-now-available"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -39934,8 +40311,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "corroborated",
-      "research_notes": []
+      "confidence": "verified",
+      "research_notes": [
+        "Features of the later Vladimir Edition are not attributed to this ROM; genre Shooter follows the run-and-gun classification used elsewhere in the catalog."
+      ]
     },
     {
       "shortnames": [
@@ -43643,7 +44022,7 @@
       "title": "DoDonPachi Dai-Ou-Jou (Black Label)",
       "year": 2002,
       "developer": "Cave",
-      "publisher": "AMI",
+      "publisher": "Amusement Marketing International",
       "category": "original",
       "genre": "Shooter",
       "platform": "PGM",
@@ -43657,6 +44036,7 @@
         {
           "shortname": "ddpdojblkb",
           "title": "DoDonPachi Dai-Ou-Jou Black Label (Japan, 2002.10.07 Black Ver)",
+          "publisher": "AMI",
           "region": "Japan",
           "language": "English",
           "version": "(Japan, 2002.10.07 Black Ver)"
@@ -44863,7 +45243,7 @@
       "title": "Deathsmiles (Hidden Elements Full Open + Character Enhancement)",
       "year": 2007,
       "developer": "Cave",
-      "publisher": "AMI",
+      "publisher": "Amusement Marketing International",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -44876,7 +45256,8 @@
       "variants": [
         {
           "shortname": "deathsml01",
-          "title": "Death Smiles (Hidden elements full open + character enhancement)"
+          "title": "Death Smiles (Hidden elements full open + character enhancement)",
+          "publisher": "AMI"
         }
       ],
       "hack_author": null,
@@ -44912,7 +45293,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The author, unlock conditions and exact damage changes are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -47191,7 +47574,7 @@
       "year": 2023,
       "developer": "Arlasoft",
       "publisher": "Arlasoft",
-      "category": "homebrew",
+      "category": "port",
       "genre": "Maze",
       "platform": "Namco Pac-Man hardware",
       "players": 2,
@@ -47205,11 +47588,20 @@
           "publisher": "Arlasoft"
         }
       ],
-      "description": "Dilithium Lift is a maze game by Arlasoft, released in 2023. Collect the crystals distributed through a grid of corridors while keeping track of the remaining lives.",
+      "description": "Dilithium Lift is a 2023 arcade adaptation by Arlasoft of a lesser-known ZX Spectrum game, developed for Pac-Man hardware. Players move through a network of corridors to collect scattered dilithium crystals while avoiding hostile droids and their laser fire. The compact maze requires careful route planning and timing, since crossing an exposed corridor at the wrong moment can leave the player vulnerable to enemy attacks.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://arlagames.itch.io/dilithium-lift-pacman-hardware"
+        },
+        {
+          "type": "project",
+          "url": "https://github.com/1888games/dilithium_lift_pacman"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -47218,7 +47610,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The ZX Spectrum original has no AdvanceMAME shortname, so original_game is left unset."
+      ]
     },
     {
       "shortnames": [
@@ -47973,7 +48367,16 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adds twelve barrel-board variants with altered routes, gravity and spring behavior."
+        },
+        {
+          "type": "gameplay",
+          "description": "Selects boards and difficulty levels randomly, with fixed selections configurable through DIP switches."
+        }
+      ],
       "description": "Twelve barrel-board variants introduce challenges such as reversed routes, altered gravity and moving springs. Boards and difficulty levels are selected randomly, with optional fixed choices through DIP switches.",
       "trivia": [],
       "tips": [],
@@ -48049,6 +48452,70 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkfreerun"
+      ],
+      "title": "Donkey Kong Freerun Edition",
+      "year": 2019,
+      "developer": "Nintendo",
+      "publisher": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "2019-06-20",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkfreerun",
+          "title": "Donkey Kong Freerun Edition (2019-06-20)"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Removes all enemies (barrels, fireballs and firefoxes, pies and springs) from every board; falls, rivet holes, the oil can and elevator jumps remain lethal and the bonus timer stays active."
+        },
+        {
+          "type": "levels",
+          "description": "Presents the opening screen with a flat arrangement of girders joined by a dense network of ladders."
+        }
+      ],
+      "description": "Donkey Kong Freerun Edition is a 2019 modification of Nintendo's Donkey Kong by Paul Goes, designed as an enemy-free exploration and practice version. Its opening screen replaces the familiar sloping girders with flat platforms connected by many ladders, and Jumpman keeps the original climbing and jumping controls.\n\nThe complete game can be played without enemies: there are no barrels, fireballs or firefoxes, pies or springs. The environment is still dangerous, since Jumpman can die by falling from girders, falling through rivet holes, entering a burning oil can or mistiming a jump on the elevators, and the bonus timer keeps running. This lets players learn the boards and practice routes and timing without being chased.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Donkey_Kong_(arcade_game)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The flat opening screen and board layouts were observed in play and not cross-checked against the developer's description; the 2019 year and the version are not confirmed against the developer's release history."
+      ]
     },
     {
       "shortnames": [
@@ -48191,7 +48658,20 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Requires collecting all pellets to finish each board."
+        },
+        {
+          "type": "graphics",
+          "description": "Adds Pac-Man-inspired ghosts."
+        },
+        {
+          "type": "gameplay",
+          "description": "Power pellets temporarily transform the player and grant invulnerability."
+        }
+      ],
       "description": "Donkey Kong meets Pac-Man: collect every pellet before finishing each board. Power pellets temporarily turn Jumpman into an invincible Pac-Man who can chase the four ghosts.",
       "trivia": [],
       "tips": [],
@@ -48241,7 +48721,20 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Bowser replaces Donkey Kong."
+        },
+        {
+          "type": "graphics",
+          "description": "Adds Mario-inspired enemies and hazards."
+        },
+        {
+          "type": "gameplay",
+          "description": "Requires collecting three coins on each board to unlock the exit."
+        }
+      ],
       "description": "Bowser replaces Donkey Kong in this Mario-themed variation. Avoid Piranha Plants, Koopas, Thwomps and lava, collecting three coins on each board to unlock its exit.",
       "trivia": [],
       "tips": [],
@@ -48377,7 +48870,20 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Redesigns the board layouts."
+        },
+        {
+          "type": "graphics",
+          "description": "Adds anniversary-themed graphics."
+        },
+        {
+          "type": "gameplay",
+          "description": "Adds presents and balloons as collectible items."
+        }
+      ],
       "description": "An anniversary celebration gives the familiar Donkey Kong boards new layouts and party decorations. Guide Jumpman to Donkey Kong and Pauline, collecting presents and balloons along the way.",
       "trivia": [],
       "tips": [],
@@ -48431,7 +48937,16 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Lets the tournament-ending level be configured as level 5, 7, 9 or 11."
+        },
+        {
+          "type": "gameplay",
+          "description": "Fixes the bonus life at 7,000 points."
+        }
+      ],
       "description": "A tournament-oriented Donkey Kong variant that ends at a configurable earlier kill screen. Choose level 5, 7, 9 or 11; the bonus life is fixed at 7,000 points.",
       "trivia": [],
       "tips": [],
@@ -48474,7 +48989,16 @@
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Jeff Kulczycki",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Adds a fifth board, the Foundry, alongside the four original boards."
+        },
+        {
+          "type": "gameplay",
+          "description": "Adds an optional free-play mode that retains the attract sequence."
+        }
+      ],
       "description": "Donkey Kong Foundry expands the original arcade game with a fifth board, the Foundry, alongside the four familiar stages. This modification by Jeff Kulczycki also adds an optional free-play mode that keeps the attract sequence running between games.",
       "trivia": [],
       "tips": [],
@@ -48497,6 +49021,124 @@
         }
       ],
       "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkonghh"
+      ],
+      "title": "Donkey Kong HeartHunt",
+      "year": 2022,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.01",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkonghh",
+          "title": "Donkey Kong HeartHunt v1.01 (2022-10-15)",
+          "version": "2022-10-15"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Places three hearts on each board that must all be collected before the board can be finished."
+        },
+        {
+          "type": "levels",
+          "description": "Collecting the hearts triggers a board-specific change: a final ladder to Pauline appears on the barrel and elevator boards, the retractable ladders start moving on the pies board, and the chains holding Donkey Kong break on the rivets board."
+        }
+      ],
+      "description": "Donkey Kong HeartHunt is a 2022 modification by Paul Goes in which Pauline has placed three hearts on every board. Jumpman can only finish a board after grabbing all three of them. On the barrel and elevator boards, collecting the hearts makes the final ladder to Pauline appear; on the pies board it sets the retractable ladders in motion; and on the rivets board it breaks the chains that hold up Donkey Kong.\n\nThe collection requirement turns each familiar board into a route-planning problem, since the hearts must be reached without losing sight of the barrels, fireballs and other hazards of the original game.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongitd"
+      ],
+      "title": "Donkey Kong Into the Dark",
+      "year": 2020,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.02",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkongitd",
+          "title": "Donkey Kong Into the Dark v1.02 (2020-04-29)",
+          "version": "2020-04-29"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Switches the lights off so that most of the playfield is hidden, with a brief flash of light every few seconds."
+        },
+        {
+          "type": "difficulty",
+          "description": "Forces players to complete the boards largely from memory."
+        }
+      ],
+      "description": "Donkey Kong Into the Dark is a 2020 modification by Paul Goes in which Donkey Kong unplugs the power source and the lights go out. Jumpman must complete the boards in the dark, with the lights flashing on briefly every few seconds so that the player can get their bearings.\n\nThe platforming itself is unchanged, so the challenge comes from remembering the layouts, hazards and timings of the original game while most of the screen is hidden.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
       "research_notes": []
     },
     {
@@ -48612,6 +49254,65 @@
     },
     {
       "shortnames": [
+        "dkongotr"
+      ],
+      "title": "Donkey Kong On the Run",
+      "year": 2020,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.02",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkongotr",
+          "title": "Donkey Kong On the Run v1.02 (2020-05-26)",
+          "version": "2020-05-26"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adds randomly broken ladders, blinking hammers, in-between springs and more closely spaced pies."
+        },
+        {
+          "type": "difficulty",
+          "description": "Doubles the number of wild barrels, making the game considerably harder."
+        }
+      ],
+      "description": "Donkey Kong On the Run is a 2020 modification by Paul Goes in which Donkey Kong has not only kidnapped Pauline but also sabotaged the boards, because he is on the run. The sabotage includes randomly broken ladders, twice as many wild barrels, blinking hammers, closely spaced pies and extra springs placed in between the original ones.\n\nThese changes keep the familiar objective and controls but make the game much more brutal, so it is aimed at players who already know the original boards well.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "dkongp"
       ],
       "title": "Donkey Kong (patched)",
@@ -48628,7 +49329,12 @@
       "original_game": "dkong",
       "series": "Donkey Kong",
       "hack_author": "Don Hodges",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "bugfix",
+          "description": "Corrects the bonus-timer calculation responsible for the level 22 kill screen."
+        }
+      ],
       "description": "This Don Hodges patch corrects the bonus-timer calculation responsible for the level 22 kill screen in Donkey Kong. The original boards and gameplay remain intact, allowing a run to continue past the point where the unmodified game becomes unplayable.",
       "trivia": [],
       "tips": [],
@@ -48645,6 +49351,127 @@
         {
           "type": "reference",
           "url": "https://www.classicarcadegaming.com/forums/index.php?topic=1318.0"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongrev"
+      ],
+      "title": "Donkey Kong Reverse",
+      "year": 2019,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "2019-08-29",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkongrev",
+          "title": "Donkey Kong Reverse (2019-08-29)"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Starts Jumpman at the top of the barrel, conveyor and elevator boards and sends him down to Pauline's heart at the bottom."
+        },
+        {
+          "type": "gameplay",
+          "description": "On the rivets board the rivets must be plugged back in instead of removed."
+        },
+        {
+          "type": "difficulty",
+          "description": "Fireballs and firefoxes no longer change direction when jumped, making them slightly easier to avoid."
+        }
+      ],
+      "description": "Donkey Kong Reverse is a 2019 modification by Paul Goes that lets players experience Nintendo's Donkey Kong in reverse. On the barrel, conveyor and elevator boards Jumpman starts at the top of the screen and has to reach Pauline's heart at the bottom, while on the rivets board he must plug the rivets back in instead of unplugging them.\n\nIn every board it is a little easier to jump over fireballs and firefoxes because they do not change direction when Jumpman leaps over them.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongrnd"
+      ],
+      "title": "Donkey Kong Randomized Edition",
+      "year": 2020,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.01",
+      "parent_shortname": "dkong",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkongrnd",
+          "title": "Donkey Kong Randomized Edition v1.01 (2020-05-01)",
+          "version": "2020-05-01"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Selects each board at random from a level between 1 and 5 and one of the barrel, pies, springs and rivets screens, independently of the previous choice."
+        },
+        {
+          "type": "difficulty",
+          "description": "Weights the selection toward the later levels and the barrel board: the distribution is L1 3.5%, L2 9%, L3 25%, L4 25%, L5 37.5%, and Barrels 50%, Pies 12.5%, Springs 25%, Rivets 12.5%."
+        }
+      ],
+      "description": "Donkey Kong Randomized Edition is a 2020 modification by Paul Goes that randomizes the progression of Nintendo's Donkey Kong. Instead of the fixed sequence of boards, each new board is chosen at random: a random level between 1 and 5 and a random screen among barrels, pies, springs and rivets, without regard to what was selected before.\n\nTo be more interesting for skilled players the selection is not evenly distributed: higher levels and the barrel board come up more often. The boards themselves keep the original layouts, which sets this game apart from Donkey Kong RNDMZR, where the layout of every board is randomly generated.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
         }
       ],
       "sources": [
@@ -48715,6 +49542,75 @@
     },
     {
       "shortnames": [
+        "dkongtj"
+      ],
+      "title": "Donkey Kong Twisted Jungle",
+      "year": 2020,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.05",
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkongtj",
+          "title": "Donkey Kong Twisted Jungle v1.05 (2020-12-12)",
+          "version": "2020-12-12"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Replaces the four original boards with five new jungle-themed stages."
+        },
+        {
+          "type": "graphics",
+          "description": "Redraws backgrounds, platforms and enemies with a jungle presentation, including a new title screen."
+        },
+        {
+          "type": "characters",
+          "description": "Introduces jungle enemies such as worms, snapjaws, birds and falling coconuts."
+        },
+        {
+          "type": "gameplay",
+          "description": "Adds disappearing ground, removable leaves and tubers, and bananas that award bonus points."
+        }
+      ],
+      "description": "Donkey Kong Twisted Jungle is a 2021 modification of Nintendo's Donkey Kong by Paul Goes in which Donkey Kong has carried Pauline off to his jungle. Jumpman must rescue her across five brand-new jungle-themed stages that replace the familiar construction-site boards.\n\nThe jungle is Donkey Kong's home ground, not Jumpman's: players must avoid falling coconuts, time their jumps between elevator platforms, watch for ground that disappears underfoot, clear away leaves and tubers and evade worms, snapjaws and birds. Bananas can be collected for extra bonus points. Because the stages and enemies are all new, routes learned on the original arcade game are of little use.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's website gives an official release date of March 1, 2021, preceded by a pre-release in February 2021, so the year was corrected from 2020; if 2020 referred to an earlier development build, that build is not documented."
+      ]
+    },
+    {
+      "shortnames": [
         "dkpace"
       ],
       "title": "Donkey Kong Pace",
@@ -48762,6 +49658,66 @@
     },
     {
       "shortnames": [
+        "dkremix"
+      ],
+      "title": "Donkey Kong Remix",
+      "year": 2023,
+      "developer": "Nintendo",
+      "publisher": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Replaces the original stage layouts with remixed stages stored in the Braze expansion ROM."
+        },
+        {
+          "type": "graphics",
+          "description": "Uses a custom title screen with its own artwork and a remix credit line."
+        }
+      ],
+      "description": "Donkey Kong Remix is a modification of Nintendo's 1981 arcade platform game by John Kowalski, part of the Donkey Kong Remix series that also includes the Christmas and Spooky editions. As in the original, Jumpman climbs ladders, jumps barrels and other hazards, and races to the top of each board to rescue Pauline, but the boards come from a custom stage set instead of the original four.\n\nThe game runs on the Braze expansion kit used by the other Remix releases, which replaces the standard board data and allows a different sequence of stages with its own title screen.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://dkremix.com/"
+        },
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Donkey_Kong_(arcade_game)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The on-screen credit reads 'Remixed 2015', which refers to the original Remix project, while the curated year 2023 is the date of this edition; the date of this ROM revision is not taken as the first release of the project and the 2023 year has not been confirmed against the project history.",
+        "Individual stage designs and the exact number of boards were not verified against documentation.",
+        "Author attribution follows the other Remix releases and the Remix project site."
+      ]
+    },
+    {
+      "shortnames": [
         "dkrndmzr"
       ],
       "title": "Donkey Kong RNDMZR",
@@ -48785,7 +49741,16 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Generates random platform and ladder layouts, covering all four original board types."
+        },
+        {
+          "type": "gameplay",
+          "description": "Preserves the original movement mechanics and recognizable hazards."
+        }
+      ],
       "description": "Randomly generated layouts reshape all four Donkey Kong board types while preserving the original movement and hazards. Each new board offers a different arrangement of platforms and ladders.",
       "trivia": [],
       "tips": [],
@@ -48808,7 +49773,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Distinct from dkongrnd: this hack generates new layouts, whereas dkongrnd randomizes board selection."
+      ]
     },
     {
       "shortnames": [
@@ -48864,6 +49831,73 @@
         }
       ],
       "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkwizard"
+      ],
+      "title": "Donkey Kong Wizardry",
+      "year": 2022,
+      "developer": "Nintendo",
+      "publisher": "Nintendo of America",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.03",
+      "parent_shortname": null,
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "variants": [
+        {
+          "shortname": "dkwizard",
+          "title": "Donkey Kong Wizardry v1.03 (2022-05-22)",
+          "version": "2022-05-22"
+        }
+      ],
+      "hack_author": "Paul Goes",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Recasts Jumpman as a wizard and Pauline as a witch."
+        },
+        {
+          "type": "gameplay",
+          "description": "Gives Jumpman a spell, triggered with the Player 2 button and usable once per board, that temporarily halts fireballs that come too close."
+        },
+        {
+          "type": "levels",
+          "description": "Builds the barrel board randomly (millions of possible layouts) and redesigns the pies and elevator boards."
+        },
+        {
+          "type": "difficulty",
+          "description": "Upgrades the fireball spawning on the rivets board so that the usual Star and Weave patterns no longer work."
+        }
+      ],
+      "description": "Donkey Kong Wizardry is a 2022 modification by Paul Goes that adds a touch of magic to Nintendo's Donkey Kong. Jumpman is a wizard trying to rescue his girlfriend, Witch Pauline, and has a spell that temporarily halts fireballs when they come too close. The spell can be used once on each board and is activated with the Player 2 button, so it has to be saved for the right moment.\n\nThe barrel board is built randomly each time, with more than three million possible layouts, the pies and elevator boards have new designs, and the rivets board uses an upgraded fireball spawning algorithm that makes the well-known Star and Weave patterns useless. With more pressure from the fireballs than in the original, the spell must be used wisely.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://donkeykonghacks.net/index.html"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Donkey_Kong_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/dkong.c"
+        }
+      ],
+      "confidence": "corroborated",
       "research_notes": []
     },
     {
@@ -50737,7 +51771,7 @@
       "title": "Double Dragon One",
       "year": 2025,
       "developer": "La Casa De Ruivo / Neo Byte Force",
-      "publisher": "La Casa De Ruivo / Neo Byte Force",
+      "publisher": "Taito",
       "category": "homebrew",
       "genre": "Fighter",
       "platform": "Neo Geo MVS",
@@ -50750,14 +51784,21 @@
       "variants": [
         {
           "shortname": "doubled1",
-          "title": "Double Dragon One (Beta)"
+          "title": "Double Dragon One (Beta)",
+          "publisher": "La Casa De Ruivo / Neo Byte Force"
         }
       ],
-      "description": "Double Dragon One is a homebrew side-scrolling beat-'em-up adaptation for the Neo Geo MVS developed by La Casa De Ruivo and Neo Byte Force in 2025.",
-      "trivia": [],
+      "description": "Double Dragon One is a homebrew adaptation of the classic Double Dragon side-scrolling beat-'em-up concept for the Neo Geo MVS, developed by La Casa De Ruivo and Neo Byte Force in 2025. Players fight their way through enemies with hand-to-hand combat, and the project supports cooperative play.\n\nThis record represents a beta build of the project.",
+      "trivia": [
+        "The completed project is documented by its developers as having seven levels, four bosses, five weapons and cooperative gameplay."
+      ],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/double-dragon"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Double_Dragon_(video_game)"
@@ -50773,6 +51814,10 @@
         {
           "type": "reference",
           "url": "https://www.arcade-museum.com/game_detail.php?game_id=7619"
+        },
+        {
+          "type": "release",
+          "url": "https://ozzyouzo.itch.io/captain-barrel/devlog/1021737/neo-byte-force-post-mortem-promotion"
         }
       ],
       "sources": [
@@ -50783,7 +51828,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "Which of the completed game's seven levels, four bosses and five weapons are implemented in the integrated beta build has not been established; the beta status is kept even though a completed game was released later."
+      ]
     },
     {
       "shortnames": [
@@ -59477,7 +60524,7 @@
       "title": "Frog Feast",
       "year": 2006,
       "developer": "Rastersoft",
-      "publisher": "Rastersoft",
+      "publisher": "OlderGames",
       "category": "homebrew",
       "genre": "Platform",
       "platform": "Neo Geo MVS",
@@ -59489,14 +60536,23 @@
       "variants": [
         {
           "shortname": "ffeast",
-          "title": "Frog Feast (NeoGeo)"
+          "title": "Frog Feast (NeoGeo)",
+          "publisher": "Rastersoft"
         }
       ],
-      "description": "Frog Feast is a homebrew two-player action game developed by Rastersoft (Charles Doty) for the Neo Geo platform in 2006, inspired by classic frog-catching pond games where players leap across lily pads and use their tongues to catch flies.",
+      "description": "Frog Feast is a two-player arcade homebrew game inspired by early competitive frog-catching video games. Each player controls a frog in a pond, jumping between lily pads and extending its tongue to catch passing insects. The objective is to catch more insects than the opposing frog during the available playing time. Its compact playfield and simple controls emphasize positioning, timing and direct competition.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "developer",
+          "url": "https://frogfeast.rastersoft.net/"
+        },
+        {
+          "type": "official",
+          "url": "https://frogfeast.rastersoft.net/NeoGeo.html"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Frog_Feast"
@@ -59510,7 +60566,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Charles Doty developed the game under the Rastersoft name; 2006 is the Neo Geo-specific date, not the date of an earlier port for another system."
+      ]
     },
     {
       "shortnames": [
@@ -61841,8 +62899,10 @@
           "path": "mame/drivers/cps2.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The grouped record covers both Capcom CPS-2 and Neo Geo editions, so no single platform is assigned."
+      ]
     },
     {
       "shortnames": [
@@ -61953,7 +63013,8 @@
       "variants": [
         {
           "shortname": "flapchck",
-          "title": "Flappy Chicken (2023-04-30)"
+          "title": "Flappy Chicken (2023-04-30)",
+          "publisher": "Blastar"
         }
       ],
       "description": "Flappy Chicken is a homebrew one-button arcade action game developed by Blastar for the Neo Geo MVS platform and released on April 30, 2023.",
@@ -61969,7 +63030,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The registered build is dated April 30, 2023; obstacle behavior and scoring rules are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -64622,8 +65685,8 @@
       ],
       "title": "Mushihime-Sama Futari Ver 1.5 (Black Label Color)",
       "year": 2022,
-      "developer": "ArcCabView",
-      "publisher": "ArcCabView",
+      "developer": "Cave",
+      "publisher": "Cave (AMI license)",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -64722,8 +65785,8 @@
       ],
       "title": "Mushihime-Sama Futari Black Label - Another Ver (Original Color)",
       "year": 2022,
-      "developer": "ArcCabView",
-      "publisher": "ArcCabView",
+      "developer": "Cave",
+      "publisher": "Cave (AMI license)",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -64767,8 +65830,8 @@
       ],
       "title": "Mushihime-Sama Futari Black Label (Original Color)",
       "year": 2022,
-      "developer": "ArcCabView",
-      "publisher": "ArcCabView",
+      "developer": "Cave",
+      "publisher": "Amusement Marketing International",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -65715,7 +66778,20 @@
         }
       ],
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Randomizes enemy entry paths using 24 routes, with mirrored routes and timing variations."
+        },
+        {
+          "type": "levels",
+          "description": "Varies the Challenging Stages."
+        },
+        {
+          "type": "technical",
+          "description": "Uses a different random seed for each new game."
+        }
+      ],
       "description": "Galaga Wave Mixer randomizes the paths taken by incoming enemy waves, choosing from 24 routes with additional mirroring and timing variations. Some routes lead into the usual formation while others do not. Challenging Stages are also mixed, and each new game uses a different random seed.",
       "trivia": [],
       "tips": [],
@@ -65758,7 +66834,16 @@
       "original_game": "galaga",
       "series": "Galaga",
       "hack_author": "Paul Goes",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Removes the ordinary combat stages from progression and retains successive Challenging Stages."
+        },
+        {
+          "type": "gameplay",
+          "description": "Focuses play on accurate shooting and perfect bonus-stage clears."
+        }
+      ],
       "description": "Galaga Challenging Only turns the game's bonus rounds into the entire playing experience. Shoot down incoming formations in successive Challenging Stages and aim for perfect clears. The normal combat stages are omitted, so the focus is on accuracy and learning the enemies' flight paths.",
       "trivia": [],
       "tips": [],
@@ -65801,7 +66886,12 @@
       "original_game": "galaga",
       "series": "Galaga",
       "hack_author": null,
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Alters the title and enemy graphics."
+        }
+      ],
       "description": "Galaga '84 changes the title and alien graphics of Namco's fixed-screen shooter. Move a fighter along the bottom of the screen and destroy enemy formations as individual aliens break away to dive toward the player. The modified presentation retains the familiar Galaga scoring and combat structure.",
       "trivia": [],
       "tips": [],
@@ -65824,7 +66914,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The hack author is not verified."
+      ]
     },
     {
       "shortnames": [
@@ -65946,6 +67038,66 @@
       ],
       "confidence": "corroborated",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "galagost"
+      ],
+      "title": "Galaga Ghost",
+      "year": 2002,
+      "developer": "Namco",
+      "publisher": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": "galaga",
+      "original_game": "galaga",
+      "series": "Galaxian",
+      "hack_author": "Twisty",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Replaces the insect-like aliens with Pac-Man ghosts (blue and red) and the Boss Galaga with yellow Pac-Man characters, including the attacking and attract-mode enemies; the player's fighter is unchanged."
+        },
+        {
+          "type": "audio",
+          "description": "Replaces the ship explosion sound with a Pac-Man style death sound."
+        },
+        {
+          "type": "technical",
+          "description": "Uses modified program ROMs for all three CPUs and new character and sprite graphics ROMs."
+        }
+      ],
+      "description": "Galaga Ghost is a graphical modification of Namco's 1981 fixed shooter Galaga that swaps the insect aliens for characters from Pac-Man. Move the fighter along the bottom of the screen and shoot the formation as it flies in, while individual enemies peel away to dive at you. Rows of blue and red ghosts make up the bulk of each formation, and yellow Pac-Man characters take the place of the Boss Galaga at the top; the enemies that attack also appear as ghosts and Pac-Man. The title screen still reads Galaga and the point values shown for the first two enemy types (50/100 and 80/160) are the same as the original.\n\nThe fighter keeps its original look, and the game plays as the familiar Galaga shoot-and-dodge. The one audible change is the explosion of the player's ship, which now plays a Pac-Man style death sound instead of the arcade's synthesized blast.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Galaga"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Galaga_(Arcade)"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/galaga.c"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The 2002 year and the attribution to Twisty are repeated by a community video but not confirmed by developer documentation or another independent source.",
+        "Whether enemy behaviour, wave patterns or difficulty differ from Galaga was not established; one of the program ROMs is labelled 'fast' and may indicate a speed change.",
+        "The Pac-Man style ship explosion is played from an external sample file."
+      ]
     },
     {
       "shortnames": [
@@ -69343,6 +70495,45 @@
     },
     {
       "shortnames": [
+        "ghohunt"
+      ],
+      "title": "Ghost Hunt",
+      "year": 2016,
+      "developer": "Hurray Banana",
+      "publisher": "Hurray Banana",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Namco Pac-Man hardware",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Ghost Hunt is a 2016 homebrew shooting-gallery game developed by Hurray Banana for original Pac-Man arcade hardware. Rather than reproducing Pac-Man's maze-chase gameplay, it presents a compact shooting challenge built around the capabilities of the vintage arcade board: the joystick steers a small tank across the screen while ghosts drift around the playfield, and the 1P Start button fires, with the goal of shooting as many ghosts as possible within 60 seconds. The game emphasizes simple arcade action and immediate player interaction, demonstrating how familiar hardware can support an entirely different kind of game.\n\nOriginally created as an educational exercise for students learning Z80 assembly language, Ghost Hunt was designed to show features such as addressing modes, interrupts, shifting, lookup tables and masking, and was released together with fully commented source code. It was written to run on actual Pac-Man hardware. Although it relies on the same electronic platform as Pac-Man, Ghost Hunt is an independent homebrew game rather than a modified version of the original maze adventure.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://www.ukvac.com/forum/threads/ghost-hunt-pac-man-hardware-final-bugfixes.40269/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/pacman.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The educational Z80 assembly origin, the availability of the commented source code and the later bug-fix history are documented by the developer's discussion thread and video.",
+        "Which bug-fix revision the integrated ROM set corresponds to is not established, and no physical hardware test is claimed; the in-game text only states that the code is designed to run on actual Pac-Man hardware."
+      ]
+    },
+    {
+      "shortnames": [
         "ghoshunt"
       ],
       "title": "Ghost Hunter",
@@ -70270,8 +71461,8 @@
       ],
       "title": "Gladmort",
       "year": 2024,
-      "developer": "Pixelheart / ChipsOnSteroids",
-      "publisher": "Pixelheart / ChipsOnSteroids",
+      "developer": "ChipsOnSteroids",
+      "publisher": "PixelHeart",
       "category": "homebrew",
       "genre": "Platform",
       "platform": "Neo Geo MVS",
@@ -70280,11 +71471,27 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Gladmort is a dark-fantasy run-and-gun action platformer developed by ChipsOnSteroids and published by PixelHeart for the Neo Geo MVS platform in 2024. Inspired by classic arcade action-platformers such as Ghosts'n Goblins, players battle through undead legions using medieval weaponry and armor upgrades.",
+      "variants": [
+        {
+          "shortname": "gladmort",
+          "developer": "Pixelheart / ChipsOnSteroids",
+          "publisher": "Pixelheart / ChipsOnSteroids"
+        }
+      ],
+      "description": "GladMort is a dark-fantasy side-scrolling action-platform game developed by ChipsOnSteroids and published by PixelHeart. A mysterious plague has spread across a distant kingdom, and a knight must battle the creatures responsible for its destruction. Players progress through dangerous environments, jumping across obstacles and fighting enemies with ranged medieval weapons. The game draws inspiration from classic arcade adventures such as Ghosts'n Goblins, combining demanding platforming, enemy encounters and equipment upgrades with a medieval horror atmosphere.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://www.pixelheart.eu/en/become-a-gladmort-master-the-ultimate-guide/"
+        },
+        {
+          "type": "release",
+          "url": "https://www.pixelheart.eu/en/the-gladmort-mission-comes-to-an-end/"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -70293,7 +71500,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Neo Geo development and release history spans 2024 and 2025; the exact Neo Geo cartridge release date is not established, and the 2025 modern-platform release date is not used as evidence for it."
+      ]
     },
     {
       "shortnames": [
@@ -71032,8 +72241,8 @@
       ],
       "title": "Ghosts'n Goblins - Knight Artoria Edition",
       "year": 2026,
-      "developer": "GoodLuckTrying / Poody",
-      "publisher": "GoodLuckTrying / Poody",
+      "developer": "Capcom",
+      "publisher": "Capcom",
       "category": "hack",
       "genre": "Platform",
       "platform": "Capcom Ghosts'n Goblins hardware",
@@ -71226,8 +72435,10 @@
           "path": "mame/drivers/gng.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "No authoritative project URL has been established. The hacks cover multiple regional revisions of Ghosts'n Goblins and Makaimura; the crouching and ladder-climbing changes apply only to the Enhanced Gameplay editions."
+      ]
     },
     {
       "shortnames": [
@@ -71252,8 +72463,8 @@
       ],
       "title": "Ghosts'n Goblins - Maiden Artoria Edition",
       "year": 2026,
-      "developer": "GoodLuckTrying / Poody",
-      "publisher": "GoodLuckTrying / Poody",
+      "developer": "Capcom",
+      "publisher": "Capcom",
       "category": "hack",
       "genre": "Platform",
       "platform": "Capcom Ghosts'n Goblins hardware",
@@ -71447,8 +72658,10 @@
           "path": "mame/drivers/gng.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "No authoritative project URL has been established. The hacks cover multiple regional revisions of Ghosts'n Goblins and Makaimura; the crouching and ladder-climbing changes apply only to the Enhanced Gameplay editions."
+      ]
     },
     {
       "shortnames": [
@@ -71473,8 +72686,8 @@
       ],
       "title": "Ghosts'n Goblins - Princess Prin Prin Edition",
       "year": 2026,
-      "developer": "GoodLuckTrying",
-      "publisher": "GoodLuckTrying",
+      "developer": "Capcom",
+      "publisher": "Capcom",
       "category": "hack",
       "genre": "Platform",
       "platform": "Capcom Ghosts'n Goblins hardware",
@@ -71667,8 +72880,10 @@
           "path": "mame/drivers/gng.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "No authoritative project URL has been established. The hacks cover multiple regional revisions of Ghosts'n Goblins and Makaimura; the crouching and ladder-climbing changes apply only to the Enhanced Gameplay editions."
+      ]
     },
     {
       "shortnames": [
@@ -71745,6 +72960,51 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "gocowboy"
+      ],
+      "title": "Go Go Cowboy",
+      "year": 2003,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Redemption Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "gocowboy",
+          "title": "Go Go Cowboy (English, prize)",
+          "region": "North America",
+          "language": "English",
+          "version": "(English, prize)"
+        }
+      ],
+      "description": "Go Go Cowboy is a 2003 Sammy redemption machine with a cartoon Western theme. Players time a button press to rope cattle, with the North American prize edition designed to award a prize on every play. The physical cabinet dispenses rewards into two compartments beneath the screen. Its single-button interaction and prize-oriented format distinguish it from conventional arcade action games built around lives and high scores.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=gocowboy&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -76800,6 +78060,42 @@
     },
     {
       "shortnames": [
+        "gunkids"
+      ],
+      "title": "Hayauchi Gun Kids",
+      "year": 2002,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Medal Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Hayauchi Gun Kids is a 2002 Japanese medal game by Sammy that stages quick-draw encounters with cartoon outlaws. Players wager up to three medals and attempt to hit the opponents with simulated gum bullets. Timing the shot is part of the challenge, although the outcome also depends on the machine's programmed probabilities. Successful encounters can award up to 42 medals in a round.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=gunkids&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "gunlock",
         "rayforce",
         "rayforcej"
@@ -77758,6 +79054,42 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/megasys1.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "haekaka"
+      ],
+      "title": "Hae Hae Ka Ka Ka",
+      "year": 2001,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Slot Machine",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Hae Hae Ka Ka Ka is a 2001 Sammy video medal game themed around insects. Players time their attempts to strike moving insects and try to obtain a matching group of three of the same color to earn medals. Its brief rounds and straightforward interaction are characteristic of Sammy's children's medal-machine range.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=haekaka&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -79688,7 +81020,7 @@
     {
       "shortnames": [
         "headon",
-        "headonb"
+        "headon1"
       ],
       "title": "Head On",
       "year": 1979,
@@ -79712,10 +81044,12 @@
           "version": "(2 players)"
         },
         {
-          "shortname": "headonb",
+          "shortname": "headon1",
           "parent_shortname": "headon",
           "title": "Head On (1 player)",
-          "language": "English"
+          "region": "North America",
+          "language": "English",
+          "version": "(1 player)"
         }
       ],
       "description": "Head On (1979) is Sega and Gremlin's influential maze-driving game, predating Pac-Man's famous dot-collecting formula. From a top-down view, the player's car circulates around a rectangular set of lanes, collecting all the dots while avoiding a computer-controlled car moving in the opposite direction. Gaps at the sides of the course allow lane changes; accelerating increases speed but makes those changes harder to judge.\n\nEach cleared board introduces a harder combination of traffic and speed, eventually requiring precise timing to slip around several hostile cars. The simple interplay of collecting, pursuit and fixed routes made Head On an important early arcade maze game and a precursor to the dot-eater genre that soon became hugely popular.",
@@ -82654,6 +83988,15 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "hotmind",
+          "title": "Hot Mind (Hard Times hardware, set 1)",
+          "region": "North America",
+          "language": "English",
+          "version": "(Hard Times hardware)"
+        }
+      ],
       "description": "Hot Mind is a 1995 Italian arcade puzzle game by Playmark, presented on a horizontal display and operated with an eight-way joystick and two buttons. Unlike a major Japanese arcade release with dedicated proprietary hardware, it survives in several distinctive board configurations, including versions adapted to the hardware of Playmark's Hard Times and Fit of Fighting. Some builds also include configurable ticket or token dispensing, linking its puzzle play to redemption-machine operation. Its preservation required emulation work on both the video circuitry and the PIC-controlled sound system.",
       "trivia": [],
       "tips": [],
@@ -84155,8 +85498,8 @@
       ],
       "title": "Hypernoid",
       "year": 2021,
-      "developer": "M.Priewe",
-      "publisher": "M.Priewe",
+      "developer": "M. Priewe (NeoHomeBrew)",
+      "publisher": "M. Priewe (NeoHomeBrew)",
       "category": "homebrew",
       "genre": "Ball & Paddle",
       "platform": "Neo Geo MVS",
@@ -84168,14 +85511,25 @@
       "variants": [
         {
           "shortname": "hypernoi",
-          "title": "Hypernoid (2021-11-28)"
+          "title": "Hypernoid (2021-11-28)",
+          "developer": "M.Priewe",
+          "publisher": "M.Priewe"
         }
       ],
-      "description": "Hypernoid is a brick-breaking ball-and-paddle arcade game developed by M. Priewe (NeoHomeBrew) for the Neo Geo MVS platform in 2021, featuring power-ups, multi-ball hazards, and boss encounters.",
+      "description": "Hypernoid is a Neo Geo ball-and-paddle action game by NeoHomeBrew that builds on the arcade brick-breaking formula. Players keep a bouncing ball in play with a movable paddle, destroying block formations while collecting power-ups and adapting to changing hazards. Multiple balls and boss encounters add challenges beyond ordinary brick-clearing stages. The game combines traditional paddle control with the presentation and effects of Neo Geo hardware.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://www.neohomebrew.com/"
+        },
+        {
+          "type": "official",
+          "url": "https://www.neohomebrew.com/projects/hypernoid-neo-geo-ball-and-paddle-action-game.php"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -84184,7 +85538,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The integrated build is dated November 28, 2021; later Neo Geo CD features are not attributed to this MVS edition."
+      ]
     },
     {
       "shortnames": [
@@ -84629,8 +85985,8 @@
       ],
       "title": "Ibara Kuro Black Label (Color Sat)",
       "year": 2006,
-      "developer": "ArcCabView",
-      "publisher": "ArcCabView",
+      "developer": "Cave",
+      "publisher": "Cave",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -84680,8 +86036,8 @@
       ],
       "title": "Ibara (Color Sat)",
       "year": 2005,
-      "developer": "ArcCabView",
-      "publisher": "ArcCabView",
+      "developer": "Cave",
+      "publisher": "Cave",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -87614,6 +88970,42 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/dacholer.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "itazuram"
+      ],
+      "title": "Itazura Monkey",
+      "year": 2000,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Medal Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Itazura Monkey is a 2000-era Japanese children's medal game by Sammy, featuring playful monkeys. Players respond to events on the screen with a timed button press in an attempt to earn additional medals. Originally distributed as a cartridge, it was among the first titles on Sammy's medal-game platform to be recovered and documented by arcade preservationists in 2011.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=itazuram&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -92026,7 +93418,7 @@
       "title": "Karnov (Neo-Geo port)",
       "year": 2025,
       "developer": "iq132",
-      "publisher": "iq132",
+      "publisher": "Data East",
       "category": "port",
       "genre": "Platform",
       "platform": "Neo Geo MVS",
@@ -92035,7 +93427,13 @@
       "version": null,
       "parent_shortname": null,
       "original_game": "karnov",
-      "description": "Karnov (Neo-Geo port) is a 2025 homebrew port of Data East's 1987 side-scrolling action-platformer Karnov to the Neo Geo MVS hardware created by iq132.",
+      "variants": [
+        {
+          "shortname": "karnovn",
+          "publisher": "iq132"
+        }
+      ],
+      "description": "Karnov is a Neo Geo port by iq132 of Data East's 1987 arcade action-platform game. Players control a fire-breathing strongman who travels through hazardous environments, fighting monsters and collecting items that provide abilities needed to overcome obstacles. The port brings the original game's side-scrolling action to Neo Geo hardware.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -92770,7 +94168,7 @@
       "title": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)",
       "year": 2007,
       "developer": "Cave",
-      "publisher": "AMI",
+      "publisher": "Amusement Marketing International",
       "category": "original",
       "genre": "Shooter",
       "platform": "PGM",
@@ -92779,7 +94177,14 @@
       "version": null,
       "parent_shortname": "ket",
       "original_game": "ket",
-      "series": "Ketsui: Kizuna Jigoku Tachi",
+      "series": "Ketsui",
+      "variants": [
+        {
+          "shortname": "ketikd",
+          "publisher": "AMI",
+          "language": "Japanese"
+        }
+      ],
       "description": "Ketsui: Kizuna Jigoku Tachi (IKD 2007 Special) is a special event version of Cave's 2003 vertical bullet-hell shoot-'em-up Ketsui directed by Tsuneki Ikeda (IKD) and exhibited at the 2007 Cave Matsuri festival.",
       "trivia": [],
       "tips": [],
@@ -92801,8 +94206,10 @@
           "path": "mame/drivers/pgm.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "This is an official event version playable at the 2007 Cave Matsuri, not a third-party hack; the exact gameplay rules of the event build are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -92914,7 +94321,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The original game dates to 1994. The translation was documented in August 2001, but its precise release date has not been established."
+      ]
     },
     {
       "shortnames": [
@@ -93919,6 +95328,42 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/kingobox.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "kingyosu"
+      ],
+      "title": "Dokidoki Kingyo Sukui",
+      "year": 1999,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Redemption Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Dokidoki Kingyo Sukui is a children's medal game released by Sammy in 1999, inspired by the traditional Japanese festival pastime of goldfish scooping. Players watch fish swim across the screen and time a button press to catch them using a virtual paper scoop, known in Japan as a poi. A successful catch must be made before the fragile paper breaks, with different fish awarding different numbers of medals. The game was showcased at the 37th Amusement Machine Show in 1999 and was designed for the Japanese children's medal arcade market.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=kingyosu&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -94950,7 +96395,7 @@
       ],
       "title": "Knight's Chance",
       "year": 2014,
-      "developer": "Neobitz",
+      "developer": "Neobitz (Jeff Kurtz)",
       "publisher": "Neobitz",
       "category": "homebrew",
       "genre": "Board Game",
@@ -94960,11 +96405,26 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Knight's Chance is a collection of four medieval fantasy-themed casino and pub games developed and published by Neobitz (Jeff Kurtz) for the Neo Geo MVS and AES platforms in 2014.",
+      "variants": [
+        {
+          "shortname": "knightsc",
+          "developer": "Neobitz"
+        }
+      ],
+      "description": "Knight's Chance is a medieval fantasy-themed collection of four casino and pub-style games developed by Neobitz for the Neo Geo. Dragon's Hollow is based on poker, Demon's Hold on blackjack, Mystic Dice on dice games, and Cursed Mynd on memory challenges. Each activity presents its own rules and mixture of skill, judgment and chance, accompanied by fantasy-themed characters and artwork. Rather than following the action-oriented format of most Neo Geo titles, the game combines several compact tabletop experiences in a single arcade production.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://neobitz.itch.io/knights-chance"
+        },
+        {
+          "type": "reference",
+          "url": "https://www.timeextension.com/news/2024/03/neo-geo-medieval-casino-title-knights-chance-is-getting-a-new-physical-release"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -94973,7 +96433,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "2014 is the original release year; the 2024 physical reissue does not replace it. Genre Multiplay is the closest standard label for a compilation of casino-style games."
+      ]
     },
     {
       "shortnames": [
@@ -96607,6 +98069,42 @@
       "research_notes": [
         "Exact release year is not established."
       ]
+    },
+    {
+      "shortnames": [
+        "kotekita"
+      ],
+      "title": "Kotekitai Slot",
+      "year": 2001,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Redemption Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Kotekitai Slot is a 2001 children's medal game by Sammy with a musical-instrument theme. It adapts the familiar matching-symbol format of a slot machine to the Japanese amusement-center medal system. Players attempt to line up three identical instruments to receive a token payout, rather than playing for cash prizes.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=kotekita&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
     },
     {
       "shortnames": [
@@ -101624,9 +103122,18 @@
       "platform": "Arcade",
       "players": 1,
       "release_status": "released",
-      "version": null,
+      "version": "rev. E",
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "lockon",
+          "title": "Lock-On (rev. E)",
+          "region": "North America",
+          "language": "English",
+          "version": "(rev. E)"
+        }
+      ],
       "description": "Tatsumi's Lock-On (1986) is an early cockpit-view aerial combat game built around sophisticated sprite scaling and screen rotation. At the controls of a futuristic jet fighter, the player flies across simulated landscapes, attacks enemy aircraft and ground targets, and survives increasingly difficult combat missions.\n\nIts large, fast-moving sprite imagery creates the illusion of banking and diving through 3D space at a time when most arcade flight shooters still relied on fixed or scrolling overhead viewpoints. Licensed to Data East for American distribution, Lock-On is a notable stepping stone in the evolution of immersive arcade flight action.",
       "trivia": [],
       "tips": [],
@@ -102219,14 +103726,20 @@
       "variants": [
         {
           "shortname": "looptris",
-          "title": "Looptris (2021-12-26)"
+          "title": "Looptris (2021-12-26)",
+          "publisher": "Blastar"
         }
       ],
-      "description": "Looptris is a homebrew falling-block puzzle game developed by Blastar for the Neo Geo MVS platform and released in December 2021.",
+      "description": "Looptris is a homebrew falling-block puzzle game developed by Blastar for the Neo Geo MVS and released in December 2021. Unlike a conventional Tetris implementation, it uses an unconventional playfield, and it supports one-player, parallel two-player and competitive play.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://www.patreon.com/blastar/posts/looptris-60355753"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -102234,8 +103747,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "corroborated",
-      "research_notes": []
+      "confidence": "verified",
+      "research_notes": [
+        "The registered revision is dated December 26, 2021."
+      ]
     },
     {
       "shortnames": [
@@ -102256,14 +103771,20 @@
       "variants": [
         {
           "shortname": "looptrsp",
-          "title": "Looptris Plus (2022-12-24)"
+          "title": "Looptris Plus (2022-12-24)",
+          "publisher": "Blastar"
         }
       ],
-      "description": "Looptris Plus is an expanded 2022 edition of Blastar's Neo Geo falling-block puzzle game Looptris, adding new modes and presentation refinements.",
+      "description": "Looptris Plus is an expanded 2022 edition of Blastar's Neo Geo falling-block puzzle game Looptris, which is known for its unconventional playfield. Compared with the original it adds more music, a menu system, computer-controlled competition, faster play and three difficulty settings.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "release",
+          "url": "https://www.patreon.com/blastar/posts/looptris-plus-76333387"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -102271,8 +103792,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "corroborated",
-      "research_notes": []
+      "confidence": "verified",
+      "research_notes": [
+        "The registered revision is dated December 24, 2022."
+      ]
     },
     {
       "shortnames": [
@@ -105631,6 +107154,107 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "maiya"
+      ],
+      "title": "Maiya: Super Nature Girl",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "4.1.0",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "maiya",
+          "title": "Maiya: Super Nature Girl v4.1.0"
+        }
+      ],
+      "description": "Maiya: Super Nature Girl is a 2026 side-scrolling action-platform adventure developed by Eagle Software for the Neo Geo. Players explore a series of natural environments, running and jumping across platforms, climbing vines, discovering hidden items and confronting hostile creatures. Maiya can attack nearby enemies with a whip, throw thorns, dash through dangerous areas and use special nature-themed abilities. Collectible power-ups temporarily improve her movement or combat abilities, while flowers, rescued villagers and other treasures provide additional objectives along the way.\n\nThe adventure spans twelve missions featuring forests, coastlines, valleys and industrial environments. Stage exploration leads to encounters with powerful guardians, often fought in enclosed arenas where timing and positioning become especially important. Bonus sequences and hidden areas provide additional challenges between major encounters. The game's colorful scenery, animated characters and combination of platform exploration, combat and item collection establish it as an original adventure inspired by classic arcade platform games.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's README and releases document the action-platform adventure and version 4.1.0; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "The local reference labels this ROM set only as v4, so the exact release could not be verified; the description follows the documented v4.1.0 release and excludes features of later experimental builds.",
+        "Player count is not established."
+      ]
+    },
+    {
+      "shortnames": [
+        "maiyaluna"
+      ],
+      "title": "Maiya & Luna: Wonderful Adventures in Nature Fantasy",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Misc.",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "2.0.2",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "maiyaluna",
+          "title": "Maiya & Luna v2.0.2"
+        }
+      ],
+      "description": "Maiya & Luna: Wonderful Adventures in Nature Fantasy is a 2026 exploration and puzzle adventure developed by Eagle Software as a follow-up to Maiya: Super Nature Girl. Instead of concentrating on side-scrolling platform combat, it focuses on investigating interconnected locations, talking to characters, collecting useful objects and solving environmental puzzles. Players choose between two sisters whose different abilities create distinct routes through the adventure. Maiya can climb vegetation, move heavy obstacles and defend herself with a whip, while Luna specializes in examining details, navigating narrow passages and manipulating delicate mechanisms.\n\nThe story follows efforts to restore seven ancient wonders after a storm disrupts the valley's water systems. Its seven chapters take players through locations such as an abandoned watermill, a forest labyrinth, a lighthouse, a crystal grotto and a great tree observatory. Each sister follows her own journey through the shared world, with different discoveries, puzzles and conversations. The adventure emphasizes observation, exploration and cooperation over conventional arcade combat, with a notebook and inventory supporting progress through its interconnected challenges.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's README documents the exploration and puzzle adventure as the sequel to Maiya and version 2.0.2; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "The supplied ROM set differs from the v2 reference in the main CPU and sound CPU ROMs, so the exact release could not be verified.",
+        "Player count is not established.",
+        "Genre is Misc. because the game is an exploration adventure with puzzles; no closer label exists in the standard vocabulary."
+      ]
     },
     {
       "shortnames": [
@@ -114138,7 +115762,20 @@
         }
       ],
       "hack_author": "Zpaul2fresh8",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adds a menu of game modes, including Survival, and a stage selector."
+        },
+        {
+          "type": "characters",
+          "description": "Adds Reptile as a playable fighter."
+        },
+        {
+          "type": "gameplay",
+          "description": "Revises battle progression and stage cycles."
+        }
+      ],
       "description": "Mortal Kombat Plus expands the original arcade fighter with a menu of game modes, including Survival, and a stage selector. Reptile joins the playable fighters, while revised battle ladders, additional stage cycles and changes to the presentation give the familiar tournament a different progression.",
       "trivia": [],
       "tips": [],
@@ -114307,7 +115944,12 @@
         }
       ],
       "hack_author": "mortalkombatplus.com",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Displays combo hit counts and damage during combos."
+        }
+      ],
       "description": "Mortal Kombat II Plus is an expanded version of Midway's one-on-one arcade fighter. The beta 1 release displays hit counts and damage during combos while preserving the five-button controls and the tournament through Outworld.",
       "trivia": [],
       "tips": [],
@@ -114329,8 +115971,10 @@
           "path": "mame/drivers/midtunit.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "A complete feature list specific to beta 1 has not been confirmed; changes documented only for beta 2 are excluded."
+      ]
     },
     {
       "shortnames": [
@@ -119433,7 +121077,7 @@
           "description": "Introduces new scenes and an interactive menu triggered after game over."
         }
       ],
-      "description": "Metal Slug Asteroids is a total conversion built on Metal Slug 5 assets that replaces the side-scrolling run-and-gun stages with Asteroids-style multidirectional space shooter gameplay.",
+      "description": "Metal Slug Asteroids is a total-conversion hack that uses Metal Slug 5 assets to create a different arcade shooting experience inspired by Asteroids. Instead of the original side-scrolling infantry combat and mission progression, players engage in multidirectional shooting. The modification reuses the visual identity of Metal Slug while replacing its original gameplay format.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -119518,7 +121162,7 @@
       "title": "Mushihime-Sama Matsuri Ver 1.5",
       "year": 2011,
       "developer": "Cave",
-      "publisher": "AMI",
+      "publisher": "Amusement Marketing International",
       "category": "original",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -119532,6 +121176,7 @@
         {
           "shortname": "msmatsuri",
           "title": "Mushihime-Sama Matsuri (Japan, 2011-05-23 CAVEMATSURI VER1.5)",
+          "publisher": "AMI",
           "region": "Japan"
         }
       ],
@@ -124712,7 +126357,12 @@
         }
       ],
       "hack_author": "Asure",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Adds Ken Griffey Jr. and Gary Payton as hidden characters."
+        }
+      ],
       "description": "NBA Jam Tournament Edition SE revives a special edition of Midway's two-on-two basketball game. Version 5.0 includes Ken Griffey Jr. and Gary Payton as hidden characters, adding them to the arcade game's mixture of NBA teams, exaggerated dunks and secret players.",
       "trivia": [],
       "tips": [
@@ -125966,7 +127616,7 @@
       "title": "Neo Pang",
       "year": 2010,
       "developer": "CeL",
-      "publisher": "CeL",
+      "publisher": "Mitchell",
       "category": "homebrew",
       "genre": "Shooter",
       "platform": "Neo Geo MVS",
@@ -125976,7 +127626,13 @@
       "parent_shortname": null,
       "original_game": "pang",
       "series": "Pang!",
-      "description": "Neo Pang is a 2010 homebrew arcade action game by CeL for the Neo Geo platform inspired by Mitchell's classic balloon-popping game Pang.",
+      "variants": [
+        {
+          "shortname": "neopang",
+          "publisher": "CeL"
+        }
+      ],
+      "description": "Neo Pang is a 2010 homebrew arcade action game by CeL for the Neo Geo, inspired by Mitchell's Pang. Players destroy bouncing balloons that split into smaller targets as they are hit.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -126002,7 +127658,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "It is not established that every feature of Mitchell's original Pang is reproduced; no authoritative project URL has been identified."
+      ]
     },
     {
       "shortnames": [
@@ -126017,16 +127675,18 @@
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "released",
-      "version": "v1.1",
+      "version": "1.1",
       "parent_shortname": null,
       "original_game": null,
       "variants": [
         {
           "shortname": "neopong",
-          "title": "Neo Pong (v1.1)"
+          "title": "Neo Pong (v1.1)",
+          "publisher": "Neodev",
+          "version": "v1.1"
         }
       ],
-      "description": "Neo Pong is an early homebrew ball-and-paddle game developed by Neodev for the Neo Geo platform in 2002.",
+      "description": "Neo Pong is an early homebrew ball-and-paddle game developed by Neodev for the Neo Geo in 2002. Inspired by Pong, players use a paddle to return a ball and keep it from passing their side of the playfield.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -126038,8 +127698,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The number of game modes, computer difficulty settings and any tournament rules are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -126513,8 +128175,8 @@
       ],
       "title": "NeoGeo 2-Player Tetris",
       "year": 2008,
-      "developer": "Crim/Stephen",
-      "publisher": "Crim/Stephen",
+      "developer": "Crim / Stephen",
+      "publisher": "Crim / Stephen",
       "category": "homebrew",
       "genre": "Puzzle",
       "platform": "Neo Geo MVS",
@@ -126523,7 +128185,14 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "NeoGeo 2-Player Tetris is a homebrew two-player falling-block puzzle game developed by Crim and Stephen for the Neo Geo platform in 2008.",
+      "variants": [
+        {
+          "shortname": "ngtetris",
+          "developer": "Crim/Stephen",
+          "publisher": "Crim/Stephen"
+        }
+      ],
+      "description": "NeoGeo 2-Player Tetris is a homebrew two-player falling-block puzzle game developed by Crim and Stephen for the Neo Geo in 2008. Players rotate and place falling tetrominoes to complete horizontal lines, which are then cleared, and the game can be played by two players.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -126536,7 +128205,9 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The exact competitive rules, such as any garbage-line or attack system, are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -127790,6 +129461,56 @@
     },
     {
       "shortnames": [
+        "nosignal"
+      ],
+      "title": "No Signal Z Alpha",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Fighter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "3.0.1",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "nosignal",
+          "title": "No Signal Z Alpha v3.0.1"
+        }
+      ],
+      "description": "No Signal Z Alpha is a 2026 side-scrolling beat-'em-up developed by Eagle Software for the Neo Geo. After a stolen phone leaves the city without a signal, players choose one of three heroes, Jay, Zoe or Kai, and battle through eight stages to recover it. The adventure moves from city streets and underpasses to laboratories, industrial environments and increasingly futuristic locations, with different enemies and powerful bosses along the way. Each hero has a distinct fighting style and special attack: Jay favors quick combinations, Zoe uses agile movements and counters, while Kai relies on slower but stronger blows.\n\nCombat combines punches, sweeps, aerial kicks, grabs, throws and special attacks that consume part of the character's health, represented as phone battery power. Players can break objects to reveal food and bonuses, collect weapons, and even ride an electric scooter through some encounters. The game's colorful urban environments, exaggerated characters and multi-stage boss fights evoke classic arcade beat-'em-ups while adding their own humor and science-fiction theme.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's README documents a single-player beat-'em-up and version 3.0.1; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "The exact ROM release could not be verified against the documentation.",
+        "Genre is Fighter as the standard vocabulary has no closer beat-'em-up label."
+      ]
+    },
+    {
+      "shortnames": [
         "nost",
         "nostj",
         "nostk"
@@ -128196,7 +129917,13 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "New! Super Mario Bros. is a 2020 homebrew side-scrolling platformer demo created by OzzyOuzo for the Neo Geo platform.",
+      "variants": [
+        {
+          "shortname": "nsmb",
+          "publisher": "OzzyOuzo"
+        }
+      ],
+      "description": "New! Super Mario Bros. is a 2020 homebrew platform-game demonstration created by OzzyOuzo for the Neo Geo, inspired by New Super Mario Bros. It is a short demo and not a completed port of the full Nintendo game.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -133381,7 +135108,7 @@
       "genre": "Puzzle",
       "platform": "Namco Pac-Man hardware",
       "players": 2,
-      "release_status": "released",
+      "release_status": "beta",
       "version": null,
       "parent_shortname": null,
       "original_game": null,
@@ -133405,7 +135132,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The release status reflects the documented incomplete state (no text or score display); no additional reliable source has been established."
+      ]
     },
     {
       "shortnames": [
@@ -133431,11 +135160,16 @@
           "version": "v1.0"
         }
       ],
-      "description": "Pacu Pacu is a one-dimensional chase game by Sokurah. A yellow character and a ghost share a narrow horizontal corridor, reducing the familiar maze-chase format to a single lane.",
+      "description": "Pacu Pacu is a compact arcade action game by Sokurah, inspired by Kenta Cho's browser game Paku Paku. It reduces maze-chase gameplay to a single horizontal corridor, where the player collects dots while avoiding a pursuing ghost. With the playfield compressed into one lane, success depends on precise timing and the ability to judge when to reverse direction. Sokurah implemented the game in Z80 assembly for original Pac-Man arcade hardware.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://sokurah.itch.io/pacu-pacu-arcade"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -133444,7 +135178,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The developer identifies Kenta Cho's 2024 browser game Paku Paku as the inspiration. The year field is not replaced with the itch.io upload date."
+      ]
     },
     {
       "shortnames": [
@@ -133729,7 +135465,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The exact relationship between this set and the separately recorded Pacu Pacu is undocumented; Pacu Pacu's documentation is not assumed to establish every detail of this set."
+      ]
     },
     {
       "shortnames": [
@@ -133783,6 +135521,62 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "pandajump",
+        "pandajump2"
+      ],
+      "title": "Panda Jump",
+      "year": 2022,
+      "developer": "Ben Larson",
+      "publisher": "Ben Larson",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Namco Galaxian hardware",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "pandajump",
+          "title": "Panda Jump (set 1)"
+        },
+        {
+          "shortname": "pandajump2",
+          "parent_shortname": "pandajump",
+          "title": "Panda Jump (set 2)"
+        }
+      ],
+      "description": "Panda Jump is a 2022 arcade homebrew platform game developed by Ben Larson for original Galaxian hardware. The player controls a panda attempting to retrieve his favorite bamboo by jumping from the bottom of the screen to the top. Moving platforms provide the only safe route across each stage, while deadly lava waits below. The game features nine increasingly challenging levels that demand precise timing, careful landings, and an understanding of the character's momentum.\n\nUnlike conventional platform games with instantaneous movement, Panda Jump rewards anticipating the motion of platforms and controlling momentum while jumping and landing. Later stages require players to build speed to reach otherwise inaccessible platforms. Developed as a spin-off of Larson's Panky the Panda, it transforms classic arcade hardware into a demanding game of precision jumping, where mastering movement is the key to survival.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://www.ukvac.com/forum/threads/panda-jump-homebrew-for-galaxian-hardware.77697/"
+        },
+        {
+          "type": "reference",
+          "url": "https://forums.atariage.com/topic/330567-panda-jump-arcade/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/galaxian.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's announcement documents the bamboo goal, the moving platforms, the lava and the nine levels; the 2022 date comes from the public announcement.",
+        "The momentum-based behavior of the later stages and the spin-off relationship with Panky the Panda are not supported by the supplied sources and remain unconfirmed.",
+        "The differences between set 1 and set 2 are not documented; set 2 uses a different main program with the same graphics and color data."
+      ]
     },
     {
       "shortnames": [
@@ -136572,8 +138366,10 @@
           "path": "mame/drivers/playch10.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
     },
     {
       "shortnames": [
@@ -137131,8 +138927,10 @@
           "path": "mame/drivers/playch10.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
     },
     {
       "shortnames": [
@@ -137437,8 +139235,10 @@
           "path": "mame/drivers/playch10.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The conversion author and the exact 2002 release date have not been independently confirmed."
+      ]
     },
     {
       "shortnames": [
@@ -138247,8 +140047,10 @@
           "path": "mame/drivers/playch10.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The hack author and complete list of stage and gameplay changes have not been independently established."
+      ]
     },
     {
       "shortnames": [
@@ -143689,11 +145491,18 @@
           "publisher": "Arlasoft"
         }
       ],
-      "description": "Pollen Angel is a platform game by Arlasoft, released in 2023. Its single-screen stages feature flowers, flying insects and platforms surrounded by spikes, with a timer limiting each attempt.",
-      "trivia": [],
+      "description": "Pollen Angel is a platform game by Arlasoft, released in 2023 for Pac-Man hardware. Its single-screen stages feature flowers, flying insects and platforms surrounded by spikes, with a timer limiting each attempt. It was created within 48 hours for Ludum Dare 52, whose theme was Harvest.",
+      "trivia": [
+        "Pollen Angel was created in 48 hours for Ludum Dare 52, whose theme was Harvest."
+      ],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://arlagames.itch.io/pollen-angel-pacman-hardware"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -148302,7 +150111,7 @@
       "title": "Puyo Puyo 2 (English translation)",
       "year": 1994,
       "developer": "Compile",
-      "publisher": "Sega",
+      "publisher": "Sega Enterprises",
       "category": "hack",
       "genre": "Puzzle",
       "platform": "Sega System C-2",
@@ -148324,13 +150133,21 @@
         {
           "type": "translation",
           "description": "Localizes the character profiles, attract-mode tutorials, menus, match prompts, and service menu in English."
+        },
+        {
+          "type": "translation",
+          "description": "Translates 33 character profiles across 58 pages and 15 attract-mode tutorial pages."
         }
       ],
-      "description": "Zanac's English translation of Compile's Sega System C-2 arcade puzzle game redraws the title logo and adds an English font for character profiles and tutorials. It keeps the original gameplay and sound.",
+      "description": "Puyo Puyo 2 English is a localization of Compile's 1994 arcade puzzle game, created by Zanac for Sega System C-2 hardware. The translation covers character profiles, tutorials, menus, title and entry screens, opponent selection, difficulty settings, match messages, continue screens and the service menu. English character names follow the established terminology of the Super Puyo Puyo 2 fan translation by J2e Translations.\n\nThe original competitive falling-piece gameplay is preserved: players connect matching colored Puyos, build chains and send nuisance pieces to their opponents. The localization also covers messages associated with linked cabinets and multiplayer competition, making the arcade game's rules and presentation accessible in English without replacing its original mechanics.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/zanac/puyopuy2e"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Puyo_Puyo_2"
@@ -148344,7 +150161,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Linked-cabinet and multiplayer messages are translated, but their behavior is not claimed to be validated in AdvanceMAME merely because the author tested the patch in another emulator."
+      ]
     },
     {
       "shortnames": [
@@ -148432,6 +150251,10 @@
         {
           "type": "translation",
           "description": "Translates all 24 story cutscenes, 69 character win quotes, menus, character select, rule demonstrations, and endings into English."
+        },
+        {
+          "type": "translation",
+          "description": "Also translates the secret Carbuncle stage and ending, the in-game chain and offset labels, ranking labels, practice screens and all three course endings, and localizes arcade-exclusive content separately from the Windows translation."
         }
       ],
       "description": "Puyo Puyo Sun (English translation) is an English localization patch by Zanac for Compile's 1996 Sega ST-V falling-piece puzzle game Puyo Puyo Sun. Building upon the Puyo Nexus community translation and adding translations for ST-V arcade-exclusive content, it localizes all 24 story cutscenes across Arle, Draco, and Schezo's courses, all 69 character win quotes, the secret Carbuncle final stage, menus, in-game chain graphics, and endings into English.",
@@ -148439,6 +150262,10 @@
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/zanac/sega_st-v_puyosune"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Puyo_Puyo_Sun"
@@ -148450,6 +150277,10 @@
         {
           "type": "reference",
           "url": "https://www.arcade-museum.com/game_detail.php?game_id=6740"
+        },
+        {
+          "type": "reference",
+          "url": "https://www.puyonexus.net"
         }
       ],
       "sources": [
@@ -148460,7 +150291,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The Puyo Nexus community is credited for its original Windows translation work; the related Saturn translation project is not used as the source for the arcade content."
+      ]
     },
     {
       "shortnames": [
@@ -149275,6 +151108,42 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/pgm.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "pyenaget"
+      ],
+      "title": "Pye-nage Taikai",
+      "year": 2000,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Medal Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Pye-nage Taikai, or Pie-Throwing Tournament, is a Japanese children's medal game by Sammy. Players use an illuminated button to time the launch of pies at cartoon targets, with successful hits offering medal rewards. Its short, self-contained rounds are designed around a simple timing challenge rather than extended level progression.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=pyenaget&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -152435,8 +154304,8 @@
       ],
       "title": "Rabbit",
       "year": 1997,
-      "developer": "Electronic Arts / Aorn",
-      "publisher": "Electronic Arts / Aorn",
+      "developer": "Aorn / Electronic Arts",
+      "publisher": "Aorn / Electronic Arts",
       "category": "original",
       "genre": "Fighter",
       "platform": "Arcade",
@@ -152445,6 +154314,15 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "rabbit",
+          "title": "Rabbit (Asia 3/6)",
+          "region": "Asia",
+          "language": "English",
+          "version": "(Asia 3/6)"
+        }
+      ],
       "description": "Rabbit (1997) is a colorful two-dimensional fighting game developed by Aorn and published in arcades with a roster inspired by animals of the Chinese zodiac. Its eight selectable fighters include the rabbit-themed Wu Ling, tiger-like Rex and fox-like Yu-Lan. Each martial artist is accompanied by an animal spirit whose supernatural abilities can be invoked in combat.\n\nFights use four buttons for light and heavy punches and kicks, alongside a spirit gauge that governs special attacks. The deliberately cartoonish art and spectacular spirit animations give Rabbit a very different look from the darker martial-arts games of its day. It was among Aorn's final productions before the studio closed.",
       "trivia": [],
       "tips": [],
@@ -163157,6 +165035,37 @@
     },
     {
       "shortnames": [
+        "sammymdl"
+      ],
+      "title": "Sammy Medal Game System BIOS",
+      "year": 1999,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "System",
+      "platform": "Arcade",
+      "players": null,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "The Sammy Medal Game System is a cartridge-based arcade platform dating to 1999, designed for compact Japanese amusement machines with medal handling and payout peripherals. Its hardware includes a Z80-family processor, a Taxan graphics controller supporting zoomable sprites with 256 colors, and an OKI MSM9810 sampled-audio device. Cartridges contain separate flash memories for graphics and for program code and audio samples, with different memory-banking arrangements across cartridge revisions. The preserved BIOS includes multiple initialization firmware versions, including IPL versions 1.0 and 5.0, and is not a standalone playable program.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "sams64"
       ],
       "title": "Samurai Shodown 64 / Samurai Spirits / Paewang Jeonseol 64",
@@ -164054,12 +165963,12 @@
     },
     {
       "shortnames": [
-        "saturn"
+        "saturnzi"
       ],
       "title": "Saturn",
       "year": 1983,
-      "developer": "Zilec Electronics",
-      "publisher": "Jaleco",
+      "developer": "Zilec Electronics / Jaleco",
+      "publisher": "Zilec Electronics / Jaleco",
       "category": "original",
       "genre": "Game Console",
       "platform": "Arcade",
@@ -164079,7 +165988,7 @@
         },
         {
           "type": "reference",
-          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=saturn&lang=en"
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=saturnzi&lang=en"
         }
       ],
       "sources": [
@@ -166401,8 +168310,8 @@
       ],
       "title": "DoDonPachi SaiDaiOuJou (hack)",
       "year": 2021,
-      "developer": "CaveDwellers",
-      "publisher": "CaveDwellers",
+      "developer": "Cave",
+      "publisher": "Cave",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -166411,6 +168320,7 @@
       "version": null,
       "parent_shortname": "sdojak",
       "original_game": "ddpsdoj",
+      "series": "DoDonPachi",
       "variants": [
         {
           "shortname": "sdoja",
@@ -166450,8 +168360,8 @@
       ],
       "title": "DoDonPachi SaiDaiOuJou & Knuckles",
       "year": 2021,
-      "developer": "CaveDwellers",
-      "publisher": "CaveDwellers",
+      "developer": "Cave",
+      "publisher": "Cave",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -166460,6 +168370,7 @@
       "version": "2021-12-01",
       "parent_shortname": null,
       "original_game": "ddpsdoj",
+      "series": "DoDonPachi",
       "variants": [
         {
           "shortname": "sdojak",
@@ -166494,8 +168405,8 @@
       ],
       "title": "DoDonPachi SaiDaiOuJou Saya Type B",
       "year": 2022,
-      "developer": "CaveDwellers",
-      "publisher": "CaveDwellers",
+      "developer": "Cave",
+      "publisher": "Cave",
       "category": "hack",
       "genre": "Shooter",
       "platform": "Cave CV1000",
@@ -166504,6 +168415,7 @@
       "version": "2022-01-06",
       "parent_shortname": "sdojak",
       "original_game": "ddpsdoj",
+      "series": "DoDonPachi",
       "variants": [
         {
           "shortname": "sdojb",
@@ -168078,6 +169990,50 @@
     },
     {
       "shortnames": [
+        "seraph"
+      ],
+      "title": "Seraph Zero",
+      "year": 2026,
+      "developer": "Nasprich",
+      "publisher": "Nasprich",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.0",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Seraph Zero is a 2026 vertical-scrolling shoot-'em-up created by Nasprich for the Neo Geo. Players pilot one of six spacecraft through seven stages of intense aerial combat, fighting enemy formations, dodging incoming fire and confronting large bosses. Each stage contains two distinct areas, a mid-stage encounter and a final boss, with environments ranging from oceans and jungles to deserts, orbital installations and mechanical fortresses. Hidden passages and secret areas reward players who master the hazards and special challenges found throughout the adventure.\n\nThe six pilots have individual spacecraft, special bombs, abilities and fully voiced personalities. Players can collect and upgrade six types of weapons, including spread shots, piercing lasers, homing missiles and attacks capable of neutralizing enemy projectiles. The game supports simultaneous two-player cooperative action or a computer-controlled wingman, with character relationships developing through their shared experiences. Additional modes include Boss Rush, Practice and Score Attack, while achievements and unlockable gallery content provide incentives for repeated play. Seraph Zero also supports both vertical and horizontal display configurations, making its elaborate arcade-shooter experience accessible on different Neo Geo setups.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://naspri.ch"
+        },
+        {
+          "type": "official",
+          "url": "https://nasprich.itch.io/seraph-zero"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's release page confirms the November 2026 release, seven stages, six pilots, six weapons and cooperative play; the publisher is taken as the developer because the game is released through the developer's own page.",
+        "Version 1.0 is taken from the project brief; the ROM set does not state it.",
+        "The vertical/horizontal display option, the wingman, the extra modes and the other gameplay details were not verified in this release."
+      ]
+    },
+    {
+      "shortnames": [
         "sextriv"
       ],
       "title": "Sex Triv",
@@ -168980,6 +170936,7 @@
         {
           "shortname": "sf2t",
           "title": "Street Fighter II' - Hyper Fighting (US 921209)",
+          "publisher": "Capcom",
           "region": "USA",
           "language": "English",
           "version": "921209"
@@ -168987,6 +170944,7 @@
         {
           "shortname": "sf2tj",
           "title": "Street Fighter II' Turbo - Hyper Fighting (Japan 921209)",
+          "publisher": "Capcom",
           "region": "Japan",
           "language": "Japanese",
           "version": "921209"
@@ -170222,8 +172180,10 @@
           "path": "mame/drivers/cps3.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The identity of the hack author is not established."
+      ]
     },
     {
       "shortnames": [
@@ -170527,7 +172487,7 @@
         "sfrushrk"
       ],
       "title": "San Francisco Rush: The Rock",
-      "year": 1996,
+      "year": 1997,
       "developer": "Atari Games",
       "publisher": "Atari Games",
       "category": "original",
@@ -170539,6 +172499,15 @@
       "parent_shortname": null,
       "original_game": null,
       "series": "San Francisco Rush",
+      "variants": [
+        {
+          "shortname": "sfrushrk",
+          "title": "San Francisco Rush: The Rock (boot rom L 1.0, GUTS Oct 6 1997 / MAIN Oct 16 1997)",
+          "region": "North America",
+          "language": "English",
+          "version": "(boot rom L 1.0, GUTS Oct 6 1997 / MAIN Oct 16 1997)"
+        }
+      ],
       "description": "San Francisco Rush: The Rock, subtitled Alcatraz Edition, is the expanded 1997 version of Atari Games' San Francisco Rush. It retains the original game's distinctive weighty driving physics, exaggerated jumps and dramatic crash sequences, while adding four courses inspired by the Alcatraz area alongside the original tracks. Additional shortcuts and music invite returning players to investigate every corner of the new layouts.\n\nA mirrored-course option offers another challenge even after the standard routes are mastered. The Rock builds on what made Rush popular: racing fast is important, but discovering unexpected routes and learning to control a vehicle hurtling through the air are just as satisfying.",
       "trivia": [],
       "tips": [],
@@ -170848,8 +172817,10 @@
           "path": "mame/drivers/cps2.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The hack release year (2026) is not the original CPS-2 release date; newer project features are not attributed to version 0.32."
+      ]
     },
     {
       "shortnames": [
@@ -171390,6 +173361,55 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "shadowlf"
+      ],
+      "title": "Shadow League Fighting",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "publisher": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Fighter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "version": "3.3.2",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "shadowlf",
+          "title": "Shadow League Fighting v3.3.2"
+        }
+      ],
+      "description": "Shadow League Fighting is a 2026 two-dimensional fighting game developed by Eagle Software for the Neo Geo AES and MVS. Its roster contains 44 original combatants with individual appearances, fighting techniques, special attacks and super moves. Players can enter traditional one-on-one duels or three-versus-three team battles, where each side selects a separate striker who can briefly enter the fight to assist. The combat system includes throws, evasive maneuvers, guarding, dashes, special-move combinations and powerful attacks activated through directional inputs.\n\nMatches unfold in colorful arenas with animated backgrounds, character portraits, announcer calls and individual victory presentations. Fighters can link ordinary attacks into special moves, while team matches introduce tactical decisions about character order and when to call a striker. Computer opponents offer multiple difficulty levels, and a training mode provides opportunities to practice commands and combinations. Its substantial cast, team mechanics and elaborate presentation make Shadow League Fighting an ambitious original contribution to the Neo Geo fighting-game library.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "developer",
+          "url": "https://github.com/eaglesoftware777/neogeosdk"
+        },
+        {
+          "type": "release",
+          "url": "https://github.com/eaglesoftware777/neogeosdk/releases"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's README documents version 3.3.0 of the game, one-on-one and team fighting and competitive two-player play; it does not establish the binary identity of the integrated v3.3.2 ROM, whose version comes from the project brief and the releases index; the publisher is taken as Eagle Software because the game is released through the developer's own repository.",
+        "Release status is beta because the release is work in progress; it is not established that every advertised feature, arena or roster entry is complete in v3.3.2."
+      ]
     },
     {
       "shortnames": [
@@ -172057,6 +174077,42 @@
           "type": "source_code",
           "url": null,
           "path": "mame/drivers/segahang.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "shatekds"
+      ],
+      "title": "Shatekids",
+      "year": 1999,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Medal Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Shatekids is a Sammy video medal game inspired by carnival shooting galleries. The objective is to shoot through the yellow cords suspending cartoon figures above the playfield. A successful cut releases the figure, but a payout is earned only if it falls into the designated winning opening. A two-medal wager increases each displayed reward by two medals, adding a choice of stake to the timing challenge.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=shatekds&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
         }
       ],
       "confidence": "verified",
@@ -180969,7 +183025,7 @@
       "year": 2015,
       "developer": "Sokurah",
       "publisher": "Sokurah",
-      "category": "homebrew",
+      "category": "port",
       "genre": "Puzzle",
       "platform": "Taito L System",
       "players": 2,
@@ -180983,11 +183039,24 @@
           "publisher": "Sokurah"
         }
       ],
-      "description": "Speccies 2 is a puzzle game by Sokurah. Guide a character across a compact grid of colored tiles, solving each arrangement before moving on to the next level.",
+      "description": "The Speccies 2 is a puzzle game by Sokurah, originally developed for the ZX Spectrum in 2013 and adapted to Taito L-System arcade hardware in 2015. Across fifty levels, players guide a character through arrangements of tiles, collecting objects while avoiding routes that would require crossing a previously visited square. Each move affects the paths still available, so the challenge is to plan an entire route rather than rely on quick reactions. There is no time limit, allowing players to study the puzzle before committing to their next move.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://sokurah.itch.io/the-speccies-2-arcade"
+        },
+        {
+          "type": "reference",
+          "url": "https://sokurah.itch.io/speccies-2-for-sega-master-system"
+        },
+        {
+          "type": "reference",
+          "url": "https://www.ukvac.com/forum/threads/new-game-release-speccies-2-for-taito-l-system.36007/"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -180996,7 +183065,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Classified as a port because it adapts the 2013 ZX Spectrum game; the Spectrum original has no AdvanceMAME shortname."
+      ]
     },
     {
       "shortnames": [
@@ -182956,7 +185027,7 @@
       "year": 2018,
       "developer": "Sokurah",
       "publisher": "Sokurah",
-      "category": "homebrew",
+      "category": "port",
       "genre": "Maze",
       "platform": "Taito L System",
       "players": 2,
@@ -182970,11 +185041,20 @@
           "publisher": "Sokurah"
         }
       ],
-      "description": "SQIJ! is an exploration game by Sokurah. Collect the six parts of the Tree of Life and carry them to a place where it can grow. Shields let you pass through barriers, food restores energy, and contact with enemies or hazardous scenery drains your remaining energy.",
+      "description": "SQIJ! is Sokurah's arcade adaptation of an exploration game originally released for the Commodore 64 in 1986. Players explore a network of interconnected caverns to find six pieces of the Tree of Life and bring them together so that it can grow. Keys open new routes, protective items allow passage through otherwise dangerous barriers, and food restores energy lost through contact with enemies and hazardous scenery. The emphasis is on exploration, collecting useful objects and discovering routes through the underground world.",
       "trivia": [],
       "tips": [],
       "scoring": [],
-      "websites": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://sokurah.itch.io/sqij-arcade"
+        },
+        {
+          "type": "reference",
+          "url": "https://www.ukvac.com/forum/threads/sqij-for-taito-l-system.50563/"
+        }
+      ],
       "sources": [
         {
           "type": "source_code",
@@ -182983,7 +185063,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "2018 is the arcade adaptation date; the 1986 Commodore 64 original is not the record's year. The game was also developed by Sokurah for the Spectrum."
+      ]
     },
     {
       "shortnames": [
@@ -186342,7 +188424,7 @@
       "category": "prototype",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 1,
+      "players": 2,
       "release_status": "prototype",
       "version": "rev. 1.12",
       "parent_shortname": null,
@@ -193871,7 +195953,7 @@
       "category": "prototype",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 1,
+      "players": 2,
       "release_status": "prototype",
       "version": "rev. 4",
       "parent_shortname": null,
@@ -195180,6 +197262,42 @@
     },
     {
       "shortnames": [
+        "tdoboon"
+      ],
+      "title": "Taihou de Doboon",
+      "year": 2000,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Medal Game",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Taihou de Doboon is a Sammy fixed-screen medal game in which the player fires a cannon at moving cartoon characters. A successful hit sends the target into the sea and earns medals, whereas a character that reaches either side of the screen escapes. A two-medal betting option adds two medals to the listed rewards. The game reduces the shooting-gallery format to a simple test of when to fire.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=tdoboon&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "tdragon",
         "tdragonb"
       ],
@@ -196279,6 +198397,115 @@
     },
     {
       "shortnames": [
+        "tempcax"
+      ],
+      "title": "Tempest CAX 2026",
+      "year": 2026,
+      "developer": "Atari",
+      "publisher": "Atari",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": "1.2",
+      "parent_shortname": "tempest",
+      "original_game": "tempest",
+      "variants": [
+        {
+          "shortname": "tempcax",
+          "title": "Tempest CAX 2026 (v1.2)",
+          "version": "v1.2"
+        }
+      ],
+      "hack_author": "SHUPAC",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Adds purple levels beyond level 96, extending progression to level 112."
+        },
+        {
+          "type": "gameplay",
+          "description": "Extends the score display from six to seven digits."
+        },
+        {
+          "type": "difficulty",
+          "description": "The skill-select screen allows starting at any level from 1 to 112, with starting bonuses scaled up to 1,410,000, instead of the original levels 1, 3, 5, 7 and 9."
+        },
+        {
+          "type": "gameplay",
+          "description": "The high-score table records the last level reached."
+        },
+        {
+          "type": "gameplay",
+          "description": "Adds an optional no-death attract mode, controlled by a DIP switch."
+        },
+        {
+          "type": "gameplay",
+          "description": "Grants additional Superzapper capability on the purple levels."
+        },
+        {
+          "type": "gameplay",
+          "description": "Repurposes the original two-credit-minimum DIP switch."
+        },
+        {
+          "type": "bugfix",
+          "description": "Protects against enemy-count overflow on the Hard difficulty (introduced in v1.1)."
+        },
+        {
+          "type": "bugfix",
+          "description": "Fixes the spiker speed on even-numbered purple levels on the Hard difficulty (introduced in v1.2)."
+        },
+        {
+          "type": "technical",
+          "description": "Removes the original service self-test to reclaim ROM space; modifies nine of the ten Tempest program ROMs, while the math box ROMs and one program ROM are unchanged."
+        },
+        {
+          "type": "other",
+          "description": "Shows the credit line 'SHUPAC 2026 CAX' in place of the Atari copyright line on the attract and skill-select screens."
+        },
+        {
+          "type": "other",
+          "description": "Ships with a different default high score table, led by initials SHU, PAC and SCI."
+        }
+      ],
+      "description": "Tempest CAX 2026 is an expanded modification of Atari's 1981 vector arcade shooter Tempest, developed to extend the original game's highest levels and scoring system. Players still guide a blaster around the rim of geometric tubes, shooting enemies that climb toward the edge while avoiding collisions and using the Superzapper against dangerous threats. Beyond the original green levels, the modification introduces an additional range of purple levels extending progression through level 112, with increased difficulty and new challenges for experienced players.\n\nThe game expands the score display to seven digits, allows players to select a starting level anywhere from 1 to 112 with a corresponding score bonus, and records the furthest level reached in the high-score table. Purple levels provide additional Superzapper capability, while an optional attract-mode setting allows the computer-controlled demonstration to continue without losing lives. Version 1.2 also corrects difficulty-related problems that could otherwise prevent completion of advanced waves or make some enemies move incorrectly. These changes turn the familiar Tempest arcade experience into a substantially extended challenge while retaining its distinctive vector presentation and controls.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://github.com/shupac800/tempest-cax-2026"
+        },
+        {
+          "type": "reference",
+          "url": "https://en.wikipedia.org/wiki/Tempest_(video_game)"
+        },
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Tempest_(Arcade)"
+        },
+        {
+          "type": "reference",
+          "url": "https://forums.arcade-museum.com/threads/tempest-purple-levels-7-digit-scoring.564771/"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/tempest.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The features come from the author's v1.2 README; the integrated ROM hashes could not be compared with release information in the repository offline, so the correspondence of this set to v1.2 rests on the version number and the on-screen credit.",
+        "The author's repository and the forum discussion document the project; no further independent release information was found."
+      ]
+    },
+    {
+      "shortnames": [
         "tempest",
         "tempest1",
         "tempest2",
@@ -196543,27 +198770,33 @@
       ],
       "title": "The Eye of Typhoon (Tsunami Edition)",
       "year": 2022,
-      "developer": "OzzyOuzo",
-      "publisher": "OzzyOuzo",
+      "developer": "OzzyOuzo / Johnny16bit",
+      "publisher": "OzzyOuzo / Johnny16bit",
       "category": "homebrew",
       "genre": "Fighter",
       "platform": "Neo Geo MVS",
       "players": 2,
       "release_status": "beta",
-      "version": null,
+      "version": "Beta 7 (2022-07-31)",
       "parent_shortname": null,
       "original_game": null,
       "variants": [
         {
           "shortname": "teot",
-          "title": "The Eye of Typhoon (Tsunami Edition, beta 7, 2022-07-31)"
+          "title": "The Eye of Typhoon (Tsunami Edition, beta 7, 2022-07-31)",
+          "developer": "OzzyOuzo",
+          "publisher": "OzzyOuzo"
         }
       ],
-      "description": "The Eye of Typhoon (Tsunami Edition) is a homebrew Neo Geo port and enhancement by OzzyOuzo of Viccom's 1996 martial-arts fighting game The Eye of Typhoon, originally developed for the 3DO and PC.",
+      "description": "The Eye of Typhoon: Tsunami Edition, also known as Saiki, is a Neo Geo reconstruction of Viccom's 1996 martial-arts fighting game. The project brings the original game's characters, artwork and fighting-game identity to Neo Geo hardware through a new implementation rather than a direct conversion of the original executable. Players select fighters with distinct martial-arts techniques and special attacks, competing in one-on-one bouts. This July 2022 beta represents a playable development milestone in the project's continuing reconstruction and refinement.",
       "trivia": [],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "official",
+          "url": "https://ozzyouzo.itch.io/teot"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/The_Eye_of_Typhoon"
@@ -196571,6 +198804,10 @@
         {
           "type": "reference",
           "url": "https://strategywiki.org/wiki/The_Eye_of_Typhoon"
+        },
+        {
+          "type": "release",
+          "url": "https://ozzyouzo.itch.io/teot/devlog/410812/beta-7"
         }
       ],
       "sources": [
@@ -196581,7 +198818,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "Features of newer releases are not attributed to Beta 7."
+      ]
     },
     {
       "shortnames": [
@@ -199490,6 +201729,12 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "timesup",
+          "publisher": "NGF Dev. Inc"
+        }
+      ],
       "description": "Time's Up! is a homebrew horizontal-scrolling shoot-'em-up developed and published by NGF Dev. Inc. for the Neo Geo platform in 2012.",
       "trivia": [],
       "tips": [],
@@ -199502,8 +201747,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "No sufficiently reliable independent gameplay documentation has been established; the horizontal-shooter description is provisional."
+      ]
     },
     {
       "shortnames": [
@@ -202489,8 +204736,8 @@
       ],
       "title": "Treasure of the Caribbean",
       "year": 2011,
-      "developer": "FACE Corporation / N.C.I - Le Cortex",
-      "publisher": "FACE Corporation / N.C.I - Le Cortex",
+      "developer": "FACE Corporation",
+      "publisher": "N.C.I / Le Cortex",
       "category": "homebrew",
       "genre": "Puzzle",
       "platform": "Neo Geo MVS",
@@ -202499,7 +204746,14 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
-      "description": "Treasure of the Caribbean is a pirate-themed puzzle game originally developed by FACE Corporation for the Neo Geo in 1994 and later published in 2011 by N.C.I / Le Cortex.",
+      "variants": [
+        {
+          "shortname": "totc",
+          "developer": "FACE Corporation / N.C.I - Le Cortex",
+          "publisher": "FACE Corporation / N.C.I - Le Cortex"
+        }
+      ],
+      "description": "Treasure of the Caribbean is a pirate-themed puzzle game for the Neo Geo. It was developed by FACE Corporation in 1994 but remained unpublished until N.C.I / Le Cortex released it in 2011, so the 1994 date marks its development and 2011 its publication.",
       "trivia": [],
       "tips": [],
       "scoring": [],
@@ -202516,8 +204770,10 @@
           "path": "mame/drivers/neogeo.c"
         }
       ],
-      "confidence": "verified",
-      "research_notes": []
+      "confidence": "uncertain",
+      "research_notes": [
+        "The year field records the 2011 publication; the game was originally developed in 1994. Puzzle mechanics are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -208630,7 +210886,16 @@
         }
       ],
       "hack_author": "SK",
-      "modifications": [],
+      "modifications": [
+        {
+          "type": "difficulty",
+          "description": "Revises the balance of individual fighters."
+        },
+        {
+          "type": "gameplay",
+          "description": "Changes special moves and combo behavior for competitive play."
+        }
+      ],
       "description": "Ultimate Mortal Kombat II Tournament Edition revises the balance and fighting rules of Mortal Kombat II for competitive play. Changes to individual fighters, special moves and combo behavior alter matchups while retaining the original arenas and five-button control scheme.",
       "trivia": [],
       "tips": [],
@@ -208657,7 +210922,10 @@
         }
       ],
       "confidence": "corroborated",
-      "research_notes": []
+      "research_notes": [
+        "The available detailed changelog covers revision 5.0.053; its later changes and reversions are not attributed to 5.0.050.",
+        "The documentation references revision 5.0.053; the integrated version is 5.0.050 and the two builds are not assumed identical."
+      ]
     },
     {
       "shortnames": [
@@ -211099,6 +213367,53 @@
     },
     {
       "shortnames": [
+        "veilriot"
+      ],
+      "title": "Veil Riot",
+      "year": 2026,
+      "developer": "theSEGAshop",
+      "publisher": "theSEGAshop",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "veilriot",
+          "developer": "The SEGA Shop",
+          "publisher": "The SEGA Shop"
+        }
+      ],
+      "description": "Veil Riot is a 2026 arcade action shooter developed by theSEGAshop for the Neo Geo AES and MVS. Players prepare and customize their combat machines in an underground workshop before entering dangerous urban districts populated by rival pilots. Combat combines movement, weapons and tactical abilities, including a cloaking system that allows players to conceal their position and sonar pulses that help locate opponents. The objective is not simply to defeat every enemy, but to survive encounters, collect money and escape through an exit gate before the pursuing Warden arrives.\n\nFive scrolling city districts contain moving traffic, hazardous machinery, automated defenses and opponents with different fighting tactics. Between encounters, players return to a hub where shops offer weapons, mechanical upgrades, tuning and cosmetic customization, alongside additional activities such as a music shop and arcade minigames. A seasonal competition structure introduces recurring challenges and powerful rivals, while two-player versus battles provide another way to play. Veil Riot was released publicly in a playable but unfinished state, offering an ambitious mixture of vehicular combat, tactical encounters and persistent progression while development continues.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://thesegashop.itch.io/veil-riot-neogeo-mvs-aes"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's page documents the game as publicly downloadable but incomplete; the publisher is taken as the developer because the game is released through the developer's own page.",
+        "Which of the described features (districts, shops, seasons, versus mode) are present in this ROM version is not verified.",
+        "No version identifier is established."
+      ]
+    },
+    {
+      "shortnames": [
         "vendetta",
         "vendet2p",
         "vendetao",
@@ -213297,6 +215612,46 @@
     },
     {
       "shortnames": [
+        "vortex"
+      ],
+      "title": "Vortex",
+      "year": 1980,
+      "developer": "Zilec Electronics",
+      "publisher": "Zilec Electronics",
+      "category": "original",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Vortex is a 1980 space shooter by British arcade developer Zilec Electronics, inspired by Atari's Asteroids but implemented on modified Space Invaders raster hardware. Players rotate their spacecraft to shoot at space debris and hostile objects while avoiding collisions. Its unusual control scheme combines firing and forward thrust on the same button, so attacking also changes the ship's movement. Special color circuitry distinguishes the conversion from the monochrome display architecture on which it was based.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "https://tcrf.net/Vortex_(Arcade)"
+        },
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=vortex&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/8080bw.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "vr",
         "vformula"
       ],
@@ -215033,6 +217388,42 @@
     },
     {
       "shortnames": [
+        "wantouch"
+      ],
+      "title": "Wantouchable",
+      "year": 2003,
+      "developer": "Sammy",
+      "publisher": "Sammy",
+      "category": "original",
+      "genre": "Shooter",
+      "platform": "Arcade",
+      "players": 1,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Wantouchable is a 2003 Sammy children's medal game featuring a cartoon police pursuit between anthropomorphic animals. The player controls a police vehicle equipped with a peanut-firing weapon and times shots at the fleeing gangsters' cars. Success depends on sending the criminals' vehicles into roadside obstacles, allowing them to be apprehended for a medal reward. Up to three medals can be wagered on an attempt.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=wantouch&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/sammymdl.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
         "wardner",
         "pyros",
         "wardnerj"
@@ -215539,6 +217930,53 @@
       ],
       "confidence": "verified",
       "research_notes": []
+    },
+    {
+      "shortnames": [
+        "warriorm"
+      ],
+      "title": "Warrior Man",
+      "year": 2026,
+      "developer": "Nico Klem",
+      "publisher": "NK Home Entertainment",
+      "category": "homebrew",
+      "genre": "Multiplay",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "version": "6",
+      "parent_shortname": null,
+      "original_game": null,
+      "variants": [
+        {
+          "shortname": "warriorm",
+          "title": "Warrior Man v6",
+          "developer": "NK Home Entertainment"
+        }
+      ],
+      "description": "Warrior Man is a 2026 Neo Geo homebrew action game developed by Nico Klem under the NK Home Entertainment name. Set in a city threatened by criminal gangs and other dangers, it follows Marius and Lisa as they search for Marius's missing girlfriend, Lena. Rather than following a single arcade genre, the game combines three distinct modes within one project. Fight mode is a side-scrolling beat-'em-up featuring punches, kicks, guarding, jumps and a powerful Storm Attack, with enemies, environmental obstacles and bosses encountered across several stages.\n\nShoot mode changes the action into a horizontally scrolling space shooter, placing the player aboard the Thunder DWS against alien fleets, large warships and powerful bosses. Charged shots, upgradeable satellite weapons and screen-clearing attacks add depth to the combat. Road mode offers a contrasting arcade racing experience with pseudo-3D roads, curves, hills, traffic and different circuits. Combining street fighting, space combat and driving gives Warrior Man an unusual structure among Neo Geo homebrew productions, bringing several classic arcade experiences together in one evolving game.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "official",
+          "url": "https://nicoklem.itch.io/warrior-man"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/neogeo.c"
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's page and release notes document the Road, Shoot and Fight modes and identify the project as still in development.",
+        "Version 6 comes from the project brief; features documented only for later builds may not be present in it and were not checked against v6 specifically.",
+        "Developer is recorded as Nico Klem with NK Home Entertainment as publisher label; no authoritative evidence contradicts this split."
+      ]
     },
     {
       "shortnames": [
@@ -219554,7 +221992,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The registered revision is dated November 14, 2025; the number of circuits and any multiplayer support are not documented."
+      ]
     },
     {
       "shortnames": [
@@ -220534,11 +222974,17 @@
           "language": "English"
         }
       ],
-      "description": "Xeno Crisis is a one- or two-player top-down arena run-and-gun shooter developed and published by Bitmap Bureau for the Neo Geo MVS in 2019. Players control battle-hardened marines clearing procedurally arranged alien-infested outpost rooms using twin-stick style eight-way firing, dodge rolls, grenades, and temporary heavy weapons.",
-      "trivia": [],
+      "description": "Xeno Crisis is a top-down arena shooter developed by Bitmap Bureau, first released in 2019 and subsequently adapted to Neo Geo hardware. One or two players control space marines sent to investigate an alien-infested research outpost. The action takes place across interconnected combat rooms, where players move and fire in multiple directions, dodge attacks and collect temporary weapons while fighting increasingly dangerous alien creatures. Limited ammunition and the need to manage supplies encourage careful movement and positioning. Procedurally arranged rooms and cooperative gameplay extend the replay value of its arcade-style combat.",
+      "trivia": [
+        "The original Xeno Crisis was released in 2019; its Neo Geo editions followed in 2021."
+      ],
       "tips": [],
       "scoring": [],
       "websites": [
+        {
+          "type": "developer",
+          "url": "https://www.bitmapbureau.com/post/xeno-crisis-is-out-now-on-gba"
+        },
         {
           "type": "reference",
           "url": "https://en.wikipedia.org/wiki/Xeno_Crisis"
@@ -220546,6 +222992,10 @@
         {
           "type": "reference",
           "url": "https://strategywiki.org/wiki/Xeno_Crisis"
+        },
+        {
+          "type": "release",
+          "url": "https://eushop.bitmapbureau.com/products/xeno-crisis-neo-geo-mvs"
         }
       ],
       "sources": [
@@ -220556,7 +223006,9 @@
         }
       ],
       "confidence": "verified",
-      "research_notes": []
+      "research_notes": [
+        "The exact ROM version is not established in the available evidence."
+      ]
     },
     {
       "shortnames": [
