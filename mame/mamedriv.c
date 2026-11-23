@@ -6036,6 +6036,11 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( neo2048 )
 	DRIVER( violentv )
 	DRIVER( blueandr )
+	DRIVER( 1stdef )
+	DRIVER( arena2 )
+	DRIVER( 7wonders )
+	DRIVER( maiya )
+	DRIVER( maiyaluna )
 	DRIVER( mslug5ast )
 
 	/* The BreezaSoft games don't have proper ID codes */

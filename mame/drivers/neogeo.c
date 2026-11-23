@@ -7991,6 +7991,87 @@ ROM_START( blueandr )
 	ROM_LOAD16_BYTE( "519.c2", 0x000001, 0x40000, CRC(76edd8a9) SHA1(3bf89afdabd3fabbca240548f150b37d60f19cc3) )
 ROM_END
 
+ROM_START( arena2 )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "530.p1", 0x000000, 0x100000, CRC(9ed6466d) SHA1(b14beedc6339cbc391d4c38e35bd3e0306afba95) )
+
+	NEO_SFIX_128K( "530.s1", CRC(b2d1bed5) SHA1(c2677c8feeaed70ed97fa95c91663b378741fc31) )
+
+	NEO_BIOS_SOUND_128K( "530.m1", CRC(eb05a2c5) SHA1(3dfc371aec1dcf2935cae702421aae8517136365) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "530.v1", 0x000000, 0x80000, CRC(634c279c) SHA1(18ede8919af3a9b71d9496273f4df8d613d58f79) )
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "530.c1", 0x000000, 0x200000, CRC(86856821) SHA1(98247e4025311a5b6ac1f4f2790c8e673f793253) )
+	ROM_LOAD16_BYTE( "530.c2", 0x000001, 0x200000, CRC(2f2b10e6) SHA1(4728ac8553e2f55f461d125d82d7eff7a43820a6) )
+ROM_END
+
+ROM_START( 7wonders )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "782.p1", 0x000000, 0x80000, CRC(30264e7a) SHA1(d51f7fbde1af28c4881cbd3dc026fb2b6a3e1c8b) )
+
+	NEO_SFIX_128K( "782.s1", CRC(eb99e197) SHA1(a5a393c0500a3e0c8a03a4bff614e23e66c57804) )
+
+	NEO_BIOS_SOUND_128K( "782.m1", CRC(a8031d28) SHA1(3ff4f7a43961f1952f499ac55c5e903dc4fa7eaa) )
+
+	ROM_REGION( 0x400000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "782.v1", 0x000000, 0x324400, CRC(afec46cd) SHA1(274b9b049ce8285afb8def6b0e302e7a5885e4d9) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "782.c1", 0x000000, 0x400000, CRC(20efee4b) SHA1(cd81a92fb029aebc040a87b4c7d6f257bff954a4) )
+	ROM_LOAD16_BYTE( "782.c2", 0x000001, 0x400000, CRC(2e56f9b5) SHA1(f3b0ba4d319fcb49a03d89b7182d469685cd1e1b) )
+ROM_END
+
+ROM_START( maiya )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "780.p1", 0x000000, 0x80000, CRC(5fe28a51) SHA1(2d1481933b0ba9a9f0f0e48e6e046cdabbd79b35) )
+
+	NEO_SFIX_128K( "780.s1", CRC(5c7951e1) SHA1(b0a45c2085b5ef49f7a197bf403f103be2f21f4f) )
+
+	NEO_BIOS_SOUND_128K( "780.m1", CRC(ce7717bd) SHA1(66f3ef28d76104adeed931bc2f6b65a5f5e4c4e8) )
+
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "780.v1", 0x000000, 0x79ab00, CRC(127b89b4) SHA1(8ec212c59da5e650ed6978cf358e24220b5d33c3) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "780.c1", 0x000000, 0x400000, CRC(48638505) SHA1(b2517c2a09efe0b196335c616ba3b2f13969f052) )
+	ROM_LOAD16_BYTE( "780.c2", 0x000001, 0x400000, CRC(66a5c0e2) SHA1(9f3d77f2284925c82d8e26f725243083a73d6d92) )
+ROM_END
+
+ROM_START( maiyaluna )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "783.p1", 0x000000, 0x80000, CRC(15d8fdd3) SHA1(03b564997c06604396c461746504e1aa5e0a0d72) )
+
+	NEO_SFIX_128K( "783.s1", CRC(74a73a67) SHA1(3046b5ef0309239297521ca5c5ec82d9081d9865) )
+
+	NEO_BIOS_SOUND_128K( "783.m1", CRC(b291e256) SHA1(646eaba9b13e227c2e9066ca9e9671e41d31f36e) )
+
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "783.v1", 0x000000, 0x76c400, CRC(0518d9fc) SHA1(b328636be66f6aedd5fcc5b48a59434858201163) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "783.c1", 0x000000, 0x400000, CRC(b73a67ac) SHA1(3dcc38dc7dd22462a80209e1c22fee704cd44f82) )
+	ROM_LOAD16_BYTE( "783.c2", 0x000001, 0x400000, CRC(9707b70a) SHA1(33f0ea6b4d94dfd40643a49df347fa2058f2a2f9) )
+ROM_END
+
+ROM_START( 1stdef )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "552.p1", 0x000000, 0x100000, CRC(dc0235df) SHA1(5b592b65cd3d6494e3cfe1499ecf5e9b7ec2a6e3) )
+
+	NEO_SFIX_128K( "552.s1", CRC(17e94385) SHA1(2faaae470555df07bc0014fcbc0e46ec598a6e1e) )
+
+	NEO_BIOS_SOUND_256K( "552.m1", CRC(149b36b2) SHA1(a1fb111f4de02356c0e1f0b58b63a4d6dcac1c5c) )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "552.v1", 0x000000, 0x100000, CRC(eda57c3c) SHA1(491bb519a93abce1936404fce1f35bb192f3cafd) )
+	ROM_LOAD( "552.v2", 0x100000, 0x100000, CRC(4223d4e0) SHA1(118b304c33e6ba9ebb3d3ee2aad6bb71ca1b2480) )
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "552.c1", 0x000000, 0x200000, CRC(b8693182) SHA1(d2fc7011e6e84de60aca5314391814f30f072fb1) )
+	ROM_LOAD16_BYTE( "552.c2", 0x000001, 0x200000, CRC(6f6ab114) SHA1(f0b1ade32f1028e9e11b23eef0ca1e9e0f616cab) )
+ROM_END
+
 ROM_START( mslug5ast )
 	ROM_REGION( 0x800000, REGION_CPU1, 0 )
 	ROM_LOAD32_WORD_SWAP( "5555.p1", 0x000000, 0x400000, CRC(1e0506cf) SHA1(f1a20f1f0fc3fd74dd5d258eaf75965eb2b4cd91) )
@@ -9031,6 +9112,11 @@ GAMEB( 2021, abyssal,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "K
 GAMEB( 2021, neo2048,    neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Nicole Branagan", "Neo 2048", 0 )
 GAMEB( 2026, violentv,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Balek Corp", "Violent Vengeance: the universe hero (beta 3.28, 2026-02-01)", 0 )
 GAMEB( 2026, blueandr,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Kaiju Wasp", "Blue and Red Fight the Robots v1.7", 0 )
+GAMEB( 2026, arena2,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Delarfab", "Arena 2", 0 )
+GAMEB( 2026, 7wonders,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Seven Wonders Puzzles v1.0.2", 0 )
+GAMEB( 2026, maiya,      neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Maiya: Super Nature Girl v4.1.0", 0 )
+GAMEB( 2026, maiyaluna,  neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Maiya & Luna v2.0.2", 0 )
+GAMEB( 2026, 1stdef,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "theSEGAshop", "1st Defence: The Final Upgrade", 0 )
 GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
 
 GAMEB( 2026, fixfelng, 0, neogeo, neogeo_full, neogeo, neogeo, ROT270, "Zanac", "Fix-It Felix Jr. (Neo Geo)", 0 )

@@ -12,6 +12,53 @@
     },
     {
       "shortnames": [
+        "1stdef"
+      ],
+      "title": "1st Defence: The Final Upgrade",
+      "year": 2026,
+      "developer": "theSEGAshop",
+      "category": "homebrew",
+      "genre": "Tabletop",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "original_game": null,
+      "description": "1st Defence: The Final Upgrade is a 2026 tower-defense strategy game developed by theSEGAshop for the Neo Geo AES and MVS. Rather than focusing on the immediate movement and shooting action typical of many arcade games, it challenges players with a series of defensive scenarios in which planning and survival are central to success. The main campaign contains eight missions, while an Endless mode provides a continuing challenge beyond the fixed sequence.\n\nThe game also offers a two-player versus mode, adding direct competition to its single-player strategy gameplay. Persistent scoreboards allow players to compare their achievements across sessions, and memory-card support provides a way to retain progress. Multiple soundtracks accompany the action, making this an unusual strategy-focused addition to the Neo Geo homebrew library.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The description follows the project brief and could not be cross-checked locally; the title screen of the ROM set shows the title 1st Defence: The Final Upgrade.",
+        "No version identifier is established.",
+        "Genre Tabletop is the closest standard label for a strategy game."
+      ]
+    },
+    {
+      "shortnames": [
+        "7wonders"
+      ],
+      "title": "Seven Wonders Puzzles",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Puzzle",
+      "platform": "Neo Geo MVS",
+      "players": null,
+      "release_status": "released",
+      "version": "1.0.2",
+      "original_game": null,
+      "description": "Seven Wonders Puzzles is a 2026 puzzle game by Eagle Software for the Neo Geo, combining several styles of logic and color-matching challenges within a journey through seven fantasy locations. Players encounter match-three boards, bubble-shooting stages and picture-logic puzzles, each requiring a different approach. Matching colored pieces can create cascades and special items, while bubble stages challenge players to aim shots, connect matching colors and rescue kittens trapped inside bubbles.\n\nThe adventure visits locations such as the Sky Garden, Crystal Canal, Moon Lighthouse and Coral Palace. Two cheerful cat guides, Mimi and Kiko, accompany the player through the colorful environments, reacting to successful combinations and completed challenges. Picture-logic puzzles use numerical clues to reveal hidden images, while stars, scores and collectible rewards encourage players to improve their results. Its pastel presentation, expressive characters and variety of puzzle styles give the game a distinctive identity among Neo Geo homebrew releases.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 1.0.2 comes from the project brief; the local reference labels this ROM set only as v1, so the exact release could not be verified.",
+        "The features described could not be checked against this exact ROM release; earlier preview builds had fewer levels, so no total level count is stated.",
+        "Player count is not established."
+      ]
+    },
+    {
+      "shortnames": [
         "abyssal"
       ],
       "title": "Abyssal Infants",
@@ -97,6 +144,28 @@
       "category": "prototype",
       "release_status": "prototype",
       "description": "Clockwork Aquario is a two-player side-scrolling action platformer developed by Westone Bit Entertainment for the Sega System 18 arcade board. Originally planned for release in 1993, the project was cancelled after location testing and remained unreleased for nearly three decades before its prototype ROM was recovered and restored."
+    },
+    {
+      "shortnames": [
+        "arena2"
+      ],
+      "title": "Arena 2",
+      "year": 2026,
+      "developer": "Delarfab",
+      "category": "homebrew",
+      "genre": "Arcade",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "original_game": null,
+      "description": "Arena 2 is a 2026 competitive arena-action game created by Delarfab for the Neo Geo. One or two players battle in compact, single-screen arenas whose edges wrap around, allowing characters and projectiles to travel from one side of the playfield to the other. In Territory mode, moving across blocks and shooting them changes their ownership, with victory going to the player controlling the largest area when time expires. Duel mode instead rewards direct combat, where a single successful hit eliminates an opponent and ammunition must be recovered after use.\n\nPlayers choose from three characters with different weapons: PIX fires paint projectiles and arrows, BOOMA uses a returning boomerang, and VOLT launches bouncing discs. Movement includes jumping, wall jumping, dodging and catching incoming shots. Power-ups and special events can change the arena through effects such as reversed gravity, temporary unlimited ammunition or rain that removes painted territory. Matches can be played against a friend or the computer.",
+      "websites": [],
+      "sources": [],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The exact release version of the ROM set is not established locally.",
+        "The description does not mention the Totem mode or additional arenas of later releases, since their presence in this ROM set is not verified."
+      ]
     },
     {
       "shortnames": [
@@ -1777,6 +1846,54 @@
       "original_game": "looptris",
       "description": "Looptris Plus is an expanded 2022 edition of Blastar's Neo Geo falling-block puzzle game Looptris, adding new modes and presentation refinements.",
       "confidence": "corroborated"
+    },
+    {
+      "shortnames": [
+        "maiya"
+      ],
+      "title": "Maiya: Super Nature Girl",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Neo Geo MVS",
+      "players": null,
+      "release_status": "released",
+      "version": "4.1.0",
+      "original_game": null,
+      "description": "Maiya: Super Nature Girl is a 2026 side-scrolling action-platform adventure developed by Eagle Software for the Neo Geo. Players explore a series of natural environments, running and jumping across platforms, climbing vines, discovering hidden items and confronting hostile creatures. Maiya can attack nearby enemies with a whip, throw thorns, dash through dangerous areas and use special nature-themed abilities. Collectible power-ups temporarily improve her movement or combat abilities, while flowers, rescued villagers and other treasures provide additional objectives along the way.\n\nThe adventure spans twelve missions featuring forests, coastlines, valleys and industrial environments. Stage exploration leads to encounters with powerful guardians, often fought in enclosed arenas where timing and positioning become especially important. Bonus sequences and hidden areas provide additional challenges between major encounters. The game's colorful scenery, animated characters and combination of platform exploration, combat and item collection establish it as an original adventure inspired by classic arcade platform games.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 4.1.0 comes from the project brief; the local reference labels this ROM set only as v4, so the exact release could not be verified.",
+        "The description follows the documented v4.1.0 release; features of later experimental builds are excluded.",
+        "Player count is not established."
+      ]
+    },
+    {
+      "shortnames": [
+        "maiyaluna"
+      ],
+      "title": "Maiya & Luna: Wonderful Adventures in Nature Fantasy",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Misc.",
+      "platform": "Neo Geo MVS",
+      "players": null,
+      "release_status": "released",
+      "version": "2.0.2",
+      "original_game": null,
+      "description": "Maiya & Luna: Wonderful Adventures in Nature Fantasy is a 2026 exploration and puzzle adventure developed by Eagle Software as a follow-up to Maiya: Super Nature Girl. Instead of concentrating on side-scrolling platform combat, it focuses on investigating interconnected locations, talking to characters, collecting useful objects and solving environmental puzzles. Players choose between two sisters whose different abilities create distinct routes through the adventure. Maiya can climb vegetation, move heavy obstacles and defend herself with a whip, while Luna specializes in examining details, navigating narrow passages and manipulating delicate mechanisms.\n\nThe story follows efforts to restore seven ancient wonders after a storm disrupts the valley's water systems. Its seven chapters take players through locations such as an abandoned watermill, a forest labyrinth, a lighthouse, a crystal grotto and a great tree observatory. Each sister follows her own journey through the shared world, with different discoveries, puzzles and conversations. The adventure emphasizes observation, exploration and cooperation over conventional arcade combat, with a notebook and inventory supporting progress through its interconnected challenges.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 2.0.2 comes from the project brief; the ROM set was supplied locally and differs from the v2 reference in the main CPU and sound CPU ROMs, so the exact release could not be verified.",
+        "Player count is not established.",
+        "Genre is Misc. because the game is an exploration adventure with puzzles; no closer label exists in the standard vocabulary."
+      ]
     },
     {
       "shortnames": [
