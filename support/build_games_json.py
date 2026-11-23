@@ -717,7 +717,7 @@ def build_record(group_key, names):
         })
     rec["sources"] = sources
 
-    research_notes = []
+    research_notes = list(cur.get("research_notes", []))
     if year is None and primary not in bios_names:
         research_notes.append("Exact release year is not established.")
     if dev is None and pub is None and cat not in ("bootleg", "hack"):

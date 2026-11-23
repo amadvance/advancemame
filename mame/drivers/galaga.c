@@ -889,6 +889,34 @@ static ADDRESS_MAP_START( galaga_map, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 
+/* the explosion commands sent to the 54XX are replaced by a sample (galagost) */
+static WRITE8_HANDLER( galagost_06xx_data_w )
+{
+	namco_06xx_0_data_w(offset, data & 0xcf);
+
+	/* when the ship blows up the game sends 10 10 20 20: only one is needed */
+	if (data == 0x20)
+		sample_start(0, 0, 0);
+}
+
+
+static ADDRESS_MAP_START( galagost_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x3fff) AM_ROM AM_WRITENOP
+	AM_RANGE(0x6800, 0x6807) AM_READ(bosco_dsw_r)
+	AM_RANGE(0x6800, 0x681f) AM_WRITE(pacman_sound_w) AM_BASE(&namco_soundregs)
+	AM_RANGE(0x6820, 0x6827) AM_WRITE(bosco_latch_w)
+	AM_RANGE(0x6830, 0x6830) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x7000, 0x70ff) AM_READWRITE(namco_06xx_0_data_r, galagost_06xx_data_w)
+	AM_RANGE(0x7100, 0x7100) AM_READWRITE(namco_06xx_0_ctrl_r, namco_06xx_0_ctrl_w)
+	AM_RANGE(0x8000, 0x87ff) AM_READWRITE(galaga_videoram_r, galaga_videoram_w) AM_BASE(&galaga_videoram)
+	AM_RANGE(0x8800, 0x8bff) AM_RAM AM_SHARE(1) AM_BASE(&galaga_ram1)
+	AM_RANGE(0x9000, 0x93ff) AM_RAM AM_SHARE(2) AM_BASE(&galaga_ram2)
+	AM_RANGE(0x9800, 0x9bff) AM_RAM AM_SHARE(3) AM_BASE(&galaga_ram3)
+	AM_RANGE(0xa000, 0xa005) AM_WRITE(galaga_starcontrol_w)
+	AM_RANGE(0xa007, 0xa007) AM_WRITE(galaga_flip_screen_w)
+ADDRESS_MAP_END
+
+
 static ADDRESS_MAP_START( xevious_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x3fff) AM_ROM AM_WRITENOP			/* the only area different for each CPU */
 	AM_RANGE(0x6800, 0x6807) AM_READ(bosco_dsw_r)
@@ -1965,6 +1993,32 @@ static MACHINE_DRIVER_START( galaga )
 	MDRV_SOUND_ADD(NAMCO_54XX, 18432000/12)	/* 1.536 MHz */
 	MDRV_SOUND_CONFIG(namco_54xx_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.90)
+MACHINE_DRIVER_END
+
+static const char *galagost_sample_names[] =
+{
+	"*galagost",
+	"bang.wav",
+	0	/* end of array */
+};
+
+static struct Samplesinterface samples_interface_galagost =
+{
+	1,	/* one channel */
+	galagost_sample_names
+};
+
+static MACHINE_DRIVER_START( galagost )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM(galaga)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(galagost_map,0)
+
+	/* sound hardware */
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(samples_interface_galagost)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.75)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( galagab )
@@ -3057,6 +3111,36 @@ ROM_START( galaga84 )
 	ROM_LOAD( "1d.bin",       0x0000, 0x0100, CRC(86d92b24) SHA1(6bef9102b97c83025a2cf84e89d95f2d44c3d2ed) )
 ROM_END
 
+ROM_START( galagost )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "3200a.bin",    0x0000, 0x1000, CRC(3ef0b053) SHA1(0c04a362b737998c0952a753fb3fd8c8a17e9b46) )
+	ROM_LOAD( "3300b.bin",    0x1000, 0x1000, CRC(1b280831) SHA1(f7ea12e61929717ebe43a4198a97f109845a2c62) )
+	ROM_LOAD( "3400c.bin",    0x2000, 0x1000, CRC(16233d33) SHA1(a7eb799be5e23058754a92b15e6527bfbb47a354) )
+	ROM_LOAD( "3500d.bin",    0x3000, 0x1000, CRC(0aaf5c23) SHA1(3f4b0bb960bf002261e9c1278c88f594c6aa8ab6) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )
+	ROM_LOAD( "3600fast.bin", 0x0000, 0x1000, CRC(23d586e5) SHA1(43346c69385e9091e64cff6c027ac2689cafcbb9) )
+
+	ROM_REGION( 0x10000, REGION_CPU3, 0 )
+	ROM_LOAD( "3700g.bin",    0x0000, 0x1000, CRC(b07f0aa4) SHA1(7528644a8480d0be2d0d37069515ed319e94778f) )
+
+	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gost_07m_g08.bin",  0x0000, 0x1000, CRC(c7588555) SHA1(269362b7fe63007b317ee4b63ef7d09f24d9c362) )
+
+	ROM_REGION( 0x2000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "gost_07e_g10.bin",  0x0000, 0x1000, CRC(0758b90f) SHA1(89cc8db9457fa5f56b49930590f32aba1bc55323) )
+	ROM_LOAD( "gost_07h_g09.bin",  0x1000, 0x1000, CRC(53f1332b) SHA1(04136e52008c4ad4813529d633fd9b8c71e6ccc0) )
+
+	ROM_REGION( 0x0320, REGION_PROMS, 0 )
+	ROM_LOAD( "prom-5.5n",    0x0000, 0x0020, CRC(54603c6b) SHA1(1a6dea13b4af155d9cb5b999a75d4f1eb9c71346) )
+	ROM_LOAD( "2n.bin",       0x0020, 0x0100, CRC(a547d33b) SHA1(7323084320bb61ae1530d916f5edd8835d4d2461) )
+	ROM_LOAD( "1c.bin",       0x0120, 0x0100, CRC(b6f585fb) SHA1(dd10147c4f05fede7ae6e7a760681700a660e87e) )
+	ROM_LOAD( "5c.bin",       0x0220, 0x0100, CRC(8bd565f6) SHA1(bedba65816abfc2ebeacac6ee335ca6f136e3e3d) )
+
+	ROM_REGION( 0x0100, REGION_SOUND1, 0 )
+	ROM_LOAD( "1d.bin",       0x0000, 0x0100, CRC(86d92b24) SHA1(6bef9102b97c83025a2cf84e89d95f2d44c3d2ed) )
+ROM_END
+
 ROM_START( galagap )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "gg1_1b.3p",    0x0000, 0x1000, CRC(ab036c9f) SHA1(ca7f5da42d4e76fd89bb0b35198a23c01462fbfe) )
@@ -3252,6 +3336,7 @@ GAME( 1982, digduga1, digdug,  digdug,  digdug,   0,       ROT90, "[Namco] (Atar
 GAME( 1982, dzigzag,  digdug,  dzigzag, digdug,   0,       ROT90, "bootleg", "Zig Zag (Dig Dug hardware)", GAME_SUPPORTS_SAVE )
 
 GAME( 1984, galaga84,    galaga,    galaga,   galaga,   galaga,   ROT90, "hack", "Galaga '84", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
+GAME( 2002, galagost,    galaga,    galagost, galaga,   galaga,   ROT90, "Twisty", "Galaga Ghost", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
 GAME( 2007, galagap,     galaga,    galaga,   galaga,   galaga,   ROT90, "Don Hodges", "Galaga (patched)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
 GAME( 2024, galaga01,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Wave Mixer (2024-04-02)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
 GAME( 2024, galaga02,    galaga,    galaga,   galaga,   galaga,   ROT90, "Paul Goes", "Galaga Challenging Only", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )

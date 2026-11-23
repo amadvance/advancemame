@@ -564,6 +564,29 @@ ROM_START( temptube )
 ROM_END
 
 
+ROM_START( tempcax )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "tempcax.113",  0x9000, 0x0800, CRC(0e1d57ec) SHA1(1ec619d10d5994b0b8ba781b06c64623ef253527) )
+	ROM_LOAD( "136002.114",   0x9800, 0x0800, CRC(11077375) SHA1(ed8ff0ca969da6672a7683b93d4fcf2935a0d903) )
+	ROM_LOAD( "tempcax.115",  0xa000, 0x0800, CRC(5b60e6f8) SHA1(799198ce940f6771aad5979b28763c840978e284) )
+	ROM_LOAD( "tempcax.316",  0xa800, 0x0800, CRC(0d61062e) SHA1(9e4124127c268e927ff3c69a9bcda7818a20449c) )
+	ROM_LOAD( "tempcax.217",  0xb000, 0x0800, CRC(0e4f9a3a) SHA1(daabcc874967f08b28a2f3e27c54d872b050c73b) )
+	ROM_LOAD( "tempcax.118",  0xb800, 0x0800, CRC(86f3d67f) SHA1(4a924e229b95d38c1f77011f373354f69321bfe6) )
+	ROM_LOAD( "tempcax.119",  0xc000, 0x0800, CRC(4dbb1498) SHA1(8796152477e124c76b2abaa8c122516033167b8c) )
+	ROM_LOAD( "tempcax.120",  0xc800, 0x0800, CRC(315db869) SHA1(a992f08e37b634c4b88f1f9b2260579f1ee327a1) )
+	ROM_LOAD( "tempcax.121",  0xd000, 0x0800, CRC(9ac5ea67) SHA1(2b56032b2fb4e67fe84ddffeb557955a586b5da7) )
+	ROM_LOAD( "tempcax.222",  0xd800, 0x0800, CRC(42e12740) SHA1(3792e87ff011b75118dec299ad4e94f09fe65ff4) )
+	ROM_RELOAD(             0xf800, 0x0800 ) /* for reset/interrupt vectors */
+	/* Mathbox ROMs */
+	ROM_LOAD( "136002.123",   0x3000, 0x0800, CRC(29f7e937) SHA1(686c8b9b8901262e743497cee7f2f7dd5cb3af7e) )
+	ROM_LOAD( "136002.124",   0x3800, 0x0800, CRC(c16ec351) SHA1(a30a3662c740810c0f20e3712679606921b8ca06) )
+
+	/* Vector generator state PROM. */
+	ROM_REGION( 0x100, REGION_PROMS, 0 )
+	ROM_LOAD( "136002-125.d7",   0x0000, 0x0100, CRC(5903af03) SHA1(24bc0366f394ad0ec486919212e38be0f08d0239) )
+ROM_END
+
+
 #if 0 /* identical to rom_tempest, only different rom sizes */
 ROM_START( tempest3 )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
@@ -595,3 +618,4 @@ GAME( 1980, tempest1, tempest, tempest, tempest, 0, ROT270, "Atari", "Tempest (r
 GAME( 1980, tempest2, tempest, tempest, tempest, 0, ROT270, "Atari", "Tempest (rev 2)", 0 )
 GAME( 1980, tempest3, tempest, tempest, tempest, 0, ROT270, "Atari", "Tempest (rev ?)", 0 )
 GAME( 1980, temptube, tempest, tempest, tempest, 0, ROT270, "hack", "Tempest Tubes", 0 )
+GAME( 2026, tempcax,  tempest, tempest, tempest, 0, ROT270, "hack", "Tempest CAX 2026 (v1.2)", 0 )

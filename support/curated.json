@@ -1390,6 +1390,40 @@
     },
     {
       "shortnames": [
+        "galagost"
+      ],
+      "title": "Galaga Ghost",
+      "year": 2002,
+      "developer": "Namco",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Namco Galaga hardware",
+      "original_game": "galaga",
+      "hack_author": "Twisty",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Replaces the insect-like aliens with Pac-Man ghosts (blue and red) and the Boss Galaga with yellow Pac-Man characters, including the attacking and attract-mode enemies; the player's fighter is unchanged."
+        },
+        {
+          "type": "audio",
+          "description": "Replaces the ship explosion sound with a Pac-Man style death sound."
+        },
+        {
+          "type": "technical",
+          "description": "Uses modified program ROMs for all three CPUs and new character and sprite graphics ROMs."
+        }
+      ],
+      "description": "Galaga Ghost is a graphical modification of Namco's 1981 fixed shooter Galaga that swaps the insect aliens for characters from Pac-Man. Move the fighter along the bottom of the screen and shoot the formation as it flies in, while individual enemies peel away to dive at you. Rows of blue and red ghosts make up the bulk of each formation, and yellow Pac-Man characters take the place of the Boss Galaga at the top; the enemies that attack also appear as ghosts and Pac-Man. The title screen still reads Galaga and the point values shown for the first two enemy types (50/100 and 80/160) are the same as the original.\n\nThe fighter keeps its original look, and the game plays as the familiar Galaga shoot-and-dodge. The one audible change is the explosion of the player's ship, which now plays a Pac-Man style death sound instead of the arcade's synthesized blast.",
+      "confidence": "uncertain",
+      "research_notes": [
+        "The 2002 year and the attribution to Twisty come from a single source and are not independently confirmed.",
+        "Whether enemy behaviour, wave patterns or difficulty differ from Galaga was not established; one of the program ROMs is labelled 'fast' and may indicate a speed change.",
+        "The Pac-Man style ship explosion is played from an external sample file."
+      ]
+    },
+    {
+      "shortnames": [
         "ghohunt"
       ],
       "title": "Ghost Hunt",
@@ -2565,6 +2599,45 @@
       "category": "prototype",
       "release_status": "prototype",
       "original_game": "steeltal"
+    },
+    {
+      "shortnames": [
+        "tempcax"
+      ],
+      "title": "Tempest CAX 2026",
+      "year": 2026,
+      "developer": "Atari",
+      "category": "hack",
+      "genre": "Shooter",
+      "platform": "Atari Tempest hardware",
+      "original_game": "tempest",
+      "version": "1.2",
+      "hack_author": "SHUPAC",
+      "modifications": [
+        {
+          "type": "other",
+          "description": "Shows the credit line 'SHUPAC 2026 CAX' in place of the Atari copyright line on the attract and skill-select screens."
+        },
+        {
+          "type": "difficulty",
+          "description": "The skill-select screen offers starting levels 1 to 5 with starting bonuses of 0, 3000, 6000, 11000 and 16000, instead of levels 1, 3, 5, 7 and 9 with bonuses of 0, 6000, 16000, 32000 and 54000."
+        },
+        {
+          "type": "other",
+          "description": "Ships with a different default high score table, led by initials SHU, PAC and SCI."
+        },
+        {
+          "type": "technical",
+          "description": "Modifies nine of the ten Tempest program ROMs; the math box ROMs and one program ROM are unchanged from the original."
+        }
+      ],
+      "description": "Tempest CAX 2026 is a modified edition of Atari's vector arcade shooter Tempest, listed as version 1.2. As in the original, you control a claw-shaped blaster that moves around the rim of a geometric tube, shooting the enemies that climb toward you from the far end while avoiding collisions, and you can trigger the Superzapper as an emergency weapon.\n\nThe edition keeps the original vector presentation and controls but changes how a game begins. Its skill-select screen offers the first five levels in sequence (1 to 5) rather than the original's every-other-level choices (1, 3, 5, 7 and 9), with correspondingly smaller starting bonuses. The attract mode and skill-select screens carry a 'SHUPAC 2026 CAX' credit in place of the Atari copyright line, and the high score table starts with different entries.",
+      "confidence": "uncertain",
+      "research_notes": [
+        "The 2026 year, the version number and the author name come only from the title and the on-screen credit text 'SHUPAC 2026 CAX'; no independent release information was found.",
+        "Whether new tube layouts, enemy patterns, progression, scoring or other gameplay rules differ from Tempest was not established; only the early game was played.",
+        "Nine program ROMs differ from Tempest rev 3, which indicates additional code changes that are not yet identified."
+      ]
     },
     {
       "shortnames": [

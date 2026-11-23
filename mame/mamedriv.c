@@ -616,6 +616,7 @@ const game_driver * const drivers[] =
 	DRIVER( gallag )	/* bootleg */
 	DRIVER( gatsbee )	/* (c) 1984 Uchida / hack */
 	DRIVER( galaga84 )
+	DRIVER( galagost )
 	DRIVER( galagap )
 	DRIVER( galaga01 )
 	DRIVER( galaga02 )
@@ -5289,6 +5290,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tempest2 )	/* 136002           (c) 1980 */
 	DRIVER( tempest3 )	/* 136002           (c) 1980 */
 	DRIVER( temptube )	/* (hack) */
+	DRIVER( tempcax )	/* (hack) */
 	DRIVER( spacduel )	/* 136006           (c) 1980 */
 	DRIVER( gravitar )	/* 136010           (c) 1982 */
 	DRIVER( gravitr2 )	/* 136010           (c) 1982 */
