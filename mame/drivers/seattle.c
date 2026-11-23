@@ -454,6 +454,10 @@ static UINT32 *interrupt_enable;
 static UINT32 *asic_reset;
 
 static UINT8 pending_analog_read;
+static INT8 wheel_force;
+static INT8 wheel_offset;
+static UINT8 wheel_calibrated;
+static UINT16 wheel_output_last;
 static UINT8 status_leds;
 
 static UINT32 *generic_speedup;
@@ -525,6 +529,11 @@ static VIDEO_UPDATE( seattle )
 
 static MACHINE_RESET( seattle )
 {
+	wheel_force = 0;
+	wheel_offset = 0;
+	wheel_calibrated = 0;
+	wheel_output_last = 0;
+
 	/* configure fast RAM regions */
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_SELECT, 0);
 	cpunum_set_info_int(0, CPUINFO_INT_MIPS3_FASTRAM_START, 0x00000000);
@@ -1396,7 +1405,40 @@ static WRITE32_HANDLER( analog_port_w )
 {
 	if (data < 8 || data > 15)
 		logerror("%08X:Unexpected analog port select = %08X\n", activecpu_get_pc(), data);
-	pending_analog_read = readinputport(4 + (data & 7));
+	int index = data & 7;
+	int value = readinputport(4 + index);
+
+	/* the game drives the wheel with force feedback during the calibration and expects the
+	   steering to move: without a real wheel it fails with "steering wheel not responding" */
+	if (!wheel_calibrated && (wheel_force > 20 || wheel_force < -20))
+	{
+		int minval = (index == 7) ? 0x10 : 0x00;
+		int maxval = (index == 7) ? 0xf0 : 0xff;
+
+		if (wheel_force > 0 && wheel_offset < 127)
+			++wheel_offset;
+		else if (wheel_offset > -128)
+			--wheel_offset;
+		value += wheel_offset;
+		if (value < minval)
+			value = minval;
+		else if (value > maxval)
+			value = maxval;
+	}
+	pending_analog_read = value;
+
+	/* the calibration ends as soon as any system button is pressed */
+	if (!wheel_calibrated && ((~readinputportbytag("SYSTEM")) & 0xffff))
+		wheel_calibrated = 1;
+}
+
+
+static void wheel_board_w(UINT16 data)
+{
+	/* the target wheel force is latched on the rising edge of the chip select */
+	if (!(wheel_output_last & 0x800) && (data & 0x800) && !(data & 0x700))
+		wheel_force = (INT8)(data & 0xff);
+	wheel_output_last = data;
 }
 
 
@@ -2864,6 +2906,9 @@ static DRIVER_INIT( sfrush )
 	cage_init(REGION_USER2, 0x5236);
 	init_common(MIDWAY_IOASIC_STANDARD, 315/* no alternates */, 100, FLAGSTAFF_CONFIG);
 
+	/* init_common() clears the callback */
+	midway_ioasic_set_aux_output_callback(wheel_board_w);
+
 	/* speedups */
 	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x0012498c, 0x0012498f, 0, 0, generic_speedup_r);
 	generic_speedup = &rambase[0x12498c/4];
@@ -2876,6 +2921,7 @@ static DRIVER_INIT( sfrushrk )
 {
 	cage_init(REGION_USER2, 0x5329);
 	init_common(MIDWAY_IOASIC_SFRUSHRK, 331/* unknown */, 100, FLAGSTAFF_CONFIG);
+	midway_ioasic_set_aux_output_callback(wheel_board_w);
 
 	/* speedups */
 //  memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0x0012498c, 0x0012498f, 0, 0, generic_speedup_r);
@@ -2981,7 +3027,7 @@ GAME( 1996, wg3dh,    0,        phoenixsa,  wg3dh,    wg3dh,    ROT0, "Atari Gam
 GAME( 1996, mace,     0,        seattle150, mace,     mace,     ROT0, "Atari Games",  "Mace: The Dark Age (boot ROM 1.0ce, HDD 1.0b)", 0 )
 GAME( 1997, macea,    mace,     seattle150, mace,     mace,     ROT0, "Atari Games",  "Mace: The Dark Age (HDD 1.0a", 0 )
 GAME( 1996, sfrush,   0,        flagstaff,  sfrush,   sfrush,   ROT0, "Atari Games",  "San Francisco Rush", 0 )
-GAME( 1996, sfrushrk, 0,        flagstaff,  sfrushrk, sfrushrk, ROT0, "Atari Games",  "San Francisco Rush: The Rock", GAME_NOT_WORKING )
+GAME( 1997, sfrushrk, 0,        flagstaff,  sfrushrk, sfrushrk, ROT0, "Atari Games",  "San Francisco Rush: The Rock (boot rom L 1.0, GUTS Oct 6 1997 / MAIN Oct 16 1997)", 0 )
 GAME( 1998, calspeed, 0,        seattle150, calspeed, calspeed, ROT0, "Atari Games",  "California Speed (Version 2.1a, 4/17/98)", 0 )
 GAME( 1998, calspeda, calspeed, seattle150, calspeed, calspeed, ROT0, "Atari Games",  "California Speed (Version 1.0r7a 3/4/98)", 0 )
 GAME( 1998, vaportrx, 0,        vaportrx,   vaportrx, vaportrx, ROT0, "Atari Games",  "Vapor TRX", 0 )
@@ -2991,7 +3037,7 @@ GAME( 1998, vaportrp, vaportrx, vaportrx,   vaportrx, vaportrx, ROT0, "Atari Gam
 GAME( 1997, biofreak, 0,        biofreak,   biofreak, biofreak, ROT0, "Midway Games", "BioFreaks (prototype)", 0 )
 GAME( 1997, blitz,    0,        seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.2)", 0 )
 GAME( 1997, blitz11,  blitz,    seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.1)", 0 )
-GAME( 1998, blitz99,  0,        seattle150, blitz99,  blitz99,  ROT0, "Midway Games", "NFL Blitz '99", GAME_NOT_WORKING ) // game play doesn't start
-GAME( 1999, blitz2k,  0,        seattle150, blitz99,  blitz2k,  ROT0, "Midway Games", "NFL Blitz 2000 Gold Edition", GAME_NOT_WORKING ) // game play doesn't start
+GAME( 1998, blitz99,  0,        seattle150, blitz99,  blitz99,  ROT0, "Midway Games", "NFL Blitz '99 (ver 1.30, Sep 22 1998)", 0 )
+GAME( 1999, blitz2k,  0,        seattle150, blitz99,  blitz2k,  ROT0, "Midway Games", "NFL Blitz 2000 Gold Edition (ver 1.2, Sep 22 1999)", 0 )
 GAME( 1998, carnevil, 0,        carnevil,   carnevil, carnevil, ROT0, "Midway Games", "CarnEvil", 0 )
 GAME( 1998, hyprdriv, 0,        seattle200, hyprdriv, hyprdriv, ROT0, "Midway Games", "Hyperdrive", 0 )
