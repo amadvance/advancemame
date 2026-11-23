@@ -1009,6 +1009,15 @@ const game_driver * const drivers[] =
 	DRIVER( dkchrmx )
 	DRIVER( dkspkyrmx )
 	DRIVER( dkongte )
+	DRIVER( dkremix )
+	DRIVER( dkongtj )
+	DRIVER( dkwizard )
+	DRIVER( dkonghh )
+	DRIVER( dkongrev )
+	DRIVER( dkongotr )
+	DRIVER( dkongitd )
+	DRIVER( dkongrnd )
+	DRIVER( dkfreerun )
 
 	/* Nintendo Playchoice 10 games */
 	DRIVER( playch10 )

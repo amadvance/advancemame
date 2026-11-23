@@ -809,6 +809,258 @@
     },
     {
       "shortnames": [
+        "dkremix"
+      ],
+      "title": "Donkey Kong Remix",
+      "year": 2023,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "John Kowalski",
+      "description": "Donkey Kong Remix is a modification of Nintendo's 1981 arcade platform game by John Kowalski, part of the Donkey Kong Remix series that also includes the Christmas and Spooky editions. As in the original, Jumpman climbs ladders, jumps barrels and other hazards, and races to the top of each board to rescue Pauline, but the boards come from a custom stage set instead of the original four.\n\nThe game runs on the Braze expansion kit used by the other Remix releases, which replaces the standard board data and allows a different sequence of stages with its own title screen.",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Replaces the original stage layouts with remixed stages stored in the Braze expansion ROM."
+        },
+        {
+          "type": "graphics",
+          "description": "Uses a custom title screen with its own artwork and a remix credit line."
+        }
+      ],
+      "websites": [
+        {
+          "type": "project",
+          "url": "https://dkremix.com/"
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "Individual stage designs, the exact number of boards and the release year of this specific edition were not verified against documentation; the on-screen credit reads 'Remixed 2015'.",
+        "Author attribution follows the other Remix releases and the Remix project site."
+      ]
+    },
+    {
+      "shortnames": [
+        "dkongtj"
+      ],
+      "title": "Donkey Kong Twisted Jungle",
+      "year": 2020,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.05",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Twisted Jungle is a 2020 modification of Nintendo's Donkey Kong by Paul Goes in which Donkey Kong has carried Pauline off to his jungle. Jumpman must rescue her across five brand-new jungle-themed stages that replace the familiar construction-site boards.\n\nThe jungle is Donkey Kong's home ground, not Jumpman's: players must avoid falling coconuts, time their jumps between elevator platforms, watch for ground that disappears underfoot, clear away leaves and tubers and evade worms, snapjaws and birds. Bananas can be collected for extra bonus points. Because the stages and enemies are all new, routes learned on the original arcade game are of little use.",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Replaces the four original boards with five new jungle-themed stages."
+        },
+        {
+          "type": "graphics",
+          "description": "Redraws backgrounds, platforms and enemies with a jungle presentation, including a new title screen."
+        },
+        {
+          "type": "characters",
+          "description": "Introduces jungle enemies such as worms, snapjaws, birds and falling coconuts."
+        },
+        {
+          "type": "gameplay",
+          "description": "Adds disappearing ground, removable leaves and tubers, and bananas that award bonus points."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkwizard"
+      ],
+      "title": "Donkey Kong Wizardry",
+      "year": 2022,
+      "developer": "Nintendo",
+      "category": "hack",
+      "genre": "Platform",
+      "platform": "Nintendo Donkey Kong hardware",
+      "version": "1.03",
+      "original_game": "dkong",
+      "series": "Donkey Kong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Wizardry is a 2022 modification by Paul Goes that adds a touch of magic to Nintendo's Donkey Kong. Jumpman is a wizard trying to rescue his girlfriend, Witch Pauline, and has a spell that temporarily halts fireballs when they come too close. The spell can be used once on each board and is activated with the Player 2 button, so it has to be saved for the right moment.\n\nThe barrel board is built randomly each time, with more than three million possible layouts, the pies and elevator boards have new designs, and the rivets board uses an upgraded fireball spawning algorithm that makes the well-known Star and Weave patterns useless. With more pressure from the fireballs than in the original, the spell must be used wisely.",
+      "modifications": [
+        {
+          "type": "characters",
+          "description": "Recasts Jumpman as a wizard and Pauline as a witch."
+        },
+        {
+          "type": "gameplay",
+          "description": "Gives Jumpman a spell, triggered with the Player 2 button and usable once per board, that temporarily halts fireballs that come too close."
+        },
+        {
+          "type": "levels",
+          "description": "Builds the barrel board randomly (millions of possible layouts) and redesigns the pies and elevator boards."
+        },
+        {
+          "type": "difficulty",
+          "description": "Upgrades the fireball spawning on the rivets board so that the usual Star and Weave patterns no longer work."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkonghh"
+      ],
+      "title": "Donkey Kong HeartHunt",
+      "year": 2022,
+      "category": "hack",
+      "version": "1.01",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong HeartHunt is a 2022 modification by Paul Goes in which Pauline has placed three hearts on every board. Jumpman can only finish a board after grabbing all three of them. On the barrel and elevator boards, collecting the hearts makes the final ladder to Pauline appear; on the pies board it sets the retractable ladders in motion; and on the rivets board it breaks the chains that hold up Donkey Kong.\n\nThe collection requirement turns each familiar board into a route-planning problem, since the hearts must be reached without losing sight of the barrels, fireballs and other hazards of the original game.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Places three hearts on each board that must all be collected before the board can be finished."
+        },
+        {
+          "type": "levels",
+          "description": "Collecting the hearts triggers a board-specific change: a final ladder to Pauline appears on the barrel and elevator boards, the retractable ladders start moving on the pies board, and the chains holding Donkey Kong break on the rivets board."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongrev"
+      ],
+      "title": "Donkey Kong Reverse",
+      "year": 2019,
+      "category": "hack",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Reverse is a 2019 modification by Paul Goes that lets players experience Nintendo's Donkey Kong in reverse. On the barrel, conveyor and elevator boards Jumpman starts at the top of the screen and has to reach Pauline's heart at the bottom, while on the rivets board he must plug the rivets back in instead of unplugging them.\n\nIn every board it is a little easier to jump over fireballs and firefoxes because they do not change direction when Jumpman leaps over them.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Starts Jumpman at the top of the barrel, conveyor and elevator boards and sends him down to Pauline's heart at the bottom."
+        },
+        {
+          "type": "gameplay",
+          "description": "On the rivets board the rivets must be plugged back in instead of removed."
+        },
+        {
+          "type": "difficulty",
+          "description": "Fireballs and firefoxes no longer change direction when jumped, making them slightly easier to avoid."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongotr"
+      ],
+      "title": "Donkey Kong On the Run",
+      "year": 2020,
+      "category": "hack",
+      "version": "1.02",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong On the Run is a 2020 modification by Paul Goes in which Donkey Kong has not only kidnapped Pauline but also sabotaged the boards, because he is on the run. The sabotage includes randomly broken ladders, twice as many wild barrels, blinking hammers, closely spaced pies and extra springs placed in between the original ones.\n\nThese changes keep the familiar objective and controls but make the game much more brutal, so it is aimed at players who already know the original boards well.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Adds randomly broken ladders, blinking hammers, in-between springs and more closely spaced pies."
+        },
+        {
+          "type": "difficulty",
+          "description": "Doubles the number of wild barrels, making the game considerably harder."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongitd"
+      ],
+      "title": "Donkey Kong Into the Dark",
+      "year": 2020,
+      "category": "hack",
+      "version": "1.02",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Into the Dark is a 2020 modification by Paul Goes in which Donkey Kong unplugs the power source and the lights go out. Jumpman must complete the boards in the dark, with the lights flashing on briefly every few seconds so that the player can get their bearings.\n\nThe platforming itself is unchanged, so the challenge comes from remembering the layouts, hazards and timings of the original game while most of the screen is hidden.",
+      "modifications": [
+        {
+          "type": "graphics",
+          "description": "Switches the lights off so that most of the playfield is hidden, with a brief flash of light every few seconds."
+        },
+        {
+          "type": "difficulty",
+          "description": "Forces players to complete the boards largely from memory."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkongrnd"
+      ],
+      "title": "Donkey Kong Randomized Edition",
+      "year": 2020,
+      "category": "hack",
+      "version": "1.01",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Randomized Edition is a 2020 modification by Paul Goes that randomizes the progression of Nintendo's Donkey Kong. Instead of the fixed sequence of boards, each new board is chosen at random: a random level between 1 and 5 and a random screen among barrels, pies, springs and rivets, without regard to what was selected before.\n\nTo be more interesting for skilled players the selection is not evenly distributed: higher levels and the barrel board come up more often. The boards themselves keep the original layouts, which sets this game apart from Donkey Kong RNDMZR, where the layout of every board is randomly generated.",
+      "modifications": [
+        {
+          "type": "gameplay",
+          "description": "Selects each board at random from a level between 1 and 5 and one of the barrel, pies, springs and rivets screens, independently of the previous choice."
+        },
+        {
+          "type": "difficulty",
+          "description": "Weights the selection toward the later levels and the barrel board: the distribution is L1 3.5%, L2 9%, L3 25%, L4 25%, L5 37.5%, and Barrels 50%, Pies 12.5%, Springs 25%, Rivets 12.5%."
+        }
+      ],
+      "confidence": "corroborated",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "dkfreerun"
+      ],
+      "title": "Donkey Kong Freerun Edition",
+      "year": 2019,
+      "category": "hack",
+      "original_game": "dkong",
+      "hack_author": "Paul Goes",
+      "description": "Donkey Kong Freerun Edition is a 2019 modification of Nintendo's Donkey Kong by Paul Goes. Its opening screen replaces the familiar sloping girders with flat platforms connected by many ladders, and Jumpman keeps the original climbing and jumping controls.",
+      "modifications": [
+        {
+          "type": "levels",
+          "description": "Presents the opening screen with a flat arrangement of girders joined by a dense network of ladders."
+        }
+      ],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The intent and complete list of changes (for example whether enemies are reduced or removed) could not be verified from local documentation; only the altered opening screen and board layouts were observed in play."
+      ]
+    },
+    {
+      "shortnames": [
         "dkpace"
       ],
       "title": "Donkey Kong Pace",
