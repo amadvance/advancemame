@@ -2555,6 +2555,31 @@
     },
     {
       "shortnames": [
+        "seraph"
+      ],
+      "title": "Seraph Zero",
+      "year": 2026,
+      "developer": "Nasprich",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "released",
+      "version": "1.0",
+      "original_game": null,
+      "description": "Seraph Zero is a 2026 vertical-scrolling shoot-'em-up created by Nasprich for the Neo Geo. Players pilot one of six spacecraft through seven stages of intense aerial combat, fighting enemy formations, dodging incoming fire and confronting large bosses. Each stage contains two distinct areas, a mid-stage encounter and a final boss, with environments ranging from oceans and jungles to deserts, orbital installations and mechanical fortresses. Hidden passages and secret areas reward players who master the hazards and special challenges found throughout the adventure.\n\nThe six pilots have individual spacecraft, special bombs, abilities and fully voiced personalities. Players can collect and upgrade six types of weapons, including spread shots, piercing lasers, homing missiles and attacks capable of neutralizing enemy projectiles. The game supports simultaneous two-player cooperative action or a computer-controlled wingman, with character relationships developing through their shared experiences. Additional modes include Boss Rush, Practice and Score Attack, while achievements and unlockable gallery content provide incentives for repeated play. Seraph Zero also supports both vertical and horizontal display configurations, making its elaborate arcade-shooter experience accessible on different Neo Geo setups.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The description follows the project brief and could not be cross-checked locally; the ROM set boots to a SERAPH / NASPRICH title card, a Seraph Zero title screen and an attract-mode demo.",
+        "Version 1.0 is taken from the project brief; the ROM set does not state it.",
+        "The vertical/horizontal display option and the other gameplay details were not verified in this release.",
+        "The publisher is not established."
+      ]
+    },
+    {
+      "shortnames": [
         "sf2mix"
       ],
       "title": "Street Fighter II: Dream Battle",
@@ -2945,6 +2970,30 @@
       "title": "Vautour",
       "category": "bootleg",
       "original_game": "phoenix"
+    },
+    {
+      "shortnames": [
+        "veilriot"
+      ],
+      "title": "Veil Riot",
+      "year": 2026,
+      "developer": "theSEGAshop",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Neo Geo MVS",
+      "players": 2,
+      "release_status": "beta",
+      "original_game": null,
+      "description": "Veil Riot is a 2026 arcade action shooter developed by theSEGAshop for the Neo Geo AES and MVS. Players prepare and customize their combat machines in an underground workshop before entering dangerous urban districts populated by rival pilots. Combat combines movement, weapons and tactical abilities, including a cloaking system that allows players to conceal their position and sonar pulses that help locate opponents. The objective is not simply to defeat every enemy, but to survive encounters, collect money and escape through an exit gate before the pursuing Warden arrives.\n\nFive scrolling city districts contain moving traffic, hazardous machinery, automated defenses and opponents with different fighting tactics. Between encounters, players return to a hub where shops offer weapons, mechanical upgrades, tuning and cosmetic customization, alongside additional activities such as a music shop and arcade minigames. A seasonal competition structure introduces recurring challenges and powerful rivals, while two-player versus battles provide another way to play. Veil Riot was released publicly in a playable but unfinished state, offering an ambitious mixture of vehicular combat, tactical encounters and persistent progression while development continues.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The description follows the project brief and could not be cross-checked locally; the ROM set shows a theSEGAshop logo and a hub with a garage and map selection.",
+        "The release is described as playable but unfinished; which of the described features (districts, shops, seasons, versus mode) are present in this ROM version is not verified.",
+        "No version identifier is established.",
+        "The publisher is not established."
+      ]
     },
     {
       "shortnames": [

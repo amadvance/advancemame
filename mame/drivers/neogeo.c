@@ -8119,6 +8119,42 @@ ROM_START( shadowlf )
 	ROM_LOAD16_BYTE( "781.c2", 0x000001, 0x1000000, CRC(bb93cb6c) SHA1(d8c27198f9e032028b3a158ee166cee169838199) )
 ROM_END
 
+ROM_START( seraph )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "526.p1", 0x000000, 0x100000, CRC(cb398334) SHA1(a4172b7d7e9cbc4af4cf1692fb9dc3cfc454dcb9) )
+	ROM_LOAD16_WORD_SWAP( "526.p2", 0x100000, 0x400000, CRC(6591304a) SHA1(79226e7fb06b115c09b54ed4ec4e51d088762560) )
+
+	NEO_SFIX_128K( "526.s1", CRC(7e06eac6) SHA1(64e3f97208abaff936a1b27d3b8fa91893002abf) )
+
+	NEO_BIOS_SOUND_128K( "526.m1", CRC(829eb8e3) SHA1(21966bbdf3e1da724683b11ecc0cd6725aeb23b1) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "526.v1", 0x000000, 0x1000000, CRC(59800649) SHA1(8f99620e3b1a8b28f43de1693e80c06ad823181c) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND2, ROMREGION_ERASE00 )
+	ROM_LOAD( "526.v21", 0x000000, 0x1000000, CRC(6e5ff882) SHA1(ad62bed4a06a8c7d6cd5f2d44fe08a8a3630e4b5) )
+
+	ROM_REGION( 0x4000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "526.c1", 0x000000, 0x2000000, CRC(262080d7) SHA1(d7e6ed449f9a74b17d2657dd565c8836790646b1) )
+	ROM_LOAD16_BYTE( "526.c2", 0x000001, 0x2000000, CRC(1c14fd52) SHA1(e071e0db73a0278b0b4241afe8f6c2c130f46f24) )
+ROM_END
+
+ROM_START( veilriot )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "553.p1", 0x000000, 0x80000, CRC(ffc48e0f) SHA1(a96e19545227ec9bfd3e6cd55d33774296ab1e3a) )
+
+	NEO_SFIX_128K( "553.s1", CRC(c06809a1) SHA1(c34922af1a64a4738b834049e0a185abf700437f) )
+
+	NEO_BIOS_SOUND_128K( "553.m1", CRC(2c078a01) SHA1(727f90c65b5e6eed47e0cddd2fca04b03f2efa8c) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "553.v1", 0x000000, 0x1000000, CRC(c9ba932f) SHA1(8f14d30ee345be40b414c32cec758d195c7336e1) )
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "553.c1", 0x000000, 0x200000, CRC(8416a243) SHA1(77f7c32b5bd7d2b5946e13886fea36a77a413037) )
+	ROM_LOAD16_BYTE( "553.c2", 0x000001, 0x200000, CRC(180e7bbe) SHA1(476106788e593e17cb4f5b1f88ba064976ee5bd1) )
+ROM_END
+
 ROM_START( 1stdef )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )
 	ROM_LOAD16_WORD_SWAP( "552.p1", 0x000000, 0x100000, CRC(dc0235df) SHA1(5b592b65cd3d6494e3cfe1499ecf5e9b7ec2a6e3) )
@@ -9184,6 +9220,8 @@ GAMEB( 2026, centuryxi,  neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "E
 GAMEB( 2026, nosignal,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "No Signal Z Alpha v3.0.1", 0 )
 GAMEB( 2026, warriorm,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "NK Home Entertainment", "Warrior Man v6", 0 )
 GAMEB( 2026, shadowlf,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Shadow League Fighting v3.3.2", 0 )
+GAMEB( 2026, seraph,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Nasprich", "Seraph Zero", 0 )
+GAMEB( 2026, veilriot,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "The SEGA Shop", "Veil Riot", 0 )
 GAMEB( 2026, 1stdef,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "theSEGAshop", "1st Defence: The Final Upgrade", 0 )
 GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
 

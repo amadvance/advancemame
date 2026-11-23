@@ -6045,6 +6045,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( nosignal )
 	DRIVER( warriorm )
 	DRIVER( shadowlf )
+	DRIVER( seraph )
+	DRIVER( veilriot )
 	DRIVER( mslug5ast )
 
 	/* The BreezaSoft games don't have proper ID codes */
