@@ -110,6 +110,7 @@ const game_driver * const drivers[] =
 	DRIVER( pactetris )
 	DRIVER( pollen )
 	DRIVER( dilith )
+	DRIVER( ghohunt )
 	DRIVER( pacupacu )
 	DRIVER( pakupaku )
 	DRIVER( chuckie )
@@ -168,6 +169,8 @@ const game_driver * const drivers[] =
 	DRIVER( zerotime )	/* hack */
 	DRIVER( starfght )	/* hack */
 	DRIVER( tst_galx )
+	DRIVER( pandajump )
+	DRIVER( pandajump2 )
 	DRIVER( gmgalax )	/* bootleg */
 	DRIVER( pisces )	/* Subelectro */
 	DRIVER( piscesb )	/* bootleg */

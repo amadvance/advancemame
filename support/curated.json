@@ -1186,6 +1186,28 @@
     },
     {
       "shortnames": [
+        "ghohunt"
+      ],
+      "title": "Ghost Hunt",
+      "year": 2016,
+      "developer": "Hurray Banana",
+      "publisher": "Hurray Banana",
+      "category": "homebrew",
+      "genre": "Shooter",
+      "platform": "Namco Pac-Man hardware",
+      "release_status": "released",
+      "parent_shortname": "puckman",
+      "original_game": null,
+      "description": "Ghost Hunt is a 2016 homebrew shooting-gallery game developed by Hurray Banana for original Pac-Man arcade hardware. Rather than reproducing Pac-Man's maze-chase gameplay, it presents a compact shooting challenge built around the capabilities of the vintage arcade board: the joystick steers a small tank across the screen while ghosts drift around the playfield, and the 1P Start button fires, with the goal of shooting as many ghosts as possible within 60 seconds. The game emphasizes simple arcade action and immediate player interaction, demonstrating how familiar hardware can support an entirely different kind of game.\n\nOriginally created as an educational exercise for students learning Z80 assembly language, Ghost Hunt was designed to show features such as addressing modes, interrupts, shifting, lookup tables and masking, and was released together with fully commented source code. It was written to run on actual Pac-Man hardware. Although it relies on the same electronic platform as Pac-Man, Ghost Hunt is an independent homebrew game rather than a modified version of the original maze adventure.",
+      "websites": [],
+      "sources": [],
+      "confidence": "corroborated",
+      "research_notes": [
+        "The developer's testing on actual Midway Pac-Man hardware and the later revisions and bug fixes could not be confirmed from local evidence; the in-game text only states that the code is designed to run on actual Pac-Man hardware."
+      ]
+    },
+    {
+      "shortnames": [
         "gladmort"
       ],
       "title": "Gladmort",
@@ -1856,6 +1878,30 @@
       "original_game": null,
       "description": "Paku Paku is a compact arcade game by Sokurah in which a yellow character collects dots along a single horizontal lane while avoiding a ghost. Its minimalist playfield condenses a maze chase into one dimension.",
       "confidence": "verified"
+    },
+    {
+      "shortnames": [
+        "pandajump",
+        "pandajump2"
+      ],
+      "title": "Panda Jump",
+      "year": 2022,
+      "developer": "Ben Larson",
+      "publisher": "Ben Larson",
+      "category": "homebrew",
+      "genre": "Platform",
+      "platform": "Namco Galaxian hardware",
+      "release_status": "released",
+      "parent_shortname": null,
+      "original_game": null,
+      "description": "Panda Jump is a 2022 arcade homebrew platform game developed by Ben Larson for original Galaxian hardware. The player controls a panda attempting to retrieve his favorite bamboo by jumping from the bottom of the screen to the top. Moving platforms provide the only safe route across each stage, while deadly lava waits below. The game features nine increasingly challenging levels that demand precise timing, careful landings, and an understanding of the character's momentum.\n\nUnlike conventional platform games with instantaneous movement, Panda Jump rewards anticipating the motion of platforms and controlling momentum while jumping and landing. Later stages require players to build speed to reach otherwise inaccessible platforms. Developed as a spin-off of Larson's Panky the Panda, it transforms classic arcade hardware into a demanding game of precision jumping, where mastering movement is the key to survival.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The bamboo goal, the count of nine levels, the momentum-based later stages and the spin-off relationship with Panky the Panda could not be confirmed from local evidence; the title screen, moving platforms, lava, 60-second stage timer and lives were confirmed in play.",
+        "The differences between set 1 and set 2 are not documented; set 2 uses a different main program with the same graphics and color data."
+      ]
     },
     {
       "shortnames": [

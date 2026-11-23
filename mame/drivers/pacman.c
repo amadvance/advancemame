@@ -1815,6 +1815,60 @@ INPUT_PORTS_START( pacman0 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Alternate ) )
 INPUT_PORTS_END
 
+/* Same as 'pacman0', with Button 1 also firing like 1P Start. Two bits with the same
+   mask cannot be added with PORT_MODIFY, because each new bit deletes the matching ones */
+INPUT_PORTS_START( ghohunt )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_OTHER ) PORT_NAME("Finish Level (Cheat)") PORT_CODE(KEYCODE_8)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
+
+	PORT_START_TAG("IN1")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_COCKTAIL
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_COCKTAIL
+	PORT_SERVICE( 0x10, IP_ACTIVE_LOW )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	/* the inputs on the same bit are combined with XOR: pressing both cancels the shot */
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+
+	PORT_START_TAG("DSW 1")
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x0c, 0x08, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x0c, "5" )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "10000" )
+	PORT_DIPSETTING(    0x10, "15000" )
+	PORT_DIPSETTING(    0x20, "20000" )
+	PORT_DIPSETTING(    0x30, DEF_STR( None ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x80, 0x80, "Ghost Names" )
+	PORT_DIPSETTING(    0x80, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Alternate ) )
+
+	PORT_START_TAG("DSW 2")
+	PORT_BIT( 0xff, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
 
 INPUT_PORTS_START( mschamp )
 	PORT_START_TAG("IN0")
@@ -5744,6 +5798,24 @@ ROM_START( dilith )
 	ROM_LOAD( "82s126.3m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )
 ROM_END
 
+ROM_START( ghohunt )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "ghohunt.6e",     0x0000, 0x1000, CRC(b9e9965c) SHA1(8026e792fd474c2cc8ad8917da4d57a7930d30b4) )
+	ROM_LOAD( "ghohunt.6f",     0x1000, 0x1000, CRC(9da32395) SHA1(8b4d7309de9dab4f58fcdbb29d98ca6c03a2b6fe) )
+
+	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "ghohunt.5e",     0x0000, 0x1000, CRC(c69b5669) SHA1(c4f641ff218aee92dd784968b3e1a030c85d61f6) )
+	ROM_LOAD( "ghohunt.5f",     0x1000, 0x1000, CRC(3ad83b13) SHA1(d2ce7ab45cb540f35cb23264e7628ac0ee6b8559) )
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "82s123.7f",    0x0000, 0x0020, CRC(2fc650bd) SHA1(8d0268dee78e47c712202b0ec4f1f51109b1f2a5) )
+	ROM_LOAD( "82s126.4a",    0x0020, 0x0100, CRC(3eb3a8e4) SHA1(19097b5f60d1030f8b82d9f1d3a241f93e5c75d6) )
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 )
+	ROM_LOAD( "82s126.1m",    0x0000, 0x0100, CRC(a9cc86bf) SHA1(bbcec0570aeceb582ff8238a4bc8546a23430081) )
+	ROM_LOAD( "82s126.3m",    0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )
+ROM_END
+
 ROM_START( pacupacu )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )
 	ROM_LOAD( "pacupacu.6e",    0x0000, 0x1000, CRC(9d0bd8fc) SHA1(af0c53dc1235a5ac0bf281ad5ee6579e6812ec89) )
@@ -5892,6 +5964,7 @@ GAME( 1983, numcrash,0,        numcrash, numcrash, 0,        ROT90,  "Hanshin Go
 GAME( 2012, pactetris, puckman,  pacman,   pacman0,  0,        ROT90,  "Ben Leperchey", "Tetris on Pacman hardware (incomplete)", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
 GAME( 2023, pollen,    puckman,  pacman,   pacman0,  0,        ROT90,  "Arlasoft", "Pollen Angel", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
 GAME( 2023, dilith,    puckman,  pacman,   pacman0,  0,        ROT90,  "Arlasoft", "Dilithium Lift", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
+GAME( 2016, ghohunt,   puckman,  pacman,   ghohunt,  0,        ROT90,  "Hurray Banana", "Ghost Hunt", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
 GAME( 2025, pacupacu,  puckman,  pacman,   pacman0,  0,        ROT90,  "Sokurah", "Pacu Pacu (v1.0)", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
 GAME( 2025, pakupaku,  puckman,  pacman,   pacman0,  0,        ROT90,  "Sokurah", "Paku Paku (v0.01)", GAME_SUPPORTS_SAVE | GAME_STANDALONE )
 GAME( 2023, chuckie,   0,        woodpek,  ponpoko,  ponpoko,  ROT0,   "Arlasoft", "Chuckie Egg", GAME_SUPPORTS_SAVE )

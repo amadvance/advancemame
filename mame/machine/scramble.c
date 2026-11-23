@@ -68,6 +68,12 @@ WRITE8_HANDLER( galaxian_nmi_enable_w )
 
 static void interrupt_timer(int param)
 {
+	/* the VBLANK NMI fires at line 240: render the visible lines now, otherwise the
+       frame is drawn at line 256 when the NMI handler has updated only part of the
+       video RAM and scroll registers (Panda Jump platforms jump back by 8 pixels) */
+	if (param == 0xf0)
+		force_partial_update(param - 1);
+
 	/* 128V, 64V and 32V go to D */
 	TTL7474_d_w(0, (param & 0xe0) != 0xe0);
 

@@ -5103,6 +5103,38 @@ ROM_START( tst_galx )
 	ROM_LOAD( "6l.bpr",       0x0000, 0x0020, CRC(c3ac9467) SHA1(f382ad5a34d282056c78a5ec00c30ec43772bae2) )
 ROM_END
 
+ROM_START( pandajump )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "pj.u",         0x0000, 0x0800, CRC(b2658d7d) SHA1(d9e87bd4483f925861cfc4f571201d0d088e8565) )
+	ROM_LOAD( "pj.v",         0x0800, 0x0800, CRC(d47fa6c5) SHA1(ddb5058c28feb18fb35c8bf88f362decfc9d6fb3) )
+	ROM_LOAD( "pj.w",         0x1000, 0x0800, CRC(12e3e07e) SHA1(9544a0b5e5990d6ca302236e2f639f981a9132c2) )
+	ROM_LOAD( "pj.y",         0x1800, 0x0800, CRC(ee2133d0) SHA1(ad64039ec280ec24b8ff921bedbf8719762b569f) )
+	ROM_LOAD( "pj.7l",        0x2000, 0x0800, CRC(f1e8ba9e) SHA1(605db3fdbaff4ba13729371ad0c4fbab3889378e) )
+
+	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "pj.1h",        0x0000, 0x0800, CRC(6ac96510) SHA1(acb9897a4c5325b26eadd0300e49e43bbbf11462) )
+	ROM_LOAD( "pj.1k",        0x0800, 0x0800, CRC(f2fb3d80) SHA1(fe421dcf4b9d2f75d9d98f0adb7630f054115b36) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "6l.bpr",       0x0000, 0x0020, CRC(c3ac9467) SHA1(f382ad5a34d282056c78a5ec00c30ec43772bae2) )
+ROM_END
+
+ROM_START( pandajump2 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "pj2.u",        0x0000, 0x0800, CRC(239b9e2d) SHA1(352449ef93e58ce631b5b64a308d9177504b51fa) )
+	ROM_LOAD( "pj2.v",        0x0800, 0x0800, CRC(d38fa1a6) SHA1(80892d2392d03cecdb715f527389f34d5fa7b8d1) )
+	ROM_LOAD( "pj2.w",        0x1000, 0x0800, CRC(94b8ffd6) SHA1(ac87995a600f2787df4544f43aec62e80463ebff) )
+	ROM_LOAD( "pj2.y",        0x1800, 0x0800, CRC(c6a9c24b) SHA1(140600eb2313385ae6ce55569e17c77d2928f23d) )
+	ROM_LOAD( "pj.7l",        0x2000, 0x0800, CRC(f1e8ba9e) SHA1(605db3fdbaff4ba13729371ad0c4fbab3889378e) )
+
+	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "pj.1h",        0x0000, 0x0800, CRC(6ac96510) SHA1(acb9897a4c5325b26eadd0300e49e43bbbf11462) )
+	ROM_LOAD( "pj.1k",        0x0800, 0x0800, CRC(f2fb3d80) SHA1(fe421dcf4b9d2f75d9d98f0adb7630f054115b36) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "6l.bpr",       0x0000, 0x0020, CRC(c3ac9467) SHA1(f382ad5a34d282056c78a5ec00c30ec43772bae2) )
+ROM_END
+
 ROM_START( gmgalax )
 	ROM_REGION( 0x18000, REGION_CPU1, 0 )	/* 64k for code + 32k for banked code */
 	ROM_LOAD( "pcb1_pm1.bin",0x10000, 0x1000, CRC(19338c70) SHA1(cc2665b7d534d324627d12025ee099ff415d4214) )
@@ -6841,6 +6873,8 @@ GAME( 1979, swarm,    galaxian, galaxian, swarm,    0,        ROT90,  "hack", "S
 GAME( 1979, zerotime, galaxian, galaxian, zerotime, 0,        ROT90,  "Petaco S.A.", "Zero Time", GAME_SUPPORTS_SAVE )
 GAME( 1979, starfght, galaxian, galaxian, swarm,    0,        ROT90,  "Jeutel", "Star Fighter", GAME_SUPPORTS_SAVE )
 GAME( 19??, tst_galx, galaxian, galaxian, galaxian, 0,        ROT90,  "Test ROM", "Galaxian Test ROM", GAME_SUPPORTS_SAVE )
+GAME( 2022, pandajump,  0,        galaxian, galaxian, 0,        ROT90,  "Ben Larson", "Panda Jump (set 1)", GAME_SUPPORTS_SAVE )
+GAME( 2022, pandajump2, pandajump,galaxian, galaxian, 0,        ROT90,  "Ben Larson", "Panda Jump (set 2)", GAME_SUPPORTS_SAVE )
 GAME( 1981, gmgalax,  0,        gmgalax,  gmgalax,  gmgalax,  ROT90,  "bootleg", "Ghostmuncher Galaxian (bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 19??, pisces,   0,        pisces,   pisces,   pisces,	  ROT90,  "Subelectro", "Pisces", GAME_SUPPORTS_SAVE )
 GAME( 19??, piscesb,  pisces,   pisces,   piscesb,  pisces,   ROT90,  "bootleg", "Pisces (bootleg)", GAME_SUPPORTS_SAVE )
