@@ -8055,6 +8055,70 @@ ROM_START( maiyaluna )
 	ROM_LOAD16_BYTE( "783.c2", 0x000001, 0x400000, CRC(9707b70a) SHA1(33f0ea6b4d94dfd40643a49df347fa2058f2a2f9) )
 ROM_END
 
+ROM_START( centuryxi )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "787.p1", 0x000000, 0x80000, CRC(123d1197) SHA1(2816ab7f80cf51cea0c06b88a954b95a4861a133) )
+
+	NEO_SFIX_128K( "787.s1", CRC(fc83bf13) SHA1(aee95bed36cca437b292142946fa226ce9a5bc58) )
+
+	NEO_BIOS_SOUND_128K( "787.m1", CRC(4a077d51) SHA1(5b3a57ca8da4d27541dd788b69bf0830e73d226a) )
+
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "787.v1", 0x000000, 0x73bf00, CRC(18ecd70b) SHA1(c91f851bfbeed6dd7225d2068b4fe9353eb6ed28) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "787.c1", 0x000000, 0x400000, CRC(6f2011b2) SHA1(34eb9ff7e09a477eba2c85ae8ffe35e5029f486d) )
+	ROM_LOAD16_BYTE( "787.c2", 0x000001, 0x400000, CRC(907bc964) SHA1(0edb2b0d3d3c091f5684a87fbd4a97babc448034) )
+ROM_END
+
+ROM_START( nosignal )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "784.p1", 0x000000, 0x80000, CRC(1d6039d6) SHA1(2b4b741c8212c075a87d57111c6e11d2fe0de5ae) )
+
+	NEO_SFIX_128K( "784.s1", CRC(9f97dd8c) SHA1(7d1798a99b93330850f34ae63db6bae91d781e80) )
+
+	NEO_BIOS_SOUND_128K( "784.m1", CRC(2a611d71) SHA1(71e6a2d9cf0d9ac67ca1c9bf034c18cd6747927a) )
+
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "784.v1", 0x000000, 0x5bc900, CRC(14b1eaa1) SHA1(cbc57efbbfb36dc803fb1d307364f7db3e349019) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "784.c1", 0x000000, 0x400000, CRC(91d38b2c) SHA1(bd322a352f91e6ad522e5f9d4ecfb66ac4218b15) )
+	ROM_LOAD16_BYTE( "784.c2", 0x000001, 0x400000, CRC(1e73b533) SHA1(f7409b14a7570627339d6ba70b064a569c566cdc) )
+ROM_END
+
+ROM_START( warriorm )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "536.p1", 0x000000, 0x100000, CRC(11f2fe7b) SHA1(d3a1244bd0b1d0c5f5c452b3cb87dd7d5086ef63) )
+
+	NEO_SFIX_128K( "536.s1", CRC(cf448b94) SHA1(ca3fbb2065700ac25617e2a9f9d6e92aebc2b131) )
+
+	NEO_BIOS_SOUND_128K( "536.m1", CRC(e2425869) SHA1(500693d0d353f266b1d267217a6db2d2ca7d2093) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "536.v1", 0x000000, 0x1000000, CRC(8175e920) SHA1(d2c68082629e467fec2513674d1611dadb9de80d) )
+
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "536.c1", 0x000000, 0x800000, CRC(8ab6df31) SHA1(962339809fdda3c71e756b5d5f8bf2c57909ffea) )
+	ROM_LOAD16_BYTE( "536.c2", 0x000001, 0x800000, CRC(7c9f5790) SHA1(d7f9b268ab3ef1a2c51b38c872d23195b9a61b3b) )
+ROM_END
+
+ROM_START( shadowlf )
+	ROM_REGION( 0x300000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "781.p1", 0x000000, 0x300000, CRC(6ea6d3d7) SHA1(98731b460b8dd8122807c264465fbe5b4ae7e250) )
+
+	NEO_SFIX_128K( "781.s1", CRC(00d14585) SHA1(eff54a1ca2854bceb68ec40dd587a89084f73c7b) )
+
+	NEO_BIOS_SOUND_128K( "781.m1", CRC(ff00178f) SHA1(69e8e14920d0dd24e9f6cc41e4889c7436e4cab1) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "781.v1", 0x000000, 0x9a7100, CRC(a58dbef4) SHA1(61a9536b1bf8599504648ebb2afbe8aa019ade92) )
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "781.c1", 0x000000, 0x1000000, CRC(ae6501d5) SHA1(0488e185e6d28e34bcd0f5bd0ebeb04b9f562faa) )
+	ROM_LOAD16_BYTE( "781.c2", 0x000001, 0x1000000, CRC(bb93cb6c) SHA1(d8c27198f9e032028b3a158ee166cee169838199) )
+ROM_END
+
 ROM_START( 1stdef )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )
 	ROM_LOAD16_WORD_SWAP( "552.p1", 0x000000, 0x100000, CRC(dc0235df) SHA1(5b592b65cd3d6494e3cfe1499ecf5e9b7ec2a6e3) )
@@ -9116,6 +9180,10 @@ GAMEB( 2026, arena2,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "D
 GAMEB( 2026, 7wonders,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Seven Wonders Puzzles v1.0.2", 0 )
 GAMEB( 2026, maiya,      neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Maiya: Super Nature Girl v4.1.0", 0 )
 GAMEB( 2026, maiyaluna,  neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Maiya & Luna v2.0.2", 0 )
+GAMEB( 2026, centuryxi,  neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Century XI: The Road to 2030 v4.0.0", 0 )
+GAMEB( 2026, nosignal,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "No Signal Z Alpha v3.0.1", 0 )
+GAMEB( 2026, warriorm,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "NK Home Entertainment", "Warrior Man v6", 0 )
+GAMEB( 2026, shadowlf,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Eagle Software", "Shadow League Fighting v3.3.2", 0 )
 GAMEB( 2026, 1stdef,     neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "theSEGAshop", "1st Defence: The Final Upgrade", 0 )
 GAMEB( 2022, mslug5ast,  neogeo,   neogeo,   neogeo,  neogeo, mslug5ast, ROT0, "CB, Willnie", "Metal Slug Asteroids", 0 )
 

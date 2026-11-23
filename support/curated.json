@@ -364,6 +364,29 @@
     },
     {
       "shortnames": [
+        "centuryxi"
+      ],
+      "title": "Century XI: The Road to 2030",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Sports",
+      "platform": "Neo Geo MVS",
+      "release_status": "beta",
+      "version": "4.0.0",
+      "original_game": null,
+      "description": "Century XI: Road to 2030 is a 2026 football game developed by Eagle Software for the Neo Geo, presenting a humorous alternative to international tournaments. Inspired by the atmosphere of 1990s arcade football, it features 48 fictional nations with their own team colors, flags, player rosters, chants and playing styles. The main Road to 2030 mode recreates a complete 64-match championship with group standings, knockout rounds, leading scorers, player suspensions and a trophy presentation. The competition culminates in a fictional Tokyo stadium called the Big Ramen Bowl.\n\nAlongside the tournament, players can take part in exhibition matches, a shorter cup competition, two-player versus matches, penalty shootouts and training. On the field, the game combines passes, crosses, chips and charged shots with headers, volleys and overhead kicks. Goalkeepers can be controlled directly, while different control schemes and computer difficulty settings accommodate different playing styles. Comical commentary, animated goal celebrations, action replays and exaggerated referees give the game a playful identity distinct from realistic football simulations.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 4.0.0 comes from the project brief; the ROM set was supplied locally and no release documentation is available locally, so the exact release could not be verified. Player count is not established.",
+        "Release status is beta because v4.0.0 is a publicly available work-in-progress release.",
+        "The description comes from developer-published material supplied with the project brief and was not checked against v4.0.0 specifically."
+      ]
+    },
+    {
+      "shortnames": [
         "chuckie"
       ],
       "title": "Chuckie Egg",
@@ -2158,6 +2181,29 @@
     },
     {
       "shortnames": [
+        "nosignal"
+      ],
+      "title": "No Signal Z Alpha",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Fighter",
+      "platform": "Neo Geo MVS",
+      "release_status": "released",
+      "version": "3.0.1",
+      "original_game": null,
+      "description": "No Signal Z Alpha is a 2026 side-scrolling beat-'em-up developed by Eagle Software for the Neo Geo. After a stolen phone leaves the city without a signal, players choose one of three heroes, Jay, Zoe or Kai, and battle through eight stages to recover it. The adventure moves from city streets and underpasses to laboratories, industrial environments and increasingly futuristic locations, with different enemies and powerful bosses along the way. Each hero has a distinct fighting style and special attack: Jay favors quick combinations, Zoe uses agile movements and counters, while Kai relies on slower but stronger blows.\n\nCombat combines punches, sweeps, aerial kicks, grabs, throws and special attacks that consume part of the character's health, represented as phone battery power. Players can break objects to reveal food and bonuses, collect weapons, and even ride an electric scooter through some encounters. The game's colorful urban environments, exaggerated characters and multi-stage boss fights evoke classic arcade beat-'em-ups while adding their own humor and science-fiction theme.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 3.0.1 comes from the project brief; the ROM set was supplied locally and no release documentation is available locally, so the exact release could not be verified. Player count is not established.",
+        "Genre is Fighter as the standard vocabulary has no closer beat-'em-up label.",
+        "The description comes from developer-published material supplied with the project brief and was not checked against v3.0.1 specifically."
+      ]
+    },
+    {
+      "shortnames": [
         "nsmb"
       ],
       "title": "New! Super Mario Bros.",
@@ -2619,6 +2665,29 @@
     },
     {
       "shortnames": [
+        "shadowlf"
+      ],
+      "title": "Shadow League Fighting",
+      "year": 2026,
+      "developer": "Eagle Software",
+      "category": "homebrew",
+      "genre": "Fighter",
+      "platform": "Neo Geo MVS",
+      "release_status": "beta",
+      "version": "3.3.2",
+      "original_game": null,
+      "description": "Shadow League Fighting is a 2026 two-dimensional fighting game developed by Eagle Software for the Neo Geo AES and MVS. Its roster contains 44 original combatants with individual appearances, fighting techniques, special attacks and super moves. Players can enter traditional one-on-one duels or three-versus-three team battles, where each side selects a separate striker who can briefly enter the fight to assist. The combat system includes throws, evasive maneuvers, guarding, dashes, special-move combinations and powerful attacks activated through directional inputs.\n\nMatches unfold in colorful arenas with animated backgrounds, character portraits, announcer calls and individual victory presentations. Fighters can link ordinary attacks into special moves, while team matches introduce tactical decisions about character order and when to call a striker. Computer opponents offer multiple difficulty levels, and a training mode provides opportunities to practice commands and combinations. Its substantial cast, team mechanics and elaborate presentation make Shadow League Fighting an ambitious original contribution to the Neo Geo fighting-game library.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 3.3.2 comes from the project brief; the ROM set was supplied locally and no release documentation is available locally, so the exact release could not be verified. Player count is not established.",
+        "Release status is beta because v3.3.2 is a work-in-progress release; it is not established that every advertised feature, arena or roster entry is complete in this version.",
+        "The description comes from developer-published material supplied with the project brief and was not checked against v3.3.2 specifically."
+      ]
+    },
+    {
+      "shortnames": [
         "shangonle"
       ],
       "title": "Limited Edition Hang-On",
@@ -2914,6 +2983,31 @@
       "title": "Vs 10-Yard Fight",
       "category": "regional_variant",
       "original_game": "10yard"
+    },
+    {
+      "shortnames": [
+        "warriorm"
+      ],
+      "title": "Warrior Man",
+      "year": 2026,
+      "developer": "Nico Klem",
+      "publisher": "NK Home Entertainment",
+      "category": "homebrew",
+      "genre": "Arcade",
+      "platform": "Neo Geo MVS",
+      "release_status": "beta",
+      "version": "6",
+      "original_game": null,
+      "description": "Warrior Man is a 2026 Neo Geo homebrew action game developed by Nico Klem under the NK Home Entertainment name. Set in a city threatened by criminal gangs and other dangers, it follows Marius and Lisa as they search for Marius's missing girlfriend, Lena. Rather than following a single arcade genre, the game combines three distinct modes within one project. Fight mode is a side-scrolling beat-'em-up featuring punches, kicks, guarding, jumps and a powerful Storm Attack, with enemies, environmental obstacles and bosses encountered across several stages.\n\nShoot mode changes the action into a horizontally scrolling space shooter, placing the player aboard the Thunder DWS against alien fleets, large warships and powerful bosses. Charged shots, upgradeable satellite weapons and screen-clearing attacks add depth to the combat. Road mode offers a contrasting arcade racing experience with pseudo-3D roads, curves, hills, traffic and different circuits. Combining street fighting, space combat and driving gives Warrior Man an unusual structure among Neo Geo homebrew productions, bringing several classic arcade experiences together in one evolving game.",
+      "websites": [],
+      "sources": [],
+      "confidence": "uncertain",
+      "research_notes": [
+        "The version 6 comes from the project brief; the ROM set was supplied locally and no release documentation is available locally, so the exact release could not be verified. Player count is not established.",
+        "Release status is beta because the project is actively developed and v6 is not a final release.",
+        "The description comes from developer-published material supplied with the project brief; features documented only for later builds may be present in it and were not checked against v6 specifically.",
+        "Developer is recorded as Nico Klem with NK Home Entertainment as publisher label; the split is taken from the brief."
+      ]
     },
     {
       "shortnames": [
