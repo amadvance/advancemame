@@ -3871,7 +3871,6 @@ static void z80_reset(void)
 	I = 0;
 	R = 0;
 	R2 = 0;
-	Z80.nmi_state = CLEAR_LINE;
 	Z80.irq_state = CLEAR_LINE;
 
 	if (Z80.daisy)
