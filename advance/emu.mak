@@ -699,6 +699,26 @@ ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libdrflac.a
 
 ############################################################################
+# minimp3
+
+MINIMP3CFLAGS = -I$(srcdir)/alien/minimp3
+
+MINIMP3_OBJS = \
+	$(OBJ)/alien/minimp3/minimp3.o
+
+$(OBJ)/advance/libminimp3.a: $(MINIMP3_OBJS)
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+CFLAGS += \
+	-I$(srcdir)/alien/minimp3
+ADVANCEOBJDIRS += \
+	$(OBJ)/alien/minimp3
+ADVANCEBUILDLIBS += \
+	$(OBJ)/advance/libminimp3.a
+
+############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
@@ -724,6 +744,10 @@ $(OBJ)/alien/zstd/%.o: $(srcdir)/alien/zstd/%.c
 $(OBJ)/alien/dr_flac/%.o: $(srcdir)/alien/dr_flac/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(DRFLACCFLAGS) -c $< -o $@
+
+$(OBJ)/alien/minimp3/%.o: $(srcdir)/alien/minimp3/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(MINIMP3CFLAGS) -c $< -o $@
 
 $(OBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
@@ -756,6 +780,10 @@ $(MESSOBJ)/alien/zstd/%.o: $(srcdir)/alien/zstd/%.c
 $(MESSOBJ)/alien/dr_flac/%.o: $(srcdir)/alien/dr_flac/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(DRFLACCFLAGS) -c $< -o $@
+
+$(MESSOBJ)/alien/minimp3/%.o: $(srcdir)/alien/minimp3/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(MINIMP3CFLAGS) -c $< -o $@
 
 $(MESSOBJ)/alien/%.o: $(srcdir)/alien/%.c
 	$(ECHO) $@ $(MSG)
@@ -1331,6 +1359,11 @@ dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)
 	mkdir $(EMU_DIST_DIR_SRC)/alien/dr_flac
 	cp $(wildcard $(srcdir)/alien/dr_flac/*.c) $(EMU_DIST_DIR_SRC)/alien/dr_flac
 	cp $(wildcard $(srcdir)/alien/dr_flac/*.h) $(EMU_DIST_DIR_SRC)/alien/dr_flac
+	mkdir $(EMU_DIST_DIR_SRC)/alien/minimp3
+	cp $(wildcard $(srcdir)/alien/minimp3/*.c) $(EMU_DIST_DIR_SRC)/alien/minimp3
+	cp $(wildcard $(srcdir)/alien/minimp3/*.h) $(EMU_DIST_DIR_SRC)/alien/minimp3
+	cp $(srcdir)/alien/minimp3/LICENSE $(EMU_DIST_DIR_SRC)/alien/minimp3
+	cp $(srcdir)/alien/minimp3/README $(EMU_DIST_DIR_SRC)/alien/minimp3
 	mkdir $(EMU_DIST_DIR_SRC)/alien/libchdr
 	cp $(srcdir)/alien/libchdr/LICENSE.txt $(EMU_DIST_DIR_SRC)/alien/libchdr
 	cp -R $(srcdir)/alien/libchdr/include $(EMU_DIST_DIR_SRC)/alien/libchdr

@@ -1,0 +1,8 @@
+This is an adaption of the minimp3 library to be directly
+included in a source project.
+
+From https://github.com/lieff/minimp3 at commit 48e3a085f0e1a99446b34614e1e7f17f09dc2e82
+
+The file minimp3.h is unmodified. Only the decoder is included,
+not the minimp3_ex.h extensions. The file minimp3.c compiles the
+implementation as a separate object.

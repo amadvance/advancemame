@@ -387,6 +387,12 @@ DR_FLAC_SRC = \
 	$(wildcard $(srcdir)/alien/dr_flac/*.c) \
 	$(wildcard $(srcdir)/alien/dr_flac/*.h)
 
+MINIMP3_SRC = \
+	$(wildcard $(srcdir)/alien/minimp3/*.c) \
+	$(wildcard $(srcdir)/alien/minimp3/*.h) \
+	$(wildcard $(srcdir)/alien/minimp3/LICENSE) \
+	$(wildcard $(srcdir)/alien/minimp3/README)
+
 LIBCHDR_SRC = \
 	$(wildcard $(srcdir)/alien/libchdr/LICENSE.txt) \
 	$(wildcard $(srcdir)/alien/libchdr/include/libchdr/*.h) \
