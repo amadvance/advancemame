@@ -352,6 +352,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_SCALEX: text = "Resize Effect [scalex]"; break;
 	case COMBINE_SCALEK: text = "Resize Effect [scalek]"; break;
 	case COMBINE_XBR: text = "Resize Effect [xbr]"; break;
+	case COMBINE_XBRZ: text = "Resize Effect [xbrz]"; break;
 	}
 	switch (video_context->config.combine) {
 	case COMBINE_AUTO: option = "auto"; break;
@@ -362,6 +363,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_SCALEX: option = "scalex"; break;
 	case COMBINE_SCALEK: option = "scalek"; break;
 	case COMBINE_XBR: option = "xbr"; break;
+	case COMBINE_XBRZ: option = "xbrz"; break;
 	}
 	combine_index = advance_ui_menu_option_insert(&menu, text, option);
 
@@ -489,7 +491,8 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_FILTER: config.combine = COMBINE_SCALEX; break;
 			case COMBINE_SCALEX: config.combine = COMBINE_SCALEK; break;
 			case COMBINE_SCALEK: config.combine = COMBINE_XBR; break;
-			case COMBINE_XBR: config.combine = COMBINE_AUTO; break;
+			case COMBINE_XBR: config.combine = COMBINE_XBRZ; break;
+			case COMBINE_XBRZ: config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {
@@ -557,7 +560,7 @@ int osd2_video_menu(int selected, unsigned input)
 		if (selected == combine_index) {
 			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
-			case COMBINE_AUTO: config.combine = COMBINE_XBR; break;
+			case COMBINE_AUTO: config.combine = COMBINE_XBRZ; break;
 			case COMBINE_NONE: config.combine = COMBINE_AUTO; break;
 			case COMBINE_MAXMIN: config.combine = COMBINE_NONE; break;
 			case COMBINE_MEAN: config.combine = COMBINE_MAXMIN; break;
@@ -565,6 +568,7 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_SCALEX: config.combine = COMBINE_FILTER; break;
 			case COMBINE_SCALEK: config.combine = COMBINE_SCALEX; break;
 			case COMBINE_XBR: config.combine = COMBINE_SCALEK; break;
+			case COMBINE_XBRZ: config.combine = COMBINE_XBR; break;
 			}
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {

@@ -470,6 +470,15 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/blit/xbr4x.o \
 	$(OBJ)/advance/blit/xbr4x_sse.o \
 	$(OBJ)/advance/blit/xbr4x_neon.o \
+	$(OBJ)/advance/blit/xbrz2x.o \
+	$(OBJ)/advance/blit/xbrz2x_sse.o \
+	$(OBJ)/advance/blit/xbrz2x_neon.o \
+	$(OBJ)/advance/blit/xbrz3x.o \
+	$(OBJ)/advance/blit/xbrz3x_sse.o \
+	$(OBJ)/advance/blit/xbrz3x_neon.o \
+	$(OBJ)/advance/blit/xbrz4x.o \
+	$(OBJ)/advance/blit/xbrz4x_sse.o \
+	$(OBJ)/advance/blit/xbrz4x_neon.o \
 	$(OBJ)/advance/blit/scale2x.o \
 	$(OBJ)/advance/blit/scale2x_sse.o \
 	$(OBJ)/advance/blit/scale2x_neon.o \

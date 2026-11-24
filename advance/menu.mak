@@ -90,6 +90,15 @@ MENUOBJS += \
 	$(MENUOBJ)/blit/xbr4x.o \
 	$(MENUOBJ)/blit/xbr4x_sse.o \
 	$(MENUOBJ)/blit/xbr4x_neon.o \
+	$(MENUOBJ)/blit/xbrz2x.o \
+	$(MENUOBJ)/blit/xbrz2x_sse.o \
+	$(MENUOBJ)/blit/xbrz2x_neon.o \
+	$(MENUOBJ)/blit/xbrz3x.o \
+	$(MENUOBJ)/blit/xbrz3x_sse.o \
+	$(MENUOBJ)/blit/xbrz3x_neon.o \
+	$(MENUOBJ)/blit/xbrz4x.o \
+	$(MENUOBJ)/blit/xbrz4x_sse.o \
+	$(MENUOBJ)/blit/xbrz4x_neon.o \
 	$(MENUOBJ)/blit/scale2x.o \
 	$(MENUOBJ)/blit/scale2x_sse.o \
 	$(MENUOBJ)/blit/scale2x_neon.o \

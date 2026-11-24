@@ -75,6 +75,10 @@ extern int interp_red_shift, interp_green_shift, interp_blue_shift;
 	{ \
 		return interp_16_ ## fmt ## _11(p1, interp_16_ ## fmt ## _11(p1, p2)); \
 	} \
+	static inline interp_uint16 interp_16_ ## fmt ## _53(interp_uint16 p1, interp_uint16 p2) \
+	{ \
+		return interp_16_ ## fmt ## _11(p1, interp_16_ ## fmt ## _31(p2, p1)); \
+	} \
 	static inline interp_uint16 interp_16_ ## fmt ## _71(interp_uint16 p1, interp_uint16 p2) \
 	{ \
 		return (((((p1 & (mask1)) * 7 + (p2 & (mask1))) >> 3) & (mask1))) \
@@ -101,6 +105,12 @@ static inline interp_uint32 interp_32_31(interp_uint32 p1, interp_uint32 p2)
 	return interp_32_11(p1, interp_32_11(p1, p2));
 }
 
+static inline interp_uint32 interp_32_53(interp_uint32 p1, interp_uint32 p2)
+{
+	/* (5 * p1 + 3 * p2) / 8 */
+	return interp_32_11(p1, interp_32_31(p2, p1));
+}
+
 static inline interp_uint32 interp_32_71(interp_uint32 p1, interp_uint32 p2)
 {
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) * 7 + INTERP_32_MASK_1(p2)) / 8)
@@ -122,6 +132,12 @@ static inline interp_uint32 interp_yuy2_11(interp_uint32 p1, interp_uint32 p2)
 static inline interp_uint32 interp_yuy2_31(interp_uint32 p1, interp_uint32 p2)
 {
 	return interp_yuy2_11(p1, interp_yuy2_11(p1, p2));
+}
+
+static inline interp_uint32 interp_yuy2_53(interp_uint32 p1, interp_uint32 p2)
+{
+	/* (5 * p1 + 3 * p2) / 8 */
+	return interp_yuy2_11(p1, interp_yuy2_31(p2, p1));
 }
 
 static inline interp_uint32 interp_yuy2_71(interp_uint32 p1, interp_uint32 p2)

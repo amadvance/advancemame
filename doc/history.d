@@ -26,6 +26,7 @@ AdvanceMAME/MESS Version 6.0 (WIP)
 		parsing, PNG and JPEG image loading, view selection, aspect ratio correction,
 		and automatic artwork packaging.
 	) Optimized video blitting with SCALE/XBR scaler using portable SSE and NEON intrinsics
+	) Added the new `xbrz` video scaling effect.
 	) Windows binaries were built with gcc 11.5.0 using the MXE cross compiler at
 		commit 8c4378fa2b55bc28515b23e96e05d03e671d9b90 with targets
 		i686-w64-mingw32.static and x86_64-w64-mingw32.static and optimization -O2.

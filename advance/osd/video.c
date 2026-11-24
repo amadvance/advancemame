@@ -293,6 +293,10 @@ static void video_command_combine(struct advance_video_context* context, struct 
 				combine_max = COMBINE_SCALEK;
 				log_std(("advance:skip: decrease combine from xbr to scalek\n"));
 				break;
+			case COMBINE_XBRZ :
+				combine_max = COMBINE_XBR;
+				log_std(("advance:skip: decrease combine from xbrz to xbr\n"));
+				break;
 			}
 		}
 
@@ -1103,6 +1107,9 @@ void osd_stretch_palett16to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsig
 	case COMBINE_XBR :
 		combine = VIDEO_COMBINE_Y_XBR;
 		break;
+	case COMBINE_XBRZ :
+		combine = VIDEO_COMBINE_Y_XBRZ;
+		break;
 	default :
 		combine = VIDEO_COMBINE_Y_NONE;
 		break;
@@ -1144,6 +1151,9 @@ void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned ds
 		break;
 	case COMBINE_XBR :
 		combine = VIDEO_COMBINE_Y_XBR;
+		break;
+	case COMBINE_XBRZ :
+		combine = VIDEO_COMBINE_Y_XBRZ;
 		break;
 	default :
 		combine = VIDEO_COMBINE_Y_NONE;
@@ -1663,7 +1673,8 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 	{ "scalex", COMBINE_SCALEX },
 	{ "scalek", COMBINE_SCALEK },
 	{ "hq", COMBINE_XBR }, /* deprecated hq effect */
-	{ "xbr", COMBINE_XBR }
+	{ "xbr", COMBINE_XBR },
+	{ "xbrz", COMBINE_XBRZ }
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {

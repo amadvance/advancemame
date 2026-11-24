@@ -148,6 +148,7 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 	{ "scalek", COMBINE_SCALEK },
 	{ "hq", COMBINE_XBR }, /* deprecated hq effect */
 	{ "xbr", COMBINE_XBR },
+	{ "xbrz", COMBINE_XBRZ },
 };
 
 static void config_error_la(const string& line, const string& arg)

@@ -108,6 +108,11 @@ static inline uint16x8_t interp_16_565_31_neon(uint16x8_t a, uint16x8_t b)
 	return interp_16_565_11_neon(a, interp_16_565_11_neon(a, b));
 }
 
+static inline uint16x8_t interp_16_565_53_neon(uint16x8_t a, uint16x8_t b)
+{
+	return interp_16_565_11_neon(a, interp_16_565_31_neon(b, a));
+}
+
 static inline uint16x8_t interp_16_565_71_neon(uint16x8_t a, uint16x8_t b)
 {
 	const uint16x8_t m31 = vdupq_n_u16(31);
@@ -147,6 +152,11 @@ static inline uint16x8_t interp_16_555_11_neon(uint16x8_t a, uint16x8_t b)
 static inline uint16x8_t interp_16_555_31_neon(uint16x8_t a, uint16x8_t b)
 {
 	return interp_16_555_11_neon(a, interp_16_555_11_neon(a, b));
+}
+
+static inline uint16x8_t interp_16_555_53_neon(uint16x8_t a, uint16x8_t b)
+{
+	return interp_16_555_11_neon(a, interp_16_555_31_neon(b, a));
 }
 
 static inline uint16x8_t interp_16_555_71_neon(uint16x8_t a, uint16x8_t b)
@@ -239,6 +249,11 @@ static inline uint32x4_t interp_32_11_neon(uint32x4_t a, uint32x4_t b)
 static inline uint32x4_t interp_32_31_neon(uint32x4_t a, uint32x4_t b)
 {
 	return interp_32_11_neon(a, interp_32_11_neon(a, b));
+}
+
+static inline uint32x4_t interp_32_53_neon(uint32x4_t a, uint32x4_t b)
+{
+	return interp_32_11_neon(a, interp_32_31_neon(b, a));
 }
 
 static inline uint32x4_t interp_32_71_neon(uint32x4_t a, uint32x4_t b)

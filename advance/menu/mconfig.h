@@ -36,7 +36,8 @@
 #define COMBINE_NONE 0
 #define COMBINE_SCALEX 6
 #define COMBINE_SCALEK 7
-#define COMBINE_XBR 9
+#define COMBINE_XBR 8
+#define COMBINE_XBRZ 9
 
 enum clip_mode_t {
 	clip_none,

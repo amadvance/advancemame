@@ -95,6 +95,11 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_16_565_31_sse(__m
 	return interp_16_565_11_sse(a, interp_16_565_11_sse(a, b));
 }
 
+__attribute__((target("sse4.1"))) static inline __m128i interp_16_565_53_sse(__m128i a, __m128i b)
+{
+	return interp_16_565_11_sse(a, interp_16_565_31_sse(b, a));
+}
+
 __attribute__((target("sse4.1"))) static inline __m128i interp_16_565_71_sse(__m128i a, __m128i b)
 {
 	return interp_16_565_weight_sse(a, b, 7, 3);
@@ -160,6 +165,11 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_16_555_31_sse(__m
 	return interp_16_555_11_sse(a, interp_16_555_11_sse(a, b));
 }
 
+__attribute__((target("sse4.1"))) static inline __m128i interp_16_555_53_sse(__m128i a, __m128i b)
+{
+	return interp_16_555_11_sse(a, interp_16_555_31_sse(b, a));
+}
+
 __attribute__((target("sse4.1"))) static inline __m128i interp_16_555_71_sse(__m128i a, __m128i b)
 {
 	return interp_16_555_weight_sse(a, b, 7, 3);
@@ -221,6 +231,11 @@ __attribute__((target("sse4.1"))) static inline __m128i interp_32_31_sse(__m128i
 	__m128i lo = _mm_maddubs_epi16(_mm_unpacklo_epi8(a, b), w);
 	__m128i hi = _mm_maddubs_epi16(_mm_unpackhi_epi8(a, b), w);
 	return _mm_packus_epi16(_mm_srli_epi16(lo, 2), _mm_srli_epi16(hi, 2));
+}
+
+__attribute__((target("sse4.1"))) static inline __m128i interp_32_53_sse(__m128i a, __m128i b)
+{
+	return interp_32_11_sse(a, interp_32_31_sse(b, a));
 }
 
 __attribute__((target("sse4.1"))) static inline __m128i interp_32_71_sse(__m128i a, __m128i b)

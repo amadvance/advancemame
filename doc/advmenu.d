@@ -644,7 +644,7 @@ Configuration
     display_resizeeffect
 	Controls the scaling transformation applied to screenshots.
 
-	:display_resizeeffect auto | none | scalex | scalek | hq | xbr
+	:display_resizeeffect auto | none | scalex | scalek | hq | xbr | xbrz
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -669,6 +669,11 @@ Configuration
 			It uses a 5x5 window with a gradient estimation.
 			It interpolates pixels and it compares colors
 			for distance.
+		xbrz - Adds the missing pixels matching the
+			original bitmap pattern.
+			A derivation of the xBRZ effect, using a 5x5 window
+			with a luminance based color distance and anti-aliased
+			blending of the edges.
 
     display_restoreatgame
 	Selects whether to reset the video mode before running the
