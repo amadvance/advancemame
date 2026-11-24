@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:smf
+// copyright-holders:smf, windyfairy
 /***************************************************************************
 
   Namco System 10 - Arcade PSX Hardware
@@ -269,6 +269,9 @@ Utyuu Daisakusen Chocovader Contactee CVC1  Ver.A   KC022A
 #include "cpu/mips/psx.h"
 #include "includes/psx.h"
 #include "sound/psx.h"
+#include "sound/custom.h"
+#include "streams.h"
+#include "minimp3.h"
 
 struct ns10_crypto
 {
@@ -411,6 +414,310 @@ static UINT32 ns10_gun_adc(int axis)
 	return value * 0xffff / 0x3ff;
 }
 
+/*
+  MEM(P3) MP3 playback, high level emulation of the TMP95C061 firmware.
+
+  The game uploads the firmware and whole MP3 files to the 8 MB SDRAM of the
+  ROM board through a 128 KB window, selected by 0x1f30000c. It then writes a
+  command in the mailbox at the start of bank 0x3f and raises INT5 writing
+  0x1f300006. The firmware queues the command and feeds the Sanyo LC82310
+  decoder from SDRAM. The game never waits for the playback, so the commands
+  run immediately and minimp3 decodes the MP3 only when the stream needs
+  samples, without emulating the MCU and the serial link to the decoder.
+
+  Commands (letter in the low byte, also lowercase, two word parameters):
+  'L' a     the track table is at mailbox + a, 8 bytes per track numbered
+            from 1: SDRAM start and length
+  'C' p     clear playlist p
+  'A' p, t  append track t to playlist p, track 0 restarts the playlist
+  'P' p     play playlist p from its first track
+  'S'       stop
+  'R'       resume
+  'V' a, s  fade the LC82310 attenuation to a in s seconds
+  'G'       write attenuation, track and state at mailbox + 2, 4 and 6
+*/
+#define NS10_SDRAM_SIZE 0x800000
+#define NS10_MAILBOX 0x7e0000
+#define NS10_PLAYLISTS 0x40
+/* firmware states, reported by 'G' */
+#define NS10_MP3_STOP 0
+#define NS10_MP3_PLAY 1
+#define NS10_MP3_START 2
+
+static UINT8 *ns10_sdram;
+static UINT16 ns10_sdram_bank;
+static UINT32 ns10_track_table;
+/* count, unused, then the tracks terminated by 0xff */
+static UINT8 ns10_playlist[NS10_PLAYLISTS][0x102];
+static int ns10_playlist_index, ns10_playlist_pos;
+static int ns10_mp3_state;
+static UINT32 ns10_mp3_pos, ns10_mp3_end;
+static mp3dec_t ns10_mp3_decoder;
+static mp3d_sample_t ns10_pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
+static int ns10_pcm_count, ns10_pcm_pos, ns10_pcm_stereo;
+static int ns10_volume, ns10_volume_start, ns10_volume_target;
+static int ns10_fade_steps, ns10_fade_acc, ns10_fade_samples;
+static int ns10_mp3_rate;
+static sound_stream *ns10_mp3_stream;
+
+/* LC82310 gain for each attenuation step in 1/4096 units, from MAME */
+static const UINT16 ns10_mp3_gain[77] =
+{
+	4096, 3964, 3832, 3700, 3567, 3435, 3303, 3171, 3039, 2907, 2775, 2643,
+	2510, 2378, 2246, 2114, 1982, 1850, 1718, 1586, 1453, 1321, 1189, 1123,
+	1057, 925, 793, 727, 661, 595, 529, 462, 396, 363, 330, 297,
+	264, 242, 220, 198, 176, 154, 132, 128, 124, 120, 117, 113,
+	109, 105, 101, 97, 93, 89, 85, 82, 78, 74, 70, 66,
+	62, 58, 54, 51, 47, 43, 39, 35, 31, 27, 23, 19,
+	16, 12, 8, 4, 0
+};
+
+/* the MCU sees the SDRAM little endian */
+static UINT32 ns10_sdram_r32(UINT32 address)
+{
+	UINT32 data = 0;
+	int i;
+	for (i = 0; i < 4; i++)
+		data |= ns10_sdram[(address + i) & (NS10_SDRAM_SIZE - 1)] << (i * 8);
+	return data;
+}
+
+static void ns10_sdram_w16(UINT32 address, UINT16 data)
+{
+	ns10_sdram[address] = data;
+	ns10_sdram[address + 1] = data >> 8;
+}
+
+static void ns10_mp3_reset(void)
+{
+	int i;
+	memset(ns10_playlist, 0xff, sizeof(ns10_playlist));
+	for (i = 0; i < NS10_PLAYLISTS; i++)
+		ns10_playlist[i][0] = 0;
+	ns10_track_table = NS10_MAILBOX + 0x10;
+	ns10_playlist_index = ns10_playlist_pos = 0;
+	ns10_mp3_state = NS10_MP3_STOP;
+	ns10_mp3_pos = ns10_mp3_end = 0;
+	ns10_pcm_count = ns10_pcm_pos = 0;
+	ns10_volume = ns10_volume_start = ns10_volume_target = 0;
+	ns10_fade_steps = ns10_fade_acc = 0;
+}
+
+static void ns10_mp3_track_start(void)
+{
+	int track = ns10_playlist[ns10_playlist_index][2 + ns10_playlist_pos];
+	UINT32 entry = ns10_track_table + (track - 1) * 8;
+	UINT32 start = ns10_sdram_r32(entry);
+	UINT32 length = ns10_sdram_r32(entry + 4);
+	/* the table comes from the game, keep the track inside the SDRAM */
+	if (start > NS10_SDRAM_SIZE)
+		start = NS10_SDRAM_SIZE;
+	if (length > NS10_SDRAM_SIZE - start)
+		length = NS10_SDRAM_SIZE - start;
+	/* the firmware drops the ID3v1 tag at the end of the file */
+	if (length >= 128 && !memcmp(ns10_sdram + start + length - 128, "TAG", 3))
+		length -= 128;
+	logerror("ns10_mp3_track_start %d %06x %06x frame %d\n", track, start, length, cpu_getcurrentframe());	ns10_mp3_pos = start;
+	ns10_mp3_end = start + length;
+	mp3dec_init(&ns10_mp3_decoder);
+	ns10_mp3_state = NS10_MP3_PLAY;
+}
+
+static void ns10_mp3_track_next(void)
+{
+	UINT8 *playlist = ns10_playlist[ns10_playlist_index];
+	if (playlist[2 + ++ns10_playlist_pos] == 0)
+		ns10_playlist_pos = 0;
+	if (ns10_playlist_pos >= playlist[0] || playlist[2 + ns10_playlist_pos] == 0xff)
+	{
+		ns10_mp3_state = NS10_MP3_STOP;
+		ns10_playlist_pos = 0;
+	}
+	else
+		ns10_mp3_state = NS10_MP3_START;
+}
+
+/* decode the next frame, return 0 when the playback stops */
+static int ns10_mp3_decode(void)
+{
+	int starts = 0;
+	while (ns10_mp3_state != NS10_MP3_STOP)
+	{
+		mp3dec_frame_info_t info;
+		int samples;
+		if (ns10_mp3_state == NS10_MP3_START)
+		{
+			/* a looping playlist of tracks without audio would never end */
+			if (++starts > 0x100)
+			{
+				ns10_mp3_state = NS10_MP3_STOP;
+				break;
+			}
+			ns10_mp3_track_start();
+		}
+		samples = mp3dec_decode_frame(&ns10_mp3_decoder, ns10_sdram + ns10_mp3_pos, ns10_mp3_end - ns10_mp3_pos, ns10_pcm, &info);
+		ns10_mp3_pos += info.frame_bytes;
+		if (samples)
+		{
+			ns10_pcm_count = samples;
+			ns10_pcm_pos = 0;
+			ns10_pcm_stereo = info.channels == 2;			if (info.hz != ns10_mp3_rate)
+			{
+				ns10_mp3_rate = info.hz;
+				stream_set_sample_rate(ns10_mp3_stream, ns10_mp3_rate);
+			}
+			return 1;
+		}
+		/* no frame left, frames without samples only skip data */
+		if (!info.frame_bytes)
+			ns10_mp3_track_next();
+	}
+	return 0;
+}
+
+/* the firmware spreads the attenuation change over the steps like Bresenham */
+static void ns10_mp3_fade_step(void)
+{
+	if (ns10_volume == ns10_volume_target)
+		return;
+	ns10_fade_acc += ns10_volume_target - ns10_volume_start;
+	while (ns10_fade_acc > ns10_fade_steps && ns10_volume < ns10_volume_target)
+	{
+		++ns10_volume;
+		ns10_fade_acc -= ns10_fade_steps;
+	}
+	while (-ns10_fade_acc > ns10_fade_steps && ns10_volume > ns10_volume_target)
+	{
+		--ns10_volume;
+		ns10_fade_acc += ns10_fade_steps;
+	}
+}
+
+static void ns10_mp3_update(void *param, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	stream_sample_t *left = outputs[0];
+	stream_sample_t *right = outputs[1];
+	int gain;
+
+	/* the firmware moves the attenuation one step every 25 ms */
+	ns10_fade_samples += samples;
+	while (ns10_fade_samples >= ns10_mp3_rate / 40)
+	{
+		ns10_fade_samples -= ns10_mp3_rate / 40;
+		ns10_mp3_fade_step();
+	}
+	gain = ns10_mp3_gain[ns10_volume < 76 ? ns10_volume : 76];
+
+	while (samples > 0)
+	{
+		int i, count;
+		if (ns10_pcm_pos == ns10_pcm_count && !ns10_mp3_decode())
+		{
+			memset(left, 0, samples * sizeof(*left));
+			memset(right, 0, samples * sizeof(*right));
+			return;
+		}
+		count = ns10_pcm_count - ns10_pcm_pos;
+		if (count > samples)
+			count = samples;
+		if (ns10_pcm_stereo)
+		{
+			const mp3d_sample_t *pcm = ns10_pcm + ns10_pcm_pos * 2;
+			for (i = 0; i < count; i++)
+			{
+				left[i] = (pcm[i * 2] * gain) >> 12;
+				right[i] = (pcm[i * 2 + 1] * gain) >> 12;
+			}
+		}
+		else
+		{
+			const mp3d_sample_t *pcm = ns10_pcm + ns10_pcm_pos;
+			for (i = 0; i < count; i++)
+				left[i] = right[i] = (pcm[i] * gain) >> 12;
+		}
+		ns10_pcm_pos += count;
+		left += count;
+		right += count;
+		samples -= count;
+	}
+}
+
+static void ns10_mp3_command(void)
+{
+	UINT8 *mailbox = ns10_sdram + NS10_MAILBOX;
+	int command = mailbox[0];
+	int p1 = mailbox[2] | (mailbox[3] << 8);
+	int p2 = mailbox[4] | (mailbox[5] << 8);
+	UINT8 *playlist = ns10_playlist[p1 % NS10_PLAYLISTS];
+
+	logerror("ns10_mp3_command %c %04x %04x frame %d\n", command, p1, p2, cpu_getcurrentframe());
+
+	/* generate the samples preceding the command */
+	stream_update(ns10_mp3_stream, 0);
+
+	switch (command | 0x20)
+	{
+	case 'l':
+		ns10_track_table = NS10_MAILBOX + (p1 | (p2 << 16));
+		break;
+	case 'c':
+		if (p1 < NS10_PLAYLISTS)
+		{
+			playlist[0] = 0;
+			memset(playlist + 2, 0xff, 0x100);
+		}
+		break;
+	case 'a':
+		if (p1 < NS10_PLAYLISTS && p2 <= 0xff && playlist[0] < 0xff)
+			playlist[2 + playlist[0]++] = p2;
+		break;
+	case 'p':
+		if (p1 < NS10_PLAYLISTS)
+		{
+			ns10_playlist_index = p1;
+			ns10_playlist_pos = 0;
+			ns10_mp3_state = NS10_MP3_START;
+			ns10_pcm_pos = ns10_pcm_count;
+		}
+		break;
+	case 's':
+		ns10_mp3_state = NS10_MP3_STOP;
+		ns10_pcm_pos = ns10_pcm_count;
+		break;
+	case 'r':
+		ns10_mp3_state = NS10_MP3_PLAY;
+		break;
+	case 'v':
+		if (p1 <= 0xff && p2 <= 0xff)
+		{
+			ns10_volume_start = ns10_volume;
+			ns10_volume_target = p1;
+			ns10_fade_steps = p2 * 40;
+			ns10_fade_acc = 0;
+			if (!ns10_fade_steps)
+				ns10_volume = ns10_volume_target;
+		}
+		break;
+	case 'g':
+		ns10_sdram_w16(NS10_MAILBOX + 2, ns10_volume);
+		ns10_sdram_w16(NS10_MAILBOX + 4, ns10_playlist[ns10_playlist_index][2 + ns10_playlist_pos]);
+		ns10_sdram_w16(NS10_MAILBOX + 6, ns10_mp3_state);
+		break;
+	}
+}
+
+static void *ns10_mp3_sh_start(int clock, const struct CustomSound_interface *config)
+{
+	ns10_mp3_rate = 44100;
+	ns10_mp3_stream = stream_create(0, 2, ns10_mp3_rate, 0, ns10_mp3_update);
+	return ns10_mp3_stream;
+}
+
+static struct CustomSound_interface ns10_mp3_interface =
+{
+	ns10_mp3_sh_start, 0, 0
+};
+
 static READ32_HANDLER(ns10_register_r)
 {
 	switch (offset * 4)
@@ -426,6 +733,8 @@ static READ32_HANDLER(ns10_register_r)
 	case 0x3fff4:
 		return 0;
 	}
+	if (offset >= 0x20000 / 4 && offset < 0x40000 / 4)
+		return ns10_sdram_r32(ns10_sdram_bank * 0x20000 + offset * 4 - 0x20000);
 	return 0xffffffff;
 }
 
@@ -434,11 +743,32 @@ static WRITE32_HANDLER(ns10_register_w)
 	UINT8 *rom = ns10_nand();
 	int i, iv;
 	UINT32 page = ns10_address >> 8;
+	if (offset >= 0x20000 / 4 && offset < 0x40000 / 4)
+	{
+		UINT8 *sdram = ns10_sdram + ns10_sdram_bank * 0x20000 + offset * 4 - 0x20000;
+		for (i = 0; i < 4; i++)
+			if (!(mem_mask & (0xffU << (i * 8))))
+				sdram[i] = data >> (i * 8);
+		return;
+	}
+	/* 0x1f300006 raises INT5 of the MCU */
+	if (offset == 1)
+	{
+		if (ACCESSING_MSW32)
+			ns10_mp3_command();
+		return;
+	}
 	if ((mem_mask & 0xffff) == 0xffff)
 		return;
 	switch (offset * 4)
 	{
 	case 0:
+		/* restarts the MCU, the MEM(P3) board has no crypto switch here */
+		ns10_mp3_reset();
+		break;
+	case 0xc:
+		ns10_sdram_bank = data & 0x3f;
+		break;
 	case 0x80000:
 		ns10_active = (data & 0x8000) != 0;
 		if (ns10_active)
@@ -624,6 +954,7 @@ static void ns10_init(const struct ns10_crypto *crypto)
 	}
 	if (bios[0] != 0x0013 || bios[1] != 0x3c08 || bios[2] != 0x24ff || bios[3] != 0x3508)
 		fatalerror("Invalid System 10 NAND boot image. Use complete 0x1080000-byte NAND dumps, including spare bytes, and check dir_rom search order.");
+	ns10_sdram = auto_malloc(NS10_SDRAM_SIZE);
 	psx_driver_init();
 	psx_dma_install_read_handler(5, ns10_dma_read);
 	timer_pulse(TIME_IN_HZ(100), 0, ns10_io_tick);
@@ -700,6 +1031,9 @@ static MACHINE_RESET(ns10)
 	ns10_i2c_prev_clock = ns10_i2c_prev_data = 1;
 	ns10_i2c_mode = 0;
 	ns10_i2c_bit = 7;
+	memset(ns10_sdram, 0, NS10_SDRAM_SIZE);
+	ns10_sdram_bank = 0;
+	ns10_mp3_reset();
 }
 
 static MACHINE_DRIVER_START( ns10 )
@@ -725,6 +1059,12 @@ static MACHINE_DRIVER_START( ns10 )
 	MDRV_SOUND_CONFIG(ns10_spu)
 	MDRV_SOUND_ROUTE(0, "left", 0.75)
 	MDRV_SOUND_ROUTE(1, "right", 0.75)
+
+	/* MP3 decoder of the MEM(P3) ROM board, mixed at the same level as MAME */
+	MDRV_SOUND_ADD(CUSTOM, 0)
+	MDRV_SOUND_CONFIG(ns10_mp3_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
 INPUT_PORTS_START( g13jnr )
