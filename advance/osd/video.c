@@ -2021,7 +2021,9 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #endif
 
 	i = conf_int_get_default(cfg_context, "sync_resample");
-	if (i == 1) {
+	/* the debug recording forces the internal resampling, otherwise the emulation */
+	/* resampling keeps the sound, and then the whole emulation, locked to real time */
+	if (i == 1 || conf_bool_get_default(cfg_context, "debug_sound")) {
 		context->config.internalresample_flag = 1; /* internal resampling */
 	} else {
 		context->config.internalresample_flag = 0; /* emulation resampling */

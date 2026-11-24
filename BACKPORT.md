@@ -34,7 +34,7 @@ Reference for porting fixes from modern MAME and debugging game drivers. Basic b
 Options marked *(debugger)* require the debugger build (`make -j$(nproc) CONF_DEBUGGER=yes`, which defines `MAME_DEBUG`), run as `./obj/mame/linux/blend-debugger/advmame`. Output files go to `dir_snap` (`~/.advance/snap/`) and are overwritten on each run.
 
 - `-debug_snap_step <X>`: Save a PNG every `X` frames as `<driver>_<frame:05d>.png` (0 = disabled).
-- `-debug_sound`: Record audio to `<driver>.wav` until exit, independent of manual recording keys and time limits.
+- `-debug_sound`: Record audio to `<driver>.wav` until exit, independent of manual recording keys and time limits and forces `sync_resample internal`, so the emulation is not locked to real time.
 - `-debug_start <X>`: Enable CPU traces, memory watches, PC breakpoints, PNG snapshots and debug WAV capture from frame `X` (frames are numbered from 1; default 0 = immediately). Snapshot intervals and `-debug_exit` stay absolute (start 100 with step 10 first captures frame 100). Manual recording and scripted inputs are not delayed.
 - `-debug_exit <X>`: Exit cleanly at frame `X`. Disables throttling, VSync and frameskip, and prints elapsed emulation time, frame count and average FPS, so it is also suitable for performance measurements. Timing starts at the initial emulation reset (excluding executable/ROM loading and shutdown) and continues across later resets; runs that end before timing starts (like a one-frame ROM check) print no timing. Disable snapshots, audio recording and tracing when measuring raw performance.
 - `-debug_cpu <N>` *(debugger)*: Trace instructions and registers to `<driver>.cpu` (`<N>` = CPU index, `-1` = all CPUs; default `-2` = disabled).
