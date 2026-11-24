@@ -5221,6 +5221,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cball )		/* ?????? prototype 1976/?? [6800] */
 	DRIVER( copsnrob )	/* 005625           1976/07 [6502] */
 	DRIVER( flyball )	/* 005629           1976/07 [6502] */
+	DRIVER( flyball1 )
 	DRIVER( sprint2 )	/* 005922           1976/11 [6502] */
 	DRIVER( sprint2a )	/* 005922           1976/11 [6502] */
 	DRIVER( sprint4 )	/* 008716           1977/12 [6502] */
