@@ -66,12 +66,14 @@ static void I386OP(fpu_group_d8)(void)
 		switch ((modrm >> 3) & 0x7)
 		{
 		case 6:
-			UINT32 src = READ32(ea);
-			if(src == 0)
-				fatalerror("FPU: Unimplemented Divide-by-zero exception at %08X.\n", I.pc-2);
-			ST(0).f = ST(0).f / src;
-			CYCLES(1);
-			break;
+			{
+				UINT32 src = READ32(ea);
+				if(src == 0)
+					fatalerror("FPU: Unimplemented Divide-by-zero exception at %08X.\n", I.pc-2);
+				ST(0).f = ST(0).f / src;
+				CYCLES(1);
+				break;
+			}
 		}
 	}
 	else
