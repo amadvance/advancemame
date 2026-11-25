@@ -366,22 +366,6 @@ static inline void interp_32_64_store4_neon(interp_uint32* dst, uint32x2_t a, ui
 	vst4_u32(dst, pixels);
 }
 
-static inline uint16x4_t interp_16_565_64_dist_neon(uint16x4_t a, uint16x4_t b)
-{
-	const uint16x4_t m31 = vdup_n_u16(31);
-	const uint16x4_t mg = vdup_n_u16(63);
-	uint16x4_t r = vabd_u16(vshr_n_u16(a, 11), vshr_n_u16(b, 11));
-	uint16x4_t g = vabd_u16(vand_u16(vshr_n_u16(a, 5), mg), vand_u16(vshr_n_u16(b, 5), mg));
-	uint16x4_t bl = vabd_u16(vand_u16(a, m31), vand_u16(b, m31));
-	uint16x4_t rg = vadd_u16(r, g);
-	return vadd_u16(vadd_u16(vshl_n_u16(rg, 1), rg), bl);
-}
-
-static inline uint16x4_t interp_16_565_64_dist3_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c)
-{
-	return vadd_u16(interp_16_565_64_dist_neon(a, b), interp_16_565_64_dist_neon(b, c));
-}
-
 static inline uint16x4_t interp_16_565_64_11_neon(uint16x4_t a, uint16x4_t b)
 {
 	return vadd_u16(vand_u16(vshr_n_u16(veor_u16(a, b), 1), vdup_n_u16(0x7BEF)), vand_u16(a, b));
@@ -406,21 +390,6 @@ static inline uint16x4_t interp_16_565_64_71_neon(uint16x4_t a, uint16x4_t b)
 	uint16x4_t g = vshr_n_u16(vadd_u16(vmul_n_u16(ga, 7), gb), 3);
 	uint16x4_t bl = vshr_n_u16(vadd_u16(vmul_n_u16(ba, 7), bb), 3);
 	return vorr_u16(vorr_u16(vshl_n_u16(r, 11), vshl_n_u16(g, 5)), bl);
-}
-
-static inline uint16x4_t interp_16_555_64_dist_neon(uint16x4_t a, uint16x4_t b)
-{
-	const uint16x4_t m31 = vdup_n_u16(31);
-	const uint16x4_t mg = vdup_n_u16(31);
-	uint16x4_t r = vabd_u16(vand_u16(vshr_n_u16(a, 10), m31), vand_u16(vshr_n_u16(b, 10), m31));
-	uint16x4_t g = vabd_u16(vand_u16(vshr_n_u16(a, 5), mg), vand_u16(vshr_n_u16(b, 5), mg));
-	uint16x4_t bl = vabd_u16(vand_u16(a, m31), vand_u16(b, m31));
-	return vadd_u16(vadd_u16(vadd_u16(vshl_n_u16(r, 1), r), vadd_u16(vshl_n_u16(g, 2), vshl_n_u16(g, 1))), bl);
-}
-
-static inline uint16x4_t interp_16_555_64_dist3_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c)
-{
-	return vadd_u16(interp_16_555_64_dist_neon(a, b), interp_16_555_64_dist_neon(b, c));
 }
 
 static inline uint16x4_t interp_16_555_64_11_neon(uint16x4_t a, uint16x4_t b)
@@ -461,19 +430,6 @@ static inline uint32x2_t interp_32_64_dist_neon(uint32x2_t a, uint32x2_t b)
 static inline uint32x2_t interp_32_64_dist3_neon(uint32x2_t a, uint32x2_t b, uint32x2_t c)
 {
 	return vadd_u32(interp_32_64_dist_neon(a, b), interp_32_64_dist_neon(b, c));
-}
-
-/* ARMv7: XBR edge scores for 64-bit input/output vectors. */
-static inline uint16x4_t interp_16_565_64_score_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c, uint16x4_t d, uint16x4_t e, uint16x4_t f, uint16x4_t g, uint16x4_t h)
-{
-	uint16x4_t x = vadd_u16(interp_16_565_64_dist3_neon(a, b, c), interp_16_565_64_dist3_neon(d, e, f));
-	return vadd_u16(x, vshl_n_u16(interp_16_565_64_dist_neon(g, h), 2));
-}
-
-static inline uint16x4_t interp_16_555_64_score_neon(uint16x4_t a, uint16x4_t b, uint16x4_t c, uint16x4_t d, uint16x4_t e, uint16x4_t f, uint16x4_t g, uint16x4_t h)
-{
-	uint16x4_t x = vadd_u16(interp_16_555_64_dist3_neon(a, b, c), interp_16_555_64_dist3_neon(d, e, f));
-	return vadd_u16(x, vshl_n_u16(interp_16_555_64_dist_neon(g, h), 2));
 }
 
 /* Accumulate all five RGB32 distances at 16-bit precision, then reduce. */

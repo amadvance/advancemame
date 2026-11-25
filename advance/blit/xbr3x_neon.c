@@ -177,8 +177,13 @@ void xbr3x_16_565_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 	for (; x < count && x < 2; ++x)
 		xbr3_565_edge_pixel(dst0, dst1, dst2, src0, src1, src2, src3, src4, count, x);
 
-#if defined(CONFIG_NEON)
-	/* 8 source pixels per block; furthest read is x+9. */
+	/*
+	 * 8 source pixels per block; furthest read is x+9.
+	 * 128-bit vectors also on ARMv7. With RGB565 and RGB555 the wider
+	 * blocks halve the early exit tests, which stall the pipeline moving
+	 * a NEON result to the core registers, and they are faster than 64-bit
+	 * vectors despite the register spills (measured on a Raspberry Pi 4).
+	 */
 	for (; count - x >= 10; x += 8) {
 #define LD3(row, off) vld1q_u16((row) + x + (off))
 		uint16x8_t A1 = LD3(src0, -1), B1 = LD3(src0, 0), C1 = LD3(src0, 1);
@@ -198,28 +203,6 @@ void xbr3x_16_565_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 		interp_16_store3_neon(dst1 + 3 * x, E3, E4, E5);
 		interp_16_store3_neon(dst2 + 3 * x, E6, E7, E8);
 	}
-#elif defined(CONFIG_NEON32)
-	/* 4 source pixels per block; furthest read is x+5. */
-	for (; count - x >= 6; x += 4) {
-#define LD3(row, off) vld1_u16((row) + x + (off))
-		uint16x4_t A1 = LD3(src0, -1), B1 = LD3(src0, 0), C1 = LD3(src0, 1);
-		uint16x4_t A0 = LD3(src1, -2), PA = LD3(src1, -1), PB = LD3(src1, 0), PC = LD3(src1, 1), C4 = LD3(src1, 2);
-		uint16x4_t D0 = LD3(src2, -2), PD = LD3(src2, -1), PE = LD3(src2, 0), PF = LD3(src2, 1), F4 = LD3(src2, 2);
-		uint16x4_t G0 = LD3(src3, -2), PG = LD3(src3, -1), PH = LD3(src3, 0), PI = LD3(src3, 1), I4 = LD3(src3, 2);
-		uint16x4_t G5 = LD3(src4, -1), H5 = LD3(src4, 0), I5 = LD3(src4, 1);
-#undef LD3
-		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE, E4 = PE, E5 = PE, E6 = PE, E7 = PE, E8 = PE;
-
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3, E4, E5, E6, E7, E8);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E6, E3, E0, E7, E4, E1, E8, E5, E2);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E8, E7, E6, E5, E4, E3, E2, E1, E0);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E2, E5, E8, E1, E4, E7, E0, E3, E6);
-
-		interp_16_64_store3_neon(dst0 + 3 * x, E0, E1, E2);
-		interp_16_64_store3_neon(dst1 + 3 * x, E3, E4, E5);
-		interp_16_64_store3_neon(dst2 + 3 * x, E6, E7, E8);
-	}
-#endif
 
 	/* Scalar tail, including the clamped right border. */
 	for (; x < count; ++x)
@@ -240,8 +223,13 @@ void xbr3x_16_555_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 	for (; x < count && x < 2; ++x)
 		xbr3_555_edge_pixel(dst0, dst1, dst2, src0, src1, src2, src3, src4, count, x);
 
-#if defined(CONFIG_NEON)
-	/* 8 source pixels per block; furthest read is x+9. */
+	/*
+	 * 8 source pixels per block; furthest read is x+9.
+	 * 128-bit vectors also on ARMv7. With RGB565 and RGB555 the wider
+	 * blocks halve the early exit tests, which stall the pipeline moving
+	 * a NEON result to the core registers, and they are faster than 64-bit
+	 * vectors despite the register spills (measured on a Raspberry Pi 4).
+	 */
 	for (; count - x >= 10; x += 8) {
 #define LD3(row, off) vld1q_u16((row) + x + (off))
 		uint16x8_t A1 = LD3(src0, -1), B1 = LD3(src0, 0), C1 = LD3(src0, 1);
@@ -261,28 +249,6 @@ void xbr3x_16_555_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 		interp_16_store3_neon(dst1 + 3 * x, E3, E4, E5);
 		interp_16_store3_neon(dst2 + 3 * x, E6, E7, E8);
 	}
-#elif defined(CONFIG_NEON32)
-	/* 4 source pixels per block; furthest read is x+5. */
-	for (; count - x >= 6; x += 4) {
-#define LD3(row, off) vld1_u16((row) + x + (off))
-		uint16x4_t A1 = LD3(src0, -1), B1 = LD3(src0, 0), C1 = LD3(src0, 1);
-		uint16x4_t A0 = LD3(src1, -2), PA = LD3(src1, -1), PB = LD3(src1, 0), PC = LD3(src1, 1), C4 = LD3(src1, 2);
-		uint16x4_t D0 = LD3(src2, -2), PD = LD3(src2, -1), PE = LD3(src2, 0), PF = LD3(src2, 1), F4 = LD3(src2, 2);
-		uint16x4_t G0 = LD3(src3, -2), PG = LD3(src3, -1), PH = LD3(src3, 0), PI = LD3(src3, 1), I4 = LD3(src3, 2);
-		uint16x4_t G5 = LD3(src4, -1), H5 = LD3(src4, 0), I5 = LD3(src4, 1);
-#undef LD3
-		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE, E4 = PE, E5 = PE, E6 = PE, E7 = PE, E8 = PE;
-
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3, E4, E5, E6, E7, E8);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E6, E3, E0, E7, E4, E1, E8, E5, E2);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E8, E7, E6, E5, E4, E3, E2, E1, E0);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E2, E5, E8, E1, E4, E7, E0, E3, E6);
-
-		interp_16_64_store3_neon(dst0 + 3 * x, E0, E1, E2);
-		interp_16_64_store3_neon(dst1 + 3 * x, E3, E4, E5);
-		interp_16_64_store3_neon(dst2 + 3 * x, E6, E7, E8);
-	}
-#endif
 
 	/* Scalar tail, including the clamped right border. */
 	for (; x < count; ++x)

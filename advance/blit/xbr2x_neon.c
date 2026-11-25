@@ -107,8 +107,13 @@ void xbr2x_16_565_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 	for (; x < count && x < 2; ++x)
 		xbr565_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 
-#if defined(CONFIG_NEON)
-	/* 8 source pixels per block using 128-bit vectors. */
+	/*
+	 * 8 source pixels per block using 128-bit vectors.
+	 * 128-bit vectors also on ARMv7. With RGB565 and RGB555 the wider
+	 * blocks halve the early exit tests, which stall the pipeline moving
+	 * a NEON result to the core registers, and they are faster than 64-bit
+	 * vectors despite the register spills (measured on a Raspberry Pi 4).
+	 */
 	for (; count - x >= 10; x += 8) {
 #define LD(row, off) vld1q_u16((row) + x + (off))
 		uint16x8_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
@@ -126,26 +131,6 @@ void xbr2x_16_565_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 		interp_16_store2_neon(dst0 + 2 * x, E0, E1);
 		interp_16_store2_neon(dst1 + 2 * x, E2, E3);
 	}
-#elif defined(CONFIG_NEON32)
-	/* 4 source pixels per block using 64-bit vectors. */
-	for (; count - x >= 6; x += 4) {
-#define LD(row, off) vld1_u16((row) + x + (off))
-		uint16x4_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
-		uint16x4_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
-		uint16x4_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
-		uint16x4_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
-		uint16x4_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
-#undef LD
-		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
-		XBR_NEON(16_565_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
-
-		interp_16_64_store2_neon(dst0 + 2 * x, E0, E1);
-		interp_16_64_store2_neon(dst1 + 2 * x, E2, E3);
-	}
-#endif
 
 	/* Right border and scalar tail. No overlapping destination writes. */
 	for (; x < count; ++x)
@@ -192,8 +177,13 @@ void xbr2x_16_555_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 	for (; x < count && x < 2; ++x)
 		xbr555_edge_pixel(dst0, dst1, src0, src1, src2, src3, src4, count, x);
 
-#if defined(CONFIG_NEON)
-	/* 8 source pixels per block using 128-bit vectors. */
+	/*
+	 * 8 source pixels per block using 128-bit vectors.
+	 * 128-bit vectors also on ARMv7. With RGB565 and RGB555 the wider
+	 * blocks halve the early exit tests, which stall the pipeline moving
+	 * a NEON result to the core registers, and they are faster than 64-bit
+	 * vectors despite the register spills (measured on a Raspberry Pi 4).
+	 */
 	for (; count - x >= 10; x += 8) {
 #define LD(row, off) vld1q_u16((row) + x + (off))
 		uint16x8_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
@@ -211,26 +201,6 @@ void xbr2x_16_555_neon(interp_uint16* restrict dst0, interp_uint16* restrict dst
 		interp_16_store2_neon(dst0 + 2 * x, E0, E1);
 		interp_16_store2_neon(dst1 + 2 * x, E2, E3);
 	}
-#elif defined(CONFIG_NEON32)
-	/* 4 source pixels per block using 64-bit vectors. */
-	for (; count - x >= 6; x += 4) {
-#define LD(row, off) vld1_u16((row) + x + (off))
-		uint16x4_t A1 = LD(src0, -1), B1 = LD(src0, 0), C1 = LD(src0, 1);
-		uint16x4_t A0 = LD(src1, -2), PA = LD(src1, -1), PB = LD(src1, 0), PC = LD(src1, 1), C4 = LD(src1, 2);
-		uint16x4_t D0 = LD(src2, -2), PD = LD(src2, -1), PE = LD(src2, 0), PF = LD(src2, 1), F4 = LD(src2, 2);
-		uint16x4_t G0 = LD(src3, -2), PG = LD(src3, -1), PH = LD(src3, 0), PI = LD(src3, 1), I4 = LD(src3, 2);
-		uint16x4_t G5 = LD(src4, -1), H5 = LD(src4, 0), I5 = LD(src4, 1);
-#undef LD
-		uint16x4_t E0 = PE, E1 = PE, E2 = PE, E3 = PE;
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, E0, E1, E2, E3);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, E2, E0, E3, E1);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, E3, E2, E1, E0);
-		XBR_NEON(16_555_64, uint16x4_t, interp_16_64_any_neon, vceq_u16, vcgt_u16, vcle_u16, vcge_u16, vadd_u16, vshl_n_u16, vand_u16, vorr_u16, vbic_u16, vmvn_u16, vbsl_u16, vdup_n_u16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, E1, E3, E0, E2);
-
-		interp_16_64_store2_neon(dst0 + 2 * x, E0, E1);
-		interp_16_64_store2_neon(dst1 + 2 * x, E2, E3);
-	}
-#endif
 
 	/* Right border and scalar tail. No overlapping destination writes. */
 	for (; x < count; ++x)
