@@ -134,7 +134,8 @@ void error_set(const char* text, ...)
 		log_std(("%s:", error_cat_prefix_buffer));
 	}
 	log_std((" "));
-	log_va(text, arg);
+	/* log the formatted text, because the arguments are already consumed by vsnprintf() */
+	log_std(("%s", p));
 	if (!text[0] || text[strlen(text) - 1] != '\n')
 		log_std(("\n"));
 #endif
@@ -157,7 +158,8 @@ void error_unsupported_set(const char* text, ...)
 
 #ifndef USE_ERROR_SILENT
 	log_std(("advance: set_error_description \""));
-	log_va(text, arg);
+	/* log the formatted text, because the arguments are already consumed by vsnprintf() */
+	log_std(("%s", error_desc_buffer));
 	log_std(("\"\n"));
 #endif
 
