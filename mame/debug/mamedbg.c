@@ -1479,7 +1479,7 @@ static unsigned get_register_or_value( char **parg, int *size )
  **************************************************************************/
 static void trace_init( const char *filename, UINT8 *regs )
 {
-	char name[100];
+	char name[144];
 
 	if( trace_on )
 		return;
