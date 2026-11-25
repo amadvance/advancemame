@@ -108,78 +108,50 @@ static int sp_dma_skip;
 
 static UINT32 sp_semaphore;
 
+/*
+	DMA between RDRAM and the RSP memories, as in MAME: the RSP transfers
+	whole 8 byte blocks from 8 byte aligned addresses, so the length is
+	rounded up to a multiple of 8. Rounding it down copied only the first
+	half of the 16 byte viewport that F3DEX2 loads with a length of 9,
+	losing its translation (Kurukuru Fever drew its play fields around the
+	top left corner of the screen). The transfer is repeated count + 1
+	times, skipping 'skip' bytes of RDRAM between the lines.
+*/
 static void sp_dma(int direction)
 {
-	UINT8 *src, *dst;
-	int i;
+	UINT32 *mem = (sp_mem_addr & 0x1000) ? rsp_imem : rsp_dmem;
+	UINT32 mem_addr = sp_mem_addr & 0xff8;
+	UINT32 dram_addr = sp_dram_addr & ~7;
+	UINT32 length = (sp_dma_length | 7) + 1;
+	int c;
+	UINT32 i;
 
-	if (sp_dma_length == 0)
+	/* the transfer stops at the end of the 4 KB memory */
+	if (mem_addr + length > 0x1000)
+		length = 0x1000 - mem_addr;
+
+	for (c = 0; c <= sp_dma_count; ++c)
 	{
-		return;
-	}
+		UINT32 m = mem_addr >> 2;
+		UINT32 d = dram_addr >> 2;
 
-	sp_dma_length++;
-
-	if ((sp_dma_length & 3) != 0)
-	{
-
-		sp_dma_length = sp_dma_length & ~3;
-
-	}
-
-	if (sp_mem_addr & 0x3)
-	{
-
-        sp_mem_addr = sp_mem_addr & ~3;
-
-	}
-	if (sp_dram_addr & 0x3)
-	{
-
-        sp_dram_addr = sp_dram_addr & ~3;
-
-	}
-
-	if (sp_dma_count > 0)
-	{
-		fatalerror("sp_dma: dma_count = %d\n", sp_dma_count);
-	}
-	if (sp_dma_skip > 0)
-	{
-		fatalerror("sp_dma: dma_skip = %d\n", sp_dma_skip);
-	}
-
-	if ((sp_mem_addr & 0xfff) + (sp_dma_length) > 0x1000)
-	{
-		fatalerror("sp_dma: dma out of memory area: %08X, %08X\n", sp_mem_addr, sp_dma_length);
-	}
-
-	if (direction == 0)
-	{
-		src = (UINT8*)&rdram[sp_dram_addr / 4];
-		dst = (sp_mem_addr & 0x1000) ? (UINT8*)&rsp_imem[(sp_mem_addr & 0xfff) / 4] : (UINT8*)&rsp_dmem[(sp_mem_addr & 0xfff) / 4];
-
-		for (i=0; i < sp_dma_length; i++)
+		if (direction == 0)
 		{
-			dst[BYTE4_XOR_BE(i)] = src[BYTE4_XOR_BE(i)];
+			for (i = 0; i < length / 4; ++i)
+				mem[(m + i) & 0x3ff] = rdram[d + i];
+		}
+		else
+		{
+			for (i = 0; i < length / 4; ++i)
+				rdram[d + i] = mem[(m + i) & 0x3ff];
 		}
 
-        sp_mem_addr += sp_dma_length;
-        sp_dram_addr += sp_dma_length;
+		mem_addr += length;
+		dram_addr += length + sp_dma_skip;
 	}
-	else
-	{
-		src = (sp_mem_addr & 0x1000) ? (UINT8*)&rsp_imem[(sp_mem_addr & 0xfff) / 4] : (UINT8*)&rsp_dmem[(sp_mem_addr & 0xfff) / 4];
-		dst = (UINT8*)&rdram[sp_dram_addr / 4];
 
-		for (i=0; i < sp_dma_length; i++)
-		{
-			dst[BYTE4_XOR_BE(i)] = src[BYTE4_XOR_BE(i)];
-		}
-
-        sp_mem_addr += sp_dma_length;
-        sp_dram_addr += sp_dma_length;
-	}
+	sp_mem_addr = (sp_mem_addr & 0x1000) | (mem_addr & 0xfff);
+	sp_dram_addr = dram_addr - sp_dma_skip;
 }
 
 void sp_set_status(UINT32 status)
