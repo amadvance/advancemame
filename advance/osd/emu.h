@@ -555,6 +555,7 @@ struct advance_sound_state_context {
 
 	unsigned latency_min; /**< Expected minum latency in samples. */
 	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
+	adv_bool fill_flag; /**< Fill the buffer with silence up to the expected latency at the next frame, after a restart of the buffer. */
 	double buffer_time; /**< Buffer size for sample in seconds. */
 	unsigned rate; /**< Current sample rate */
 	int input_mode; /**< Input mode format. */
@@ -612,6 +613,7 @@ void advance_sound_done(struct advance_sound_context* context);
 adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
+void advance_sound_latency_fill(struct advance_sound_context* context, double extra_latency, adv_bool restart_flag);
 void advance_sound_reconfigure(struct advance_sound_context* context, struct advance_sound_config_context* config);
 void advance_sound_config_save(struct advance_sound_context* context, const char* section);
 

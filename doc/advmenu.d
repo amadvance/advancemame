@@ -762,7 +762,7 @@ Configuration
 
 	Options:
 		TIME - Latency in seconds from 0.01 to 2.0.
-			(default 0.1)
+			(default 0.2)
 
 	Increase the value if you hear a choppy audio.
 

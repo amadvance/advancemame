@@ -1496,6 +1496,16 @@ static int int_compare(const void* void_a, const void* void_b)
 /** Number of frames on which distribute the latency error. */
 #define AUDIOVIDEO_DISTRIBUTE_COUNT 4
 
+/**
+ * Number of frames on which distribute the big latency errors at normal speed.
+ * The correction accumulates frame after frame on the buffer level, and it's
+ * computed from the median of the last AUDIOVIDEO_MEASURE_MAX errors, that follows
+ * a change with a delay of about AUDIOVIDEO_MEASURE_MAX / 2 + 1 frames.
+ * Such loop with delay D is stable only with a gain lower than about 1.5 / D,
+ * and a higher gain results in a permanent oscillation of the audio speed.
+ */
+#define AUDIOVIDEO_MEDIAN_DISTRIBUTE_COUNT 16
+
 int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned knocker)
 {
 	struct advance_video_context* context = &CONTEXT.video;
@@ -1528,6 +1538,18 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	/* is bigger or lower than the limit */
 	latency_limit = advance_sound_latency(&CONTEXT.sound, 0) / 2;
 
+	/* with a small sound_latency the limit becomes smaller than the measure */
+	/* noise, given by the period granularity of the sound buffer and by the timer */
+	/* jitter, and the error would always be handled as a big one. */
+	/* It also must not be lower than AUDIOVIDEO_NEAR_STEP_COUNT to avoid */
+	/* a division by zero in the small error correction. */
+	/* The same limit is used by advance_sound_latency_fill() */
+	sample_limit = sample_count;
+	if (sample_limit < AUDIOVIDEO_NEAR_STEP_COUNT)
+		sample_limit = AUDIOVIDEO_NEAR_STEP_COUNT;
+	if (latency_limit < sample_limit)
+		latency_limit = sample_limit;
+
 	if (normal_speed) {
 		int latency_median;
 
@@ -1549,14 +1571,14 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 			latency_diff = latency_median / (latency_limit / AUDIOVIDEO_NEAR_STEP_COUNT);
 		} else if (latency_median > latency_limit) {
 			/* if the error is big, use a stronger correction */
-			latency_diff = AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median - latency_limit) / AUDIOVIDEO_DISTRIBUTE_COUNT;
+			latency_diff = AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median - latency_limit) / AUDIOVIDEO_MEDIAN_DISTRIBUTE_COUNT;
 		} else {
-			latency_diff = -AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median + latency_limit) / AUDIOVIDEO_DISTRIBUTE_COUNT;
+			latency_diff = -AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median + latency_limit) / AUDIOVIDEO_MEDIAN_DISTRIBUTE_COUNT;
 		}
 
 		if (latency_diff <= -AUDIOVIDEO_NEAR_STEP_COUNT || latency_diff >= AUDIOVIDEO_NEAR_STEP_COUNT) {
 			/* report the big error */
-			log_std(("WARNING:emu:video: audio/video syncronization correction of %d samples. Try increasing the 'sound_latency' option.\n", latency_diff));
+			log_std(("ERROR:emu:video: audio/video syncronization correction of %d samples. Try increasing the 'sound_latency' option.\n", latency_diff));
 		} else if (latency_diff <= -3 || latency_diff >= 3) {
 			/* report the error, an error of 1,2 samples is the normal condition */
 			log_std(("emu:video: audio/video syncronization correction of %d samples\n", latency_diff));

@@ -446,6 +446,10 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 	if (!skip_flag) {
 		double delay;
 
+		/* the sync restarts after a stop of the frames, like a video mode change, */
+		/* that may have drained the sound buffer */
+		adv_bool restart_flag = context->state.sync_warming_up_flag;
+
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
 			&& CONTEXT.record.config.debug_exit == 0
@@ -458,6 +462,8 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 		/* is not used because it is not constant */
 
 		delay = context->state.skip_step;
+
+		advance_sound_latency_fill(sound_context, delay, restart_flag);
 
 		__atomic_store_n(&context->state.latency_diff, advance_sound_latency_diff(sound_context, delay), __ATOMIC_SEQ_CST);
 	} else {

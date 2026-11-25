@@ -683,6 +683,54 @@ int advance_sound_latency_diff(struct advance_sound_context* context, double ext
 	}
 }
 
+/**
+ * Fill the sound buffer with silence up to the expected latency.
+ * It's done only at the first frame after the sound buffer is started, or
+ * after a restart of the frame sync, like after a video mode change.
+ * In both cases the sound buffer may be drained by a stop of the frames,
+ * like the remaining initialization before the first frame, and recovering
+ * this error adjusting the number of samples would change the audio speed
+ * for a lot of frames.
+ * \param extra_latency Extra latency time (in seconds) required.
+ * \param restart_flag If the frame sync is restarted.
+ */
+void advance_sound_latency_fill(struct advance_sound_context* context, double extra_latency, adv_bool restart_flag)
+{
+	/* enough for a stereo output */
+	static adv_sample silence[2 * 256];
+	int diff;
+	int limit;
+	int frame;
+
+	if (!context->state.fill_flag && !restart_flag)
+		return;
+
+	context->state.fill_flag = 0;
+
+	diff = advance_sound_latency_diff(context, extra_latency);
+
+	/* same limit of the small errors used by the sync correction in osd2_frame() */
+	limit = context->state.latency_min / 2;
+	frame = context->state.rate * extra_latency;
+	if (limit < frame)
+		limit = frame;
+
+	/* a small error is recovered by the sync correction without changing */
+	/* the audio speed noticeably, and the silence would be an audible gap */
+	if (diff >= -limit)
+		return;
+
+	log_std(("advance: sound fill with %d samples of silence\n", -diff));
+
+	while (diff < 0) {
+		unsigned run = -diff;
+		if (run > 256)
+			run = 256;
+		soundb_play(silence, run);
+		diff += run;
+	}
+}
+
 static adv_conf_enum_int OPTION_CHANNELS[] = {
 	{ "auto", SOUND_MODE_AUTO },
 	{ "mono", SOUND_MODE_MONO },
@@ -700,7 +748,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_string_register_default(cfg_context, "sound_adjust", "auto");
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_normalize", 1);
-	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.2);
+	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
 	soundb_reg(cfg_context, 1);
 	soundb_reg_driver_all(cfg_context);
@@ -905,6 +953,8 @@ static adv_error sound_mode_update(struct advance_sound_context* context)
 		}
 
 		soundb_start(0);
+
+		context->state.fill_flag = 1;
 	}
 
 	/* set the new output mode */
@@ -1153,6 +1203,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.overflow = 0;
 
 	soundb_start(context->config.latency_time);
+
+	context->state.fill_flag = 1;
 
 	sound_normalize_update(context);
 	sound_equalizer_update(context);
