@@ -517,7 +517,7 @@ static unsigned DecodeNPMOpcode(char *buffer, UINT16 op, unsigned pc)
 	char D[32] ;
 	char A[32] ;
 	char M[32] ;
-	char args[32] ;
+	char args[80] ;
 	int Rnum ;
 
 
@@ -779,7 +779,7 @@ static unsigned DecodeNPMOpcode(char *buffer, UINT16 op, unsigned pc)
 */			}
 			else
 			{
-				char fullAddy[128] ;									// Convert Short Absolute Address to full 16-bit
+				char fullAddy[8] ;									// Convert Short Absolute Address to full 16-bit
 
 				// MOVE(P) - 0001 100W HH1p pppp
 				DecodeHHTable(BITS(op,0x00c0), SD) ;
@@ -820,7 +820,7 @@ unsigned DecodeMisfitOpcode(char *buffer, UINT16 op, unsigned pc)
 	char SD[32] ;
 	char M[32] ;
 	char ea[32] ;
-	char args[32] ;
+	char args[80] ;
 	int Rnum ;
 
 	if (BITS(op,0x1000)== 0x0)
@@ -927,7 +927,7 @@ static unsigned DecodeSpecialOpcode(char *buffer, UINT16 op, unsigned pc)
 	char S1[32] ;
 	char SD[32] ;
 	char M[32] ;
-	char args[32] ;
+	char args[80] ;
 	char ea[32] ;
 	int Rnum ;
 
@@ -1291,7 +1291,7 @@ static unsigned DecodeSpecialOpcode(char *buffer, UINT16 op, unsigned pc)
 			// MOVE(P) - 0000 110W RRmp pppp
 			case 0x4: case 0x5:
 			{
-				char fullAddy[128] ;									// Convert Short Absolute Address to full 16-bit
+				char fullAddy[8] ;									// Convert Short Absolute Address to full 16-bit
 				Rnum = DecodeRRTable(BITS(op,0x00c0)) ;
 				AssembleeaFrommTable(BITS(op,0x0020), Rnum, ea) ;
 
@@ -1336,7 +1336,7 @@ static void AppendXMDM(char *buffer, UINT16 op)
 	int Rnum ;
 	char SD[32] ;
 	char ea[32] ;
-	char args[32] ;
+	char args[80] ;
 
 	// 1mRR HHHW ---- ----
 	Rnum = DecodeRRTable(BITS(op,0x3000)) ;
@@ -1359,7 +1359,7 @@ static void AppendXMDMSpecial(char *buffer, UINT16 op, char *working)
 	//    my question is : when is there .not. a Data ALU operation ??
 
 	char SD[32] ;
-	char args[32] ;
+	char args[80] ;
 	char dest[32] ;
 
 	if (working[0] == 'B')
@@ -1898,7 +1898,7 @@ static void AssembleeaFromzTable(UINT16 z, int n, char *ea)
 
 static void AssembleDFromPTable(UINT16 P, UINT16 ppppp, char *D)
 {
-	char fullAddy[128] ;		// Convert Short Absolute Address to full 16-bit
+	char fullAddy[8] ;		// Convert Short Absolute Address to full 16-bit
 
 	switch(P)
 	{

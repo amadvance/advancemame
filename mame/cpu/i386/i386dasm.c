@@ -1238,7 +1238,7 @@ static char *hexstring(UINT32 value, int digits)
 
 static char *shexstring(UINT32 value, int digits, int always)
 {
-	static char buffer[20];
+	static char buffer[24];
 	if (value >= 0x80000000)
 		sprintf(buffer, "-%s", hexstring(-value, digits));
 	else if (always)

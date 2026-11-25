@@ -315,7 +315,7 @@ static int make_int_16(int value)
 /* Get string representation of hex values */
 static char* make_signed_hex_str_8(uint val)
 {
-	static char str[20];
+	static char str[12];
 
 	val &= 0xff;
 
@@ -331,7 +331,7 @@ static char* make_signed_hex_str_8(uint val)
 
 static char* make_signed_hex_str_16(uint val)
 {
-	static char str[20];
+	static char str[12];
 
 	val &= 0xffff;
 
@@ -347,7 +347,7 @@ static char* make_signed_hex_str_16(uint val)
 
 static char* make_signed_hex_str_32(uint val)
 {
-	static char str[20];
+	static char str[12];
 
 	val &= 0xffffffff;
 

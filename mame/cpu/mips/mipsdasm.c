@@ -9,7 +9,7 @@
 
 static char *make_signed_hex_str_16( UINT32 value )
 {
-	static char s_hex[ 20 ];
+	static char s_hex[ 8 ];
 
 	value &= 0xffff;
 	if( value & 0x8000 )
@@ -98,7 +98,7 @@ static const char *s_gtelm[] =
 
 static char *make_address( UINT32 pc, UINT32 op )
 {
-	static char s_address[ 20 ];
+	static char s_address[ 32 ];
 #ifndef STANDALONE
 	if( pc == activecpu_get_pc() )
 	{
