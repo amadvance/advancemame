@@ -508,7 +508,7 @@ static void SPR(char *dest, int spr_field)
 		case 982:	strcat(dest, "rpa");	break;
 		case 1010:	strcat(dest, "iabr");	break;
 
-		default:	sprintf(dest, "%s%d", dest, spr); break;
+		default:	sprintf(dest + strlen(dest), "%d", spr); break;
 	}
 }
 
@@ -572,7 +572,7 @@ static void DCR(char *dest, int dcr_field)
 		case 64:	strcat(dest, "exisr"); break;
 		case 160:	strcat(dest, "iocr"); break;
 
-		default:    sprintf(dest, "%s%d", dest, dcr); break;
+		default:    sprintf(dest + strlen(dest), "%d", dcr); break;
 	}
 }
 
@@ -1104,12 +1104,12 @@ offs_t ppc_dasm_one(char *buffer, UINT32 pc, UINT32 op)
 
 			case F_MTSPR:
 				SPR(oprs, G_SPR(op));
-				sprintf(oprs, "%s,r%d", oprs, G_RT(op));
+				sprintf(oprs + strlen(oprs), ",r%d", G_RT(op));
 				break;
 
 			case F_MTDCR:
 				DCR(oprs, G_DCR(op));
-				sprintf(oprs, "%s,r%d", oprs, G_RT(op));
+				sprintf(oprs + strlen(oprs), ",r%d", G_RT(op));
 				break;
 
 			case F_MTSR:

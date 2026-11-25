@@ -181,18 +181,16 @@ static void append_immediate(UINT16 data, int is_float, int is_unsigned, char *b
 	if (is_float)
 	{
 		int exp = ((INT16)data >> 12) + 127;
-		UINT32 expanded_data;
-		float float_val;
+		union { UINT32 i; float f; } expanded_data;
 
-		expanded_data = ((data & 0x0800) << 20) + ((exp << 23) & 0x7f800000);
+		expanded_data.i = ((data & 0x0800) << 20) + ((exp << 23) & 0x7f800000);
 		if (data == 0x8000)
-			*(float *)&expanded_data = 0;
+			expanded_data.f = 0;
 		else if (!(data & 0x0800))
-			expanded_data += ((data & 0x0fff) << 12);
+			expanded_data.i += ((data & 0x0fff) << 12);
 		else
-			expanded_data += ((-data & 0x0fff) << 12);
-		float_val = *(float *)&expanded_data;
-		sprintf(dst, "%8f", float_val);
+			expanded_data.i += ((-data & 0x0fff) << 12);
+		sprintf(dst, "%8f", expanded_data.f);
 	}
 	else if (!is_unsigned && (INT16)data < 0)
 		sprintf(dst, "-$%04X", -data & 0xffff);

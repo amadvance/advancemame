@@ -1817,7 +1817,7 @@ static const char *name_rdmem( unsigned base )
 				case (FPTR)MWA8_BANK19: case (FPTR)MWA8_BANK20:
 				case (FPTR)MWA8_BANK21: case (FPTR)MWA8_BANK22:
 				case (FPTR)MWA8_BANK23: case (FPTR)MWA8_BANK24:
-					sprintf(dst, "BANK%d+%04X", 1 + (int)(MRA8_BANK1) - (int)(map->read.handler), lshift(offset) );
+					sprintf(dst, "BANK%d+%04X", (int)(1 + (FPTR)MRA8_BANK1 - (FPTR)map->read.handler), lshift(offset) );
 					break;
 				case (FPTR)MRA8_NOP:
 					sprintf(dst, "NOP%d+%04X", nop_cnt, lshift(offset) );
@@ -1947,7 +1947,7 @@ static const char *name_wrmem( unsigned base )
 				case (FPTR)MWA8_BANK19: case (FPTR)MWA8_BANK20:
 				case (FPTR)MWA8_BANK21: case (FPTR)MWA8_BANK22:
 				case (FPTR)MWA8_BANK23: case (FPTR)MWA8_BANK24:
-					sprintf(dst, "BANK%d+%04X", 1 + (int)(MWA8_BANK1) - (int)(map->write.handler), lshift(base - map->start) );
+					sprintf(dst, "BANK%d+%04X", (int)(1 + (FPTR)MWA8_BANK1 - (FPTR)map->write.handler), lshift(base - map->start) );
 					break;
 				case (FPTR)MWA8_NOP:
 					sprintf(dst, "NOP%d+%04X", nop_cnt, lshift(base - map->start) );
@@ -3093,12 +3093,12 @@ static void edit_mem( int which )
 		break;
 
 	case KEYCODE_H:
-		DBGMEM[which].ascii = ++(DBGMEM[which].ascii) % MODE_CHR_COUNT;
+		DBGMEM[which].ascii = (DBGMEM[which].ascii + 1) % MODE_CHR_COUNT;
 		update_window = 1;
 		break;
 
 	case KEYCODE_M: /* display mode */
-		DBGMEM[which].mode = ++(DBGMEM[which].mode) % MODE_HEX_COUNT;
+		DBGMEM[which].mode = (DBGMEM[which].mode + 1) % MODE_HEX_COUNT;
 		/* Reset cursor coordinates and sizes of the edit info */
 		memset( DBGMEM[which].edit, 0, sizeof(DBGMEM[which].edit) );
 		update_window = 1;
@@ -4957,9 +4957,9 @@ static void cmd_step_over( void )
 static void cmd_switch_window( void )
 {
 	if( code_pressed(KEYCODE_LSHIFT) || code_pressed(KEYCODE_RSHIFT) )
-		DBG.window = --DBG.window % DBG_WINDOWS;
+		DBG.window = (DBG.window + DBG_WINDOWS - 1) % DBG_WINDOWS;
 	else
-		DBG.window = ++DBG.window % DBG_WINDOWS;
+		DBG.window = (DBG.window + 1) % DBG_WINDOWS;
 }
 
 /**************************************************************************
