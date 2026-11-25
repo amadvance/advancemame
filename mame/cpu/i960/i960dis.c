@@ -98,7 +98,7 @@ static const char *regnames[32] =
 	"g0","g1","g2","g3", "g4","g5","g6","g7", "g8","g9","g10","g11", "g12","g13","g14","fp",
 };
 
-#define DIS_NI 		sprintf(diss->buffer,"%s %02x:%01x %08lx %1x %1x",mnemonic[op].mnem,op,op2,iCode, modeh, model);
+#define DIS_NI 		sprintf(diss->buffer,"%s %02x:%01x %08x %1x %1x",mnemonic[op].mnem,op,op2,iCode, modeh, model);
 #define DIS	    	sprintf(diss->buffer,
 #define REG_DST		regnames[dst]
 #define REG_ABASE	regnames[abase]
@@ -132,13 +132,13 @@ static char *dis_decode_reg(UINT32 iCode, char* tmpStr,unsigned char cnt)
 	if (S1) src1[0] = 0;
 	else
 	{
-		if(M1)	sprintf(src1,"0x%lx",SRC1);
+		if(M1)	sprintf(src1,"0x%x",SRC1);
 		else		sprintf(src1,"%s",regnames[SRC1]);
 	}
 	if (S2) sprintf(src2,"reserved");
 	else
 	{
-		if(M2)	sprintf(src2,"0x%lx,",SRC2);
+		if(M2)	sprintf(src2,"0x%x,",SRC2);
 		else		sprintf(src2,"%s,",regnames[SRC2]);
 	}
 	if(M3)		dst[0] = 0;
@@ -182,7 +182,7 @@ char *i960_disassemble(disassemble_t *diss)
 		switch(modeh)
 		{
 		case 0:
-			DIS "%s\t%s, 0x%lx",NEM,REG_DST, iCode&0xfff);
+			DIS "%s\t%s, 0x%x",NEM,REG_DST, iCode&0xfff);
 			break;
 		case 1:
 			switch (model)
@@ -191,7 +191,7 @@ char *i960_disassemble(disassemble_t *diss)
 				DIS "%s\t%s,(%s)",NEM,REG_DST, REG_ABASE);
 				break;
 			case 3:
-				DIS "%s\t%s,(%s)[%s*%ld]",NEM,REG_DST, REG_ABASE,REG_REG2,(iCode>>7)&0x7);
+				DIS "%s\t%s,(%s)[%s*%u]",NEM,REG_DST, REG_ABASE,REG_REG2,(iCode>>7)&0x7);
 				break;
 			default:
 				DIS_NI;
@@ -199,7 +199,7 @@ char *i960_disassemble(disassemble_t *diss)
 			}
 			break;
 		case 2:
-			DIS "%s\t%s, 0x%lx(%s)",NEM,REG_DST, iCode&0xfff,REG_ABASE);
+			DIS "%s\t%s, 0x%x(%s)",NEM,REG_DST, iCode&0xfff,REG_ABASE);
 			break;
 		case 3:
 			switch (model)
@@ -213,11 +213,11 @@ char *i960_disassemble(disassemble_t *diss)
 				diss->IPinc = 8;
 				break;
 			case 2:
-				DIS "%s\t%s,0x%x[%s*%ld]",NEM,REG_DST, cpu_readop32(diss->IP + 4),REG_REG2,(iCode>>7)&0x7);
+				DIS "%s\t%s,0x%x[%s*%u]",NEM,REG_DST, cpu_readop32(diss->IP + 4),REG_REG2,(iCode>>7)&0x7);
 				diss->IPinc = 8;
 				break;
 			case 3:
-				DIS "%s\t%s,0x%x(%s)[%s*%ld]",NEM,REG_DST, cpu_readop32(diss->IP + 4),REG_ABASE,REG_REG2,(iCode>>7)&0x7);
+				DIS "%s\t%s,0x%x(%s)[%s*%u]",NEM,REG_DST, cpu_readop32(diss->IP + 4),REG_ABASE,REG_REG2,(iCode>>7)&0x7);
 				diss->IPinc = 8;
 				break;
 			default:
@@ -258,7 +258,7 @@ char *i960_disassemble(disassemble_t *diss)
 		break;
 
 	case 6: // bitpos and branch type
-		DIS "%s\t%ld,%s,0x%lx",NEM, COBRSRC1, REG_COBR_SRC2,((((long)iCode&0x00fffffc)<<19)>>19) + (diss->IP));
+		DIS "%s\t%u,%s,0x%lx",NEM, COBRSRC1, REG_COBR_SRC2,((((long)iCode&0x00fffffc)<<19)>>19) + (diss->IP));
 		break;
 	case 7: // compare and branch type
 		DIS "%s\t%s,%s,0x%lx",NEM,REG_COBR_SRC1,REG_COBR_SRC2,((((long)iCode&0x00fffffc)<<19)>>19) + (diss->IP));
