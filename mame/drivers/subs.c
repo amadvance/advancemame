@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Fabio Priuli, Scott Stone
+// copyright-holders:Mike Balfour
 /***************************************************************************
 
     Atari Subs hardware
@@ -125,10 +125,10 @@ INPUT_PORTS_START( subs )
 	PORT_BIT ( 0xf0, IP_ACTIVE_HIGH, IPT_UNUSED ) /* Filled in with steering information */
 
 	PORT_START /* IN2 */
-	PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_COIN1 )
-	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_COIN2 )
-	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_VBLANK )
 	PORT_BIT ( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME("Self Test") PORT_CODE(KEYCODE_F2) PORT_TOGGLE
@@ -284,4 +284,4 @@ static DRIVER_INIT( subs )
  *
  *************************************/
 
-GAME( 1977, subs, 0, subs, subs, subs, ROT0, "Atari", "Subs", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // control issues?
+GAME( 1977, subs, 0, subs, subs, subs, ROT0, "Atari", "Subs", GAME_IMPERFECT_SOUND )
