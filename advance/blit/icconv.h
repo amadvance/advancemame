@@ -793,20 +793,31 @@ static inline __attribute__((target("sse2"))) void internal_convbgra5551tobgra88
 
 #if defined(CONFIG_NEON) || defined(CONFIG_NEON32)
 
+/*
+ * Eight pixels per iteration. Each channel is extracted directly as a byte
+ * with a narrowing shift, keeping the 5 bits at the top of the byte as the
+ * C version, and vst4 interleaves the four bytes of each pixel.
+ */
 static inline void internal_convbgra5551tobgra8888_neon(void* dst, const void* src, unsigned count)
 {
-	const uint32x4_t mask0 = vdupq_n_u32(0xf8);
-	const uint32x4_t mask1 = vdupq_n_u32(0xf800);
-	const uint32x4_t mask2 = vdupq_n_u32(0xf80000);
-	unsigned rest = count % 4;
+	const uint8x8_t mask = vdup_n_u8(0xf8);
+	uint8x8x4_t pixel;
+	unsigned rest = count % 8;
 	const uint16* input = src;
-	uint32* output = dst;
-	while (count >= 4) {
-		uint32x4_t p = vmovl_u16(vld1_u16(input));
-		vst1q_u32(output, vorrq_u32(vorrq_u32(vandq_u32(vshlq_n_u32(p, 3), mask0), vandq_u32(vshlq_n_u32(p, 6), mask1)), vandq_u32(vshlq_n_u32(p, 9), mask2)));
-		input += 4;
-		output += 4;
-		count -= 4;
+	uint8* output = dst;
+	pixel.val[3] = vdup_n_u8(0);
+	while (count >= 8) {
+		uint16x8_t p = vld1q_u16(input);
+		/* blue, bits 0-4 */
+		pixel.val[0] = vshl_n_u8(vmovn_u16(p), 3);
+		/* green, bits 5-9 */
+		pixel.val[1] = vand_u8(vshrn_n_u16(p, 2), mask);
+		/* red, bits 10-14 */
+		pixel.val[2] = vand_u8(vshrn_n_u16(p, 7), mask);
+		vst4_u8(output, pixel);
+		input += 8;
+		output += 32;
+		count -= 8;
 	}
 	src = input;
 	dst = output;
