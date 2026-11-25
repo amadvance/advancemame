@@ -2210,7 +2210,10 @@ static int rsp_execute(int cycles)
 					case 0x02:
 					{
 
-						if (RTREG) RTVAL = rsp.flag[RDREG];
+						/* the 16 bit flags are sign extended: F3DLP.Rej tests the */
+						/* sign of the clip codes, and without it the Eleven Beat */
+						/* players lose triangles and get the wrong vertices */
+						if (RTREG) RTVAL = (INT32)(INT16)rsp.flag[RDREG];
 						break;
 					}
 					case 0x04:
