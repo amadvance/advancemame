@@ -49,7 +49,7 @@
     CONSTANTS
 ***************************************************************************/
 
-#define MAX_VERTEX_PARAMS					6
+#define MAX_VERTEX_PARAMS					10
 #define MAX_POLYGON_VERTS					32
 
 #define POLYFLAG_INCLUDE_BOTTOM_EDGE		0x01

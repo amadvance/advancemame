@@ -90,7 +90,6 @@ static INT16 k001005_viewport_center_x, k001005_viewport_center_y;
 #define CH_R(c) (((c) >> 16) & 0xff)
 #define CH_G(c) (((c) >> 8) & 0xff)
 #define CH_B(c) ((c) & 0xff)
-#define MAKE_ARGB(a, r, g, b) (((UINT32)(a) << 24) | ((UINT32)(r) << 16) | ((UINT32)(g) << 8) | (UINT32)(b))
 
 /* (c * factor + o * (256 - factor)) / 256 on every channel */
 INLINE UINT32 blend_argb(UINT32 c, UINT32 o, int factor)
