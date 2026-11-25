@@ -106,7 +106,7 @@ int os_main(int argc, char* argv[])
 	mixer_reg(context);
 
 	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
-	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
+	conf_string_register_default(context, "sound_samplerate", "auto");
 	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.2);
 	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.2);
 
@@ -151,7 +151,18 @@ int os_main(int argc, char* argv[])
 	attenuation = conf_int_get_default(context, "sound_volume");
 	latency_time = conf_float_get_default(context, "sound_latency");
 	buffer_time = conf_float_get_default(context, "sound_buffer");
-	rate = conf_int_get_default(context, "sound_samplerate");
+	s = conf_string_get_default(context, "sound_samplerate");
+	if (strcmp(s, "auto") == 0) {
+		/* let the sound driver select the rate */
+		rate = 0;
+	} else {
+		char* e;
+		rate = strtol(s, &e, 10);
+		if (*e != 0 || rate < 5000 || rate > 96000) {
+			target_err("Invalid argument '%s' for option 'sound_samplerate'.\n", s);
+			goto err_os;
+		}
+	}
 	volume = 1.0;
 	while (attenuation++ < 0)
 		volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */

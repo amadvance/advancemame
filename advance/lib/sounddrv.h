@@ -77,7 +77,7 @@ typedef struct soundb_driver_struct {
 	/** Register the load options. Call before load(). */
 	void (*reg)(adv_conf* context);
 
-	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the driver */
+	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the driver, see soundb_init() */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -106,6 +106,14 @@ extern struct soundb_state_struct soundb_state;
 void soundb_reg(adv_conf* config_context, adv_bool auto_detect);
 void soundb_reg_driver(adv_conf* config_context, soundb_driver* driver);
 adv_error soundb_load(adv_conf* config_context);
+
+/**
+ * Initialize the sound driver.
+ * \param rate Requested sample rate, or 0 to use the preferred rate
+ * of the sound driver and device. On return it contains the effective rate.
+ * \param stereo_flag Stereo output.
+ * \param buffer_time Size of the buffer in seconds.
+ */
 adv_error soundb_init(unsigned* rate, adv_bool stereo_flag, double buffer_time);
 void soundb_done(void);
 void soundb_abort(void);

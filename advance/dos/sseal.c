@@ -132,7 +132,8 @@ adv_error soundb_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, 
 
 	info.wFormat = AUDIO_FORMAT_16BITS | AUDIO_FORMAT_RAW_SAMPLE;
 	info.nDeviceId = device_id;
-	info.nSampleRate = *rate;
+	/* in auto mode use the maximum rate of the most common DOS sound cards */
+	info.nSampleRate = *rate != 0 ? *rate : 44100;
 
 	if (stereo_flag) {
 		seal_state.channel = 2;

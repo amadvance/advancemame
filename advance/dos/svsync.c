@@ -73,6 +73,10 @@ adv_error soundb_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag,
 		vsync_state.channel = 1;
 	}
 
+	/* in auto mode use the maximum rate of the most common DOS sound cards */
+	if (*rate == 0)
+		*rate = 44100;
+
 	log_std(("sound:vsync: w_sound_device_init(%d, %d)\n", device_id, *rate));
 	if (w_sound_device_init(device_id, *rate) == 0) {
 		log_std(("sound:vsync: w_sound_device_init() failed\n"));

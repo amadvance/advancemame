@@ -746,7 +746,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_int_register_limit_default(cfg_context, "sound_equalizer_midvolume", -40, 20, 0);
 	conf_int_register_limit_default(cfg_context, "sound_equalizer_highvolume", -40, 20, 0);
 	conf_string_register_default(cfg_context, "sound_adjust", "auto");
-	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
+	conf_string_register_default(cfg_context, "sound_samplerate", "auto");
 	conf_bool_register_default(cfg_context, "sound_normalize", 1);
 	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
@@ -799,7 +799,22 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	context->config.normalize_flag = conf_bool_get_default(cfg_context, "sound_normalize");
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.mutestartup_flag = 1;
-	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
+
+	s = conf_string_get_default(cfg_context, "sound_samplerate");
+	context->config.samplerate_auto_flag = strcmp(s, "auto") == 0;
+	if (context->config.samplerate_auto_flag) {
+		/* the effective rate is selected by the sound driver in osd2_sound_init(), */
+		/* but MAME needs a not zero rate to enable the sound */
+		i = 48000;
+	} else {
+		char* e;
+		i = strtol(s, &e, 10);
+		if (*e != 0 || i < 5000 || i > 96000) {
+			target_err("Invalid argument '%s' for option 'sound_samplerate'.\n", s);
+			return -1;
+		}
+	}
+	option->samplerate = i;
 
 	context->config.equalizer_low = conf_int_get_default(cfg_context, "sound_equalizer_lowvolume");
 	context->config.equalizer_mid = conf_int_get_default(cfg_context, "sound_equalizer_midvolume");
@@ -1087,7 +1102,12 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	if (low_buffer_time < 0.3)
 		low_buffer_time = 0.3;
 
-	if (soundb_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
+	/* let the sound driver select the rate, the effective one is returned */
+	/* in sample_rate and it's then used also by MAME */
+	if (context->config.samplerate_auto_flag)
+		*sample_rate = 0;
+
+	if (soundb_init(sample_rate,context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
 		return -1;
 	}
 

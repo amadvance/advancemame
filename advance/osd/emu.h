@@ -533,6 +533,7 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
+	adv_bool samplerate_auto_flag; /**< Use the preferred sample rate of the sound driver. */
 	int mode; /**< Channel mode. */
 	int attenuation; /**< Sound volume in db (0 == full volume). */
 	int adjust; /**< Sound adjust factor int db for sound normalization. */

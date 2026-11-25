@@ -102,7 +102,9 @@ adv_error soundb_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		goto err_close;
 	}
 
-	i = *rate;
+	/* in auto mode request the most common rate of the modern hardware, */
+	/* a device without it selects the nearest supported rate */
+	i = *rate != 0 ? *rate : 48000;
 	if (ioctl(oss_state.handle, SNDCTL_DSP_SPEED, &i) < 0) {
 		log_std(("sound:oss: ioctl(SNDCTL_DSP_SPEED, %d) failed\n", i));
 		goto err_close;

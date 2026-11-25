@@ -175,7 +175,11 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 		goto err_close;
 	}
 
-	alsa_state.rate = *rate;
+	/* in auto mode request the most common rate of the modern hardware, */
+	/* a device without it selects the nearest supported rate. */
+	/* Note that the pulse and pipewire plugins accept any rate, */
+	/* and don't report the rate of the sound server */
+	alsa_state.rate = *rate != 0 ? *rate : 48000;
 	r = snd_pcm_hw_params_set_rate_near(alsa_state.handle, hw_params, &alsa_state.rate, 0);
 	if (r < 0) {
 		log_std(("ERROR:sound:alsa: Couldn't set audio frequency: %s\n", snd_strerror(r)));

@@ -136,7 +136,8 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	}
 #endif
 
-	sdl_state.info.freq = *rate;
+	/* in auto mode request the most common rate of the modern hardware */
+	sdl_state.info.freq = *rate != 0 ? *rate : 48000;
 	sdl_state.info.format = AUDIO_S16LSB;
 	sdl_state.info.channels = stereo_flag ? 2 : 1;
 	sdl_state.info.samples = sdl_option.samples;
@@ -144,6 +145,27 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	sdl_state.info.userdata = &sdl_state;
 
 	log_std(("sound:sdl: request fragment size %d [samples]\n", sdl_state.info.samples));
+
+#if SDL_MAJOR_VERSION != 1
+	if (*rate == 0) {
+		SDL_AudioSpec obtained;
+
+		/* in auto mode allow SDL to select the rate of the device, */
+		/* like the mix rate of WASAPI, to avoid a resampling */
+		if (SDL_OpenAudio(&sdl_state.info, &obtained) != 0) {
+			error_set("Function SDL_OpenAudio(%d, AUDIO_S16LSB, %d, %d) failed, %s.\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError());
+			goto err_quit;
+		}
+
+		log_std(("sound:sdl: obtained rate %d, format 0x%x, channels %d\n", (unsigned)obtained.freq, (unsigned)obtained.format, (unsigned)obtained.channels));
+
+		/* allowing a change of the rate, SDL may also change the format */
+		/* and the channels, that are instead required by the play function, */
+		/* so reopen with the device rate, letting SDL convert the format */
+		SDL_CloseAudio();
+		sdl_state.info.freq = obtained.freq;
+	}
+#endif
 
 	if (SDL_OpenAudio(&sdl_state.info, 0) != 0) {
 		error_set("Function SDL_OpenAudio(%d, AUDIO_S16LSB, %d, %d) failed, %s.\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError());

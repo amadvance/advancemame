@@ -114,7 +114,7 @@ void play_reg(adv_conf* context)
 {
 	mixer_reg(context);
 	conf_int_register_limit_default(context, "sound_volume", -40, 0, -3);
-	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
+	conf_string_register_default(context, "sound_samplerate", "auto");
 	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.2);
 	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.2);
 }
@@ -122,6 +122,7 @@ void play_reg(adv_conf* context)
 bool play_load(adv_conf* context)
 {
 	int attenuation;
+	const char* s;
 
 	if (mixer_load(context) != 0) {
 		return false;
@@ -130,7 +131,20 @@ bool play_load(adv_conf* context)
 	play_attenuation = conf_int_get_default(context, "sound_volume");
 	play_latency_time = conf_float_get_default(context, "sound_latency");
 	play_buffer_time = conf_float_get_default(context, "sound_buffer");
-	play_rate = conf_int_get_default(context, "sound_samplerate");
+
+	s = conf_string_get_default(context, "sound_samplerate");
+	if (strcmp(s, "auto") == 0) {
+		// let the sound driver select the rate
+		play_rate = 0;
+	} else {
+		char* e;
+		long rate = strtol(s, &e, 10);
+		if (*e != 0 || rate < 5000 || rate > 96000) {
+			target_err("Invalid argument '%s' for option 'sound_samplerate'.\n", s);
+			return false;
+		}
+		play_rate = rate;
+	}
 	play_mute = false;
 
 	return true;

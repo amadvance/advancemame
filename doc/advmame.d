@@ -1348,11 +1348,16 @@ Configuration
     sound_samplerate
 	Sets the audio sample rate.
 
-	:sound_samplerate RATE
+	:sound_samplerate auto | RATE
 
 	Options:
+		auto - Use the preferred rate of the sound driver
+			and device, to avoid a resampling. If the
+			driver is unable to detect it, 48000 is
+			used, the native rate of PipeWire, HDMI
+			and most modern hardware (default).
 		RATE - Sample rate. Common values are 11025, 22050,
-			44100 and 48000 (default 44100).
+			44100 and 48000.
 
 	If the sound driver doesn't support the specified sample rate a
 	different value is selected.

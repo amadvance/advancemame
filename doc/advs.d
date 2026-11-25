@@ -2,7 +2,7 @@ Name{number}
 	advs - AdvanceMAME Sound Tester
 
 Synopsis
-	:advs [-device_sound DEVICE] [-sound_samplerate RATE]
+	:advs [-device_sound DEVICE] [-sound_samplerate auto | RATE]
 	:	[-sound_latency TIME] [-sound_buffer TIME]
 	:	[-sound_volume VOLUME] [-log] [-logsync]
 	:	FILES...

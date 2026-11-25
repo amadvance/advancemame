@@ -49,6 +49,9 @@ int soundb_none_init(int device_id, unsigned* rate, int stereo_flag, double buff
 {
 	log_std(("sound: soundb_none(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
 
+	if (*rate == 0)
+		*rate = 48000;
+
 	none_state.rate = *rate;
 	none_state.latency = 0;
 
