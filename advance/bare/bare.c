@@ -166,8 +166,11 @@ static void start_handler(void* data, const XML_Char* name, const XML_Char** att
 		} else if (strcmp(name, "driver") == 0) {
 			fputs("\t\t<driver", state->out);
 			for (i = 0; attributes[i]; i += 2) {
-				if (strcmp(attributes[i], "status") == 0) {
-					write_attr(state->out, "status", attributes[i + 1]);
+				const char* k = attributes[i];
+				if (strcmp(k, "status") == 0
+					|| strcmp(k, "incomplete") == 0
+					|| strcmp(k, "nosoundhardware") == 0) {
+					write_attr(state->out, k, attributes[i + 1]);
 				}
 			}
 			fputs("/>\n", state->out);

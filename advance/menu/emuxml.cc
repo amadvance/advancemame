@@ -228,6 +228,20 @@ static void process_driverstatus(struct state_t* state, enum token_t t, const ch
 	}
 }
 
+static void process_driverincomplete(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
+{
+	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
+		/* the official MAME reports incomplete games and missing sound hardware with */
+		/* dedicated attributes, instead of the preliminary status used by AdvanceMAME */
+		if (len == 3 && memcmp(s, "yes", 3) == 0)
+			state->g->play_set(play_preliminary);
+	}
+}
+
 static void process_rom(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_open) {
@@ -404,6 +418,8 @@ static struct conversion_t CONV3[] = {
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "type", 0 }, process_devicename }, /* from MESS 0.106, instead of "name" */
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "extension", 0 }, 0 },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
+	{ 3, { match_mamemessraine, match_gamemachine, "driver", "incomplete", 0 }, process_driverincomplete },
+	{ 3, { match_mamemessraine, match_gamemachine, "driver", "nosoundhardware", 0 }, process_driverincomplete },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen", 0 }, process_videoscreen },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation", 0 }, process_videoorientation },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "width", 0 }, process_videowidth },
@@ -496,6 +512,12 @@ static inline void process_attributes_direct(struct state_t* state, const XML_Ch
 			if (streq_const(k, "status")) {
 				const char* v = attributes[i + 1];
 				process_driverstatus(state, token_data, v, strlen(v), 0);
+			} else if (streq_const(k, "incomplete")) {
+				const char* v = attributes[i + 1];
+				process_driverincomplete(state, token_data, v, strlen(v), 0);
+			} else if (streq_const(k, "nosoundhardware")) {
+				const char* v = attributes[i + 1];
+				process_driverincomplete(state, token_data, v, strlen(v), 0);
 			}
 		}
 	} else if (streq_const(tag, "video")) {
