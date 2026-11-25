@@ -1955,7 +1955,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
 	context->config.combine_write = conf_int_get_default(cfg_context, "display_writeeffect");
-	context->config.combine_max = COMBINE_XBR;
+	context->config.combine_max = COMBINE_XBRZ;
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
