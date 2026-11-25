@@ -340,9 +340,6 @@ WRITE16_HANDLER( ygv608_w );
 
 extern void nvsram( offs_t offset, UINT16 data );
 
-// to be removed
-extern READ16_HANDLER( debug_trigger );
-
 #endif
 
 
