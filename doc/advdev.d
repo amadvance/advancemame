@@ -240,6 +240,10 @@ Sound Drivers
 	It isn't able to precisely control the amount of bufferized samples.
 	This means that it may add a small latency on the sound output.
 
+	The size of the SDL audio fragment is automatically reduced to
+	at most half of the `sound_latency` value, because a bigger
+	fragment would result in a choppy audio.
+
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
 
@@ -992,14 +996,18 @@ Sound Drivers Configuration
 
 	The use of this option is discouraged, it's present only for testing.
 
-	:device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
+	:device_sdl_samples auto | 128 | 256 | 512 | 1024 | 1536 | 2048
+	:	| 2560 | 3072 | 3584 | 4096 | 6144 | 8192 | 12288 | 16384
 
 	Options:
-		SAMPLES - Number of samples of an audio fragment
-			(default 2048 in Windows, 512 otherwise).
+		auto - Use 2048 in Windows, 512 otherwise (default).
+		SAMPLES - Number of samples of an audio fragment.
 
 	Lower values can be used to reduce the sound latency.
 	Increase the value if your hear a choppy audio.
+
+	The fragment is anyway reduced to at most half of the
+	`sound_latency` value.
 
 Input Drivers Configuration
     device_keyboard
