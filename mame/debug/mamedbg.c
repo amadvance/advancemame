@@ -1332,8 +1332,10 @@ static const char *get_file_name( char **parg, int *size )
 	char *s, *d;
 	int l;
 
-	for( l = 0, s = *parg, d = filename; *s && (isalnum(*s) || ispunct(*s)); l++ )
-		*d++ = *s++;
+	/* the copy is limited to the buffer size, the exceeding characters are skipped */
+	for( l = 0, s = *parg, d = filename; *s && (isalnum(*s) || ispunct(*s)); l++, s++ )
+		if( d < filename + sizeof(filename) - 1 )
+			*d++ = *s;
 
 	*d = '\0';
 	while( isspace(*s) ) s++;
