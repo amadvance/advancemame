@@ -22,8 +22,6 @@ static UINT32 mi_version;
 static UINT32 mi_interrupt = 0;
 static UINT32 mi_intr_mask = 0;
 
-extern int fb_width;
-
 static void n64_check_interrupts(void)
 {
 	cpunum_set_input_line(0, INPUT_LINE_IRQ0,
@@ -533,6 +531,47 @@ UINT32 vi_origin;
 UINT32 vi_control;
 UINT32 vi_burst, vi_vsync, vi_hsync, vi_leap, vi_hstart, vi_vstart;
 UINT32 vi_intr, vi_vburst, vi_xscale, vi_yscale;
+int vi_blank;
+int vi_out_width;
+int vi_out_height;
+
+/*
+ * Compute the displayed resolution from the active video area and the
+ * scale registers as in MAME, instead of using VI_WIDTH, which is only the
+ * framebuffer pitch. Kurukuru Fever uses a pitch of 1280 pixels with a
+ * 640 pixel wide area to show one line every two.
+ * In interlaced mode the two fields are merged in a single progressive
+ * frame of twice the lines, ignoring the field offset.
+ */
+static void vi_recalculate_resolution(void)
+{
+	int interlace = (vi_control & 0x40) != 0;
+	int hdiff = (vi_hstart & 0x3ff) - ((vi_hstart >> 16) & 0x3ff);
+	int vdiff = ((vi_vstart & 0x3ff) >> 1) - (((vi_vstart >> 16) & 0x3ff) >> 1);
+	int width = (hdiff * (int)(vi_xscale & 0xfff)) >> 10;
+	int height = vdiff << interlace;
+
+	if (width <= 0 || height <= 0 || (vi_control & 3) < 2)
+	{
+		/* like MAME, an empty area disables the output keeping the old visible area */
+		vi_blank = 1;
+		return;
+	}
+
+	vi_blank = 0;
+
+	if (width > 640)
+		width = 640;
+	if (height > 480)
+		height = 480;
+
+	if (width != vi_out_width || height != vi_out_height)
+	{
+		vi_out_width = width;
+		vi_out_height = height;
+		set_visible_area(0, width - 1, 0, height - 1);
+	}
+}
 
 READ32_HANDLER( n64_vi_reg_r )
 {
@@ -589,13 +628,8 @@ WRITE32_HANDLER( n64_vi_reg_w )
 	switch (offset)
 	{
 		case 0x00/4:
-			if ((vi_control & 0x40) != (data & 0x40))
-			{
-				rectangle visarea = Machine->visible_area;
-				visarea.max_y = (data & 0x40) ? 479 : 239;
-				set_visible_area(visarea.min_x, visarea.max_x, visarea.min_y, visarea.max_y);
-			}
 			vi_control = data;
+			vi_recalculate_resolution();
 			break;
 
 		case 0x04/4:
@@ -603,14 +637,7 @@ WRITE32_HANDLER( n64_vi_reg_w )
 			break;
 
 		case 0x08/4:
-			if (vi_width != data && data > 0)
-			{
-				rectangle visarea = Machine->visible_area;
-				visarea.max_x = data-1;
-				set_visible_area(visarea.min_x, visarea.max_x, visarea.min_y, visarea.max_y);
-			}
 			vi_width = data;
-		        fb_width = data;
 			break;
 
 		case 0x0c/4:
@@ -639,10 +666,12 @@ WRITE32_HANDLER( n64_vi_reg_w )
 
 		case 0x24/4:
 			vi_hstart = data;
+			vi_recalculate_resolution();
 			break;
 
 		case 0x28/4:
 			vi_vstart = data;
+			vi_recalculate_resolution();
 			break;
 
 		case 0x2c/4:
@@ -651,10 +680,12 @@ WRITE32_HANDLER( n64_vi_reg_w )
 
 		case 0x30/4:
 			vi_xscale = data;
+			vi_recalculate_resolution();
 			break;
 
 		case 0x34/4:
 			vi_yscale = data;
+			vi_recalculate_resolution();
 			break;
 
 		default:
@@ -1468,6 +1499,8 @@ void n64_machine_reset(void)
 	sp_dma_length = sp_dma_count = sp_dma_skip = 0;
 	dp_start = dp_end = dp_current = dp_status = 0;
 	vi_control = vi_origin = vi_width = 0;
+	vi_out_width = vi_out_height = 0;
+	vi_blank = 1;
 	si_status = si_dram_addr = si_pif_addr = 0;
 	memset(pif_ram, 0, sizeof(pif_ram));
 	memset(pif_cmd, 0, sizeof(pif_cmd));

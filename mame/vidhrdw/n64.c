@@ -17,6 +17,10 @@ extern void dp_full_sync(void);
 extern UINT32 vi_origin;
 extern UINT32 vi_width;
 extern UINT32 vi_control;
+extern UINT32 vi_yscale;
+extern int vi_blank;
+extern int vi_out_width;
+extern int vi_out_height;
 
 extern UINT32 dp_start;
 extern UINT32 dp_end;
@@ -292,55 +296,64 @@ VIDEO_START(n64)
 VIDEO_UPDATE(n64)
 {
 	int i, j;
-	int height = (vi_control & 0x40) ? 479 : 239;
+	int bpp = (vi_control & 1) ? 4 : 2;
+	int shift = 10 + ((vi_control & 0x40) != 0);
+	UINT32 yscale = vi_yscale & 0xfff;
+	int last_row = -1;
 
-	switch (vi_control & 0x3)
+	if (vi_blank)
 	{
-		case 0:
+		fillbitmap(bitmap, 0, cliprect);
+		return;
+	}
+
+	/*
+	 * Each output line reads the framebuffer line selected by the vertical
+	 * scale, using VI_WIDTH as pitch. Lines repeated by the scale (like the
+	 * doubled lines of the interlaced modes) are copied from the previous
+	 * output line instead of being converted again.
+	 */
+	for (j = 0; j < vi_out_height; ++j)
+	{
+		UINT32 *d = (UINT32 *)bitmap->line[j];
+		int row = (j * yscale) >> shift;
+		UINT32 offset = vi_origin + row * vi_width * bpp;
+
+		if (row == last_row)
 		{
-			break;
+			memcpy(d, bitmap->line[j - 1], vi_out_width * sizeof(UINT32));
+			continue;
 		}
 
-		case 2:
+		/* the area set by the game can extend beyond the end of RDRAM */
+		if (offset + vi_out_width * bpp > 0x800000)
 		{
-			UINT16 *frame_buffer = (UINT16*)&rdram[vi_origin / 4];
-			if (frame_buffer)
+			memset(d, 0, vi_out_width * sizeof(UINT32));
+			continue;
+		}
+
+		last_row = row;
+
+		if (bpp == 2)
+		{
+			/* in 16 bit mode the origin may be not 32 bit aligned */
+			UINT16 *s = (UINT16 *)rdram;
+			UINT32 base = offset / 2;
+			for (i = 0; i < vi_out_width; ++i)
 			{
-				for (j=0; j <height; j++)
-				{
-					UINT32 *d = ((UINT32 *)bitmap->line[j]);
-					for (i=0; i < fb_width; i++)
-					{
-						UINT16 pix = *frame_buffer++;
-						int r = ((pix >> 11) & 0x1f) << 3;
-						int g = ((pix >> 6) & 0x1f) << 3;
-						int b = ((pix >> 1) & 0x1f) << 3;
-						d[i^1] = (r << 16) | (g << 8) | b;
-					}
-				}
+				UINT16 pix = s[(base + i) ^ WORD_ADDR_XOR];
+				int r = ((pix >> 11) & 0x1f) << 3;
+				int g = ((pix >> 6) & 0x1f) << 3;
+				int b = ((pix >> 1) & 0x1f) << 3;
+				d[i] = (r << 16) | (g << 8) | b;
 			}
-			break;
 		}
-
-		case 3:
+		else
 		{
-			UINT32 *frame_buffer = (UINT32*)&rdram[vi_origin / 4];
-			if (frame_buffer)
-			{
-				for (j=0; j < height; j++)
-				{
-					UINT32 *d = ((UINT32 *)bitmap->line[j]);
-					for (i=0; i < fb_width; i++)
-					{
-						UINT32 pix = *frame_buffer++;
-						*d++ = pix & 0xffffff;
-					}
-				}
-			}
-			break;
+			UINT32 *s = &rdram[offset / 4];
+			for (i = 0; i < vi_out_width; ++i)
+				d[i] = s[i] & 0xffffff;
 		}
-
-		default:	fatalerror("Unknown framebuffer format %d\n", vi_control & 0x3);
 	}
 }
 
