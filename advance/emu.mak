@@ -101,6 +101,14 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/linux/ksvgab.o \
 	$(OBJ)/advance/linux/msvgab.o
 endif
+ifeq ($(CONF_LIB_PIPEWIRE),yes)
+ADVANCECFLAGS += \
+	$(PIPEWIRECFLAGS) \
+	-DUSE_SOUND_PIPEWIRE
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/spipewire.o
+ADVANCELIBS += $(PIPEWIRELIBS)
+endif
 ifeq ($(CONF_LIB_ALSA),yes)
 ADVANCECFLAGS += \
 	-DUSE_SOUND_ALSA

@@ -43,6 +43,14 @@ SOBJS += \
 	$(SOBJ)/linux/file.o \
 	$(SOBJ)/linux/target.o \
 	$(SOBJ)/linux/os.o
+ifeq ($(CONF_LIB_PIPEWIRE),yes)
+SCFLAGS += \
+	$(PIPEWIRECFLAGS) \
+	-DUSE_SOUND_PIPEWIRE
+SOBJS += \
+	$(SOBJ)/linux/spipewire.o
+SLIBS += $(PIPEWIRELIBS)
+endif
 ifeq ($(CONF_LIB_ALSA),yes)
 SCFLAGS += \
 	-DUSE_SOUND_ALSA

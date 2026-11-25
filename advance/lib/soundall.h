@@ -51,6 +51,9 @@ extern "C" {
 #ifdef USE_SOUND_VSYNC
 #include "svsync.h"
 #endif
+#ifdef USE_SOUND_PIPEWIRE
+#include "spipewire.h"
+#endif
 #ifdef USE_SOUND_ALSA
 #include "salsa.h"
 #endif

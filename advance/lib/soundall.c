@@ -39,6 +39,7 @@
  *  - USE_SOUND_SEAL
  *  - USE_SOUND_ALLEGRO
  *  - USE_SOUND_VSYNC
+ *  - USE_SOUND_PIPEWIRE
  *  - USE_SOUND_ALSA
  *  - USE_SOUND_OSS
  *  - USE_SOUND_SDL
@@ -54,6 +55,9 @@ void soundb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_SOUND_VSYNC
 	soundb_reg_driver(context, &soundb_vsync_driver);
+#endif
+#ifdef USE_SOUND_PIPEWIRE
+	soundb_reg_driver(context, &soundb_pipewire_driver);
 #endif
 #ifdef USE_SOUND_ALSA
 	soundb_reg_driver(context, &soundb_alsa_driver);
@@ -84,6 +88,9 @@ void soundb_report_driver_all(char* s, unsigned size)
 #endif
 #ifdef USE_SOUND_VSYNC
 	sncat(s, size, " vsync");
+#endif
+#ifdef USE_SOUND_PIPEWIRE
+	sncat(s, size, " pipewire");
 #endif
 #ifdef USE_SOUND_ALSA
 	sncat(s, size, " alsa");

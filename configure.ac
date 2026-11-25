@@ -556,6 +556,41 @@ if test $ac_lib_vc = yes; then
 	ac_lib_other="$ac_lib_other VideoCore"
 fi
 
+dnl Checks for pipewire
+AC_ARG_ENABLE(
+	[pipewire],
+	AS_HELP_STRING([--enable-pipewire],[enable the use of the PipeWire library. (default auto)]),
+	[ac_lib_pipewire=$enableval],
+	[ac_lib_pipewire=auto]
+)
+if test $ac_lib_pipewire = auto; then
+	PKG_CHECK_MODULES([PIPEWIRE], [libpipewire-0.3 >= 0.3.44], [ac_lib_pipewire=yes], [ac_lib_pipewire=no])
+	if test $ac_lib_pipewire = yes; then
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		CFLAGS="$PIPEWIRE_CFLAGS $CFLAGS"
+		LIBS="$PIPEWIRE_LIBS $LIBS"
+		AC_MSG_CHECKING([for linking PipeWire])
+		AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+				#include <pipewire/pipewire.h>
+			]], [[
+				pw_init(0, 0);
+			]])],[ac_lib_pipewire=yes],[ac_lib_pipewire=no])
+		AC_MSG_RESULT([$ac_lib_pipewire])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+elif test $ac_lib_pipewire = yes; then
+	PKG_CHECK_MODULES([PIPEWIRE], [libpipewire-0.3 >= 0.3.44], [], AC_MSG_ERROR([the PipeWire library is missing or too old]))
+fi
+if test $ac_lib_pipewire = yes; then
+	ac_lib_sound="$ac_lib_sound pipewire"
+	ac_lib_sound_flag=yes
+fi
+AC_SUBST([PIPEWIRECFLAGS],[$PIPEWIRE_CFLAGS])
+AC_SUBST([PIPEWIRELIBS],[$PIPEWIRE_LIBS])
+AC_SUBST([CONF_LIB_PIPEWIRE],[$ac_lib_pipewire])
+
 dnl Checks for alsa
 AC_ARG_ENABLE(
 	[alsa],

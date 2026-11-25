@@ -209,6 +209,21 @@ Sound Drivers
   Available Drivers
 	The following is the list of all the sound drivers supported.
 
+    pipewire - PipeWire sound (Linux)
+	This driver works in Linux and it uses the PipeWire sound
+	server, connecting directly to it.
+
+	It measures also the delay of the PipeWire graph up to the
+	sound card, allowing a precise control of the sound latency,
+	and with `sound_samplerate auto` it uses the rate of the
+	PipeWire graph, avoiding any resampling.
+
+	It isn't able to use the hardware volume control of the sound card.
+	The volume changes are simulated reducing the sample values.
+
+	If PipeWire is not running, the automatic detection
+	selects the next available driver.
+
     alsa - ALSA sound (Linux)
 	This driver works in Linux and it uses the ALSA sound library.
 
@@ -904,6 +919,7 @@ Sound Drivers Configuration
 		auto - Automatic detection (default).
 
 	Options for Linux:
+		pipewire - PipeWire sound interface.
 		alsa - ALSA sound interface.
 		oss - OSS sound interface.
 		sdl - SDL sound interface.
