@@ -636,9 +636,9 @@ static int jit_classify(UINT32 op)
 			   intact and enter the guest exception handler at the fault. */
 			if (cop1_division(op))
 				return JIT_NONE;
-			/* the rest through the interpreter's code, while the FPU is usable */
-			/* (a change of SR_COP1 drops the translations) */
-			return (mips3.cpr[0][COP0_Status] & SR_COP1) ? JIT_SIMPLE : JIT_NONE;
+			/* the rest through the interpreter's code, with a run time */
+			/* check of SR_COP1 (see jit_emit_cop1_guard) */
+			return JIT_SIMPLE;
 
 		case 0x31: case 0x39:			/* LWC1, SWC1 */
 			/* the FPU register is selected by the FR mode at run time */
@@ -1716,8 +1716,31 @@ static void jit_emit_load_call(struct jit_ctx *ctx, UINT32 op, UINT32 index)
 	sljit_set_label(same, sljit_emit_label(C));
 }
 
+/*
+	SR_COP1 is not a translation constant: the N64 OS (Aleck64) sets and
+	clears it at every thread switch and interrupt, and dropping the
+	translations each time made the recompiler spend most of its time
+	compiling. A COP1 instruction (or a branch with one in its delay slot)
+	instead checks it when it runs, and with the FPU unusable leaves the
+	block before that instruction, so the interpreter raises the
+	coprocessor unusable exception exactly as without the recompiler.
+*/
+INLINE int jit_is_cop1(UINT32 op)
+{
+	return (op >> 26) == 0x11;
+}
+
+static void jit_emit_cop1_guard(struct jit_ctx *ctx, UINT32 index)
+{
+	sljit_emit_op2u(ctx->C, SLJIT_AND32 | SLJIT_SET_Z, JMEM(JOFF_SR), SLJIT_IMM, SR_COP1);
+	jit_add_exit(ctx, sljit_emit_jump(ctx->C, SLJIT_ZERO), index);
+}
+
 static void jit_emit_one(struct jit_ctx *ctx, UINT32 op, UINT32 index, int call)
 {
+	if (jit_is_cop1(op))
+		jit_emit_cop1_guard(ctx, index);
+
 	if (jit_classify(op) == JIT_MEM)
 	{
 		call = call && jit_load_call_ok(op);
@@ -1749,6 +1772,11 @@ static void jit_emit_branch(struct jit_ctx *ctx, UINT32 op, UINT32 slot, UINT32 
 	int slot_mem = (jit_classify(slot) == JIT_MEM);
 	UINT32 next = pc + 8;
 	UINT32 target = jit_branch_target(op, pc);
+
+	/* a BC1x branch or a COP1 delay slot with the FPU unusable: */
+	/* the interpreter runs the whole branch */
+	if (jit_is_cop1(op) || jit_is_cop1(slot))
+		jit_emit_cop1_guard(ctx, index);
 
 	/* a load/store in the delay slot is checked first: a side exit then */
 	/* hands the whole branch to the interpreter */
@@ -1848,6 +1876,9 @@ static void jit_emit_branch_pair(struct jit_ctx *ctx, UINT32 op, UINT32 slot2, U
 	struct sljit_compiler *C = ctx->C;
 	UINT32 target = jit_branch_target(op, ctx->pc + index * 4);
 	struct sljit_jump *second;
+
+	if (jit_is_cop1(slot2))
+		jit_emit_cop1_guard(ctx, index);
 
 	jit_emit_condition(C, op, SLJIT_S1);
 	second = sljit_emit_cmp(C, SLJIT_EQUAL, SLJIT_S1, 0, SLJIT_IMM, 0);

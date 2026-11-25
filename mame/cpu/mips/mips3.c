@@ -1198,10 +1198,7 @@ INLINE void set_cop0_reg(int idx, UINT64 val)
 			mips3.cpr[0][idx] = val;
 			if (diff & 0x8000)
 				update_cycle_counting();
-			/* the recompiler translates FPU instructions only while COP1 is usable */
-			/* (its FPU code selects the FR mode at run time) */
-			if (diff & SR_COP1)
-				jit_flush();
+			/* the recompiler checks SR_COP1 and SR_FR at run time: no flush here */
 			check_irqs();
 			break;
 		}
