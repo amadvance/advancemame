@@ -339,10 +339,16 @@ static void jit_shift64(struct sljit_compiler *C, sljit_s32 op, int rd, int rt, 
 	sljit_emit_op1(C, SLJIT_MOV, JREG(rd), SLJIT_R0, 0);
 }
 
-/* 64-bit value at 'host' into a register (LD) */
+/*
+	64-bit value at 'host' into a register (LD). Fast RAM holds host order
+	32-bit words, so on a big-endian CPU the high word comes first, as in
+	the interpreter's fastram_readdouble(): the two halves are swapped.
+*/
 static void jit_load64(struct sljit_compiler *C, int rt, sljit_s32 host)
 {
 	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, SLJIT_MEM1(host), 0);
+	if (mips3.bigendian)
+		sljit_emit_op2(C, SLJIT_ROTL, SLJIT_R0, 0, SLJIT_R0, 0, SLJIT_IMM, 32);
 	sljit_emit_op1(C, SLJIT_MOV, JREG(rt), SLJIT_R0, 0);
 }
 
@@ -350,6 +356,8 @@ static void jit_load64(struct sljit_compiler *C, int rt, sljit_s32 host)
 static void jit_store64(struct sljit_compiler *C, int rt, sljit_s32 host)
 {
 	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, JREG(rt));
+	if (mips3.bigendian)
+		sljit_emit_op2(C, SLJIT_ROTL, SLJIT_R0, 0, SLJIT_R0, 0, SLJIT_IMM, 32);
 	sljit_emit_op1(C, SLJIT_MOV, SLJIT_MEM1(host), 0, SLJIT_R0, 0);
 }
 
@@ -510,20 +518,23 @@ static void jit_shift64(struct sljit_compiler *C, sljit_s32 op, int rd, int rt, 
 }
 
 /* 'host' is R1 or S2, so the words go through R0 and R2 */
+/* (on a big-endian CPU the high word comes first, see the 64-bit host jit_load64) */
 static void jit_load64(struct sljit_compiler *C, int rt, sljit_s32 host)
 {
-	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, SLJIT_MEM1(host), 0);
-	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R2, 0, SLJIT_MEM1(host), 4);
+	sljit_sw lo = mips3.bigendian ? 4 : 0;
+	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, SLJIT_MEM1(host), lo);
+	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R2, 0, SLJIT_MEM1(host), 4 - lo);
 	sljit_emit_op1(C, SLJIT_MOV, JREG(rt), SLJIT_R0, 0);
 	sljit_emit_op1(C, SLJIT_MOV, JREGH(rt), SLJIT_R2, 0);
 }
 
 static void jit_store64(struct sljit_compiler *C, int rt, sljit_s32 host)
 {
+	sljit_sw lo = mips3.bigendian ? 4 : 0;
 	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, JREG(rt));
-	sljit_emit_op1(C, SLJIT_MOV, SLJIT_MEM1(host), 0, SLJIT_R0, 0);
+	sljit_emit_op1(C, SLJIT_MOV, SLJIT_MEM1(host), lo, SLJIT_R0, 0);
 	sljit_emit_op1(C, SLJIT_MOV, SLJIT_R0, 0, JREGH(rt));
-	sljit_emit_op1(C, SLJIT_MOV, SLJIT_MEM1(host), 4, SLJIT_R0, 0);
+	sljit_emit_op1(C, SLJIT_MOV, SLJIT_MEM1(host), 4 - lo, SLJIT_R0, 0);
 }
 
 /* MULT/DIV results: LO from R0, HI from R1, both sign extended */
@@ -642,7 +653,7 @@ static int jit_classify(UINT32 op)
 
 		case 0x31: case 0x39:			/* LWC1, SWC1 */
 			/* the FPU register is selected by the FR mode at run time */
-			return mips3.bigendian ? JIT_NONE : JIT_MEM;
+			return JIT_MEM;
 
 		case 0x08: case 0x09: case 0x0a: case 0x0b:
 		case 0x0c: case 0x0d: case 0x0e: case 0x0f:
@@ -651,10 +662,12 @@ static int jit_classify(UINT32 op)
 		case 0x33:	/* PREF */
 			return JIT_SIMPLE;
 
-		/* LB LH LW LBU LHU LWU SB SH SW LD SD, little-endian CPUs only */
+		/* LB LH LW LBU LHU LWU SB SH SW LD SD (see jit_emit_mem_address for big-endian CPUs) */
 		case 0x20: case 0x21: case 0x23: case 0x24: case 0x25: case 0x27:
 		case 0x28: case 0x29: case 0x2b: case 0x37: case 0x3f:
-		/* LWL LWR SWL SWR LDL LDR SDL SDR (helpers on the host pointer; LDL/LDR native on 64-bit hosts) */
+			return JIT_MEM;
+
+		/* LWL LWR SWL SWR LDL LDR SDL SDR (helpers on the host pointer; LDL/LDR native on 64-bit hosts), little-endian CPUs only */
 		case 0x22: case 0x26: case 0x2a: case 0x2e:
 		case 0x1a: case 0x1b: case 0x2c: case 0x2d:
 			return mips3.bigendian ? JIT_NONE : JIT_MEM;
@@ -1338,6 +1351,14 @@ static int jit_emit_mem_address(struct jit_ctx *ctx, UINT32 op, UINT32 index, in
 		}
 	}
 	sljit_set_label(fast, sljit_emit_label(C));
+
+	/* fast RAM holds host order 32-bit words: on a big-endian CPU the */
+	/* bytes and halfwords are found as the interpreter's fast RAM */
+	/* handlers do (doublewords swap their two words, see jit_load64) */
+	if (size == 1 && fastram_byte_xor)
+		sljit_emit_op2(C, SLJIT_XOR, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)fastram_byte_xor);
+	else if (size == 2 && fastram_word_xor)
+		sljit_emit_op2(C, SLJIT_XOR, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)fastram_word_xor);
 	return 1;
 }
 
@@ -1416,7 +1437,7 @@ static void jit_emit_mem_access(struct sljit_compiler *C, UINT32 op, sljit_s32 h
 		case 0x2b:	/* SW */
 			sljit_emit_op1(C, SLJIT_MOV32, SLJIT_MEM1(host), 0, JREG(rt));
 			return;
-		case 0x3f:	/* SD: low word first, as two little-endian words */
+		case 0x3f:	/* SD */
 			jit_store64(C, rt, host);
 			return;
 		case 0x31:	/* LWC1 */
