@@ -56,12 +56,12 @@ static struct alsa_option_struct alsa_option;
 
 struct soundb_alsa_context {
 	unsigned channel; /**< Number of channels (1 or 2). */
-	unsigned rate; /**< Playing ratein Hz. */
-	unsigned sample_length; /**< Sample (for all channels) length in bytes. */
+	unsigned rate; /**< Playing rate in Hz. */
 	snd_pcm_t* handle; /**< Alsa handle. */
 	int volume; /**< Volume adjustement. ALSA_VOLUME_BASE == full volume. */
 	snd_pcm_uframes_t buffer_size; /**< ALSA buffer size in frames. */
 	snd_pcm_uframes_t period_size; /**< ALSA period size in frames. */
+	double latency_time; /**< Last latency requested with soundb_alsa_start(), 0 if unknown. Kept on a restart of the driver. */
 };
 
 static struct soundb_alsa_context alsa_state;
@@ -101,7 +101,7 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 
 	r = snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, &dir);
 	if (r < 0)
-		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_bu: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_buffer_time: %s\n", snd_strerror(r)));
 	else
 		log_std(("sound:alsa: hw buffer_time %u [us], dir %d\n", buffer_time, dir));
 
@@ -128,15 +128,13 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 		soundb_alsa_default();
 
 	log_std(("sound:alsa: device_alsa_device %s\n", alsa_option.device_buffer));
-	log_std(("sound:alsa: device_alsa_mixed %s\n", alsa_option.mixer_buffer));
+	log_std(("sound:alsa: device_alsa_mixer %s\n", alsa_option.mixer_buffer));
 
 	alsa_state.volume = ALSA_VOLUME_BASE;
 
 	if (stereo_flag) {
-		alsa_state.sample_length = 4;
 		alsa_state.channel = 2;
 	} else {
-		alsa_state.sample_length = 2;
 		alsa_state.channel = 1;
 	}
 
@@ -144,7 +142,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_open(&alsa_state.handle, alsa_option.device_buffer, SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't open audio device %s: %s\n", alsa_option.device_buffer, snd_strerror(r)));
+		error_set("Couldn't open the ALSA device '%s', %s.\n", alsa_option.device_buffer, snd_strerror(r));
 		goto err;
 	}
 
@@ -153,25 +151,26 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params_any(alsa_state.handle, hw_params);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't get hardware config: %s\n", snd_strerror(r)));
+		error_set("Couldn't get the ALSA hardware configuration, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
 	r = snd_pcm_hw_params_set_access(alsa_state.handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set interleaved access: %s\n", snd_strerror(r)));
+		error_set("Couldn't set the ALSA interleaved access, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
-	r = snd_pcm_hw_params_set_format(alsa_state.handle, hw_params, SND_PCM_FORMAT_S16_LE);
+	/* the samples are in the native endianess */
+	r = snd_pcm_hw_params_set_format(alsa_state.handle, hw_params, SND_PCM_FORMAT_S16);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set audio format: %s\n", snd_strerror(r)));
+		error_set("Couldn't set the ALSA 16 bit format, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
 	r = snd_pcm_hw_params_set_channels(alsa_state.handle, hw_params, alsa_state.channel);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set audio channels: %s\n", snd_strerror(r)));
+		error_set("Couldn't set %u ALSA channels, %s.\n", alsa_state.channel, snd_strerror(r));
 		goto err_close;
 	}
 
@@ -182,7 +181,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	alsa_state.rate = *rate != 0 ? *rate : 48000;
 	r = snd_pcm_hw_params_set_rate_near(alsa_state.handle, hw_params, &alsa_state.rate, 0);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set audio frequency: %s\n", snd_strerror(r)));
+		error_set("Couldn't set the ALSA rate %u, %s.\n", alsa_state.rate, snd_strerror(r));
 		goto err_close;
 	}
 	log_std(("sound:alsa: selected rate %d\n", alsa_state.rate));
@@ -198,7 +197,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params_set_period_size_near(alsa_state.handle, hw_params, &period_size, 0);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set period size near %d: %s\n", (unsigned)period_size, snd_strerror(r)));
+		error_set("Couldn't set the ALSA period size %u, %s.\n", (unsigned)period_size, snd_strerror(r));
 		goto err_close;
 	} else {
 		log_std(("sound:alsa: set_period_size_near() -> %d\n", (unsigned)period_size));
@@ -216,7 +215,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params_set_buffer_size_min(alsa_state.handle, hw_params, &min_buffer_size);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)min_buffer_size, snd_strerror(r)));
+		error_set("Couldn't set the ALSA minimum buffer size %u, %s.\n", (unsigned)min_buffer_size, snd_strerror(r));
 		goto err_close;
 	} else {
 		log_std(("sound:alsa: set_buffer_size_min() -> %d\n", (unsigned)min_buffer_size));
@@ -227,7 +226,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params_set_buffer_size_near(alsa_state.handle, hw_params, &buffer_size);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+		error_set("Couldn't set the ALSA buffer size %u, %s.\n", (unsigned)buffer_size, snd_strerror(r));
 		goto err_close;
 	} else {
 		log_std(("sound:alsa: set_buffer_size_near() -> %d\n", (unsigned)buffer_size));
@@ -243,25 +242,25 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params(alsa_state.handle, hw_params);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set hw audio parameters: %s\n", snd_strerror(r)));
+		error_set("Couldn't set the ALSA hardware parameters, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
 	r = snd_pcm_sw_params_current(alsa_state.handle, sw_params);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't get software audio parameters: %s\n", snd_strerror(r)));
+		error_set("Couldn't get the ALSA software parameters, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
 	r = snd_pcm_sw_params(alsa_state.handle, sw_params);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set sw audio parameters: %s\n", snd_strerror(r)));
+		error_set("Couldn't set the ALSA software parameters, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
 	r = snd_pcm_prepare(alsa_state.handle);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't prepare audio handle: %s\n", snd_strerror(r)));
+		error_set("Couldn't prepare the ALSA device, %s.\n", snd_strerror(r));
 		goto err_close;
 	}
 
@@ -274,7 +273,6 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 err_close:
 	snd_pcm_close(alsa_state.handle);
 err:
-	error_set("Error initializing the ALSA library.\n");
 	return -1;
 }
 
@@ -291,22 +289,103 @@ void soundb_alsa_stop(void)
 	log_std(("sound:alsa: soundb_alsa_stop()\n"));
 }
 
-unsigned soundb_alsa_buffered(void)
+/**
+ * Write silence directly in the ALSA buffer.
+ * Errors are only logged, without any recovery, because this function is
+ * also used by the recovery itself.
+ */
+static void alsa_silence(unsigned count)
+{
+	static adv_sample silence[2 * 256];
+
+	log_std(("sound:alsa: writing %u samples of silence\n", count));
+
+	while (count) {
+		snd_pcm_sframes_t r;
+		unsigned run = count;
+		if (run > 256)
+			run = 256;
+
+		r = snd_pcm_writei(alsa_state.handle, silence, run);
+		if (r < 0) {
+			log_std(("ERROR:sound:alsa: snd_pcm_writei() of silence failed: %s\n", snd_strerror(r)));
+			return;
+		}
+
+		count -= r;
+	}
+}
+
+/**
+ * Recover from an error of the ALSA device.
+ * \param func Name of the failed function, used for logging.
+ * \param err Error returned by the function.
+ * \return 0 if the device is recovered.
+ */
+static adv_error alsa_recover(const char* func, int err)
 {
 	int r;
-	snd_pcm_sframes_t avail;
 
-	r = snd_pcm_avail(alsa_state.handle);
+	if (err == -EPIPE)
+		log_std(("ERROR:sound:alsa: %s() failed: underrun. Increase the latency with -sound_latency.\n", func));
+	else
+		log_std(("ERROR:sound:alsa: %s() failed: %s\n", func, snd_strerror(err)));
+
+	/* handle both an underrun (-EPIPE) and a system suspend (-ESTRPIPE) */
+	r = snd_pcm_recover(alsa_state.handle, err, 1);
 	if (r < 0) {
-		if (r == -EPIPE) {
-			log_std(("ERROR:sound:alsa: snd_pcm_avail() failed: %s. Increase the latency with -sound_latency.\n", snd_strerror(r)));
-		} else {
-			log_std(("ERROR:sound:alsa: snd_pcm_avail() failed: %s\n", snd_strerror(r)));
-		}
-		return 0;
+		log_std(("ERROR:sound:alsa: snd_pcm_recover() failed: %s\n", snd_strerror(r)));
+		return -1;
 	}
 
-	avail = r;
+	/* after an underrun the buffer is empty, and the playback would restart */
+	/* with only the samples of the current frame. This results in more */
+	/* underruns until the sync control slowly recovers the latency, so the */
+	/* buffer is immediately refilled with silence up to the latency. */
+	/* After a suspend the buffer is empty if the device was prepared, but */
+	/* it still contains the old samples if the device was resumed, so the */
+	/* silence written is only the one missing to reach the latency */
+	if (err == -EPIPE || err == -ESTRPIPE) {
+		snd_pcm_sframes_t avail;
+		unsigned latency;
+		unsigned buffered;
+
+		avail = snd_pcm_avail(alsa_state.handle);
+		if (avail < 0) {
+			log_std(("ERROR:sound:alsa: snd_pcm_avail() after the recover failed: %s\n", snd_strerror(avail)));
+			return 0;
+		}
+
+		if (avail > alsa_state.buffer_size)
+			buffered = 0;
+		else
+			buffered = alsa_state.buffer_size - avail;
+
+		latency = alsa_state.latency_time * alsa_state.rate;
+		if (buffered < latency)
+			alsa_silence(latency - buffered);
+	}
+
+	return 0;
+}
+
+unsigned soundb_alsa_buffered(void)
+{
+	snd_pcm_sframes_t avail;
+
+	avail = snd_pcm_avail(alsa_state.handle);
+	if (avail < 0) {
+		/* recover here, and not only at the next write, to report */
+		/* to the sync control the real level of the buffer instead of 0 */
+		if (alsa_recover("snd_pcm_avail", avail) != 0)
+			return 0;
+
+		avail = snd_pcm_avail(alsa_state.handle);
+		if (avail < 0) {
+			log_std(("ERROR:sound:alsa: snd_pcm_avail() failed: %s\n", snd_strerror(avail)));
+			return 0;
+		}
+	}
 
 	log_debug(("sound:alsa: buffer_size = %d, snd_pcm_avail() = %d, buffered = %d\n", (int)alsa_state.buffer_size, (int)avail, (int)(alsa_state.buffer_size - avail)));
 
@@ -429,7 +508,7 @@ void soundb_alsa_volume(double volume)
 
 void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 {
-	int r;
+	snd_pcm_sframes_t r;
 
 	log_debug(("sound:alsa: soundb_alsa_play(count:%d)\n", sample_count));
 
@@ -455,59 +534,38 @@ void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 			r = snd_pcm_writei(alsa_state.handle, buf_map, run / alsa_state.channel);
 		}
 
-		log_debug(("sound:alsa: snd_pcm_writei() -> %d\n", r));
+		log_debug(("sound:alsa: snd_pcm_writei() -> %d\n", (int)r));
+
+		if (r == -EAGAIN) {
+			/* the buffer is full, drop only the samples in excess, keeping */
+			/* the ones already stored. Waiting for free space with a retry */
+			/* would block the emulation with a busy loop */
+			log_std(("ERROR:sound:alsa: buffer overflow, %u samples dropped\n", sample_count));
+			break;
+		}
 
 		if (r < 0) {
-			if (r == -EAGAIN) {
-				/* audio buffer full, it should never happen */
-				log_std(("WARNING:sound:alsa: snd_pcm_writei() failed: internal buffer full\n"));
-				/* retry */
-				continue;
-			}
-
-			if (r == -EPIPE)
-				log_std(("ERROR:sound:alsa: snd_pcm_writei() failed: %s. Increase the latency with -sound_latency.\n", snd_strerror(r)));
-			else
-				log_std(("ERROR:sound:alsa: snd_pcm_writei() failed: %s (%d)\n", snd_strerror(r), r));
-
-			if (r < 0) {
-				r = snd_pcm_prepare(alsa_state.handle);
-				if (r < 0)
-					log_std(("ERROR:sound:alsa: snd_pcm_prepare() failed: %s\n", snd_strerror(r)));
-			}
-
-			if (r < 0) {
+			if (alsa_recover("snd_pcm_writei", r) != 0)
 				break;
-			}
-		} else {
-			sample_count -= r;
-			sample_map += r * alsa_state.channel;
+			/* retry the write */
+			continue;
 		}
+
+		sample_count -= r;
+		sample_map += r * alsa_state.channel;
 	}
 }
 
 adv_error soundb_alsa_start(double silence_time)
 {
-	adv_sample buf[256];
-	unsigned sample;
-	unsigned i;
-
 	log_std(("sound:alsa: soundb_alsa_start(silence_time:%g)\n", silence_time));
 
-	for (i = 0; i < 256; ++i)
-		buf[i] = 0x0;
+	/* store the latency for the recovery of an underrun. It's not changed */
+	/* by a restart of the driver called with 0 */
+	if (silence_time != 0)
+		alsa_state.latency_time = silence_time;
 
-	sample = silence_time * alsa_state.rate * alsa_state.channel;
-
-	log_std(("sound:alsa: writing %d bytes, %d sample of silence\n", sample / alsa_state.channel * alsa_state.sample_length, sample / alsa_state.channel));
-
-	while (sample) {
-		unsigned run = sample;
-		if (run > 256)
-			run = 256;
-		sample -= run;
-		soundb_alsa_play(buf, run / alsa_state.channel);
-	}
+	alsa_silence(silence_time * alsa_state.rate);
 
 	return 0;
 }
