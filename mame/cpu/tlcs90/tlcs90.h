@@ -11,7 +11,7 @@ void tmp91640_get_info(UINT32 state, union cpuinfo*);
 void tmp91641_get_info(UINT32 state, union cpuinfo*);
 
 #ifdef MAME_DEBUG
-unsigned t90_dasm(char *buffer, UINT32 oldpc, const UINT8 *oprom, const UINT8 *opram);
+unsigned t90_dasm(char *buffer, offs_t oldpc, UINT8 *oprom, UINT8 *opram, int bytes);
 #endif
 
 #define T90_IOBASE	0xffc0

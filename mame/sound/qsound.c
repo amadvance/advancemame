@@ -289,10 +289,6 @@ void qsound_set_command(struct qsound_info *chip, int data, int value)
 			ch=(ch+1)&0x0f;	/* strange ... */
 			chip->channel[ch].bank=(value&chip->bank_mask)<<16;
 			chip->channel[ch].bank /= LENGTH_DIV;
-#ifdef MAME_DEBUG
-			if (!value & 0x8000)
-				ui_popup("Register3=%04x",value);
-#endif
 
 			break;
 		case 1: /* start */

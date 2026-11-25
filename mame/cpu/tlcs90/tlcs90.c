@@ -989,7 +989,7 @@ static int sprint_arg(char *buffer, UINT32 pc, const char *pre, const e_mode mod
 	return 0;
 }
 
-unsigned t90_dasm(char *buffer, UINT32 oldpc, const UINT8 *oprom, const UINT8 *opram)
+unsigned t90_dasm(char *buffer, offs_t oldpc, UINT8 *oprom, UINT8 *opram, int bytes)
 {
 	int len;
 
@@ -2785,7 +2785,7 @@ void tmp90840_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_PTR_EXECUTE:									info->execute = t90_execute;		break;
 		case CPUINFO_PTR_BURN:										info->burn = NULL;					break;
 #ifdef MAME_DEBUG
-		case CPUINFO_PTR_DISASSEMBLE:								info->disassemble = t90_dasm;		break;
+		case CPUINFO_PTR_DISASSEMBLE_NEW:							info->disassemble_new = t90_dasm;		break;
 #endif
 		case CPUINFO_PTR_INSTRUCTION_COUNTER:						info->icount = &t90_ICount;			break;
 		case CPUINFO_PTR_INTERNAL_MEMORY_MAP + ADDRESS_SPACE_PROGRAM: info->internal_map = construct_map_tmp90840_mem; break;
