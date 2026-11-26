@@ -502,8 +502,8 @@ ROM_START(racingj2)
 	ROM_LOAD16_WORD_SWAP("888a01.27p", 0x000000, 0x200000, CRC(d077890a) SHA1(08b252324cf46fbcdb95e8f9312287920cd87c5d))
 
 	ROM_REGION32_BE(0x800000, REGION_USER2, 0)		/* Data roms */
-		ROM_LOAD32_WORD_SWAP( "676a04.bin",	0x000000, 0x200000, CRC(d7808cb6) SHA1(0668fae5bb94cc120fe196d4b18200f7b512317f))
-		ROM_LOAD32_WORD_SWAP( "676a05.bin",	0x000002, 0x200000, CRC(fb4de1ad) SHA1(f6aa4eb1b5d22901a2aaf899ed3237a9dfdc55b5))
+		ROM_LOAD32_WORD_SWAP( "676a04.16t",	0x000000, 0x200000, CRC(d7808cb6) SHA1(0668fae5bb94cc120fe196d4b18200f7b512317f))
+		ROM_LOAD32_WORD_SWAP( "676a05.14t",	0x000002, 0x200000, CRC(fb4de1ad) SHA1(f6aa4eb1b5d22901a2aaf899ed3237a9dfdc55b5))
 	ROM_LOAD32_WORD_SWAP( "888a06.12t",	0x400000, 0x200000, CRC(00cbec4d) SHA1(1ce7807d86e90edbf4eecba462a27c725f5ad862))
 
 	ROM_REGION32_BE(0x800000, REGION_USER5, 0)	/* CG Board Texture roms */
@@ -541,5 +541,5 @@ ROM_END
 /*****************************************************************************/
 
 GAME( 1998, racingj,	0,		nwktr,	nwktr,	racingj,	ROT0,	"Konami",	"Racing Jam", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1999, racingj2,	racingj,nwktr,	nwktr,	racingj2,	ROT0,	"Konami",	"Racing Jam: Chapter 2", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1998, racingj2,	0,		nwktr,	nwktr,	racingj2,	ROT0,	"Konami",	"Racing Jam: Chapter II (GQ888UAA)", GAME_NOT_WORKING|GAME_NO_SOUND )
 GAME( 1998, thrilld,	0,		nwktr,	nwktr,	thrilld,	ROT0,	"Konami",	"Thrill Drive", GAME_NOT_WORKING|GAME_NO_SOUND )
