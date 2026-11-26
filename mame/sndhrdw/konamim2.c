@@ -50,6 +50,7 @@ enum
 #define NUM_DMA_CHANNELS (32)
 #define DMA_FIFO_DEPTH (8)
 #define DMA_FIFO_MASK (DMA_FIFO_DEPTH - 1)
+#define DMA_FIFO_THRESHOLD (DMA_FIFO_DEPTH / 2)
 
 #define NUM_INPUTS (2)
 #define NUM_OUTPUTS (8)
@@ -107,6 +108,8 @@ static struct
 		UINT32    m_depth;
 	} m_fifo_dma[NUM_DMA_CHANNELS];
 
+	UINT32    m_fifo_input_ready;
+	UINT32    m_fifo_output_ready;
 	UINT32    m_last_osc_count;
 	UINT32    m_osc_phase;
 	UINT32    m_osc_freq;
@@ -872,6 +875,19 @@ INLINE void dspp_exec_arithmetic(void)
 	}
 }
 
+INLINE void dspp_set_fifo_depth(INT32 channel, UINT32 depth)
+{
+	struct fifo_dma *dma = &m_dsp.m_fifo_dma[channel];
+	UINT32 bit = 1U << channel;
+
+	/* At the threshold the FIFO can accept or supply a DMA burst. */
+	if ((dma->m_depth <= DMA_FIFO_THRESHOLD) != (depth <= DMA_FIFO_THRESHOLD))
+		m_dsp.m_fifo_input_ready ^= bit;
+	if ((dma->m_depth >= DMA_FIFO_THRESHOLD) != (depth >= DMA_FIFO_THRESHOLD))
+		m_dsp.m_fifo_output_ready ^= bit;
+	dma->m_depth = depth;
+}
+
 static void dspp_write_dma_to_fifo(INT32 channel, INT16 value)
 {
 	struct fifo_dma *dma = &m_dsp.m_fifo_dma[channel];
@@ -881,7 +897,7 @@ static void dspp_write_dma_to_fifo(INT32 channel, INT16 value)
 	if (dma->m_depth < DMA_FIFO_DEPTH)
 	{
 		dma->m_dma_ptr = (dma->m_dma_ptr + 1) & DMA_FIFO_MASK;
-		dma->m_depth += 1;
+		dspp_set_fifo_depth(channel, dma->m_depth + 1);
 	}
 	else
 	{
@@ -898,7 +914,7 @@ static void dspp_write_dspp_to_fifo(INT32 channel, INT16 value)
 	if (dma->m_depth < DMA_FIFO_DEPTH)
 	{
 		dma->m_dspi_ptr = (dma->m_dspi_ptr + 1) & DMA_FIFO_MASK;
-		dma->m_depth += 1;
+		dspp_set_fifo_depth(channel, dma->m_depth + 1);
 	}
 	else
 	{
@@ -917,7 +933,7 @@ static INT16 dspp_read_fifo_to_dspp(INT32 channel)
 		data = dma->m_fifo[dma->m_dspi_ptr];
 
 		dma->m_dspi_ptr = (dma->m_dspi_ptr + 1) & DMA_FIFO_MASK;
-		--dma->m_depth;
+		dspp_set_fifo_depth(channel, dma->m_depth - 1);
 
 		if (dma->m_depth == 0)
 		{
@@ -949,7 +965,7 @@ static INT16 dspp_read_fifo_to_dma(INT32 channel)
 	if (dma->m_depth > 0)
 	{
 		dma->m_dma_ptr = (dma->m_dma_ptr + 1) & DMA_FIFO_MASK;
-		dma->m_depth -= 1;
+		dspp_set_fifo_depth(channel, dma->m_depth - 1);
 	}
 	else
 	{
@@ -1119,33 +1135,27 @@ static void dspp_service_input_dma(INT32 channel)
 	dspp_process_next_dma(channel);
 }
 
+INLINE UINT32 dspp_fifo_dma_ready(void)
+{
+	UINT32 direction = m_dsp.m_dspx_channel_direction;
+	UINT32 ready = (m_dsp.m_fifo_input_ready & ~direction) |
+		(m_dsp.m_fifo_output_ready & direction);
+
+	return ready & m_dsp.m_dspx_channel_enable & ~m_dsp.m_dspx_channel_complete;
+}
+
 static void dspp_update_fifo_dma(void)
 {
-	UINT32 mask = m_dsp.m_dspx_channel_enable & ~m_dsp.m_dspx_channel_complete;
+	UINT32 ready = dspp_fifo_dma_ready();
 
-	while (mask != 0)
+	if (ready)
 	{
-		UINT32 channel = 31 - __builtin_clz(mask);
-		const struct fifo_dma *dma = &m_dsp.m_fifo_dma[channel];
+		unsigned channel = 31 - __builtin_clz(ready);
 
 		if (m_dsp.m_dspx_channel_direction & (1U << channel))
-		{
-			if (dma->m_depth >= 4)
-			{
-				dspp_service_output_dma(channel);
-				break;
-			}
-		}
+			dspp_service_output_dma(channel);
 		else
-		{
-			if (dma->m_depth <= 4)
-			{
-				dspp_service_input_dma(channel);
-				break;
-			}
-		}
-
-		mask &= (1U << channel) - 1;
+			dspp_service_input_dma(channel);
 	}
 }
 
@@ -1157,7 +1167,7 @@ static void dspp_reset_channel(INT32 channel)
 
 	dma->m_dma_ptr = 0;
 	dma->m_dspi_ptr = 0;
-	dma->m_depth = 0;
+	dspp_set_fifo_depth(channel, 0);
 }
 
 static UINT16 dspp_input_r(void)
@@ -1952,7 +1962,7 @@ static void dspp_run(void)
 	/* A CPU may already have run past the time of the next timer callback. */
 	if (now <= m_elapsed_ticks)
 		return;
-	if (!(m_dsp.m_dspx_channel_enable & ~m_dsp.m_dspx_channel_complete) &&
+	if (!dspp_fifo_dma_ready() &&
 		(!(m_core.m_dspx_control & DSPX_CONTROL_GWILLING) || m_core.m_flag_sleep))
 	{
 		m_core.m_tclock -= now - m_elapsed_ticks;
@@ -1993,6 +2003,7 @@ void m2_dspp_reset(void)
 {
 	memset(&m_core, 0, sizeof(m_core));
 	memset(&m_dsp, 0, sizeof(m_dsp));
+	m_dsp.m_fifo_input_ready = ~0U;
 	memset(m_program, 0, sizeof(m_program));
 	memset(m_data_ram, 0, sizeof(m_data_ram));
 	m_elapsed_ticks = timer_get_time() * M2_CLOCK;
