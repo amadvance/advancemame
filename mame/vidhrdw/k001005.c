@@ -63,7 +63,6 @@ static UINT32 k001006_texrom_size;
 
 /* K001005 */
 static poly_manager *poly;
-static int k001005_dsp;
 static int k001005_width, k001005_height;
 static UINT32 *k001005_fb[2];
 static float *k001005_zb;
@@ -873,7 +872,6 @@ int k001005_start(int dsp_cpunum, int width, int height)
 {
 	int k, i;
 
-	k001005_dsp = dsp_cpunum;
 	k001005_width = width;
 	k001005_height = height;
 
@@ -937,6 +935,12 @@ int k001005_start(int dsp_cpunum, int width, int height)
 	return 0;
 }
 
+/*
+    The K001005 is accessed only by its SHARC, so the FIFO flag is changed
+    directly in the running core. Changing it as an input line queues an
+    event that ends the timeslice of all the CPUs at every FIFO access.
+*/
+
 READ32_HANDLER( k001005_r )
 {
 	switch (offset)
@@ -951,13 +955,13 @@ READ32_HANDLER( k001005_r )
 			if (k001005_status != 1 && k001005_status != 2)
 			{
 				if (k001005_fifo_read_ptr < 0x3ff)
-					cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, CLEAR_LINE);
+					sharc_set_flag_input(1, 0);
 				else
-					cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, ASSERT_LINE);
+					sharc_set_flag_input(1, 1);
 			}
 			else
 			{
-				cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, ASSERT_LINE);
+				sharc_set_flag_input(1, 1);
 			}
 
 			k001005_fifo_read_ptr++;
@@ -994,13 +998,13 @@ WRITE32_HANDLER( k001005_w )
 			if (k001005_status != 1 && k001005_status != 2)
 			{
 				if (k001005_fifo_write_ptr < 0x400)
-					cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, ASSERT_LINE);
+					sharc_set_flag_input(1, 1);
 				else
-					cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, CLEAR_LINE);
+					sharc_set_flag_input(1, 0);
 			}
 			else
 			{
-				cpunum_set_input_line(k001005_dsp, SHARC_INPUT_FLAG1, ASSERT_LINE);
+				sharc_set_flag_input(1, 1);
 			}
 
 			k001005_fifo[k001005_fifo_write_ptr] = data;
