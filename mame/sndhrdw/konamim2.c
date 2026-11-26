@@ -5,6 +5,7 @@
 #include "driver.h"
 #include "includes/konamim2.h"
 #include "sound/dac.h"
+#include "sljit_mame.h"
 
 #include <stdbool.h>
 
@@ -140,6 +141,7 @@ static struct
 } m_dsp;
 
 static UINT16 m_program[0x400], m_data_ram[0x2e0];
+static const UINT8 dspp_shifts[8] = { 0, 1, 2, 3, 4, 5, 8, 16 };
 static mame_timer *m_output_timer;
 static UINT64 m_elapsed_ticks;
 
@@ -184,7 +186,6 @@ static void dspp_process_next_dma(INT32 channel);
 static INT16 dspp_decode_sqxd(INT8 data, INT16 prev);
 static void dspp_service_output_dma(INT32 channel);
 static void dspp_service_input_dma(INT32 channel);
-static void dspp_update_fifo_dma(void);
 static void dspp_reset_channel(INT32 channel);
 static UINT16 dspp_input_r(void);
 static void dspp_output_w(offs_t offset, UINT16 data);
@@ -636,9 +637,21 @@ INLINE void dspp_exec_control(void)
 	}
 }
 
+INLINE UINT32 dspp_arithmetic_numops(UINT16 op)
+{
+	UINT32 numops = (op >> 13) & 3;
+	UINT32 muxa = (op >> 10) & 3;
+	UINT32 muxb = (op >> 8) & 3;
+
+	if (numops == 0 && ((muxa == 1) || (muxa == 2) || (muxb == 1) || (muxb == 2)))
+		numops = 4;
+
+	return numops + ((op & 0xf) == 8);
+}
+
 INLINE void dspp_exec_arithmetic(void)
 {
-	UINT32 numops = (m_core.m_op >> 13) & 3;
+	UINT32 numops = dspp_arithmetic_numops(m_core.m_op);
 	UINT32 muxa = (m_core.m_op >> 10) & 3;
 	UINT32 muxb = (m_core.m_op >> 8) & 3;
 	UINT32 alu_op = (m_core.m_op >> 4) & 0xf;
@@ -646,12 +659,6 @@ INLINE void dspp_exec_arithmetic(void)
 
 	INT32 mul_res = 0;
 	UINT32 alu_res = 0;
-
-	if (numops == 0 && ((muxa == 1) || (muxa == 2) || (muxb == 1) || (muxb == 2)))
-		numops = 4;
-
-	if (barrel_code == 8)
-		++numops;
 
 	dspp_parse_operands(numops);
 
@@ -829,14 +836,12 @@ INLINE void dspp_exec_arithmetic(void)
 	m_core.m_flag_zero = (alu_res & 0x000ffff0) == 0;
 	m_core.m_flag_exact = (alu_res & 0x0000000f) == 0;
 
-	static const INT32 shifts[8] = { 0, 1, 2, 3, 4, 5, 8, 16 };
-
 	if (barrel_code == 8)
 		barrel_code = dspp_read_next_operand();
 
 	if (barrel_code & 8)
 	{
-		UINT32 shift = shifts[(~barrel_code + 1) & 7];
+		UINT32 shift = dspp_shifts[(~barrel_code + 1) & 7];
 
 		if (alu_op < 8)
 		{
@@ -849,7 +854,7 @@ INLINE void dspp_exec_arithmetic(void)
 	}
 	else
 	{
-		UINT32 shift = shifts[barrel_code];
+		UINT32 shift = dspp_shifts[barrel_code];
 
 		if (shift == 16)
 		{
@@ -1144,10 +1149,8 @@ INLINE UINT32 dspp_fifo_dma_ready(void)
 	return ready & m_dsp.m_dspx_channel_enable & ~m_dsp.m_dspx_channel_complete;
 }
 
-static void dspp_update_fifo_dma(void)
+static void dspp_update_fifo_dma(UINT32 ready)
 {
-	UINT32 ready = dspp_fifo_dma_ready();
-
 	if (ready)
 	{
 		unsigned channel = 31 - __builtin_clz(ready);
@@ -1876,10 +1879,18 @@ static void dspp_write_dma_stack(offs_t offset, UINT32 data)
 	}
 }
 
+#if SLJIT_MAME_SUPPORTED
+#include "konamim2jit.c"
+#endif
+
 static void dspp_host_write(offs_t offset, UINT32 data)
 {
 	if (offset < 0x1000/4)
 	{
+#if SLJIT_MAME_SUPPORTED
+		if (m_program[offset] != (UINT16)data)
+			m_jit_dirty = 1;
+#endif
 		m_program[offset] = data;
 		if (offset == (m_core.m_pc & 0x3ff))
 			m_core.m_flag_sleep = 0;
@@ -1972,8 +1983,17 @@ static void dspp_run(void)
 
 	while (m_elapsed_ticks < now)
 	{
+		UINT32 ready = dspp_fifo_dma_ready();
+
+#if SLJIT_MAME_SUPPORTED
+		/* Native blocks touch only local data RAM and cannot make a FIFO ready. */
+		if (!ready && options.jit && (m_core.m_dspx_control & DSPX_CONTROL_GWILLING) &&
+			!m_core.m_flag_sleep && m_core.m_writeback < 0 && dspp_jit_run(now - m_elapsed_ticks))
+			continue;
+#endif
+
 		dspp_update_ticks();
-		dspp_update_fifo_dma();
+		dspp_update_fifo_dma(ready);
 		if ((m_core.m_dspx_control & DSPX_CONTROL_GWILLING) && !m_core.m_flag_sleep)
 		{
 			m_core.m_op = dspp_read_op(m_core.m_pc);
@@ -1997,6 +2017,10 @@ static void dspp_sample(int param)
 void m2_dspp_init(void)
 {
 	m_output_timer = timer_alloc(dspp_sample);
+#if SLJIT_MAME_SUPPORTED
+	if (options.jit)
+		add_exit_callback(dspp_jit_clear);
+#endif
 }
 
 void m2_dspp_reset(void)
@@ -2006,6 +2030,9 @@ void m2_dspp_reset(void)
 	m_dsp.m_fifo_input_ready = ~0U;
 	memset(m_program, 0, sizeof(m_program));
 	memset(m_data_ram, 0, sizeof(m_data_ram));
+#if SLJIT_MAME_SUPPORTED
+	m_jit_dirty = 1;
+#endif
 	m_elapsed_ticks = timer_get_time() * M2_CLOCK;
 	dspp_reset_core();
 	timer_adjust(m_output_timer, TIME_IN_HZ(44100), 0, TIME_IN_HZ(44100));

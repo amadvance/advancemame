@@ -863,6 +863,8 @@ $(OBJ)/kaneko.a: \
 	$(OBJ)/drivers/kaneko16.o $(OBJ)/machine/kaneko16.o $(OBJ)/vidhrdw/kaneko16.o \
 	$(OBJ)/drivers/suprnova.o $(OBJ)/vidhrdw/suprnova.o \
 
+$(OBJ)/sndhrdw/konamim2.o: $(srcdir)/mame/sndhrdw/konamim2jit.c
+
 $(OBJ)/konami.a: \
 	$(OBJ)/drivers/konmedal.o \
 	$(OBJ)/drivers/divebomb.o \
