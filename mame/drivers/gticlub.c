@@ -236,7 +236,9 @@ Hang Pilot (uses an unknown but similar video board)                12W         
     held at the first boot to let the game initialize it.
 
     The boot delay loop of GTI Club polling the time base consumes at once
-    the cycles up to its next target.
+    the cycles up to its next target. The steering wheel error after the
+    initialization countdown, caused by the missing wheel motor, is skipped
+    by patching the executed opcodes, so the game mode starts directly.
 
     The GTI Club screen bitmap holds only the visible area, as the whole
     frame is copied for the video thread at every update.
@@ -1673,6 +1675,37 @@ static void gticlub_install_tb_wait_skip(void)
 	}
 }
 
+static void gticlub_skip_device_error(void)
+{
+	/* bdnz -0xac; cmpi cr0,0,r29,0; beq +0xf4 */
+	static const UINT32 sig[3] = { 0x4200ff54, 0x2c1d0000, 0x418200f4 };
+	const UINT32 *rom = (const UINT32 *)memory_region(REGION_USER1);
+	UINT32 length = memory_region_length(REGION_USER1);
+	UINT32 i;
+
+	for (i = 0; i + 3 <= length / 4; ++i)
+	{
+		if (rom[i] == sig[0] && rom[i + 1] == sig[1] && rom[i + 2] == sig[2])
+		{
+			UINT32 *opcodes = auto_malloc(length);
+
+			/*
+			 * After the initialization countdown r29 holds the mask of the
+			 * controls that didn't respond. The steering wheel always fails,
+			 * as its motor isn't emulated, so the branch taken without errors
+			 * is made unconditional and the game mode starts, instead of the
+			 * error waiting for the test switch. The patch is only in the
+			 * opcodes, as the ROM check of the boot reads the original data.
+			 */
+			memcpy(opcodes, rom, length);
+			opcodes[i + 2] = 0x480000f4;	/* b +0xf4 */
+			memory_set_decrypted_region(PPC_CPU, 0x7f800000, 0x7f9fffff, opcodes);
+			memory_set_decrypted_region(PPC_CPU, 0x7fe00000, 0x7fffffff, opcodes);
+			return;
+		}
+	}
+}
+
 static void gticlub_init_common(int adc1038_gticlub_hack)
 {
 	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
@@ -1685,6 +1718,7 @@ static DRIVER_INIT( gticlub )
 	gticlub_init_common(1);
 	gticlub_install_idle_skip();
 	gticlub_install_tb_wait_skip();
+	gticlub_skip_device_error();
 }
 
 static DRIVER_INIT( thunderh )
