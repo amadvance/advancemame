@@ -235,6 +235,9 @@ Hang Pilot (uses an unknown but similar video board)                12W         
     When the default EEPROM holds only the magic number, the test switch is
     held at the first boot to let the game initialize it.
 
+    The GTI Club screen bitmap holds only the visible area, as the whole
+    frame is copied for the video thread at every update.
+
     The two Hang Pilot monitors are stacked in a single screen, the first CG
     board on top. The K001604 and the palette of the board selected by the
     system register are mapped by handlers instead of a memory view, and the
@@ -954,7 +957,12 @@ VIDEO_START( gticlub )
 	if (k001005_start(DSP_CPU, 512, 384))
 		return 1;
 
-	return k001604_start(0, 0);
+	if (k001604_start(0, 0))
+		return 1;
+
+	/* the screen holds only the visible area, which starts at 40,28 in the screen timing */
+	k001604_set_layer_offset(0, 40, 28);
+	return 0;
 }
 
 VIDEO_UPDATE( gticlub )
@@ -1114,8 +1122,8 @@ static MACHINE_DRIVER_START( gticlub )
 
  	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT)
-	MDRV_SCREEN_SIZE(1024, 1024)
-	MDRV_VISIBLE_AREA(40, 511+40, 28, 383+28)
+	MDRV_SCREEN_SIZE(512, 384)
+	MDRV_VISIBLE_AREA(0, 511, 0, 383)
 	MDRV_PALETTE_LENGTH(16384)
 
 	MDRV_VIDEO_START(gticlub)

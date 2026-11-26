@@ -188,7 +188,12 @@ VIDEO_START( jetwave )
 	if (k001005_start(DSP_CPU, 512, 384))
 		return 1;
 
-	return k001604_start(0, 0);
+	if (k001604_start(0, 0))
+		return 1;
+
+	/* the screen holds only the visible area, which starts at 40,27 in the screen timing */
+	k001604_set_layer_offset(0, 40, 27);
+	return 0;
 }
 
 VIDEO_UPDATE( jetwave )
@@ -758,8 +763,8 @@ static MACHINE_DRIVER_START( jetwave )
 	MDRV_CPU_PROGRAM_MAP(jetwave_map, 0)
 
 	/* video hardware */
-	MDRV_SCREEN_SIZE(1024, 1024)
-	MDRV_VISIBLE_AREA(40, 511+40, 27, 383+27)
+	MDRV_SCREEN_SIZE(512, 384)
+	MDRV_VISIBLE_AREA(0, 511, 0, 383)
 
 	MDRV_VIDEO_START(jetwave)
 	MDRV_VIDEO_UPDATE(jetwave)
