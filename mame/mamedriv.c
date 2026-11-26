@@ -5135,10 +5135,16 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 
 	/* PowerPC based Konami games */
 	DRIVER( thunderh )	/* GX680 (c)1996 */
+	DRIVER( thunderhu )	/* GX680 (c)1996 */
 	DRIVER( slrasslt )	/* GX792 (c)1996 */
+	DRIVER( slrassltj )	/* GX792 (c)1996 */
+	DRIVER( slrassltj1 )	/* GX672 (c)1996 */
 	DRIVER( gticlub )	/* GX688 (c)1996 */
+	DRIVER( gticlubu )	/* GX688 (c)1996 */
+	DRIVER( gticluba )	/* GX688 (c)1996 */
 	DRIVER( gticlubj )	/* GX688 (c)1996 */
 	DRIVER( hangplt )	/* GX685 (c)1997 */
+	DRIVER( hangpltu )	/* GX685 (c)1997 */
 	DRIVER( nbapbp )	/* GX778 (c)1998 */
 	DRIVER( gradius4 )	/* GX837 (c)1999 */
 	DRIVER( sscope )	/* GX830 (c)1999 */

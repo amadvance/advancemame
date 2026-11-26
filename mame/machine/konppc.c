@@ -17,6 +17,7 @@ static int enable_3d[MAX_CG_BOARDS];
 static int cgboard_id;
 static int cgboard_texture_bank = -1;
 static int cgboard_type;
+static int num_cgboards;
 
 static UINT32 *dsp_shared_ram[MAX_CG_BOARDS];
 
@@ -30,16 +31,26 @@ void init_konami_cgboard(int board_id, int type)
 	dsp_state[board_id] = 0x80;
 	enable_3d[board_id] = 0;
 	cgboard_type = type;
+	if (board_id >= num_cgboards)
+		num_cgboards = board_id + 1;
 }
 
 int cgboard_output_3d_enabled(void)
 {
+	if (cgboard_id >= num_cgboards)
+		return 0;
 	return enable_3d[cgboard_id];
 }
 
 void set_cgboard_id(int board_id)
 {
+	/* the PowerPC can select a board that isn't installed, the accesses to it are ignored */
 	cgboard_id = board_id;
+}
+
+int get_cgboard_id(void)
+{
+	return (cgboard_id >= num_cgboards) ? 0 : cgboard_id;
 }
 
 void set_cgboard_texture_bank(int bank)
@@ -54,12 +65,17 @@ void set_cgboard_texture_bank(int bank)
 READ32_HANDLER( cgboard_dsp_comm_r_ppc )
 {
 //  printf("dsp_cmd_r: %08X, %08X at %08X\n", offset, mem_mask, activecpu_get_pc());
+	if (cgboard_id >= num_cgboards)
+		return 0;
 	return dsp_comm_sharc[cgboard_id][offset] | (dsp_state[cgboard_id] << 16);
 }
 
 WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 {
 //  printf("dsp_cmd_w: %08X, %08X, %08X at %08X\n", data, offset, mem_mask, activecpu_get_pc());
+
+	if (cgboard_id >= num_cgboards)
+		return;
 
 	if (cgboard_id == 0)
 	{
@@ -168,11 +184,15 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_ppc )
 
 READ32_HANDLER( cgboard_dsp_shared_r_ppc )
 {
+	if (cgboard_id >= num_cgboards)
+		return 0;
 	return dsp_shared_ram[cgboard_id][offset + (dsp_shared_ram_bank[cgboard_id] * 0x4000)];
 }
 
 WRITE32_HANDLER( cgboard_dsp_shared_w_ppc )
 {
+	if (cgboard_id >= num_cgboards)
+		return;
 	cpu_trigger(10000);		// Remove the timeout (a part of the GTI Club FIFO test workaround)
 	COMBINE_DATA(dsp_shared_ram[cgboard_id] + (offset + (dsp_shared_ram_bank[cgboard_id] * 0x4000)));
 }
@@ -212,9 +232,10 @@ WRITE32_HANDLER( cgboard_dsp_comm_w_sharc )
 	{
 		cpunum_set_input_line(2, SHARC_INPUT_FLAG0, ASSERT_LINE);
 
-		if (cgboard_type == CGBOARD_TYPE_ZR107 && offset == 1 && (data & 0x03))
+		if (offset == 1 && (data & 0x03))
 		{
 			cpunum_set_input_line(2, INPUT_LINE_IRQ2, ASSERT_LINE);
+			activecpu_abort_timeslice();
 		}
 	}
 

@@ -893,7 +893,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/gbusters.o $(OBJ)/vidhrdw/gbusters.o \
 	$(OBJ)/drivers/gijoe.o $(OBJ)/vidhrdw/gijoe.o \
 	$(OBJ)/drivers/gradius3.o $(OBJ)/vidhrdw/gradius3.o \
-	$(OBJ)/drivers/gticlub.o \
+	$(OBJ)/drivers/gticlub.o $(OBJ)/vidhrdw/k001604.o $(OBJ)/machine/adc1038.o \
 	$(OBJ)/drivers/gyruss.o $(OBJ)/sndhrdw/gyruss.o $(OBJ)/vidhrdw/gyruss.o \
 	$(OBJ)/drivers/hcastle.o $(OBJ)/vidhrdw/hcastle.o \
 	$(OBJ)/drivers/hexion.o $(OBJ)/vidhrdw/hexion.o \

@@ -64,20 +64,9 @@
 #include "machine/adc083x.h"
 #include "vidhrdw/konamiic.h"
 #include "vidhrdw/k001005.h"
+#include "vidhrdw/k001604.h"
 #include "sound/k054539.h"
 #include "machine/konppc.h"
-
-/* K001604 tilemap chip, implemented in nwk-tr.c */
-int K001604_vh_start(void);
-void K001604_tile_update(void);
-void K001604_tile_draw_back(mame_bitmap *bitmap, const rectangle *cliprect);
-void K001604_tile_draw_front(mame_bitmap *bitmap, const rectangle *cliprect);
-READ32_HANDLER(K001604_tile_r);
-READ32_HANDLER(K001604_char_r);
-WRITE32_HANDLER(K001604_tile_w);
-WRITE32_HANDLER(K001604_char_w);
-WRITE32_HANDLER(K001604_reg_w);
-READ32_HANDLER(K001604_reg_r);
 
 #define PPC_CPU		0
 #define SOUND_CPU	1
@@ -199,19 +188,18 @@ VIDEO_START( jetwave )
 	if (k001005_start(DSP_CPU, 512, 384))
 		return 1;
 
-	return K001604_vh_start();
+	return k001604_start(0, 0);
 }
 
 VIDEO_UPDATE( jetwave )
 {
 	fillbitmap(bitmap, Machine->remapped_colortable[0], cliprect);
 
-	K001604_tile_update();
-	K001604_tile_draw_back(bitmap, cliprect);
+	k001604_draw_back_layer(0, bitmap, cliprect);
 
 	k001005_draw(bitmap, cliprect);
 
-	K001604_tile_draw_front(bitmap, cliprect);
+	k001604_draw_front_layer(0, bitmap, cliprect);
 
 	draw_7segment_led(bitmap, 3, 3, led_reg0);
 	draw_7segment_led(bitmap, 9, 3, led_reg1);
@@ -431,10 +419,10 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( jetwave_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x000fffff) AM_MIRROR(0x80000000) AM_RAM		/* Work RAM */
-	AM_RANGE(0x74000000, 0x740000ff) AM_MIRROR(0x80000000) AM_READWRITE(K001604_reg_r, K001604_reg_w)
+	AM_RANGE(0x74000000, 0x740000ff) AM_MIRROR(0x80000000) AM_READWRITE(k001604_0_reg_r, k001604_0_reg_w)
 	AM_RANGE(0x74010000, 0x7401ffff) AM_MIRROR(0x80000000) AM_READWRITE(paletteram32_r, paletteram32_single_w) AM_BASE(&paletteram32)
-	AM_RANGE(0x74020000, 0x7403ffff) AM_MIRROR(0x80000000) AM_READWRITE(K001604_tile_r, K001604_tile_w)
-	AM_RANGE(0x74040000, 0x7407ffff) AM_MIRROR(0x80000000) AM_READWRITE(K001604_char_r, K001604_char_w)
+	AM_RANGE(0x74020000, 0x7403ffff) AM_MIRROR(0x80000000) AM_READWRITE(k001604_0_tile_r, k001604_0_tile_w)
+	AM_RANGE(0x74040000, 0x7407ffff) AM_MIRROR(0x80000000) AM_READWRITE(k001604_0_char_r, k001604_0_char_w)
 	AM_RANGE(0x78000000, 0x7800ffff) AM_MIRROR(0x80000000) AM_READWRITE(cgboard_dsp_shared_r_ppc, cgboard_dsp_shared_w_ppc)		/* 21N 21K 23N 23K */
 	AM_RANGE(0x78010000, 0x7801ffff) AM_MIRROR(0x80000000) AM_WRITE(cgboard_dsp_shared_w_ppc)
 	AM_RANGE(0x78040000, 0x7804000f) AM_MIRROR(0x80000000) AM_READWRITE(k001006_0_r, k001006_0_w)
