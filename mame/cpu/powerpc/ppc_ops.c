@@ -455,7 +455,14 @@ static void ppc_dcbtst(UINT32 op)
 
 static void ppc_dcbz(UINT32 op)
 {
+	if (IS_PPC602())
+	{
+		UINT32 address = ((RA ? REG(RA) : 0) + REG(RB)) & ~31U;
+		unsigned i;
 
+		for (i = 0; i < 32; i += 8)
+			WRITE64(address + i, 0);
+	}
 }
 
 static void ppc_divwx(UINT32 op)
@@ -979,6 +986,8 @@ static void ppc_rfi(UINT32 op)
 	UINT32 msr;
 	ppc.npc = ppc_get_spr(SPR_SRR0);
 	msr = ppc_get_spr(SPR_SRR1);
+	if (IS_PPC602())
+		msr = (MSR & ~0x87c0ffff) | (msr & 0x87c0ffff);
 	ppc_set_msr( msr );
 
 	change_pc(ppc.npc);

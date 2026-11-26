@@ -2,114 +2,73 @@
 // copyright-holders:Aaron Giles
 void ppc602_exception(int exception)
 {
-	switch( exception )
+	UINT32 msr = ppc_get_msr();
+	UINT32 saved_pc = ppc.npc;
+	UINT32 reason = 0;
+	UINT32 vector;
+
+	switch (exception)
 	{
-		case EXCEPTION_IRQ:		/* External Interrupt */
-			if( ppc_get_msr() & MSR_EE ) {
-				UINT32 msr = ppc_get_msr();
-
-				SRR0 = ppc.npc;
-				SRR1 = msr & 0xff73;
-
-				msr &= ~(MSR_POW | MSR_EE | MSR_PR | MSR_FP | MSR_FE0 | MSR_SE | MSR_BE | MSR_FE1 | MSR_IR | MSR_DR | MSR_RI);
-				if( msr & MSR_ILE )
-					msr |= MSR_LE;
-				else
-					msr &= ~MSR_LE;
-				ppc_set_msr(msr);
-
-				if( msr & MSR_IP )
-					ppc.npc = 0xfff00000 | 0x0500;
-				else
-					ppc.npc = ppc.ibr | 0x0500;
-
-				ppc.interrupt_pending &= ~0x1;
-				change_pc(ppc.npc);
-			}
+		case EXCEPTION_IRQ:
+			vector = 0x500;
 			break;
-
-		case EXCEPTION_DECREMENTER:		/* Decrementer overflow exception */
-			if( ppc_get_msr() & MSR_EE ) {
-				UINT32 msr = ppc_get_msr();
-
-				SRR0 = ppc.npc;
-				SRR1 = msr & 0xff73;
-
-				msr &= ~(MSR_POW | MSR_EE | MSR_PR | MSR_FP | MSR_FE0 | MSR_SE | MSR_BE | MSR_FE1 | MSR_IR | MSR_DR | MSR_RI);
-				if( msr & MSR_ILE )
-					msr |= MSR_LE;
-				else
-					msr &= ~MSR_LE;
-				ppc_set_msr(msr);
-
-				if( msr & MSR_IP )
-					ppc.npc = 0xfff00000 | 0x0900;
-				else
-					ppc.npc = ppc.ibr | 0x0900;
-
-				ppc.interrupt_pending &= ~0x2;
-				change_pc(ppc.npc);
-			}
+		case EXCEPTION_DECREMENTER:
+			vector = 0x900;
+			ppc.interrupt_pending &= ~2;
 			break;
-
-		case EXCEPTION_TRAP:			/* Program exception / Trap */
-			{
-				UINT32 msr = ppc_get_msr();
-
-				SRR0 = ppc.pc;
-				SRR1 = (msr & 0xff73) | 0x20000;	/* 0x20000 = TRAP bit */
-
-				msr &= ~(MSR_POW | MSR_EE | MSR_PR | MSR_FP | MSR_FE0 | MSR_SE | MSR_BE | MSR_FE1 | MSR_IR | MSR_DR | MSR_RI);
-				if( msr & MSR_ILE )
-					msr |= MSR_LE;
-				else
-					msr &= ~MSR_LE;
-
-				if( msr & MSR_IP )
-					ppc.npc = 0xfff00000 | 0x0700;
-				else
-					ppc.npc = ppc.ibr | 0x0700;
-				change_pc(ppc.npc);
-			}
+		case EXCEPTION_TRAP:
+			vector = 0x700;
+			saved_pc = ppc.pc;
+			reason = 0x20000;
 			break;
-
-		case EXCEPTION_SYSTEM_CALL:		/* System call */
-			{
-				UINT32 msr = ppc_get_msr();
-
-				SRR0 = ppc.npc;
-				SRR1 = (msr & 0xff73);
-
-				msr &= ~(MSR_POW | MSR_EE | MSR_PR | MSR_FP | MSR_FE0 | MSR_SE | MSR_BE | MSR_FE1 | MSR_IR | MSR_DR | MSR_RI);
-				if( msr & MSR_ILE )
-					msr |= MSR_LE;
-				else
-					msr &= ~MSR_LE;
-
-				if( msr & MSR_IP )
-					ppc.npc = 0xfff00000 | 0x0c00;
-				else
-					ppc.npc = ppc.ibr | 0x0c00;
-				change_pc(ppc.npc);
-			}
+		case EXCEPTION_SYSTEM_CALL:
+			vector = 0xc00;
 			break;
-
-
 		default:
-			fatalerror("ppc: Unhandled exception %d", exception);
-			break;
+			fatalerror("ppc602: Unhandled exception %d", exception);
+			return;
 	}
+
+	SRR0 = saved_pc;
+	SRR1 = (msr & 0x87c0ffff) | reason;
+	msr &= ~(MSR_POW | MSR_EE | MSR_PR | MSR_FP | MSR_FE0 | MSR_SE |
+		MSR_BE | MSR_FE1 | MSR_IR | MSR_DR | MSR_RI | MSR_LE);
+	if (msr & MSR_ILE)
+		msr |= MSR_LE;
+	ppc_set_msr(msr);
+
+	ppc.npc = ((msr & MSR_IP) ? 0xfff00000 : ppc.ibr) | vector;
+	if (exception == EXCEPTION_IRQ && ppc.irq_callback)
+		ppc.irq_callback(INPUT_LINE_IRQ0);
+	change_pc(ppc.npc);
+}
+
+/* ESA and DSA save and restore the machine state surrounding supervisor access. */
+static void ppc602_esa(UINT32 op)
+{
+	if (MSR & MSR602_SA)
+		longjmp(ppc.exception_jmpbuf, EXCEPTION_TRAP);
+
+	ppc.esasrr = ((MSR & MSR_EE) >> 15) | ((MSR & (MSR602_SA | MSR602_AP)) >> 21) |
+		((MSR & MSR_PR) >> 11);
+	ppc_set_msr((MSR & ~(MSR602_AP | MSR_EE | MSR_PR)) | MSR602_SA);
+}
+
+static void ppc602_dsa(UINT32 op)
+{
+	if (!(MSR & MSR602_SA))
+		longjmp(ppc.exception_jmpbuf, EXCEPTION_TRAP);
+
+	ppc_set_msr((MSR & ~(MSR602_SA | MSR602_AP | MSR_EE | MSR_PR)) |
+		((ppc.esasrr & 1) << 15) | ((ppc.esasrr & 6) << 21) | ((ppc.esasrr & 8) << 11));
 }
 
 static void ppc602_set_irq_line(int irqline, int state)
 {
-	if( state ) {
+	if (state)
 		ppc.interrupt_pending |= 0x1;
-		if (ppc.irq_callback)
-		{
-			ppc.irq_callback(irqline);
-		}
-	}
+	else
+		ppc.interrupt_pending &= ~0x1;
 }
 
 INLINE void ppc602_check_interrupts(void)
@@ -138,6 +97,9 @@ static void ppc602_reset(void)
 	change_pc(ppc.pc);
 
 	ppc.hid0 = 1;
+	ppc.esasrr = ppc.sebr = ppc.ser = 0;
+	ppc.tb = ppc.tb_frac602 = ppc.dec_frac = 0;
+	DEC = 0xffffffff;
 
 	ppc.interrupt_pending = 0;
 }
@@ -148,17 +110,8 @@ static int ppc602_execute(int cycles)
 	UINT32 opcode;
 	ppc_icount = cycles;
 	ppc_tb_base_icount = cycles;
-	ppc_dec_base_icount = cycles;
-
-	// check if decrementer exception occurs during execution
-	if ((UINT32)(DEC - ppc_icount) > (UINT32)(DEC))
-	{
-		ppc_dec_trigger_cycle = ppc_icount - DEC;
-	}
-	else
-	{
-		ppc_dec_trigger_cycle = 0x7fffffff;
-	}
+	ppc_dec_base_icount = cycles + ppc.dec_frac;
+	ppc602_schedule_decrementer();
 
 	change_pc(ppc.npc);
 
@@ -198,13 +151,12 @@ static int ppc602_execute(int cycles)
 		ppc602_check_interrupts();
 	}
 
-	// update timebase
-	// timebase is incremented once every four core clock cycles, so adjust the cycles accordingly
-	ppc.tb += ((ppc_tb_base_icount - ppc_icount) / 4);
+	ppc.tb_frac602 += ppc_tb_base_icount - ppc_icount;
+	ppc.tb += ppc.tb_frac602 / (bus_freq_multiplier * 2);
+	ppc.tb_frac602 %= bus_freq_multiplier * 2;
 
-	// update decrementer
-	DEC -= ((ppc_dec_base_icount - ppc_icount) / (bus_freq_multiplier * 2));
-
+	DEC -= (ppc_dec_base_icount - ppc_icount) / (bus_freq_multiplier * 2);
+	ppc.dec_frac = (ppc_dec_base_icount - ppc_icount) % (bus_freq_multiplier * 2);
 
 	return cycles - ppc_icount;
 }

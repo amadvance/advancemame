@@ -259,6 +259,10 @@ typedef struct {
 	UINT32 sp;
 	UINT32 tcr;
 	UINT32 ibr;
+	UINT32 esasrr;
+	UINT32 tb_frac602;
+	UINT32 sebr;
+	UINT32 ser;
 
 	/* PowerPC function pointers for memory accesses/exceptions */
 	jmp_buf exception_jmpbuf;
@@ -409,7 +413,9 @@ INLINE UINT64 ppc_read_timebase(void)
 {
 	int cycles = ppc_tb_base_icount - ppc_icount;
 
-	if (IS_PPC603() || IS_PPC602())
+	if (IS_PPC602())
+		return ppc.tb + (cycles + ppc.tb_frac602) / (bus_freq_multiplier * 2);
+	if (IS_PPC603())
 	{
 		// timebase is incremented once every four core clock cycles, so adjust the cycles accordingly
 		return ppc.tb + (cycles / 4);
@@ -423,6 +429,12 @@ INLINE UINT64 ppc_read_timebase(void)
 
 INLINE void ppc_write_timebase_l(UINT32 tbl)
 {
+	if (IS_PPC602())
+	{
+		ppc.tb = ppc_read_timebase();
+		ppc.tb_frac602 = 0;
+	}
+
 	ppc_tb_base_icount = ppc_icount;
 
 	ppc.tb &= ~0xffffffff;
@@ -431,6 +443,12 @@ INLINE void ppc_write_timebase_l(UINT32 tbl)
 
 INLINE void ppc_write_timebase_h(UINT32 tbh)
 {
+	if (IS_PPC602())
+	{
+		ppc.tb = ppc_read_timebase();
+		ppc.tb_frac602 = 0;
+	}
+
 	ppc_tb_base_icount = ppc_icount;
 
 	ppc.tb &= 0xffffffff;
@@ -445,9 +463,29 @@ INLINE UINT32 read_decrementer(void)
 	return DEC - (cycles / (bus_freq_multiplier * 2));
 }
 
+static void ppc602_schedule_decrementer(void)
+{
+	UINT64 due = ((UINT64)DEC + 1) * (bus_freq_multiplier * 2);
+	int elapsed = ppc_dec_base_icount - ppc_icount;
+
+	/* Preserve the bus-clock phase between scheduler slices and trigger on the 0 to -1 transition. */
+	due -= elapsed;
+	ppc_dec_trigger_cycle = (due <= (unsigned)ppc_icount) ? ppc_icount - (int)due : -1;
+}
+
 INLINE void write_decrementer(UINT32 value)
 {
+	UINT32 previous = read_decrementer();
 	ppc_dec_base_icount = ppc_icount + (ppc_dec_base_icount - ppc_icount) % (bus_freq_multiplier * 2);
+
+	if (IS_PPC602())
+	{
+		if (!(previous & 0x80000000) && (value & 0x80000000))
+			ppc.interrupt_pending |= 2;
+		DEC = value;
+		ppc602_schedule_decrementer();
+		return;
+	}
 
 	DEC = value;
 
@@ -463,6 +501,10 @@ INLINE void write_decrementer(UINT32 value)
 }
 
 /*********************************************************************/
+
+#define SPR602_ESASRR 0x3db
+#define SPR602_SEBR 0x3de
+#define SPR602_SER 0x3df
 
 INLINE void ppc_set_spr(int spr, UINT32 value)
 {
@@ -485,13 +527,9 @@ INLINE void ppc_set_spr(int spr, UINT32 value)
 		switch(spr)
 		{
 			case SPR603E_DEC:
-				if((value & 0x80000000) && !(DEC & 0x80000000))
+				if(!IS_PPC602() && (value & 0x80000000) && !(DEC & 0x80000000))
 				{
 					/* trigger interrupt */
-#if HAS_PPC602
-					if (IS_PPC602())
-						ppc602_exception(EXCEPTION_DECREMENTER);
-#endif
 #if HAS_PPC603
 					if (IS_PPC603())
 						ppc603_exception(EXCEPTION_DECREMENTER);
@@ -555,10 +593,13 @@ INLINE void ppc_set_spr(int spr, UINT32 value)
 	if (ppc.is602) {
 		switch(spr)
 		{
-			case SPR602_LT:			printf("ppc: LT = %08X\n", value); ppc.lt = value; return;
-			case SPR602_IBR:		printf("ppc: IBR = %08X\n", value); ppc.ibr = value; return;
-			case SPR602_SP:			printf("ppc: SP = %08X\n", value); ppc.sp = value; return;
-			case SPR602_TCR:		printf("ppc: TCR = %08X\n", value); ppc.tcr = value; return;
+			case SPR602_ESASRR:	ppc.esasrr = value; return;
+			case SPR602_SEBR:	ppc.sebr = value; return;
+			case SPR602_SER:		ppc.ser = value; return;
+			case SPR602_LT:			ppc.lt = value; return;
+			case SPR602_IBR:		ppc.ibr = value; return;
+			case SPR602_SP:			ppc.sp = value; return;
+			case SPR602_TCR:		ppc.tcr = value; return;
 		}
 	}
 #endif
@@ -675,6 +716,9 @@ INLINE UINT32 ppc_get_spr(int spr)
 	if (ppc.is602) {
 		switch(spr)
 		{
+			case SPR602_ESASRR:	return ppc.esasrr;
+			case SPR602_SEBR:	return ppc.sebr;
+			case SPR602_SER:		return ppc.ser;
 			case SPR602_LT:			return ppc.lt;
 			case SPR602_IBR:		return ppc.ibr;
 			case SPR602_SP:			return ppc.sp;
@@ -814,6 +858,9 @@ static void (* optable31[1024])(UINT32);
 static void (* optable59[1024])(UINT32);
 static void (* optable63[1024])(UINT32);
 static void (* optable[64])(UINT32);
+
+#define MSR602_SA 0x00400000
+#define MSR602_AP 0x00800000
 
 #include "ppc_mem.c"
 
@@ -1117,6 +1164,11 @@ static void ppc602_init(int index, int clock, const void *_config, int (*irqcall
 	optable31[370] = ppc_tlbia;
 	optable31[306] = ppc_tlbie;
 	optable31[566] = ppc_tlbsync;
+	optable31[596] = ppc602_esa;
+	optable31[628] = ppc602_dsa;
+	/* This interpreter resolves addresses without a cached TLB. */
+	optable31[978] = ppc_tlbsync;
+	optable31[1010] = ppc_tlbsync;
 	optable31[310] = ppc_eciwx;
 	optable31[438] = ppc_ecowx;
 

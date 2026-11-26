@@ -907,7 +907,7 @@ $(OBJ)/konami.a: \
 	$(OBJ)/drivers/konamigs.o \
 	$(OBJ)/drivers/konamigv.o \
 	$(OBJ)/drivers/konamigx.o $(OBJ)/machine/konamigx.o $(OBJ)/vidhrdw/konamigx.o \
-	$(OBJ)/drivers/konamim2.o \
+	$(OBJ)/drivers/konamim2.o $(OBJ)/vidhrdw/konamim2.o $(OBJ)/sndhrdw/konamim2.o \
 	$(OBJ)/drivers/labyrunr.o $(OBJ)/vidhrdw/labyrunr.o \
 	$(OBJ)/drivers/lethal.o $(OBJ)/vidhrdw/lethal.o \
 	$(OBJ)/drivers/mainevt.o $(OBJ)/vidhrdw/mainevt.o \

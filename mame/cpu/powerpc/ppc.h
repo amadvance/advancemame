@@ -198,7 +198,7 @@ typedef enum {
 	PPC_MODEL_601				= 0x00010000,
 	PPC_MODEL_603				= 0x00030000,	/* "Wart" */
 	PPC_MODEL_604				= 0x00040000,	/* "Zephyr" */
-	PPC_MODEL_602				= 0x00050000,	/* "Galahad" */
+	PPC_MODEL_602				= 0x00050200,	/* "Galahad" */
 	PPC_MODEL_603E				= 0x00060103,	/* "Stretch", version 1.3 */
 	PPC_MODEL_603EV				= 0x00070000,	/* "Valiant" */
 	PPC_MODEL_603R				= 0x00071202,	/* "Goldeneye", version 2.1 */

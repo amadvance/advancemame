@@ -3554,7 +3554,7 @@ void drawgfx_toggle_crosshair(void)
 
 void draw_crosshair(mame_bitmap *bitmap,int x,int y,const rectangle *clip,int player)
 {
-	unsigned short white, black;
+	pen_t white, black;
 	int i;
 
 	if (!crosshair_enable)
