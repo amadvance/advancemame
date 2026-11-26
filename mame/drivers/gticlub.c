@@ -230,7 +230,10 @@ Hang Pilot (uses an unknown but similar video board)                12W         
     The 68000 interrupt levels are combined in the driver, as the 0.106
     68000 interface keeps a single level. The SHARC FLAG1 input is asserted
     at vblank instead of the screen update. The polling of the empty task
-    queue in the GTI Club main loop is skipped until the next interrupt.
+    queue in the GTI Club main loop is skipped until the next interrupt,
+    and the same is done for the task list in the Solar Assault main loop.
+    When the default EEPROM holds only the magic number, the test switch is
+    held at the first boot to let the game initialize it.
 */
 
 #include "driver.h"
@@ -251,6 +254,8 @@ Hang Pilot (uses an unknown but similar video board)                12W         
 static UINT32 *work_ram;
 static UINT32 *sharc_dataram;
 static UINT32 idle_pc;
+static UINT32 idle_addr;
+static int eeprom_factory_init;
 
 /* K056230 (LANC) */
 static UINT32 lanc_ram[0x800];
@@ -297,7 +302,18 @@ static UINT8 sysreg_read(int reg)
 		case 2:
 			return adc1038_sars_read() << 7;
 		case 3:
-			return readinputportbytag("IN3");
+		{
+			UINT8 r = readinputportbytag("IN3");
+
+			/*
+			 * A default EEPROM holding only the magic number is rejected by the
+			 * game, which initializes it when booted with the test switch on.
+			 * The switch is held at the first boot until the initialization.
+			 */
+			if (eeprom_factory_init && cpu_getcurrentframe() < 300)
+				r &= ~0x80;
+			return r;
+		}
 		case 4:
 			/* bit 1 = EEPROM data out, bit 2 = ADC readout */
 			return (EEPROM_read_bit() << 1) | (adc1038_do_read() << 2);
@@ -797,6 +813,9 @@ static NVRAM_HANDLER( gticlub )
 			const UINT16 *def = (const UINT16 *)memory_region(REGION_USER4);
 			UINT8 eepdata[0x200];
 			int i;
+
+			/* the first word is still erased when only the magic number is set */
+			eeprom_factory_init = (def[0] == 0xffff);
 
 			memset(eepdata, 0xff, sizeof(eepdata));
 			for (i = 0; i < 0x80; ++i)
@@ -1363,9 +1382,38 @@ static void gticlub_install_idle_skip(void)
 	}
 }
 
+static READ32_HANDLER( slrasslt_idle_r )
+{
+	UINT32 ptr = work_ram[(idle_addr & 0xfffff) / 4];
+
+	/*
+	 * The main loop, decompressed in RAM, calls a function that loads the
+	 * pointer to the task list and checks its 16 bit task count, which is
+	 * only increased by the interrupt handlers. When it's zero, the polling
+	 * is skipped until the next interrupt.
+	 */
+	if (activecpu_get_pc() == idle_pc)
+	{
+		UINT32 addr = ptr & 0xfffff;
+		UINT32 word = work_ram[addr / 4];
+		UINT16 count = (addr & 2) ? (word & 0xffff) : (word >> 16);
+
+		if (count == 0)
+			cpu_spinuntil_int();
+	}
+
+	return ptr;
+}
+
+static void slrasslt_install_idle_skip(UINT32 pc, UINT32 addr)
+{
+	idle_pc = pc;
+	idle_addr = addr;
+	memory_install_read32_handler(PPC_CPU, ADDRESS_SPACE_PROGRAM, addr & 0x7fffffff, (addr & 0x7fffffff) + 3, 0, 0x80000000, slrasslt_idle_r);
+}
+
 static void gticlub_init_common(int adc1038_gticlub_hack)
 {
-	gticlub_install_idle_skip();
 	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
 	sharc_dataram = auto_malloc(0x100000 * sizeof(UINT32));
 	adc1038_init(adc1038_input_callback, adc1038_gticlub_hack);
@@ -1374,11 +1422,26 @@ static void gticlub_init_common(int adc1038_gticlub_hack)
 static DRIVER_INIT( gticlub )
 {
 	gticlub_init_common(1);
+	gticlub_install_idle_skip();
+}
+
+static DRIVER_INIT( thunderh )
+{
+	gticlub_init_common(0);
 }
 
 static DRIVER_INIT( slrasslt )
 {
 	gticlub_init_common(0);
+	/* lwz r29,0x0068(r2) with r2 = 0x80019c00 */
+	slrasslt_install_idle_skip(0x800155e8, 0x80019c68);
+}
+
+static DRIVER_INIT( slrassltj1 )
+{
+	gticlub_init_common(0);
+	/* lwz r29,0x005c(r2) with r2 = 0x8001b30c */
+	slrasslt_install_idle_skip(0x80015ce4, 0x8001b368);
 }
 
 static void hangplt_init_common(void)
@@ -1416,10 +1479,10 @@ GAME( 1996, gticlub,    0,        gticlub,  gticlub,  gticlub,  ROT0, "Konami", 
 GAME( 1996, gticlubu,   gticlub,  gticlub,  gticlub,  gticlub,  ROT0, "Konami", "GTI Club: Rally Cote D'Azur (ver UAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1996, gticluba,   gticlub,  gticlub,  gticlub,  gticlub,  ROT0, "Konami", "GTI Club: Rally Cote D'Azur (ver AAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1996, gticlubj,   gticlub,  gticlub,  gticlub,  gticlub,  ROT0, "Konami", "GTI Club: Rally Cote D'Azur (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, thunderh,   0,        thunderh, thunderh, slrasslt, ROT0, "Konami", "Operation Thunder Hurricane (ver EAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, thunderhu,  thunderh, thunderh, thunderh, slrasslt, ROT0, "Konami", "Operation Thunder Hurricane (ver UAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, slrasslt,   0,        gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault (ver UAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, slrassltj,  slrasslt, gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault Revised (ver JAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, slrassltj1, slrasslt, gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault (ver JAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, thunderh,   0,        thunderh, thunderh, thunderh, ROT0, "Konami", "Operation Thunder Hurricane (ver EAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, thunderhu,  thunderh, thunderh, thunderh, thunderh, ROT0, "Konami", "Operation Thunder Hurricane (ver UAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, slrasslt,   0,        gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault (ver UAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, slrassltj,  slrasslt, gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault Revised (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, slrassltj1, slrasslt, gticlub,  slrasslt, slrassltj1, ROT0, "Konami", "Solar Assault (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, hangplt,    0,        hangplt,  hangplt,  hangplt,  ROT0, "Konami", "Hang Pilot (ver JAB)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, hangpltu,   hangplt,  hangplt,  hangplt,  hangpltu, ROT0, "Konami", "Hang Pilot (ver UAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
