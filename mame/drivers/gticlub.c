@@ -234,6 +234,11 @@ Hang Pilot (uses an unknown but similar video board)                12W         
     and the same is done for the task list in the Solar Assault main loop.
     When the default EEPROM holds only the magic number, the test switch is
     held at the first boot to let the game initialize it.
+
+    The two Hang Pilot monitors are stacked in a single screen, the first CG
+    board on top. The K001604 and the palette of the board selected by the
+    system register are mapped by handlers instead of a memory view, and the
+    polling of the empty task queue in the main loop is skipped as well.
 */
 
 #include "driver.h"
@@ -244,6 +249,7 @@ Hang Pilot (uses an unknown but similar video board)                12W         
 #include "machine/konppc.h"
 #include "vidhrdw/k001005.h"
 #include "vidhrdw/k001604.h"
+#include "vidhrdw/voodoo.h"
 #include "sound/rf5c400.h"
 
 #define PPC_CPU		0
@@ -253,8 +259,12 @@ Hang Pilot (uses an unknown but similar video board)                12W         
 
 static UINT32 *work_ram;
 static UINT32 *sharc_dataram;
+static UINT32 *sharc_dataram1;
+static UINT32 *hangplt_paletteram[2];
+static mame_bitmap *hangplt_screen_bitmap;
 static UINT32 idle_pc;
 static UINT32 idle_addr;
+static UINT32 idle_lr;
 static int eeprom_factory_init;
 
 /* K056230 (LANC) */
@@ -553,6 +563,89 @@ static ADDRESS_MAP_START( gticlub_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x7fe00000, 0x7fffffff) AM_MIRROR(0x80000000) AM_ROM AM_REGION(REGION_USER1, 0) AM_SHARE(2)	/* Program ROM */
 ADDRESS_MAP_END
 
+/* the K001604 and the palette of the CG board selected by the system register are visible */
+
+static READ32_HANDLER( hangplt_k001604_reg_r )
+{
+	return get_cgboard_id() ? k001604_1_reg_r(offset, mem_mask) : k001604_0_reg_r(offset, mem_mask);
+}
+
+static WRITE32_HANDLER( hangplt_k001604_reg_w )
+{
+	if (get_cgboard_id())
+		k001604_1_reg_w(offset, data, mem_mask);
+	else
+		k001604_0_reg_w(offset, data, mem_mask);
+}
+
+static READ32_HANDLER( hangplt_k001604_tile_r )
+{
+	return get_cgboard_id() ? k001604_1_tile_r(offset, mem_mask) : k001604_0_tile_r(offset, mem_mask);
+}
+
+static WRITE32_HANDLER( hangplt_k001604_tile_w )
+{
+	if (get_cgboard_id())
+		k001604_1_tile_w(offset, data, mem_mask);
+	else
+		k001604_0_tile_w(offset, data, mem_mask);
+}
+
+static READ32_HANDLER( hangplt_k001604_char_r )
+{
+	return get_cgboard_id() ? k001604_1_char_r(offset, mem_mask) : k001604_0_char_r(offset, mem_mask);
+}
+
+static WRITE32_HANDLER( hangplt_k001604_char_w )
+{
+	if (get_cgboard_id())
+		k001604_1_char_w(offset, data, mem_mask);
+	else
+		k001604_0_char_w(offset, data, mem_mask);
+}
+
+static READ32_HANDLER( hangplt_paletteram32_r )
+{
+	return hangplt_paletteram[get_cgboard_id()][offset];
+}
+
+static WRITE32_HANDLER( hangplt_paletteram32_w )
+{
+	int board = get_cgboard_id();
+	int r,g,b;
+
+	COMBINE_DATA(&hangplt_paletteram[board][offset]);
+	data = hangplt_paletteram[board][offset];
+
+	b = ((data >> 0) & 0x1f);
+	g = ((data >> 5) & 0x1f);
+	r = ((data >> 10) & 0x1f);
+
+	b = (b << 3) | (b >> 2);
+	g = (g << 3) | (g >> 2);
+	r = (r << 3) | (r >> 2);
+
+	/* the second board uses the second half of the palette */
+	palette_set_color((board * 0x4000) + offset, r, g, b);
+}
+
+static ADDRESS_MAP_START( hangplt_map, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x00000000, 0x000fffff) AM_MIRROR(0x80000000) AM_RAM AM_BASE(&work_ram)		/* Work RAM */
+	AM_RANGE(0x74000000, 0x740000ff) AM_MIRROR(0x80000000) AM_READWRITE(hangplt_k001604_reg_r, hangplt_k001604_reg_w)
+	AM_RANGE(0x74010000, 0x7401ffff) AM_MIRROR(0x80000000) AM_READWRITE(hangplt_paletteram32_r, hangplt_paletteram32_w)
+	AM_RANGE(0x74020000, 0x7403ffff) AM_MIRROR(0x80000000) AM_READWRITE(hangplt_k001604_tile_r, hangplt_k001604_tile_w)
+	AM_RANGE(0x74040000, 0x7407ffff) AM_MIRROR(0x80000000) AM_READWRITE(hangplt_k001604_char_r, hangplt_k001604_char_w)
+	AM_RANGE(0x78000000, 0x7800ffff) AM_MIRROR(0x80000000) AM_READWRITE(cgboard_dsp_shared_r_ppc, cgboard_dsp_shared_w_ppc)
+	AM_RANGE(0x780c0000, 0x780c0003) AM_MIRROR(0x80000000) AM_READWRITE(cgboard_dsp_comm_r_ppc, cgboard_dsp_comm_w_ppc)
+	AM_RANGE(0x7e000000, 0x7e003fff) AM_MIRROR(0x80000000) AM_READWRITE(sysreg_r, sysreg_w)
+	AM_RANGE(0x7e008000, 0x7e009fff) AM_MIRROR(0x80000000) AM_READWRITE(lanc_r, lanc_w)
+	AM_RANGE(0x7e00a000, 0x7e00bfff) AM_MIRROR(0x80000000) AM_READWRITE(lanc_ram_r, lanc_ram_w)
+	AM_RANGE(0x7e00c000, 0x7e00c00f) AM_MIRROR(0x80000000) AM_READWRITE(ppc_sound_r, ppc_sound_w)
+	AM_RANGE(0x7f000000, 0x7f3fffff) AM_MIRROR(0x80000000) AM_ROM AM_REGION(REGION_USER2, 0)	/* Data ROM */
+	AM_RANGE(0x7f800000, 0x7f9fffff) AM_MIRROR(0x80000000) AM_ROM AM_SHARE(2)
+	AM_RANGE(0x7fe00000, 0x7fffffff) AM_MIRROR(0x80000000) AM_ROM AM_REGION(REGION_USER1, 0) AM_SHARE(2)	/* Program ROM */
+ADDRESS_MAP_END
+
 /**********************************************************************/
 
 static ADDRESS_MAP_START( sound_memmap, ADDRESS_SPACE_PROGRAM, 16 )
@@ -596,13 +689,36 @@ static ADDRESS_MAP_START( sharc_map, ADDRESS_SPACE_DATA, 32 )
 	AM_RANGE(0x700000, 0x7000ff) AM_READWRITE(cgboard_dsp_comm_r_sharc, cgboard_dsp_comm_w_sharc)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( hangplt_sharc_map, ADDRESS_SPACE_DATA, 32 )
-	AM_RANGE(0x0400000, 0x041ffff) AM_READWRITE(cgboard_dsp_shared_r_sharc, cgboard_dsp_shared_w_sharc)
+static READ32_HANDLER( dsp_dataram1_r )
+{
+	return sharc_dataram1[offset] & 0xffff;
+}
+
+static WRITE32_HANDLER( dsp_dataram1_w )
+{
+	sharc_dataram1[offset] = data;
+}
+
+static ADDRESS_MAP_START( hangplt_sharc0_map, ADDRESS_SPACE_DATA, 32 )
+	AM_RANGE(0x0400000, 0x041ffff) AM_READWRITE(cgboard_0_shared_sharc_r, cgboard_0_shared_sharc_w)
 	AM_RANGE(0x0500000, 0x05fffff) AM_READWRITE(dsp_dataram_r, dsp_dataram_w)
 	AM_RANGE(0x1400000, 0x14fffff) AM_RAM
-	AM_RANGE(0x3400000, 0x34000ff) AM_READWRITE(cgboard_dsp_comm_r_sharc, cgboard_dsp_comm_w_sharc)
-	AM_RANGE(0x3500000, 0x3507fff) AM_RAM
+	AM_RANGE(0x2400000, 0x27fffff) AM_READWRITE(nwk_voodoo_0_r, voodoo_0_w)
+	AM_RANGE(0x3400000, 0x34000ff) AM_READWRITE(cgboard_0_comm_sharc_r, cgboard_0_comm_sharc_w)
+	AM_RANGE(0x3401000, 0x34fffff) AM_WRITE(nwk_voodoo_fifo_0_w)
+	AM_RANGE(0x3500000, 0x3507fff) AM_READWRITE(cgboard_0_k033906_r, cgboard_0_k033906_w)
 	AM_RANGE(0x3600000, 0x37fffff) AM_ROMBANK(5)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hangplt_sharc1_map, ADDRESS_SPACE_DATA, 32 )
+	AM_RANGE(0x0400000, 0x041ffff) AM_READWRITE(cgboard_1_shared_sharc_r, cgboard_1_shared_sharc_w)
+	AM_RANGE(0x0500000, 0x05fffff) AM_READWRITE(dsp_dataram1_r, dsp_dataram1_w)
+	AM_RANGE(0x1400000, 0x14fffff) AM_RAM
+	AM_RANGE(0x2400000, 0x27fffff) AM_READWRITE(nwk_voodoo_1_r, voodoo_1_w)
+	AM_RANGE(0x3400000, 0x34000ff) AM_READWRITE(cgboard_1_comm_sharc_r, cgboard_1_comm_sharc_w)
+	AM_RANGE(0x3401000, 0x34fffff) AM_WRITE(nwk_voodoo_fifo_1_w)
+	AM_RANGE(0x3500000, 0x3507fff) AM_READWRITE(cgboard_1_k033906_r, cgboard_1_k033906_w)
+	AM_RANGE(0x3600000, 0x37fffff) AM_ROMBANK(6)
 ADDRESS_MAP_END
 
 /*****************************************************************************/
@@ -851,16 +967,70 @@ VIDEO_UPDATE( gticlub )
 	k001604_draw_front_layer(0, bitmap, cliprect);
 }
 
+/* the two monitors are stacked in a single screen */
+#define HANGPLT_SCREEN_WIDTH	512
+#define HANGPLT_SCREEN_HEIGHT	384
+
+static void hangplt_voodoo_vblank_0(int state)
+{
+	if (state)
+		cpunum_set_input_line(PPC_CPU, INPUT_LINE_IRQ0, ASSERT_LINE);
+}
+
+static void hangplt_voodoo_vblank_1(int state)
+{
+	if (state)
+		cpunum_set_input_line(PPC_CPU, INPUT_LINE_IRQ1, ASSERT_LINE);
+}
+
 VIDEO_START( hangplt )
 {
-	return k001604_start(0, 0);
+	int i;
+
+	if (voodoo_start(0, VOODOO_1, 2, 2, 2) || voodoo_start(1, VOODOO_1, 2, 2, 2))
+		return 1;
+
+	hangplt_screen_bitmap = auto_bitmap_alloc(HANGPLT_SCREEN_WIDTH, HANGPLT_SCREEN_HEIGHT);
+	if (!hangplt_screen_bitmap)
+		return 1;
+
+	for (i = 0; i < 2; ++i)
+	{
+		voodoo_set_fixed_screen(i, 1);
+
+		hangplt_paletteram[i] = auto_malloc(0x4000 * sizeof(UINT32));
+		memset(hangplt_paletteram[i], 0, 0x4000 * sizeof(UINT32));
+
+		if (k001604_start(i, i * 0x4000))
+			return 1;
+
+		/* origin of the visible area in the screen timing of each monitor */
+		k001604_set_layer_offset(i, 44, 27);
+	}
+
+	voodoo_set_vblank_callback(0, hangplt_voodoo_vblank_0);
+	voodoo_set_vblank_callback(1, hangplt_voodoo_vblank_1);
+
+	return 0;
 }
 
 VIDEO_UPDATE( hangplt )
 {
-	fillbitmap(bitmap, Machine->pens[0], cliprect);
+	rectangle clip;
+	int i;
 
-	k001604_draw_front_layer(0, bitmap, cliprect);
+	clip.min_x = 0;
+	clip.max_x = HANGPLT_SCREEN_WIDTH - 1;
+	clip.min_y = 0;
+	clip.max_y = HANGPLT_SCREEN_HEIGHT - 1;
+
+	for (i = 0; i < 2; ++i)
+	{
+		/* the voodoo framebuffer starts at the top left of each monitor */
+		voodoo_update(i, hangplt_screen_bitmap, &clip);
+		k001604_draw_front_layer(i, hangplt_screen_bitmap, &clip);
+		copybitmap(bitmap, hangplt_screen_bitmap, 0, 0, 0, i * HANGPLT_SCREEN_HEIGHT, cliprect, TRANSPARENCY_NONE, 0);
+	}
 }
 
 /*****************************************************************************/
@@ -876,11 +1046,6 @@ static INTERRUPT_GEN( gticlub_vblank )
 {
 	cpunum_set_input_line(PPC_CPU, INPUT_LINE_IRQ0, ASSERT_LINE);
 	cpunum_set_input_line(DSP_CPU, SHARC_INPUT_FLAG1, ASSERT_LINE);
-}
-
-static INTERRUPT_GEN( hangplt_vblank )
-{
-	cpunum_set_input_line(PPC_CPU, INPUT_LINE_IRQ0, ASSERT_LINE);
 }
 
 static ppc_config gticlub_ppc_cfg =
@@ -977,8 +1142,7 @@ static MACHINE_DRIVER_START( hangplt )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(PPC403, 64000000/2)	/* PowerPC 403GA 32MHz */
 	MDRV_CPU_CONFIG(gticlub_ppc_cfg)
-	MDRV_CPU_PROGRAM_MAP(gticlub_map, 0)
-	MDRV_CPU_VBLANK_INT(hangplt_vblank, 1)
+	MDRV_CPU_PROGRAM_MAP(hangplt_map, 0)
 
 	MDRV_CPU_ADD(M68000, 64000000/4)	/* 16MHz */
 	MDRV_CPU_PROGRAM_MAP(sound_memmap, 0)
@@ -986,11 +1150,11 @@ static MACHINE_DRIVER_START( hangplt )
 
 	MDRV_CPU_ADD(ADSP21062, 36000000)
 	MDRV_CPU_CONFIG(sharc_cfg)
-	MDRV_CPU_DATA_MAP(hangplt_sharc_map, 0)
+	MDRV_CPU_DATA_MAP(hangplt_sharc0_map, 0)
 
 	MDRV_CPU_ADD(ADSP21062, 36000000)
 	MDRV_CPU_CONFIG(sharc_cfg)
-	MDRV_CPU_DATA_MAP(hangplt_sharc_map, 0)
+	MDRV_CPU_DATA_MAP(hangplt_sharc1_map, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(0)
@@ -1000,9 +1164,9 @@ static MACHINE_DRIVER_START( hangplt )
 
  	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT)
-	MDRV_SCREEN_SIZE(64*8, 48*8)
-	MDRV_VISIBLE_AREA(0*8, 64*8-1, 0*8, 48*8-1)
-	MDRV_PALETTE_LENGTH(16384)
+	MDRV_SCREEN_SIZE(HANGPLT_SCREEN_WIDTH, HANGPLT_SCREEN_HEIGHT * 2)
+	MDRV_VISIBLE_AREA(0, HANGPLT_SCREEN_WIDTH - 1, 0, HANGPLT_SCREEN_HEIGHT * 2 - 1)
+	MDRV_PALETTE_LENGTH(0x8000)
 
 	MDRV_VIDEO_START(hangplt)
 	MDRV_VIDEO_UPDATE(hangplt)
@@ -1412,6 +1576,38 @@ static void slrasslt_install_idle_skip(UINT32 pc, UINT32 addr)
 	memory_install_read32_handler(PPC_CPU, ADDRESS_SPACE_PROGRAM, addr & 0x7fffffff, (addr & 0x7fffffff) + 3, 0, 0x80000000, slrasslt_idle_r);
 }
 
+static READ32_HANDLER( hangplt_idle_r )
+{
+	UINT32 base = idle_addr & 0xfffff;
+	UINT32 data = work_ram[(base + 0xa0) / 4];
+
+	/*
+	 * The main loop calls a function that compares the head and tail of
+	 * the task queue, then it polls a 16 bit flag. Both are only changed by
+	 * the interrupt handlers, so when the queue is empty and the flag is
+	 * clear, the polling is skipped until the next interrupt. The return
+	 * address selects the call from the main loop.
+	 */
+	if (activecpu_get_pc() == idle_pc && activecpu_get_reg(PPC_LR) == idle_lr)
+	{
+		UINT32 flag = work_ram[(base + 0xb2) / 4];
+
+		if (work_ram[(base + 0x9c) / 4] >= data && ((base + 0xb2) & 2 ? (flag & 0xffff) : (flag >> 16)) == 0)
+			cpu_spinuntil_int();
+	}
+
+	return data;
+}
+
+static void hangplt_install_idle_skip(UINT32 pc, UINT32 lr, UINT32 addr)
+{
+	idle_pc = pc;
+	idle_lr = lr;
+	idle_addr = addr;
+	/* the handler covers the queue tail at offset 0xa0 of the task structure */
+	memory_install_read32_handler(PPC_CPU, ADDRESS_SPACE_PROGRAM, (addr & 0x7fffffff) + 0xa0, (addr & 0x7fffffff) + 0xa3, 0, 0x80000000, hangplt_idle_r);
+}
+
 static void gticlub_init_common(int adc1038_gticlub_hack)
 {
 	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
@@ -1446,10 +1642,14 @@ static DRIVER_INIT( slrassltj1 )
 
 static void hangplt_init_common(void)
 {
-	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
-	init_konami_cgboard(1, CGBOARD_TYPE_GTICLUB);
+	init_konami_cgboard(0, CGBOARD_TYPE_HANGPLT);
+	init_konami_cgboard(1, CGBOARD_TYPE_HANGPLT);
+	/* banks 5 and 6 select the texture ROM half of each board */
 	set_cgboard_texture_bank(5);
+	memory_set_bankptr(5, memory_region(REGION_USER5));
+	memory_set_bankptr(6, memory_region(REGION_USER5));
 	sharc_dataram = auto_malloc(0x100000 * sizeof(UINT32));
+	sharc_dataram1 = auto_malloc(0x100000 * sizeof(UINT32));
 	adc1038_init(adc1038_input_callback, 0);
 }
 
@@ -1458,6 +1658,8 @@ static DRIVER_INIT( hangplt )
 	UINT32 *rom = (UINT32 *)memory_region(REGION_USER1);
 
 	hangplt_init_common();
+	/* lwz r0,0x00a0(r31) with r31 = 0x8000013c */
+	hangplt_install_idle_skip(0xffe0c130, 0xffe024ac, 0x8000013c);
 
 	rom[(0x153ac^4) / 4] = 0x4e800020;
 	rom[(0x15428^4) / 4] = 0x4e800020;
@@ -1468,6 +1670,8 @@ static DRIVER_INIT( hangpltu )
 	UINT32 *rom = (UINT32 *)memory_region(REGION_USER1);
 
 	hangplt_init_common();
+	/* lwz r0,0x00a0(r31) with r31 = 0x80000014 */
+	hangplt_install_idle_skip(0xffe0c2a4, 0xffe0241c, 0x80000014);
 
 	rom[(0x153d0^4) / 4] = 0x4e800020;
 	rom[(0x15428^4) / 4] = 0x4e800020;
@@ -1484,5 +1688,5 @@ GAME( 1997, thunderhu,  thunderh, thunderh, thunderh, thunderh, ROT0, "Konami", 
 GAME( 1997, slrasslt,   0,        gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault (ver UAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, slrassltj,  slrasslt, gticlub,  slrasslt, slrasslt, ROT0, "Konami", "Solar Assault Revised (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1997, slrassltj1, slrasslt, gticlub,  slrasslt, slrassltj1, ROT0, "Konami", "Solar Assault (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, hangplt,    0,        hangplt,  hangplt,  hangplt,  ROT0, "Konami", "Hang Pilot (ver JAB)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1997, hangpltu,   hangplt,  hangplt,  hangplt,  hangpltu, ROT0, "Konami", "Hang Pilot (ver UAA)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, hangplt,    0,        hangplt,  hangplt,  hangplt,  ROT0, "Konami", "Hang Pilot (ver JAB)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1997, hangpltu,   hangplt,  hangplt,  hangplt,  hangpltu, ROT0, "Konami", "Hang Pilot (ver UAA)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )

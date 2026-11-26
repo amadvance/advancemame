@@ -175,6 +175,9 @@ bits(7:4) and bit(24)), X, and Y:
 
 static voodoo_state *voodoo[MAX_VOODOO];
 
+/* the driver composes the screen, so the video dimensions don't change the visible area */
+static int voodoo_fixed_screen[MAX_VOODOO];
+
 /* fast reciprocal+log2 lookup */
 UINT32 reciplog[(2 << RECIPLOG_LOOKUP_BITS) + 2];
 
@@ -325,6 +328,7 @@ int voodoo_start(int which, int type, int fbmem_in_mb, int tmem0_in_mb, int tmem
 
 	/* set the type, and initialize the chip mask */
 	v->index = which;
+	voodoo_fixed_screen[which] = 0;
 	v->type = type;
 	v->chipmask = 0x01;
 	v->subseconds_per_cycle = MAX_SUBSECONDS / v->freq;
@@ -575,6 +579,12 @@ void voodoo_set_vblank_callback(int which, void (*vblank)(int))
 void voodoo_set_stall_callback(int which, void (*stall)(int))
 {
 	voodoo[which]->pci.stall_callback = stall;
+}
+
+
+void voodoo_set_fixed_screen(int which, int fixed)
+{
+	voodoo_fixed_screen[which] = fixed;
 }
 
 
@@ -2497,7 +2507,8 @@ static INT32 register_w(voodoo_state *v, offs_t offset, UINT32 data)
 					v->fbi.width = data & 0x3ff;
 				if (data & 0x3ff0000)
 					v->fbi.height = (data >> 16) & 0x3ff;
-				set_visible_area(0, v->fbi.width - 1, 0, v->fbi.height - 1);
+				if (!voodoo_fixed_screen[v->index])
+					set_visible_area(0, v->fbi.width - 1, 0, v->fbi.height - 1);
 				timer_adjust_ptr(v->fbi.vblank_timer, cpu_getscanlinetime(v->fbi.height), TIME_NEVER);
 				recompute_video_memory(v);
 			}
@@ -4983,5 +4994,19 @@ RASTERIZER_ENTRY( 0x00424219,  0x00000000, 0x00000001, 0x00030B7B, 0x08241AC7, 0
 RASTERIZER_ENTRY( 0x00002809,  0x00004110, 0x00000001, 0x00030FFB, 0x08241AC7, 0xFFFFFFFF )	/* in-game */
 RASTERIZER_ENTRY( 0x00424219,  0x00000000, 0x00000001, 0x00030F7B, 0x08241AC7, 0xFFFFFFFF )	/* in-game */
 RASTERIZER_ENTRY( 0x0200421A,  0x00001510, 0x00000001, 0x00030F7B, 0x08241AC7, 0xFFFFFFFF )	/* in-game */
+
+/* hangplt ----> fbzColorPath alphaMode   fogMode,    fbzMode,    texMode0,   texMode1  */
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x00000087, 0x08241087 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x00000007, 0x08241007 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x000000C7, 0x082410C7 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x00000047, 0x08241047 )
+RASTERIZER_ENTRY( 0x02000019,  0x00001510, 0x00000001, 0x00030F7B, 0x082410C1, 0x040200C1 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x082410C7, 0x040200C7 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000021, 0x00030F7B, 0x08241007, 0x04020007 )
+RASTERIZER_ENTRY( 0x02422C12,  0x00000000, 0x00000000, 0x00030F7B, 0x00000000, 0x00000000 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000021, 0x00030F7B, 0x000000C7, 0x082410C7 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000001, 0x00030F7B, 0x08241087, 0x04020087 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000000, 0x00030F7B, 0x08241007, 0x04020007 )
+RASTERIZER_ENTRY( 0x02426E11,  0x00000000, 0x00000000, 0x00030F7B, 0x082410C7, 0x040200C7 )
 
 #endif

@@ -323,19 +323,40 @@ static void draw_tilemap(k001604_state *k, mame_bitmap *bitmap, const rectangle 
 		UINT32 *dest = (UINT32 *)bitmap->line[sy] + cliprect->min_x;
 		int x;
 
-		for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+		if (incxy == 0)
 		{
-			/* the sub tilemap X offset can move the window past the pixmap edge, so wrap it */
+			/* without rotation the source row is the same for the whole line */
 			UINT32 py = ((((cy >> 16) + min_y) & sub_ymask) + sub_y) & (pixmap->height - 1);
-			UINT32 px = ((((cx >> 16) + min_x) & sub_xmask) + sub_x) & (pixmap->width - 1);
-			UINT16 pen = ((UINT16 *)pixmap->line[py])[px];
+			const UINT16 *src = (const UINT16 *)pixmap->line[py];
 
-			if ((pen & 0xff) != 0 || !front)
-				*dest = clut[pen];
+			for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+			{
+				UINT32 px = ((((cx >> 16) + min_x) & sub_xmask) + sub_x) & (pixmap->width - 1);
+				UINT16 pen = src[px];
 
-			cx += incxx;
-			cy += incxy;
-			++dest;
+				if ((pen & 0xff) != 0 || !front)
+					*dest = clut[pen];
+
+				cx += incxx;
+				++dest;
+			}
+		}
+		else
+		{
+			for (x = cliprect->min_x; x <= cliprect->max_x; ++x)
+			{
+				/* the sub tilemap X offset can move the window past the pixmap edge, so wrap it */
+				UINT32 py = ((((cy >> 16) + min_y) & sub_ymask) + sub_y) & (pixmap->height - 1);
+				UINT32 px = ((((cx >> 16) + min_x) & sub_xmask) + sub_x) & (pixmap->width - 1);
+				UINT16 pen = ((UINT16 *)pixmap->line[py])[px];
+
+				if ((pen & 0xff) != 0 || !front)
+					*dest = clut[pen];
+
+				cx += incxx;
+				cy += incxy;
+				++dest;
+			}
 		}
 
 		startx += incyx;

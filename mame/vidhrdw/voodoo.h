@@ -27,6 +27,7 @@ int voodoo_is_stalled(int which);
 void voodoo_set_init_enable(int which, UINT32 newval);
 void voodoo_set_vblank_callback(int which, void (*vblank)(int));
 void voodoo_set_stall_callback(int which, void (*stall)(int));
+void voodoo_set_fixed_screen(int which, int fixed);
 
 READ32_HANDLER( voodoo_0_r );
 WRITE32_HANDLER( voodoo_0_w );
