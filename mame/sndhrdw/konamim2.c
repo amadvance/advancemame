@@ -146,18 +146,6 @@ INLINE INT32 dspp_sign_extend(UINT32 value, unsigned bits)
 	return ((value & ((1U << bits) - 1)) ^ sign) - sign;
 }
 
-INLINE unsigned m2_clz32(UINT32 value)
-{
-	unsigned count = 0;
-
-	while (!(value & 0x80000000U))
-	{
-		++count;
-		value <<= 1;
-	}
-	return count;
-}
-
 static UINT16 dspp_data_r(offs_t address);
 static void dspp_data_w(offs_t address, UINT16 data);
 
@@ -1137,7 +1125,7 @@ static void dspp_update_fifo_dma(void)
 
 	while (mask != 0)
 	{
-		UINT32 channel = 31 - m2_clz32(mask);
+		UINT32 channel = 31 - __builtin_clz(mask);
 		const struct fifo_dma *dma = &m_dsp.m_fifo_dma[channel];
 
 		if (m_dsp.m_dspx_channel_direction & (1U << channel))
