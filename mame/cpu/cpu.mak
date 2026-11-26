@@ -109,7 +109,7 @@ ifneq ($$(filter ADSP21062,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/sharc
 $(1)CPUOBJS += $(2)/cpu/sharc/sharc.o
 $(1)DBGOBJS += $(2)/cpu/sharc/sharcdsm.o
-$(2)/cpu/sharc/sharc.o: sharc.c sharc.h sharcops.c sharcdma.c compute.c
+$(2)/cpu/sharc/sharc.o: sharc.c sharc.h sharcops.c sharcdma.c compute.c sharcjit.c
 endif
 
 

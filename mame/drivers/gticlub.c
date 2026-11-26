@@ -1710,6 +1710,7 @@ static void gticlub_init_common(int adc1038_gticlub_hack)
 {
 	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
 	sharc_dataram = auto_malloc(0x100000 * sizeof(UINT32));
+	memset(sharc_dataram, 0, 0x100000 * sizeof(UINT32));
 	adc1038_init(adc1038_input_callback, adc1038_gticlub_hack);
 }
 
@@ -1749,7 +1750,9 @@ static void hangplt_init_common(void)
 	memory_set_bankptr(5, memory_region(REGION_USER5));
 	memory_set_bankptr(6, memory_region(REGION_USER5));
 	sharc_dataram = auto_malloc(0x100000 * sizeof(UINT32));
+	memset(sharc_dataram, 0, 0x100000 * sizeof(UINT32));
 	sharc_dataram1 = auto_malloc(0x100000 * sizeof(UINT32));
+	memset(sharc_dataram1, 0, 0x100000 * sizeof(UINT32));
 	adc1038_init(adc1038_input_callback, 0);
 }
 

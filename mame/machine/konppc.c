@@ -44,6 +44,7 @@ void init_konami_cgboard(int board_id, int type)
 {
 	dsp_comm_ppc[board_id][0] = 0x00;
 	dsp_shared_ram[board_id] = auto_malloc(0x20000);
+	memset(dsp_shared_ram[board_id], 0, 0x20000);
 	dsp_shared_ram_bank[board_id] = 0;
 	dsp_state[board_id] = 0x80;
 	enable_3d[board_id] = 0;

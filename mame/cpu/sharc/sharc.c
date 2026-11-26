@@ -9,8 +9,9 @@
     Differences from MAME:
 
     Written in C (sharc.cpp, sharcops.hxx, sharcops_table.cpp, compute.hxx,
-    sharcdma.hxx and sharcinternal.ipp), interpreter only: the recompiler is
-    not ported.
+    sharcdma.hxx and sharcinternal.ipp). The UML recompiler is not ported:
+    sharcjit.c is an own recompiler built on sljit, enabled by the jit
+    option.
 
     Memory: the internal memory (two blocks of 32K 32-bit words, seen as
     48-bit program words, 32-bit data words and 16-bit short words, as the
@@ -38,11 +39,15 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stddef.h>
 #include "driver.h"
 #include "cpuintrf.h"
 #include "state.h"
 #include "debugger.h"
 #include "sharc.h"
+#include "sljit_mame.h"
+
+#define SHARC_JIT_SUPPORTED		SLJIT_MAME_SUPPORTED
 
 
 /***************************************************************************
@@ -333,6 +338,12 @@ typedef struct
 	int (*irq_callback)(int irqline);
 	sharc_fetch_snapshot snap;
 	int flag_spin;
+	/* recompiler (sharcjit.c) */
+	void **jit_code;		/* the block at each internal program address, or NULL */
+	UINT8 *jit_len;			/* the instructions of each block */
+	UINT8 *jit_codemap;		/* the words of the internal memory with translated instructions */
+	int jit_dirty;			/* translated code was written: drop everything at the next dispatch */
+	UINT32 jit_lend;		/* LADDR while the loop stack is not empty, else ~0 */
 } sharc_instance;
 
 #define SHARC_MAX_INSTANCES	8
@@ -460,6 +471,7 @@ static void CHANGE_PC_DELAYED(UINT32 newpc)
 }
 
 /* forward declarations */
+static void sharc_jit_code_written(void);
 static void check_interrupts(void);
 static void systemreg_write_latency_effect(void);
 static void sharc_dma_exec(int channel);
@@ -477,6 +489,9 @@ static void sharc_dma_exec(int channel);
    3 ab9 5h 5l 4l
    4 cde 6h 6l 7h
 */
+
+/* a write to word 'w' of internal memory block 'b': the recompiler drops its translations over it */
+#define SHARC_JIT_WRITE(b, w)	do { if (sharc_cur->jit_codemap && sharc_cur->jit_codemap[((b) << 15) | (w)]) sharc_jit_code_written(); } while (0)
 
 /* returns the block for an internal program address and its block offset, or NULL */
 static UINT32 *pm_internal(UINT32 address, UINT32 *base, int *odd)
@@ -525,13 +540,18 @@ static void pm_write48(UINT32 address, UINT64 data)
 	blk = pm_internal(address, &base, &odd);
 	if (blk)
 	{
+		int b = (blk == sharc_block[1]);
 		if (odd)
 		{
+			SHARC_JIT_WRITE(b, base + 0x1000);
+			SHARC_JIT_WRITE(b, base + 0x2000);
 			blk[base + 0x1000] = (blk[base + 0x1000] & 0xffff0000) | (UINT32)(data & 0xffff);
 			blk[base + 0x2000] = (UINT32)(data >> 16);
 		}
 		else
 		{
+			SHARC_JIT_WRITE(b, base);
+			SHARC_JIT_WRITE(b, base + 0x1000);
 			blk[base] = (UINT32)(data >> 16);
 			blk[base + 0x1000] = (blk[base + 0x1000] & 0xffff) | ((UINT32)(data & 0xffff) << 16);
 		}
@@ -559,6 +579,7 @@ static void pm_write32(UINT32 address, UINT32 data)
 	blk = pm_internal(address, &base, &odd);
 	if (blk)
 	{
+		SHARC_JIT_WRITE(blk == sharc_block[1], odd ? base + 0x2000 : base);
 		if (odd)
 			blk[base + 0x2000] = data;
 		else
@@ -631,6 +652,7 @@ static void dm_write32(UINT32 address, UINT32 data)
 
 	if (address >= 0x20000 && address < 0x40000)
 	{
+		SHARC_JIT_WRITE((address & 0x18000) ? 1 : 0, address & 0x7fff);
 		sharc_block[(address & 0x18000) ? 1 : 0][address & 0x7fff] = data;
 		return;
 	}
@@ -639,6 +661,7 @@ static void dm_write32(UINT32 address, UINT32 data)
 	{
 		UINT32 half = address & 0xffff;
 		UINT32 *word = &sharc_block[(address & 0x30000) ? 1 : 0][half >> 1];
+		SHARC_JIT_WRITE((address & 0x30000) ? 1 : 0, half >> 1);
 		if (half & 1)
 			*word = (*word & 0x0000ffff) | ((data & 0xffff) << 16);
 		else
@@ -838,6 +861,7 @@ static int sharc_cond_is_flag(int cond)
 }
 
 #include "sharcops.c"
+#include "sharcjit.c"
 
 
 /***************************************************************************
@@ -1114,6 +1138,12 @@ static int sharc_core_execute(int cycles)
 		int dma_stalled = 0;
 		int flag_wait = 0;
 
+#if SHARC_JIT_SUPPORTED
+		/* a translated block when it can run, else one instruction below */
+		if (sharc_jit_enabled && sharc_cur->jit_code && sharc_jit_run())
+			continue;
+#endif
+
 		snap.pc = m_core->pc;
 		snap.daddr = m_core->daddr;
 		snap.faddr = m_core->faddr;
@@ -1268,6 +1298,10 @@ static void sharc_core_init(int cpu)
 
 	build_opcode_table();
 
+#if SHARC_JIT_SUPPORTED
+	sharc_jit_init(inst);
+#endif
+
 	sharc_iop_timer = timer_alloc(sharc_iop_delayed_write_callback);
 	timer_adjust(sharc_iop_timer, TIME_NEVER, cpu, 0);
 
@@ -1287,6 +1321,9 @@ static void sharc_core_reset(void *param)
 	boot_mode = sharc_cfg ? sharc_cfg->boot_mode : SHARC_BOOT_MODE_HOST;
 
 	memset(sharc_block, 0, sizeof(sharc_block));
+	/* the internal memory is cleared: the translations go */
+	if (sharc_cur->jit_code)
+		sharc_cur->jit_dirty = 1;
 
 	switch (boot_mode)
 	{
@@ -1466,6 +1503,13 @@ static void sharc_init(int index, int clock, const void *config, int (*irqcallba
 	sharc_irq_callback = irqcallback;
 }
 
+static void sharc_exit(void)
+{
+#if SHARC_JIT_SUPPORTED
+	sharc_jit_exit();
+#endif
+}
+
 static void sharc_reset(void)
 {
 	sharc_core_reset(sharc_cfg);
@@ -1535,7 +1579,7 @@ void adsp21062_get_info(UINT32 state, union cpuinfo *info)
 		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = sharc_set_context;	break;
 		case CPUINFO_PTR_INIT:							info->init = sharc_init;				break;
 		case CPUINFO_PTR_RESET:							info->reset = sharc_reset;				break;
-		case CPUINFO_PTR_EXIT:							info->exit = 0;							break;
+		case CPUINFO_PTR_EXIT:							info->exit = sharc_exit;					break;
 		case CPUINFO_PTR_EXECUTE:						info->execute = sharc_core_execute;		break;
 		case CPUINFO_PTR_BURN:							info->burn = 0;							break;
 #ifdef MAME_DEBUG
