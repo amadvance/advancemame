@@ -1181,6 +1181,17 @@ int osd2_thread_init(void)
 
 	log_std(("osd: osd2_thread_init\n"));
 
+#ifdef _OPENMP
+	/*
+	 * The number of OpenMP threads is a setting of the calling thread, so the
+	 * limit of the video thread doesn't apply to the parallel regions of the
+	 * MAME core, run by this thread. Without the same limit the two teams of
+	 * threads exceed the processors, and a thread of the video blit, which
+	 * splits the rows statically, stalls the whole blit when preempted.
+	 */
+	omp_set_num_threads(omp_get_max_threads() - 1);
+#endif
+
 	context->state.thread_exit_flag = 0;
 	context->state.thread_state_ready_flag = 0;
 	context->state.thread_state_game = 0;
