@@ -57732,7 +57732,7 @@
       "category": "original",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 0,
+      "players": 3,
       "release_status": "released",
       "version": "ver UBA",
       "parent_shortname": null,
@@ -63388,7 +63388,8 @@
     },
     {
       "shortnames": [
-        "flyball"
+        "flyball",
+        "flyball1"
       ],
       "title": "Flyball",
       "year": 1976,
@@ -63402,6 +63403,23 @@
       "version": null,
       "parent_shortname": null,
       "original_game": null,
+      "variants": [
+        {
+          "shortname": "flyball",
+          "title": "Flyball (rev 2)",
+          "region": "North America",
+          "language": "English",
+          "version": "rev 2"
+        },
+        {
+          "shortname": "flyball1",
+          "parent_shortname": "flyball",
+          "title": "Flyball (rev 1)",
+          "region": "North America",
+          "language": "English",
+          "version": "rev 1"
+        }
+      ],
       "description": "Atari's Flyball (1976) is a pioneering black-and-white arcade baseball game that translates pitching and batting into analog joystick gestures. One player controls the pitcher while the other attempts to hit the ball and send runners around the bases, with rules simplified to fit a short coin-operated match. Batting and pitching rely on the direction and timing of the controls rather than a single action button.\n\nThe game is also remembered for a peculiar rule error: on a walk, all base runners advance, even when they would not be forced to move in real baseball. The surviving programmer's recollections make Flyball an unusually well-documented example of the improvisational nature of early sports-game development.",
       "trivia": [],
       "tips": [],
@@ -66112,7 +66130,7 @@
       "category": "original",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 2,
+      "players": 1,
       "release_status": "released",
       "version": "VER.A",
       "parent_shortname": null,
@@ -76799,16 +76817,18 @@
     {
       "shortnames": [
         "gticlub",
-        "gticlubj"
+        "gticluba",
+        "gticlubj",
+        "gticlubu"
       ],
-      "title": "GTI Club",
+      "title": "GTI Club: Rally Cote D'Azur",
       "year": 1996,
       "developer": "Konami",
       "publisher": "Konami",
       "category": "original",
       "genre": "Driving",
       "platform": "Arcade",
-      "players": 2,
+      "players": 1,
       "release_status": "released",
       "version": null,
       "parent_shortname": null,
@@ -76817,7 +76837,15 @@
       "variants": [
         {
           "shortname": "gticlub",
-          "title": "GTI Club (ver AAA)",
+          "title": "GTI Club: Rally Cote D'Azur (ver EAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver EAA"
+        },
+        {
+          "shortname": "gticluba",
+          "parent_shortname": "gticlub",
+          "title": "GTI Club: Rally Cote D'Azur (ver AAA)",
           "region": "North America",
           "language": "English",
           "version": "ver AAA"
@@ -76825,10 +76853,18 @@
         {
           "shortname": "gticlubj",
           "parent_shortname": "gticlub",
-          "title": "GTI Club (ver JAA)",
+          "title": "GTI Club: Rally Cote D'Azur (ver JAA)",
           "region": "North America",
           "language": "English",
           "version": "ver JAA"
+        },
+        {
+          "shortname": "gticlubu",
+          "parent_shortname": "gticlub",
+          "title": "GTI Club: Rally Cote D'Azur (ver UAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver UAA"
         }
       ],
       "description": "GTI Club: Rally Côte d'Azur (1996) is Konami's distinctive polygonal racer set in a compact French Riviera town, complete with steep streets, tight corners and opportunities for creative route finding. Players choose among small classic rally cars, including a Mini Cooper and a Renault 5 Alpine Turbo, with a faster supercar available under a special credit arrangement. Rather than confining the action to a rigid track, the environment offers alternate roads and shortcuts that reward experimentation.\n\nThe handbrake is especially important: sharp handbrake turns can save valuable seconds while navigating the narrow streets and reaching checkpoints. Three course variations change the route and challenge, with the medium course opening additional shortcuts and the difficult course mirroring the layout. Built for Konami's ambitious PowerPC-based Cobra arcade hardware, GTI Club helped bring an unusually open, playground-like approach to arcade racing.",
@@ -79814,7 +79850,8 @@
     },
     {
       "shortnames": [
-        "hangplt"
+        "hangplt",
+        "hangpltu"
       ],
       "title": "Hang Pilot",
       "year": 1997,
@@ -79823,9 +79860,9 @@
       "category": "original",
       "genre": "Sports",
       "platform": "Arcade",
-      "players": 2,
+      "players": 1,
       "release_status": "released",
-      "version": "ver JAB",
+      "version": null,
       "parent_shortname": null,
       "original_game": null,
       "variants": [
@@ -79834,7 +79871,15 @@
           "title": "Hang Pilot (ver JAB)",
           "region": "North America",
           "language": "English",
-          "version": "(ver JAB)"
+          "version": "ver JAB"
+        },
+        {
+          "shortname": "hangpltu",
+          "parent_shortname": "hangplt",
+          "title": "Hang Pilot (ver UAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver UAA"
         }
       ],
       "description": "Hang Pilot (1997) is Konami's unusual 3D hang-gliding arcade simulation, designed around a physical control setup that imitates the posture and handling of a real glider. Players choose from three pilots and courses, then launch into the air and guide their craft through checkpoints while avoiding terrain and obstacles. The controls involve leaning or positioning the body on supports and manipulating a handlebar assembly to affect direction and speed.\n\nThe dedicated machine could use two displays, one showing the view ahead and another emphasizing the terrain below, reinforcing the sensation of suspended flight. Its uncommon subject and specialized cabinet make Hang Pilot stand apart from Konami's better-known racing games; the challenge is controlling a glider's path, not simply accelerating along a road.",
@@ -145744,7 +145789,7 @@
       "category": "original",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 0,
+      "players": 2,
       "release_status": "released",
       "version": "ver JAA",
       "parent_shortname": null,
@@ -154831,8 +154876,7 @@
     },
     {
       "shortnames": [
-        "racingj",
-        "racingj2"
+        "racingj"
       ],
       "title": "Racing Jam",
       "year": 1998,
@@ -154847,24 +154891,6 @@
       "parent_shortname": null,
       "original_game": null,
       "series": "Racing Jam",
-      "variants": [
-        {
-          "shortname": "racingj",
-          "title": "Racing Jam",
-          "region": "North America",
-          "language": "English",
-          "version": "(GQ676UAC)"
-        },
-        {
-          "shortname": "racingj2",
-          "parent_shortname": "racingj",
-          "title": "Racing Jam: Chapter 2",
-          "year": 1999,
-          "region": "North America",
-          "language": "English",
-          "version": "(GQ888UAA)"
-        }
-      ],
       "description": "Konami's Racing Jam (1997/1998) is an arcade driving game that combines the excitement of a racing cabinet with the car selection and mechanical tuning associated with home driving simulations. Players choose from a large roster of cars and tackle several distinct events, including circuit races, time trials, twisting uphill and downhill roads, and gymkhana-style maneuvering tests. Adjustments to engine performance and suspension let players tailor a car to the event.\n\nThe game also has an unusual development history: initially intended to showcase Konami's advanced Cobra hardware, it ultimately appeared on the Hornet platform. A subsequent Chapter 2 release expanded the original. Racing Jam remains a striking example of Japanese arcades absorbing the late-1990s enthusiasm for car collecting and tuning.",
       "trivia": [],
       "tips": [],
@@ -154873,6 +154899,52 @@
         {
           "type": "reference",
           "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=racingj&lang=en"
+        }
+      ],
+      "sources": [
+        {
+          "type": "source_code",
+          "url": null,
+          "path": "mame/drivers/nwk-tr.c"
+        }
+      ],
+      "confidence": "verified",
+      "research_notes": []
+    },
+    {
+      "shortnames": [
+        "racingj2"
+      ],
+      "title": "Racing Jam: Chapter II",
+      "year": 1998,
+      "developer": "Konami",
+      "publisher": "Konami",
+      "category": "original",
+      "genre": "Driving",
+      "platform": "Arcade",
+      "players": 2,
+      "release_status": "released",
+      "version": null,
+      "parent_shortname": null,
+      "original_game": null,
+      "series": "Racing Jam",
+      "variants": [
+        {
+          "shortname": "racingj2",
+          "title": "Racing Jam: Chapter II (GQ888UAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "(GQ888UAA)"
+        }
+      ],
+      "description": "Racing Jam: Chapter II is Konami's 1998 revision of its 3D racing simulator, released in Japan in July and powered by the NWK-TR arcade hardware. Players choose from 18 standard Japanese production cars, including the Toyota Sprinter Trueno AE86, Nissan Skyline GT-R R32 and Mazda MX-5, with additional hidden vehicles available. Four courses offer distinct driving challenges: Bank features sweeping banked corners, Night takes racers through illuminated city streets, Cross Road introduces intersections and jumps, and Winding Road demands precise handling through tight mountain hairpins. Players can choose automatic or manual transmission and compete against other drivers through linked cabinets.\n\nThe game emphasizes driving techniques such as drifting, countersteering and managing weight transfer during cornering. The original deluxe cabinet features a force-feedback steering wheel, a five-speed gear lever, accelerator, brake and clutch pedals, and a separate handbrake. Chapter II introduces the Bank and Cross Road circuits, redesigns the original Night course, and retains the uphill mountain route. Unlike its predecessor, it removes the downhill route, gymkhana events and car tuning options, concentrating instead on conventional racing. A hidden Time Trial mode can be activated by holding the clutch and brake pedals while pressing Start and keeping them depressed until the race begins.",
+      "trivia": [],
+      "tips": [],
+      "scoring": [],
+      "websites": [
+        {
+          "type": "reference",
+          "url": "http://adb.arcadeitalia.net/dettaglio_mame.php?game_name=racingj2&lang=en"
         }
       ],
       "sources": [
@@ -178187,28 +178259,46 @@
     },
     {
       "shortnames": [
-        "slrasslt"
+        "slrasslt",
+        "slrassltj",
+        "slrassltj1"
       ],
-      "title": "Solar Assault DR2",
+      "title": "Solar Assault",
       "year": 1997,
       "developer": "Konami",
       "publisher": "Konami",
       "category": "original",
       "genre": "Shooter",
       "platform": "Arcade",
-      "players": 2,
+      "players": 1,
       "release_status": "released",
-      "version": "ver UAA",
+      "version": null,
       "parent_shortname": null,
       "original_game": null,
       "series": "Gradius",
       "variants": [
         {
           "shortname": "slrasslt",
-          "title": "Solar Assault DR2 (ver UAA)",
+          "title": "Solar Assault (ver UAA)",
           "region": "North America",
           "language": "English",
-          "version": "(ver UAA)"
+          "version": "ver UAA"
+        },
+        {
+          "shortname": "slrassltj",
+          "parent_shortname": "slrasslt",
+          "title": "Solar Assault Revised (ver JAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver JAA"
+        },
+        {
+          "shortname": "slrassltj1",
+          "parent_shortname": "slrasslt",
+          "title": "Solar Assault (ver JAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver JAA"
         }
       ],
       "description": "Solar Assault DR2 is Konami's 1997 revised 3D arcade shoot-'em-up in the Gradius universe. Unlike the series' familiar side-scrolling games, it sends the player racing into the screen along a forward-moving course, maneuvering in both horizontal and vertical directions to dodge hazards. Players choose between iconic ships such as the Vic Viper and Lord British, collect power capsules and improve weapons through the recognizable Gradius upgrade system. Speed control is important for negotiating the scrolling environment, and an enemy hit can still be fatal unless a protective shield is active.\n\nThe DR2 revision expands the original Solar Assault with additional stage content, including the Fierce Blaze stage, while preserving its cinematic rail-shooter presentation. Its combination of traditional Gradius ship upgrades with 3D movement makes it one of the series' more unusual arcade spin-offs.",
@@ -200660,10 +200750,11 @@
     },
     {
       "shortnames": [
-        "thunderh"
+        "thunderh",
+        "thunderhu"
       ],
-      "title": "Thunder Hurricane",
-      "year": 1996,
+      "title": "Operation Thunder Hurricane",
+      "year": 1997,
       "developer": "Konami",
       "publisher": "Konami",
       "category": "original",
@@ -200671,16 +200762,24 @@
       "platform": "Arcade",
       "players": 2,
       "release_status": "released",
-      "version": "ver UAA",
+      "version": null,
       "parent_shortname": null,
       "original_game": null,
       "variants": [
         {
           "shortname": "thunderh",
-          "title": "Thunder Hurricane (ver UAA)",
+          "title": "Operation Thunder Hurricane (ver EAA)",
           "region": "North America",
           "language": "English",
-          "version": "(ver EAA)"
+          "version": "ver EAA"
+        },
+        {
+          "shortname": "thunderhu",
+          "parent_shortname": "thunderh",
+          "title": "Operation Thunder Hurricane (ver UAA)",
+          "region": "North America",
+          "language": "English",
+          "version": "ver UAA"
         }
       ],
       "description": "Operation Thunder Hurricane is Konami's mid-1990s arcade shooting game built around a heavy machine-gun-style controller. Players use the mounted gun to fire into fast-moving on-screen action, emphasizing sustained aiming and reflexes rather than the single-shot pistol approach of many light-gun cabinets. Known in preserved software as Thunder Hurricane, it represents Konami's continued experimentation with elaborate dedicated-gun attractions. Detailed stage objectives and campaign structure are not well documented in the surviving descriptions.",
