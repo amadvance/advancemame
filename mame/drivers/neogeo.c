@@ -9156,8 +9156,8 @@ GAMEB( 2001, vliner6e, vliner,   neogeo, neogeo, vliner,  vliner,   ROT0, "Dyna 
 GAMEB( 2001, vliner54, vliner,   neogeo, neogeo, vliner,  vliner,   ROT0, "Dyna / BrezzaSoft", "V-Liner (v0.54)", 0 )
 
 /* Bootleg NeoCD to MVS conversion */
-GAMEB( 1996, crswd2bl, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "bootleg (Razoola)", "Crossed Swords 2 (bootleg of CD version)", 0 )
-GAMEB( 2026, csw2,     neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "pierpa86", "Crossed Swords 2 (full CD music)", 0 )
+GAMEB( 1996, crswd2bl, csw2,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "bootleg (Razoola)", "Crossed Swords 2 (bootleg of CD version)", 0 )
+GAMEB( 2026, csw2,     neogeo, neogeo, neogeo, neogeo,  neogeo,   ROT0, "pierpa86", "Crossed Swords 2 (full CD music)", 0 )
 
 /* Kyle Hodgetts */
 GAMEB( 2000, diggerma, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Kyle Hodgetts", "Digger Man (prototype)", 0 )
