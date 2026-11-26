@@ -294,6 +294,11 @@ static int ppc_dec_base_icount;
 static int ppc_dec_trigger_cycle;
 static int bus_freq_multiplier = 1;
 static PPC_REGS ppc;
+
+#if (HAS_PPC403)
+static PPC403_TB_READ_HOOK ppc403_tb_read_hook;
+static void ppc403_eat_cycles(UINT32 cycles);
+#endif
 static UINT32 ppc_rotate_mask[32][32];
 
 #define ROPCODE(pc)			cpu_readop32(pc)
@@ -635,8 +640,12 @@ INLINE UINT32 ppc_get_spr(int spr)
 	{
 		switch (spr)
 		{
-			case SPR403_TBLU:
-			case SPR403_TBLO:		return (UINT32)(ppc_read_timebase());
+			case SPR403_TBLO:
+				/* the driver can end a busy wait on the time base by consuming the cycles up to its target */
+				if (ppc403_tb_read_hook)
+					ppc403_eat_cycles(ppc403_tb_read_hook((UINT32)(ppc_read_timebase())));
+				return (UINT32)(ppc_read_timebase());
+			case SPR403_TBLU:		return (UINT32)(ppc_read_timebase());
 			case SPR403_TBHU:
 			case SPR403_TBHI:		return (UINT32)(ppc_read_timebase() >> 32);
 

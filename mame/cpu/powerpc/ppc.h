@@ -303,6 +303,8 @@ typedef struct {
 typedef UINT8 (* SPU_RX_HANDLER)(void);
 typedef void  (* SPU_TX_HANDLER)(UINT8);
 typedef void (* PPC_DMA_HANDLER)(int);
+/* called on a TBLO read with its value, returns the cycles to consume */
+typedef UINT32 (* PPC403_TB_READ_HOOK)(UINT32 tblo);
 
 void ppc403_get_info(UINT32 state, union cpuinfo *info);
 void ppc403_spu_rx(UINT8 data);
@@ -312,6 +314,7 @@ void ppc403_install_spu_rx_dma_handler(PPC_DMA_HANDLER rx_dma_handler, UINT8 *bu
 void ppc403_install_spu_tx_dma_handler(PPC_DMA_HANDLER tx_dma_handler, UINT8 *buffer);
 void ppc403_install_dma_read_handler(int ch, PPC_DMA_HANDLER dma_handler, UINT8 *buffer);
 void ppc403_install_dma_write_handler(int ch, PPC_DMA_HANDLER dma_handler, UINT8 *buffer);
+void ppc403_set_tb_read_hook(PPC403_TB_READ_HOOK hook);
 
 #define PPC403_SPU_RX		5
 #define PPC403_SPU_TX		6

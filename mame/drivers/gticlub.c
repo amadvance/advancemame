@@ -235,6 +235,9 @@ Hang Pilot (uses an unknown but similar video board)                12W         
     When the default EEPROM holds only the magic number, the test switch is
     held at the first boot to let the game initialize it.
 
+    The boot delay loop of GTI Club polling the time base consumes at once
+    the cycles up to its next target.
+
     The GTI Club screen bitmap holds only the visible area, as the whole
     frame is copied for the video thread at every update.
 
@@ -268,6 +271,8 @@ static mame_bitmap *hangplt_screen_bitmap;
 static UINT32 idle_pc;
 static UINT32 idle_addr;
 static UINT32 idle_lr;
+static UINT32 tb_wait_pc;
+static UINT32 tb_wait_lr;
 static int eeprom_factory_init;
 
 /* K056230 (LANC) */
@@ -1616,6 +1621,58 @@ static void hangplt_install_idle_skip(UINT32 pc, UINT32 lr, UINT32 addr)
 	memory_install_read32_handler(PPC_CPU, ADDRESS_SPACE_PROGRAM, (addr & 0x7fffffff) + 0xa0, (addr & 0x7fffffff) + 0xa3, 0, 0x80000000, hangplt_idle_r);
 }
 
+static UINT32 gticlub_tb_read_hook(UINT32 tblo)
+{
+	UINT32 now, target, r30, r31;
+
+	if (activecpu_get_pc() != tb_wait_pc || activecpu_get_reg(PPC_LR) != tb_wait_lr)
+		return 0;
+
+	/*
+	 * The boot delay loop waits until the time base plus r27 reaches r31,
+	 * and kicks the watchdog every time it reaches r30. The cycles up to the
+	 * nearest of the two are consumed at once, with the unsigned compares
+	 * of the loop.
+	 */
+	now = tblo + activecpu_get_reg(PPC_R27);
+	r30 = activecpu_get_reg(PPC_R30);
+	r31 = activecpu_get_reg(PPC_R31);
+	target = (r30 < r31) ? r30 : r31;
+
+	if (now >= target)
+		return 0;
+
+	return target - now;
+}
+
+static void gticlub_install_tb_wait_skip(void)
+{
+	/* addc r3,r3,r27; cmpl cr0,0,r3,r30; cmpl cr1,0,r3,r31; addis r3,r30,1; bt cr1[lt],-0x24 */
+	static const UINT32 sig[5] = { 0x7c63d814, 0x7c03f040, 0x7c83f840, 0x3c7e0001, 0x4184ffdc };
+	const UINT32 *rom = (const UINT32 *)memory_region(REGION_USER1);
+	UINT32 len = memory_region_length(REGION_USER1) / 4;
+	UINT32 i;
+
+	for (i = 1; i + 5 <= len; ++i)
+	{
+		if (rom[i] == sig[0] && rom[i + 1] == sig[1] && rom[i + 2] == sig[2] && rom[i + 3] == sig[3] && rom[i + 4] == sig[4])
+		{
+			/* the loop starts with a call to the function returning the time base low word */
+			INT32 disp = ((INT32)(rom[i - 1] << 6)) >> 6 & ~3;
+			UINT32 func = (i - 1) * 4 + disp;
+
+			if ((rom[i - 1] >> 26) != 18 || func / 4 + 1 >= len || rom[func / 4] != 0x7c7df2a6 || rom[func / 4 + 1] != 0x4e800020)
+				return;
+
+			/* the program ROM is mapped at 0xff800000 */
+			tb_wait_pc = 0xff800000 + func;
+			tb_wait_lr = 0xff800000 + i * 4;
+			ppc403_set_tb_read_hook(gticlub_tb_read_hook);
+			return;
+		}
+	}
+}
+
 static void gticlub_init_common(int adc1038_gticlub_hack)
 {
 	init_konami_cgboard(0, CGBOARD_TYPE_GTICLUB);
@@ -1627,6 +1684,7 @@ static DRIVER_INIT( gticlub )
 {
 	gticlub_init_common(1);
 	gticlub_install_idle_skip();
+	gticlub_install_tb_wait_skip();
 }
 
 static DRIVER_INIT( thunderh )

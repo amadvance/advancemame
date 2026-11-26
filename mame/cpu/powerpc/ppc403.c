@@ -670,6 +670,48 @@ static void ppc403_spu_tx_callback(int cpu)
 	}
 }
 
+void ppc403_set_tb_read_hook(PPC403_TB_READ_HOOK hook)
+{
+	ppc403_tb_read_hook = hook;
+}
+
+/*
+ * Consume cycles without executing instructions. The time base follows the
+ * cycle count, and the PIT, decremented at every instruction, is advanced by
+ * the same amount, so the timers keep the elapsed time.
+ */
+static void ppc403_eat_cycles(UINT32 cycles)
+{
+	if (cycles == 0 || ppc_icount <= 0)
+		return;
+
+	if (cycles > (UINT32)ppc_icount)
+		cycles = ppc_icount;
+
+	ppc_icount -= cycles;
+
+	if (ppc.pit_counter > 0)
+	{
+		if (cycles < ppc.pit_counter)
+		{
+			ppc.pit_counter -= cycles;
+		}
+		else
+		{
+			UINT32 over = cycles - ppc.pit_counter;
+
+			if (ppc.pit_int_enable)
+				ppc.interrupt_pending |= 0x2;
+
+			/* with automatic reload the counter restarts from the PIT value at every expiration */
+			if ((ppc.tcr & 0x00400000) && ppc.pit != 0)
+				ppc.pit_counter = ppc.pit - (over % ppc.pit);
+			else
+				ppc.pit_counter = 0;
+		}
+	}
+}
+
 void ppc403_install_spu_rx_handler(SPU_RX_HANDLER rx_handler)
 {
 	spu_rx_handler = rx_handler;
