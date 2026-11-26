@@ -13,6 +13,10 @@
     The polygon rasterizer is the legacy poly manager (polylgcy.c) and the
     colors are handled as packed ARGB integers. The K001006 palette is kept
     by the chip and the 3D framebuffer is stored in this file.
+
+    The polygons are not rendered at every sync command of the FIFO, but they
+    are accumulated until the buffer swap, or until a change of the K001006
+    state read by the rasterizer, to render them in fewer and larger batches.
 */
 
 #include "k001005.h"
@@ -248,6 +252,10 @@ static void k001006_w(int chip, int offset, UINT32 data, UINT32 mem_mask)
 		{
 			case 0xd:	/* Palette RAM write */
 			{
+				/* the queued polygons are rendered with the current palette */
+				if (poly)
+					poly_wait(poly, "palette");
+
 				UINT32 index = (k001006_addr[chip] >> 1) & 0x7ff;
 				int a = (data & 0x8000) ? 0x00 : 0xff;
 				int b = ((data >> 10) & 0x1f) << 3;
@@ -281,6 +289,10 @@ static void k001006_w(int chip, int offset, UINT32 data, UINT32 mem_mask)
 		if (!(mem_mask & 0xffff0000))
 		{
 			k001006_device_sel[chip] = (data >> 16) & 0xf;
+
+			/* the queued polygons are rendered with the current filter */
+			if (poly && k001006_enable_bilinear[chip] != ((data >> 20) & 1))
+				poly_wait(poly, "bilinear");
 			k001006_enable_bilinear[chip] = (data >> 20) & 1;
 		}
 	}
@@ -846,7 +858,6 @@ static void k001005_render_polygons(void)
 	while (index < k001005_3dfifo_ptr);
 
 	k001005_3dfifo_ptr = 0;
-	poly_wait(poly, "render_polygons");
 }
 
 static void k001005_push_data(UINT32 data)
@@ -1047,6 +1058,8 @@ WRITE32_HANDLER( k001005_w )
 				if (k001005_3dfifo_ptr > 0)
 					k001005_render_polygons();
 
+				/* the queued polygons are rendered in the back buffer, before the swap */
+				poly_wait(poly, "swap");
 				k001005_swap_buffers();
 			}
 			break;
