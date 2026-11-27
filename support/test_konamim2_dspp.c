@@ -247,6 +247,104 @@ static void test_invalidation(void)
 	assert_always(!dspp_jit_run(3) && m_core.m_pc == 3, "Register mapped to I/O must use the interpreter");
 }
 
+static void run_output_wait(int native, unsigned start, unsigned depth, int writeback, bool dma,
+	int changed_word, UINT16 replacement, unsigned budget)
+{
+	unsigned pc = start;
+
+	test_time = make_mame_time(0, 0);
+	event_count = 0;
+	options.jit = native;
+	m2_dspp_reset();
+	emit(&pc, 0x4640);
+	emit(&pc, 0x83df);
+	emit(&pc, 0xc007);
+	emit(&pc, 0xe800 | (start & 0x3ff));
+	emit(&pc, 0x8380);
+	if (changed_word >= 0)
+		dspp_host_write((start + changed_word) & 0x3ff, replacement);
+	m_core.m_pc = start;
+	m_core.m_dspx_control = DSPX_CONTROL_GWILLING;
+	m_core.m_writeback = writeback;
+	m_core.m_acc = 0x12340;
+	m_core.m_tclock = 3;
+	m_core.m_flag_neg = m_core.m_flag_over = m_core.m_flag_carry = 1;
+	m_dsp.m_output_fifo_count = depth;
+	if (dma)
+	{
+		m_dsp.m_dspx_channel_enable = 1;
+		m_dsp.m_fifo_dma[0].m_current_addr = 0x100;
+		m_dsp.m_fifo_dma[0].m_current_count = 1;
+	}
+
+	test_time = double_to_mame_time((budget + 0.25) / M2_CLOCK);
+	dspp_run();
+}
+
+static void test_output_wait(void)
+{
+	static const unsigned starts[] = {6, 0xfffe};
+	static const struct
+	{
+		unsigned depth;
+		int writeback, changed_word;
+		bool dma;
+		UINT16 replacement;
+	} cases[] = {
+		{7, -1, -1, false, 0},
+		{8, -1, -1, false, 0},
+		{6, -1, -1, false, 0},
+		{8, 0x20, -1, false, 0},
+		{8, -1, -1, true, 0},
+		{8, -1, 0, false, 0x4620},
+		{8, -1, 1, false, 0x83de},
+		{8, -1, 2, false, 0xc009},
+		{8, -1, 3, false, 0x8380}
+	};
+	static struct event expected_events[ARRAY_LENGTH(events)];
+	unsigned i, j, budget;
+
+	for (i = 0; i < ARRAY_LENGTH(starts); ++i)
+		for (j = 0; j < ARRAY_LENGTH(cases); ++j)
+			for (budget = 1; budget <= 20; ++budget)
+			{
+				__typeof__(m_core) expected_core;
+				__typeof__(m_dsp) expected_dsp;
+				UINT64 expected_ticks;
+				UINT16 expected_ram;
+				unsigned expected_count;
+#if DSPP_JIT_STATS
+				UINT64 skipped = m_jit_stats.wait_skipped;
+#endif
+
+				run_output_wait(0, starts[i], cases[j].depth, cases[j].writeback, cases[j].dma,
+					cases[j].changed_word, cases[j].replacement, budget);
+				memcpy(&expected_core, &m_core, sizeof(m_core));
+				memcpy(&expected_dsp, &m_dsp, sizeof(m_dsp));
+				expected_ticks = m_elapsed_ticks;
+				expected_ram = m_data_ram[0x20];
+				expected_count = event_count;
+				memcpy(expected_events, events, event_count * sizeof(*events));
+
+				run_output_wait(1, starts[i], cases[j].depth, cases[j].writeback, cases[j].dma,
+					cases[j].changed_word, cases[j].replacement, budget);
+				assert_always(!memcmp(&expected_core, &m_core, sizeof(m_core)) &&
+					!memcmp(&expected_dsp, &m_dsp, sizeof(m_dsp)) &&
+					expected_ticks == m_elapsed_ticks && expected_ram == m_data_ram[0x20] &&
+					expected_count == event_count && !memcmp(expected_events, events, event_count * sizeof(*events)),
+					"Output FIFO wait differs from the interpreter");
+#if DSPP_JIT_STATS
+				if (j == 0 && budget >= 8)
+					assert_always(m_jit_stats.wait_skipped - skipped == budget / 4 - 1,
+						"Expected all whole iterations after the first to be skipped");
+				if (cases[j].changed_word >= 0)
+					assert_always(m_jit_stats.wait_skipped == skipped, "Modified loop was skipped");
+#endif
+			}
+	dspp_jit_clear();
+	puts("Output FIFO wait matches the interpreter with partial budgets, DMA, writeback and modified code");
+}
+
 static void run_audio_program(int native)
 {
 	static const UINT16 program[] =
@@ -327,6 +425,7 @@ int main(void)
 #if SLJIT_MAME_SUPPORTED
 	test_arithmetic();
 	test_invalidation();
+	test_output_wait();
 	test_audio_program();
 #endif
 	return 0;

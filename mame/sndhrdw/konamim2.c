@@ -1966,6 +1966,41 @@ static void dspp_data_w(offs_t address, UINT16 data)
 	}
 }
 
+#if SLJIT_MAME_SUPPORTED
+static bool dspp_skip_output_wait(UINT64 remaining)
+{
+	const unsigned loop_ticks = 4;
+	const unsigned pc = m_core.m_pc & 0x3ff;
+	const UINT16 branch = 0xe800 | pc;
+	UINT64 skipped;
+
+	/* Match SUB [output FIFO count], 7 followed by a signed branch back on >=. */
+	if (remaining < 2 * loop_ticks || dspp_output_status_r() < 7 ||
+		dspp_read_op(pc) != 0x4640 || dspp_read_op(pc + 1) != 0x83df ||
+		dspp_read_op(pc + 2) != 0xc007 || dspp_read_op(pc + 3) != branch)
+		return false;
+
+	/* Run the comparison once to set the accumulator, flags and operand state. */
+	m_core.m_op = 0x4640;
+	dspp_update_ticks();
+	dspp_update_pc();
+	dspp_exec_arithmetic();
+	m_core.m_op = branch;
+	m_core.m_pc = pc;
+	dspp_update_ticks();
+
+	/* The loop has no writes and DMA is idle. The FIFO can drain at the next sample callback. */
+	skipped = remaining - remaining % loop_ticks - loop_ticks;
+	m_core.m_tclock -= skipped;
+	m_elapsed_ticks += skipped;
+#if DSPP_JIT_STATS
+	++m_jit_stats.wait_batches;
+	m_jit_stats.wait_skipped += skipped / loop_ticks;
+#endif
+	return true;
+}
+#endif
+
 static void dspp_run(void)
 {
 	UINT64 now = timer_get_time() * M2_CLOCK;
@@ -1986,9 +2021,10 @@ static void dspp_run(void)
 		UINT32 ready = dspp_fifo_dma_ready();
 
 #if SLJIT_MAME_SUPPORTED
-		/* Native blocks touch only local data RAM and cannot make a FIFO ready. */
+		/* The wait loop and native blocks cannot make a FIFO ready. */
 		if (!ready && options.jit && (m_core.m_dspx_control & DSPX_CONTROL_GWILLING) &&
-			!m_core.m_flag_sleep && m_core.m_writeback < 0 && dspp_jit_run(now - m_elapsed_ticks))
+			!m_core.m_flag_sleep && m_core.m_writeback < 0 &&
+			(dspp_skip_output_wait(now - m_elapsed_ticks) || dspp_jit_run(now - m_elapsed_ticks)))
 			continue;
 #endif
 
@@ -1996,12 +2032,25 @@ static void dspp_run(void)
 		dspp_update_fifo_dma(ready);
 		if ((m_core.m_dspx_control & DSPX_CONTROL_GWILLING) && !m_core.m_flag_sleep)
 		{
+#if SLJIT_MAME_SUPPORTED && DSPP_JIT_STATS
+			unsigned pc = m_core.m_pc & 0x3ff;
+			UINT64 operand_start = m_elapsed_ticks;
+			enum dspp_jit_fallback reason = ready ? DSPP_JIT_FIFO :
+				m_core.m_writeback >= 0 ? DSPP_JIT_WRITEBACK : m_jit_fallback;
+#endif
 			m_core.m_op = dspp_read_op(m_core.m_pc);
+#if SLJIT_MAME_SUPPORTED && DSPP_JIT_STATS
+			UINT16 opcode = m_core.m_op;
+#endif
 			dspp_update_pc();
 			if (m_core.m_op & 0x8000)
 				dspp_exec_control();
 			else
 				dspp_exec_arithmetic();
+#if SLJIT_MAME_SUPPORTED && DSPP_JIT_STATS
+			if (options.jit)
+				dspp_jit_count_fallback(reason, pc, opcode, m_elapsed_ticks - operand_start);
+#endif
 		}
 	}
 }
@@ -2019,7 +2068,13 @@ void m2_dspp_init(void)
 	m_output_timer = timer_alloc(dspp_sample);
 #if SLJIT_MAME_SUPPORTED
 	if (options.jit)
+	{
+#if DSPP_JIT_STATS
+		memset(&m_jit_stats, 0, sizeof(m_jit_stats));
+		add_exit_callback(dspp_jit_print_stats);
+#endif
 		add_exit_callback(dspp_jit_clear);
+	}
 #endif
 }
 
