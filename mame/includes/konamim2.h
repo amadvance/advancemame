@@ -12,6 +12,10 @@ UINT32 m2_ram_dword(UINT32 address);
 void m2_ram_write_byte(UINT32 address, UINT8 data);
 void m2_ram_write_word(UINT32 address, UINT16 data);
 void m2_ram_write_dword(UINT32 address, UINT32 data);
+#ifdef _OPENMP
+void m2_ram_parallel_begin(void);
+void m2_ram_parallel_end(void);
+#endif
 
 void m2_te_init(void);
 void m2_te_reset(void);

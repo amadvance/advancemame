@@ -509,6 +509,49 @@ void m2_ram_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
+#if defined(_OPENMP) && PPC602_JIT_SUPPORTED
+static int m2_ram_parallel;
+static int m2_ram_code_dirty;
+#endif
+
+#ifdef _OPENMP
+void m2_ram_parallel_begin(void)
+{
+#if PPC602_JIT_SUPPORTED
+	m2_ram_code_dirty = 0;
+	m2_ram_parallel = 1;
+#endif
+}
+
+void m2_ram_parallel_end(void)
+{
+#if PPC602_JIT_SUPPORTED
+	m2_ram_parallel = 0;
+	if (m2_ram_code_dirty)
+		ppc602_jit_flush_ram();
+#endif
+}
+#endif
+
+INLINE void m2_ram_pixel_written(const void *word)
+{
+#if defined(_OPENMP) && PPC602_JIT_SUPPORTED
+	if (ppc602_codemap[ppc602_codemap_index(word)])
+	{
+		/* Workers leave the code map intact until the emulation thread joins them. */
+		if (m2_ram_parallel)
+		{
+#pragma omp atomic write
+			m2_ram_code_dirty = 1;
+		}
+		else
+			ppc602_jit_flush_ram();
+	}
+#else
+	ppc602_ram_written(word);
+#endif
+}
+
 void m2_ram_write_word(UINT32 address, UINT16 data)
 {
 	UINT32 offset = address - M2_RAM_BASE;
@@ -518,7 +561,7 @@ void m2_ram_write_word(UINT32 address, UINT16 data)
 	{
 		UINT64 *word = &m2_ram[offset >> 3];
 		*word = (*word & ~(U64(0xffff) << shift)) | ((UINT64)data << shift);
-		ppc602_ram_written(word);
+		m2_ram_pixel_written(word);
 	}
 }
 
@@ -531,7 +574,7 @@ void m2_ram_write_dword(UINT32 address, UINT32 data)
 	{
 		UINT64 *word = &m2_ram[offset >> 3];
 		*word = (*word & ~(U64(0xffffffff) << shift)) | ((UINT64)data << shift);
-		ppc602_ram_written(word);
+		m2_ram_pixel_written(word);
 	}
 }
 
