@@ -1395,11 +1395,22 @@ static NVRAM_HANDLER( m2_board )
 
 static MACHINE_START( m2_board )
 {
+	int cpu;
+
 	m2_cd = cdrom_open(get_disk_handle(0));
 	if (!m2_cd)
 		return 1;
 	add_exit_callback(m2_cd_close);
 	CDDA_set_cdrom(0, m2_cd);
+
+	for (cpu = 0; cpu < 2; ++cpu)
+	{
+		ppc602_add_direct_memory(cpu, M2_RAM_BASE, m2_ram_size, m2_ram, 0);
+		ppc602_add_direct_memory(cpu, 0x20000000, 0x200000,
+			memory_get_read_ptr(cpu, ADDRESS_SPACE_PROGRAM, 0x20000000), 1);
+		ppc602_add_direct_memory(cpu, 0xfff00000, 0x100000,
+			memory_get_read_ptr(cpu, ADDRESS_SPACE_PROGRAM, 0xfff00000), 1);
+	}
 
 	m2_vint_timer[0] = timer_alloc(m2_raise_vint);
 	m2_vint_timer[1] = timer_alloc(m2_raise_vint);

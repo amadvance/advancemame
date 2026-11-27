@@ -1,5 +1,79 @@
 // license:BSD-3-Clause
 // copyright-holders:Aaron Giles
+
+struct ppc602_direct_region
+{
+	UINT32 start, size;
+	const UINT8 *base;
+	int readonly;
+};
+
+static struct ppc602_direct_map
+{
+	struct ppc602_direct_region regions[3];
+	unsigned count;
+} ppc602_direct_maps[MAX_CPU];
+
+void ppc602_add_direct_memory(int cpu, UINT32 start, UINT32 size, const void *base, int readonly)
+{
+	struct ppc602_direct_map *map = &ppc602_direct_maps[cpu];
+	struct ppc602_direct_region *region;
+
+	assert_always(map->count < ARRAY_LENGTH(map->regions), "PPC602 direct map is full");
+	assert_always(base && !(start & 7) && size && !(size & 7), "Invalid PPC602 direct region");
+	region = &map->regions[map->count++];
+	region->start = start;
+	region->size = size;
+	region->base = base;
+	region->readonly = readonly;
+}
+
+INLINE const struct ppc602_direct_map *ppc602_direct_map_for_cpu(int cpu)
+{
+#if defined(MESS) || defined(MAME_DEBUG)
+	return NULL;
+#else
+	const struct ppc602_direct_map *map = &ppc602_direct_maps[cpu];
+	return map->count ? map : NULL;
+#endif
+}
+
+INLINE const struct ppc602_direct_region *ppc602_opcode_region(const struct ppc602_direct_map *map, UINT32 pc)
+{
+	unsigned i;
+
+#ifndef LSB_FIRST
+	/* With relocation off, retain the core's 64-bit opcode accessor on big-endian hosts. */
+	if (!(MSR & MSR_IR))
+		return NULL;
+#endif
+	if (!map || (pc & 3))
+		return NULL;
+	for (i = 0; i < map->count; ++i)
+		if (pc - map->regions[i].start < map->regions[i].size)
+			return &map->regions[i];
+	return NULL;
+}
+
+INLINE UINT32 ppc602_region_opcode(const struct ppc602_direct_region *region, UINT32 pc)
+{
+	UINT32 opcode;
+
+	memcpy(&opcode, region->base + DWORD_XOR_BE(pc - region->start), sizeof(opcode));
+	return opcode;
+}
+
+INLINE UINT32 ppc602_fetch(const struct ppc602_direct_map *map, UINT32 pc)
+{
+	const struct ppc602_direct_region *region = ppc602_opcode_region(map, pc);
+
+	if (region)
+		return ppc602_region_opcode(region, pc);
+	if (MSR & MSR_IR)
+		return ppc_readop_translated(pc);
+	return ROPCODE64(pc);
+}
+
 void ppc602_exception(int exception)
 {
 	UINT32 msr = ppc_get_msr();
@@ -106,6 +180,7 @@ static void ppc602_reset(void)
 
 static int ppc602_execute(int cycles)
 {
+	const struct ppc602_direct_map *map = ppc602_direct_map_for_cpu(cpu_getactivecpu());
 	int exception_type;
 	UINT32 opcode;
 	ppc_icount = cycles;
@@ -127,10 +202,7 @@ static int ppc602_execute(int cycles)
 		ppc.pc = ppc.npc;
 		CALL_MAME_DEBUG;
 
-		if (MSR & MSR_IR)
-			opcode = ppc_readop_translated(ppc.pc);
-		else
-		opcode = ROPCODE64(ppc.pc);
+		opcode = ppc602_fetch(map, ppc.pc);
 
 		ppc.npc = ppc.pc + 4;
 		switch(opcode >> 26)

@@ -324,6 +324,7 @@ void ppc403_set_tb_read_hook(PPC403_TB_READ_HOOK hook);
 
 #if (HAS_PPC602)
 void ppc602_get_info(UINT32 state, union cpuinfo *info);
+void ppc602_add_direct_memory(int cpu, UINT32 start, UINT32 size, const void *base, int readonly);
 #endif
 
 #if (HAS_PPC603)

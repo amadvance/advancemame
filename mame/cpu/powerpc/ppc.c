@@ -3,6 +3,7 @@
 /* IBM/Motorola PowerPC 4xx/6xx Emulator */
 
 #include <setjmp.h>
+#include "driver.h"
 #include "ppc.h"
 #include "debugger.h"
 
@@ -1136,6 +1137,7 @@ static void ppc602_init(int index, int clock, const void *_config, int (*irqcall
 
 	int i ;
 
+	ppc602_direct_maps[index].count = 0;
 	ppc_init() ;
 
 	optable[48] = ppc_lfs;
