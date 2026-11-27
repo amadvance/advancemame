@@ -293,6 +293,25 @@ typedef struct
 
 static te_blend_state m_dbstate;
 
+typedef struct
+{
+	UINT32 constants[2], invert;
+	UINT8 select, bank;
+} te_rgb_coefficient;
+
+static struct
+{
+	UINT32 fb_width, fb_height;
+	UINT32 win_xmin, win_xmax, win_ymin, win_ymax;
+	UINT32 src_origin;
+	UINT32 z_xoffs, z_yoffs, z_width, z_height;
+	UINT32 window_clip;
+	bool blend, source, depth;
+	UINT8 alu_op, alu_left_shift, alu_right_shift;
+	bool alu_saturate;
+	te_rgb_coefficient tex_coef, src_coef;
+} m_blender;
+
 static te_state m_state;
 
 static UINT32 m_pipram[PIP_RAM_WORDS];
@@ -332,12 +351,8 @@ static void te_destination_blend(te_blend_state *blend, UINT32 *status, UINT32 x
 static void te_select_tex_pixel(te_blend_state *blend);
 static void te_select_src_pixel(te_blend_state *blend);
 static UINT8 te_dither(UINT8 in, UINT8 dithval);
-static UINT8 te_get_src_coef(const te_blend_state *blend, UINT8 cti, UINT8 dm2const0, UINT8 dm2const1);
-static UINT8 te_get_tex_coef(const te_blend_state *blend, UINT8 cs, UINT8 dm1const0, UINT8 dm1const1);
 static void te_select_alpha_dsb(te_blend_state *blend);
-static UINT8 te_color_blend(const te_blend_state *blend, UINT8 ct, UINT8 cti, UINT8 cs, UINT8 csrc,
-								UINT8 dm10, UINT8 dm11,
-								UINT8 dm20, UINT8 dm21);
+static void te_blend_rgb(te_blend_state *blend);
 static UINT8 te_alu_calc(UINT16 a, UINT16 b);
 static void te_walk_span(const te_raster_state *raster, te_blend_state *blend, UINT32 *status, bool omit_right,
 							 UINT32 y, UINT32 xs, UINT32 xe,
@@ -2345,6 +2360,62 @@ static void te_select_mul(UINT32 sel, UINT32 ai, UINT32 at, UINT32 ssbt,
 	}
 }
 
+static void te_prepare_blender(void)
+{
+	static const UINT8 left_shift[8] = { 0, 1, 2, 3, 0, 0, 0, 0 };
+	static const UINT8 right_shift[8] = { 0, 0, 0, 0, 0, 3, 2, 1 };
+	const UINT32 ctl = m_db.usergen_ctrl;
+	const UINT32 master = m_gc.te_master_mode;
+	const UINT32 divide = (m_db.alu_ctrl & DBALUCNTL_FINALDIVIDE_MASK) >> DBALUCNTL_FINALDIVIDE_SHIFT;
+	const UINT32 op = (m_db.alu_ctrl & DBALUCNTL_ALUOP_MASK) >> DBALUCNTL_ALUOP_SHIFT;
+
+	m_blender.fb_width = (m_db.fbclip & DBFBCLIP_XFBCLIP_MASK) >> DBFBCLIP_XFBCLIP_SHIFT;
+	m_blender.fb_height = (m_db.fbclip & DBFBCLIP_YFBCLIP_MASK) >> DBFBCLIP_YFBCLIP_SHIFT;
+	m_blender.win_xmin = (m_db.x_winclip & DBFBXWINCLIP_XMIN_MASK) >> DBFBXWINCLIP_XMIN_SHIFT;
+	m_blender.win_xmax = (m_db.x_winclip & DBFBXWINCLIP_XMAX_MASK) >> DBFBXWINCLIP_XMAX_SHIFT;
+	m_blender.win_ymin = (m_db.y_winclip & DBFBYWINCLIP_YMIN_MASK) >> DBFBYWINCLIP_YMIN_SHIFT;
+	m_blender.win_ymax = (m_db.y_winclip & DBFBYWINCLIP_YMAX_MASK) >> DBFBYWINCLIP_YMAX_SHIFT;
+	m_blender.window_clip = ctl & (DBUSERGENCTL_WCLIPINEN | DBUSERGENCTL_WCLIPOUTEN);
+
+	m_blender.blend = (ctl & DBUSERGENCTL_BLENDEN) && !(master & TEMASTER_MODE_DBLEND);
+	m_blender.source = m_blender.blend && (ctl & DBUSERGENCTL_SRCINEN);
+	m_blender.depth = (ctl & DBUSERGENCTL_ZBUFEN) && !(master & TEMASTER_MODE_DZBUF);
+	if (m_blender.source)
+	{
+		const INT32 src_x = te_sign_extend((m_db.src_offset & DBSRCOFFS_XOFFS_MASK) >> DBSRCOFFS_XOFFS_SHIFT, 12);
+		const INT32 src_y = te_sign_extend((m_db.src_offset & DBSRCOFFS_YOFFS_MASK) >> DBSRCOFFS_YOFFS_SHIFT, 12);
+		const UINT32 src_bytes = m_db.src_ctrl & DBSRCCNTL_32BPP ? 4 : 2;
+
+		m_blender.src_origin = m_db.src_baseaddr + (src_y * m_db.src_xstride + src_x) * src_bytes;
+	}
+	if (m_blender.depth)
+	{
+		m_blender.z_xoffs = te_sign_extend((m_db.z_offset & DBZOFFS_XOFFS_MASK) >> DBZOFFS_XOFFS_SHIFT, 12);
+		m_blender.z_yoffs = te_sign_extend((m_db.z_offset & DBZOFFS_YOFFS_MASK) >> DBZOFFS_YOFFS_SHIFT, 12);
+		m_blender.z_width = (m_db.z_clip & DBZCLIP_XCLIP_MASK) >> DBZCLIP_XCLIP_SHIFT;
+		m_blender.z_height = (m_db.z_clip & DBZCLIP_YCLIP_MASK) >> DBZCLIP_YCLIP_SHIFT;
+	}
+	if (m_blender.blend)
+	{
+		m_blender.tex_coef.constants[0] = m_db.txt_coef_const0;
+		m_blender.tex_coef.constants[1] = m_db.txt_coef_const1;
+		m_blender.tex_coef.invert = m_db.txt_mult_cntl & DBTXTMULTCNTL_TXTCOEFCMP ? 0xffffff : 0;
+		m_blender.tex_coef.select = (m_db.txt_mult_cntl & DBTXTMULTCNTL_COEFSEL_MASK) >> DBTXTMULTCNTL_COEFSEL_SHIFT;
+		m_blender.tex_coef.bank = (m_db.txt_mult_cntl & DBTXTMULTCNTL_TXTCONSTCNTL_MASK) >> DBTXTMULTCNTL_TXTCONSTCNTL_SHIFT;
+
+		m_blender.src_coef.constants[0] = m_db.src_coef_const0;
+		m_blender.src_coef.constants[1] = m_db.src_coef_const1;
+		m_blender.src_coef.invert = m_db.src_mult_cntl & DBSRCMULTCNTL_SRCCOEFCMP ? 0xffffff : 0;
+		m_blender.src_coef.select = (m_db.src_mult_cntl & DBSRCMULTCNTL_COEFSEL_MASK) >> DBSRCMULTCNTL_COEFSEL_SHIFT;
+		m_blender.src_coef.bank = (m_db.src_mult_cntl & DBSRCMULTCNTL_SRCCONSTCNTL_MASK) >> DBSRCMULTCNTL_SRCCONSTCNTL_SHIFT;
+
+		m_blender.alu_op = op;
+		m_blender.alu_saturate = !(op & 8) && (!(op & 1) || (op & 2));
+		m_blender.alu_left_shift = left_shift[divide];
+		m_blender.alu_right_shift = right_shift[divide];
+	}
+}
+
 static void te_write_dst_pixel(te_blend_state *blend)
 {
 	UINT32 mask = m_db.usergen_ctrl & DBUSERGENCTL_DESTOUT_MASK;
@@ -2397,38 +2468,21 @@ static void te_destination_blend(te_blend_state *blend, UINT32 *status, UINT32 x
 	blend->ti = (*ti_color);
 	blend->ssb = ssb;
 
-	bool dis = false;
 	bool zpixout = true;
-	bool zbufout = true;
-	bool zclip = false;
+	bool zbufout = false;
 	bool zclipdis = false;
-	bool fbclipdis = false;
+	bool fbclipdis = x >= m_blender.fb_width || y >= m_blender.fb_height;
 	bool winclipdis = false;
+	UINT32 zaddr = 0;
 
-	[[maybe_unused]] UINT32 zgel = 0;
+	if (fbclipdis)
+		*status |= DBSTATUS_FBCLIP;
 
-	UINT32 zaddr;
-
+	if (m_blender.window_clip)
 	{
-		UINT32 xclip = (m_db.fbclip & DBFBCLIP_XFBCLIP_MASK) >> DBFBCLIP_XFBCLIP_SHIFT;
-		UINT32 yclip = (m_db.fbclip & DBFBCLIP_YFBCLIP_MASK) >> DBFBCLIP_YFBCLIP_SHIFT;
-
-		fbclipdis = (x >= xclip) || (y >= yclip);
-
-		if (fbclipdis)
-			*status |= DBSTATUS_FBCLIP;
-	}
-
-	{
-		UINT32 xmin = (m_db.x_winclip & DBFBXWINCLIP_XMIN_MASK) >> DBFBXWINCLIP_XMIN_SHIFT;
-		UINT32 xmax = (m_db.x_winclip & DBFBXWINCLIP_XMAX_MASK) >> DBFBXWINCLIP_XMAX_SHIFT;
-		UINT32 ymin = (m_db.y_winclip & DBFBYWINCLIP_YMIN_MASK) >> DBFBYWINCLIP_YMIN_SHIFT;
-		UINT32 ymax = (m_db.y_winclip & DBFBYWINCLIP_YMAX_MASK) >> DBFBYWINCLIP_YMAX_SHIFT;
-
-		bool inside = (x >= xmin) && (x < xmax) && (y >= ymin) && (y < ymax);
-
-		winclipdis = ((m_db.usergen_ctrl & DBUSERGENCTL_WCLIPINEN) && inside) ||
-					((m_db.usergen_ctrl & DBUSERGENCTL_WCLIPOUTEN) && !inside);
+		const bool inside = x >= m_blender.win_xmin && x < m_blender.win_xmax &&
+			y >= m_blender.win_ymin && y < m_blender.win_ymax;
+		winclipdis = m_blender.window_clip & (inside ? DBUSERGENCTL_WCLIPINEN : DBUSERGENCTL_WCLIPOUTEN);
 
 		if (winclipdis)
 			*status |= DBSTATUS_WINCLIP;
@@ -2438,122 +2492,76 @@ static void te_destination_blend(te_blend_state *blend, UINT32 *status, UINT32 x
 
 	te_select_tex_pixel(blend);
 
-	te_select_alpha_dsb(blend);
-
+	if (m_blender.blend)
 	{
-		UINT8 dm10, dm11, dm20, dm21;
-		UINT32 txtcnst0 = m_db.txt_coef_const0;
-		UINT32 txtcnst1 = m_db.txt_coef_const1;
-		UINT32 srccnst0 = m_db.src_coef_const0;
-		UINT32 srccnst1 = m_db.src_coef_const1;
-
-		if ((m_db.usergen_ctrl & DBUSERGENCTL_BLENDEN) && !(m_gc.te_master_mode & TEMASTER_MODE_DBLEND))
-		{
-			dm10 = txtcnst0 & 0xff; txtcnst0 >>= 8;
-			dm11 = txtcnst1 & 0xff; txtcnst1 >>= 8;
-			dm20 = srccnst0 & 0xff; srccnst0 >>= 8;
-			dm21 = srccnst1 & 0xff; srccnst1 >>= 8;
-			blend->blend.b = te_color_blend(blend, blend->texpath.b, blend->ti.b, blend->srcpath.b, blend->src.b, dm10, dm11, dm20, dm21);
-
-			dm10 = txtcnst0 & 0xff; txtcnst0 >>= 8;
-			dm11 = txtcnst1 & 0xff; txtcnst1 >>= 8;
-			dm20 = srccnst0 & 0xff; srccnst0 >>= 8;
-			dm21 = srccnst1 & 0xff; srccnst1 >>= 8;
-			blend->blend.g = te_color_blend(blend, blend->texpath.g, blend->ti.g, blend->srcpath.g, blend->src.g, dm10, dm11, dm20, dm21);
-
-			dm10 = txtcnst0 & 0xff;
-			dm11 = txtcnst1 & 0xff;
-			dm20 = srccnst0 & 0xff;
-			dm21 = srccnst1 & 0xff;
-			blend->blend.r = te_color_blend(blend, blend->texpath.r, blend->ti.r, blend->srcpath.r, blend->src.r, dm10, dm11, dm20, dm21);
-		}
-		else
-		{
-			blend->blend.r = blend->ti.r;
-			blend->blend.g = blend->ti.g;
-			blend->blend.b = blend->ti.b;
-		}
-
-		if (m_db.usergen_ctrl & DBUSERGENCTL_DITHEREN)
-		{
-			UINT32 dith_x = x & 3;
-			UINT32 dith_y = y & 3;
-
-			UINT32 dith_mtx = dith_y & 2 ? m_db.dither_mat_b : m_db.dither_mat_a;
-			UINT32 idx = 7 ^ (((dith_y & 1) << 2) | dith_x);
-			UINT8 val = (dith_mtx >> (idx * 4)) & 0xf;
-
-			blend->dst.r = te_dither(blend->blend.r, val);
-			blend->dst.g = te_dither(blend->blend.g, val);
-			blend->dst.b = te_dither(blend->blend.b, val);
-		}
-		else
-		{
-			blend->dst.r = blend->blend.r;
-			blend->dst.g = blend->blend.g;
-			blend->dst.b = blend->blend.b;
-		}
-	}
-
-	if (!(m_gc.te_master_mode & TEMASTER_MODE_DZBUF) &&
-		(m_db.usergen_ctrl & DBUSERGENCTL_ZBUFEN))
-	{
-		INT32 x_offs = te_sign_extend((m_db.z_offset & DBZOFFS_XOFFS_MASK) >> DBZOFFS_XOFFS_SHIFT, 12);
-		INT32 y_offs = te_sign_extend((m_db.z_offset & DBZOFFS_YOFFS_MASK) >> DBZOFFS_YOFFS_SHIFT, 12);
-
-		x_offs += blend->x;
-		y_offs += blend->y;
-
-		UINT32 x_clip = (m_db.z_clip & DBZCLIP_XCLIP_MASK) >> DBZCLIP_XCLIP_SHIFT;
-		UINT32 y_clip = (m_db.z_clip & DBZCLIP_YCLIP_MASK) >> DBZCLIP_YCLIP_SHIFT;
-
-		zclip = (x_offs < 0) || (y_offs < 0) || (x_offs >= x_clip) || (y_offs >= y_clip);
-
-		zaddr = m_db.z_baseaddr + (x_offs + y_offs * m_db.dst_xstride) * 2;
+		te_select_alpha_dsb(blend);
+		te_blend_rgb(blend);
 	}
 	else
 	{
-		zaddr = 0;
-		zclip = false;
+		blend->dst.a = blend->texpath.a;
+		blend->dsb = blend->ssb;
+		blend->blend.r = blend->ti.r;
+		blend->blend.g = blend->ti.g;
+		blend->blend.b = blend->ti.b;
 	}
 
-	zclipdis = zclip && (m_db.discard_ctrl & DBDISCARDCTL_ZCLIPDISEN);
-
-	if (zclipdis)
-		*status |= DBSTATUS_ZCLIP;
-
-	if (!(m_gc.te_master_mode & TEMASTER_MODE_DZBUF) &&
-		(m_db.usergen_ctrl & DBUSERGENCTL_ZBUFEN) &&
-		!zclip)
+	if (m_db.usergen_ctrl & DBUSERGENCTL_DITHEREN)
 	{
-		INT32 zdiff = w - m2_ram_word(zaddr);
+		UINT32 dith_x = x & 3;
+		UINT32 dith_y = y & 3;
 
-		if (zdiff > 0)
-		{
-			zpixout = m_db.z_ctrl & 1;
-			zbufout = m_db.z_ctrl & 2;
-			zgel |= 4;
-			*status |= DBSTATUS_ZFUNC_GT;
-		}
-		else if (zdiff == 0)
-		{
-			zpixout = m_db.z_ctrl & DBZCNTL_ZPIXOUT_EQ;
-			zbufout = m_db.z_ctrl & DBZCNTL_ZBUFOUT_EQ;
-			zgel |= 2;
-			*status |= DBSTATUS_ZFUNC_EQ;
-		}
-		else
-		{
-			zpixout = m_db.z_ctrl & 0x10;
-			zbufout = m_db.z_ctrl & 0x20;
-			zgel |= 1;
-			*status |= DBSTATUS_ZFUNC_LT;
-		}
+		UINT32 dith_mtx = dith_y & 2 ? m_db.dither_mat_b : m_db.dither_mat_a;
+		UINT32 idx = 7 ^ (((dith_y & 1) << 2) | dith_x);
+		UINT8 val = (dith_mtx >> (idx * 4)) & 0xf;
+
+		blend->dst.r = te_dither(blend->blend.r, val);
+		blend->dst.g = te_dither(blend->blend.g, val);
+		blend->dst.b = te_dither(blend->blend.b, val);
 	}
 	else
 	{
-		zpixout = true;
-		zbufout = false;
+		blend->dst.r = blend->blend.r;
+		blend->dst.g = blend->blend.g;
+		blend->dst.b = blend->blend.b;
+	}
+
+	if (m_blender.depth)
+	{
+		const UINT32 zx = x + m_blender.z_xoffs;
+		const UINT32 zy = y + m_blender.z_yoffs;
+
+		if (zx >= m_blender.z_width || zy >= m_blender.z_height)
+		{
+			zclipdis = m_db.discard_ctrl & DBDISCARDCTL_ZCLIPDISEN;
+			if (zclipdis)
+				*status |= DBSTATUS_ZCLIP;
+		}
+		else
+		{
+			INT32 zdiff;
+
+			zaddr = m_db.z_baseaddr + (zx + zy * m_db.dst_xstride) * 2;
+			zdiff = w - m2_ram_word(zaddr);
+			if (zdiff > 0)
+			{
+				zpixout = m_db.z_ctrl & 1;
+				zbufout = m_db.z_ctrl & 2;
+				*status |= DBSTATUS_ZFUNC_GT;
+			}
+			else if (zdiff == 0)
+			{
+				zpixout = m_db.z_ctrl & DBZCNTL_ZPIXOUT_EQ;
+				zbufout = m_db.z_ctrl & DBZCNTL_ZBUFOUT_EQ;
+				*status |= DBSTATUS_ZFUNC_EQ;
+			}
+			else
+			{
+				zpixout = m_db.z_ctrl & 0x10;
+				zbufout = m_db.z_ctrl & 0x20;
+				*status |= DBSTATUS_ZFUNC_LT;
+			}
+		}
 	}
 
 	{
@@ -2564,21 +2572,15 @@ static void te_destination_blend(te_blend_state *blend, UINT32 *status, UINT32 x
 		bool rgbdis = (m_db.discard_ctrl & DBDISCARDCTL_RGBDISEN) &&
 					(blend->dst.r == 0) && (blend->dst.g == 0) && (blend->dst.b == 0);
 
-		dis = fbclipdis || winclipdis || zclipdis || ssbdis || adis || rgbdis;
+		if (fbclipdis || winclipdis || zclipdis || ssbdis || adis || rgbdis)
+			return;
 	}
 
-	if (!dis)
-	{
-		if (zbufout && (m_db.usergen_ctrl & DBUSERGENCTL_ZOUTEN))
-		{
-			m2_ram_write_word(zaddr, w & 0xffff);
-		}
+	if (zbufout && (m_db.usergen_ctrl & DBUSERGENCTL_ZOUTEN))
+		m2_ram_write_word(zaddr, w & 0xffff);
 
-		if (zpixout && (m_db.supergen_ctrl & DBSUPERGENCTL_DESTOUTEN))
-		{
-			te_write_dst_pixel(blend);
-		}
-	}
+	if (zpixout && (m_db.supergen_ctrl & DBSUPERGENCTL_DESTOUTEN))
+		te_write_dst_pixel(blend);
 }
 
 static void te_select_tex_pixel(te_blend_state *blend)
@@ -2642,21 +2644,13 @@ static void te_select_tex_pixel(te_blend_state *blend)
 
 static void te_select_src_pixel(te_blend_state *blend)
 {
-	if ((m_db.usergen_ctrl & DBUSERGENCTL_SRCINEN)
-		&& (m_db.usergen_ctrl & DBUSERGENCTL_BLENDEN)
-		&& !(m_gc.te_master_mode & TEMASTER_MODE_DBLEND))
+	if (m_blender.source)
 	{
-		INT32 x_offs = te_sign_extend((m_db.src_offset & DBSRCOFFS_XOFFS_MASK) >> DBSRCOFFS_XOFFS_SHIFT, 12);
-		INT32 y_offs = te_sign_extend((m_db.src_offset & DBSRCOFFS_YOFFS_MASK) >> DBSRCOFFS_YOFFS_SHIFT, 12);
-
-		x_offs += blend->x;
-		y_offs += blend->y;
-
-		UINT32 addr = y_offs * m_db.src_xstride + x_offs;
+		UINT32 pixel = blend->y * m_db.src_xstride + blend->x;
 
 		if (m_db.src_ctrl & DBSRCCNTL_32BPP)
 		{
-			UINT32 srcaddr = m_db.src_baseaddr + addr * sizeof(UINT32);
+			UINT32 srcaddr = m_blender.src_origin + pixel * sizeof(UINT32);
 			UINT32 srcval = m2_ram_dword(srcaddr);
 
 			blend->src.a = ((srcval >> 24) & 0x7f) << 1;
@@ -2671,7 +2665,7 @@ static void te_select_src_pixel(te_blend_state *blend)
 		}
 		else
 		{
-			UINT32 srcaddr = m_db.src_baseaddr + addr * sizeof(UINT16);
+			UINT32 srcaddr = m_blender.src_origin + pixel * sizeof(UINT16);
 			UINT32 srcval = m2_ram_word(srcaddr);
 
 			blend->src.r = (srcval >> 10) & 0x1f;
@@ -2764,124 +2758,93 @@ static UINT8 te_dither(UINT8 in, UINT8 dithval)
 	return (UINT8)res;
 }
 
-static UINT8 te_get_src_coef(const te_blend_state *blend, UINT8 cti, UINT8 dm2const0, UINT8 dm2const1)
+static UINT32 te_get_rgb_coefficients(const te_rgb_coefficient *config, const te_blend_state *blend, const rgba *color)
 {
-	UINT32 sel=0;
-	UINT8 cnst, coef=0;
+	UINT32 coeff;
 
-	switch ((m_db.src_mult_cntl & DBSRCMULTCNTL_SRCCONSTCNTL_MASK) >> DBSRCMULTCNTL_SRCCONSTCNTL_SHIFT)
+	/* Both multipliers use the same coefficient and constant bank encodings. */
+	switch (config->select)
 	{
-		case DBSRCMULTCNTL_SRCCONSTCNTL_TEXSSB: sel = blend->ssb;    break;
-		case DBSRCMULTCNTL_SRCCONSTCNTL_SRCDSB: sel = blend->dsb;    break;
+		case DBTXTMULTCNTL_COEFSEL_ATI:
+			coeff = blend->texpath.a * 0x010101U;
+			break;
+		case DBTXTMULTCNTL_COEFSEL_ASRC:
+			coeff = blend->srcpath.a * 0x010101U;
+			break;
+		case DBTXTMULTCNTL_COEFSEL_CONSTANT:
+		{
+			bool second = false;
+
+			if (config->bank == DBTXTMULTCNTL_TXTCONSTCNTL_TEXSSB)
+				second = blend->ssb;
+			else if (config->bank == DBTXTMULTCNTL_TXTCONSTCNTL_SRCDSB)
+				second = blend->dsb;
+			coeff = config->constants[second];
+			break;
+		}
+		default:
+			coeff = ((UINT32)color->r << 16) | ((UINT32)color->g << 8) | color->b;
+			break;
 	}
-
-	cnst = sel ? dm2const1 : dm2const0;
-
-	switch ((m_db.src_mult_cntl & DBSRCMULTCNTL_COEFSEL_MASK) >> DBSRCMULTCNTL_COEFSEL_SHIFT)
-	{
-		case DBSRCMULTCNTL_COEFSEL_ATI:         coef = blend->texpath.a;     break;
-		case DBSRCMULTCNTL_COEFSEL_ASRC:        coef = blend->srcpath.a;     break;
-		case DBSRCMULTCNTL_COEFSEL_CONSTANT:    coef = cnst;                    break;
-		case DBSRCMULTCNTL_COEFSEL_CTI:         coef = cti;                     break;
-	}
-
-	if (m_db.src_mult_cntl & DBSRCMULTCNTL_SRCCOEFCMP)
-		return ~coef;
-	else
-		return coef;
-}
-
-static UINT8 te_get_tex_coef(const te_blend_state *blend, UINT8 cs, UINT8 dm1const0, UINT8 dm1const1)
-{
-	UINT32 sel=0;
-	UINT8 cnst, coef=0;
-
-	UINT32 cntl = ((m_db.txt_mult_cntl & DBTXTMULTCNTL_TXTCONSTCNTL_MASK) >> DBTXTMULTCNTL_TXTCONSTCNTL_SHIFT);
-
-	if (cntl == DBTXTMULTCNTL_TXTCONSTCNTL_TEXSSB)
-		sel = blend->ssb;
-	else if (cntl == DBTXTMULTCNTL_TXTCONSTCNTL_SRCDSB)
-		sel = blend->dsb;
-
-	cnst = sel ? dm1const1 : dm1const0;
-
-	switch ((m_db.txt_mult_cntl & DBTXTMULTCNTL_COEFSEL_MASK) >> DBTXTMULTCNTL_COEFSEL_SHIFT)
-	{
-		case DBTXTMULTCNTL_COEFSEL_ATI:         coef = blend->texpath.a;     break;
-		case DBTXTMULTCNTL_COEFSEL_ASRC:        coef = blend->srcpath.a;     break;
-		case DBTXTMULTCNTL_COEFSEL_CONSTANT:    coef = cnst;                    break;
-		case DBTXTMULTCNTL_COEFSEL_CSRC:        coef = cs;                      break;
-	}
-
-	if (m_db.txt_mult_cntl & DBTXTMULTCNTL_TXTCOEFCMP)
-		return ~coef;
-	else
-		return coef;
+	return coeff ^ config->invert;
 }
 
 static void te_select_alpha_dsb(te_blend_state *blend)
 {
-	if ((m_db.usergen_ctrl & DBUSERGENCTL_BLENDEN) && !(m_gc.te_master_mode & TEMASTER_MODE_DBLEND))
+	UINT32 sel = 0;
+	UINT8 aconst;
+
+	switch ((m_db.dst_alpha_ctrl & DBDSTACNTL_ADESTCONSTCNTL_MASK) >> DBDSTACNTL_ADESTCONSTCNTL_SHIFT)
 	{
-		UINT32 sel = 0;
-		UINT8 aconst;
-
-		switch ((m_db.dst_alpha_ctrl & DBDSTACNTL_ADESTCONSTCNTL_MASK) >> DBDSTACNTL_ADESTCONSTCNTL_SHIFT)
-		{
-			case 0: sel = blend->ssb;    break;
-			case 1: sel = blend->dsb;    break;
-		}
-
-		if (sel)
-			aconst = (m_db.dst_alpha_const & DBDSTALPHACONST_CONST1_MASK) >> DBDSTALPHACONST_CONST1_SHIFT;
-		else
-			aconst = (m_db.dst_alpha_const & DBDSTALPHACONST_CONST0_MASK) >> DBDSTALPHACONST_CONST0_SHIFT;
-
-		switch ((m_db.dst_alpha_ctrl & DBDSTACNTL_ADESTSEL_MASK) >> DBDSTACNTL_ADESTSEL_SHIFT)
-		{
-			case 0: blend->dst.a = blend->texpath.a;  break;
-			case 1: blend->dst.a = aconst;               break;
-			case 2: blend->dst.a = blend->srcpath.a;  break;
-			case 3: blend->dst.a = blend->blend.r;    break;
-		}
-
-		switch ((m_db.ssbdsb_ctrl & DBSSBDSBCNTL_DSBSEL_MASK) >> DBSSBDSBCNTL_DSBSEL_SHIFT)
-		{
-			case 0: blend->dsb = blend->ssb;      break;
-			case 1: blend->dsb = (m_db.ssbdsb_ctrl & DBSSBDSBCNTL_DSBCONST_MASK) >> DBSSBDSBCNTL_DSBCONST_SHIFT; break;
-			case 2: blend->dsb = blend->dsb;      break;
-		}
+		case 0: sel = blend->ssb;    break;
+		case 1: sel = blend->dsb;    break;
 	}
+
+	if (sel)
+		aconst = (m_db.dst_alpha_const & DBDSTALPHACONST_CONST1_MASK) >> DBDSTALPHACONST_CONST1_SHIFT;
 	else
+		aconst = (m_db.dst_alpha_const & DBDSTALPHACONST_CONST0_MASK) >> DBDSTALPHACONST_CONST0_SHIFT;
+
+	switch ((m_db.dst_alpha_ctrl & DBDSTACNTL_ADESTSEL_MASK) >> DBDSTACNTL_ADESTSEL_SHIFT)
 	{
-		blend->dst.a = blend->texpath.a;
-		blend->dsb = blend->ssb;
+		case 0: blend->dst.a = blend->texpath.a;  break;
+		case 1: blend->dst.a = aconst;               break;
+		case 2: blend->dst.a = blend->srcpath.a;  break;
+		case 3: blend->dst.a = blend->blend.r;    break;
+	}
+
+	switch ((m_db.ssbdsb_ctrl & DBSSBDSBCNTL_DSBSEL_MASK) >> DBSSBDSBCNTL_DSBSEL_SHIFT)
+	{
+		case 0: blend->dsb = blend->ssb;      break;
+		case 1: blend->dsb = (m_db.ssbdsb_ctrl & DBSSBDSBCNTL_DSBCONST_MASK) >> DBSSBDSBCNTL_DSBCONST_SHIFT; break;
+		case 2: blend->dsb = blend->dsb;      break;
 	}
 }
 
-static UINT8 te_color_blend(const te_blend_state *blend, UINT8 ct, UINT8 cti, UINT8 cs, UINT8 csrc,
-								UINT8 dm10, UINT8 dm11,
-								UINT8 dm20, UINT8 dm21)
+static UINT8 te_color_blend(UINT8 ct, UINT8 cs, UINT8 tcoef, UINT8 scoef)
 {
-	UINT8 tcoef, scoef;
-	UINT16 tm, sm;
-
-	tcoef = te_get_tex_coef(blend, csrc, dm10, dm11);
-	scoef = te_get_src_coef(blend, cti, dm20, dm21);
-
-	tm = (tcoef == 255) ? ct : ((ct == 255) ? tcoef : ((tcoef * ct) >> 8));
-	sm = (scoef == 255) ? cs : ((cs == 255) ? scoef : ((scoef * cs) >> 8));
+	UINT16 tm = tcoef == 255 ? ct : (ct == 255 ? tcoef : (tcoef * ct) >> 8);
+	UINT16 sm = scoef == 255 ? cs : (cs == 255 ? scoef : (scoef * cs) >> 8);
 
 	return te_alu_calc(tm, sm);
+}
+
+static void te_blend_rgb(te_blend_state *blend)
+{
+	const UINT32 tex = te_get_rgb_coefficients(&m_blender.tex_coef, blend, &blend->src);
+	const UINT32 src = te_get_rgb_coefficients(&m_blender.src_coef, blend, &blend->ti);
+
+	blend->blend.b = te_color_blend(blend->texpath.b, blend->srcpath.b, tex, src);
+	blend->blend.g = te_color_blend(blend->texpath.g, blend->srcpath.g, tex >> 8, src >> 8);
+	blend->blend.r = te_color_blend(blend->texpath.r, blend->srcpath.r, tex >> 16, src >> 16);
 }
 
 static UINT8 te_alu_calc(UINT16 a, UINT16 b)
 {
 	INT32 result = 0;
 	UINT32 blendout;
-	UINT32 carry = 0;
-	UINT32 borrow = 0;
-	UINT32 cntl = (m_db.alu_ctrl & DBALUCNTL_ALUOP_MASK) >> DBALUCNTL_ALUOP_SHIFT;
+	bool borrow = false;
+	const unsigned cntl = m_blender.alu_op;
 
 	if ((cntl & 8) == 0)
 	{
@@ -2892,14 +2855,12 @@ static UINT8 te_alu_calc(UINT16 a, UINT16 b)
 		else if (cntl & 2)
 		{
 			result = b - a;
-			if (result < 0)
-				borrow = 1;
+			borrow = result < 0;
 		}
 		else
 		{
 			result = a - b;
-			if (result < 0)
-				borrow = 1;
+			borrow = result < 0;
 		}
 	}
 
@@ -2919,39 +2880,9 @@ static UINT8 te_alu_calc(UINT16 a, UINT16 b)
 		}
 	}
 
-	result &= 0x1ff;
-
-	switch ((m_db.alu_ctrl & DBALUCNTL_FINALDIVIDE_MASK) >> DBALUCNTL_FINALDIVIDE_SHIFT)
-	{
-		case 1:  blendout = result << 1;    break;
-		case 2:  blendout = result << 2;    break;
-		case 3:  blendout = result << 3;    break;
-		case 7:  blendout = result >> 1;    break;
-		case 6:  blendout = result >> 2;    break;
-		case 5:  blendout = result >> 3;    break;
-		default: blendout = result;         break;
-	}
-
-	if (blendout > 255)
-		carry = 1;
-
-	if ((cntl & 8) == 0)
-	{
-		if (!(cntl & 1))
-		{
-			blendout = carry ? 255 : blendout;
-			blendout = borrow ? 0 : blendout;
-		}
-		else
-		{
-			if (cntl & 2)
-			{
-				blendout = carry ? 255 : blendout;
-				blendout = borrow ? 0 : blendout;
-			}
-		}
-	}
-
+	blendout = ((result & 0x1ff) << m_blender.alu_left_shift) >> m_blender.alu_right_shift;
+	if (m_blender.alu_saturate)
+		return borrow ? 0 : MIN(blendout, 255);
 	return blendout & 0xff;
 }
 
@@ -3104,6 +3035,8 @@ static void te_illegal_inst(void)
 
 static void te_execute(void)
 {
+	bool blender_prepared = false;
+
 	while (m_state == TE_RUNNING)
 	{
 #ifdef _OPENMP
@@ -3125,6 +3058,7 @@ static void te_execute(void)
 				UINT32 offs = inst & 0xffff;
 				INT32 cnt = (inst >> 16) & 0xff;
 
+				blender_prepared = false;
 				while (cnt-- >= 0)
 				{
 					m2_te_write(offs >> 2, te_irp_fetch());
@@ -3149,6 +3083,13 @@ static void te_execute(void)
 #endif
 					te_illegal_inst();
 					break;
+				}
+
+				/* Register commands flush pending draws before changing the prepared state. */
+				if (!blender_prepared)
+				{
+					te_prepare_blender();
+					blender_prepared = true;
 				}
 
 #ifdef _OPENMP
