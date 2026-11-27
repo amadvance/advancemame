@@ -68,6 +68,8 @@ struct jit_block
 #define JIT_CACHE_CHAIN 1
 #include "../jitcache.h"
 
+static struct jit_cache jit_blocks;
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 /* the interpreter's COP1 (FPU) instruction, for translated code (mips3.c) */
@@ -105,9 +107,9 @@ INLINE UINT32 jit_codemap_index(const void *host)
 
 static void jit_flush(void)
 {
-	if (!jit_table)
+	if (!jit_blocks.table)
 		return;
-	jit_cache_clear();
+	jit_cache_clear(&jit_blocks);
 	memset(jit_codemap, 0, JIT_CODEMAP_SIZE);
 	jit_code_present = 0;
 	jit_tables_for = -1;		/* no translated code now: rebuilt by the next compile */
@@ -185,11 +187,11 @@ INLINE void jit_check_write(const void *host)
 static void jit_exit(void)
 {
 	jit_flush();
-	jit_cache_exit();
+	jit_cache_exit(&jit_blocks);
 	free(jit_codemap);
 	free(jit_rtable);
 	free(jit_wtable);
-	jit_table = NULL;
+	jit_blocks.table = NULL;
 	jit_codemap = NULL;
 	jit_rtable = jit_wtable = NULL;
 	jit_enabled = 0;
@@ -197,19 +199,19 @@ static void jit_exit(void)
 
 static void jit_init(void)
 {
-	jit_cache_init();
+	jit_cache_init(&jit_blocks);
 	jit_codemap = calloc(JIT_CODEMAP_SIZE, 1);
 	jit_rtable = calloc(JIT_PAGES, sizeof(jit_rtable[0]));
 	jit_wtable = calloc(JIT_PAGES, sizeof(jit_wtable[0]));
 	jit_tables_for = -1;
 	jit_tregions = 0;
-	if (!jit_table || !jit_codemap || !jit_rtable || !jit_wtable)
+	if (!jit_blocks.table || !jit_codemap || !jit_rtable || !jit_wtable)
 	{
-		free(jit_table);
+		free(jit_blocks.table);
 		free(jit_codemap);
 		free(jit_rtable);
 		free(jit_wtable);
-		jit_table = NULL;
+		jit_blocks.table = NULL;
 		jit_codemap = NULL;
 		jit_rtable = jit_wtable = NULL;
 		jit_enabled = 0;
@@ -1537,7 +1539,7 @@ static int jit_target_index(struct jit_ctx *ctx, UINT32 target)
 */
 static void jit_emit_chain(struct sljit_compiler *C, sljit_s32 src, sljit_sw srcw)
 {
-	jit_cache_emit_chain(C, src, srcw, JICOUNT);
+	jit_cache_emit_chain(&jit_blocks, C, src, srcw, JICOUNT);
 }
 
 /*
@@ -2248,10 +2250,10 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 /* returns the block at pc, or NULL if it cannot be translated */
 INLINE struct jit_block *jit_lookup(UINT32 pc)
 {
-	struct jit_block *block = jit_cache_find(pc);
+	struct jit_block *block = jit_cache_find(&jit_blocks, pc);
 	if (!block)
 	{
-		block = jit_cache_reserve(pc);
+		block = jit_cache_reserve(&jit_blocks, pc);
 		jit_compile(block, pc);
 	}
 	return block->len ? block : NULL;
@@ -2277,7 +2279,7 @@ int mips3_jit_available(void)
 void mips3_set_jit(int enable)
 {
 #if MIPS3_JIT_SUPPORTED
-	if (enable && !jit_table)
+	if (enable && !jit_blocks.table)
 	{
 		jit_enabled = 1;
 		jit_init();
@@ -2285,7 +2287,7 @@ void mips3_set_jit(int enable)
 		if (jit_enabled)
 			state_save_register_func_postload(jit_flush);
 	}
-	else if (!enable && jit_table)
+	else if (!enable && jit_blocks.table)
 		jit_exit();
 #endif
 }

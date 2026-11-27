@@ -1000,7 +1000,7 @@ static void ppc_rlwimix(UINT32 op)
 	UINT32 rs = REG(RS);
 	int sh = SH;
 
-	r = (rs << sh) | (rs >> (32-sh));
+	r = (rs << sh) | (rs >> ((32-sh) & 31));
 	REG(RA) = (REG(RA) & ~mask) | (r & mask);
 
 	if( RCBIT ) {
@@ -1015,7 +1015,7 @@ static void ppc_rlwinmx(UINT32 op)
 	UINT32 rs = REG(RS);
 	int sh = SH;
 
-	r = (rs << sh) | (rs >> (32-sh));
+	r = (rs << sh) | (rs >> ((32-sh) & 31));
 	REG(RA) = r & mask;
 
 	if( RCBIT ) {

@@ -487,6 +487,15 @@ UINT8 m2_ram_byte(UINT32 address)
 	return offset < m2_ram_size ? m2_ram[offset >> 3] >> ((7 - (offset & 7)) * 8) : 0;
 }
 
+/* CPU and CDE DMA stores use the bus; graphics and DSP stores use the helpers below. */
+static WRITE64_HANDLER( m2_ram_w )
+{
+	UINT64 *word = &m2_ram[offset];
+
+	COMBINE_DATA(word);
+	ppc602_ram_written(word);
+}
+
 void m2_ram_write_byte(UINT32 address, UINT8 data)
 {
 	UINT32 offset = address - M2_RAM_BASE;
@@ -496,6 +505,7 @@ void m2_ram_write_byte(UINT32 address, UINT8 data)
 	{
 		UINT64 *word = &m2_ram[offset >> 3];
 		*word = (*word & ~(U64(0xff) << shift)) | ((UINT64)data << shift);
+		ppc602_ram_written(word);
 	}
 }
 
@@ -508,6 +518,7 @@ void m2_ram_write_word(UINT32 address, UINT16 data)
 	{
 		UINT64 *word = &m2_ram[offset >> 3];
 		*word = (*word & ~(U64(0xffff) << shift)) | ((UINT64)data << shift);
+		ppc602_ram_written(word);
 	}
 }
 
@@ -520,6 +531,7 @@ void m2_ram_write_dword(UINT32 address, UINT32 data)
 	{
 		UINT64 *word = &m2_ram[offset >> 3];
 		*word = (*word & ~(U64(0xffffffff) << shift)) | ((UINT64)data << shift);
+		ppc602_ram_written(word);
 	}
 }
 
@@ -1469,13 +1481,13 @@ static ADDRESS_MAP_START( m2_board, ADDRESS_SPACE_PROGRAM, 64 )
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( m2_polystar, ADDRESS_SPACE_PROGRAM, 64 )
-	AM_RANGE(0x40000000, 0x407fffff) AM_RAM AM_SHARE(1) AM_BASE(&m2_ram)
+	AM_RANGE(0x40000000, 0x407fffff) AM_RAM AM_WRITE(m2_ram_w) AM_SHARE(1) AM_BASE(&m2_ram)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( m2_evilngt, ADDRESS_SPACE_PROGRAM, 64 )
 	AM_RANGE(0x36c00000, 0x36c03fff) AM_READWRITE(m2_timekeeper_r64, m2_timekeeper_w64)
 	AM_RANGE(0x3e800000, 0x3e80000f) AM_READWRITE(m2_ymz_r64, m2_ymz_w64)
-	AM_RANGE(0x40000000, 0x40ffffff) AM_RAM AM_SHARE(1) AM_BASE(&m2_ram)
+	AM_RANGE(0x40000000, 0x40ffffff) AM_RAM AM_WRITE(m2_ram_w) AM_SHARE(1) AM_BASE(&m2_ram)
 ADDRESS_MAP_END
 
 static MACHINE_DRIVER_START( m2_board )

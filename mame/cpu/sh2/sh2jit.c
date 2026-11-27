@@ -111,6 +111,8 @@ struct jit_block
 #define JIT_CACHE_CHAIN		1
 #include "../jitcache.h"
 
+static struct jit_cache jit_blocks;
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 static UINT16 jit_fetch(UINT32 pc);
@@ -160,17 +162,17 @@ static void jit_flush(void)
 {
 	int i;
 
-	if (!jit_table)
+	if (!jit_blocks.table)
 		return;
 	/* the running block's code must stay until it returns */
 	if (jit_in_block)
 	{
 		jit_flush_pending = 1;
 		for (i = 0; i < JIT_TABLE_SIZE; i++)
-			jit_table[i].entry = NULL;
+			jit_blocks.table[i].entry = NULL;
 		return;
 	}
-	jit_cache_clear();
+	jit_cache_clear(&jit_blocks);
 	memset(jit_codemap, 0, jit_granules);
 	memset(jit_codepage, 0, JIT_PAGES);
 	for (i = 0; i < MAX_CPU; i++)
@@ -264,7 +266,7 @@ static void jit_exit_all(void)
 {
 	int i;
 	jit_flush();
-	jit_cache_exit();
+	jit_cache_exit(&jit_blocks);
 	free(jit_codemap);
 	jit_codemap = NULL;
 	free(jit_codepage);
@@ -283,16 +285,16 @@ void sh2_jit_set(int enable)
 {
 	if (!options.jit)
 		enable = 0;
-	if (enable && !jit_table)
+	if (enable && !jit_blocks.table)
 	{
 		if (!jit_ram_count)
 			return;
-		jit_cache_init();
+		jit_cache_init(&jit_blocks);
 		jit_codemap = calloc(jit_granules, 1);
 		jit_codepage = calloc(JIT_PAGES, 1);
-		if (!jit_table || !jit_codemap || !jit_codepage)
+		if (!jit_blocks.table || !jit_codemap || !jit_codepage)
 		{
-			jit_cache_exit();
+			jit_cache_exit(&jit_blocks);
 			free(jit_codemap);
 			free(jit_codepage);
 			jit_codemap = NULL;
@@ -306,7 +308,7 @@ void sh2_jit_set(int enable)
 	}
 	else if (!enable)
 	{
-		if (jit_table)
+		if (jit_blocks.table)
 			jit_exit_all();
 		/* the driver declares its fast RAM again for the next game */
 		jit_ram_count = 0;
@@ -1529,7 +1531,7 @@ static int jit_touches_pr(UINT16 op)
 static void jit_emit_leave(struct sljit_compiler *C, UINT32 cycles, sljit_s32 src, sljit_sw srcw)
 {
 	jit_emit_sub_cycles(C, cycles);
-	jit_cache_emit_chain(C, src, srcw, SLJIT_MEM0(), (sljit_sw)&sh2_icount);
+	jit_cache_emit_chain(&jit_blocks, C, src, srcw, SLJIT_MEM0(), (sljit_sw)&sh2_icount);
 	sljit_emit_return(C, SLJIT_MOV32, src, srcw);
 }
 
@@ -2017,12 +2019,12 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 /* the block at pc, or NULL */
 static INLINE struct jit_block *jit_lookup(UINT32 pc)
 {
-	struct jit_block *block = jit_cache_find(pc);
+	struct jit_block *block = jit_cache_find(&jit_blocks, pc);
 	if (!block || (!block->cost && block->op0 != jit_fetch(pc)))
 	{
 		if (sh2_icount < JIT_MAX_BLOCK * 3)
 			return NULL;
-		block = jit_cache_reserve(pc);
+		block = jit_cache_reserve(&jit_blocks, pc);
 		jit_compile(block, pc);
 	}
 	return block->cost ? block : NULL;

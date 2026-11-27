@@ -68,6 +68,8 @@ struct jit_block
 #define JIT_CACHE_CHAIN 0
 #include "../jitcache.h"
 
+static struct jit_cache jit_blocks;
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 static int jit_enabled;
@@ -79,9 +81,9 @@ static sljit_u32 jit_stop;
 
 static void jit_flush(void)
 {
-	if (!jit_table)
+	if (!jit_blocks.table)
 		return;
-	jit_cache_clear();
+	jit_cache_clear(&jit_blocks);
 	if (jit_codemap)
 		memset(jit_codemap, 0, JIT_CODEMAP_SIZE);
 	jit_code_present = 0;
@@ -92,22 +94,22 @@ static void jit_flush(void)
 static void jit_exit(void)
 {
 	jit_flush();
-	jit_cache_exit();
+	jit_cache_exit(&jit_blocks);
 	free(jit_codemap);
-	jit_table = NULL;
+	jit_blocks.table = NULL;
 	jit_codemap = NULL;
 	jit_enabled = 0;
 }
 
 static void jit_init(void)
 {
-	jit_cache_init();
+	jit_cache_init(&jit_blocks);
 	jit_codemap = (UINT8 *)calloc(JIT_CODEMAP_SIZE, 1);
-	if (!jit_table || !jit_codemap)
+	if (!jit_blocks.table || !jit_codemap)
 	{
-		free(jit_table);
+		free(jit_blocks.table);
 		free(jit_codemap);
-		jit_table = NULL;
+		jit_blocks.table = NULL;
 		jit_codemap = NULL;
 		jit_enabled = 0;
 		return;
@@ -1255,10 +1257,10 @@ static void jit_compile(struct jit_block *block, UINT32 pc)
 /* the block at pc, or NULL */
 static INLINE struct jit_block *jit_lookup(UINT32 pc)
 {
-	struct jit_block *block = jit_cache_find(pc);
+	struct jit_block *block = jit_cache_find(&jit_blocks, pc);
 	if (!block)
 	{
-		block = jit_cache_reserve(pc);
+		block = jit_cache_reserve(&jit_blocks, pc);
 		jit_compile(block, pc);
 	}
 	return block->len ? block : NULL;
@@ -1298,11 +1300,11 @@ int sh3_jit_available(void)
 void sh3_set_jit(int enable)
 {
 #if SH3JIT_SUPPORTED
-	if (enable && !jit_table)
+	if (enable && !jit_blocks.table)
 		jit_init();
-	else if (!enable && jit_table)
+	else if (!enable && jit_blocks.table)
 		jit_exit();
-	jit_enabled = enable && jit_table != NULL;
+	jit_enabled = enable && jit_blocks.table != NULL;
 #else
 	(void)enable;
 #endif

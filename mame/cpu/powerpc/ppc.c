@@ -3,6 +3,7 @@
 /* IBM/Motorola PowerPC 4xx/6xx Emulator */
 
 #include <setjmp.h>
+#include <stddef.h>
 #include "driver.h"
 #include "ppc.h"
 #include "debugger.h"
@@ -884,9 +885,27 @@ static void (* optable[64])(UINT32);
 
 /* Initialization and shutdown */
 
-void ppc_init(void)
+static void ppc_init_rotate_masks(void)
 {
 	int i,j;
+
+	for( i=0; i < 32; i++ ) {
+		for( j=0; j < 32; j++ ) {
+			UINT32 mask;
+			int mb = i;
+			int me = j;
+			mask = ((UINT32)0xFFFFFFFF >> mb) ^ ((me >= 31) ? 0 : ((UINT32)0xFFFFFFFF >> (me + 1)));
+			if( mb > me )
+				mask = ~mask;
+
+			ppc_rotate_mask[i][j] = mask;
+		}
+	}
+}
+
+void ppc_init(void)
+{
+	int i;
 
 	memset(&ppc, 0, sizeof(ppc));
 
@@ -923,19 +942,7 @@ void ppc_init(void)
 
 	}
 
-	/* Calculate rotate mask table */
-	for( i=0; i < 32; i++ ) {
-		for( j=0; j < 32; j++ ) {
-			UINT32 mask;
-			int mb = i;
-			int me = j;
-			mask = ((UINT32)0xFFFFFFFF >> mb) ^ ((me >= 31) ? 0 : ((UINT32)0xFFFFFFFF >> (me + 1)));
-			if( mb > me )
-				mask = ~mask;
-
-			ppc_rotate_mask[i][j] = mask;
-		}
-	}
+	ppc_init_rotate_masks();
 }
 
 
@@ -1138,6 +1145,9 @@ static void ppc602_init(int index, int clock, const void *_config, int (*irqcall
 	int i ;
 
 	ppc602_direct_maps[index].count = 0;
+#if PPC602_JIT_SUPPORTED
+	state_save_register_func_postload_int(ppc602_jit_clear, index);
+#endif
 	ppc_init() ;
 
 	optable[48] = ppc_lfs;
@@ -1258,7 +1268,9 @@ static void ppc602_init(int index, int clock, const void *_config, int (*irqcall
 
 static void ppc602_exit(void)
 {
-
+#if PPC602_JIT_SUPPORTED
+	ppc602_jit_exit(cpu_getactivecpu());
+#endif
 }
 #endif
 

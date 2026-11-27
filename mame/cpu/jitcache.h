@@ -1,9 +1,10 @@
 // license:BSD-3-Clause
 // copyright-holders: Andrea Mazzoleni
 /*
- * Shared block cache for PSX, MIPS III, SH-2 and SH-3. Included once per CPU,
+ * Shared block cache for PSX, MIPS III, SH-2, SH-3 and PPC602. Included once per core,
  * after struct jit_block and sljit_mame.h; intentionally no include guard.
- * Compilation, memory access, codemaps and code budgets stay in the CPU.
+ * The core owns each cache instance. Compilation, memory access, codemaps
+ * and code budgets stay in the CPU.
  *
  * Configure each CPU independently in its recompiler .c before inclusion:
  *   #define JIT_CACHE_WAYS 1       (1, 2 or 4 ways; default 1)
@@ -46,7 +47,7 @@
  *     Counts negative entries too; cannot distinguish capacity from hash
  *     conflicts, and excludes invalidations and full flushes. A low rate
  *     does not prove optimal sizing or account for native code budgets.
- *   invalidations: individual entries explicitly removed (currently PSX).
+ *   invalidations: individual entries explicitly removed (where enabled).
  *   flushes: full clears, including the shutdown clear.
  *   chain_lookups/chain_hits/chain_misses: native searches, counted separately;
  *     chain_hits + chain_misses == chain_lookups.
@@ -90,25 +91,30 @@
 #include <string.h>
 #if JIT_CACHE_STATS
 #include <stdio.h>
-static struct
-{
-	UINT64 lookups, hits, misses, negative_hits;
-	UINT64 insertions, evictions, invalidations, flushes;
-	UINT64 chain_lookups, chain_hits, chain_misses, chain_negative_hits, short_slices;
-} jit_cache_stats;
-#define JIT_CACHE_COUNT(field) (++jit_cache_stats.field)
+#define JIT_CACHE_COUNT(field) (++cache->stats.field)
 #else
 #define JIT_CACHE_COUNT(field) ((void)0)
 #endif
 
-static struct jit_block *jit_table;
+struct jit_cache
+{
+	struct jit_block *table;
 #if JIT_CACHE_WAYS > 1
 #if JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-static UINT8 jit_cache_tree[JIT_CACHE_SETS];
+	UINT8 tree[JIT_CACHE_SETS];
 #else
-static UINT8 jit_cache_next[JIT_CACHE_SETS];
+	UINT8 next[JIT_CACHE_SETS];
 #endif
 #endif
+#if JIT_CACHE_STATS
+	struct
+	{
+		UINT64 lookups, hits, misses, negative_hits;
+		UINT64 insertions, evictions, invalidations, flushes;
+		UINT64 chain_lookups, chain_hits, chain_misses, chain_negative_hits, short_slices;
+	} stats;
+#endif
+};
 
 static inline UINT32 jit_cache_set(UINT32 pc)
 {
@@ -141,14 +147,14 @@ static inline UINT8 jit_cache_tree_bits(int way)
 #endif
 }
 
-static inline void jit_cache_touch(UINT32 index, int way)
+static inline void jit_cache_touch(struct jit_cache *cache, UINT32 index, int way)
 {
-	jit_cache_tree[index] = (jit_cache_tree[index] & ~jit_cache_tree_mask(way)) | jit_cache_tree_bits(way);
+	cache->tree[index] = (cache->tree[index] & ~jit_cache_tree_mask(way)) | jit_cache_tree_bits(way);
 }
 
-static inline int jit_cache_victim(UINT32 index)
+static inline int jit_cache_victim(struct jit_cache *cache, UINT32 index)
 {
-	UINT8 tree = jit_cache_tree[index];
+	UINT8 tree = cache->tree[index];
 #if JIT_CACHE_WAYS == 2
 	return tree & 1;
 #else
@@ -159,9 +165,9 @@ static inline int jit_cache_victim(UINT32 index)
 #endif
 
 /* Uncounted probe for invalidation and other maintenance. */
-static inline struct jit_block *jit_cache_probe(UINT32 pc)
+static inline struct jit_block *jit_cache_probe(struct jit_cache *cache, UINT32 pc)
 {
-	struct jit_block *set = &jit_table[jit_cache_set(pc) * JIT_CACHE_WAYS];
+	struct jit_block *set = &cache->table[jit_cache_set(pc) * JIT_CACHE_WAYS];
 	int way;
 	for (way = 0; way < JIT_CACHE_WAYS; way++)
 		if (set[way].valid && set[way].pc == pc)
@@ -169,15 +175,15 @@ static inline struct jit_block *jit_cache_probe(UINT32 pc)
 	return NULL;
 }
 
-static inline struct jit_block *jit_cache_find(UINT32 pc)
+static inline struct jit_block *jit_cache_find(struct jit_cache *cache, UINT32 pc)
 {
-	struct jit_block *block = jit_cache_probe(pc);
+	struct jit_block *block = jit_cache_probe(cache, pc);
 	JIT_CACHE_COUNT(lookups);
 	if (block)
 	{
 #if JIT_CACHE_WAYS > 1 && JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
 		UINT32 index = jit_cache_set(pc);
-		jit_cache_touch(index, (int)(block - &jit_table[index * JIT_CACHE_WAYS]));
+		jit_cache_touch(cache, index, (int)(block - &cache->table[index * JIT_CACHE_WAYS]));
 #endif
 		JIT_CACHE_COUNT(hits);
 		if (!block->len)
@@ -197,10 +203,10 @@ static void jit_cache_drop(struct jit_block *block)
 
 /* Reserve only after the CPU has decided that compilation is allowed.
  * No compiled block may be executing while a slot is dropped or reused. */
-static inline struct jit_block *jit_cache_reserve(UINT32 pc)
+static inline struct jit_block *jit_cache_reserve(struct jit_cache *cache, UINT32 pc)
 {
 	UINT32 index = jit_cache_set(pc);
-	struct jit_block *set = &jit_table[index * JIT_CACHE_WAYS];
+	struct jit_block *set = &cache->table[index * JIT_CACHE_WAYS];
 	int way;
 	JIT_CACHE_COUNT(insertions);
 	for (way = 0; way < JIT_CACHE_WAYS; way++)
@@ -210,10 +216,10 @@ static inline struct jit_block *jit_cache_reserve(UINT32 pc)
 	{
 #if JIT_CACHE_WAYS > 1
 #if JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-		way = jit_cache_victim(index);
+		way = jit_cache_victim(cache, index);
 #else
-		way = jit_cache_next[index];
-		jit_cache_next[index] = (way + 1) % JIT_CACHE_WAYS;
+		way = cache->next[index];
+		cache->next[index] = (way + 1) % JIT_CACHE_WAYS;
 #endif
 #else
 		way = 0;
@@ -222,32 +228,32 @@ static inline struct jit_block *jit_cache_reserve(UINT32 pc)
 	}
 	jit_cache_drop(&set[way]);
 #if JIT_CACHE_WAYS > 1 && JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-	jit_cache_touch(index, way);
+	jit_cache_touch(cache, index, way);
 #endif
 	return &set[way];
 }
 
-static void jit_cache_clear(void)
+static void jit_cache_clear(struct jit_cache *cache)
 {
 	int i;
-	if (!jit_table)
+	if (!cache->table)
 		return;
 	for (i = 0; i < JIT_TABLE_SIZE; i++)
-		jit_cache_drop(&jit_table[i]);
+		jit_cache_drop(&cache->table[i]);
 #if JIT_CACHE_WAYS > 1
 #if JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-	memset(jit_cache_tree, 0, sizeof(jit_cache_tree));
+	memset(cache->tree, 0, sizeof(cache->tree));
 #else
-	memset(jit_cache_next, 0, sizeof(jit_cache_next));
+	memset(cache->next, 0, sizeof(cache->next));
 #endif
 #endif
 	JIT_CACHE_COUNT(flushes);
 }
 
 #if defined(JIT_CACHE_INVALIDATE) && JIT_CACHE_INVALIDATE
-static void jit_cache_invalidate(UINT32 pc)
+static void jit_cache_invalidate(struct jit_cache *cache, UINT32 pc)
 {
-	struct jit_block *block = jit_cache_probe(pc);
+	struct jit_block *block = jit_cache_probe(cache, pc);
 	if (block)
 	{
 		jit_cache_drop(block);
@@ -256,37 +262,37 @@ static void jit_cache_invalidate(UINT32 pc)
 }
 #endif
 
-static void jit_cache_init(void)
+static void jit_cache_init(struct jit_cache *cache)
 {
-	jit_table = calloc(JIT_TABLE_SIZE, sizeof(*jit_table));
+	cache->table = calloc(JIT_TABLE_SIZE, sizeof(*cache->table));
 #if JIT_CACHE_WAYS > 1
 #if JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-	memset(jit_cache_tree, 0, sizeof(jit_cache_tree));
+	memset(cache->tree, 0, sizeof(cache->tree));
 #else
-	memset(jit_cache_next, 0, sizeof(jit_cache_next));
+	memset(cache->next, 0, sizeof(cache->next));
 #endif
 #endif
 #if JIT_CACHE_STATS
-	memset(&jit_cache_stats, 0, sizeof(jit_cache_stats));
+	memset(&cache->stats, 0, sizeof(cache->stats));
 #endif
 }
 
-static void jit_cache_exit(void)
+static void jit_cache_exit(struct jit_cache *cache)
 {
 #if JIT_CACHE_STATS
-	if (jit_table)
+	if (cache->table)
 	{
-		double lookups = (double)jit_cache_stats.lookups + (double)jit_cache_stats.chain_lookups;
-		double hits = (double)jit_cache_stats.hits + (double)jit_cache_stats.chain_hits;
-#define JIT_CACHE_PRINT(field) fprintf(stderr, " " #field "=%llu", (unsigned long long)jit_cache_stats.field)
+		double lookups = (double)cache->stats.lookups + (double)cache->stats.chain_lookups;
+		double hits = (double)cache->stats.hits + (double)cache->stats.chain_hits;
+#define JIT_CACHE_PRINT(field) fprintf(stderr, " " #field "=%llu", (unsigned long long)cache->stats.field)
 		fprintf(stderr, "JIT cache %s: slots=%u ways=%u xor_shift=%u", JIT_CACHE_NAME, (unsigned)JIT_TABLE_SIZE, (unsigned)JIT_CACHE_WAYS, (unsigned)JIT_CACHE_XOR_SHIFT);
 		fprintf(stderr, " policy=%s", JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU ? "tree-plru" : "round-robin");
 		if (lookups > 0)
 			fprintf(stderr, " hit_rate=%.2f%%", 100.0 * hits / lookups);
 		else
 			fprintf(stderr, " hit_rate=n/a");
-		if (jit_cache_stats.insertions)
-			fprintf(stderr, " eviction_rate=%.2f%%", 100.0 * (double)jit_cache_stats.evictions / (double)jit_cache_stats.insertions);
+		if (cache->stats.insertions)
+			fprintf(stderr, " eviction_rate=%.2f%%", 100.0 * (double)cache->stats.evictions / (double)cache->stats.insertions);
 		else
 			fprintf(stderr, " eviction_rate=n/a");
 		JIT_CACHE_PRINT(lookups); JIT_CACHE_PRINT(hits); JIT_CACHE_PRINT(misses); JIT_CACHE_PRINT(negative_hits);
@@ -298,8 +304,8 @@ static void jit_cache_exit(void)
 	}
 #endif
 	/* The CPU flushes first, including its codemap and other side tables. */
-	free(jit_table);
-	jit_table = NULL;
+	free(cache->table);
+	cache->table = NULL;
 }
 
 #if JIT_CACHE_CHAIN
@@ -314,7 +320,7 @@ static void jit_cache_emit_count(struct sljit_compiler *C, UINT64 *counter)
 	sljit_emit_op2(C, SLJIT_ADDC32, SLJIT_MEM0(), (sljit_sw)counter + 4, SLJIT_MEM0(), (sljit_sw)counter + 4, SLJIT_IMM, 0);
 #endif
 }
-#define JIT_CACHE_EMIT_COUNT(field) jit_cache_emit_count(C, &jit_cache_stats.field)
+#define JIT_CACHE_EMIT_COUNT(field) jit_cache_emit_count(C, &cache->stats.field)
 #else
 #define JIT_CACHE_EMIT_COUNT(field) ((void)0)
 #endif
@@ -324,7 +330,7 @@ static void jit_cache_emit_count(struct sljit_compiler *C, UINT64 *counter)
  * Tree-PLRU with multiple ways also clobbers R3 (four scratch registers
  * required), holding the set's tree pointer across the way probes.
  * All blocks must share a prologue; entry points follow that prologue. */
-static void jit_cache_emit_chain(struct sljit_compiler *C, sljit_s32 src, sljit_sw srcw,
+static void jit_cache_emit_chain(struct jit_cache *cache, struct sljit_compiler *C, sljit_s32 src, sljit_sw srcw,
 	sljit_s32 cycles, sljit_sw cyclesw)
 {
 	struct sljit_jump *done[JIT_CACHE_WAYS * 3];
@@ -338,10 +344,10 @@ static void jit_cache_emit_chain(struct sljit_compiler *C, sljit_s32 src, sljit_
 	if (src == SLJIT_IMM)
 	{
 		sljit_emit_op1(C, SLJIT_MOV_P, SLJIT_R1, 0, SLJIT_IMM,
-			(sljit_sw)&jit_table[jit_cache_set((UINT32)srcw) * JIT_CACHE_WAYS]);
+			(sljit_sw)&cache->table[jit_cache_set((UINT32)srcw) * JIT_CACHE_WAYS]);
 #if JIT_CACHE_WAYS > 1 && JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
 		sljit_emit_op1(C, SLJIT_MOV_P, SLJIT_R3, 0, SLJIT_IMM,
-			(sljit_sw)&jit_cache_tree[jit_cache_set((UINT32)srcw)]);
+			(sljit_sw)&cache->tree[jit_cache_set((UINT32)srcw)]);
 #endif
 	}
 	else
@@ -354,10 +360,10 @@ static void jit_cache_emit_chain(struct sljit_compiler *C, sljit_s32 src, sljit_
 		sljit_emit_op2(C, SLJIT_AND32, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, JIT_CACHE_SETS - 1);
 		sljit_emit_op1(C, SLJIT_MOV_U32, SLJIT_R1, 0, SLJIT_R1, 0);
 #if JIT_CACHE_WAYS > 1 && JIT_CACHE_POLICY == JIT_CACHE_POLICY_TREE_PLRU
-		sljit_emit_op2(C, SLJIT_ADD, SLJIT_R3, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)jit_cache_tree);
+		sljit_emit_op2(C, SLJIT_ADD, SLJIT_R3, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)cache->tree);
 #endif
 		sljit_emit_op2(C, SLJIT_MUL, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, JIT_CACHE_WAYS * sizeof(struct jit_block));
-		sljit_emit_op2(C, SLJIT_ADD, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)jit_table);
+		sljit_emit_op2(C, SLJIT_ADD, SLJIT_R1, 0, SLJIT_R1, 0, SLJIT_IMM, (sljit_sw)cache->table);
 	}
 	for (way = 0; way < JIT_CACHE_WAYS; way++)
 	{
@@ -375,7 +381,7 @@ static void jit_cache_emit_chain(struct sljit_compiler *C, sljit_s32 src, sljit_
 		sljit_emit_op1(C, SLJIT_MOV_U8, SLJIT_MEM1(SLJIT_R3), 0, SLJIT_R2, 0);
 #endif
 #endif
-		sljit_emit_op1(C, sizeof(jit_table[0].len) == 2 ? SLJIT_MOV32_U16 : SLJIT_MOV32,
+		sljit_emit_op1(C, sizeof(cache->table[0].len) == 2 ? SLJIT_MOV32_U16 : SLJIT_MOV32,
 			SLJIT_R2, 0, SLJIT_MEM1(SLJIT_R1), offsetof(struct jit_block, len));
 		found = sljit_emit_cmp(C, SLJIT_NOT_EQUAL | SLJIT_32, SLJIT_R2, 0, SLJIT_IMM, 0);
 		JIT_CACHE_EMIT_COUNT(chain_negative_hits);

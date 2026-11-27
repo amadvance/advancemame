@@ -778,7 +778,7 @@ $(1)CPUDEFS += -DHAS_PPC603=$$(if $$(filter PPC603,$$($(1)CPUS)),1,0)
 ifneq ($$(filter PPC403 PPC602 PPC603,$$($(1)CPUS)),)
 $(1)OBJDIRS += $(2)/cpu/powerpc
 $(1)CPUOBJS += $(2)/cpu/powerpc/ppc.o
-$(2)/cpu/powerpc/ppc.o: ppc.c ppc.h ppc_ops.c ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc603.c
+$(2)/cpu/powerpc/ppc.o: ppc.c ppc.h ppc_ops.c ppc_ops.c ppc_mem.c ppc403.c ppc602.c ppc602jit.c ppc603.c $$(srcdir)/mame/cpu/jitcache.h
 $(1)DBGOBJS += $(2)/cpu/powerpc/ppc_dasm.o
 endif
 

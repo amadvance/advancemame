@@ -82,6 +82,8 @@ struct jit_block
 #define JIT_CACHE_INVALIDATE 1
 #include "../jitcache.h"
 
+static struct jit_cache jit_blocks;
+
 typedef sljit_u32 (SLJIT_FUNC *jit_func)(void);
 
 static void SLJIT_FUNC loop_skip_helper( sljit_u32 l );	/* psxloop.c */
@@ -110,9 +112,9 @@ INLINE UINT32 jit_codemap_index( const void *host )
 
 static void jit_flush( void )
 {
-	if (!jit_table)
+	if (!jit_blocks.table)
 		return;
-	jit_cache_clear();
+	jit_cache_clear(&jit_blocks);
 	memset( jit_codemap, 0, JIT_CODEMAP_SIZE );
 	jit_code_present = 0;
 	jit_code_bytes = 0;
@@ -144,7 +146,7 @@ static void jit_invalidate_host( const void *host )
 			for( k = 0; k < JIT_MAX_BLOCK; k++ )
 			{
 				UINT32 pc = addr - k * 4;
-				jit_cache_invalidate( pc );
+				jit_cache_invalidate( &jit_blocks, pc );
 			}
 		}
 	}
@@ -187,22 +189,22 @@ void psxcpu_ram_written( const void *host, UINT32 bytes )
 static void jit_exit( void )
 {
 	jit_flush();
-	jit_cache_exit();
+	jit_cache_exit(&jit_blocks);
 	free( jit_codemap );
-	jit_table = NULL;
+	jit_blocks.table = NULL;
 	jit_codemap = NULL;
 	jit_enabled = 0;
 }
 
 static void jit_init( void )
 {
-	jit_cache_init();
+	jit_cache_init(&jit_blocks);
 	jit_codemap = calloc( JIT_CODEMAP_SIZE, 1 );
-	if( !jit_table || !jit_codemap )
+	if( !jit_blocks.table || !jit_codemap )
 	{
-		free( jit_table );
+		free( jit_blocks.table );
 		free( jit_codemap );
-		jit_table = NULL;
+		jit_blocks.table = NULL;
 		jit_codemap = NULL;
 		jit_enabled = 0;
 		return;
@@ -954,7 +956,7 @@ static int jit_target_index( struct jit_ctx *ctx, UINT32 target )
 static void jit_emit_chain( struct sljit_compiler *C, sljit_s32 src, sljit_sw srcw )
 {
 #ifndef PSXJIT_VERIFY
-	jit_cache_emit_chain( C, src, srcw, SLJIT_MEM0(), (sljit_sw)&mips_ICount );
+	jit_cache_emit_chain( &jit_blocks, C, src, srcw, SLJIT_MEM0(), (sljit_sw)&mips_ICount );
 #endif
 }
 
@@ -1564,7 +1566,7 @@ INLINE int jit_untranslatable_changed( const struct jit_block *block )
 
 INLINE struct jit_block *jit_lookup( UINT32 pc )
 {
-	struct jit_block *block = jit_cache_find( pc );
+	struct jit_block *block = jit_cache_find( &jit_blocks, pc );
 	if( !block || jit_untranslatable_changed( block ) )
 	{
 		if( mips_ICount < JIT_MAX_BLOCK )
@@ -1572,7 +1574,7 @@ INLINE struct jit_block *jit_lookup( UINT32 pc )
 		if( block )
 			jit_cache_drop( block );
 		else
-			block = jit_cache_reserve( pc );
+			block = jit_cache_reserve( &jit_blocks, pc );
 		/* Replaced code remains conservatively marked in the codemap. */
 		jit_compile( block, pc );
 	}
@@ -1753,7 +1755,7 @@ int psxcpu_jit_available( void )
 void psxcpu_set_jit( int enable )
 {
 #if PSXJIT_SUPPORTED
-	if( enable && !jit_table )
+	if( enable && !jit_blocks.table )
 	{
 		jit_enabled = 1;
 		jit_init();
@@ -1763,7 +1765,7 @@ void psxcpu_set_jit( int enable )
 			state_save_register_func_postload( jit_flush );
 		}
 	}
-	else if( !enable && jit_table )
+	else if( !enable && jit_blocks.table )
 	{
 		jit_exit();
 	}

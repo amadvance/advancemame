@@ -74,6 +74,10 @@ INLINE UINT32 ppc602_fetch(const struct ppc602_direct_map *map, UINT32 pc)
 	return ROPCODE64(pc);
 }
 
+#if PPC602_JIT_SUPPORTED
+#include "ppc602jit.c"
+#endif
+
 void ppc602_exception(int exception)
 {
 	UINT32 msr = ppc_get_msr();
@@ -165,6 +169,9 @@ INLINE void ppc602_check_interrupts(void)
 
 static void ppc602_reset(void)
 {
+#if PPC602_JIT_SUPPORTED
+	ppc602_jit_clear(cpu_getactivecpu());
+#endif
 	ppc.pc = ppc.npc = 0xfff00100;
 
 	ppc_set_msr(0x40);
@@ -180,9 +187,13 @@ static void ppc602_reset(void)
 
 static int ppc602_execute(int cycles)
 {
-	const struct ppc602_direct_map *map = ppc602_direct_map_for_cpu(cpu_getactivecpu());
+	int cpu = cpu_getactivecpu();
+	const struct ppc602_direct_map *map = ppc602_direct_map_for_cpu(cpu);
+#if PPC602_JIT_SUPPORTED
+	struct jit_cache *cache = map && options.jit ? ppc602_jit_cache_for_cpu(cpu) : NULL;
+	int try_jit;
+#endif
 	int exception_type;
-	UINT32 opcode;
 	ppc_icount = cycles;
 	ppc_tb_base_icount = cycles;
 	ppc_dec_base_icount = cycles + ppc.dec_frac;
@@ -197,30 +208,51 @@ static int ppc602_execute(int cycles)
 		ppc602_exception(exception_type);
 	}
 
+#if PPC602_JIT_SUPPORTED
+	try_jit = cache != NULL;
+#endif
 	while( ppc_icount > 0 )
 	{
-		ppc.pc = ppc.npc;
-		CALL_MAME_DEBUG;
-
-		opcode = ppc602_fetch(map, ppc.pc);
-
-		ppc.npc = ppc.pc + 4;
-		switch(opcode >> 26)
+		/* Native blocks leave the same instruction boundary as the interpreter. */
+#if PPC602_JIT_SUPPORTED
+		enum ppc602_jit_result native = try_jit ? ppc602_jit_run(cache, map) : PPC602_JIT_FALLBACK;
+		if (native == PPC602_JIT_FALLBACK)
+#endif
 		{
-			case 19:	optable19[(opcode >> 1) & 0x3ff](opcode); break;
-			case 31:	optable31[(opcode >> 1) & 0x3ff](opcode); break;
-			case 59:	optable59[(opcode >> 1) & 0x3ff](opcode); break;
-			case 63:	optable63[(opcode >> 1) & 0x3ff](opcode); break;
-			default:	optable[opcode >> 26](opcode); break;
-		}
+			UINT32 opcode;
 
-		ppc_icount--;
+			ppc.pc = ppc.npc;
+			CALL_MAME_DEBUG;
+
+			opcode = ppc602_fetch(map, ppc.pc);
+#if PPC602_JIT_SUPPORTED && JIT_CACHE_STATS
+			if (cache)
+				ppc602_jit_record_interpreted(cpu, opcode);
+#endif
+
+			ppc.npc = ppc.pc + 4;
+			switch(opcode >> 26)
+			{
+				case 19:	optable19[(opcode >> 1) & 0x3ff](opcode); break;
+				case 31:	optable31[(opcode >> 1) & 0x3ff](opcode); break;
+				case 59:	optable59[(opcode >> 1) & 0x3ff](opcode); break;
+				case 63:	optable63[(opcode >> 1) & 0x3ff](opcode); break;
+				default:	optable[opcode >> 26](opcode); break;
+			}
+
+			ppc_icount--;
+		}
 
 		if(ppc_icount == ppc_dec_trigger_cycle) {
 			ppc.interrupt_pending |= 0x2;
 		}
 
 		ppc602_check_interrupts();
+#if PPC602_JIT_SUPPORTED
+		/* A native side exit already rejected the next instruction. Let the interpreter run it. */
+		try_jit = cache && (native == PPC602_JIT_COMPLETE ||
+			(native == PPC602_JIT_FALLBACK && ppc.npc != ppc.pc + 4));
+#endif
 	}
 
 	ppc.tb_frac602 += ppc_tb_base_icount - ppc_icount;

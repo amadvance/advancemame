@@ -323,8 +323,36 @@ void ppc403_set_tb_read_hook(PPC403_TB_READ_HOOK hook);
 #endif
 
 #if (HAS_PPC602)
+#include "sljit_mame.h"
 void ppc602_get_info(UINT32 state, union cpuinfo *info);
+/* Bus and device writers to a writable direct region must call ppc602_ram_written. */
 void ppc602_add_direct_memory(int cpu, UINT32 start, UINT32 size, const void *base, int readonly);
+
+#if SLJIT_MAME_SUPPORTED && !defined(MESS) && !defined(MAME_DEBUG)
+#define PPC602_JIT_SUPPORTED 1
+/* One byte per 64-bit host word, with a 16 MiB period. Collisions only cause extra flushes. */
+#define PPC602_CODEMAP_SIZE (1U << 21)
+extern UINT8 ppc602_codemap[PPC602_CODEMAP_SIZE];
+void ppc602_jit_flush_ram(void);
+
+INLINE unsigned ppc602_codemap_index(const void *word)
+{
+	return ((size_t)word >> 3) & (PPC602_CODEMAP_SIZE - 1);
+}
+#else
+#define PPC602_JIT_SUPPORTED 0
+#endif
+
+/* Notify after writing any part of a host RAM word on the emulation thread. */
+INLINE void ppc602_ram_written(const void *word)
+{
+#if PPC602_JIT_SUPPORTED
+	if (ppc602_codemap[ppc602_codemap_index(word)])
+		ppc602_jit_flush_ram();
+#else
+	(void)word;
+#endif
+}
 #endif
 
 #if (HAS_PPC603)
