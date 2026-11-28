@@ -1796,6 +1796,13 @@ static void te_walk_edges(UINT32 wrange)
 #endif
 }
 
+static inline UINT32 te_texcoord_normalization_shift(UINT32 coord)
+{
+	/* Normalize to bit 22. Setting bit 15 caps the shift at seven, even for zero. */
+	int leading_zeros = __builtin_clz(coord | 0x00008000);
+	return MAX(leading_zeros - 9, 0);
+}
+
 static void te_texcoord_gen(const te_raster_state *raster, UINT32 uw, UINT32 vw, UINT32 w,
 								UINT32 * uo, UINT32 * vo, UINT32 * wo)
 {
@@ -1804,24 +1811,12 @@ static void te_texcoord_gen(const te_raster_state *raster, UINT32 uw, UINT32 vw,
 		UINT32 wshift;
 
 		UINT32 winv = nr_invert(w, &wshift);
+		UINT32 uwshift = te_texcoord_normalization_shift(uw);
+		UINT32 vwshift = te_texcoord_normalization_shift(vw);
 
-		UINT32 uwshift = 0;
-		UINT32 vwshift = 0;
-
-		while ((uw < 0x00400000) && uwshift < 7)
-		{
-			uw <<= 1;
-			++uwshift;
-		}
-
-		while ((vw < 0x00400000) && vwshift < 7)
-		{
-			vw <<= 1;
-			++vwshift;
-		}
-
-		UINT32 normalized_uw = uw >> 7;
-		UINT32 normalized_vw = vw >> 7;
+		/* When a left shift is needed it reaches at most bit 22, so fold it into the right shift. */
+		UINT32 normalized_uw = uw >> (7 - uwshift);
+		UINT32 normalized_vw = vw >> (7 - vwshift);
 
 		UINT64 ur = (UINT64)normalized_uw * winv;
 		UINT64 vr = (UINT64)normalized_vw * winv;
