@@ -769,10 +769,48 @@ void os_fire(void)
 /***************************************************************************/
 /* Main */
 
+#if defined(__linux__) && defined(ADV_EMU) && defined(_OPENMP) && (defined(__GNUC__) || defined(__clang__))
+/* libomp exports this extension. With libgomp the weak reference is unset. */
+extern void kmp_set_defaults(const char* settings) __attribute__((weak));
+
+/**
+ * Shorten the OpenMP spin-wait so idle workers leave CPU time for the
+ * other team. Keep a brief active wait for closely spaced parallel regions.
+ *
+ * Libgomp estimates 300,000 spins at about 3 ms. At that rate 1,000 spins
+ * take 10 us, the block time used for libomp. The actual time depends on
+ * the CPU.
+ */
+static void os_openmp_wait_init(char* argv[])
+{
+	if (getenv("OMP_WAIT_POLICY"))
+		return;
+
+	if (kmp_set_defaults) {
+		if (!getenv("KMP_BLOCKTIME") && !getenv("KMP_LIBRARY"))
+			kmp_set_defaults("KMP_BLOCKTIME=10us");
+		return;
+	}
+
+	if (getenv("GOMP_SPINCOUNT") || setenv("GOMP_SPINCOUNT", "1000", 0) != 0)
+		return;
+
+	/* Libgomp reads the environment before main, so reload it with the new value. */
+	execv("/proc/self/exe", argv);
+	perror("execv /proc/self/exe");
+	/* Keep the current runtime settings if the optional restart fails. */
+	unsetenv("GOMP_SPINCOUNT");
+}
+#endif
+
 int main(int argc, char* argv[])
 {
 	char** copyv;
 	int i;
+
+#if defined(__linux__) && defined(ADV_EMU) && defined(_OPENMP) && (defined(__GNUC__) || defined(__clang__))
+	os_openmp_wait_init(argv);
+#endif
 
 	/* duplicate the arguments */
 	copyv = alloca((argc + 1) * sizeof(char*));
