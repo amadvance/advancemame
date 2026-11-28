@@ -3036,6 +3036,9 @@ static void te_illegal_inst(void)
 static void te_execute(void)
 {
 	bool blender_prepared = false;
+#ifdef _OPENMP
+	bool parallel_draws = omp_get_max_threads() > 1;
+#endif
 
 	while (m_state == TE_RUNNING)
 	{
@@ -3093,7 +3096,7 @@ static void te_execute(void)
 				}
 
 #ifdef _OPENMP
-				m_te_draws.enabled = m_te_poly && te_can_queue_vertices(flags, cnt + 1);
+				m_te_draws.enabled = parallel_draws && te_can_queue_vertices(flags, cnt + 1);
 				if (!m_te_draws.enabled)
 					te_flush_draws();
 #endif
@@ -3543,7 +3546,8 @@ void m2_te_init(void)
 {
 #ifdef _OPENMP
 	memset(&m_te_draws, 0, sizeof(m_te_draws));
-	m_te_poly = omp_get_max_threads() > 1 ? poly_alloc(TE_MAX_TRIANGLES + 1, sizeof(te_queued_triangle), 0) : NULL;
+	/* The emulation team size can change when SMP is toggled. */
+	m_te_poly = poly_alloc(TE_MAX_TRIANGLES + 1, sizeof(te_queued_triangle), 0);
 #endif
 	memset(&m_gc, 0, sizeof(m_gc));
 	memset(&m_se, 0, sizeof(m_se));

@@ -396,7 +396,7 @@ typedef unsigned osd_input;
 int osd2_video_init(struct osd_video_option* option);
 void osd2_video_done(void);
 void osd2_video_pause(int pause);
-int osd2_thread_init(void);
+int osd2_thread_init(const char* driver_source);
 void osd2_thread_done(void);
 int osd2_video_menu(int selected, unsigned input);
 int osd2_audio_menu(int selected, unsigned input);

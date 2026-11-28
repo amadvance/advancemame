@@ -833,6 +833,12 @@ struct advance_video_state_context {
 #ifdef USE_SMP
 	/* Thread */
 	pthread_t thread_id; /**< Thread identifier. */
+#ifdef _OPENMP
+	int thread_omp_budget; /**< OpenMP limit before starting the video thread. */
+	adv_bool thread_emu_omp_preferred; /**< Assign spare OpenMP workers to the emulation thread in SMP mode. */
+	int thread_emu_omp_threads; /**< OpenMP team size for the emulation thread. */
+	int thread_video_omp_threads; /**< OpenMP team size for the video thread. */
+#endif
 	pthread_cond_t thread_video_cond; /**< Thread start/stop condition. */
 	pthread_mutex_t thread_video_mutex; /**< Thread access control. */
 	adv_bool thread_exit_flag; /**< If the thread must exit. */

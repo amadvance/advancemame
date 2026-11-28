@@ -32,7 +32,6 @@
 
 #include "emu.h"
 #include "glue.h"
-#include "thread.h"
 #include "fuzzy.h"
 #include "hscript.h"
 
@@ -662,15 +661,10 @@ int os_main(int argc, char* argv[])
 	memset(&option, 0, sizeof(option));
 	memset(&CONTEXT, 0, sizeof(CONTEXT));
 
-	if (thread_init() != 0) {
-		target_err("Error initializing the thread support.\n");
-		goto err;
-	}
-
 	context->cfg = conf_init();
 	if (!context->cfg) {
 		target_err("Error initializing the configuration support.\n");
-		goto err_thread;
+		return -1;
 	}
 
 	if (os_init(context->cfg) != 0) {
@@ -1054,8 +1048,6 @@ int os_main(int argc, char* argv[])
 
 	conf_done(context->cfg);
 
-	thread_done();
-
 	return r;
 
 done_os:
@@ -1091,9 +1083,6 @@ err_os:
 	os_done();
 err_conf:
 	conf_done(context->cfg);
-err_thread:
-	thread_done();
-err:
 	return -1;
 }
 

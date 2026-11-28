@@ -3230,7 +3230,7 @@ int osd_start_audio_stream(int stereo)
 	if (osd2_sound_init(&rate, stereo) != 0) {
 		log_std(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
 
-		if (osd2_thread_init() != 0) {
+		if (osd2_thread_init(Machine->gamedrv->source_file) != 0) {
 			return -1;
 		}
 
@@ -3239,7 +3239,7 @@ int osd_start_audio_stream(int stereo)
 		return 0;
 	}
 
-	if (osd2_thread_init() != 0) {
+	if (osd2_thread_init(Machine->gamedrv->source_file) != 0) {
 		return -1;
 	}
 

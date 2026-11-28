@@ -31,7 +31,6 @@
 #include "portable.h"
 
 #include "emu.h"
-#include "thread.h"
 #include "input.h"
 
 #include "glueint.h"

@@ -47,9 +47,6 @@ ifeq ($(CONF_LIB_PTHREAD),yes)
 CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
 ADVANCELIBS += -lpthread
-ADVANCEOBJS += $(OBJ)/advance/osd/thdouble.o
-else
-ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
 ADVANCEOBJDIRS += \
@@ -258,7 +255,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/btdacs.o \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
-ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 ifeq ($(CONF_LIB_FREETYPE),yes)
 ADVANCECFLAGS += \
 	$(FREETYPECFLAGS) \
@@ -288,9 +284,6 @@ CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
 # pthread-win32 library without exceptions management
 ADVANCELIBS += -lpthread
-ADVANCEOBJS += $(OBJ)/advance/osd/thdouble.o
-else
-ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
 ADVANCEOBJDIRS += \

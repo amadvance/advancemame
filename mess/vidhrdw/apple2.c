@@ -11,6 +11,10 @@
 #include "includes/apple2.h"
 #include "profiler.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 /***************************************************************************/
 
 static const UINT8 *a2_videoram;
@@ -207,38 +211,15 @@ static UINT32 apple2_hires_getmemoryoffset(UINT32 col, UINT32 row, UINT32 num_co
 	return apple2_text_getmemoryoffset(col, row / 8, num_cols, num_rows) | ((row & 7) << 10);
 }
 
-struct drawtask_params
+static void apple2_hires_draw_rows(mame_bitmap *bitmap, const UINT8 *vram, int beginrow, int endrow, int columns)
 {
-	mame_bitmap *bitmap;
-	const UINT8 *vram;
-	int beginrow;
-	int rowcount;
-	int columns;
-};
-
-static void apple2_hires_draw_task(void *param, int task_num, int task_count)
-{
-	struct drawtask_params *dtparams;
-	mame_bitmap *bitmap;
-	const UINT8 *vram;
-	int beginrow;
-	int endrow;
 	int row, col, b;
 	int offset;
-	int columns;
 	UINT8 vram_row[82];
 	UINT16 v;
 	UINT16 *p;
 	UINT32 w;
 	UINT16 *artifact_map_ptr;
-
-	dtparams = (struct drawtask_params *) param;
-
-	bitmap		= dtparams->bitmap;
-	vram		= dtparams->vram;
-	beginrow	= dtparams->beginrow + (dtparams->rowcount * task_num     / task_count);
-	endrow		= dtparams->beginrow + (dtparams->rowcount * (task_num+1) / task_count) - 1;
-	columns		= dtparams->columns;
 
 	vram_row[0] = 0;
 	vram_row[columns + 1] = 0;
@@ -300,7 +281,12 @@ static void apple2_hires_draw_task(void *param, int task_num, int task_count)
 
 static void apple2_hires_draw(mame_bitmap *bitmap, const rectangle *cliprect, int page, int beginrow, int endrow)
 {
-	struct drawtask_params dtparams;
+	const UINT8 *vram;
+	int columns;
+#ifdef _OPENMP
+	int rowcount;
+	int threads;
+#endif
 
 	if (beginrow < cliprect->min_y)
 		beginrow = cliprect->min_y;
@@ -309,13 +295,28 @@ static void apple2_hires_draw(mame_bitmap *bitmap, const rectangle *cliprect, in
 	if (endrow < beginrow)
 		return;
 
-	dtparams.vram = a2_videoram + (page ? 0x4000 : 0x2000);
-	dtparams.bitmap = bitmap;
-	dtparams.beginrow = beginrow;
-	dtparams.rowcount = (endrow + 1) - beginrow;
-	dtparams.columns = ((effective_a2() & (VAR_DHIRES|VAR_80COL)) == (VAR_DHIRES|VAR_80COL)) ? 80 : 40;
+	vram = a2_videoram + (page ? 0x4000 : 0x2000);
+	columns = ((effective_a2() & (VAR_DHIRES|VAR_80COL)) == (VAR_DHIRES|VAR_80COL)) ? 80 : 40;
 
-	osd_parallelize(apple2_hires_draw_task, &dtparams, dtparams.rowcount);
+#ifdef _OPENMP
+	rowcount = endrow - beginrow + 1;
+	threads = omp_get_max_threads();
+	threads = MIN(threads, rowcount);
+	if (threads > 1)
+	{
+#pragma omp parallel num_threads(threads)
+		{
+			int thread = omp_get_thread_num();
+			int team_size = omp_get_num_threads();
+			int first = beginrow + rowcount * thread / team_size;
+			int last = beginrow + rowcount * (thread + 1) / team_size - 1;
+
+			apple2_hires_draw_rows(bitmap, vram, first, last, columns);
+		}
+		return;
+	}
+#endif
+	apple2_hires_draw_rows(bitmap, vram, beginrow, endrow, columns);
 }
 
 

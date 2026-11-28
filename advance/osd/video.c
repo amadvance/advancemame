@@ -33,7 +33,6 @@
 #include "emu.h"
 #include "hscript.h"
 #include "script.h"
-#include "thread.h"
 
 #include "advance.h"
 
@@ -508,9 +507,12 @@ static void video_command(struct advance_video_context* context, struct advance_
 		if (l >= 11 && isspace(buffer[l - 11]))
 			buffer[l - 11] = ADV_FONT_FIXSPACE;
 
-		advance_ui_direct_text(ui_context, buffer);
-
 		hardware_script_info(0, 0, 0, buffer);
+
+#if defined(USE_SMP) && defined(_OPENMP)
+		snprintf(buffer + l, sizeof(buffer) - l, " omp %d/%d", context->state.thread_emu_omp_threads, context->state.thread_video_omp_threads);
+#endif
+		advance_ui_direct_text(ui_context, buffer);
 	} else {
 		char buffer[256];
 		unsigned rate;
@@ -936,6 +938,37 @@ adv_error advance_thread_vidmode_update(struct advance_video_context* context, a
 }
 
 #ifdef USE_SMP
+#ifdef _OPENMP
+/**
+ * Set the OpenMP limits after starting the video thread or draining its work.
+ */
+static void video_thread_configure_openmp(struct advance_video_context* context)
+{
+	int budget = context->state.thread_omp_budget;
+	int emu_threads = budget;
+	int video_threads = budget;
+
+	/* With SMP disabled the video thread finishes each frame before emulation resumes. */
+	if (context->config.smp_flag) {
+		/* Reserve one calling thread for each side. Parallel 3D rendering
+		 * takes longer than the blit, so give its drivers all spare workers.
+		 * Apple II hi-res also uses emulation workers. Give other drivers'
+		 * spare workers to the blitter. */
+		int workers = budget > 1 ? budget - 2 : 0;
+		emu_threads = context->state.thread_emu_omp_preferred ? 1 + workers : 1;
+		video_threads = context->state.thread_emu_omp_preferred ? 1 : 1 + workers;
+	}
+
+	pthread_mutex_lock(&context->state.thread_video_mutex);
+	context->state.thread_emu_omp_threads = emu_threads;
+	context->state.thread_video_omp_threads = video_threads;
+	pthread_mutex_unlock(&context->state.thread_video_mutex);
+
+	omp_set_num_threads(emu_threads);
+	log_std(("osd: OpenMP threads emulation %d, video %d\n", emu_threads, video_threads));
+}
+#endif
+
 /**
  * Main video thread function.
  */
@@ -947,13 +980,11 @@ static void* video_thread(void* void_context)
 	struct advance_record_context* record_context = &CONTEXT.record;
 	struct advance_ui_context* ui_context = &CONTEXT.ui;
 	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
+#ifdef _OPENMP
+	int omp_threads = 0;
+#endif
 
 	log_std(("advance:thread: thread start\n"));
-
-#ifdef _OPENMP
-	/* reserve one thread to MAME */
-	omp_set_num_threads(omp_get_max_threads() - 1);
-#endif
 
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 
@@ -972,6 +1003,13 @@ static void* video_thread(void* void_context)
 
 		exit = context->state.thread_exit_flag;
 		ready = context->state.thread_state_ready_flag;
+
+#ifdef _OPENMP
+		if (omp_threads != context->state.thread_video_omp_threads) {
+			omp_threads = context->state.thread_video_omp_threads;
+			omp_set_num_threads(omp_threads);
+		}
+#endif
 
 		/* now we can start to draw outside the lock */
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
@@ -1027,20 +1065,6 @@ static void* video_thread(void* void_context)
 #endif
 
 /**
- * Callback for the osd_parallelize() function.
- * The threads are enabled only if the main SMP flag is activated.
- */
-int thread_is_active(void)
-{
-#ifdef USE_SMP
-	struct advance_video_context* context = &CONTEXT.video;
-	return context->config.smp_flag;
-#else
-	return 0;
-#endif
-}
-
-/**
  * Set a new video configuration.
  * If the configuration is invalid the previous one is restored.
  */
@@ -1051,11 +1075,9 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 	/* save the old configuration */
 	old_config = context->config;
 
-	/* set the new config */
-	context->config = *config;
-
-	/* we cannot change the video mode when the thread is running */
+	/* wait for the video thread before changing the config */
 	advance_video_thread_wait(context);
+	context->config = *config;
 
 	log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
 
@@ -1076,6 +1098,11 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 			abort();
 		}
 	}
+
+#if defined(USE_SMP) && defined(_OPENMP)
+	if (old_config.smp_flag != context->config.smp_flag)
+		video_thread_configure_openmp(context);
+#endif
 }
 
 /***************************************************************************/
@@ -1171,26 +1198,44 @@ void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned ds
 	video_pipeline_done(&pipeline);
 }
 
+#if defined(USE_SMP) && defined(_OPENMP)
+/**
+ * Identify drivers that parallelize rendering on the emulation side.
+ */
+static adv_bool video_driver_supports_openmp(const char* driver_source)
+{
+	const char* driver = strrchr(driver_source, '/');
+	if (!driver)
+		driver = strrchr(driver_source, '\\');
+	if (!driver)
+		driver = strrchr(driver_source, ':');
+	driver = driver ? driver + 1 : driver_source;
+
+	/* Apple II and Namco System 22 have their own OpenMP loops. The other drivers use poly_wait(). */
+	return strcmp(driver, "apple2.c") == 0
+	       || strcmp(driver, "apple2gs.c") == 0
+	       || strcmp(driver, "gticlub.c") == 0
+	       || strcmp(driver, "hng64.c") == 0
+	       || strcmp(driver, "konamim2.c") == 0
+	       || strcmp(driver, "midzeus.c") == 0
+	       || strcmp(driver, "namcos22.c") == 0
+	       || strcmp(driver, "zr107.c") == 0;
+}
+#endif
+
 /**
  * Initialize and start the video thread.
  */
-int osd2_thread_init(void)
+int osd2_thread_init(const char* driver_source)
 {
 #ifdef USE_SMP
 	struct advance_video_context* context = &CONTEXT.video;
+#ifdef _OPENMP
+	context->state.thread_omp_budget = omp_get_max_threads();
+	context->state.thread_emu_omp_preferred = video_driver_supports_openmp(driver_source);
+#endif
 
 	log_std(("osd: osd2_thread_init\n"));
-
-#ifdef _OPENMP
-	/*
-	 * The number of OpenMP threads is a setting of the calling thread, so the
-	 * limit of the video thread doesn't apply to the parallel regions of the
-	 * MAME core, run by this thread. Without the same limit the two teams of
-	 * threads exceed the processors, and a thread of the video blit, which
-	 * splits the rows statically, stalls the whole blit when preempted.
-	 */
-	omp_set_num_threads(omp_get_max_threads() - 1);
-#endif
 
 	context->state.thread_exit_flag = 0;
 	context->state.thread_state_ready_flag = 0;
@@ -1217,6 +1262,13 @@ int osd2_thread_init(void)
 		target_err("Error initializing the thread system.\n");
 		return -1;
 	}
+#ifdef _OPENMP
+	video_thread_configure_openmp(context);
+#endif
+#endif
+
+#if !defined(USE_SMP) || !defined(_OPENMP)
+	(void)driver_source;
 #endif
 
 	return 0;
@@ -1247,6 +1299,10 @@ void osd2_thread_done(void)
 	free(context->state.thread_state_sample_buffer);
 	pthread_cond_destroy(&context->state.thread_video_cond);
 	pthread_mutex_destroy(&context->state.thread_video_mutex);
+
+#ifdef _OPENMP
+	omp_set_num_threads(context->state.thread_omp_budget);
+#endif
 
 	log_std(("advance:thread: done\n"));
 #endif

@@ -859,9 +859,10 @@ static void video_stage_stretchy_openmp(const struct video_pipeline_target_struc
 	unsigned thread_size;
 	uint8* thread_buffer;
 	void* mark;
+	int threads = omp_get_max_threads();
 
 	/* stages with a state between rows require all the rows in order */
-	if (!video_pipeline_is_stateless(stage_begin, stage_end)) {
+	if (threads == 1 || !video_pipeline_is_stateless(stage_begin, stage_end)) {
 		serial(target, stage_vert, x, y, src);
 		return;
 	}
@@ -871,7 +872,7 @@ static void video_stage_stretchy_openmp(const struct video_pipeline_target_struc
 	/* private memory of each thread: stage buffers, converted rows and scaled rows */
 	stage_size = video_pipeline_thread_size(stage_begin, stage_end);
 	thread_size = ALIGN_UNSIGNED(stage_size + window * pdw + factor * fdw, THREAD_BUFFER_ALIGN);
-	thread_buffer = ALIGN_PTR(video_buffer_alloc(thread_size * omp_get_max_threads() + THREAD_BUFFER_ALIGN), THREAD_BUFFER_ALIGN);
+	thread_buffer = ALIGN_PTR(video_buffer_alloc(thread_size * threads + THREAD_BUFFER_ALIGN), THREAD_BUFFER_ALIGN);
 
 #pragma omp parallel
 	{
